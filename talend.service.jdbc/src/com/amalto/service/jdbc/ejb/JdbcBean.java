@@ -15,6 +15,7 @@ import javax.resource.cci.MappedRecord;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -30,7 +31,6 @@ import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.util.ITransformerConstants;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.service.jdbc.bean.JdbcInfos;

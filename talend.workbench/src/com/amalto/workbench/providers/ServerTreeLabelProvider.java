@@ -10,13 +10,13 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.workbench.actions.AServerViewAction;
 import com.amalto.workbench.image.EImage;
 import com.amalto.workbench.image.ImageCache;
 import com.amalto.workbench.image.OverlayImageProvider;
 import com.amalto.workbench.models.TreeObject;
-import com.amalto.workbench.utils.ESystemDefaultObjects;
 import com.amalto.workbench.utils.EXObjectStatus;
 import com.amalto.workbench.utils.FontUtils;
 import com.amalto.workbench.utils.Util;
@@ -129,7 +129,7 @@ public class ServerTreeLabelProvider extends LabelProvider implements IColorProv
 	
 		public Color getForeground(Object element) {
 			TreeObject tb = (TreeObject)element;
-			if(ESystemDefaultObjects.isExist(tb.getType(),tb.getDisplayName())){
+			if(XSystemObjects.isExist(tb.getType(),tb.getDisplayName())){
 		        return color;
 			}
 			else
@@ -141,7 +141,7 @@ public class ServerTreeLabelProvider extends LabelProvider implements IColorProv
 		// TODO Auto-generated method stub
 
 		TreeObject tb = (TreeObject)element;
-		if(ESystemDefaultObjects.isExist(tb.getType(),tb.getDisplayName())){			
+		if(XSystemObjects.isExist(tb.getType(),tb.getDisplayName())){			
 	        return font;
 		}
 		else

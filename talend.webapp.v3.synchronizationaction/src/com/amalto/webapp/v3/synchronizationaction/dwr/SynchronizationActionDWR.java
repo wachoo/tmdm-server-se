@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XtentisConfiguration;
 import com.amalto.webapp.util.webservices.WSGetSynchronizationPlanPKs;
 import com.amalto.webapp.util.webservices.WSSynchronizationPlanAction;
 import com.amalto.webapp.util.webservices.WSSynchronizationPlanActionCode;
@@ -134,7 +134,7 @@ public class SynchronizationActionDWR {
 	public ListRange getSavedURLs()throws Exception{
 		String[] urls=new String[]{SERVER_URL_DEFAULT};
 		try{
-			Properties configure= XtentisConfiguration.getConfiguration();
+			Properties configure= MDMConfiguration.getConfiguration();
 			String url=configure.getProperty(SAVED_SERVER_URL);
 			if(url!=null){
 				urls= url.split(";");
@@ -165,7 +165,7 @@ public class SynchronizationActionDWR {
 			
 			String[] urls=url.split(";");
 			if(urls.length==0)return;
-			Properties configure= XtentisConfiguration.getConfiguration();
+			Properties configure= MDMConfiguration.getConfiguration();
 			StringBuffer sb=new StringBuffer();
 			for(int i=0; i<urls.length; i++){
 				if(i<urls.length-1)
@@ -175,7 +175,7 @@ public class SynchronizationActionDWR {
 			}
 			configure.setProperty(SAVED_SERVER_URL, sb.toString());
 			
-			XtentisConfiguration.save();
+			MDMConfiguration.save();
 		} catch (Exception e) {
         	e.printStackTrace();
         	throw new Exception(e.getClass().getName() + ": "

@@ -63,6 +63,8 @@ import org.eclipse.xsd.XSDTypeDefinition;
 import org.eclipse.xsd.XSDXPathDefinition;
 import org.eclipse.xsd.impl.XSDSchemaImpl;
 import org.osgi.framework.Bundle;
+import org.talend.mdm.commmon.util.workbench.Version;
+import org.talend.mdm.commmon.util.workbench.ZipToFile;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

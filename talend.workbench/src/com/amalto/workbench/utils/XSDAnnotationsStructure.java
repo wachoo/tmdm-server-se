@@ -16,6 +16,7 @@ import org.eclipse.xsd.XSDModelGroup;
 import org.eclipse.xsd.XSDParticle;
 import org.eclipse.xsd.XSDTerm;
 import org.eclipse.xsd.util.XSDSchemaBuildingTools;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 

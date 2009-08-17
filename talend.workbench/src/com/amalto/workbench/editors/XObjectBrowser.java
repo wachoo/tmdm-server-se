@@ -15,16 +15,16 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.IFormPage;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.talend.mdm.commmon.util.workbench.Version;
 
 import com.amalto.workbench.image.EImage;
 import com.amalto.workbench.image.ImageCache;
 import com.amalto.workbench.models.IXObjectModelListener;
 import com.amalto.workbench.models.TreeObject;
 import com.amalto.workbench.providers.XObjectBrowserInput;
-import com.amalto.workbench.utils.ESystemDefaultObjects;
 import com.amalto.workbench.utils.IConstants;
 import com.amalto.workbench.utils.Util;
-import com.amalto.workbench.utils.Version;
 import com.amalto.workbench.utils.XtentisException;
 
 
@@ -55,7 +55,7 @@ public class XObjectBrowser extends FormEditor implements IXObjectModelListener{
 	           		addPage(new  ViewBrowserMainPage(this));
 	           		break;
 	           	case TreeObject.DATA_CLUSTER:
-	           		if (xobject.getDisplayName()!=null&&xobject.getDisplayName().equals(ESystemDefaultObjects.DC_MDMITEMSTRASH.getName())) {
+	           		if (xobject.getDisplayName()!=null&&xobject.getDisplayName().equals(XSystemObjects.DC_MDMITEMSTRASH.getName())) {
 	           			addPage(new ItemsTrashBrowserMainPage(this));
 	           			break;
 					}

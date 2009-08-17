@@ -108,12 +108,12 @@ public class JdbcTester {
 	}
 	
 	private static void testSelect() {
-		BaseDAO baseDAO=new BaseDAO("com.mysql.jdbc.Driver","jdbc:mysql://localhost:3306/brick?useUnicode=true&characterEncoding=utf8&autoReconnect=true","root","");
+		BaseDAO baseDAO=new BaseDAO("org.hsqldb.jdbcDriver","jdbc:hsqldb:C:/opt/jboss/server/default/data/hypersonic/localDB","sa","");
 		try {
 			Connection connection=baseDAO.getConnection();
 			baseDAO.initCommands(connection);
 			
-			String selectSql="select * from brick_users";
+			String selectSql="select * from JMS_ROLES";
 			
 			try {
 				baseDAO.select(selectSql);

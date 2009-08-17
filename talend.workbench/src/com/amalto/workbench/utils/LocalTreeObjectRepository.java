@@ -22,6 +22,7 @@ import org.eclipse.jface.viewers.TreeExpansionEvent;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Node;
 
 import com.amalto.workbench.image.ImageCache;
@@ -360,7 +361,7 @@ public class LocalTreeObjectRepository implements IXObjectModelListener, ITreeVi
 		{
 			// check up the system catalog, create it and all system tree objects
 			// into it if these objects are not categorized
-			if (ESystemDefaultObjects.isExist(theObj.getType(), theObj.getDisplayName()))
+			if (XSystemObjects.isExist(theObj.getType(), theObj.getDisplayName()))
 			{
 				TreeParent systemCatalog = null;
 				for (TreeObject xobj: folder.getChildren())

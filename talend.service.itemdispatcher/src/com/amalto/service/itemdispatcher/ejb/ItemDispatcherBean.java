@@ -14,6 +14,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.IServiceConstants;
+import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -25,8 +27,6 @@ import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ServiceCtrlBean;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
-import com.amalto.core.util.IServiceConstants;
-import com.amalto.core.util.ITransformerConstants;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.service.itemdispatcher.util.JSONException;

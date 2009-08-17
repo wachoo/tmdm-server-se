@@ -16,8 +16,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-
-import com.amalto.workbench.utils.EUUIDCustomType;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 
 /**
  * this class is meant to encapsulate all widgets rendering element

@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.forms,
- org.eclipse.xsd
+ org.eclipse.xsd,
+ org.talend.mdm.commmon;bundle-version="1.0.0"
 Eclipse-AutoStart: true
 Bundle-ClassPath: com.amalto.workbench.jar,
  META-INF/lib/activation.jar,

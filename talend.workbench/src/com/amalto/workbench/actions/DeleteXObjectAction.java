@@ -10,11 +10,11 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Event;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.workbench.image.ImageCache;
 import com.amalto.workbench.models.TreeObject;
 import com.amalto.workbench.models.TreeParent;
-import com.amalto.workbench.utils.ESystemDefaultObjects;
 import com.amalto.workbench.utils.IConstants;
 import com.amalto.workbench.utils.LocalTreeObjectRepository;
 import com.amalto.workbench.utils.Util;
@@ -93,7 +93,7 @@ public class DeleteXObjectAction extends Action{
 		            	LocalTreeObjectRepository.getInstance().receiveAllOffsprings(parent, toDelList);
 		            	toDelList.add(xobject);
 		            }
-		            else if(!ESystemDefaultObjects.isExist(xobject.getType(), xobject.getDisplayName())){
+		            else if(!XSystemObjects.isExist(xobject.getType(), xobject.getDisplayName())){
 		            	toDelList.add(xobject);
 		            }//if there are items which are not default, isnotdefault is true
 				}
