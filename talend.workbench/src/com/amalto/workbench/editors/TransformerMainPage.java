@@ -47,6 +47,8 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -870,6 +872,7 @@ public class TransformerMainPage extends AMainPageV2 {
 		private TableViewer outputViewer;
 		
 		private KeyListener variableListener;
+		private MouseTrackAdapter mouseListener;
 		
 		Set<String> availableVariables=new HashSet<String>();
 		public TransformerStepWidget(FormToolkit toolkit,Composite parent){
@@ -1006,6 +1009,7 @@ public class TransformerMainPage extends AMainPageV2 {
 			LabelCombo inputV=new LabelCombo(toolkit,inputComposite,"Input Variables",SWT.BORDER,1);		
 			inputVariables=inputV.getCombo();
 			inputVariables.addKeyListener(variableListener);
+			inputVariables.getTabList()[0].addMouseTrackListener(mouseListener);
 			
 	        inputLinkButton = toolkit.createButton(inputComposite,"",SWT.PUSH | SWT.CENTER);
 	        inputLinkButton.setImage(ImageCache.getCreatedImage(EImage.SYNCED.getPath()));
@@ -1092,6 +1096,8 @@ public class TransformerMainPage extends AMainPageV2 {
 			LabelCombo outputV=new LabelCombo(toolkit,outputComposite,"Output Variables",SWT.BORDER,1);		
 			outputVariables=outputV.getCombo();
 			outputVariables.addKeyListener(variableListener);
+			outputVariables.addMouseTrackListener(mouseListener);
+			outputVariables.getTabList()[0].addMouseTrackListener(mouseListener);
 			
 			//create table
 			java.util.List<String> columns=new ArrayList<String>();
@@ -1276,6 +1282,14 @@ public class TransformerMainPage extends AMainPageV2 {
 				}
 				
 				public void keyReleased(KeyEvent e) {
+				}
+			};
+			
+			mouseListener = new MouseTrackAdapter()
+			{
+				public void mouseEnter(MouseEvent e) {
+					((Text) e.getSource())
+							.setToolTipText("please click 'ALT + /' to pop up Variable Dialog to select variable value");
 				}
 			};
 			

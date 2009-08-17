@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.talend.mdm.commmon.util.core.ITransformerConstants;
 
 public class VariableDefinitionDialog extends Dialog{
     
@@ -47,10 +48,10 @@ public class VariableDefinitionDialog extends Dialog{
 	private static HashMap<String, String> descriptionMap = new HashMap<String, String>();
 	static
 	{
-		descriptionMap.put(VARIABLE_DEFAULT, "_DEFAULT_");
-		descriptionMap.put(VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER, "output_error_message");
-		descriptionMap.put(VARIABLE_OUTPUT_TO_ITEMDISPATCHERSERVICE, "output_to_itemdispatcher");
-		descriptionMap.put(VARIABLE_OUTPUT_FOR_SMARTVIEW, "html");
+		descriptionMap.put(VARIABLE_DEFAULT, ITransformerConstants.VARIABLE_DEFAULT);
+		descriptionMap.put(VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER, ITransformerConstants.VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER);
+		descriptionMap.put(VARIABLE_OUTPUT_TO_ITEMDISPATCHERSERVICE, ITransformerConstants.VARIABLE_OUTPUT_TO_ITEMDISPATCHERSERVICE);
+		descriptionMap.put(VARIABLE_OUTPUT_FOR_SMARTVIEW, ITransformerConstants.VARIABLE_OUTPUT_FOR_SMARTVIEW);
 	}
 	
 	public VariableDefinitionDialog(Shell shell, String type, boolean input, String plugin)
