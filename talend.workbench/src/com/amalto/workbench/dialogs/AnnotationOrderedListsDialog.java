@@ -319,8 +319,14 @@ public class AnnotationOrderedListsDialog extends Dialog {
         viewer.addSelectionChangedListener(new ISelectionChangedListener() {
         	public void selectionChanged(SelectionChangedEvent event) {
         		DescriptionLine line = (DescriptionLine)((IStructuredSelection)viewer.getSelection()).getFirstElement();
-        		if(line!=null)
-        			((CCombo)textControl).setText(line.getLabel());
+        		if(line!=null){
+        			if(textControl instanceof CCombo){
+        				((CCombo)textControl).setText(line.getLabel());
+        			}
+        			if(textControl instanceof Text){
+        				((Text)textControl).setText(line.getLabel());
+        			}
+        		}
         	}
         });
         
