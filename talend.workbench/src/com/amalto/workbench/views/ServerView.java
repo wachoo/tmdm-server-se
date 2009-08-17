@@ -21,6 +21,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
@@ -390,7 +391,19 @@ public class ServerView extends ViewPart implements IXObjectModelListener {
 						null));
 		setTreeContentProvider(contentProvider);
 		viewer.setLabelProvider(new ServerTreeLabelProvider());
-		viewer.setSorter(new ViewerSorter());
+		viewer.setSorter(new ViewerSorter()
+		{
+		    public int category(Object element) {
+		    	if (element instanceof TreeParent)
+		    	{
+		    		TreeParent category = (TreeParent)element;
+		    		if (category.getType() == TreeObject.CATEGORY_FOLDER)
+		    			return -1;
+		    	}
+		        return 0;
+		    }
+		}
+		);
 		viewer.setInput(getViewSite());
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
