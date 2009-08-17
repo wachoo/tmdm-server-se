@@ -40,6 +40,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.jboss.security.Base64Encoder;
 import org.jboss.security.SimpleGroup;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -470,7 +471,7 @@ public class Util {
     public static Element getLoginProvisioningFromDB() throws Exception,XmlServerException {
 			IXmlServerSLWrapper server=null;
 			//get the DB implementation class
-			String serverClass = XtentisConfiguration.getConfiguration().getProperty("xmlserver.class");
+			String serverClass = MDMConfiguration.getConfiguration().getProperty("xmlserver.class");
 			if ((serverClass==null) || "".equals(serverClass)) serverClass = "com.amalto.xmldb.XmldbSLWrapper";
 			
 			//instantiate the DB implementation class

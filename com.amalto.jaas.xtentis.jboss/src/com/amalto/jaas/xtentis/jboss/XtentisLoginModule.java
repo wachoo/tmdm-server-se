@@ -16,10 +16,10 @@ import javax.security.auth.login.LoginException;
 import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
 
 import com.amalto.jaas.xtentis.jboss.util.Util;
-import com.amalto.jaas.xtentis.jboss.util.XtentisConfiguration;
 import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 
@@ -102,7 +102,7 @@ public class XtentisLoginModule extends AbstractServerLoginModule {
 
 
 		//get the DB implementation class
-		String serverClass = XtentisConfiguration.getConfiguration().getProperty("xmlserver.class");
+		String serverClass = MDMConfiguration.getConfiguration().getProperty("xmlserver.class");
 		if ((serverClass==null) || "".equals(serverClass)) serverClass = "com.amalto.xmldb.XmldbSLWrapper";
 
 		//instantiate the DB implementation class

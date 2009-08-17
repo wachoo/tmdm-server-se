@@ -13,9 +13,9 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
 
-import com.amalto.core.objects.configurationinfo.util.XtentisConfiguration;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.XtentisException;
@@ -59,7 +59,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
     public static String SERVERCLASS;
 	
 	{
-		SERVERCLASS = XtentisConfiguration.getConfiguration().getProperty("xmlserver.class");
+		SERVERCLASS = MDMConfiguration.getConfiguration().getProperty("xmlserver.class");
 		if ((SERVERCLASS==null) || "".equals(SERVERCLASS)) SERVERCLASS = "com.amalto.xmldb.XmldbSLWrapper";
 	}
 

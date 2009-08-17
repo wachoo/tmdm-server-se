@@ -3,9 +3,10 @@ package com.amalto.core.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.objects.configurationinfo.util.XtentisConfiguration;
 
 public class BAMLogger {
 	
@@ -13,7 +14,7 @@ public class BAMLogger {
 	private static boolean log = false;
 	
 	static {
-		String val = (String)XtentisConfiguration.getConfiguration().get("bam.logging");
+		String val = (String)MDMConfiguration.getConfiguration().get("bam.logging");
 		if ("true".equals(val) || "yes".equals(val)) log=true;
 	}
 	

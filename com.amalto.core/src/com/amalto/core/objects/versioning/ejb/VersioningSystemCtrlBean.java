@@ -24,6 +24,8 @@ import javax.ejb.TimerService;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
@@ -31,7 +33,6 @@ import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
-import com.amalto.core.objects.configurationinfo.util.XtentisConfiguration;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.versioning.util.RestoreItemsInfo;
 import com.amalto.core.objects.versioning.util.RestoreObjectsInfo;
@@ -78,7 +79,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 	static {
 
 		try {
-			Properties properties = XtentisConfiguration.getConfiguration();
+			Properties properties = MDMConfiguration.getConfiguration();
 			if (properties.getProperty("versioning.service.jndi")!=null)
 				DEFAULT_JNDI =  properties.getProperty("versioning.service.jndi");
 			if(properties.getProperty("versioning.service.url")!=null)

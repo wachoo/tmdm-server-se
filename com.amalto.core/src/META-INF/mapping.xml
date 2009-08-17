@@ -2680,6 +2680,10 @@
 <java-variable-name>condition</java-variable-name>
 <xml-element-name>condition</xml-element-name>
 </variable-mapping>
+<variable-mapping>
+<java-variable-name>deactive</java-variable-name>
+<xml-element-name>deactive</xml-element-name>
+</variable-mapping>
 </java-xml-type-mapping>
 <java-xml-type-mapping>
 <java-type>com.amalto.core.webservice.WSRemoveDroppedItem</java-type>

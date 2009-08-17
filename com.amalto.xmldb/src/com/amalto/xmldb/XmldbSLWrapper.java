@@ -27,6 +27,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
 import org.xmldb.api.DatabaseManager;
 import org.xmldb.api.base.Database;
@@ -38,7 +39,6 @@ import org.xmldb.api.modules.CollectionManagementService;
 import org.xmldb.api.modules.XMLResource;
 import org.xmldb.api.modules.XPathQueryService;
 
-import com.amalto.xmldb.util.XtentisConfiguration;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
@@ -79,7 +79,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 		Database[] databases = DatabaseManager.getDatabases();
 		if ((databases!=null) && (databases.length>0)) return;
 		
-		Properties properties = XtentisConfiguration.getConfiguration();
+		Properties properties = MDMConfiguration.getConfiguration();
 		
 		try {
 			SERVERNAME = properties.getProperty("xmldb.server.name") == null ? SERVERNAME : properties.getProperty("xmldb.server.name");

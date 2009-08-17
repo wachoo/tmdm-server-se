@@ -13,6 +13,8 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.naming.InitialContext;
 
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
@@ -21,7 +23,6 @@ import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocalHome;
 import com.amalto.core.objects.configurationinfo.localutil.CoreUpgrades;
-import com.amalto.core.objects.configurationinfo.util.XtentisConfiguration;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocalHome;
 import com.amalto.core.util.XtentisException;
@@ -311,7 +312,7 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject {
 				
 				//autoUpgrade completed - start the routing engine
 	        	//Start Routing Engine
-				boolean autostart = "true".equals(XtentisConfiguration.getConfiguration().getProperty(
+				boolean autostart = "true".equals(MDMConfiguration.getConfiguration().getProperty(
 					"subscription.engine.autostart", 
 					"true"
 				));

@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Util2;
-import com.amalto.webapp.core.util.XtentisConfiguration;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -36,7 +36,7 @@ public class XMLConfiguration {
 	 */
 	static{
 		try {
-			Properties properties = XtentisConfiguration.getConfiguration();
+			Properties properties = MDMConfiguration.getConfiguration();
 			if (properties.getProperty("configuration.datacluster")!=null)
 				CONFIGURATION_DATA_CLUSTER = properties.getProperty("configuration.datacluster");
 			if (properties.getProperty("configuration.datamodel")!=null)

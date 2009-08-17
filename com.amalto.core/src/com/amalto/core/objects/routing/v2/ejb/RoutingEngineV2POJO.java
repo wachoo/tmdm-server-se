@@ -5,9 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.objects.configurationinfo.util.XtentisConfiguration;
 
 
 
@@ -32,7 +33,7 @@ public class RoutingEngineV2POJO extends ObjectPOJO{
 	public final static long _MIN_PERIOD_MILLIS_ = 150;
 	
 	static {
-		Properties conf = XtentisConfiguration.getConfiguration();
+		Properties conf = MDMConfiguration.getConfiguration();
 		//Number of simultaneous executors
 		String executors = conf.getProperty("routing.engine.executors");
 		if (executors != null) {

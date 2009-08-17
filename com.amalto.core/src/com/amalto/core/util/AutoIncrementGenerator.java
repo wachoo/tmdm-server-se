@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
-import com.amalto.core.objects.configurationinfo.util.XtentisConfiguration;
-
 /**
  * 
  * AutoIncrement to generate a num
