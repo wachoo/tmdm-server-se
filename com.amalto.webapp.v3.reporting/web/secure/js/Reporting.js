@@ -666,8 +666,8 @@ amalto.reporting.Reporting = function () {
 				DWRUtil.setValue('reportingName',reporting.reportingName);
 				DWRUtil.setValue('sharedCheckBox',reporting.shared);
 				DWRUtil.setValue('businessConceptsList',reporting.concept);
-				DWRUtil.setValue('pivotList',reporting.pivotXpath);
 				getTranslation();	
+
 			}
 		});
 		
@@ -690,6 +690,8 @@ amalto.reporting.Reporting = function () {
 			DWRUtil.addOptions( 'fieldListGrid', result);
 			//DWRUtil.removeAllOptions('pivotList');
 			DWRUtil.addOptions( 'pivotList', result);
+			if(reporting.pivotXpath)
+				DWRUtil.setValue('pivotList',xPathToLabel[reporting.pivotXpath]);			
 	    	//ReportingInterface.getElements(businessConcept,language,function(result){
 	    		createGrid(result);	
 	    		amalto.core.ready();
