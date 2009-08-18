@@ -179,6 +179,7 @@ public class BrowseRevisionMainPage extends AMainPageV2 {// implements Observer
 								if (subObjects[j].getDisplayName().endsWith(universeList.getSelection()[0])) {
 									action = new EditXObjectAction(subObjects[j],BrowseRevisionMainPage.this.getSite().getPage());
 									action.run();
+									break;
 								}
 
 							}
