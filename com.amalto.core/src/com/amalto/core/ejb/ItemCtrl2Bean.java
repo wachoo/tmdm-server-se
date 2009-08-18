@@ -197,9 +197,18 @@ public class ItemCtrl2Bean implements SessionBean {
 	    } catch (XtentisException e) {
 	    	throw(e);
 	    } catch (Exception e) {
-    	    String err = "Unable to create/update the item "+item.getDataClusterPOJOPK().getUniqueId()+"."+Util.joinStrings(item.getItemIds(), ".")
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+	    	String prefix = "Unable to create/update the item "+item.getDataClusterPOJOPK().getUniqueId()+"."+Util.joinStrings(item.getItemIds(), ".")
+    	    		+": ";
+    	    String err = prefix +e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+    	    // simplify the error message
+    	    if (dataModelName.equalsIgnoreCase("Reporting"))
+    	    {
+    	    	if (err.indexOf("One of '{ListOfFilters}'") > 0)
+    	    	{
+    	    		err = prefix + "At least one filter must be defined";
+    	    	}
+    	    }
     	    throw new XtentisException(err);
 	    }
 
