@@ -204,7 +204,7 @@ public class ItemCtrl2Bean implements SessionBean {
     	    // simplify the error message
     	    if (dataModelName.equalsIgnoreCase("Reporting"))
     	    {
-    	    	if (err.indexOf("One of '{ListOfFilters}'") > 0)
+    	    	if (err.indexOf("One of '{ListOfFilters}'") !=-1)
     	    	{
     	    		err = prefix + "At least one filter must be defined";
     	    	}
