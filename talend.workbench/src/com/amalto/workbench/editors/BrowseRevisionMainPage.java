@@ -169,22 +169,15 @@ public class BrowseRevisionMainPage extends AMainPageV2 {// implements Observer
 
 				public void mouseDoubleClick(MouseEvent e) {
 					EditXObjectAction action;
-					;
-					parent = BrowseRevisionMainPage.this.getXObject()
-							.getServerRoot();
+					parent = BrowseRevisionMainPage.this.getXObject().getServerRoot();
 					TreeObject[] objects = parent.getChildren();
 					TreeObject[] subObjects;
 					for (int i = 0; i < objects.length; i++) {
 						if (objects[i].getDisplayName().equals("Universe")) {
-							subObjects = ((TreeParent) objects[i])
-									.getChildren();
+							subObjects = ((TreeParent) objects[i]).getChildren();
 							for (int j = 0; j < subObjects.length; j++) {
-								if (subObjects[j].getDisplayName().endsWith(
-										universeList.getSelection()[0])) {
-									action = new EditXObjectAction(
-											subObjects[j],
-											BrowseRevisionMainPage.this
-													.getSite().getPage());
+								if (subObjects[j].getDisplayName().endsWith(universeList.getSelection()[0])) {
+									action = new EditXObjectAction(subObjects[j],BrowseRevisionMainPage.this.getSite().getPage());
 									action.run();
 								}
 
