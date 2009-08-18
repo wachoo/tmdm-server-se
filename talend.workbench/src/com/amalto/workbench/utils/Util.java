@@ -1289,7 +1289,8 @@ public class Util {
 					if(map.get(id.getXtentisObjectName())==null){
 						map.put(id.getXtentisObjectName(), new ArrayList<String>());
 					}
-					map.get(id.getXtentisObjectName()).add(id.getRevisionID());					
+					if(!map.get(id.getXtentisObjectName()).contains(id.getRevisionID()))
+						map.get(id.getXtentisObjectName()).add(id.getRevisionID());					
 				}
 			}
 		} catch (Exception e) {
@@ -1318,7 +1319,50 @@ public class Util {
 			System.out.println("No Universes");
 		}
     	return map;
-    }   
+    }  
+    
+    public static List<String> getUniverseBYRevisionID(XtentisPort port,String revisionID,String objectName1){
+    	List<String> list = new ArrayList<String>();
+    	String objectName =objectName1;
+		WSUniversePK[] universePKs = null;
+		if(objectName1.equals("Transformer"))
+			objectName ="Transformer V2";
+		try {
+			universePKs = port.getUniversePKs(new WSGetUniversePKs("*")).getWsUniversePK();
+			for(WSUniversePK pk: universePKs){
+				WSUniverse universe=port.getUniverse(new WSGetUniverse(pk));
+				for(WSUniverseXtentisObjectsRevisionIDs id:universe.getXtentisObjectsRevisionIDs()){
+					if(id.getXtentisObjectName().equals(objectName)&&id.getRevisionID().equals(revisionID))
+						list.add(universe.getName());	
+						
+				}
+			}
+		} catch (Exception e) {
+			System.out.println("No Universes");
+		}
+    	return list;
+    }
+    public static List<WSUniverse> getWSUniverseBYRevisionID(XtentisPort port,String revisionID,String objectName1){
+    	List<WSUniverse> list = new ArrayList<WSUniverse>();
+    	String objectName =objectName1;
+		WSUniversePK[] universePKs = null;
+		if(objectName1.equals("Transformer"))
+			objectName ="Transformer V2";
+		try {
+			universePKs = port.getUniversePKs(new WSGetUniversePKs("*")).getWsUniversePK();
+			for(WSUniversePK pk: universePKs){
+				WSUniverse universe=port.getUniverse(new WSGetUniverse(pk));
+				for(WSUniverseXtentisObjectsRevisionIDs id:universe.getXtentisObjectsRevisionIDs()){
+					if(id.getXtentisObjectName().equals(objectName)&&id.getRevisionID().equals(revisionID))
+						list.add(universe);	
+				}
+			}
+		} catch (Exception e) {
+			System.out.println("No Universes");
+		}
+    	return list;
+    }
+    
     public static boolean hasUniverse(TreeObject xobject){
     	if(xobject.isXObject()) return false;
         switch(xobject.getType()) {
