@@ -3,6 +3,60 @@
  * GLOBAL PROTOTYPES and FUNCTIONS
  * 
  ********************************************************************/
+Ext.ux.TabCloseMenu = function(){
+    var tabs, menu, ctxItem;
+    this.init = function(tp){
+        tabs = tp;
+        tabs.on('contextmenu', onContextMenu);
+    }
+
+    function onContextMenu(ts, item, e){
+        if(!menu){ // create context menu on first right click
+            menu = new Ext.menu.Menu([{
+                id: tabs.id + '-close',
+                text: 'Close',
+                handler : function(){
+                    tabs.remove(ctxItem);
+                }
+            },{
+                id: tabs.id + '-close-others',
+                text: 'Close Others',
+                handler : function(){
+                    tabs.items.each(function(item){
+                        if(item.closable && item != ctxItem){
+                            tabs.remove(item);
+                        }
+                    });
+                }
+            },{
+                id: tabs.id + '-close-all',
+                text: 'Close All',
+                handler : function(){
+                    tabs.items.each(function(item){
+                        if(item.closable){
+                            tabs.remove(item);
+                        }
+                    });
+                }
+            },{
+                id: tabs.id + '-close-cancel',
+                text: 'Cancel'
+            }]);
+        }
+        ctxItem = item;
+        var items = menu.items;
+        items.get(tabs.id + '-close').setDisabled(!item.closable);
+        var disableOthers = true;
+        tabs.items.each(function(){
+            if(this != item && this.closable){
+                disableOthers = false;
+                return false;
+            }
+        });
+        items.get(tabs.id + '-close-others').setDisabled(disableOthers);
+        menu.showAt(e.getPoint());
+    }
+}; 
 
 String.prototype.ellipse = function(maxLength){
     if(this.length > maxLength){
@@ -361,6 +415,7 @@ amalto.core = function () {
     				bodyborder: true,
     				layoutOnTabChange: true,
     				resizeTabs:false,
+    				plugins: new Ext.ux.TabCloseMenu(),
 					defaults: {
 						hideMode:'offsets'
 					}
