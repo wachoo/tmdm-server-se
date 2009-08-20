@@ -1780,6 +1780,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 				if(err!=null){
 					err="execute beforeSaving ERROR:"+ err;
 					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+					throw new XtentisException(err);
 				}
 			}
 						
