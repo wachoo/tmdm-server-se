@@ -138,9 +138,14 @@ public class EditXObjectAction extends Action{
             }//switch
             
             if (page==null) this.page = view.getSite().getWorkbenchWindow().getActivePage();
-            
+            String universe = "";
+            if(xobject.getType()!=TreeObject.DATA_CLUSTER&&xobject.getType()!=TreeObject.UNIVERSE){
+            	universe = xobject.getServerRoot().getUniverse();
+            	if("".equals(universe))
+            		universe = " [HEAD]";
+            }
        		this.page.openEditor(
-                    new XObjectEditorInput(xobject,xobject.getDisplayName()),
+                    new XObjectEditorInput(xobject,xobject.getDisplayName()+universe),
                     "com.amalto.workbench.editors.XObjectEditor"
            	);
        
