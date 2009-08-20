@@ -760,7 +760,6 @@ public class ServerView extends ViewPart implements IXObjectModelListener {
 		case IXObjectModelListener.NEED_REFRESH:
 			new ServerRefreshAction(this, (TreeParent) child).run();
 			break;
-			
 		}
 
 		this.viewer.refresh(false);

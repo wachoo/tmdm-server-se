@@ -121,7 +121,7 @@
 	
 
 	<!-- generate installer for windows-->
-	<target name="generate.installer.windows" depends="clean,init,deploy.all">	
+	<target name="generate.installer.windows" depends="clean,init">	
 
    		<copy todir="${tmp.dir}/openMDM">
    			<fileset dir="${jboss.dir}">

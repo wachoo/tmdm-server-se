@@ -119,6 +119,7 @@ import com.amalto.workbench.actions.XSDSetAnnotationForeignKeyAction;
 import com.amalto.workbench.actions.XSDSetAnnotationForeignKeyInfoAction;
 import com.amalto.workbench.actions.XSDSetAnnotationHiddenAction;
 import com.amalto.workbench.actions.XSDSetAnnotationLabelAction;
+import com.amalto.workbench.actions.XSDSetAnnotationSchematronAction;
 import com.amalto.workbench.actions.XSDSetAnnotationSourceSystemAction;
 import com.amalto.workbench.actions.XSDSetAnnotationTargetSystemsAction;
 import com.amalto.workbench.actions.XSDSetAnnotationWriteAction;
@@ -175,6 +176,7 @@ public class DataModelMainPage extends AMainPageV2 {
 	private XSDSetAnnotationHiddenAction setAnnotationHiddenAction = null;
 	private XSDSetAnnotationWriteAction setAnnotationWriteAction = null;
 	private XSDSetAnnotationTargetSystemsAction setAnnotationTargetSystemsAction = null;
+	private XSDSetAnnotationSchematronAction setAnnotationSchematronAction;
 	private XSDSetAnnotationSourceSystemAction setAnnotationSourceSystemAction = null;
 	private XSDSetAnnotationDocumentationAction setAnnotationDocumentationAction = null;
 	private XSDDeleteTypeDefinition   deleteTypeDefinition = null;
@@ -873,6 +875,7 @@ public class DataModelMainPage extends AMainPageV2 {
 		this.setAnnotationWriteAction = new XSDSetAnnotationWriteAction(this);
 		this.setAnnotationHiddenAction = new XSDSetAnnotationHiddenAction(this,dataModelName);
 		this.setAnnotationTargetSystemsAction = new XSDSetAnnotationTargetSystemsAction(this,dataModelName);
+		this.setAnnotationSchematronAction = new XSDSetAnnotationSchematronAction(this,dataModelName);
 		this.setAnnotationSourceSystemAction = new XSDSetAnnotationSourceSystemAction(
 				this);
 		this.setAnnotationDocumentationAction = new XSDSetAnnotationDocumentationAction(
@@ -1220,8 +1223,9 @@ public class DataModelMainPage extends AMainPageV2 {
 		manager.add(setAnnotationForeignKeyInfoAction);
 		manager.add(setAnnotationWriteAction);
 		manager.add(setAnnotationHiddenAction);
-		manager.add(setAnnotationTargetSystemsAction);
+		manager.add(setAnnotationSchematronAction);
 		manager.add(setAnnotationSourceSystemAction);
+		manager.add(setAnnotationTargetSystemsAction);
 		//manager.add(setAnnotationDocumentationAction);
 	}
 	
@@ -1232,6 +1236,7 @@ public class DataModelMainPage extends AMainPageV2 {
 		manager.add(setAnnotationHiddenAction);
 		manager.add(setAnnotationTargetSystemsAction);
 		manager.add(setAnnotationSourceSystemAction);
+		manager.add(setAnnotationSchematronAction);
 		//manager.add(setAnnotationDocumentationAction);
 	}
 

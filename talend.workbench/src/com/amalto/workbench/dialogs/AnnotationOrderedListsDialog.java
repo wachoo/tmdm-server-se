@@ -69,6 +69,7 @@ public class AnnotationOrderedListsDialog extends Dialog {
 	public static final int AnnotationHidden_ActionType=1<<1;
 	public static final int AnnotationTargetSystems_ActionType=1<<2;
 	public static final int AnnotationWrite_ActionType=1<<3;
+	public static final int AnnotationSchematron_ActionType=1<<4;
 	
 
 	/**
@@ -113,13 +114,20 @@ public class AnnotationOrderedListsDialog extends Dialog {
 			((CCombo)textControl).setItems(roles.toArray(new String[roles.size()]));
 
 		}else{
-			textControl = new Text(composite, SWT.BORDER|SWT.SINGLE);
+			if(actionType==AnnotationOrderedListsDialog.AnnotationSchematron_ActionType){
+				textControl = new Text(composite, SWT.BORDER|SWT.WRAP|SWT.V_SCROLL);
+			}else{
+				textControl = new Text(composite, SWT.BORDER|SWT.SINGLE);
+			}
 		}
 		
 		if(actionType==AnnotationOrderedListsDialog.AnnotationForeignKeyInfo_ActionType){
 			textControl.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true,1,1));
 		}else{
-			textControl.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true,2,1));
+			if(actionType==AnnotationOrderedListsDialog.AnnotationSchematron_ActionType){
+				textControl.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true,2,7));
+			}else
+				textControl.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true,2,1));
 		}
 		
 		((GridData)textControl.getLayoutData()).minimumWidth = 400;
@@ -433,7 +441,8 @@ public class AnnotationOrderedListsDialog extends Dialog {
 		textControl.setFocus();
 		
         if (actionType != AnnotationOrderedListsDialog.AnnotationForeignKeyInfo_ActionType
-				&& actionType != AnnotationOrderedListsDialog.AnnotationTargetSystems_ActionType) {
+				&& actionType != AnnotationOrderedListsDialog.AnnotationTargetSystems_ActionType
+				&& actionType != AnnotationOrderedListsDialog.AnnotationSchematron_ActionType) {
 			checkBox = new Button(composite, SWT.CHECK);
 			checkBox.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false,
 					true, 2, 1));

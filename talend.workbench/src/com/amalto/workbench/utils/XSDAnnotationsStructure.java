@@ -17,8 +17,11 @@ import org.eclipse.xsd.XSDParticle;
 import org.eclipse.xsd.XSDTerm;
 import org.eclipse.xsd.util.XSDSchemaBuildingTools;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import com.sun.xml.rpc.processor.util.StringUtils;
 
 public class XSDAnnotationsStructure {
 	
@@ -444,6 +447,40 @@ public class XSDAnnotationsStructure {
 		}
 		return targetSystems;
 	}
+	
+	/*************************************************************
+	 * Schematron Rule
+	 *************************************************************/
+	public boolean setSchematrons(ArrayList<String> systems) {
+		removeAppInfos(ICoreConstants.X_Schematron);
+		for (Iterator iter = systems.iterator(); iter.hasNext(); ) {
+			String role = (String) iter.next();
+			
+			addAppInfo(ICoreConstants.X_Schematron, role);
+		}
+		hasChanged = true;
+		return true;
+	}
+	
+	public boolean setSchematron(int num, String system) {
+		TreeMap< String, String> infos = getSchematrons();
+		infos.put(ICoreConstants.X_Schematron+"_"+num, system);
+		return setForeignKeyInfos(new ArrayList(infos.values()));
+	}
+
+	public TreeMap<String, String> getSchematrons() {
+		TreeMap<String, String> targetSystems = new TreeMap<String, String>();
+		LinkedHashMap<String, String> appInfos = getAppInfos(ICoreConstants.X_Schematron);
+		Set<String> keys = appInfos.keySet();
+		for (Iterator iter = keys.iterator(); iter.hasNext(); ) {
+			String key = (String) iter.next();
+			String v=appInfos.get(key);
+			if(v ==null || v.trim().length()==0) continue;
+			targetSystems.put(key, appInfos.get(key));
+		}
+		return targetSystems;
+	}
+	
 	
 	/****************************************************************************
 	 *           APPINFO UTILITIES

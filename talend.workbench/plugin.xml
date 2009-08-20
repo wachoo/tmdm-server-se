@@ -33,19 +33,19 @@
       <editor
             class="com.amalto.workbench.editors.XObjectEditor"
             default="false"
-            icon="icons/talend-picto-small.gif"
+            icon="icons/project_wiz.png"
             id="com.amalto.workbench.editors.XObjectEditor"
             name="com.amalto.workbench.editors.XObjectEditor"/>
       <editor
             class="com.amalto.workbench.editors.XObjectBrowser"
             default="false"
-            icon="icons/talend-picto-small.gif"
+            icon="icons/project_wiz.png"
             id="com.amalto.workbench.editors.XObjectBrowser"
             name="com.amalto.workbench.editors.XObjectBrowser"/>
       <editor
             class="com.amalto.workbench.editors.XObjectRevisionBrowser"
             default="false"
-            icon="icons/talend-picto-small.gif"
+            icon="icons/project_wiz.png"
             id="com.amalto.workbench.editors.XObjectRevisionBrowser"
             name="com.amalto.workbench.editors.XObjectRevisionBrowser">
       </editor>
