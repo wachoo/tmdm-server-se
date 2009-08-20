@@ -265,6 +265,7 @@ amalto.reporting.Reporting = function () {
 								fieldLabel:LABEL_DATAOBJECT[language],
 								id:'typeReportingInfo',
 								anchor:'90%',
+								readOnly:true,
 								style:'border-width:0; background-color:white;background-image:none'
 							},
 							{
@@ -272,6 +273,7 @@ amalto.reporting.Reporting = function () {
 								fieldLabel:LABEL_FILTER[language],
 								anchor:'90%',
 								id:'reportingInfo',
+								readOnly:true,
 								style:'border-width:0; background-color:white;background-image:none'
 							},
 							{
@@ -279,6 +281,7 @@ amalto.reporting.Reporting = function () {
 								fieldLabel:'Pivot',
 								id:'pivot',
 								anchor:'90%',
+								readOnly:true,
 								style:'border-width:0; background-color:white;background-image:none'
 							}
 						],
@@ -577,10 +580,14 @@ amalto.reporting.Reporting = function () {
 	var newReportingPanel;
 	
 	function editReporting(){
-		newReporting(true);
+		newReporting(true,false);
 	}
 	
-	function newReporting(edit){
+	function newReporting(edit,isEdit){
+		var readonly = "";
+		if(!isEdit)
+			readonly = 'readonly="true" ';
+			
 		if(edit!=undefined)	EDIT= edit;
 		var tabPanel = amalto.core.getTabPanel();
 		amalto.core.working();
@@ -593,7 +600,8 @@ amalto.reporting.Reporting = function () {
 			var html = 
 				'	<div id="chooseReportingName" style="display:inline;width:400;float:left">'+
 				'	<div class="left">'+LABEL_NAME[language]+' :</div>'+
-				'	<div class="leftField"><input type="text" id="reportingName" /></div>'+
+				'	<div class="leftField"><input type="text" ' + readonly +
+				'	id="reportingName" /></div>'+
 				'	<br/><br/>'+
 				'	<div class="left">'+LABEL_SHARE_REPORTING[language]+' :</div>'+
 				'	<div class="leftField"><input style="text-align:left" type="checkbox" id="sharedCheckBox" /></div>'+
@@ -666,8 +674,8 @@ amalto.reporting.Reporting = function () {
 				DWRUtil.setValue('reportingName',reporting.reportingName);
 				DWRUtil.setValue('sharedCheckBox',reporting.shared);
 				DWRUtil.setValue('businessConceptsList',reporting.concept);
+//				DWRUtil.setValue('pivotList',reporting.pivotXpath);
 				getTranslation();	
-
 			}
 		});
 		
