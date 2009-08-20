@@ -51,9 +51,7 @@ public class ZValidationTest
 //      }
 
       // use custom schema
-      File file = new File( "I:/MDM/learn/schematron/XMLForm/src/org/xmlform/validation/zxmlform-sch-report-test.xml" );
-      if ( !file.exists () ) throw new Exception("Error: schema file not found !");
-     InputStream istrm = new FileInputStream ( file );
+     InputStream istrm = ZValidationTest.class.getResourceAsStream("zxmlform-sch-report-test.xml");
      InputSource is = new InputSource ( istrm );
      SchemaFactory schf = SchemaFactory.lookup( SchemaFactory.NAMESPACE_SCHEMATRON );
      Schema sch = schf.compileSchema( is );
@@ -64,7 +62,7 @@ public class ZValidationTest
         // validator.setProperty(Validator.PROPERTY_PHASE, "New");
       
 	    DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-	    Document document = parser.parse(new File("I:/MDM/learn/schematron/XMLForm/src/org/xmlform/validation/test.xml"));
+	    Document document = parser.parse(ZValidationTest.class.getResourceAsStream("test.xml"));
 	    
       ZTestBean tbean = new ZTestBean();
       List violations = null;
