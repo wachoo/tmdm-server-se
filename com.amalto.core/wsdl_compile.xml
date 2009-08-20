@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project default="wsdl_all" name="XtentisCore - WSDLCompile">
 
-	<property name="jwsdp.home" value="/opt/jwsdp-1.5"/>
+	<property name="jwsdp.home" value="c:/opt/jwsdp-1.5"/>
 	<property name="source.dir" value="./src"/>
 	<property name="bin.dir" value="./bin"/>
 	<property name="config.xml" value="./config.xml"/>
 	<property name="mapping.xml" value="${source.dir}/META-INF/mapping.xml"/>
 	
 	<target name="wsdl_all">
-		<exec executable="${jwsdp.home}/jaxrpc/bin/wscompile.sh">
+		<exec executable="${jwsdp.home}/jaxrpc/bin/wscompile.bat">
 			<arg line="-import"/>
 			<arg line="-verbose"/>
 			<arg line="-g"/>			

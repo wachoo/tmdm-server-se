@@ -23,14 +23,14 @@ Added a mechanism to cater for DB exceptions when querying for routing orders to
 2.19.0
 Routing Engine V2. + Improved JAAS/Roles integration
 a-The number of simultaneous running routing engine threads can now be controlled using 
-	the xtentis.conf property 'routing.engine.executors'. Defaults to 20.
+	the mdm.conf property 'routing.engine.executors'. Defaults to 20.
 b-Routing Orders marked as active but with an execution time greater than a determined value, 
 	are automatically moved to the FAILED queue. 
-	The value in seconds can be set in the xtentis.conf property 'routing.engine.maxexecutiontime'. Defaults to 5 minutes
+	The value in seconds can be set in the mdm.conf property 'routing.engine.maxexecutiontime'. Defaults to 5 minutes
 d-Verification of users rights derived from Roles on object instances is much faster. 
 	Coupled with the newly released com.amalto.jaas.xtentis.jboss-1.3.0, the speed increase is highly significant.	 
-e-The conf file xtentis.conf is now first read from the root of the jboss directory then 
-	from /etc/amalto/xtentis.conf on Linux or c:\amalto\xtentis.conf on Windows
+e-The conf file mdm.conf is now first read from the root of the jboss directory then 
+	from /etc/amalto/mdm.conf on Linux or c:\amalto\mdm.conf on Windows
 f-The Service Interface has changed. Services should NO MORE update Routing Orders directly.
 	To append a message to the Routing Order message, 
 		-in case of success, simply return the String to be appended on the call to receiveFromInbound

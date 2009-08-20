@@ -1,6 +1,8 @@
 package com.amalto.core.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -48,6 +50,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -107,6 +110,11 @@ import com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocal;
 import com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocalHome;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
+import com.amalto.core.schematron.validation.Schema;
+import com.amalto.core.schematron.validation.SchemaFactory;
+import com.amalto.core.schematron.validation.Validator;
+import com.amalto.core.schematron.validation.Violation;
+import com.amalto.core.schematron.validation.ZTestBean;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 
@@ -258,12 +266,46 @@ public final class Util {
 		}
 		return d;
     }
-    
+    public static void schematronValidate(Element element, String schematron, String concept)throws Exception{
+        
+    	InputSource is = new InputSource ( new ByteArrayInputStream(schematron.getBytes("utf-8")) );
+        SchemaFactory schf = SchemaFactory.lookup( SchemaFactory.NAMESPACE_SCHEMATRON );
+        Schema sch = schf.compileSchema( is );
+        Validator validator = sch.newValidator();
+
+        // set preprocessor parameters 
+         //if (args.length > 1)
+           // validator.setProperty(Validator.PROPERTY_PHASE, "New");
+         
+         List violations = null;
+
+         //violations = validator.validate( tbean );
+         violations=validator.validate(element);
+ 
+         // everything ok?
+         if (violations == null) 
+         {
+           System.out.println("\nValidation ok, no messages generated");
+         }
+         else {
+           System.out.println("Validation encountered errors. Messages :");
+           Iterator viter = violations.iterator();
+           StringBuffer sb =new StringBuffer();
+           while (viter.hasNext ())
+           {
+             Violation v = (Violation) viter.next();
+             //sb.append("Violation path: " + v.getPath() + ", message: " + v.getMessage() );
+             sb.append( v.getMessage()+"\n" );
+           }
+           throw new XtentisException(sb.toString());
+         }
+
+    }
     public static Document validate(Element element, String schema) 
-    	throws SAXException,ParserConfigurationException,IOException,TransformerException{
+    	throws Exception{
 
     	org.apache.log4j.Logger.getLogger(Util.class).trace("validate() "+element.getLocalName());
-    	
+    	    	
 		//parse
 		Document d=null;
 		SAXErrorHandler seh = new SAXErrorHandler();
@@ -303,6 +345,29 @@ public final class Util {
 				throw new SAXException(err);
 			}
 		}
+		//schematron validate see 0008753: Implement Schematron
+		String concept=element.getLocalName();
+		Node schemaRoot=parse(schema).getDocumentElement();
+	   	Element rootNS=Util.getRootElement("nsholder",schemaRoot.getNamespaceURI(),"xsd");	
+	   	String xpath="//xsd:element[@name='" + concept + "']//xsd:appinfo[@source='"+ ICoreConstants.X_Schematron+"']/text()";
+		NodeList tsList=Util.getNodeList(schemaRoot,xpath,rootNS.getNamespaceURI(),"xsd");
+		
+		//String SCHEMATRON=ICoreConstants.SCHEMATRON_TAG;//"<schema xmlns=\"http://www.ascc.net/xml/schematron\" ns=\"http://xml.apache.cocoon/xmlform\">";
+		for(int i=0; i<tsList.getLength();i++){
+			String sch= nodeToString(tsList.item(i), true);
+			sch=StringEscapeUtils.unescapeXml(sch);
+			//String sch= tsList.item(i).getNodeValue();
+			//sch=sch.replaceAll("<"+ICoreConstants.SCHEMATRON_RULE+">", SCHEMATRON);
+			//sch=sch.replaceAll("</"+ICoreConstants.SCHEMATRON_RULE+">", "</schema>");
+			if(sch ==null || sch.trim().length()==0) continue;
+			StringBuffer sb=new StringBuffer();
+			sb.append("<schema xmlns=\"http://www.ascc.net/xml/schematron\" ns=\"http://xml.apache.cocoon/xmlform\">");
+			sb.append(sch);
+			sb.append("</schema>");
+			schematronValidate(element, sb.toString(), concept);
+		}
+		//end
+		
 		return d;
     }
     

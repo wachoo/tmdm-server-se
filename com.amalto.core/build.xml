@@ -14,7 +14,7 @@
 
 	<property name="version.props" value="version.properties"/>
 		
-	<property name="jboss.dir" value="/opt/jboss"/>
+	<property name="jboss.dir" value="c:/opt/jboss"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.lib.dir" value="${jboss.instance.dir}/lib"/>

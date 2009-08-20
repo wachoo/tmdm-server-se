@@ -16,7 +16,7 @@ JAAS authentication module for JBoss that uses xtentis as the source of user dat
 		  <module-option name="userConcept">User</module-option>
 		  <module-option name="passwordPath">./password</module-option>
 		  <module-option name="rolesPath">./roles/role</module-option>
-		  <module-option name="adminPassword">9bd2dbdf7fbdf7c9770edd3f0383c148</module-option>
+		  <module-option name="adminPassword">1a254116eb5e70714b0680dfd4d8f7d4</module-option>
 		  <module-option name="defaultUniversePath">./universe</module-option>
         </login-module>
       </authentication>

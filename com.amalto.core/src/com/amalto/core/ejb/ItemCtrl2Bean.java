@@ -172,6 +172,7 @@ public class ItemCtrl2Bean implements SessionBean {
     	    	}
     	    	
         		Util.validate(item.getProjection(),schema);
+        		//schematron validate
         	}
         	
             //FIXME: update the vocabulary . Universe dependent?

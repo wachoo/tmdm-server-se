@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- ======================================================================
-     20 déc. 2005 09:21:22
+<!-- ====================================================================== 
+     20 déc. 2005 09:21:22                                                        
 
      Xtentis
      JAAS/Provisioning libraries
-
-     bgrieder
+                   
+     bgrieder                                                                
      ====================================================================== -->
 <project name="xtentis-JAAS" default="all">
-
+	
 	<property name="version.props" value="version.properties"/>
-
-	<property name="jboss.dir" value="/opt/jboss"/>
+	
+	<property name="jboss.dir" value="c:/opt/jboss"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
 
 	<property name="jar" value="z.com.amalto.jaas.ldap.jboss.jar"/>
 
-    <!-- =================================
-          target: all
+    <!-- ================================= 
+          target: all              
          ================================= -->
     <target name="all" depends="version,packaging,undeploy,deploy">
-    	<eclipse.refreshLocal resource="${basedir}"/>
+    	<eclipse.refreshLocal resource="."/>
     </target>
-
+	
 	<target name="packaging" >
 		<buildnumber file="${version.props}"/>
 		<property file="${version.props}" />
@@ -46,14 +46,14 @@
        		<entry key="build.date" type="date" value="now" />
        	</propertyfile>
      </target>
-
-    <target name="undeploy" description="--> remove packages">
+		
+    <target name="undeploy" description="--> remove packages">		
 		<delete>
 			<fileset dir="${jboss.instance.lib}" includes="${jar}"/>
 			<fileset dir="${jboss.instance.lib}" includes="z.com.amalto.provisioning.mdm.jar"/>
 		</delete>
     </target>
-
+	
 	<target name="deploy">
 		<echo>Deploying build: ${version.build.new}</echo>
 		<copy file="${jar}" tofile="${jboss.instance.lib}/${jar}"/>

@@ -9,9 +9,9 @@
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
 	
-	<property name="jwsdp.dir" location="c:/opt/jwsdp-1.5"/>
+	<property name="jwsdp.home" location="c:/opt/jwsdp-1.5"/>
 	
-	<property name="xdoclet.root.dir" value="/opt/xdoclet-1.2.3.patched"/>
+	<property name="xdoclet.root.dir" value="c:/opt/xdoclet-1.2.3.patched"/>
     <property file="${xdoclet.root.dir}/build.properties"/>
 	<property name="xdoclet.lib.dir" value = "${xdoclet.root.dir}/lib"/>
 	<property name="dist.lib.dir" value = "${xdoclet.lib.dir}"/>
