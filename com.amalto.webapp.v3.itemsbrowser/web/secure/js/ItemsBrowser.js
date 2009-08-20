@@ -1373,7 +1373,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				
 			},
 			errorHandler:function(errorString, exception) {//on exception  
-              alert('An exception occurs when saving ：'+ errorString);
+              alert(''+ errorString);
             }
            });
 			amalto.core.ready();
