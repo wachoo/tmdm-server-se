@@ -71,7 +71,11 @@ amalto.reporting.Reporting = function () {
 	'en':'New report'
 	}
 
-
+    var DUPLICATE_REPORTING = {
+    	'fr':'Duplicate report',
+    	'en':'Duplicate report'
+    }
+    
 	var REPORTING = {
 		'en':'Reports',
 		'fr':'Rapports'
@@ -197,7 +201,7 @@ amalto.reporting.Reporting = function () {
 	var reporting = new Array();
 	var fields  = new Array();
 	var EDIT = false;
-	
+	var DUPLICATE = false;
 	/********************************************************************
 	 * Action show reporting
 	 ********************************************************************/
@@ -313,6 +317,12 @@ amalto.reporting.Reporting = function () {
 					    	new Ext.Button({
 						        text: NEW_REPORTING[language],
 								handler: newReporting
+					    	}),
+					    	new Ext.Button({
+					    		id:'duplicateButton',
+						        text: DUPLICATE_REPORTING[language],
+								handler: duplicateReporting,
+								disabled:true
 					    	})
 						]
 						
@@ -359,10 +369,12 @@ amalto.reporting.Reporting = function () {
 		if(reporting.erasable==true ){ 
 			Ext.getCmp('deleteButton').setDisabled(false);
 			Ext.getCmp('editButton').setDisabled(false);
+			Ext.getCmp('duplicateButton').setDisabled(false);
 		}
 		else{
 			Ext.getCmp('deleteButton').setDisabled(true);
 			Ext.getCmp('editButton').setDisabled(true);
+			Ext.getCmp('duplicateButton').setDisabled(true);
 		}
 				
 		var pivot=(reporting.pivotField!=null && reporting.pivotField!="null") ? reporting.pivotField:"";
@@ -580,15 +592,20 @@ amalto.reporting.Reporting = function () {
 	var newReportingPanel;
 	
 	function editReporting(){
-		newReporting(true,false);
+		newReporting(true,false, false);
 	}
 	
-	function newReporting(edit,isEdit){
+	function duplicateReporting() {
+		newReporting(true, false, true);
+	}
+	
+	function newReporting(edit,isEdit, isDuplicate){
 		var readonly = "";
-		if(!isEdit)
+		if(!isEdit && !isDuplicate)
 			readonly = 'readonly="true" ';
 			
 		if(edit!=undefined)	EDIT= edit;
+		DUPLICATE = isDuplicate;
 		var tabPanel = amalto.core.getTabPanel();
 		amalto.core.working();
 
@@ -670,7 +687,7 @@ amalto.reporting.Reporting = function () {
 				DWRUtil.addOptions('businessConceptsList',results);
 				amalto.core.ready();
 			}			
-			if(edit==true){
+			if(edit==true || isDuplicate == true){
 				DWRUtil.setValue('reportingName',reporting.reportingName);
 				DWRUtil.setValue('sharedCheckBox',reporting.shared);
 				DWRUtil.setValue('businessConceptsList',reporting.concept);
@@ -764,7 +781,8 @@ amalto.reporting.Reporting = function () {
 	        pivotXpath:pivot
 	    };
 	    //alert(DWRUtil.toDescriptiveString(reporting,2));
-	    ReportingInterface.saveReporting(saveReportingCB,reporting,documentType,language, EDIT);
+	    ReportingInterface.saveReporting(saveReportingCB,reporting,documentType,language, DUPLICATE ? false : EDIT);
+	 
 	} 
 	
 	function saveReportingCB(result){
@@ -775,7 +793,7 @@ amalto.reporting.Reporting = function () {
 			tabPanel.remove('newReportingDiv');
 			if(Ext.get('reporting')) ReportingInterface.getReportingsName();
 			Ext.getCmp('reportingSelect').setValue('');
-			Ext.getCmp('reportingSelect').store.reload();	
+			Ext.getCmp('reportingSelect').store.reload();
 		}			
 	}
 	
@@ -1276,6 +1294,7 @@ amalto.reporting.Reporting = function () {
 			deleteReporting: function(){deleteReporting()},
 			newReporting: function(){newReporting()},
 			editReporting: function(){editReporting()},
+			duplicateReporting: function(){duplicateReporting()},
 			getTranslation: function(){getTranslation();},
 			addFilterToTable: function(){addFilterToTable();},
 			saveReporting: function(){saveReporting();}
