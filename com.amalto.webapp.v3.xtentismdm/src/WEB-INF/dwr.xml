@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<dwr>
-    <allow>
-        <create creator="new" javascript="ActionsInterface">
-            <param name="class" value="com.amalto.webapp.v3.xtentismdm.dwr.ActionsDWR"/>
-        </create>
-    </allow>
-
-</dwr>
