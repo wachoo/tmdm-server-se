@@ -29,11 +29,8 @@ Ext.extend(amalto.hierarchical.HierarchicalViewEdit, Ext.Panel, {
 				//dropConfig: {appendOnly:true}
 				listeners: {
 				            'dblclick': function(node, e){
-				            	              if(node && node.isLeaf()){
-				            	                    //TODO
-				                                    alert(node.id);
-				            	                }
-				                        },
+				            	              this.onTreeLeafNodeClick(node,e)
+				                        }.createDelegate(this),
 				            'nodedrop': function(dropEvent){
 				            	              
 				            	              var keys=dropEvent.dropNode.id;
@@ -43,7 +40,10 @@ Ext.extend(amalto.hierarchical.HierarchicalViewEdit, Ext.Panel, {
 				            	              HierarchicalViewInterface.recordChanges(keys,xpath,newText,function(status){
 											    if(status==false)Ext.MessageBox.alert('Sorry', "This change has not affected the actual data item! ");
 										      });
-				                        }            
+				                        }
+//				            'nodedragover' : function(dragOverEvent){
+//				            	            //TODO add highlight for modify
+//				                        }
 				                                          
 	                       }
 			});
@@ -85,5 +85,24 @@ Ext.extend(amalto.hierarchical.HierarchicalViewEdit, Ext.Panel, {
     		   Ext.MessageBox.hide();
 	    	   Ext.MessageBox.alert('Status', data);
         });
-    }
+    },
+    
+    onTreeLeafNodeClick : function(node, e){
+		if(node && node.isLeaf()){
+				
+				var tabPanel = amalto.core.getTabPanel();
+				var itemTreeDisplayPanel = tabPanel.getItem('ItemTreeDisplayPanel');
+				
+				if(itemTreeDisplayPanel == undefined){
+					itemTreeDisplayPanel=new amalto.hierarchical.ItemTreeDisplay({'keys':node.id});			
+					tabPanel.add(itemTreeDisplayPanel);
+				}
+		        
+		        itemTreeDisplayPanel.show();
+				itemTreeDisplayPanel.doLayout();
+				amalto.core.doLayout();
+				
+				itemTreeDisplayPanel.initData(node.id);
+		}
+	}
 });

@@ -194,11 +194,8 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 				autoScroll : true,
 				listeners: {
 				            'dblclick': function(node, e){
-				            	                           if(node && node.isLeaf()){
-				            	                           	  //TODO
-				                                              alert(node.id);
-				            	                            }
-				                                          }
+				            	                            this.onTreeLeafNodeClick(node, e);
+				                                          }.createDelegate(this)
 	                       }
 			}
 		);
@@ -301,6 +298,25 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 	
 	deleteFiterRenderer : function(){
 		return "<img src='img/genericUI/trash.gif' style='cursor:pointer' border=\"0\" />";
+	},
+	
+	onTreeLeafNodeClick : function(node, e){
+		if(node && node.isLeaf()){
+							
+				var tabPanel = amalto.core.getTabPanel();
+				var itemTreeDisplayPanel = tabPanel.getItem('ItemTreeDisplayPanel');
+				
+				if(itemTreeDisplayPanel == undefined){
+					itemTreeDisplayPanel=new amalto.hierarchical.ItemTreeDisplay({'keys':node.id});			
+					tabPanel.add(itemTreeDisplayPanel);
+				}
+		        
+		        itemTreeDisplayPanel.show();
+				itemTreeDisplayPanel.doLayout();
+				amalto.core.doLayout();
+				
+				itemTreeDisplayPanel.initData(node.id);
+		}
 	},
 	
 	onBeforeloadDataObjectStore : function(){

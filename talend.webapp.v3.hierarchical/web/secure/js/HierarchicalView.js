@@ -11,6 +11,8 @@ amalto.hierarchical.HierarchicalView = function () {
     
     loadResource("/hierarchical/secure/js/HierarchicalViewEdit.js", "");
     
+    loadResource("/hierarchical/secure/js/ItemTreeDisplay.js", "");
+    
     function initUIAndData(){
 		var tabPanel = amalto.core.getTabPanel();
 		hierarchicalViewDisplayPanel = tabPanel.getItem('hierarchicalViewDisplay');
