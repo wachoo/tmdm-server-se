@@ -9,7 +9,7 @@
 <connection-factories>
 	<no-tx-connection-factory>
 		<jndi-name>jca/xtentis/connector/jdbc</jndi-name>
-		<rar-name>zz.20.xtentis.connector.jdbc.rar</rar-name>
+		<rar-name>zz.20.mdm.connector.jdbc.rar</rar-name>
 		<connection-definition>javax.resource.cci.ConnectionFactory</connection-definition>
 		<application-managed-security/>
 		<min-pool-size>0</min-pool-size> <!-- default 0 -->
