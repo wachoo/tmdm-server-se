@@ -1,5 +1,0 @@
-#eXist build info (updated using svnkit)
-#Wed Jun 17 16:57:29 CEST 2009
-project.version=1.2.6
-project.build=20090617
-svn.revision=9165
