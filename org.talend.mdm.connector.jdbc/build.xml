@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ======================================================================                                                        
+
+     Talend Connectors
+     Jdbc Connector
+                                                                                   
+     ====================================================================== -->
+<project name="Jdbc Connector" default="all">
+
+	<property name="version.props" value="version.properties" />
+
+	<property name="jboss.dir" value="c:/opt/jboss" />
+
+	<property name="jar" value="jdbc.jar" />
+	<property name="rar" value="zz.20.mdm.connector.jdbc.rar" />
+	<property name="mdb" value="zz.20.mdm.connector.jdbc-mdb.ejb.jar" />
+	<property name="ds" value="zz.20.mdm.connector.jdbc-ds.xml" />
+
+	<!-- ================================= 
+	
+		DO NOT CHANGE ANYTHING BELOW HERE
+	 
+         ================================= -->
+	
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib" />
+	
+	<target name="all" depends="version,package,undeploy,deploy">
+		<eclipse.refreshLocal resource="../" />
+	</target>
+
+	<target name="version" description="Maintain build.date property">
+		<buildnumber file="${version.props}" />
+		<propertyfile file="${version.props}">
+			<entry key="build.date" type="date" value="now" />
+		</propertyfile>
+	</target>
+
+	<target name="package">
+		<property file="${version.props}" />
+		<copy file="RELEASE.NOTES" tofile="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES">
+		</copy>
+
+		<jar destfile="${jar}">
+			<zipfileset dir="bin" includes="**/eis/**/*.class" />
+			<zipfileset dir="bin" includes="**/ra/**/*.class" />
+			<zipfileset dir="bin" includes="**/util/**/*.class" />
+		</jar>
+
+		<jar destfile="${rar}">
+			<zipfileset dir="src/META-INF" prefix="META-INF">
+				<include name="ra.xml" />
+			</zipfileset>
+			<zipfileset dir=".">
+				<include name="${jar}" />
+				<include name="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+				<include name="${version.props}" />
+			</zipfileset>
+			<zipfileset dir="src/META-INF" prefix="META-INF">
+				<include name="${ds}" />
+			</zipfileset>
+		</jar>
+		
+		<jar destfile="${mdb}">
+			<zipfileset dir="src/META-INF" prefix="META-INF">
+				<include name="ejb-jar.xml" />
+			</zipfileset>
+			<zipfileset dir="src/META-INF" prefix="META-INF">
+				<include name="jboss.xml" />
+			</zipfileset>
+			<zipfileset dir="bin" includes="**/mdb/**/*.class" />
+			<zipfileset dir=".">
+				<include name="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+				<include name="${version.props}" />
+			</zipfileset>
+		</jar>
+
+		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+	</target>
+	
+	
+
+	<target name="undeploy" description="--> remove packages">
+		<delete>
+			<fileset dir="${jboss.deploy.dir}" includes="${mdb}" />
+		</delete>
+		<sleep seconds="2" />
+		<!-- wait for endpoint deactivation to complete -->
+		<delete>
+			<fileset dir="${jboss.deploy.dir}" includes="${rar}" />
+			<fileset dir="${jboss.deploy.dir}" includes="${ds}" />
+		</delete>
+		<sleep seconds="5" />
+	</target>
+
+	
+	
+	<target name="deploy">
+		<property file="${version.props}" />
+		<echo>Deploying build: ${major}.${minor}.${rev}-${build.number}</echo>
+		<copy file="${rar}" tofile="${jboss.deploy.dir}/${rar}" />
+		<copy file="${mdb}" tofile="${jboss.deploy.dir}/${mdb}" />
+		<copy file="src/META-INF/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />
+	</target>
+
+</project>

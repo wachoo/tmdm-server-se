@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry kind="lib" path="libs/jdbc2_0-stdext.jar"/>
+	<classpathentry kind="lib" path="libs/quartz-1.6.0.jar" sourcepath="F:/Src/OpenSourceProject/quartz/quartz-1.6.0/src/java"/>
+	<classpathentry kind="lib" path="libs/quartz-jboss-1.6.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.webapp.core"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

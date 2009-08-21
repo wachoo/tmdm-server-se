@@ -1,0 +1,121 @@
+	html, body {
+	font:13px tahoma,verdana,helvetica;
+        margin:0;
+        padding:0;
+        border:0 none;
+        overflow:hidden;
+        height:100%;
+    }
+	p {
+	    margin:5px;
+	}
+    .settings {
+        background-image:url(../shared/icons/fam/folder_wrench.png);
+    }
+    .nav {
+        background-image:url(../shared/icons/fam/folder_go.png);
+    }
+    
+    .language-select{
+		width:auto;
+		position: absolute;
+		top: 25px;
+		right:1px;
+	}
+
+	.logout-btn{
+		width:auto;
+		position: absolute;
+		top: 1px;
+		right:1px;
+		color:white;
+	}
+	
+	.username{
+		width:auto;
+		position: absolute;
+		top: 1px;
+		right:200px;
+		color:black;
+		font-weight:normal;
+	}
+	
+
+
+.generic-header{
+	background-image: url(/xtentismdm/secure/img/genericUI/header.gif);
+	background-repeat: repeat-y;
+	background-position:right;
+	font:bold 12px verdana, helvetica;
+	overflow:hidden;
+	padding:4px;
+	border:0px none;
+	border-bottom:2px solid #c3daf9;
+}
+/***************************************************************************************
+  ACTIONS
+****************************************************************************************/
+
+#actions-body{
+	overflow:auto;
+	
+}
+
+.actions-list{
+	padding:1px;
+}
+.actions-list a{
+	border:1px solid white;
+	display:block;
+	margin-bottom:2px;
+	text-decoration:none;
+	-moz-outline:none;
+}
+.actions-list a .body{
+	padding:5px 2px 5px 15px;
+	/* background-position: 2px 5px; */
+	background-repeat: no-repeat;
+	font:bold 12px tahoma, verdana, helvetica;
+	color: #2d5593;
+	display:block;
+	-moz-outline:none;
+}
+.actions-list a .desc{
+	font:normal 11px tahoma, verdana, helvetica;
+	color: #222222;
+}
+.actions-list a:hover, .actions-list .selected{
+	text-decoration: none;
+	border:1px solid #c3daf9;
+	background-color:#ddecfe;
+}
+.actions-list .selected{
+	background-image: url('/b2box3/secure/img/post-bg.gif');
+	border:1px solid #c3daf9;
+}
+div .sub-body{
+	position:relative;
+	left: 15px;
+}
+
+#status {
+	font-size:8pt;
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left:20px;
+	padding-top:3px;
+	height:18px;
+}
+
+#status.working {
+	background-image: url('/core/secure/img/loading.gif');
+}
+#status.ready {
+	background-image: url('/core/secure/img/done.gif');
+}
+
+.left{float:left;text-align:left;width:150px;}
+.leftField{float:left;text-align:left;left:20px;font-family:Verdana,Arial,Helvetica,sans-serif;}
+.right{float:right;}
+.buttonRightBottom{float:right;bottom:20px;right:20px}
+

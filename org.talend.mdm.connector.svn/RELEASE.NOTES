@@ -1,0 +1,6 @@
+RELEASE NOTES
+
+The Svn Connector is able to execute common subversion commands such as checkout, commit and branch/tag a file. 
+
+1.0.0 
+Initial release

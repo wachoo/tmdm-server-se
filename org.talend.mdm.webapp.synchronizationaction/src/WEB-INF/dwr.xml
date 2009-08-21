@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 2.0//EN" "http://getahead.org/dwr/dwr20.dtd">
+<dwr>
+	<allow>
+	        <create creator="new" javascript="SynchronizationActionInterface">
+	            <param name="class" value="com.amalto.webapp.v3.synchronizationaction.dwr.SynchronizationActionDWR"/>
+	        </create>
+	        <convert converter="bean" match="java.lang.Exception"/>
+	        <convert converter="bean" match="java.lang.StackTraceElement"/>
+	        <convert converter="bean" match="com.amalto.webapp.core.bean.ListRange"/>
+	        <convert  converter="bean" match="com.amalto.webapp.v3.synchronizationaction.bean.ServerURL"/>
+	        <convert converter="bean" match="com.amalto.webapp.v3.synchronizationaction.bean.SyncStatus"/>
+			<convert converter="bean" match="com.amalto.webapp.v3.synchronizationaction.bean.SyncInfo"/>
+	</allow>
+</dwr>

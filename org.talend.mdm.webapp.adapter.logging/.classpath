@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="com/amalto/webapp/v3/subscriptionengine/dwr/COFlipDWR.java|com/amalto/webapp/v3/subscriptionengine/servlet/RemotePagingSubscriptionEngine.java|com/amalto/webapp/v3/crossreferencing/bean/CrossReferencingContent.java" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.webapp.core"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
