@@ -17,7 +17,6 @@
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
 
-	<property name="core.dir" value="../com.amalto.core"/>
 	
 	<property name="jar" value="z.mdm.jaas.openmdm.jboss.jar"/>
 

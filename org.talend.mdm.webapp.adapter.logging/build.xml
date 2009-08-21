@@ -8,7 +8,7 @@
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
 
-	<property name="war" value="zz.20.webapp.v3.adapter.logging.war"/>
+	<property name="war" value="zz.20.webapp.adapter.logging.war"/>
 
 	<property name="webapp.core.lib" value="../org.talend.mdm.webapp.core/z.mdm.webapp.core.jar"/>
 
