@@ -1771,8 +1771,14 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 						updateReportItemsMap.put(entry.getKey(), pojo);
 				}				
 			}
-			//create resultUpdateReport
-			
+
+						
+			String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
+	
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[putItem-of-putItemWithReport] in dataCluster:"+dataClusterPK);
+			WSItemPK wsi = putItem(wsPutItem);	
+
+			//create resultUpdateReport			
 			String resultUpdateReport= Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem.getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
 			//invoke before saving
 			if(wsPutItemWithReport.getInvokeBeforeSaving()){
@@ -1783,11 +1789,6 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 					throw new XtentisException(err);
 				}
 			}
-						
-			String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
-	
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[putItem-of-putItemWithReport] in dataCluster:"+dataClusterPK);
-			WSItemPK wsi = putItem(wsPutItem);	
 			
 			concept=wsi.getConceptName();
 			ids=wsi.getIds();			
@@ -1809,8 +1810,9 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 								new WSDataClusterPK("UpdateReport"), 
 								updateReportPOJO.serialize(),
 								new WSDataModelPK("UpdateReport")));
+
 				
-				routeItemV2(new WSRouteItemV2(itemPK));
+			routeItemV2(new WSRouteItemV2(itemPK));
 				
 			return wsi;	
 
