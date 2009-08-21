@@ -14,7 +14,7 @@
     
     <message-driven>
       <ejb-name>LoggingConnectorMDB</ejb-name>
-      <resource-adapter-name>zz.20.xtentis.connector.logging.rar</resource-adapter-name>
+      <resource-adapter-name>zz.20.mdm.connector.logging.rar</resource-adapter-name>
       <ejb-local-ref>
         <ejb-ref-name>ItemCtrlLocal</ejb-ref-name>
         <local-jndi-name>amalto/local/core/itemctrl</local-jndi-name>

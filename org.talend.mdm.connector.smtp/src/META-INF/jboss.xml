@@ -14,7 +14,7 @@
     
     <message-driven>
       <ejb-name>SmtpConnectorMDB</ejb-name>
-      <resource-adapter-name>zz.20.xtentis.connector.smtp.rar</resource-adapter-name>
+      <resource-adapter-name>zz.20.mdm.connector.smtp.rar</resource-adapter-name>
     </message-driven>
     
   </enterprise-beans>

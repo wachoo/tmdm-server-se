@@ -14,7 +14,7 @@
     
     <message-driven>
       <ejb-name>JdbcConnectorMDB</ejb-name>
-      <resource-adapter-name>zz.20.xtentis.connector.jdbc.rar</resource-adapter-name>
+      <resource-adapter-name>zz.20.mdm.connector.jdbc.rar</resource-adapter-name>
     </message-driven>
     
   </enterprise-beans>

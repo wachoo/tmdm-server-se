@@ -14,7 +14,7 @@
     
     <message-driven>
       <ejb-name>SvnConnectorMDB</ejb-name>
-      <resource-adapter-name>zz.20.xtentis.connector.svn.rar</resource-adapter-name>
+      <resource-adapter-name>zz.20.mdm.connector.svn.rar</resource-adapter-name>
     </message-driven>
     
   </enterprise-beans>
