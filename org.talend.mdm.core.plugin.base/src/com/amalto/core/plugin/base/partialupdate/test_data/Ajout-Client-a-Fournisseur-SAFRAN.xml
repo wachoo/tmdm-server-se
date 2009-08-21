@@ -1,0 +1,11 @@
+<Fournisseur>
+    <ID>213792</ID>
+    <ListeClients>
+        <ClientSAFRAN>
+            <Nom>Client ajouté</Nom>
+            <Contact>
+                <Nom>Nom ajouté</Nom>
+            </Contact>
+        </ClientSAFRAN>        
+    </ListeClients>
+</Fournisseur>

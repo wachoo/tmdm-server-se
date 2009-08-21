@@ -1,0 +1,347 @@
+<xsd:schema 
+	elementFormDefault="unqualified"
+	targetNamespace="urn-com-amalto-xtentis-webservice"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="urn-com-amalto-xtentis-webservice"
+	>
+
+	<xsd:include schemaLocation="xtentis-core.xsd"/>
+	
+	<!-- *****************************************************
+		Synchronization Plan Objects
+		*******************************************************-->
+	
+	<xsd:complexType name="WSSynchronizationPlan">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="remoteSystemName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="remoteSystemURL" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="remoteSystemUsername" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="remoteSystemPassword" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="tisURL" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="tisUsername" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="tisPassword" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="tisParameters" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="xtentisObjectsSynchronizations">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="xtentisObjectName" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="synchronizations">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="instancePattern" type="xsd:string"/>
+									<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="localRevisionID" type="xsd:string"/>
+									<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="remoteRevisionID" type="xsd:string"/>
+									<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="algorithm" type="xsd:string"/>
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="itemsSynchronizations">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="conceptName" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="idsPattern" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="localCluster" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="localRevisionID" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="remoteCluster" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="remoteRevisionID" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="algorithm" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<!-- Obtained via action(STATUS)
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="lastRunStarted" type="xsd:dateTime"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="lastRunStopped" type="xsd:dateTime"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsCurrentStatusCode" type="tns:WSSynchronizationPlanStatusCode"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="currentStatusMessage" type="xsd:string"/>
+			-->
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationPlan" type = "tns:WSSynchronizationPlan"/>		
+	
+	<xsd:complexType name="WSSynchronizationPlanPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationPlanPK" type="tns:WSSynchronizationPlanPK"/>		
+	
+	<xsd:complexType name="WSSynchronizationPlanPKArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsSynchronizationPlanPK" type="tns:WSSynchronizationPlanPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationPlanPKArray" type = "tns:WSSynchronizationPlanPKArray"/>
+
+	<xsd:simpleType name="WSSynchronizationPlanActionCode">
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="START_FULL"/>
+			<xsd:enumeration value="START_DIFFERENTIAL"/>
+			<xsd:enumeration value="STOP"/>
+			<xsd:enumeration value="RESET"/>
+			<xsd:enumeration value="STATUS"/>
+			<!--
+				<xsd:enumeration value="SUSPEND"/>
+				<xsd:enumeration value="RESUME"/>
+			-->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="WSSynchronizationPlanActionCode" type="tns:WSSynchronizationPlanActionCode"/>
+	
+	<xsd:simpleType name="WSSynchronizationPlanStatusCode">
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="DOES_NOT_EXIST"/>
+			<xsd:enumeration value="COMPLETED"/>
+			<xsd:enumeration value="FAILED"/>
+			<xsd:enumeration value="RUNNING"/>
+			<xsd:enumeration value="SCHEDULED"/>
+			<xsd:enumeration value="STOPPING"/>
+			<!--
+				<xsd:enumeration value="SUSPENDED"/>
+			-->
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="WSSynchronizationPlanStatusCode" type="tns:WSSynchronizationPlanStatusCode"/>
+	
+	<xsd:complexType name="WSSynchronizationPlanStatus">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsStatusCode" type="tns:WSSynchronizationPlanStatusCode"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="statusMessage" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="lastRunStarted" type="xsd:dateTime"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="lastRunStopped" type="xsd:dateTime"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationPlanStatus" type="tns:WSSynchronizationPlanStatus"/>
+	
+	
+	<!-- *****************************************************
+		Synchronization Item Objects
+		*******************************************************-->
+	
+	<xsd:simpleType name="WSSynchronizationItemStatus">
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="PENDING"/>
+			<xsd:enumeration value="MANUAL"/>
+			<xsd:enumeration value="RESOLVED"/>
+			<xsd:enumeration value="EXECUTED"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="WSSynchronizationItemStatus" type="tns:WSSynchronizationItemStatus"/>
+	
+	<xsd:complexType name="WSSynchronizationItem">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="localRevisionID" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="lastRunPlan" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="status" type="tns:WSSynchronizationItemStatus"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="resolvedProjection" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="remoteInstances">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="remoteSystemName" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="remoteRevisionID" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="xml" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="lastLocalSynchronizationTime" type="xsd:dateTime"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationItem" type = "tns:WSSynchronizationItem"/>	
+	
+	<xsd:complexType name="WSSynchronizationItemPK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="true" name="ids" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationItemPK" type="tns:WSSynchronizationItemPK"/>		
+	
+	<xsd:complexType name="WSSynchronizationItemPKArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsSynchronizationItemPK" type="tns:WSSynchronizationItemPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationItemPKArray" type = "tns:WSSynchronizationItemPKArray"/>
+	
+	<!-- *****************************************************
+		Synchronization Plan Operations
+		*******************************************************-->
+	
+	<xsd:complexType name="WSGetSynchronizationPlan">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSynchronizationPlanPK" type="tns:WSSynchronizationPlanPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetSynchronizationPlan" type="tns:WSGetSynchronizationPlan"/>
+	
+	<xsd:complexType name="WSExistsSynchronizationPlan">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSynchronizationPlanPK" type="tns:WSSynchronizationPlanPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExistsSynchronizationPlan" type="tns:WSExistsSynchronizationPlan"/>
+	
+	<xsd:complexType name="WSPutSynchronizationPlan">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSynchronizationPlan" type="tns:WSSynchronizationPlan"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutSynchronizationPlan" type="tns:WSPutSynchronizationPlan"/>
+	
+	<xsd:complexType name="WSDeleteSynchronizationPlan">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSynchronizationPlanPK" type="tns:WSSynchronizationPlanPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteSynchronizationPlan" type="tns:WSDeleteSynchronizationPlan"/>
+	
+	<xsd:complexType name="WSGetSynchronizationPlanPKs">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetSynchronizationPlanPKs" type="tns:WSGetSynchronizationPlanPKs"/>	
+	
+	<xsd:complexType name="WSGetObjectsForSynchronizationPlans">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetObjectsForSynchronizationPlans" type="tns:WSGetObjectsForSynchronizationPlans"/>
+
+	<xsd:complexType name="WSGetSynchronizationPlanObjectsAlgorithms">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="algorithm" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetSynchronizationPlanObjectsAlgorithms" type="tns:WSGetSynchronizationPlanObjectsAlgorithms"/>
+	
+	<xsd:complexType name="WSGetSynchronizationPlanItemsAlgorithms">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="algorithm" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetSynchronizationPlanItemsAlgorithms" type="tns:WSGetSynchronizationPlanItemsAlgorithms"/>
+	
+	<xsd:complexType name="WSSynchronizationPlanAction">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSynchronizationPlanPK" type="tns:WSSynchronizationPlanPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsAction" type="tns:WSSynchronizationPlanActionCode"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationPlanAction" type="tns:WSSynchronizationPlanAction"/>	
+	
+	<xsd:complexType name="WSSynchronizationGetUnsynchronizedObjectsIDs">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="objectName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="instancePattern" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="synchronizationPlanName" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationGetUnsynchronizedObjectsIDs" type="tns:WSSynchronizationGetUnsynchronizedObjectsIDs"/>
+
+
+	<xsd:complexType name="WSSynchronizationGetObjectXML">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="objectName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="uniqueID" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationGetObjectXML" type="tns:WSSynchronizationGetObjectXML"/>
+	
+	
+	<xsd:complexType name="WSSynchronizationPutObjectXML">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="objectName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="uniqueID" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="xml" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationPutObjectXML" type="tns:WSSynchronizationPutObjectXML"/>
+
+
+	<xsd:complexType name="WSSynchronizationGetUnsynchronizedItemPKs">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPOJOPK" type="tns:WSDataClusterPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="conceptName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="instancePattern" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="synchronizationPlanName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="start" type="xsd:int"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="limit" type="xsd:int"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationGetUnsynchronizedItemPKs" type="tns:WSSynchronizationGetUnsynchronizedItemPKs"/>
+
+	<xsd:complexType name="WSSynchronizationGetItemXML">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPOJOPK" type="tns:WSItemPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationGetItemXML" type="tns:WSSynchronizationGetItemXML"/>
+	
+	<xsd:complexType name="WSSynchronizationPutItemXML">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="xml" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSSynchronizationPutItemXML" type="tns:WSSynchronizationPutItemXML"/>
+	
+	
+	<!-- *****************************************************
+		Synchronization Item Operations
+		*******************************************************-->
+	
+	<xsd:complexType name="WSGetSynchronizationItem">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSynchronizationItemPK" type="tns:WSSynchronizationItemPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetSynchronizationItem" type="tns:WSGetSynchronizationItem"/>
+	
+	<xsd:complexType name="WSExistsSynchronizationItem">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSynchronizationItemPK" type="tns:WSSynchronizationItemPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExistsSynchronizationItem" type="tns:WSExistsSynchronizationItem"/>
+	
+	<xsd:complexType name="WSPutSynchronizationItem">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSynchronizationItem" type="tns:WSSynchronizationItem"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutSynchronizationItem" type="tns:WSPutSynchronizationItem"/>
+	
+	<xsd:complexType name="WSDeleteSynchronizationItem">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSynchronizationItemPK" type="tns:WSSynchronizationItemPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteSynchronizationItem" type="tns:WSDeleteSynchronizationItem"/>
+	
+	<xsd:complexType name="WSGetSynchronizationItemPKs">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetSynchronizationItemPKs" type="tns:WSGetSynchronizationItemPKs"/>
+	
+	<xsd:complexType name="WSResolveSynchronizationItem">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSynchronizationItemPK" type="tns:WSSynchronizationItemPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="newProjection" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSResolveSynchronizationItem" type="tns:WSResolveSynchronizationItem"/>
+
+</xsd:schema>

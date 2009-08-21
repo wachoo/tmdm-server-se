@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<!--
+	Sample Schematron schema for the ZValidationTest
+
+    Pass this file as a first argument on the command line to ZValidationTest
+
+	Ivelin Ivanov, ivelin@apache.org
+-->
+
+<schema ns="http://xml.apache.cocoon/xmlform"  xmlns="http://www.ascc.net/xml/schematron" >
+
+
+	<pattern name="A Simple Validation Pattern" id="mini">
+		<rule context="name">
+			<assert  test="string-length(.) > 3" diagnostics="dname dcount">Animal name should be at least 4 characters.</assert>
+			<assert  test="string-length(.) &lt; 10">Animal name should be less than 10 characters.</assert>
+		</rule>
+		<rule context="scope">
+			<assert test="normalize-space(.) = 'session' or normalize-space(.) = 'request'">Scope should be request or session.</assert>
+		</rule>        
+	</pattern>
+    <pattern name="Check A greater than B" id="ab">
+            <rule context="/">
+                    <assert test="number(./AA) > number(./BB) " >
+                            AA should be greater than BB.
+                    </assert>                        
+            </rule>
+    </pattern>        
+	<pattern name="Required Validation Pattern" id="required">
+		<rule context="count">
+			<assert  test="number(.) > 0" > The counter should be > 0.</assert>
+		</rule>
+	</pattern>
+
+    <diagnostics>
+            <diagnostic id="dname">
+                Animals rarely have names shorter than 5 characters.
+                Dog and Cat are among the rare exceptions.
+                All right, all right, don't hold me to these words, this is just a sloppy test after all.
+            </diagnostic>
+            <diagnostic id="dcount">
+                The animal counter simply keeps track of the number of times this animal was visited .
+            </diagnostic>
+    </diagnostics>
+</schema>
+
+
+
+
+
+
+
+
+

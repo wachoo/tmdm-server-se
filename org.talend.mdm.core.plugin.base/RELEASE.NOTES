@@ -1,0 +1,70 @@
+RELEASE NOTES
+
+A set of Transformer Plugins
+
+fixedlengthparser: 		parses a LINE with a fixed length fields format
+csvparser: 				parses a LINE with a csv format
+xslt: 					applies an xslt transformation and cross-referencing
+linereader:				reads a text line by line
+xpath: 					executes an xPath on an XML document
+regexp 					processes a regular expression and loops over results
+partialupdate			partially updates an existing item
+project					project an xml as an Item to a data cluster
+route					routes an existing item
+crossreferencing;		applies cross-referencing
+
+2.2.0 NOT RELAEASED
+For core 2.20.0
+
+2.1.1
+Added: replace transformer plugin
+
+2.1.0
+For core 2.19+. Uses the Routing Engine V2 in the route plugin
+
+2.0.5
+Added: crossreferencing transformer plugin
+
+2.0.4
+Fixes to xPath Plugin returning incorrect content-type
+Improvements to partial updates to allow updating a node based on the local name when no key is supplied
+
+2.0.3
+Added: new input variable "parameters" for xslt plugin - allow to add parameters to xsl
+
+2.0.2
+Added : xrefIgnore / xrefDefault parameters to the transcodification plugin.
+
+2.0.1
+Added : ignoreBlankLine parameter
+
+2.0.0 
+Implementation of SAXON for the xlst engine which can now process XSLT 2.0 stylesheets
+New V2 architecture with multiple inputs and outputs
+Added 
+	regexp to process regular expression, 
+	partialupdate for partially updating documents, 
+	project to project an xml as an item
+	route to trigger the routing of documents
+
+1.2.0
+Improved architecture that requires core 2.17.0+
+CSV Parser can now perform header names lookup and loop over headers patterns
+
+1.1.3
+Fixed xslt output method detection
+Fixed pattern bug in csvparser
+
+1.1.2
+Fixed URI resolution attempt in XSLT plugin
+
+1.1.1
+Fixed cross-referencing bug in XSLT plugin
+
+1.1.0
+Revamped JNDI Names
+Added xPath
+Improved XSLT processing and fixed systematic cross referencing
+
+1.0.0
+Initial release
