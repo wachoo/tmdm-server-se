@@ -81,9 +81,15 @@ Ext.extend(amalto.hierarchical.HierarchicalViewEdit, Ext.Panel, {
            wait:true,
            waitConfig: {interval:200}
        });
-    	HierarchicalViewInterface.saveChanges(function(data){
-    		   Ext.MessageBox.hide();
-	    	   Ext.MessageBox.alert('Status', data);
+    	HierarchicalViewInterface.saveChanges({
+	    	callback:function(data){
+	    		   Ext.MessageBox.hide();
+		    	   Ext.MessageBox.alert('Status', data);
+	        },
+	        errorHandler:function(errorString, exception) {  
+	              alert('Exception:'+ errorString);
+	              Ext.MessageBox.hide();
+	        }
         });
     },
     
