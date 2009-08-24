@@ -12,13 +12,13 @@ import java.util.regex.Pattern;
 
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.XMLConfiguration;
 import com.amalto.webapp.core.bean.XMLConfiguration_Document;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XSystemObjects;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
