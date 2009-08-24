@@ -106,17 +106,17 @@ public class SchematronFactory extends SchemaFactory
     doc.getPrefix ();
 
     // Initialize the JXPath context
-    Element root = doc.createElement ( "root" );
+    //Element root = doc.createElement ( "root" );
     Element schemaElement = doc.getDocumentElement ();
     schemaPrefix_ = schemaElement.getPrefix ();
-    root.appendChild (  schemaElement );
-    JXPathContext jxpContext = JXPathContext.newContext ( root );
+    //root.appendChild (  schemaElement );
+    JXPathContext jxpContext = JXPathContext.newContext ( schemaElement );
     jxpContext.setLenient(true);
 
     // Bind sch:schema element
 
     // schema title
-    String title = (String) jxpContext.getValue ( "/schema/title", String.class );
+    String title = (String) jxpContext.getValue ( "title", String.class );
     schema.setTitle( title );
     logger.fine( "Schema title: " + schema.getTitle());
 
@@ -136,21 +136,21 @@ public class SchematronFactory extends SchemaFactory
   {
     // ensure that mandatory elements which are not found
     // will result in Exception
-    jxpContext.setLenient(false);
+	  jxpContext.setLenient(true);
 
     // schema patterns
-    int ptCount = ((Integer) jxpContext.getValue ( "count(/schema/pattern)", Integer.class )).intValue();
+    int ptCount = ((Integer) jxpContext.getValue ( "count(pattern)", Integer.class )).intValue();
     logger.fine( "\nNumber of patterns:  " + ptCount);
     for (int i = 1; i <= ptCount; i++)
     {
       logger.fine( "Pattern# :  " + i);
       Pattern pattern = new Pattern();
-      String ptprefix = "/schema/pattern[" + i + "]";
+      String ptprefix = "pattern[" + i + "]";
 
       String name = (String) jxpContext.getValue ( ptprefix + "/@name", String.class );
       pattern.setName( name );
       logger.fine( "Pattern name :  " + pattern.getName());
-
+      jxpContext.setLenient(true);
       String id = (String) jxpContext.getValue (  ptprefix + "/@id", String.class );
       pattern.setId( id );
       logger.fine( "Pattern id :  " + pattern.getId() );
