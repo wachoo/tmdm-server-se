@@ -270,8 +270,8 @@ public class SchematronValidator implements Validator
       nextFailedRule.setContext( ptr.asPath() );
 
       // switch to the context of the rule
-      JXPathContext localJxpContext = JXPathContext.newContext( jxpContext, ptr.getValue() );
-      
+      //JXPathContext localJxpContext = JXPathContext.newContext( jxpContext, ptr.getValue() );
+      JXPathContext localJxpContext = jxpContext.getRelativeContext(ptr);
       // evaluate asserts
       Iterator assertIter = rule.getAssert().iterator();
       while (assertIter.hasNext())
