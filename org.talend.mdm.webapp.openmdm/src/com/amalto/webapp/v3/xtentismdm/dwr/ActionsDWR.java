@@ -3,10 +3,11 @@ package com.amalto.webapp.v3.xtentismdm.dwr;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.talend.mdm.commmon.util.webapp.XObjectType;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XObjectType;
-import com.amalto.webapp.core.util.XSystemObjects;
 import com.amalto.webapp.util.webservices.WSDataCluster;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModel;
