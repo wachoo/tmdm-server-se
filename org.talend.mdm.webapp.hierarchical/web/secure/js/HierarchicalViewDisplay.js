@@ -275,8 +275,8 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
                                'select' : function(combo,record,index) {
                                	
                                	                      var pivotText=DWRUtil.getValue('pivotCmp');
-                               	                      if(pivotText!=''&&pivotText.indexOf("->")==-1)DWRUtil.setValue('orderExprText',"ASE-ASE");
-                               	                      if(pivotText!=''&&pivotText.indexOf("->")!=-1)DWRUtil.setValue('orderExprText',"ASE-ASE-ASE");
+                               	                      if(pivotText!=''&&pivotText.indexOf("->")==-1)DWRUtil.setValue('orderExprText',"ASC-ASC");
+                               	                      if(pivotText!=''&&pivotText.indexOf("->")!=-1)DWRUtil.setValue('orderExprText',"ASC-ASC-ASC");
                                	                      
                                	                      
                                                     }

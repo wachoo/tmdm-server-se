@@ -323,7 +323,7 @@ public class HierarchicalUtil {
 	private static String mapKeywordsOfDirection(String input){
 		String output="";
 		if(input!=null&&input.length()>0){
-			if(input.trim().toUpperCase().equals("ASE")){
+			if(input.trim().toUpperCase().equals("ASC")){
 				output="ascending";
 			}else if(input.trim().toUpperCase().equals("DESC")){
 				output="descending";
