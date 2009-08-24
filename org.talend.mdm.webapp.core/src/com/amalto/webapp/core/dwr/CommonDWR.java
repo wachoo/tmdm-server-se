@@ -22,6 +22,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
+import org.talend.mdm.commmon.util.webapp.XObjectType;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -30,8 +32,6 @@ import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XObjectType;
-import com.amalto.webapp.core.util.XSystemObjects;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
