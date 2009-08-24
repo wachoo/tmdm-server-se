@@ -10,6 +10,7 @@
 		<convert converter="bean" match="com.amalto.webapp.core.bean.ListRange"/>
 		<convert converter="bean" match="com.amalto.webapp.v3.hierarchical.bean.FilterItem"/>
 		<convert converter="bean" match="java.lang.Exception"/>
+		<convert converter="bean" match="java.lang.StackTraceElement"/>
 		
 	</allow>
 </dwr>
