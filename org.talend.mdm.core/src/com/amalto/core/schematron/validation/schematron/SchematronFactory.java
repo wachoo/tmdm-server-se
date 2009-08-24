@@ -314,14 +314,14 @@ public class SchematronFactory extends SchemaFactory
     jxpContext.setLenient(false);
 
     // schema phases
-    int phaseCount = ((Integer) jxpContext.getValue ( "count(/schema/phase)", Integer.class )).intValue();
+    int phaseCount = ((Integer) jxpContext.getValue ( "count(phase)", Integer.class )).intValue();
     logger.fine( "\nNumber of phases:  " + phaseCount);
 
     for (int i = 1; i <= phaseCount; i++)
     {
       logger.fine( "phase# :  " + i);
       Phase phase = new Phase();
-      String phprefix = "/schema/phase[" + i + "]";
+      String phprefix = "phase[" + i + "]";
 
       String id = (String) jxpContext.getValue ( phprefix + "/@id", String.class );
       phase.setId( id );

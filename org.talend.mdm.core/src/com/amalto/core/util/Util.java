@@ -283,7 +283,7 @@ public final class Util {
          violations=validator.validate(element);
  
          // everything ok?
-         if (violations == null) 
+         if (violations == null || violations.size()==0) 
          {
            System.out.println("\nValidation ok, no messages generated");
          }
@@ -297,6 +297,7 @@ public final class Util {
              //sb.append("Violation path: " + v.getPath() + ", message: " + v.getMessage() );
              sb.append( v.getMessage()+"\n" );
            }
+           if(sb.toString().length()>0)
            throw new XtentisException(sb.toString());
          }
 
@@ -361,7 +362,7 @@ public final class Util {
 			//sch=sch.replaceAll("</"+ICoreConstants.SCHEMATRON_RULE+">", "</schema>");
 			if(sch ==null || sch.trim().length()==0) continue;
 			StringBuffer sb=new StringBuffer();
-			sb.append("<schema xmlns=\"http://www.ascc.net/xml/schematron\" ns=\"http://xml.apache.cocoon/xmlform\">");
+			sb.append("<schema xmlns=\"http://www.ascc.net/xml/schematron\" >");
 			sb.append(sch);
 			sb.append("</schema>");
 			schematronValidate(element, sb.toString(), concept);
