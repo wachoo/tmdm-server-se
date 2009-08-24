@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/z.commons-jxpath-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.commons-jxpath-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.bsh-2.0b2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
