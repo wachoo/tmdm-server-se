@@ -189,7 +189,11 @@ public class ItemsRemotePaging  extends HttpServlet{
 			for (int i = 0; i < results.length; i++) {
 				//aiming modify
 				results[i] = results[i].replaceAll("<result>","<"+ concept+">");
-				results[i] = results[i].replaceAll("</result>","</"+ concept+">");					
+				results[i] = results[i].replaceAll("</result>","</"+ concept+">");
+				//add concept root in case results[i] don't contains concept root
+				if(results[i].indexOf("<"+ concept+">") ==-1){
+					results[i]="<"+ concept+">"+results[i]+"</"+ concept+">";
+				}
 				Element root = Util.parse(results[i]).getDocumentElement();
 				HashMap<String, String> vMap=com.amalto.core.util.Util.getElementValueMap("/"+concept, root);
 				String[] fields = new String[view.getViewables().length];
