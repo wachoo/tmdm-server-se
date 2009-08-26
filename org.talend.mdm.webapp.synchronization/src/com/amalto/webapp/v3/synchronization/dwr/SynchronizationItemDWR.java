@@ -2,7 +2,6 @@ package com.amalto.webapp.v3.synchronization.dwr;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -10,7 +9,7 @@ import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSGetSynchronizationItem;
 import com.amalto.webapp.util.webservices.WSGetSynchronizationItemPKs;
-import com.amalto.webapp.util.webservices.WSPutSynchronizationItem;
+import com.amalto.webapp.util.webservices.WSResolveSynchronizationItem;
 import com.amalto.webapp.util.webservices.WSSynchronizationItem;
 import com.amalto.webapp.util.webservices.WSSynchronizationItemPK;
 import com.amalto.webapp.util.webservices.WSSynchronizationItemPKArray;
@@ -35,10 +34,11 @@ public class SynchronizationItemDWR {
 			item.setStatus(SynchronizationItem.STATUS_RESOLVED);
 			logger.debug("resolvedXml-- " +resolvedXml + " status-"+ item.getStatus());
 			item.setResolvedProjection(resolvedXml);
-			WSSynchronizationItem wsitem=new WSSynchronizationItem();			
-			wsitem=item.POJO2WS(item);
-			logger.debug(" wsitem.status-"+ wsitem.getStatus().getValue());
-			Util.getPort().putSynchronizationItem(new WSPutSynchronizationItem(wsitem));
+//			WSSynchronizationItem wsitem=new WSSynchronizationItem();			
+//			wsitem=item.POJO2WS(item);
+//			logger.debug(" wsitem.status-"+ wsitem.getStatus().getValue());
+			//Util.getPort().putSynchronizationItem(new WSPutSynchronizationItem(wsitem));
+			Util.getPort().resolveSynchronizationItem(new WSResolveSynchronizationItem(new WSSynchronizationItemPK(new String[]{"",item.getItemPOJOPK().getUniqueID()}), resolvedXml));
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -74,7 +74,6 @@ public class SynchronizationItemDWR {
 				if(item.getResolvedProjection() ==null ){
 					continue;
 				}
-				
 				SynchronizationItem syncItem=new SynchronizationItem();
 				syncItem=syncItem.WS2POJO(item);
 				if(!syncItem.getItemPK().matches(regex)){
