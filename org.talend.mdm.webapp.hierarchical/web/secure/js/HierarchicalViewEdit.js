@@ -23,6 +23,11 @@ Ext.extend(amalto.hierarchical.HierarchicalViewEdit, Ext.Panel, {
 						this.onSaveChangesClick(button, event);
 					}.createDelegate(this),
 					text : "Save Changes"
+				},{
+					handler : function(button, event) {
+						this.onCancelChangesClick(button, event);
+					}.createDelegate(this),
+					text : "Cancel Changes"
 				}]),
 				containerScroll : "true",
 				enableDD: true,
@@ -71,6 +76,10 @@ Ext.extend(amalto.hierarchical.HierarchicalViewEdit, Ext.Panel, {
 	    this.hierarchicalTree.getRootNode().reload();
 	    this.hierarchicalTree.expandAll();
 	   
+    },
+    
+    onCancelChangesClick: function(button, event){
+        this.reloadHierarchicalTreeData();
     },
     
     onSaveChangesClick: function(button, event){
