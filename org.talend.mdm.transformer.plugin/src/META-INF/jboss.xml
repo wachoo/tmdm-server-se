@@ -17,7 +17,7 @@
 
       <session>
          <ejb-name>TISCallTransformerPlugin</ejb-name>
-         <local-jndi-name>amalto/local/transformer/plugin/tisCall</local-jndi-name>
+         <local-jndi-name>amalto/local/transformer/plugin/callJob</local-jndi-name>
 
         <method-attributes>
         </method-attributes>

@@ -45,7 +45,7 @@ import com.amalto.core.util.XtentisException;
  * @ejb.bean 	name="TISCallTransformerPlugin"
  *           	display-name="Name for TISCallPlugin"
  *           	description="Description for TISCallPlugin"
- * 		  		local-jndi-name = "amalto/local/transformer/plugin/tisCall"
+ * 		  		local-jndi-name = "amalto/local/transformer/plugin/callJob"
  *           	type="Stateless"
  *           	view-type="local"
  *           	local-business-interface="com.amalto.core.objects.transformers.v2.util.TransformerPluginV2LocalInterface"
@@ -94,7 +94,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
      * @ejb.facade-method 
      */
 	public String getJNDIName() throws XtentisException {
-		return "amalto/local/transformer/plugin/tisCall";
+		return "amalto/local/transformer/plugin/callJob";
 	}
 	
 	
@@ -108,7 +108,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 	public String getDescription(String twoLetterLanguageCode) throws XtentisException {
 		if ("fr".matches(twoLetterLanguageCode.toLowerCase()))
 			return "Execute un call de TIS un texte et retourne le résultat";
-		return "Executes a Call to TIS on a text and returns the result";
+		return "Executes a TIS Job on a text and returns the result";
 	}
 
 
