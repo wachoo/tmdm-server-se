@@ -94,14 +94,14 @@ public class BaseDAO extends SqlAgent{
         String operationType = Util.getFirstTextNode(actionDoc, "//operation"); 
 		//parse operation type
 		if(operationType==null||operationType.length()==0)throw new XtentisConnectorException("Parse update action failed! ");
-		if(operationType.equals(OPERATIONTYPE_INSERT)){
+		if(operationType.equalsIgnoreCase(OPERATIONTYPE_INSERT)){
 			String content = Util.getFirstTextNode(actionDoc, "//part/content"); 
 			doInsert(content);
-		}else if(operationType.equals(OPERATIONTYPE_UPDATE)){
+		}else if(operationType.equalsIgnoreCase(OPERATIONTYPE_UPDATE)){
 			String content = Util.getFirstTextNode(actionDoc, "//part/content"); 
 			doUpdate(content);
 			
-		}else if(operationType.equals(OPERATIONTYPE_DELETE)){
+		}else if(operationType.equalsIgnoreCase(OPERATIONTYPE_DELETE)){
 			String content = Util.getFirstTextNode(actionDoc, "//part/content"); 
 			doDelete(content);
 	
