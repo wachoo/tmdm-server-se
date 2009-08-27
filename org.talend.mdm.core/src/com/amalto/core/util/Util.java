@@ -1657,6 +1657,24 @@ public final class Util {
 		}
 		return map;
 	}
+	//TODO check
+	public static void updateElement(String parentPath,Node old, HashMap<String, UpdateReportItem> updatedpath)throws Exception{
+		NodeList list=old.getChildNodes();
+		for(int i=0; i<list.getLength(); i++){
+			Node node=list.item(i);
+			if(node.getNodeType() == Node.ELEMENT_NODE){
+				String nName=node.getNodeName();
+				String xPath=parentPath+"/"+nName;
+				if( !hasChildren(node)){
+					UpdateReportItem updateItem=updatedpath.get(xPath);
+					if(updateItem!=null) node.setTextContent(updateItem.getNewValue());
+				}else{
+					updateElement(xPath,node,updatedpath);
+				}
+			}
+		}
+	}
+	
 	//key is the xpath, value is the xpath value
 	public static HashMap<String, String> getElementValueMap(String parentPath,Node n)throws Exception{
 		HashMap<String, String> map =new HashMap<String, String>();

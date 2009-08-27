@@ -1675,7 +1675,30 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
    				conceptKey
 			);				
 			DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
-			
+			//update the item using new field values see feature 0008854: Update an item instead of replace it 
+			// load the item first if itemkey provided
+			if(itemKeyValues.length>0){
+				ItemPOJO pj=new ItemPOJO(
+						dcpk,
+						concept,
+						itemKeyValues,
+						System.currentTimeMillis(),
+						projection
+				);
+				String revisionId=LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
+				pj=pj.load(revisionId, pj.getItemPOJOPK());				
+				if(pj!=null){// get the new projection
+					// get updated path			
+					Element old=pj.getProjection();
+					Element newNode=root;					
+					HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
+					Util.updateElement("/"+old.getLocalName(), old, updatedPath);
+					
+					String newProjection=Util.getXMLStringFromNode(old);
+					projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
+				}		
+			}
+			//end
 			ItemPOJOPK itemPOJOPK =  
 				Util.getItemCtrl2Local().putItem(
 						new ItemPOJO(
@@ -1752,9 +1775,16 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 					conceptKey
 			);				
 			DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
-			ItemPOJOPK itemPOJOPK=new ItemPOJOPK(dcpk,concept, ids);			
+			ItemPOJOPK itemPOJOPK=new ItemPOJOPK(dcpk,concept, ids);	
+			LocalUser user = LocalUser.getLocalUser();
+			String userName=user.getUsername();
+			String revisionID ="";
+			UniversePOJO universe = user.getUniverse();
+            if(universe!=null){
+            	revisionID=universe.getConceptRevisionID(concept);
+            }
 			//get operationType
-			ItemPOJO itemPoJo=ItemPOJO.load(itemPOJOPK);
+			ItemPOJO itemPoJo=ItemPOJO.load(revisionID,itemPOJOPK);
 			HashMap<String, UpdateReportItem> updatedPath=new HashMap<String, UpdateReportItem>();
 
 			if(itemPoJo==null){
@@ -1793,13 +1823,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			concept=wsi.getConceptName();
 			ids=wsi.getIds();			
 			//additional attributes for data changes log
-			LocalUser user = LocalUser.getLocalUser();
-			String userName=user.getUsername();
-			String revisionID ="";
-			UniversePOJO universe = user.getUniverse();
-            if(universe!=null){
-            	revisionID=universe.getConceptRevisionID(concept);
-            }
+
             String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
 			
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[pushUpdateReport-of-putItemWithReport] with concept:"+concept+" operation:"+operationType);
