@@ -88,11 +88,11 @@ amalto.SynchronizationItem.SynchronizationItem=function(){
    	    			'rowdblclick' : function(grid,rowIndex, e ){
    	    				loadResource("/SynchronizationItem/secure/js/SyncXMLPanel.js", "amalto.SynchronizationItem.SyncXMLPanel",function(){
    	    				   var record=grid.getStore().getAt(rowIndex);
-   	    				   if(record.data.status == 'MANUAL'){
+   	    				   //if(record.data.status == 'MANUAL'){
    	    					   	    					
    	   	    			   var xmlData= amalto.SynchronizationItem.SyncXMLPanel(record.data,store);
    	   	    			   xmlData.init();  	    					
-   	    				   }
+   	    				   //}
    	    				});
    	    				
    	    			}
