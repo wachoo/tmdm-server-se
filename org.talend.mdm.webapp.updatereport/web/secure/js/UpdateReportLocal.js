@@ -23,7 +23,7 @@ amalto.updatereport.UpdateReportLocal=function(){
 				'concept' : 'Concept',
 				'key' : 'Key',
 				'revisionID' : 'Revision ID',
-				'operationType' : 'Revision ID',
+				'operationType' : 'OperationType',
 				'timeInMillis' : 'Operation time',
 				'source' : 'Source',
 				'userName' : 'User name',
