@@ -1,9 +1,12 @@
 package com.amalto.core.objects.universe.ejb;
 
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
@@ -11,6 +14,7 @@ import javax.ejb.SessionContext;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 
 
@@ -40,7 +44,7 @@ public class UniverseCtrlBean implements SessionBean{
   
 	public static final long serialVersionUID = 1L;
 	
-	
+	private  RevisionPOJO revisePojo = new RevisionPOJO();
 
     /* (non-Javadoc)
      * @see javax.ejb.SessionBean#setSessionContext(javax.ejb.SessionContext)
@@ -99,7 +103,13 @@ public class UniverseCtrlBean implements SessionBean{
         		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
         		throw new XtentisException(err);
         	}
-        	
+            
+            if (universe.store() == null)
+            	throw new XtentisException("Check the XML Server logs");
+            
+            revisePojo.load(universe.getPK().getUniqueId(), universe, false);
+            universe = revisePojo.addMetaDataIntoUniverse(universe);
+            
             ObjectPOJOPK pk = universe.store();
             if (pk == null) throw new XtentisException("Check the XML Server logs");
             return new UniversePOJOPK(pk);
@@ -114,7 +124,6 @@ public class UniverseCtrlBean implements SessionBean{
 	    }
 
     }
-    
      
     /**
      * Get Universe
@@ -177,7 +186,9 @@ public class UniverseCtrlBean implements SessionBean{
     	org.apache.log4j.Logger.getLogger(this.getClass()).trace("Removing "+pk.getUniqueId());
 
         try {
-        	return new UniversePOJOPK(ObjectPOJO.remove(UniversePOJO.class,pk));
+        	ObjectPOJOPK universePk = ObjectPOJO.remove(UniversePOJO.class,pk);
+            revisePojo.load(pk.getUniqueId(), null, true);
+        	return new UniversePOJOPK(universePk);
 	    } catch (XtentisException e) {
 	    	throw(e);
 	    } catch (Exception e) {
@@ -188,8 +199,45 @@ public class UniverseCtrlBean implements SessionBean{
 	    }
     }    
     
+    /**
+     * getAllCreatedRevisions
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public Collection<RevisionItem> getAllCreatedRevisions(UniversePOJOPK pk){
+    	return revisePojo.getAllCreatedRevisions(pk);
+    }
     
+    /**
+     * getAllQuotedRevisions
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public Collection<RevisionItem> getAllQuotedRevisions(UniversePOJOPK pk) {
+    	return revisePojo.getAllQuotedRevisions(pk);
+    }
     
+    /**
+     * getUniverseCreator
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public UniversePOJOPK getUniverseCreator(RevisionPOJOPK pk){
+    	return revisePojo.getUniverseCreator(pk);
+    }
+    
+    /**
+     * getUniverseQuoter
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public Collection<UniversePOJOPK> getUniverseQuoter(RevisionPOJOPK pk) {
+    	return revisePojo.getUniverseQuoter(pk);
+    }
     /**
 	 * Retrieve all Universe PKS 
 	 * 
@@ -202,7 +250,9 @@ public class UniverseCtrlBean implements SessionBean{
     	Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(UniversePOJO.class,regex);
     	ArrayList<UniversePOJOPK> l = new ArrayList<UniversePOJOPK>();
     	for (Iterator<ObjectPOJOPK> iter = c.iterator(); iter.hasNext(); ) {
-			l.add(new UniversePOJOPK(iter.next()));
+    		UniversePOJOPK pojoPk = new UniversePOJOPK(iter.next());
+    		revisePojo.load(pojoPk.getUniqueId(), null, false);
+			l.add(pojoPk);
 		}
     	return l;
     }

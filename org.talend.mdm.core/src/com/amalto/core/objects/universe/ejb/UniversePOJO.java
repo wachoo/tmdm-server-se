@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.TreeSet;
 
 import com.amalto.core.ejb.ItemPOJOPK;
@@ -28,6 +29,10 @@ public class UniversePOJO extends ObjectPOJO{
     private LinkedHashMap<String, String> itemsRevisionIDs = new LinkedHashMap<String, String>();
     private String defaultItemRevisionID;
     
+    // metadata
+    private String birthTimeStamp, modifyTimeStamp;
+    private String creator;
+    private List<String> modifierList = new ArrayList<String>();
     /**
      * for marshaling purposes only
      */
@@ -35,17 +40,14 @@ public class UniversePOJO extends ObjectPOJO{
     }
     
 
-	public UniversePOJO(String name, String description, HashMap<String, String> xtentisObjectsRevisionIDs, LinkedHashMap<String, String> itemsRevisionIDs, String defaultItemRevisionID) {
+	public UniversePOJO(String name, String description, HashMap<String, String> xtentisObjectsRevisionIDs, LinkedHashMap<String, String> itemsRevisionIDs) {
 	    super();
 	    this.name = name;
 	    this.description = description;
 	    this.xtentisObjectsRevisionIDs = xtentisObjectsRevisionIDs;
 	    this.itemsRevisionIDs = itemsRevisionIDs;
-	    this.defaultItemRevisionID = defaultItemRevisionID;
     }
-
-
-
+	
 
 	/**
 	 * The unique name of this universe
@@ -84,6 +86,79 @@ public class UniversePOJO extends ObjectPOJO{
     	this.description = description;
     }
 
+	/**
+	 * The birth date of the universe
+	 * @return
+	 *      the birth date of the universe
+	 */
+	public String getBirthTimeStamp(){
+		return birthTimeStamp;
+	}
+	
+	/**
+	 * Set the birth date of the Universe
+	 * @param timeStamp
+	 *       the birth date
+	 */
+	
+	public void setBirthTimeStamp(String timeStamp){
+		birthTimeStamp = timeStamp;
+	}
+	
+	/**
+	 *  The originator of this universe
+	 * @return
+	 *     The originator of this universe
+	 */
+	public String getCreator() {
+		return creator;
+	}
+    
+	/**
+	 * set the originator of this universe
+	 * @param ct
+	 *     originator of this universe
+	 */
+	public void setCreator(String ct) {
+		creator = ct;
+	}
+	
+	/**
+	 * the modify timestamp of the universe
+	 * @return
+	 * the modify timestamp of the universe
+	 */
+	public String getModifyTimeStamp() {
+		return modifyTimeStamp;
+	}
+	
+	/**
+	 * set the modify timestamp of the universe 
+	 * @param timeStamp
+	 * the modify timestamp of the universe
+	 */
+	public void setModifyTimeStamp(String timeStamp) {
+		modifyTimeStamp = timeStamp;
+	}
+	
+	/**
+	 * all modifier of the universe
+	 * @return
+	 * all modifier of the universe
+	 */
+	public List<String> getModifierList() {
+		return modifierList;
+	}
+
+	/**
+	 * set all modifier of the universe
+	 * @param lst
+	 * all modifier of the universe
+	 */
+	public void setModifierList(List<String> lst) {
+		modifierList = lst;
+	}
+	
 	/**
 	 * A Map of the Xtentis objects as key and revision IDs as value
 	 * @return
@@ -191,5 +266,4 @@ public class UniversePOJO extends ObjectPOJO{
 		}
 		return getDefaultItemRevisionID();
 	}
-
 }

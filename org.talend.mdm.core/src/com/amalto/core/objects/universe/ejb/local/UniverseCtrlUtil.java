@@ -5,7 +5,7 @@ package com.amalto.core.objects.universe.ejb.local;
 
 /**
  * Utility class for UniverseCtrl.
- * @xdoclet-generated at 13-08-09
+ * @xdoclet-generated at 28-08-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

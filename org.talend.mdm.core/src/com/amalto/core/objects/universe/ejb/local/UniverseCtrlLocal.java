@@ -5,7 +5,7 @@ package com.amalto.core.objects.universe.ejb.local;
 
 /**
  * Local interface for UniverseCtrl.
- * @xdoclet-generated at 13-08-09
+ * @xdoclet-generated at 28-08-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -36,6 +36,26 @@ public interface UniverseCtrlLocal
     * @throws XtentisException
     */
    public com.amalto.core.objects.universe.ejb.UniversePOJOPK removeUniverse( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * getAllCreatedRevisions
+    */
+   public java.util.Collection getAllCreatedRevisions( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk ) ;
+
+   /**
+    * getAllQuotedRevisions
+    */
+   public java.util.Collection getAllQuotedRevisions( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk ) ;
+
+   /**
+    * getUniverseCreator
+    */
+   public com.amalto.core.objects.universe.ejb.UniversePOJOPK getUniverseCreator( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk ) ;
+
+   /**
+    * getUniverseQuoter
+    */
+   public java.util.Collection getUniverseQuoter( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk ) ;
 
    /**
     * Retrieve all Universe PKS
