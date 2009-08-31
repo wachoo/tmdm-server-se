@@ -198,7 +198,7 @@ amalto.SynchronizationAction.SynchronizationAction = function() {
 					{	
 						xtype:'button',
 						id:'startFullButton',
-						text : '<b>' + amalto.SynchronizationAction.SynchronizationActionLocal.get('START_FULL_BUTTON') + '</b>',
+						text : amalto.SynchronizationAction.SynchronizationActionLocal.get('START_FULL_BUTTON'),
 						handler : function() {
 							var syncInfo=getSyncInfo();
 							if(syncInfo){
@@ -210,7 +210,7 @@ amalto.SynchronizationAction.SynchronizationAction = function() {
 					},
 					{	xtype:'button',
 						id:'startDifferentButton',
-						text : '<b>' + amalto.SynchronizationAction.SynchronizationActionLocal.get('START_DIFFERENT_BUTTON') + '</b>',
+						text :amalto.SynchronizationAction.SynchronizationActionLocal.get('START_DIFFERENT_BUTTON'),
 						handler : function() {
 							var syncInfo=getSyncInfo();
 							if(syncInfo){
@@ -222,7 +222,7 @@ amalto.SynchronizationAction.SynchronizationAction = function() {
 					},
 					{	xtype:'button',
 						id:'stopButton',
-						text : '<b>' + amalto.SynchronizationAction.SynchronizationActionLocal.get('STOP_BUTTON') + '</b>',
+						text :amalto.SynchronizationAction.SynchronizationActionLocal.get('STOP_BUTTON'),
 						disabled:true,
 						handler : function() {
 							var syncInfo=getSyncInfo();
@@ -233,7 +233,7 @@ amalto.SynchronizationAction.SynchronizationAction = function() {
 					},
 					{	xtype:'button',
 						id:'resetButton',
-						text : '<b>' + amalto.SynchronizationAction.SynchronizationActionLocal.get('RESET_BUTTON') + '</b>',
+						text : amalto.SynchronizationAction.SynchronizationActionLocal.get('RESET_BUTTON'),
 						disabled:true,
 						handler : function() {
 							var syncInfo=getSyncInfo();
