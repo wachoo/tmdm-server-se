@@ -1596,6 +1596,7 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID  
      * @param dataClusterPOJOPK
+     * @param universe
      * @return
      * 		A {@link TreeMap} of concept names to revision IDs
      * @throws XtentisException
@@ -1604,6 +1605,21 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.facade-method 
      */
     public TreeMap<String, String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK) throws XtentisException {
+    	return getConceptsInDataCluster(dataClusterPOJOPK,null);
+    }
+    
+    /**
+     * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID  
+     * @param dataClusterPOJOPK
+     * @param universe
+     * @return
+     * 		A {@link TreeMap} of concept names to revision IDs
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public TreeMap<String, String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK,UniversePOJO universe) throws XtentisException {
     	try {
 			LocalUser user = LocalUser.getLocalUser();
 			boolean authorized = false;
@@ -1622,8 +1638,10 @@ public class ItemCtrl2Bean implements SessionBean {
 			
 	 		//get the concepts
 	 		TreeMap<String, String> concepts = new TreeMap<String, String>();
+
 	 		//get the universe
-	 		UniversePOJO universe = user.getUniverse();
+	 		if(universe==null)universe = user.getUniverse();
+	 		
 	 		//make sure we do not check a revision twice
 	 		ArrayList<String> revisionsChecked = new ArrayList<String>();
 	 		

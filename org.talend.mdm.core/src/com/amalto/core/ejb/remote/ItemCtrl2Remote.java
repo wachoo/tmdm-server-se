@@ -11,7 +11,7 @@ import java.util.*;
  * facade session bean. Inverit from this class to provide reasonable caching and event handling capabilities.
  *
  * Remote facade for ItemCtrl2.
- * @xdoclet-generated at 13-08-09
+ * @xdoclet-generated at 31-08-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -267,6 +267,16 @@ public class ItemCtrl2Remote extends Observable
    {
         java.util.TreeMap retval;
        retval =  getSession().getConceptsInDataCluster( dataClusterPOJOPK );
+
+      return retval;
+
+   }
+
+   public java.util.TreeMap getConceptsInDataCluster ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,com.amalto.core.objects.universe.ejb.UniversePOJO universe )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        java.util.TreeMap retval;
+       retval =  getSession().getConceptsInDataCluster( dataClusterPOJOPK,universe );
 
       return retval;
 

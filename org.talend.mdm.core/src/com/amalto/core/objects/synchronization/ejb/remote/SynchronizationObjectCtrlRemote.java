@@ -11,7 +11,7 @@ import java.util.*;
  * facade session bean. Inverit from this class to provide reasonable caching and event handling capabilities.
  *
  * Remote facade for SynchronizationObjectCtrl.
- * @xdoclet-generated at 13-08-09
+ * @xdoclet-generated at 31-08-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

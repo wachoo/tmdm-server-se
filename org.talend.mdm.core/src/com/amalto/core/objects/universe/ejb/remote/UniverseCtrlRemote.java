@@ -11,7 +11,7 @@ import java.util.*;
  * facade session bean. Inverit from this class to provide reasonable caching and event handling capabilities.
  *
  * Remote facade for UniverseCtrl.
- * @xdoclet-generated at 13-08-09
+ * @xdoclet-generated at 31-08-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -83,6 +83,46 @@ public class UniverseCtrlRemote extends Observable
    {
         com.amalto.core.objects.universe.ejb.UniversePOJOPK retval;
        retval =  getSession().removeUniverse( pk );
+
+      return retval;
+
+   }
+
+   public java.util.Collection getAllCreatedRevisions ( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk )
+	  throws java.rmi.RemoteException
+   {
+        java.util.Collection retval;
+       retval =  getSession().getAllCreatedRevisions( pk );
+
+      return retval;
+
+   }
+
+   public java.util.Collection getAllQuotedRevisions ( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk )
+	  throws java.rmi.RemoteException
+   {
+        java.util.Collection retval;
+       retval =  getSession().getAllQuotedRevisions( pk );
+
+      return retval;
+
+   }
+
+   public com.amalto.core.objects.universe.ejb.UniversePOJOPK getUniverseCreator ( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk )
+	  throws java.rmi.RemoteException
+   {
+        com.amalto.core.objects.universe.ejb.UniversePOJOPK retval;
+       retval =  getSession().getUniverseCreator( pk );
+
+      return retval;
+
+   }
+
+   public java.util.Collection getUniverseQuoter ( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk )
+	  throws java.rmi.RemoteException
+   {
+        java.util.Collection retval;
+       retval =  getSession().getUniverseQuoter( pk );
 
       return retval;
 

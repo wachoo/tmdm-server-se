@@ -5,7 +5,7 @@ package com.amalto.core.ejb.remote;
 
 /**
  * Remote interface for ItemCtrl2.
- * @xdoclet-generated at 13-08-09
+ * @xdoclet-generated at 31-08-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -265,10 +265,21 @@ public interface ItemCtrl2
    /**
     * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
     * @param dataClusterPOJOPK
+    * @param universe
     * @return A {@link TreeMap} of concept names to revision IDs
     * @throws XtentisException
     */
    public java.util.TreeMap getConceptsInDataCluster( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
+    * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
+    * @param dataClusterPOJOPK
+    * @param universe
+    * @return A {@link TreeMap} of concept names to revision IDs
+    * @throws XtentisException
+    */
+   public java.util.TreeMap getConceptsInDataCluster( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,com.amalto.core.objects.universe.ejb.UniversePOJO universe )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
 }

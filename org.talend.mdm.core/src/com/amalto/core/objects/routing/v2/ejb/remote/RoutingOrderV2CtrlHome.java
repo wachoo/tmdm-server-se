@@ -5,7 +5,7 @@ package com.amalto.core.objects.routing.v2.ejb.remote;
 
 /**
  * Home interface for RoutingOrderV2Ctrl.
- * @xdoclet-generated at 13-08-09
+ * @xdoclet-generated at 31-08-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
