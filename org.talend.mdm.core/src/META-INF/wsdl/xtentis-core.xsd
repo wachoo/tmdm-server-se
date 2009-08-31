@@ -121,7 +121,21 @@
 			</xsd:element>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSTypedContentMap" type="tns:WSTypedContentMap"/>		
+	<xsd:element name="WSTypedContentMap" type="tns:WSTypedContentMap"/>	
+	
+	<xsd:complexType name="WSConceptRevisionMap">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" maxOccurs="unbounded" name="mapEntry">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1" name="concept"  nillable="false" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1" name="revision"  nillable="false" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSConceptRevisionMap" type="tns:WSConceptRevisionMap"/>
 
 	<!-- *****************************************************
 		MANAGEMENT
@@ -557,7 +571,7 @@
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetConceptsInDataCluster" type="tns:WSGetConceptsInDataCluster"/>
-
+	
 
 	<!-- *****************************************************
 		              W H E R E    E L E M E N T S

@@ -115,4 +115,12 @@
 	</xsd:complexType>
 	<xsd:element name="WSGetCurrentUniverse" type="tns:WSGetCurrentUniverse"/>
 	
+	<xsd:complexType name="WSGetConceptsInDataClusterWithRevisions">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="dataClusterPOJOPK" type="tns:WSDataClusterPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="universePK" type="tns:WSUniversePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetConceptsInDataClusterWithRevisions" type="tns:WSGetConceptsInDataClusterWithRevisions"/>
+	
 </xsd:schema>

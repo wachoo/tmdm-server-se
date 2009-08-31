@@ -139,6 +139,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSStringArray _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSConceptRevisionMap getConceptsInDataClusterWithRevisions(com.amalto.core.webservice.WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSConceptRevisionMap _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSViewPKArray getViewPKs(com.amalto.core.webservice.WSGetViewPKs regexp) throws 
          java.rmi.RemoteException {
         

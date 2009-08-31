@@ -52,6 +52,8 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSStringArray getConceptsInDataCluster(com.amalto.core.webservice.WSGetConceptsInDataCluster wsGetConceptsInDataCluster) throws 
          java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSConceptRevisionMap getConceptsInDataClusterWithRevisions(com.amalto.core.webservice.WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws 
+         java.rmi.RemoteException;
     public com.amalto.core.webservice.WSViewPKArray getViewPKs(com.amalto.core.webservice.WSGetViewPKs regexp) throws 
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSView getView(com.amalto.core.webservice.WSGetView wsViewPK) throws 

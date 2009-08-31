@@ -210,6 +210,13 @@
 	<message name="getConceptsInDataClusterResponse">
 		<part name="wsConcepts" element="tns:WSStringArray"/>
 	</message>
+	
+	<message name="getConceptsInDataClusterWithRevisionsRequest">
+		<part name="wsGetConceptsInDataClusterWithRevisions" element="tns:WSGetConceptsInDataClusterWithRevisions"/>
+	</message>
+	<message name="getConceptsInDataClusterWithRevisionsResponse">
+		<part name="wsConceptRevisionMap" element="tns:WSConceptRevisionMap"/>
+	</message>
 		
 	<!-- ******************** B A C K G R O U N D    J O B  *********************** -->
 	
@@ -1269,6 +1276,10 @@
 			<input message="tns:getConceptsInDataClusterRequest"/>
 			<output message="tns:getConceptsInDataClusterResponse"/>
 		</operation>
+		<operation name="getConceptsInDataClusterWithRevisions">
+			<input message="tns:getConceptsInDataClusterWithRevisionsRequest"/>
+			<output message="tns:getConceptsInDataClusterWithRevisionsResponse"/>
+		</operation>
 
 
 		<!-- *********************  VIEW  ************************ -->
@@ -2003,6 +2014,11 @@
 			<output><soap:body use="literal"/></output>
          </operation>
 		<operation name="getConceptsInDataCluster">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getConceptsInDataClusterWithRevisions">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>

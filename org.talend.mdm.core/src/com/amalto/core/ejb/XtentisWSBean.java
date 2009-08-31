@@ -854,6 +854,59 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 				throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
 			}
 		}
+		
+
+		/**
+		 * @ejb.interface-method view-type = "service-endpoint"
+		 * @ejb.permission 
+		 * 	role-name = "authenticated"
+		 * 	view-type = "service-endpoint"
+		 */	
+		public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws RemoteException {
+					
+			try {
+				    UniversePOJO pojo=null;
+				    
+				    if(wsGetConceptsInDataClusterWithRevisions==null||
+				       wsGetConceptsInDataClusterWithRevisions.getUniversePK()==null||
+				       wsGetConceptsInDataClusterWithRevisions.getUniversePK().getPk()==null||
+				       wsGetConceptsInDataClusterWithRevisions.getUniversePK().getPk().equals("")){
+				    	pojo=new UniversePOJO();//default head revision
+				    }else{
+				    	//get universe
+						UniverseCtrlLocal ctrl = UniverseCtrlUtil.getLocalHome().create();
+					    pojo=
+							ctrl.getUniverse(
+								new UniversePOJOPK(
+										 wsGetConceptsInDataClusterWithRevisions.getUniversePK().getPk()
+								)
+							);
+				    }
+				    
+				   //get conceptRevisions    
+				   Map concepts = Util.getItemCtrl2Local().getConceptsInDataCluster(
+							new DataClusterPOJOPK(wsGetConceptsInDataClusterWithRevisions.getDataClusterPOJOPK().getPk()),pojo
+						);
+				   
+				   //convert
+				   WSConceptRevisionMapMapEntry[] mapEntry=new WSConceptRevisionMapMapEntry[concepts.size()];
+				   int i=0;
+				   for (Iterator iterator = concepts.keySet().iterator(); iterator.hasNext();i++) {
+					  String concept = (String) iterator.next();
+					  String revisionId = (String) concepts.get(concept);
+					  WSConceptRevisionMapMapEntry entry=new WSConceptRevisionMapMapEntry(concept,revisionId);
+					  mapEntry[i]=entry;
+				   }
+				   WSConceptRevisionMap wsConceptRevisionMap=new WSConceptRevisionMap(mapEntry);
+				   
+				   return wsConceptRevisionMap;
+		
+			} catch (XtentisException e) {
+				throw(new RemoteException(e.getLocalizedMessage()));			
+			} catch (Exception e) {
+				throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+			}
+		}
 
 		
 	private WSDataCluster VO2WS(DataClusterPOJO vo) {

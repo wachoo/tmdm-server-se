@@ -1409,6 +1409,19 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
+         <method-name>existsDBDataCluster</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSExistsDBDataCluster</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
          <method-name>getDataClusterPKs</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSRegexDataClusterPKs</method-param>
@@ -1448,9 +1461,35 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
+         <method-name>putDBDataCluster</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSPutDBDataCluster</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
          <method-name>getConceptsInDataCluster</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSGetConceptsInDataCluster</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>getConceptsInDataClusterWithRevisions</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSGetConceptsInDataClusterWithRevisions</method-param>
          </method-params>
       </method>
    </method-permission>
