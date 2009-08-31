@@ -28,6 +28,8 @@ import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.synchronization.ejb.local.SynchronizationItemCtrlLocal;
 import com.amalto.core.objects.synchronization.ejb.local.SynchronizationObjectCtrlLocal;
@@ -35,9 +37,12 @@ import com.amalto.core.objects.synchronization.ejb.local.SynchronizationPlanCtrl
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import com.amalto.core.webservice.WSBoolean;
 import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSExistsDBDataCluster;
 import com.amalto.core.webservice.WSItemPK;
 import com.amalto.core.webservice.WSPing;
+import com.amalto.core.webservice.WSPutDBDataCluster;
 import com.amalto.core.webservice.WSString;
 import com.amalto.core.webservice.WSSynchronizationGetItemXML;
 import com.amalto.core.webservice.WSSynchronizationGetObjectXML;
@@ -849,20 +854,42 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
         	///////////////
         	// ITEMS
         	///////////////
-        	
+            //get the xml server wrapper
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+
         	//if we have no line, skip the Items
 			if (plan.getItemsSynchronizations() != null) {
         	
             	for (Iterator<SynchronizationPlanItemLine> iterator = plan.getItemsSynchronizations().iterator(); iterator.hasNext(); ) {
     				SynchronizationPlanItemLine line = iterator.next();
-    				
+
     				//reload the plan status to see if STOPPING is required
             		String statusCode = planCtrl.getSynchronizationPlan(revisionID, new SynchronizationPlanPOJOPK(plan.getName())).getCurrentStatusCode();
             		if (SynchronizationPlanPOJO.STATUS_STOPPING.equals(statusCode)) {
             			//stop requested
             			throw new XtentisException("Stop requested by user");
             		}
-            		
+            		//local cluster exist check aiming see 8908
+            		if(line.getAlgorithm().equals(SynchronizationPlanPOJO.LOCAL_WINS)){            			
+            			DataClusterPOJO dataclusterLocal=Util.getDataClusterCtrlLocal().existsDataCluster(line.getLocalClusterPOJOPK());
+            			if(dataclusterLocal==null){
+            				throw new XtentisException("Local Cluster:"+ line.getLocalClusterPOJOPK().getUniqueId() +" with revision:"+line.getLocalRevisionID() +" does not exist!");
+            			}	
+            			//default create remote db data cluster collection
+            			remotePort.putDBDataCluster(new WSPutDBDataCluster(line.getRemoteRevisionID(),line.getRemoteClusterPOJOPK().getUniqueId()));
+            		}
+            		//remote cluster exist check
+            		if(line.getAlgorithm().equals(SynchronizationPlanPOJO.REMOTE_WINS)){          
+            			WSBoolean b=remotePort.existsDBDataCluster(new WSExistsDBDataCluster(line.getRemoteRevisionID(),line.getRemoteClusterPOJOPK().getUniqueId()));
+            			if(!b.is_true()){
+            				throw new XtentisException("Remote Cluster:"+ line.getRemoteClusterPOJOPK().getUniqueId() +" with revision:"+ line.getRemoteRevisionID()+" does not exist!");
+            			}
+            			//default create local db data cluster collection
+            			server.createCluster(line.getLocalRevisionID(), line.getLocalClusterPOJOPK().getUniqueId());
+            			//store the data cluster
+            			new DataClusterPOJO(line.getLocalClusterPOJOPK().getUniqueId(),"","").store(line.getLocalRevisionID());
+            		}
+            		//end
             		String info = 
             				"Processing Items concepts matching '"+line.getConceptName()+"', instances ids matching '"+line.getIdsPattern()+"'"
         					+"  LOCAL Cluster '"+line.getLocalClusterPOJOPK().getUniqueId()+"' and revision '"+line.getLocalRevisionID()+"'"

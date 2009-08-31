@@ -42,7 +42,11 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSBoolean existsDataCluster(com.amalto.core.webservice.WSExistsDataCluster wsExistsDataCluster) throws 
          java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSBoolean existsDBDataCluster(com.amalto.core.webservice.WSExistsDBDataCluster wsExistsDBDataCluster) throws 
+         java.rmi.RemoteException;
     public com.amalto.core.webservice.WSDataClusterPK putDataCluster(com.amalto.core.webservice.WSPutDataCluster wsDataCluster) throws 
+         java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSBoolean putDBDataCluster(com.amalto.core.webservice.WSPutDBDataCluster wsDataCluster) throws 
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSDataClusterPK deleteDataCluster(com.amalto.core.webservice.WSDeleteDataCluster wsDeleteDataCluster) throws 
          java.rmi.RemoteException;

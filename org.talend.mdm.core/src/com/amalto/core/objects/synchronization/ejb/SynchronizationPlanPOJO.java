@@ -48,6 +48,10 @@ public class SynchronizationPlanPOJO extends ObjectPOJO{
     private String currentStatusCode;
     private String currentStatusMessage;
     
+    public static final String LOCAL_WINS="Local Wins";
+    public static final String REMOTE_WINS="Remote Wins";
+    public static final String MANUAL="Manual";
+    public static final String TIS_CALL="TIS Call";
     /** For marshaling */
     public SynchronizationPlanPOJO() {
 	    super();
@@ -253,8 +257,8 @@ public class SynchronizationPlanPOJO extends ObjectPOJO{
 	 */
 	public static TreeSet<String> getObjectsAlgorithmNames() {
 		TreeSet<String> list =  new TreeSet<String>();
-		list.add("Local Wins");
-		list.add("Remote Wins");
+		list.add(LOCAL_WINS);
+		list.add(REMOTE_WINS);
 		return list;
 	}
 	
@@ -265,10 +269,10 @@ public class SynchronizationPlanPOJO extends ObjectPOJO{
 	 */
 	public static TreeSet<String> getItemsAlgorithmNames() {
 		TreeSet<String> list =  new TreeSet<String>();
-		list.add("Manual");
-		list.add("Local Wins");
-		list.add("Remote Wins");
-		list.add("TIS Call");
+		list.add(MANUAL);
+		list.add(LOCAL_WINS);
+		list.add(REMOTE_WINS);
+		list.add(TIS_CALL);
 		return list;
 	}
 

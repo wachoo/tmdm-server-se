@@ -734,6 +734,25 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 					throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
 				}
 		    }
+			/**
+			 * @ejb.interface-method view-type = "service-endpoint"
+			 * @ejb.permission 
+			 * 	role-name = "authenticated"
+			 * 	view-type = "service-endpoint"
+			 */	
+			   public WSBoolean existsDBDataCluster(WSExistsDBDataCluster wsExistsDataCluster)
+			    throws RemoteException {
+					try {
+					   
+						String[] ids=Util.getXmlServerCtrlLocal().getAllClusters(wsExistsDataCluster.getRevisionID());
+						List<String> list=new ArrayList<String>();
+						return new WSBoolean(Arrays.asList(ids).contains(wsExistsDataCluster.getName()));
+						
+					} catch (Exception e) {
+						throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+					}
+			    }
+
 
 		/**
 		* @ejb.interface-method view-type = "service-endpoint"
@@ -796,7 +815,23 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 				throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
 			}
 	    }
-
+		/**
+		 * @ejb.interface-method view-type = "service-endpoint"
+		 * @ejb.permission 
+		 * 	role-name = "authenticated"
+		 * 	view-type = "service-endpoint"
+		 */   
+	    public WSBoolean putDBDataCluster(WSPutDBDataCluster wsDataCluster)
+	    throws RemoteException {
+			try {
+				Util.getXmlServerCtrlLocal().createCluster(wsDataCluster.getRevisionID(), wsDataCluster.getName());
+				DataClusterPOJO pojo=new DataClusterPOJO(wsDataCluster.getName(),"","");				
+				ObjectPOJOPK pk = pojo.store(wsDataCluster.getRevisionID());
+				return new WSBoolean(true);
+			} catch (Exception e) {
+				throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+			}
+	    }
 
 	    /**
 		 * @ejb.interface-method view-type = "service-endpoint"

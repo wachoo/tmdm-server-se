@@ -2,7 +2,6 @@ package com.amalto.core.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -61,6 +60,7 @@ import org.xml.sax.SAXException;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.local.DroppedItemCtrlLocal;
 import com.amalto.core.ejb.local.DroppedItemCtrlLocalHome;
 import com.amalto.core.ejb.local.ItemCtrl2Local;
@@ -68,6 +68,10 @@ import com.amalto.core.ejb.local.ItemCtrl2LocalHome;
 import com.amalto.core.ejb.local.ServiceLocalHome;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.ejb.local.TransformerCtrlLocalHome;
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
+import com.amalto.core.ejb.remote.XmlServerSLWrapper;
+import com.amalto.core.ejb.remote.XmlServerSLWrapperHome;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocal;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocalHome;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
@@ -114,7 +118,6 @@ import com.amalto.core.schematron.validation.Schema;
 import com.amalto.core.schematron.validation.SchemaFactory;
 import com.amalto.core.schematron.validation.Validator;
 import com.amalto.core.schematron.validation.Violation;
-import com.amalto.core.schematron.validation.ZTestBean;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 
@@ -1336,6 +1339,17 @@ public final class Util {
 		return getDataModelCtrlLocalHome().create();
 	}
 
+	public static XmlServerSLWrapperLocal getXmlServerCtrlLocal() throws XtentisException {
+        XmlServerSLWrapperLocal server = null;
+		try {
+			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();        				
+		} catch (Exception e) {
+			String err = "Error : unable to access the XML Server wrapper";
+			org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+			throw new XtentisException(err);
+		}
+		return server;
+	}
 	public static DataClusterCtrlLocalHome getDataClusterCtrlLocalHome() throws NamingException {
 		return (DataClusterCtrlLocalHome) getLocalHome(DataClusterCtrlLocalHome.JNDI_NAME);
 	}

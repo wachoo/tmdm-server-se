@@ -178,7 +178,12 @@
 	<message name="existsDataClusterResponse">
 		<part name="wsBoolean" element="tns:WSBoolean"/>
 	</message>
-	
+	<message name="existsDBDataClusterRequest">
+		<part name="wsExistsDBDataCluster" element="tns:WSExistsDBDataCluster"/>
+	</message>
+	<message name="existsDBDataClusterResponse">
+		<part name="wsBoolean" element="tns:WSBoolean"/>
+	</message>	
 	
 	<message name="putDataClusterRequest">
 		<part name="wsDataCluster" element="tns:WSPutDataCluster"/>
@@ -186,7 +191,12 @@
 	<message name="putDataClusterResponse">
 		<part name="wsDataClusterPK" element="tns:WSDataClusterPK"/>
 	</message>
-	
+	<message name="putDBDataClusterRequest">
+		<part name="wsDataCluster" element="tns:WSPutDBDataCluster"/>
+	</message>
+	<message name="putDBDataClusterResponse">
+		<part name="wsBoolean" element="tns:WSBoolean"/>
+	</message>	
 	<message name="deleteDataClusterRequest">
 		<part name="wsDeleteDataCluster" element="tns:WSDeleteDataCluster"/>
 	</message>
@@ -1238,11 +1248,19 @@
 		<operation name="existsDataCluster">
 			<input message="tns:existsDataClusterRequest"/>
 			<output message="tns:existsDataClusterResponse"/>
-		</operation>		
+		</operation>	
+		<operation name="existsDBDataCluster">
+			<input message="tns:existsDBDataClusterRequest"/>
+			<output message="tns:existsDBDataClusterResponse"/>
+		</operation>			
 		<operation name="putDataCluster">
 			<input message="tns:putDataClusterRequest"/>
 			<output message="tns:putDataClusterResponse"/>
 		</operation>
+		<operation name="putDBDataCluster">
+			<input message="tns:putDBDataClusterRequest"/>
+			<output message="tns:putDBDataClusterResponse"/>
+		</operation>		
 		<operation name="deleteDataCluster">
 			<input message="tns:deleteDataClusterRequest"/>
 			<output message="tns:deleteDataClusterResponse"/>
@@ -1964,11 +1982,21 @@
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
 		</operation>
+		<operation name="existsDBDataCluster">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
 		<operation name="putDataCluster">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
          </operation>
+		<operation name="putDBDataCluster">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>         
 		<operation name="deleteDataCluster">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>

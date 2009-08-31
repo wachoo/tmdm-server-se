@@ -492,7 +492,14 @@
 	<xsd:element name="WSDataClusterPKArray" type = "tns:WSDataClusterPKArray"/>
 
 	<!-- Operations -->
-
+	<xsd:complexType name="WSPutDBDataCluster">
+						
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutDBDataCluster" type="tns:WSPutDBDataCluster"/>
 	<xsd:complexType name="WSPutDataCluster">
 		<xsd:annotation>
 			<xsd:documentation>
@@ -518,7 +525,13 @@
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSExistsDataCluster" type="tns:WSExistsDataCluster"/>
-	
+		<xsd:complexType name="WSExistsDBDataCluster">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExistsDBDataCluster" type="tns:WSExistsDBDataCluster"/>
 	<xsd:complexType name="WSDeleteDataCluster">
 		<xsd:sequence>
 			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
