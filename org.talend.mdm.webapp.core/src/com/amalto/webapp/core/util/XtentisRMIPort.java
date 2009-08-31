@@ -41,6 +41,7 @@ import com.amalto.core.ejb.DroppedItemPOJOPK;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.TransformerCtrlBean;
 import com.amalto.core.ejb.TransformerPOJO;
 import com.amalto.core.ejb.TransformerPOJOPK;
@@ -402,6 +403,19 @@ public class XtentisRMIPort implements XtentisPort {
 			}
 	    }
 	   
+	   public WSBoolean existsDBDataCluster(WSExistsDBDataCluster wsExistsDataCluster)
+	    throws RemoteException {
+			try {
+			   
+				String[] ids=Util.getXmlServerCtrlLocal().getAllClusters(wsExistsDataCluster.getRevisionID());
+				List<String> list=new ArrayList<String>();
+				return new WSBoolean(Arrays.asList(ids).contains(wsExistsDataCluster.getName()));
+				
+			} catch (Exception e) {
+				throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+			}
+	    }
+	   
 	    public WSDataClusterPKArray getDataClusterPKs(WSRegexDataClusterPKs regexp)
 	    throws RemoteException {
 			try {
@@ -448,6 +462,18 @@ public class XtentisRMIPort implements XtentisPort {
 		}
 	}
 	
+    public WSBoolean putDBDataCluster(WSPutDBDataCluster wsDataCluster)
+    throws RemoteException {
+		try {
+			Util.getXmlServerCtrlLocal().createCluster(wsDataCluster.getRevisionID(), wsDataCluster.getName());
+			DataClusterPOJO pojo=new DataClusterPOJO(wsDataCluster.getName(),"","");				
+			ObjectPOJOPK pk = pojo.store(wsDataCluster.getRevisionID());
+			return new WSBoolean(true);
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+    }
+	
 	public WSStringArray getConceptsInDataCluster(WSGetConceptsInDataCluster wsGetConceptsInDataCluster) throws RemoteException {
 		try {
 			Collection<String> results = 
@@ -464,7 +490,52 @@ public class XtentisRMIPort implements XtentisPort {
 		}
 	}
 
-	    
+	
+	public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws RemoteException {
+				
+		try {
+			    UniversePOJO pojo=null;
+			    
+			    if(wsGetConceptsInDataClusterWithRevisions==null||
+			       wsGetConceptsInDataClusterWithRevisions.getUniversePK()==null||
+			       wsGetConceptsInDataClusterWithRevisions.getUniversePK().getPk()==null||
+			       wsGetConceptsInDataClusterWithRevisions.getUniversePK().getPk().equals("")){
+			    	pojo=new UniversePOJO();//default head revision
+			    }else{
+			    	//get universe
+					UniverseCtrlLocal ctrl = com.amalto.core.util.Util.getUniverseCtrlLocal();
+				    pojo=
+						ctrl.getUniverse(
+							new UniversePOJOPK(
+									 wsGetConceptsInDataClusterWithRevisions.getUniversePK().getPk()
+							)
+						);
+			    }
+			    
+			   //get conceptRevisions    
+			   Map concepts = Util.getItemCtrl2Local().getConceptsInDataCluster(
+						new DataClusterPOJOPK(wsGetConceptsInDataClusterWithRevisions.getDataClusterPOJOPK().getPk()),pojo
+					);
+			   
+			   //convert
+			   WSConceptRevisionMapMapEntry[] mapEntry=new WSConceptRevisionMapMapEntry[concepts.size()];
+			   int i=0;
+			   for (Iterator iterator = concepts.keySet().iterator(); iterator.hasNext();i++) {
+				  String concept = (String) iterator.next();
+				  String revisionId = (String) concepts.get(concept);
+				  WSConceptRevisionMapMapEntry entry=new WSConceptRevisionMapMapEntry(concept,revisionId);
+				  mapEntry[i]=entry;
+			   }
+			   WSConceptRevisionMap wsConceptRevisionMap=new WSConceptRevisionMap(mapEntry);
+			   
+			   return wsConceptRevisionMap;
+	
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));			
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}    
 		
 	
 

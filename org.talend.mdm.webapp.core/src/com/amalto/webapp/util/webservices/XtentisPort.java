@@ -42,11 +42,17 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSBoolean existsDataCluster(com.amalto.webapp.util.webservices.WSExistsDataCluster wsExistsDataCluster) throws 
          java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSBoolean existsDBDataCluster(com.amalto.webapp.util.webservices.WSExistsDBDataCluster wsExistsDBDataCluster) throws 
+         java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSDataClusterPK putDataCluster(com.amalto.webapp.util.webservices.WSPutDataCluster wsDataCluster) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSBoolean putDBDataCluster(com.amalto.webapp.util.webservices.WSPutDBDataCluster wsDataCluster) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSDataClusterPK deleteDataCluster(com.amalto.webapp.util.webservices.WSDeleteDataCluster wsDeleteDataCluster) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSStringArray getConceptsInDataCluster(com.amalto.webapp.util.webservices.WSGetConceptsInDataCluster wsGetConceptsInDataCluster) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSConceptRevisionMap getConceptsInDataClusterWithRevisions(com.amalto.webapp.util.webservices.WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSViewPKArray getViewPKs(com.amalto.webapp.util.webservices.WSGetViewPKs regexp) throws 
          java.rmi.RemoteException;
