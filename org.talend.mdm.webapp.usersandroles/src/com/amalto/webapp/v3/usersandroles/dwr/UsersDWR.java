@@ -159,7 +159,7 @@ public class UsersDWR {
 			return Util.getPort().putItem(
 					new WSPutItem(
 							new WSDataClusterPK(dataclusterPK), user.serialize(), 
-							new WSDataModelPK("PROVISIONING"))
+							new WSDataModelPK("PROVISIONING"),false)
 						).getIds()[0];
 
 

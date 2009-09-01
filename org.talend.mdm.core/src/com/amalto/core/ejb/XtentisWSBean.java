@@ -1766,25 +1766,27 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
 			//update the item using new field values see feature 0008854: Update an item instead of replace it 
 			// load the item first if itemkey provided
-			if(itemKeyValues.length>0){
-				ItemPOJO pj=new ItemPOJO(
-						dcpk,
-						concept,
-						itemKeyValues,
-						System.currentTimeMillis(),
-						projection
-				);
-				String revisionId=LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
-				pj=pj.load(revisionId, pj.getItemPOJOPK());				
-				if(pj!=null){// get the new projection
-					// get updated path			
-					Node old=pj.getProjection();
-					Node newNode=root;					
-					HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
-					old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
-					String newProjection=Util.getXMLStringFromNode(old);
-					projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
-				}		
+			if(wsPutItem.getIsUpdate()){
+				if(itemKeyValues.length>0){
+					ItemPOJO pj=new ItemPOJO(
+							dcpk,
+							concept,
+							itemKeyValues,
+							System.currentTimeMillis(),
+							projection
+					);
+					String revisionId=LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
+					pj=pj.load(revisionId, pj.getItemPOJOPK());				
+					if(pj!=null){// get the new projection
+						// get updated path			
+						Node old=pj.getProjection();
+						Node newNode=root;					
+						HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
+						old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
+						String newProjection=Util.getXMLStringFromNode(old);
+						projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
+					}		
+				}
 			}
 			//end
 			ItemPOJOPK itemPOJOPK =  
@@ -1921,7 +1923,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 						new WSPutItem(
 								new WSDataClusterPK("UpdateReport"), 
 								updateReportPOJO.serialize(),
-								new WSDataModelPK("UpdateReport")));
+								new WSDataModelPK("UpdateReport"),false));
 
 				
 			routeItemV2(new WSRouteItemV2(itemPK));

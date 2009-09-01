@@ -1019,6 +1019,7 @@
 			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
 			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="xmlString" type="xsd:string"/>
 			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
+			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="isUpdate" default="false" type="xsd:boolean"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutItem" type="tns:WSPutItem"/>

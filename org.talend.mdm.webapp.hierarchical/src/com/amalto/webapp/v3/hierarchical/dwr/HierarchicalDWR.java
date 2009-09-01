@@ -193,7 +193,7 @@ public class HierarchicalDWR {
 				}
 				String updatedContent=Util.nodeToString(document);
 				//do put
-				WSPutItem wsPutItem=new WSPutItem(new WSDataClusterPK(dataObjectContext.getDataCluster()),updatedContent,new WSDataModelPK(dataObjectContext.getDataModel()));
+				WSPutItem wsPutItem=new WSPutItem(new WSDataClusterPK(dataObjectContext.getDataCluster()),updatedContent,new WSDataModelPK(dataObjectContext.getDataModel()),false);
 				WSPutItemWithReport wsPutItemWithReport=new WSPutItemWithReport(wsPutItem,"genericUI",new Boolean(true));
 				Util.getPort().putItemWithReport(wsPutItemWithReport);
 			}

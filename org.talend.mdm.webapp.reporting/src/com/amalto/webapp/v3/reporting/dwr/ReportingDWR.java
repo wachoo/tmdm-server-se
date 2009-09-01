@@ -525,7 +525,7 @@ public class ReportingDWR {
 	                new WSPutItem(
 	                                new WSDataClusterPK(_reportingCluster),
 	                                reporting.serialize(),
-	                                new WSDataModelPK(_reportingModel)
+	                                new WSDataModelPK(_reportingModel),false
 	                )
 	        );
 	        ctx.getSession().setAttribute("reportingName","");

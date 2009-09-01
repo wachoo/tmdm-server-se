@@ -2508,6 +2508,10 @@
 <java-variable-name>wsDataModelPK</java-variable-name>
 <xml-element-name>wsDataModelPK</xml-element-name>
 </variable-mapping>
+<variable-mapping>
+<java-variable-name>isUpdate</java-variable-name>
+<xml-element-name>isUpdate</xml-element-name>
+</variable-mapping>
 </java-xml-type-mapping>
 <java-xml-type-mapping>
 <java-type>com.amalto.core.webservice.WSLinkedHashMap</java-type>

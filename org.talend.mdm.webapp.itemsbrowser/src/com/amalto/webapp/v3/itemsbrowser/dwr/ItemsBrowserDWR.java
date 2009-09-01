@@ -871,7 +871,7 @@ public class ItemsBrowserDWR {
 					new WSPutItem(
 							new WSDataClusterPK(dataClusterPK), 
 							xml,
-							new WSDataModelPK(dataModelPK)));
+							new WSDataModelPK(dataModelPK),false));
 			//update update report key
 			resultUpdateReport=resultUpdateReport.replaceFirst("<Key>.*</Key>", "<Key>"+Util.joinStrings(wsi.getIds(),".")+"</Key>"); 
 			//put update report
@@ -1223,7 +1223,7 @@ public class ItemsBrowserDWR {
 					new WSPutItem(
 							new WSDataClusterPK("UpdateReport"), 
 							xml2,
-							new WSDataModelPK("UpdateReport")));
+							new WSDataModelPK("UpdateReport"),false));
 			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).debug(
 					"pushUpdateReport() "+xml2);
 			try {
