@@ -45,6 +45,7 @@ import javax.xml.xpath.XPathFactory;
 import org.jboss.security.Base64Encoder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -1777,11 +1778,10 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 				pj=pj.load(revisionId, pj.getItemPOJOPK());				
 				if(pj!=null){// get the new projection
 					// get updated path			
-					Element old=pj.getProjection();
-					Element newNode=root;					
+					Node old=pj.getProjection();
+					Node newNode=root;					
 					HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
-					Util.updateElement("/"+old.getLocalName(), old, updatedPath);
-					
+					old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
 					String newProjection=Util.getXMLStringFromNode(old);
 					projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
 				}		

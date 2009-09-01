@@ -17,9 +17,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
@@ -47,6 +49,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.jxpath.AbstractFactory;
+import org.apache.commons.jxpath.JXPathContext;
+import org.apache.commons.jxpath.Pointer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
@@ -70,8 +75,6 @@ import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.ejb.local.TransformerCtrlLocalHome;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
-import com.amalto.core.ejb.remote.XmlServerSLWrapper;
-import com.amalto.core.ejb.remote.XmlServerSLWrapperHome;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocal;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocalHome;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
@@ -1651,42 +1654,109 @@ public final class Util {
 	
 	public static HashMap<String, UpdateReportItem> compareElement(String parentPath,Node newElement, Node oldElement )throws Exception{
 		HashMap<String, UpdateReportItem> map =new HashMap<String, UpdateReportItem>();
-		NodeList list=newElement.getChildNodes();
-		for(int i=0; i<list.getLength(); i++){
-			Node node=list.item(i);
-			if(node.getNodeType() == Node.ELEMENT_NODE){
-				String nName=node.getNodeName();
-				String xPath=parentPath+"/"+nName;
-				String nValue=getFirstTextNode(node, ".");
-				if( !hasChildren(node)){
-					String oldValue=getFirstTextNode(oldElement, xPath);
-					if(!nValue.equals(oldValue)){
-						UpdateReportItem item =new UpdateReportItem(xPath, oldValue, nValue);
-						map.put(xPath, item);
-					}
-				}else{					
-					map.putAll(compareElement(xPath, node, oldElement));
+		Set<String> xpaths=getXpaths(parentPath, newElement);
+	    JXPathContext jxpContextOld = JXPathContext.newContext ( oldElement );
+	    jxpContextOld.setLenient(true);
+	    JXPathContext jxpContextNew = JXPathContext.newContext ( newElement );
+	    jxpContextNew.setLenient(true);
+	    String concept=newElement.getLocalName();
+		for(String xpath: xpaths){			
+			NodeList listnew=getNodeList(newElement, xpath);
+			NodeList listold=getNodeList(oldElement, xpath);
+			int num=Math.max(listnew.getLength(), listold.getLength());
+			xpath=xpath.replaceFirst("/"+concept, "");
+			if(num>1){//list
+				for(int i=1; i<=num; i++){
+					String xpath1=xpath+"["+i+"]";
+					String oldvalue=(String)jxpContextOld.getValue(xpath1,String.class);
+					String newvalue=(String)jxpContextNew.getValue(xpath1,String.class);
+					if(newvalue!=null && !newvalue.equals(oldvalue)|| oldvalue!=null && !oldvalue.equals(newvalue)){
+						UpdateReportItem item =new UpdateReportItem(xpath1, oldvalue, newvalue);
+						map.put(xpath1, item);
+					}				
+				}
+			}else{
+				String oldvalue=(String)jxpContextOld.getValue(xpath,String.class);
+				String newvalue=(String)jxpContextNew.getValue(xpath,String.class);
+				if(newvalue!=null && !newvalue.equals(oldvalue)|| oldvalue!=null && !oldvalue.equals(newvalue)){
+					UpdateReportItem item =new UpdateReportItem(xpath, oldvalue, newvalue);
+					map.put(xpath, item);
 				}
 			}
 		}
 		return map;
 	}
-	//TODO check
-	public static void updateElement(String parentPath,Node old, HashMap<String, UpdateReportItem> updatedpath)throws Exception{
-		NodeList list=old.getChildNodes();
+	
+	private static Set<String > getXpaths(String parentPath,Node node)throws Exception{
+		Set<String> set=new HashSet<String>();
+		NodeList list=node.getChildNodes();
 		for(int i=0; i<list.getLength(); i++){
-			Node node=list.item(i);
-			if(node.getNodeType() == Node.ELEMENT_NODE){
-				String nName=node.getNodeName();
-				String xPath=parentPath+"/"+nName;
-				if( !hasChildren(node)){
-					UpdateReportItem updateItem=updatedpath.get(xPath);
-					if(updateItem!=null) node.setTextContent(updateItem.getNewValue());
+			Node n=list.item(i);
+			
+			if(n.getNodeType() == Node.ELEMENT_NODE){
+				String nName=n.getNodeName();
+				String xPath=parentPath+"/"+nName;		
+				NodeList list1=getNodeList(node, xPath);
+				int j=1;
+				for(int ii=0; ii<list1.getLength(); ii++){
+					Node node1=list1.item(ii);
+					if(node1.getNodeType() == Node.ELEMENT_NODE){
+						if(getElementNum(list1)>1){
+							j++;
+						}
+					}
+				}
+				if( !hasChildren(n)){
+					set.add(xPath);
 				}else{
-					updateElement(xPath,node,updatedpath);
+					//if list
+					if(j>1){
+						for(int ii=1; ii<=j;ii++){
+							set.addAll(getXpaths(xPath+"["+ii+"]", n));
+						}
+					}else{
+						set.addAll(getXpaths(xPath, n));
+					}
 				}
 			}
 		}
+		return set;
+	}
+	
+	//TODO check
+	public static Node updateElement(String parentPath,Node old, HashMap<String, UpdateReportItem> updatedpath)throws Exception{
+
+		//use JXPathContext to update the old element
+	    JXPathContext jxpContext = JXPathContext.newContext ( old );
+	    jxpContext.setLenient(true);
+
+		AbstractFactory factory = new AbstractFactory(){
+			public boolean createObject(JXPathContext context, Pointer pointer, Object parent, String name, int index)
+			 {
+				 if (parent instanceof Node){
+						 try{
+						 Node node = (Node) parent;
+						 Document doc1 = node.getOwnerDocument();
+						 Element e = doc1.createElement(name);
+						 node.appendChild(e);
+						 return true;}
+						 catch(Exception e){
+						 return false;
+						 }
+				 }else 
+				 		return false;
+			 }
+			 public boolean declareVariable(JXPathContext context, String name) {return false; }
+		};
+			 
+		jxpContext.setFactory(factory);
+		String concept=old.getLocalName();
+		for( Map.Entry<String, UpdateReportItem> entry:updatedpath.entrySet()){
+			String xpath= entry.getValue().getPath();
+			xpath=xpath.replaceFirst("/"+concept, "");
+			jxpContext.createPathAndSetValue(xpath, entry.getValue().newValue);
+		}		
+		return (Node)jxpContext.getContextBean();
 	}
 	
 	//key is the xpath, value is the xpath value
@@ -1708,7 +1778,14 @@ public final class Util {
 		}
 		return map;
 	}
-	
+	private static UpdateReportItem getUpdatedItem(HashMap<String, UpdateReportItem> updatedpath, String xpath){
+		for( Map.Entry<String, UpdateReportItem> entry:updatedpath.entrySet()){
+			if(entry.getKey().startsWith(xpath)){
+				return entry.getValue();
+			}
+		}
+		return null;
+	}
 	private static boolean hasChildren(Node node){
 		NodeList list=node.getChildNodes();
 		for(int i=0; i<list.getLength(); i++){
@@ -1717,6 +1794,15 @@ public final class Util {
 			}
 		}
 		return false;
+	}
+	private static int getElementNum(NodeList list){
+		int j=0;
+		for(int i=0; i<list.getLength(); i++){
+			if(list.item(i).getNodeType() == Node.ELEMENT_NODE){
+				j++;
+			}
+		}
+		return j;
 	}
 	private static String mergeExchangeData(String xml,
 			String resultUpdateReport) {
