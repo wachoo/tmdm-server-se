@@ -107,7 +107,7 @@ public class Configuration {
 				new WSPutItem(
 						new WSDataClusterPK("PROVISIONING"), 
 						CommonDWR.getXMLStringFromDocument(d).replaceAll("<\\?xml.*?\\?>",""),
-						new WSDataModelPK("PROVISIONING")
+						new WSDataModelPK("PROVISIONING"),false
 				)
 		);		
 		ctx.getSession().setAttribute("configuration",new Configuration(cluster,model));

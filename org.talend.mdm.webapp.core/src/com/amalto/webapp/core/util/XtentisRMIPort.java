@@ -3675,7 +3675,7 @@ public class XtentisRMIPort implements XtentisPort {
 						new WSPutItem(
 								new WSDataClusterPK("UpdateReport"), 
 								updateReportPOJO.serialize(),
-								new WSDataModelPK("UpdateReport")));
+								new WSDataModelPK("UpdateReport"),false));
 				
 				routeItemV2(new WSRouteItemV2(itemPK));
 				

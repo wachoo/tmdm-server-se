@@ -223,7 +223,7 @@ public class XMLConfiguration {
 					new WSPutItem(
 							new WSDataClusterPK(CONFIGURATION_DATA_CLUSTER), 
 							this.toString(),
-							new WSDataModelPK(CONFIGURATION_DATA_MODEL)));
+							new WSDataModelPK(CONFIGURATION_DATA_MODEL),false));
 		} catch (XtentisWebappException e) {
 			throw(e);
 		} catch (Exception e) {

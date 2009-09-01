@@ -10,14 +10,16 @@ public class WSPutItem {
     protected com.amalto.webapp.util.webservices.WSDataClusterPK wsDataClusterPK;
     protected java.lang.String xmlString;
     protected com.amalto.webapp.util.webservices.WSDataModelPK wsDataModelPK;
+    protected java.lang.Boolean isUpdate;
     
     public WSPutItem() {
     }
     
-    public WSPutItem(com.amalto.webapp.util.webservices.WSDataClusterPK wsDataClusterPK, java.lang.String xmlString, com.amalto.webapp.util.webservices.WSDataModelPK wsDataModelPK) {
+    public WSPutItem(com.amalto.webapp.util.webservices.WSDataClusterPK wsDataClusterPK, java.lang.String xmlString, com.amalto.webapp.util.webservices.WSDataModelPK wsDataModelPK, java.lang.Boolean isUpdate) {
         this.wsDataClusterPK = wsDataClusterPK;
         this.xmlString = xmlString;
         this.wsDataModelPK = wsDataModelPK;
+        this.isUpdate = isUpdate;
     }
     
     public com.amalto.webapp.util.webservices.WSDataClusterPK getWsDataClusterPK() {
@@ -42,5 +44,13 @@ public class WSPutItem {
     
     public void setWsDataModelPK(com.amalto.webapp.util.webservices.WSDataModelPK wsDataModelPK) {
         this.wsDataModelPK = wsDataModelPK;
+    }
+    
+    public java.lang.Boolean getIsUpdate() {
+        return isUpdate;
+    }
+    
+    public void setIsUpdate(java.lang.Boolean isUpdate) {
+        this.isUpdate = isUpdate;
     }
 }
