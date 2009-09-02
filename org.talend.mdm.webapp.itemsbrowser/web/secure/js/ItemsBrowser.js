@@ -1262,9 +1262,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		
 		if(node.updateValue(value)==false){
-			amalto.core.ready();
+			ItemsBrowserInterface.updateNode(id, value, treeIndex, function() {
+						// amalto.core.ready();
 			return;
-		}
+					});
+		} else
 		ItemsBrowserInterface.updateNode(id,value,treeIndex,function(result){
 			amalto.core.ready(result);
 		});
