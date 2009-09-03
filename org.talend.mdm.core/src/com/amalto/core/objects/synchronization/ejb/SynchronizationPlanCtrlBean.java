@@ -758,15 +758,16 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
         		
         		org.apache.log4j.Logger.getLogger(this.getClass()).debug("executeFullSynchronization() Checking "+objectName);
         		
+        		ArrayList<SynchronizationPlanObjectLine> lines = plan.getXtentisObjectsSynchronizations().get(objectName).getList();
+        		
+        		//if we have no line, skip the object
+        		if (lines == null || lines.size() == 0) continue;
+        		
         		//update the plan status
         		plan.setCurrentStatusCode(SynchronizationPlanPOJO.STATUS_RUNNING);
         		plan.setCurrentStatusMessage("Processing '"+objectName+"'");
         		planCtrl.putSynchronizationPlan(revisionID, plan);
         		
-				ArrayList<SynchronizationPlanObjectLine> lines = plan.getXtentisObjectsSynchronizations().get(objectName).getList();
-				
-				//if we have no line, skip the object
-				if (lines == null || lines.size() == 0) continue;
 				
 				for (Iterator<SynchronizationPlanObjectLine> iterator2 = lines.iterator(); iterator2.hasNext(); ) {
 					SynchronizationPlanObjectLine line = iterator2.next();
@@ -854,8 +855,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
         	///////////////
         	// ITEMS
         	///////////////
-            //get the xml server wrapper
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+            //get the xml server wrapper            
 
         	//if we have no line, skip the Items
 			if (plan.getItemsSynchronizations() != null) {
@@ -869,34 +869,14 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
             			//stop requested
             			throw new XtentisException("Stop requested by user");
             		}
-            		//local cluster exist check aiming see 8908
-            		if(line.getAlgorithm().equals(SynchronizationPlanPOJO.LOCAL_WINS)){            			
-            			DataClusterPOJO dataclusterLocal=Util.getDataClusterCtrlLocal().existsDataCluster(line.getLocalClusterPOJOPK());
-            			if(dataclusterLocal==null){
-            				throw new XtentisException("Local Cluster:"+ line.getLocalClusterPOJOPK().getUniqueId() +" with revision:"+line.getLocalRevisionID() +" does not exist!");
-            			}	
-            			//default create remote db data cluster collection
-            			remotePort.putDBDataCluster(new WSPutDBDataCluster(line.getRemoteRevisionID(),line.getRemoteClusterPOJOPK().getUniqueId()));
-            		}
-            		//remote cluster exist check
-            		if(line.getAlgorithm().equals(SynchronizationPlanPOJO.REMOTE_WINS)){          
-            			WSBoolean b=remotePort.existsDBDataCluster(new WSExistsDBDataCluster(line.getRemoteRevisionID(),line.getRemoteClusterPOJOPK().getUniqueId()));
-            			if(!b.is_true()){
-            				throw new XtentisException("Remote Cluster:"+ line.getRemoteClusterPOJOPK().getUniqueId() +" with revision:"+ line.getRemoteRevisionID()+" does not exist!");
-            			}
-            			//default create local db data cluster collection
-            			server.createCluster(line.getLocalRevisionID(), line.getLocalClusterPOJOPK().getUniqueId());
-            			//store the data cluster
-            			new DataClusterPOJO(line.getLocalClusterPOJOPK().getUniqueId(),"","").store(line.getLocalRevisionID());
-            		}
-            		//end
-            		String info = 
+             		String info = 
             				"Processing Items concepts matching '"+line.getConceptName()+"', instances ids matching '"+line.getIdsPattern()+"'"
         					+"  LOCAL Cluster '"+line.getLocalClusterPOJOPK().getUniqueId()+"' and revision '"+line.getLocalRevisionID()+"'"
         					+" <--> REMOTE Cluster '"+line.getRemoteClusterPOJOPK().getUniqueId()+"' and revision '"+line.getRemoteRevisionID()+"'"  
         					+" ["+line.getAlgorithm()+"]";
             		org.apache.log4j.Logger.getLogger(this.getClass()).debug("executeFullSynchronization() "+info);
-            		
+            		//check data cluster
+            		checkSyncDataCluster(remotePort, line);
             		//update the plan status
             		plan.setCurrentStatusCode(SynchronizationPlanPOJO.STATUS_RUNNING);
             		plan.setCurrentStatusMessage(info);
@@ -996,7 +976,31 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
 	    }
     	
     }
-    
+    private void checkSyncDataCluster(XtentisPort remotePort, SynchronizationPlanItemLine line)throws Exception{
+   		//local cluster exist check aiming see 8908
+    	XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+		if(line.getAlgorithm().equals(SynchronizationPlanPOJO.LOCAL_WINS)){            			
+			DataClusterPOJO dataclusterLocal=Util.getDataClusterCtrlLocal().existsDataCluster(line.getLocalClusterPOJOPK());
+			if(dataclusterLocal==null){
+				throw new XtentisException("Local Cluster:"+ line.getLocalClusterPOJOPK().getUniqueId() +" with revision:"+line.getLocalRevisionID() +" does not exist!");
+			}	
+			//default create remote db data cluster collection
+			remotePort.putDBDataCluster(new WSPutDBDataCluster(line.getRemoteRevisionID(),line.getRemoteClusterPOJOPK().getUniqueId()));
+		}
+		//remote cluster exist check
+		if(line.getAlgorithm().equals(SynchronizationPlanPOJO.REMOTE_WINS)){          
+			WSBoolean b=remotePort.existsDBDataCluster(new WSExistsDBDataCluster(line.getRemoteRevisionID(),line.getRemoteClusterPOJOPK().getUniqueId()));
+			if(!b.is_true()){
+				throw new XtentisException("Remote Cluster:"+ line.getRemoteClusterPOJOPK().getUniqueId() +" with revision:"+ line.getRemoteRevisionID()+" does not exist!");
+			}
+			//default create local db data cluster collection
+			server.createCluster(line.getLocalRevisionID(), line.getLocalClusterPOJOPK().getUniqueId());
+			//store the data cluster
+			new DataClusterPOJO(line.getLocalClusterPOJOPK().getUniqueId(),"","").store(line.getLocalRevisionID());
+		}
+		//end
+
+    }
     /**
      * A differential Synchronization: objects and items not marked as synchronized during the last run of this plan are evaluated
      * @param revisionID
@@ -1025,6 +1029,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
         	for (Iterator<String> iterator = xtentisObjectNames.iterator(); iterator.hasNext(); ) {
 				String objectName = iterator.next();
 				ArrayList<SynchronizationPlanObjectLine> lines = plan.getXtentisObjectsSynchronizations().get(objectName).getList();
+				if (lines == null || lines.size() == 0) continue;
 				org.apache.log4j.Logger.getLogger(this.getClass()).debug("executeDifferentialSynchronization() Plan '"+plan.getName()+"': checking Object "+objectName);
 				
 				//reload the plan status to see if STOPPING is required
@@ -1046,7 +1051,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
         		planCtrl.putSynchronizationPlan(revisionID, plan);
 				
 				//if we have no line, skip the object
-				if (lines == null || lines.size() == 0) continue;
+			
 				for (Iterator<SynchronizationPlanObjectLine> iterator2 = lines.iterator(); iterator2.hasNext(); ) {
 					SynchronizationPlanObjectLine line = iterator2.next();
 					
@@ -1165,7 +1170,8 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
         					+"  Local/Remote revisions: '"+line.getLocalRevisionID()+"/"+line.getRemoteRevisionID()+"'" 
         					+" ["+line.getAlgorithm()+"]";
             		org.apache.log4j.Logger.getLogger(this.getClass()).debug("executeFullSynchronization() "+info);
-            		
+            		//check data cluster
+            		checkSyncDataCluster(remotePort, line);
             		//update the plan status
             		plan.setCurrentStatusCode(SynchronizationPlanPOJO.STATUS_RUNNING);
             		plan.setCurrentStatusMessage(info);

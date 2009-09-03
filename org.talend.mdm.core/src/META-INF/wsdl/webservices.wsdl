@@ -361,14 +361,24 @@
 	<message name="putItemResponse">
 		<part name="wsItemPK" element="tns:WSItemPK"/>
 	</message>
-	
+	<message name="putItemArrayRequest">
+		<part name="wsPutItemArray" element="tns:WSPutItemArray"/>
+	</message>
+	<message name="putItemArrayResponse">
+		<part name="wsItemPKArray" element="tns:WSItemPKArray"/>
+	</message>	
 	<message name="putItemWithReportRequest">
 		<part name="wsPutItemWithReport" element="tns:WSPutItemWithReport"/>
 	</message>
 	<message name="putItemWithReportResponse">
 		<part name="wsItemPK" element="tns:WSItemPK"/>
 	</message>
-	
+	<message name="putItemWithReportArrayRequest">
+		<part name="wsPutItemWithReportArray" element="tns:WSPutItemWithReportArray"/>
+	</message>
+	<message name="putItemWithReportArrayResponse">
+		<part name="wsItemPKArray" element="tns:WSItemPKArray"/>
+	</message>	
 	
 	<!-- ************************ EXTRACT ITEMS *************************** -->
 	<message name="extractUsingTransformerRequest">
@@ -1357,11 +1367,18 @@
 			<input message="tns:putItemRequest"/>
 			<output message="tns:putItemResponse"/>
 		</operation>
+		<operation name="putItemArray">
+			<input message="tns:putItemArrayRequest"/>
+			<output message="tns:putItemArrayResponse"/>
+		</operation>		
 		<operation name="putItemWithReport">
 			<input message="tns:putItemWithReportRequest"/>
 			<output message="tns:putItemWithReportResponse"/>
 		</operation>
-		
+		<operation name="putItemWithReportArray">
+			<input message="tns:putItemWithReportArrayRequest"/>
+			<output message="tns:putItemWithReportArrayResponse"/>
+		</operation>		
 		<operation name="extractUsingTransformer">
 			<input message="tns:extractUsingTransformerRequest"/>
 			<output message="tns:extractUsingTransformerResponse"/>
@@ -2118,14 +2135,22 @@
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
 		</operation>
+		<operation name="putItemArray">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="putItemWithReportArray">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
 		
 		<operation name="putItemWithReport">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
 		</operation>
-		
-
 		<!-- *********************  EXTRACT ITEMS  ************************ -->
 		<operation name="extractUsingTransformer">
 			<soap:operation/>

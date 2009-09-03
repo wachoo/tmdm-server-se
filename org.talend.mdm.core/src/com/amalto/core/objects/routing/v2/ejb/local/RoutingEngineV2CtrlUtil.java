@@ -5,7 +5,7 @@ package com.amalto.core.objects.routing.v2.ejb.local;
 
 /**
  * Utility class for RoutingEngineV2Ctrl.
- * @xdoclet-generated at 31-08-09
+ * @xdoclet-generated at 3-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

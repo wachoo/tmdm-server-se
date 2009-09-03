@@ -137,7 +137,7 @@ public final class Util {
 	 *********************************************************************/
 	/**
 	 * Home Caches spped up execution but make deployment debugging
-	 */
+	 */	
 	public final static boolean USE_HOME_CACHES = "true".equals(System.getProperty("com.amalto.use.home.caches"));
 	
 	/**
@@ -306,8 +306,8 @@ public final class Util {
            if(sb.toString().length()>0)
            throw new XtentisException(sb.toString());
          }
-
     }
+    
     public static Document validate(Element element, String schema) 
     	throws Exception{
 
@@ -777,9 +777,9 @@ public final class Util {
 					if(node.getNodeName().equalsIgnoreCase(name)){
 						if(node.getTextContent()==null ||node.getTextContent().length()==0 ){							
 							if(EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type)){								
-								//value=String.valueOf(new UID().getID());
+								//value=String.valueOf(new UID().getID());								
 								String id=String.valueOf(AutoIncrementGenerator.generateNum(LocalUser.getLocalUser().getUniverse().getName(), dataCluster,concept+"."+name));
-								//check id exists
+								//check id exists								
 								ItemPOJOPK pk=new ItemPOJOPK(new DataClusterPOJOPK(dataCluster),concept,new String[]{id});
 								ItemPOJO pojo=ItemPOJO.load(pk);
 								while(pojo!=null){
@@ -963,7 +963,7 @@ public final class Util {
     */
     
     
-    
+    static Hashtable<String, Element> rootCache=new Hashtable<String, Element>();
     /**
 	 * Returns a namespaced root element of a document
 	 * Useful to create a namespace holder element
@@ -973,17 +973,24 @@ public final class Util {
 	public static Element getRootElement(String elementName, String namespace, String prefix) throws TransformerException{
 	 	Element rootNS=null;
     	try {
-	    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	        factory.setNamespaceAware(true);   
-	        DocumentBuilder builder = factory.newDocumentBuilder();
-	    	DOMImplementation impl = builder.getDOMImplementation();
-	    	Document namespaceHolder = impl.createDocument(namespace,(prefix==null?"":prefix+":")+elementName, null);    
-	    	rootNS = namespaceHolder.getDocumentElement();
-	    	rootNS.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:"+prefix, namespace);
+    		String key=elementName+namespace+prefix;
+    		if(rootCache.containsKey(key)){
+    			return rootCache.get(key);
+    		}else{
+		    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		        factory.setNamespaceAware(true);   
+		        DocumentBuilder builder = factory.newDocumentBuilder();
+		    	DOMImplementation impl = builder.getDOMImplementation();
+		    	Document namespaceHolder = impl.createDocument(namespace,(prefix==null?"":prefix+":")+elementName, null);    
+		    	rootNS = namespaceHolder.getDocumentElement();
+		    	rootNS.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:"+prefix, namespace);
+		    	rootCache.put(key, rootNS);
+    		}
     	} catch (Exception e) {
     	    String err="Error creating a namespace holder document: "+e.getLocalizedMessage();
     	    throw new TransformerException(err);    
     	}
+    	
     	return rootNS;
 	}
 	
@@ -1302,7 +1309,7 @@ public final class Util {
 	
 	public static EJBLocalHome getLocalHome(String jndi) throws NamingException{
 		EJBLocalHome localHome = null;
-		if (USE_HOME_CACHES) {
+		if (true) {
 			localHome = localHomes.get(jndi);
 			if (localHome == null) {
 				localHome = (EJBLocalHome)new InitialContext().lookup(jndi);
@@ -1345,7 +1352,7 @@ public final class Util {
 	public static XmlServerSLWrapperLocal getXmlServerCtrlLocal() throws XtentisException {
         XmlServerSLWrapperLocal server = null;
 		try {
-			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();        				
+			server  =  ((XmlServerSLWrapperLocalHome)getLocalHome(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();        				
 		} catch (Exception e) {
 			String err = "Error : unable to access the XML Server wrapper";
 			org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
@@ -1722,32 +1729,31 @@ public final class Util {
 		}
 		return set;
 	}
-	
+	static 		AbstractFactory factory = new AbstractFactory(){
+		public boolean createObject(JXPathContext context, Pointer pointer, Object parent, String name, int index)
+		 {
+			 if (parent instanceof Node){
+					 try{
+					 Node node = (Node) parent;
+					 Document doc1 = node.getOwnerDocument();
+					 Element e = doc1.createElement(name);
+					 node.appendChild(e);
+					 return true;}
+					 catch(Exception e){
+					 return false;
+					 }
+			 }else 
+			 		return false;
+		 }
+		 public boolean declareVariable(JXPathContext context, String name) {return false; }
+	};
+
 	//TODO check
 	public static Node updateElement(String parentPath,Node old, HashMap<String, UpdateReportItem> updatedpath)throws Exception{
 
 		//use JXPathContext to update the old element
 	    JXPathContext jxpContext = JXPathContext.newContext ( old );
 	    jxpContext.setLenient(true);
-
-		AbstractFactory factory = new AbstractFactory(){
-			public boolean createObject(JXPathContext context, Pointer pointer, Object parent, String name, int index)
-			 {
-				 if (parent instanceof Node){
-						 try{
-						 Node node = (Node) parent;
-						 Document doc1 = node.getOwnerDocument();
-						 Element e = doc1.createElement(name);
-						 node.appendChild(e);
-						 return true;}
-						 catch(Exception e){
-						 return false;
-						 }
-				 }else 
-				 		return false;
-			 }
-			 public boolean declareVariable(JXPathContext context, String name) {return false; }
-		};
 			 
 		jxpContext.setFactory(factory);
 		String concept=old.getLocalName();

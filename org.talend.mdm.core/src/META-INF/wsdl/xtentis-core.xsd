@@ -1024,7 +1024,13 @@
 	</xsd:complexType>
 	<xsd:element name="WSPutItem" type="tns:WSPutItem"/>
 	
-	
+	<xsd:complexType name="WSPutItemArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="true" name="wsPutItem" type="tns:WSPutItem"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutItemArray" type="tns:WSPutItemArray"/>
+		
 	<xsd:complexType name="WSUpdateReportItemPOJO">
 		<xsd:sequence>
 			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="path" type="xsd:string"/>
@@ -1055,7 +1061,12 @@
 	</xsd:complexType>
 	<xsd:element name="WSPutItemWithReport" type="tns:WSPutItemWithReport"/>
 	
-
+	<xsd:complexType name="WSPutItemWithReportArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="true" name="wsPutItem" type="tns:WSPutItemWithReport"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutItemWithReportArray" type="tns:WSPutItemWithReportArray"/>
 	
 	<!-- *****************************************************
 		             D E L E T E     I T E M S

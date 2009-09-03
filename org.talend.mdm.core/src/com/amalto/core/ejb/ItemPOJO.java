@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +29,7 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.util.ItemCacheKey;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -50,7 +52,9 @@ public class ItemPOJO implements Serializable{
     private String[] itemIds;
     private Element projection;
     
-    
+	/* cached the Object pojos to improve performance*/
+	private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();	
+
     /**
      * 
      */
@@ -319,19 +323,23 @@ public class ItemPOJO implements Serializable{
      */
     public static ItemPOJO load(String revisionID, ItemPOJOPK itemPOJOPK) throws XtentisException {
     	
-    	XmlServerSLWrapperLocal server;
-		try {
-			server = ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-		} catch (Exception e) {
-			String err = "Unable to access the XML Server wrapper";
-			org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err,e);
-			throw new XtentisException(err);
-		}
+    	XmlServerSLWrapperLocal server=Util.getXmlServerCtrlLocal();
 
         try {
               //retrieve the item
             String urlid =getFilename(itemPOJOPK); 
-            String item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), urlid);
+            ItemCacheKey key =new ItemCacheKey(revisionID,urlid, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+            String item=null;
+            //the cache max size is 4000                        
+            if(cachedPojo.size()==4000){
+            	cachedPojo.clear();
+            }
+            if(cachedPojo.containsKey(key)){
+            	item=cachedPojo.get(key);
+            }else{
+            	item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), urlid);
+            	if(item!=null)cachedPojo.put(key, item);
+            }
                                     
             if (item==null) {
                 return null;
@@ -421,18 +429,10 @@ public class ItemPOJO implements Serializable{
     	}
     	String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
     	
-    	XmlServerSLWrapperLocal server;
+    	XmlServerSLWrapperLocal server=Util.getXmlServerCtrlLocal();
     	
-		try {
-			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-		} catch (Exception e) {
-			String err = "Unable to access the XML Server wrapper";
-			org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err,e);
-			throw new XtentisException(err);
-		}
     	
-        try {
- 
+        try {    	   	
             //remove the doc
             long res = server.deleteDocument(
             		revisionID,
@@ -440,7 +440,8 @@ public class ItemPOJO implements Serializable{
             		getFilename(itemPOJOPK)
             );
             if (res==-1) return null;
-            
+            ItemCacheKey key =new ItemCacheKey(revisionID,getFilename(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+            cachedPojo.remove(key);
             return itemPOJOPK;
             
 	    } catch (Exception e) {
@@ -495,15 +496,8 @@ public class ItemPOJO implements Serializable{
     	
     	
     	//get XmlServerSLWrapperLocal
-    	XmlServerSLWrapperLocal server;
+    	XmlServerSLWrapperLocal server=Util.getXmlServerCtrlLocal();
     	
-		try {
-			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-		} catch (Exception e) {
-			String err = "Unable to access the XML Server wrapper";
-			org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err,e);
-			throw new XtentisException(err);
-		}
 		
         try {
         	//init MDMItemsTrash Cluster
@@ -699,21 +693,13 @@ public class ItemPOJO implements Serializable{
      */
     public ItemPOJOPK store(String revisionID) throws XtentisException {
     	
-    	XmlServerSLWrapperLocal server;
+    	XmlServerSLWrapperLocal server=Util.getXmlServerCtrlLocal();
     	
-		try {
-			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-		} catch (Exception e) {
-			String err = "Unable to access the XML Server wrapper";
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-			throw new XtentisException(err);
-		}
 
         try {
         	
         	String xml = serialize();
     		org.apache.log4j.Logger.getLogger(this.getClass()).trace("store() "+getItemPOJOPK().getUniqueID()+"\n"+xml);
- 
             //store
             if ( -1 == server.putDocumentFromString(
             		xml, 
@@ -722,7 +708,9 @@ public class ItemPOJO implements Serializable{
             		revisionID
             	))
             	return null;
-                        
+            //update the cache
+    		ItemCacheKey key =new ItemCacheKey(revisionID,getFilename(getItemPOJOPK()), getDataClusterPOJOPK().getUniqueId());
+    		cachedPojo.put(key, xml);                       
             return getItemPOJOPK();
 	    } catch (Exception e) {
     	    String err = "Unable to store the item "+getItemPOJOPK().getUniqueID()
@@ -839,14 +827,7 @@ public class ItemPOJO implements Serializable{
 	    	}
 	    		    	
             //get the xml server wrapper
-            XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Error Finding All Unsynchronized PKs: unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
-				throw new XtentisException(err);
-			}
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
            
 			String conceptPatternCondition = (conceptName == null || "".equals(conceptName)) ? "" : "[n/text() eq '"+conceptName+"']";
 			String instancePatternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[matches(i/text(),'"+instancePattern+"')]";

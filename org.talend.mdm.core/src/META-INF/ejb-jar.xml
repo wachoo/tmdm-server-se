@@ -1705,12 +1705,38 @@
       <description><![CDATA[description not supported yet by ejbdoclet]]></description>
          <role-name>authenticated</role-name>
       <method >
-         <description><![CDATA[/**]]></description>
+         <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
          <method-name>putItem</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSPutItem</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>putItemArray</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSPutItemArray</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>putItemWithReportArray</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSPutItemWithReportArray</method-param>
          </method-params>
       </method>
    </method-permission>

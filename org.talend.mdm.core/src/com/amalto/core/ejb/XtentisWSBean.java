@@ -1734,8 +1734,72 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	/***************************************************************************
 	 *Put Item
 	 * **************************************************************************/
-	/**
-    
+    private WSItemPK putItem(WSPutItem wsPutItem,DataModelPOJO dataModel,Document schema,String[] itemKeyValues ) throws RemoteException {
+    	try{
+		String projection = wsPutItem.getXmlString();
+		
+		Element root = Util.parse(projection).getDocumentElement();
+
+		String concept = root.getLocalName();
+		DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
+		//update the item using new field values see feature 0008854: Update an item instead of replace it 
+		// load the item first if itemkey provided
+		if(wsPutItem.getIsUpdate()){
+			if(itemKeyValues.length>0){
+				ItemPOJO pj=new ItemPOJO(
+						dcpk,
+						concept,
+						itemKeyValues,
+						System.currentTimeMillis(),
+						projection
+				);
+				String revisionId=LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
+				pj=pj.load(revisionId, pj.getItemPOJOPK());				
+				if(pj!=null){// get the new projection
+					// get updated path			
+					Node old=pj.getProjection();
+					Node newNode=root;					
+					HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
+					old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
+					String newProjection=Util.getXMLStringFromNode(old);
+					projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
+				}		
+			}
+		}
+		//end
+		ItemPOJOPK itemPOJOPK =  
+			Util.getItemCtrl2Local().putItem(
+					new ItemPOJO(
+							dcpk,
+							concept,
+							itemKeyValues,
+							System.currentTimeMillis(),
+							projection
+					),
+					dataModel
+			);
+		if (itemPOJOPK==null) return null;
+		
+		//update vocabulary
+		//Util.getDataClusterCtrlLocal().getDataCluster(dcpk).addToVocabulary(projection);
+		
+		return new WSItemPK(
+				new WSDataClusterPK(itemPOJOPK.getDataClusterPOJOPK().getUniqueId()),
+				itemPOJOPK.getConceptName(),
+				itemPOJOPK.getIds()
+		);
+	} catch (XtentisException e) {
+		String err = "ERROR SYSTRACE: "+e.getMessage();
+		org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+		throw(new RemoteException(e.getLocalizedMessage()));
+	} catch (Exception e) {
+		String err = "ERROR SYSTRACE: "+e.getMessage();
+		org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+		throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+	}
+
+    }    
+    	
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
 	 * @ejb.permission 
@@ -1745,8 +1809,9 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
 		try {
 			String projection = wsPutItem.getXmlString();
-			Element root = Util.parse(projection).getDocumentElement();
 			
+			Element root = Util.parse(projection).getDocumentElement();
+
 			String concept = root.getLocalName();
 
 			DataModelPOJO dataModel  = Util.getDataModelCtrlLocal().getDataModel(
@@ -1762,54 +1827,11 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem(
        			root,
    				conceptKey
-			);				
-			DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
+			);							
 			//update the item using new field values see feature 0008854: Update an item instead of replace it 
 			// load the item first if itemkey provided
-			if(wsPutItem.getIsUpdate()){
-				if(itemKeyValues.length>0){
-					ItemPOJO pj=new ItemPOJO(
-							dcpk,
-							concept,
-							itemKeyValues,
-							System.currentTimeMillis(),
-							projection
-					);
-					String revisionId=LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
-					pj=pj.load(revisionId, pj.getItemPOJOPK());				
-					if(pj!=null){// get the new projection
-						// get updated path			
-						Node old=pj.getProjection();
-						Node newNode=root;					
-						HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
-						old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
-						String newProjection=Util.getXMLStringFromNode(old);
-						projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
-					}		
-				}
-			}
-			//end
-			ItemPOJOPK itemPOJOPK =  
-				Util.getItemCtrl2Local().putItem(
-						new ItemPOJO(
-								dcpk,
-								concept,
-								itemKeyValues,
-								System.currentTimeMillis(),
-								projection
-						),
-						dataModel
-				);
-			if (itemPOJOPK==null) return null;
-			
-			//update vocabulary
-			Util.getDataClusterCtrlLocal().getDataCluster(dcpk).addToVocabulary(projection);
-			
-			return new WSItemPK(
-					new WSDataClusterPK(itemPOJOPK.getDataClusterPOJOPK().getUniqueId()),
-					itemPOJOPK.getConceptName(),
-					itemPOJOPK.getIds()
-			);
+			return putItem(wsPutItem, dataModel, schema, itemKeyValues);
+
 		} catch (XtentisException e) {
 			String err = "ERROR SYSTRACE: "+e.getMessage();
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
@@ -1820,7 +1842,21 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
 		}
 	}	
-	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray) throws RemoteException {
+		WSPutItem[] items=wsPutItemArray.getWsPutItem();	
+		List<WSItemPK> pks=new ArrayList<WSItemPK>();
+		for(WSPutItem item: items){
+			WSItemPK pk=putItem(item);
+			pks.add(pk);
+		}
+		return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
+	}
 	
 	private UpdateReportItemPOJO WS2POJO(WSUpdateReportItemPOJO wsUpdateReportItemPOJO) throws Exception{
 		return new UpdateReportItemPOJO(
@@ -1829,7 +1865,21 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 				wsUpdateReportItemPOJO.getNewValue()
 		);
 	}
-	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSItemPKArray putItemWithReportArray(com.amalto.core.webservice.WSPutItemWithReportArray wsPutItemWithReportArray) throws RemoteException {
+		WSPutItemWithReport[] items=wsPutItemWithReportArray.getWsPutItem();
+		List<WSItemPK> pks=new ArrayList<WSItemPK>();
+		for(WSPutItemWithReport item: items){
+			WSItemPK pk=putItemWithReport(item);
+			pks.add(pk);
+		}
+		return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
+	}	
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
 	 * @ejb.permission 
@@ -1838,7 +1888,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 */
 	public WSItemPK putItemWithReport(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport) throws RemoteException {
 		try {
-			
+
 			WSPutItem wsPutItem=wsPutItemWithReport.getWsPutItem();
 			String source=wsPutItemWithReport.getSource();
 			String operationType="";
@@ -1858,7 +1908,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	        		schema,
 					concept					
 			);
-	       
+
 			//get key values
 			String[] ids = com.amalto.core.util.Util.getKeyValuesFromItem(
 	   			root,
@@ -1875,6 +1925,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
             }
 			//get operationType
 			ItemPOJO itemPoJo=ItemPOJO.load(revisionID,itemPOJOPK);
+
 			HashMap<String, UpdateReportItem> updatedPath=new HashMap<String, UpdateReportItem>();
 
 			if(itemPoJo==null){
@@ -1889,17 +1940,18 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 					for(Entry<String, UpdateReportItem> entry:updatedPath.entrySet()){
 						UpdateReportItemPOJO pojo=new UpdateReportItemPOJO(entry.getValue().getPath(), entry.getValue().getOldValue(),entry.getValue().getNewValue());
 						updateReportItemsMap.put(entry.getKey(), pojo);
-				}				
+				}		
 			}
 
 						
 			String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
 	
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[putItem-of-putItemWithReport] in dataCluster:"+dataClusterPK);
-			WSItemPK wsi = putItem(wsPutItem);	
+			WSItemPK wsi = putItem(wsPutItem, dataModel,schema, ids);	
 
 			//create resultUpdateReport			
 			String resultUpdateReport= Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem.getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
+
 			//invoke before saving
 			if(wsPutItemWithReport.getInvokeBeforeSaving()){
 				String err=Util.beforeSaving(concept, projection, resultUpdateReport);
@@ -1915,19 +1967,18 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			//additional attributes for data changes log
 
             String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
-			
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[pushUpdateReport-of-putItemWithReport] with concept:"+concept+" operation:"+operationType);
-			UpdateReportPOJO updateReportPOJO=new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, source, System.currentTimeMillis(),dataClusterPK,dataModelPK,userName,revisionID,updateReportItemsMap);
-			
+			if(updateReportItemsMap.size()>0){
+				org.apache.log4j.Logger.getLogger(this.getClass()).debug("[pushUpdateReport-of-putItemWithReport] with concept:"+concept+" operation:"+operationType);
+				UpdateReportPOJO updateReportPOJO=new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, source, System.currentTimeMillis(),dataClusterPK,dataModelPK,userName,revisionID,updateReportItemsMap);
+				
 				WSItemPK itemPK = putItem(
 						new WSPutItem(
 								new WSDataClusterPK("UpdateReport"), 
 								updateReportPOJO.serialize(),
-								new WSDataModelPK("UpdateReport"),false));
+								new WSDataModelPK("UpdateReport"),false));			
+				routeItemV2(new WSRouteItemV2(itemPK));
+			}
 
-				
-			routeItemV2(new WSRouteItemV2(itemPK));
-				
 			return wsi;	
 
 		} catch (XtentisException e) {
@@ -4489,34 +4540,6 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		}
 	}
 		
-//	private AbstractRoutingOrderV2POJO WS2POJO(WSRoutingOrderV2 s) throws Exception{
-//		if (s==null) return null;
-//		try {			
-//		    AbstractRoutingOrderV2POJO pojo = null;
-//		    if (s.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
-//		    	pojo = new ActiveRoutingOrderV2POJO();
-//		    } else if (s.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
-//		    	pojo = new CompletedRoutingOrderV2POJO();
-//		    } else if (s.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
-//		    	pojo = new FailedRoutingOrderV2POJO();
-//		    }  
-//		    pojo.setMessage(s.getMessage());
-//		    pojo.setName(s.getName());
-//		    pojo.setServiceJNDI(s.getServiceJNDI());
-//		    pojo.setServiceParameters(s.getServiceParameters());
-//		    pojo.setTimeCreated(s.getTimeCreated());
-//		    pojo.setTimeLastRunCompleted(s.getTimeLastRunCompleted());
-//		    pojo.setTimeLastRunStarted(s.getTimeLastRunStarted());
-//		    pojo.setTimeScheduled(s.getTimeScheduled());
-//		    pojo.setItemPOJOPK(WS2POJO(s.getWsItemPK()));
-//			return pojo;
-//		} catch (Exception e) {
-//			String err = "ERROR SYSTRACE: "+e.getMessage();
-//			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-//			throw(e);
-//		}
-//	}
-
 	
 	/***************************************************************************
 	 * Routing Engine V2
