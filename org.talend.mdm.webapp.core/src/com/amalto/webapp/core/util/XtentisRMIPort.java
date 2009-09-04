@@ -3687,5 +3687,22 @@ public class XtentisRMIPort implements XtentisPort {
 		}
 
 	}
+
+
+
+	public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSItemPKArray putItemWithReportArray(
+			WSPutItemWithReportArray wsPutItemWithReportArray)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
