@@ -77,6 +77,22 @@ public class LayoutDWR {
 		}	
 	}
 	
+	public String getUsernameAndUniverse() throws Exception{
+		try {
+			String xml = Util.getAjaxSubject().getXml();
+			Document d = Util.parse(xml);
+			String givenname = Util.getFirstTextNode(d,"//givenname");
+			String familyname = Util.getFirstTextNode(d,"//familyname");
+			String name = "";
+			String universe = Util.getLoginUniverse();
+			if(familyname!=null && givenname!=null) name = givenname+" "+familyname +","+universe;
+			else name= Util.getAjaxSubject().getUsername();
+			return name;
+		} catch (PolicyContextException e) {
+			e.printStackTrace();
+			return "";
+		}	
+	} 
 	
 	public void logout(){
 		

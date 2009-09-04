@@ -439,9 +439,16 @@ amalto.core = function () {
 		
 		
 		//add username info
-		LayoutInterface.getUsername(function(result){
-			var html = "Hello"+", "+result;
-			if(language=='fr') html = "Bonjour"+", "+result;
+		LayoutInterface.getUsernameAndUniverse(function(result){
+			var nameAndUniverse = new Array()
+			nameAndUniverse = result.toLocaleString().split(",");
+			var name = nameAndUniverse[0];
+			var universe = "HEAD";
+			if(""!=nameAndUniverse[1]&&nameAndUniverse[1]!=null)
+				universe = nameAndUniverse[1];
+			
+			var html = "Hello"+", "+name+",  "+"You are connected to the Universe ["+universe+"]!";
+			if(language=='fr') html = "Bonjour"+", "+name+"," +"Vous ¨ºtes connect¨¦ ¨¤ l'univers ["+universe+"]!";
 			DWRUtil.setValue('username-div',html);
 		});
 		
