@@ -302,6 +302,7 @@ public abstract class ObjectPOJO implements Serializable{
             String urlid =  objectPOJOPK.getUniqueId();
             String item=null;
             ItemCacheKey key =new ItemCacheKey(revisionID,urlid, getCluster(objectClass));
+            if(cachedPojo.size()==5000)cachedPojo.clear();
             if(cachedPojo.containsKey(key)){
             	item=cachedPojo.get(key);            	
             }else{

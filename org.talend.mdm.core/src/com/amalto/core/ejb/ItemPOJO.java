@@ -330,8 +330,8 @@ public class ItemPOJO implements Serializable{
             String urlid =getFilename(itemPOJOPK); 
             ItemCacheKey key =new ItemCacheKey(revisionID,urlid, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
             String item=null;
-            //the cache max size is 4000                        
-            if(cachedPojo.size()==4000){
+            //the cache max size is 5000                        
+            if(cachedPojo.size()==5000){
             	cachedPojo.clear();
             }
             if(cachedPojo.containsKey(key)){
