@@ -27,6 +27,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
 import org.xmldb.api.DatabaseManager;
@@ -1075,7 +1076,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     public String getPivotIndexQuery(
 			String clusterName, 
 			String mainPivotName,
-			LinkedHashMap<String, String[]> pivotWithKeys, 
+			LinkedHashMap<String, String[]> pivotWithKeys,
+			LinkedHashMap<String, String> itemsRevisionIDs,
+			String defaultRevisionID,
 			String[] indexPaths,
 			IWhereItem whereItem, 
 			String[] pivotDirections,
@@ -1110,7 +1113,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         		int j=0;
             	for (Iterator iterator = conceptMap.iterator(); iterator.hasNext();j++) {
         			String conceptName = (String) iterator.next();
-        			xqFor.append("$").append(conceptName).append(" in collection(\"").append(clusterName).append("\")//").append(conceptName);
+        			String revisionID=CommonUtil.getConceptRevisionID(itemsRevisionIDs, defaultRevisionID, conceptName);
+        			String collectionPath = (revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")+(clusterName == null ? "" : clusterName);//TODO ENCODE
+        			xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")//").append(conceptName);
         			
         			if(j<conceptMap.size()-1){
         				xqFor.append(", ");
