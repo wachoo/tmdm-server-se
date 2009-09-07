@@ -167,7 +167,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			
 			html[html.length] = '<span id="'+itemData.nodeId+'OpenDetails" style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >';
 			html[html.length] = '<img src="img/genericUI/open-detail2.gif"/></span>' ;
-			html[html.length] = 		cloneNodeImg+' '+removeNodeImg+' '+foreignKeyImg + '<br/>';
+			html[html.length] = 		cloneNodeImg+' '+removeNodeImg+' '+foreignKeyImg ;
 			
 			html[html.length] = '<div id="'+itemData.nodeId+'ErrorMessage" style="padding-left:180px;display:none" ></div>';
 			html[html.length] = '	<div class="detailLabel" id="'+itemData.nodeId+'XsdDetails" style="display:none">';
@@ -266,8 +266,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		}
         
 		var ERROR_MESSAGE_MINOCCURS ={
-			'en' : 'The value should be inputted',
-			'fr' : 'The value should be inputted'
+			'en' : 'The field is required!',
+			'fr' : 'The field is required!'
 		}
 		
 		var ERROR_MESSAGE_VALIDATEDOUBLE = {
