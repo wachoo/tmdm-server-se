@@ -3,7 +3,6 @@
 	<name>org.talend.mdm.xmldb</name>
 	<comment></comment>
 	<projects>
-		<project>com.amalto.xmlserver.interfaces</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

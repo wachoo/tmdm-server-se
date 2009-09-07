@@ -3,8 +3,6 @@
 	<name>org.talend.mdm.transformer.plugin</name>
 	<comment></comment>
 	<projects>
-		<project>com.amalto.xmlserver</project>
-		<project>com.amalto.xmlserver.interfaces</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

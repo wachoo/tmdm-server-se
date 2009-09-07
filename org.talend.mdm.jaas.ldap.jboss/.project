@@ -3,7 +3,6 @@
 	<name>org.talend.mdm.jaas.ldap.jboss</name>
 	<comment></comment>
 	<projects>
-		<project>com.amalto.core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

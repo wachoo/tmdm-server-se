@@ -3,8 +3,6 @@
 	<name>org.talend.mdm.core.plugin.base</name>
 	<comment></comment>
 	<projects>
-		<project>com.amalto.xmlserver</project>
-		<project>com.amalto.xmlserver.interfaces</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
