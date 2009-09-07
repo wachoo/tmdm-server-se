@@ -6,6 +6,18 @@
 #
 ######################################################
 
+######################################################
+# DB Setting
+######################################################
+xmldb.server.name=localhost
+xmldb.server.port=8080
+xmldb.administrator.username=admin
+xmldb.administrator.password=1bc29b36f623ba82aaf6724fd3b16718
+xmldb.driver=org.exist.xmldb.DatabaseImpl
+xmldb.dbid=exist
+xmldb.dburl=exist/xmlrpc/db
+xmldb.isupurl=exist/
+
 
 ######################################################
 # Subscription Engine
