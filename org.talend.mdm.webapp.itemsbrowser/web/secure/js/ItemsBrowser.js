@@ -1520,35 +1520,60 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		});
 	}
 	
-	function showDatePicker(nodeId, treeIndex, nodeType){
-		if(nodeDatePicker){
-			 nodeDatePicker.hide();
-			 nodeDatePicker.destroy();
+	function showDatePicker(nodeId, treeIndex, nodeType) {
+		if (nodeDatePickerWindow) {
+			nodeDatePickerWindow.hide();
+			nodeDatePickerWindow.destroy();
 		}
-		
-		var inputText=nodeId+"Value";
-		nodeDatePicker = new Ext.DatePicker({  
-					     applyTo:inputText,  
-					     renderTo:inputText,   
-					     hidden:"true",  
-					     format:"Y-m-d"  
-	     }); 
-	     
-	     nodeDatePicker.on("select",function(src,date){
-	     	     var setValue=date.format("Y-m-d");
-	     	     if(nodeType=="dateTime"){setValue+="T00:00:00"};
-			     DWRUtil.setValue(inputText,setValue);
-			     updateNode(nodeId,treeIndex);
-			     nodeDatePicker.hide();
-		 });
-		 
-		 var initValue=$(inputText).value;
-		 if(initValue!=null&&initValue!=""){
-		 	if(initValue.indexOf('T')!=-1)initValue=initValue.substring(0,initValue.indexOf('T'));
-		 	nodeDatePicker.setValue(Date.parseDate(initValue,"Y-m-d"));
-		 }
-		 
-		 nodeDatePicker.show(this);
+
+		var inputText = nodeId + "Value";
+		var nodeDatePickerPanel = new Ext.form.FormPanel({
+					baseCls : 'x-plain',
+					labelAlign : 'right',
+					labelWidth : 210,
+					labelHeight : 240,
+					// layout:'fit',
+					defaultType : 'datefield',
+					items : [{
+								id : 'date111',
+								xtype : 'datepicker',
+								fieldLabel : 'nodeDatePickerPanel ',
+								name : 'datePicker',
+								layout : 'fit',
+								inputType : 'textfield',
+								listeners : {
+
+									select : function(src, date) {
+										var setValue = date.format("Y-m-d");
+										if (nodeType == "dateTime") {
+											setValue += "T00:00:00"
+										};
+										DWRUtil.setValue(inputText, setValue);
+										updateNode(nodeId, treeIndex);
+									}
+								}
+							}]
+				});
+		nodeDatePickerWindow = new Ext.Window({
+					title : 'Date Picker',
+					width : 210,
+					height : 240,
+					layout : 'fit',
+					plain : true,
+					bodyStyle : 'padding:5px;',
+					buttonAlign : 'center',
+					items : nodeDatePickerPanel
+				});
+
+		// var value1 = nodeDatePickerPanel.getForm().getValues('date111');
+		var initValue = $(inputText).value;
+		if (initValue != null && initValue != "") {
+			if (initValue.indexOf('T') != -1)
+				initValue = initValue.substring(0, initValue.indexOf('T'));
+			// nodeDatePicker.setValue(Date.parseDate(initValue,"Y-m-d"));
+		}
+
+		nodeDatePickerWindow.show(this);
 	}
 	
 	function removePicture(nodeId, treeIndex){
