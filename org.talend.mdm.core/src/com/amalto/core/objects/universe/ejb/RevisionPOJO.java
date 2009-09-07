@@ -207,7 +207,7 @@ public class RevisionPOJO implements Serializable{
 			throw new XtentisException(err);
         }
     	//load the item
-        System.out.println(contents);
+        //System.out.println(contents);
 	        	                                            
     }
     
