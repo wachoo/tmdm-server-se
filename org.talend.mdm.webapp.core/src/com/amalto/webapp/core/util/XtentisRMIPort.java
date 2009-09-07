@@ -3163,7 +3163,8 @@ public class XtentisRMIPort implements XtentisPort {
 				actionCode = SynchronizationPlanPOJO.ACTION_RESET;
 			}
 			
-			SynchronizationPlanCtrlLocal ctrl = SynchronizationPlanCtrlUtil.getLocalHome().create();
+			//SynchronizationPlanCtrlLocal ctrl = SynchronizationPlanCtrlUtil.getLocalHome().create();
+			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal(); 
 			String[] res = ctrl.action(
 				actionCode, 
 				new SynchronizationPlanPOJOPK(wsSynchronizationPlanAction.getWsSynchronizationPlanPK().getPk())
