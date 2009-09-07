@@ -22,6 +22,7 @@ import javax.xml.rpc.ServiceFactory;
 import javax.xml.rpc.Stub;
 
 import org.jboss.ws.core.jaxrpc.client.ServiceFactoryImpl;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
@@ -1767,9 +1768,13 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     	            String operationType=UpdateReportPOJO.OPERATIONTYPE_UPDATEE;
     	            if(isExistBeforeSynchro)operationType=UpdateReportPOJO.OPERATIONTYPE_CREATE;
         	        ItemPOJO updateReportItem = getUpdateReportItem(remoteWinner,remoteRevisionID, userName,operationType);
-    				remotePort.synchronizationPutItemXML(
-        	            	new WSSynchronizationPutItemXML(remoteRevisionID, updateReportItem.serialize())
-        	            );
+        	        //exclude update report itself
+        	        if(remoteWinner.getDataClusterPOJOPK().getUniqueId()!=null&&!remoteWinner.getDataClusterPOJOPK().getUniqueId().equals(XSystemObjects.DC_UPDATE_PREPORT.getName())){
+        	        	remotePort.synchronizationPutItemXML(
+            	            	new WSSynchronizationPutItemXML(remoteRevisionID, updateReportItem.serialize())
+            	            );
+        	        }
+    				
 
     	            remoteInstance.setXml(remoteWinner.getProjectionAsString());
                 } catch (Exception e) {
@@ -1793,7 +1798,10 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     	        	operationType=UpdateReportPOJO.OPERATIONTYPE_CREATE;
     	        }
     	        ItemPOJO updateReportItem = getUpdateReportItem(localWinner,localRevisionID, userName,operationType);
-				updateReportItem.store(localRevisionID);
+    	        //exclude update report itself
+    	        if(localWinner.getDataClusterPOJOPK().getUniqueId()!=null&&!localWinner.getDataClusterPOJOPK().getUniqueId().equals(XSystemObjects.DC_UPDATE_PREPORT.getName())){
+    	           updateReportItem.store(localRevisionID);
+    	        }
 				
 	        }
 	        
