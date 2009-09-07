@@ -460,7 +460,9 @@ public interface IXmlServerSLWrapper {
 	public String getPivotIndexQuery(
 			String clusterName, 
 			String mainPivotName,
-			LinkedHashMap<String, String[]> pivotWithKeys, 
+			LinkedHashMap<String, String[]> pivotWithKeys,
+			LinkedHashMap<String, String> itemsRevisionIDs,
+			String defaultRevisionID,
 			String[] indexPaths,
 			IWhereItem whereItem, 
 			String[] pivotDirections,
