@@ -355,8 +355,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	/** The foreign key search window */
 	var foreignKeyWindow;
-	/** The node date picker */
-	var nodeDatePicker;
+	/** The node date pickerwindow */
+	var nodeDatePickerWindow;
 	/** The node upload file window */
 	var uploadFileWindow;
 	var errorDesc = "The item can not be saved, it contains error(s). See details below:";
