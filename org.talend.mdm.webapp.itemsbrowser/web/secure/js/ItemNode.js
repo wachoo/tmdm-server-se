@@ -55,6 +55,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	treeIndex: null,	
 	hasIcon: null,
 	
+	
     /**
      * Sets up the node label
      * @property initContent
@@ -133,8 +134,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						' <input class="inputTree'+readOnlyStyle+'" '+readOnly+' ' +
 						//TODO'onFocus="amalto.itemsbrowser.ItemsBrowser.setlastUpdatedInputFlagPublic(\''+itemData.nodeId+'\','+treeIndex+');" ' +
 						'onchange="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');" size="72" type="'+ type+ '"  ' +
-						'id="'+itemData.nodeId+'Value" value="'+value+'"/>'
-	                   +'<div id="'+itemData.nodeId+'ErrorMessage" style="display:none" ></div>';
+						'id="'+itemData.nodeId+'Value" value="'+value+'"/>';
 			}
 			//text area
 			else {
@@ -142,8 +142,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				var input = ' ' +
 						'<textarea class="inputTree'+readOnlyStyle+'" '+readOnly+' ' +
 						'onblur="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');" id="'+itemData.nodeId+'Value" ' +
-						'rows="4" cols="69" type="text">'+value+'</textarea>'
-					   +'<div id="'+itemData.nodeId+'ErrorMessage" style="display:none" ></div>';
+						'rows="4" cols="69" type="text">'+value+'</textarea>';
 			}
 			
 
@@ -168,10 +167,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			
 			html[html.length] = '<span id="'+itemData.nodeId+'OpenDetails" style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >';
 			html[html.length] = '<img src="img/genericUI/open-detail2.gif"/></span>' ;
-			html[html.length] = 		cloneNodeImg+' '+removeNodeImg+' '+foreignKeyImg;
+			html[html.length] = 		cloneNodeImg+' '+removeNodeImg+' '+foreignKeyImg + '<br/>';
+			
+			html[html.length] = '<div id="'+itemData.nodeId+'ErrorMessage" style="padding-left:180px;display:none" ></div>';
 			html[html.length] = '	<div class="detailLabel" id="'+itemData.nodeId+'XsdDetails" style="display:none">';
 			html[html.length] = '		XML tag : '+itemData.xmlTag+'<br/> ' ;
 			html[html.length] = '		Type : '+itemData.typeName+'<br/>' ;
+			
 			
 			var restrictions = itemData.restrictions;
 			for(var i=0; i<restrictions.length; i++) {
@@ -189,7 +191,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			html[html.length] = 	'<input type="text" size="72" class="dotted-line" READONLY /></div>' ;
 			html[html.length] = 	'<span id="'+itemData.nodeId+'OpenDetails" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >' ;
 			html[html.length] = 	' <img src="img/genericUI/open-detail2.gif"/></span>';
-			html[html.length] = 	cloneNodeImg+' '+removeNodeImg;
+			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + '<br/>';
+
 			html[html.length] = 	'<div class="detailLabel" id="'+itemData.nodeId+'XsdDetails" style="display:none">' ;
 			html[html.length] = 	'XML tag : '+itemData.xmlTag+'<br/> ' ;
 			html[html.length] = 	'Type : '+itemData.typeName+'<br/>' ;
@@ -215,8 +218,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
     getContentEl: function() {
         return document.getElementById(this.contentElId);
     },
-
-
+    
 	/*
 	 * Return true if the new value is valid against the restrictions
 	 * and update the inner value of the node to the new value
@@ -233,7 +235,45 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			alert("mauvais type "+typeof(value));
 		}*/
 		
+	    var ERROR_MESSAGE_MINLENGTH = {
+			'en' : 'The Minimum number of the value length is ',
+			'fr' : 'The Minimum number of the value length is '
+		}
 
+		var ERROR_MESSAGE_MAXLENGTH = {
+			'en' : 'The maximum number of the value length is ',
+			'fr' : 'The maximum number of the value length is '
+		}
+
+		var ERROR_MESSAGE_MINEXCLUSIVE = {
+			'en' : 'The value should be greater than ',
+			'fr' : 'The value should be greater than '
+		}
+
+		var ERROR_MESSAGE_MAXEXCLUSIVE = {
+			'en' : 'The value should be less than or equal to',
+			'fr' : 'The value should be less than or equal to'
+		}
+
+		var ERROR_MESSAGE_MININCLUSIVE = {
+			'en' : 'The value should be greater than or equal to ',
+			'fr' : 'The value should be greater than or equal to '
+		}
+
+		var ERROR_MESSAGE_MAXINCLUSIVE = {
+			'en' : 'The value should be less than ',
+			'fr' : 'The value should be less than '
+		}
+        
+		var ERROR_MESSAGE_MINOCCURS ={
+			'en' : 'The value should be inputted',
+			'fr' : 'The value should be inputted'
+		}
+		
+		var ERROR_MESSAGE_VALIDATEDOUBLE = {
+			'en' : ' is not a valid value for double ',
+			'fr' : ' is not a valid value for double '
+		}
 		var errorMessageDivId = this.itemData.nodeId+"ErrorMessage";
 		if($(errorMessageDivId))$(errorMessageDivId).style.display = "none";
 		if(this.itemData.restrictions!=null){	
@@ -250,27 +290,73 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					this.displayErrorMessage(errorMessageDivId,msg);
 					return false;
 				}
-				if(this.itemData.restrictions[i].name=="minExclusive" 
-				&& parseInt(value)<=parseInt(this.itemData.restrictions[i].value)){					
-					var msg="\""+this.itemData.name+"\" doit etre superieur à "+this.itemData.restrictions[i].value+".";
-					this.displayErrorMessage(errorMessageDivId,msg);
-					return false;
+				if(this.itemData.restrictions[i].name=="minExclusive" )
+				{
+					var msg;
+					if (isNaN(value))
+					{
+						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						this.displayErrorMessage(errorMessageDivId,msg);
+						return false;
+					}
+					else if (parseInt(value)<=parseInt(this.itemData.restrictions[i].value))
+					{
+					    msg=ERROR_MESSAGE_MINEXCLUSIVE[language] + this.itemData.restrictions[i].value;
+					    this.displayErrorMessage(errorMessageDivId,msg);
+					    return false;
+					}
 				}
-				if(this.itemData.restrictions[i].name=="maxExclusive" 
-				&& parseInt(value)>=parseInt(this.itemData.restrictions[i].value)){
-					var msg="\""+this.itemData.name+"\" doit etre inférieur à "+this.itemData.restrictions[i].value+".";
-					this.displayErrorMessage(errorMessageDivId,msg);
-					return false;
+				if(this.itemData.restrictions[i].name=="maxExclusive")
+				{
+					var msg;
+					if (isNaN(value))
+					{
+						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						this.displayErrorMessage(errorMessageDivId,msg);
+						return false;
+					}
+					else if (value > this.itemData.restrictions[i].value)
+					{
+						msg=ERROR_MESSAGE_MAXEXCLUSIVE[language] + this.itemData.restrictions[i].value;
+						this.displayErrorMessage(errorMessageDivId,msg);
+						return false;
+					}
+
 				}
-				if(this.itemData.restrictions[i].name=="minInclusive" 
-				&& parseInt(value)<parseInt(this.itemData.restrictions[i].value)){
-					var msg="\""+this.itemData.name+"\" doit etre superieur ou égal à "+this.itemData.restrictions[i].value+".";
-					this.displayErrorMessage(errorMessageDivId,msg);
-					return false;
+				if(this.itemData.restrictions[i].name=="minInclusive" ){
+					var msg;
+					if (isNaN(value))
+					{
+						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						this.displayErrorMessage(errorMessageDivId,msg);
+						return false;
+					}
+					else if (value < this.itemData.restrictions[i].value)
+					{
+						msg=ERROR_MESSAGE_MININCLUSIVE[language] + this.itemData.restrictions[i].value;
+						this.displayErrorMessage(errorMessageDivId,msg);
+						return false;
+					}
 				}
-				if(this.itemData.restrictions[i].name=="maxInclusive" 
-				&& parseInt(value)>parseInt(this.itemData.restrictions[i].value)){
-					var msg="\""+this.itemData.name+"\" doit etre inférieur ou égal à "+this.itemData.restrictions[i].value+".";
+				if(this.itemData.restrictions[i].name=="maxInclusive"){
+					var msg;
+					if (isNaN(value))
+					{
+						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						this.displayErrorMessage(errorMessageDivId,msg);
+						return false;
+					}
+					else if (value >= this.itemData.restrictions[i].value)
+					{
+						msg=ERROR_MESSAGE_MAXINCLUSIVE[language] + this.itemData.restrictions[i].value+".";
+						this.displayErrorMessage(errorMessageDivId,msg);
+						return false;
+					}
+
+				}
+				if (this.itemData.readOnly==false && this.itemData.minOccurs>=1 && (value == null || value == ""))
+				{
+					msg=ERROR_MESSAGE_MINOCCURS[language];
 					this.displayErrorMessage(errorMessageDivId,msg);
 					return false;
 				}
@@ -300,6 +386,17 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon);
 	},
 
+    /*
+     * retrieve the value from text field, and compare it to the restrictions
+     */
+    update: function(update){
+    	var itemNode = this.itemData.value;
+    	if (this.itemData.type == "complex")
+    	    return true;
+		itemNode = DWRUtil.getValue(this.itemData.nodeId + "Value");
+    	return this.updateValue(itemNode);
+    },
+    
     // overrides YAHOO.widget.Node
     getNodeHtml: function() {
        // this.logger.log("Generating html");

@@ -359,6 +359,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var nodeDatePicker;
 	/** The node upload file window */
 	var uploadFileWindow;
+	var errorDesc = "The item can not be saved, it contains error(s). See details below:";
+	var itemNodes = [];
+	
 	function browseItems(){
 		showItemsPanel();
 		//populate list
@@ -996,6 +999,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		loadResource("/itemsbrowser/secure/js/ItemNode.js", "amalto.itemsbrowser.ItemNode" );
 		//alert("display items "+DWRUtil.toDescriptiveString(itemPK2,2)+" "+ dataObject);
 		amalto.core.working();
+		itemNodes = [];
 		treeCount++;	
 		var treeIndex = treeCount;
 		
@@ -1036,6 +1040,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 				//update the div structure
 				var html =
+				   '<div id="errorDesc" style="display:none;color:red;font-weight:bold;padding-left:25px"><img src="img/genericUI/icon-error.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
+			             + errorDesc + '</span></div>' +
+				    '<div id="errorDetail" style="display:none;color:red;font-weight:bold;padding-left:65px"></div></br>'+
 					'<div>' +
 					'		<span id="itemDetails'+treeIndex+'" class="itemTree"></span>' +
 					'		<span id="smartView'+treeIndex+'" style="display=none;">'+smartView+'</span>' +
@@ -1097,6 +1104,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
+    						itemNodes[i] = tmp;
     					}
     					fnCallback();
         			});
@@ -1130,6 +1138,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
+    						itemNodes[i] = tmp;
     					}
     					fnCallback();
         			});
@@ -1261,12 +1270,25 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			keys[treeIndex][node.itemData.keyIndex] = value;
 		}
 		
+	    $('errorDetail').style.display = "none";
+	    
 		if(node.updateValue(value)==false){
 			ItemsBrowserInterface.updateNode(id, value, treeIndex, function() {
 						// amalto.core.ready();
+			
+			$('errorDesc').style.display = "block";
 			return;
 					});
-		} else
+		} 
+		else
+		{
+		    if (updateItemNodesBeforeSaving() == true) {
+				$('errorDesc').style.display = "block";
+			}
+			else
+			 $('errorDesc').style.display = "none";
+		}
+		
 		ItemsBrowserInterface.updateNode(id,value,treeIndex,function(result){
 			amalto.core.ready(result);
 		});
@@ -1349,11 +1371,30 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				 });
 	}
 	
+	function updateItemNodesBeforeSaving()
+	{
+	  var error = false;
+	  for (var i = 0; i < itemNodes.length; i++) {
+	  	var node = itemNodes[i];
+	  	if (node.update() == false)
+	  	   error = true;
+	  }
+	  return error;
+	}
+	
 	function saveItem(ids,dataObject,treeIndex,callbackOnSuccess){
 		if(navigator.appName=="Microsoft Internet Explorer" && lastUpdatedInputFlag[treeIndex]!=null) {
 			updateNode(lastUpdatedInputFlag[treeIndex], treeIndex);
 		}
-	
+		
+	    if (updateItemNodesBeforeSaving() == true) {
+			$('errorDesc').style.display = "block";
+			$('errorDetail').style.display = "none";
+			return;
+		}
+		
+	    $('errorDesc').style.display = "none";
+	    $('errorDetail').style.display = "none";
 		ItemsBrowserInterface.checkIfDocumentExists(keys[treeIndex], dataObject, function(result){
 			if(result==true) {
 				if(!confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
@@ -1375,7 +1416,20 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				
 			},
 			errorHandler:function(errorString, exception) {//on exception  
-              alert(''+ errorString);
+//              alert(''+ errorString);
+				var error = itemTreeList[treeIndex];
+               $('errorDesc').style.display = "block";
+                var reCat = /\[Error\].*\n/gi;
+                var innerHml ="";
+             	var arrMactches = errorString.match(reCat);
+             	for (var i=0; i < arrMactches.length ; i++)
+				{
+				  innerHml +=arrMactches[i];
+				  if (i < arrMactches.length-1)
+				   innerHml += '<br/>';
+				}
+				$('errorDetail').style.display = "block";
+				$('errorDetail').innerHTML = innerHml;
             }
            });
 			amalto.core.ready();
