@@ -1530,8 +1530,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var nodeDatePickerPanel = new Ext.form.FormPanel({
 					baseCls : 'x-plain',
 					labelAlign : 'right',
-					labelWidth : 210,
-					labelHeight : 240,
 					// layout:'fit',
 					defaultType : 'datefield',
 					items : [{
@@ -1550,17 +1548,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 										};
 										DWRUtil.setValue(inputText, setValue);
 										updateNode(nodeId, treeIndex);
+										nodeDatePickerWindow.hide();
+										nodeDatePickerWindow.destroy();										
 									}
 								}
 							}]
 				});
 		nodeDatePickerWindow = new Ext.Window({
 					title : 'Date Picker',
-					width : 210,
+					width : 205,
 					height : 240,
 					layout : 'fit',
 					plain : true,
-					bodyStyle : 'padding:5px;',
+					bodyStyle : 'padding:1px;',
 					buttonAlign : 'center',
 					items : nodeDatePickerPanel
 				});
@@ -1573,7 +1573,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			// nodeDatePicker.setValue(Date.parseDate(initValue,"Y-m-d"));
 		}
 
-		nodeDatePickerWindow.show(this);
+		nodeDatePickerWindow.show();
 	}
 	
 	function removePicture(nodeId, treeIndex){
