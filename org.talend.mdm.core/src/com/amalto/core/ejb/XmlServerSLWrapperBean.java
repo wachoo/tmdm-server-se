@@ -813,6 +813,8 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	 * @param clusterName
 	 * @param mainPivotName
 	 * @param pivotWithKeys
+	 * @param itemsRevisionIDs
+	 * @param defaultRevisionID
 	 * @param indexPaths
 	 * @param whereItem
 	 * @param pivotDirections
@@ -828,7 +830,9 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	public String getPivotIndexQuery(
 			String clusterName, 
 			String mainPivotName,
-			LinkedHashMap<String, String[]> pivotWithKeys, 
+			LinkedHashMap<String, String[]> pivotWithKeys,
+			LinkedHashMap<String, String> itemsRevisionIDs,
+			String defaultRevisionID,
 			String[] indexPaths,
 			IWhereItem whereItem, 
 			String[] pivotDirections,
@@ -841,6 +845,8 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	        	clusterName, 
 	        	mainPivotName,
 	        	pivotWithKeys,
+	        	itemsRevisionIDs,
+	        	defaultRevisionID,
 	        	indexPaths, 
 	        	whereItem, 
 	        	pivotDirections, 

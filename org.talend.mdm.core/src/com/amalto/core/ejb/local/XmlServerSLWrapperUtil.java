@@ -5,7 +5,7 @@ package com.amalto.core.ejb.local;
 
 /**
  * Utility class for XmlServerSLWrapper.
- * @xdoclet-generated at 3-09-09
+ * @xdoclet-generated at 7-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

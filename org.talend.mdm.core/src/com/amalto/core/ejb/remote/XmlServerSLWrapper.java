@@ -5,7 +5,7 @@ package com.amalto.core.ejb.remote;
 
 /**
  * Remote interface for XmlServerSLWrapper.
- * @xdoclet-generated at 3-09-09
+ * @xdoclet-generated at 7-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -274,7 +274,7 @@ public interface XmlServerSLWrapper
    public java.lang.String getItemsQuery( java.util.LinkedHashMap conceptPatternsToRevisionID,java.util.LinkedHashMap conceptPatternsToClusterName,java.lang.String forceMainPivot,java.util.ArrayList viewableFullPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit,int spellThreshold )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
-   public java.lang.String getPivotIndexQuery( java.lang.String clusterName,java.lang.String mainPivotName,java.util.LinkedHashMap pivotWithKeys,java.lang.String[] indexPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String[] pivotDirections,java.lang.String[] indexDirections,int start,int limit )
+   public java.lang.String getPivotIndexQuery( java.lang.String clusterName,java.lang.String mainPivotName,java.util.LinkedHashMap pivotWithKeys,java.util.LinkedHashMap itemsRevisionIDs,java.lang.String defaultRevisionID,java.lang.String[] indexPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String[] pivotDirections,java.lang.String[] indexDirections,int start,int limit )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
 }

@@ -914,7 +914,9 @@ public class ItemCtrl2Bean implements SessionBean {
             String query = server.getPivotIndexQuery(
             		                clusterName, 
             		                mainPivotName, 
-            		                pivotWithKeys, 
+            		                pivotWithKeys,
+            		                universe.getItemsRevisionIDs(),
+            		                universe.getDefaultItemRevisionID(),
             		                indexPaths, 
             		                whereItem, 
             		                pivotDirections,
