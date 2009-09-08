@@ -62,7 +62,7 @@ public final class SessionListener
     public void attributeAdded(HttpSessionBindingEvent event) {
 
 	log("attributeAdded('" + event.getSession().getId() + "', '" +
-	    event.getName() + "', '" + event.getValue() + "')");
+	    event.getName() + "', '" + parseObject(event.getValue()) + "')");
 
     }
 
@@ -75,7 +75,7 @@ public final class SessionListener
     public void attributeRemoved(HttpSessionBindingEvent event) {
 
 	log("attributeRemoved('" + event.getSession().getId() + "', '" +
-	    event.getName() + "', '" + event.getValue() + "')");
+	    event.getName() + "', '" + parseObject(event.getValue()) + "')");
 
     }
 
@@ -88,7 +88,7 @@ public final class SessionListener
     public void attributeReplaced(HttpSessionBindingEvent event) {
 
 	log("attributeReplaced('" + event.getSession().getId() + "', '" +
-	    event.getName() + "', '" + event.getValue() + "')");
+	    event.getName() + "', '" + parseObject(event.getValue()) + "')");
 
     }
 
@@ -177,6 +177,22 @@ public final class SessionListener
 	    throwable.printStackTrace(System.out);
 	}
 
+    }
+    
+    private String parseObject(Object obj){
+    	String str="";
+    	
+    	if(obj instanceof String[]){
+    		String[] stringArray=(String[]) obj;
+    		for (int i = 0; i < stringArray.length; i++) {
+    			str+=stringArray[i]+"|";
+			}
+    		return str;
+    	}
+    	
+    	str=obj.toString();
+    	
+    	return str;
     }
 
 
