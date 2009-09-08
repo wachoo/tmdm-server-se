@@ -99,6 +99,8 @@ public class UsersDWR {
 	public HashMap<String,String> getRoles(String language) throws Exception {
 		try {
 			HashMap<String,String> map =new HashMap<String,String>();
+			map.put("administration", "This is a role for superadmin. ");
+			
 			Pattern p = Pattern.compile(".*\\["+language.toUpperCase()+":(.*?)\\].*",Pattern.DOTALL);
 			WSRolePK[] wsr = Util.getPort().getRolePKs(new WSGetRolePKs("*"))
 					.getWsRolePK();
