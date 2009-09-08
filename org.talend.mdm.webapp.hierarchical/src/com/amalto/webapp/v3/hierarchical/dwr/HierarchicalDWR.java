@@ -171,6 +171,22 @@ public class HierarchicalDWR {
 
 	}
     
+    public boolean recordChanges(String[] keysArray,String[] xpathArray,String newValue) {
+    	
+    	try {
+			WebContext ctx = WebContextFactory.get();
+			UpdateHistory updateHistory = (UpdateHistory) ctx.getSession().getAttribute(HierarchicalUtil.HIERARCHICAL_TREE_UPDATEHISTORY);
+			for (int i = 0; i < keysArray.length; i++) {
+				updateHistory.logChange(keysArray[i], xpathArray[i], newValue);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+    	return true;
+
+	}
+    
     public String saveChanges() throws Exception {
     	
     	try {

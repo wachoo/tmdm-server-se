@@ -7,7 +7,7 @@ amalto.hierarchical.HierarchicalViewEdit = function(config) {
 Ext.extend(amalto.hierarchical.HierarchicalViewEdit, Ext.Panel, {
 	initUIComponents : function() {
 		
-		this.hierarchicalTree = new Ext.tree.TreePanel({
+		this.hierarchicalTree = new Ext.ux.MultiSelectTreePanel({
 				animate : "false",
 				loader : new Ext.tree.TreeLoader({dataUrl : "/hierarchical/secure/HierarchicalTreeLoadServlet"}),
 				root : new Ext.tree.AsyncTreeNode({
@@ -37,14 +37,25 @@ Ext.extend(amalto.hierarchical.HierarchicalViewEdit, Ext.Panel, {
 				            	              this.onTreeLeafNodeClick(node,e)
 				                        }.createDelegate(this),
 				            'nodedrop': function(dropEvent){
-				            	              
-				            	              var keys=dropEvent.dropNode.id;
-				            	              var xpath=dropEvent.dropNode.attributes.xpath;
-				            	              var newText=dropEvent.target.text;
-				            	              
-				            	              HierarchicalViewInterface.recordChanges(keys,xpath,newText,function(status){
-											    if(status==false)Ext.MessageBox.alert('Sorry', "This change has not affected the actual data item! ");
-										      });
+				            	              if(dropEvent.dropNode.length>0){
+				            	                 
+				            	                 var nodes=dropEvent.dropNode;
+				            	                 var keysArray=new Array(nodes.length);
+				            	                 var xpathArray=new Array(nodes.length);
+				            	                 
+				            	                 for (var index = 0; index < nodes.length; index++) {
+				            	                 	var keys=nodes[index].id;
+						            	            var xpath=nodes[index].attributes.xpath;
+						            	            var newText=dropEvent.target.text; 
+						            	            
+						            	            keysArray[index]=keys;
+						            	            xpathArray[index]=xpath;
+				            	                 }
+				            	                 
+						            	        HierarchicalViewInterface.recordChanges(keysArray,xpathArray,newText,function(status){
+													if(status==false)Ext.MessageBox.alert('Sorry', "This change has not affected the actual data item! ");
+												});
+				            	              } 
 				                        }
 //				            'nodedragover' : function(dragOverEvent){
 //				            	            //TODO add highlight for modify
