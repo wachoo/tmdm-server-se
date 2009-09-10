@@ -1016,21 +1016,87 @@ public class ItemsBrowserDWR {
 			)
 		).getValue();
 	}
-	
+	public String countForeignKey_filter(String xpathForeignKey) throws Exception{
+		Configuration config = Configuration.getInstance();
+		String conceptName = Util.getConceptFromPath(xpathForeignKey);
+		
+		int leftPathFrom = xpathForeignKey.indexOf("[");
+		int leftPathEnd = xpathForeignKey.indexOf("=");
+		String leftPath="";
+		if(leftPathFrom>0&&leftPathEnd>leftPathFrom){
+			 leftPath = xpathForeignKey.substring(leftPathFrom+1, leftPathEnd);
+		}
+		
+		int rightValueFrom = xpathForeignKey.indexOf("=");
+		int rightValueEnd = xpathForeignKey.indexOf("]");
+		String rightValueOrPath = "";
+		if(rightValueFrom>0&&rightValueEnd>rightValueFrom){
+			rightValueOrPath = xpathForeignKey.substring(rightValueFrom+1, rightValueEnd);
+		}
+		WSWhereOperator operator = WSWhereOperator.CONTAINS;
+		WSStringPredicate predicate = WSStringPredicate.OR;
+		WSWhereCondition whereCondition=null;
+		WSWhereItem whereItem=null;
+		if(!"".equals(leftPath)&&!"".equals(rightValueOrPath)){
+			whereCondition = new WSWhereCondition(leftPath,operator,rightValueOrPath, predicate, true);
+			whereItem = new WSWhereItem (whereCondition,null,null);
+		}
+		
+		return Util.getPort().count(
+			new WSCount(
+				new WSDataClusterPK(config.getCluster()),
+				conceptName,
+				whereItem,//null,
+				-1
+			)
+		).getValue();
+	}
 	
 
 //	public TreeMap<String,String> getForeignKeyList(String xpathForeignKey, String xpathInfoForeignKey, String value) throws RemoteException, Exception{
 		
 	public String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey) throws RemoteException, Exception{
+		String initxpathForeignKey="";
+		int endIndex = xpathForeignKey.indexOf("[");
+		if(endIndex>0)
+			initxpathForeignKey = xpathForeignKey.substring(0, endIndex);
+		else
+			initxpathForeignKey = xpathForeignKey;
 		
-		org.apache.log4j.Logger.getLogger(this.getClass()).debug("getForeignKeyList() xPath FK: '"+xpathForeignKey+"' xPath FK Info: '"+xpathInfoForeignKey+"' value: '"+value+"'");
+		org.apache.log4j.Logger.getLogger(this.getClass()).debug("getForeignKeyList() xPath FK: '"+initxpathForeignKey+"' xPath FK Info: '"+xpathInfoForeignKey+"' value: '"+value+"'");
+		
+		
+		int leftPathFrom = xpathForeignKey.indexOf("[");
+		int leftPathEnd = xpathForeignKey.indexOf("=");
+		String leftPath="";
+		if(leftPathFrom>0&&leftPathEnd>leftPathFrom)
+			leftPath = xpathForeignKey.substring(leftPathFrom+1, leftPathEnd);
+		
+		int rightValueFrom = xpathForeignKey.indexOf("=");
+		int rightValueEnd = xpathForeignKey.indexOf("]");
+		String rightValueOrPath = "*";
+		if(rightValueFrom>0&&rightValueEnd>rightValueFrom){
+			rightValueOrPath = xpathForeignKey.substring(rightValueFrom+1, rightValueEnd);
+			value = rightValueOrPath;
+		}
+		
+		WSWhereOperator operator = WSWhereOperator.CONTAINS;
+		WSStringPredicate predicate = WSStringPredicate.OR;
+		WSWhereCondition whereCondition=null;
+		WSWhereItem whereItem=null;
+		if(!"".equals(leftPath)&&!"".equals(rightValueOrPath)){
+			whereCondition = new WSWhereCondition(leftPath,operator,rightValueOrPath, predicate, true);
+			whereItem = new WSWhereItem (whereCondition,null,null);
+		}
+		
+		
 		
 		Configuration config = Configuration.getInstance();
 //		TreeMap<String,String> map = new TreeMap<String,String>();
 		
 		// foreign key set by business concept
-		if(xpathForeignKey.split("/").length == 1){
-			String conceptName = xpathForeignKey;
+		if(initxpathForeignKey.split("/").length == 1){
+			String conceptName = initxpathForeignKey;
 
 			//determine if we have xPath Infos: e.g. labels to display
 			String[] xpathInfos = new String[0];
@@ -1057,7 +1123,7 @@ public class ItemsBrowserDWR {
 				new WSDataClusterPK(config.getCluster()),
 				filteredConcept,
 				new WSStringArray(xPaths.toArray(new String[xPaths.size()])),
-				null,
+				whereItem,
 				-1,
 				start,
 				limit,
@@ -1129,11 +1195,11 @@ public class ItemsBrowserDWR {
 		if(!"".equals(xpathInfoForeignKey)){
 			String[] xpathInfos = xpathInfoForeignKey.split(",");			
 			xpaths = new String[xpathInfos.length+1];
-			xpaths[0] = xpathForeignKey;
+			xpaths[0] = initxpathForeignKey;
 			System.arraycopy(xpathInfos, 0, xpaths, 1, xpathInfos.length);
 		}else {
 			xpaths = new String[1];
-			xpaths[0] = xpathForeignKey;
+			xpaths[0] = initxpathForeignKey;
 		}
 		
 		//filter with value 
@@ -1182,8 +1248,8 @@ public class ItemsBrowserDWR {
 				for (int j = 0; j < xpaths.length; j++) {
 					tmp += " - "+Util.getFirstTextNode(d,"//"+xpaths[j].split("/")[xpaths[j].split("/").length-1]);
 				}
-				if(Util.getFirstTextNode(d,"//"+xpathForeignKey.split("/")[xpathForeignKey.split("/").length-1])!=null) {
-					String keys = Util.getFirstTextNode(d,"//"+xpathForeignKey.split("/")[xpathForeignKey.split("/").length-1]);
+				if(Util.getFirstTextNode(d,"//"+initxpathForeignKey.split("/")[initxpathForeignKey.split("/").length-1])!=null) {
+					String keys = Util.getFirstTextNode(d,"//"+initxpathForeignKey.split("/")[initxpathForeignKey.split("/").length-1]);
 					String infos = tmp.substring(3);
 					JSONObject row = new JSONObject();
 					row.put("keys", keys);
