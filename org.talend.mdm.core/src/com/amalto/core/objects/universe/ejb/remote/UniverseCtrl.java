@@ -5,7 +5,7 @@ package com.amalto.core.objects.universe.ejb.remote;
 
 /**
  * Remote interface for UniverseCtrl.
- * @xdoclet-generated at 7-09-09
+ * @xdoclet-generated at 10-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -18,6 +18,13 @@ public interface UniverseCtrl
     * @throws XtentisException
     */
    public com.amalto.core.objects.universe.ejb.UniversePOJOPK putUniverse( com.amalto.core.objects.universe.ejb.UniversePOJO universe )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
+    * Creates or updates a Universe
+    * @throws XtentisException
+    */
+   public com.amalto.core.webservice.WSUniversePKArray getUniverseByRevision( java.lang.String name,java.lang.String revision,java.lang.String type )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**

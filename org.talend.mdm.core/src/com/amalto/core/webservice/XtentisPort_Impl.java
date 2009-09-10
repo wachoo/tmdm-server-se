@@ -745,6 +745,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSUniversePKArray _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSUniversePKArray getUniverseByRevision(com.amalto.core.webservice.WSGetUniverseByRevision wsUniverseByRevision) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSUniversePKArray _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSUniversePK putUniverse(com.amalto.core.webservice.WSPutUniverse wsUniverse) throws 
          java.rmi.RemoteException {
         

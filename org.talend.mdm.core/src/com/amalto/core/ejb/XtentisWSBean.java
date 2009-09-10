@@ -4698,6 +4698,21 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * 	role-name = "authenticated"
 	 * 	view-type = "service-endpoint"
 	 */
+	public WSUniversePKArray getUniverseByRevision(WSGetUniverseByRevision revision) throws RemoteException {
+		try {
+			UniverseCtrlLocal ctrl = UniverseCtrlUtil.getLocalHome().create();
+			return ctrl.getUniverseByRevision(revision.getNamepattern(), revision.getRevision(), revision.getType().getValue());
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
 	public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex) throws RemoteException {
 		try {
 			UniverseCtrlLocal ctrl = UniverseCtrlUtil.getLocalHome().create();

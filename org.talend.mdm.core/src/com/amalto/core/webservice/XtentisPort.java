@@ -254,6 +254,8 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSUniversePKArray getUniversePKs(com.amalto.core.webservice.WSGetUniversePKs regex) throws 
          java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSUniversePKArray getUniverseByRevision(com.amalto.core.webservice.WSGetUniverseByRevision wsUniverseByRevision) throws 
+         java.rmi.RemoteException;
     public com.amalto.core.webservice.WSUniversePK putUniverse(com.amalto.core.webservice.WSPutUniverse wsUniverse) throws 
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSUniversePK deleteUniverse(com.amalto.core.webservice.WSDeleteUniverse wsUniverseDelete) throws 

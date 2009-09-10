@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
@@ -14,8 +16,13 @@ import javax.ejb.SessionContext;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
+import com.amalto.core.objects.universe.ejb.local.UniverseCtrlUtil;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
+import com.amalto.core.webservice.WSGetUniverseByRevisionType;
+import com.amalto.core.webservice.WSUniversePK;
+import com.amalto.core.webservice.WSUniversePKArray;
 
 
 
@@ -124,7 +131,43 @@ public class UniverseCtrlBean implements SessionBean{
 	    }
 
     }
-     
+    /**
+     * Creates or updates a Universe
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public WSUniversePKArray getUniverseByRevision(String  name,String revision, String type) throws XtentisException{
+
+		Collection c =
+			getUniversePKs(
+				""
+			);
+		
+		if (c==null) return null;
+		
+		List<WSUniversePK> pks=new ArrayList<WSUniversePK>(); 
+		for (Iterator iter = c.iterator(); iter.hasNext(); ) {		
+			UniversePOJO pojo=getUniverse((UniversePOJOPK) iter.next());				
+			if(WSGetUniverseByRevisionType._ITEM.equals(type)){
+				for(Map.Entry<String, String> entry:pojo.getItemsRevisionIDs().entrySet()){
+					if(Pattern.matches(entry.getKey(), name) && entry.getValue().equalsIgnoreCase(revision)){
+						pks.add(new WSUniversePK(pojo.getName()));
+					}
+				}
+			}
+			if(WSGetUniverseByRevisionType._OBJECT.equals(type)){
+				for(Map.Entry<String, String> entry:pojo.getXtentisObjectsRevisionIDs().entrySet()){
+					if(Pattern.matches(entry.getKey(), name) && entry.getValue().equalsIgnoreCase(revision)){
+						pks.add(new WSUniversePK(pojo.getName()));
+					}
+				}
+			}				
+		}
+		return  new WSUniversePKArray(pks.toArray(new WSUniversePK[pks.size()]));
+
+    }
     /**
      * Get Universe
      * @throws XtentisException

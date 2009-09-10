@@ -11,7 +11,7 @@ package com.amalto.core.ejb.remote;
  * Is not connected to the database in any way, it is just a normal object used 
  * as a container for data from an EJB. 
  *
- * @xdoclet-generated at 7-09-09
+ * @xdoclet-generated at 10-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

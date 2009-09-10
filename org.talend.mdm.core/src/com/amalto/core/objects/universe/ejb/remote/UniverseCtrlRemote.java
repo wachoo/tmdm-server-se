@@ -11,7 +11,7 @@ import java.util.*;
  * facade session bean. Inverit from this class to provide reasonable caching and event handling capabilities.
  *
  * Remote facade for UniverseCtrl.
- * @xdoclet-generated at 7-09-09
+ * @xdoclet-generated at 10-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -53,6 +53,16 @@ public class UniverseCtrlRemote extends Observable
    {
         com.amalto.core.objects.universe.ejb.UniversePOJOPK retval;
        retval =  getSession().putUniverse( universe );
+
+      return retval;
+
+   }
+
+   public com.amalto.core.webservice.WSUniversePKArray getUniverseByRevision ( java.lang.String name,java.lang.String revision,java.lang.String type )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        com.amalto.core.webservice.WSUniversePKArray retval;
+       retval =  getSession().getUniverseByRevision( name,revision,type );
 
       return retval;
 

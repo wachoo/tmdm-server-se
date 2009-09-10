@@ -1,9 +1,5 @@
-<xsd:schema 
-	elementFormDefault="unqualified"
-	targetNamespace="urn-com-amalto-xtentis-webservice"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:tns="urn-com-amalto-xtentis-webservice"
-	>
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:tns="urn-com-amalto-xtentis-webservice" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" targetNamespace="urn-com-amalto-xtentis-webservice">
 
 
 	<!-- *****************************************************
@@ -11,44 +7,44 @@
 		*******************************************************-->
 		
 	<xsd:element name="WSString">
-		<xsd:complexType >
+		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element minOccurs="1" maxOccurs="1" name="value" type="xsd:string"/>
+				<xsd:element maxOccurs="1" minOccurs="1" name="value" type="xsd:string"/>
 			</xsd:sequence>		
 		</xsd:complexType>
 	</xsd:element>
 	
 	<xsd:complexType name="WSStringArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="0" maxOccurs="unbounded" name="strings"  nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="strings" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSStringArray" type="tns:WSStringArray"/>
 
 	<xsd:complexType name="WSByteArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" name="bytes"  nillable="true" type="xsd:base64Binary"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="bytes" nillable="true" type="xsd:base64Binary"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSByteArray" type="tns:WSByteArray"/>				
 
 	<xsd:complexType name="WSInt">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" name="value" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="value" type="xsd:int"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSInt" type="tns:WSInt"/>
 	
 	<xsd:complexType name="WSI18nString">
 		<xsd:sequence>
-				<xsd:element minOccurs="1" maxOccurs="1" name="language" type="tns:WSLanguage"/>
-				<xsd:element minOccurs="1" maxOccurs="1" name="label" type="xsd:string"/>
+				<xsd:element maxOccurs="1" minOccurs="1" name="language" type="tns:WSLanguage"/>
+				<xsd:element maxOccurs="1" minOccurs="1" name="label" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 
 	<xsd:complexType name="WSBoolean">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" name="true" type="xsd:boolean"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="true" type="xsd:boolean"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSBoolean" type="tns:WSBoolean"/>
@@ -76,8 +72,8 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-				<xsd:element minOccurs="1" maxOccurs="1" name="selectorpath" type="xsd:string"/>
-				<xsd:element minOccurs="1" maxOccurs="unbounded" name="fieldpath" type="xsd:string"/>
+				<xsd:element maxOccurs="1" minOccurs="1" name="selectorpath" type="xsd:string"/>
+				<xsd:element maxOccurs="unbounded" minOccurs="1" name="fieldpath" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	
@@ -88,11 +84,11 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="true" name="typedContentEntry">
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="typedContentEntry" nillable="true">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="key" type="xsd:string"/>
-						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="value" type="tns:WSStringArray"/>
+						<xsd:element maxOccurs="1" minOccurs="1" name="key" nillable="true" type="xsd:string"/>
+						<xsd:element maxOccurs="1" minOccurs="1" name="value" nillable="true" type="tns:WSStringArray"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
@@ -102,20 +98,20 @@
 	
 	<xsd:complexType name="WSTypedContent">
 		<xsd:sequence>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="url" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="wsBytes" type="tns:WSByteArray"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="contentType" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="url" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="wsBytes" nillable="true" type="tns:WSByteArray"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="contentType" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSTypedContent" type = "tns:WSTypedContent"/>	
+	<xsd:element name="WSTypedContent" type="tns:WSTypedContent"/>	
 	
 	<xsd:complexType name="WSTypedContentMap">
 		<xsd:sequence>
-			<xsd:element minOccurs="0" maxOccurs="unbounded" name="mapEntry">
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="mapEntry">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element minOccurs="1" maxOccurs="1" name="key"  nillable="false" type="xsd:string"/>
-						<xsd:element minOccurs="1" maxOccurs="1" name="typedContent"  nillable="false" type="tns:WSTypedContent"/>
+						<xsd:element maxOccurs="1" minOccurs="1" name="key" nillable="false" type="xsd:string"/>
+						<xsd:element maxOccurs="1" minOccurs="1" name="typedContent" nillable="false" type="tns:WSTypedContent"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
@@ -125,11 +121,11 @@
 	
 	<xsd:complexType name="WSConceptRevisionMap">
 		<xsd:sequence>
-			<xsd:element minOccurs="0" maxOccurs="unbounded" name="mapEntry">
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="mapEntry">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element minOccurs="1" maxOccurs="1" name="concept"  nillable="false" type="xsd:string"/>
-						<xsd:element minOccurs="1" maxOccurs="1" name="revision"  nillable="false" type="xsd:string"/>
+						<xsd:element maxOccurs="1" minOccurs="1" name="concept" nillable="false" type="xsd:string"/>
+						<xsd:element maxOccurs="1" minOccurs="1" name="revision" nillable="false" type="xsd:string"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
@@ -152,20 +148,20 @@
 	
 	<xsd:complexType name="WSGetComponentVersion">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="component" type="tns:WSComponent"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="id" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="component" nillable="false" type="tns:WSComponent"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="id" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetComponentVersion" type="tns:WSGetComponentVersion"/>
 
 	<xsd:complexType name="WSVersion">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="major" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="minor" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="revision" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="build" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="date" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="major" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="minor" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="revision" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="build" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="description" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="date" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSVersion" type="tns:WSVersion"/>
@@ -173,14 +169,14 @@
 		
 	<xsd:complexType name="WSPing">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="echo" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="echo" nillable="true" type="xsd:string"/>
 		</xsd:sequence>
 	</xsd:complexType> 
 	<xsd:element name="WSPing" type="tns:WSPing"/>
 
 	<xsd:complexType name="WSLogout">
 		<xsd:sequence>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="dummy" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="dummy" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSLogout" type="tns:WSLogout"/>
@@ -192,15 +188,15 @@
 
 	<xsd:complexType name="WSInitData">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="zap" type="xsd:boolean"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="xmlSchema" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="zap" nillable="false" type="xsd:boolean"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="xmlSchema" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSInitData" type="tns:WSInitData"/>
 
 	<xsd:complexType name="WSDocumentPK">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" name="pk" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="pk" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>		
 	<xsd:element name="WSDocumentPK" type="tns:WSDocumentPK"/>
@@ -217,33 +213,33 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="name" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="description" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="xsdSchema" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="description" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="xsdSchema" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSDataModel" type="tns:WSDataModel"/>
 		
 	<xsd:complexType name="WSDataModelPK">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="pk" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>			
 	<xsd:element name="WSDataModelPK" type="tns:WSDataModelPK"/>
 	
 	<xsd:complexType name="WSDataModelArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsDataModels" type="tns:WSDataModel"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsDataModels" nillable="false" type="tns:WSDataModel"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSDataModelArray" type = "tns:WSDataModelArray"/>
+	<xsd:element name="WSDataModelArray" type="tns:WSDataModelArray"/>
 	
 	<xsd:complexType name="WSDataModelPKArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsDataModelPKs" type="tns:WSDataModelPK"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsDataModelPKs" nillable="false" type="tns:WSDataModelPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSDataModelPKArray" type = "tns:WSDataModelPKArray"/>
+	<xsd:element name="WSDataModelPKArray" type="tns:WSDataModelPKArray"/>
 	
 	<xsd:complexType name="WSBusinessConcept">
 		<xsd:annotation>
@@ -254,11 +250,11 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="businessTemplate" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsUniqueKey" type="tns:WSKey"/>
-			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="wsLabel" type="tns:WSI18nString"/>
-			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="wsDescription" type="tns:WSI18nString"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="businessTemplate" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsUniqueKey" nillable="false" type="tns:WSKey"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="wsLabel" nillable="false" type="tns:WSI18nString"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="wsDescription" nillable="false" type="tns:WSI18nString"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSBusinessConcept" type="tns:WSBusinessConcept"/>
@@ -279,10 +275,10 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="type" type="tns:WSTemplateType"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="simpleTemplate" type="tns:WSBusinessSimpleTemplate"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="complexTemplate" type="tns:WSBusinessComplexTemplate"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="type" nillable="false" type="tns:WSTemplateType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="simpleTemplate" nillable="false" type="tns:WSBusinessSimpleTemplate"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="complexTemplate" nillable="false" type="tns:WSBusinessComplexTemplate"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSBusinessTemplate" type="tns:WSBusinessTemplate"/>
@@ -297,16 +293,16 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="xsdBaseType" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="pattern" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="xsdBaseType" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="pattern" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSBusinessSimpleTemplate" type="tns:WSBusinessSimpleTemplate"/>
 
 	<xsd:complexType name="WSBusinessComplexTemplate">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsBusinessElements" type="tns:WSBusinessElement"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsBusinessElements" nillable="false" type="tns:WSBusinessElement"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSBusinessComplexTemplate" type="tns:WSBusinessComplexTemplate"/>
@@ -319,13 +315,13 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="minOccurs" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="maxOccurs" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="businessTemplate" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="wsForeignKey" type="tns:WSKey"/> <!-- ignored in this release -->
-			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="wsLabel" type="tns:WSI18nString"/>
-			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="wsDescription" type="tns:WSI18nString"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="minOccurs" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="maxOccurs" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="businessTemplate" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="wsForeignKey" nillable="false" type="tns:WSKey"/> <!-- ignored in this release -->
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="wsLabel" nillable="false" type="tns:WSI18nString"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="wsDescription" nillable="false" type="tns:WSI18nString"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSBusinessElement" type="tns:WSBusinessElement"/>
@@ -340,28 +336,28 @@
 			</xsd:documentation>
 		</xsd:annotation>		
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataModel" type="tns:WSDataModel"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataModel" nillable="false" type="tns:WSDataModel"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutDataModel" type="tns:WSPutDataModel"/>
 	
 	<xsd:complexType name="WSGetDataModel">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataModelPK" nillable="false" type="tns:WSDataModelPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetDataModel" type="tns:WSGetDataModel"/>
 
 	<xsd:complexType name="WSExistsDataModel">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataModelPK" nillable="false" type="tns:WSDataModelPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSExistsDataModel" type="tns:WSExistsDataModel"/>
 	
 	<xsd:complexType name="WSDeleteDataModel">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataModelPK" nillable="false" type="tns:WSDataModelPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>			
 	<xsd:element name="WSDeleteDataModel" type="tns:WSDeleteDataModel"/>
@@ -387,7 +383,7 @@
 			</xsd:documentation>
 		</xsd:annotation>						
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="regex" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSRegexDataModelPKs" type="tns:WSRegexDataModelPKs"/>
@@ -399,54 +395,54 @@
 			</xsd:documentation>
 		</xsd:annotation>						
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="schema" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="schema" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSCheckSchema" type="tns:WSCheckSchema"/>	
 
 	<xsd:complexType name="WSPutBusinessConcept">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="businessConcept" type="tns:WSBusinessConcept"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataModelPK" nillable="false" type="tns:WSDataModelPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="businessConcept" nillable="false" type="tns:WSBusinessConcept"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutBusinessConcept" type="tns:WSPutBusinessConcept"/>
 	
 	<xsd:complexType name="WSPutBusinessConceptSchema">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="businessConceptSchema" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataModelPK" nillable="false" type="tns:WSDataModelPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="businessConceptSchema" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutBusinessConceptSchema" type="tns:WSPutBusinessConceptSchema"/>
 
 	<xsd:complexType name="WSDeleteBusinessConcept">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="businessConceptName" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataModelPK" nillable="false" type="tns:WSDataModelPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="businessConceptName" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSDeleteBusinessConcept" type="tns:WSDeleteBusinessConcept"/>
 
 	<xsd:complexType name="WSGetBusinessConcepts">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataModelPK" nillable="false" type="tns:WSDataModelPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetBusinessConcepts" type="tns:WSGetBusinessConcepts"/>
 	
 	<xsd:complexType name="WSGetBusinessConceptKey">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="concept" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataModelPK" nillable="false" type="tns:WSDataModelPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="concept" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetBusinessConceptKey" type="tns:WSGetBusinessConceptKey"/>
 	
 	<xsd:complexType name="WSConceptKey">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="selector" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="fields" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="selector" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="fields" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSConceptKey" type="tns:WSConceptKey"/>
@@ -477,40 +473,40 @@
 			</xsd:documentation>
 		</xsd:annotation>						
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="vocabulary" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="description" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="vocabulary" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSDataCluster" type = "tns:WSDataCluster"/>
+	<xsd:element name="WSDataCluster" type="tns:WSDataCluster"/>
 
 	<xsd:complexType name="WSDataClusterPK">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="pk" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSDataClusterPK" type="tns:WSDataClusterPK"/>		
 
 	<xsd:complexType name="WSDataClusterArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsDataClusters" type="tns:WSDataCluster"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsDataClusters" nillable="false" type="tns:WSDataCluster"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSDataClusterArray" type = "tns:WSDataClusterArray"/>
+	<xsd:element name="WSDataClusterArray" type="tns:WSDataClusterArray"/>
 
 	<xsd:complexType name="WSDataClusterPKArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsDataClusterPKs" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsDataClusterPKs" nillable="false" type="tns:WSDataClusterPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSDataClusterPKArray" type = "tns:WSDataClusterPKArray"/>
+	<xsd:element name="WSDataClusterPKArray" type="tns:WSDataClusterPKArray"/>
 
 	<!-- Operations -->
 	<xsd:complexType name="WSPutDBDataCluster">
 						
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="revisionID" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutDBDataCluster" type="tns:WSPutDBDataCluster"/>
@@ -521,34 +517,34 @@
 			</xsd:documentation>
 		</xsd:annotation>						
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataCluster" type="tns:WSDataCluster"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataCluster" nillable="false" type="tns:WSDataCluster"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutDataCluster" type="tns:WSPutDataCluster"/>
 
 	<xsd:complexType name="WSGetDataCluster">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetDataCluster" type="tns:WSGetDataCluster"/>
 
 	<xsd:complexType name="WSExistsDataCluster">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSExistsDataCluster" type="tns:WSExistsDataCluster"/>
 		<xsd:complexType name="WSExistsDBDataCluster">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="revisionID" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSExistsDBDataCluster" type="tns:WSExistsDBDataCluster"/>
 	<xsd:complexType name="WSDeleteDataCluster">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSDeleteDataCluster" type="tns:WSDeleteDataCluster"/>
@@ -560,14 +556,14 @@
 			</xsd:documentation>
 		</xsd:annotation>										
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="regex" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSRegexDataClusterPKs" type="tns:WSRegexDataClusterPKs"/>
 	
 	<xsd:complexType name="WSGetConceptsInDataCluster">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetConceptsInDataCluster" type="tns:WSGetConceptsInDataCluster"/>
@@ -584,11 +580,11 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="leftPath" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="operator" type="tns:WSWhereOperator"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="rightValueOrPath" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="stringPredicate" type="tns:WSStringPredicate"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="spellCheck" type="xsd:boolean"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="leftPath" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="operator" nillable="false" type="tns:WSWhereOperator"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="rightValueOrPath" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="stringPredicate" nillable="false" type="tns:WSStringPredicate"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="spellCheck" nillable="false" type="xsd:boolean"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 
@@ -626,7 +622,7 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="whereItems" type="tns:WSWhereItem"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="whereItems" nillable="false" type="tns:WSWhereItem"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 
@@ -637,7 +633,7 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="whereItems" type="tns:WSWhereItem"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="whereItems" nillable="false" type="tns:WSWhereItem"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	
@@ -652,9 +648,9 @@
 		<xsd:choice>
 		-->
 		<xsd:sequence>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="whereCondition" type="tns:WSWhereCondition"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="whereAnd" type="tns:WSWhereAnd"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="whereOr" type="tns:WSWhereOr"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="whereCondition" nillable="false" type="tns:WSWhereCondition"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="whereAnd" nillable="false" type="tns:WSWhereAnd"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="whereOr" nillable="false" type="tns:WSWhereOr"/>
 		</xsd:sequence>
 		<!--
 		</xsd:choice>
@@ -668,77 +664,77 @@
 
 	<xsd:complexType name="WSView">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="viewableBusinessElements" type="xsd:string"/> <!-- projected business elements -->
-			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="true" name="whereConditions" type="tns:WSWhereCondition"/>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="searchableBusinessElements" type="xsd:string"/> 
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="description" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="viewableBusinessElements" nillable="false" type="xsd:string"/> <!-- projected business elements -->
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="whereConditions" nillable="true" type="tns:WSWhereCondition"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="searchableBusinessElements" nillable="false" type="xsd:string"/> 
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSView" type="tns:WSView"/>
 	
 	<xsd:complexType name="WSViewPK">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" name="pk" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="pk" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSViewPK" type="tns:WSViewPK"/>
 	
 	<xsd:complexType name="WSViewPKArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsViewPK" type="tns:WSViewPK"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsViewPK" nillable="false" type="tns:WSViewPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSViewPKArray" type = "tns:WSViewPKArray"/>
+	<xsd:element name="WSViewPKArray" type="tns:WSViewPKArray"/>
 	
 		
 	<xsd:complexType name="WSViewArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsViews" type="tns:WSView"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsViews" nillable="false" type="tns:WSView"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSViewArray" type = "tns:WSViewArray"/>
+	<xsd:element name="WSViewArray" type="tns:WSViewArray"/>
 	
 	<!-- Operations -->
 
 	<xsd:complexType name="WSPutView">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsView" type="tns:WSView"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsView" nillable="false" type="tns:WSView"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutView" type="tns:WSPutView"/>
 	
 	<xsd:complexType name="WSGetView">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsViewPK" type="tns:WSViewPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsViewPK" nillable="false" type="tns:WSViewPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetView" type="tns:WSGetView"/>
 
 	<xsd:complexType name="WSExistsView">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsViewPK" type="tns:WSViewPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsViewPK" nillable="false" type="tns:WSViewPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSExistsView" type="tns:WSExistsView"/>
 
 	<xsd:complexType name="WSDeleteView">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsViewPK" type="tns:WSViewPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsViewPK" nillable="false" type="tns:WSViewPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>			
 	<xsd:element name="WSDeleteView" type="tns:WSDeleteView"/>
 		
 	<xsd:complexType name="WSRegexViews">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="regex" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSRegexViews" type="tns:WSRegexViews"/>
 	
 	<xsd:complexType name="WSGetViewPKs">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="regex" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetViewPKs" type="tns:WSGetViewPKs"/>	
@@ -750,29 +746,29 @@
 
 	<xsd:complexType name="WSItem">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="dataModelName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="dataModelRevision" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="conceptName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="unbounded" nillable="false" name="ids" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="insertionTime" type="xsd:long"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="content" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="dataModelName" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="dataModelRevision" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="conceptName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="ids" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="insertionTime" nillable="false" type="xsd:long"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="content" nillable="false" type="xsd:string"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:element name="WSItem" type="tns:WSItem"/>
 	
 	<xsd:complexType name="WSItemPK">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="conceptName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="unbounded" nillable="false" name="ids" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="conceptName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="ids" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSItemPK" type="tns:WSItemPK"/>
 	
 	<xsd:complexType name="WSItemPKArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsItemPK" nillable="false" type="tns:WSItemPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSItemPKArray" type="tns:WSItemPKArray"/>
@@ -785,8 +781,8 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="conceptName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="ids" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="conceptName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="ids" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSBusinessConceptPK" type="tns:WSBusinessConceptPK"/>
@@ -800,7 +796,7 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsItemPK" nillable="false" type="tns:WSItemPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetItem" type="tns:WSGetItem"/>
@@ -812,7 +808,7 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsItemPK" nillable="false" type="tns:WSItemPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSExistsItem" type="tns:WSExistsItem"/>
@@ -824,12 +820,12 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="conceptName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="whereItem" type="tns:WSWhereItem"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="spellTreshold" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="skip" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="maxItems" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="conceptName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="whereItem" nillable="true" type="tns:WSWhereItem"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="spellTreshold" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="skip" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="maxItems" nillable="false" type="xsd:int"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetItems" type="tns:WSGetItems"/>
@@ -841,14 +837,14 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="conceptName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="contentKeywords" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="keysKeywords" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="fromDate" type="xsd:long"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="toDate" type="xsd:long"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="skip" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="maxItems" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="conceptName" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="contentKeywords" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="keysKeywords" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="fromDate" nillable="true" type="xsd:long"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="toDate" nillable="true" type="xsd:long"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="skip" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="maxItems" nillable="false" type="xsd:int"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetItemPKsByCriteria" type="tns:WSGetItemPKsByCriteria"/>
@@ -860,11 +856,11 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="results">
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="results" nillable="false">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="date" type="xsd:long"/>
-						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>						
+						<xsd:element maxOccurs="1" minOccurs="1" name="date" nillable="false" type="xsd:long"/>
+						<xsd:element maxOccurs="1" minOccurs="1" name="wsItemPK" nillable="false" type="tns:WSItemPK"/>						
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
@@ -879,8 +875,8 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsBusinessConceptPK" type="tns:WSBusinessConceptPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsBusinessConceptPK" nillable="false" type="tns:WSBusinessConceptPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetBusinessConceptValue" type="tns:WSGetBusinessConceptValue"/>
@@ -895,12 +891,12 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="fullPath" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="whereItem" type="tns:WSWhereItem"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="spellThreshold" type="xsd:int"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="orderBy" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="direction" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="fullPath" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="whereItem" nillable="true" type="tns:WSWhereItem"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="spellThreshold" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="orderBy" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="direction" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetFullPathValues" type="tns:WSGetFullPathValues"/>
@@ -913,14 +909,14 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsViewPK" type="tns:WSViewPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="whereItem" type="tns:WSWhereItem"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="spellTreshold" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="skip" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="maxItems" type="xsd:int"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="orderBy" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="direction" type="xsd:string"/>			
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsViewPK" nillable="false" type="tns:WSViewPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="whereItem" nillable="true" type="tns:WSWhereItem"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="spellTreshold" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="skip" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="maxItems" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="orderBy" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="direction" nillable="true" type="xsd:string"/>			
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSViewSearch" type="tns:WSViewSearch"/>
@@ -934,15 +930,15 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="pivotPath" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="viewablePaths" type="tns:WSStringArray"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="whereItem" type="tns:WSWhereItem"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="spellTreshold" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="skip" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="maxItems" type="xsd:int"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="orderBy" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="direction" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="pivotPath" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="viewablePaths" nillable="false" type="tns:WSStringArray"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="whereItem" nillable="true" type="tns:WSWhereItem"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="spellTreshold" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="skip" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="maxItems" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="orderBy" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="direction" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSXPathsSearch" type="tns:WSXPathsSearch"/>
@@ -954,15 +950,15 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="clusterName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="mainPivotName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pivotWithKeys" type="tns:WSLinkedHashMap"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="indexPaths" type="tns:WSStringArray"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="whereItem" type="tns:WSWhereItem"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="pivotDirections" type="tns:WSStringArray"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="indexDirections" type="tns:WSStringArray"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="start" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="limit" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="clusterName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="mainPivotName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="pivotWithKeys" nillable="false" type="tns:WSLinkedHashMap"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="indexPaths" nillable="false" type="tns:WSStringArray"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="whereItem" nillable="true" type="tns:WSWhereItem"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="pivotDirections" nillable="true" type="tns:WSStringArray"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="indexDirections" nillable="true" type="tns:WSStringArray"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="start" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="limit" nillable="false" type="xsd:int"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:element name="WSGetItemsPivotIndex" type="tns:WSGetItemsPivotIndex"/>
@@ -974,10 +970,10 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="countPath" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="whereItem" type="tns:WSWhereItem"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="spellTreshold" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="countPath" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="whereItem" nillable="true" type="tns:WSWhereItem"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="spellTreshold" nillable="false" type="xsd:int"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSCount" type="tns:WSCount"/>
@@ -990,15 +986,15 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsViewPK" type="tns:WSViewPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="searchedValue" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="maxItems" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="skip" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="spellTreshold" type="xsd:int"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="matchAllWords" type="xsd:boolean"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="orderBy" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="direction" type="xsd:string"/>			
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsViewPK" nillable="false" type="tns:WSViewPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="searchedValue" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="maxItems" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="skip" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="spellTreshold" nillable="false" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="matchAllWords" nillable="false" type="xsd:boolean"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="orderBy" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="direction" nillable="true" type="xsd:string"/>			
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSQuickSearch" type="tns:WSQuickSearch"/>
@@ -1016,33 +1012,33 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="xmlString" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDataModelPK" type="tns:WSDataModelPK"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="isUpdate" default="false" type="xsd:boolean"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="xmlString" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataModelPK" nillable="false" type="tns:WSDataModelPK"/>
+			<xsd:element default="false" maxOccurs="1" minOccurs="0" name="isUpdate" nillable="false" type="xsd:boolean"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutItem" type="tns:WSPutItem"/>
 	
 	<xsd:complexType name="WSPutItemArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="true" name="wsPutItem" type="tns:WSPutItem"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsPutItem" nillable="true" type="tns:WSPutItem"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutItemArray" type="tns:WSPutItemArray"/>
 		
 	<xsd:complexType name="WSUpdateReportItemPOJO">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="path" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="newValue" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="oldValue" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="path" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="newValue" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="oldValue" nillable="false" type="xsd:string"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:element name="WSUpdateReportItemPOJO" type="tns:WSUpdateReportItemPOJO"/>
 	
 	<xsd:complexType name="WSUpdateReportItemArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="true" name="wsUpdateReportItemPOJO" type="tns:WSUpdateReportItemPOJO"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsUpdateReportItemPOJO" nillable="true" type="tns:WSUpdateReportItemPOJO"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSUpdateReportItemArray" type="tns:WSUpdateReportItemArray"/>
@@ -1054,16 +1050,16 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsPutItem" type="tns:WSPutItem"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="source" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="invokeBeforeSaving" default="true" type="xsd:boolean"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsPutItem" nillable="false" type="tns:WSPutItem"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="source" nillable="false" type="xsd:string"/>
+			<xsd:element default="true" maxOccurs="1" minOccurs="0" name="invokeBeforeSaving" nillable="false" type="xsd:boolean"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutItemWithReport" type="tns:WSPutItemWithReport"/>
 	
 	<xsd:complexType name="WSPutItemWithReportArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="true" name="wsPutItem" type="tns:WSPutItemWithReport"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsPutItem" nillable="true" type="tns:WSPutItemWithReport"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutItemWithReportArray" type="tns:WSPutItemWithReportArray"/>
@@ -1079,7 +1075,7 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsItemPK" nillable="false" type="tns:WSItemPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSDeleteItem" type="tns:WSDeleteItem"/>
@@ -1091,10 +1087,10 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="conceptName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsWhereItem" type="tns:WSWhereItem"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="spellTreshold" type="xsd:int"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="conceptName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsWhereItem" nillable="true" type="tns:WSWhereItem"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="spellTreshold" nillable="false" type="xsd:int"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSDeleteItems" type="tns:WSDeleteItems"/>
@@ -1106,8 +1102,8 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="partPath" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsItemPK" nillable="false" type="tns:WSItemPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="partPath" nillable="true" type="xsd:string"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:element name="WSDropItem" type="tns:WSDropItem"/>
@@ -1127,10 +1123,10 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="query" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="parameters" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="revisionID" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="true" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="query" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSRunQuery" type="tns:WSRunQuery"/>
@@ -1143,8 +1139,8 @@
 	
 	<xsd:complexType name="WSBase64KeyValue">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="key" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="base64StringValue" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="key" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="base64StringValue" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	
@@ -1160,9 +1156,9 @@
 	
 	<xsd:complexType name="WSConnectorInteraction">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="JNDIName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="function" type="tns:WSConnectorFunction"/>
-			<xsd:element minOccurs="0" maxOccurs="unbounded" nillable="true" name="parameters" type="tns:WSBase64KeyValue"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="JNDIName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="function" nillable="true" type="tns:WSConnectorFunction"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true" type="tns:WSBase64KeyValue"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSConnectorInteraction" type="tns:WSConnectorInteraction"/>
@@ -1177,8 +1173,8 @@
 
 	<xsd:complexType name="WSConnectorInteractionResponse">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="code" type="tns:WSConnectorResponseCode"/>
-			<xsd:element minOccurs="0" maxOccurs="unbounded" nillable="true" name="parameters" type="tns:WSBase64KeyValue"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="code" nillable="true" type="tns:WSConnectorResponseCode"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true" type="tns:WSBase64KeyValue"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSConnectorInteractionResponse" type="tns:WSConnectorInteractionResponse"/>
@@ -1206,75 +1202,75 @@
 	
 	<xsd:complexType name="WSRoutingRuleExpression">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="name" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="xpath" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsOperator" type="tns:WSRoutingRuleOperator"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="value" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="xpath" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsOperator" nillable="false" type="tns:WSRoutingRuleOperator"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="value" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	
 	<xsd:complexType name="WSRoutingRule">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="synchronous" type="xsd:boolean"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="concept" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="serviceJNDI" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="parameters" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="true" name="wsRoutingRuleExpressions" type="tns:WSRoutingRuleExpression"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="condition" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="deactive" type="xsd:boolean"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="description" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="synchronous" nillable="false" type="xsd:boolean"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="concept" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="serviceJNDI" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="parameters" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="wsRoutingRuleExpressions" nillable="true" type="tns:WSRoutingRuleExpression"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="condition" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="deactive" nillable="true" type="xsd:boolean"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSRoutingRule" type="tns:WSRoutingRule"/>
 	
 	<xsd:complexType name="WSRoutingRulePK">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" name="pk" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="pk" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSRoutingRulePK" type="tns:WSRoutingRulePK"/>
 	
 	<xsd:complexType name="WSRoutingRuleArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="true" name="wsRoutingRules" type="tns:WSRoutingRule"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsRoutingRules" nillable="true" type="tns:WSRoutingRule"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSRoutingRuleArray" type = "tns:WSRoutingRuleArray"/>
+	<xsd:element name="WSRoutingRuleArray" type="tns:WSRoutingRuleArray"/>
 
 	<xsd:complexType name="WSRoutingRulePKArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="true" name="wsRoutingRulePKs" type="tns:WSRoutingRulePK"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsRoutingRulePKs" nillable="true" type="tns:WSRoutingRulePK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSRoutingRulePKArray" type = "tns:WSRoutingRulePKArray"/>	
+	<xsd:element name="WSRoutingRulePKArray" type="tns:WSRoutingRulePKArray"/>	
 	
 	<!-- Operations -->
 	
 	<xsd:complexType name="WSPutRoutingRule">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingRule" type="tns:WSRoutingRule"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsRoutingRule" nillable="false" type="tns:WSRoutingRule"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutRoutingRule" type="tns:WSPutRoutingRule"/>
 	
 	<xsd:complexType name="WSGetRoutingRule">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingRulePK" type="tns:WSRoutingRulePK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsRoutingRulePK" nillable="false" type="tns:WSRoutingRulePK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetRoutingRule" type="tns:WSGetRoutingRule"/>
 	
 	<xsd:complexType name="WSExistsRoutingRule">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingRulePK" type="tns:WSRoutingRulePK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsRoutingRulePK" nillable="false" type="tns:WSRoutingRulePK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSExistsRoutingRule" type="tns:WSExistsRoutingRule"/>
 	
 	<xsd:complexType name="WSDeleteRoutingRule">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingRulePK" type="tns:WSRoutingRulePK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsRoutingRulePK" nillable="false" type="tns:WSRoutingRulePK"/>
 		</xsd:sequence>		
 	</xsd:complexType>			
 	<xsd:element name="WSDeleteRoutingRule" type="tns:WSDeleteRoutingRule"/>
@@ -1282,7 +1278,7 @@
 	
 	<xsd:complexType name="WSGetRoutingRulePKs">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="regex" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetRoutingRulePKs" type="tns:WSGetRoutingRulePKs"/>	
@@ -1304,11 +1300,11 @@
 	
 
 	<xsd:complexType name="WSServicesList">
-		<xsd:sequence >
-			<xsd:element name="Item" minOccurs="0" maxOccurs="unbounded">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="Item">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="jndiName" type="xsd:string"/>
+						<xsd:element maxOccurs="1" minOccurs="1" name="jndiName" nillable="false" type="xsd:string"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
@@ -1326,42 +1322,42 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="language" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="language" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetServicesList" type="tns:WSGetServicesList"/>
 	
 	<xsd:complexType name="WSServiceAction">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="jndiName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsAction" type="tns:WSServiceActionCode"/>
-			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="methodName" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="true" name="methodParameters" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="jndiName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsAction" nillable="false" type="tns:WSServiceActionCode"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="methodName" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="methodParameters" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSServiceAction" type="tns:WSServiceAction"/>
 	
 	<xsd:complexType name="WSServicePutConfiguration">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="jndiName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="configuration" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="jndiName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="configuration" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSServicePutConfiguration" type="tns:WSServicePutConfiguration"/>
 	
 	<xsd:complexType name="WSServiceGetConfiguration">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="jndiName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="optionalParameter" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="jndiName" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="optionalParameter" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSServiceGetConfiguration" type="tns:WSServiceGetConfiguration"/>
 	
 	<xsd:complexType name="WSServiceGetDocument">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="configure" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="document" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="description" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="configure" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="document" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSServiceGetDocument" type="tns:WSServiceGetDocument"/>
@@ -1373,75 +1369,75 @@
 
 	<xsd:complexType name="WSStoredProcedure">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="procedure" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="description" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="procedure" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSStoredProcedure" type = "tns:WSStoredProcedure"/>	
+	<xsd:element name="WSStoredProcedure" type="tns:WSStoredProcedure"/>	
 	
 	<xsd:complexType name="WSStoredProcedurePK">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="pk" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSStoredProcedurePK" type="tns:WSStoredProcedurePK"/>		
 
 	<xsd:complexType name="WSRegexStoredProcedure">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="regex" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSRegexStoredProcedure" type="tns:WSRegexStoredProcedure"/>	
 	
 	<xsd:complexType name="WSStoredProcedurePKArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsStoredProcedurePK" type="tns:WSStoredProcedurePK"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsStoredProcedurePK" nillable="false" type="tns:WSStoredProcedurePK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSStoredProcedurePKArray" type = "tns:WSStoredProcedurePKArray"/>
+	<xsd:element name="WSStoredProcedurePKArray" type="tns:WSStoredProcedurePKArray"/>
 	
 	<xsd:complexType name="WSGetStoredProcedure">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsStoredProcedurePK" type="tns:WSStoredProcedurePK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsStoredProcedurePK" nillable="false" type="tns:WSStoredProcedurePK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetStoredProcedure" type="tns:WSGetStoredProcedure"/>
 
 	<xsd:complexType name="WSExistsStoredProcedure">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsStoredProcedurePK" type="tns:WSStoredProcedurePK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsStoredProcedurePK" nillable="false" type="tns:WSStoredProcedurePK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSExistsStoredProcedure" type="tns:WSExistsStoredProcedure"/>
 
 	<xsd:complexType name="WSPutStoredProcedure">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsStoredProcedure" type="tns:WSStoredProcedure"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsStoredProcedure" nillable="false" type="tns:WSStoredProcedure"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutStoredProcedure" type="tns:WSPutStoredProcedure"/>
 	
 	<xsd:complexType name="WSDeleteStoredProcedure">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsStoredProcedurePK" type="tns:WSStoredProcedurePK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsStoredProcedurePK" nillable="false" type="tns:WSStoredProcedurePK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSDeleteStoredProcedure" type="tns:WSDeleteStoredProcedure"/>
 
 	<xsd:complexType name="WSExecuteStoredProcedure">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsStoredProcedurePK" type="tns:WSStoredProcedurePK"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="parameters" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsStoredProcedurePK" nillable="false" type="tns:WSStoredProcedurePK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="revisionID" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="true" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSExecuteStoredProcedure" type="tns:WSExecuteStoredProcedure"/>
 
 	<xsd:complexType name="WSGetStoredProcedurePKs">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="regex" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetStoredProcedurePKs" type="tns:WSGetStoredProcedurePKs"/>
@@ -1456,76 +1452,76 @@
 		
 	<xsd:complexType name="WSMenu">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="menuEntries" type="tns:WSMenuEntry"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="description" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="menuEntries" nillable="false" type="tns:WSMenuEntry"/>
 		</xsd:sequence>
 	</xsd:complexType>
-	<xsd:element name="WSMenu" type = "tns:WSMenu"/>	
+	<xsd:element name="WSMenu" type="tns:WSMenu"/>	
 	
 	<xsd:complexType name="WSMenuEntry">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="id" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="descriptions">
+			<xsd:element maxOccurs="1" minOccurs="1" name="id" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="descriptions" nillable="false">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="language" type="xsd:string"/>
-						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="label" type="xsd:string"/>
+						<xsd:element maxOccurs="1" minOccurs="1" name="language" nillable="false" type="xsd:string"/>
+						<xsd:element maxOccurs="1" minOccurs="1" name="label" nillable="false" type="xsd:string"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="context" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="application" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="subMenus" type="tns:WSMenuEntry"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="context" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="application" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="subMenus" nillable="false" type="tns:WSMenuEntry"/>
 		</xsd:sequence>
 	</xsd:complexType>
-	<xsd:element name="WSMenuEntry" type = "tns:WSMenuEntry"/>		
+	<xsd:element name="WSMenuEntry" type="tns:WSMenuEntry"/>		
 	
 	<xsd:complexType name="WSMenuPK">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="pk" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSMenuPK" type="tns:WSMenuPK"/>		
 	
 	<xsd:complexType name="WSMenuPKArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsMenuPK" type="tns:WSMenuPK"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsMenuPK" nillable="false" type="tns:WSMenuPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSMenuPKArray" type = "tns:WSMenuPKArray"/>
+	<xsd:element name="WSMenuPKArray" type="tns:WSMenuPKArray"/>
 	
 	<xsd:complexType name="WSGetMenu">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsMenuPK" type="tns:WSMenuPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsMenuPK" nillable="false" type="tns:WSMenuPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetMenu" type="tns:WSGetMenu"/>
 
 	<xsd:complexType name="WSExistsMenu">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsMenuPK" type="tns:WSMenuPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsMenuPK" nillable="false" type="tns:WSMenuPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSExistsMenu" type="tns:WSExistsMenu"/>
 	
 	<xsd:complexType name="WSPutMenu">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsMenu" type="tns:WSMenu"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsMenu" nillable="false" type="tns:WSMenu"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSPutMenu" type="tns:WSPutMenu"/>
 	
 	<xsd:complexType name="WSDeleteMenu">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsMenuPK" type="tns:WSMenuPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsMenuPK" nillable="false" type="tns:WSMenuPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSDeleteMenu" type="tns:WSDeleteMenu"/>
 	
 	<xsd:complexType name="WSGetMenuPKs">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="regex" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetMenuPKs" type="tns:WSGetMenuPKs"/>	
@@ -1535,31 +1531,31 @@
 		*******************************************************-->
     <xsd:complexType name="WSDroppedItem">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="revisionID" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="wsDataClusterPK" type="tns:WSDataClusterPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="uniqueId" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="conceptName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="unbounded" nillable="true" name="ids" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="partPath" type="xsd:string"/>
-		    <xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="insertionUserName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="insertionTime" type="xsd:long"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="projection" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="revisionID" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="uniqueId" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="conceptName" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="ids" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="partPath" nillable="false" type="xsd:string"/>
+		    <xsd:element maxOccurs="1" minOccurs="1" name="insertionUserName" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="insertionTime" nillable="true" type="xsd:long"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="projection" nillable="false" type="xsd:string"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	<xsd:element name="WSDroppedItem" type="tns:WSDroppedItem"/>
 	
 	<xsd:complexType name="WSDroppedItemPK">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="false" name="partPath" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1" nillable="true" name="revisionId" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsItemPK" nillable="false" type="tns:WSItemPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="partPath" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="revisionId" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSDroppedItemPK" type="tns:WSDroppedItemPK"/>
 	
 	<xsd:complexType name="WSDroppedItemPKArray">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsDroppedItemPK" type="tns:WSDroppedItemPK"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsDroppedItemPK" nillable="false" type="tns:WSDroppedItemPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSDroppedItemPKArray" type="tns:WSDroppedItemPKArray"/>
@@ -1571,7 +1567,7 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="regex" nillable="false" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSFindAllDroppedItemsPKs" type="tns:WSFindAllDroppedItemsPKs"/>
@@ -1583,7 +1579,7 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDroppedItemPK" type="tns:WSDroppedItemPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDroppedItemPK" nillable="false" type="tns:WSDroppedItemPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSLoadDroppedItem" type="tns:WSLoadDroppedItem"/>
@@ -1595,7 +1591,7 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDroppedItemPK" type="tns:WSDroppedItemPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDroppedItemPK" nillable="false" type="tns:WSDroppedItemPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSRecoverDroppedItem" type="tns:WSRecoverDroppedItem"/>
@@ -1607,10 +1603,24 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsDroppedItemPK" type="tns:WSDroppedItemPK"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsDroppedItemPK" nillable="false" type="tns:WSDroppedItemPK"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSRemoveDroppedItem" type="tns:WSRemoveDroppedItem"/>
+	<xsd:simpleType name="WSGetUniverseByRevisionType">
+		<xsd:restriction base="xsd:NMTOKEN">
+    		<xsd:enumeration value="ITEM"/>
+    		<xsd:enumeration value="OBJECT"/>
+		</xsd:restriction>
+	</xsd:simpleType>	
+	<xsd:complexType name="WSGetUniverseByRevision">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="namepattern" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="revision" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="type" type="tns:WSGetUniverseByRevisionType"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetUniverseByRevision" type="tns:WSGetUniverseByRevision"/>
 	
 
 			
