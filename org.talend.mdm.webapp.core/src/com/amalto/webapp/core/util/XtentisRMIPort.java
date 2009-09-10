@@ -3705,5 +3705,14 @@ public class XtentisRMIPort implements XtentisPort {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
+
+	public WSUniversePKArray getUniverseByRevision(
+			WSGetUniverseByRevision wsUniverseByRevision)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
