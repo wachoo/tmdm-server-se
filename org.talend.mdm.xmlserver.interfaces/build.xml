@@ -27,7 +27,7 @@
           target: all              
          ================================= -->
     <target name="all" depends="version,package,undeploy,deploy">
-		<eclipse.refreshLocal resource="com.amalto.xmlserver.interfaces"/>
+		<eclipse.refreshLocal resource="org.talend.mdm.xmlserver.interfaces"/>
     </target>
 
     <target name="version"  description="Maintain build.date property">

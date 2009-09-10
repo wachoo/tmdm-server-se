@@ -10,7 +10,7 @@
 
 	<property name="version.props" value="version.properties" />
 
-	<property name="jboss.dir" value="/opt/jboss" />
+	<property name="jboss.dir" value="c:/opt/jboss" />
 
 	<property name="jar" value="svn.jar" />
 	<property name="rar" value="zz.20.mdm.connector.svn.rar" />

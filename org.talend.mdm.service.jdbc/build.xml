@@ -43,8 +43,7 @@
 			<zipfileset dir="bin" includes="**/ejb/**/*.class"/>
 			<zipfileset dir="bin" includes="**/handler/**/*.class"/>
 			<zipfileset dir="bin" includes="**/bean/**/*.class"/>
-			<zipfileset dir="bin" includes="**/util/**/*.class"/>
-			<!-- <zipfileset dir="xslt" prefix="com/amalto/service/quadrem/buyer/ejb" includes="**/*.*"/> -->
+			<zipfileset dir="bin" includes="**/util/**/*.class"/>			
 		</jar>
 		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
     </target>

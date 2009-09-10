@@ -13,8 +13,6 @@
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.lib.dir" value="${jboss.instance.dir}/lib"/>
-
-	<property name="core.lib" value="../com.amalto.core/z.com.amalto.core.jar"/>
 	
 	<property name="ejbs" value="zz.40.core.plugin.base.ejb.jar"/>
 
