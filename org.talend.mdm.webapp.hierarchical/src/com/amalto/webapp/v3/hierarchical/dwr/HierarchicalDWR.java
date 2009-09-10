@@ -1,6 +1,7 @@
 package com.amalto.webapp.v3.hierarchical.dwr;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -141,6 +142,22 @@ public class HierarchicalDWR {
     	}
 	
         return false;
+	}
+    
+   public String getDataObjectNameFromHierarchicalTreeCriterion() {
+	   
+    	String dataObjectName="";
+	   
+    	WebContext ctx = WebContextFactory.get();
+    	Object hierarchicalTreeCriterionObj=ctx.getSession().getAttribute(HierarchicalUtil.HIERARCHICAL_TREE_CRITERION);
+    	if(hierarchicalTreeCriterionObj==null){
+
+    	}else{
+    		HierarchicalTreeCriterion hierarchicalTreeCriterion=(HierarchicalTreeCriterion)hierarchicalTreeCriterionObj;
+    		dataObjectName=hierarchicalTreeCriterion.getDataObjectName();
+    	}
+    	
+        return dataObjectName;
 	}
     
     public void resetHierarchicalTreeUpdateHistory() throws Exception{

@@ -29,6 +29,7 @@ amalto.hierarchical.HierarchicalView = function () {
 		amalto.core.doLayout();
 		
 		hierarchicalViewDisplayPanel.initData();
+		
     };
 	
 	function openHierarchicalViewDisplayPanel(){

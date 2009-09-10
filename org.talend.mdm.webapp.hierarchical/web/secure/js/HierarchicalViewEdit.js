@@ -116,19 +116,32 @@ Ext.extend(amalto.hierarchical.HierarchicalViewEdit, Ext.Panel, {
     onTreeLeafNodeClick : function(node, e){
 		if(node && node.isLeaf()){
 				
-				var tabPanel = amalto.core.getTabPanel();
-				var itemTreeDisplayPanel = tabPanel.getItem('ItemTreeDisplayPanel');
-				
-				if(itemTreeDisplayPanel == undefined){
-					itemTreeDisplayPanel=new amalto.hierarchical.ItemTreeDisplay({'keys':node.id});			
-					tabPanel.add(itemTreeDisplayPanel);
-				}
-		        
-		        itemTreeDisplayPanel.show();
-				itemTreeDisplayPanel.doLayout();
-				amalto.core.doLayout();
-				
-				itemTreeDisplayPanel.initData(node.id);
+//				var tabPanel = amalto.core.getTabPanel();
+//				var itemTreeDisplayPanel = tabPanel.getItem('ItemTreeDisplayPanel');
+//				
+//				if(itemTreeDisplayPanel == undefined){
+//					itemTreeDisplayPanel=new amalto.hierarchical.ItemTreeDisplay({'keys':node.id});			
+//					tabPanel.add(itemTreeDisplayPanel);
+//				}
+//		        
+//		        itemTreeDisplayPanel.show();
+//				itemTreeDisplayPanel.doLayout();
+//				amalto.core.doLayout();
+//				
+//				itemTreeDisplayPanel.initData(node.id);
+			
+			var dataObjectName='';
+			DWREngine.setAsync(false); 
+	        HierarchicalViewInterface.getDataObjectNameFromHierarchicalTreeCriterion(function(_dataObject){dataObjectName=_dataObject;});
+			DWREngine.setAsync(true);
+					
+			amalto.itemsbrowser.ItemsBrowser.editItemDetails(node.id,dataObjectName,function(){
+				this.doRefreshAfterEdit()
+			}.createDelegate(this));
 		}
+	},
+	
+	doRefreshAfterEdit : function(){
+	   this.reloadHierarchicalTreeData();
 	}
 });
