@@ -3,8 +3,11 @@
 <!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app >
-    <!-- <distributable/> -->
-    
+    <!-- <distributable/> 
+     <listener>
+          <listener-class>com.amalto.webapp.core.util.SessionListener</listener-class>
+     </listener>-->
+     
     <servlet>
         <servlet-name>dwr-invoker</servlet-name>
         <display-name>DWR Servlet</display-name>

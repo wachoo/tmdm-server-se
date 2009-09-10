@@ -1456,6 +1456,39 @@ public class ItemsBrowserDWR {
 		
 	}
 	
+    public boolean prepareSessionForItemDetails(String concept,String language) {
+    	
+    	try {
+    		
+    		
+			WebContext ctx = WebContextFactory.get();
+			Configuration config = Configuration.getInstance();
+			String model = config.getModel();
+			
+			CommonDWR.getFieldsByDataModel(model, concept, language, true);
+			
+			WSConceptKey key = Util.getPort().getBusinessConceptKey(
+					new WSGetBusinessConceptKey(
+							new WSDataModelPK(model),
+							concept));
+			String[] keys = key.getFields();
+			for (int i = 0; i < keys.length; i++) {
+				if(".".equals(key.getSelector()))
+					keys[i] = "/"+concept+"/"+keys[i];					
+				else
+					keys[i] = key.getSelector()+keys[i];
+			}
+			ctx.getSession().setAttribute("foreignKeys",key.getFields());
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+    	return true;
+
+	}
+	
 	private WSWhereOperator getOperator(String option){
 		WSWhereOperator res = null;
 		if (option.equalsIgnoreCase("CONTAINS"))
@@ -1480,4 +1513,5 @@ public class ItemsBrowserDWR {
 			res = WSWhereOperator.STRICTCONTAINS;
 		return res;											
 	}
+	
 }

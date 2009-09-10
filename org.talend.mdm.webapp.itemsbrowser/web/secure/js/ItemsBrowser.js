@@ -986,16 +986,25 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	function displayItemDetails(itemPK2, dataObject){
 		
-	    displayItemDetails2(itemPK2, dataObject, false);
+	    displayItemDetails2(itemPK2, dataObject, false ,displayItems);
 	}
 	
 	function displayItemDetails4Duplicate(itemPK2, dataObject){
 		
-	    displayItemDetails2(itemPK2, dataObject, true);
+	    displayItemDetails2(itemPK2, dataObject, true, displayItems);
 	    
 	}
 	
-	function displayItemDetails2(itemPK2, dataObject, isDuplicate){
+	function displayItemDetails4Reference(itemPK2, dataObject, refreshCB){
+		
+		DWREngine.setAsync(false); 
+        ItemsBrowserInterface.prepareSessionForItemDetails(dataObject,language,function(status){});
+		DWREngine.setAsync(true);
+	    displayItemDetails2(itemPK2, dataObject, false, refreshCB);
+	    
+	}
+	
+	function displayItemDetails2(itemPK2, dataObject, isDuplicate, refreshCB){
 		loadResource("/itemsbrowser/secure/js/ItemNode.js", "amalto.itemsbrowser.ItemNode" );
 		//alert("display items "+DWRUtil.toDescriptiveString(itemPK2,2)+" "+ dataObject);
 		amalto.core.working();
@@ -1163,7 +1172,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         		};
         		
         		tbDetail.logicalDelItemHandler = function() {
-        			logicalDelItem(ids, dataObject, treeIndex);
+        			logicalDelItem(ids, dataObject, treeIndex,refreshCB);
         		};
         		
         		tbDetail.duplicateItemHandler = function() {
@@ -1202,11 +1211,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         		});
     	
     			tbDetail.saveItemHandler = function(){			
-    				saveItemWithoutQuit(ids,dataObject,treeIndex);
+    				saveItemWithoutQuit(ids,dataObject,treeIndex,refreshCB);
     			};
     			
     			tbDetail.saveItemAndQuitHandler = function(){			
-    				saveItemAndQuit(ids,dataObject,treeIndex);
+    				saveItemAndQuit(ids,dataObject,treeIndex,refreshCB);
     			};
     		
     			//case edit and no editable
@@ -1351,23 +1360,23 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 		 
-	function saveItemAndQuit(ids,dataObject,treeIndex){
+	function saveItemAndQuit(ids,dataObject,treeIndex,refreshCB){
 		//alert(DWRUtil.toDescriptiveString(itemPK2,2)+" "+dataObject+" "+treeIndex);
 
 		//saveItem(ids,dataObject,treeIndex);
 		saveItem(ids,dataObject,treeIndex,function(){
 				  amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
-			      displayItems();
+			      refreshCB.call();
 				 });
 		
 			
 		
 	}
 	
-	function saveItemWithoutQuit(ids,dataObject,treeIndex){
+	function saveItemWithoutQuit(ids,dataObject,treeIndex,refreshCB){
 		saveItem(ids,dataObject,treeIndex,function(){
 				  //amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
-			      displayItems();
+			      refreshCB.call();
 				 });
 	}
 	
@@ -1454,7 +1463,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			});		
 		}});		
 	}
-	function logicalDelOneItem(ids, dataObject, treeIndex){
+	function logicalDelOneItem(ids, dataObject, treeIndex, path, refreshCB){
 		var tmp = "";
 		var itemPK = ids.split('@');
 		for(var i=0; i<itemPK.length; i++) {
@@ -1463,13 +1472,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		ItemsBrowserInterface.logicalDeleteItem(dataObject, itemPK, path, function(result){
 			amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 			amalto.core.ready(result);
-			displayItems();
+			//displayItems();
+			refreshCB.call();
 			if(result)
 			Ext.MessageBox.alert('Status', result);				
 		});
 	}
 	
-	function logicalDelItem(ids, dataObject, treeIndex){
+	function logicalDelItem(ids, dataObject, treeIndex, refreshCB){
 		var tmp = "";
 		var itemPK = ids.split('@');
 		
@@ -1487,7 +1497,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	       if (btn == 'cancel') {
 				return;
 			}
-			logicalDelOneItem(ids,dataObject, treeIndex);
+			logicalDelOneItem(ids,dataObject, treeIndex,path,refreshCB);
 		};
 	}
 	
@@ -1936,6 +1946,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		displayXsdDetails:function(id){displayXsdDetails(id)},
 		setForeignKey:function(nodeId,treeIndex){setForeignKey(nodeId,treeIndex)},
 		displayItemDetails:function(){displayItemDetails();},
+		editItemDetails:function(itemPK,dataObject,refreshCB){displayItemDetails4Reference(itemPK,dataObject,refreshCB);},
 		filterForeignKey:function(string0, string1, id){filterForeignKey(string0, string1, id);}
  	}
 }();
