@@ -1,7 +1,6 @@
 package com.amalto.webapp.v3.hierarchical.dwr;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
