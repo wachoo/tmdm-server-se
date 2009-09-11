@@ -777,7 +777,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
 				for (Iterator<SynchronizationPlanObjectLine> iterator2 = lines.iterator(); iterator2.hasNext(); ) {
 					SynchronizationPlanObjectLine line = iterator2.next();
 					//using xquery to do the sync
-					syncObjects(objectName, line, remotePort);	
+					xquerySyncObjects(objectName, line, remotePort);	
 //					//A cache of already synchronized objects
 //					ArrayList<String> alreadySynchronizedIDs = new ArrayList<String>();
 //					
@@ -868,7 +868,12 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
         	
             	for (Iterator<SynchronizationPlanItemLine> iterator = plan.getItemsSynchronizations().iterator(); iterator.hasNext(); ) {
     				SynchronizationPlanItemLine line = iterator.next();
-
+    				//if Local Wins or Remote Wins using xquery to do the sync. aiming modify 
+    				if(SynchronizationPlanPOJO.LOCAL_WINS.equalsIgnoreCase(line.getAlgorithm()) || SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
+    					xquerySyncItems(line, remotePort);
+    					continue;
+    				}
+    				//end
     				//reload the plan status to see if STOPPING is required
             		String statusCode = planCtrl.getSynchronizationPlan(revisionID, new SynchronizationPlanPOJOPK(plan.getName())).getCurrentStatusCode();
             		if (SynchronizationPlanPOJO.STATUS_STOPPING.equals(statusCode)) {
@@ -1060,7 +1065,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
 			
 				for (Iterator<SynchronizationPlanObjectLine> iterator2 = lines.iterator(); iterator2.hasNext(); ) {
 					SynchronizationPlanObjectLine line = iterator2.next();
-					syncObjects(objectName, line, remotePort);					
+					xquerySyncObjects(objectName, line, remotePort);					
 					
 //					//Fetch all changed/unsynchronized remote objects
 //					String[] remoteIDs= remotePort.synchronizationGetUnsynchronizedObjectsIDs(new WSSynchronizationGetUnsynchronizedObjectsIDs(
@@ -1164,6 +1169,12 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
         	
             	for (Iterator<SynchronizationPlanItemLine> iterator = plan.getItemsSynchronizations().iterator(); iterator.hasNext(); ) {
     				SynchronizationPlanItemLine line = iterator.next();
+    				//if Local Wins or Remote Wins using xquery to do the sync. aiming modify 
+    				if(SynchronizationPlanPOJO.LOCAL_WINS.equalsIgnoreCase(line.getAlgorithm()) || SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
+    					xquerySyncItems(line, remotePort);
+    					continue;
+    				}
+    				//end
     				
     				//reload the plan status to see if STOPPING is required
             		String statusCode = planCtrl.getSynchronizationPlan(revisionID, new SynchronizationPlanPOJOPK(plan.getName())).getCurrentStatusCode();
@@ -1308,14 +1319,58 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     	
     }
     /**
+     * Using Xquery to do items sync for alogrithm is Local Wins or Remote Wins
+     * @param line
+     * @param remotePort
+     * @throws XtentisException
+     * @throws RemoteException
+     * @author achen
+     */
+    private void xquerySyncItems(SynchronizationPlanItemLine line, XtentisPort remotePort) throws XtentisException, RemoteException{
+    	String xquery=XquerySyncUtil.getItemSyncQuery(line.getLocalClusterPOJOPK().getUniqueId(), line.getConceptName(), line.getLocalRevisionID(),
+    			line.getIdsPattern(), line.getRemoteClusterPOJOPK().getUniqueId(), line.getRemoteRevisionID(), line.getAlgorithm());
+    	if(SynchronizationPlanPOJO.LOCAL_WINS.equalsIgnoreCase(line.getAlgorithm())){
+    		
+    		//check if revision exists
+    		try {
+    			if(!(line.getRemoteRevisionID()==null || line.getRemoteRevisionID().length()==0)){ //revision is not HEAD
+	    			WSUniversePKArray array=Util.getUniverseCtrlLocal().getUniverseByRevision(line.getConceptName(), line.getRemoteRevisionID(), WSGetUniverseByRevisionType._ITEM);
+					if(array==null || array.getWsUniversePK().length==0) return;
+    			}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
+			//create remote collections
+    		Util.getXmlServerCtrlLocal().createCluster(line.getRemoteRevisionID(), line.getRemoteClusterPOJOPK().getUniqueId());
+    		//do sync on the local collection
+    		Util.getXmlServerCtrlLocal().runQuery(line.getLocalRevisionID(), line.getLocalClusterPOJOPK().getUniqueId(), xquery, null);
+    	}
+    	if(SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
+    		//check if revision exists
+    		try {
+    			if(!(line.getLocalRevisionID()==null || line.getLocalRevisionID().length()==0)){ //revision is not HEAD
+	    			WSUniversePKArray array=Util.getUniverseCtrlLocal().getUniverseByRevision(line.getConceptName(), line.getLocalRevisionID(), WSGetUniverseByRevisionType._ITEM);
+					if(array==null || array.getWsUniversePK().length==0) return;
+    			}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
+			//create remote collections
+    		Util.getXmlServerCtrlLocal().createCluster(line.getLocalRevisionID(), line.getLocalClusterPOJOPK().getUniqueId());
+    		//do sync on the remote collection
+    		remotePort.runQuery(new WSRunQuery(line.getRemoteRevisionID(), new WSDataClusterPK(line.getRemoteClusterPOJOPK().getUniqueId()), xquery, null));
+    	} 
+    }
+    /**
      * Using Xquery to do objects sync
      * @param objectName
      * @param line
      * @param remotePort
      * @throws XtentisException
      * @throws RemoteException
+     * @author achen
      */
-    private void syncObjects(String objectName, SynchronizationPlanObjectLine line, XtentisPort remotePort) throws XtentisException, RemoteException{
+    private void xquerySyncObjects(String objectName, SynchronizationPlanObjectLine line, XtentisPort remotePort) throws XtentisException, RemoteException{
 		Class clazzname=ObjectPOJO.getObjectClass(objectName);
 		String db="";
 		if(clazzname!=null){
@@ -1566,7 +1621,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     
     
     /**
-     * Synchronizes two objects using a particular conflict resolution algorithm
+     * Synchronizes two objects using a particular conflict resolution algorithm (for Manual alogrithm)
      * @param plan
      * @param remotePort
      * @param planCtrl
