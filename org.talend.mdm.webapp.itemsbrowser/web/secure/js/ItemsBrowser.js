@@ -362,6 +362,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var errorDesc = "The item can not be saved, it contains error(s). See details below:";
 	var itemNodes = [];
 	
+	var sortIndex=0;
+	var sortUporDown="ASC";
+	var isUp = true;
+	
 	function browseItems(){
 		showItemsPanel();
 		//populate list
@@ -551,6 +555,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	
 	function displayItems2(columnsHeader, pageSize) {
+		
+		
 		_dataObject2 = _dataObject;
 		_viewItems2 = _viewItems;
 		var itemPK = [];
@@ -617,7 +623,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			    proxy: new Ext.data.HttpProxy({
 		        	url: '/itemsbrowser/secure/ItemsRemotePaging'
 		        }),
-		        sortInfo:{field: _viewItems2.keys[0], direction: "ASC"},
+		        //sortInfo:{field: _viewItems2.keys[sortIndex], direction: sortUporDown},
 		        baseParams:{viewName: viewName,criteria:criteria},
 		        reader: new Ext.data.JsonReader(schema),
 		        remoteSort: true
@@ -728,6 +734,23 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						    		itemPK[i] = g.getStore().getAt(rowIndex).get(_viewItems2.keys[i]);
 						    	}
 						    	displayItemDetails(itemPK,_dataObject2);
+		                	},
+		        'headerclick':function( g, columnIndex, e){
+		   						//alert(columnIndex);
+		                		var lineMax = DWRUtil.getValue('lineMaxItems');
+		                		if(lineMax==null || lineMax=="") 
+										lineMax=50;
+								sortIndex = columnIndex;
+								if(isUp){
+									isUp=false;
+									sortUporDown = "ASC";
+								}
+								else{
+									isUp = true;
+									sortUporDown = "DESC";
+								}
+								
+								store.load({field: _viewItems2.keys[sortIndex], direction: sortUporDown, viewName: viewName,criteria:criteria});
 		                	}
 	    	},
 			tbar: new Ext.PagingToolbar({
