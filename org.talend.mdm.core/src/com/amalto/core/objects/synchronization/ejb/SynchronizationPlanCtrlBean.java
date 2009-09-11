@@ -1,13 +1,17 @@
 package com.amalto.core.objects.synchronization.ejb;
 
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.ejb.EJBException;
@@ -49,6 +53,7 @@ import com.amalto.core.webservice.WSPing;
 import com.amalto.core.webservice.WSPutDBDataCluster;
 import com.amalto.core.webservice.WSRunQuery;
 import com.amalto.core.webservice.WSString;
+import com.amalto.core.webservice.WSStringArray;
 import com.amalto.core.webservice.WSSynchronizationGetItemXML;
 import com.amalto.core.webservice.WSSynchronizationGetObjectXML;
 import com.amalto.core.webservice.WSSynchronizationGetUnsynchronizedItemPKs;
@@ -1343,7 +1348,10 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
 			//create remote collections
     		Util.getXmlServerCtrlLocal().createCluster(line.getRemoteRevisionID(), line.getRemoteClusterPOJOPK().getUniqueId());
     		//do sync on the local collection
-    		Util.getXmlServerCtrlLocal().runQuery(line.getLocalRevisionID(), line.getLocalClusterPOJOPK().getUniqueId(), xquery, null);
+    		List docIds=Util.getXmlServerCtrlLocal().runQuery(line.getLocalRevisionID(), line.getLocalClusterPOJOPK().getUniqueId(), xquery, null);
+    		//put update report
+    		putUpdateReportItems(docIds, line, remotePort);
+
     	}
     	if(SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
     		//check if revision exists
@@ -1358,9 +1366,57 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
 			//create remote collections
     		Util.getXmlServerCtrlLocal().createCluster(line.getLocalRevisionID(), line.getLocalClusterPOJOPK().getUniqueId());
     		//do sync on the remote collection
-    		remotePort.runQuery(new WSRunQuery(line.getRemoteRevisionID(), new WSDataClusterPK(line.getRemoteClusterPOJOPK().getUniqueId()), xquery, null));
+    		WSStringArray docIds=remotePort.runQuery(new WSRunQuery(line.getRemoteRevisionID(), new WSDataClusterPK(line.getRemoteClusterPOJOPK().getUniqueId()), xquery, null));
+    		//put update report
+    		putUpdateReportItems(Arrays.asList(docIds.getStrings()), line, remotePort);
     	} 
     }
+    
+    private void putUpdateReportItems(List<String> docIds, SynchronizationPlanItemLine line, XtentisPort remotePort) throws XtentisException, RemoteException{
+		for(int i=0; i<docIds.size(); i++){
+			String docId= docIds.get(i).toString();
+			int pos=docId.lastIndexOf('/');
+			if(pos!=-1){
+				String itemId=docId.substring(pos+1);
+				String[] strs=itemId.split("\\.");    				
+				if(strs.length >= 3){
+    				String datacluster=strs[0];
+    				String concept=strs[1];
+    				String id= itemId.substring((datacluster+"."+concept).length()+1);
+    				String[] ids=id.split("\\.");
+    				String userName=null;
+    				ItemPOJO itemPojo=ItemPOJO.load(line.getLocalRevisionID(), new ItemPOJOPK(new DataClusterPOJOPK(datacluster),concept,ids));
+    				if(itemPojo==null) continue;
+    				if(SynchronizationPlanPOJO.LOCAL_WINS.equalsIgnoreCase(line.getAlgorithm())){
+    					userName="User of "+((Stub)remotePort)._getProperty(Stub.ENDPOINT_ADDRESS_PROPERTY);
+    				}
+    				if(SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){    					
+    					try {
+							InetAddress addr = InetAddress.getLocalHost();							
+							userName="User of "+ "http://" +addr.getHostAddress()+":8080/talend/TalendPort ";
+						} catch (UnknownHostException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+    				}    				    				
+    	            String operationType=UpdateReportPOJO.OPERATIONTYPE_UPDATEE;
+        	        ItemPOJO updateReportItem = getUpdateReportItem(itemPojo,line.getRemoteRevisionID(), userName,operationType);
+        	        //exclude update report itself
+        	        if(!datacluster.equals(XSystemObjects.DC_UPDATE_PREPORT.getName())){
+        	        	if(SynchronizationPlanPOJO.LOCAL_WINS.equalsIgnoreCase(line.getAlgorithm())){
+	        	        	remotePort.synchronizationPutItemXML(
+	            	            	new WSSynchronizationPutItemXML(line.getRemoteRevisionID(), updateReportItem.serialize())
+	            	            );
+        	        	}
+        	        	if(SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
+        	        		updateReportItem.store(line.getLocalRevisionID());
+        	        	}
+        	        }    				
+				}
+			}
+		}
+    }
+    	    
     /**
      * Using Xquery to do objects sync
      * @param objectName
@@ -1904,17 +1960,17 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     	        planCtrl.synchronizationPutMarshaledItem(localRevisionID, localWinner.serialize());
 
     	        //update local report 
-    	        
-    	        String userName="User of http://localhost:8080/talend/TalendPort"; 
-    	        String operationType=UpdateReportPOJO.OPERATIONTYPE_UPDATEE;
-    	        if(localWinner.load(localRevisionID,itemPOJOPK)==null){
-    	        	operationType=UpdateReportPOJO.OPERATIONTYPE_CREATE;
-    	        }
-    	        ItemPOJO updateReportItem = getUpdateReportItem(localWinner,localRevisionID, userName,operationType);
-    	        //exclude update report itself
-    	        if(localWinner.getDataClusterPOJOPK().getUniqueId()!=null&&!localWinner.getDataClusterPOJOPK().getUniqueId().equals(XSystemObjects.DC_UPDATE_PREPORT.getName())){
-    	           updateReportItem.store(localRevisionID);
-    	        }
+    	        //Manual should not invoke this
+//    	        String userName="User of http://localhost:8080/talend/TalendPort"; 
+//    	        String operationType=UpdateReportPOJO.OPERATIONTYPE_UPDATEE;
+//    	        if(localWinner.load(localRevisionID,itemPOJOPK)==null){
+//    	        	operationType=UpdateReportPOJO.OPERATIONTYPE_CREATE;
+//    	        }
+//    	        ItemPOJO updateReportItem = getUpdateReportItem(localWinner,localRevisionID, userName,operationType);
+//    	        //exclude update report itself
+//    	        if(localWinner.getDataClusterPOJOPK().getUniqueId()!=null&&!localWinner.getDataClusterPOJOPK().getUniqueId().equals(XSystemObjects.DC_UPDATE_PREPORT.getName())){
+//    	           updateReportItem.store(localRevisionID);
+//    	        }
 				
 	        }
 	        
@@ -1976,9 +2032,21 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
 		ItemPOJO updateReportItem=new ItemPOJO(new DataClusterPOJOPK("UpdateReport"),"Update",updateReportPOJO.obtainIds(),updateReportPOJO.getTimeInMillis(),updateReportPOJO.serialize());
 		return updateReportItem;
 	}
-    
-	
-	
+	private ItemPOJO getUpdateReportItem(String concept,String ids,String datacluster,String datamodel, String revison,String userName,String operationType) {
+		UpdateReportPOJO updateReportPOJO=new UpdateReportPOJO(concept, 
+				                                               ids, 
+				                                               operationType, 
+				                                               UpdateReportPOJO.SOURCE_DATASYNCHRONIZATION, 
+				                                               System.currentTimeMillis(),
+				                                               datacluster,
+				                                               datamodel,
+				                                               userName,
+				                                               revison,
+				                                               null);
+ 	      
+		ItemPOJO updateReportItem=new ItemPOJO(new DataClusterPOJOPK("UpdateReport"),"Update",updateReportPOJO.obtainIds(),updateReportPOJO.getTimeInMillis(),updateReportPOJO.serialize());
+		return updateReportItem;
+	} 	
 	/**
 	 * Resolve a conflict between two objects<br/>
 	 * By default the local server wins over the remote server<br/>
