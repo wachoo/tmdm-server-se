@@ -196,7 +196,12 @@ public class RevisionPOJO implements Serializable{
             }
             removeUnlessRevisionFromRecordList(revisionsAvailable);
             // store the RevisionPOJO info into xdb
-            server.putDocumentFromString(this.toString(), REVISION_ENTRY, clusterName, revisionID);
+            server.putDocumentFromString(this.toString(), REVISION_ENTRY, "Revision", revisionID);
+            if (server.getDocumentAsString(revisionID, clusterName,
+					REVISION_ENTRY) != null) {
+				server.deleteDocument(revisionID, clusterName, REVISION_ENTRY);
+			}
+           
             
         }
         catch(Exception e)
