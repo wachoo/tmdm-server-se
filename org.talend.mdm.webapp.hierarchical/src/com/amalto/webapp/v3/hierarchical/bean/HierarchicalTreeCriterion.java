@@ -105,10 +105,49 @@ public class HierarchicalTreeCriterion {
 	public void setPivotDirections(String[] pivotDirections) {
 		this.pivotDirections = pivotDirections;
 	}
+	
+	public String obtainPivotDirectionsExpr() {
+		String expr="";
+		
+		if(pivotDirections!=null){
+			for (int i = pivotDirections.length-1; i >-1 ; i--) {
+				if(pivotDirections[i].equals("ascending")){
+					expr+="ASC";
+				}else if(pivotDirections[i].equals("descending")){
+					expr+="DESC";
+				}else{
+					expr+=pivotDirections[i];
+				}
+				if(i>0)expr+="-";
+			}
+		}
+		
+       return expr;
+	}
 
 
 	public String[] getIndexDirections() {
 		return indexDirections;
+	}
+	
+	public String obtainIndexDirectionsExpr() {
+		String expr="";
+		
+		if(indexDirections!=null){
+			for (int i = 0; i < indexDirections.length; i++) {
+				
+				if(indexDirections[i].equals("ascending")){
+					expr+="ASC";
+				}else if(indexDirections[i].equals("descending")){
+					expr+="DESC";
+				}else{
+					expr+=indexDirections[i];
+				}
+				if(i<indexDirections.length-1)expr+="-";
+			}
+		}
+		
+       return expr;
 	}
 
 

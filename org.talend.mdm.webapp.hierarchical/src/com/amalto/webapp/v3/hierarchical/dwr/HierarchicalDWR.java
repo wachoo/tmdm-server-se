@@ -1,12 +1,14 @@
 package com.amalto.webapp.v3.hierarchical.dwr;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -15,6 +17,7 @@ import com.amalto.webapp.core.bean.ComboItemBean;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSGetItem;
@@ -22,8 +25,18 @@ import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
+import com.amalto.webapp.util.webservices.WSStringArray;
+import com.amalto.webapp.util.webservices.WSStringPredicate;
+import com.amalto.webapp.util.webservices.WSWhereAnd;
+import com.amalto.webapp.util.webservices.WSWhereCondition;
+import com.amalto.webapp.util.webservices.WSWhereItem;
+import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.amalto.webapp.util.webservices.WSWhereOr;
+import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.amalto.webapp.v3.hierarchical.bean.DataObjectContext;
 import com.amalto.webapp.v3.hierarchical.bean.FilterItem;
+import com.amalto.webapp.v3.hierarchical.bean.Filters;
+import com.amalto.webapp.v3.hierarchical.bean.HierarchicalReport;
 import com.amalto.webapp.v3.hierarchical.bean.HierarchicalTreeCriterion;
 import com.amalto.webapp.v3.hierarchical.bean.UpdateHistory;
 import com.amalto.webapp.v3.hierarchical.bean.UpdateRecordItem;
@@ -237,6 +250,124 @@ public class HierarchicalDWR {
 			org.apache.log4j.Logger.getLogger(HierarchicalDWR.class).error(err,e);
 			throw new Exception(e.getLocalizedMessage());
 		}
+	}
+    
+    public boolean saveHierarchicalReport(String reportName,boolean isSharedReport,String dataObjectName,String pivotPath,String titleFieldPath,FilterItem[] filterItems,String orderExpr,int limit) throws Exception {
+    	try {
+    		
+    		if(reportName==null||reportName.length()==0)return false;
+    		String owner=Util.getLoginUserName();
+    		
+	    	Configuration config = Configuration.getInstance();
+			String dataClusterName = config.getCluster();
+	    	String dataModelName = config.getModel();
+	    	
+			HierarchicalTreeCriterion criterion=new HierarchicalTreeCriterion(dataClusterName,dataObjectName, pivotPath,titleFieldPath, filterItems);
+			HierarchicalUtil.equipDirection2HierarchicalTreeCriterion(criterion, orderExpr);
+			HierarchicalUtil.equipLimit2HierarchicalTreeCriterion(criterion, limit);
+			
+			//build report
+			HierarchicalReport hierarchicalReport = new HierarchicalReport();
+			hierarchicalReport.setReportName(reportName);//mandatory 
+			hierarchicalReport.setOwner(owner);
+			hierarchicalReport.setShared(new Boolean(isSharedReport));
+			hierarchicalReport.setDataCluster(dataClusterName==null?"":dataClusterName);//mandatory
+			hierarchicalReport.setDataModel(dataModelName==null?"":dataModelName);//mandatory
+			hierarchicalReport.setDataObjectName(criterion.getDataObjectName()==null?"":criterion.getDataObjectName());//mandatory
+			hierarchicalReport.setPivotPath(criterion.getPivotPath()==null?"":criterion.getPivotPath());//mandatory
+			hierarchicalReport.setTitleFieldPath(criterion.getTitleFieldPath()==null?"":criterion.getTitleFieldPath());//mandatory
+	
+			if(criterion.getFilters()!=null&&criterion.getFilters().length>0){
+				Filters filters = new Filters(criterion.getFilters());
+				hierarchicalReport.setFilters(filters);
+			}
+
+			hierarchicalReport.setPivotDirectionsExpr(criterion.obtainPivotDirectionsExpr());
+			hierarchicalReport.setIndexDirectionsExpr(criterion.obtainIndexDirectionsExpr());
+			hierarchicalReport.setLimit(criterion.getLimit()==Integer.MAX_VALUE?-1:criterion.getLimit());
+			
+			Util.getPort().putItem(
+	                new WSPutItem(
+	                                new WSDataClusterPK(XSystemObjects.DC_XTENTIS_COMMON_REPORTING.getName()),
+	                                hierarchicalReport.marshal2String(),
+	                                new WSDataModelPK(XSystemObjects.DM_XTENTIS_COMMON_REPORTING.getName()),false
+	                )
+	        );
+			
+			return true;
+		
+    	}catch(Exception e){
+			String err= "Unable to save a report! ";
+			org.apache.log4j.Logger.getLogger(HierarchicalDWR.class).error(err,e);
+			throw new Exception(e.getLocalizedMessage());
+		}
+	}
+    
+    public Map<String,String> getReportsName(String value) throws XtentisWebappException, Exception {
+		WSWhereItem wi = new WSWhereItem();
+		
+		Configuration config = Configuration.getInstance();
+		WSWhereCondition wc1 = new WSWhereCondition(
+				"hierarchical-report/data-cluster",
+				WSWhereOperator.EQUALS,config.getCluster(),
+				WSStringPredicate.NONE,false
+				);
+		WSWhereCondition wc2 = new WSWhereCondition(
+				"hierarchical-report/data-model",
+				WSWhereOperator.EQUALS,config.getModel(),
+				WSStringPredicate.NONE,false
+				);
+		
+		WSWhereCondition wc3 = new WSWhereCondition(
+				"hierarchical-report/owner",
+				WSWhereOperator.EQUALS,Util.getAjaxSubject().getUsername(),
+				WSStringPredicate.NONE,false
+				);
+		WSWhereCondition wc4 = new WSWhereCondition(
+				"hierarchical-report/shared",
+				WSWhereOperator.EQUALS,"true",
+				WSStringPredicate.NONE,false
+				);
+		
+		WSWhereOr or=new WSWhereOr(new WSWhereItem[] {new WSWhereItem(wc3,null,null),new WSWhereItem(wc4,null,null)});
+		
+		WSWhereAnd and =new WSWhereAnd(new WSWhereItem[] {new WSWhereItem(wc1,null,null),new WSWhereItem(wc2,null,null),new WSWhereItem(null,null,or)});
+		
+		wi=new WSWhereItem(null,and,null);
+		
+		String[] results = Util.getPort().xPathsSearch(
+				new WSXPathsSearch(
+					new WSDataClusterPK(XSystemObjects.DC_XTENTIS_COMMON_REPORTING.getName()),
+					null,//pivot
+					new WSStringArray(new String[] {"hierarchical-report/report-name"}),
+					wi,
+					-1,
+					0,
+					Integer.MAX_VALUE,
+					null, //order by
+					null //direction
+				)
+			).getStrings();
+		
+		Map<String,String> map = new HashMap<String,String>();
+		for (int i = 0; i < results.length; i++) {
+			results[i] = results[i].replaceAll("<report-name>(.*)</report-name>", "$1");
+			map.put(results[i],results[i]);
+		}
+		return map;
+	}
+    
+    public HierarchicalReport getReport(String reportName) throws XtentisWebappException, Exception{
+    	
+    	String result = Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_XTENTIS_COMMON_REPORTING.getName()),"hierarchical-report",new String[] {reportName}))).getContent();
+    	
+		if(result!=null){
+			HierarchicalReport report = HierarchicalReport.unmarshal2POJO(result);
+			return report;
+		}
+		else{
+			return null;
+		}		
 	}
 
 }

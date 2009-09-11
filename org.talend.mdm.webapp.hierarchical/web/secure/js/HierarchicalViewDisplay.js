@@ -234,7 +234,16 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 				frame : false,
 				title : "Search Panel",
 				layout : "form",
-				items : [{
+				items : [
+				{
+					xtype : "hidden",
+					name : "reportNameRecordField",
+					value : ""
+				}, {
+					xtype : "hidden",
+					name : "isSharedRecordField",
+					value : ""
+				}, {
 					fieldLabel : "Data Object",
 					editable : false,
 					xtype : "combo",
@@ -315,6 +324,16 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 						this.onSearchClick();
 					}.createDelegate(this),
 					text : "Search"
+				},{
+					handler : function(button, event) {
+						this.onSaveReportClick();
+					}.createDelegate(this),
+					text : "Save Report"
+				},{
+					handler : function(button, event) {
+						this.onLoadReportClick();
+					}.createDelegate(this),
+					text : "Load Report"
 				}],
 				buttonAlign : "left",
 				bodyStyle:'padding:5px'
@@ -464,6 +483,231 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 	    	    this.reloadHierarchicalTree(data);
         }.createDelegate(this));
 	     
+    },
+    
+    onSaveReportClick: function(){
+    	
+    	    
+            var passValidate=true;
+			var dataObjectLabel=DWRUtil.getValue('dataObjectCmp');
+			if(dataObjectLabel=='')passValidate=false;
+			if(!passValidate){
+				//Ext.MessageBox.alert('Sorry', "Please create a new report or load a alreay exist report first! ");
+				alert("Please create a new report or load a alreay exist report first! ");
+				return;
+			}
+			
+    		if(this.saveReportWindow){
+				 this.saveReportWindow.hide();
+				 this.saveReportWindow.destroy();
+			}
+			
+
+		    var saveReportPanel = new Ext.form.FormPanel({
+		         baseCls: 'x-plain',
+			     labelAlign: 'left',     
+			     //labelWidth: 60,           
+		         //layout:'fit', 
+			     xtype : "form",
+			     items : [{
+			     	name:"hierarchicalReportShared",
+					fieldLabel : "Shared",
+					xtype : "checkbox",
+					checked : DWRUtil.getValue('isSharedRecordField')
+				 },{
+				 	name:"hierarchicalReportName",
+					fieldLabel : "Report Name",
+					xtype : "textfield",
+					allowBlank : false,
+					value : DWRUtil.getValue('reportNameRecordField')
+				 }]
+		    });
+		    
+		    this.saveReportWindow = new Ext.Window({
+		        title: "Save Report",
+		        width: 320,
+		        height:130,
+		        layout: 'fit',
+		        plain:true,
+		        bodyStyle:'padding:5px;',
+		        buttonAlign:'center',
+		        items: saveReportPanel,
+		        modal:true,
+			    buttons: [{
+		            text: "Save",
+		            handler: function(){
+							       this.onSaveReportWindowExecuteClick();
+						        }.createDelegate(this)
+		        }]
+		    });
+		
+		    this.saveReportWindow.show();
+
+    },
+    
+    onSaveReportWindowExecuteClick: function(){
+    	
+    	var reportName = DWRUtil.getValue('hierarchicalReportName');
+		if(reportName==''){
+		        alert("Report Name can't be empty! ");
+		        return;
+		}
+		var isSharedReport = DWRUtil.getValue('hierarchicalReportShared');
+		//parse
+    	var dataObjectValue=Ext.getCmp('dataObjectCmp').value;
+    	var pivotValue=Ext.getCmp('pivotCmp').value;
+    	var titleValue=Ext.getCmp('titleFieldCmp').value;
+    	this.store1.commitChanges();
+    	if(this.store1.getCount()>0){
+    		var foa=new Array();
+    		for (var index = 0; index < this.store1.getCount(); index++) {
+    			var record = this.store1.getAt(index);
+    			foa[index]=new Array();
+    			foa[index]={
+    				       'fieldPath':record.data.Field,
+    			           'operator':record.data.Operator,
+    			           'value':record.data.Value
+    			           };
+    		}
+    	}
+    	var orderExprText=DWRUtil.getValue('orderExprText');
+    	var maxSizeText=DWRUtil.getValue('maxSizeText');
+    	
+    	HierarchicalViewInterface.saveHierarchicalReport(reportName,isSharedReport,dataObjectValue,pivotValue,titleValue,foa,orderExprText,maxSizeText,function(state){
+    	    this.onSavedHierarchicalReport(state,reportName,isSharedReport);
+		}.createDelegate(this));
+    },
+    
+    onSavedHierarchicalReport: function(state,reportName,isSharedReport){
+    	if(state==true){
+    	    	this.saveReportWindow.hide();
+				this.saveReportWindow.destroy();
+				Ext.MessageBox.alert('Info', "The hierarchical-report has been saved successfully! ");
+    	    }else{
+    	    	this.saveReportWindow.hide();
+				this.saveReportWindow.destroy();
+    	    	Ext.MessageBox.alert('Sorry', "Saved a hierarchical-report failed! ");
+    	    }
+    },
+    
+    recordReportProperties: function(reportName,isSharedReport){
+    	DWRUtil.setValue('reportNameRecordField',reportName);
+		if(isSharedReport==true||isSharedReport=='true'){
+			DWRUtil.setValue('isSharedRecordField','true');
+		}else{
+			DWRUtil.setValue('isSharedRecordField','');
+		}
+    },
+
+    onLoadReportClick: function(){
+    	
+    	    if(this.loadReportWindow){
+				 this.loadReportWindow.hide();
+				 this.loadReportWindow.destroy();
+			}
+			
+		    var loadReportPanel = new Ext.form.FormPanel({
+		         baseCls: 'x-plain',
+			     labelAlign: 'left',     
+			     //labelWidth: 60,           
+		         //layout:'fit', 
+			     xtype : "form",
+			     items : [{
+			     	name : "loadedHierarchicalReportNames",
+					fieldLabel : "Reports",
+					xtype : "combo",
+					store: new Ext.data.Store({
+										proxy: new Ext.data.SimpleDWRProxy(HierarchicalViewInterface.getReportsName),
+							        	reader: new Ext.data.MapReader()
+									}),
+					displayField: 'value',
+					valueField: 'key',
+					mode:'remote',
+					triggerAction:'all',
+					editable:false
+//					listeners:{
+//					          		'select' : function( combo, record, index ){
+//								                	var key = record.data.key;
+//								                	getReporting(key);
+//					          		           }
+//					          } 		           
+				 }]
+		    });
+		    
+		    this.loadReportWindow = new Ext.Window({
+		        title: "Load Report",
+		        width: 320,
+		        height:110,
+		        layout: 'fit',
+		        plain:true,
+		        bodyStyle:'padding:5px;',
+		        buttonAlign:'center',
+		        items: loadReportPanel,
+		        modal:true,
+			    buttons: [{
+		            text: "Load",
+		            handler: function(){
+							       this.onLoadReportWindowExecuteClick();
+						        }.createDelegate(this)
+		        }]
+		    });
+		
+		    this.loadReportWindow.show();
+    },
+    
+    onLoadReportWindowExecuteClick: function(){
+    	
+    	var reportName = DWRUtil.getValue('loadedHierarchicalReportNames');
+    	if(reportName==''){
+    		this.recordReportProperties('','');
+    		this.loadReportWindow.hide();
+			this.loadReportWindow.destroy();
+    	}else{
+    		HierarchicalViewInterface.getReport(reportName,function(data){
+                 this.onHierarchicalGetReport(data);
+		   }.createDelegate(this));
+    	}	
+    	
+    },
+    
+    onHierarchicalGetReport: function(data){
+    	if(data!=null){
+	    	   	   this.recordReportProperties(data.reportName,data.shared);   
+	    	   	   
+	    	   	   Ext.getCmp('dataObjectCmp').setValue(data.dataObjectName);
+	    	       Ext.getCmp('pivotCmp').setValue(data.pivotPath);
+	    	       Ext.getCmp('titleFieldCmp').setValue(data.titleFieldPath);
+	    	       //set filters
+	    	       if(data.filters!=null&&data.filters.filterItems!=null&&data.filters.filterItems.length>0){
+	    	       	  
+	    	       	  this.store1.removeAll();
+                      this.store1.commitChanges();
+                      
+	    	       	  var Filter = this.store1.recordType;
+	    	       	  var dataFiltersArray=data.filters.filterItems;
+	    	       	  for (var index = 0; index < dataFiltersArray.length; index++) {
+	    	       	  	var getFilterItem=dataFiltersArray[index];
+	    	       	  	var f = new Filter({
+					                    Field: getFilterItem.fieldPath,
+					                    Operator: getFilterItem.operator,
+					                    Value: getFilterItem.value
+					                });
+					    this.store1.insert(index, f);            
+	    	       	  }
+	    	       	  this.store1.commitChanges();
+	    	       	  
+	    	       }
+	    	       //set addition info
+	    	       var newOrderExpr='';
+	    	       if(data.pivotDirectionsExpr!=null&&data.indexDirectionsExpr!=null&&data.indexDirectionsExpr.length>0){
+	    	       newOrderExpr=data.pivotDirectionsExpr+"-"+data.indexDirectionsExpr;
+	    	       DWRUtil.setValue('orderExprText',newOrderExpr);
+	    	       }
+	    	       DWRUtil.setValue('maxSizeText',data.limit);
+	    	       	
+	    	       this.loadReportWindow.hide();
+			       this.loadReportWindow.destroy();
+	    }
     },
     
     reloadHierarchicalTree: function(data){
