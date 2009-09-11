@@ -1326,8 +1326,10 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     		
     		//check if revision exists
     		try {
-    			WSUniversePKArray array=Util.getUniverseCtrlLocal().getUniverseByRevision(objectName, line.getDestinationRevisionID(), WSGetUniverseByRevisionType._OBJECT);
-				if(array==null || array.getWsUniversePK().length==0) return;
+    			if(!(line.getDestinationRevisionID()==null || line.getDestinationRevisionID().length()==0)){ //revision is not HEAD
+	    			WSUniversePKArray array=Util.getUniverseCtrlLocal().getUniverseByRevision(objectName, line.getDestinationRevisionID(), WSGetUniverseByRevisionType._OBJECT);
+					if(array==null || array.getWsUniversePK().length==0) return;
+    			}
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
@@ -1337,8 +1339,10 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     		Util.getXmlServerCtrlLocal().runQuery(line.getSourceRevisionID(), db, xquery, null);
     	}
     	if(SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
-    		WSUniversePKArray array=remotePort.getUniverseByRevision(new WSGetUniverseByRevision(objectName, line.getSourceRevisionID(), WSGetUniverseByRevisionType.OBJECT));
-    		if(array==null || array.getWsUniversePK().length==0) return;
+    		if(!(line.getSourceRevisionID()==null || line.getSourceRevisionID().length()==0)){ //revision is not HEAD
+	    		WSUniversePKArray array=remotePort.getUniverseByRevision(new WSGetUniverseByRevision(objectName, line.getSourceRevisionID(), WSGetUniverseByRevisionType.OBJECT));
+	    		if(array==null || array.getWsUniversePK().length==0) return;
+    		}
     		//create local collection
     		remotePort.putDBDataCluster(new WSPutDBDataCluster(line.getSourceRevisionID(),db));
     		//do sync
@@ -1597,8 +1601,9 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     	
 		//if this is not an overwrite of the remote XML, fetch the xml from the remote system
 		ItemPOJO remotePOJO = null;
+		String remoteXML = null;
         try {
-	        String remoteXML = remotePort.synchronizationGetItemXML(new WSSynchronizationGetItemXML(
+	            remoteXML = remotePort.synchronizationGetItemXML(new WSSynchronizationGetItemXML(
 	        	remoteRevisionID,
 	        	new WSItemPK(
 	        		new WSDataClusterPK(remoteDataClusterPOJOPK.getUniqueId()), 
@@ -1621,6 +1626,12 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     	);
     	localPOJO = localXML == null ? null : ItemPOJO.parse(localXML);
     	
+    	//aiming added
+    	//check if localXML equals remoteXML 
+    	if(remoteXML!=null && remoteXML.equals(localXML) || localXML!=null && localXML.equals(remoteXML)){
+    		return;
+    	} 
+    		
 		//Check if we have an existing Synchronization for this object
 		SynchronizationItemPOJO synchro = synchroItemCtrl.existsSynchronizationItem(
 			new SynchronizationItemPOJOPK(localRevisionID, itemPOJOPK)
@@ -1838,6 +1849,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     	        planCtrl.synchronizationPutMarshaledItem(localRevisionID, localWinner.serialize());
 
     	        //update local report 
+    	        
     	        String userName="User of http://localhost:8080/talend/TalendPort"; 
     	        String operationType=UpdateReportPOJO.OPERATIONTYPE_UPDATEE;
     	        if(localWinner.load(localRevisionID,itemPOJOPK)==null){
