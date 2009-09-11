@@ -1155,7 +1155,8 @@ public class ItemsBrowserDWR {
 				String keys = "";
 				for (int j = xpathInfos.length; j<list.getLength(); j++) {
 					Node textNode = list.item(j).getFirstChild();
-					keys += "["+(textNode == null ? "" : textNode.getNodeValue())+"]";
+					//keys += "["+(textNode == null ? "" : textNode.getNodeValue())+"]";
+					keys +=(textNode == null ? "" : textNode.getNodeValue());
 				}
 				
 				//recover xPathInfos
