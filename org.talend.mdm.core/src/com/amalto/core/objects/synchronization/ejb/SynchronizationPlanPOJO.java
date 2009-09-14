@@ -272,7 +272,7 @@ public class SynchronizationPlanPOJO extends ObjectPOJO{
 		list.add(MANUAL);
 		list.add(LOCAL_WINS);
 		list.add(REMOTE_WINS);
-		list.add(TIS_CALL);
+		//list.add(TIS_CALL);
 		return list;
 	}
 
