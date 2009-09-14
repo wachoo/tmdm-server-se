@@ -918,5 +918,8 @@ public class ItemPOJO implements Serializable{
 		}
 		return schema;
 	}
-
+    
+    public static void clearCache(){
+    	cachedPojo.clear();
+    }
 }

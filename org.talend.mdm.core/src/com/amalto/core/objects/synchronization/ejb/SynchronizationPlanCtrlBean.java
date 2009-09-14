@@ -1351,7 +1351,8 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     		List docIds=Util.getXmlServerCtrlLocal().runQuery(line.getLocalRevisionID(), line.getLocalClusterPOJOPK().getUniqueId(), xquery, null);
     		//put update report
     		putUpdateReportItems(docIds, line, remotePort);
-
+    		//clear cache
+    		ItemPOJO.clearCache();
     	}
     	if(SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
     		//check if revision exists
@@ -1448,6 +1449,8 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     		Util.getXmlServerCtrlLocal().createCluster(line.getDestinationRevisionID(), db);
     		//do sync
     		Util.getXmlServerCtrlLocal().runQuery(line.getSourceRevisionID(), db, xquery, null);
+    		//clear cache
+    		ObjectPOJO.clearCache();
     	}
     	if(SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
     		if(!(line.getSourceRevisionID()==null || line.getSourceRevisionID().length()==0)){ //revision is not HEAD

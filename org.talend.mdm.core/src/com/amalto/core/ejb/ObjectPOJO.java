@@ -939,5 +939,8 @@ public abstract class ObjectPOJO implements Serializable{
 	        throw new XtentisException(err);
         } 
     }
- 
+    
+    public static void clearCache(){
+    	cachedPojo.clear();
+    }
 }
