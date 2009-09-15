@@ -13344,31 +13344,31 @@
          <name>WSSynchronizationPlan</name>
          <documentation>
 				A Synchronization Plan
-				-name: the unique name
-				-description: the description of the plan
-				-remoteSystemName: the descriptive nale of the remote system
-				-remoteSystemURL: the full URL to the Webservices port of the remote system
-				-remoteSystemUsername: the username to use on the remote system
-				-remoteSystemPassword: the password to use on the remote system
-				-tisURL: the URL to the web services port of the TIS server (if any)
-				-tisUsername: the username to use on the remote TIS server
-				-tisPassword: the password to use on the remote TIS server
-				-tisParameters: additional parameters to pass to the TIS server on calls
-				-xtentisObjectsSynchronizations: list of the MDM Objects synchronized by this plan
-					-xtentisObjectName: the unique Name of the Xtentis Object
-					-synhcronizations: the synchronization to make on this Object
-						-instancePattern: a pattern on the instance names of the Object
-						-localRevisionID: the ID of the local revision to synchronize for this pattern
-						-remoteRevisionID: the ID of the remote system revision to synchronize for this pattern
-						-algorithm: the conflict resolution algorithm to use
-				-itemsSynchronizations: the list if synhchronizations to make on the items
-					-conceptName: the name of the concept to synchronize
-					-idsPattern: a Pattern of the IDs of the object
-					-localCluster: the name ofthe local cluster where the items are found
-					-localRevisionID: the local revision ID for these items to synchronize
-					-remoteCluster: the name of the remote cluster to syncrhonize
-					-remoteRevisionID: the remote system revision ID to use for the items to synchronize
-					algorithm: the conflict resolution algorithm to use
+				name: the unique name
+				description: the description of the plan
+				remoteSystemName: the descriptive nale of the remote system
+				remoteSystemURL: the full URL to the Webservices port of the remote system
+				remoteSystemUsername: the username to use on the remote system
+				remoteSystemPassword: the password to use on the remote system
+				tisURL: the URL to the web services port of the TIS server (if any)
+				tisUsername: the username to use on the remote TIS server
+				tisPassword: the password to use on the remote TIS server
+				tisParameters: additional parameters to pass to the TIS server on calls
+				xtentisObjectsSynchronizations: list of the MDM Objects synchronized by this plan
+					&gt;xtentisObjectName: the unique Name of the Xtentis Object
+					&gt;synhcronizations: the synchronization to make on this Object
+						&gt;&gt;instancePattern: a pattern on the instance names of the Object
+						&gt;&gt;localRevisionID: the ID of the local revision to synchronize for this pattern
+						&gt;&gt;remoteRevisionID: the ID of the remote system revision to synchronize for this pattern
+						&gt;&gt;algorithm: the conflict resolution algorithm to use
+				itemsSynchronizations: the list if synhchronizations to make on the items
+					&gt;conceptName: the name of the concept to synchronize
+					&gt;idsPattern: a Pattern of the IDs of the object
+					&gt;localCluster: the name ofthe local cluster where the items are found
+					&gt;localRevisionID: the local revision ID for these items to synchronize
+					&gt;remoteCluster: the name of the remote cluster to syncrhonize
+					&gt;remoteRevisionID: the remote system revision ID to use for the items to synchronize
+					&gt;algorithm: the conflict resolution algorithm to use
 			</documentation>
          <subtypes/>
       </type>
@@ -13388,10 +13388,10 @@
          <name>WSSynchronizationPlanStatus</name>
          <documentation>
 				The status of a Synchronization Plan
-					-wsStatusCode: the status code
-					-statusMessage: a plain English status message
-					-lastRunStarted: the XSD date at which this plan was last started
-					-lastRunStopped: the XSD date at which this plan last stopped running
+					wsStatusCode: the status code
+					statusMessage: a plain English status message
+					lastRunStarted: the XSD date at which this plan was last started
+					lastRunStopped: the XSD date at which this plan last stopped running
 			</documentation>
          <subtypes>
             <subtype>WSSynchronizationPlanStatusCode</subtype>
@@ -13401,16 +13401,16 @@
          <name>WSSynchronizationItem</name>
          <documentation>
 				A Synchronization Conflict
-					-wsItemPK: the primary key of the Item
-					-localRevisionID: the local system revision ID for the Item
-					-lastRunPlan: tha name of the last Synchronization Plan locally run on this item
-					-status: the Conflict status
-					-resolvedProjection: the raw XML that is/will be the final synchornized value
-					-remoteInstances: the raw XML value for this item on the remote systems
-						-remoteSystemName: the unique name of the remote system
-						-remoteRevisionID: the remote system revision ID for this Item
-						-xml: the raw XML on the remote system
-						-lastLocalSynchronizationTime: the date in the remote system time zone at which the item was last synchronized
+					wsItemPK: the primary key of the Item
+					localRevisionID: the local system revision ID for the Item
+					lastRunPlan: tha name of the last Synchronization Plan locally run on this item
+					status: the Conflict status
+					resolvedProjection: the raw XML that is/will be the final synchornized value
+					remoteInstances: the raw XML value for this item on the remote systems
+						&gt;remoteSystemName: the unique name of the remote system
+						&gt;remoteRevisionID: the remote system revision ID for this Item
+						&gt;xml: the raw XML on the remote system
+						&gt;lastLocalSynchronizationTime: the date in the remote system time zone at which the item was last synchronized
 			</documentation>
          <subtypes>
             <subtype>WSItemPK</subtype>
@@ -13533,13 +13533,13 @@
          <name>WSSynchronizationGetUnsynchronizedItemPKs</name>
          <documentation>
 				A message to retrieve the Synchronization Plan non synchronized Item PKs
-					-revisionID: the revision of the ITem
-					-wsDataClusterPOJOPK: the data cluster
-					-conceptName: the name of the Item Concept
-					-instancePattern: a patter to apply to the ids - joined by dots - of the Item
-					-synchronizationPlanName: the optional Synchronization Plan to xhich these items are subjected
-					-start: the paging start
-					-limit: the max number of Items returned
+					revisionID: the revision of the ITem
+					wsDataClusterPOJOPK: the data cluster
+					conceptName: the name of the Item Concept
+					instancePattern: a patter to apply to the ids - joined by dots - of the Item
+					synchronizationPlanName: the optional Synchronization Plan to xhich these items are subjected
+					start: the paging start
+					limit: the max number of Items returned
 			</documentation>
          <subtypes>
             <subtype>WSDataClusterPK</subtype>
