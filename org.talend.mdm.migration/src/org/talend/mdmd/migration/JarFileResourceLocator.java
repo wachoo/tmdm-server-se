@@ -14,7 +14,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 
-public class JarFileResourceLocator extends ClassLoader
+public class JarFileResourceLocator
 {
     private JarFile _jarFile;
     private String _dir;

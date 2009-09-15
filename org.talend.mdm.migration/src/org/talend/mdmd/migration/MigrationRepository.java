@@ -123,7 +123,7 @@ public class MigrationRepository{
   		super("XDBReceiver");
           // Allow application to terminate while this thread is still
           // executing
-  		setDaemon(true);
+  		setDaemon(false);
           _closed = false;
   	}
   	
