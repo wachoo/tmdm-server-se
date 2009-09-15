@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ======================================================================                                                   
 
-     Xtentis MDM
-     XML:DB Modules of Xtentis MDM - adapted for eXist Open
+     Talend MDM
+     XML:DB Modules of Talend MDM - adapted for eXist Open
                    
      bgrieder                                                                
      ====================================================================== -->
-<project name="XtentisMDM-Migration" default="all">
+<project name="TalendMDM-Migration" default="all">
     <description>
             XML:Migration module for  MDM
     </description>
