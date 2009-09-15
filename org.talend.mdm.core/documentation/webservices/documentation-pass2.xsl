@@ -13,7 +13,40 @@
 
         <html>
             <head>
-                <link type="text/css" rel='stylesheet' href='documentation.css'/>
+
+                <style type="text/css">
+                    * {
+                        font-family: tahoma, verdana, helvetica, sans-serif;
+                    }
+
+
+                    .operation-name {
+                        font-weight: bold;
+                        padding-bottom:5px;
+                    }
+
+                    .operation-description {
+                        font-size: 0.85em;
+                        font-style: italic;
+                        padding-bottom:5px;
+                    }
+
+                    .params {
+                        border-style: dotted;
+                        border-width: 1px;
+                        vertical-align: top;
+                        padding: 5px;
+                    }
+
+                    .param-direction {
+                        font-size: 0.85em;
+                        font-style: italic;
+                        vertical-align: top;
+                        padding: 5px;
+                    }
+
+
+                </style>
             </head>
             <body>
                 <h1>Open MDM Webservices</h1>
