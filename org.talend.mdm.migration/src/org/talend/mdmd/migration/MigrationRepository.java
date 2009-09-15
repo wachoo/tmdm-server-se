@@ -84,7 +84,8 @@ public class MigrationRepository{
           String name = url.getFile();
           name = name.substring(0, name.lastIndexOf("!"));
           name = name.substring(0, name.lastIndexOf("/"));
-          name = name.substring("file:/".length());
+          if (name.startsWith("file:/"))
+              name = name.substring("file:/".length());
           JarFileResourceLocator locator = new JarFileResourceLocator(name, list);
           
           Class[] res = locator.loadFile();
