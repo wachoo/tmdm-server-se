@@ -399,30 +399,34 @@ amalto.viewbrowser.ViewBrowser = function () {
 	function displayDocument(id){
 		
 		var tabPanel = amalto.core.getTabPanel();
-		if(tabPanel.getItem('viewDetailsdiv'+id) == undefined){
+		var contentPanel=tabPanel.getItem('viewDetailsdiv'+id);
+		if( contentPanel== undefined){
+			
 			var html =
-				'<div id="treeDiv'+id+'" style="font:13px tahoma, verdana, helvetica;"></div>' +
-				'<div id="sourceDiv'+id+'" style="font:13px tahoma, verdana, helvetica; padding:5px"></div>';
+					'<div id="treeDiv'+id+'" style="font:13px tahoma, verdana, helvetica;"></div>' +
+					'<div id="sourceDiv'+id+'" style="font:13px tahoma, verdana, helvetica; padding:5px"></div>';
+				
+				
+			contentPanel = new Ext.Panel({
+					id:'viewDetailsdiv'+id, 
+					title: "View detail", 
+					layout:'fit',
+					tbar:[
+						{text: "Show tree", handler: function(){showTree(id);}},
+						new Ext.Toolbar.Separator(),
+						{text: "Show source", handler: function(){showSource(id)}}
+					],
+					autoScroll:true,
+					html:html,
+					closable:true
+				});
+				
+			tabPanel.add(contentPanel); 
 			
+		}else{
 			
-			var contentPanel = new Ext.Panel({
-				id:'viewDetailsdiv'+id, 
-				title: "View detail", 
-				layout:'fit',
-				tbar:[
-					{text: "Show tree", handler: function(){showTree(id);}},
-					new Ext.Toolbar.Separator(),
-					{text: "Show source", handler: function(){showSource(id)}}
-				],
-				autoScroll:true,
-				html:html,
-				closable:true
-			});
+		}
 			
-
-	
-		}		
-		tabPanel.add(contentPanel); 
 		contentPanel.show();
 		//contentPanel.doLayout();
 		amalto.core.doLayout();
