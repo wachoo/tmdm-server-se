@@ -13,6 +13,30 @@ amalto.updatereport.UpdateReportPanel = function(config) {
 Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
     initPageSize:20,
 	initUIComponents : function() {
+	    
+	 Ext.apply(Ext.form.VTypes, {  
+		         dateRange: function(val, field){  
+		             if(field.dateRange){  
+		                 var beginId = field.dateRange.begin;  
+		                 this.beginField = Ext.getCmp(beginId);  
+		                 var endId = field.dateRange.end;  
+		                 this.endField = Ext.getCmp(endId);  
+		                 var beginDate = this.beginField.getValue();  
+		                 var endDate = this.endField.getValue();  
+		             } 
+		             
+		             if(beginDate!=""&&endDate!=""){
+		            	 if(beginDate <= endDate){  
+			                 return true;  
+			             }else{  
+			                 return false;  
+			             }
+		             }
+		             
+		             return true;
+		         },    
+		         dateRangeText: 'Start Data can not be greater than End Date '  
+		     });  
 
 		this.recordType = Ext.data.Record.create([
 		
@@ -205,6 +229,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
                                               }.createDelegate(this)
                                         }
 						}, {
+							id : "startDate",
 							name : "startDate",
 							fieldLabel : amalto.updatereport.UpdateReportLocal.get("start_date"),
 							xtype : "datefield",
@@ -215,7 +240,9 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
                                'specialkey' : function(field, event) {
                                	                  this.onSearchKeyClick(field, event);
                                               }.createDelegate(this)
-                                        }
+                                        },
+                           vtype: 'dateRange',
+                           dateRange: {begin: 'startDate', end: 'endDate'}
 						}],
 						border : false
 					}, {
@@ -247,6 +274,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
                                               }.createDelegate(this)
                                         }
 						}, {
+							id : "endDate",
 							name : "endDate",
 							fieldLabel : amalto.updatereport.UpdateReportLocal.get("end_date"),
 							xtype : "datefield",
@@ -257,7 +285,9 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
                                'specialkey' : function(field, event) {
                                	                  this.onSearchKeyClick(field, event);
                                               }.createDelegate(this)
-                                        }
+                                        },
+                            vtype: 'dateRange',
+                            dateRange: {begin: 'startDate', end: 'endDate'}
 						}],
 						border : false
 					}],
