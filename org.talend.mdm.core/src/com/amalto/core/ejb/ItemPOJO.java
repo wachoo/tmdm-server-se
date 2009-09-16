@@ -216,6 +216,7 @@ public class ItemPOJO implements Serializable{
 	public void setProjectionAsString(String str) throws XtentisException{
 		this.projectionString = str;
 		try {
+			if(str!=null && str.length()>0)
 			projection = Util.parse(this.projectionString).getDocumentElement();
 		} catch (Exception e) {
 			String err = "Unable to parse the Item "+this.getItemPOJOPK().getUniqueID()+". "
