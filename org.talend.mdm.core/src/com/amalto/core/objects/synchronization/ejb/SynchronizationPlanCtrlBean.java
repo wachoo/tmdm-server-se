@@ -57,6 +57,7 @@ import com.amalto.core.webservice.WSStringArray;
 import com.amalto.core.webservice.WSSynchronizationGetItemXML;
 import com.amalto.core.webservice.WSSynchronizationGetObjectXML;
 import com.amalto.core.webservice.WSSynchronizationGetUnsynchronizedItemPKs;
+import com.amalto.core.webservice.WSSynchronizationGetUnsynchronizedObjectsIDs;
 import com.amalto.core.webservice.WSSynchronizationPutItemXML;
 import com.amalto.core.webservice.WSSynchronizationPutObjectXML;
 import com.amalto.core.webservice.WSUniversePKArray;
@@ -782,83 +783,83 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
 				for (Iterator<SynchronizationPlanObjectLine> iterator2 = lines.iterator(); iterator2.hasNext(); ) {
 					SynchronizationPlanObjectLine line = iterator2.next();
 					//using xquery to do the sync
-					xquerySyncObjects(objectName, line, remotePort);	
-//					//A cache of already synchronized objects
-//					ArrayList<String> alreadySynchronizedIDs = new ArrayList<String>();
-//					
-//					//First pass :  Update central with remote by fetching all remote items
-//					String[] remoteIDs= remotePort.synchronizationGetUnsynchronizedObjectsIDs(new WSSynchronizationGetUnsynchronizedObjectsIDs(
-//						line.getDestinationRevisionID(),
-//						objectName,
-//						line.getInstancePattern(),
-//						null
-//					)).getStrings();
-//					
-//					if (remoteIDs != null ) {
-//    					for (int i = 0; i < remoteIDs.length; i++) {
-//    						org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-//    							"executeFullSynchronization() ---------------First Pass Processing Remote " +
-//    							line.getDestinationRevisionID()+"/"+objectName+": "+remoteIDs[i]+" ["+line.getAlgorithm()+"]"
-//    						);
-//    						//Synchronize the objects
-//    						synchronizeObjects(
-//    							plan, 
-//    							remotePort, 
-//    							planCtrl,
-//    							objectCtrl, 
-//    							line.getAlgorithm(), 
-//    							line.getSourceRevisionID(), 
-//    							line.getDestinationRevisionID(), 
-//    							objectName, 
-//    							remoteIDs[i],
-//    							SYNCH_TYPE_FULL
-//    						);
-//    						//put in cache
-//    						alreadySynchronizedIDs.add(remoteIDs[i]);
-//    						
-//    					}// for IDS
-//					}					
-//					
-//					org.apache.log4j.Logger.getLogger(this.getClass()).trace(
-//						"executeFullSynchronization() Second Pass search '"+line.getSourceRevisionID()+"/"+objectName+"'  pattern '"+line.getInstancePattern()+"'"
-//					);
-//					
-//					//Second Pass: Update remote with central by fetching all local items
-//					ArrayList<String> localIDs = planCtrl.synchronizationGetAllUnsynchronizedObjectsIDs(
-//						line.getSourceRevisionID(), 
-//						objectName, 
-//						line.getInstancePattern(), 
-//						null
-//					);
-//					
-//					for (Iterator<String> iterator3 = localIDs.iterator(); iterator3.hasNext(); ) {
-//						String localID = iterator3.next();
-//						
-//						//if already done, skip
-//						if (alreadySynchronizedIDs.contains(localID)) continue;
-//						
-//						org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-//							"executeFullSynchronization() ---------------Second Pass Processing Local " +
-//							line.getSourceRevisionID()+"/"+objectName+": "+localID+" ["+line.getAlgorithm()+"]"
-//						);
-//
-//						//Synchronize the objects
-//						synchronizeObjects(
-//							plan, 
-//							remotePort, 
-//							planCtrl,
-//							objectCtrl, 
-//							line.getAlgorithm(), 
-//							line.getSourceRevisionID(), 
-//							line.getDestinationRevisionID(), 
-//							objectName, 
-//							localID,
-//							SYNCH_TYPE_FULL
-//						);
-//						
-//					}// for IDS
-//					
-//					
+					//xquerySyncObjects(objectName, line, remotePort);	
+					//A cache of already synchronized objects
+					ArrayList<String> alreadySynchronizedIDs = new ArrayList<String>();
+					
+					//First pass :  Update central with remote by fetching all remote items
+					String[] remoteIDs= remotePort.synchronizationGetUnsynchronizedObjectsIDs(new WSSynchronizationGetUnsynchronizedObjectsIDs(
+						line.getDestinationRevisionID(),
+						objectName,
+						line.getInstancePattern(),
+						null
+					)).getStrings();
+					
+					if (remoteIDs != null ) {
+    					for (int i = 0; i < remoteIDs.length; i++) {
+    						org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+    							"executeFullSynchronization() ---------------First Pass Processing Remote " +
+    							line.getDestinationRevisionID()+"/"+objectName+": "+remoteIDs[i]+" ["+line.getAlgorithm()+"]"
+    						);
+    						//Synchronize the objects
+    						synchronizeObjects(
+    							plan, 
+    							remotePort, 
+    							planCtrl,
+    							objectCtrl, 
+    							line.getAlgorithm(), 
+    							line.getSourceRevisionID(), 
+    							line.getDestinationRevisionID(), 
+    							objectName, 
+    							remoteIDs[i],
+    							SYNCH_TYPE_FULL
+    						);
+    						//put in cache
+    						alreadySynchronizedIDs.add(remoteIDs[i]);
+    						
+    					}// for IDS
+					}					
+					
+					org.apache.log4j.Logger.getLogger(this.getClass()).trace(
+						"executeFullSynchronization() Second Pass search '"+line.getSourceRevisionID()+"/"+objectName+"'  pattern '"+line.getInstancePattern()+"'"
+					);
+					
+					//Second Pass: Update remote with central by fetching all local items
+					ArrayList<String> localIDs = planCtrl.synchronizationGetAllUnsynchronizedObjectsIDs(
+						line.getSourceRevisionID(), 
+						objectName, 
+						line.getInstancePattern(), 
+						null
+					);
+					
+					for (Iterator<String> iterator3 = localIDs.iterator(); iterator3.hasNext(); ) {
+						String localID = iterator3.next();
+						
+						//if already done, skip
+						if (alreadySynchronizedIDs.contains(localID)) continue;
+						
+						org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+							"executeFullSynchronization() ---------------Second Pass Processing Local " +
+							line.getSourceRevisionID()+"/"+objectName+": "+localID+" ["+line.getAlgorithm()+"]"
+						);
+
+						//Synchronize the objects
+						synchronizeObjects(
+							plan, 
+							remotePort, 
+							planCtrl,
+							objectCtrl, 
+							line.getAlgorithm(), 
+							line.getSourceRevisionID(), 
+							line.getDestinationRevisionID(), 
+							objectName, 
+							localID,
+							SYNCH_TYPE_FULL
+						);
+						
+					}// for IDS
+					
+					
 				}//for lines
 			}//for objects
         	
@@ -874,10 +875,10 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
             	for (Iterator<SynchronizationPlanItemLine> iterator = plan.getItemsSynchronizations().iterator(); iterator.hasNext(); ) {
     				SynchronizationPlanItemLine line = iterator.next();
     				//if Local Wins or Remote Wins using xquery to do the sync. aiming modify 
-    				if(SynchronizationPlanPOJO.LOCAL_WINS.equalsIgnoreCase(line.getAlgorithm()) || SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
-    					xquerySyncItems(line, remotePort);
-    					continue;
-    				}
+//    				if(SynchronizationPlanPOJO.LOCAL_WINS.equalsIgnoreCase(line.getAlgorithm()) || SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
+//    					xquerySyncItems(line, remotePort);
+//    					continue;
+//    				}
     				//end
     				//reload the plan status to see if STOPPING is required
             		String statusCode = planCtrl.getSynchronizationPlan(revisionID, new SynchronizationPlanPOJOPK(plan.getName())).getCurrentStatusCode();
@@ -1070,96 +1071,96 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
 			
 				for (Iterator<SynchronizationPlanObjectLine> iterator2 = lines.iterator(); iterator2.hasNext(); ) {
 					SynchronizationPlanObjectLine line = iterator2.next();
-					xquerySyncObjects(objectName, line, remotePort);					
+					//xquerySyncObjects(objectName, line, remotePort);					
 					
-//					//Fetch all changed/unsynchronized remote objects
-//					String[] remoteIDs= remotePort.synchronizationGetUnsynchronizedObjectsIDs(new WSSynchronizationGetUnsynchronizedObjectsIDs(
-//						line.getDestinationRevisionID(),
-//						objectName,
-//						line.getInstancePattern(),
-//						plan.getName()
-//					)).getStrings();
-//					
-//					//Fetch all changed/unsynchronized local objects
-//					ArrayList<String> localIDs = planCtrl.synchronizationGetAllUnsynchronizedObjectsIDs(
-//						line.getSourceRevisionID(), 
-//						objectName, 
-//						line.getInstancePattern(), 
-//						plan.getName()
-//					);
-//					
-//					//First pass :  Run remote IDS
-//					if (remoteIDs != null ) {
-//					
-//    					for (int i = 0; i < remoteIDs.length; i++) {
-//    						
-//    						org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-//    							"executeDifferentialSynchronization() ---------------First Pass Processing Remote " +
-//    							line.getDestinationRevisionID()+"/"+objectName+": "+remoteIDs[i]+" ["+line.getAlgorithm()+"]"
-//    						);
-//    						
-//    						//check if this object id also changed on the local side
-//    						if (localIDs.contains(remoteIDs[i])) {
-//    							//run a full sync
-//    							synchronizeObjects(
-//    								plan, 
-//    								remotePort, 
-//    								planCtrl,
-//    								objectCtrl, 
-//    								line.getAlgorithm(), 
-//    								line.getSourceRevisionID(), 
-//    								line.getDestinationRevisionID(), 
-//    								objectName, 
-//    								remoteIDs[i],
-//    								SYNCH_TYPE_FULL
-//    							);
-//    						} else {
-//    							//overwrite the local
-//    							synchronizeObjects(
-//    								plan, 
-//    								remotePort,
-//    								planCtrl,
-//    								objectCtrl, 
-//    								line.getAlgorithm(), 
-//    								line.getSourceRevisionID(), 
-//    								line.getDestinationRevisionID(), 
-//    								objectName, 
-//    								remoteIDs[i],
-//    								SYNCH_TYPE_OVERWRITE_LOCAL
-//    							);
-//    						}
-//    						
-//    						//remove the ID from the list of LocalIDs to process
-//    						localIDs.remove(remoteIDs[i]);
-//    						
-//    					}// for remote IDs
-//					}
-//					
-//					//Second Pass: process the remaining local objects into the remote machine 
-//					
-//					for (Iterator<String> iterator3 = localIDs.iterator(); iterator3.hasNext(); ) {
-//						String localID = iterator3.next();
-//						
-//						org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-//							"executeDifferentialSynchronization() ---------------Second Pass Processing Local " +
-//							line.getSourceRevisionID()+"/"+objectName+": "+localID+" ["+line.getAlgorithm()+"]"
-//						);
-//						
-//						//By definition remote objects need to be overwritten
-//						synchronizeObjects(
-//							plan, 
-//							remotePort,
-//							planCtrl,
-//							objectCtrl, 
-//							line.getAlgorithm(), 
-//							line.getSourceRevisionID(), 
-//							line.getDestinationRevisionID(), 
-//							objectName, 
-//							localID,
-//							SYNCH_TYPE_OVERWRITE_REMOTE
-//						);
-//						
-//					}// for IDS
+					//Fetch all changed/unsynchronized remote objects
+					String[] remoteIDs= remotePort.synchronizationGetUnsynchronizedObjectsIDs(new WSSynchronizationGetUnsynchronizedObjectsIDs(
+						line.getDestinationRevisionID(),
+						objectName,
+						line.getInstancePattern(),
+						plan.getName()
+					)).getStrings();
+					
+					//Fetch all changed/unsynchronized local objects
+					ArrayList<String> localIDs = planCtrl.synchronizationGetAllUnsynchronizedObjectsIDs(
+						line.getSourceRevisionID(), 
+						objectName, 
+						line.getInstancePattern(), 
+						plan.getName()
+					);
+					
+					//First pass :  Run remote IDS
+					if (remoteIDs != null ) {
+					
+    					for (int i = 0; i < remoteIDs.length; i++) {
+    						
+    						org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+    							"executeDifferentialSynchronization() ---------------First Pass Processing Remote " +
+    							line.getDestinationRevisionID()+"/"+objectName+": "+remoteIDs[i]+" ["+line.getAlgorithm()+"]"
+    						);
+    						
+    						//check if this object id also changed on the local side
+    						if (localIDs.contains(remoteIDs[i])) {
+    							//run a full sync
+    							synchronizeObjects(
+    								plan, 
+    								remotePort, 
+    								planCtrl,
+    								objectCtrl, 
+    								line.getAlgorithm(), 
+    								line.getSourceRevisionID(), 
+    								line.getDestinationRevisionID(), 
+    								objectName, 
+    								remoteIDs[i],
+    								SYNCH_TYPE_FULL
+    							);
+    						} else {
+    							//overwrite the local
+    							synchronizeObjects(
+    								plan, 
+    								remotePort,
+    								planCtrl,
+    								objectCtrl, 
+    								line.getAlgorithm(), 
+    								line.getSourceRevisionID(), 
+    								line.getDestinationRevisionID(), 
+    								objectName, 
+    								remoteIDs[i],
+    								SYNCH_TYPE_OVERWRITE_LOCAL
+    							);
+    						}
+    						
+    						//remove the ID from the list of LocalIDs to process
+    						localIDs.remove(remoteIDs[i]);
+    						
+    					}// for remote IDs
+					}
+					
+					//Second Pass: process the remaining local objects into the remote machine 
+					
+					for (Iterator<String> iterator3 = localIDs.iterator(); iterator3.hasNext(); ) {
+						String localID = iterator3.next();
+						
+						org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+							"executeDifferentialSynchronization() ---------------Second Pass Processing Local " +
+							line.getSourceRevisionID()+"/"+objectName+": "+localID+" ["+line.getAlgorithm()+"]"
+						);
+						
+						//By definition remote objects need to be overwritten
+						synchronizeObjects(
+							plan, 
+							remotePort,
+							planCtrl,
+							objectCtrl, 
+							line.getAlgorithm(), 
+							line.getSourceRevisionID(), 
+							line.getDestinationRevisionID(), 
+							objectName, 
+							localID,
+							SYNCH_TYPE_OVERWRITE_REMOTE
+						);
+						
+					}// for IDS
 					
 				}//for lines
 			}//for objects
@@ -1175,10 +1176,10 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
             	for (Iterator<SynchronizationPlanItemLine> iterator = plan.getItemsSynchronizations().iterator(); iterator.hasNext(); ) {
     				SynchronizationPlanItemLine line = iterator.next();
     				//if Local Wins or Remote Wins using xquery to do the sync. aiming modify 
-    				if(SynchronizationPlanPOJO.LOCAL_WINS.equalsIgnoreCase(line.getAlgorithm()) || SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
-    					xquerySyncItems(line, remotePort);
-    					continue;
-    				}
+//    				if(SynchronizationPlanPOJO.LOCAL_WINS.equalsIgnoreCase(line.getAlgorithm()) || SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
+//    					xquerySyncItems(line, remotePort);
+//    					continue;
+//    				}
     				//end
     				
     				//reload the plan status to see if STOPPING is required
@@ -1434,8 +1435,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
 			db=ObjectPOJO.getCluster(clazzname.getName());
 		}
     	String xquery=XquerySyncUtil.getObjectSyncQuery(db, line.getInstancePattern(), line.getSourceRevisionID(), line.getDestinationRevisionID(), line.getAlgorithm());
-    	if(SynchronizationPlanPOJO.LOCAL_WINS.equalsIgnoreCase(line.getAlgorithm())){
-    		
+    	if(SynchronizationPlanPOJO.LOCAL_WINS.equalsIgnoreCase(line.getAlgorithm())){    		
     		//check if revision exists
     		try {
     			if(!(line.getDestinationRevisionID()==null || line.getDestinationRevisionID().length()==0)){ //revision is not HEAD
@@ -1933,19 +1933,19 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     	            remotePort.synchronizationPutItemXML(
     	            	new WSSynchronizationPutItemXML(remoteRevisionID, remoteWinner.serialize())
     	            );
-    	            
-    	            //update remote report
-    	            String userName="User of "+((Stub)remotePort)._getProperty(Stub.ENDPOINT_ADDRESS_PROPERTY);
-    	            String operationType=UpdateReportPOJO.OPERATIONTYPE_UPDATEE;
-    	            if(isExistBeforeSynchro)operationType=UpdateReportPOJO.OPERATIONTYPE_CREATE;
-        	        ItemPOJO updateReportItem = getUpdateReportItem(remoteWinner,remoteRevisionID, userName,operationType);
-        	        //exclude update report itself
-        	        if(remoteWinner.getDataClusterPOJOPK().getUniqueId()!=null&&!remoteWinner.getDataClusterPOJOPK().getUniqueId().equals(XSystemObjects.DC_UPDATE_PREPORT.getName())){
-        	        	remotePort.synchronizationPutItemXML(
-            	            	new WSSynchronizationPutItemXML(remoteRevisionID, updateReportItem.serialize())
-            	            );
-        	        }
-    				
+    	            if(winner == localPOJO){ //local wins
+	    	            //update remote report
+	    	            String userName="User of "+((Stub)remotePort)._getProperty(Stub.ENDPOINT_ADDRESS_PROPERTY);
+	    	            String operationType=UpdateReportPOJO.OPERATIONTYPE_UPDATEE;
+	    	            if(isExistBeforeSynchro)operationType=UpdateReportPOJO.OPERATIONTYPE_CREATE;
+	        	        ItemPOJO updateReportItem = getUpdateReportItem(remoteWinner,remoteRevisionID, userName,operationType);
+	        	        //exclude update report itself
+	        	        if(remoteWinner.getDataClusterPOJOPK().getUniqueId()!=null&&!remoteWinner.getDataClusterPOJOPK().getUniqueId().equals(XSystemObjects.DC_UPDATE_PREPORT.getName())){
+	        	        	remotePort.synchronizationPutItemXML(
+	            	            	new WSSynchronizationPutItemXML(remoteRevisionID, updateReportItem.serialize())
+	            	            );
+	        	        }
+    	            }
 
     	            remoteInstance.setXml(remoteWinner.getProjectionAsString());
                 } catch (Exception e) {
@@ -1963,17 +1963,25 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     	        planCtrl.synchronizationPutMarshaledItem(localRevisionID, localWinner.serialize());
 
     	        //update local report 
-    	        //Manual should not invoke this
-//    	        String userName="User of http://localhost:8080/talend/TalendPort"; 
-//    	        String operationType=UpdateReportPOJO.OPERATIONTYPE_UPDATEE;
-//    	        if(localWinner.load(localRevisionID,itemPOJOPK)==null){
-//    	        	operationType=UpdateReportPOJO.OPERATIONTYPE_CREATE;
-//    	        }
-//    	        ItemPOJO updateReportItem = getUpdateReportItem(localWinner,localRevisionID, userName,operationType);
-//    	        //exclude update report itself
-//    	        if(localWinner.getDataClusterPOJOPK().getUniqueId()!=null&&!localWinner.getDataClusterPOJOPK().getUniqueId().equals(XSystemObjects.DC_UPDATE_PREPORT.getName())){
-//    	           updateReportItem.store(localRevisionID);
-//    	        }
+    	        if(winner == remotePOJO){//remote wins
+	    	        String userName="User of http://localhost:8080/talend/TalendPort";
+					try {
+						InetAddress addr = InetAddress.getLocalHost();							
+						userName="User of "+ "http://" +addr.getHostAddress()+":8080/talend/TalendPort ";
+					} catch (UnknownHostException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	    	        
+	    	        String operationType=UpdateReportPOJO.OPERATIONTYPE_UPDATEE;
+	    	        if(localWinner.load(localRevisionID,itemPOJOPK)==null){
+	    	        	operationType=UpdateReportPOJO.OPERATIONTYPE_CREATE;
+	    	        }
+	    	        ItemPOJO updateReportItem = getUpdateReportItem(localWinner,localRevisionID, userName,operationType);
+	    	        //exclude update report itself
+	    	        if(localWinner.getDataClusterPOJOPK().getUniqueId()!=null&&!localWinner.getDataClusterPOJOPK().getUniqueId().equals(XSystemObjects.DC_UPDATE_PREPORT.getName())){
+	    	           updateReportItem.store(localRevisionID);
+	    	        }
+    	        }
 				
 	        }
 	        
