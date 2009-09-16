@@ -299,7 +299,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						this.displayErrorMessage(errorMessageDivId,msg);
 						return false;
 					}
-					else if (parseInt(value)<=parseInt(this.itemData.restrictions[i].value))
+					else if (parseFloat(value)<=parseFloat(this.itemData.restrictions[i].value))
 					{
 					    msg=ERROR_MESSAGE_MINEXCLUSIVE[language] + this.itemData.restrictions[i].value;
 					    this.displayErrorMessage(errorMessageDivId,msg);
@@ -315,7 +315,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						this.displayErrorMessage(errorMessageDivId,msg);
 						return false;
 					}
-					else if (value > this.itemData.restrictions[i].value)
+					else if (parseFloat(value) >=parseFloat(this.itemData.restrictions[i].value))
 					{
 						msg=ERROR_MESSAGE_MAXEXCLUSIVE[language] + this.itemData.restrictions[i].value;
 						this.displayErrorMessage(errorMessageDivId,msg);
@@ -331,7 +331,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						this.displayErrorMessage(errorMessageDivId,msg);
 						return false;
 					}
-					else if (value < this.itemData.restrictions[i].value)
+					else if (parseFloat(value) < parseFloat(this.itemData.restrictions[i].value))
 					{
 						msg=ERROR_MESSAGE_MININCLUSIVE[language] + this.itemData.restrictions[i].value;
 						this.displayErrorMessage(errorMessageDivId,msg);
@@ -346,7 +346,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						this.displayErrorMessage(errorMessageDivId,msg);
 						return false;
 					}
-					else if (value >= this.itemData.restrictions[i].value)
+					else if (parseFloat(value) > parseFloat(this.itemData.restrictions[i].value))
 					{
 						msg=ERROR_MESSAGE_MAXINCLUSIVE[language] + this.itemData.restrictions[i].value+".";
 						this.displayErrorMessage(errorMessageDivId,msg);
