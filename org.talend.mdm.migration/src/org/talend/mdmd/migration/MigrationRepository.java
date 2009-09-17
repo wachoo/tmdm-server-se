@@ -93,9 +93,6 @@ public class MigrationRepository{
           name = name.substring(0, name.lastIndexOf("/"));
           if (name.startsWith("file:/"))
               name = name.substring("file:/".length());
-          int serverPos = name.lastIndexOf("server/");
-          String jbossLocation = name.substring(0, serverPos);
-          MDMConfiguration.setJBossServerLocation(jbossLocation);
           JarFileResourceLocator locator = new JarFileResourceLocator(name, list);
           
           Class[] res = locator.loadFile();

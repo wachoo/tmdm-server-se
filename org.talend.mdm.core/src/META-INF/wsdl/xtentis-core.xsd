@@ -1615,13 +1615,26 @@
 	</xsd:simpleType>	
 	<xsd:complexType name="WSGetUniverseByRevision">
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="namepattern" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="revision" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="type" type="tns:WSGetUniverseByRevisionType"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="namepattern" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="revision" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="type" nillable="false" type="tns:WSGetUniverseByRevisionType"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSGetUniverseByRevision" type="tns:WSGetUniverseByRevision"/>
 	
 
 			
+	<xsd:complexType name="WSMDMConfig">
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="serverName" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="serverPort" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="userName" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="password" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="xdbDriver" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="xdbID" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="xdbUrl" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="isupurl" nillable="true" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSMDMConfig" type="tns:WSMDMConfig"/>
 </xsd:schema>

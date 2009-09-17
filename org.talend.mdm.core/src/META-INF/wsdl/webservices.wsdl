@@ -22,9 +22,8 @@
     		xmlns:tns="urn-com-amalto-xtentis-webservice"
 			>
 			
-			<xsd:import  namespace="urn-com-amalto-xtentis-webservice" schemaLocation="xtentis.xsd"/>
-
-		</xsd:schema>
+			<xsd:import namespace="urn-com-amalto-xtentis-webservice" schemaLocation="xtentis.xsd"/>
+    	</xsd:schema>
 	</types>
 
 
@@ -1174,11 +1173,17 @@
 		<part name="wsDroppedItemPK" element="tns:WSDroppedItemPK"/>
 	</message>
 	
-
+	<message name="getMDMConfigurationRequest">
+	</message>
+	<message name="getMDMConfigurationResponse">
+		<part name="wsMDMConfig" element="tns:WSMDMConfig"></part>
+	</message>
+	
 	<!-- *****************************************************
 		              P O R T		
 		              
-		*******************************************************-->	
+		*******************************************************-->
+
 
 	<portType name="XtentisPort">
 
@@ -1892,7 +1897,11 @@
 			<input message="tns:removeDroppedItemRequest"/>
 			<output message="tns:removeDroppedItemResponse"/>
 		</operation>
-		
+
+		<operation name="getMDMConfiguration">
+            <input message="tns:getMDMConfigurationRequest"/>
+			<output message="tns:getMDMConfigurationResponse"></output>
+		</operation>
 	</portType>
 	
 
@@ -2784,6 +2793,11 @@
 			<output><soap:body use="literal"/></output>
 		</operation>
 		<operation name="removeDroppedItem">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getMDMConfiguration">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>

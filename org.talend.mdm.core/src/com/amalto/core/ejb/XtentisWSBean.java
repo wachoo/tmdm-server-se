@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Map.Entry;
@@ -43,6 +44,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.jboss.security.Base64Encoder;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -381,7 +383,30 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		return new WSInt(0);
 	}
 	
-	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSMDMConfig getMDMConfiguration() throws RemoteException {
+    	WSMDMConfig mdmConfig = new WSMDMConfig();
+    	Properties property = MDMConfiguration.getConfiguration();
+    	try {
+			mdmConfig.setServerName(property.getProperty("xmldb.server.name"));
+			mdmConfig.setServerPort(property.getProperty("xmldb.server.port"));
+			mdmConfig.setUserName(property.getProperty("xmldb.administrator.username"));
+			mdmConfig.setPassword(property.getProperty("xmldb.administrator.password"));
+			mdmConfig.setXdbDriver(property.getProperty("xmldb.driver"));
+			mdmConfig.setXdbID(property.getProperty("xmldb.dbid"));
+			mdmConfig.setXdbUrl(property.getProperty("xmldb.dburl"));
+			mdmConfig.setIsupurl(property.getProperty("xmldb.isupurl"));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+        
+		return mdmConfig;
+	}
 	/***************************************************************************
 	 * Data Model
 	 * **************************************************************************/

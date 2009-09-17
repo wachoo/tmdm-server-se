@@ -1240,6 +1240,18 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
+         <method-name>getMDMConfiguration</method-name>
+         <method-params>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
          <method-name>getDataModel</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSGetDataModel</method-param>

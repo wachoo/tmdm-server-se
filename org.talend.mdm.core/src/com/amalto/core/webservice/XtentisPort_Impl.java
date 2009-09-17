@@ -925,4 +925,10 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSDroppedItemPK _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSMDMConfig getMDMConfiguration() throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSMDMConfig _retVal = null;
+        return _retVal;
+    }
 }

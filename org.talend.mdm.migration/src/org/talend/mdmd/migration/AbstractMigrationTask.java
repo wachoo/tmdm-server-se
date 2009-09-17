@@ -46,7 +46,7 @@ public  class AbstractMigrationTask implements  Serializable{
 		return res;
 	}
 	
-	public synchronized void start()
+	public void start()
 	{	
 		if (isDone())
 		{
