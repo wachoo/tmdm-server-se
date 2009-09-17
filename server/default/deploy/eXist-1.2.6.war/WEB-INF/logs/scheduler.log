@@ -1,0 +1,78 @@
+2009-09-16 18:18:03,662 [main] INFO  (SimpleThreadPool.java [initialize]:258) - Job execution threads will use class loader of thread: main 
+2009-09-16 18:18:03,708 [main] INFO  (QuartzScheduler.java [<init>]:209) - Quartz Scheduler v.1.6.0 created. 
+2009-09-16 18:18:03,708 [main] INFO  (RAMJobStore.java [initialize]:141) - RAMJobStore initialized. 
+2009-09-16 18:18:03,708 [main] INFO  (StdSchedulerFactory.java [instantiate]:1208) - Quartz scheduler 'exist_QuartzScheduler' initialized from an externally provided properties instance. 
+2009-09-16 18:18:03,708 [main] INFO  (StdSchedulerFactory.java [instantiate]:1212) - Quartz scheduler version: 1.6.0 
+2009-09-16 18:18:04,677 [main] INFO  (QuartzScheduler.java [start]:455) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED started. 
+2009-09-16 18:26:53,349 [main] INFO  (SimpleThreadPool.java [initialize]:258) - Job execution threads will use class loader of thread: main 
+2009-09-16 18:26:53,396 [main] INFO  (QuartzScheduler.java [<init>]:209) - Quartz Scheduler v.1.6.0 created. 
+2009-09-16 18:26:53,396 [main] INFO  (RAMJobStore.java [initialize]:141) - RAMJobStore initialized. 
+2009-09-16 18:26:53,396 [main] INFO  (StdSchedulerFactory.java [instantiate]:1208) - Quartz scheduler 'exist_QuartzScheduler' initialized from an externally provided properties instance. 
+2009-09-16 18:26:53,396 [main] INFO  (StdSchedulerFactory.java [instantiate]:1212) - Quartz scheduler version: 1.6.0 
+2009-09-16 18:26:54,583 [main] INFO  (QuartzScheduler.java [start]:455) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED started. 
+2009-09-16 18:28:57,271 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:542) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutting down. 
+2009-09-16 18:28:57,271 [Thread-22] INFO  (QuartzScheduler.java [standby]:470) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED paused. 
+2009-09-16 18:28:57,271 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:592) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutdown complete. 
+2009-09-17 10:31:51,750 [main] INFO  (SimpleThreadPool.java [initialize]:258) - Job execution threads will use class loader of thread: main 
+2009-09-17 10:31:51,812 [main] INFO  (QuartzScheduler.java [<init>]:209) - Quartz Scheduler v.1.6.0 created. 
+2009-09-17 10:31:51,812 [main] INFO  (RAMJobStore.java [initialize]:141) - RAMJobStore initialized. 
+2009-09-17 10:31:51,812 [main] INFO  (StdSchedulerFactory.java [instantiate]:1208) - Quartz scheduler 'exist_QuartzScheduler' initialized from an externally provided properties instance. 
+2009-09-17 10:31:51,828 [main] INFO  (StdSchedulerFactory.java [instantiate]:1212) - Quartz scheduler version: 1.6.0 
+2009-09-17 10:31:53,328 [main] INFO  (QuartzScheduler.java [start]:455) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED started. 
+2009-09-17 12:04:57,218 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:542) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutting down. 
+2009-09-17 12:04:57,218 [Thread-22] INFO  (QuartzScheduler.java [standby]:470) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED paused. 
+2009-09-17 12:04:57,234 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:592) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutdown complete. 
+2009-09-17 12:06:03,859 [main] INFO  (SimpleThreadPool.java [initialize]:258) - Job execution threads will use class loader of thread: main 
+2009-09-17 12:06:03,921 [main] INFO  (QuartzScheduler.java [<init>]:209) - Quartz Scheduler v.1.6.0 created. 
+2009-09-17 12:06:03,921 [main] INFO  (RAMJobStore.java [initialize]:141) - RAMJobStore initialized. 
+2009-09-17 12:06:03,921 [main] INFO  (StdSchedulerFactory.java [instantiate]:1208) - Quartz scheduler 'exist_QuartzScheduler' initialized from an externally provided properties instance. 
+2009-09-17 12:06:03,921 [main] INFO  (StdSchedulerFactory.java [instantiate]:1212) - Quartz scheduler version: 1.6.0 
+2009-09-17 12:06:05,359 [main] INFO  (QuartzScheduler.java [start]:455) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED started. 
+2009-09-17 13:04:49,015 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:542) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutting down. 
+2009-09-17 13:04:49,015 [Thread-22] INFO  (QuartzScheduler.java [standby]:470) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED paused. 
+2009-09-17 13:04:49,015 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:592) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutdown complete. 
+2009-09-17 13:05:57,562 [main] INFO  (SimpleThreadPool.java [initialize]:258) - Job execution threads will use class loader of thread: main 
+2009-09-17 13:05:57,609 [main] INFO  (QuartzScheduler.java [<init>]:209) - Quartz Scheduler v.1.6.0 created. 
+2009-09-17 13:05:57,625 [main] INFO  (RAMJobStore.java [initialize]:141) - RAMJobStore initialized. 
+2009-09-17 13:05:57,625 [main] INFO  (StdSchedulerFactory.java [instantiate]:1208) - Quartz scheduler 'exist_QuartzScheduler' initialized from an externally provided properties instance. 
+2009-09-17 13:05:57,625 [main] INFO  (StdSchedulerFactory.java [instantiate]:1212) - Quartz scheduler version: 1.6.0 
+2009-09-17 13:05:59,140 [main] INFO  (QuartzScheduler.java [start]:455) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED started. 
+2009-09-17 13:11:37,250 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:542) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutting down. 
+2009-09-17 13:11:37,250 [Thread-22] INFO  (QuartzScheduler.java [standby]:470) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED paused. 
+2009-09-17 13:11:37,250 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:592) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutdown complete. 
+2009-09-17 13:13:17,890 [main] INFO  (SimpleThreadPool.java [initialize]:258) - Job execution threads will use class loader of thread: main 
+2009-09-17 13:13:17,937 [main] INFO  (QuartzScheduler.java [<init>]:209) - Quartz Scheduler v.1.6.0 created. 
+2009-09-17 13:13:17,937 [main] INFO  (RAMJobStore.java [initialize]:141) - RAMJobStore initialized. 
+2009-09-17 13:13:17,937 [main] INFO  (StdSchedulerFactory.java [instantiate]:1208) - Quartz scheduler 'exist_QuartzScheduler' initialized from an externally provided properties instance. 
+2009-09-17 13:13:17,937 [main] INFO  (StdSchedulerFactory.java [instantiate]:1212) - Quartz scheduler version: 1.6.0 
+2009-09-17 13:13:19,234 [main] INFO  (QuartzScheduler.java [start]:455) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED started. 
+2009-09-17 13:19:35,796 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:542) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutting down. 
+2009-09-17 13:19:35,796 [Thread-22] INFO  (QuartzScheduler.java [standby]:470) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED paused. 
+2009-09-17 13:19:35,796 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:592) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutdown complete. 
+2009-09-17 13:21:17,390 [main] INFO  (SimpleThreadPool.java [initialize]:258) - Job execution threads will use class loader of thread: main 
+2009-09-17 13:21:17,437 [main] INFO  (QuartzScheduler.java [<init>]:209) - Quartz Scheduler v.1.6.0 created. 
+2009-09-17 13:21:17,437 [main] INFO  (RAMJobStore.java [initialize]:141) - RAMJobStore initialized. 
+2009-09-17 13:21:17,437 [main] INFO  (StdSchedulerFactory.java [instantiate]:1208) - Quartz scheduler 'exist_QuartzScheduler' initialized from an externally provided properties instance. 
+2009-09-17 13:21:17,437 [main] INFO  (StdSchedulerFactory.java [instantiate]:1212) - Quartz scheduler version: 1.6.0 
+2009-09-17 13:21:18,890 [main] INFO  (QuartzScheduler.java [start]:455) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED started. 
+2009-09-17 13:22:07,125 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:542) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutting down. 
+2009-09-17 13:22:07,125 [Thread-22] INFO  (QuartzScheduler.java [standby]:470) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED paused. 
+2009-09-17 13:22:07,140 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:592) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutdown complete. 
+2009-09-17 13:23:43,125 [main] INFO  (SimpleThreadPool.java [initialize]:258) - Job execution threads will use class loader of thread: main 
+2009-09-17 13:23:43,234 [main] INFO  (QuartzScheduler.java [<init>]:209) - Quartz Scheduler v.1.6.0 created. 
+2009-09-17 13:23:43,250 [main] INFO  (RAMJobStore.java [initialize]:141) - RAMJobStore initialized. 
+2009-09-17 13:23:43,250 [main] INFO  (StdSchedulerFactory.java [instantiate]:1208) - Quartz scheduler 'exist_QuartzScheduler' initialized from an externally provided properties instance. 
+2009-09-17 13:23:43,250 [main] INFO  (StdSchedulerFactory.java [instantiate]:1212) - Quartz scheduler version: 1.6.0 
+2009-09-17 13:23:44,578 [main] INFO  (QuartzScheduler.java [start]:455) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED started. 
+2009-09-17 13:32:29,093 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:542) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutting down. 
+2009-09-17 13:32:29,093 [Thread-22] INFO  (QuartzScheduler.java [standby]:470) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED paused. 
+2009-09-17 13:32:29,109 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:592) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutdown complete. 
+2009-09-17 14:26:23,640 [main] INFO  (SimpleThreadPool.java [initialize]:258) - Job execution threads will use class loader of thread: main 
+2009-09-17 14:26:23,687 [main] INFO  (QuartzScheduler.java [<init>]:209) - Quartz Scheduler v.1.6.0 created. 
+2009-09-17 14:26:23,687 [main] INFO  (RAMJobStore.java [initialize]:141) - RAMJobStore initialized. 
+2009-09-17 14:26:23,687 [main] INFO  (StdSchedulerFactory.java [instantiate]:1208) - Quartz scheduler 'exist_QuartzScheduler' initialized from an externally provided properties instance. 
+2009-09-17 14:26:23,687 [main] INFO  (StdSchedulerFactory.java [instantiate]:1212) - Quartz scheduler version: 1.6.0 
+2009-09-17 14:26:25,125 [main] INFO  (QuartzScheduler.java [start]:455) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED started. 
+2009-09-17 14:27:57,718 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:542) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutting down. 
+2009-09-17 14:27:57,718 [Thread-22] INFO  (QuartzScheduler.java [standby]:470) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED paused. 
+2009-09-17 14:27:57,734 [Thread-22] INFO  (QuartzScheduler.java [shutdown]:592) - Scheduler exist_QuartzScheduler_$_NON_CLUSTERED shutdown complete. 

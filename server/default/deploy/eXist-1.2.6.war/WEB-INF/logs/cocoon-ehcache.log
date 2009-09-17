@@ -1,0 +1,52 @@
+2009-09-16 18:18:51,505 [http-0.0.0.0-8080-13] DEBUG (MemoryStore.java [get]:204) - cocoon-ehcache-1Cache: MemoryStore miss for PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-16 18:18:51,521 [http-0.0.0.0-8080-13] DEBUG (Cache.java [get]:370) - cocoon-ehcache-1 cache - Miss 
+2009-09-16 18:18:51,630 [http-0.0.0.0-8080-13] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-16 18:24:40,818 [Thread-21] INFO  (Cache.java [run]:292) - VM shutting down with the disk store for cocoon-ehcache-1 still active. The disk store is persistent. Calling dispose... 
+2009-09-16 18:24:40,818 [Thread-21] DEBUG (MemoryStore.java [dispose]:314) - cocoon-ehcache-1 is persistent. Spooling 1 elements to the disk store. 
+2009-09-16 18:24:40,818 [Thread-21] DEBUG (MemoryStore.java [spoolToDisk]:405) - cocoon-ehcache-1Cache: spool to disk done for: PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-16 18:27:39,537 [http-0.0.0.0-8080-11] DEBUG (MemoryStore.java [get]:204) - cocoon-ehcache-1Cache: MemoryStore miss for PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-16 18:27:39,552 [http-0.0.0.0-8080-11] DEBUG (Cache.java [get]:370) - cocoon-ehcache-1 cache - Miss 
+2009-09-16 18:27:39,865 [http-0.0.0.0-8080-11] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-16 18:28:57,271 [Thread-21] INFO  (Cache.java [run]:292) - VM shutting down with the disk store for cocoon-ehcache-1 still active. The disk store is persistent. Calling dispose... 
+2009-09-16 18:28:57,271 [Thread-21] DEBUG (MemoryStore.java [dispose]:314) - cocoon-ehcache-1 is persistent. Spooling 1 elements to the disk store. 
+2009-09-16 18:28:57,271 [Thread-21] DEBUG (MemoryStore.java [spoolToDisk]:405) - cocoon-ehcache-1Cache: spool to disk done for: PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 10:32:51,000 [http-0.0.0.0-8080-5] DEBUG (MemoryStore.java [get]:204) - cocoon-ehcache-1Cache: MemoryStore miss for PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 10:32:51,046 [http-0.0.0.0-8080-5] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 10:32:51,046 [http-0.0.0.0-8080-5] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 12:04:57,218 [Thread-21] INFO  (Cache.java [run]:292) - VM shutting down with the disk store for cocoon-ehcache-1 still active. The disk store is persistent. Calling dispose... 
+2009-09-17 12:04:57,218 [Thread-21] DEBUG (MemoryStore.java [dispose]:314) - cocoon-ehcache-1 is persistent. Spooling 1 elements to the disk store. 
+2009-09-17 12:04:57,218 [Thread-21] DEBUG (MemoryStore.java [spoolToDisk]:405) - cocoon-ehcache-1Cache: spool to disk done for: PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 12:06:55,140 [http-0.0.0.0-8080-6] DEBUG (MemoryStore.java [get]:204) - cocoon-ehcache-1Cache: MemoryStore miss for PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 12:06:55,156 [http-0.0.0.0-8080-6] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 12:06:55,156 [http-0.0.0.0-8080-6] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 13:04:49,015 [Thread-21] INFO  (Cache.java [run]:292) - VM shutting down with the disk store for cocoon-ehcache-1 still active. The disk store is persistent. Calling dispose... 
+2009-09-17 13:04:49,015 [Thread-21] DEBUG (MemoryStore.java [dispose]:314) - cocoon-ehcache-1 is persistent. Spooling 1 elements to the disk store. 
+2009-09-17 13:04:49,015 [Thread-21] DEBUG (MemoryStore.java [spoolToDisk]:405) - cocoon-ehcache-1Cache: spool to disk done for: PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 13:06:50,203 [http-0.0.0.0-8080-22] DEBUG (MemoryStore.java [get]:204) - cocoon-ehcache-1Cache: MemoryStore miss for PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 13:06:50,203 [http-0.0.0.0-8080-22] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 13:06:50,203 [http-0.0.0.0-8080-22] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 13:11:37,250 [Thread-21] INFO  (Cache.java [run]:292) - VM shutting down with the disk store for cocoon-ehcache-1 still active. The disk store is persistent. Calling dispose... 
+2009-09-17 13:11:37,250 [Thread-21] DEBUG (MemoryStore.java [dispose]:314) - cocoon-ehcache-1 is persistent. Spooling 1 elements to the disk store. 
+2009-09-17 13:11:37,250 [Thread-21] DEBUG (MemoryStore.java [spoolToDisk]:405) - cocoon-ehcache-1Cache: spool to disk done for: PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 13:14:14,875 [http-0.0.0.0-8080-21] DEBUG (MemoryStore.java [get]:204) - cocoon-ehcache-1Cache: MemoryStore miss for PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 13:14:14,875 [http-0.0.0.0-8080-21] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 13:14:14,890 [http-0.0.0.0-8080-21] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 13:19:35,781 [Thread-21] INFO  (Cache.java [run]:292) - VM shutting down with the disk store for cocoon-ehcache-1 still active. The disk store is persistent. Calling dispose... 
+2009-09-17 13:19:35,781 [Thread-21] DEBUG (MemoryStore.java [dispose]:314) - cocoon-ehcache-1 is persistent. Spooling 1 elements to the disk store. 
+2009-09-17 13:19:35,781 [Thread-21] DEBUG (MemoryStore.java [spoolToDisk]:405) - cocoon-ehcache-1Cache: spool to disk done for: PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 13:22:07,125 [Thread-21] INFO  (Cache.java [run]:292) - VM shutting down with the disk store for cocoon-ehcache-1 still active. The disk store is persistent. Calling dispose... 
+2009-09-17 13:22:07,125 [Thread-21] DEBUG (MemoryStore.java [dispose]:314) - cocoon-ehcache-1 is persistent. Spooling 0 elements to the disk store. 
+2009-09-17 13:24:29,593 [http-0.0.0.0-8080-22] DEBUG (MemoryStore.java [get]:204) - cocoon-ehcache-1Cache: MemoryStore miss for PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 13:24:29,593 [http-0.0.0.0-8080-22] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 13:24:29,609 [http-0.0.0.0-8080-22] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 13:24:30,234 [http-0.0.0.0-8080-21] DEBUG (MemoryStore.java [get]:201) - cocoon-ehcache-1Cache: MemoryStore hit for PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 13:24:30,234 [http-0.0.0.0-8080-21] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 13:32:29,093 [Thread-21] INFO  (Cache.java [run]:292) - VM shutting down with the disk store for cocoon-ehcache-1 still active. The disk store is persistent. Calling dispose... 
+2009-09-17 13:32:29,093 [Thread-21] DEBUG (MemoryStore.java [dispose]:314) - cocoon-ehcache-1 is persistent. Spooling 1 elements to the disk store. 
+2009-09-17 13:32:29,093 [Thread-21] DEBUG (MemoryStore.java [spoolToDisk]:405) - cocoon-ehcache-1Cache: spool to disk done for: PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 14:27:15,312 [http-0.0.0.0-8080-5] DEBUG (MemoryStore.java [get]:204) - cocoon-ehcache-1Cache: MemoryStore miss for PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 
+2009-09-17 14:27:15,328 [http-0.0.0.0-8080-5] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 14:27:15,328 [http-0.0.0.0-8080-5] DEBUG (Cache.java [isExpired]:906) - cocoon-ehcache-1: Is element with key PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml expired?: false 
+2009-09-17 14:27:57,718 [Thread-21] INFO  (Cache.java [run]:292) - VM shutting down with the disk store for cocoon-ehcache-1 still active. The disk store is persistent. Calling dispose... 
+2009-09-17 14:27:57,718 [Thread-21] DEBUG (MemoryStore.java [dispose]:314) - cocoon-ehcache-1 is persistent. Spooling 1 elements to the disk store. 
+2009-09-17 14:27:57,718 [Thread-21] DEBUG (MemoryStore.java [spoolToDisk]:405) - cocoon-ehcache-1Cache: spool to disk done for: PK_G-file-file:/C:/opt/jboss/server/default/./deploy/eXist-1.2.6.war/index.xml 

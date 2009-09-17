@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+    <bookinfo>
+        <graphic fileref="logo.jpg"/>
+        <productname>Open Source Native XML Database</productname>
+        <title>eXist-db download</title>
+        <author>
+            <firstname>Dannes</firstname>
+            <surname>Wessels</surname>
+            <affiliation>
+                <address format="linespecific">
+                    <email>dizzzz@exist-db.org</email>
+                </address>
+            </affiliation>
+        </author>
+    </bookinfo>
+    <ci:include xmlns:ci="http://apache.org/cocoon/include/1.0" src="sidebar.xml"/>
+
+    <chapter>
+        <title>Download</title>
+        
+        <section id="versions">
+            <title>eXist-db versions</title>
+
+            <para>The current release <emphasis>1.2</emphasis> is a production quality release which has lot's of new
+                features, improved stability and XQuery 1.0 compliancy as indicated by the w3c <ulink
+                    url="http://www.w3.org/XML/Query/test-suite/">XQTS</ulink> results. It has been
+                derived from the <emphasis>1.1</emphasis> branch.</para>
+
+            <para>Release <emphasis>1.3</emphasis> is the <ulink url="http://en.wikipedia.org/wiki/Bleeding_edge"
+                    >bleeding edge</ulink> development release. New features will be added to this
+                release only. This version of eXist-db will require <a href="http://java.sun.com/j2se/1.5.0/">Java5</a> or later.</para>
+
+            <note>
+                <para><emphasis>Even</emphasis> release numbers (1.0.x, 1.2.x) indicate 'production' releases whose
+                    code has been tested for a longer time but are frozen except for important bug
+                    fixes. <emphasis>Odd</emphasis> releases (1.1.x, 1.3.x) are created from the active branch of
+                    development and contain all features and bug fixes.</para>
+            </note>
+
+
+
+        </section>
+        
+        <section id="download">
+            <title>Downloads</title>
+
+            <section>
+                <title>Development Version (1.3)</title>
+                
+                <para>The development version is available from <ulink url="building.xml">SVN trunk</ulink> or you can download a recent
+                    <ulink url="http://www.exist-db.nl/files">snapshot</ulink>. Development of 1.3 is
+                    currently wrapping up and there will soon be a stable release. The 1.3 version
+                    solves a number of major issues, in particular concerning queries on in-memory XML
+                    fragments, leading to a much improved stability for applications using complex XQueries.
+                    New features include: a direct integration of Lucene for full text search, URL rewriting,
+                    keywords-in-context (KWIC) display of search results, ...</para> 
+            </section>
+            
+            <section>
+                <title>Current Release (Codename: <ulink url="http://en.wikipedia.org/wiki/Rennes">Rennes</ulink>)</title>
+                
+                <table cellpadding="5" cellspacing="5">
+                    <caption></caption>
+                    <tr>
+                        <th style="background-color: #C5DAFF" align="left" colspan="2">1.2.6 (Current
+                            release)</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <ulink url="http://prdownloads.sourceforge.net/exist/eXist-setup-1.2.6-rev9165.jar"
+                                >eXist-setup-1.2.6-rev9165.jar</ulink>
+                        </td>
+                        <td> Installer based on IzPack. Includes source. Run with <code>java -jar
+                            eXist-1.2.6-rev9165.jar</code></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <ulink url="http://prdownloads.sourceforge.net/exist/eXist-setup-1.2.5-rev9165.exe"
+                                >eXist-setup-1.2.6-rev9165.exe</ulink>
+                        </td>
+                        <td> Installer based on IzPack. Includes source. Required for MS Vista.</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <ulink url="http://prdownloads.sourceforge.net/exist/eXist-1.2.6-rev9165.war"
+                                >eXist-1.2.6-rev9165.war</ulink>
+                        </td>
+                        <td>Web application archive, ready to be installed into an existing
+                            servlet-engine like Tomcat or Jetty. </td>
+                    </tr>
+                    <tr>
+                        <th style="background-color: #C5DAFF" align="left" colspan="2">eXist as Cocoon
+                            block</th>
+                    </tr>
+                    <tr>
+                        <td align="left" colspan="2"> The standard distribution already ships with
+                            Cocoon. However, this version is a bit older and offers only a subset of the
+                            available Cocoon modules (called "blocks" in Cocoon). If you work a lot with
+                            Cocoon, you might prefer to have eXist integrated into full Cocoon build.
+                            The installer-based distribution contains build scripts to set up eXist as a
+                            block in Cocoon. Please refer to the <ulink url="building.xml">
+                                documentation</ulink>. As a service to Cocoon users, we also provide a
+                            pre-compiled Cocoon 2.1.11 below: </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <ulink
+                                url="http://prdownloads.sourceforge.net/exist/cocoon-2.1.11-with-eXist-1.2.6.war"
+                                > cocoon-2.1.11-with-eXist-1.2.6.war </ulink>
+                        </td>
+                        <td>This is Cocoon version 2.1.11 build with standard options and eXist 1.2 as
+                            a block. You should find eXist in
+                            <code>http://my-server:port/cocoon/samples/blocks/exist/</code>.</td>
+                    </tr>
+                </table>
+            </section>
+            
+        </section>
+
+        <section id="notes">
+            <title>Important Notes</title>
+            <section>
+                <title>Java versions</title>
+                <para>eXist-db versions <emphasis>1.0.x</emphasis>, <emphasis>1.1.x</emphasis> and <emphasis>1.2.x</emphasis> require at least
+                    java <emphasis>1.4.2</emphasis>. Starting with eXist-db version <emphasis>1.3.x</emphasis>, at least
+                    <emphasis>Java5</emphasis> is required. The database has been implemented and tested with the
+                    Java implementation of Sun. Implementations of other vendors will probably work
+                    but has not been tested.</para>
+            </section>
+            <section>
+                <title>Endorsed library</title>
+                <para>eXist-db heavily depends on the Apache <ulink
+                        url="http://xerces.apache.org/xerces2-j/">Xerces2</ulink> parser, Apache <ulink
+                        url="http://xml.apache.org/xalan-j">Xalan</ulink>-Java XSLT processor and the
+                    Apache XML Commons <ulink
+                        url="http://xml.apache.org/commons/components/resolver/index.html"
+                    >Resolver</ulink> libraries. When eXist-db is installed in a servlet container like
+                    tomcat, these jar files must be made available to eXist via the <ulink
+                        url="http://java.sun.com/j2se/1.5.0/docs/guide/standards/index.html">java</ulink>
+                    <ulink url="http://tomcat.apache.org/tomcat-5.5-doc/class-loader-howto.html"
+                        >endorsed</ulink> feature.</para>
+            </section>
+            <section>
+                <title>Tomcat</title>
+                <para>Due to some restrictions of Apache <ulink
+                        url="https://sourceforge.net/tracker/?func=detail&amp;atid=117691&amp;aid=1760998&amp;group_id=17691"
+                        >Tomcat</ulink> the validation functions do not fully work on stored documents
+                    (using the <emphasis>xmldb:exist:///</emphasis>-type URLs - Note the three slashes). </para>
+                <para>By default Apache Tomcat is started with a limited HeapSize. This heapsize must
+                    be increased to have optimal performance and to prevent "Out of Memory"
+                errors.</para>
+            </section>
+        </section>
+    </chapter>
+</book>

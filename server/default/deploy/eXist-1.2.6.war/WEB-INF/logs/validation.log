@@ -1,0 +1,546 @@
+2009-09-16 18:18:03,396 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-16 18:18:03,412 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-16 18:18:03,505 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-16 18:18:03,521 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-16 18:18:04,740 [main] INFO  (XmlLibraryChecker.java [check]:134) - Looking for a valid Parser...
+Checking for Xerces, found version Xerces-J 2.9.1
+OK!
+ 
+2009-09-16 18:18:04,755 [main] INFO  (XmlLibraryChecker.java [check]:143) - Looking for a valid Transformer...
+Checking for Saxon, found version 9.0.0.1
+OK!
+ 
+2009-09-16 18:18:04,755 [main] INFO  (XmlLibraryChecker.java [check]:152) - Looking for a valid Resolver...
+Checking for Resolver, found version XmlResolver 1.2
+OK!
+ 
+2009-09-16 18:18:04,755 [main] INFO  (XmlLibraryChecker.java [check]:159) - Using parser org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser 
+2009-09-16 18:18:04,755 [main] INFO  (XmlLibraryChecker.java [check]:160) - Using transformer org.apache.xalan.transformer.TransformerIdentityImpl 
+2009-09-16 18:18:53,037 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:18:53,037 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:18:53,037 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:18:53,037 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:18:53,068 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:18:53,068 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:18:53,177 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:18:53,177 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:18:53,193 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:18:53,193 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:18:53,240 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:18:53,240 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:24,583 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:20:24,583 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:24,583 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:20:24,583 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:24,583 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:20:24,583 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:24,599 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:20:24,599 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:24,599 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:20:24,599 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:24,599 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:20:24,599 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:46,005 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:20:46,005 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:46,005 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:20:46,005 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:46,005 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:20:46,005 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:46,005 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:20:46,005 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:46,005 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:20:46,005 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:20:46,021 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:20:46,021 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:00,193 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:21:00,193 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:00,193 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:21:00,193 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:00,193 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:21:00,193 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:00,208 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:21:00,208 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:00,208 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:21:00,208 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:00,208 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:21:00,208 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:58,927 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:21:58,927 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:58,927 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:21:58,927 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:58,927 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:21:58,927 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:58,958 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:21:58,958 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:58,958 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:21:58,958 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:21:58,974 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:21:58,974 [http-0.0.0.0-8080-11] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,052 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:22:45,052 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,052 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,052 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,052 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,052 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,052 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:22:45,068 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,068 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,068 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,068 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,068 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,130 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:22:45,130 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,130 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,130 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,130 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,130 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,130 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:22:45,130 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,146 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,146 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,146 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,146 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,224 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:22:45,224 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,224 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,224 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,224 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,224 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,224 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:22:45,224 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,224 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,224 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:45,240 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:45,240 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:46,537 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:22:46,552 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:46,552 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:46,552 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:46,552 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:46,552 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:46,552 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:22:46,552 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:46,552 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:46,552 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:46,568 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:46,568 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:56,833 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:22:56,833 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:56,833 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:56,833 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:56,833 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:56,833 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:56,833 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:22:56,833 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:56,833 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:56,833 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:22:56,849 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:22:56,849 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:23:50,927 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:23:50,927 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:23:50,927 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:23:50,927 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:23:50,943 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:23:50,943 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:23:50,943 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:23:50,943 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:23:50,943 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:23:50,943 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:23:50,943 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:23:50,943 [http-0.0.0.0-8080-14] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:26:52,943 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-16 18:26:52,958 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-16 18:26:53,115 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-16 18:26:53,130 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-16 18:26:54,630 [main] INFO  (XmlLibraryChecker.java [check]:134) - Looking for a valid Parser...
+Checking for Xerces, found version Xerces-J 2.9.1
+OK!
+ 
+2009-09-16 18:26:54,630 [main] INFO  (XmlLibraryChecker.java [check]:143) - Looking for a valid Transformer...
+Checking for Saxon, found version 9.0.0.1
+OK!
+ 
+2009-09-16 18:26:54,646 [main] INFO  (XmlLibraryChecker.java [check]:152) - Looking for a valid Resolver...
+Checking for Resolver, found version XmlResolver 1.2
+OK!
+ 
+2009-09-16 18:26:54,646 [main] INFO  (XmlLibraryChecker.java [check]:159) - Using parser org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser 
+2009-09-16 18:26:54,646 [main] INFO  (XmlLibraryChecker.java [check]:160) - Using transformer org.apache.xalan.transformer.TransformerIdentityImpl 
+2009-09-16 18:27:42,771 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:27:42,771 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:27:42,771 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:27:42,771 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:27:42,787 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:27:42,787 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:27:42,865 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-16 18:27:42,865 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:27:42,865 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:27:42,865 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-16 18:27:42,912 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-16 18:27:42,912 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 10:31:51,375 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 10:31:51,390 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 10:31:51,546 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 10:31:51,546 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 10:31:53,390 [main] INFO  (XmlLibraryChecker.java [check]:134) - Looking for a valid Parser...
+Checking for Xerces, found version Xerces-J 2.9.1
+OK!
+ 
+2009-09-17 10:31:53,390 [main] INFO  (XmlLibraryChecker.java [check]:143) - Looking for a valid Transformer...
+Checking for Saxon, found version 9.0.0.1
+OK!
+ 
+2009-09-17 10:31:53,390 [main] INFO  (XmlLibraryChecker.java [check]:152) - Looking for a valid Resolver...
+Checking for Resolver, found version XmlResolver 1.2
+OK!
+ 
+2009-09-17 10:31:53,406 [main] INFO  (XmlLibraryChecker.java [check]:159) - Using parser org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser 
+2009-09-17 10:31:53,406 [main] INFO  (XmlLibraryChecker.java [check]:160) - Using transformer org.apache.xalan.transformer.TransformerIdentityImpl 
+2009-09-17 10:32:53,640 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 10:32:53,640 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 10:32:53,640 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 10:32:53,640 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 10:32:53,656 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 10:32:53,656 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 10:32:53,843 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 10:32:53,843 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 10:32:53,843 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 10:32:53,843 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 10:32:53,890 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 10:32:53,890 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:06:03,406 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 12:06:03,421 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 12:06:03,593 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 12:06:03,609 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 12:06:05,421 [main] INFO  (XmlLibraryChecker.java [check]:134) - Looking for a valid Parser...
+Checking for Xerces, found version Xerces-J 2.9.1
+OK!
+ 
+2009-09-17 12:06:05,437 [main] INFO  (XmlLibraryChecker.java [check]:143) - Looking for a valid Transformer...
+Checking for Saxon, found version 9.0.0.1
+OK!
+ 
+2009-09-17 12:06:05,437 [main] INFO  (XmlLibraryChecker.java [check]:152) - Looking for a valid Resolver...
+Checking for Resolver, found version XmlResolver 1.2
+OK!
+ 
+2009-09-17 12:06:05,437 [main] INFO  (XmlLibraryChecker.java [check]:159) - Using parser org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser 
+2009-09-17 12:06:05,437 [main] INFO  (XmlLibraryChecker.java [check]:160) - Using transformer org.apache.xalan.transformer.TransformerIdentityImpl 
+2009-09-17 12:06:57,562 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:06:57,578 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:06:57,578 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:06:57,578 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:06:57,593 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:06:57,593 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:06:57,656 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:06:57,656 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:06:57,656 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:06:57,656 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:06:57,703 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:06:57,703 [http-0.0.0.0-8080-6] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:55:29,562 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:55:29,562 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:55:29,562 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:55:29,562 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:55:29,562 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:55:29,562 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:55:29,671 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:55:29,671 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:55:29,671 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:55:29,671 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:55:29,671 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:55:29,671 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,359 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,468 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,468 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,468 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,468 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,468 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,468 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,484 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,484 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,484 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,484 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,484 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,484 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,593 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,593 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,593 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,593 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,593 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,593 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,593 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,593 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,593 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,609 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,609 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,609 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,734 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,734 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,734 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,734 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,734 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,734 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,750 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,750 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,750 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,750 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,750 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,750 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,843 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,953 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,953 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,953 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,953 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,953 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,953 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,968 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:19,968 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:19,968 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:19,968 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,015 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:20,031 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,187 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:20,187 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,187 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:20,187 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,187 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:20,187 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,203 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:20,203 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,203 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:20,203 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,203 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:20,203 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:20,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:20,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:20,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 12:56:20,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:20,343 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 12:56:20,359 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 12:56:20,359 [http-0.0.0.0-8080-4] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:05:57,218 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 13:05:57,234 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 13:05:57,390 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 13:05:57,390 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 13:05:59,203 [main] INFO  (XmlLibraryChecker.java [check]:134) - Looking for a valid Parser...
+Checking for Xerces, found version Xerces-J 2.9.1
+OK!
+ 
+2009-09-17 13:05:59,203 [main] INFO  (XmlLibraryChecker.java [check]:143) - Looking for a valid Transformer...
+Checking for Saxon, found version 9.0.0.1
+OK!
+ 
+2009-09-17 13:05:59,218 [main] INFO  (XmlLibraryChecker.java [check]:152) - Looking for a valid Resolver...
+Checking for Resolver, found version XmlResolver 1.2
+OK!
+ 
+2009-09-17 13:05:59,218 [main] INFO  (XmlLibraryChecker.java [check]:159) - Using parser org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser 
+2009-09-17 13:05:59,218 [main] INFO  (XmlLibraryChecker.java [check]:160) - Using transformer org.apache.xalan.transformer.TransformerIdentityImpl 
+2009-09-17 13:06:52,953 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:06:52,953 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:06:52,953 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:06:52,953 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:06:52,953 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:06:52,953 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:06:53,000 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:06:53,000 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:06:53,000 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:06:53,000 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:06:53,015 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:06:53,015 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:06:53,031 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:06:53,031 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:06:53,031 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:06:53,031 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:06:53,078 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:06:53,078 [http-0.0.0.0-8080-22] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:06:53,093 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:06:53,093 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:06:53,093 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:06:53,093 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:06:53,156 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:06:53,156 [http-0.0.0.0-8080-9] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:02,156 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:09:02,156 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:02,156 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:09:02,156 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:02,156 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:09:02,156 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:02,171 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:09:02,171 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:02,171 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:09:02,171 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:02,171 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:09:02,171 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:25,031 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:09:25,031 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:25,031 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:09:25,031 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:25,046 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:09:25,062 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:25,468 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:09:25,468 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:25,468 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:09:25,468 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:09:25,593 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:09:25,593 [http-0.0.0.0-8080-12] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:13:17,578 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 13:13:17,578 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 13:13:17,734 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 13:13:17,734 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 13:13:19,328 [main] INFO  (XmlLibraryChecker.java [check]:134) - Looking for a valid Parser...
+Checking for Xerces, found version Xerces-J 2.9.1
+OK!
+ 
+2009-09-17 13:13:19,328 [main] INFO  (XmlLibraryChecker.java [check]:143) - Looking for a valid Transformer...
+Checking for Saxon, found version 9.0.0.1
+OK!
+ 
+2009-09-17 13:13:19,328 [main] INFO  (XmlLibraryChecker.java [check]:152) - Looking for a valid Resolver...
+Checking for Resolver, found version XmlResolver 1.2
+OK!
+ 
+2009-09-17 13:13:19,343 [main] INFO  (XmlLibraryChecker.java [check]:159) - Using parser org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser 
+2009-09-17 13:13:19,343 [main] INFO  (XmlLibraryChecker.java [check]:160) - Using transformer org.apache.xalan.transformer.TransformerIdentityImpl 
+2009-09-17 13:14:16,593 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:14:16,593 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:14:16,593 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:14:16,593 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:14:16,609 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:14:16,609 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:14:16,750 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:14:16,750 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:14:16,750 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:14:16,750 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:14:16,796 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:14:16,812 [http-0.0.0.0-8080-3] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:14:43,796 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:14:43,796 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:14:43,796 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:14:43,796 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:14:43,796 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:14:43,796 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:14:43,812 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:14:43,812 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:14:43,812 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:14:43,812 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:14:43,859 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:14:43,859 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:21:17,093 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 13:21:17,093 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 13:21:17,234 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 13:21:17,234 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 13:21:18,953 [main] INFO  (XmlLibraryChecker.java [check]:134) - Looking for a valid Parser...
+Checking for Xerces, found version Xerces-J 2.9.1
+OK!
+ 
+2009-09-17 13:21:18,953 [main] INFO  (XmlLibraryChecker.java [check]:143) - Looking for a valid Transformer...
+Checking for Saxon, found version 9.0.0.1
+OK!
+ 
+2009-09-17 13:21:18,953 [main] INFO  (XmlLibraryChecker.java [check]:152) - Looking for a valid Resolver...
+Checking for Resolver, found version XmlResolver 1.2
+OK!
+ 
+2009-09-17 13:21:18,953 [main] INFO  (XmlLibraryChecker.java [check]:159) - Using parser org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser 
+2009-09-17 13:21:18,953 [main] INFO  (XmlLibraryChecker.java [check]:160) - Using transformer org.apache.xalan.transformer.TransformerIdentityImpl 
+2009-09-17 13:23:42,765 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 13:23:42,781 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 13:23:42,953 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 13:23:42,953 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 13:23:44,625 [main] INFO  (XmlLibraryChecker.java [check]:134) - Looking for a valid Parser...
+Checking for Xerces, found version Xerces-J 2.9.1
+OK!
+ 
+2009-09-17 13:23:44,640 [main] INFO  (XmlLibraryChecker.java [check]:143) - Looking for a valid Transformer...
+Checking for Saxon, found version 9.0.0.1
+OK!
+ 
+2009-09-17 13:23:44,640 [main] INFO  (XmlLibraryChecker.java [check]:152) - Looking for a valid Resolver...
+Checking for Resolver, found version XmlResolver 1.2
+OK!
+ 
+2009-09-17 13:23:44,640 [main] INFO  (XmlLibraryChecker.java [check]:159) - Using parser org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser 
+2009-09-17 13:23:44,640 [main] INFO  (XmlLibraryChecker.java [check]:160) - Using transformer org.apache.xalan.transformer.TransformerIdentityImpl 
+2009-09-17 13:24:32,984 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:24:32,984 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:24:32,984 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:24:32,984 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:24:33,000 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:24:33,000 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:24:33,046 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:24:33,046 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:24:33,046 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:24:33,046 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:24:33,078 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:24:33,078 [http-0.0.0.0-8080-21] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:24:33,109 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:24:33,109 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:24:33,109 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:24:33,109 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:24:33,125 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:24:33,125 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:24:33,187 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 13:24:33,187 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:24:33,187 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:24:33,187 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 13:24:33,218 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 13:24:33,218 [http-0.0.0.0-8080-7] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 14:26:23,328 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 14:26:23,343 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 14:26:23,484 [main] DEBUG (eXistXMLCatalogResolver.java [<init>]:50) - Initializing 
+2009-09-17 14:26:23,500 [main] INFO  (GrammarPool.java [<init>]:51) - Initializing GrammarPool. 
+2009-09-17 14:26:25,218 [main] INFO  (XmlLibraryChecker.java [check]:134) - Looking for a valid Parser...
+Checking for Xerces, found version Xerces-J 2.9.1
+OK!
+ 
+2009-09-17 14:26:25,218 [main] INFO  (XmlLibraryChecker.java [check]:143) - Looking for a valid Transformer...
+Checking for Saxon, found version 9.0.0.1
+OK!
+ 
+2009-09-17 14:26:25,218 [main] INFO  (XmlLibraryChecker.java [check]:152) - Looking for a valid Resolver...
+Checking for Resolver, found version XmlResolver 1.2
+OK!
+ 
+2009-09-17 14:26:25,234 [main] INFO  (XmlLibraryChecker.java [check]:159) - Using parser org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser 
+2009-09-17 14:26:25,234 [main] INFO  (XmlLibraryChecker.java [check]:160) - Using transformer org.apache.xalan.transformer.TransformerIdentityImpl 
+2009-09-17 14:27:18,156 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 14:27:18,156 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 14:27:18,156 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 14:27:18,156 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 14:27:18,156 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 14:27:18,156 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 14:27:18,234 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/2001/XMLSchema). 
+2009-09-17 14:27:18,234 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 14:27:18,234 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 14:27:18,234 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 
+2009-09-17 14:27:18,281 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:76) - Retrieve initial grammarset (http://www.w3.org/TR/REC-xml). 
+2009-09-17 14:27:18,281 [http-0.0.0.0-8080-5] DEBUG (GrammarPool.java [retrieveInitialGrammarSet]:80) - Found 0 grammars. 

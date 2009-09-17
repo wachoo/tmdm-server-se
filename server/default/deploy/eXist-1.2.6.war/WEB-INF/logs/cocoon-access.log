@@ -1,0 +1,26 @@
+INFO    (2009-09-17) 14:26.20:453   [access] (Unknown-URI) Unknown-thread/CocoonServlet: Reloading from: jndi:/localhost/exist/WEB-INF/cocoon.xconf
+INFO    (2009-09-17) 14:27.12:046   [access] (/exist/) http-0.0.0.0-8080-2/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 671 milliseconds.
+INFO    (2009-09-17) 14:27.12:046   [access] (/exist/) http-0.0.0.0-8080-3/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 671 milliseconds.
+INFO    (2009-09-17) 14:27.12:046   [access] (/exist/) http-0.0.0.0-8080-19/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 671 milliseconds.
+INFO    (2009-09-17) 14:27.12:046   [access] (/exist/) http-0.0.0.0-8080-23/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 671 milliseconds.
+INFO    (2009-09-17) 14:27.12:046   [access] (/exist/) http-0.0.0.0-8080-9/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 671 milliseconds.
+INFO    (2009-09-17) 14:27.12:046   [access] (/exist/) http-0.0.0.0-8080-11/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 671 milliseconds.
+INFO    (2009-09-17) 14:27.12:046   [access] (/exist/) http-0.0.0.0-8080-13/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 671 milliseconds.
+INFO    (2009-09-17) 14:27.12:062   [access] (/exist/) http-0.0.0.0-8080-1/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 687 milliseconds.
+INFO    (2009-09-17) 14:27.12:062   [access] (/exist/) http-0.0.0.0-8080-7/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 687 milliseconds.
+INFO    (2009-09-17) 14:27.12:062   [access] (/exist/) http-0.0.0.0-8080-15/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 687 milliseconds.
+INFO    (2009-09-17) 14:27.12:062   [access] (/exist/) http-0.0.0.0-8080-5/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 687 milliseconds.
+INFO    (2009-09-17) 14:27.12:062   [access] (/exist/) http-0.0.0.0-8080-21/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 687 milliseconds.
+INFO    (2009-09-17) 14:27.12:078   [access] (/exist/) http-0.0.0.0-8080-6/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 703 milliseconds.
+INFO    (2009-09-17) 14:27.12:078   [access] (/exist/) http-0.0.0.0-8080-22/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 703 milliseconds.
+INFO    (2009-09-17) 14:27.12:078   [access] (/exist/) http-0.0.0.0-8080-14/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 703 milliseconds.
+INFO    (2009-09-17) 14:27.12:078   [access] (/exist/) http-0.0.0.0-8080-16/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 703 milliseconds.
+INFO    (2009-09-17) 14:27.12:078   [access] (/exist/) http-0.0.0.0-8080-8/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 703 milliseconds.
+INFO    (2009-09-17) 14:27.12:078   [access] (/exist/) http-0.0.0.0-8080-4/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 703 milliseconds.
+INFO    (2009-09-17) 14:27.12:093   [access] (/exist/) http-0.0.0.0-8080-18/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 718 milliseconds.
+INFO    (2009-09-17) 14:27.12:093   [access] (/exist/) http-0.0.0.0-8080-20/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 718 milliseconds.
+INFO    (2009-09-17) 14:27.12:093   [access] (/exist/) http-0.0.0.0-8080-10/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 718 milliseconds.
+INFO    (2009-09-17) 14:27.12:093   [access] (/exist/) http-0.0.0.0-8080-12/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 718 milliseconds.
+INFO    (2009-09-17) 14:27.12:093   [access] (/exist/) http-0.0.0.0-8080-17/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 718 milliseconds.
+INFO    (2009-09-17) 14:27.15:156   [access] (/exist/) http-0.0.0.0-8080-5/CocoonServlet: '' Processed by Apache Cocoon 2.1.7 in 0 milliseconds.
+INFO    (2009-09-17) 14:27.15:484   [access] (/exist/index.xml) http-0.0.0.0-8080-5/CocoonServlet: 'index.xml' Processed by Apache Cocoon 2.1.7 in 313 milliseconds.

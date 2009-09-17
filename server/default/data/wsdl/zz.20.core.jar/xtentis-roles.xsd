@@ -1,0 +1,103 @@
+<xsd:schema 
+	elementFormDefault="unqualified"
+	targetNamespace="urn-com-amalto-xtentis-webservice"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="urn-com-amalto-xtentis-webservice"
+	>
+
+	<xsd:include schemaLocation="xtentis-core.xsd"/>
+	
+	<!-- *****************************************************
+		Role Objects
+		*******************************************************-->
+	
+	<xsd:complexType name="WSRole">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="true" name="specification">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="objectType" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="admin" type="xsd:boolean"/>
+						<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="instance">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="instanceName" type="xsd:string"/>
+									<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="writable" type="xsd:boolean"/>
+									<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="parameter" type="xsd:string"/>
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRole" type = "tns:WSRole"/>		
+	
+	<xsd:complexType name="WSRolePK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRolePK" type="tns:WSRolePK"/>		
+	
+	<xsd:complexType name="WSRolePKArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsRolePK" type="tns:WSRolePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSRolePKArray" type = "tns:WSRolePKArray"/>
+	
+
+	<!-- *****************************************************
+		Role Operations
+		*******************************************************-->
+	
+	<xsd:complexType name="WSGetRole">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRolePK" type="tns:WSRolePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetRole" type="tns:WSGetRole"/>
+	
+	<xsd:complexType name="WSExistsRole">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRolePK" type="tns:WSRolePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExistsRole" type="tns:WSExistsRole"/>
+	
+	<xsd:complexType name="WSPutRole">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRole" type="tns:WSRole"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutRole" type="tns:WSPutRole"/>
+	
+	<xsd:complexType name="WSDeleteRole">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRolePK" type="tns:WSRolePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteRole" type="tns:WSDeleteRole"/>
+	
+	<xsd:complexType name="WSGetRolePKs">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetRolePKs" type="tns:WSGetRolePKs"/>	
+	
+	<xsd:complexType name="WSGetObjectsForRoles">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetObjectsForRoles" type="tns:WSGetObjectsForRoles"/>
+	
+	
+	
+	
+</xsd:schema>

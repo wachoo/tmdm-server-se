@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+  <bookinfo>
+    <graphic fileref="logo.jpg"/>
+
+    <productname>Open Source Native XML Database</productname>
+
+    <title>Documentation</title>
+
+    <author>
+      <firstname>Wolfgang M.</firstname>
+
+      <surname>Meier</surname>
+    </author>
+  </bookinfo>
+
+  <ci:include src="sidebar.xml" xmlns:ci="http://apache.org/cocoon/include/1.0"/>
+
+  <chapter>
+    <title>Documentation</title>
+
+    <section>
+        <title>Recommended Reading</title>
+        
+        <para>If you are new to eXist, we recommend to at least scan through the following 
+            documents to get an overview of the most important features:</para>
+        
+        <itemizedlist>
+            <listitem>
+                <para><ulink url="quickstart.xml">Quick Start</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink url="xquery.xml">XQuery</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink url="devguide_xquery.xml">Writing Web Applications using XQuery</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink url="indexing.xml">Configuring Indexes</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink url="tuning.xml">Performance Tuning</ulink></para>
+            </listitem>
+        </itemizedlist>
+        
+        <para>Also, there are some <ulink url="articles">articles, tutorials and blog posts</ulink>
+            which may provide valuable information.</para>
+    </section>
+      
+      <section>
+      <title>Available Documentation</title>
+
+      <para>We recommend to have a look at the <ulink url="quickstart.xml">Quick Start</ulink>
+        first, then maybe continue to read about <ulink url="xquery.xml">XQuery support</ulink>, in
+        particular eXist-specific extensions and features.</para>
+
+      <table class="documentation">
+        <title/>
+
+        <tgroup cols="2">
+          <tbody>
+            <tr>
+              <td class="doclink"><ulink url="quickstart.xml">Quick Start</ulink>:</td>
+              <td>getting started with eXist.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="ant-tasks.xml">Ant Tasks</ulink>:</td>
+              <td>how to automate tasks with Ant.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="articles">External Articles</ulink>:</td>
+              <td>Links to external articles, tutorials and blog posts.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="atompub.xml">Atom Publishing Protocol</ulink>:</td>
+              <td>how to configure and interact over the Atom Publishing Protocol to treat your
+                collections as Atom feeds.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="backup.xml">Backup and Restore</ulink>:</td>
+              <td>explains how to backup/restore your database contents.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="building.xml">Building eXist</ulink>:</td>
+              <td>compiling and building eXist distributions, using the Subversion repository.</td>
+            </tr>
+
+            <!--tr>
+              <td class="doclink"><ulink url="http://wiki.exist-db.org/space/Change+Log"
+                >Changes</ulink>:</td>
+              <td>detailed list of changes.</td>
+            </tr-->
+
+            <tr>
+              <td class="doclink"><ulink url="cluster.xml">Cluster configuration</ulink>:</td>
+              <td>how to configure cluster environment.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="indexing.xml">Configuring Indexes</ulink>:</td>
+              <td>how to configure specific indexes.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="triggers.xml">Configuring Triggers</ulink>:</td>
+              <td>how to configure triggers.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="deployment.xml">Deployment</ulink>:</td>
+              <td>eXist supports different alternatives for server deployment.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="devguide.xml">Developer's Guide</ulink>:</td>
+              <td>describes the various interfaces: XML:DB API, XML-RPC, REST, SOAP.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="jmx.xml">JMX</ulink></td>
+              <td>Experimental support for Java Management Extensions (JMX)</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="developper.html">Developer's Notes</ulink>:</td>
+              <td>a few notes on how to use the various tools; SVN, eclipse, Ant, PMD, JDepend,
+              ...</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="devguide_indexes.xml">Developer's Guide to Modularized
+                  Indexes</ulink>:</td>
+              <td>describes, through a use case, how modularized indexes work.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="client.xml">Java Admin Client</ulink>:</td>
+              <td>describes command-line usage of the Java client</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="ldap-security.xml">LDAP Security Manager</ulink>:</td>
+              <td>configuring eXist to use LDAP for users and groups.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="security.xml">Security</ulink>:</td>
+              <td>creating/changing users, passwords and resource permissions.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="configuration.xml">Server Configuration</ulink>:</td>
+              <td>configuration options for the server.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="validation.xml">Validation</ulink>:</td>
+              <td>validate xml documents.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="webdav.xml">WebDAV</ulink>:</td>
+              <td>how to setup your favourite webDAV enabled application.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="xacml.xml">XACML</ulink>:</td>
+              <td>xQuery access control.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="xinclude.xml">XInclude</ulink>:</td>
+              <td>xInclude support in eXist.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="xquery.xml">XQuery</ulink>:</td>
+              <td>current status, supported features and extensions.</td>
+            </tr>
+
+            <tr>
+              <td class="doclink"><ulink url="update_ext.xml">XQuery Update Extensions</ulink>:</td>
+              <td>eXist provides a number of extensions to update document fragments from within an
+                XQuery.</td>
+            </tr>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section>
+      <title>Documentation on the Wiki</title>
+
+      <para>Further documentation can be found in the <ulink url="http://atomic.exist-db.org"
+        >Wiki</ulink>. Among other things, have a look at:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>
+              <ulink url="http://atomic.exist-db.org/HowTo/">Various HowTos</ulink>
+          </para>
+        </listitem>
+
+        <!--listitem>
+          <para>
+            <ulink url="http://wiki.exist-db.org/space/FAQs">Some frequently asked questions</ulink>
+          </para>
+        </listitem-->
+
+        <listitem>
+          <para>
+              <ulink url="http://atomic.exist-db.org/articles/XMLPrague2006">XMLPrague 2006 papers and
+                  presentations</ulink>
+          </para>
+        </listitem>
+
+        <!--listitem>
+          <para><ulink url="http://wiki.exist-db.org/space/NewSchemaValidation"> New Schema
+              Validation</ulink>.</para>
+        </listitem-->
+      </itemizedlist>
+    </section>
+
+  </chapter>
+</book>
