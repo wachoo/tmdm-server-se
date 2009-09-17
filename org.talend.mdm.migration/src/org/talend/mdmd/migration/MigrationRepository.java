@@ -10,11 +10,14 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 
 public class MigrationRepository{
@@ -72,6 +75,10 @@ public class MigrationRepository{
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(
 					ex.getMessage());
 		}
+		
+		//clear the cache objects
+		ItemPOJO.clearCache();
+		ObjectPOJO.clearCache();
   }
   
   public Class[] getDirectoryEntries(List<String> list)
@@ -86,6 +93,9 @@ public class MigrationRepository{
           name = name.substring(0, name.lastIndexOf("/"));
           if (name.startsWith("file:/"))
               name = name.substring("file:/".length());
+          int serverPos = name.lastIndexOf("server/");
+          String jbossLocation = name.substring(0, serverPos);
+          MDMConfiguration.setJBossServerLocation(jbossLocation);
           JarFileResourceLocator locator = new JarFileResourceLocator(name, list);
           
           Class[] res = locator.loadFile();
@@ -124,7 +134,7 @@ public class MigrationRepository{
   		super("XDBReceiver");
           // Allow application to terminate while this thread is still
           // executing
-  		setDaemon(false);
+  		setDaemon(true);
           _closed = false;
   	}
   	
