@@ -29,6 +29,7 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdmd.migration.MigrationRepository;
 import org.w3c.dom.Element;
 import org.xmldb.api.DatabaseManager;
 import org.xmldb.api.base.Database;
@@ -1573,7 +1574,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	public void doCreate() throws XmlServerException {
 		org.apache.log4j.Logger.getLogger(this.getClass()).trace("doCreate() ");
 		//registerDBManager();
-		
+		MigrationRepository.getInstance().connect(this);
 	}
 
 
