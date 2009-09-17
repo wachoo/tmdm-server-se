@@ -134,7 +134,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						' <input class="inputTree'+readOnlyStyle+'" '+readOnly+' ' +
 						//TODO'onFocus="amalto.itemsbrowser.ItemsBrowser.setlastUpdatedInputFlagPublic(\''+itemData.nodeId+'\','+treeIndex+');" ' +
 						'onchange="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');" size="72" type="'+ type+ '"  ' +
-						'id="'+itemData.nodeId+'Value" value="'+value+'"/>';
+						'id="'+itemData.nodeId+'Value" value="'+value+'"'+'/>';
 			}
 			//text area
 			else {
@@ -165,6 +165,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			  html[html.length] = input +'</div>';
 			}
 			
+			html[html.length] = '<span id="'+itemData.nodeId+'ValidateBadge" style="cursor:pointer;padding-left:4px;display:none"><img src="img/genericUI/validateBadge.gif"/></span>' ;
 			html[html.length] = '<span id="'+itemData.nodeId+'OpenDetails" style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >';
 			html[html.length] = '<img src="img/genericUI/open-detail2.gif"/></span>' ;
 			html[html.length] = 		cloneNodeImg+' '+removeNodeImg+' '+foreignKeyImg ;
@@ -274,20 +275,20 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			'en' : ' is not a valid value for double ',
 			'fr' : ' is not a valid value for double '
 		}
-		var errorMessageDivId = this.itemData.nodeId+"ErrorMessage";
-		if($(errorMessageDivId))$(errorMessageDivId).style.display = "none";
+		
+		this.resetErrorMessage(this.itemData.nodeId);
 		if(this.itemData.restrictions!=null){	
 			for(var i=0;i<this.itemData.restrictions.length;i++){
 				if(this.itemData.restrictions[i].name=="minLength" 
 				&& value.length<parseInt(this.itemData.restrictions[i].value)){				
 					var msg="\""+this.itemData.name+"\" doit comporter au minimum "+this.itemData.restrictions[i].value+" caractères.";
-					this.displayErrorMessage(errorMessageDivId,msg);
+					this.displayErrorMessage(this.itemData.nodeId,msg);
 					return false;
 				}
 				if(this.itemData.restrictions[i].name=="maxLength" 
 				&& value.length>parseInt(this.itemData.restrictions[i].value)){
 					var msg="\""+this.itemData.name+"\" n'accepte que "+this.itemData.restrictions[i].value+" caractères maximum.";
-					this.displayErrorMessage(errorMessageDivId,msg);
+					this.displayErrorMessage(this.itemData.nodeId,msg);
 					return false;
 				}
 				if(this.itemData.restrictions[i].name=="minExclusive" )
@@ -296,13 +297,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					if (isNaN(value))
 					{
 						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-						this.displayErrorMessage(errorMessageDivId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 					else if (parseFloat(value)<=parseFloat(this.itemData.restrictions[i].value))
 					{
 					    msg=ERROR_MESSAGE_MINEXCLUSIVE[language] + this.itemData.restrictions[i].value;
-					    this.displayErrorMessage(errorMessageDivId,msg);
+					    this.displayErrorMessage(this.itemData.nodeId,msg);
 					    return false;
 					}
 				}
@@ -312,13 +313,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					if (isNaN(value))
 					{
 						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-						this.displayErrorMessage(errorMessageDivId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 					else if (parseFloat(value) >=parseFloat(this.itemData.restrictions[i].value))
 					{
 						msg=ERROR_MESSAGE_MAXEXCLUSIVE[language] + this.itemData.restrictions[i].value;
-						this.displayErrorMessage(errorMessageDivId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 
@@ -328,13 +329,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					if (isNaN(value))
 					{
 						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-						this.displayErrorMessage(errorMessageDivId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 					else if (parseFloat(value) < parseFloat(this.itemData.restrictions[i].value))
 					{
 						msg=ERROR_MESSAGE_MININCLUSIVE[language] + this.itemData.restrictions[i].value;
-						this.displayErrorMessage(errorMessageDivId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 				}
@@ -343,13 +344,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					if (isNaN(value))
 					{
 						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-						this.displayErrorMessage(errorMessageDivId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 					else if (parseFloat(value) > parseFloat(this.itemData.restrictions[i].value))
 					{
 						msg=ERROR_MESSAGE_MAXINCLUSIVE[language] + this.itemData.restrictions[i].value+".";
-						this.displayErrorMessage(errorMessageDivId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 
@@ -357,14 +358,14 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				if (this.itemData.readOnly==false && this.itemData.minOccurs>=1 && (value == null || value == ""))
 				{
 					msg=ERROR_MESSAGE_MINOCCURS[language];
-					this.displayErrorMessage(errorMessageDivId,msg);
+					this.displayErrorMessage(this.itemData.nodeId,msg);
 					return false;
 				}
 				if(this.itemData.restrictions[i].name=="pattern"){
 					var patrn=new RegExp(this.itemData.restrictions[i].value);
 					if(!patrn.exec(value)){
 						var msg="\""+this.itemData.name+"\" de pattern est \""+this.itemData.restrictions[i].value+"\".";
-						this.displayErrorMessage(errorMessageDivId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 				}
@@ -376,9 +377,32 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		return true;
 	},
 	
-	displayErrorMessage: function(errorMessageDivId,msg){
-		$(errorMessageDivId).style.display = "block";
-		$(errorMessageDivId).innerHTML='<font color="red">'+msg+'</font>';
+	resetErrorMessage: function(nodeId){
+		//var errorMessageDivId =nodeId+"ErrorMessage";
+        //if($(errorMessageDivId))$(errorMessageDivId).style.display = "none";
+		$(nodeId+"Value").style.border = "";
+		$(nodeId+"Value").style.background = "";
+		$(nodeId+"ValidateBadge").style.display = "none";
+	},
+	
+	displayErrorMessage: function(nodeId,msg){
+        //var errorMessageDivId = nodeId+"ErrorMessage";
+        //$(errorMessageDivId).style.display = "block";
+        //$(errorMessageDivId).innerHTML='<font color="red">'+msg+'</font>';
+		$(nodeId+"Value").style.border = "1pt solid red";
+		$(nodeId+"Value").style.background = "#FFF2EC";
+		
+		$(nodeId+"ValidateBadge").style.display = "inline";
+		//new Ext.ToolTip({  
+		//target: nodeId+"ValidateBadge",  
+		//bodyStyle: 'background-color:#FFF2EC',
+		//html: msg,
+		//title:'Error',
+		//autoHide: false,  
+		//closable: false
+		//});
+		$(nodeId+"ValidateBadge").qtip=msg;
+		$(nodeId+"ValidateBadge").qclass='x-form-invalid-tip';
 	},
 	
 	updateNodeId: function(nodeId){
