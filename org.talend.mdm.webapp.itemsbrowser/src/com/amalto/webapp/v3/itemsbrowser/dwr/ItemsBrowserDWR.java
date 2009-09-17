@@ -1155,8 +1155,7 @@ public class ItemsBrowserDWR {
 				String keys = "";
 				for (int j = xpathInfos.length; j<list.getLength(); j++) {
 					Node textNode = list.item(j).getFirstChild();
-					//keys += "["+(textNode == null ? "" : textNode.getNodeValue())+"]";
-					keys +=(textNode == null ? "" : textNode.getNodeValue());
+					keys += "["+(textNode == null ? "" : textNode.getNodeValue())+"]";
 				}
 				
 				//recover xPathInfos
@@ -1174,7 +1173,7 @@ public class ItemsBrowserDWR {
     				}
 				}
 				
-				if(keys.equals("[]")&&(infos.equals("")||infos.equals("[]"))){
+				if((keys.equals("[]")||keys.equals(""))&&(infos.equals("")||infos.equals("[]"))){
 					//empty row
 				}else{
 					JSONObject row = new JSONObject();
