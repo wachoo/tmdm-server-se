@@ -13,9 +13,9 @@ public class TiscallRenameToCallJobTask extends AbstractMigrationTask {
 	
 	@Override
 	protected Boolean execute() {
-		String xquery = "update replace //transformer-v2-pOJO//plugin-jNDI[text()='amalto/local/transformer/plugin/tisCall'] with <plugin-jNDI>amalto/local/transformer/plugin/callJob</plugin-jNDI>";
+		String xquery = "update replace /transformer-v2-pOJO//plugin-jNDI[text()='amalto/local/transformer/plugin/tisCall'] with <plugin-jNDI>amalto/local/transformer/plugin/callJob</plugin-jNDI>";
 		try {
-			Util.getXmlServerCtrlLocal().runQuery(null, "TransformerV2", xquery, null);
+			Util.getXmlServerCtrlLocal().runQuery(null, "", xquery, null);
 		} catch (XtentisException e) {
 			// TODO Auto-generated catch block
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(
