@@ -1817,10 +1817,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				combo.focus(true, 100);
 				combo.reset();
 				if(count<500) {
+					
+					combo.setRawValue(".*");
 					combo.doQuery(".*",true);
 					combo.focus();
 		            combo.expand();
-//						combo.setRawValue("");
+
 				}
 			});
 
