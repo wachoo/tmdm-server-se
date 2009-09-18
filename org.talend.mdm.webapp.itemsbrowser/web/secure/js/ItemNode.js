@@ -165,7 +165,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			  html[html.length] = input +'</div>';
 			}
 			
-			html[html.length] = '<span id="'+itemData.nodeId+'ValidateBadge" style="cursor:pointer;padding-left:4px;display:none"><img src="img/genericUI/validateBadge.gif"/></span>' ;
+			html[html.length] = '<span id="'+itemData.nodeId+'ValidateBadge" style="background-image:url(img/genericUI/validateBadge.gif);background-repeat:no-repeat;background-position:bottom;width:16px;height:16px;padding-left:4px;display:none"></span>' ;
 			html[html.length] = '<span id="'+itemData.nodeId+'OpenDetails" style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >';
 			html[html.length] = '<img src="img/genericUI/open-detail2.gif"/></span>' ;
 			html[html.length] = 		cloneNodeImg+' '+removeNodeImg+' '+foreignKeyImg ;
@@ -392,7 +392,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		$(nodeId+"Value").style.border = "1pt solid red";
 		$(nodeId+"Value").style.background = "#FFF2EC";
 		
-		$(nodeId+"ValidateBadge").style.display = "inline";
+		$(nodeId+"ValidateBadge").style.display = "inline-block";
 		//new Ext.ToolTip({  
 		//target: nodeId+"ValidateBadge",  
 		//bodyStyle: 'background-color:#FFF2EC',
