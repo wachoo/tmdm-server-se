@@ -87,8 +87,15 @@ public class ItemsRemotePaging  extends HttpServlet{
 		}*/
 		String start = request.getParameter("start");
 		String limit = request.getParameter("limit");
-		String sortCol= (request.getParameter("sort")!=null?request.getParameter("sort"):"0");
-		String sortDir= (request.getParameter("dir")!=null?request.getParameter("dir"):"ASC");
+		//String sortCol= (request.getParameter("sort")!=null?request.getParameter("sort"):"0");
+		//String sortDir= (request.getParameter("dir")!=null?request.getParameter("dir"):"ASC");
+		String sortCol= null;
+		if(request.getParameter("sort")!=null&&request.getParameter("sort").length()>0&&viewFieldValidate(request.getParameter("viewName"),request.getParameter("sort")))sortCol=request.getParameter("sort");
+		String sortDir= null;
+		if(sortCol!=null&&request.getParameter("dir")!=null&&request.getParameter("dir").length()>0){
+			if(request.getParameter("dir").toUpperCase().equals("ASC"))sortDir="ascending";
+			if(request.getParameter("dir").toUpperCase().equals("DESC"))sortDir="descending";
+		}
 		
 		String viewName= request.getParameter("viewName");				
 		String criteria = request.getParameter("criteria");
@@ -99,8 +106,8 @@ public class ItemsRemotePaging  extends HttpServlet{
 				"limit : "+limit+"\n"+
 				"criteria : "+criteria+"\n"+
 				"viewName : "+viewName+"\n"+
-				"sortCol : "+sortCol+"\n"+
-				"sortDir : "+sortDir);
+				"sortCol : "+(sortCol==null?"":sortCol)+"\n"+
+				"sortDir : "+(sortDir==null?"":sortDir));
 		
 		JSONObject json = new JSONObject();
 		String[] results;
@@ -162,8 +169,8 @@ public class ItemsRemotePaging  extends HttpServlet{
 								-1,
 								skip,
 								max,
-								null,
-								null
+								sortCol,
+								sortDir
 						)
 					).getStrings();
 			} else {
@@ -177,8 +184,8 @@ public class ItemsRemotePaging  extends HttpServlet{
 							-1,
 							skip,
 							max,
-							null,
-							null
+							sortCol,
+							sortDir
 					)
 				).getStrings();
 				org.apache.log4j.Logger.getLogger(this.getClass()).trace("doPost() end of search");
@@ -223,55 +230,55 @@ public class ItemsRemotePaging  extends HttpServlet{
 					"doPost() Total result = "+totalCount);
 
 			//sort arraylist
-			int tmp = 0;
-			for (int i = 0; i < view.getViewables().length; i++) {
-				org.apache.log4j.Logger.getLogger(this.getClass())
-				.debug("doPost() sortCol "+sortCol+" "+view.getViewables()[i]+" "+i);
-				if(sortCol.equals("/"+view.getViewables()[i])){
-					tmp = i;
-					break;
-				}
-
-			}
-
-			final int column = tmp;
-			final String direction = sortDir;
-			Comparator sort;
-			if(direction.equals("ASC")){
-				sort = new Comparator() {
-					  public int compare(Object o1, Object o2) {
-						  try{
-							  Double test= ( Double.parseDouble(((String[]) o1)[column])-
-									  			Double.parseDouble(((String[]) o2)[column]));
-							  return test.intValue();
-						  }
-						  catch(Exception e){}
-						  try{
-							  return (((String[]) o1)[column]).compareTo(((String[]) o2)[column]);
-						  }						  
-						  catch(Exception e){return 0;}
-					  }
-					};
-			}
-			else{
-				sort = new Comparator() {
-					  public int compare(Object o1, Object o2) {
-						try{
-							Double test= ( Double.parseDouble(((String[]) o2)[column])-
-						  			Double.parseDouble(((String[]) o1)[column]));
-							return test.intValue();
-						}
-						catch(Exception e){}
-						try{
-							return (((String[]) o2)[column]).compareTo(((String[]) o1)[column]);
-						}
-						
-						catch(Exception e){return 0;}
-					  }
-					};			
-			}
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-					"doPost() sorting the result...");
+//			int tmp = 0;
+//			for (int i = 0; i < view.getViewables().length; i++) {
+//				org.apache.log4j.Logger.getLogger(this.getClass())
+//				.debug("doPost() sortCol "+sortCol+" "+view.getViewables()[i]+" "+i);
+//				if(sortCol.equals("/"+view.getViewables()[i])){
+//					tmp = i;
+//					break;
+//				}
+//
+//			}
+//
+//			final int column = tmp;
+//			final String direction = sortDir;
+//			Comparator sort;
+//			if(direction.equals("ASC")){
+//				sort = new Comparator() {
+//					  public int compare(Object o1, Object o2) {
+//						  try{
+//							  Double test= ( Double.parseDouble(((String[]) o1)[column])-
+//									  			Double.parseDouble(((String[]) o2)[column]));
+//							  return test.intValue();
+//						  }
+//						  catch(Exception e){}
+//						  try{
+//							  return (((String[]) o1)[column]).compareTo(((String[]) o2)[column]);
+//						  }						  
+//						  catch(Exception e){return 0;}
+//					  }
+//					};
+//			}
+//			else{
+//				sort = new Comparator() {
+//					  public int compare(Object o1, Object o2) {
+//						try{
+//							Double test= ( Double.parseDouble(((String[]) o2)[column])-
+//						  			Double.parseDouble(((String[]) o1)[column]));
+//							return test.intValue();
+//						}
+//						catch(Exception e){}
+//						try{
+//							return (((String[]) o2)[column]).compareTo(((String[]) o1)[column]);
+//						}
+//						
+//						catch(Exception e){return 0;}
+//					  }
+//					};			
+//			}
+//			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+//					"doPost() sorting the result...");
 			//Collections.sort(itemsBrowserContent, sort);
 					
 			
@@ -310,7 +317,18 @@ public class ItemsRemotePaging  extends HttpServlet{
         
 	}
 	
-	
+	private boolean viewFieldValidate(String viewName,String fieldPath) {
+		
+		if(viewName!=null&&viewName.length()>0&&fieldPath!=null&&fieldPath.length()>0){
+			if(viewName.matches("Browse_items_.*")){
+				String concept = viewName.replaceAll("Browse_items_","").replaceAll("#.*","");
+				if(fieldPath.startsWith(concept)||fieldPath.startsWith("/"+concept)||fieldPath.startsWith("//"+concept))return true;
+			}
+		}
+		
+		return false;
+
+	}
 	
 //	private ArrayList<String[]> getItemsBrowserContent(View view, String[] results) throws Exception{
 //		ArrayList<String[]> itemsBrowserContent = new ArrayList<String[]>();
@@ -359,4 +377,5 @@ public class ItemsRemotePaging  extends HttpServlet{
 			res = WSWhereOperator.STRICTCONTAINS;
 		return res;											
 	}
+
 }
