@@ -843,9 +843,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	    	
 	    	//build order by
 	    	if (orderBy == null) {
-	    		orderBy = "";
+	    		xqOrderBy = "";
 	    	} else {
-	    		orderBy = "order by "
+	    		xqOrderBy = "order by "
 	    					+getPathFromPivots(orderBy, pivotsMap)
 	    					+(direction == null ? "" : " "+direction);
 	    	}
