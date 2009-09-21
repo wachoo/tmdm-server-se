@@ -14,7 +14,7 @@ import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 
 public  class AbstractMigrationTask implements  Serializable{
-    private Map<String, Boolean> handlerMap = new HashMap<String, Boolean>();
+    private Map<String, Boolean> handlerMap = null;
     private static final String CLUSTER_MIGRATION = "MIGRATION";
     private static final String UNIQUE_MIGRATION = "MIGRATION";
     
@@ -33,10 +33,12 @@ public  class AbstractMigrationTask implements  Serializable{
 	protected  boolean isDone(){
 		Boolean res = false;
 		try {
-			String content = Util.getXmlServerCtrlLocal().getDocumentAsString(null, CLUSTER_MIGRATION, UNIQUE_MIGRATION);
-			if (content == null) return false;
-			AbstractMigrationTask cpy = unmarshal(content);
-			handlerMap = cpy.getHandlerMap();
+			if(handlerMap==null){
+				String content = Util.getXmlServerCtrlLocal().getDocumentAsString(null, CLUSTER_MIGRATION, UNIQUE_MIGRATION);
+				if (content == null) return false;
+				AbstractMigrationTask cpy = unmarshal(content);
+				handlerMap = cpy.getHandlerMap();
+			}
 			res = handlerMap.get(this.getClass().getName());
 			if (res == null) return false;
 		} catch (Exception e) {

@@ -10,7 +10,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -25,7 +24,7 @@ public class MigrationRepository{
   private XDBReceiver _receiver;
   
   private static String MIGRATION_FILE_NAME = "migration.xml";
-  private static final int CONNECT_WAIT_TIME = 5 * 1000;
+  private static final int CONNECT_WAIT_TIME = 2 * 1000;
   
   private static MigrationRepository repository = null;
   
