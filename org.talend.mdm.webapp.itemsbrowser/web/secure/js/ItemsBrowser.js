@@ -1454,12 +1454,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 var reCat = /\[Error\].*\n/gi;
                 var innerHml ="";
              	var arrMactches = errorString.match(reCat);
-             	for (var i=0; i < arrMactches.length ; i++)
-				{
-				  innerHml +=arrMactches[i];
-				  if (i < arrMactches.length-1)
-				   innerHml += '<br/>';
-				}
+             	if (arrMactches != null)
+	             	for (var i=0; i < arrMactches.length ; i++)
+					{
+					  innerHml +=arrMactches[i];
+					  if (i < arrMactches.length-1)
+					   innerHml += '<br/>';
+					}
+				else
+				 innerHml += errorString +'<br/>'
 				$('errorDetail').style.display = "block";
 				$('errorDetail').innerHTML = innerHml;
             }

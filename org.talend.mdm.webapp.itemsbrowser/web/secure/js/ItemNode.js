@@ -247,28 +247,28 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		}
 
 		var ERROR_MESSAGE_MINEXCLUSIVE = {
-			'en' : 'The value should be greater than ',
-			'fr' : 'The value should be greater than '
+			'en' : 'should be greater than ',
+			'fr' : 'should be greater than '
 		}
 
 		var ERROR_MESSAGE_MAXEXCLUSIVE = {
-			'en' : 'The value should be less than or equal to',
-			'fr' : 'The value should be less than or equal to'
+			'en' : 'should be less than or equal to',
+			'fr' : 'should be less than or equal to'
 		}
 
 		var ERROR_MESSAGE_MININCLUSIVE = {
-			'en' : 'The value should be greater than or equal to ',
-			'fr' : 'The value should be greater than or equal to '
+			'en' : 'should be greater than or equal to ',
+			'fr' : 'should be greater than or equal to '
 		}
 
 		var ERROR_MESSAGE_MAXINCLUSIVE = {
-			'en' : 'The value should be less than ',
-			'fr' : 'The value should be less than '
+			'en' : 'should be less than ',
+			'fr' : 'should be less than '
 		}
         
 		var ERROR_MESSAGE_MINOCCURS ={
-			'en' : 'The field is required!',
-			'fr' : 'The field is required!'
+			'en' : ' is required!',
+			'fr' : ' is required!'
 		}
 		
 		var ERROR_MESSAGE_VALIDATEDOUBLE = {
@@ -296,13 +296,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					var msg;
 					if (isNaN(value))
 					{
-						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						msg = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
 						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 					else if (parseFloat(value)<=parseFloat(this.itemData.restrictions[i].value))
 					{
-					    msg=ERROR_MESSAGE_MINEXCLUSIVE[language] + this.itemData.restrictions[i].value;
+					    msg=this.itemData.name + " " + ERROR_MESSAGE_MINEXCLUSIVE[language] + this.itemData.restrictions[i].value;
 					    this.displayErrorMessage(this.itemData.nodeId,msg);
 					    return false;
 					}
@@ -312,13 +312,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					var msg;
 					if (isNaN(value))
 					{
-						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						msg = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
 						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 					else if (parseFloat(value) >=parseFloat(this.itemData.restrictions[i].value))
 					{
-						msg=ERROR_MESSAGE_MAXEXCLUSIVE[language] + this.itemData.restrictions[i].value;
+						msg=this.itemData.name + " " + ERROR_MESSAGE_MAXEXCLUSIVE[language] + this.itemData.restrictions[i].value;
 						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
@@ -328,13 +328,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					var msg;
 					if (isNaN(value))
 					{
-						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						msg = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
 						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 					else if (parseFloat(value) < parseFloat(this.itemData.restrictions[i].value))
 					{
-						msg=ERROR_MESSAGE_MININCLUSIVE[language] + this.itemData.restrictions[i].value;
+						msg=this.itemData.name + " " + ERROR_MESSAGE_MININCLUSIVE[language] + this.itemData.restrictions[i].value;
 						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
@@ -343,13 +343,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					var msg;
 					if (isNaN(value))
 					{
-						msg = "\"" + value + "\"" + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						msg = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
 						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
 					else if (parseFloat(value) > parseFloat(this.itemData.restrictions[i].value))
 					{
-						msg=ERROR_MESSAGE_MAXINCLUSIVE[language] + this.itemData.restrictions[i].value+".";
+						msg=this.itemData.name + " " + ERROR_MESSAGE_MAXINCLUSIVE[language] + this.itemData.restrictions[i].value+".";
 						this.displayErrorMessage(this.itemData.nodeId,msg);
 						return false;
 					}
@@ -357,7 +357,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				}
 				if (this.itemData.readOnly==false && this.itemData.minOccurs>=1 && (value == null || value == ""))
 				{
-					msg=ERROR_MESSAGE_MINOCCURS[language];
+					msg=this.itemData.name + ERROR_MESSAGE_MINOCCURS[language];
 					this.displayErrorMessage(this.itemData.nodeId,msg);
 					return false;
 				}
