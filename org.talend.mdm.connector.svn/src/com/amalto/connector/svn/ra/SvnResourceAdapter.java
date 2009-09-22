@@ -35,7 +35,7 @@ public class SvnResourceAdapter extends AbstractXtentisResourceAdapter {
 			throws XtentisConnectorException {
 			HashMap<Serializable,Serializable> config = new HashMap<Serializable,Serializable>();
 			config.put("url",client.getUrl());
-			config.put("user",client.getUser());
+			config.put("username",client.getUser());
 			config.put("password",client.getPassword());
 		return config;
 	}
@@ -98,7 +98,7 @@ public class SvnResourceAdapter extends AbstractXtentisResourceAdapter {
 	public HashMap<Serializable, Serializable> startNow(HashMap<Serializable, Serializable> newConf) throws XtentisConnectorException {
 		org.apache.log4j.Logger.getLogger(this.getClass()).debug("startNow() ");
 		String url = (String)newConf.get("url");
-		String user = (String)newConf.get("user");
+		String user = (String)newConf.get("username");
 		String password = (String)newConf.get("password");
 		
 		client = new SvnClient(url, user, password);
