@@ -195,33 +195,33 @@ public class ItemsRemotePaging  extends HttpServlet{
 
 			for (int i = 0; i < results.length; i++) {
 				//aiming modify
-				results[i] = results[i].replaceAll("<result>","<"+ concept+">");
-				results[i] = results[i].replaceAll("</result>","</"+ concept+">");
-				//add concept root in case results[i] don't contains concept root
-				if(results[i].indexOf("<"+ concept+">") ==-1){
-					results[i]="<"+ concept+">"+results[i]+"</"+ concept+">";
-				}
-				Element root = Util.parse(results[i]).getDocumentElement();
-				HashMap<String, String> vMap=com.amalto.core.util.Util.getElementValueMap("/"+concept, root);
-				String[] fields = new String[view.getViewables().length];
-				for(int j=0; j<view.getViewables().length; j++){
-					fields[j]=vMap.get("/"+view.getViewables()[j]);
-				}
-//				results[i] = results[i].replaceAll("<result>","");
-//				results[i] = results[i].replaceAll("</result>","");	
-////					results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
-////					results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
-//				results[i] =openingTags.matcher(results[i]).replaceAll("");
-//				results[i] =closingTags.matcher(results[i]).replaceAll("#");	
-//				results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
-//				String[] elements = results[i].split("#");
+//				results[i] = results[i].replaceAll("<result>","<"+ concept+">");
+//				results[i] = results[i].replaceAll("</result>","</"+ concept+">");
+//				//add concept root in case results[i] don't contains concept root
+//				if(results[i].indexOf("<"+ concept+">") ==-1){
+//					results[i]="<"+ concept+">"+results[i]+"</"+ concept+">";
+//				}
+//				Element root = Util.parse(results[i]).getDocumentElement();
+//				HashMap<String, String> vMap=com.amalto.core.util.Util.getElementValueMap("/"+concept, root);
 //				String[] fields = new String[view.getViewables().length];
-//				//aiming modify
-//				int count=Math.min(elements.length, fields.length);
-//				for (int j = 0; j < count; j++) {
-//					if(elements[j]!=null)
-//					fields[j]=StringEscapeUtils.unescapeXml(elements[j]);
-//				}				
+//				for(int j=0; j<view.getViewables().length; j++){
+//					fields[j]=vMap.get("/"+view.getViewables()[j]);
+//				}
+				results[i] = results[i].replaceAll("<result>","");
+				results[i] = results[i].replaceAll("</result>","");	
+//					results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
+//					results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
+				results[i] =openingTags.matcher(results[i]).replaceAll("");
+				results[i] =closingTags.matcher(results[i]).replaceAll("#");	
+				results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
+				String[] elements = results[i].split("#");
+				String[] fields = new String[view.getViewables().length];
+				//aiming modify
+				int count=Math.min(elements.length, fields.length);
+				for (int j = 0; j < count; j++) {
+					if(elements[j]!=null)
+					fields[j]=StringEscapeUtils.unescapeXml(elements[j]);
+				}				
 				itemsBrowserContent.add(fields);
 			}				
 
