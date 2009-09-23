@@ -670,9 +670,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 										if(_dataObject==null) _dataObject=_dataObject2;
 										ItemsBrowserInterface.deleteItem(_dataObject, ids, function(result){			
 											amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
-											displayItems();										
+																				
 										});
-					        		}				    		
+					        		}
+					        		//display
+					        		displayItems();
 					    		}				    			
 				    		});			        			        		
 		        		}
@@ -716,11 +718,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 									var treeIndex=1;
 									if(_dataObject==null) _dataObject=_dataObject2;
 									ItemsBrowserInterface.logicalDeleteItem(_dataObject, ids, path, function(result){
-										displayItems();
-//										if(result)
-//										Ext.MessageBox.alert('Status', result);				
+											
 									});									
-				        		}							
+				        		}		
+				        		displayItems();	
 							};			        				        		
 		        		}
 		        	}
