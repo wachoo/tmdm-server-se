@@ -1075,7 +1075,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				var html =
 				   '<div id="errorDesc" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:25px;padding-top:5px"><img src="img/genericUI/errorstate.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
 			             + errorDesc + '</span></div>' +
-				    '<div id="errorDetail" style="display:none;color:red;font-weight:bold;padding-left:65px"></div></br>'+
+				    '<div id="errorDetail" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:65px"></div></br>'+
 					'<div>' +
 					'		<span id="itemDetails'+treeIndex+'" class="itemTree"></span>' +
 					'		<span id="smartView'+treeIndex+'" style="display=none;">'+smartView+'</span>' +
