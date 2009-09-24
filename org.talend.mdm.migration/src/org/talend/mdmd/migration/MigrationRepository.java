@@ -22,7 +22,7 @@ import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 public class MigrationRepository{
   protected IXmlServerSLWrapper _server;
   private XDBReceiver _receiver;
-  
+  private static boolean isExeuted=false;
   private static String MIGRATION_FILE_NAME = "migration.xml";
   private static final int CONNECT_WAIT_TIME = 2 * 1000;
   
@@ -40,6 +40,7 @@ public class MigrationRepository{
   
   public void execute()
   {
+	  if(!isExeuted){
       List<String> list = new ArrayList<String>();
   
 	  // look over the handlers dir, call up each handler to execute if it can
@@ -61,7 +62,16 @@ public class MigrationRepository{
 		return;
 	}
 	  // get the class definition and invoke the trigger function
-	  Class[] clses = getDirectoryEntries(list);
+	  for(String clazz: list){
+		  try {
+			AbstractMigrationTask task=(AbstractMigrationTask)Class.forName(clazz).newInstance();
+			task.start();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+	  }
+/*	  Class[] clses = getDirectoryEntries(list);
 	  try {
 			for (Class cls : clses) {
 				Constructor cons = cls.getConstructor(new Class[] {});
@@ -73,11 +83,13 @@ public class MigrationRepository{
 		} catch (Exception ex) {
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(
 					ex.getMessage());
-		}
+		}*/
 		
 		//clear the cache objects
 		ItemPOJO.clearCache();
 		ObjectPOJO.clearCache();
+	  }
+	  isExeuted=true;
   }
   
   public Class[] getDirectoryEntries(List<String> list)
