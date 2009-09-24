@@ -92,7 +92,19 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				
 			var readOnly = "";
 			var readOnlyStyle = "";
-			if(itemData.readOnly==true || (itemData.key==true && newItem==false)) {
+			
+			 //(itemData.key==true && newItem==false);
+			
+			var tmpStatus=true;
+				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == true && itemData.readOnly==true) ;
+			//alert("before: "+tmpStatus);
+			if(tmpStatus){
+				//alert("after: "+tmpStatus);
+				readOnlyStyle = readOnly = "READONLY";
+			}
+			var nullParentStatus = true;
+			nullParentStatus = (itemData.parent==null&&(itemData.readOnly==true) || (itemData.key==true && newItem==false));
+			if(nullParentStatus){
 				readOnlyStyle = readOnly = "READONLY";
 			}
 			var foreignKeyImg = '';
@@ -114,6 +126,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			
 			var value = "";
 			if(itemData.value!=null) value = itemData.value;
+			var typeStatus = true;
+			typeStatus = value.length<70 ||(itemData.typeName=="PICTURE")
 
 			// select list
 			if(itemData.readOnly==false && itemData.enumeration.length!=0) {
@@ -129,7 +143,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						'</select>';
 				}
 			//input text
-			else if(value.length<70 ||(itemData.typeName=="PICTURE")) {					
+			else if(typeStatus) {					
 					var input=' ' +
 						' <input class="inputTree'+readOnlyStyle+'" '+readOnly+' ' +
 						//TODO'onFocus="amalto.itemsbrowser.ItemsBrowser.setlastUpdatedInputFlagPublic(\''+itemData.nodeId+'\','+treeIndex+');" ' +

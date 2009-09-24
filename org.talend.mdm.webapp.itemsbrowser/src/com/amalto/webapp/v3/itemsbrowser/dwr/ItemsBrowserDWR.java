@@ -326,6 +326,10 @@ public class ItemsBrowserDWR {
 		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
 		String[] keys = (String[]) ctx.getSession().getAttribute("foreignKeys");
 		
+		HashMap<String,TreeNode> xpathToTreeNode = 
+			(HashMap<String,TreeNode>)ctx.getSession().getAttribute("xpathToTreeNode");
+		if(xpathToTreeNode==null)
+			xpathToTreeNode = new HashMap<String, TreeNode>();
 		if(foreignKey) d = (Document) ctx.getSession().getAttribute("itemDocumentFK");
 		
 		boolean choice = false;
@@ -352,6 +356,8 @@ public class ItemsBrowserDWR {
     		TreeNode treeNode = new TreeNode();    		
     		treeNode.setChoice(choice);
 			String xpath = idToXpath.get(id)+"/"+xsp[j].getTerm().asElementDecl().getName();
+			if(xpathToTreeNode.containsKey(idToXpath.get(id)))
+				treeNode.setParent(xpathToTreeNode.get(idToXpath.get(id)));
 			int maxOccurs = xsp[j].getMaxOccurs();   	
 			//idToXpath.put(nodeCount,xpath);//keep map <node id -> xpath>  in the session
     		treeNode.setName(xsp[j].getTerm().asElementDecl().getName());
@@ -390,6 +396,7 @@ public class ItemsBrowserDWR {
     			idToParticle.put(nodeCount, particle);    	
    			
     			treeNode.setType("complex");
+    			xpathToTreeNode.put(xpath, treeNode);
     			if(maxOccurs<0 || maxOccurs>1){	//maxoccurs<0 is unbounded			
 					try {
 						NodeList nodeList = Util.getNodeList(d,xpath);
@@ -523,7 +530,9 @@ public class ItemsBrowserDWR {
     		}
     		
 		}		
-
+    	if(xpathToTreeNode!=null){
+    		ctx.getSession().setAttribute("xpathToTreeNode", xpathToTreeNode);
+    	}
 		return list.toArray(new TreeNode[list.size()]); 
 	}
 	

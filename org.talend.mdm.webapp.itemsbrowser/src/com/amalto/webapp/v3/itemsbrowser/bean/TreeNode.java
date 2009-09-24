@@ -20,8 +20,11 @@ public class TreeNode implements Cloneable {
 	private boolean expandable;
 	private String type;
 	private int nodeId;
+	//add by ymLi 0008917 
+	private TreeNode parent;
 	
-	
+
+
 	//browse item specific
 	private String typeName;
 	private String xmlTag;
@@ -38,6 +41,8 @@ public class TreeNode implements Cloneable {
 	private boolean visible;
 	private boolean key = false;
 	private int keyIndex = -1;
+	
+	
 
 	public Object clone() {
 		try {
@@ -293,4 +298,12 @@ public class TreeNode implements Cloneable {
 	}
 
 	
+	public TreeNode getParent() {
+		return parent;
+	}
+
+
+	public void setParent(TreeNode parent) {
+		this.parent = parent;
+	}
 }
