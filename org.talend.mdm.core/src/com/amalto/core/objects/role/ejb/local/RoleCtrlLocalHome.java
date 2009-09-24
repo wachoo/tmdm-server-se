@@ -5,7 +5,7 @@ package com.amalto.core.objects.role.ejb.local;
 
 /**
  * Local home interface for RoleCtrl.
- * @xdoclet-generated at 10-09-09
+ * @xdoclet-generated at 24-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

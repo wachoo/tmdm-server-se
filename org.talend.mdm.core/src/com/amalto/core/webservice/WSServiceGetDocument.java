@@ -10,14 +10,16 @@ public class WSServiceGetDocument {
     protected java.lang.String description;
     protected java.lang.String configure;
     protected java.lang.String document;
+    protected java.lang.String configureSchema;
     
     public WSServiceGetDocument() {
     }
     
-    public WSServiceGetDocument(java.lang.String description, java.lang.String configure, java.lang.String document) {
+    public WSServiceGetDocument(java.lang.String description, java.lang.String configure, java.lang.String document, java.lang.String configureSchema) {
         this.description = description;
         this.configure = configure;
         this.document = document;
+        this.configureSchema = configureSchema;
     }
     
     public java.lang.String getDescription() {
@@ -42,5 +44,13 @@ public class WSServiceGetDocument {
     
     public void setDocument(java.lang.String document) {
         this.document = document;
+    }
+    
+    public java.lang.String getConfigureSchema() {
+        return configureSchema;
+    }
+    
+    public void setConfigureSchema(java.lang.String configureSchema) {
+        this.configureSchema = configureSchema;
     }
 }

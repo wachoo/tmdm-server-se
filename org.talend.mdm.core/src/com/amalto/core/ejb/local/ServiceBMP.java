@@ -5,7 +5,7 @@ package com.amalto.core.ejb.local;
 
 /**
  * BMP layer for Service.
- * @xdoclet-generated at 10-09-09
+ * @xdoclet-generated at 24-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

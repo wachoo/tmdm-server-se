@@ -5,7 +5,7 @@ package com.amalto.core.objects.versioning.ejb.remote;
 
 /**
  * Remote interface for VersioningSystemCtrl.
- * @xdoclet-generated at 10-09-09
+ * @xdoclet-generated at 24-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

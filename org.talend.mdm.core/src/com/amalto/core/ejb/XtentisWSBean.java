@@ -2470,8 +2470,15 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 				new Object[] {
 						""
 				}
+			);		
+			String schema = "";
+			schema=(String)
+			Util.getMethod(service, "getConfigurationSchema").invoke(
+				service,
+				new Object[] {						
+				}
 			);			
-			return new WSServiceGetDocument(desc,configuration,doc);
+			return new WSServiceGetDocument(desc,configuration,doc,schema);
 		} catch (XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
 		} catch (Exception e) {

@@ -157,6 +157,32 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
 
 		return null;
 	}
+    /**
+     * Returns the XML schema for the configuration<br>
+     * Can be null
+     *  
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "local"
+     * @ejb.facade-method 
+     */
+    public String getConfigurationSchema() throws XtentisException{
+		return
+		"<xsd:schema" +
+		" 		elementFormDefault='unqualified'" +
+		"		xmlns:xsd='http://www.w3.org/2001/XMLSchema'" +
+		">" +
+		"<xsd:element name='configuration'>" +
+		"			<xsd:complexType >" +
+		"				<xsd:sequence>" +
+		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='url' type='xsd:string'/>" +	
+		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='username' type='xsd:string'/>" +
+		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='password' type='xsd:string'/>" +
+		"				</xsd:sequence>" +
+		"			</xsd:complexType>" +
+		"</xsd:element>"+
+		"</xsd:schema>";
+    }	
 
 
 	/* (non-Javadoc)

@@ -1358,6 +1358,7 @@
 			<xsd:element maxOccurs="1" minOccurs="1" name="description" nillable="true" type="xsd:string"/>
 			<xsd:element maxOccurs="1" minOccurs="1" name="configure" nillable="true" type="xsd:string"/>
 			<xsd:element maxOccurs="1" minOccurs="1" name="document" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="configureSchema" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSServiceGetDocument" type="tns:WSServiceGetDocument"/>

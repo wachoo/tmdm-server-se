@@ -5,7 +5,7 @@ package com.amalto.core.objects.routing.v2.ejb.local;
 
 /**
  * Session layer for RoutingRuleCtrl.
- * @xdoclet-generated at 10-09-09
+ * @xdoclet-generated at 24-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

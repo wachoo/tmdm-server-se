@@ -504,7 +504,34 @@ public class SmtpServiceBean extends ServiceCtrlBean  implements SessionBean {
 	    }
 
 	}
-	
+    /**
+     * Returns the XML schema for the configuration<br>
+     * Can be null
+     *  
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "local"
+     * @ejb.facade-method 
+     */
+    public String getConfigurationSchema() throws XtentisException{
+		return
+		"<xsd:schema" +
+		" 		elementFormDefault='unqualified'" +
+		"		xmlns:xsd='http://www.w3.org/2001/XMLSchema'" +
+		">" +
+		"<xsd:element name='configuration'>" +
+		"			<xsd:complexType >" +
+		"				<xsd:sequence>" +
+		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='host' type='xsd:string'/>" +
+		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='port' type='xsd:string'/>" +
+		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='username' type='xsd:string'/>" +
+		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='password' type='xsd:string'/>" +
+		"					<xsd:element minOccurs='0' maxOccurs='1' nillable='false' name='permanentbcc' type='xsd:string'/>" +
+		"				</xsd:sequence>" +
+		"			</xsd:complexType>" +
+		"</xsd:element>"+
+		"</xsd:schema>";
+    }	
 	/**
      * @throws EJBException
      *

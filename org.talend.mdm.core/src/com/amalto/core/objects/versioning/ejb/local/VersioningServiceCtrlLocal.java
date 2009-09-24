@@ -5,7 +5,7 @@ package com.amalto.core.objects.versioning.ejb.local;
 
 /**
  * Local interface for VersioningServiceCtrl.
- * @xdoclet-generated at 10-09-09
+ * @xdoclet-generated at 24-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -120,6 +120,12 @@ public interface VersioningServiceCtrlLocal
     * @throws EJBException
     */
    public void putConfiguration( java.lang.String configuration ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Returns the XML schema for the configuration<br> Can be null
+    * @throws XtentisException
+    */
+   public java.lang.String getConfigurationSchema(  ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Retrieves the configuration The default implementation renders the configuration string "as stored" and ignore the optional parameter

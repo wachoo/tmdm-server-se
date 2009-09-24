@@ -3477,7 +3477,7 @@ public class XtentisRMIPort implements XtentisPort {
 	}
 
 
-	public WSServiceGetDocument getServiceDocument(WSString serviceName)
+	public com.amalto.webapp.util.webservices.WSServiceGetDocument getServiceDocument(WSString serviceName)
 	       throws RemoteException {
 		try {
 			Object service= 
@@ -3511,7 +3511,14 @@ public class XtentisRMIPort implements XtentisPort {
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-			return new WSServiceGetDocument(desc,configuration,doc);
+			String schema = "";
+			schema=(String)
+			Util.getMethod(service, "getConfigurationSchema").invoke(
+				service,
+				new Object[] {						
+				}
+			);			
+			return new com.amalto.webapp.util.webservices.WSServiceGetDocument(desc,configuration,doc,schema);
 		} catch (XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
 		} catch (Exception e) {
