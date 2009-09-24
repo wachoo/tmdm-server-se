@@ -3,8 +3,14 @@
 <project name="SvnService - xdoclet generate" default="xdoclet-generation" basedir=".">
     
 	<property name="project.name" value = "com.amalto.service.svn"/>
+	<property name="jboss.dir" value="c:/opt/jboss"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
 	
-	<property name="xdoclet.root.dir" value="/opt/xdoclet-1.2.3.patched"/>
+	<property name="jwsdp.dir" location="c:/opt/jwsdp-1.5"/>
+		
+	<property name="xdoclet.root.dir" value="c:/opt/xdoclet-1.2.3.patched"/>
     <property file="${xdoclet.root.dir}/build.properties"/>
 	<property name="xdoclet.lib.dir" value = "${xdoclet.root.dir}/lib"/>
 	<property name="dist.lib.dir" value = "${xdoclet.lib.dir}"/>
@@ -26,13 +32,13 @@
         <fileset dir="${xdoclet.lib.dir}">
             <include name="*.jar"/>
         </fileset>	
-        <fileset dir="/opt/jboss/server/default/lib">
+        <fileset dir="${jboss.instance.lib}">
             <include name="*.jar"/>
         </fileset>
-        <fileset dir="/opt/jboss/lib">
+        <fileset dir="${jboss.dir}/lib">
             <include name="*.jar"/>
         </fileset>
-    	<fileset dir="/opt/jwsdp-1.5/jaxp/lib">
+    	<fileset dir="${jwsdp.dir}/jaxp/lib">
     		<include name="**/*.jar"/>
     	</fileset>
     </path>
