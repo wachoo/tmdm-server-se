@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/junit-3.8.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.commons-jxpath-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.bsh-2.0b2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
@@ -11,7 +12,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-1.6.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-codec.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/z.svnkit.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.svnkit.jar" sourcepath="F:/Src/OpenSourceProject/svnkit/1.2.3/svnkit/src"/>
 	<classpathentry exported="true" kind="lib" path="lib/jboss-jaxws.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxb-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jbossws-client.jar"/>
