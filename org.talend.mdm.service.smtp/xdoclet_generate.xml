@@ -2,9 +2,8 @@
 
 <project name="Smtp Service - xdoclet generate" default="xdoclet-generation" basedir=".">
     
-	<property name="project.name" value = "com.amalto.service.smtp"/>
-
-	<property name="jboss.dir" value="/opt/jboss"/>
+	<property name="project.name" value = "org.talend.mdm.service.smtp"/>
+	<property name="jboss.dir" value="c:/opt/jboss"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
