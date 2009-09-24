@@ -1073,7 +1073,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 				//update the div structure
 				var html =
-				   '<div id="errorDesc" style="display:none;color:red;font-weight:bold;padding-left:25px;padding-top:5px"><img src="img/genericUI/icon-error.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
+				   '<div id="errorDesc" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:25px;padding-top:5px"><img src="img/genericUI/errorstate.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
 			             + errorDesc + '</span></div>' +
 				    '<div id="errorDetail" style="display:none;color:red;font-weight:bold;padding-left:65px"></div></br>'+
 					'<div>' +

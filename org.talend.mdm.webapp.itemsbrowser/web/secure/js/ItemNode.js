@@ -250,41 +250,6 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			alert("mauvais type "+typeof(value));
 		}*/
 		
-	    var ERROR_MESSAGE_MINLENGTH = {
-			'en' : 'The Minimum number of the value length is ',
-			'fr' : 'The Minimum number of the value length is '
-		}
-
-		var ERROR_MESSAGE_MAXLENGTH = {
-			'en' : 'The maximum number of the value length is ',
-			'fr' : 'The maximum number of the value length is '
-		}
-
-		var ERROR_MESSAGE_MINEXCLUSIVE = {
-			'en' : 'should be greater than ',
-			'fr' : 'should be greater than '
-		}
-
-		var ERROR_MESSAGE_MAXEXCLUSIVE = {
-			'en' : 'should be less than or equal to',
-			'fr' : 'should be less than or equal to'
-		}
-
-		var ERROR_MESSAGE_MININCLUSIVE = {
-			'en' : 'should be greater than or equal to ',
-			'fr' : 'should be greater than or equal to '
-		}
-
-		var ERROR_MESSAGE_MAXINCLUSIVE = {
-			'en' : 'should be less than ',
-			'fr' : 'should be less than '
-		}
-        
-		var ERROR_MESSAGE_MINOCCURS ={
-			'en' : ' is required!',
-			'fr' : ' is required!'
-		}
-		
 		var ERROR_MESSAGE_VALIDATEDOUBLE = {
 			'en' : ' is not a valid value for double ',
 			'fr' : ' is not a valid value for double '
@@ -293,93 +258,88 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		this.resetErrorMessage(this.itemData.nodeId);
 		if(this.itemData.restrictions!=null){	
 			for(var i=0;i<this.itemData.restrictions.length;i++){
+				var errorMessage = this.itemData.facetErrorMsg[language];
+				if (errorMessage == null)
+				   errorMessage = "The value does not comply with the facet defined in the model: "
+							+ this.itemData.restrictions[i].name
+							+ ":"
+							+ this.itemData.restrictions[i].value;
 				if(this.itemData.restrictions[i].name=="minLength" 
-				&& value.length<parseInt(this.itemData.restrictions[i].value)){				
-					var msg="\""+this.itemData.name+"\" doit comporter au minimum "+this.itemData.restrictions[i].value+" caractères.";
-					this.displayErrorMessage(this.itemData.nodeId,msg);
+				&& value.length<parseInt(this.itemData.restrictions[i].value)){
+					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 					return false;
 				}
 				if(this.itemData.restrictions[i].name=="maxLength" 
 				&& value.length>parseInt(this.itemData.restrictions[i].value)){
-					var msg="\""+this.itemData.name+"\" n'accepte que "+this.itemData.restrictions[i].value+" caractères maximum.";
-					this.displayErrorMessage(this.itemData.nodeId,msg);
+					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 					return false;
 				}
 				if(this.itemData.restrictions[i].name=="minExclusive" )
 				{
-					var msg;
 					if (isNaN(value))
 					{
-						msg = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-						this.displayErrorMessage(this.itemData.nodeId,msg);
+						errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 						return false;
 					}
 					else if (parseFloat(value)<=parseFloat(this.itemData.restrictions[i].value))
 					{
-					    msg=this.itemData.name + " " + ERROR_MESSAGE_MINEXCLUSIVE[language] + this.itemData.restrictions[i].value;
-					    this.displayErrorMessage(this.itemData.nodeId,msg);
+					    this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 					    return false;
 					}
 				}
 				if(this.itemData.restrictions[i].name=="maxExclusive")
 				{
-					var msg;
 					if (isNaN(value))
 					{
-						msg = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-						this.displayErrorMessage(this.itemData.nodeId,msg);
+						errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 						return false;
 					}
 					else if (parseFloat(value) >=parseFloat(this.itemData.restrictions[i].value))
 					{
-						msg=this.itemData.name + " " + ERROR_MESSAGE_MAXEXCLUSIVE[language] + this.itemData.restrictions[i].value;
-						this.displayErrorMessage(this.itemData.nodeId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 						return false;
 					}
 
 				}
 				if(this.itemData.restrictions[i].name=="minInclusive" ){
-					var msg;
 					if (isNaN(value))
 					{
-						msg = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-						this.displayErrorMessage(this.itemData.nodeId,msg);
+						errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 						return false;
 					}
 					else if (parseFloat(value) < parseFloat(this.itemData.restrictions[i].value))
 					{
-						msg=this.itemData.name + " " + ERROR_MESSAGE_MININCLUSIVE[language] + this.itemData.restrictions[i].value;
-						this.displayErrorMessage(this.itemData.nodeId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 						return false;
 					}
 				}
 				if(this.itemData.restrictions[i].name=="maxInclusive"){
-					var msg;
 					if (isNaN(value))
 					{
-						msg = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-						this.displayErrorMessage(this.itemData.nodeId,msg);
+						errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 						return false;
 					}
 					else if (parseFloat(value) > parseFloat(this.itemData.restrictions[i].value))
 					{
-						msg=this.itemData.name + " " + ERROR_MESSAGE_MAXINCLUSIVE[language] + this.itemData.restrictions[i].value+".";
-						this.displayErrorMessage(this.itemData.nodeId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 						return false;
 					}
 
 				}
 				if (this.itemData.readOnly==false && this.itemData.minOccurs>=1 && (value == null || value == ""))
 				{
-					msg=this.itemData.name + ERROR_MESSAGE_MINOCCURS[language];
-					this.displayErrorMessage(this.itemData.nodeId,msg);
+					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 					return false;
 				}
 				if(this.itemData.restrictions[i].name=="pattern"){
 					var patrn=new RegExp(this.itemData.restrictions[i].value);
 					if(!patrn.exec(value)){
 						var msg="\""+this.itemData.name+"\" de pattern est \""+this.itemData.restrictions[i].value+"\".";
-						this.displayErrorMessage(this.itemData.nodeId,msg);
+						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 						return false;
 					}
 				}
@@ -389,6 +349,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		this.itemData.value = value;
 		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon);
 		return true;
+
 	},
 	
 	resetErrorMessage: function(nodeId){

@@ -1,6 +1,9 @@
 package com.amalto.webapp.v3.itemsbrowser.bean;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -41,8 +44,8 @@ public class TreeNode implements Cloneable {
 	private boolean visible;
 	private boolean key = false;
 	private int keyIndex = -1;
-	
-	
+	//add by fliu 0009157
+	private HashMap<String, String> facetErrorMsgs  = new HashMap<String, String>();
 
 	public Object clone() {
 		try {
@@ -90,7 +93,16 @@ public class TreeNode implements Cloneable {
     						fkInfoList.add(annotList.item(k).getFirstChild().getNodeValue());
     					}else if(("X_Description_"+language.toUpperCase()).equals(appinfoSource)){						
     						setDescription(annotList.item(k).getFirstChild().getNodeValue());
-    					}	
+    					}
+    					else if(appinfoSource.indexOf("X_Facet_") != -1)
+    					{
+    						  Pattern p = Pattern.compile("X_Facet_(.*?)");  
+    						  Matcher matcher = p.matcher(appinfoSource); 
+    						  if (matcher.matches())
+    						  {
+    							  setFacetErrorMsg(matcher.group(1).toLowerCase(), annotList.item(k).getFirstChild().getNodeValue());
+    						  }
+    					}
     				}
     				if("documentation".equals(annotList.item(k).getLocalName())) {
     					setDocumentation(annotList.item(k).getFirstChild().getNodeValue());
@@ -305,5 +317,27 @@ public class TreeNode implements Cloneable {
 
 	public void setParent(TreeNode parent) {
 		this.parent = parent;
+	}
+	
+	/**
+	 * add by fliu 0009157
+	 * @param lang
+	 * @param facet
+	 */
+	public void setFacetErrorMsg(String lang, String facet)
+	{
+		if (facetErrorMsgs.containsKey(lang))
+			facetErrorMsgs.remove(lang);
+		facetErrorMsgs.put(lang, facet);
+	}
+	
+	/**
+	 * add by fliu 0009157
+	 * @return
+	 *    the hashMap contains facet error msg
+	 */
+	public HashMap getFacetErrorMsg()
+	{
+		return facetErrorMsgs;
 	}
 }
