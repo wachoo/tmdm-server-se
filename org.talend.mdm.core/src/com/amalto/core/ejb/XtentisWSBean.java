@@ -45,6 +45,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1804,6 +1805,10 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 					dataModel
 			);
 		if (itemPOJOPK==null) return null;
+		//aiming add if datacluster is 'PROVINIONING' and  current user,clear LocalUser cache
+		if(XSystemObjects.DC_PROVISIONING.getName().equals(dataModel.getName()) && LocalUser.getLocalUser().getUsername().equals(itemKeyValues[0])){
+			LocalUser.resetLocalUsers();
+		}
 		
 		//update vocabulary
 		//Util.getDataClusterCtrlLocal().getDataCluster(dcpk).addToVocabulary(projection);
