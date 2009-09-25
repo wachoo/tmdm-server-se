@@ -166,8 +166,7 @@ public class MigrationRepository{
       
       public void close()
       {
-      	org.apache.log4j.Logger.getLogger(AbstractMigrationTask.class)
-					.error("XDBReceiver thread is terminating.");
+
           _closed = true;
           //interrupt();
       }
