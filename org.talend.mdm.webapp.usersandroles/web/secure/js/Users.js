@@ -295,7 +295,7 @@ amalto.usersandroles.Users = function () {
 										html:'<select id="sRoles" class="leftField" onchange="amalto.usersandroles.Users.changeSrolesTpl()"><option value="-1"></option></select>' +
 											'<input  id="addRole" type="button" onclick="amalto.usersandroles.Users.addRoleInBox();" ' +
 											'value="'+BUTTON_ADD_ROLE[language]+'"  title="Ajouter le role."/><br/>' +
-											'<select id="nRoles"  class="leftField" style="width:150px" size="5"></select>' +
+											'<select id="nRoles" class="leftField" size="5"></select>' +
 											'<input  id="deleteRole" type="button" onclick="amalto.usersandroles.Users.deleteRoleSelected();" value="'+BUTTON_DELETE_ROLE[language]+'"  title="Effacer le role."/>'
 
 
