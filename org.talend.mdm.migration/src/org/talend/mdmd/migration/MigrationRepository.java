@@ -24,7 +24,7 @@ public class MigrationRepository{
   private XDBReceiver _receiver;
   private static boolean isExeuted=false;
   private static String MIGRATION_FILE_NAME = "migration.xml";
-  private static final int CONNECT_WAIT_TIME = 10 * 1000;
+  private static final int CONNECT_WAIT_TIME = 100 * 1000;
   
   private static MigrationRepository repository = null;
   
@@ -49,8 +49,7 @@ public class MigrationRepository{
 		InputStream in= Thread.currentThread().getContextClassLoader().getResourceAsStream(MIGRATION_FILE_NAME);
 		Document doc = builder.parse(in);
 		NodeList nodelist = doc.getElementsByTagName("Root");
-		Node root = nodelist.item(0);
-		Node child = root.getFirstChild();
+		Node root = nodelist.item(0);		
 		for (int id = 0; id < root.getChildNodes().getLength(); id++)
 		{
 			Node node = root.getChildNodes().item(id);

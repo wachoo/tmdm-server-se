@@ -11,10 +11,9 @@ import org.exolab.castor.xml.Unmarshaller;
 
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 
 public  class AbstractMigrationTask implements  Serializable{
-    private Map<String, Boolean> handlerMap = null;
+    private Map<String, Boolean> handlerMap = new HashMap<String, Boolean>();
     private static final String CLUSTER_MIGRATION = "MIGRATION";
     private static final String UNIQUE_MIGRATION = "MIGRATION";
     
@@ -33,12 +32,10 @@ public  class AbstractMigrationTask implements  Serializable{
 	protected  boolean isDone(){
 		Boolean res = false;
 		try {
-			if(handlerMap==null){
-				String content = Util.getXmlServerCtrlLocal().getDocumentAsString(null, CLUSTER_MIGRATION, UNIQUE_MIGRATION);
-				if (content == null) return false;
-				AbstractMigrationTask cpy = unmarshal(content);
-				handlerMap = cpy.getHandlerMap();
-			}
+			String content = Util.getXmlServerCtrlLocal().getDocumentAsString(null, CLUSTER_MIGRATION, UNIQUE_MIGRATION);
+			if (content == null) return false;
+			AbstractMigrationTask cpy = unmarshal(content);
+			handlerMap = cpy.getHandlerMap();
 			res = handlerMap.get(this.getClass().getName());
 			if (res == null) return false;
 		} catch (Exception e) {
@@ -59,13 +56,10 @@ public  class AbstractMigrationTask implements  Serializable{
 
 		if (result)
 		{
-
 			handlerMap.put(this.getClass().getName(), true);
 		}
 		else if (!result)
 		{
-			org.apache.log4j.Logger.getLogger(this.getClass()).info(
-					this.getClass().getName() + "failed");
 			handlerMap.put(this.getClass().getName(), false);
 		}
 		
