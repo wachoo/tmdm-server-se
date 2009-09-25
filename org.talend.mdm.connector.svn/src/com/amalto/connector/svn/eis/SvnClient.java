@@ -182,16 +182,18 @@ public class SvnClient  {
         	editor.openRoot(-1);
         	if (dirKind == SVNNodeKind.NONE) {
         		editor.addDir(dirPath, null, -1);
+        		//editor.openDir(dirPath,-1);
+        	}
+        	else{
         		editor.openDir(dirPath,-1);
         	}
-        	else
-        		editor.openDir(dirPath,-1);
 
     		editor.addFile(filePath, null, -1);
+    		
     		editor.applyTextDelta(filePath, null);
     		SVNDeltaGenerator deltaGenerator = new SVNDeltaGenerator();
             String checksum = deltaGenerator.sendDelta(filePath, new ByteArrayInputStream(content), editor, true);
-
+            
             editor.closeFile(filePath, checksum);
 
         	editor.closeDir();
