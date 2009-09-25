@@ -52,9 +52,6 @@ public  class AbstractMigrationTask implements  Serializable{
 	{	
 		if (isDone())
 		{
-			org.apache.log4j.Logger.getLogger(this.getClass()).info(
-					this.getClass().getName()
-							+ "return a successful result with no alter");
 			return;
 		}
 		
@@ -62,9 +59,7 @@ public  class AbstractMigrationTask implements  Serializable{
 
 		if (result)
 		{
-			org.apache.log4j.Logger.getLogger(this.getClass()).info(
-					this.getClass().getName()
-							+ "return a successful result");
+
 			handlerMap.put(this.getClass().getName(), true);
 		}
 		else if (!result)
