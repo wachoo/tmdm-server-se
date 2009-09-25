@@ -3,9 +3,8 @@ package com.amalto.webapp.v3.itemsbrowser.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
@@ -15,13 +14,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.Util2;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSViewPK;
@@ -207,20 +206,27 @@ public class ItemsRemotePaging  extends HttpServlet{
 //				for(int j=0; j<view.getViewables().length; j++){
 //					fields[j]=vMap.get("/"+view.getViewables()[j]);
 //				}
-				results[i] = results[i].replaceAll("<result>","");
-				results[i] = results[i].replaceAll("</result>","");	
-//					results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
-//					results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
-				results[i] =openingTags.matcher(results[i]).replaceAll("");
-				results[i] =closingTags.matcher(results[i]).replaceAll("#");	
-				results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
-				String[] elements = results[i].split("#");
+//				results[i] = results[i].replaceAll("<result>","");
+//				results[i] = results[i].replaceAll("</result>","");	
+////					results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
+////					results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
+//				results[i] =openingTags.matcher(results[i]).replaceAll("");
+//				results[i] =closingTags.matcher(results[i]).replaceAll("#");	
+//				results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
+//				String[] elements = results[i].split("#");
+				//aiming modify when there is null value in fields
+				Element root = Util.parse(results[i]).getDocumentElement();
+				List<String> l=getElementValues("/result",root);
+				String[] elements =l.toArray(new String[l.size()]);
+				//end
 				String[] fields = new String[view.getViewables().length];
 				//aiming modify
 				int count=Math.min(elements.length, fields.length);
 				for (int j = 0; j < count; j++) {
 					if(elements[j]!=null)
-					fields[j]=StringEscapeUtils.unescapeXml(elements[j]);
+						fields[j]=StringEscapeUtils.unescapeXml(elements[j]);
+					else
+						fields[j]="";
 				}				
 				itemsBrowserContent.add(fields);
 			}				
@@ -316,7 +322,31 @@ public class ItemsRemotePaging  extends HttpServlet{
         writer.close();
         
 	}
-	
+	private  List<String> getElementValues(String parentPath,Node n)throws Exception{
+		List<String> l=new ArrayList<String>();
+		NodeList list=n.getChildNodes();
+		for(int i=0; i<list.getLength(); i++){
+			Node node=list.item(i);
+			if(node.getNodeType() == Node.ELEMENT_NODE){
+				String nName=node.getNodeName();
+				String xPath=parentPath+"/"+nName;
+				String nValue=com.amalto.core.util.Util.getFirstTextNode(node, ".");
+				if( !hasChildren(node)){
+					l.add(nValue);
+				}
+			}
+		}		
+		return l;
+	}
+	private static boolean hasChildren(Node node){
+		NodeList list=node.getChildNodes();
+		for(int i=0; i<list.getLength(); i++){
+			if(list.item(i).getNodeType() == Node.ELEMENT_NODE){
+				return true;
+			}
+		}
+		return false;
+	}	
 	private boolean viewFieldValidate(String viewName,String fieldPath) {
 		
 		if(viewName!=null&&viewName.length()>0&&fieldPath!=null&&fieldPath.length()>0){

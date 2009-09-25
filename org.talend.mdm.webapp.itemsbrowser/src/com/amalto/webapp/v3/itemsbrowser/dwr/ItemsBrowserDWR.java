@@ -16,6 +16,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -309,7 +310,8 @@ public class ItemsBrowserDWR {
 	 * @param language
 	 * @return an array of TreeNode
 	 */
-	public TreeNode[] getChildren(int id, int nodeCount, String language, boolean foreignKey, int docIndex){
+//	TreeNode parentNode,
+	public TreeNode[] getChildren( int id, int nodeCount, String language, boolean foreignKey, int docIndex){
 		return getChildrenWithKeyMask(id, nodeCount, language, foreignKey, docIndex, false);
 	}
 	
@@ -328,8 +330,10 @@ public class ItemsBrowserDWR {
 		
 		HashMap<String,TreeNode> xpathToTreeNode = 
 			(HashMap<String,TreeNode>)ctx.getSession().getAttribute("xpathToTreeNode");
+		
 		if(xpathToTreeNode==null)
 			xpathToTreeNode = new HashMap<String, TreeNode>();
+		
 		if(foreignKey) d = (Document) ctx.getSession().getAttribute("itemDocumentFK");
 		
 		boolean choice = false;
@@ -345,19 +349,22 @@ public class ItemsBrowserDWR {
 		if(idToParticle.get(id)==null){//simple type case, no children
 			return null;
 		}
+			
 		xsp = idToParticle.get(id).getTerm().asModelGroup().getChildren();
 		if("choice".equals(idToParticle.get(id).getTerm().asModelGroup().getCompositor().toString()))
 			choice = true;
 
-		
 		ArrayList<TreeNode> list = new ArrayList<TreeNode>();
 		//iterate over children
     	for (int j = 0; j < xsp.length; j++) {
     		TreeNode treeNode = new TreeNode();    		
     		treeNode.setChoice(choice);
 			String xpath = idToXpath.get(id)+"/"+xsp[j].getTerm().asElementDecl().getName();
+			
 			if(xpathToTreeNode.containsKey(idToXpath.get(id)))
 				treeNode.setParent(xpathToTreeNode.get(idToXpath.get(id)));
+			
+			
 			int maxOccurs = xsp[j].getMaxOccurs();   	
 			//idToXpath.put(nodeCount,xpath);//keep map <node id -> xpath>  in the session
     		treeNode.setName(xsp[j].getTerm().asElementDecl().getName());
@@ -365,12 +372,10 @@ public class ItemsBrowserDWR {
     		String typeNameTmp = "";
     		treeNode.setVisible(true);
     		
+//    		treeNode.setParent(parentNode);
+    		
     		if(xsp[j].getTerm().asElementDecl().getType().getName()!=null)	
     			typeNameTmp = xsp[j].getTerm().asElementDecl().getType().getName();
-    		/*else if(xsp[j].getTerm().asElementDecl().getType()
-    				.asSimpleType().asRestriction().getBaseType()!=null)
-    			xsp[j].getTerm().asElementDecl().getType()
-				.asSimpleType().asRestriction().getBaseType();*/
     		
     		//annotation support
     		XSAnnotation xsa = xsp[j].getTerm().asElementDecl().getAnnotation();
@@ -396,6 +401,7 @@ public class ItemsBrowserDWR {
     			idToParticle.put(nodeCount, particle);    	
    			
     			treeNode.setType("complex");
+    			
     			xpathToTreeNode.put(xpath, treeNode);
     			if(maxOccurs<0 || maxOccurs>1){	//maxoccurs<0 is unbounded			
 					try {
@@ -527,6 +533,7 @@ public class ItemsBrowserDWR {
     			}
     			ctx.getSession().setAttribute("updatedPath",updatedPath);
     			updatedPath.put(xpath, new UpdateReportItem(xpath,oldPath,""));
+    			
     		}
     		
 		}		
@@ -1032,26 +1039,10 @@ public class ItemsBrowserDWR {
 		Configuration config = Configuration.getInstance();
 		String conceptName = Util.getConceptFromPath(xpathForeignKey);
 		
-		int leftPathFrom = xpathForeignKey.indexOf("[");
-		int leftPathEnd = xpathForeignKey.indexOf("=");
-		String leftPath="";
-		if(leftPathFrom>0&&leftPathEnd>leftPathFrom){
-			 leftPath = xpathForeignKey.substring(leftPathFrom+1, leftPathEnd);
-		}
-		
-		int rightValueFrom = xpathForeignKey.indexOf("=");
-		int rightValueEnd = xpathForeignKey.indexOf("]");
-		String rightValueOrPath = "";
-		if(rightValueFrom>0&&rightValueEnd>rightValueFrom){
-			rightValueOrPath = xpathForeignKey.substring(rightValueFrom+1, rightValueEnd);
-		}
-		WSWhereOperator operator = WSWhereOperator.CONTAINS;
-		WSStringPredicate predicate = WSStringPredicate.OR;
-		WSWhereCondition whereCondition=null;
+		WSWhereCondition whereCondition=Util.getConditionFromPath(xpathForeignKey);
 		WSWhereItem whereItem=null;
-		if(!"".equals(leftPath)&&!"".equals(rightValueOrPath)){
-			whereCondition = new WSWhereCondition(leftPath,operator,rightValueOrPath, predicate, true);
-			whereItem = new WSWhereItem (whereCondition,null,null);
+		if(whereCondition!=null){
+			whereItem= new WSWhereItem (whereCondition,null,null);
 		}
 		
 		return Util.getPort().count(
@@ -1069,42 +1060,18 @@ public class ItemsBrowserDWR {
 		
 	public String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey) throws RemoteException, Exception{
 		String initxpathForeignKey="";
-		int endIndex = xpathForeignKey.indexOf("[");
-		if(endIndex>0)
-			initxpathForeignKey = xpathForeignKey.substring(0, endIndex);
-		else
-			initxpathForeignKey = xpathForeignKey;
+		initxpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
 		
 		org.apache.log4j.Logger.getLogger(this.getClass()).debug("getForeignKeyList() xPath FK: '"+initxpathForeignKey+"' xPath FK Info: '"+xpathInfoForeignKey+"' value: '"+value+"'");
-		
-		
-		int leftPathFrom = xpathForeignKey.indexOf("[");
-		int leftPathEnd = xpathForeignKey.indexOf("=");
-		String leftPath="";
-		if(leftPathFrom>0&&leftPathEnd>leftPathFrom)
-			leftPath = xpathForeignKey.substring(leftPathFrom+1, leftPathEnd);
-		
-		int rightValueFrom = xpathForeignKey.indexOf("=");
-		int rightValueEnd = xpathForeignKey.indexOf("]");
-		String rightValueOrPath = "*";
-		if(rightValueFrom>0&&rightValueEnd>rightValueFrom){
-			rightValueOrPath = xpathForeignKey.substring(rightValueFrom+1, rightValueEnd);
-			value = rightValueOrPath;
-		}
-		
-		WSWhereOperator operator = WSWhereOperator.CONTAINS;
-		WSStringPredicate predicate = WSStringPredicate.OR;
-		WSWhereCondition whereCondition=null;
+				
+		WSWhereCondition whereCondition=Util.getConditionFromPath(xpathForeignKey);
 		WSWhereItem whereItem=null;
-		if(!"".equals(leftPath)&&!"".equals(rightValueOrPath)){
-			whereCondition = new WSWhereCondition(leftPath,operator,rightValueOrPath, predicate, true);
-			whereItem = new WSWhereItem (whereCondition,null,null);
+		if(whereCondition!=null){
+			whereItem= new WSWhereItem (whereCondition,null,null);
 		}
-		
 		
 		
 		Configuration config = Configuration.getInstance();
-//		TreeMap<String,String> map = new TreeMap<String,String>();
 		
 		// foreign key set by business concept
 		if(initxpathForeignKey.split("/").length == 1){
@@ -1235,7 +1202,7 @@ public class ItemsBrowserDWR {
 					new WSDataClusterPK(config.getCluster()),
 					xpaths[0],//pivot
 					new WSStringArray(xpaths),
-					null,
+					whereItem,
 					-1,		//spell Threshold
 					0,		//start
 					Integer.MAX_VALUE,
