@@ -10,6 +10,7 @@ import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
  *
  */
 public class RestoreObjectsInfo implements Serializable {
+	private VersioningServiceCtrlLocalBI service;
 	private VersioningSystemPOJOPK versioningSystemPOJOPK;
 	private String tag;
 	private String username;
@@ -22,8 +23,9 @@ public class RestoreObjectsInfo implements Serializable {
 
 	
 	
-	public RestoreObjectsInfo(VersioningSystemPOJOPK versioningSystemPOJOPK, String tag, String username, String type, String[] instances) {
+	public RestoreObjectsInfo(VersioningServiceCtrlLocalBI service,VersioningSystemPOJOPK versioningSystemPOJOPK, String tag, String username, String type, String[] instances) {
 		super();
+		this.service = service;
 		this.versioningSystemPOJOPK = versioningSystemPOJOPK;
 		this.tag = tag;
 		this.username = username;
@@ -31,6 +33,14 @@ public class RestoreObjectsInfo implements Serializable {
 		this.instances = instances;
 	}
 
+	
+	public VersioningServiceCtrlLocalBI getService() {
+		return service;
+	}
+
+	public void setService(VersioningServiceCtrlLocalBI service) {
+		this.service = service;
+	}
 
 	public String[] getInstances() {
 		return instances;

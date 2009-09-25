@@ -11,6 +11,7 @@ import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
  */
 public class TagObjectsInfo implements Serializable {
 	private VersioningSystemPOJOPK versioningSystemPOJOPK;
+	private VersioningServiceCtrlLocalBI service;
 	private String tag;
 	private String comment;
 	private String username;
@@ -23,9 +24,10 @@ public class TagObjectsInfo implements Serializable {
 
 	
 	
-	public TagObjectsInfo(VersioningSystemPOJOPK versioningSystemPOJOPK, String tag, String comment, String username, String type, String[] instances) {
+	public TagObjectsInfo(VersioningSystemPOJOPK versioningSystemPOJOPK,VersioningServiceCtrlLocalBI service, String tag, String comment, String username, String type, String[] instances) {
 		super();
 		this.versioningSystemPOJOPK = versioningSystemPOJOPK;
+		this.service = service;
 		this.tag = tag;
 		this.comment = comment;
 		this.username = username;
@@ -74,6 +76,16 @@ public class TagObjectsInfo implements Serializable {
 	public void setVersioningSystemPOJOPK(
 			VersioningSystemPOJOPK versioningSystemPOJOPK) {
 		this.versioningSystemPOJOPK = versioningSystemPOJOPK;
+	}
+	
+
+	public VersioningServiceCtrlLocalBI getService() {
+		return service;
+	}
+
+
+	public void setService(VersioningServiceCtrlLocalBI service) {
+		this.service = service;
 	}
 
 

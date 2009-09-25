@@ -72,9 +72,9 @@ import com.amalto.core.webservice.WSVersioningObjectsHistoryObjects;
 public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 	
     public static String DEFAULT_JNDI = "amalto/local/service/svn";
-    public static String DEFAULT_URL = "svn://localhost/opt/svn";
-    public static String DEFAULT_USERNAME = "xtentis";
-    public static String DEFAULT_PASSWORD = "xtentis";
+    public static String DEFAULT_URL = "https://hshu:8443/svn/starkeylib";
+    public static String DEFAULT_USERNAME = "admin";
+    public static String DEFAULT_PASSWORD = "admin";
     
 	static {
 
@@ -402,7 +402,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
      * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
-     */   
+     */
     public BackgroundJobPOJOPK tagObjectsAsJob(
     		VersioningSystemPOJOPK versioningSystemPOJOPK,
     		String tag,
@@ -422,9 +422,14 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 			bgPOJO.setStatus(BackgroundJobPOJO._SCHEDULED_);
 			bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
 			bgPOJO.store();
+			
+			//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+    		
 			//Instantiate processing info
 			TagObjectsInfo tagObjectsInfo = new TagObjectsInfo(
 					versioningSystemPOJOPK,
+					service,
 					tag,
 					comment,
 					LocalUser.getLocalUser().getUsername(),
@@ -438,8 +443,9 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 					"Tagging of objects type '"+type+"' with tag '"+tag+"'",
 					tagObjectsInfo
 			); 
+			
 			createTimer(actionInfo);
-        	
+        
 		} catch (Exception e) {
 			try {
 				String err = "Unable to Execute Tagging of type "+type+" --> tag "+tag+" as a Background Job"
@@ -460,7 +466,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
      */
     private void executeTagObjects(
     		BackgroundJobPOJOPK backgroundJobPK,
-    		TagObjectsInfo info
+    		TagObjectsInfo info,
+    		UniversePOJO universe
     ) {
     	try {
     		updateBackGroundJob(backgroundJobPK, "Accessing versioning server");
@@ -481,13 +488,12 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     		//Get the cluster name associated with it
     		String clusterName = ObjectPOJO.getCluster((Class<? extends ObjectPOJO>)theClass);
     		
-			//Get the versioning service
-    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(info.getVersioningSystemPOJOPK());
+    		//get version service
+    		VersioningServiceCtrlLocalBI service=info.getService();
 
    	    	//get the universe and revision ID for this Object
-	    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
 	    	if (universe == null) {
-	    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+	    		String err = "ERROR: no Universe set for user '"+info.getUsername()+"'";
 	    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
 	    		throw new XtentisException(err);
 	    	}
@@ -495,8 +501,6 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 	    		theClass)
 	    	);
 	    	
-            //get the xml server wrapper
-    		
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = null;
 			try {
@@ -616,7 +620,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
      * @throws XtentisException
      * @throws UnsupportedEncodingException
      */
-    private void tagAllItems(
+    private long tagAllItems(
     		BackgroundJobPOJOPK pk, 
     		XmlServerSLWrapperLocal server, 
     		VersioningServiceCtrlLocalBI service, 
@@ -644,16 +648,20 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     	} else {
     		service.clean(clusterName, instances);
     		for (int i = 0; i < instances.length; i++) {
-				counter++;
+				
 				if ((i+1)%10 == 0) 
 					updateBackGroundJob(pk, "Tagging item "+(i+1)+" out of "+instances.length);
 				String xml = server.getDocumentAsString(revisionID, clusterName, instances[i]);
-				System.out.println("Tagging "+clusterName+"/"+instances[i]+" "+(xml!=null ? "\n"+xml.substring(0,500) : "NULL"));
+				//System.out.println("Tagging "+clusterName+"/"+instances[i]+" "+(xml!=null ? "\n"+xml.substring(0,500) : "NULL"));
+				System.out.println("Tagging "+clusterName+"/"+instances[i]);
 				String path = URLEncoder.encode(clusterName, "UTF-8")+"/"+URLEncoder.encode(instances[i],"UTF-8");
     			service.commit(path, xml, comment, username);
-    			service.branch(path, tag,comment, username);				
+    			service.branch(path, tag,comment, username);
+    			
+    			counter++;
 			}
     	}
+		return counter;
     }
     
     /**
@@ -734,8 +742,13 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 			bgPOJO.setStatus(BackgroundJobPOJO._SCHEDULED_);
 			bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
 			bgPOJO.store();
+			
+			//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+    		
 			//Instantiate processing info
 			TagItemsInfo tagObjectsInfo = new TagItemsInfo(
+					service,
 					versioningSystemPOJOPK,
 					tag,
 					comment,
@@ -771,19 +784,19 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
      */
     private void executeTagItems(
     		BackgroundJobPOJOPK backGroundJobPK,
-    		TagItemsInfo info
+    		TagItemsInfo info,
+    		UniversePOJO universe
     ) {
     	try {
 
     		updateBackGroundJob(backGroundJobPK, "Accessing versioning server");
     		
 			//Get the versioning service
-    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(info.getVersioningSystemPOJOPK());
+    		VersioningServiceCtrlLocalBI service = info.getService();
     		
     		//get the universe and revision ID - this assumes the user is kept across the timeout call...
-    		UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
     		if (universe == null) {
-    			String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+    			String err = "ERROR: no Universe set for user '"+info.getUsername()+"'";
     			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
     			throw new XtentisException(err);
     		}
@@ -862,8 +875,13 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 			bgPOJO.setStatus(BackgroundJobPOJO._SCHEDULED_);
 			bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
 			bgPOJO.store();
+			
+			//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+    		
 			//Instantiate processing info
 			RestoreObjectsInfo restoreObjectsInfo = new RestoreObjectsInfo(
+					service,
 					versioningSystemPOJOPK,
 					tag,
 					LocalUser.getLocalUser().getUsername(),
@@ -878,6 +896,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 					restoreObjectsInfo
 			); 
 			createTimer(actionInfo);
+			
+			
         	
 		} catch (Exception e) {
 			try {
@@ -899,7 +919,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
      */
     private void executeRestoreObjects(
     		BackgroundJobPOJOPK backGroundJobPK,
-    		RestoreObjectsInfo info
+    		RestoreObjectsInfo info,
+    		UniversePOJO universe
     ) {
     	try {
 
@@ -922,12 +943,11 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     		String clusterName = ObjectPOJO.getCluster((Class<? extends ObjectPOJO>)theClass);
     		
 			//Get the versioning service
-    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(info.getVersioningSystemPOJOPK());
+    		VersioningServiceCtrlLocalBI service = info.getService();
 
    	    	//get the universe and revision ID for this Object
-	    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
 	    	if (universe == null) {
-	    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+	    		String err = "ERROR: no Universe set for user '"+info.getUsername()+"'";
 	    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
 	    		throw new XtentisException(err);
 	    	}
@@ -935,16 +955,16 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 	    		theClass)
 	    	);
     		
-    		//check if we use a new configuration
-    		if (info.getVersioningSystemPOJOPK() != null) {
-    			VersioningSystemPOJO pojo = getVersioningSystem(info.getVersioningSystemPOJOPK());
-    			service.setCurrentVersioningSystemConfiguration(
-    					pojo.getName(),
-    					pojo.getUrl(), 
-    					pojo.getUsername(), 
-    					pojo.getPassword()
-    			);
-    		}
+//    		//check if we use a new configuration
+//    		if (info.getVersioningSystemPOJOPK() != null) {
+//    			VersioningSystemPOJO pojo = getVersioningSystem(info.getVersioningSystemPOJOPK());
+//    			service.setCurrentVersioningSystemConfiguration(
+//    					pojo.getName(),
+//    					pojo.getUrl(), 
+//    					pojo.getUsername(), 
+//    					pojo.getPassword()
+//    			);
+//    		}
     		
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = null;
@@ -992,7 +1012,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     				System.out.println(" Restoring "+clusterName+(info.getInstances()[i] == null ? "": "/"+info.getInstances()[i])+" <-- "+info.getTag());
     				String path = URLEncoder.encode(clusterName, "UTF-8")+"/"+URLEncoder.encode(info.getInstances()[i],"UTF-8");
     				String[] xmls = service.checkOut(path, info.getTag());
-    				System.out.println("Content\n"+xmls[0]);
+    				//System.out.println("Content\n"+xmls[0]);
     				String xml = xmls[0].replaceAll("<\\?.*?\\?>", "");
 					server.putDocumentFromString(xml, info.getInstances()[i], clusterName, revisionID);
 					 if (info.getType().equals("Data Cluster")) {
@@ -1003,10 +1023,10 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     		}
     		
 			try {
-				String message = "Successfully restored "+counter+" item(s) with tag "+info.getTag();
+				String message = "Successfully restored "+counter+" object(s) with tag "+info.getTag();
 				updateBackGroundJob(backGroundJobPK, message, BackgroundJobPOJO._COMPLETED_);
 			} catch (Exception e) {
-				String err = "Items restore done but unable to store the result in the background object: "
+				String err = "Object(s) restore done but unable to store the result in the background object: "
 									+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
 	    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
 	    	    throw new XtentisException(err);
@@ -1015,7 +1035,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 		} catch (Exception e) {
 			e.printStackTrace();
 			try {
-	    	    String err = "Unable to Restore "+info.getInstances().length+" item(s) with tag "+info.getTag()
+	    	    String err = "Unable to Restore "+info.getInstances().length+" object(s) with tag "+info.getTag()
 	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
 				if (! (e instanceof XtentisException)) {
 		    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
@@ -1274,21 +1294,18 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 		
 		try {
 			
-			//set the universe on this user (anonymous)
-			LocalUser.getLocalUser().setUniverse(actionInfo.getUniverse());
-			
 			//update Back Ground Job
 			updateBackGroundJob(pk, "Starting processing of "+actionInfo.getAction());
 
 			//determine what to run
 			if (actionInfo.getInfo() instanceof TagObjectsInfo) {
-				executeTagObjects(pk, (TagObjectsInfo)actionInfo.getInfo());
+				executeTagObjects(pk, (TagObjectsInfo)actionInfo.getInfo(),actionInfo.getUniverse());
 			}else if (actionInfo.getInfo() instanceof TagItemsInfo) {
-				executeTagItems(pk, (TagItemsInfo)actionInfo.getInfo());
+				executeTagItems(pk, (TagItemsInfo)actionInfo.getInfo(),actionInfo.getUniverse());
 			}else if (actionInfo.getInfo() instanceof RestoreItemsInfo) {
 				executeRestoreItems(pk, (RestoreItemsInfo)actionInfo.getInfo());
 			}else if (actionInfo.getInfo() instanceof RestoreObjectsInfo) {
-				executeRestoreObjects(pk, (RestoreObjectsInfo)actionInfo.getInfo());
+				executeRestoreObjects(pk, (RestoreObjectsInfo)actionInfo.getInfo(),actionInfo.getUniverse());
 			}
 
 		} catch (Exception e) {
@@ -1318,7 +1335,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 		bgPOJO.setStatus(status);
 		bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
 		bgPOJO.setSerializedObject(null);
-		bgPOJO.store();		
+		Util.getBackgroundJobCtrlLocal().putBackgroundJob(bgPOJO);
 	}
 	
 	
