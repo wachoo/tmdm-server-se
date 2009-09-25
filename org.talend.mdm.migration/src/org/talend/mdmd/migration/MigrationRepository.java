@@ -24,7 +24,7 @@ public class MigrationRepository{
   private XDBReceiver _receiver;
   private static boolean isExeuted=false;
   private static String MIGRATION_FILE_NAME = "migration.xml";
-  private static final int CONNECT_WAIT_TIME = 2 * 1000;
+  private static final int CONNECT_WAIT_TIME = 10 * 1000;
   
   private static MigrationRepository repository = null;
   
