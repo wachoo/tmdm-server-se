@@ -276,6 +276,10 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			org.xmldb.api.base.Collection col = getCollection(revisionID, null, true);
 			CollectionManagementService service = (CollectionManagementService)col.getService("CollectionManagementService", "1.0");
 			service.removeCollection(clusterName);
+			String key =
+				((revisionID == null) || "".equals(revisionID) ? "__HEAD__" : revisionID)
+				+((clusterName == null) ? "__ROOT__" : clusterName);
+			clusters.remove(key);
 			long time = System.currentTimeMillis() - startT;
 			return time;
 		} catch (Exception e) {
