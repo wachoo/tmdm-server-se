@@ -65,6 +65,7 @@ public class MigrationRepository{
 	  for(String clazz: list){
 		  try {
 			AbstractMigrationTask task=(AbstractMigrationTask)Class.forName(clazz).newInstance();
+			
 			task.start();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
