@@ -637,8 +637,15 @@ public class SmtpServiceBean extends ServiceCtrlBean  implements SessionBean {
 
 	}
     
-
-    private String getDefaultConfiguration() {
+    /**
+    *
+    * @get the default configuration
+    * @throws EJBException
+    *
+    * @ejb.interface-method view-type = "local"
+    * @ejb.facade-method
+    */
+    public String getDefaultConfiguration() {
     	return
     		"<configuration>"+
     		"	<host>localhost</host>"+

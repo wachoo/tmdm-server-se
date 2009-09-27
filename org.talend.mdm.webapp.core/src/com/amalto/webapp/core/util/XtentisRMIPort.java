@@ -3517,8 +3517,14 @@ public class XtentisRMIPort implements XtentisPort {
 				service,
 				new Object[] {						
 				}
-			);			
-			return new com.amalto.webapp.util.webservices.WSServiceGetDocument(desc,configuration,doc,schema);
+			);
+			String defaultConf = "";
+			defaultConf = (String)Util.getMethod(service, "getDefaultConfiguration").invoke(
+					service,
+					new Object[]{
+				    }
+			    );
+			return new com.amalto.webapp.util.webservices.WSServiceGetDocument(desc,configuration,doc,schema, defaultConf);
 		} catch (XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
 		} catch (Exception e) {

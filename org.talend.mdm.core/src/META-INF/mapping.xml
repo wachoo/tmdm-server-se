@@ -1838,6 +1838,10 @@
 <java-variable-name>configureSchema</java-variable-name>
 <xml-element-name>configureSchema</xml-element-name>
 </variable-mapping>
+<variable-mapping>
+<java-variable-name>defaultConfig</java-variable-name>
+<xml-element-name>defaultConfig</xml-element-name>
+</variable-mapping>
 </java-xml-type-mapping>
 <java-xml-type-mapping>
 <java-type>com.amalto.core.webservice.WSPutRole</java-type>

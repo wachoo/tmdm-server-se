@@ -359,9 +359,16 @@ public class LoggingServiceBean extends ServiceCtrlBean  implements SessionBean{
 		return null;
 	}
 
-
+    /**
+    *
+    * @get the default configuration
+    * @throws EJBException
+    *
+    * @ejb.interface-method view-type = "local"
+    * @ejb.facade-method
+    */
     
-    private String getDefaultConfiguration() {
+    public String getDefaultConfiguration() {
     	return
     		"<configuration>"+
     		"	<port>4561</port>"+

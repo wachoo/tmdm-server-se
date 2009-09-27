@@ -5,7 +5,7 @@ package com.amalto.service.loggingsmtp.ejb.local;
 
 /**
  * Local interface for LoggingSmtp.
- * @xdoclet-generated at 3-08-09
+ * @xdoclet-generated at 27-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -27,6 +27,8 @@ public interface LoggingSmtpLocal
    public java.io.Serializable receiveFromOutbound( java.util.HashMap map ) throws com.amalto.core.util.XtentisException;
 
    public java.lang.String receiveFromInbound( com.amalto.core.ejb.ItemPOJOPK itemPK,java.lang.String routingOrderID,java.lang.String parameters ) throws com.amalto.core.util.XtentisException;
+
+   public java.lang.String getDefaultConfiguration(  ) ;
 
    public java.lang.String getDocumentation( java.lang.String twoLettersLanguageCode ) throws com.amalto.core.util.XtentisException;
 

@@ -5,7 +5,7 @@ package com.amalto.service.smtp.ejb.local;
 
 /**
  * Local interface for Smtp.
- * @xdoclet-generated at 24-09-09
+ * @xdoclet-generated at 27-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -35,6 +35,8 @@ public interface SmtpLocal
    public java.lang.String getConfigurationSchema(  ) throws com.amalto.core.util.XtentisException;
 
    public java.lang.String sendSimpleMail( java.lang.String from,java.lang.String to,java.lang.String cc,java.lang.String bcc,java.lang.String subject,java.lang.String body ) throws com.amalto.core.util.XtentisException;
+
+   public java.lang.String getDefaultConfiguration(  ) ;
 
    public java.lang.String getDocumentation( java.lang.String twoLettersLanguageCode ) throws com.amalto.core.util.XtentisException;
 

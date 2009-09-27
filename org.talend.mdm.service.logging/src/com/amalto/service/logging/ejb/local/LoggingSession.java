@@ -5,7 +5,7 @@ package com.amalto.service.logging.ejb.local;
 
 /**
  * Session layer for Logging.
- * @xdoclet-generated at 3-08-09
+ * @xdoclet-generated at 27-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

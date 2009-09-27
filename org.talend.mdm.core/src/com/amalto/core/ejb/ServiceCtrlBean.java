@@ -253,6 +253,18 @@ public abstract class ServiceCtrlBean implements SessionBean {
     	return null;
     }
     /**
+     * Returns the XML schema for the configuration<br>
+     * Can be null
+     *  
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "local"
+     * @ejb.facade-method 
+     */
+    public String getDefaultConfiguration() throws XtentisException{
+    	return null;
+    }    
+    /**
      * Retrieves the configuration
      * The default implementation renders the configuration string "as stored"
      * and ignore the optional parameter 

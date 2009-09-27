@@ -256,8 +256,15 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
 	}
 
 
-
-    private String getDefaultConfiguration(){
+    /**
+    *
+    * @get the default configuration
+    * @throws EJBException
+    *
+    * @ejb.interface-method view-type = "local"
+    * @ejb.facade-method
+    */
+    public String getDefaultConfiguration(){
 
     	return
     		"<configuration/>";

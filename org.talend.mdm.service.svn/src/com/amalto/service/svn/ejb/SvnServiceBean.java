@@ -374,7 +374,15 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
 		return "SUCCESS";
     }
 
-    private String getDefaultConfiguration() throws XtentisException{
+    /**
+     * get the default system configuration
+     *
+     * @throws EJBException
+     *
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     */
+    public String getDefaultConfiguration() throws XtentisException{
     	 org.apache.log4j.Logger.getLogger(this.getClass()).warn("SERVICE SVN GET DEFAULT CONFIGURATION");
     	try {
     		SvnConfiguration config = new SvnConfiguration();

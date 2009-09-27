@@ -2470,6 +2470,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 				);
 			String doc = "";
 			String schema = "";
+			String defaultConf = "";
 			try{
 				doc=(String)
 				Util.getMethod(service, "getDocumentation").invoke(
@@ -2483,11 +2484,16 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 					service,
 					new Object[] {						
 					}
-				);	
+				);
+				defaultConf = (String)Util.getMethod(service, "getDefaultConfiguration").invoke(
+					service,
+					new Object[]{
+				    }
+			    );
 			}catch(Exception e){
 				
 			}
-			return new WSServiceGetDocument(desc,configuration,doc,schema);
+			return new WSServiceGetDocument(desc,configuration,doc,schema, defaultConf);
 		} catch (XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
 		} catch (Exception e) {
