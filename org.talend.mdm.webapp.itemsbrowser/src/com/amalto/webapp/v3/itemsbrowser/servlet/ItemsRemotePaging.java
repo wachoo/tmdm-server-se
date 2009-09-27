@@ -214,7 +214,7 @@ public class ItemsRemotePaging  extends HttpServlet{
 //				results[i] =closingTags.matcher(results[i]).replaceAll("#");	
 //				results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
 //				String[] elements = results[i].split("#");
-				//aiming modify when there is null value in fields
+				//aiming modify when there is null value in fields, the viewable fields sequence is the same as the childlist of result
 				Element root = Util.parse(results[i]).getDocumentElement();
 				List<String> l=getElementValues("/result",root);
 				String[] elements =l.toArray(new String[l.size()]);
@@ -328,8 +328,8 @@ public class ItemsRemotePaging  extends HttpServlet{
 		for(int i=0; i<list.getLength(); i++){
 			Node node=list.item(i);
 			if(node.getNodeType() == Node.ELEMENT_NODE){
-				String nName=node.getNodeName();
-				String xPath=parentPath+"/"+nName;
+				//String nName=node.getNodeName();
+				//String xPath=parentPath+"/"+nName;
 				String nValue=com.amalto.core.util.Util.getFirstTextNode(node, ".");
 				if( !hasChildren(node)){
 					l.add(nValue);

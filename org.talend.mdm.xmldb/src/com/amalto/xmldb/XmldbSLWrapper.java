@@ -1282,9 +1282,24 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			//find pivot
 			Set<String> ps = pivots.keySet();
 			String newPath = null;
-			for (Iterator<String> iterator = ps.iterator(); iterator.hasNext(); ) {
+			for (Iterator<String> iterator = ps.iterator(); iterator.hasNext(); ) {				
 				String pivot = iterator.next();
 				String pivotRoot = pivot.split("/")[0];
+				//aiming modify pivotRoot maybe ConceptName[condition], fix bug 0008980
+				if(!beRoot.equals(pivotRoot) ){
+					Pattern p=Pattern.compile("(.*?)\\[.*\\]");
+					Matcher m= p.matcher(pivotRoot);
+					if(m.matches()){
+						if(m.group(1).equals(beRoot)){
+							int pos= bename.indexOf('/');
+							if(pos!=-1){
+								newPath = "$"+pivots.get(pivot)+bename.substring(pos);
+								break;
+							}
+						}			
+					}
+				}
+				//end
 				if (beRoot.equals(pivotRoot)) {
 					//found
 					newPath = "$"+pivots.get(pivot)+getPathFromPivot(pivot, bename);

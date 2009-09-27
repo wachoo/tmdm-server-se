@@ -1072,6 +1072,10 @@ public class ItemsBrowserDWR {
 		
 		
 		Configuration config = Configuration.getInstance();
+		//aiming modify there is bug when initxpathForeignKey when it's like 'conceptname/key'
+		//so we convert initxpathForeignKey to 'conceptname'
+		initxpathForeignKey=initxpathForeignKey.split("/")[0];
+		//end
 		
 		// foreign key set by business concept
 		if(initxpathForeignKey.split("/").length == 1){

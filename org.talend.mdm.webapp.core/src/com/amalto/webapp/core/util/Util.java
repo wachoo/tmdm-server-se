@@ -51,15 +51,19 @@ import org.xml.sax.InputSource;
 import sun.misc.BASE64Decoder;
 
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.webservice.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSBase64KeyValue;
 import com.amalto.webapp.util.webservices.WSConnectorResponseCode;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
+import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSUniverse;
 import com.amalto.webapp.util.webservices.WSUniversePK;
+import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.XtentisPort;
 import com.amalto.webapp.util.webservices.XtentisService_Impl;
 import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
+import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
@@ -205,7 +209,45 @@ public class Util {
     		return m.group(1);
    		return null;
     }
-
+    
+    public static String getForeignPathFromPath(String path){
+    	int pos= path.indexOf("[");    	    	
+    	if(pos != -1){
+    		return path.substring(0,pos);
+    	}
+    	return path;
+    	
+    }
+    
+    
+    public static WSWhereCondition getConditionFromPath(String path) {
+    	Pattern p = Pattern.compile("(.*?)\\[(.*?)(!=|=|>=|>|<=|<])(.*?)\\].*");
+    	if (!path.endsWith("/")) path+="/";
+    	Matcher m = p.matcher(path);
+    	if (m.matches()){
+    		WSWhereCondition wc=new WSWhereCondition();
+    		wc.setLeftPath(m.group(2).trim());
+    		com.amalto.webapp.util.webservices.WSWhereOperator operator = changeToWSOperator(m.group(3));
+    		wc.setOperator(operator);
+    		wc.setRightValueOrPath(m.group(4).trim().replaceAll("'|\"", ""));
+    		wc.setSpellCheck(true);
+    		wc.setStringPredicate(WSStringPredicate.OR);
+    		return wc;
+    	}
+   		return null;
+    }
+    
+    public static com.amalto.webapp.util.webservices.WSWhereOperator changeToWSOperator(String operator){
+    	if("=".equals(operator))return com.amalto.webapp.util.webservices.WSWhereOperator.EQUALS;
+    	if("!=".equals(operator))return com.amalto.webapp.util.webservices.WSWhereOperator.NOT_EQUALS;
+    	if("<".equals(operator))return com.amalto.webapp.util.webservices.WSWhereOperator.LOWER_THAN;
+    	if("<=".equals(operator))return com.amalto.webapp.util.webservices.WSWhereOperator.LOWER_THAN_OR_EQUAL;
+    	if(">".equals(operator))return com.amalto.webapp.util.webservices.WSWhereOperator.GREATER_THAN;
+    	if(">=".equals(operator))return com.amalto.webapp.util.webservices.WSWhereOperator.GREATER_THAN_OR_EQUAL;
+    	
+    	return null;
+    }
+    
 	/**
 	 * Generates an xml string from a node 
 	 * (not pretty formatted)
@@ -658,5 +700,8 @@ public class Util {
 		}
 		return props;
 	}
-    
+//    public static void main(String[] args) {
+//    	getConditionFromPath("Country[Country/isoCode!=CN]");
+//    	
+//	}
 }
