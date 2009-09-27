@@ -64,6 +64,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
      * icon or not
      */
     initContent: function(itemData, newItem,treeIndex, hasIcon) {	
+    	var KEY_DEFAULT_vALUE = {
+			'en':'Generated upon save',
+			'fr':'Généré lors de la sauvegarde'
+		}
 		var html = [];		
 		
 		/*var choice = '';
@@ -103,10 +107,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				readOnlyStyle = readOnly = "READONLY";
 			}
 			var nullParentStatus = true;
-			nullParentStatus = (itemData.parent==null&&(itemData.readOnly==true) || (itemData.key==true && newItem==false));
+			nullParentStatus = (itemData.parent==null&&(itemData.readOnly==true) || (itemData.key==true && newItem==false)||(itemData.key==true&&(itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT")));
 			if(nullParentStatus){
 				readOnlyStyle = readOnly = "READONLY";
 			}
+			
+				
+			
 			var foreignKeyImg = '';
 			if(itemData.foreignKey != null) {
 				if(itemData.readOnly==false){
@@ -126,6 +133,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			
 			var value = "";
 			if(itemData.value!=null) value = itemData.value;
+			if(newItem==true&&itemData.key==true&&(itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"))
+				value = KEY_DEFAULT_vALUE[language];
 			var typeStatus = true;
 			typeStatus = value.length<70 ||(itemData.typeName=="PICTURE")
 
@@ -254,6 +263,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			'en' : ' is not a valid value for double ',
 			'fr' : ' is not a valid value for double '
 		}
+		
+		
 		
 		this.resetErrorMessage(this.itemData.nodeId);
 		if(this.itemData.restrictions!=null){	
