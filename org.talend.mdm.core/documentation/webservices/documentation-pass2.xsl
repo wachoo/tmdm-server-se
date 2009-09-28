@@ -19,7 +19,6 @@
                         font-family: tahoma, verdana, helvetica, sans-serif;
                     }
 
-
                     .operation-name {
                         font-weight: bold;
                         padding-bottom:5px;

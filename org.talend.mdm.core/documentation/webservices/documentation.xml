@@ -33,7 +33,7 @@
       </operation>
       <operation>
          <name>existsDataModel</name>
-         <documentation>Checks the existence of a Data Model and returns it if it exists</documentation>
+         <documentation>Check the existence of a Data Model and returns it if it exists</documentation>
          <in>WSExistsDataModel</in>
          <out>WSBoolean</out>
       </operation>
@@ -45,7 +45,7 @@
       </operation>
       <operation>
          <name>putDataModel</name>
-         <documentation>Store/overwrites a Data Model</documentation>
+         <documentation>Store/overwrite a Data Model</documentation>
          <in>WSPutDataModel</in>
          <out>WSDataModelPK</out>
       </operation>
@@ -57,7 +57,7 @@
       </operation>
       <operation>
          <name>checkSchema</name>
-         <documentation>Checks the validity of an (XSD) schema for a Data Model</documentation>
+         <documentation>Check the validity of an (XSD) schema for a Data Model</documentation>
          <in>WSCheckSchema</in>
          <out>WSString</out>
       </operation>
@@ -105,7 +105,7 @@
       </operation>
       <operation>
          <name>existsDataCluster</name>
-         <documentation>Checks the existence of a Data Cluster and return it if it exists</documentation>
+         <documentation>Check the existence of a Data Cluster and return it if it exists</documentation>
          <in>WSExistsDataCluster</in>
          <out>WSBoolean</out>
       </operation>
@@ -159,7 +159,7 @@
       </operation>
       <operation>
          <name>existsView</name>
-         <documentation>Checks the existence of a View and return it if it exists</documentation>
+         <documentation>Check the existence of a View and return it if it exists</documentation>
          <in>WSExistsView</in>
          <out>WSBoolean</out>
       </operation>
@@ -195,7 +195,7 @@
       </operation>
       <operation>
          <name>existsItem</name>
-         <documentation>Checks the existence of an Item and return it if it exists</documentation>
+         <documentation>Check the existence of an Item and return it if it exists</documentation>
          <in>WSExistsItem</in>
          <out>WSBoolean</out>
       </operation>
@@ -267,13 +267,13 @@
       </operation>
       <operation>
          <name>extractUsingTransformer</name>
-         <documentation>Extract an Item using its key and return the result after having it processed thriough a Transformer</documentation>
+         <documentation>Extract an Item using its key and return the result after having it processed through a Transformer</documentation>
          <in>WSExtractUsingTransformer</in>
          <out>WSPipeline</out>
       </operation>
       <operation>
          <name>extractUsingTransformerThruView</name>
-         <documentation>Extract an Item using its key and return the result after having it processed thriough a Transformer and filtered by a View</documentation>
+         <documentation>Extract an Item using its key and return the result after having it processed through a Transformer and filtered by a View</documentation>
          <in>WSExtractUsingTransformerThruView</in>
          <out>WSPipeline</out>
       </operation>
@@ -309,7 +309,7 @@
       </operation>
       <operation>
          <name>getRoutingRulePKs</name>
-         <documentation>Retrieve a list if Routing Rules using a regular expression on their name</documentation>
+         <documentation>Retrieve a list of Routing Rules using a regular expression on their name</documentation>
          <in>WSGetRoutingRulePKs</in>
          <out>WSRoutingRulePKArray</out>
       </operation>
@@ -375,7 +375,7 @@
       </operation>
       <operation>
          <name>existsStoredProcedure</name>
-         <documentation>Checks the existence of a Stored Procedure and return it if it exists</documentation>
+         <documentation>Check the existence of a Stored Procedure and return it if it exists</documentation>
          <in>WSExistsStoredProcedure</in>
          <out>WSBoolean</out>
       </operation>
@@ -465,7 +465,7 @@
       </operation>
       <operation>
          <name>existsTransformerV2</name>
-         <documentation>Checks the existence of a Transformer and return it if it exists</documentation>
+         <documentation>Check the existence of a Transformer and return it if it exists</documentation>
          <in>WSExistsTransformerV2</in>
          <out>WSBoolean</out>
       </operation>
@@ -501,13 +501,13 @@
       </operation>
       <operation>
          <name>extractThroughTransformerV2</name>
-         <documentation>Extracts and item en process it through a transformer before returning the result</documentation>
+         <documentation>Extracts an item and process it through a transformer before returning the result</documentation>
          <in>WSExtractThroughTransformerV2</in>
          <out>WSTransformerContext</out>
       </operation>
       <operation>
          <name>existsTransformerPluginV2</name>
-         <documentation>Checks the exsitence of a Transformer Plugin and return it if it exists</documentation>
+         <documentation>Check the exsitence of a Transformer Plugin and return it if it exists</documentation>
          <in>WSExistsTransformerPluginV2</in>
          <out>WSBoolean</out>
       </operation>
@@ -531,7 +531,7 @@
       </operation>
       <operation>
          <name>getTransformerPluginV2sList</name>
-         <documentation>Retrieve a list of Transformer PLugins</documentation>
+         <documentation>Retrieve a list of Transformer Plugins</documentation>
          <in>WSGetTransformerPluginV2sList</in>
          <out>WSTransformerPluginV2sList</out>
       </operation>
@@ -543,7 +543,7 @@
       </operation>
       <operation>
          <name>existsRole</name>
-         <documentation>Checks the existence of a role and return it if it exists</documentation>
+         <documentation>Check the existence of a role and return it if it exists</documentation>
          <in>WSExistsRole</in>
          <out>WSBoolean</out>
       </operation>
@@ -579,7 +579,7 @@
       </operation>
       <operation>
          <name>existsMenu</name>
-         <documentation>Checks the existence of a Menu and return it it exists</documentation>
+         <documentation>Check the existence of a Menu and return it it exists</documentation>
          <in>WSExistsMenu</in>
          <out>WSBoolean</out>
       </operation>
@@ -681,7 +681,7 @@
       </operation>
       <operation>
          <name>existsRoutingOrderV2</name>
-         <documentation>Checks the existence of a Routing Order and return it if it exists</documentation>
+         <documentation>Check the existence of a Routing Order and return it if it exists</documentation>
          <in>WSExistsRoutingOrderV2</in>
          <out>WSRoutingOrderV2</out>
       </operation>
@@ -735,7 +735,7 @@
       </operation>
       <operation>
          <name>existsUniverse</name>
-         <documentation>Checks the existence of an Universe and return it if it exists</documentation>
+         <documentation>Check the existence of an Universe and return it if it exists</documentation>
          <in>WSExistsUniverse</in>
          <out>WSBoolean</out>
       </operation>
@@ -765,7 +765,7 @@
       </operation>
       <operation>
          <name>getCurrentUniverse</name>
-         <documentation>Retrieve the current Universe for the user making call this web service</documentation>
+         <documentation>Retrieve the current Universe for the user making the call this web service</documentation>
          <in>WSGetCurrentUniverse</in>
          <out>WSUniverse</out>
       </operation>
@@ -861,7 +861,7 @@
       </operation>
       <operation>
          <name>getSynchronizationItem</name>
-         <documentation>Retreive a Synchronization Conflict</documentation>
+         <documentation>Retrieve a Synchronization Conflict</documentation>
          <in>WSGetSynchronizationItem</in>
          <out>WSSynchronizationItem</out>
       </operation>
@@ -1485,7 +1485,7 @@
       <type>
          <name>WSGetViewPKs</name>
          <documentation>
-				A essage to retrieve a list of view primary keys using a regular expression on their names
+				A message to retrieve a list of view primary keys using a regular expression on their names
 			</documentation>
          <subtypes/>
       </type>
@@ -2919,7 +2919,7 @@
       <type>
          <name>WSGetViewPKs</name>
          <documentation>
-				A essage to retrieve a list of view primary keys using a regular expression on their names
+				A message to retrieve a list of view primary keys using a regular expression on their names
 			</documentation>
          <subtypes/>
       </type>
@@ -4364,7 +4364,7 @@
       <type>
          <name>WSGetViewPKs</name>
          <documentation>
-				A essage to retrieve a list of view primary keys using a regular expression on their names
+				A message to retrieve a list of view primary keys using a regular expression on their names
 			</documentation>
          <subtypes/>
       </type>
@@ -5705,7 +5705,7 @@
       <type>
          <name>WSGetViewPKs</name>
          <documentation>
-				A essage to retrieve a list of view primary keys using a regular expression on their names
+				A message to retrieve a list of view primary keys using a regular expression on their names
 			</documentation>
          <subtypes/>
       </type>
@@ -7150,7 +7150,7 @@
       <type>
          <name>WSGetViewPKs</name>
          <documentation>
-				A essage to retrieve a list of view primary keys using a regular expression on their names
+				A message to retrieve a list of view primary keys using a regular expression on their names
 			</documentation>
          <subtypes/>
       </type>
@@ -8546,7 +8546,7 @@
       <type>
          <name>WSGetViewPKs</name>
          <documentation>
-				A essage to retrieve a list of view primary keys using a regular expression on their names
+				A message to retrieve a list of view primary keys using a regular expression on their names
 			</documentation>
          <subtypes/>
       </type>
@@ -9267,14 +9267,28 @@
       </type>
       <type>
          <name>WSRoutingOrderV2PK</name>
-         <documentation/>
+         <documentation>
+                The primary key of a Routing Order made of its name and status (ACTIVE, FAILED, COMPLETED)
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2Status</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSRoutingOrderV2</name>
-         <documentation/>
+         <documentation>
+                A routing Order
+                name: its unique name
+                status: the Routing Order status (ACTIVE, FAILED COMPLETED)
+                timeCreated: the time in millis at which the Routing Order was created
+                timeScheduled: the time in millis at which the Routing Order was scheduled for processing
+                timeLastRunStarted: the time in millis at which this Routing Order last started execution
+                timeLastRunCompleted: the time in millis at which this Routing Order last completed execution
+                wsItemPK: the primary key of the Item routed
+                serviceJNDI: the JNDI name of the service executed
+                serviceParameters: additional parameters passed to the service for execution (example: the from field for an email)
+                message: the message returned by the service after execution
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2Status</subtype>
             <subtype>WSItemPK</subtype>
@@ -9282,84 +9296,123 @@
       </type>
       <type>
          <name>WSRoutingOrderV2PKArray</name>
-         <documentation/>
+         <documentation>
+                An Array of Routing Orders primary keys
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2PK</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSRoutingOrderV2Array</name>
-         <documentation/>
+         <documentation>
+                An array of Routing Orders
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSGetRoutingOrderV2</name>
-         <documentation/>
+         <documentation>
+                A message to retrieve a Routing Order
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2PK</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSExistsRoutingOrderV2</name>
-         <documentation/>
+         <documentation>
+                A message to check the existence of a Routing Order and retrive it if it exists
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2PK</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSDeleteRoutingOrderV2</name>
-         <documentation/>
+         <documentation>
+                A message to delete a Routing Order
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2PK</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSRoutingOrderV2SearchCriteria</name>
-         <documentation/>
+         <documentation>
+                A message to search Routing Orders using criteria
+                status: the Routing Order status (ACTIVE, FAILED COMPLETED)
+                anyFieldContains: keyword(s) contained in any of the Routing Order field
+                timeCreatedMin: the minimum time in millis at which the Routing Order was created
+                timeCreatedMax: the maximum time in millis at which the Routing Order was created
+                timeScheduledMin: the minimum time in millis at which the Routing Order was scheduled for processing
+                timeScheduledMax: the maximum time in millis at which the Routing Order was scheduled for processing
+                timeLastRunStartedMin: the minimum time in millis at which this Routing Order last started execution
+                timeLastRunStartedMax: the maximum time in millis at which this Routing Order last started execution
+                timeLastRunCompletedMin: the minimum time in millis at which this Routing Order last completed execution
+                timeLastRunCompletedMax: the maximum time in millis at which this Routing Order last completed execution
+                itemPKConceptContains: a regular expression on the Concept of the Item routed
+                itemPKIDFieldsContain: a regular expression on the IDs joined by dots of the Item routed
+                serviceJNDIContains: a regular expression on the JNDI name of the service executed
+                serviceParametersContain: a regular expression on the additional parameters passed to the service for execution (example: the from field for an email)
+                messageContain: a regular expression on the message returned by the service after execution
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2Status</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSGetRoutingOrderV2PKsByCriteria</name>
-         <documentation/>
+         <documentation>
+                A message to search Routing Orders primary keys using criteria
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2SearchCriteria</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSGetRoutingOrderV2sByCriteria</name>
-         <documentation/>
+         <documentation>
+                A message to search Routing Orders using criteria
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2SearchCriteria</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSExecuteRoutingOrderV2Synchronously</name>
-         <documentation/>
+         <documentation>
+                A message to execute a Routing Order synchronously.
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2PK</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSExecuteRoutingOrderV2Asynchronously</name>
-         <documentation/>
+         <documentation>
+                A message to execute a Routing Order asynchronously
+            </documentation>
          <subtypes>
             <subtype>WSRoutingOrderV2PK</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSRouteItemV2</name>
-         <documentation/>
+         <documentation>
+                A message to submit an Item to the Routing Engine
+            </documentation>
          <subtypes>
             <subtype>WSItemPK</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSRoutingEngineV2Action</name>
-         <documentation/>
+         <documentation>
+                A message to execute an Action on the Routing Engine (START, STOP, SUSPEND, RESUME, STATUS)
+            </documentation>
          <subtypes>
             <subtype>WSRoutingEngineV2ActionCode</subtype>
          </subtypes>
@@ -9928,7 +9981,7 @@
       <type>
          <name>WSGetViewPKs</name>
          <documentation>
-				A essage to retrieve a list of view primary keys using a regular expression on their names
+				A message to retrieve a list of view primary keys using a regular expression on their names
 			</documentation>
          <subtypes/>
       </type>
@@ -11266,7 +11319,7 @@
       <type>
          <name>WSGetViewPKs</name>
          <documentation>
-				A essage to retrieve a list of view primary keys using a regular expression on their names
+				A message to retrieve a list of view primary keys using a regular expression on their names
 			</documentation>
          <subtypes/>
       </type>
@@ -11987,71 +12040,98 @@
       </type>
       <type>
          <name>WSUniverse</name>
-         <documentation/>
+         <documentation>
+				An Universe
+				name: the unique name of the Universe
+				description: the optional description of the Universe
+				xtentisObjectsRevisionIDs: the revision IDs applying to the various MDM Objects in this Universe
+					&gt;xtentisObjectName: the name of the MDM Object
+					&gt;revisionID: the revision ID of the Object
+				defaultItemsRevisionID: the Revision ID to apply by default to Items for which a Revision ID has no been specified
+				itemsRevisionIDs: the Revision IDs to apply to the Items
+					&gt;conceptPattern: a pattern that matches the Concept of the Items
+					&gt;revisionID: the Revision ID to apply to this Items
+			</documentation>
          <subtypes/>
       </type>
       <type>
          <name>WSUniversePK</name>
-         <documentation/>
+         <documentation>
+				An Universe Primary Key (its name)
+			</documentation>
          <subtypes/>
       </type>
       <type>
          <name>WSUniversePKArray</name>
-         <documentation/>
+         <documentation>
+				An Array of Universe Primary Keys
+			</documentation>
          <subtypes>
             <subtype>WSUniversePK</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSGetUniverse</name>
-         <documentation/>
+         <documentation>
+				A mesage to retrieve an Universe
+			</documentation>
          <subtypes>
             <subtype>WSUniversePK</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSExistsUniverse</name>
-         <documentation/>
+         <documentation>
+				A message to determine if an Universe exists
+			</documentation>
          <subtypes>
             <subtype>WSUniversePK</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSPutUniverse</name>
-         <documentation/>
+         <documentation>
+				A message to create/overwrite an Universe
+			</documentation>
          <subtypes>
             <subtype>WSUniverse</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSDeleteUniverse</name>
-         <documentation/>
+         <documentation>
+				A message to delete an Universe
+			</documentation>
          <subtypes>
             <subtype>WSUniversePK</subtype>
          </subtypes>
       </type>
       <type>
          <name>WSGetUniversePKs</name>
-         <documentation/>
+         <documentation>
+				A message to retrieve all the Universe Primary Keys
+			</documentation>
          <subtypes/>
       </type>
       <type>
          <name>WSGetObjectsForUniverses</name>
          <documentation>
-				Return the xtentis object names for which a revision ID can be set
+				A message to return the MDM object names for which a revision ID can be set
 			</documentation>
          <subtypes/>
       </type>
       <type>
          <name>WSGetCurrentUniverse</name>
          <documentation>
-				Return the Universe the calling user is using
+				A message to return the current Universe  of the user calling this web service
 			</documentation>
          <subtypes/>
       </type>
       <type>
          <name>WSGetConceptsInDataClusterWithRevisions</name>
-         <documentation/>
+         <documentation>
+				A message to retrieve the Revision IDs of the Concepts in a given Data Cluster
+			</documentation>
          <subtypes>
             <subtype>WSDataClusterPK</subtype>
             <subtype>WSUniversePK</subtype>
@@ -12621,7 +12701,7 @@
       <type>
          <name>WSGetViewPKs</name>
          <documentation>
-				A essage to retrieve a list of view primary keys using a regular expression on their names
+				A message to retrieve a list of view primary keys using a regular expression on their names
 			</documentation>
          <subtypes/>
       </type>
@@ -14177,7 +14257,7 @@
       <type>
          <name>WSGetViewPKs</name>
          <documentation>
-				A essage to retrieve a list of view primary keys using a regular expression on their names
+				A message to retrieve a list of view primary keys using a regular expression on their names
 			</documentation>
          <subtypes/>
       </type>

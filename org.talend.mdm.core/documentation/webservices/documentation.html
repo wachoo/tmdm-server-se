@@ -5,7 +5,6 @@
                         font-family: tahoma, verdana, helvetica, sans-serif;
                     }
 
-
                     .operation-name {
                         font-weight: bold;
                         padding-bottom:5px;
@@ -35,8 +34,8 @@
                 </style></head>
    <body>
       <h1>Open MDM Webservices</h1>
-      <h3>Index</h3><a href="#getComponentVersion">getComponentVersion</a>: Retrieves the version of a component, typically the version of the core or of a connector<br><a href="#ping">ping</a>: A simple ping to which the server respond to by a pong. Used to check if the server is up<br><a href="#logout">logout</a>: Logs out an user by clearing the JAAS caches.This operation must be invoked after a role is changed on an user.<br><a href="#initMDM">initMDM</a>: DEPRECATED<br><a href="#getDataModelPKs">getDataModelPKs</a>: Lists the Data Models using a regular expression on their names<br><a href="#existsDataModel">existsDataModel</a>: Checks the existence of a Data Model and returns it if it exists<br><a href="#getDataModel">getDataModel</a>: Retrieve a Data Model<br><a href="#putDataModel">putDataModel</a>: Store/overwrites a Data Model<br><a href="#deleteDataModel">deleteDataModel</a>: Delete a Data Model<br><a href="#checkSchema">checkSchema</a>: Checks the validity of an (XSD) schema for a Data Model<br><a href="#deleteBusinessConcept">deleteBusinessConcept</a>: Delete a Concept from a Data Model<br><a href="#putBusinessConceptSchema">putBusinessConceptSchema</a>: Create a Concept in Data Model by inserting it (XSD) schema<br><a href="#getBusinessConcepts">getBusinessConcepts</a>: Retrieve the list of Concepts in a Data Model<br><a href="#putBusinessConcept">putBusinessConcept</a>: Create aConcept<br><a href="#getBusinessConceptKey">getBusinessConceptKey</a>: Retrieve the elements constitutive of the key of a Concept<br><a href="#getDataClusterPKs">getDataClusterPKs</a>: Retrieve the list of Data Clusters using a regular expression on their names<br><a href="#getDataCluster">getDataCluster</a>: Retrieve a Data Cluster<br><a href="#existsDataCluster">existsDataCluster</a>: Checks the existence of a Data Cluster and return it if it exists<br><a href="#existsDBDataCluster">existsDBDataCluster</a>: ???<br><a href="#putDataCluster">putDataCluster</a>: Store/Overwrites a Data Cluster<br><a href="#putDBDataCluster">putDBDataCluster</a>: ???<br><a href="#deleteDataCluster">deleteDataCluster</a>: Delete a Data Cluster (and the Items contained inside the Data Cluster)<br><a href="#getConceptsInDataCluster">getConceptsInDataCluster</a>: Retrieve a list of all the Concepts stored in a Data Cluster<br><a href="#getConceptsInDataClusterWithRevisions">getConceptsInDataClusterWithRevisions</a>: Retrieve the list of all Concepts stored in a Data Cluster for a specific revision<br><a href="#getViewPKs">getViewPKs</a>: Retrieve a list of Views using a regular expression on their names<br><a href="#getView">getView</a>: Retrieve a View<br><a href="#existsView">existsView</a>: Checks the existence of a View and return it if it exists<br><a href="#putView">putView</a>: Create/Overwrite a View<br><a href="#deleteView">deleteView</a>: Delete a View<br><a href="#getBusinessConceptValue">getBusinessConceptValue</a>: ???<br><a href="#getFullPathValues">getFullPathValues</a>: Retrieve the values for a list of xPaths<br><a href="#getItem">getItem</a>: Retrieve an Item<br><a href="#existsItem">existsItem</a>: Checks the existence of an Item and return it if it exists<br><a href="#getItems">getItems</a>: Retrieve a list or sublist of items for a designated concept using search criteria<br><a href="#getItemPKsByCriteria">getItemPKsByCriteria</a>: Retrieve a list or sublist of Item primary keys for a designated concept using search criteria<br><a href="#viewSearch">viewSearch</a>: Retrieve a list of values specified using a View<br><a href="#xPathsSearch">xPathsSearch</a>: Retrieve a list or sublist of xml documents specified using xPaths and optional conditions on the Items content<br><a href="#getItemsPivotIndex">getItemsPivotIndex</a>: Get Items hierarchical tree according to pivots<br><a href="#count">count</a>: Count values for a particular xPath using optional conditions on the Items content<br><a href="#quickSearch">quickSearch</a>: Retrieve Items thru a view using optional conditions and keywords on the Items content<br><a href="#putItem">putItem</a>: Create/Overwrite an Item<br><a href="#putItemArray">putItemArray</a>: Create/overwrite a list of Items<br><a href="#putItemWithReport">putItemWithReport</a>: ???<br><a href="#putItemWithReportArray">putItemWithReportArray</a>: ???<br><a href="#extractUsingTransformer">extractUsingTransformer</a>: Extract an Item using its key and return the result after having it processed thriough a Transformer<br><a href="#extractUsingTransformerThruView">extractUsingTransformerThruView</a>: Extract an Item using its key and return the result after having it processed thriough a Transformer and filtered by a View<br><a href="#deleteItem">deleteItem</a>: Delete an existing Item<br><a href="#deleteItems">deleteItems</a>: Delete a list of existing Items<br><a href="#dropItem">dropItem</a>: ???<br><a href="#runQuery">runQuery</a>: Directly execute a query on the database and return the response<br><a href="#connectorInteraction">connectorInteraction</a>: Interact with a Connector: start, stop, get status, etc...<br><a href="#getRoutingRulePKs">getRoutingRulePKs</a>: Retrieve a list if Routing Rules using a regular expression on their name<br><a href="#getRoutingRule">getRoutingRule</a>: Retrieve an existing Routing Rule<br><a href="#existsRoutingRule">existsRoutingRule</a>: Check the existence of a Routing Rule and return it if it exists<br><a href="#putRoutingRule">putRoutingRule</a>: Create/Overwrite a Routing Rule<br><a href="#deleteRoutingRule">deleteRoutingRule</a>: Delete and existing Routing Rule<br><a href="#serviceAction">serviceAction</a>: Interact with a Service: start, stop, get status, execute....<br><a href="#getServiceConfiguration">getServiceConfiguration</a>: Retrieve the configuration of a Service<br><a href="#putServiceConfiguration">putServiceConfiguration</a>: Store the configuration of a Service<br><a href="#getServicesList">getServicesList</a>: Retrieve the list of available Services on the server<br><a href="#getServiceDocument">getServiceDocument</a>: ???<br><a href="#getStoredProcedure">getStoredProcedure</a>: Retrieve an existing Stored Procedure<br><a href="#existsStoredProcedure">existsStoredProcedure</a>: Checks the existence of a Stored Procedure and return it if it exists<br><a href="#getStoredProcedurePKs">getStoredProcedurePKs</a>: Retrieve a list of Stored Procedures using a regular expression on their names<br><a href="#putStoredProcedure">putStoredProcedure</a>: Creates/Overwrites a Stored Procedure<br><a href="#deleteStoredProcedure">deleteStoredProcedure</a>: Deletes an existing Stored Procedure<br><a href="#executeStoredProcedure">executeStoredProcedure</a>: Executes a Stored Procedure with optional parameters and return the result<br><a href="#getTransformer">getTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#existsTransformer">existsTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#getTransformerPKs">getTransformerPKs</a>: DEPRECATED - use the TransformerV2 version<br><a href="#putTransformer">putTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#deleteTransformer">deleteTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#processBytesUsingTransformer">processBytesUsingTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#processFileUsingTransformer">processFileUsingTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#processBytesUsingTransformerAsBackgroundJob">processBytesUsingTransformerAsBackgroundJob</a>: DEPRECATED - use the TransformerV2 version<br><a href="#processFileUsingTransformerAsBackgroundJob">processFileUsingTransformerAsBackgroundJob</a>: DEPRECATED - use the TransformerV2 version<br><a href="#getTransformerV2">getTransformerV2</a>: Retrieve a Transformer<br><a href="#existsTransformerV2">existsTransformerV2</a>: Checks the existence of a Transformer and return it if it exists<br><a href="#getTransformerV2PKs">getTransformerV2PKs</a>: Retrieve a list of Transformers using a regular expression on their names<br><a href="#putTransformerV2">putTransformerV2</a>: Create/Overwrite a Transformer<br><a href="#deleteTransformerV2">deleteTransformerV2</a>: Delete and existing Transformer<br><a href="#executeTransformerV2">executeTransformerV2</a>: Execute a Transformer by passing it an initial Pipeline content and return the result<br><a href="#executeTransformerV2AsJob">executeTransformerV2AsJob</a>: Execute in the background a Transformer by passing it an initial Pipeline content. This call returns a Job ID. Use this ID
-      to retrieve the Job and read the progress and result<br><a href="#extractThroughTransformerV2">extractThroughTransformerV2</a>: Extracts and item en process it through a transformer before returning the result<br><a href="#existsTransformerPluginV2">existsTransformerPluginV2</a>: Checks the exsitence of a Transformer Plugin and return it if it exists<br><a href="#getTransformerPluginV2Configuration">getTransformerPluginV2Configuration</a>: Retrieve the configuration of a Transformer Plugin<br><a href="#putTransformerPluginV2Configuration">putTransformerPluginV2Configuration</a>: Store the configuration of a Transformer Plugin<br><a href="#getTransformerPluginV2Details">getTransformerPluginV2Details</a>: Retrieve information about a Transformer Plugin: documentation, <br><a href="#getTransformerPluginV2sList">getTransformerPluginV2sList</a>: Retrieve a list of Transformer PLugins<br><a href="#getRole">getRole</a>: Retrieve a Role<br><a href="#existsRole">existsRole</a>: Checks the existence of a role and return it if it exists<br><a href="#getRolePKs">getRolePKs</a>: Retrieve a list of roles using a regular expression<br><a href="#putRole">putRole</a>: Create/Overwrite a Role<br><a href="#deleteRole">deleteRole</a>: Delete a Role<br><a href="#getObjectsForRoles">getObjectsForRoles</a>: Retrieve the list of MDM objects that can be subjected to roles management<br><a href="#getMenu">getMenu</a>: Retrieve a Menu<br><a href="#existsMenu">existsMenu</a>: Checks the existence of a Menu and return it it exists<br><a href="#getMenuPKs">getMenuPKs</a>: Retrieve a list of Menus using a regular expression on their names<br><a href="#putMenu">putMenu</a>: Create/Overwrite a Menu<br><a href="#deleteMenu">deleteMenu</a>: Delete an existing Menu<br><a href="#versioningGetObjectsHistory">versioningGetObjectsHistory</a>: Retrieve the SVN history of an MDM object<br><a href="#versioningGetItemsHistory">versioningGetItemsHistory</a>: Retrieve the SVN history of an Item<br><a href="#getVersioningSystemConfiguration">getVersioningSystemConfiguration</a>: Retrieve the versioning system configuration<br><a href="#putVersioningSystemConfiguration">putVersioningSystemConfiguration</a>: Store the versioning system configuration<br><a href="#versioningGetInfo">versioningGetInfo</a>: Retrieve whether the versioning system is enabled<br><a href="#versioningTagObjects">versioningTagObjects</a>: Tag an MDM Object in the versioning system<br><a href="#versioningTagItems">versioningTagItems</a>: Tag an Item in the versioning system<br><a href="#versioningRestoreObjects">versioningRestoreObjects</a>: Restore an MDM Object of a particular version and replace the current MDM Object<br><a href="#versioningRestoreItems">versioningRestoreItems</a>: Restore an Item of a particular version and replace the current Item<br><a href="#findBackgroundJobPKs">findBackgroundJobPKs</a>: Retrieve a list of Background Jobs using a regular expression of their ids<br><a href="#putBackgroundJob">putBackgroundJob</a>: Create/Overwrite a Background Job<br><a href="#getBackgroundJob">getBackgroundJob</a>: Retrieve an existing BackGround Job<br><a href="#getRoutingOrderV2">getRoutingOrderV2</a>: Retrieve a Routing Order<br><a href="#existsRoutingOrderV2">existsRoutingOrderV2</a>: Checks the existence of a Routing Order and return it if it exists<br><a href="#deleteRoutingOrderV2">deleteRoutingOrderV2</a>: Delete an existing Routing Order<br><a href="#executeRoutingOrderV2Asynchronously">executeRoutingOrderV2Asynchronously</a>: Execute a Routing Order asynchronously (e.g. "fire and forget")<br><a href="#executeRoutingOrderV2Synchronously">executeRoutingOrderV2Synchronously</a>: Executes a Routing Order and return the result of the execution<br><a href="#getRoutingOrderV2PKsByCriteria">getRoutingOrderV2PKsByCriteria</a>: Retrieve a list of Routing Order primary keys using criteria on their content<br><a href="#getRoutingOrderV2sByCriteria">getRoutingOrderV2sByCriteria</a>: Retrieve a list of Routing Order objects using criteria on their content<br><a href="#routeItemV2">routeItemV2</a>: Sends an Item for routing to the Subscription Engine<br><a href="#routingEngineV2Action">routingEngineV2Action</a>: Perform an action on the Subscription Engine: Start, Stop, Suspend, Resume,.....<br><a href="#getUniverse">getUniverse</a>: Retrieve an Universe<br><a href="#existsUniverse">existsUniverse</a>: Checks the existence of an Universe and return it if it exists<br><a href="#getUniversePKs">getUniversePKs</a>: Retrieve a list of Universes using a regular expression on thier names<br><a href="#putUniverse">putUniverse</a>: Create/Overwrite an existing Universe<br><a href="#deleteUniverse">deleteUniverse</a>: Delete and existing Universe<br><a href="#getObjectsForUniverses">getObjectsForUniverses</a>: Retrieve the list of MDM Objects that can be subjected to Universes<br><a href="#getCurrentUniverse">getCurrentUniverse</a>: Retrieve the current Universe for the user making call this web service<br><a href="#getSynchronizationPlan">getSynchronizationPlan</a>: Retrieve a Synchronization Plan<br><a href="#existsSynchronizationPlan">existsSynchronizationPlan</a>: Check the existence of a Synchronization Plan and return it if it exists<br><a href="#getSynchronizationPlanPKs">getSynchronizationPlanPKs</a>: Retrieve a list if Synchronization Plans using a regular expression on their names<br><a href="#putSynchronizationPlan">putSynchronizationPlan</a>: Create/Overwrite a Synchronization Plan<br><a href="#deleteSynchronizationPlan">deleteSynchronizationPlan</a>: Delete a Synchronization Plan<br><a href="#getObjectsForSynchronizationPlans">getObjectsForSynchronizationPlans</a>: Retrieve the list of object that can be subjected to a Synchronization Plan<br><a href="#getSynchronizationPlanObjectsAlgorithms">getSynchronizationPlanObjectsAlgorithms</a>: Retrieve the available list of conflict resolution algorithms for MDM Objects<br><a href="#getSynchronizationPlanItemsAlgorithms">getSynchronizationPlanItemsAlgorithms</a>: Retrieve the availbale list of conflict resolution algorithms for Items<br><a href="#synchronizationPlanAction">synchronizationPlanAction</a>: Perform an action of a Synchronization Plan, start a synchronization<br><a href="#synchronizationGetUnsynchronizedObjectsIDs">synchronizationGetUnsynchronizedObjectsIDs</a>: Retrieve the lists of MDM Objects IDs which are not zynchronized<br><a href="#synchronizationGetObjectXML">synchronizationGetObjectXML</a>: Retrieve the raw XML content of an MDM Object<br><a href="#synchronizationPutObjectXML">synchronizationPutObjectXML</a>: Create/Overwrite an MDM Object by storing its raw XML<br><a href="#synchronizationGetUnsynchronizedItemPKs">synchronizationGetUnsynchronizedItemPKs</a>: Retrieve the list of Items which are not Synchronized<br><a href="#synchronizationGetItemXML">synchronizationGetItemXML</a>: Retrieve the raw XLM of an Item<br><a href="#synchronizationPutItemXML">synchronizationPutItemXML</a>: Create/Overwrite and Item by pushing its raw XML<br><a href="#getSynchronizationItem">getSynchronizationItem</a>: Retreive a Synchronization Conflict<br><a href="#existsSynchronizationItem">existsSynchronizationItem</a>: Check the existence of a Synchronization Conflict and return it if it exists<br><a href="#getSynchronizationItemPKs">getSynchronizationItemPKs</a>: Retrieve a list of Synchronization Conflicts using a regular expression on their IDs<br><a href="#putSynchronizationItem">putSynchronizationItem</a>: Create/Overwrite a Synchronization Conflict<br><a href="#deleteSynchronizationItem">deleteSynchronizationItem</a>: Delete a Synchronization Conflict<br><a href="#resolveSynchronizationItem">resolveSynchronizationItem</a>: Resolve a Synchronization Conflict (by indicating the final content)<br><a href="#recoverDroppedItem">recoverDroppedItem</a>: ???<br><a href="#findAllDroppedItemsPKs">findAllDroppedItemsPKs</a>: ???<br><a href="#loadDroppedItem">loadDroppedItem</a>: ???<br><a href="#removeDroppedItem">removeDroppedItem</a>: ???<br><h3>Operations</h3><span><a class="operation-name" name="getComponentVersion">getComponentVersion</a> <span class="operation-description">Retrieves the version of a component, typically the version of the core or of a connector</span></span><table>
+      <h3>Index</h3><a href="#getComponentVersion">getComponentVersion</a>: Retrieves the version of a component, typically the version of the core or of a connector<br><a href="#ping">ping</a>: A simple ping to which the server respond to by a pong. Used to check if the server is up<br><a href="#logout">logout</a>: Logs out an user by clearing the JAAS caches.This operation must be invoked after a role is changed on an user.<br><a href="#initMDM">initMDM</a>: DEPRECATED<br><a href="#getDataModelPKs">getDataModelPKs</a>: Lists the Data Models using a regular expression on their names<br><a href="#existsDataModel">existsDataModel</a>: Check the existence of a Data Model and returns it if it exists<br><a href="#getDataModel">getDataModel</a>: Retrieve a Data Model<br><a href="#putDataModel">putDataModel</a>: Store/overwrite a Data Model<br><a href="#deleteDataModel">deleteDataModel</a>: Delete a Data Model<br><a href="#checkSchema">checkSchema</a>: Check the validity of an (XSD) schema for a Data Model<br><a href="#deleteBusinessConcept">deleteBusinessConcept</a>: Delete a Concept from a Data Model<br><a href="#putBusinessConceptSchema">putBusinessConceptSchema</a>: Create a Concept in Data Model by inserting it (XSD) schema<br><a href="#getBusinessConcepts">getBusinessConcepts</a>: Retrieve the list of Concepts in a Data Model<br><a href="#putBusinessConcept">putBusinessConcept</a>: Create aConcept<br><a href="#getBusinessConceptKey">getBusinessConceptKey</a>: Retrieve the elements constitutive of the key of a Concept<br><a href="#getDataClusterPKs">getDataClusterPKs</a>: Retrieve the list of Data Clusters using a regular expression on their names<br><a href="#getDataCluster">getDataCluster</a>: Retrieve a Data Cluster<br><a href="#existsDataCluster">existsDataCluster</a>: Check the existence of a Data Cluster and return it if it exists<br><a href="#existsDBDataCluster">existsDBDataCluster</a>: ???<br><a href="#putDataCluster">putDataCluster</a>: Store/Overwrites a Data Cluster<br><a href="#putDBDataCluster">putDBDataCluster</a>: ???<br><a href="#deleteDataCluster">deleteDataCluster</a>: Delete a Data Cluster (and the Items contained inside the Data Cluster)<br><a href="#getConceptsInDataCluster">getConceptsInDataCluster</a>: Retrieve a list of all the Concepts stored in a Data Cluster<br><a href="#getConceptsInDataClusterWithRevisions">getConceptsInDataClusterWithRevisions</a>: Retrieve the list of all Concepts stored in a Data Cluster for a specific revision<br><a href="#getViewPKs">getViewPKs</a>: Retrieve a list of Views using a regular expression on their names<br><a href="#getView">getView</a>: Retrieve a View<br><a href="#existsView">existsView</a>: Check the existence of a View and return it if it exists<br><a href="#putView">putView</a>: Create/Overwrite a View<br><a href="#deleteView">deleteView</a>: Delete a View<br><a href="#getBusinessConceptValue">getBusinessConceptValue</a>: ???<br><a href="#getFullPathValues">getFullPathValues</a>: Retrieve the values for a list of xPaths<br><a href="#getItem">getItem</a>: Retrieve an Item<br><a href="#existsItem">existsItem</a>: Check the existence of an Item and return it if it exists<br><a href="#getItems">getItems</a>: Retrieve a list or sublist of items for a designated concept using search criteria<br><a href="#getItemPKsByCriteria">getItemPKsByCriteria</a>: Retrieve a list or sublist of Item primary keys for a designated concept using search criteria<br><a href="#viewSearch">viewSearch</a>: Retrieve a list of values specified using a View<br><a href="#xPathsSearch">xPathsSearch</a>: Retrieve a list or sublist of xml documents specified using xPaths and optional conditions on the Items content<br><a href="#getItemsPivotIndex">getItemsPivotIndex</a>: Get Items hierarchical tree according to pivots<br><a href="#count">count</a>: Count values for a particular xPath using optional conditions on the Items content<br><a href="#quickSearch">quickSearch</a>: Retrieve Items thru a view using optional conditions and keywords on the Items content<br><a href="#putItem">putItem</a>: Create/Overwrite an Item<br><a href="#putItemArray">putItemArray</a>: Create/overwrite a list of Items<br><a href="#putItemWithReport">putItemWithReport</a>: ???<br><a href="#putItemWithReportArray">putItemWithReportArray</a>: ???<br><a href="#extractUsingTransformer">extractUsingTransformer</a>: Extract an Item using its key and return the result after having it processed through a Transformer<br><a href="#extractUsingTransformerThruView">extractUsingTransformerThruView</a>: Extract an Item using its key and return the result after having it processed through a Transformer and filtered by a View<br><a href="#deleteItem">deleteItem</a>: Delete an existing Item<br><a href="#deleteItems">deleteItems</a>: Delete a list of existing Items<br><a href="#dropItem">dropItem</a>: ???<br><a href="#runQuery">runQuery</a>: Directly execute a query on the database and return the response<br><a href="#connectorInteraction">connectorInteraction</a>: Interact with a Connector: start, stop, get status, etc...<br><a href="#getRoutingRulePKs">getRoutingRulePKs</a>: Retrieve a list of Routing Rules using a regular expression on their name<br><a href="#getRoutingRule">getRoutingRule</a>: Retrieve an existing Routing Rule<br><a href="#existsRoutingRule">existsRoutingRule</a>: Check the existence of a Routing Rule and return it if it exists<br><a href="#putRoutingRule">putRoutingRule</a>: Create/Overwrite a Routing Rule<br><a href="#deleteRoutingRule">deleteRoutingRule</a>: Delete and existing Routing Rule<br><a href="#serviceAction">serviceAction</a>: Interact with a Service: start, stop, get status, execute....<br><a href="#getServiceConfiguration">getServiceConfiguration</a>: Retrieve the configuration of a Service<br><a href="#putServiceConfiguration">putServiceConfiguration</a>: Store the configuration of a Service<br><a href="#getServicesList">getServicesList</a>: Retrieve the list of available Services on the server<br><a href="#getServiceDocument">getServiceDocument</a>: ???<br><a href="#getStoredProcedure">getStoredProcedure</a>: Retrieve an existing Stored Procedure<br><a href="#existsStoredProcedure">existsStoredProcedure</a>: Check the existence of a Stored Procedure and return it if it exists<br><a href="#getStoredProcedurePKs">getStoredProcedurePKs</a>: Retrieve a list of Stored Procedures using a regular expression on their names<br><a href="#putStoredProcedure">putStoredProcedure</a>: Creates/Overwrites a Stored Procedure<br><a href="#deleteStoredProcedure">deleteStoredProcedure</a>: Deletes an existing Stored Procedure<br><a href="#executeStoredProcedure">executeStoredProcedure</a>: Executes a Stored Procedure with optional parameters and return the result<br><a href="#getTransformer">getTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#existsTransformer">existsTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#getTransformerPKs">getTransformerPKs</a>: DEPRECATED - use the TransformerV2 version<br><a href="#putTransformer">putTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#deleteTransformer">deleteTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#processBytesUsingTransformer">processBytesUsingTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#processFileUsingTransformer">processFileUsingTransformer</a>: DEPRECATED - use the TransformerV2 version<br><a href="#processBytesUsingTransformerAsBackgroundJob">processBytesUsingTransformerAsBackgroundJob</a>: DEPRECATED - use the TransformerV2 version<br><a href="#processFileUsingTransformerAsBackgroundJob">processFileUsingTransformerAsBackgroundJob</a>: DEPRECATED - use the TransformerV2 version<br><a href="#getTransformerV2">getTransformerV2</a>: Retrieve a Transformer<br><a href="#existsTransformerV2">existsTransformerV2</a>: Check the existence of a Transformer and return it if it exists<br><a href="#getTransformerV2PKs">getTransformerV2PKs</a>: Retrieve a list of Transformers using a regular expression on their names<br><a href="#putTransformerV2">putTransformerV2</a>: Create/Overwrite a Transformer<br><a href="#deleteTransformerV2">deleteTransformerV2</a>: Delete and existing Transformer<br><a href="#executeTransformerV2">executeTransformerV2</a>: Execute a Transformer by passing it an initial Pipeline content and return the result<br><a href="#executeTransformerV2AsJob">executeTransformerV2AsJob</a>: Execute in the background a Transformer by passing it an initial Pipeline content. This call returns a Job ID. Use this ID
+      to retrieve the Job and read the progress and result<br><a href="#extractThroughTransformerV2">extractThroughTransformerV2</a>: Extracts an item and process it through a transformer before returning the result<br><a href="#existsTransformerPluginV2">existsTransformerPluginV2</a>: Check the exsitence of a Transformer Plugin and return it if it exists<br><a href="#getTransformerPluginV2Configuration">getTransformerPluginV2Configuration</a>: Retrieve the configuration of a Transformer Plugin<br><a href="#putTransformerPluginV2Configuration">putTransformerPluginV2Configuration</a>: Store the configuration of a Transformer Plugin<br><a href="#getTransformerPluginV2Details">getTransformerPluginV2Details</a>: Retrieve information about a Transformer Plugin: documentation, <br><a href="#getTransformerPluginV2sList">getTransformerPluginV2sList</a>: Retrieve a list of Transformer Plugins<br><a href="#getRole">getRole</a>: Retrieve a Role<br><a href="#existsRole">existsRole</a>: Check the existence of a role and return it if it exists<br><a href="#getRolePKs">getRolePKs</a>: Retrieve a list of roles using a regular expression<br><a href="#putRole">putRole</a>: Create/Overwrite a Role<br><a href="#deleteRole">deleteRole</a>: Delete a Role<br><a href="#getObjectsForRoles">getObjectsForRoles</a>: Retrieve the list of MDM objects that can be subjected to roles management<br><a href="#getMenu">getMenu</a>: Retrieve a Menu<br><a href="#existsMenu">existsMenu</a>: Check the existence of a Menu and return it it exists<br><a href="#getMenuPKs">getMenuPKs</a>: Retrieve a list of Menus using a regular expression on their names<br><a href="#putMenu">putMenu</a>: Create/Overwrite a Menu<br><a href="#deleteMenu">deleteMenu</a>: Delete an existing Menu<br><a href="#versioningGetObjectsHistory">versioningGetObjectsHistory</a>: Retrieve the SVN history of an MDM object<br><a href="#versioningGetItemsHistory">versioningGetItemsHistory</a>: Retrieve the SVN history of an Item<br><a href="#getVersioningSystemConfiguration">getVersioningSystemConfiguration</a>: Retrieve the versioning system configuration<br><a href="#putVersioningSystemConfiguration">putVersioningSystemConfiguration</a>: Store the versioning system configuration<br><a href="#versioningGetInfo">versioningGetInfo</a>: Retrieve whether the versioning system is enabled<br><a href="#versioningTagObjects">versioningTagObjects</a>: Tag an MDM Object in the versioning system<br><a href="#versioningTagItems">versioningTagItems</a>: Tag an Item in the versioning system<br><a href="#versioningRestoreObjects">versioningRestoreObjects</a>: Restore an MDM Object of a particular version and replace the current MDM Object<br><a href="#versioningRestoreItems">versioningRestoreItems</a>: Restore an Item of a particular version and replace the current Item<br><a href="#findBackgroundJobPKs">findBackgroundJobPKs</a>: Retrieve a list of Background Jobs using a regular expression of their ids<br><a href="#putBackgroundJob">putBackgroundJob</a>: Create/Overwrite a Background Job<br><a href="#getBackgroundJob">getBackgroundJob</a>: Retrieve an existing BackGround Job<br><a href="#getRoutingOrderV2">getRoutingOrderV2</a>: Retrieve a Routing Order<br><a href="#existsRoutingOrderV2">existsRoutingOrderV2</a>: Check the existence of a Routing Order and return it if it exists<br><a href="#deleteRoutingOrderV2">deleteRoutingOrderV2</a>: Delete an existing Routing Order<br><a href="#executeRoutingOrderV2Asynchronously">executeRoutingOrderV2Asynchronously</a>: Execute a Routing Order asynchronously (e.g. "fire and forget")<br><a href="#executeRoutingOrderV2Synchronously">executeRoutingOrderV2Synchronously</a>: Executes a Routing Order and return the result of the execution<br><a href="#getRoutingOrderV2PKsByCriteria">getRoutingOrderV2PKsByCriteria</a>: Retrieve a list of Routing Order primary keys using criteria on their content<br><a href="#getRoutingOrderV2sByCriteria">getRoutingOrderV2sByCriteria</a>: Retrieve a list of Routing Order objects using criteria on their content<br><a href="#routeItemV2">routeItemV2</a>: Sends an Item for routing to the Subscription Engine<br><a href="#routingEngineV2Action">routingEngineV2Action</a>: Perform an action on the Subscription Engine: Start, Stop, Suspend, Resume,.....<br><a href="#getUniverse">getUniverse</a>: Retrieve an Universe<br><a href="#existsUniverse">existsUniverse</a>: Check the existence of an Universe and return it if it exists<br><a href="#getUniversePKs">getUniversePKs</a>: Retrieve a list of Universes using a regular expression on thier names<br><a href="#putUniverse">putUniverse</a>: Create/Overwrite an existing Universe<br><a href="#deleteUniverse">deleteUniverse</a>: Delete and existing Universe<br><a href="#getObjectsForUniverses">getObjectsForUniverses</a>: Retrieve the list of MDM Objects that can be subjected to Universes<br><a href="#getCurrentUniverse">getCurrentUniverse</a>: Retrieve the current Universe for the user making the call this web service<br><a href="#getSynchronizationPlan">getSynchronizationPlan</a>: Retrieve a Synchronization Plan<br><a href="#existsSynchronizationPlan">existsSynchronizationPlan</a>: Check the existence of a Synchronization Plan and return it if it exists<br><a href="#getSynchronizationPlanPKs">getSynchronizationPlanPKs</a>: Retrieve a list if Synchronization Plans using a regular expression on their names<br><a href="#putSynchronizationPlan">putSynchronizationPlan</a>: Create/Overwrite a Synchronization Plan<br><a href="#deleteSynchronizationPlan">deleteSynchronizationPlan</a>: Delete a Synchronization Plan<br><a href="#getObjectsForSynchronizationPlans">getObjectsForSynchronizationPlans</a>: Retrieve the list of object that can be subjected to a Synchronization Plan<br><a href="#getSynchronizationPlanObjectsAlgorithms">getSynchronizationPlanObjectsAlgorithms</a>: Retrieve the available list of conflict resolution algorithms for MDM Objects<br><a href="#getSynchronizationPlanItemsAlgorithms">getSynchronizationPlanItemsAlgorithms</a>: Retrieve the availbale list of conflict resolution algorithms for Items<br><a href="#synchronizationPlanAction">synchronizationPlanAction</a>: Perform an action of a Synchronization Plan, start a synchronization<br><a href="#synchronizationGetUnsynchronizedObjectsIDs">synchronizationGetUnsynchronizedObjectsIDs</a>: Retrieve the lists of MDM Objects IDs which are not zynchronized<br><a href="#synchronizationGetObjectXML">synchronizationGetObjectXML</a>: Retrieve the raw XML content of an MDM Object<br><a href="#synchronizationPutObjectXML">synchronizationPutObjectXML</a>: Create/Overwrite an MDM Object by storing its raw XML<br><a href="#synchronizationGetUnsynchronizedItemPKs">synchronizationGetUnsynchronizedItemPKs</a>: Retrieve the list of Items which are not Synchronized<br><a href="#synchronizationGetItemXML">synchronizationGetItemXML</a>: Retrieve the raw XLM of an Item<br><a href="#synchronizationPutItemXML">synchronizationPutItemXML</a>: Create/Overwrite and Item by pushing its raw XML<br><a href="#getSynchronizationItem">getSynchronizationItem</a>: Retrieve a Synchronization Conflict<br><a href="#existsSynchronizationItem">existsSynchronizationItem</a>: Check the existence of a Synchronization Conflict and return it if it exists<br><a href="#getSynchronizationItemPKs">getSynchronizationItemPKs</a>: Retrieve a list of Synchronization Conflicts using a regular expression on their IDs<br><a href="#putSynchronizationItem">putSynchronizationItem</a>: Create/Overwrite a Synchronization Conflict<br><a href="#deleteSynchronizationItem">deleteSynchronizationItem</a>: Delete a Synchronization Conflict<br><a href="#resolveSynchronizationItem">resolveSynchronizationItem</a>: Resolve a Synchronization Conflict (by indicating the final content)<br><a href="#recoverDroppedItem">recoverDroppedItem</a>: ???<br><a href="#findAllDroppedItemsPKs">findAllDroppedItemsPKs</a>: ???<br><a href="#loadDroppedItem">loadDroppedItem</a>: ???<br><a href="#removeDroppedItem">removeDroppedItem</a>: ???<br><h3>Operations</h3><span><a class="operation-name" name="getComponentVersion">getComponentVersion</a> <span class="operation-description">Retrieves the version of a component, typically the version of the core or of a connector</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetComponentVersion</td>
@@ -120,7 +119,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="existsDataModel">existsDataModel</a> <span class="operation-description">Checks the existence of a Data Model and returns it if it exists</span></span><table>
+      </tr><span><a class="operation-name" name="existsDataModel">existsDataModel</a> <span class="operation-description">Check the existence of a Data Model and returns it if it exists</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExistsDataModel</td>
@@ -166,7 +165,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="putDataModel">putDataModel</a> <span class="operation-description">Store/overwrites a Data Model</span></span><table>
+      </tr><span><a class="operation-name" name="putDataModel">putDataModel</a> <span class="operation-description">Store/overwrite a Data Model</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSPutDataModel</td>
@@ -200,7 +199,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="checkSchema">checkSchema</a> <span class="operation-description">Checks the validity of an (XSD) schema for a Data Model</span></span><table>
+      </tr><span><a class="operation-name" name="checkSchema">checkSchema</a> <span class="operation-description">Check the validity of an (XSD) schema for a Data Model</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSCheckSchema</td>
@@ -344,7 +343,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="existsDataCluster">existsDataCluster</a> <span class="operation-description">Checks the existence of a Data Cluster and return it if it exists</span></span><table>
+      </tr><span><a class="operation-name" name="existsDataCluster">existsDataCluster</a> <span class="operation-description">Check the existence of a Data Cluster and return it if it exists</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExistsDataCluster</td>
@@ -451,7 +450,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetConceptsInDataClusterWithRevisions</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to retrieve the Revision IDs of the Concepts in a given Data Cluster
                <p>see: <a href="#WSDataClusterPK">WSDataClusterPK</a> <a href="#WSUniversePK">WSUniversePK</a> 
                </p>
             </td>
@@ -468,7 +467,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetViewPKs</td>
-            <td width="100%" class="params">A essage to retrieve a list of view primary keys using a regular expression on their names</td>
+            <td width="100%" class="params">A message to retrieve a list of view primary keys using a regular expression on their names</td>
          </tr>
          <tr class="params">
             <td class="param-direction">out</td>
@@ -514,7 +513,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="existsView">existsView</a> <span class="operation-description">Checks the existence of a View and return it if it exists</span></span><table>
+      </tr><span><a class="operation-name" name="existsView">existsView</a> <span class="operation-description">Check the existence of a View and return it if it exists</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExistsView</td>
@@ -642,7 +641,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="existsItem">existsItem</a> <span class="operation-description">Checks the existence of an Item and return it if it exists</span></span><table>
+      </tr><span><a class="operation-name" name="existsItem">existsItem</a> <span class="operation-description">Check the existence of an Item and return it if it exists</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExistsItem</td>
@@ -933,7 +932,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="extractUsingTransformer">extractUsingTransformer</a> <span class="operation-description">Extract an Item using its key and return the result after having it processed thriough a Transformer</span></span><table>
+      </tr><span><a class="operation-name" name="extractUsingTransformer">extractUsingTransformer</a> <span class="operation-description">Extract an Item using its key and return the result after having it processed through a Transformer</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExtractUsingTransformer</td>
@@ -953,7 +952,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="extractUsingTransformerThruView">extractUsingTransformerThruView</a> <span class="operation-description">Extract an Item using its key and return the result after having it processed thriough a Transformer and filtered by a View</span></span><table>
+      </tr><span><a class="operation-name" name="extractUsingTransformerThruView">extractUsingTransformerThruView</a> <span class="operation-description">Extract an Item using its key and return the result after having it processed through a Transformer and filtered by a View</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExtractUsingTransformerThruView</td>
@@ -1093,7 +1092,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="getRoutingRulePKs">getRoutingRulePKs</a> <span class="operation-description">Retrieve a list if Routing Rules using a regular expression on their name</span></span><table>
+      </tr><span><a class="operation-name" name="getRoutingRulePKs">getRoutingRulePKs</a> <span class="operation-description">Retrieve a list of Routing Rules using a regular expression on their name</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetRoutingRulePKs</td>
@@ -1312,7 +1311,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="existsStoredProcedure">existsStoredProcedure</a> <span class="operation-description">Checks the existence of a Stored Procedure and return it if it exists</span></span><table>
+      </tr><span><a class="operation-name" name="existsStoredProcedure">existsStoredProcedure</a> <span class="operation-description">Check the existence of a Stored Procedure and return it if it exists</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExistsStoredProcedure</td>
@@ -1604,7 +1603,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="existsTransformerV2">existsTransformerV2</a> <span class="operation-description">Checks the existence of a Transformer and return it if it exists</span></span><table>
+      </tr><span><a class="operation-name" name="existsTransformerV2">existsTransformerV2</a> <span class="operation-description">Check the existence of a Transformer and return it if it exists</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExistsTransformerV2</td>
@@ -1713,7 +1712,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="extractThroughTransformerV2">extractThroughTransformerV2</a> <span class="operation-description">Extracts and item en process it through a transformer before returning the result</span></span><table>
+      </tr><span><a class="operation-name" name="extractThroughTransformerV2">extractThroughTransformerV2</a> <span class="operation-description">Extracts an item and process it through a transformer before returning the result</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExtractThroughTransformerV2</td>
@@ -1736,7 +1735,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="existsTransformerPluginV2">existsTransformerPluginV2</a> <span class="operation-description">Checks the exsitence of a Transformer Plugin and return it if it exists</span></span><table>
+      </tr><span><a class="operation-name" name="existsTransformerPluginV2">existsTransformerPluginV2</a> <span class="operation-description">Check the exsitence of a Transformer Plugin and return it if it exists</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExistsTransformerPluginV2</td>
@@ -1795,7 +1794,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="getTransformerPluginV2sList">getTransformerPluginV2sList</a> <span class="operation-description">Retrieve a list of Transformer PLugins</span></span><table>
+      </tr><span><a class="operation-name" name="getTransformerPluginV2sList">getTransformerPluginV2sList</a> <span class="operation-description">Retrieve a list of Transformer Plugins</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetTransformerPluginV2sList</td>
@@ -1830,7 +1829,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="existsRole">existsRole</a> <span class="operation-description">Checks the existence of a role and return it if it exists</span></span><table>
+      </tr><span><a class="operation-name" name="existsRole">existsRole</a> <span class="operation-description">Check the existence of a role and return it if it exists</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExistsRole</td>
@@ -1940,7 +1939,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="existsMenu">existsMenu</a> <span class="operation-description">Checks the existence of a Menu and return it it exists</span></span><table>
+      </tr><span><a class="operation-name" name="existsMenu">existsMenu</a> <span class="operation-description">Check the existence of a Menu and return it it exists</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExistsMenu</td>
@@ -2231,7 +2230,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetRoutingOrderV2</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to retrieve a Routing Order
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
@@ -2239,7 +2238,19 @@
          <tr class="params">
             <td class="param-direction">out</td>
             <td class="params">WSRoutingOrderV2</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A routing Order
+               <ul>
+                  <li>name: its unique name</li>
+                  <li>status: the Routing Order status (ACTIVE, FAILED COMPLETED)</li>
+                  <li>timeCreated: the time in millis at which the Routing Order was created</li>
+                  <li>timeScheduled: the time in millis at which the Routing Order was scheduled for processing</li>
+                  <li>timeLastRunStarted: the time in millis at which this Routing Order last started execution</li>
+                  <li>timeLastRunCompleted: the time in millis at which this Routing Order last completed execution</li>
+                  <li>wsItemPK: the primary key of the Item routed</li>
+                  <li>serviceJNDI: the JNDI name of the service executed</li>
+                  <li>serviceParameters: additional parameters passed to the service for execution (example: the from field for an email)</li>
+                  <li>message: the message returned by the service after execution</li>
+               </ul>
                <p>see: <a href="#WSRoutingOrderV2Status">WSRoutingOrderV2Status</a> <a href="#WSItemPK">WSItemPK</a> 
                </p>
             </td>
@@ -2247,11 +2258,11 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="existsRoutingOrderV2">existsRoutingOrderV2</a> <span class="operation-description">Checks the existence of a Routing Order and return it if it exists</span></span><table>
+      </tr><span><a class="operation-name" name="existsRoutingOrderV2">existsRoutingOrderV2</a> <span class="operation-description">Check the existence of a Routing Order and return it if it exists</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExistsRoutingOrderV2</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to check the existence of a Routing Order and retrive it if it exists
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
@@ -2259,7 +2270,19 @@
          <tr class="params">
             <td class="param-direction">out</td>
             <td class="params">WSRoutingOrderV2</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A routing Order
+               <ul>
+                  <li>name: its unique name</li>
+                  <li>status: the Routing Order status (ACTIVE, FAILED COMPLETED)</li>
+                  <li>timeCreated: the time in millis at which the Routing Order was created</li>
+                  <li>timeScheduled: the time in millis at which the Routing Order was scheduled for processing</li>
+                  <li>timeLastRunStarted: the time in millis at which this Routing Order last started execution</li>
+                  <li>timeLastRunCompleted: the time in millis at which this Routing Order last completed execution</li>
+                  <li>wsItemPK: the primary key of the Item routed</li>
+                  <li>serviceJNDI: the JNDI name of the service executed</li>
+                  <li>serviceParameters: additional parameters passed to the service for execution (example: the from field for an email)</li>
+                  <li>message: the message returned by the service after execution</li>
+               </ul>
                <p>see: <a href="#WSRoutingOrderV2Status">WSRoutingOrderV2Status</a> <a href="#WSItemPK">WSItemPK</a> 
                </p>
             </td>
@@ -2271,7 +2294,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSDeleteRoutingOrderV2</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to delete a Routing Order
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
@@ -2279,7 +2302,7 @@
          <tr class="params">
             <td class="param-direction">out</td>
             <td class="params">WSRoutingOrderV2PK</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">The primary key of a Routing Order made of its name and status (ACTIVE, FAILED, COMPLETED)
                <p>see: <a href="#WSRoutingOrderV2Status">WSRoutingOrderV2Status</a> 
                </p>
             </td>
@@ -2291,7 +2314,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExecuteRoutingOrderV2Asynchronously</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to execute a Routing Order asynchronously
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
@@ -2299,7 +2322,7 @@
          <tr class="params">
             <td class="param-direction">out</td>
             <td class="params">WSRoutingOrderV2PK</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">The primary key of a Routing Order made of its name and status (ACTIVE, FAILED, COMPLETED)
                <p>see: <a href="#WSRoutingOrderV2Status">WSRoutingOrderV2Status</a> 
                </p>
             </td>
@@ -2311,7 +2334,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExecuteRoutingOrderV2Synchronously</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to execute a Routing Order synchronously.
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
@@ -2328,7 +2351,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetRoutingOrderV2PKsByCriteria</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to search Routing Orders primary keys using criteria
                <p>see: <a href="#WSRoutingOrderV2SearchCriteria">WSRoutingOrderV2SearchCriteria</a> 
                </p>
             </td>
@@ -2336,7 +2359,7 @@
          <tr class="params">
             <td class="param-direction">out</td>
             <td class="params">WSRoutingOrderV2PKArray</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">An Array of Routing Orders primary keys
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
@@ -2348,7 +2371,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetRoutingOrderV2sByCriteria</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to search Routing Orders using criteria
                <p>see: <a href="#WSRoutingOrderV2SearchCriteria">WSRoutingOrderV2SearchCriteria</a> 
                </p>
             </td>
@@ -2356,7 +2379,7 @@
          <tr class="params">
             <td class="param-direction">out</td>
             <td class="params">WSRoutingOrderV2Array</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">An array of Routing Orders
                <p>see: <a href="#WSRoutingOrderV2">WSRoutingOrderV2</a> 
                </p>
             </td>
@@ -2368,7 +2391,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSRouteItemV2</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to submit an Item to the Routing Engine
                <p>see: <a href="#WSItemPK">WSItemPK</a> 
                </p>
             </td>
@@ -2388,7 +2411,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSRoutingEngineV2Action</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to execute an Action on the Routing Engine (START, STOP, SUSPEND, RESUME, STATUS)
                <p>see: <a href="#WSRoutingEngineV2ActionCode">WSRoutingEngineV2ActionCode</a> 
                </p>
             </td>
@@ -2405,7 +2428,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetUniverse</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A mesage to retrieve an Universe
                <p>see: <a href="#WSUniversePK">WSUniversePK</a> 
                </p>
             </td>
@@ -2413,16 +2436,28 @@
          <tr class="params">
             <td class="param-direction">out</td>
             <td class="params">WSUniverse</td>
-            <td width="100%" class="params"></td>
+            <td width="100%" class="params">An Universe
+               <ul>
+                  <li>name: the unique name of the Universe</li>
+                  <li>description: the optional description of the Universe</li>
+                  <li>xtentisObjectsRevisionIDs: the revision IDs applying to the various MDM Objects in this Universe</li>
+                  <li>&gt;xtentisObjectName: the name of the MDM Object</li>
+                  <li>&gt;revisionID: the revision ID of the Object</li>
+                  <li>defaultItemsRevisionID: the Revision ID to apply by default to Items for which a Revision ID has no been specified</li>
+                  <li>itemsRevisionIDs: the Revision IDs to apply to the Items</li>
+                  <li>&gt;conceptPattern: a pattern that matches the Concept of the Items</li>
+                  <li>&gt;revisionID: the Revision ID to apply to this Items</li>
+               </ul>
+            </td>
          </tr>
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="existsUniverse">existsUniverse</a> <span class="operation-description">Checks the existence of an Universe and return it if it exists</span></span><table>
+      </tr><span><a class="operation-name" name="existsUniverse">existsUniverse</a> <span class="operation-description">Check the existence of an Universe and return it if it exists</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSExistsUniverse</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to determine if an Universe exists
                <p>see: <a href="#WSUniversePK">WSUniversePK</a> 
                </p>
             </td>
@@ -2439,12 +2474,12 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetUniversePKs</td>
-            <td width="100%" class="params"></td>
+            <td width="100%" class="params">A message to retrieve all the Universe Primary Keys</td>
          </tr>
          <tr class="params">
             <td class="param-direction">out</td>
             <td class="params">WSUniversePKArray</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">An Array of Universe Primary Keys
                <p>see: <a href="#WSUniversePK">WSUniversePK</a> 
                </p>
             </td>
@@ -2456,7 +2491,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSPutUniverse</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to create/overwrite an Universe
                <p>see: <a href="#WSUniverse">WSUniverse</a> 
                </p>
             </td>
@@ -2464,7 +2499,7 @@
          <tr class="params">
             <td class="param-direction">out</td>
             <td class="params">WSUniversePK</td>
-            <td width="100%" class="params"></td>
+            <td width="100%" class="params">An Universe Primary Key (its name)</td>
          </tr>
       </table>
       <tr>
@@ -2473,7 +2508,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSDeleteUniverse</td>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to delete an Universe
                <p>see: <a href="#WSUniversePK">WSUniversePK</a> 
                </p>
             </td>
@@ -2481,7 +2516,7 @@
          <tr class="params">
             <td class="param-direction">out</td>
             <td class="params">WSUniversePK</td>
-            <td width="100%" class="params"></td>
+            <td width="100%" class="params">An Universe Primary Key (its name)</td>
          </tr>
       </table>
       <tr>
@@ -2490,7 +2525,7 @@
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetObjectsForUniverses</td>
-            <td width="100%" class="params">Return the xtentis object names for which a revision ID can be set</td>
+            <td width="100%" class="params">A message to return the MDM object names for which a revision ID can be set</td>
          </tr>
          <tr class="params">
             <td class="param-direction">out</td>
@@ -2500,16 +2535,28 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="getCurrentUniverse">getCurrentUniverse</a> <span class="operation-description">Retrieve the current Universe for the user making call this web service</span></span><table>
+      </tr><span><a class="operation-name" name="getCurrentUniverse">getCurrentUniverse</a> <span class="operation-description">Retrieve the current Universe for the user making the call this web service</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetCurrentUniverse</td>
-            <td width="100%" class="params">Return the Universe the calling user is using</td>
+            <td width="100%" class="params">A message to return the current Universe of the user calling this web service</td>
          </tr>
          <tr class="params">
             <td class="param-direction">out</td>
             <td class="params">WSUniverse</td>
-            <td width="100%" class="params"></td>
+            <td width="100%" class="params">An Universe
+               <ul>
+                  <li>name: the unique name of the Universe</li>
+                  <li>description: the optional description of the Universe</li>
+                  <li>xtentisObjectsRevisionIDs: the revision IDs applying to the various MDM Objects in this Universe</li>
+                  <li>&gt;xtentisObjectName: the name of the MDM Object</li>
+                  <li>&gt;revisionID: the revision ID of the Object</li>
+                  <li>defaultItemsRevisionID: the Revision ID to apply by default to Items for which a Revision ID has no been specified</li>
+                  <li>itemsRevisionIDs: the Revision IDs to apply to the Items</li>
+                  <li>&gt;conceptPattern: a pattern that matches the Concept of the Items</li>
+                  <li>&gt;revisionID: the Revision ID to apply to this Items</li>
+               </ul>
+            </td>
          </tr>
       </table>
       <tr>
@@ -2811,7 +2858,7 @@
       </table>
       <tr>
          <td><br></td>
-      </tr><span><a class="operation-name" name="getSynchronizationItem">getSynchronizationItem</a> <span class="operation-description">Retreive a Synchronization Conflict</span></span><table>
+      </tr><span><a class="operation-name" name="getSynchronizationItem">getSynchronizationItem</a> <span class="operation-description">Retrieve a Synchronization Conflict</span></span><table>
          <tr>
             <td class="param-direction">in</td>
             <td class="params">WSGetSynchronizationItem</td>
@@ -3495,7 +3542,7 @@
          </tr>
       </table><br><span><a class="operation-name" name="WSGetViewPKs">WSGetViewPKs</a></span><table>
          <tr>
-            <td width="100%" class="params">A essage to retrieve a list of view primary keys using a regular expression on their names</td>
+            <td width="100%" class="params">A message to retrieve a list of view primary keys using a regular expression on their names</td>
          </tr>
       </table><br><span><a class="operation-name" name="WSItem">WSItem</a></span><table>
          <tr>
@@ -4527,98 +4574,129 @@
          </tr>
       </table><br><span><a class="operation-name" name="WSRoutingOrderV2PK">WSRoutingOrderV2PK</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">The primary key of a Routing Order made of its name and status (ACTIVE, FAILED, COMPLETED)
                <p>see: <a href="#WSRoutingOrderV2Status">WSRoutingOrderV2Status</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSRoutingOrderV2">WSRoutingOrderV2</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A routing Order
+               <ul>
+                  <li>name: its unique name</li>
+                  <li>status: the Routing Order status (ACTIVE, FAILED COMPLETED)</li>
+                  <li>timeCreated: the time in millis at which the Routing Order was created</li>
+                  <li>timeScheduled: the time in millis at which the Routing Order was scheduled for processing</li>
+                  <li>timeLastRunStarted: the time in millis at which this Routing Order last started execution</li>
+                  <li>timeLastRunCompleted: the time in millis at which this Routing Order last completed execution</li>
+                  <li>wsItemPK: the primary key of the Item routed</li>
+                  <li>serviceJNDI: the JNDI name of the service executed</li>
+                  <li>serviceParameters: additional parameters passed to the service for execution (example: the from field for an email)</li>
+                  <li>message: the message returned by the service after execution</li>
+               </ul>
                <p>see: <a href="#WSRoutingOrderV2Status">WSRoutingOrderV2Status</a> <a href="#WSItemPK">WSItemPK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSRoutingOrderV2PKArray">WSRoutingOrderV2PKArray</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">An Array of Routing Orders primary keys
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSRoutingOrderV2Array">WSRoutingOrderV2Array</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">An array of Routing Orders
                <p>see: <a href="#WSRoutingOrderV2">WSRoutingOrderV2</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSGetRoutingOrderV2">WSGetRoutingOrderV2</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to retrieve a Routing Order
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSExistsRoutingOrderV2">WSExistsRoutingOrderV2</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to check the existence of a Routing Order and retrive it if it exists
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSDeleteRoutingOrderV2">WSDeleteRoutingOrderV2</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to delete a Routing Order
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSRoutingOrderV2SearchCriteria">WSRoutingOrderV2SearchCriteria</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to search Routing Orders using criteria
+               <ul>
+                  <li>status: the Routing Order status (ACTIVE, FAILED COMPLETED)</li>
+                  <li>anyFieldContains: keyword(s) contained in any of the Routing Order field</li>
+                  <li>timeCreatedMin: the minimum time in millis at which the Routing Order was created</li>
+                  <li>timeCreatedMax: the maximum time in millis at which the Routing Order was created</li>
+                  <li>timeScheduledMin: the minimum time in millis at which the Routing Order was scheduled for processing</li>
+                  <li>timeScheduledMax: the maximum time in millis at which the Routing Order was scheduled for processing</li>
+                  <li>timeLastRunStartedMin: the minimum time in millis at which this Routing Order last started execution</li>
+                  <li>timeLastRunStartedMax: the maximum time in millis at which this Routing Order last started execution</li>
+                  <li>timeLastRunCompletedMin: the minimum time in millis at which this Routing Order last completed execution</li>
+                  <li>timeLastRunCompletedMax: the maximum time in millis at which this Routing Order last completed execution</li>
+                  <li>itemPKConceptContains: a regular expression on the Concept of the Item routed</li>
+                  <li>itemPKIDFieldsContain: a regular expression on the IDs joined by dots of the Item routed</li>
+                  <li>serviceJNDIContains: a regular expression on the JNDI name of the service executed</li>
+                  <li>serviceParametersContain: a regular expression on the additional parameters passed to the service for execution (example:
+                     the from field for an email)
+                  </li>
+                  <li>messageContain: a regular expression on the message returned by the service after execution</li>
+               </ul>
                <p>see: <a href="#WSRoutingOrderV2Status">WSRoutingOrderV2Status</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSGetRoutingOrderV2PKsByCriteria">WSGetRoutingOrderV2PKsByCriteria</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to search Routing Orders primary keys using criteria
                <p>see: <a href="#WSRoutingOrderV2SearchCriteria">WSRoutingOrderV2SearchCriteria</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSGetRoutingOrderV2sByCriteria">WSGetRoutingOrderV2sByCriteria</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to search Routing Orders using criteria
                <p>see: <a href="#WSRoutingOrderV2SearchCriteria">WSRoutingOrderV2SearchCriteria</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSExecuteRoutingOrderV2Synchronously">WSExecuteRoutingOrderV2Synchronously</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to execute a Routing Order synchronously.
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSExecuteRoutingOrderV2Asynchronously">WSExecuteRoutingOrderV2Asynchronously</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to execute a Routing Order asynchronously
                <p>see: <a href="#WSRoutingOrderV2PK">WSRoutingOrderV2PK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSRouteItemV2">WSRouteItemV2</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to submit an Item to the Routing Engine
                <p>see: <a href="#WSItemPK">WSItemPK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSRoutingEngineV2Action">WSRoutingEngineV2Action</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to execute an Action on the Routing Engine (START, STOP, SUSPEND, RESUME, STATUS)
                <p>see: <a href="#WSRoutingEngineV2ActionCode">WSRoutingEngineV2ActionCode</a> 
                </p>
             </td>
@@ -4676,62 +4754,74 @@
          </tr>
       </table><br><span><a class="operation-name" name="WSUniverse">WSUniverse</a></span><table>
          <tr>
-            <td width="100%" class="params"></td>
+            <td width="100%" class="params">An Universe
+               <ul>
+                  <li>name: the unique name of the Universe</li>
+                  <li>description: the optional description of the Universe</li>
+                  <li>xtentisObjectsRevisionIDs: the revision IDs applying to the various MDM Objects in this Universe</li>
+                  <li>&gt;xtentisObjectName: the name of the MDM Object</li>
+                  <li>&gt;revisionID: the revision ID of the Object</li>
+                  <li>defaultItemsRevisionID: the Revision ID to apply by default to Items for which a Revision ID has no been specified</li>
+                  <li>itemsRevisionIDs: the Revision IDs to apply to the Items</li>
+                  <li>&gt;conceptPattern: a pattern that matches the Concept of the Items</li>
+                  <li>&gt;revisionID: the Revision ID to apply to this Items</li>
+               </ul>
+            </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSUniversePK">WSUniversePK</a></span><table>
          <tr>
-            <td width="100%" class="params"></td>
+            <td width="100%" class="params">An Universe Primary Key (its name)</td>
          </tr>
       </table><br><span><a class="operation-name" name="WSUniversePKArray">WSUniversePKArray</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">An Array of Universe Primary Keys
                <p>see: <a href="#WSUniversePK">WSUniversePK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSGetUniverse">WSGetUniverse</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A mesage to retrieve an Universe
                <p>see: <a href="#WSUniversePK">WSUniversePK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSExistsUniverse">WSExistsUniverse</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to determine if an Universe exists
                <p>see: <a href="#WSUniversePK">WSUniversePK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSPutUniverse">WSPutUniverse</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to create/overwrite an Universe
                <p>see: <a href="#WSUniverse">WSUniverse</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSDeleteUniverse">WSDeleteUniverse</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to delete an Universe
                <p>see: <a href="#WSUniversePK">WSUniversePK</a> 
                </p>
             </td>
          </tr>
       </table><br><span><a class="operation-name" name="WSGetUniversePKs">WSGetUniversePKs</a></span><table>
          <tr>
-            <td width="100%" class="params"></td>
+            <td width="100%" class="params">A message to retrieve all the Universe Primary Keys</td>
          </tr>
       </table><br><span><a class="operation-name" name="WSGetObjectsForUniverses">WSGetObjectsForUniverses</a></span><table>
          <tr>
-            <td width="100%" class="params">Return the xtentis object names for which a revision ID can be set</td>
+            <td width="100%" class="params">A message to return the MDM object names for which a revision ID can be set</td>
          </tr>
       </table><br><span><a class="operation-name" name="WSGetCurrentUniverse">WSGetCurrentUniverse</a></span><table>
          <tr>
-            <td width="100%" class="params">Return the Universe the calling user is using</td>
+            <td width="100%" class="params">A message to return the current Universe of the user calling this web service</td>
          </tr>
       </table><br><span><a class="operation-name" name="WSGetConceptsInDataClusterWithRevisions">WSGetConceptsInDataClusterWithRevisions</a></span><table>
          <tr>
-            <td width="100%" class="params">
+            <td width="100%" class="params">A message to retrieve the Revision IDs of the Concepts in a given Data Cluster
                <p>see: <a href="#WSDataClusterPK">WSDataClusterPK</a> <a href="#WSUniversePK">WSUniversePK</a> 
                </p>
             </td>
