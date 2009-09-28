@@ -2479,17 +2479,17 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 								""
 						}
 				);		
-				schema=(String)
-				Util.getMethod(service, "getConfigurationSchema").invoke(
-					service,
-					new Object[] {						
-					}
-				);
 				defaultConf = (String)Util.getMethod(service, "getDefaultConfiguration").invoke(
-					service,
-					new Object[]{
-				    }
-			    );
+						service,
+						new Object[]{
+						}
+				);
+//				schema=(String)
+//				Util.getMethod(service, "getConfigurationSchema").invoke(
+//					service,
+//					new Object[] {						
+//					}
+//			    );
 			}catch(Exception e){
 				
 			}
