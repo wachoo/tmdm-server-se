@@ -25,7 +25,7 @@ import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.io.diff.SVNDeltaGenerator;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
-import com.amalto.connector.svn.util.HistoryInfos;
+import com.amalto.core.objects.versioning.util.HistoryInfos;
 
 public class SvnClient  {
 	private static final long serialVersionUID = 1L;
@@ -415,7 +415,7 @@ public class SvnClient  {
 	}
 
 
-	public byte[] checkout(String filePath, String tag) throws SVNException {
+	public byte[] checkout(String filePath, String tag, long revision) throws SVNException {
 	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	    //using svnkit 1.3.0 ,using SVNProperties
 	    //HashMap<String,String> fileProperties = new HashMap<String,String>();
@@ -449,7 +449,7 @@ public class SvnClient  {
         	return null;
         } else if (nodeKind == SVNNodeKind.FILE) {
         	Logger.getLogger(SvnClient.class).info("File "+filePath+" exists.");
-            repository.getFile(filePath, -1, fileProperties, baos);
+            repository.getFile(filePath, revision, fileProperties, baos);
             Logger.getLogger(SvnClient.class).debug("File "+filePath+" properties => "+fileProperties.toString());
 
 

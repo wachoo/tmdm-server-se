@@ -10,7 +10,7 @@ import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import com.amalto.connector.implementation.AbstractXtentisResourceAdapter;
 import com.amalto.connector.jca.XtentisConnectorException;
 import com.amalto.connector.svn.eis.SvnClient;
-import com.amalto.connector.svn.util.HistoryInfos;
+import com.amalto.core.objects.versioning.util.HistoryInfos;
 
 
 public class SvnResourceAdapter extends AbstractXtentisResourceAdapter {
@@ -259,10 +259,12 @@ public class SvnResourceAdapter extends AbstractXtentisResourceAdapter {
 		
 		String fileName = (String)parametersIn.get("fileName");
 		String tag  = (String)parametersIn.get("tag");
+		String revision ="-1";
+		if(parametersIn.get("revision")!=null&&((String)parametersIn.get("revision")).length()>0)revision= (String)parametersIn.get("revision");
 		
 		try {
 			
-				byte [] content = client.checkout(fileName, tag);
+				byte [] content = client.checkout(fileName, tag, Long.parseLong(revision));
 				parametersOut.put("content", content);
 		} catch (Exception e) {
 			throw ( new XtentisConnectorException("Error occured trying to checkout an object : "+e.getLocalizedMessage()) );

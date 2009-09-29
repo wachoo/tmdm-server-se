@@ -13,6 +13,7 @@ import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import talend.mdm.test.MDMTestCase;
 
 import com.amalto.connector.svn.eis.SvnClient;
+import com.amalto.core.objects.versioning.util.HistoryInfos;
 
 public class SvnClientTest extends MDMTestCase{
 	
@@ -48,6 +49,34 @@ public class SvnClientTest extends MDMTestCase{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void testGetHistory() {
+		try {
+			HistoryInfos infos=client.history("Order/Order.Country.UK");
+			infos.display();
+		} catch (SVNException e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public void testCheckOut() {
+		try {
+			byte[] file=client.checkout("mdm/d.txt",null,3965);
+			String fileContent=new String(file);
+			System.out.println(fileContent);
+		} catch (SVNException e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public void testGetVersions() {
+		try {
+			HistoryInfos infos=client.versions("Order/Order.Country.UK");
+			infos.display();
+		} catch (SVNException e) {
+			e.printStackTrace();
+		} 
 	}
 	
 	private SvnClient connectSvnServer(String url, String user, String password) {
