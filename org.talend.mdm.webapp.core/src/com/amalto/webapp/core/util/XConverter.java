@@ -46,6 +46,7 @@ import com.amalto.core.objects.transformers.v2.util.TransformerProcessStep;
 import com.amalto.core.objects.transformers.v2.util.TransformerVariablesMapping;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.versioning.util.HistoryInfos;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.util.ArrayListHolder;
 import com.amalto.core.util.RoleInstance;
@@ -102,6 +103,7 @@ import com.amalto.webapp.util.webservices.WSTypedContent;
 import com.amalto.webapp.util.webservices.WSUniverse;
 import com.amalto.webapp.util.webservices.WSUniverseItemsRevisionIDs;
 import com.amalto.webapp.util.webservices.WSUniverseXtentisObjectsRevisionIDs;
+import com.amalto.webapp.util.webservices.WSVersioningHistoryEntry;
 import com.amalto.webapp.util.webservices.WSView;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
@@ -1459,6 +1461,53 @@ public class XConverter {
 				                                      
 		return droppedItemPOJO;
 		 
+	}
+	
+	public static  ItemPOJOPK[] WS2POJO(WSItemPK[] wsItemPKs) throws Exception{
+		if(wsItemPKs==null){
+			return null;
+		}else{
+			ItemPOJOPK[] itemPOJOPKs=new ItemPOJOPK[wsItemPKs.length];
+			for (int i = 0; i < itemPOJOPKs.length; i++) {
+				itemPOJOPKs[i]=WS2POJO(wsItemPKs[i]);
+			}
+			return itemPOJOPKs;
+		}
+	}
+	
+	public static  WSVersioningHistoryEntry[] convertHistoryInfosToWSVersioningHistoryEntries(
+			HistoryInfos infos) {
+		String [] authors = infos.getAuthors();
+    	String [] comments = infos.getComments();
+    	String [] dates = infos.getDates();
+    	String [] revisions = infos.getRevisions();
+    	String [] tags = infos.getTagNames();
+    	int size = authors.length;
+    	WSVersioningHistoryEntry[] entries = new WSVersioningHistoryEntry[size];
+    	for (int i=0; i<size; i++) {
+    		WSVersioningHistoryEntry entry = new WSVersioningHistoryEntry();
+
+    		String author = authors[i];
+    		String comment = comments[i];
+
+    		String authorAndComment = comments[i];
+    		int indexAuthorBegin = authorAndComment.indexOf("Author : ");
+    		int indexAuthorEnd = authorAndComment.indexOf(" Comment : ");
+
+    		if ((indexAuthorBegin == 0) && (indexAuthorEnd!=-1)) {
+    			author = authorAndComment.substring(9, indexAuthorEnd);
+    			comment = authorAndComment.substring(indexAuthorEnd+11);
+    		}
+
+    		entry.setAuthor(author);
+    		entry.setComments(comment);
+    		entry.setDate(dates[i]);
+    		entry.setRevision(revisions[i]);
+    		entry.setTag(tags[i]);
+    		entries[i] = entry;
+    		org.apache.log4j.Logger.getLogger(XConverter.class).debug("Entry => Author : "+author+" - Comment : "+comment+" - Date : "+dates[i]+" - Revision : "+revisions[i]+" - Tag : "+tags[i]);
+    	}
+		return entries;
 	}
 
 }

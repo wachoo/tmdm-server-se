@@ -90,8 +90,10 @@ import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDes
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
 import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
+import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO;
 import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
 import com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocal;
+import com.amalto.core.objects.versioning.util.HistoryInfos;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.UpdateReportItem;
@@ -162,30 +164,6 @@ public class XtentisRMIPort implements XtentisPort {
 		throw new RemoteException("initMDM not implemented as RMI call");
 	}	
 	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSMDMConfig getMDMConfiguration() throws RemoteException {
-        	WSMDMConfig mdmConfig = new WSMDMConfig();
-        	Properties property = MDMConfiguration.getConfiguration();
-        	try {
-				mdmConfig.setServerName(property.getProperty("xmldb.server.name"));
-				mdmConfig.setServerPort(property.getProperty("xmldb.server.port"));
-				mdmConfig.setUserName(property.getProperty("xmldb.administrator.username"));
-				mdmConfig.setPassword(property.getProperty("xmldb.administrator.password"));
-				mdmConfig.setXdbDriver(property.getProperty("xmldb.driver"));
-				mdmConfig.setXdbID(property.getProperty("xmldb.dbid"));
-				mdmConfig.setXdbUrl(property.getProperty("xmldb.dburl"));
-				mdmConfig.setIsupurl(property.getProperty("xmldb.isupurl"));
-			} catch (Exception e) {
-				throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-			}
-        
-		return mdmConfig;
-	}
 	/***************************************************************************
 	 * Logout
 	 * **************************************************************************/
@@ -2652,9 +2630,18 @@ public class XtentisRMIPort implements XtentisPort {
 
 
 	public WSString putVersioningSystemConfiguration(WSPutVersioningSystemConfiguration wsPutVersioningSystemConfiguration) throws RemoteException {
-		throw new RemoteException("Not Supported Yet");
-    }
-
+		 try {
+			  WSVersioningSystemConfiguration conf=wsPutVersioningSystemConfiguration.getVersioningSystemConfiguration();
+			  VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			  VersioningSystemPOJO pojo=new VersioningSystemPOJO(conf.getName(),null,conf.getDescription(),conf.getUrl(),conf.getUsername(),conf.getPassword());
+			  VersioningSystemPOJOPK pk=ctrl.putVersioningSystem(pojo);
+			  return new WSString(pk.getUniqueId());
+		} catch (Exception e) {
+			   String err = "ERROR SYSTRACE: "+e.getMessage();
+			   org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			   throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
 
 
 
@@ -2683,54 +2670,142 @@ public class XtentisRMIPort implements XtentisPort {
 
 
 
-	public WSVersioningItemsHistory versioningGetItemsHistory(WSVersioningGetItemsHistory wsVersioningGetItemsHistory) throws RemoteException {
-		throw new RemoteException("Not Supported Yet");
-    }
 
-
-
-	public WSVersioningObjectsHistory versioningGetObjectsHistory(WSVersioningGetObjectsHistory wsVersioningGetObjectsHistory) throws RemoteException {
+	public WSBackgroundJobPK versioningCommitItems(WSVersioningCommitItems wsVersioningCommitItems) throws RemoteException {
 		try {
 			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
-			com.amalto.core.webservice.WSVersioningObjectsHistoryObjects[] objects =
-				ctrl.getObjectsHistory(
-					wsVersioningGetObjectsHistory.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetObjectsHistory.getVersioningSystemName()), 
-					wsVersioningGetObjectsHistory.getType(), 
-					wsVersioningGetObjectsHistory.getNames()
-				).getObjects();
-			if (objects == null) return null;
 			
-			WSVersioningObjectsHistoryObjects[] newObjects = new WSVersioningObjectsHistoryObjects[objects.length];
-			for (int i = 0; i < objects.length; i++) {
-				WSVersioningHistoryEntry[] newEntries = null;
-				if (objects[i].getWsHistoryEntries() != null) {
-					newEntries = new WSVersioningHistoryEntry[objects[i].getWsHistoryEntries().length];
-					for (int j = 0; j < objects[i].getWsHistoryEntries().length; j++) {
-						newEntries[j] = new WSVersioningHistoryEntry(
-							objects[i].getWsHistoryEntries()[j].getTag(),
-							objects[i].getWsHistoryEntries()[j].getRevision(),
-							objects[i].getWsHistoryEntries()[j].getDate(),
-							objects[i].getWsHistoryEntries()[j].getAuthor(),
-							objects[i].getWsHistoryEntries()[j].getComments()
-						);
-					}
-				}
-				//set the new object
-				newObjects[i] = new WSVersioningObjectsHistoryObjects(
-					objects[i].getType(),
-					objects[i].getName(),
-					newEntries
-				);
-			}
-			//set the main history
-			return new WSVersioningObjectsHistory(newObjects);
+			return new WSBackgroundJobPK(
+				ctrl.commitItemsAsJob(
+						wsVersioningCommitItems.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningCommitItems.getVersioningSystemName()),
+						XConverter.WS2POJO(wsVersioningCommitItems.getWsItemPKs()),
+						wsVersioningCommitItems.getComment()
+				).getUniqueId()
+			);
 			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
 		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
 		}
-    }
+	};
+	
+
+	public WSBoolean versioningRestoreItemByRevision(WSVersioningRestoreItemByRevision wsVersioningRestoreItemByRevision) throws RemoteException {
+		try {
+			
+			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			
+			
+				ctrl.restoreItemByRevision(
+						wsVersioningRestoreItemByRevision.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningRestoreItemByRevision.getVersioningSystemName()), 
+						XConverter.WS2POJO(wsVersioningRestoreItemByRevision.getWsItemPK()), 
+						wsVersioningRestoreItemByRevision.getRevision()
+					);
+				
+			return new WSBoolean(true);
+			
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			return new WSBoolean(false);
+		}
+	};
+	
+
+	public WSVersioningItemHistory versioningGetItemHistory(WSVersioningGetItemHistory wsVersioningGetItemHistory) throws RemoteException {
+		try {
+			
+			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			
+			HistoryInfos historyInfos = ctrl.getItemHistory(
+						wsVersioningGetItemHistory.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetItemHistory.getVersioningSystemName()),
+						XConverter.WS2POJO(wsVersioningGetItemHistory.getWsItemPK())
+				);
+			
+			WSVersioningHistoryEntry[] wsVersioningHistoryEntries= XConverter.convertHistoryInfosToWSVersioningHistoryEntries(historyInfos);
+			
+			return new WSVersioningItemHistory(wsVersioningGetItemHistory.getWsItemPK(),wsVersioningHistoryEntries);
+			
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	};
+	
+
+	
+
+	public WSVersioningItemsVersions versioningGetItemsVersions(WSVersioningGetItemsVersions wsVersioningGetItemsVersions) throws RemoteException {
+       try {
+			
+			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			
+			HistoryInfos historyInfos =	ctrl.getItemsVersions(
+					wsVersioningGetItemsVersions.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetItemsVersions.getVersioningSystemName()), 
+					XConverter.WS2POJO(wsVersioningGetItemsVersions.getWsItemPKs())
+				);
+			
+			WSVersioningHistoryEntry[] wsVersioningHistoryEntries= XConverter.convertHistoryInfosToWSVersioningHistoryEntries(historyInfos);
+			
+			WSItemPK[] itemPKs= wsVersioningGetItemsVersions.getWsItemPKs();
+			if(itemPKs==null)new RemoteException("No item PK! ");
+			
+			WSVersioningItemsVersionsItems[] wsVersioningItemsVersionsItems=new WSVersioningItemsVersionsItems[itemPKs.length];
+				for (int i = 0; i < itemPKs.length; i++) {
+					WSItemPK itemPK=itemPKs[i];
+					WSVersioningItemsVersionsItems wsVersioningItemsVersionsItem=new WSVersioningItemsVersionsItems(itemPK,wsVersioningHistoryEntries);
+					wsVersioningItemsVersionsItems[i]=wsVersioningItemsVersionsItem;
+				}
+				
+			return new WSVersioningItemsVersions(wsVersioningItemsVersionsItems);
+			
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	};
+	
+
+	public WSVersioningObjectsVersions versioningGetObjectsVersions(WSVersioningGetObjectsVersions wsVersioningGetObjectsVersions) throws RemoteException {
+		try {
+			
+			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			
+			HistoryInfos historyInfos =	ctrl.getObjectsVersions(
+					wsVersioningGetObjectsVersions.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetObjectsVersions.getVersioningSystemName()), 
+					wsVersioningGetObjectsVersions.getType(), 
+					wsVersioningGetObjectsVersions.getNames()
+				);
+			
+			WSVersioningHistoryEntry[] wsVersioningHistoryEntries= XConverter.convertHistoryInfosToWSVersioningHistoryEntries(historyInfos);
+			
+			String[] names= wsVersioningGetObjectsVersions.getNames();
+			if(names==null){
+				return new WSVersioningObjectsVersions(
+						new WSVersioningObjectsVersionsObjects[]{
+								new WSVersioningObjectsVersionsObjects(wsVersioningGetObjectsVersions.getType(),null,wsVersioningHistoryEntries)
+								});
+			}else{
+				WSVersioningObjectsVersionsObjects[] wsVersioningObjectsVersionsObjects=new WSVersioningObjectsVersionsObjects[names.length];
+				for (int i = 0; i < names.length; i++) {
+					String name=names[i];
+					WSVersioningObjectsVersionsObjects wsVersioningObjectsVersionsObject=new WSVersioningObjectsVersionsObjects(wsVersioningGetObjectsVersions.getType(),name,wsVersioningHistoryEntries);
+					wsVersioningObjectsVersionsObjects[i]=wsVersioningObjectsVersionsObject;
+				}
+				
+				return new WSVersioningObjectsVersions(
+						wsVersioningObjectsVersionsObjects);
+			}
+			
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
 
 
 
@@ -3478,14 +3553,14 @@ public class XtentisRMIPort implements XtentisPort {
 
 
 	public com.amalto.webapp.util.webservices.WSServiceGetDocument getServiceDocument(WSString serviceName)
-	       throws RemoteException {
+    throws RemoteException {
 		try {
 			Object service= 
 				Util.retrieveComponent(
 					null, 
 					"amalto/local/service/"+serviceName.getValue()
 				);
-
+	
 			String desc = (String)
 			Util.getMethod(service, "getDescription").invoke(
 				service,
@@ -3530,7 +3605,7 @@ public class XtentisRMIPort implements XtentisPort {
 		} catch (Exception e) {
 			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
 		}
-    }
+	}
 		
 
 	public WSDroppedItemPK dropItem(WSDropItem wsDropItem)
@@ -3725,6 +3800,25 @@ public class XtentisRMIPort implements XtentisPort {
 			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
 		}
 
+	}
+	
+	public WSMDMConfig getMDMConfiguration() throws RemoteException {
+    	WSMDMConfig mdmConfig = new WSMDMConfig();
+    	Properties property = MDMConfiguration.getConfiguration();
+    	try {
+			mdmConfig.setServerName(property.getProperty("xmldb.server.name"));
+			mdmConfig.setServerPort(property.getProperty("xmldb.server.port"));
+			mdmConfig.setUserName(property.getProperty("xmldb.administrator.username"));
+			mdmConfig.setPassword(property.getProperty("xmldb.administrator.password"));
+			mdmConfig.setXdbDriver(property.getProperty("xmldb.driver"));
+			mdmConfig.setXdbID(property.getProperty("xmldb.dbid"));
+			mdmConfig.setXdbUrl(property.getProperty("xmldb.dburl"));
+			mdmConfig.setIsupurl(property.getProperty("xmldb.isupurl"));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+        
+		return mdmConfig;
 	}
 
 

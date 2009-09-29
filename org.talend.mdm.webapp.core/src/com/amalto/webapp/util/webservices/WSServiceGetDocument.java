@@ -11,17 +11,15 @@ public class WSServiceGetDocument {
     protected java.lang.String configure;
     protected java.lang.String document;
     protected java.lang.String configureSchema;
-    protected java.lang.String defaultConfig;
     
     public WSServiceGetDocument() {
     }
     
-    public WSServiceGetDocument(java.lang.String description, java.lang.String configure, java.lang.String document, java.lang.String configureSchema, java.lang.String defaultConfig) {
+    public WSServiceGetDocument(java.lang.String description, java.lang.String configure, java.lang.String document, java.lang.String configureSchema) {
         this.description = description;
         this.configure = configure;
         this.document = document;
         this.configureSchema = configureSchema;
-        this.defaultConfig = defaultConfig;
     }
     
     public java.lang.String getDescription() {
@@ -54,13 +52,5 @@ public class WSServiceGetDocument {
     
     public void setConfigureSchema(java.lang.String configureSchema) {
         this.configureSchema = configureSchema;
-    }
-    
-    public java.lang.String getDefaultConfig() {
-        return defaultConfig;
-    }
-    
-    public void setDefaultConfig(java.lang.String defaultConfig) {
-        this.defaultConfig = defaultConfig;
     }
 }
