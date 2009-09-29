@@ -447,8 +447,8 @@ amalto.core = function () {
 			if(""!=nameAndUniverse[1]&&nameAndUniverse[1]!=null)
 				universe = nameAndUniverse[1];
 			
-			var html = "Hello"+", "+name+",  "+"You are connected to the Universe ["+universe+"]";
-			if(language=='fr') html = "Bonjour"+", "+name+"," +"Vous ¨ºtes connect¨¦ ¨¤ l'univers ["+universe+"]";
+			var html = "Hello"+", "+name+", "+"you are connected to the Universe ["+universe+"]";
+			if(language=='fr') html = "Bonjour"+","+" "+name+","+" "+"vous Ãªtes connectÃ© Ã  l'Univers ["+universe+"]";
 			DWRUtil.setValue('username-div',html);
 		});
 		
