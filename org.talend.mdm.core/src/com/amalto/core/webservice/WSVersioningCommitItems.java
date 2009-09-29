@@ -6,16 +6,18 @@
 package com.amalto.core.webservice;
 
 
-public class WSVersioningGetItemsHistory {
+public class WSVersioningCommitItems {
     protected java.lang.String versioningSystemName;
     protected com.amalto.core.webservice.WSItemPK[] wsItemPKs;
+    protected java.lang.String comment;
     
-    public WSVersioningGetItemsHistory() {
+    public WSVersioningCommitItems() {
     }
     
-    public WSVersioningGetItemsHistory(java.lang.String versioningSystemName, com.amalto.core.webservice.WSItemPK[] wsItemPKs) {
+    public WSVersioningCommitItems(java.lang.String versioningSystemName, com.amalto.core.webservice.WSItemPK[] wsItemPKs, java.lang.String comment) {
         this.versioningSystemName = versioningSystemName;
         this.wsItemPKs = wsItemPKs;
+        this.comment = comment;
     }
     
     public java.lang.String getVersioningSystemName() {
@@ -32,5 +34,13 @@ public class WSVersioningGetItemsHistory {
     
     public void setWsItemPKs(com.amalto.core.webservice.WSItemPK[] wsItemPKs) {
         this.wsItemPKs = wsItemPKs;
+    }
+    
+    public java.lang.String getComment() {
+        return comment;
+    }
+    
+    public void setComment(java.lang.String comment) {
+        this.comment = comment;
     }
 }

@@ -116,8 +116,10 @@ import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
 import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
 import com.amalto.core.objects.universe.ejb.local.UniverseCtrlUtil;
+import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO;
 import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
 import com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocal;
+import com.amalto.core.objects.versioning.util.HistoryInfos;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlUtil;
@@ -1639,6 +1641,18 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		);
 	}
 	
+	private ItemPOJOPK[] WS2POJO(WSItemPK[] wsItemPKs) throws Exception{
+		if(wsItemPKs==null){
+			return null;
+		}else{
+			ItemPOJOPK[] itemPOJOPKs=new ItemPOJOPK[wsItemPKs.length];
+			for (int i = 0; i < itemPOJOPKs.length; i++) {
+				itemPOJOPKs[i]=WS2POJO(wsItemPKs[i]);
+			}
+			return itemPOJOPKs;
+		}
+	}
+	
 	
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
@@ -2484,12 +2498,12 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 						new Object[]{
 						}
 				);
-//				schema=(String)
-//				Util.getMethod(service, "getConfigurationSchema").invoke(
-//					service,
-//					new Object[] {						
-//					}
-//			    );
+				schema=(String)
+				Util.getMethod(service, "getConfigurationSchema").invoke(
+					service,
+					new Object[] {						
+					}
+			    );
 			}catch(Exception e){
 				
 			}
@@ -4005,15 +4019,40 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * Versioning
 	 * **************************************************************************/
 	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSVersioningItemsHistory versioningGetItemsHistory(WSVersioningGetItemsHistory wsVersioningGetItemsHistory) throws RemoteException {
-		throw new RemoteException("Not Supported Yet");
-	};
+	private WSVersioningHistoryEntry[] convertHistoryInfosToWSVersioningHistoryEntries(
+			HistoryInfos infos) {
+		String [] authors = infos.getAuthors();
+    	String [] comments = infos.getComments();
+    	String [] dates = infos.getDates();
+    	String [] revisions = infos.getRevisions();
+    	String [] tags = infos.getTagNames();
+    	int size = authors.length;
+    	WSVersioningHistoryEntry[] entries = new WSVersioningHistoryEntry[size];
+    	for (int i=0; i<size; i++) {
+    		WSVersioningHistoryEntry entry = new WSVersioningHistoryEntry();
+
+    		String author = authors[i];
+    		String comment = comments[i];
+
+    		String authorAndComment = comments[i];
+    		int indexAuthorBegin = authorAndComment.indexOf("Author : ");
+    		int indexAuthorEnd = authorAndComment.indexOf(" Comment : ");
+
+    		if ((indexAuthorBegin == 0) && (indexAuthorEnd!=-1)) {
+    			author = authorAndComment.substring(9, indexAuthorEnd);
+    			comment = authorAndComment.substring(indexAuthorEnd+11);
+    		}
+
+    		entry.setAuthor(author);
+    		entry.setComments(comment);
+    		entry.setDate(dates[i]);
+    		entry.setRevision(revisions[i]);
+    		entry.setTag(tags[i]);
+    		entries[i] = entry;
+    		org.apache.log4j.Logger.getLogger(this.getClass()).debug("Entry => Author : "+author+" - Comment : "+comment+" - Date : "+dates[i]+" - Revision : "+revisions[i]+" - Tag : "+tags[i]);
+    	}
+		return entries;
+	}
 	
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
@@ -4021,30 +4060,23 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * 	role-name = "authenticated"
 	 * 	view-type = "service-endpoint"
 	 */
-	public WSVersioningObjectsHistory versioningGetObjectsHistory(WSVersioningGetObjectsHistory wsVersioningGetObjectsHistory) throws RemoteException {
+	public WSBackgroundJobPK versioningCommitItems(WSVersioningCommitItems wsVersioningCommitItems) throws RemoteException {
 		try {
 			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
-			return
-				ctrl.getObjectsHistory(
-					wsVersioningGetObjectsHistory.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetObjectsHistory.getVersioningSystemName()), 
-					wsVersioningGetObjectsHistory.getType(), 
-					wsVersioningGetObjectsHistory.getNames()
-				);
+			
+			return new WSBackgroundJobPK(
+				ctrl.commitItemsAsJob(
+						wsVersioningCommitItems.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningCommitItems.getVersioningSystemName()),
+						WS2POJO(wsVersioningCommitItems.getWsItemPKs()),
+						wsVersioningCommitItems.getComment()
+				).getUniqueId()
+			);
+			
 		} catch (Exception e) {
 			String err = "ERROR SYSTRACE: "+e.getMessage();
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
 			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}	
-	}
-	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSVersioningSystemConfiguration getVersioningSystemConfiguration(WSGetVersioningSystemConfiguration wsGetVersioningSystemConfiguration) throws RemoteException {
-		throw new RemoteException("Not Supported Yet");
+		}
 	};
 	
 	/**
@@ -4053,9 +4085,26 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * 	role-name = "authenticated"
 	 * 	view-type = "service-endpoint"
 	 */
-	public WSString putVersioningSystemConfiguration(WSPutVersioningSystemConfiguration wsPutVersioningSystemConfiguration) throws RemoteException {
-		throw new RemoteException("Not Supported Yet");
-	}
+	public WSBoolean versioningRestoreItemByRevision(WSVersioningRestoreItemByRevision wsVersioningRestoreItemByRevision) throws RemoteException {
+		try {
+			
+			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			
+			
+				ctrl.restoreItemByRevision(
+						wsVersioningRestoreItemByRevision.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningRestoreItemByRevision.getVersioningSystemName()), 
+						WS2POJO(wsVersioningRestoreItemByRevision.getWsItemPK()), 
+						wsVersioningRestoreItemByRevision.getRevision()
+					);
+				
+			return new WSBoolean(true);
+			
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			return new WSBoolean(false);
+		}
+	};
 	
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
@@ -4063,21 +4112,110 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * 	role-name = "authenticated"
 	 * 	view-type = "service-endpoint"
 	 */
-	public WSVersioningInfo versioningGetInfo(WSVersioningGetInfo wsVersioningGetInfo) throws RemoteException {
+	public WSVersioningItemHistory versioningGetItemHistory(WSVersioningGetItemHistory wsVersioningGetItemHistory) throws RemoteException {
 		try {
+			
 			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
-			String res = 
-				ctrl.getVersioningSystemAvailability(
-						wsVersioningGetInfo.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetInfo.getVersioningSystemName())
+			
+			HistoryInfos historyInfos = ctrl.getItemHistory(
+						wsVersioningGetItemHistory.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetItemHistory.getVersioningSystemName()),
+						WS2POJO(wsVersioningGetItemHistory.getWsItemPK())
 				);
-			return new WSVersioningInfo(res.startsWith("OK"),res);
+			
+			WSVersioningHistoryEntry[] wsVersioningHistoryEntries= convertHistoryInfosToWSVersioningHistoryEntries(historyInfos);
+			
+			return new WSVersioningItemHistory(wsVersioningGetItemHistory.getWsItemPK(),wsVersioningHistoryEntries);
+			
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	};
+	
+
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSVersioningItemsVersions versioningGetItemsVersions(WSVersioningGetItemsVersions wsVersioningGetItemsVersions) throws RemoteException {
+       try {
+			
+			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			
+			HistoryInfos historyInfos =	ctrl.getItemsVersions(
+					wsVersioningGetItemsVersions.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetItemsVersions.getVersioningSystemName()), 
+					WS2POJO(wsVersioningGetItemsVersions.getWsItemPKs())
+				);
+			
+			WSVersioningHistoryEntry[] wsVersioningHistoryEntries= convertHistoryInfosToWSVersioningHistoryEntries(historyInfos);
+			
+			WSItemPK[] itemPKs= wsVersioningGetItemsVersions.getWsItemPKs();
+			if(itemPKs==null)new RemoteException("No item PK! ");
+			
+			WSVersioningItemsVersionsItems[] wsVersioningItemsVersionsItems=new WSVersioningItemsVersionsItems[itemPKs.length];
+				for (int i = 0; i < itemPKs.length; i++) {
+					WSItemPK itemPK=itemPKs[i];
+					WSVersioningItemsVersionsItems wsVersioningItemsVersionsItem=new WSVersioningItemsVersionsItems(itemPK,wsVersioningHistoryEntries);
+					wsVersioningItemsVersionsItems[i]=wsVersioningItemsVersionsItem;
+				}
+				
+			return new WSVersioningItemsVersions(wsVersioningItemsVersionsItems);
+			
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	};
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSVersioningObjectsVersions versioningGetObjectsVersions(WSVersioningGetObjectsVersions wsVersioningGetObjectsVersions) throws RemoteException {
+		try {
+			
+			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			
+			HistoryInfos historyInfos =	ctrl.getObjectsVersions(
+					wsVersioningGetObjectsVersions.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetObjectsVersions.getVersioningSystemName()), 
+					wsVersioningGetObjectsVersions.getType(), 
+					wsVersioningGetObjectsVersions.getNames()
+				);
+			
+			WSVersioningHistoryEntry[] wsVersioningHistoryEntries= convertHistoryInfosToWSVersioningHistoryEntries(historyInfos);
+			
+			String[] names= wsVersioningGetObjectsVersions.getNames();
+			if(names==null){
+				return new WSVersioningObjectsVersions(
+						new WSVersioningObjectsVersionsObjects[]{
+								new WSVersioningObjectsVersionsObjects(wsVersioningGetObjectsVersions.getType(),null,wsVersioningHistoryEntries)
+								});
+			}else{
+				WSVersioningObjectsVersionsObjects[] wsVersioningObjectsVersionsObjects=new WSVersioningObjectsVersionsObjects[names.length];
+				for (int i = 0; i < names.length; i++) {
+					String name=names[i];
+					WSVersioningObjectsVersionsObjects wsVersioningObjectsVersionsObject=new WSVersioningObjectsVersionsObjects(wsVersioningGetObjectsVersions.getType(),name,wsVersioningHistoryEntries);
+					wsVersioningObjectsVersionsObjects[i]=wsVersioningObjectsVersionsObject;
+				}
+				
+				return new WSVersioningObjectsVersions(
+						wsVersioningObjectsVersionsObjects);
+			}
+			
 		} catch (Exception e) {
 			String err = "ERROR SYSTRACE: "+e.getMessage();
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
 			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
 		}
 	}
-	
+
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
 	 * @ejb.permission 
@@ -4186,6 +4324,58 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
 		}
 	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSVersioningInfo versioningGetInfo(WSVersioningGetInfo wsVersioningGetInfo) throws RemoteException {
+		try {
+			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			String res = 
+				ctrl.getVersioningSystemAvailability(
+						wsVersioningGetInfo.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetInfo.getVersioningSystemName())
+				);
+			return new WSVersioningInfo(res.startsWith("OK"),res);
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSString putVersioningSystemConfiguration(WSPutVersioningSystemConfiguration wsPutVersioningSystemConfiguration) throws RemoteException {
+		 try {
+			  WSVersioningSystemConfiguration conf=wsPutVersioningSystemConfiguration.getVersioningSystemConfiguration();
+			  VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			  VersioningSystemPOJO pojo=new VersioningSystemPOJO(conf.getName(),null,conf.getDescription(),conf.getUrl(),conf.getUsername(),conf.getPassword());
+			  VersioningSystemPOJOPK pk=ctrl.putVersioningSystem(pojo);
+			  return new WSString(pk.getUniqueId());
+		} catch (Exception e) {
+			   String err = "ERROR SYSTRACE: "+e.getMessage();
+			   org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			   throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSVersioningSystemConfiguration getVersioningSystemConfiguration(WSGetVersioningSystemConfiguration wsGetVersioningSystemConfiguration) throws RemoteException {
+		throw new RemoteException("Not Supported Yet");
+	};
 	
 	
 	/***************************************************************************

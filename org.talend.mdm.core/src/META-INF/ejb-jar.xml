@@ -2396,9 +2396,9 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
-         <method-name>versioningGetItemsHistory</method-name>
+         <method-name>versioningCommitItems</method-name>
          <method-params>
-            <method-param>com.amalto.core.webservice.WSVersioningGetItemsHistory</method-param>
+            <method-param>com.amalto.core.webservice.WSVersioningCommitItems</method-param>
          </method-params>
       </method>
    </method-permission>
@@ -2409,9 +2409,9 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
-         <method-name>versioningGetObjectsHistory</method-name>
+         <method-name>versioningRestoreItemByRevision</method-name>
          <method-params>
-            <method-param>com.amalto.core.webservice.WSVersioningGetObjectsHistory</method-param>
+            <method-param>com.amalto.core.webservice.WSVersioningRestoreItemByRevision</method-param>
          </method-params>
       </method>
    </method-permission>
@@ -2422,9 +2422,9 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
-         <method-name>getVersioningSystemConfiguration</method-name>
+         <method-name>versioningGetItemHistory</method-name>
          <method-params>
-            <method-param>com.amalto.core.webservice.WSGetVersioningSystemConfiguration</method-param>
+            <method-param>com.amalto.core.webservice.WSVersioningGetItemHistory</method-param>
          </method-params>
       </method>
    </method-permission>
@@ -2435,9 +2435,9 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
-         <method-name>putVersioningSystemConfiguration</method-name>
+         <method-name>versioningGetItemsVersions</method-name>
          <method-params>
-            <method-param>com.amalto.core.webservice.WSPutVersioningSystemConfiguration</method-param>
+            <method-param>com.amalto.core.webservice.WSVersioningGetItemsVersions</method-param>
          </method-params>
       </method>
    </method-permission>
@@ -2448,9 +2448,9 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
-         <method-name>versioningGetInfo</method-name>
+         <method-name>versioningGetObjectsVersions</method-name>
          <method-params>
-            <method-param>com.amalto.core.webservice.WSVersioningGetInfo</method-param>
+            <method-param>com.amalto.core.webservice.WSVersioningGetObjectsVersions</method-param>
          </method-params>
       </method>
    </method-permission>
@@ -2503,6 +2503,45 @@
          <method-name>versioningTagObjects</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSVersioningTagObjects</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>versioningGetInfo</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSVersioningGetInfo</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>putVersioningSystemConfiguration</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSPutVersioningSystemConfiguration</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>getVersioningSystemConfiguration</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSGetVersioningSystemConfiguration</method-param>
          </method-params>
       </method>
    </method-permission>

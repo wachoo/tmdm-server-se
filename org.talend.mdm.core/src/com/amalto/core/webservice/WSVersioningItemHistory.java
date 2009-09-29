@@ -6,34 +6,24 @@
 package com.amalto.core.webservice;
 
 
-public class WSVersioningObjectsHistoryObjects {
-    protected java.lang.String type;
-    protected java.lang.String name;
+public class WSVersioningItemHistory {
+    protected com.amalto.core.webservice.WSItemPK wsItemPK;
     protected com.amalto.core.webservice.WSVersioningHistoryEntry[] wsHistoryEntries;
     
-    public WSVersioningObjectsHistoryObjects() {
+    public WSVersioningItemHistory() {
     }
     
-    public WSVersioningObjectsHistoryObjects(java.lang.String type, java.lang.String name, com.amalto.core.webservice.WSVersioningHistoryEntry[] wsHistoryEntries) {
-        this.type = type;
-        this.name = name;
+    public WSVersioningItemHistory(com.amalto.core.webservice.WSItemPK wsItemPK, com.amalto.core.webservice.WSVersioningHistoryEntry[] wsHistoryEntries) {
+        this.wsItemPK = wsItemPK;
         this.wsHistoryEntries = wsHistoryEntries;
     }
     
-    public java.lang.String getType() {
-        return type;
+    public com.amalto.core.webservice.WSItemPK getWsItemPK() {
+        return wsItemPK;
     }
     
-    public void setType(java.lang.String type) {
-        this.type = type;
-    }
-    
-    public java.lang.String getName() {
-        return name;
-    }
-    
-    public void setName(java.lang.String name) {
-        this.name = name;
+    public void setWsItemPK(com.amalto.core.webservice.WSItemPK wsItemPK) {
+        this.wsItemPK = wsItemPK;
     }
     
     public com.amalto.core.webservice.WSVersioningHistoryEntry[] getWsHistoryEntries() {

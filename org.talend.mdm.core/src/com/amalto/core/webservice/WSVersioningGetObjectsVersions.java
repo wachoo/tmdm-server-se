@@ -6,15 +6,15 @@
 package com.amalto.core.webservice;
 
 
-public class WSVersioningGetObjectsHistory {
+public class WSVersioningGetObjectsVersions {
     protected java.lang.String versioningSystemName;
     protected java.lang.String type;
     protected java.lang.String[] names;
     
-    public WSVersioningGetObjectsHistory() {
+    public WSVersioningGetObjectsVersions() {
     }
     
-    public WSVersioningGetObjectsHistory(java.lang.String versioningSystemName, java.lang.String type, java.lang.String[] names) {
+    public WSVersioningGetObjectsVersions(java.lang.String versioningSystemName, java.lang.String type, java.lang.String[] names) {
         this.versioningSystemName = versioningSystemName;
         this.type = type;
         this.names = names;

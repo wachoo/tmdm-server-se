@@ -43,7 +43,7 @@
 	<xsd:complexType name="WSVersioningHistoryEntry">
 		<xsd:annotation>
 			<xsd:documentation>
-				An History Entry listing various data for a particular tag
+				An History/Version Entry listing various data 
 			</xsd:documentation>
 		</xsd:annotation>				
 		<xsd:sequence>
@@ -55,10 +55,10 @@
 		</xsd:sequence>		
 	</xsd:complexType>
 
-	<xsd:complexType name="WSVersioningObjectsHistory">
+	<xsd:complexType name="WSVersioningObjectsVersions">
 		<xsd:annotation>
 			<xsd:documentation>
-				History of a list of objects
+				Versions of a list of objects
 			</xsd:documentation>
 		</xsd:annotation>				
 		<xsd:sequence>
@@ -67,33 +67,46 @@
 					<xsd:sequence>
 						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="type" type="xsd:string"/>
 						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="name" type="xsd:string"/>
-						<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="wsHistoryEntries" type="tns:WSVersioningHistoryEntry"/>
+						<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="wsVersionEntries" type="tns:WSVersioningHistoryEntry"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
 		</xsd:sequence>		
 	</xsd:complexType>
-	<xsd:element name="WSVersioningObjectsHistory" type="tns:WSVersioningObjectsHistory"/>	
+	<xsd:element name="WSVersioningObjectsVersions" type="tns:WSVersioningObjectsVersions"/>	
 
-	<xsd:complexType name="WSVersioningItemsHistory">
+	<xsd:complexType name="WSVersioningItemsVersions">
 		<xsd:annotation>
 			<xsd:documentation>
-				History of a list of items
+				Versions of a list of items
 			</xsd:documentation>
 		</xsd:annotation>				
 		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="objects">
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="items">
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
-						<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsHistoryEntries" type="tns:WSVersioningHistoryEntry"/>
+						<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsVersionEntries" type="tns:WSVersioningHistoryEntry"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
 		</xsd:sequence>		
 	</xsd:complexType>	
-	<xsd:element name="WSVersioningItemsHistory" type="tns:WSVersioningItemsHistory"/>	
-
+	<xsd:element name="WSVersioningItemsVersions" type="tns:WSVersioningItemsVersions"/>
+	
+	<xsd:complexType name="WSVersioningItemHistory">
+		<xsd:annotation>
+			<xsd:documentation>
+				History of an item
+			</xsd:documentation>
+		</xsd:annotation>				
+		<xsd:sequence>
+				<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+				<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsHistoryEntries" type="tns:WSVersioningHistoryEntry"/>		
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSVersioningItemHistory" type="tns:WSVersioningItemHistory"/>
+	
 	<!-- *****************************************************
 		Versioning Operations
 		*******************************************************-->
@@ -133,35 +146,6 @@
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSVersioningGetInfo" type="tns:WSVersioningGetInfo"/>
-	
-
-	<xsd:complexType name="WSVersioningGetObjectsHistory">
-		<xsd:annotation>
-			<xsd:documentation>
-				Get tagging history for one or more Xtentis Object instances - do not pass any name to get tagging history of the object
-			</xsd:documentation>
-		</xsd:annotation>
-		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="versioningSystemName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="type" type="xsd:string"/>
-			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="names" type="xsd:string"/>
-		</xsd:sequence>		
-	</xsd:complexType>
-	<xsd:element name="WSVersioningGetObjectsHistory" type="tns:WSVersioningGetObjectsHistory"/>
-
-	<xsd:complexType name="WSVersioningGetItemsHistory">
-		<xsd:annotation>
-			<xsd:documentation>
-				Get tagging history for one or more Items instances
-			</xsd:documentation>
-		</xsd:annotation>
-		<xsd:sequence>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="versioningSystemName" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsItemPKs" type="tns:WSItemPK"/>
-		</xsd:sequence>		
-	</xsd:complexType>
-	<xsd:element name="WSVersioningGetItemsHistory" type="tns:WSVersioningGetItemsHistory"/>
-	
 	
 	<xsd:complexType name="WSVersioningTagObjects">
 		<xsd:annotation>
@@ -225,6 +209,74 @@
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSVersioningRestoreItems" type="tns:WSVersioningRestoreItems"/>
+	
+	<xsd:complexType name="WSVersioningGetObjectsVersions">
+		<xsd:annotation>
+			<xsd:documentation>
+				Get tagging versions for one or more Xtentis Object instances - do not pass any name to get tagging versions of the object
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="versioningSystemName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="type" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="names" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSVersioningGetObjectsVersions" type="tns:WSVersioningGetObjectsVersions"/>
+
+	<xsd:complexType name="WSVersioningGetItemsVersions">
+		<xsd:annotation>
+			<xsd:documentation>
+				Get tagging versions for one or more Items instances
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="versioningSystemName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsItemPKs" type="tns:WSItemPK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSVersioningGetItemsVersions" type="tns:WSVersioningGetItemsVersions"/>
+	
+	<xsd:complexType name="WSVersioningGetItemHistory">
+		<xsd:annotation>
+			<xsd:documentation>
+				Get history for one or more Items instances
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="versioningSystemName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSVersioningGetItemHistory" type="tns:WSVersioningGetItemHistory"/>
+	
+	<xsd:complexType name="WSVersioningCommitItems">
+		<xsd:annotation>
+			<xsd:documentation>
+				Commit one or more Items instances
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="versioningSystemName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsItemPKs" type="tns:WSItemPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="comment" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSVersioningCommitItems" type="tns:WSVersioningCommitItems"/>
+	
+	<xsd:complexType name="WSVersioningRestoreItemByRevision">
+		<xsd:annotation>
+			<xsd:documentation>
+				Restore one Item instance through revision
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="versioningSystemName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revision" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSVersioningRestoreItemByRevision" type="tns:WSVersioningRestoreItemByRevision"/>
 		
 	
 </xsd:schema>

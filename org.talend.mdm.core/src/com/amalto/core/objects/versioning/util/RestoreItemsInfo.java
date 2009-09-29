@@ -12,6 +12,7 @@ import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
  */
 public class RestoreItemsInfo implements Serializable {
 	private VersioningSystemPOJOPK versioningSystemPOJOPK;
+	private VersioningServiceCtrlLocalBI service;
 	private String tag;
 	private String username;
 	private ItemPOJOPK[] itemPKs;
@@ -22,9 +23,10 @@ public class RestoreItemsInfo implements Serializable {
 
 	
 	
-	public RestoreItemsInfo(VersioningSystemPOJOPK versioningSystemPOJOPK, String tag, String username, ItemPOJOPK[] itemPKs) {
+	public RestoreItemsInfo(VersioningSystemPOJOPK versioningSystemPOJOPK,VersioningServiceCtrlLocalBI service, String tag, String username, ItemPOJOPK[] itemPKs) {
 		super();
 		this.versioningSystemPOJOPK = versioningSystemPOJOPK;
+		this.service = service;
 		this.tag = tag;
 		this.username = username;
 		this.itemPKs = itemPKs;
@@ -47,6 +49,17 @@ public class RestoreItemsInfo implements Serializable {
 			VersioningSystemPOJOPK versioningSystemPOJOPK) {
 		this.versioningSystemPOJOPK = versioningSystemPOJOPK;
 	}
+	
+	
+	public VersioningServiceCtrlLocalBI getService() {
+		return service;
+	}
+
+
+	public void setService(VersioningServiceCtrlLocalBI service) {
+		this.service = service;
+	}
+
 
 	public String getUsername() {
 		return username;

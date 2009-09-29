@@ -2,7 +2,6 @@ package com.amalto.core.objects.versioning.ejb;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
@@ -24,6 +23,7 @@ import javax.ejb.TimerService;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.ejb.ItemPOJOPK;
@@ -34,6 +34,8 @@ import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.versioning.util.CommitItemsInfo;
+import com.amalto.core.objects.versioning.util.HistoryInfos;
 import com.amalto.core.objects.versioning.util.RestoreItemsInfo;
 import com.amalto.core.objects.versioning.util.RestoreObjectsInfo;
 import com.amalto.core.objects.versioning.util.TagItemsInfo;
@@ -43,8 +45,6 @@ import com.amalto.core.util.JobActionInfo;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import com.amalto.core.webservice.WSVersioningObjectsHistory;
-import com.amalto.core.webservice.WSVersioningObjectsHistoryObjects;
 
 
 
@@ -290,6 +290,14 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     		if (pk != null) {
     			pojo = getVersioningSystem(pk);
     			jndi = pojo.getJndi();
+    			if(jndi==null)jndi = DEFAULT_JNDI;
+    		}else {
+    			VersioningSystemPOJOPK defaultVersioningSystemPOJOPK=new VersioningSystemPOJOPK(ICoreConstants.DEFAULT_SVN);
+    			VersioningSystemPOJO defaultVersioningSystemPOJO=existsVersioningSystem(defaultVersioningSystemPOJOPK);
+    			if(defaultVersioningSystemPOJO!=null){
+    				pk=defaultVersioningSystemPOJOPK;
+    				pojo=defaultVersioningSystemPOJO;
+    			}
     		}
     		
     		/*
@@ -533,12 +541,12 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     				throw new XtentisException(err);    				
     			}
     			//run clean
-    			service.clean(clusterName, instances);
+    			service.clean(getClusterNameWithRevision(clusterName, revisionID, false), instances);
     			//2-Commit to the head
     			updateBackGroundJob(backgroundJobPK, "Committing to the head of "+clusterName);
     			for (int i = 0; i < instances.length; i++) {
     				String xml = server.getDocumentAsString(revisionID, clusterName, instances[i]);
-    				String path = URLEncoder.encode(clusterName, "UTF-8")+"/"+URLEncoder.encode(instances[i],"UTF-8");
+    				String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(instances[i],"UTF-8");
 		            service.commit(path, xml, info.getComment(), info.getUsername());
 		            if (info.getType().equals("Data Cluster")) {
 		            	//commit the whole items
@@ -556,13 +564,13 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 				}  
     			//3 - branch the whole cluster
     			updateBackGroundJob(backgroundJobPK, "Branching the head of "+clusterName+" to tag "+info.getTag());
-    			service.branch(URLEncoder.encode(clusterName,"UTF-8"), info.getTag(), info.getComment(), info.getUsername());
+    			service.branch(getClusterNameWithRevision(clusterName, revisionID, true), info.getTag(), info.getComment(), info.getUsername());
     		} else {
 	    		//tag separate instances - we only need to commit and branch
     			updateBackGroundJob(backgroundJobPK, "Tagging in "+clusterName+" with tag "+info.getTag());
 	    		for (int i = 0; i < info.getInstances().length; i++) {	    			
 	    			String xml = server.getDocumentAsString(revisionID, clusterName, info.getInstances()[i]);
-	    			String path = URLEncoder.encode(clusterName, "UTF-8")+"/"+URLEncoder.encode(info.getInstances()[i],"UTF-8");
+	    			String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(info.getInstances()[i],"UTF-8");
 	    			service.commit(path, xml,info.getComment(), info.getUsername());
 	    			service.branch(path, info.getTag(),info.getComment(), info.getUsername());
 		            if (info.getType().equals("Data Cluster")) {
@@ -644,9 +652,9 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 //    	String[] instances = server.getAllDocumentsUniqueID(clusterName);  ---  problem with long names at eXist level
     	if (instances == null) {
     		//the cluster is empty --> empty the head
-    		service.clean(clusterName, new String[0]);
+    		service.clean(getClusterNameWithRevision(clusterName, revisionID, false), new String[0]);
     	} else {
-    		service.clean(clusterName, instances);
+    		service.clean(getClusterNameWithRevision(clusterName, revisionID, false), instances);
     		for (int i = 0; i < instances.length; i++) {
 				
 				if ((i+1)%10 == 0) 
@@ -654,7 +662,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 				String xml = server.getDocumentAsString(revisionID, clusterName, instances[i]);
 				//System.out.println("Tagging "+clusterName+"/"+instances[i]+" "+(xml!=null ? "\n"+xml.substring(0,500) : "NULL"));
 				System.out.println("Tagging "+clusterName+"/"+instances[i]);
-				String path = URLEncoder.encode(clusterName, "UTF-8")+"/"+URLEncoder.encode(instances[i],"UTF-8");
+				String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(instances[i],"UTF-8");
     			service.commit(path, xml, comment, username);
     			service.branch(path, tag,comment, username);
     			
@@ -698,16 +706,17 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     	
     	//put items inside
     	updateBackGroundJob(pk, "Starting items restoration from tag "+tag);
-    	String[] instances = service.getInstances(clusterName, tag);
+    	String[] instances = service.getInstances(getClusterNameWithRevision(clusterName, revisionID, false), tag);
     	if (instances != null) {
     		for (int i = 0; i < instances.length; i++) {
-    			String instance = URLDecoder.decode(instances[i],"UTF-8");
+    			//String instance = URLDecoder.decode(instances[i],"UTF-8");
+    			String instance = instances[i];
     			System.out.println("restoring item "+clusterName+"/"+instance);
 				counter++;
 				if ((i+1)%10 == 0) 
 					updateBackGroundJob(pk, "Restoring item "+(i+1)+" out of "+instances.length);
-				String path = URLEncoder.encode(clusterName, "UTF-8")+"/"+URLEncoder.encode(instance,"UTF-8");
-				String[] xmls = service.checkOut(path, tag);
+				String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(instance,"UTF-8");
+				String[] xmls = service.checkOut(path, tag, null);
 				String xml = xmls[0].replaceAll("<\\?.*?\\?>", "");
 				server.putDocumentFromString(xml, instance, clusterName, revisionID);
 			}
@@ -819,7 +828,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 				String clusterName = pk.getDataClusterPOJOPK().getUniqueId();
 				String uniqueID = pk.getUniqueID();
 				String xml = server.getDocumentAsString(revisionID, clusterName, uniqueID);
-				String path = URLEncoder.encode(clusterName, "UTF-8")+"/"+URLEncoder.encode(uniqueID,"UTF-8");
+				String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(uniqueID,"UTF-8");
 				service.commit(path, xml, info.getComment(), info.getUsername());
 				service.branch(path, info.getTag(),info.getComment(), info.getUsername());
 			}
@@ -982,8 +991,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     		if (info.getInstances() == null) {
     			//restore the whole cluster
     			//1- grab all instances names
-    			String[] encodedInstances = service.getInstances(clusterName, info.getTag());
-				if (encodedInstances==null) {
+    			String[] getInstances = service.getInstances(getClusterNameWithRevision(clusterName, revisionID, false), info.getTag());
+				if (getInstances==null) {
 					String err = "Unable to check out objects from cluster "+clusterName+" with tag "+info.getTag()+" - no instances found";
 					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
 					throw new XtentisException(err);
@@ -992,10 +1001,10 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     			server.deleteCluster(revisionID, clusterName);
     			server.createCluster(revisionID, clusterName);
     			//3 - restore content
-    			for (int i = 0; i < encodedInstances.length; i++) {
-    				String instance = URLDecoder.decode(encodedInstances[i],"UTF-8");
-    				String path = URLEncoder.encode(clusterName, "UTF-8")+"/"+encodedInstances[i];
-    				String[] xmls = service.checkOut(path, info.getTag());
+    			for (int i = 0; i < getInstances.length; i++) {
+    				String instance = getInstances[i];
+    				String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(instance, "UTF-8");
+    				String[] xmls = service.checkOut(path, info.getTag(),null);
     				String xml = xmls[0].replaceAll("<\\?.*?\\?>", "");
 					if (-1 == server.putDocumentFromString(xml, instance, clusterName, revisionID)) {
 						String err = "Unable to re-insert object "+instance+" from cluster "+clusterName+" with tag "+info.getTag()+". An error occured on the XML server";
@@ -1010,8 +1019,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     		} else {
     			for (int i = 0; i < info.getInstances().length; i++) {
     				System.out.println(" Restoring "+clusterName+(info.getInstances()[i] == null ? "": "/"+info.getInstances()[i])+" <-- "+info.getTag());
-    				String path = URLEncoder.encode(clusterName, "UTF-8")+"/"+URLEncoder.encode(info.getInstances()[i],"UTF-8");
-    				String[] xmls = service.checkOut(path, info.getTag());
+    				String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(info.getInstances()[i],"UTF-8");
+    				String[] xmls = service.checkOut(path, info.getTag(),null);
     				//System.out.println("Content\n"+xmls[0]);
     				String xml = xmls[0].replaceAll("<\\?.*?\\?>", "");
 					server.putDocumentFromString(xml, info.getInstances()[i], clusterName, revisionID);
@@ -1074,9 +1083,14 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 			bgPOJO.setStatus(BackgroundJobPOJO._SCHEDULED_);
 			bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
 			bgPOJO.store();
+			
+			//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+    		
 			//Instantiate processing info
 			RestoreItemsInfo tagObjectsInfo = new RestoreItemsInfo(
 					versioningSystemPOJOPK,
+					service,
 					tag,
 					LocalUser.getLocalUser().getUsername(),
 					itemPKs
@@ -1110,19 +1124,19 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
      */
     private void executeRestoreItems(
     		BackgroundJobPOJOPK backGroundJobPK,
-    		RestoreItemsInfo info
+    		RestoreItemsInfo info,
+    		UniversePOJO universe
     ) {
     	try {
 
     		updateBackGroundJob(backGroundJobPK, "Accessing versioning server");
     		
 			//Get the versioning service
-    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(info.getVersioningSystemPOJOPK());
+    		VersioningServiceCtrlLocalBI service = info.getService();
     		
     		//get the universe and revision ID - this assumes the user is kept across the timeout call...
-    		UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
     		if (universe == null) {
-    			String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+    			String err = "ERROR: no Universe set for user '"+info.getUsername()+"'";
     			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
     			throw new XtentisException(err);
     		}
@@ -1144,8 +1158,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     			String revisionID = universe.getConceptRevisionID(pk.getConceptName());
 				String clusterName = pk.getDataClusterPOJOPK().getUniqueId();
 				String uniqueID = pk.getUniqueID();
-				String path = URLEncoder.encode(clusterName,"UTF-8")+"/"+URLEncoder.encode(uniqueID,"UTF-8");
-				String xmls[] = service.checkOut(path, info.getTag());
+				String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(uniqueID,"UTF-8");
+				String xmls[] = service.checkOut(path, info.getTag(),null);
 				if (xmls==null) {
 					String err = "Unable to check out item "+clusterName+"/"+uniqueID+" with tag "+info.getTag()+": skipping";
 					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
@@ -1179,17 +1193,215 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     	
     }
     
-    
-    
     /**
-	 * Restore Items
+	 * Commit Items
 	 * 
 	 * @throws XtentisException
      * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
-     */   
-    public WSVersioningObjectsHistory getObjectsHistory(
+     */
+    public BackgroundJobPOJOPK commitItemsAsJob(
+    		VersioningSystemPOJOPK versioningSystemPOJOPK,
+    		ItemPOJOPK[] itemPKs,
+    		String comment
+    )throws XtentisException{
+        BackgroundJobPOJO bgPOJO = new BackgroundJobPOJO();
+    	
+    	try{
+			//create a Background Job
+			bgPOJO.setDescription("Execute commiting "+itemPKs.length+" items as a Background Job");
+			bgPOJO.setMessage("Scheduling the job");
+			bgPOJO.setPercentage(-1);
+			bgPOJO.setSerializedObject(null);
+			bgPOJO.setStatus(BackgroundJobPOJO._SCHEDULED_);
+			bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
+			bgPOJO.store();
+			
+			//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+    		
+			//Instantiate processing info
+    		CommitItemsInfo commitItemsInfo = new CommitItemsInfo(
+    				service,
+					versioningSystemPOJOPK,
+					comment,
+					LocalUser.getLocalUser().getUsername(),
+					itemPKs
+			);
+			//launch job in background
+			JobActionInfo actionInfo = new JobActionInfo(
+					bgPOJO.getId(),
+					LocalUser.getLocalUser().getUniverse(),
+					"Execute commiting "+itemPKs.length+" items",
+					commitItemsInfo
+			); 
+			
+			createTimer(actionInfo);
+        
+		} catch (Exception e) {
+			try {
+				String err = "Unable to Execute commiting "+itemPKs.length+" items as a Background Job"
+	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+				if (! (e instanceof XtentisException)) {
+		    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+				}
+				//Update Background job and try to put pipeline
+				updateBackGroundJob((BackgroundJobPOJOPK)bgPOJO.getPK(), err,BackgroundJobPOJO._STOPPED_);
+			} catch (Exception ex) {}
+		}
+		return new BackgroundJobPOJOPK(bgPOJO.getPK());
+    }
+    
+    /**
+     * The actual Method call by the timer
+     * @param info
+     */
+    private void executeCommitItems(
+    		BackgroundJobPOJOPK backgroundJobPK,
+    		CommitItemsInfo info,
+    		UniversePOJO universe
+    ) {
+    	try {
+    		updateBackGroundJob(backgroundJobPK, "Accessing versioning server");
+    		
+   	    	//get the universe and revision ID for this Object
+	    	if (universe == null) {
+	    		String err = "ERROR: no Universe set for user '"+info.getUsername()+"'";
+	    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+	    		throw new XtentisException(err);
+	    	}
+	    	
+	    	
+            //get the xml server wrapper
+            XmlServerSLWrapperLocal server = null;
+			try {
+				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+			} catch (Exception e) {
+				String err = "Unable to access the XML Server "+e.getClass().getName()+": "+e.getLocalizedMessage();
+				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+				throw new XtentisException(err);
+			}
+			
+			long counter=0;
+			for (int i = 0; i < info.getItemPKs().length; i++) {
+				if ((i+1)%10 == 0) 
+					updateBackGroundJob(backgroundJobPK, "Commiting item "+(i+1)+" out of "+info.getItemPKs().length);
+				commitItem(info.getItemPKs()[i], info.getComment(), info.getService(), universe, info.getUsername(), server);
+				counter++;
+			}
+    		    		
+			
+			try {
+				String message = "Successfully completed Comming "+counter+" items ";
+				updateBackGroundJob(backgroundJobPK, message,BackgroundJobPOJO._COMPLETED_);
+			} catch (Exception e) {
+				String err = "Objects Commiting done but unable to store the result in the background object: "
+									+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+	    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+	    	    throw new XtentisException(err);
+			}
+    		
+		} catch (Exception e) {
+			try {
+	    	    String err = "Unable to Execute commiting "+info.getItemPKs().length+" items as a Background Job"
+	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+				if (! (e instanceof XtentisException)) {
+		    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+				}
+				//Update Background job and try to put pipeline
+				updateBackGroundJob(backgroundJobPK, err,BackgroundJobPOJO._STOPPED_);
+			} catch (Exception ex) {}
+		}
+    	
+    }
+
+	private void commitItem(ItemPOJOPK itemPK, String comment,
+			VersioningServiceCtrlLocalBI service, UniversePOJO universe,
+			String username, XmlServerSLWrapperLocal server)
+			throws UnsupportedEncodingException, XtentisException {
+		//get path
+		String revisionID = universe.getConceptRevisionID(itemPK.getConceptName());
+		String clusterName = itemPK.getDataClusterPOJOPK().getUniqueId();
+		String uniqueID = itemPK.getUniqueID();
+		String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(uniqueID,"UTF-8");
+		
+		//get xml
+		String xml = server.getDocumentAsString(revisionID, clusterName, uniqueID);
+		
+		//do commit
+		service.commit(path, xml, comment, username);
+	}
+    
+    /**
+	 * Restore Single Item From Revision
+	 * 
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public void restoreItemByRevision(
+    		VersioningSystemPOJOPK versioningSystemPOJOPK,
+    		ItemPOJOPK itemPK,
+    		String revision
+    )throws XtentisException{
+    	try {
+    		
+	    	//Get the versioning service
+			VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+			
+			//get the universe and revision ID - this assumes the user is kept across the timeout call...
+    		UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+    		if (universe == null) {
+    			String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+    			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+    			throw new XtentisException(err);
+    		}
+    		
+    		//get the xml server wrapper
+            XmlServerSLWrapperLocal server = null;
+			try {
+				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+			} catch (Exception e) {
+				String err = "Unable to access the XML Server "+e.getClass().getName()+": "+e.getLocalizedMessage();
+				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+				throw new XtentisException(err);
+			}
+    		
+    		String revisionID = universe.getConceptRevisionID(itemPK.getConceptName());
+			String clusterName = itemPK.getDataClusterPOJOPK().getUniqueId();
+			String uniqueID = itemPK.getUniqueID();
+			String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(uniqueID,"UTF-8");
+			String xmls[] = service.checkOut(path, null ,revision);
+			if (xmls==null) {
+				String err = "Unable to check out item "+clusterName+"/"+uniqueID+" with revision "+revision;
+				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+			}
+			String xml = xmls[0].replaceAll("<\\?.*?\\?>", "");
+			server.putDocumentFromString(xml, uniqueID, clusterName, revisionID);
+			
+			org.apache.log4j.Logger.getLogger(this.getClass()).info("Successfully restored item "+itemPK.getUniqueID());
+		
+    	}catch (XtentisException e) {
+    		throw(e);
+		} catch (Exception e) {
+			String err = "Unable to Restore item "+itemPK.getUniqueID()+" with revision "+revision
+    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+    	    throw new XtentisException(err);
+		}
+    }
+    
+    /**
+	 * Get Objects Versions
+	 * 
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public HistoryInfos getObjectsVersions(
     		VersioningSystemPOJOPK versioningSystemPOJOPK,
     		String type,
     		String instances[]
@@ -1213,46 +1425,148 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     		//Get the cluster name associated with it
     		String clusterName = ObjectPOJO.getCluster((Class<? extends ObjectPOJO>)theClass);
     		
+    		String revisionID = LocalUser.getLocalUser().getUniverse().getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(theClass));
+    		
+    		clusterName=getClusterNameWithRevision(clusterName, revisionID, false);
+    		
 			//Get the versioning service
     		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
     		
     		if (instances==null) {
     			//cluster level
-    			return new WSVersioningObjectsHistory(
-    					new WSVersioningObjectsHistoryObjects[] {
-    							new WSVersioningObjectsHistoryObjects(
-    									type,
-    									null,
-    									service.getHistory(clusterName)
-    							)
-    					}
-    			);
+    			return service.getVersions(clusterName);
+    		}else if(instances.length==1){
+    			return service.getVersions(clusterName+"/"+instances[0]);
+    		}else{
+    			//TODO mulitple-instances: maybe just union is not a good solution
+    			throw new XtentisException("Not Supported Yet");
     		}
-    		
-    		//mulitple instances
-    		ArrayList<WSVersioningObjectsHistoryObjects> entries = new ArrayList<WSVersioningObjectsHistoryObjects>();
-    		for (int i = 0; i < instances.length; i++) {
-    			entries.add(
-    				new WSVersioningObjectsHistoryObjects(
-    						type,
-    						instances[i],
-    						service.getHistory(clusterName+"/"+instances[i])
-    				)
-    			);
-			}
-    		
-    		return new WSVersioningObjectsHistory(entries.toArray(new WSVersioningObjectsHistoryObjects[entries.size()]));
+
     		
     	} catch (XtentisException e) {
     		throw(e);
 		} catch (Exception e) {
-			String err = "Unable to get objects history for type "+type+": "
+			String err = "Unable to get objects versions for type "+type+": "
     		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
     	    throw new XtentisException(err);
 		}
 	}
     
+    /**
+	 * Get Items Versions
+	 * 
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */ 
+    public HistoryInfos getItemsVersions(
+    		VersioningSystemPOJOPK versioningSystemPOJOPK,
+    		ItemPOJOPK[] itemPOJOPKs
+		)throws XtentisException{
+    	    	
+    	try{
+    		    				
+    		
+			//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+    		
+    		if (itemPOJOPKs==null) return null;
+    		
+    		if (itemPOJOPKs.length==1) {
+    			//single item
+    			ItemPOJOPK itemPOJOPK = itemPOJOPKs[0];
+    			String clusterName=itemPOJOPK.getDataClusterPOJOPK().getUniqueId();
+    			String conceptName=itemPOJOPK.getConceptName();
+    			String revisionID = LocalUser.getLocalUser().getUniverse().getConceptRevisionID(conceptName);
+        		clusterName=getClusterNameWithRevision(clusterName, revisionID, false);
+    			
+    			return service.getVersions(clusterName+"/"+itemPOJOPK.getUniqueID());
+    		}else{
+    			//TODO mulitple-instances: maybe just union is not a good solution
+    			throw new XtentisException("Not Supported Yet");
+    		}
+    		
+    		
+    	} catch (XtentisException e) {
+    		throw(e);
+		} catch (Exception e) {
+			String err = "Unable to get items versions: "
+    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+    	    throw new XtentisException(err);
+		}
+	}
+    
+    /**
+	 * Get Item History
+	 * 
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */ 
+    public HistoryInfos getItemHistory(
+    		VersioningSystemPOJOPK versioningSystemPOJOPK,
+    		ItemPOJOPK itemPOJOPK
+		)throws XtentisException{
+    	    	
+    	try{
+    		    				
+			//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+    		
+    		if (itemPOJOPK==null) return null;
+    		
+    		//single item
+    		String clusterName=itemPOJOPK.getDataClusterPOJOPK().getUniqueId();
+    		String conceptName=itemPOJOPK.getConceptName();
+    		String revisionID = LocalUser.getLocalUser().getUniverse().getConceptRevisionID(conceptName);
+        	clusterName=getClusterNameWithRevision(clusterName, revisionID, false);
+    			
+    		return service.getHistory(clusterName+"/"+itemPOJOPK.getUniqueID());
+    		
+    	} catch (XtentisException e) {
+    		throw(e);
+		} catch (Exception e) {
+			String err = "Unable to get item history: "
+    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+    	    throw new XtentisException(err);
+		}
+	}
+    
+    private String getClusterNameWithRevision(String clusterName,String revisionID,boolean encode) {
+    	
+    	String clusterNameWithRevision="";
+    	
+    	if(encode){
+    		try {
+				clusterNameWithRevision=URLEncoder.encode(clusterName, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+    	}else{
+    		clusterNameWithRevision=clusterName;
+    	}
+			
+    		
+    	if(revisionID!=null&&revisionID.length()>0){
+    		
+    		if(encode){
+        		try {
+    				clusterNameWithRevision+=("["+URLEncoder.encode(revisionID, "UTF-8")+"]");
+    			} catch (UnsupportedEncodingException e) {
+    				e.printStackTrace();
+    			}
+        	}else{
+        		clusterNameWithRevision+=("["+revisionID+"]");
+        	}
+    	}
+    	
+    	return clusterNameWithRevision;
+	}
         
     
     /*****************************************************************
@@ -1303,9 +1617,11 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 			}else if (actionInfo.getInfo() instanceof TagItemsInfo) {
 				executeTagItems(pk, (TagItemsInfo)actionInfo.getInfo(),actionInfo.getUniverse());
 			}else if (actionInfo.getInfo() instanceof RestoreItemsInfo) {
-				executeRestoreItems(pk, (RestoreItemsInfo)actionInfo.getInfo());
+				executeRestoreItems(pk, (RestoreItemsInfo)actionInfo.getInfo(),actionInfo.getUniverse());
 			}else if (actionInfo.getInfo() instanceof RestoreObjectsInfo) {
 				executeRestoreObjects(pk, (RestoreObjectsInfo)actionInfo.getInfo(),actionInfo.getUniverse());
+			}else if (actionInfo.getInfo() instanceof CommitItemsInfo) {
+				executeCommitItems(pk, (CommitItemsInfo)actionInfo.getInfo(),actionInfo.getUniverse());;
 			}
 
 		} catch (Exception e) {

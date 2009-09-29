@@ -5,7 +5,7 @@ package com.amalto.core.objects.versioning.ejb.local;
 
 /**
  * Local interface for VersioningServiceCtrl.
- * @xdoclet-generated at 24-09-09
+ * @xdoclet-generated at 28-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -14,17 +14,23 @@ public interface VersioningServiceCtrlLocal
    extends com.amalto.core.ejb.local.ServiceCtrlLocal
 {
    /**
+    * Returns the History of an item or object The path is constitued of the clustername/instancename
+    * @throws EJBException
+    */
+   public com.amalto.core.objects.versioning.util.HistoryInfos getHistory( java.lang.String path ) throws com.amalto.core.util.XtentisException;
+
+   /**
     * Returns the Versioning History of an item or object The path is constitued of the clustername/instancename
     * @throws EJBException
     */
-   public com.amalto.core.webservice.WSVersioningHistoryEntry[] getHistory( java.lang.String path ) throws com.amalto.core.util.XtentisException;
+   public com.amalto.core.objects.versioning.util.HistoryInfos getVersions( java.lang.String path ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Checkouts The path is constitued of the clustername/instancename If tag is null, the checkout will be made from the head
     * @return the checked out xml
     * @throws EJBException
     */
-   public java.lang.String[] checkOut( java.lang.String path,java.lang.String tag ) throws com.amalto.core.util.XtentisException;
+   public java.lang.String[] checkOut( java.lang.String path,java.lang.String tag,java.lang.String revision ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Commits to the head of the repository The path is constitued of the clustername/instancename

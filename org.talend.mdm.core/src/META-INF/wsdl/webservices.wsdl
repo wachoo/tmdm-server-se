@@ -801,19 +801,41 @@
 
 	<!-- ************************ Versioning  *************************** -->
 
-	<message name="versioningGetObjectsHistoryRequest">
-		<part name="wsVersioningGetObjectsHistory" element="tns:WSVersioningGetObjectsHistory"/>
+	<message name="versioningCommitItemsRequest">
+		<part name="wsVersioningCommitItems" element="tns:WSVersioningCommitItems"/>
 	</message>
-	<message name="versioningGetObjectsHistoryResponse">
-		<part name="wsVersioningObjectsHistory" element="tns:WSVersioningObjectsHistory"/>
+	<message name="versioningCommitItemsResponse">
+		<part name="wsBackgroundJobPK" element="tns:WSBackgroundJobPK"/>
 	</message>
 
-	<message name="versioningGetItemsHistoryRequest">
-		<part name="wsVersioningGetItemsHistory" element="tns:WSVersioningGetItemsHistory"/>
+	<message name="versioningRestoreItemByRevisionRequest">
+		<part name="wsVersioningRestoreItemByRevision" element="tns:WSVersioningRestoreItemByRevision"/>
 	</message>
-	<message name="versioningGetItemsHistoryResponse">
-		<part name="wsVersioningItemsHistory" element="tns:WSVersioningItemsHistory"/>
+	<message name="versioningRestoreItemByRevisionResponse">
+		<part name="wsBoolean" element="tns:WSBoolean"/>
 	</message>
+	
+	<message name="versioningGetItemHistoryRequest">
+		<part name="wsVersioningGetItemHistory" element="tns:WSVersioningGetItemHistory"/>
+	</message>
+	<message name="versioningGetItemHistoryResponse">
+		<part name="wsVersioningItemHistory" element="tns:WSVersioningItemHistory"/>
+	</message>
+
+	<message name="versioningGetItemsVersionsRequest">
+		<part name="wsVersioningGetItemsVersions" element="tns:WSVersioningGetItemsVersions"/>
+	</message>
+	<message name="versioningGetItemsVersionsResponse">
+		<part name="wsVersioningItemsVersions" element="tns:WSVersioningItemsVersions"/>
+	</message>
+	
+	<message name="versioningGetObjectsVersionsRequest">
+		<part name="wsVersioningGetObjectsVersions" element="tns:WSVersioningGetObjectsVersions"/>
+	</message>
+	<message name="versioningGetObjectsVersionsResponse">
+		<part name="wsVersioningObjectsVersions" element="tns:WSVersioningObjectsVersions"/>
+	</message>
+	
 	
 
 	<message name="getVersioningSystemConfigurationRequest">
@@ -1657,13 +1679,25 @@
 
 
 		<!-- ********************* Versioning  ************************ -->
-		<operation name="versioningGetObjectsHistory">
-			<input message="tns:versioningGetObjectsHistoryRequest"/>
-			<output message="tns:versioningGetObjectsHistoryResponse"/>
+		<operation name="versioningCommitItems">
+			<input message="tns:versioningCommitItemsRequest"/>
+			<output message="tns:versioningCommitItemsResponse"/>
 		</operation>
-		<operation name="versioningGetItemsHistory">
-			<input message="tns:versioningGetItemsHistoryRequest"/>
-			<output message="tns:versioningGetItemsHistoryResponse"/>
+		<operation name="versioningRestoreItemByRevision">
+			<input message="tns:versioningRestoreItemByRevisionRequest"/>
+			<output message="tns:versioningRestoreItemByRevisionResponse"/>
+		</operation>
+		<operation name="versioningGetItemHistory">
+			<input message="tns:versioningGetItemHistoryRequest"/>
+			<output message="tns:versioningGetItemHistoryResponse"/>
+		</operation>
+		<operation name="versioningGetItemsVersions">
+			<input message="tns:versioningGetItemsVersionsRequest"/>
+			<output message="tns:versioningGetItemsVersionsResponse"/>
+		</operation>
+		<operation name="versioningGetObjectsVersions">
+			<input message="tns:versioningGetObjectsVersionsRequest"/>
+			<output message="tns:versioningGetObjectsVersionsResponse"/>
 		</operation>
 		<operation name="getVersioningSystemConfiguration">
 			<input message="tns:getVersioningSystemConfigurationRequest"/>
@@ -2504,12 +2538,27 @@
 
 
 		<!-- ********************* Versioning  ************************ -->
-		<operation name="versioningGetObjectsHistory">
+		<operation name="versioningCommitItems">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>			
 		</operation>
-		<operation name="versioningGetItemsHistory">
+		<operation name="versioningRestoreItemByRevision">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>			
+		</operation>
+		<operation name="versioningGetItemHistory">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>			
+		</operation>
+		<operation name="versioningGetItemsVersions">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>			
+		</operation>
+		<operation name="versioningGetObjectsVersions">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>			

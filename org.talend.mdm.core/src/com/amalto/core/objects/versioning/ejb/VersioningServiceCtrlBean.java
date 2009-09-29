@@ -3,9 +3,9 @@ package com.amalto.core.objects.versioning.ejb;
 import javax.ejb.EJBException;
 
 import com.amalto.core.ejb.ServiceCtrlBean;
+import com.amalto.core.objects.versioning.util.HistoryInfos;
 import com.amalto.core.objects.versioning.util.VersioningServiceCtrlLocalBI;
 import com.amalto.core.util.XtentisException;
-import com.amalto.core.webservice.WSVersioningHistoryEntry;
 
 
 /**
@@ -43,7 +43,17 @@ public abstract class VersioningServiceCtrlBean extends ServiceCtrlBean implemen
     public VersioningServiceCtrlBean() {
         super();
     }
-
+    
+    /**
+     * Returns the History of an item or object
+     * The path is constitued of the clustername/instancename
+     * 
+     * @throws EJBException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public abstract HistoryInfos getHistory(String path) throws XtentisException;
     
     /**
      * Returns the Versioning History of an item or object
@@ -54,7 +64,7 @@ public abstract class VersioningServiceCtrlBean extends ServiceCtrlBean implemen
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public abstract WSVersioningHistoryEntry[] getHistory(String path) throws XtentisException;
+    public abstract HistoryInfos getVersions(String path) throws XtentisException;
 
     /**
      * Checkouts 
@@ -67,7 +77,7 @@ public abstract class VersioningServiceCtrlBean extends ServiceCtrlBean implemen
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public abstract String[] checkOut(String path, String tag) throws XtentisException;
+    public abstract String[] checkOut(String path, String tag, String revision) throws XtentisException;
 
     /**
      * Commits to the head of the repository 

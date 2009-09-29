@@ -5,7 +5,7 @@ package com.amalto.core.objects.versioning.ejb.remote;
 
 /**
  * Remote interface for VersioningSystemCtrl.
- * @xdoclet-generated at 24-09-09
+ * @xdoclet-generated at 28-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -91,10 +91,38 @@ public interface VersioningSystemCtrl
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
-    * Restore Items
+    * Commit Items
     * @throws XtentisException
     */
-   public com.amalto.core.webservice.WSVersioningObjectsHistory getObjectsHistory( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,java.lang.String type,java.lang.String[] instances )
+   public com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK commitItemsAsJob( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK[] itemPKs,java.lang.String comment )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
+    * Restore Single Item From Revision
+    * @throws XtentisException
+    */
+   public void restoreItemByRevision( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK itemPK,java.lang.String revision )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
+    * Get Objects Versions
+    * @throws XtentisException
+    */
+   public com.amalto.core.objects.versioning.util.HistoryInfos getObjectsVersions( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,java.lang.String type,java.lang.String[] instances )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
+    * Get Items Versions
+    * @throws XtentisException
+    */
+   public com.amalto.core.objects.versioning.util.HistoryInfos getItemsVersions( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK[] itemPOJOPKs )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
+    * Get Item History
+    * @throws XtentisException
+    */
+   public com.amalto.core.objects.versioning.util.HistoryInfos getItemHistory( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK itemPOJOPK )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
 }

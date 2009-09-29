@@ -206,9 +206,15 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSMenuPK deleteMenu(com.amalto.core.webservice.WSDeleteMenu wsMenuDelete) throws 
          java.rmi.RemoteException;
-    public com.amalto.core.webservice.WSVersioningObjectsHistory versioningGetObjectsHistory(com.amalto.core.webservice.WSVersioningGetObjectsHistory wsVersioningGetObjectsHistory) throws 
+    public com.amalto.core.webservice.WSBackgroundJobPK versioningCommitItems(com.amalto.core.webservice.WSVersioningCommitItems wsVersioningCommitItems) throws 
          java.rmi.RemoteException;
-    public com.amalto.core.webservice.WSVersioningItemsHistory versioningGetItemsHistory(com.amalto.core.webservice.WSVersioningGetItemsHistory wsVersioningGetItemsHistory) throws 
+    public com.amalto.core.webservice.WSBoolean versioningRestoreItemByRevision(com.amalto.core.webservice.WSVersioningRestoreItemByRevision wsVersioningRestoreItemByRevision) throws 
+         java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSVersioningItemHistory versioningGetItemHistory(com.amalto.core.webservice.WSVersioningGetItemHistory wsVersioningGetItemHistory) throws 
+         java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSVersioningItemsVersions versioningGetItemsVersions(com.amalto.core.webservice.WSVersioningGetItemsVersions wsVersioningGetItemsVersions) throws 
+         java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSVersioningObjectsVersions versioningGetObjectsVersions(com.amalto.core.webservice.WSVersioningGetObjectsVersions wsVersioningGetObjectsVersions) throws 
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSVersioningSystemConfiguration getVersioningSystemConfiguration(com.amalto.core.webservice.WSGetVersioningSystemConfiguration wsGetVersioningSystemConfiguration) throws 
          java.rmi.RemoteException;

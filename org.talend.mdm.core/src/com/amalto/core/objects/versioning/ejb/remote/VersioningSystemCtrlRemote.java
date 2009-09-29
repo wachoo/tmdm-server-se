@@ -11,7 +11,7 @@ import java.util.*;
  * facade session bean. Inverit from this class to provide reasonable caching and event handling capabilities.
  *
  * Remote facade for VersioningSystemCtrl.
- * @xdoclet-generated at 24-09-09
+ * @xdoclet-generated at 28-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -158,11 +158,48 @@ public class VersioningSystemCtrlRemote extends Observable
 
    }
 
-   public com.amalto.core.webservice.WSVersioningObjectsHistory getObjectsHistory ( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,java.lang.String type,java.lang.String[] instances )
+   public com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK commitItemsAsJob ( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK[] itemPKs,java.lang.String comment )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
-        com.amalto.core.webservice.WSVersioningObjectsHistory retval;
-       retval =  getSession().getObjectsHistory( versioningSystemPOJOPK,type,instances );
+        com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK retval;
+       retval =  getSession().commitItemsAsJob( versioningSystemPOJOPK,itemPKs,comment );
+
+      return retval;
+
+   }
+
+   public void restoreItemByRevision ( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK itemPK,java.lang.String revision )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+      getSession().restoreItemByRevision( versioningSystemPOJOPK,itemPK,revision );
+
+   }
+
+   public com.amalto.core.objects.versioning.util.HistoryInfos getObjectsVersions ( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,java.lang.String type,java.lang.String[] instances )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        com.amalto.core.objects.versioning.util.HistoryInfos retval;
+       retval =  getSession().getObjectsVersions( versioningSystemPOJOPK,type,instances );
+
+      return retval;
+
+   }
+
+   public com.amalto.core.objects.versioning.util.HistoryInfos getItemsVersions ( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK[] itemPOJOPKs )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        com.amalto.core.objects.versioning.util.HistoryInfos retval;
+       retval =  getSession().getItemsVersions( versioningSystemPOJOPK,itemPOJOPKs );
+
+      return retval;
+
+   }
+
+   public com.amalto.core.objects.versioning.util.HistoryInfos getItemHistory ( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK itemPOJOPK )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        com.amalto.core.objects.versioning.util.HistoryInfos retval;
+       retval =  getSession().getItemHistory( versioningSystemPOJOPK,itemPOJOPK );
 
       return retval;
 
