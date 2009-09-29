@@ -5,7 +5,7 @@ package com.amalto.service.svn.ejb.local;
 
 /**
  * Local interface for Svn.
- * @xdoclet-generated at 24-09-09
+ * @xdoclet-generated at 28-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

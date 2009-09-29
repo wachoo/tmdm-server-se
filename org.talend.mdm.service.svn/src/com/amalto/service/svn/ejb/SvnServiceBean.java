@@ -2,6 +2,9 @@ package com.amalto.service.svn.ejb;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 
@@ -12,11 +15,10 @@ import javax.ejb.SessionContext;
 import org.exolab.castor.xml.Unmarshaller;
 import org.xml.sax.InputSource;
 
-import com.amalto.connector.svn.util.HistoryInfos;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.versioning.ejb.VersioningServiceCtrlBean;
+import com.amalto.core.objects.versioning.util.HistoryInfos;
 import com.amalto.core.util.XtentisException;
-import com.amalto.core.webservice.WSVersioningHistoryEntry;
 import com.amalto.service.svn.bean.SvnConfiguration;
 import com.amalto.service.svn.handler.SvnHandler;
 
@@ -215,7 +217,7 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
 			tag = input[1];
 		}
 
-		byte [] content = new SvnHandler(getConfigurationLocal()).checkoutFile(filename, tag);
+		byte [] content = new SvnHandler(getConfigurationLocal()).checkoutFile(filename, tag , null);
 		String contentS = new String(content);
 		org.apache.log4j.Logger.getLogger(this.getClass()).info("checkoutFile("+filename+","+tag+") => "+contentS);
 		return contentS;
@@ -227,19 +229,17 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public String getHistory(String [] input) throws com.amalto.core.util.XtentisException {
-		String filename= null;
-		if (input.length >0) {
-			filename = input[0];
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug("getHistory "+filename);
-		}
-
-		HistoryInfos infos = new SvnHandler(getConfigurationLocal()).getHistory(filename);
+	public HistoryInfos getHistory(String filename) throws com.amalto.core.util.XtentisException {
+		
+		org.apache.log4j.Logger.getLogger(this.getClass()).debug("getHistory "+filename);
+		
+		String normalizedPath = normalizePath(filename);
+		
+		HistoryInfos infos = new SvnHandler(getConfigurationLocal()).getHistory(normalizedPath);
 
 		org.apache.log4j.Logger.getLogger(this.getClass()).debug(infos.toString());
 
-
-		return "SUCCESS";
+		return infos;
 	}
 
 
@@ -488,6 +488,7 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
 	    }
 
 	}
+	
 
 	/**
      * Returns the Versioning History of an item or object
@@ -498,43 +499,14 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public WSVersioningHistoryEntry[] getHistory(String path) throws XtentisException {
+    public HistoryInfos getVersions(String path) throws XtentisException {
     	String normalizedPath = normalizePath(path);
 
     	HistoryInfos infos = new SvnHandler(getConfigurationLocal()).getVersions(normalizedPath);
 
-    	String [] authors = infos.getAuthors();
-    	String [] comments = infos.getComments();
-    	String [] dates = infos.getDates();
-    	String [] revisions = infos.getRevisions();
-    	String [] tags = infos.getTagNames();
-    	int size = authors.length;
-    	WSVersioningHistoryEntry[] entries = new WSVersioningHistoryEntry[size];
-    	for (int i=0; i<size; i++) {
-    		WSVersioningHistoryEntry entry = new WSVersioningHistoryEntry();
-
-    		String author = authors[i];
-    		String comment = comments[i];
-
-    		String authorAndComment = comments[i];
-    		int indexAuthorBegin = authorAndComment.indexOf("Author : ");
-    		int indexAuthorEnd = authorAndComment.indexOf(" Comment : ");
-
-    		if ((indexAuthorBegin == 0) && (indexAuthorEnd!=-1)) {
-    			author = authorAndComment.substring(9, indexAuthorEnd);
-    			comment = authorAndComment.substring(indexAuthorEnd+11);
-    		}
-
-    		entry.setAuthor(author);
-    		entry.setComments(comment);
-    		entry.setDate(dates[i]);
-    		entry.setRevision(revisions[i]);
-    		entry.setTag(tags[i]);
-    		entries[i] = entry;
-    		org.apache.log4j.Logger.getLogger(this.getClass()).debug("Entry => Author : "+author+" - Comment : "+comment+" - Date : "+dates[i]+" - Revision : "+revisions[i]+" - Tag : "+tags[i]);
-    	}
-    	return entries;
+    	return infos;
     }
+
 
     /**
      * Checkouts
@@ -546,8 +518,8 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public String[] checkOut(String path, String tag) throws XtentisException{
-    	byte [] content = new SvnHandler(getConfigurationLocal()).checkoutFile(path, tag);
+    public String[] checkOut(String path, String tag, String revision) throws XtentisException{
+    	byte [] content = new SvnHandler(getConfigurationLocal()).checkoutFile(path, tag, revision);
     	if (content == null)
     		return null;
 
@@ -669,10 +641,29 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      * Normalize path to be compliant with Svn name specifications.
      */
    private String normalizePath(String path) {
-	   return path;
+		
+	   String normalizePath=path;
+		
+		try {
+			String encodedpath = URLEncoder.encode(path, "UTF-8");
+			encodedpath = encodedpath.replace("%2F","/");
+			encodedpath = encodedpath.replace("%5B", "[").replace("%5D", "]");
+			normalizePath = encodedpath;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	   
+	    return normalizePath;
    }
 
    private String unnormalizePath(String path) {
+	   
+	    try {
+		  path=URLDecoder.decode(path,"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
 	   return path;
    }
 

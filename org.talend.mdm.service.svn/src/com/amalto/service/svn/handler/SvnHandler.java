@@ -13,7 +13,7 @@ import javax.resource.cci.MappedRecord;
 
 import com.amalto.connector.jca.InteractionSpecImpl;
 import com.amalto.connector.jca.RecordFactoryImpl;
-import com.amalto.connector.svn.util.HistoryInfos;
+import com.amalto.core.objects.versioning.util.HistoryInfos;
 import com.amalto.core.util.XtentisException;
 import com.amalto.service.svn.bean.SvnConfiguration;
 
@@ -147,7 +147,7 @@ public class SvnHandler{
     }
     
     
-	public byte [] checkoutFile(String filename, String tag) throws com.amalto.core.util.XtentisException  {
+	public byte [] checkoutFile(String filename, String tag,String revision) throws com.amalto.core.util.XtentisException  {
 		Connection conx = null;
 		
 		try {
@@ -162,8 +162,8 @@ public class SvnHandler{
 			
 			parameters.put("command","checkout");
 			parameters.put("fileName",filename);
-			if (tag!=null && !"".equals(tag))
-				parameters.put("tag",tag);
+			if (tag!=null && !"".equals(tag))parameters.put("tag",tag);
+			if (revision!=null && !"".equals(revision))parameters.put("revision",revision);
 			
 			recordIn.put(RecordFactoryImpl.PARAMS_HASHMAP_IN, parameters);
 			
