@@ -1201,6 +1201,13 @@
 		<part name="wsMDMConfig" element="tns:WSMDMConfig"></part>
 	</message>
 	
+	<message name="checkServiceConfigRequest">
+		<part name="wsCheckServiceConfigRequest" element="tns:WSCheckServiceConfigRequest"/>
+	</message>
+	
+	<message name="checkServiceConfigResponse">
+		<part name="wsCheckServiceConfigRequest" element="tns:WSCheckServiceConfigResponse"/>
+	</message>
 	<!-- *****************************************************
 		              P O R T		
 		              
@@ -1936,6 +1943,12 @@
             <input message="tns:getMDMConfigurationRequest"/>
 			<output message="tns:getMDMConfigurationResponse"></output>
 		</operation>
+
+		<operation name="checkServiceConfig">
+            <input message="tns:checkServiceConfigRequest"/>
+			<output message="tns:checkServiceConfigResponse"/>
+		</operation>
+		
 	</portType>
 	
 
@@ -2847,6 +2860,11 @@
 			<output><soap:body use="literal"/></output>
 		</operation>
 		<operation name="getMDMConfiguration">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="checkServiceConfig">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
