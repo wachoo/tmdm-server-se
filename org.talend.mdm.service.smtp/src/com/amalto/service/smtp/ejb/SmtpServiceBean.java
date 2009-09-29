@@ -735,7 +735,27 @@ public class SmtpServiceBean extends ServiceCtrlBean  implements SessionBean {
     }
 
 
-
+    /**
+    * @checkup the smtp configuration
+    * @throws EJBException
+    *
+    * @ejb.interface-method view-type = "local"
+    * @ejb.facade-method
+    */
+    public boolean checkConfigure()throws XtentisException{
+    	try {
+			String conf = this.loadConfiguration();
+			Document doc = Util.parse(conf);
+			Util.validate(doc.getDocumentElement(), getConfigurationSchema());
+			String returnCode = sendSimpleMail("b2box@customer.com", "aiming_chen@hotmail.com", null, null, "test", "test");
+			if(returnCode.equals("Success"))return true;
+			else return false;
+		} catch (Exception e) {
+			 String err = "Unable to checkup the configuration: "+e.getClass().getName()+": "+e.getLocalizedMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+			return false;
+		}
+    }
     /**
      * @throws EJBException
      *

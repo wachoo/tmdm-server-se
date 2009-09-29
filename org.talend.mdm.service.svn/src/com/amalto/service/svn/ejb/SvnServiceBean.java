@@ -13,11 +13,13 @@ import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
 import org.exolab.castor.xml.Unmarshaller;
+import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.versioning.ejb.VersioningServiceCtrlBean;
 import com.amalto.core.objects.versioning.util.HistoryInfos;
+import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.service.svn.bean.SvnConfiguration;
 import com.amalto.service.svn.handler.SvnHandler;
@@ -187,6 +189,32 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
     }	
 
 
+    /**
+     * checkup the svn configuration
+     * @throws XtentisException
+     *
+     * @ejb.interface-method view-type = "local"
+     * @ejb.facade-method
+     */
+     public boolean checkConfigure()throws com.amalto.core.util.XtentisException{
+     	try
+     	{
+     		String conf = this.loadConfiguration();
+     		Document doc = Util.parse(conf);
+     		Util.validate(doc.getDocumentElement(), getConfigurationSchema());
+     		String returnCode = getStatus();
+     		if ("ERROR".equals(returnCode))return false;
+     	}
+     	catch(Exception e)
+     	{
+ 			 String err = "Unable to checkup the configuration: "+e.getClass().getName()+": "+e.getLocalizedMessage();
+ 			 org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+ 			 return false;
+     	}
+     	
+     	
+     	return true;
+     }
 	/* (non-Javadoc)
 	 * @see com.amalto.core.ejb.IServiceBean#run(java.lang.String)
 	 */
