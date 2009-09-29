@@ -183,6 +183,14 @@
         </method-attributes>
       </session>
       <session>
+         <ejb-name>AutoCommitToSvnSendBean</ejb-name>
+         <jndi-name>amalto/remote/core/autocommittosvnsend</jndi-name>
+         <local-jndi-name>amalto/local/core/autocommittosvnsend</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
          <ejb-name>BackgroundJobCtrl</ejb-name>
          <jndi-name>amalto/remote/core/backgroundjobctrl</jndi-name>
          <local-jndi-name>amalto/local/core/backgroundjobctrl</local-jndi-name>

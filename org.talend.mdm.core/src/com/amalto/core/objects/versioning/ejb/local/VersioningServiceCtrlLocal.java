@@ -3,6 +3,8 @@
  */
 package com.amalto.core.objects.versioning.ejb.local;
 
+import com.amalto.core.util.XtentisException;
+
 /**
  * Local interface for VersioningServiceCtrl.
  * @xdoclet-generated at 28-09-09
@@ -144,5 +146,11 @@ public interface VersioningServiceCtrlLocal
     * @throws EJBException
     */
    public void putServiceData( java.lang.String serviceData ) throws com.amalto.core.util.XtentisException;
-
+   
+   
+   /**
+    * checkup the svn configuration
+    * @throws XtentisException
+    */
+    public boolean checkConfigure()throws com.amalto.core.util.XtentisException;
 }

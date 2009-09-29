@@ -409,6 +409,22 @@
       </session>
 
       <session >
+         <description><![CDATA[Send Message to AutoCommitToSvnMDB]]></description>
+         <display-name>Name for AutoCommitToSvnSendBean</display-name>
+
+         <ejb-name>AutoCommitToSvnSendBean</ejb-name>
+
+         <home>com.amalto.core.ejb.remote.AutoCommitToSvnSendBeanHome</home>
+         <remote>com.amalto.core.ejb.remote.AutoCommitToSvnSendBean</remote>
+         <local-home>com.amalto.core.ejb.local.AutoCommitToSvnSendBeanLocalHome</local-home>
+         <local>com.amalto.core.ejb.local.AutoCommitToSvnSendBeanLocal</local>
+         <ejb-class>com.amalto.core.ejb.local.AutoCommitToSvnSendBeanSession</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
+      <session >
          <description><![CDATA[Description for BackgroundJobCtrl]]></description>
          <display-name>Name for BackgroundJobCtrl</display-name>
 
@@ -1320,6 +1336,19 @@
          <method-name>checkSchema</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSCheckSchema</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>checkServiceConfig</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSCheckServiceConfigRequest</method-param>
          </method-params>
       </method>
    </method-permission>
@@ -3325,6 +3354,47 @@
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
          <ejb-name>DataClusterCtrl</ejb-name>
+         <method-intf>LocalHome</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>AutoCommitToSvnSendBean</ejb-name>
+         <method-intf>Remote</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>AutoCommitToSvnSendBean</ejb-name>
+         <method-intf>Home</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>AutoCommitToSvnSendBean</ejb-name>
+         <method-intf>Local</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>AutoCommitToSvnSendBean</ejb-name>
          <method-intf>LocalHome</method-intf>
          <method-name>*</method-name>
       </method>
