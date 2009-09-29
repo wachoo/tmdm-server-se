@@ -322,4 +322,6 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSMDMConfig getMDMConfiguration() throws 
          java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSCheckServiceConfigResponse checkServiceConfig(com.amalto.webapp.util.webservices.WSCheckServiceConfigRequest wsCheckServiceConfigRequest) throws 
+         java.rmi.RemoteException;
 }

@@ -25,6 +25,7 @@ public class WSServiceGetDocument_LiteralSerializer extends LiteralObjectSeriali
     private static final QName ns1_configure_QNAME = new QName("", "configure");
     private static final QName ns1_document_QNAME = new QName("", "document");
     private static final QName ns1_configureSchema_QNAME = new QName("", "configureSchema");
+    private static final QName ns1_defaultConfig_QNAME = new QName("", "defaultConfig");
     
     public WSServiceGetDocument_LiteralSerializer(QName type, String encodingStyle) {
         this(type, encodingStyle, false);
@@ -99,6 +100,19 @@ public class WSServiceGetDocument_LiteralSerializer extends LiteralObjectSeriali
         else {
             throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
+        elementName = reader.getName();
+        if (reader.getState() == XMLReader.START) {
+            if (elementName.equals(ns1_defaultConfig_QNAME)) {
+                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_defaultConfig_QNAME, reader, context);
+                instance.setDefaultConfig((java.lang.String)member);
+                reader.nextElementContent();
+            } else {
+                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_defaultConfig_QNAME, reader.getName() });
+            }
+        }
+        else {
+            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
+        }
         
         XMLReaderUtil.verifyReaderState(reader, XMLReader.END);
         return (Object)instance;
@@ -115,5 +129,6 @@ public class WSServiceGetDocument_LiteralSerializer extends LiteralObjectSeriali
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getConfigure(), ns1_configure_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getDocument(), ns1_document_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getConfigureSchema(), ns1_configureSchema_QNAME, null, writer, context);
+        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getDefaultConfig(), ns1_defaultConfig_QNAME, null, writer, context);
     }
 }
