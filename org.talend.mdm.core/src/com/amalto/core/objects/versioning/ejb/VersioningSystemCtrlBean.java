@@ -26,6 +26,7 @@ import javax.naming.NamingException;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
+import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
@@ -49,7 +50,7 @@ import com.amalto.core.util.XtentisException;
 
 
 /**
- * @author Bruno Grieder
+ * @author Bruno Grieder,Starkey Shu
  * 
  * @ejb.bean 	name="VersioningSystemCtrl"
  *           	display-name="Name for VersioningSystemCtrl"
@@ -720,9 +721,11 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 				String xml = xmls[0].replaceAll("<\\?.*?\\?>", "");
 				server.putDocumentFromString(xml, instance, clusterName, revisionID);
 			}
+    		resetItemsCache();
     	} else {
     		System.out.println("No items to restore");
     	}
+    	
     }
     
     /**
@@ -1031,6 +1034,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 				}    			
     		}
     		
+    		resetObjectsCache();
+    		
 			try {
 				String message = "Successfully restored "+counter+" object(s) with tag "+info.getTag();
 				updateBackGroundJob(backGroundJobPK, message, BackgroundJobPOJO._COMPLETED_);
@@ -1168,6 +1173,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 				String xml = xmls[0].replaceAll("<\\?.*?\\?>", "");
 				server.putDocumentFromString(xml, uniqueID, clusterName, revisionID);
 			}
+    		
+    		resetItemsCache();
     		
 			try {
 				String message = "Successfully restored "+counter+" item(s) with tag "+info.getTag();
@@ -1381,6 +1388,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 			String xml = xmls[0].replaceAll("<\\?.*?\\?>", "");
 			server.putDocumentFromString(xml, uniqueID, clusterName, revisionID);
 			
+			resetItemsCache();
+			
 			org.apache.log4j.Logger.getLogger(this.getClass()).info("Successfully restored item "+itemPK.getUniqueID());
 		
     	}catch (XtentisException e) {
@@ -1392,6 +1401,18 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     	    throw new XtentisException(err);
 		}
     }
+
+	private void resetItemsCache() {
+		//FIXME:cost expensive
+		org.apache.log4j.Logger.getLogger(this.getClass()).debug("Cleanning item(s) cache...");
+		ItemPOJO.clearCache();
+	}
+	
+	private void resetObjectsCache() {
+		//FIXME:cost expensive
+		org.apache.log4j.Logger.getLogger(this.getClass()).debug("Cleanning object(s) cache...");
+		ObjectPOJO.clearCache();
+	}
     
     /**
 	 * Get Objects Versions
