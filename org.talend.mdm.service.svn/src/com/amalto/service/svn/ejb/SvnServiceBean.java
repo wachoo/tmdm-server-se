@@ -421,7 +421,7 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
     		config.setUrl("http://192.168.0.188/");
     		config.setPassword("b2box");
     		config.setUsername("b2box");
-
+    		config.setAutocommittosvn("false");
     		return config.serialize();
     	} catch (XtentisException e) {
     		throw(e);

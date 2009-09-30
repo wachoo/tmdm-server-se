@@ -18,7 +18,7 @@ public class SvnConfiguration implements Serializable {
 	public String url;
 	public String username;
 	public String password;
-	public boolean autocommittosvn;
+	public String autocommittosvn="false";
 	public SvnConfiguration() {
 		super();
 //		FileSystemListenerConfiguration fsl = new FileSystemListenerConfiguration();
@@ -37,10 +37,11 @@ public class SvnConfiguration implements Serializable {
 	public String getPassword() {
 		return password;
 	}
-	public boolean isAutocommittosvn() {
+
+	public String getAutocommittosvn() {
 		return autocommittosvn;
 	}
-	public void setAutocommittosvn(boolean autocommittosvn) {
+	public void setAutocommittosvn(String autocommittosvn) {
 		this.autocommittosvn = autocommittosvn;
 	}
 	public void setPassword(String password) {
