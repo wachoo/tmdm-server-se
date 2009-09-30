@@ -1677,6 +1677,10 @@
 <java-variable-name>jndiName</java-variable-name>
 <xml-element-name>jndiName</xml-element-name>
 </variable-mapping>
+<variable-mapping>
+<java-variable-name>conf</java-variable-name>
+<xml-element-name>conf</xml-element-name>
+</variable-mapping>
 </java-xml-type-mapping>
 <java-xml-type-mapping>
 <java-type>com.amalto.core.webservice.WSUniversePKArray</java-type>

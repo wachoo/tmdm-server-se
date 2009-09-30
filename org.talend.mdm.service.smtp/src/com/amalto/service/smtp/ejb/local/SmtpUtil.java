@@ -5,7 +5,7 @@ package com.amalto.service.smtp.ejb.local;
 
 /**
  * Utility class for Smtp.
- * @xdoclet-generated at 29-09-09
+ * @xdoclet-generated at 30-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

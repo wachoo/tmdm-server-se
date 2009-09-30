@@ -521,13 +521,13 @@ public class SmtpServiceBean extends ServiceCtrlBean  implements SessionBean {
 		">" +
 		"<xsd:element name='configuration'>" +
 		"			<xsd:complexType >" +
-		"				<xsd:sequence>" +
+		"				<xsd:all>" +
 		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='host' type='xsd:string'/>" +
 		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='port' type='xsd:string'/>" +
 		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='username' type='xsd:string'/>" +
 		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='password' type='xsd:string'/>" +
 		"					<xsd:element minOccurs='0' maxOccurs='1' nillable='false' name='permanentbcc' type='xsd:string'/>" +
-		"				</xsd:sequence>" +
+		"				</xsd:all>" +
 		"			</xsd:complexType>" +
 		"</xsd:element>"+
 		"</xsd:schema>";
@@ -617,14 +617,14 @@ public class SmtpServiceBean extends ServiceCtrlBean  implements SessionBean {
 			
 			return returnStatusYes;
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			return returnStatusNo;
+			throw new XtentisException(e.getLocalizedMessage());
+			
 		} catch (NotSupportedException e) {
-			e.printStackTrace();
-			return returnStatusNo;
+			throw new XtentisException(e.getLocalizedMessage());
+			
 		} catch (ResourceException e) {
-			e.printStackTrace();
-			return returnStatusNo;
+			throw new XtentisException(e.getLocalizedMessage());
+			
 		}finally{
 			if(conx!=null)
 				try {
@@ -742,18 +742,24 @@ public class SmtpServiceBean extends ServiceCtrlBean  implements SessionBean {
     * @ejb.interface-method view-type = "local"
     * @ejb.facade-method
     */
-    public boolean checkConfigure()throws XtentisException{
+    public boolean checkConfigure(String conf)throws XtentisException{
     	try {
-			String conf = this.loadConfiguration();
+			//String conf = this.loadConfiguration();
 			Document doc = Util.parse(conf);
 			Util.validate(doc.getDocumentElement(), getConfigurationSchema());
+			host=Util.getFirstTextNode(doc.getDocumentElement(), "./host");
+			String port1=Util.getFirstTextNode(doc.getDocumentElement(), "./port");
+			port=Integer.valueOf(port1);
+			username=Util.getFirstTextNode(doc.getDocumentElement(), "./username");
+			password=Util.getFirstTextNode(doc.getDocumentElement(), "./password");
+			permanentbcc=Util.getFirstTextNode(doc.getDocumentElement(), "./permanentbcc");
 			String returnCode = sendSimpleMail("b2box@customer.com", "aiming_chen@hotmail.com", null, null, "test", "test");
 			if(returnCode.equals("Success"))return true;
 			else return false;
 		} catch (Exception e) {
 			 String err = "Unable to checkup the configuration: "+e.getClass().getName()+": "+e.getLocalizedMessage();
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-			return false;
+			throw new XtentisException(err);
 		}
     }
     /**

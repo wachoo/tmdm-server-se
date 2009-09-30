@@ -197,14 +197,16 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-     public boolean checkConfigure()throws com.amalto.core.util.XtentisException{
+     public boolean checkConfigure(String conf)throws com.amalto.core.util.XtentisException{
      	try
      	{
-     		String conf = this.loadConfiguration();
+     		//String conf = this.loadConfiguration();
      		Document doc = Util.parse(conf);
      		Util.validate(doc.getDocumentElement(), getConfigurationSchema());
-     		String returnCode = getStatus();
-     		if ("ERROR".equals(returnCode))return false;
+     		start();
+     		 configuration =  (SvnConfiguration)
+ 			Unmarshaller.unmarshal(SvnConfiguration.class, new InputSource(new StringReader(conf)));
+     		new SvnHandler(configuration).list("/", null);
      	}
      	catch(Exception e)
      	{
@@ -444,7 +446,8 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      */
     public String getConfiguration(String optionalParameters) throws XtentisException{
     	try {
-    		String marshalledConfiguration = loadConfiguration();
+    		
+    		String marshalledConfiguration =loadConfiguration();
     		if (marshalledConfiguration == null) {
     			marshalledConfiguration = getDefaultConfiguration();
     		}

@@ -8,12 +8,14 @@ package com.amalto.core.webservice;
 
 public class WSCheckServiceConfigRequest {
     protected java.lang.String jndiName;
+    protected java.lang.String conf;
     
     public WSCheckServiceConfigRequest() {
     }
     
-    public WSCheckServiceConfigRequest(java.lang.String jndiName) {
+    public WSCheckServiceConfigRequest(java.lang.String jndiName, java.lang.String conf) {
         this.jndiName = jndiName;
+        this.conf = conf;
     }
     
     public java.lang.String getJndiName() {
@@ -22,5 +24,13 @@ public class WSCheckServiceConfigRequest {
     
     public void setJndiName(java.lang.String jndiName) {
         this.jndiName = jndiName;
+    }
+    
+    public java.lang.String getConf() {
+        return conf;
+    }
+    
+    public void setConf(java.lang.String conf) {
+        this.conf = conf;
     }
 }

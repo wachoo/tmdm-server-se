@@ -1644,6 +1644,7 @@
 	<xsd:complexType name="WSCheckServiceConfigRequest">
 	   <xsd:sequence>
 	      <xsd:element maxOccurs="1" minOccurs="1" name="jndiName" nillable="true" type="xsd:string"/>
+	      <xsd:element maxOccurs="1" minOccurs="1" name="conf" nillable="true" type="xsd:string"/>
 	   </xsd:sequence>	
 	</xsd:complexType>
 	<xsd:element name="WSCheckServiceConfigRequest" type="tns:WSCheckServiceConfigRequest"/>

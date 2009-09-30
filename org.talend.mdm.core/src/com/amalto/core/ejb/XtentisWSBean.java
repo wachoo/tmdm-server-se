@@ -2562,7 +2562,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			Boolean result = (Boolean)
 				Util.getMethod(service, "checkConfigure").invoke(
 					service,
-					new Object[] {							
+					new Object[] {	serviceName.getConf()						
 					}
 				);
 			return new WSCheckServiceConfigResponse(result);

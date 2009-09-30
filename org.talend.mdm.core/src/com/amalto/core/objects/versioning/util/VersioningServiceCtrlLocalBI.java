@@ -71,7 +71,7 @@ public interface VersioningServiceCtrlLocalBI   extends ServiceCtrlLocalBI
     * @throws XtentisException
     *
     */
-    public boolean checkConfigure()throws com.amalto.core.util.XtentisException;
+    public boolean checkConfigure(String conf)throws com.amalto.core.util.XtentisException;
 
     /**
      * @author achen
