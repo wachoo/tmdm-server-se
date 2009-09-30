@@ -366,8 +366,12 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	resetErrorMessage: function(nodeId){
 		//var errorMessageDivId =nodeId+"ErrorMessage";
         //if($(errorMessageDivId))$(errorMessageDivId).style.display = "none";
-		$(nodeId+"Value").style.border = "";
-		$(nodeId+"Value").style.background = "";
+		$(nodeId+"Value").style.border = "solid 1px";
+		if($(nodeId+"Value").readOnly){
+		    $(nodeId+"Value").style.background = "#F4F4F4";
+		}else{
+			$(nodeId+"Value").style.background = "";
+		}
 		$(nodeId+"ValidateBadge").style.display = "none";
 	},
 	
