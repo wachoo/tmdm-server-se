@@ -5,7 +5,7 @@ package com.amalto.core.objects.universe.ejb.local;
 
 /**
  * Session layer for UniverseCtrl.
- * @xdoclet-generated at 28-09-09
+ * @xdoclet-generated at 30-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

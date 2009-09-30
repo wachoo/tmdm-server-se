@@ -5,7 +5,7 @@ package com.amalto.core.ejb.local;
 
 /**
  * Local interface for ServiceCtrl.
- * @xdoclet-generated at 29-09-09
+ * @xdoclet-generated at 30-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -85,7 +85,7 @@ public interface ServiceCtrlLocal
    public java.lang.String getConfigurationSchema(  ) throws com.amalto.core.util.XtentisException;
 
    /**
-    * Returns the XML schema for the configuration<br> Can be null
+    * return default the configuration<br> Can be null
     * @throws XtentisException
     */
    public java.lang.String getDefaultConfiguration(  ) throws com.amalto.core.util.XtentisException;
@@ -101,11 +101,5 @@ public interface ServiceCtrlLocal
     * @throws EJBException
     */
    public void putServiceData( java.lang.String serviceData ) throws com.amalto.core.util.XtentisException;
-
-   /**
-    * checkup the service configuration
-    * @throws XtentisException
-    */
-   public boolean checkConfigure(  ) throws com.amalto.core.util.XtentisException;
 
 }

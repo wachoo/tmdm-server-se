@@ -58,5 +58,31 @@ public interface VersioningServiceCtrlLocalBI   extends ServiceCtrlLocalBI
     */
    public abstract String[] getInstances(String clustername, String tag) throws XtentisException;
 
-   
+   /**
+    * Returns the XML schema for the configuration<br>
+    * Can be null
+    *  
+    */
+   public String getConfigurationSchema() throws XtentisException;
+
+
+   /**
+    * checkup the svn configuration
+    * @throws XtentisException
+    *
+    */
+    public boolean checkConfigure()throws com.amalto.core.util.XtentisException;
+
+    /**
+     * @author achen
+     * @throws XtentisException
+     */
+    public  String getDocumentation(String twoLettersLanguageCode) throws XtentisException;
+    	
+  
+    /**
+     * return default the configuration<br>
+     * Can be null
+     */
+    public String getDefaultConfiguration() throws XtentisException;
    }

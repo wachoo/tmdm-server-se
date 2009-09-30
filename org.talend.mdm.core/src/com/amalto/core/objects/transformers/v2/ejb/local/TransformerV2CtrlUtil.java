@@ -5,7 +5,7 @@ package com.amalto.core.objects.transformers.v2.ejb.local;
 
 /**
  * Utility class for TransformerV2Ctrl.
- * @xdoclet-generated at 28-09-09
+ * @xdoclet-generated at 30-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

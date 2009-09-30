@@ -5,7 +5,7 @@ package com.amalto.core.objects.backgroundjob.ejb.remote;
 
 /**
  * Remote interface for BackgroundJobCtrl.
- * @xdoclet-generated at 28-09-09
+ * @xdoclet-generated at 30-09-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

@@ -253,7 +253,7 @@ public abstract class ServiceCtrlBean implements SessionBean {
     	return null;
     }
     /**
-     * Returns the XML schema for the configuration<br>
+     * return default the configuration<br>
      * Can be null
      *  
      * @throws XtentisException
@@ -565,16 +565,7 @@ public abstract class ServiceCtrlBean implements SessionBean {
     }
 	
 	
-    /**
-     * checkup the service configuration
-     * @throws XtentisException
-     *
-     * @ejb.interface-method view-type = "local"
-     * @ejb.facade-method
-     */
-     public boolean checkConfigure()throws com.amalto.core.util.XtentisException{
-    	 return true;
-     }
+    
     /*
 	private ServiceLocalHome getServiceLocalHome() throws ResourceException{
 		try {

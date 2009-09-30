@@ -190,7 +190,7 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
 
 
     /**
-     * checkup the svn configuration
+     * checkup the  configuration
      * @throws XtentisException
      *
      * @ejb.interface-method view-type = "local"

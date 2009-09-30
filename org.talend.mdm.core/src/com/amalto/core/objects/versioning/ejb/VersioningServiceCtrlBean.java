@@ -138,6 +138,20 @@ public abstract class VersioningServiceCtrlBean extends ServiceCtrlBean implemen
     public abstract void setCurrentVersioningSystemConfiguration(String name, String url, String username, String password) throws XtentisException;
     
     /**
+     * Returns the XML schema for the configuration<br>
+     * Can be null
+     *  
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "local"
+     * @ejb.facade-method 
+     */
+    public String getConfigurationSchema() throws XtentisException{
+		return null;
+    }	
+
+
+    /**
      * checkup the svn configuration
      * @throws XtentisException
      *
@@ -147,9 +161,17 @@ public abstract class VersioningServiceCtrlBean extends ServiceCtrlBean implemen
      public boolean checkConfigure()throws com.amalto.core.util.XtentisException{
     	 return true;
      }
-     
      /**
-      * Returns the XML schema for the configuration<br>
+      * @author achen
+      * @throws XtentisException
+      * @ejb.interface-method view-type = "both"
+      * @ejb.facade-method 
+      */
+     public  String getDocumentation(String twoLettersLanguageCode) throws XtentisException{
+     	return "";
+     }     
+     /**
+      * return default the configuration<br>
       * Can be null
       *  
       * @throws XtentisException
@@ -157,7 +179,8 @@ public abstract class VersioningServiceCtrlBean extends ServiceCtrlBean implemen
       * @ejb.interface-method view-type = "local"
       * @ejb.facade-method 
       */
-     public String getConfigurationSchema() throws XtentisException{
-    	 return null;
-     }
+     public String getDefaultConfiguration() throws XtentisException{
+     	return null;
+     }      
+         
 }

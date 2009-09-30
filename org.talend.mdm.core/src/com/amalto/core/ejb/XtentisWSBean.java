@@ -235,7 +235,7 @@ import com.amalto.xmlserver.interfaces.WhereOr;
  * 					ref-name = "ejb/DroppedItemCtrlLocal" 
  * 					view-type = "local"
  */
-
+@SuppressWarnings({"deprecation", "unchecked"})
 public class XtentisWSBean implements SessionBean, XtentisPort {
 
 
@@ -569,34 +569,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		}
 	}
 	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSCheckServiceConfigResponse checkServiceConfig(WSCheckServiceConfigRequest request)throws RemoteException {
-		WSCheckServiceConfigResponse serviceConfigResponse = new WSCheckServiceConfigResponse();
-		try {
-			Object service= 
-				Util.retrieveComponent(
-					null, 
-					request.getJndiName()
-				);
-			Boolean checkResult = (Boolean)Util.getMethod(service, "checkConfigure").invoke(
-					service,
-					new Object[]{
-				    }
-			    );
-			serviceConfigResponse.setCheckResult(checkResult);
-
-		} 
-		catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-		
-		return serviceConfigResponse;
-	}
+	
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
 	 * 
@@ -2520,6 +2493,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 								""
 						}
 				);		
+				
 				defaultConf = (String)Util.getMethod(service, "getDefaultConfiguration").invoke(
 						service,
 						new Object[]{
@@ -2532,7 +2506,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 					}
 			    );
 			}catch(Exception e){
-				
+				e.printStackTrace();
 			}
 			return new WSServiceGetDocument(desc,configuration,doc,schema, defaultConf);
 		} catch (XtentisException e) {
@@ -2571,7 +2545,33 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
 		}
 	}
-
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSBoolean checkServiceConfiguration(WSString serviceName) throws RemoteException {
+		try {
+			Object service= 
+				Util.retrieveComponent(
+					null, 
+					"amalto/local/service/"+serviceName.getValue()
+				);
+			
+			Boolean result = (Boolean)
+				Util.getMethod(service, "checkConfigure").invoke(
+					service,
+					new Object[] {							
+					}
+				);
+			return new WSBoolean(result);
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
 	 * @ejb.permission 
