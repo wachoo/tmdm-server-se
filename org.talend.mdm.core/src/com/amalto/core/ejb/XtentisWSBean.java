@@ -2551,12 +2551,12 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * 	role-name = "authenticated"
 	 * 	view-type = "service-endpoint"
 	 */
-	public WSBoolean checkServiceConfiguration(WSString serviceName) throws RemoteException {
+	public WSCheckServiceConfigResponse checkServiceConfiguration(WSCheckServiceConfigRequest serviceName) throws RemoteException {
 		try {
 			Object service= 
 				Util.retrieveComponent(
 					null, 
-					"amalto/local/service/"+serviceName.getValue()
+					"amalto/local/service/"+serviceName.getJndiName()
 				);
 			
 			Boolean result = (Boolean)
@@ -2565,7 +2565,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 					new Object[] {							
 					}
 				);
-			return new WSBoolean(result);
+			return new WSCheckServiceConfigResponse(result);
 		} catch (XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
 		} catch (Exception e) {

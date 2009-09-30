@@ -1960,7 +1960,7 @@
          <method-intf>ServiceEndpoint</method-intf>
          <method-name>checkServiceConfiguration</method-name>
          <method-params>
-            <method-param>com.amalto.core.webservice.WSString</method-param>
+            <method-param>com.amalto.core.webservice.WSCheckServiceConfigRequest</method-param>
          </method-params>
       </method>
    </method-permission>

@@ -176,13 +176,14 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
 		" 		elementFormDefault='unqualified'" +
 		"		xmlns:xsd='http://www.w3.org/2001/XMLSchema'" +
 		">" +
-		"<xsd:element name='configuration'>" +
+		"<xsd:element name='svn-configuration'>" +
 		"			<xsd:complexType >" +
-		"				<xsd:sequence>" +
+		"				<xsd:all>" +
 		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='url' type='xsd:string'/>" +	
 		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='username' type='xsd:string'/>" +
 		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='password' type='xsd:string'/>" +
-		"				</xsd:sequence>" +
+		"					<xsd:element minOccurs='0' maxOccurs='1' nillable='true' name='autocommittosvn' type='xsd:boolean'/>" +
+		"				</xsd:all>" +
 		"			</xsd:complexType>" +
 		"</xsd:element>"+
 		"</xsd:schema>";
@@ -209,7 +210,8 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      	{
  			 String err = "Unable to checkup the configuration: "+e.getClass().getName()+": "+e.getLocalizedMessage();
  			 org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
- 			 return false;
+ 			 throw new XtentisException(err);
+ 			 
      	}
      	
      	
