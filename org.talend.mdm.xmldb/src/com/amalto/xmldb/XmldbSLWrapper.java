@@ -308,6 +308,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 					service.removeCollection(clusterNames[i]);
 				}
 			}
+			//clear cache
+			clusters.clear();
 			long time = System.currentTimeMillis() - startT;
 			return time;
 		} catch (Exception e) {
