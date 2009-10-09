@@ -111,12 +111,12 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			if(nullParentStatus){
 				readOnlyStyle = readOnly = "READONLY";
 			}
-			
-				
-			
 			var foreignKeyImg = '';
 			if(itemData.foreignKey != null) {
-				if(itemData.readOnly==false){
+				//modify by ymli, if the parent or itself is writable, the foreign key can be set
+				var tmpStatus=true;
+				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
+				if(itemData.readOnly==false||tmpStatus){
 					//for a foreign key, direct edit is disabled.
 					readOnly = "READONLY";
 					readOnlyStyle = "ForeignKey";
@@ -133,8 +133,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			
 			var value = "";
 			if(itemData.value!=null) value = itemData.value;
-			if(newItem==true&&itemData.key==true&&(itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"))
+			if(newItem==true&&itemData.key==true&&(itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT")){
 				value = KEY_DEFAULT_vALUE[language];
+				mandatory='<span style="color:red">*</span>';
+			}
 			var typeStatus = true;
 			typeStatus = value.length<70 ||(itemData.typeName=="PICTURE")
 
