@@ -324,6 +324,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'fr':'File Name',
 		'en':'File Name'
 	}
+	var errorDesc={
+		'fr':'L\'item contient des erreurs. Passez le curseur de la souris au-dessus des pastilles rouge pour plus de détails.',
+		'en':'The item contains errors. Hover your mouse cursor over the red badges for more details.'
+	}
 
 	/*****************
 	 * EXT 2.0
@@ -359,7 +363,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var nodeDatePickerWindow;
 	/** The node upload file window */
 	var uploadFileWindow;
-	var errorDesc = "The item can not be saved, it contains error(s). See details below:";
+	//var errorDesc = "The item can not be saved, it contains error(s). See details below:";
 	var itemNodes = [];
 	
 	var sortIndex=0;
@@ -1074,7 +1078,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				//update the div structure
 				var html =
 				   '<div id="errorDesc" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:25px;padding-top:5px"><img src="img/genericUI/errorstate.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
-			             + errorDesc + '</span></div>' +
+			             + errorDesc[language] + '</span></div>' +
 				    '<div id="errorDetail" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:65px"></div></br>'+
 					'<div>' +
 					'		<span id="itemDetails'+treeIndex+'" class="itemTree"></span>' +
