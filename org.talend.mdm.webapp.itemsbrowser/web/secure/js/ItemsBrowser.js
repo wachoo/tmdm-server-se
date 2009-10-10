@@ -1068,7 +1068,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		ItemsBrowserInterface.getRootNode(dataObject, language, function(rootNode){
 			
 			var tabPanel = amalto.core.getTabPanel();
-			if(tabPanel.getItem('itemDetailsdiv'+treeIndex) == undefined){
+			var contentPanel=tabPanel.getItem('itemDetailsdiv'+treeIndex);
+			if(contentPanel == undefined){
 					
 				var smartView = '';
 				if(newItem[treeIndex]==false ) {
@@ -1268,7 +1269,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				}
     			
     		
-    			var contentPanel = new Ext.Panel({
+    			contentPanel = new Ext.Panel({
     				id:'itemDetailsdiv'+treeIndex, 
     				title: myTitle, 
     				//activeTab: 0,
@@ -1281,14 +1282,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     				bbar : new Ext.Toolbar([{
 						text : EDIT_ITEM_TOOLTIP[language],
 						xtype : "tbtext"
-					}])
+					}])					
     			});
-		
 			}
 			tabPanel.add(contentPanel); 
 			contentPanel.show();
 			contentPanel.doLayout();
-		    amalto.core.doLayout();
+		    amalto.core.doLayout();	    
 		});
 		
 		amalto.core.ready();
@@ -1330,6 +1330,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			amalto.core.ready(result);
 		});
 		amalto.core.ready();
+		
+		//set isdirty=true
+		var itempanel = amalto.core.getTabPanel().activeTab;
+		if(itempanel){
+			itempanel.isdirty=true;
+		}		
 	}
 	
 	function setlastUpdatedInputFlag(id, treeIndex){
@@ -1405,6 +1411,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		saveItem(ids,dataObject,treeIndex,function(){
 				  //amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 			      refreshCB.call();
+					//set isdirty=true
+					var itempanel = amalto.core.getTabPanel().activeTab;
+					if(itempanel){
+						itempanel.isdirty=false;
+					}				      
 				 });
 	}
 	

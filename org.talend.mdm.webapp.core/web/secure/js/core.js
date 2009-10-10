@@ -416,6 +416,16 @@ amalto.core = function () {
     				layoutOnTabChange: true,
     				resizeTabs:false,
     				plugins: new Ext.ux.TabCloseMenu(),
+    				listeners:{
+			    		//add beforeremove listener
+			    		'beforeremove':function(c,e){		
+			            	if(e.isdirty==true){
+			            		return confirm(e.title +' has been changed.'+' Would you like to close it?');
+			            	}else {
+			            		return true;
+			            	} 			    	
+			    		}
+			    	},
 					defaults: {
 						hideMode:'offsets'
 					}
