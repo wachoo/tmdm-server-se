@@ -5,9 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.SocketException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -26,6 +29,7 @@ import org.tmatesoft.svn.core.io.diff.SVNDeltaGenerator;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import com.amalto.core.objects.versioning.util.HistoryInfos;
+import com.amalto.core.objects.versioning.util.TagStructureInfo;
 
 public class SvnClient  {
 	private static final long serialVersionUID = 1L;
@@ -701,14 +705,11 @@ public class SvnClient  {
 	    Logger.getLogger(SvnClient.class).info("tags.size = "+tags.size());
 
 	    String [] authors2 = new String [authors.size()];
-	    Logger.getLogger(SvnClient.class).info("Successfully set authors STEP 1");
-
+	    //Logger.getLogger(SvnClient.class).info("Successfully set authors STEP 1");
 	    authors.toArray(authors2);
-	    Logger.getLogger(SvnClient.class).info("Successfully set authors STEP 2");
-
+	    //Logger.getLogger(SvnClient.class).info("Successfully set authors STEP 2");
         infos.setAuthors(authors2);
-
-        Logger.getLogger(SvnClient.class).info("Successfully set authors ");
+        //Logger.getLogger(SvnClient.class).info("Successfully set authors ");
 
         String [] comments2 = new String [comments.size()];
         comments.toArray(comments2);
@@ -732,5 +733,76 @@ public class SvnClient  {
 
 	    return infos;
 	}
+	
+	public TagStructureInfo[] getTagStructureInfos(String tagRegex) throws SVNException {
+		//TODO: care about universe revisions
+		if(tagRegex==null||tagRegex.length()==0)tagRegex=".*";
+		
+		String fileRegex=".*-"+tagRegex;
+	    Logger.getLogger(SvnClient.class).debug("NEW Try to get tag structure for file(s) "+fileRegex);
+
+	   if (repository == null) {
+	    	Logger.getLogger(SvnClient.class).error("Svn Client versions repository is null");
+	    }
+	   
+	    Collection entries = repository.getDir("", -1, null, (Collection) null);
+	    Iterator it = entries.iterator();
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+	    
+	    Map<String,TagStructureInfo> tagsMap=new HashMap<String,TagStructureInfo>();
+	    while (it.hasNext()) {
+	    	SVNDirEntry entry = (SVNDirEntry) it.next();
+            System.out.println("/"+ entry.getName() + " (author: '" + entry.getAuthor()+ "'; revision: " + entry.getRevision() + "; date: " + entry.getDate() + ")");
+
+            if (entry.getName().matches(fileRegex)) {
+            	System.out.println("---------------------------------------------");
+            	
+            	String cluster=entry.getName().substring(0,entry.getName().indexOf("-"));
+            	String tag=entry.getName().substring(entry.getName().indexOf("-")+1);
+            	
+            	System.out.println("Cluster : " + cluster + " Tag : " + tag);
+            	
+            	//get last revision
+            	int revision=0;
+            	SVNProperties fileProperties =new SVNProperties();
+        		repository.getFile(entry.getName(), -1, fileProperties, null);
+        		String revisionS = fileProperties.getStringValue("svn:entry:committed-rev");
+        		revision = Integer.parseInt(revisionS);
+        		
+            	Collection logEntries = repository.log(new String [] {entry.getName()},null,revision,revision,false, false);
+            	
+            	SVNLogEntry logEntry = (SVNLogEntry)logEntries.iterator().next();
+            	
+            	Logger.getLogger(SvnClient.class).debug("revision: " + logEntry.getRevision());
+            	System.out.println("author: " + logEntry.getAuthor());
+            	System.out.println("date: " + logEntry.getDate());
+            	System.out.println("log message: " + logEntry.getMessage());
+            	
+            	if(tagsMap.get(tag)==null){
+            		TagStructureInfo tagStructureInfo=new TagStructureInfo(tag,logEntry.getAuthor(),logEntry.getDate(),logEntry.getMessage());
+            		tagStructureInfo.addCluster(cluster);
+            		tagsMap.put(tag,tagStructureInfo);
+            	}else{
+            		TagStructureInfo tagStructureInfo=tagsMap.get(tag);
+            		if(logEntry.getDate().after(tagStructureInfo.getLastDate())){
+            			tagStructureInfo.setLastDate(logEntry.getDate());
+            			tagStructureInfo.setLastAuthor(logEntry.getAuthor());
+            			tagStructureInfo.setLastComment(logEntry.getMessage());
+            		}
+            		tagStructureInfo.addCluster(cluster);
+            	}
+            }
+	    }
+	    
+	    TagStructureInfo[] tagStructureInfos=new TagStructureInfo[tagsMap.size()];
+	    int i=0;
+	    for (Iterator iterator = tagsMap.keySet().iterator(); iterator.hasNext();i++) {
+			String tag = (String) iterator.next();
+			tagStructureInfos[i]=tagsMap.get(tag);
+		}
+	    
+	    return tagStructureInfos;
+	}
+	
 }
 

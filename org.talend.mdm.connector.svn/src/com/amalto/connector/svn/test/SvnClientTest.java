@@ -14,6 +14,7 @@ import talend.mdm.test.MDMTestCase;
 
 import com.amalto.connector.svn.eis.SvnClient;
 import com.amalto.core.objects.versioning.util.HistoryInfos;
+import com.amalto.core.objects.versioning.util.TagStructureInfo;
 
 public class SvnClientTest extends MDMTestCase{
 	
@@ -74,6 +75,18 @@ public class SvnClientTest extends MDMTestCase{
 		try {
 			HistoryInfos infos=client.versions("Order/Order.Country.UK");
 			infos.display();
+		} catch (SVNException e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public void testGetTagStructureInfos() {
+		try {
+			TagStructureInfo[] infos=client.getTagStructureInfos("UNIVERSE_HEAD.*");
+			for (int i = 0; i < infos.length; i++) {
+				infos[i].display();
+			}
+			
 		} catch (SVNException e) {
 			e.printStackTrace();
 		} 

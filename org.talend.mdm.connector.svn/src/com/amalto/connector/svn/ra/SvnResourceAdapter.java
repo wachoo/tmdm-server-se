@@ -11,6 +11,7 @@ import com.amalto.connector.implementation.AbstractXtentisResourceAdapter;
 import com.amalto.connector.jca.XtentisConnectorException;
 import com.amalto.connector.svn.eis.SvnClient;
 import com.amalto.core.objects.versioning.util.HistoryInfos;
+import com.amalto.core.objects.versioning.util.TagStructureInfo;
 
 
 public class SvnResourceAdapter extends AbstractXtentisResourceAdapter {
@@ -74,6 +75,8 @@ public class SvnResourceAdapter extends AbstractXtentisResourceAdapter {
 			return versions(parametersIn);
 		} else if (command.equals("list")) {
 			return list(parametersIn);
+		} else if(command.equals("taginfos")){
+			return taginfos(parametersIn);
 		}
 		
 		return parametersOut;	
@@ -205,6 +208,27 @@ public class SvnResourceAdapter extends AbstractXtentisResourceAdapter {
 	
 		parametersOut.put("success", "true");
 		return parametersOut;	
+	}
+	
+	private HashMap<Serializable, Serializable> taginfos(
+			HashMap<Serializable, Serializable> parametersIn)
+			throws XtentisConnectorException {
+		HashMap<Serializable, Serializable> parametersOut = new HashMap<Serializable, Serializable>();
+		parametersOut.put("success", "false");
+		
+		String tagRegex = (String)parametersIn.get("tagRegex");
+		
+		try {
+			
+			    TagStructureInfo[] infos = client.getTagStructureInfos(tagRegex);
+				parametersOut.put("taginfos", infos);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw ( new XtentisConnectorException("Error occured trying to get versions of an object : "+e.getLocalizedMessage()) );
+		}
+	
+		parametersOut.put("success", "true");
+		return parametersOut;
 	}
 	
 	// tag file
