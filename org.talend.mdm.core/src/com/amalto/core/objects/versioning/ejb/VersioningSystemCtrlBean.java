@@ -1385,7 +1385,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 		}
 		
 		try {
-			commitItem(itemPK, comment, service, universe, username, server);
+			commitSingleItem(itemPK, comment, service, universe, username, server);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			throw new XtentisException(e);
@@ -1488,7 +1488,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 			for (int i = 0; i < info.getItemPKs().length; i++) {
 				if ((i+1)%10 == 0) 
 					updateBackGroundJob(backgroundJobPK, "Commiting item "+(i+1)+" out of "+info.getItemPKs().length);
-				commitItem(info.getItemPKs()[i], info.getComment(), info.getService(), universe, info.getUsername(), server);
+				commitSingleItem(info.getItemPKs()[i], info.getComment(), info.getService(), universe, info.getUsername(), server);
 				counter++;
 			}
     		    		
@@ -1517,7 +1517,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     	
     }
 
-	private void commitItem(ItemPOJOPK itemPK, String comment,
+	private void commitSingleItem(ItemPOJOPK itemPK, String comment,
 			VersioningServiceCtrlLocalBI service, UniversePOJO universe,
 			String username, XmlServerSLWrapperLocal server)
 			throws UnsupportedEncodingException, XtentisException {
