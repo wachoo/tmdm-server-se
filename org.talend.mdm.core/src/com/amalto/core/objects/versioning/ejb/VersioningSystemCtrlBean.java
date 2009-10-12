@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.ejb.CreateException;
@@ -41,6 +42,7 @@ import com.amalto.core.objects.versioning.util.RestoreItemsInfo;
 import com.amalto.core.objects.versioning.util.RestoreObjectsInfo;
 import com.amalto.core.objects.versioning.util.TagItemsInfo;
 import com.amalto.core.objects.versioning.util.TagObjectsInfo;
+import com.amalto.core.objects.versioning.util.TagUniverseInfo;
 import com.amalto.core.objects.versioning.util.VersioningServiceCtrlLocalBI;
 import com.amalto.core.util.JobActionInfo;
 import com.amalto.core.util.LocalUser;
@@ -403,6 +405,142 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 		}
     }
     
+    /**
+	 * Tag Universe
+	 * 
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public BackgroundJobPOJOPK tagUniverseAsJob(
+    		VersioningSystemPOJOPK versioningSystemPOJOPK,
+    		String tag,
+    		String comment,
+    		Map<String,String[]> typeInstances
+		)throws XtentisException{
+    	
+		BackgroundJobPOJO bgPOJO = new BackgroundJobPOJO();
+		UniversePOJO universePOJO = LocalUser.getLocalUser().getUniverse();
+    	
+    	try{
+    		
+			//create a Background Job
+			bgPOJO.setDescription("Execute Tagging of universe '"+universePOJO.getName()+"' with tag '"+tag+"' as a Background Job");
+			bgPOJO.setMessage("Scheduling the job");
+			bgPOJO.setPercentage(-1);
+			bgPOJO.setSerializedObject(null);
+			bgPOJO.setStatus(BackgroundJobPOJO._SCHEDULED_);
+			bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
+			bgPOJO.store();
+			
+			//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+    		
+			//Instantiate processing info
+			TagUniverseInfo tagUniverseInfo = new TagUniverseInfo(
+					versioningSystemPOJOPK,
+					service,
+					tag,
+					comment,
+					LocalUser.getLocalUser().getUsername(),
+					typeInstances
+			);
+			//launch job in background
+			JobActionInfo actionInfo = new JobActionInfo(
+					bgPOJO.getId(),
+					universePOJO,
+					"Tagging of universe '"+universePOJO.getName()+"' with tag '"+tag+"'",
+					tagUniverseInfo
+			); 
+			
+			createTimer(actionInfo);
+        
+		} catch (Exception e) {
+			try {
+				String err = "Unable to Execute Tagging of universe '"+universePOJO.getName()+"' with tag '"+tag+"' as a Background Job"
+	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+				if (! (e instanceof XtentisException)) {
+		    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+				}
+				//Update Background job and try to put pipeline
+				updateBackGroundJob((BackgroundJobPOJOPK)bgPOJO.getPK(), err,BackgroundJobPOJO._STOPPED_);
+			} catch (Exception ex) {}
+		}
+		return new BackgroundJobPOJOPK(bgPOJO.getPK());
+    }
+    
+    /**
+     * The actual Method call by the timer
+     * @param info
+     */
+    private void executeTagUniverse(
+    		BackgroundJobPOJOPK backgroundJobPK,
+    		TagUniverseInfo infos,
+    		UniversePOJO universe
+    ){
+    	
+	    try{
+		    	updateBackGroundJob(backgroundJobPK, "Accessing versioning server");
+				//get the universe 
+				if (universe == null) {
+		    		String err = "ERROR: no Universe set for user '"+infos.getUsername()+"'";
+		    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+		    		throw new XtentisException(err);
+		    	}
+				
+				//get the xml server wrapper
+		        XmlServerSLWrapperLocal server = null;
+				try {
+					server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+				} catch (Exception e) {
+					String err = "Unable to access the XML Server "+e.getClass().getName()+": "+e.getLocalizedMessage();
+					org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+					throw new XtentisException(err);
+				}
+				
+		    	Map<String, String[]> typeInstances = infos.getTypeInstances();
+		        if(typeInstances!=null){
+		        	for (Iterator iterator = typeInstances.keySet().iterator(); iterator.hasNext();) {
+						String type = (String) iterator.next();
+						String[] instances = typeInstances.get(type);
+						TagObjectsInfo tagObjectsInfo = new TagObjectsInfo(
+								infos.getVersioningSystemPOJOPK(),
+								infos.getService(),
+								infos.getTag(),
+								infos.getComment(),
+								infos.getUsername(),
+								type,
+								instances
+						);
+						
+						tagObject(backgroundJobPK, tagObjectsInfo, universe, server);
+					}
+		        }
+		        
+		        try {
+					String message = "Successfully completed Tagging of universe "+universe.getName()+" --> tag "+infos.getTag();
+					updateBackGroundJob(backgroundJobPK, message,BackgroundJobPOJO._COMPLETED_);
+				} catch (Exception e) {
+					String err = "Objects Tagging done but unable to store the result in the background object: "
+										+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+		    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+		    	    throw new XtentisException(err);
+				}
+	        
+	    } catch (Exception e) {
+			try {
+	    	    String err = "Unable to Execute Tagging of universe "+universe.getName()+" --> tag "+infos.getTag()+" as a Background Job"
+	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+				if (! (e instanceof XtentisException)) {
+		    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+				}
+				//Update Background job and try to put pipeline
+				updateBackGroundJob(backgroundJobPK, err,BackgroundJobPOJO._STOPPED_);
+			} catch (Exception ex) {}
+		}
+    	
+    }
     
     /**
 	 * Tag Objects
@@ -480,37 +618,14 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     ) {
     	try {
     		updateBackGroundJob(backgroundJobPK, "Accessing versioning server");
-    		
-    		//Check that the Object exists by retrieving its Object Class
-    		Class<?> theClass = ObjectPOJO.getObjectClass(info.getType());
-    		if ( theClass == null) {
-				String err = "Unable to tag Object Type "+info.getType()+": the type does not exist";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-				throw new XtentisException(err);
-    		}
-    		if (! ObjectPOJO.class.isAssignableFrom(theClass)) {
-    			String err = "Unable to tag Object Type "+info.getType()+": the type is not supported";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-				throw new XtentisException(err);
-    		}
-
-    		//Get the cluster name associated with it
-    		String clusterName = ObjectPOJO.getCluster((Class<? extends ObjectPOJO>)theClass);
-    		
-    		//get version service
-    		VersioningServiceCtrlLocalBI service=info.getService();
-
-   	    	//get the universe and revision ID for this Object
-	    	if (universe == null) {
+    		//get the universe 
+    		if (universe == null) {
 	    		String err = "ERROR: no Universe set for user '"+info.getUsername()+"'";
 	    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
 	    		throw new XtentisException(err);
 	    	}
-	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(
-	    		theClass)
-	    	);
-	    	
-            //get the xml server wrapper
+    		
+    		//get the xml server wrapper
             XmlServerSLWrapperLocal server = null;
 			try {
 				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
@@ -519,76 +634,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
 				throw new XtentisException(err);
 			}
-    		    		
-    		//Check if we need to tag all the instances
-    		if (info.getInstances() == null) {
-    			//1-First synchronize the head by running a clean
-    			//retrieve the list of current instances
-    			updateBackGroundJob(backgroundJobPK, "Cleanning up head of "+clusterName);
-    			String[] instances = server.getAllDocumentsUniqueID(revisionID,clusterName);
-    			/*
-    	    	Collection<String> res =  server.directQuery(
-    	    			clusterName, 
-    	    			"for $doc in /ii return concat($doc/c,\".\",$doc/n,\".\",string-join($doc/i,\".\"))",
-    	    			null
-    	    	);
-    	    	String[] instances = null;
-    	    	if ((res!= null) && (res.size() > 0)) 
-    	    		instances = res.toArray(new String[res.size()]);
-				*/
-    			if (instances == null) {
-    				String err = "Unable to tag all the instances of "+clusterName+": the cluster is empty";
-    				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
-    				throw new XtentisException(err);    				
-    			}
-    			//run clean
-    			service.clean(getClusterNameWithRevision(clusterName, revisionID, false), instances);
-    			//2-Commit to the head
-    			updateBackGroundJob(backgroundJobPK, "Committing to the head of "+clusterName);
-    			for (int i = 0; i < instances.length; i++) {
-    				String xml = server.getDocumentAsString(revisionID, clusterName, instances[i]);
-    				String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(instances[i],"UTF-8");
-		            service.commit(path, xml, info.getComment(), info.getUsername());
-		            if (info.getType().equals("Data Cluster")) {
-		            	//commit the whole items
-		            	tagAllItems(
-		            			backgroundJobPK, 
-		            			server, 
-		            			service, 
-		            			revisionID,
-		            			instances[i], 
-		            			info.getTag(),
-		            			info.getComment(), 
-		            			info.getUsername()
-		            	);
-		            }
-				}  
-    			//3 - branch the whole cluster
-    			updateBackGroundJob(backgroundJobPK, "Branching the head of "+clusterName+" to tag "+info.getTag());
-    			service.branch(getClusterNameWithRevision(clusterName, revisionID, true), info.getTag(), info.getComment(), info.getUsername());
-    		} else {
-	    		//tag separate instances - we only need to commit and branch
-    			updateBackGroundJob(backgroundJobPK, "Tagging in "+clusterName+" with tag "+info.getTag());
-	    		for (int i = 0; i < info.getInstances().length; i++) {	    			
-	    			String xml = server.getDocumentAsString(revisionID, clusterName, info.getInstances()[i]);
-	    			String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(info.getInstances()[i],"UTF-8");
-	    			service.commit(path, xml,info.getComment(), info.getUsername());
-	    			service.branch(path, info.getTag(),info.getComment(), info.getUsername());
-		            if (info.getType().equals("Data Cluster")) {
-		            	//commit the whole items
-		            	tagAllItems(
-		            			backgroundJobPK, 
-		            			server, 
-		            			service, 
-		            			revisionID,
-		            			info.getInstances()[i], 
-		            			info.getTag(),
-		            			info.getComment(), 
-		            			info.getUsername()
-		            	);
-		            }
-				}
-    		}
+			
+    		tagObject(backgroundJobPK, info, universe, server);
     		
 			try {
 				String message = "Successfully completed Tagging of type "+info.getType()+" --> tag "+info.getTag();
@@ -613,6 +660,106 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 		}
     	
     }
+
+	private void tagObject(BackgroundJobPOJOPK backgroundJobPK,
+			TagObjectsInfo info, UniversePOJO universe,
+			XmlServerSLWrapperLocal server) throws XtentisException,
+			NamingException, CreateException, UnsupportedEncodingException {
+		//Check that the Object exists by retrieving its Object Class
+		Class<?> theClass = ObjectPOJO.getObjectClass(info.getType());
+		if ( theClass == null) {
+			String err = "Unable to tag Object Type "+info.getType()+": the type does not exist";
+			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+			throw new XtentisException(err);
+		}
+		if (! ObjectPOJO.class.isAssignableFrom(theClass)) {
+			String err = "Unable to tag Object Type "+info.getType()+": the type is not supported";
+			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+			throw new XtentisException(err);
+		}
+
+		//Get the cluster name associated with it
+		String clusterName = ObjectPOJO.getCluster((Class<? extends ObjectPOJO>)theClass);
+		
+		//get version service
+		VersioningServiceCtrlLocalBI service=info.getService();
+
+		//get the revision ID for this Object
+		
+		String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(
+			theClass)
+		);
+			    		
+		//Check if we need to tag all the instances
+		if (info.getInstances() == null) {
+			//1-First synchronize the head by running a clean
+			//retrieve the list of current instances
+			updateBackGroundJob(backgroundJobPK, "Cleanning up head of "+clusterName);
+			String[] instances = server.getAllDocumentsUniqueID(revisionID,clusterName);
+			/*
+			Collection<String> res =  server.directQuery(
+					clusterName, 
+					"for $doc in /ii return concat($doc/c,\".\",$doc/n,\".\",string-join($doc/i,\".\"))",
+					null
+			);
+			String[] instances = null;
+			if ((res!= null) && (res.size() > 0)) 
+				instances = res.toArray(new String[res.size()]);
+			*/
+			if (instances == null) {
+				String err = "Unable to tag all the instances of "+clusterName+": the cluster is empty";
+				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+				throw new XtentisException(err);    				
+			}
+			//run clean
+			service.clean(getClusterNameWithRevision(clusterName, revisionID, false), instances);
+			//2-Commit to the head
+			updateBackGroundJob(backgroundJobPK, "Committing to the head of "+clusterName);
+			for (int i = 0; i < instances.length; i++) {
+				String xml = server.getDocumentAsString(revisionID, clusterName, instances[i]);
+				String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(instances[i],"UTF-8");
+		        service.commit(path, xml, info.getComment(), info.getUsername());
+		        if (info.getType().equals("Data Cluster")) {
+		        	//commit the whole items
+		        	tagAllItems(
+		        			backgroundJobPK, 
+		        			server, 
+		        			service, 
+		        			revisionID,
+		        			instances[i], 
+		        			info.getTag(),
+		        			info.getComment(), 
+		        			info.getUsername()
+		        	);
+		        }
+			}  
+			//3 - branch the whole cluster
+			updateBackGroundJob(backgroundJobPK, "Branching the head of "+clusterName+" to tag "+info.getTag());
+			service.branch(getClusterNameWithRevision(clusterName, revisionID, true), info.getTag(), info.getComment(), info.getUsername());
+		} else {
+			//tag separate instances - we only need to commit and branch
+			updateBackGroundJob(backgroundJobPK, "Tagging in "+clusterName+" with tag "+info.getTag());
+			for (int i = 0; i < info.getInstances().length; i++) {	    			
+				String xml = server.getDocumentAsString(revisionID, clusterName, info.getInstances()[i]);
+				String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(info.getInstances()[i],"UTF-8");
+				service.commit(path, xml,info.getComment(), info.getUsername());
+				service.branch(path, info.getTag(),info.getComment(), info.getUsername());
+		        if (info.getType().equals("Data Cluster")) {
+		        	//commit the whole items
+		        	tagAllItems(
+		        			backgroundJobPK, 
+		        			server, 
+		        			service, 
+		        			revisionID,
+		        			info.getInstances()[i], 
+		        			info.getTag(),
+		        			info.getComment(), 
+		        			info.getUsername()
+		        	);
+		        }
+			}
+		}
+	}
 
     /**
      * Tag all Items in a Data Cluster
@@ -1643,6 +1790,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 				executeRestoreObjects(pk, (RestoreObjectsInfo)actionInfo.getInfo(),actionInfo.getUniverse());
 			}else if (actionInfo.getInfo() instanceof CommitItemsInfo) {
 				executeCommitItems(pk, (CommitItemsInfo)actionInfo.getInfo(),actionInfo.getUniverse());;
+			}else if (actionInfo.getInfo() instanceof TagUniverseInfo) {
+				executeTagUniverse(pk, (TagUniverseInfo)actionInfo.getInfo(),actionInfo.getUniverse());
 			}
 
 		} catch (Exception e) {

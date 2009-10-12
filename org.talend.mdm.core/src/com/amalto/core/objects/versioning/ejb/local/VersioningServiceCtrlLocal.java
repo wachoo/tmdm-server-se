@@ -5,7 +5,7 @@ package com.amalto.core.objects.versioning.ejb.local;
 
 /**
  * Local interface for VersioningServiceCtrl.
- * @xdoclet-generated at 30-09-09
+ * @xdoclet-generated at 9-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -63,26 +63,6 @@ public interface VersioningServiceCtrlLocal
    public void setCurrentVersioningSystemConfiguration( java.lang.String name,java.lang.String url,java.lang.String username,java.lang.String password ) throws com.amalto.core.util.XtentisException;
 
    /**
-    * Returns the XML schema for the configuration<br> Can be null
-    * @throws XtentisException
-    */
-   public java.lang.String getConfigurationSchema(  ) throws com.amalto.core.util.XtentisException;
-
-   /**
-    * checkup the svn configuration
-    * @throws XtentisException
-    */
-   public boolean checkConfigure(  ) throws com.amalto.core.util.XtentisException;
-
-   public java.lang.String getDocumentation( java.lang.String twoLettersLanguageCode ) throws com.amalto.core.util.XtentisException;
-
-   /**
-    * return default the configuration<br> Can be null
-    * @throws XtentisException
-    */
-   public java.lang.String getDefaultConfiguration(  ) throws com.amalto.core.util.XtentisException;
-
-   /**
     * To be Implemented. Returns the unique JNDI name of the service. The JNDI name must be of the type amalto/local/service/[NAME] where [NAME] matchs the pattern "[a-zA-Z][a-zA-Z0-9]*" and is unique accross services
     * @throws EJBException
     */
@@ -93,6 +73,8 @@ public interface VersioningServiceCtrlLocal
     * @throws EJBException
     */
    public java.lang.String getDescription( java.lang.String twoLettersLanguageCode ) throws com.amalto.core.util.XtentisException;
+
+   public java.lang.String getDocumentation( java.lang.String twoLettersLanguageCode ) throws com.amalto.core.util.XtentisException;
 
    /**
     * To be Implemented. Starts if needed the service Can be null
@@ -144,6 +126,18 @@ public interface VersioningServiceCtrlLocal
     * @throws EJBException
     */
    public void putConfiguration( java.lang.String configuration ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Returns the XML schema for the configuration<br> Can be null
+    * @throws XtentisException
+    */
+   public java.lang.String getConfigurationSchema(  ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * return default the configuration<br> Can be null
+    * @throws XtentisException
+    */
+   public java.lang.String getDefaultConfiguration(  ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Retrieves the configuration The default implementation renders the configuration string "as stored" and ignore the optional parameter

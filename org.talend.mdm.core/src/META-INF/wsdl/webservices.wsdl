@@ -859,6 +859,13 @@
 		<part name="wsBackgroundJobPK" element="tns:WSBackgroundJobPK"/>
 	</message>
 	
+	<message name="versioningTagUniverseRequest">
+		<part name="wsVersioningTagUniverse" element="tns:WSVersioningTagUniverse"/>
+	</message>
+	<message name="versioningTagUniverseResponse">
+		<part name="wsBackgroundJobPK" element="tns:WSBackgroundJobPK"/>
+	</message>
+	
 	<message name="versioningTagItemsRequest">
 		<part name="wsVersioningTagItems" element="tns:WSVersioningTagItems"/>
 	</message>
@@ -1719,6 +1726,10 @@
 		<operation name="versioningTagObjects">
 			<input message="tns:versioningTagObjectsRequest"/>
 			<output message="tns:versioningTagObjectsResponse"/>
+		</operation>
+		<operation name="versioningTagUniverse">
+			<input message="tns:versioningTagUniverseRequest"/>
+			<output message="tns:versioningTagUniverseResponse"/>
 		</operation>
 		<operation name="versioningTagItems">
 			<input message="tns:versioningTagItemsRequest"/>
@@ -2588,6 +2599,11 @@
 			<output><soap:body use="literal"/></output>
 		</operation>	
 		<operation name="versioningTagObjects">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="versioningTagUniverse">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>

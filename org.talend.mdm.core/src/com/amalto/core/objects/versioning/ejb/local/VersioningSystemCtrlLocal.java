@@ -5,7 +5,7 @@ package com.amalto.core.objects.versioning.ejb.local;
 
 /**
  * Local interface for VersioningSystemCtrl.
- * @xdoclet-generated at 30-09-09
+ * @xdoclet-generated at 9-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -54,6 +54,12 @@ public interface VersioningSystemCtrlLocal
     * @throws XtentisException
     */
    public java.lang.String getVersioningSystemAvailability( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK pk ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Tag Universe
+    * @throws XtentisException
+    */
+   public com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK tagUniverseAsJob( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,java.lang.String tag,java.lang.String comment,java.util.Map typeInstances ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Tag Objects

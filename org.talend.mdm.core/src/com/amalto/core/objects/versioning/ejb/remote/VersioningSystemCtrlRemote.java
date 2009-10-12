@@ -11,7 +11,7 @@ import java.util.*;
  * facade session bean. Inverit from this class to provide reasonable caching and event handling capabilities.
  *
  * Remote facade for VersioningSystemCtrl.
- * @xdoclet-generated at 30-09-09
+ * @xdoclet-generated at 9-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -113,6 +113,16 @@ public class VersioningSystemCtrlRemote extends Observable
    {
         java.lang.String retval;
        retval =  getSession().getVersioningSystemAvailability( pk );
+
+      return retval;
+
+   }
+
+   public com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK tagUniverseAsJob ( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,java.lang.String tag,java.lang.String comment,java.util.Map typeInstances )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK retval;
+       retval =  getSession().tagUniverseAsJob( versioningSystemPOJOPK,tag,comment,typeInstances );
 
       return retval;
 

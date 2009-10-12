@@ -163,6 +163,21 @@
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSVersioningTagObjects" type="tns:WSVersioningTagObjects"/>
+	
+	<xsd:complexType name="WSVersioningTagUniverse">
+		<xsd:annotation>
+			<xsd:documentation>
+				Version an Universe
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="versioningSystemName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="tag" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="comment" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="typeInstances" type="tns:WSLinkedHashMap"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSVersioningTagUniverse" type="tns:WSVersioningTagUniverse"/>
 
 	<xsd:complexType name="WSVersioningTagItems">
 		<xsd:annotation>

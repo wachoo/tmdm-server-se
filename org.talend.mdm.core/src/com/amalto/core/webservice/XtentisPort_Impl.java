@@ -655,6 +655,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSBackgroundJobPK _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSBackgroundJobPK versioningTagUniverse(com.amalto.core.webservice.WSVersioningTagUniverse wsVersioningTagUniverse) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSBackgroundJobPK _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSBackgroundJobPK versioningTagItems(com.amalto.core.webservice.WSVersioningTagItems wsVersioningTagItems) throws 
          java.rmi.RemoteException {
         
