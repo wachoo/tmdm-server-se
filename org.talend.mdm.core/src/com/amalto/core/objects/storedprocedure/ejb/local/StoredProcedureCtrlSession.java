@@ -5,7 +5,7 @@ package com.amalto.core.objects.storedprocedure.ejb.local;
 
 /**
  * Session layer for StoredProcedureCtrl.
- * @xdoclet-generated at 9-10-09
+ * @xdoclet-generated at 12-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

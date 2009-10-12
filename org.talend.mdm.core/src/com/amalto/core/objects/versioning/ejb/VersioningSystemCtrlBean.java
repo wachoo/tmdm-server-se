@@ -1348,6 +1348,53 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     }
     
     /**
+	 * Commit Item
+	 * 
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public ItemPOJOPK commitItem(
+    		VersioningSystemPOJOPK versioningSystemPOJOPK,
+    		ItemPOJOPK itemPK,
+    		String comment
+    )throws XtentisException{
+    	
+    	//Get the versioning service
+		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+		
+		//get the universe and revision ID for this Object
+		UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+		String username = LocalUser.getLocalUser().getUsername();
+    	if (universe == null) {
+    		String err = "ERROR: no Universe set for user '"+username+"'";
+    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+    		throw new XtentisException(err);
+    	}
+    	
+    	
+        //get the xml server wrapper
+        XmlServerSLWrapperLocal server = null;
+		try {
+			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+		} catch (Exception e) {
+			String err = "Unable to access the XML Server "+e.getClass().getName()+": "+e.getLocalizedMessage();
+			org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+			throw new XtentisException(err);
+		}
+		
+		try {
+			commitItem(itemPK, comment, service, universe, username, server);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			throw new XtentisException(e);
+		}
+		
+		return itemPK;
+    }
+    
+    /**
 	 * Commit Items
 	 * 
 	 * @throws XtentisException

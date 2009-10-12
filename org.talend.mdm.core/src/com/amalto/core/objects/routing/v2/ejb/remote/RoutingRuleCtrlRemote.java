@@ -11,7 +11,7 @@ import java.util.*;
  * facade session bean. Inverit from this class to provide reasonable caching and event handling capabilities.
  *
  * Remote facade for RoutingRuleCtrl.
- * @xdoclet-generated at 9-10-09
+ * @xdoclet-generated at 12-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

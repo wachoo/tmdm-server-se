@@ -5,7 +5,7 @@ package com.amalto.core.objects.versioning.ejb.local;
 
 /**
  * Local interface for VersioningSystemCtrl.
- * @xdoclet-generated at 9-10-09
+ * @xdoclet-generated at 12-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -84,6 +84,12 @@ public interface VersioningSystemCtrlLocal
     * @throws XtentisException
     */
    public com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK restoreItemsAsJob( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,java.lang.String tag,com.amalto.core.ejb.ItemPOJOPK[] itemPKs ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Commit Item
+    * @throws XtentisException
+    */
+   public com.amalto.core.ejb.ItemPOJOPK commitItem( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK itemPK,java.lang.String comment ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Commit Items
