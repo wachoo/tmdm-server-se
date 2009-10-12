@@ -205,6 +205,16 @@ public class VersioningSystemCtrlRemote extends Observable
 
    }
 
+   public com.amalto.core.objects.versioning.util.TagStructureInfo[] getUniverseVersions ( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        com.amalto.core.objects.versioning.util.TagStructureInfo[] retval;
+       retval =  getSession().getUniverseVersions( versioningSystemPOJOPK );
+
+      return retval;
+
+   }
+
    public com.amalto.core.objects.versioning.util.HistoryInfos getItemsVersions ( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK[] itemPOJOPKs )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {

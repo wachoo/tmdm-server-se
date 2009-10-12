@@ -19,6 +19,12 @@ public interface VersioningServiceCtrlLocalBI   extends ServiceCtrlLocalBI
     * @throws XtentisException
     */
    public HistoryInfos getVersions( java.lang.String path ) throws com.amalto.core.util.XtentisException;
+   
+   /**
+    * Get Tag Structure Infos
+    * @throws XtentisException
+    */
+   public TagStructureInfo[] getTagStructureInfos(String tagRegex) throws XtentisException;
 
    /**
     * Checkouts The path is constitued of the clustername/instancename If tag is null, the checkout will be made from the head

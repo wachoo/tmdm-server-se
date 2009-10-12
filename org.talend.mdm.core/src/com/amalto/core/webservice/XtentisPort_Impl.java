@@ -631,6 +631,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSVersioningObjectsVersions _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSVersioningUniverseVersions versioningGetUniverseVersions(com.amalto.core.webservice.WSVersioningGetUniverseVersions wsVersioningGetUniverseVersions) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSVersioningUniverseVersions _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSVersioningSystemConfiguration getVersioningSystemConfiguration(com.amalto.core.webservice.WSGetVersioningSystemConfiguration wsGetVersioningSystemConfiguration) throws 
          java.rmi.RemoteException {
         

@@ -74,6 +74,28 @@
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSVersioningObjectsVersions" type="tns:WSVersioningObjectsVersions"/>	
+	
+	<xsd:complexType name="WSVersioningUniverseVersions">
+		<xsd:annotation>
+			<xsd:documentation>
+				Versions of an universe
+			</xsd:documentation>
+		</xsd:annotation>				
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="tagStructure">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="tagName" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="lastDate" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="lastAuthor" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="lastComment" type="xsd:string"/>
+						<xsd:element maxOccurs="1" minOccurs="1"  nillable="true" name="clusters" type="tns:WSStringArray"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSVersioningUniverseVersions" type="tns:WSVersioningUniverseVersions"/>
 
 	<xsd:complexType name="WSVersioningItemsVersions">
 		<xsd:annotation>
@@ -238,6 +260,19 @@
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSVersioningGetObjectsVersions" type="tns:WSVersioningGetObjectsVersions"/>
+	
+	<xsd:complexType name="WSVersioningGetUniverseVersions">
+		<xsd:annotation>
+			<xsd:documentation>
+				Get universe versions
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="versioningSystemName" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSVersioningGetUniverseVersions" type="tns:WSVersioningGetUniverseVersions"/>
+	
 
 	<xsd:complexType name="WSVersioningGetItemsVersions">
 		<xsd:annotation>

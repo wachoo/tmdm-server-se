@@ -42,6 +42,7 @@ import com.amalto.core.objects.versioning.util.RestoreItemsInfo;
 import com.amalto.core.objects.versioning.util.RestoreObjectsInfo;
 import com.amalto.core.objects.versioning.util.TagItemsInfo;
 import com.amalto.core.objects.versioning.util.TagObjectsInfo;
+import com.amalto.core.objects.versioning.util.TagStructureInfo;
 import com.amalto.core.objects.versioning.util.TagUniverseInfo;
 import com.amalto.core.objects.versioning.util.VersioningServiceCtrlLocalBI;
 import com.amalto.core.util.JobActionInfo;
@@ -1072,6 +1073,28 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 		return new BackgroundJobPOJOPK(bgPOJO.getPK());
     }
     
+//    /**
+//	 * Restore Universe
+//	 * 
+//	 * @throws XtentisException
+//     * 
+//     * @ejb.interface-method view-type = "both"
+//     * @ejb.facade-method 
+//     */   
+//    public BackgroundJobPOJOPK restoreUniverseAsJob(
+//    		VersioningSystemPOJOPK versioningSystemPOJOPK,
+//    		String tag,
+//    		String[] encodedClusterNames
+//		)throws XtentisException{
+//    	
+//        BackgroundJobPOJO bgPOJO = new BackgroundJobPOJO();
+//    	
+//    	//TODO
+//        
+//		return new BackgroundJobPOJOPK(bgPOJO.getPK());
+//    	
+//    }
+    
     /**
      * The actual Method call by the timer
      * @param info
@@ -1662,6 +1685,46 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     		throw(e);
 		} catch (Exception e) {
 			String err = "Unable to get objects versions for type "+type+": "
+    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+    	    throw new XtentisException(err);
+		}
+	}
+    
+    /**
+	 * Get Universe Versions
+	 * 
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public TagStructureInfo[] getUniverseVersions(
+    		VersioningSystemPOJOPK versioningSystemPOJOPK
+		)throws XtentisException{
+    	
+    	//get the universe
+		UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+		if (universe == null) {
+			String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+			throw new XtentisException(err);
+		}
+    	    	
+    	try{
+    		
+    		String universeName = universe.getName();
+    		if(universeName==null||universeName.length()==0)universeName="HEAD";
+    		String tagRegex="UNIVERSE_"+universeName+".*";
+			//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+    		
+    		return service.getTagStructureInfos(tagRegex);
+    		
+    	} catch (XtentisException e) {
+    		throw(e);
+		} catch (Exception e) {
+			String err = "Unable to get universe versions "
     		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
     	    throw new XtentisException(err);

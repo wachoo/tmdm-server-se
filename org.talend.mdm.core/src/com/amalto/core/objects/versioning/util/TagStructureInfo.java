@@ -10,7 +10,7 @@ public class TagStructureInfo implements Serializable {
 	
 	private static final long serialVersionUID = 7116129388850864283L;
 	
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
 	
 	String tagName;
 	Date  lastDate;
@@ -30,6 +30,13 @@ public class TagStructureInfo implements Serializable {
 		this.clusters=new ArrayList<String>();
 	}
 	
+	
+
+	public String getTagName() {
+		return tagName;
+	}
+
+
 
 	public Date getLastDate() {
 		return lastDate;

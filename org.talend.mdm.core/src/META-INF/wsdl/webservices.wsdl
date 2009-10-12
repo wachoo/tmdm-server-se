@@ -835,7 +835,12 @@
 	<message name="versioningGetObjectsVersionsResponse">
 		<part name="wsVersioningObjectsVersions" element="tns:WSVersioningObjectsVersions"/>
 	</message>
-	
+	<message name="versioningGetUniverseVersionsRequest">
+		<part name="wsVersioningGetUniverseVersions" element="tns:WSVersioningGetUniverseVersions"/>
+	</message>
+	<message name="versioningGetUniverseVersionsResponse">
+		<part name="wsVersioningUniverseVersions" element="tns:WSVersioningUniverseVersions"/>
+	</message>
 	
 
 	<message name="getVersioningSystemConfigurationRequest">
@@ -1711,6 +1716,10 @@
 			<input message="tns:versioningGetObjectsVersionsRequest"/>
 			<output message="tns:versioningGetObjectsVersionsResponse"/>
 		</operation>
+		<operation name="versioningGetUniverseVersions">
+			<input message="tns:versioningGetUniverseVersionsRequest"/>
+			<output message="tns:versioningGetUniverseVersionsResponse"/>
+		</operation>
 		<operation name="getVersioningSystemConfiguration">
 			<input message="tns:getVersioningSystemConfigurationRequest"/>
 			<output message="tns:getVersioningSystemConfigurationResponse"/>
@@ -2579,6 +2588,11 @@
 			<output><soap:body use="literal"/></output>			
 		</operation>
 		<operation name="versioningGetObjectsVersions">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>			
+		</operation>
+		<operation name="versioningGetUniverseVersions">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>			

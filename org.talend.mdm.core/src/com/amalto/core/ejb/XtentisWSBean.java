@@ -120,6 +120,7 @@ import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO;
 import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
 import com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocal;
 import com.amalto.core.objects.versioning.util.HistoryInfos;
+import com.amalto.core.objects.versioning.util.TagStructureInfo;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlUtil;
@@ -4235,6 +4236,45 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 				return new WSVersioningObjectsVersions(
 						wsVersioningObjectsVersionsObjects);
 			}
+			
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSVersioningUniverseVersions versioningGetUniverseVersions(WSVersioningGetUniverseVersions wsVersioningGetUniverseVersions) throws RemoteException {
+		try {
+			
+			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			TagStructureInfo[] tagsStructureInfos=ctrl.getUniverseVersions(
+					wsVersioningGetUniverseVersions.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetUniverseVersions.getVersioningSystemName())
+			);
+			
+			
+			//TagStructureInfoArray 2 WSVersioningUniverseVersions
+			WSVersioningUniverseVersionsTagStructure[] tagsStructure=new WSVersioningUniverseVersionsTagStructure[tagsStructureInfos.length];
+			for (int i = 0; i < tagsStructure.length; i++) {
+				String tagName=tagsStructureInfos[i].getTagName();
+				String lastDate="";
+				if(tagsStructureInfos[i].getLastDate()!=null){
+					lastDate=TagStructureInfo.sdf.format(tagsStructureInfos[i].getLastDate());
+				}
+				String lastAuthor=tagsStructureInfos[i].getLastAuthor();
+				String lastComment=tagsStructureInfos[i].getLastComment();
+				WSStringArray clusters=new WSStringArray(tagsStructureInfos[i].getClusters().toArray(new String[tagsStructureInfos[i].getClusters().size()]));
+				tagsStructure[i]=new WSVersioningUniverseVersionsTagStructure(tagName,lastDate,lastAuthor,lastComment,clusters);
+			}
+			
+			
+			return new WSVersioningUniverseVersions(tagsStructure);
 			
 		} catch (Exception e) {
 			String err = "ERROR SYSTRACE: "+e.getMessage();

@@ -110,6 +110,12 @@ public interface VersioningSystemCtrlLocal
    public com.amalto.core.objects.versioning.util.HistoryInfos getObjectsVersions( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,java.lang.String type,java.lang.String[] instances ) throws com.amalto.core.util.XtentisException;
 
    /**
+    * Get Universe Versions
+    * @throws XtentisException
+    */
+   public com.amalto.core.objects.versioning.util.TagStructureInfo[] getUniverseVersions( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK ) throws com.amalto.core.util.XtentisException;
+
+   /**
     * Get Items Versions
     * @throws XtentisException
     */

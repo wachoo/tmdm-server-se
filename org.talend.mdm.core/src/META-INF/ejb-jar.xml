@@ -2490,6 +2490,19 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
+         <method-name>versioningGetUniverseVersions</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSVersioningGetUniverseVersions</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
          <method-name>versioningRestoreItems</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSVersioningRestoreItems</method-param>

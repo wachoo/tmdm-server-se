@@ -126,6 +126,13 @@ public interface VersioningSystemCtrl
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
+    * Get Universe Versions
+    * @throws XtentisException
+    */
+   public com.amalto.core.objects.versioning.util.TagStructureInfo[] getUniverseVersions( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
     * Get Items Versions
     * @throws XtentisException
     */
