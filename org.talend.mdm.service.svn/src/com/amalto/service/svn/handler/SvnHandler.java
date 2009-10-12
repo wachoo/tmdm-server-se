@@ -14,6 +14,7 @@ import javax.resource.cci.MappedRecord;
 import com.amalto.connector.jca.InteractionSpecImpl;
 import com.amalto.connector.jca.RecordFactoryImpl;
 import com.amalto.core.objects.versioning.util.HistoryInfos;
+import com.amalto.core.objects.versioning.util.TagStructureInfo;
 import com.amalto.core.util.XtentisException;
 import com.amalto.service.svn.bean.SvnConfiguration;
 
@@ -468,6 +469,53 @@ public class SvnHandler{
 		} catch (Exception e) {
 			e.printStackTrace();
 			String err = "Could not complete the process on the Svn connector for path "+path 
+				+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+			org.apache.log4j.Category.getInstance(SvnHandler.class).error(err);
+			throw new XtentisException(e);
+		} finally {
+			try {conx.close();} catch (Exception e){}
+		}
+	}
+	
+	public TagStructureInfo[] getTagStructureInfos(String tagRegex) throws com.amalto.core.util.XtentisException  {
+		Connection conx = null;
+		
+		try {
+			//Get Connection to the File System Connector
+			conx  = getConnection();
+			Interaction interaction = conx.createInteraction();
+			InteractionSpecImpl interactionSpec = new InteractionSpecImpl();
+			
+			//Create the Record
+			MappedRecord recordIn = new RecordFactoryImpl().createMappedRecord(RecordFactoryImpl.RECORD_IN);
+			HashMap parameters = new HashMap();
+			
+			parameters.put("command","taginfos");
+			parameters.put("tagRegex",tagRegex);
+			
+			recordIn.put(RecordFactoryImpl.PARAMS_HASHMAP_IN, parameters);
+			
+			//Process the post
+			interactionSpec.setFunctionName(InteractionSpecImpl.FUNCTION_PULL);
+			MappedRecord result = (MappedRecord) interaction.execute(interactionSpec, recordIn);
+			
+			//parse the result
+			if (!"OK".equals(result.get(RecordFactoryImpl.STATUS_CODE_OUT))) {
+				String msg = (String)((HashMap)result.get(RecordFactoryImpl.PARAMS_HASHMAP_OUT)).get("message");
+				String err = "Svn Service: could not post message: "+msg;
+				org.apache.log4j.Category.getInstance(this.getClass()).error(err);	
+				throw new XtentisException(err);
+			}
+			HashMap<String, Object> paramsOut =  (HashMap<String, Object>)result.get(RecordFactoryImpl.PARAMS_HASHMAP_OUT);
+			TagStructureInfo[] infos = (TagStructureInfo[])paramsOut.get("taginfos");
+			return infos;
+		} catch (ResourceException re) {
+			throw new XtentisException(re.getMessage());
+		} catch (XtentisException xce) {
+			throw(xce);
+		} catch (Exception e) {
+			e.printStackTrace();
+			String err = "Could not complete the process on the Svn connector" 
 				+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
 			org.apache.log4j.Category.getInstance(SvnHandler.class).error(err);
 			throw new XtentisException(e);

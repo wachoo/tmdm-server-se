@@ -19,6 +19,7 @@ import org.xml.sax.InputSource;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.versioning.ejb.VersioningServiceCtrlBean;
 import com.amalto.core.objects.versioning.util.HistoryInfos;
+import com.amalto.core.objects.versioning.util.TagStructureInfo;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.service.svn.bean.SvnConfiguration;
@@ -540,6 +541,21 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
     	return infos;
     }
 
+    /**
+     * Get Tag Structure Infos
+     *
+     * @throws EJBException
+     *
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     */
+    public TagStructureInfo[] getTagStructureInfos(String tagRegex) throws XtentisException {
+    	
+    	TagStructureInfo[] tagStructureInfo = new SvnHandler(getConfigurationLocal()).getTagStructureInfos(tagRegex);
+    	
+    	return tagStructureInfo;
+
+	}
 
     /**
      * Checkouts
