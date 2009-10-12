@@ -1399,12 +1399,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 
 		//saveItem(ids,dataObject,treeIndex);
 		saveItem(ids,dataObject,treeIndex,function(){
+				var itempanel = amalto.core.getTabPanel().activeTab;
+				if(itempanel){
+					itempanel.isdirty=false;
+				}			
 				  amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 			      refreshCB.call();
 				 });
-		
-			
-		
+
 	}
 	
 	function saveItemWithoutQuit(ids,dataObject,treeIndex,refreshCB){
@@ -1498,7 +1500,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		Ext.MessageBox.confirm("confirm",MSG_CONFIRM_DELETE_ITEM[language]+ " ?",function re(en){
 		if(en=="yes"){
-			ItemsBrowserInterface.deleteItem(dataObject, itemPK, function(result){			
+			ItemsBrowserInterface.deleteItem(dataObject, itemPK, function(result){
+				var itempanel = amalto.core.getTabPanel().activeTab;
+				if(itempanel){
+					itempanel.isdirty=false;
+				}				
 				amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 				amalto.core.ready(result);
 				displayItems();				
@@ -1512,6 +1518,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			tmp += " "+itemPK[i];
 		}
 		ItemsBrowserInterface.logicalDeleteItem(dataObject, itemPK, path, function(result){
+			var itempanel = amalto.core.getTabPanel().activeTab;
+			if(itempanel){
+				itempanel.isdirty=false;
+			}			
 			amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 			amalto.core.ready(result);
 			//displayItems();
