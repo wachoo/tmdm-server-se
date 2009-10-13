@@ -5,7 +5,7 @@ package com.amalto.core.ejb.remote;
 
 /**
  * Remote interface for AutoCommitToSvnSendBean.
- * @xdoclet-generated at 12-10-09
+ * @xdoclet-generated at 13-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

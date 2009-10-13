@@ -5,7 +5,7 @@ package com.amalto.core.objects.versioning.ejb.remote;
 
 /**
  * Remote interface for VersioningSystemCtrl.
- * @xdoclet-generated at 12-10-09
+ * @xdoclet-generated at 13-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -88,6 +88,13 @@ public interface VersioningSystemCtrl
     * @throws XtentisException
     */
    public com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK restoreObjectsAsJob( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,java.lang.String tag,java.lang.String type,java.lang.String[] instances )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
+    * Restore Universe
+    * @throws XtentisException
+    */
+   public com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK restoreUniverseAsJob( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,java.lang.String tag,java.lang.String[] encodedClusterNames )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**

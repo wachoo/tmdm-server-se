@@ -234,6 +234,20 @@
 	</xsd:complexType>		
 	<xsd:element name="WSVersioningRestoreObjects" type="tns:WSVersioningRestoreObjects"/>
 	
+	<xsd:complexType name="WSVersioningRestoreUniverse">
+		<xsd:annotation>
+			<xsd:documentation>
+				Restore universe
+			</xsd:documentation>
+		</xsd:annotation>		
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="versioningSystemName" type="xsd:string"/>			
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="tag" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="encodedClusterNames" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>		
+	<xsd:element name="WSVersioningRestoreUniverse" type="tns:WSVersioningRestoreUniverse"/>
+	
 	<xsd:complexType name="WSVersioningRestoreItems">
 		<xsd:annotation>
 			<xsd:documentation>

@@ -2,6 +2,7 @@ package com.amalto.core.objects.versioning.ejb;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
@@ -11,6 +12,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
@@ -40,6 +43,7 @@ import com.amalto.core.objects.versioning.util.CommitItemsInfo;
 import com.amalto.core.objects.versioning.util.HistoryInfos;
 import com.amalto.core.objects.versioning.util.RestoreItemsInfo;
 import com.amalto.core.objects.versioning.util.RestoreObjectsInfo;
+import com.amalto.core.objects.versioning.util.RestoreUniverseInfo;
 import com.amalto.core.objects.versioning.util.TagItemsInfo;
 import com.amalto.core.objects.versioning.util.TagObjectsInfo;
 import com.amalto.core.objects.versioning.util.TagStructureInfo;
@@ -1077,27 +1081,70 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 		return new BackgroundJobPOJOPK(bgPOJO.getPK());
     }
     
-//    /**
-//	 * Restore Universe
-//	 * 
-//	 * @throws XtentisException
-//     * 
-//     * @ejb.interface-method view-type = "both"
-//     * @ejb.facade-method 
-//     */   
-//    public BackgroundJobPOJOPK restoreUniverseAsJob(
-//    		VersioningSystemPOJOPK versioningSystemPOJOPK,
-//    		String tag,
-//    		String[] encodedClusterNames
-//		)throws XtentisException{
-//    	
-//        BackgroundJobPOJO bgPOJO = new BackgroundJobPOJO();
-//    	
-//    	//TODO
-//        
-//		return new BackgroundJobPOJOPK(bgPOJO.getPK());
-//    	
-//    }
+    /**
+	 * Restore Universe
+	 * 
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */   
+    public BackgroundJobPOJOPK restoreUniverseAsJob(
+    		VersioningSystemPOJOPK versioningSystemPOJOPK,
+    		String tag,
+    		String[] encodedClusterNames
+		)throws XtentisException{
+    	
+        BackgroundJobPOJO bgPOJO = new BackgroundJobPOJO();
+    	
+        try{
+			//create a Background Job
+			bgPOJO.setDescription("Restoring universe with tag '"+tag+"' as a Background Job");
+			bgPOJO.setMessage("Scheduling the job");
+			bgPOJO.setPercentage(-1);
+			bgPOJO.setSerializedObject(null);
+			bgPOJO.setStatus(BackgroundJobPOJO._SCHEDULED_);
+			bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
+			bgPOJO.store();
+			
+			//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+    		
+			//Instantiate processing info
+    		RestoreUniverseInfo restoreUniverseInfo = new RestoreUniverseInfo(
+					service,
+					versioningSystemPOJOPK,
+					tag,
+					LocalUser.getLocalUser().getUsername(),
+					encodedClusterNames
+			);
+    		
+			//launch job in background
+			JobActionInfo actionInfo = new JobActionInfo(
+					bgPOJO.getId(),
+					LocalUser.getLocalUser().getUniverse(),
+					"Restoring universe with tag '"+tag+"'",
+					restoreUniverseInfo
+			); 
+			createTimer(actionInfo);
+			
+			
+        	
+		} catch (Exception e) {
+			try {
+				String err = "Unable to Restore universe with tag '"+tag+"' as a Background Job"
+	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+				if (! (e instanceof XtentisException)) {
+		    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+				}
+				//Update Background job and try to put pipeline
+				updateBackGroundJob((BackgroundJobPOJOPK)bgPOJO.getPK(), err,BackgroundJobPOJO._STOPPED_);
+			} catch (Exception ex) {}
+		}
+        
+		return new BackgroundJobPOJOPK(bgPOJO.getPK());
+    	
+    }
     
     /**
      * The actual Method call by the timer
@@ -1235,7 +1282,144 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
     	
     }
     
+    /**
+     * The actual Method call by the timer
+     * @param info
+     */
+    private void executeRestoreUniverse(
+    		BackgroundJobPOJOPK backGroundJobPK,
+    		RestoreUniverseInfo info,
+    		UniversePOJO universe
+    ) {
+    	
+    	try {
 
+    		updateBackGroundJob(backGroundJobPK, "Accessing versioning server");
+    		
+    		String tag=info.getTag();
+    		String[] encodedClusterNames=info.getEncodedClusterNames();
+    		
+    		//get the universe and revision ID for this Object
+	    	if (universe == null) {
+	    		String err = "ERROR: no Universe set for user '"+info.getUsername()+"'";
+	    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+	    		throw new XtentisException(err);
+	    	}
+	    	
+	    	//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = info.getService();
+
+            //get the xml server wrapper
+            XmlServerSLWrapperLocal server = null;
+			try {
+				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+			} catch (Exception e) {
+				String err = "Unable to access the XML Server "+e.getClass().getName()+": "+e.getLocalizedMessage();
+				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+				throw new XtentisException(err);
+			}
+    		
+    		
+    		updateBackGroundJob(backGroundJobPK, "Starting restore of universe with tag "+info.getTag());
+    		
+    		int clusterCounter=0;
+    		System.out.println("Starting restore of "+encodedClusterNames.length+" clusters... ");
+    		for (int k = 0; k < encodedClusterNames.length; k++) {
+    			
+    			
+    			//restore the whole cluster
+    			String encodedClusterName=encodedClusterNames[k];
+    			updateBackGroundJob(backGroundJobPK, "Starting restore of cluster "+encodedClusterName);
+    			
+    			//0- parse raw clusterName && revisionID
+    			String[] output=parseClusterNameAndRevisionIDFromEncodedClusterName(encodedClusterName);
+    			String clusterName= output[0];
+    			String revisionID = output[1];
+    			
+    		    //1- grab all instances names
+    			String[] getInstances = service.getInstances(encodedClusterName, tag);
+				if (getInstances==null) {
+					String err = "Unable to check out objects from cluster "+clusterName+" with tag "+tag+" - no instances found";
+					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+					throw new XtentisException(err);
+				}
+				
+    			//2- delete the existing content
+    			server.deleteCluster(revisionID, clusterName);
+    			server.createCluster(revisionID, clusterName);
+    			
+    			//FIXME:bad judgement way
+				if (encodedClusterName.startsWith("amaltoOBJECTS")) {
+					//3 - restore content
+	    			for (int i = 0; i < getInstances.length; i++) {
+	    				String instance = getInstances[i];
+	    				String path = encodedClusterName+"/"+URLEncoder.encode(instance, "UTF-8");
+	    				String[] xmls = service.checkOut(path, info.getTag(),null);
+	    				String xml = xmls[0].replaceAll("<\\?.*?\\?>", "");
+						if (-1 == server.putDocumentFromString(xml, instance, clusterName, revisionID)) {
+							String err = "Unable to re-insert object "+instance+" from cluster "+clusterName+" with tag "+info.getTag()+". An error occured on the XML server";
+							org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+							throw new XtentisException(err);
+						}
+					}
+				}else{
+					restoreAllItems(backGroundJobPK, server, service, revisionID, clusterName, info.getTag(), info.getUsername());
+				}
+				
+				clusterCounter++;
+    			
+			}
+    		    
+    		resetObjectsCache();
+    		
+			try {
+				String message = "Successfully restored universe( "+clusterCounter+" clusters ) with tag "+info.getTag();
+				updateBackGroundJob(backGroundJobPK, message, BackgroundJobPOJO._COMPLETED_);
+			} catch (Exception e) {
+				String err = "Object(s) restore done but unable to store the result in the background object: "
+									+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+	    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+	    	    throw new XtentisException(err);
+			}
+    		
+		} catch (Exception e) {
+			e.printStackTrace();
+			try {
+	    	    String err = "Unable to Restore universe with tag "+info.getTag()
+	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+				if (! (e instanceof XtentisException)) {
+		    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+				}
+				//Update Background job and try to put pipeline
+				updateBackGroundJob(backGroundJobPK, err, BackgroundJobPOJO._STOPPED_);
+			} catch (Exception ex) {}
+		}
+    	
+    }
+    
+    private String[] parseClusterNameAndRevisionIDFromEncodedClusterName(String input) {
+		String clusterName="";
+    	String revisionID=null;
+    	//handle revision
+		Pattern pattern = Pattern.compile("(.*)\\[(.*)\\]");
+		Matcher matcher = pattern.matcher(input);
+		if(matcher.find()){
+			clusterName=matcher.group(1);
+			revisionID=matcher.group(2);
+		}else{
+			clusterName=input;
+		}
+		
+		//URL decode
+		try {
+			clusterName=URLDecoder.decode(clusterName,"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+		String[] output={clusterName,revisionID};
+		return output;
+	}
     
     /**
 	 * Restore Items
@@ -1906,6 +2090,8 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 				executeCommitItems(pk, (CommitItemsInfo)actionInfo.getInfo(),actionInfo.getUniverse());;
 			}else if (actionInfo.getInfo() instanceof TagUniverseInfo) {
 				executeTagUniverse(pk, (TagUniverseInfo)actionInfo.getInfo(),actionInfo.getUniverse());
+			}else if (actionInfo.getInfo() instanceof RestoreUniverseInfo) {
+				executeRestoreUniverse(pk, (RestoreUniverseInfo)actionInfo.getInfo(),actionInfo.getUniverse());
 			}
 
 		} catch (Exception e) {
@@ -1982,6 +2168,4 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 	    }
     }
 
-
-    
 }

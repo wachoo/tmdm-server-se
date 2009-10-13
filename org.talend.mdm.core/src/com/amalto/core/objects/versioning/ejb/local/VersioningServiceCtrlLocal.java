@@ -5,7 +5,7 @@ package com.amalto.core.objects.versioning.ejb.local;
 
 /**
  * Local interface for VersioningServiceCtrl.
- * @xdoclet-generated at 12-10-09
+ * @xdoclet-generated at 13-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -60,7 +60,7 @@ public interface VersioningServiceCtrlLocal
     * Sets the default/current versioning system configuration
     * @throws EJBException
     */
-   public void setCurrentVersioningSystemConfiguration( java.lang.String name,java.lang.String url,java.lang.String username,java.lang.String password ) throws com.amalto.core.util.XtentisException;
+   public void setCurrentVersioningSystemConfiguration( java.lang.String name,java.lang.String url,java.lang.String username,java.lang.String password,java.lang.String autocommit ) throws com.amalto.core.util.XtentisException;
 
    /**
     * To be Implemented. Returns the unique JNDI name of the service. The JNDI name must be of the type amalto/local/service/[NAME] where [NAME] matchs the pattern "[a-zA-Z][a-zA-Z0-9]*" and is unique accross services

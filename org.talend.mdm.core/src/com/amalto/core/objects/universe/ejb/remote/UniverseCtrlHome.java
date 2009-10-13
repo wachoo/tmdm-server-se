@@ -5,7 +5,7 @@ package com.amalto.core.objects.universe.ejb.remote;
 
 /**
  * Home interface for UniverseCtrl.
- * @xdoclet-generated at 12-10-09
+ * @xdoclet-generated at 13-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
