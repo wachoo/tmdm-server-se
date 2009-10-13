@@ -162,7 +162,7 @@ public class ItemCtrl2Bean implements SessionBean {
         	if (schema!=null) {            	
         		Document schema1=Util.parse(schema);
     	    	String concept=item.getConceptName();
-    	    	if(Util.getUUIDNodes(schema1, concept).getLength()>0){ //check uuid key exists
+    	    	if(Util.getUUIDNodes(schema, concept).size()>0){ //check uuid key exists
     		    	String dataCluster=item.getDataClusterPOJOPK().getIds()[0];
     		    	Element root=(Element)item.getProjection().cloneNode(true);
     		        XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
@@ -174,7 +174,7 @@ public class ItemCtrl2Bean implements SessionBean {
     		   			root,
     						conceptKey
     				);			
-    				UUIDItemContent content=Util.processUUID(root, schema1, dataCluster, concept, conceptKey, itemKeyValues);
+    				UUIDItemContent content=Util.processUUID(root, schema, dataCluster, concept, conceptKey, itemKeyValues);
     				//reset item projection & itemids
     				item.setProjectionAsString(content.getItemContent());    				
     				item.setItemIds(content.getItemKeyValues());

@@ -251,6 +251,7 @@ public class CommonDWR {
 		String x_Label = "X_Label_"+language.toUpperCase();    	
 		Map<String,XSElementDecl> map = getConceptMap(dataModelPK);
     	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
+    	
     	HashMap<String,String> xpathToLabel = new HashMap<String,String>();  
     	xpathToLabel.put(concept,getLabel(map.get(concept),x_Label));
     	//xpathToLabel.put(concept,CommonDWR.getConceptLabel(dataModelPK,concept,language));
@@ -263,6 +264,15 @@ public class CommonDWR {
 	}
 	
 	private static void getChildren(XSParticle xsp, String xpathParent, String x_Label, boolean includeComplex,boolean includeFKReference,HashMap<String,String> xpathToLabel){
+		//aiming added see 0009563
+		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
+			XSParticle[] xsps=xsp.getTerm().asModelGroup().getChildren();
+			for (int i = 0; i < xsps.length; i++) {
+				getChildren(xsps[i],xpathParent,x_Label, includeComplex,includeFKReference, xpathToLabel);
+			}
+		}
+		if(xsp.getTerm().asElementDecl()==null) return;
+		//end
 		if(xsp.getTerm().asElementDecl().getType().isComplexType()==false || includeComplex==true){
 			String toPutKey=xpathParent+"/"+xsp.getTerm().asElementDecl().getName();
 			if(includeFKReference){

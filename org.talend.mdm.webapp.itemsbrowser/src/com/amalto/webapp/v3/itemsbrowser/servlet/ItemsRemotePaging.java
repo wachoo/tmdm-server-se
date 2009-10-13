@@ -215,6 +215,9 @@ public class ItemsRemotePaging  extends HttpServlet{
 //				results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
 //				String[] elements = results[i].split("#");
 				//aiming modify when there is null value in fields, the viewable fields sequence is the same as the childlist of result
+				if(!results[i].startsWith("<result>")){
+					results[i]="<result>" + results[i] + "</result>";
+				}
 				Element root = Util.parse(results[i]).getDocumentElement();
 				List<String> l=getElementValues("/result",root);
 				String[] elements =l.toArray(new String[l.size()]);

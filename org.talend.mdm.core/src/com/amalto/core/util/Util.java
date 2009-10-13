@@ -123,6 +123,13 @@ import com.amalto.core.schematron.validation.Validator;
 import com.amalto.core.schematron.validation.Violation;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
+import com.sun.xml.xsom.XSComplexType;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSSchema;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.parser.XSOMParser;
+import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
 /**
  * @author Bruno GRieder
@@ -707,7 +714,7 @@ public final class Util {
     	
     }
     
-    public static UUIDItemContent processUUID(Element root, Document schema, String dataCluster, String concept,XSDKey conceptKey, String[] itemKeyValues) throws Exception{
+    public static UUIDItemContent processUUID(Element root, String schema, String dataCluster, String concept,XSDKey conceptKey, String[] itemKeyValues) throws Exception{
 		//generate uuid 
 		Element conceptRoot = (Element)root.cloneNode(true);			
 		Util.generateUUIDForElement(schema, dataCluster,concept, conceptRoot);			
@@ -735,13 +742,72 @@ public final class Util {
 		return content;
     }
     
+    /**
+     * @deprecated
+     * @param schema
+     * @param concept
+     * @return
+     * @throws Exception
+     */
     public static NodeList getUUIDNodes(Document schema, String concept) throws Exception{
 		Element rootNS=Util.getRootElement("nsholder",schema.getDocumentElement().getNamespaceURI(),"xsd");	
 		String xpath="//xsd:element[@name='"+concept+"']//xsd:element[@type='"+EUUIDCustomType.AUTO_INCREMENT+"' or @type='"+EUUIDCustomType.UUID+"']";
 		NodeList uuidLists=Util.getNodeList(schema.getDocumentElement(),xpath,rootNS.getNamespaceURI(),"xsd");
 		return uuidLists;
     }
-    
+
+    public static List<XSParticle> getUUIDNodes(String schema, String concept)throws Exception{
+    	XSComplexType xsct = (XSComplexType)(getConceptMap(schema).get(concept).getType()); 
+    	XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+    	List<XSParticle> list=new ArrayList<XSParticle>();
+    	for(int i=0; i<xsp.length; i++){
+    		getChildren(xsp[i],list);
+    	}
+    	return list;
+    }
+    private static void getChildren(XSParticle xsp, List<XSParticle> list){
+		//aiming added see 0009563
+		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
+			XSParticle[] xsps=xsp.getTerm().asModelGroup().getChildren();
+			for (int i = 0; i < xsps.length; i++) {
+				getChildren(xsps[i],list);
+			}
+		}
+		if(xsp.getTerm().asElementDecl()==null) return;
+		//end
+		if(xsp.getTerm().asElementDecl().getType().isComplexType()==false ){
+			String type=xsp.getTerm().asElementDecl().getType().getName();
+			if(EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type) || EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)){
+				list.add(xsp);
+			}
+		}		
+		if(xsp.getTerm().asElementDecl().getType().isComplexType()==true ){
+			XSParticle particle = xsp.getTerm().asElementDecl()
+			.getType().asComplexType().getContentType().asParticle();
+			if(particle!=null){
+				XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
+				for (int i = 0; i < xsps.length; i++) {
+					getChildren(xsps[i],list);
+				}
+			}
+		}		    	
+    }
+	public static Map<String,XSElementDecl> getConceptMap(String xsd) 
+	throws Exception{
+
+		XSOMParser reader = new XSOMParser();
+		reader.setAnnotationParser(new DomAnnotationParserFactory());
+	    reader.parse(new StringReader(xsd));
+	    XSSchemaSet xss = reader.getResult();
+		Collection xssList = xss.getSchemas();
+		Map<String,XSElementDecl> map = null ;
+		for (Iterator iter = xssList.iterator(); iter.hasNext();) {
+			XSSchema schema = (XSSchema) iter.next();
+			map = schema.getElementDecls();
+		}   
+		return map;
+	}
+	
     public static String[] getTargetSystemsFromSchema(Document schema, String concept) throws Exception{
     	String[] targetSystems=null;
     	
@@ -760,13 +826,13 @@ public final class Util {
 		return targetSystems;
 	}
     
-    private static void generateUUIDForElement(Document schema,String dataCluster,String concept, Element conceptRoot) throws Exception{
-    	NodeList uuidLists=getUUIDNodes(schema, concept);
+    private static void generateUUIDForElement(String schema,String dataCluster,String concept, Element conceptRoot) throws Exception{
+    	List<XSParticle> uuidLists=getUUIDNodes(schema, concept);
 		//Element conceptRoot = (Element)root.cloneNode(true);	
-		for(int i=0; i<uuidLists.getLength(); i++){
-			Element element=(Element)uuidLists.item(i);
-			String name=Util.getFirstTextNode(element, "@name");
-			String type=Util.getFirstTextNode(element, "@type");
+		for(int i=0; i<uuidLists.size(); i++){
+			XSParticle xsp=uuidLists.get(i);
+			String name= xsp.getTerm().asElementDecl().getName();
+			String type=xsp.getTerm().asElementDecl().getType().getName();
 			String value=null;
 			for(int j=0; j<conceptRoot.getChildNodes().getLength(); j++){
 				Node node= conceptRoot.getChildNodes().item(j);

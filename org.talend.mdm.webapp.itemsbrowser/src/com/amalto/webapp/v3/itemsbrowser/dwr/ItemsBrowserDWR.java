@@ -301,8 +301,225 @@ public class ItemsBrowserDWR {
 			return "ERROR";
 		}		
 	}
+	private void setChildrenWithKeyMask(int id, String language, boolean foreignKey, int docIndex, boolean maskKey, boolean choice, XSParticle xsp,ArrayList<TreeNode> list,HashMap<String,TreeNode> xpathToTreeNode){
+		//aiming added see 0009563
+		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
+			XSParticle[] xsps=xsp.getTerm().asModelGroup().getChildren();
+			if("choice".equals(xsp.getTerm().asModelGroup().getCompositor().toString()))
+				choice = true;
+			for (int i = 0; i < xsps.length; i++) {
+				setChildrenWithKeyMask(id,language,foreignKey,docIndex,maskKey,choice,xsps[i],list,xpathToTreeNode);
+			}
+		}
+		if(xsp.getTerm().asElementDecl()==null) return;
+		//end
 		
+		WebContext ctx = WebContextFactory.get();	
+		HashMap<Integer,XSParticle> idToParticle = 
+			(HashMap<Integer,XSParticle>) ctx.getSession().getAttribute("idToParticle");
+		HashMap<Integer,String> idToXpath = 
+			(HashMap<Integer,String>) ctx.getSession().getAttribute("idToXpath");
+		HashMap<String,XSParticle> xpathToParticle = 
+			(HashMap<String,XSParticle>) ctx.getSession().getAttribute("xpathToParticle");
+		ArrayList<String> nodeAutorization = 
+			(ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization");
+		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
+		String[] keys = (String[]) ctx.getSession().getAttribute("foreignKeys");
 
+
+		ArrayList<String> roles = new ArrayList<String>();
+		try {
+			roles = Util.getAjaxSubject().getRoles();
+		} catch (PolicyContextException e1) {
+			e1.printStackTrace();
+		}		
+
+		
+		if(foreignKey) d = (Document) ctx.getSession().getAttribute("itemDocumentFK");		
+		TreeNode treeNode = new TreeNode();    		
+		treeNode.setChoice(choice);
+		String xpath = idToXpath.get(id)+"/"+xsp.getTerm().asElementDecl().getName();
+		
+		if(xpathToTreeNode.containsKey(idToXpath.get(id)))
+			treeNode.setParent(xpathToTreeNode.get(idToXpath.get(id)));
+		
+		
+		int maxOccurs = xsp.getMaxOccurs();   	
+		//idToXpath.put(nodeCount,xpath);//keep map <node id -> xpath>  in the session
+		treeNode.setName(xsp.getTerm().asElementDecl().getName());
+		treeNode.setDocumentation("");
+		String typeNameTmp = "";
+		treeNode.setVisible(true);
+		
+//		treeNode.setParent(parentNode);
+		
+		if(xsp.getTerm().asElementDecl().getType().getName()!=null)	
+			typeNameTmp = xsp.getTerm().asElementDecl().getType().getName();
+		
+		//annotation support
+		XSAnnotation xsa = xsp.getTerm().asElementDecl().getAnnotation();
+		try {
+			treeNode.fetchAnnotations(xsa, roles, language);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			System.out.println("NO ANNOT");
+		}
+
+
+		treeNode.setTypeName(typeNameTmp);
+		treeNode.setXmlTag(xsp.getTerm().asElementDecl().getName());
+		treeNode.setNodeId(nodeCount);
+		treeNode.setMaxOccurs(maxOccurs);
+		treeNode.setMinOccurs(xsp.getMinOccurs());
+		treeNode.setNillable(xsp.getTerm().asElementDecl().isNillable());
+		
+		// this child is a complex type
+		if(xsp.getTerm().asElementDecl().getType().isComplexType()==true) {    			
+			XSParticle particle = xsp.getTerm().asElementDecl()
+					.getType().asComplexType().getContentType().asParticle();
+			idToParticle.put(nodeCount, particle);    	
+			if(!treeNode.isReadOnly()){
+				nodeAutorization.add(xpath);
+			}
+			treeNode.setType("complex");
+			
+			
+			xpathToTreeNode.put(xpath, treeNode);
+			if(maxOccurs<0 || maxOccurs>1){	//maxoccurs<0 is unbounded			
+				try {
+					NodeList nodeList = Util.getNodeList(d,xpath);
+					for (int i = 0; i < nodeList.getLength(); i++) { 
+						idToXpath.put(nodeCount,xpath+"["+(i+1)+"]");
+						xpathToParticle.put(xpath+"["+(i+1)+"]",particle);
+						TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
+						treeNodeTmp.setNodeId(nodeCount);
+						idToParticle.put(nodeCount, particle);
+						// TODO check addThisNode
+		    			list.add(treeNodeTmp);  
+						nodeCount++;
+					}
+					if(nodeList.getLength() == 0){
+	    				idToXpath.put(nodeCount,xpath);
+	    				xpathToParticle.put(xpath,particle);
+	    				if(treeNode.isVisible()==true) {
+	    	    			list.add(treeNode);    			
+	    	    			nodeCount++; 
+	    	    		} 
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}					
+			}
+			else {
+				idToXpath.put(nodeCount,xpath);
+				xpathToParticle.put(xpath,particle);
+				if(treeNode.isVisible()==true) {
+	    			list.add(treeNode);    			
+	    			nodeCount++; 
+	    		} 
+			}
+		}
+		// this child is a simple type
+		else {
+			idToParticle.put(nodeCount, null);
+			treeNode.setType("simple"); 
+
+			// restriction support
+			ArrayList<Restriction> restrictions = new ArrayList<Restriction>();
+			ArrayList<String> enumeration = new ArrayList<String>();
+			 Iterator<XSFacet> it = xsp.getTerm().asElementDecl().getType()
+				.asSimpleType().asRestriction().iterateDeclaredFacets();
+			 while (it.hasNext()) {
+				XSFacet xsf = it.next();
+				if("enumeration".equals(xsf.getName())) {
+					enumeration.add(xsf.getValue().toString());
+				}
+				else{
+					Restriction r = new Restriction(xsf.getName(),xsf.getValue().toString());
+					restrictions.add(r);
+				}					
+			}
+			treeNode.setEnumeration(enumeration);
+			treeNode.setRestrictions(restrictions);
+			
+			// the user cannot edit any field when a foreign key is displayed
+			if(foreignKey){
+				treeNode.setReadOnly(true);
+			}
+			for (int i = 0; i < keys.length; i++) {
+				if(xpath.equals(keys[i])){
+					treeNode.setKey(true);
+					treeNode.setKeyIndex(i);
+					//treeNode.setReadOnly(true);
+				}
+					
+			}
+
+			
+			// max occurs > 1 support
+			try { 
+				if(maxOccurs<0 || maxOccurs>1){
+					NodeList nodeList = Util.getNodeList(d,xpath);
+					for (int i = 0; i < nodeList.getLength(); i++) {
+						if(!treeNode.isReadOnly())
+							nodeAutorization.add(xpath+"["+(i+1)+"]");
+						idToXpath.put(nodeCount,xpath+"["+(i+1)+"]");
+						TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
+						if(nodeList.item(i).getFirstChild()!=null)
+							treeNodeTmp.setValue(nodeList.item(i).getFirstChild().getNodeValue());
+						treeNodeTmp.setNodeId(nodeCount);
+						// TODO check addThisNode
+		    			list.add(treeNodeTmp);  
+						nodeCount++;
+					}
+					if(nodeList.getLength() == 0){
+						if(!treeNode.isReadOnly())
+							nodeAutorization.add(xpath);
+    					idToXpath.put(nodeCount,xpath);
+    		    		if(treeNode.isVisible()==true){
+    		    			list.add(treeNode);    			
+    		    			nodeCount++; 
+    		    		}  
+					}
+				}
+				else{
+					if(!treeNode.isReadOnly())
+						nodeAutorization.add(xpath);
+					idToXpath.put(nodeCount,xpath);
+					treeNode.setValue(StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath)));
+		    		if(treeNode.isVisible()==true){
+		    			list.add(treeNode);    			
+		    			nodeCount++; 
+		    		}  
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if(maskKey&&treeNode.isKey()){
+			String oldPath=treeNode.getValue();
+			treeNode.setValue("");
+			if(treeNode.getTypeName().trim().toUpperCase().equals("UUID")||treeNode.getTypeName().trim().toUpperCase().equals("AUTO_INCREMENT")){
+				treeNode.setReadOnly(true);
+			}else{
+				treeNode.setReadOnly(false);
+			}
+			
+			
+			HashMap<String,UpdateReportItem> updatedPath;
+			if(ctx.getSession().getAttribute("updatedPath")!=null){
+				updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
+			}				
+			else{
+				updatedPath = new HashMap<String,UpdateReportItem>();
+			}
+			ctx.getSession().setAttribute("updatedPath",updatedPath);
+			updatedPath.put(xpath, new UpdateReportItem(xpath,oldPath,""));
+			
+		}
+		
+	}	
+	private int nodeCount; //aiming added to record the node count;
 	/**
 	 * give the children of a node
 	 * @param id the id of the node in yui
@@ -314,7 +531,7 @@ public class ItemsBrowserDWR {
 	public TreeNode[] getChildren( int id, int nodeCount, String language, boolean foreignKey, int docIndex){
 		return getChildrenWithKeyMask(id, nodeCount, language, foreignKey, docIndex, false);
 	}
-	
+		
 	public TreeNode[] getChildrenWithKeyMask(int id, int nodeCount, String language, boolean foreignKey, int docIndex, boolean maskKey){
 		WebContext ctx = WebContextFactory.get();	
 		HashMap<Integer,XSParticle> idToParticle = 
@@ -349,7 +566,7 @@ public class ItemsBrowserDWR {
 		if(idToParticle.get(id)==null){//simple type case, no children
 			return null;
 		}
-			
+		this.nodeCount=nodeCount;//aiming added	
 		xsp = idToParticle.get(id).getTerm().asModelGroup().getChildren();
 		if("choice".equals(idToParticle.get(id).getTerm().asModelGroup().getCompositor().toString()))
 			choice = true;
@@ -357,188 +574,7 @@ public class ItemsBrowserDWR {
 		ArrayList<TreeNode> list = new ArrayList<TreeNode>();
 		//iterate over children
     	for (int j = 0; j < xsp.length; j++) {
-    		TreeNode treeNode = new TreeNode();    		
-    		treeNode.setChoice(choice);
-			String xpath = idToXpath.get(id)+"/"+xsp[j].getTerm().asElementDecl().getName();
-			
-			if(xpathToTreeNode.containsKey(idToXpath.get(id)))
-				treeNode.setParent(xpathToTreeNode.get(idToXpath.get(id)));
-			
-			
-			int maxOccurs = xsp[j].getMaxOccurs();   	
-			//idToXpath.put(nodeCount,xpath);//keep map <node id -> xpath>  in the session
-    		treeNode.setName(xsp[j].getTerm().asElementDecl().getName());
-    		treeNode.setDocumentation("");
-    		String typeNameTmp = "";
-    		treeNode.setVisible(true);
-    		
-//    		treeNode.setParent(parentNode);
-    		
-    		if(xsp[j].getTerm().asElementDecl().getType().getName()!=null)	
-    			typeNameTmp = xsp[j].getTerm().asElementDecl().getType().getName();
-    		
-    		//annotation support
-    		XSAnnotation xsa = xsp[j].getTerm().asElementDecl().getAnnotation();
-    		try {
-				treeNode.fetchAnnotations(xsa, roles, language);
-			} catch (Exception e1) {
-				e1.printStackTrace();
-				System.out.println("NO ANNOT");
-			}
-	
-
-    		treeNode.setTypeName(typeNameTmp);
-    		treeNode.setXmlTag(xsp[j].getTerm().asElementDecl().getName());
-    		treeNode.setNodeId(nodeCount);
-    		treeNode.setMaxOccurs(maxOccurs);
-    		treeNode.setMinOccurs(xsp[j].getMinOccurs());
-    		treeNode.setNillable(xsp[j].getTerm().asElementDecl().isNillable());
-    		
-			// this child is a complex type
-    		if(xsp[j].getTerm().asElementDecl().getType().isComplexType()==true) {    			
-    			XSParticle particle = xsp[j].getTerm().asElementDecl()
-						.getType().asComplexType().getContentType().asParticle();
-    			idToParticle.put(nodeCount, particle);    	
-    			if(!treeNode.isReadOnly()){
-    				nodeAutorization.add(xpath);
-    			}
-    			treeNode.setType("complex");
-    			
-    			
-    			xpathToTreeNode.put(xpath, treeNode);
-    			if(maxOccurs<0 || maxOccurs>1){	//maxoccurs<0 is unbounded			
-					try {
-						NodeList nodeList = Util.getNodeList(d,xpath);
-    					for (int i = 0; i < nodeList.getLength(); i++) { 
-    						idToXpath.put(nodeCount,xpath+"["+(i+1)+"]");
-    						xpathToParticle.put(xpath+"["+(i+1)+"]",particle);
-							TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
-							treeNodeTmp.setNodeId(nodeCount);
-							idToParticle.put(nodeCount, particle);
-							// TODO check addThisNode
-			    			list.add(treeNodeTmp);  
-    						nodeCount++;
-						}
-    					if(nodeList.getLength() == 0){
-    	    				idToXpath.put(nodeCount,xpath);
-    	    				xpathToParticle.put(xpath,particle);
-    	    				if(treeNode.isVisible()==true) {
-    	    	    			list.add(treeNode);    			
-    	    	    			nodeCount++; 
-    	    	    		} 
-    					}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}					
-    			}
-    			else {
-    				idToXpath.put(nodeCount,xpath);
-    				xpathToParticle.put(xpath,particle);
-    				if(treeNode.isVisible()==true) {
-    	    			list.add(treeNode);    			
-    	    			nodeCount++; 
-    	    		} 
-    			}
-    		}
-    		// this child is a simple type
-    		else {
-    			idToParticle.put(nodeCount, null);
-    			treeNode.setType("simple"); 
-
-    			// restriction support
-    			ArrayList<Restriction> restrictions = new ArrayList<Restriction>();
-    			ArrayList<String> enumeration = new ArrayList<String>();
-    			 Iterator<XSFacet> it = xsp[j].getTerm().asElementDecl().getType()
-    				.asSimpleType().asRestriction().iterateDeclaredFacets();
-    			 while (it.hasNext()) {
-					XSFacet xsf = it.next();
-					if("enumeration".equals(xsf.getName())) {
-						enumeration.add(xsf.getValue().toString());
-					}
-					else{
-						Restriction r = new Restriction(xsf.getName(),xsf.getValue().toString());
-						restrictions.add(r);
-					}					
-				}
-    			treeNode.setEnumeration(enumeration);
-				treeNode.setRestrictions(restrictions);
-    			
-				// the user cannot edit any field when a foreign key is displayed
-				if(foreignKey){
-					treeNode.setReadOnly(true);
-				}
-				for (int i = 0; i < keys.length; i++) {
-					if(xpath.equals(keys[i])){
-						treeNode.setKey(true);
-						treeNode.setKeyIndex(i);
-						//treeNode.setReadOnly(true);
-					}
-						
-				}
-
-				
-				// max occurs > 1 support
-    			try { 
-    				if(maxOccurs<0 || maxOccurs>1){
-    					NodeList nodeList = Util.getNodeList(d,xpath);
-    					for (int i = 0; i < nodeList.getLength(); i++) {
-    						if(!treeNode.isReadOnly())
-    							nodeAutorization.add(xpath+"["+(i+1)+"]");
-    						idToXpath.put(nodeCount,xpath+"["+(i+1)+"]");
-							TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
-							if(nodeList.item(i).getFirstChild()!=null)
-								treeNodeTmp.setValue(nodeList.item(i).getFirstChild().getNodeValue());
-							treeNodeTmp.setNodeId(nodeCount);
-							// TODO check addThisNode
-			    			list.add(treeNodeTmp);  
-    						nodeCount++;
-						}
-    					if(nodeList.getLength() == 0){
-    						if(!treeNode.isReadOnly())
-    							nodeAutorization.add(xpath);
-        					idToXpath.put(nodeCount,xpath);
-        		    		if(treeNode.isVisible()==true){
-        		    			list.add(treeNode);    			
-        		    			nodeCount++; 
-        		    		}  
-    					}
-    				}
-    				else{
-    					if(!treeNode.isReadOnly())
-    						nodeAutorization.add(xpath);
-    					idToXpath.put(nodeCount,xpath);
-    					treeNode.setValue(StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath)));
-    		    		if(treeNode.isVisible()==true){
-    		    			list.add(treeNode);    			
-    		    			nodeCount++; 
-    		    		}  
-    				}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-    		}
-    		if(maskKey&&treeNode.isKey()){
-    			String oldPath=treeNode.getValue();
-    			treeNode.setValue("");
-    			if(treeNode.getTypeName().trim().toUpperCase().equals("UUID")||treeNode.getTypeName().trim().toUpperCase().equals("AUTO_INCREMENT")){
-    				treeNode.setReadOnly(true);
-    			}else{
-    				treeNode.setReadOnly(false);
-    			}
-    			
-    			
-    			HashMap<String,UpdateReportItem> updatedPath;
-    			if(ctx.getSession().getAttribute("updatedPath")!=null){
-    				updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
-    			}				
-    			else{
-    				updatedPath = new HashMap<String,UpdateReportItem>();
-    			}
-    			ctx.getSession().setAttribute("updatedPath",updatedPath);
-    			updatedPath.put(xpath, new UpdateReportItem(xpath,oldPath,""));
-    			
-    		}
-    		
+    		setChildrenWithKeyMask(id,language,foreignKey,docIndex,maskKey,choice,xsp[j],list,xpathToTreeNode);
 		}		
     	if(xpathToTreeNode!=null){
     		ctx.getSession().setAttribute("xpathToTreeNode", xpathToTreeNode);
@@ -1006,12 +1042,21 @@ public class ItemsBrowserDWR {
 
 	
 	private void setChilden(XSParticle xsp, String xpathParent, int docIndex) throws Exception{
+		//aiming added see 0009563
+		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
+			XSParticle[] xsps=xsp.getTerm().asModelGroup().getChildren();			
+			for (int i = 0; i < xsps.length; i++) {
+				setChilden(xsps[i],xpathParent, docIndex);
+			}
+		}
+		if(xsp.getTerm().asElementDecl()==null) return;
+		//end
+		
 		WebContext ctx = WebContextFactory.get();
 		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
 		Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
 		Node node = Util.getNodeList(d,xpathParent).item(0);
 		node.appendChild(el);
-
 		if(xsp.getTerm().asElementDecl().getType().isComplexType()==true ){
 			XSParticle particle = xsp.getTerm().asElementDecl()
 			.getType().asComplexType().getContentType().asParticle();
