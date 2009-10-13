@@ -423,7 +423,7 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
     		config.setPassword("b2box");
     		config.setUsername("b2box");
     		config.setAutocommit("false");
-    		return config.serialize();
+    		return config.serialize().replaceAll("<\\?xml.*?\\?>","");
     	} catch (XtentisException e) {
     		throw(e);
 	    } catch (Exception e) {
