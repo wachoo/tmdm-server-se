@@ -1350,7 +1350,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var itemTree = itemTreeList[treeIndex];
 		var siblingNode = itemTree.getNodeByIndex(siblingId);
 		//modified by ymli. If the Items is more than maxOccurs, alert and return
-		if(siblingNode.parent!=null && siblingNode.parent.children.length>=siblingNode.itemData.maxOccurs){
+		if(siblingNode.itemData.maxOccurs>=0&&siblingNode.parent!=null && siblingNode.parent.children.length>=siblingNode.itemData.maxOccurs){
 			alert(siblingNode.itemData.maxOccurs+" "+siblingNode.itemData.name+"(s) at most");
 			return;
 		}
