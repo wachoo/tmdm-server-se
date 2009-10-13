@@ -360,7 +360,14 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						return false;
 					}
 				}
-				//TODO ADD MORE CASE
+				if(this.itemData.restrictions[i].name=="fractionDigits"){
+					if (isNaN(value))
+					{
+						errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+						return false;
+					}
+				}
 			}
 		}
 		this.itemData.value = value;

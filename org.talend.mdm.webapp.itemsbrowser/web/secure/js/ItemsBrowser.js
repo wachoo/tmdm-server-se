@@ -365,7 +365,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var uploadFileWindow;
 	//var errorDesc = "The item can not be saved, it contains error(s). See details below:";
 	var itemNodes = [];
-	
+	var map = [];
 	var sortIndex=0;
 	var sortUporDown="ASC";
 	var isUp = true;
@@ -1064,6 +1064,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		updateFlag[treeIndex] = 0;
 	
 		keys[treeIndex] = [];
+		map[treeIndex] = [];
 		if(dataObject==null) dataObject=_dataObject;
 		ItemsBrowserInterface.getRootNode(dataObject, language, function(rootNode){
 			
@@ -1078,9 +1079,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 				//update the div structure
 				var html =
-				   '<div id="errorDesc" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:25px;padding-top:5px"><img src="img/genericUI/errorstate.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
+				   '<div id="errorDesc'  + treeIndex + '" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:25px;padding-top:5px"><img src="img/genericUI/errorstate.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
 			             + errorDesc[language] + '</span></div>' +
-				    '<div id="errorDetail" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:65px"></div></br>'+
+				    '<div id="errorDetail' + treeIndex + '" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:65px"></div></br>'+
 					'<div>' +
 					'		<span id="itemDetails'+treeIndex+'" class="itemTree"></span>' +
 					'		<span id="smartView'+treeIndex+'" style="display=none;">'+smartView+'</span>' +
@@ -1143,6 +1144,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
     						itemNodes[i] = tmp;
+    						map[treeIndex][i] = tmp;
     					}
     					fnCallback();
         			});
@@ -1177,6 +1179,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
     						itemNodes[i] = tmp;
+    						map[treeIndex][i] = tmp;
     					}
     					fnCallback();
         			});
@@ -1307,23 +1310,23 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			keys[treeIndex][node.itemData.keyIndex] = value;
 		}
 		
-	    $('errorDetail').style.display = "none";
+	    $('errorDetail' + treeIndex).style.display = "none";
 	    
 		if(node.updateValue(value)==false){
 			ItemsBrowserInterface.updateNode(id, value, treeIndex, function() {
 						// amalto.core.ready();
 			
-			$('errorDesc').style.display = "block";
+			$('errorDesc' + treeIndex).style.display = "block";
 			return;
 					});
 		} 
 		else
 		{
-		    if (updateItemNodesBeforeSaving() == true) {
-				$('errorDesc').style.display = "block";
+		    if (updateItemNodesBeforeSaving(treeIndex) == true) {
+				$('errorDesc' + treeIndex).style.display = "block";
 			}
 			else
-			 $('errorDesc').style.display = "none";
+			 $('errorDesc' + treeIndex).style.display = "none";
 		}
 		
 		ItemsBrowserInterface.updateNode(id,value,treeIndex,function(result){
@@ -1434,13 +1437,18 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				 });
 	}
 	
-	function updateItemNodesBeforeSaving()
+	function updateItemNodesBeforeSaving(treeIndex)
 	{
+	  var nodes = map[treeIndex];
 	  var error = false;
-	  for (var i = 0; i < itemNodes.length; i++) {
-	  	var node = itemNodes[i];
-	  	if (node!=null&&node.update() == false)
-	  	   error = true;
+	  for (var i = 0; i < nodes.length; i++) {
+	  	var node = nodes[i];
+	  	if (node!=null && node instanceof amalto.itemsbrowser.ItemNode)
+	  	{
+	  		if (node.update() == false)
+	  		  error = true;
+	  	}
+	  	   
 	  }
 	  return error;
 	}
@@ -1450,14 +1458,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			updateNode(lastUpdatedInputFlag[treeIndex], treeIndex);
 		}
 		
-	    if (updateItemNodesBeforeSaving() == true) {
-			$('errorDesc').style.display = "block";
-			$('errorDetail').style.display = "none";
+	    if (updateItemNodesBeforeSaving(treeIndex) == true) {
+			$('errorDesc'+ treeIndex).style.display = "block";
+			$('errorDetail'+ treeIndex).style.display = "none";
 			return;
 		}
 		
-	    $('errorDesc').style.display = "none";
-	    $('errorDetail').style.display = "none";
+	    $('errorDesc'+ treeIndex).style.display = "none";
+	    $('errorDetail'+ treeIndex).style.display = "none";
 		ItemsBrowserInterface.checkIfDocumentExists(keys[treeIndex], dataObject, function(result){
 			if(result==true) {
 				if(!confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
@@ -1481,7 +1489,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			errorHandler:function(errorString, exception) {//on exception  
 //              alert(''+ errorString);
 				var error = itemTreeList[treeIndex];
-               $('errorDesc').style.display = "block";
+               $('errorDesc'+ treeIndex).style.display = "block";
                 var reCat = /\[Error\].*\n/gi;
                 var innerHml ="";
              	var arrMactches = errorString.match(reCat);
@@ -1494,8 +1502,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					}
 				else
 				 innerHml += errorString +'<br/>'
-				$('errorDetail').style.display = "block";
-				$('errorDetail').innerHTML = innerHml;
+				$('errorDetail' + treeIndex).style.display = "block";
+				$('errorDetail' + treeIndex).innerHTML = innerHml;
             }
            });
 			amalto.core.ready();
