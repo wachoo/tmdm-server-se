@@ -1346,6 +1346,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function cloneNode2(siblingId, hasIcon, treeIndex){
 		var itemTree = itemTreeList[treeIndex];
 		var siblingNode = itemTree.getNodeByIndex(siblingId);
+		//modified by ymli. If the Items is more than maxOccurs, alert and return
+		if(siblingNode.parent!=null && siblingNode.parent.children.length>=siblingNode.itemData.maxOccurs){
+			alert(siblingNode.itemData.maxOccurs+" "+siblingNode.itemData.name+"(s) at most");
+			return;
+		}
 		var nodeCount = YAHOO.widget.TreeView.nodeCount;
 	
 		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,false,true);
@@ -1385,6 +1390,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		if(Ext.get(id+"Value"))
 			value = DWRUtil.getValue(id+"Value");
 		var itemTree = itemTreeList[treeIndex];
+		//add by ymli
+		//modified by ymli. If the Items is less than minOccurs, alert and return
+		var node = itemTree.getNodeByIndex(id);
+		if(node.parent!=null && node.parent.children.length<=node.itemData.minOccurs){
+			alert(node.itemData.minOccurs+" "+node.itemData.name+"(s) at least");
+			return;
+		}
+		itemNodes.remove(itemTree.getNodeByIndex(id));
 		itemTree.removeNode(itemTree.getNodeByIndex(id),true);
 		ItemsBrowserInterface.removeNode(id,treeIndex, value,function(result){
 				amalto.core.ready(result);
@@ -1426,7 +1439,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	  var error = false;
 	  for (var i = 0; i < itemNodes.length; i++) {
 	  	var node = itemNodes[i];
-	  	if (node.update() == false)
+	  	if (node!=null&&node.update() == false)
 	  	   error = true;
 	  }
 	  return error;

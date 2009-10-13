@@ -78,7 +78,11 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		var cloneNodeImg = '';
 		var removeNodeImg = '';
 		var type='text'; //default is text
-		if((itemData.maxOccurs<0 || itemData.maxOccurs>1) && (itemData.readOnly==false)){
+		//modify by ymli. If itemData.parent is not readonly, it can be add or delete
+		var tmpStatusItems=true;
+				tmpStatusItems = (itemData.parent != null && itemData.parent.readOnly == false || itemData.readOnly==false) ;
+				
+		if((itemData.maxOccurs<0 || itemData.maxOccurs>1) && tmpStatusItems){
 			cloneNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.cloneNode2(\''+itemData.nodeId+'\',false,'+treeIndex+')">' +
 					' <img src="img/genericUI/add-element.gif"/></span>';
 			removeNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.removeNode2(\''+itemData.nodeId+'\','+treeIndex+')">' +
@@ -365,16 +369,18 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 
 	},
 	
-	resetErrorMessage: function(nodeId){
-		//var errorMessageDivId =nodeId+"ErrorMessage";
-        //if($(errorMessageDivId))$(errorMessageDivId).style.display = "none";
-		$(nodeId+"Value").style.border = "solid 1px";
-		if($(nodeId+"Value").readOnly){
-		    $(nodeId+"Value").style.background = "#F4F4F4";
-		}else{
-			$(nodeId+"Value").style.background = "";
+	resetErrorMessage : function(nodeId) {
+		// var errorMessageDivId =nodeId+"ErrorMessage";
+		// if($(errorMessageDivId))$(errorMessageDivId).style.display = "none";
+		if ($(nodeId + "Value") != null) {
+			$(nodeId + "Value").style.border = "solid 1px";
+			if ($(nodeId + "Value").readOnly) {
+				$(nodeId + "Value").style.background = "#F4F4F4";
+			} else {
+				$(nodeId + "Value").style.background = "";
+			}
+			$(nodeId + "ValidateBadge").style.display = "none";
 		}
-		$(nodeId+"ValidateBadge").style.display = "none";
 	},
 	
 	displayErrorMessage: function(nodeId,msg){

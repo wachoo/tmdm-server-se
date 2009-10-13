@@ -399,8 +399,11 @@ public class ItemsBrowserDWR {
     			XSParticle particle = xsp[j].getTerm().asElementDecl()
 						.getType().asComplexType().getContentType().asParticle();
     			idToParticle.put(nodeCount, particle);    	
-   			
+    			if(!treeNode.isReadOnly()){
+    				nodeAutorization.add(xpath);
+    			}
     			treeNode.setType("complex");
+    			
     			
     			xpathToTreeNode.put(xpath, treeNode);
     			if(maxOccurs<0 || maxOccurs>1){	//maxoccurs<0 is unbounded			
@@ -632,8 +635,11 @@ public class ItemsBrowserDWR {
 		}*/	
 
 		//TODO
+		
+		int i = xpath.lastIndexOf("/");
+		String subXpath = xpath.substring(0, i);
 		if(!nodeAutorization.contains(xpath) 
-				&& !nodeAutorization.contains(xpath.replaceAll("\\[.*\\]",""))){
+				&& !nodeAutorization.contains(xpath.replaceAll("\\[.*\\]",""))&&!nodeAutorization.contains(subXpath)){
 			return "Not authorized";
 		}
 		try {			
