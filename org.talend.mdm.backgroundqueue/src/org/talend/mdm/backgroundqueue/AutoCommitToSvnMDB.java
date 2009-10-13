@@ -17,6 +17,10 @@ import javax.naming.NamingException;
 
 import org.apache.log4j.Logger;
 
+import com.amalto.core.ejb.AutoCommitToSvnMsg;
+import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
+import com.amalto.core.util.Util;
+
 /**
  * @author achen
  * @ejb.bean        name="AutoCommitToSvnMDB"  
@@ -82,7 +86,8 @@ public class AutoCommitToSvnMDB implements MessageDrivenBean, MessageListener {
 		        try {
 		            TextMessage tm = (TextMessage) msg;
 		            Logger.getLogger(this.getClass()).info("AutoCommitToSvnMDB.onMessage, msg="+tm.getText());
-
+		            AutoCommitToSvnMsg msg1=AutoCommitToSvnMsg.unmarshal(tm.getText());
+		            Util.getVersioningSystemCtrlLocal().commitItem(new VersioningSystemPOJOPK(msg1.getVersionSystemPk()), msg1.getItemPk(), msg1.getComment());
 		            //Queue dest = (Queue) msg.getJMSReplyTo();
 		            //sendReply(text, dest);
 		        } catch(Throwable t) {

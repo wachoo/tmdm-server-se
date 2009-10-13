@@ -12,15 +12,21 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.jboss.injection.PojoInjector;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.amalto.core.ejb.local.AutoCommitToSvnSendBeanLocalHome;
+import com.amalto.core.ejb.local.AutoCommitToSvnSendBeanUtil;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
@@ -34,6 +40,8 @@ import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
+import com.amalto.core.objects.versioning.util.VersioningServiceCtrlLocalBI;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.JazzyConfiguration;
@@ -140,6 +148,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.facade-method 
      */
     public ItemPOJOPK putItem(ItemPOJO item, DataModelPOJO datamodel) throws XtentisException{
+    	
     	return putItem(item, (datamodel == null ? null : datamodel.getSchema()),(datamodel == null ? null : datamodel.getName()));
     }
     
@@ -193,7 +202,30 @@ public class ItemCtrl2Bean implements SessionBean {
         	//Store
             ItemPOJOPK pk = item.store();
             if (pk == null) throw new XtentisException("Could not put item "+Util.joinStrings(item.getItemIds(),".")+".Check the XML Server logs");
-                        
+            
+            //autocommittosvn?
+            try{
+	            //VersioningServiceCtrlLocalBI service=Util.getVersioningSystemCtrlLocal().setDefaultVersioningSystem(new VersioningSystemPOJOPK(ICoreConstants.DEFAULT_SVN));
+    			Object service= 
+    				Util.retrieveComponent(
+    					null, 
+    					"amalto/local/service/svn"
+    				);
+
+    			Boolean isauto = (Boolean)
+    				Util.getMethod(service, "isAutocommittosvn").invoke(
+    					service,
+    					new Object[] {}
+    				);            	
+	            if(isauto){
+	            	//TODO
+	            	AutoCommitToSvnMsg msg=new AutoCommitToSvnMsg(ICoreConstants.DEFAULT_SVN, item.getItemPOJOPK(),"item autocommittosvn");
+	            	AutoCommitToSvnSendBeanLocalHome h=(AutoCommitToSvnSendBeanLocalHome) Util.getLocalHome("amalto/local/core/autocommittosvnsend");
+	            	h.create().sendMsg(msg.marshal());
+	            }   
+	            }catch(Exception e){
+            	e.printStackTrace();
+            }
             return pk;
 	    } catch (XtentisException e) {
 	    	throw(e);

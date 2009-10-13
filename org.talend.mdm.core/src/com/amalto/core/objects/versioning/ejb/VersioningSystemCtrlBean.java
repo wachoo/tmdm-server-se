@@ -333,14 +333,18 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 						pojo.getName(),
 						pojo.getUrl(), 
 						pojo.getUsername(), 
-						pojo.getPassword()
+						pojo.getPassword(),
+						pojo.getAutocommit()
+
 				); 
 			}else {
 				service.setCurrentVersioningSystemConfiguration(
 					"[DEFAULT]",
 					DEFAULT_URL, 
 					DEFAULT_USERNAME, 
-					DEFAULT_PASSWORD
+					DEFAULT_PASSWORD,
+					"false"
+
 				);
 			}
 			

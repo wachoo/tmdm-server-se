@@ -17,7 +17,7 @@ public class VersioningSystemPOJO extends ObjectPOJO{
     private String url;
     private String username;
     private String password;
-    
+    private String autocommit="false";
     
     /**
      * 
@@ -28,7 +28,7 @@ public class VersioningSystemPOJO extends ObjectPOJO{
     
 
 	
-	public VersioningSystemPOJO(String name, String jndi, String description, String url, String username, String password) {
+	public VersioningSystemPOJO(String name, String jndi, String description, String url, String username, String password, String autocommit) {
 		super();
 		this.name = name;
 		this.jndi = jndi;
@@ -36,6 +36,19 @@ public class VersioningSystemPOJO extends ObjectPOJO{
 		this.url = url;
 		this.username = username;
 		this.password = password;
+		this.autocommit=autocommit;
+	}
+
+
+
+	public String getAutocommit() {
+		return autocommit;
+	}
+
+
+
+	public void setAutocommit(String autocommit) {
+		this.autocommit = autocommit;
 	}
 
 

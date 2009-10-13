@@ -55,7 +55,7 @@ public interface VersioningServiceCtrlLocalBI   extends ServiceCtrlLocalBI
     * Sets the default/current versioning system configuration
     * @throws XtentisException
     */
-   public void setCurrentVersioningSystemConfiguration( java.lang.String name,java.lang.String url,java.lang.String username,java.lang.String password ) throws com.amalto.core.util.XtentisException;
+   public void setCurrentVersioningSystemConfiguration( java.lang.String name,java.lang.String url,java.lang.String username,java.lang.String password ,String autocommit) throws com.amalto.core.util.XtentisException;
 
    /**
     * Get instances name for a particular cluster and a particular tag
@@ -91,4 +91,11 @@ public interface VersioningServiceCtrlLocalBI   extends ServiceCtrlLocalBI
      * Can be null
      */
     public String getDefaultConfiguration() throws XtentisException;
+    
+    /**
+     * if true : putItem will invoke commit the item to svn
+     * @return
+     * @throws XtentisException
+     */
+    public boolean isAutocommittosvn()throws XtentisException;
    }

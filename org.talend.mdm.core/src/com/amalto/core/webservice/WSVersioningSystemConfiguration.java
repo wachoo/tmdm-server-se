@@ -12,16 +12,20 @@ public class WSVersioningSystemConfiguration {
     protected java.lang.String url;
     protected java.lang.String username;
     protected java.lang.String password;
+    protected java.lang.String autocommit;
+    protected java.lang.String jndi;
     
     public WSVersioningSystemConfiguration() {
     }
     
-    public WSVersioningSystemConfiguration(java.lang.String name, java.lang.String description, java.lang.String url, java.lang.String username, java.lang.String password) {
+    public WSVersioningSystemConfiguration(java.lang.String name, java.lang.String description, java.lang.String url, java.lang.String username, java.lang.String password, java.lang.String autocommit, java.lang.String jndi) {
         this.name = name;
         this.description = description;
         this.url = url;
         this.username = username;
         this.password = password;
+        this.autocommit = autocommit;
+        this.jndi = jndi;
     }
     
     public java.lang.String getName() {
@@ -62,5 +66,21 @@ public class WSVersioningSystemConfiguration {
     
     public void setPassword(java.lang.String password) {
         this.password = password;
+    }
+    
+    public java.lang.String getAutocommit() {
+        return autocommit;
+    }
+    
+    public void setAutocommit(java.lang.String autocommit) {
+        this.autocommit = autocommit;
+    }
+    
+    public java.lang.String getJndi() {
+        return jndi;
+    }
+    
+    public void setJndi(java.lang.String jndi) {
+        this.jndi = jndi;
     }
 }

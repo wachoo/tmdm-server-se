@@ -216,6 +216,8 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSVersioningObjectsVersions versioningGetObjectsVersions(com.amalto.webapp.util.webservices.WSVersioningGetObjectsVersions wsVersioningGetObjectsVersions) throws 
          java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSVersioningUniverseVersions versioningGetUniverseVersions(com.amalto.webapp.util.webservices.WSVersioningGetUniverseVersions wsVersioningGetUniverseVersions) throws 
+         java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSVersioningSystemConfiguration getVersioningSystemConfiguration(com.amalto.webapp.util.webservices.WSGetVersioningSystemConfiguration wsGetVersioningSystemConfiguration) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSString putVersioningSystemConfiguration(com.amalto.webapp.util.webservices.WSPutVersioningSystemConfiguration wsPutVersioningSystemConfiguration) throws 
@@ -223,6 +225,8 @@ public interface XtentisPort extends java.rmi.Remote {
     public com.amalto.webapp.util.webservices.WSVersioningInfo versioningGetInfo(com.amalto.webapp.util.webservices.WSVersioningGetInfo wsVersioningGetInfo) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSBackgroundJobPK versioningTagObjects(com.amalto.webapp.util.webservices.WSVersioningTagObjects wsVersioningTagObjects) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSBackgroundJobPK versioningTagUniverse(com.amalto.webapp.util.webservices.WSVersioningTagUniverse wsVersioningTagUniverse) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSBackgroundJobPK versioningTagItems(com.amalto.webapp.util.webservices.WSVersioningTagItems wsVersioningTagItems) throws 
          java.rmi.RemoteException;
@@ -322,6 +326,6 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSMDMConfig getMDMConfiguration() throws 
          java.rmi.RemoteException;
-    public com.amalto.webapp.util.webservices.WSCheckServiceConfigResponse checkServiceConfig(com.amalto.webapp.util.webservices.WSCheckServiceConfigRequest wsCheckServiceConfigRequest) throws 
+    public com.amalto.webapp.util.webservices.WSCheckServiceConfigResponse checkServiceConfiguration(com.amalto.webapp.util.webservices.WSCheckServiceConfigRequest serviceName) throws 
          java.rmi.RemoteException;
 }

@@ -135,6 +135,6 @@ public abstract class VersioningServiceCtrlBean extends ServiceCtrlBean implemen
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public abstract void setCurrentVersioningSystemConfiguration(String name, String url, String username, String password) throws XtentisException;
+    public abstract void setCurrentVersioningSystemConfiguration(String name, String url, String username, String password,String autocommit) throws XtentisException;
     
 }

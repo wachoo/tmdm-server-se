@@ -183,7 +183,7 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
 		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='url' type='xsd:string'/>" +	
 		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='username' type='xsd:string'/>" +
 		"					<xsd:element minOccurs='1' maxOccurs='1' nillable='false' name='password' type='xsd:string'/>" +
-		"					<xsd:element minOccurs='0' maxOccurs='1' nillable='true' name='autocommittosvn' type='xsd:boolean'/>" +
+		"					<xsd:element minOccurs='0' maxOccurs='1' nillable='true' name='autocommit' type='xsd:boolean'/>" +
 		"				</xsd:all>" +
 		"			</xsd:complexType>" +
 		"</xsd:element>"+
@@ -422,7 +422,7 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
     		config.setUrl("http://192.168.0.188/");
     		config.setPassword("b2box");
     		config.setUsername("b2box");
-    		config.setAutocommittosvn("false");
+    		config.setAutocommit("false");
     		return config.serialize();
     	} catch (XtentisException e) {
     		throw(e);
@@ -630,13 +630,12 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
-    public void setCurrentVersioningSystemConfiguration(String name, String url, String username, String password) throws XtentisException {
-		SvnConfiguration config = new SvnConfiguration();
-
+    public void setCurrentVersioningSystemConfiguration(String name, String url, String username, String password,String autocommit) throws XtentisException {
+		SvnConfiguration config = new SvnConfiguration();		
 		config.setUrl(url);
 		config.setPassword(username);
 		config.setUsername(password);
-
+		config.setAutocommit(autocommit);
 		putConfiguration(config.serialize());
 
 		new SvnHandler(getConfigurationLocal()).start();
@@ -730,6 +729,19 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
 		//		getHistory
 		//		getVersions
 		return null;
+	}
+
+    /**
+     * is autocommitto svn
+     *
+     * @throws EJBException
+     *
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     */
+	public boolean isAutocommittosvn() throws XtentisException {
+		getConfiguration(null);
+		return Boolean.valueOf(configuration.autocommit);		
 	}
 
 }

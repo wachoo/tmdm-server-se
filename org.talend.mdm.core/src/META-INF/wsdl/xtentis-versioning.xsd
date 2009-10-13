@@ -16,13 +16,15 @@
 				A versioning system configuration
 			</xsd:documentation>
 		</xsd:annotation>				
-		<xsd:sequence>
+		<xsd:all>
 			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
 			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
 			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="url" type="xsd:string"/>
 			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="username" type="xsd:string"/>
 			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="password" type="xsd:string"/>
-		</xsd:sequence>		
+			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="autocommit" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="jndi" type="xsd:string"/>
+		</xsd:all>		
 	</xsd:complexType>
 	<xsd:element name="WSVersioningSystemConfiguration" type="tns:WSVersioningSystemConfiguration"/>
 	

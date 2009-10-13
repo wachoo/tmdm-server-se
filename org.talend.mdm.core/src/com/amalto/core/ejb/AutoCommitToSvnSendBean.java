@@ -50,23 +50,8 @@ public class AutoCommitToSvnSendBean implements SessionBean {
     Queue que;
     
     public AutoCommitToSvnSendBean(){
-    	//setup queue 
-    	try {
-			setupPTP();
-		} catch (Exception e1) {
-			Logger.getLogger(this.getClass()).error("AutoCommitToSvnSend Queue session start faild: " + e1.getMessage());
-		}
-		//stop queue when system shutdown
-    	Runtime.getRuntime().addShutdownHook(new Thread(){
-    		@Override
-    		public void run() {
-    			try {
-					stopConn();
-				} catch (JMSException e) {
-					Logger.getLogger(AutoCommitToSvnSendBean.class).error("AutoCommitToSvnSend Queue session stop faild: " + e.getMessage());
-				}
-    		}
-    	});
+
+
     }
 	public void ejbActivate() throws EJBException, RemoteException {
 		// TODO Auto-generated method stub
@@ -94,7 +79,23 @@ public class AutoCommitToSvnSendBean implements SessionBean {
      * @ejb.create-method  view-type = "local"
      */
     public void ejbCreate() throws javax.ejb.CreateException {
-    	
+    	//setup queue 
+    	try {
+			setupPTP();
+		} catch (Exception e1) {
+			Logger.getLogger(this.getClass()).error("AutoCommitToSvnSend Queue session start faild: " + e1.getMessage());
+		}
+		//stop queue when system shutdown
+    	Runtime.getRuntime().addShutdownHook(new Thread(){
+    		@Override
+    		public void run() {
+    			try {
+					stopConn();
+				} catch (JMSException e) {
+					Logger.getLogger(AutoCommitToSvnSendBean.class).error("AutoCommitToSvnSend Queue session stop faild: " + e.getMessage());
+				}
+    		}
+    	});		
     }
    	    
     /**

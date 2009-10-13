@@ -4448,7 +4448,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		 try {
 			  WSVersioningSystemConfiguration conf=wsPutVersioningSystemConfiguration.getVersioningSystemConfiguration();
 			  VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
-			  VersioningSystemPOJO pojo=new VersioningSystemPOJO(conf.getName(),null,conf.getDescription(),conf.getUrl(),conf.getUsername(),conf.getPassword());
+			  VersioningSystemPOJO pojo=new VersioningSystemPOJO(conf.getName(),conf.getJndi(),conf.getDescription(),conf.getUrl(),conf.getUsername(),conf.getPassword(),conf.getAutocommit());
 			  VersioningSystemPOJOPK pk=ctrl.putVersioningSystem(pojo);
 			  return new WSString(pk.getUniqueId());
 		} catch (Exception e) {

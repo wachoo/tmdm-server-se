@@ -14,11 +14,10 @@ import com.amalto.core.util.XtentisException;
 
 public class SvnConfiguration implements Serializable {
 
-
 	public String url;
 	public String username;
 	public String password;
-	public String autocommittosvn="false";
+	public String autocommit="false";
 	public SvnConfiguration() {
 		super();
 //		FileSystemListenerConfiguration fsl = new FileSystemListenerConfiguration();
@@ -38,11 +37,11 @@ public class SvnConfiguration implements Serializable {
 		return password;
 	}
 
-	public String getAutocommittosvn() {
-		return autocommittosvn;
+	public String getAutocommit() {
+		return autocommit;
 	}
-	public void setAutocommittosvn(String autocommittosvn) {
-		this.autocommittosvn = autocommittosvn;
+	public void setAutocommit(String autocommit) {
+		this.autocommit = autocommit;
 	}
 	public void setPassword(String password) {
 		this.password = password;

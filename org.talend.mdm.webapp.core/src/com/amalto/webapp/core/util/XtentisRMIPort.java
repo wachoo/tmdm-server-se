@@ -2660,7 +2660,7 @@ public class XtentisRMIPort implements XtentisPort {
 		 try {
 			  WSVersioningSystemConfiguration conf=wsPutVersioningSystemConfiguration.getVersioningSystemConfiguration();
 			  VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
-			  VersioningSystemPOJO pojo=new VersioningSystemPOJO(conf.getName(),null,conf.getDescription(),conf.getUrl(),conf.getUsername(),conf.getPassword());
+			  VersioningSystemPOJO pojo=new VersioningSystemPOJO(conf.getName(),conf.getJndi(),conf.getDescription(),conf.getUrl(),conf.getUsername(),conf.getPassword(),conf.getAutocommit());
 			  VersioningSystemPOJOPK pk=ctrl.putVersioningSystem(pojo);
 			  return new WSString(pk.getUniqueId());
 		} catch (Exception e) {
@@ -3869,6 +3869,32 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSUniversePKArray getUniverseByRevision(
 			WSGetUniverseByRevision wsUniverseByRevision)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSCheckServiceConfigResponse checkServiceConfiguration(
+			WSCheckServiceConfigRequest serviceName) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSVersioningUniverseVersions versioningGetUniverseVersions(
+			WSVersioningGetUniverseVersions wsVersioningGetUniverseVersions)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSBackgroundJobPK versioningTagUniverse(
+			WSVersioningTagUniverse wsVersioningTagUniverse)
 			throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;

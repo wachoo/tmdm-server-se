@@ -2261,6 +2261,14 @@
 <java-variable-name>password</java-variable-name>
 <xml-element-name>password</xml-element-name>
 </variable-mapping>
+<variable-mapping>
+<java-variable-name>autocommit</java-variable-name>
+<xml-element-name>autocommit</xml-element-name>
+</variable-mapping>
+<variable-mapping>
+<java-variable-name>jndi</java-variable-name>
+<xml-element-name>jndi</xml-element-name>
+</variable-mapping>
 </java-xml-type-mapping>
 <java-xml-type-mapping>
 <java-type>com.amalto.core.webservice.WSPipelineTypedContentEntry</java-type>
