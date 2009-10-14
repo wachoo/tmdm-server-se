@@ -1810,13 +1810,13 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 	private void resetItemsCache() {
 		//FIXME:cost expensive
 		org.apache.log4j.Logger.getLogger(this.getClass()).debug("Cleanning item(s) cache...");
-		ItemPOJO.clearCache();
+		//ItemPOJO.clearCache();
 	}
 	
 	private void resetObjectsCache() {
 		//FIXME:cost expensive
 		org.apache.log4j.Logger.getLogger(this.getClass()).debug("Cleanning object(s) cache...");
-		ObjectPOJO.clearCache();
+		//ObjectPOJO.clearCache();
 	}
     
     /**

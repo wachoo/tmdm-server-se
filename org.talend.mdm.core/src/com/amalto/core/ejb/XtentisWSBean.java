@@ -2191,8 +2191,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 					wsRunQuery.getParameters()
 				);
 			//storeprocedure may modify the db, so we need to clear the cache
-			ItemPOJO.clearCache();
-			ObjectPOJO.clearCache();
+			Util.getXmlServerCtrlLocal().clearCache();
 			return new WSStringArray(result.toArray(new String[result.size()]));
 		} catch (XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));				
@@ -6455,5 +6454,5 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	}
 
 
-
+	
 }

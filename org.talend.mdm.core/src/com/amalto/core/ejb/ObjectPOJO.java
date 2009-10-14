@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -19,6 +18,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.talend.mdm.commmon.util.time.TimeMeasure;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -44,7 +44,6 @@ import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.util.BAMLogger;
-import com.amalto.core.util.ItemCacheKey;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -59,7 +58,7 @@ import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 public abstract class ObjectPOJO implements Serializable{
    
 	/* cached the Object pojos to improve performance*/
-	private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();	
+	//private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();	
 	public static String getCluster(Class<? extends ObjectPOJO> objectClass) {
 		return getCluster(objectClass.getName());
 	}
@@ -294,7 +293,6 @@ public abstract class ObjectPOJO implements Serializable{
     	org.apache.log4j.Logger.getLogger(ObjectPOJO.class).trace("load() "+revisionID+"/"+objectClass+" ["+objectPOJOPK.getUniqueId()+"]");
     	
         try {
-            
             //get the xml server wrapper
             XmlServerSLWrapperLocal server =Util.getXmlServerCtrlLocal();
 
@@ -303,15 +301,15 @@ public abstract class ObjectPOJO implements Serializable{
             //retrieve the item
             String urlid =  objectPOJOPK.getUniqueId();
             String item=null;
-            ItemCacheKey key =new ItemCacheKey(revisionID,urlid, getCluster(objectClass));
-            if(cachedPojo.size()==5000)cachedPojo.clear();
-            if(cachedPojo.containsKey(key)){
-            	item=cachedPojo.get(key);            	
-            }else{
+//            ItemCacheKey key =new ItemCacheKey(revisionID,urlid, getCluster(objectClass));
+//            if(cachedPojo.size()==5000)cachedPojo.clear();
+//            if(cachedPojo.containsKey(key)){
+//            	item=cachedPojo.get(key);            	
+//            }else{
             	item = server.getDocumentAsString(revisionID, getCluster(objectClass), urlid, null);
-            	if(item!=null)
-            	cachedPojo.put(key, item);
-            }
+//            	if(item!=null)
+//            	cachedPojo.put(key, item);
+//            }
                                     
             if (item==null) {
                 return null;
@@ -401,8 +399,8 @@ public abstract class ObjectPOJO implements Serializable{
             if (res==-1) return null;
             
             //remove the cache
-            ItemCacheKey key =new ItemCacheKey(revisionID,objectPOJOPK.getUniqueId(), getCluster(objectClass));
-            cachedPojo.remove(key);
+            //ItemCacheKey key =new ItemCacheKey(revisionID,objectPOJOPK.getUniqueId(), getCluster(objectClass));
+            //cachedPojo.remove(key);
             return objectPOJOPK;
             
     	} catch (XtentisException e) {
@@ -508,8 +506,8 @@ public abstract class ObjectPOJO implements Serializable{
             	
             setLastError("");
             //update the cache
-            ItemCacheKey key =new ItemCacheKey(revisionID,getPK().getUniqueId(), getCluster(this.getClass()));            
-            cachedPojo.put(key, sw.toString());
+            //ItemCacheKey key =new ItemCacheKey(revisionID,getPK().getUniqueId(), getCluster(this.getClass()));            
+            //cachedPojo.put(key, sw.toString());
             return getPK();
     	} catch (XtentisException e) {
     		throw(e);
@@ -942,7 +940,7 @@ public abstract class ObjectPOJO implements Serializable{
         } 
     }
     
-    public static void clearCache(){
-    	cachedPojo.clear();
-    }
+//    public static void clearCache(){
+//    	//cachedPojo.clear();
+//    }
 }

@@ -5,13 +5,11 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.ejb.EJBException;
-import javax.naming.InitialContext;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.exolab.castor.xml.Marshaller;
@@ -22,14 +20,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.util.ItemCacheKey;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -53,7 +49,7 @@ public class ItemPOJO implements Serializable{
     private Element projection;
     
 	/* cached the Object pojos to improve performance*/
-	private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();	
+	//private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();	
 
     /**
      * 
@@ -331,18 +327,18 @@ public class ItemPOJO implements Serializable{
         try {
               //retrieve the item
             String urlid =getFilename(itemPOJOPK); 
-            ItemCacheKey key =new ItemCacheKey(revisionID,urlid, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+//            ItemCacheKey key =new ItemCacheKey(revisionID,urlid, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
             String item=null;
             //the cache max size is 5000                        
-            if(cachedPojo.size()==5000){
-            	cachedPojo.clear();
-            }
-            if(cachedPojo.containsKey(key)){
-            	item=cachedPojo.get(key);
-            }else{
+//            if(cachedPojo.size()==5000){
+//            	cachedPojo.clear();
+//            }
+//            if(cachedPojo.containsKey(key)){
+//            	item=cachedPojo.get(key);
+//            }else{
             	item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), urlid);
-            	if(item!=null)cachedPojo.put(key, item);
-            }
+//            	if(item!=null)cachedPojo.put(key, item);
+//            }
                                     
             if (item==null) {
                 return null;
@@ -443,8 +439,8 @@ public class ItemPOJO implements Serializable{
             		getFilename(itemPOJOPK)
             );
             if (res==-1) return null;
-            ItemCacheKey key =new ItemCacheKey(revisionID,getFilename(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
-            cachedPojo.remove(key);
+//            ItemCacheKey key =new ItemCacheKey(revisionID,getFilename(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+            //cachedPojo.remove(key);
             return itemPOJOPK;
             
 	    } catch (Exception e) {
@@ -712,8 +708,8 @@ public class ItemPOJO implements Serializable{
             	))
             	return null;
             //update the cache
-    		ItemCacheKey key =new ItemCacheKey(revisionID,getFilename(getItemPOJOPK()), getDataClusterPOJOPK().getUniqueId());
-    		cachedPojo.put(key, xml);                       
+//    		ItemCacheKey key =new ItemCacheKey(revisionID,getFilename(getItemPOJOPK()), getDataClusterPOJOPK().getUniqueId());
+    		//cachedPojo.put(key, xml);                       
             return getItemPOJOPK();
 	    } catch (Exception e) {
     	    String err = "Unable to store the item "+getItemPOJOPK().getUniqueID()
@@ -922,7 +918,7 @@ public class ItemPOJO implements Serializable{
 		return schema;
 	}
     
-    public static void clearCache(){
-    	cachedPojo.clear();
-    }
+//    public static void clearCache(){
+//    	//cachedPojo.clear();
+//    }
 }

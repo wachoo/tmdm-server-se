@@ -5,7 +5,7 @@ package com.amalto.core.ejb.remote;
 
 /**
  * Remote interface for XmlServerSLWrapper.
- * @xdoclet-generated at 13-10-09
+ * @xdoclet-generated at 14-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -25,6 +25,12 @@ public interface XmlServerSLWrapper
     * @return the list of cluster IDs
     */
    public java.lang.String[] getAllClusters( java.lang.String revisionID )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
+    * clear the item cache
+    */
+   public void clearCache(  )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**

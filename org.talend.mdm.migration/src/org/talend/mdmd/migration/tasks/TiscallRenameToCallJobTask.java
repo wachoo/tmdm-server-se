@@ -2,8 +2,6 @@ package org.talend.mdmd.migration.tasks;
 
 import org.talend.mdmd.migration.AbstractMigrationTask;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 

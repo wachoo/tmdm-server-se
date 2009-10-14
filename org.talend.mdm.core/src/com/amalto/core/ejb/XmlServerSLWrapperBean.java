@@ -191,7 +191,15 @@ public class XmlServerSLWrapperBean implements SessionBean {
 			throw new XtentisException(e.getMessage());
 		}
 	}
-
+	/**
+	 * clear the item cache
+	 * @ejb.interface-method view-type = "both"
+	 * @ejb.facade-method
+	 */
+	public void clearCache() throws XtentisException {		
+		server.clearCache();
+	}
+	
 	/**
 	 * Delete a cluster for particular revision
 	 * @param revisionID

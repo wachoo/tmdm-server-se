@@ -487,5 +487,9 @@ public interface IXmlServerSLWrapper {
 	 */
 	public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters) throws XmlServerException;
 	
+	/**
+	 * clear the item cache
+	 */
+	public void clearCache();
 
 }

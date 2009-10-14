@@ -5,7 +5,7 @@ package com.amalto.core.ejb.local;
 
 /**
  * Local home interface for ItemCtrl2.
- * @xdoclet-generated at 13-10-09
+ * @xdoclet-generated at 14-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

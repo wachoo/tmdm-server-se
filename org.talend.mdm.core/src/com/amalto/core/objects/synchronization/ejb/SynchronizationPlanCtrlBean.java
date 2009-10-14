@@ -1325,6 +1325,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     	
     }
     /**
+     * @deprecated
      * Using Xquery to do items sync for alogrithm is Local Wins or Remote Wins
      * @param line
      * @param remotePort
@@ -1353,7 +1354,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     		//put update report
     		putUpdateReportItems(docIds, line, remotePort);
     		//clear cache
-    		ItemPOJO.clearCache();
+    		//ItemPOJO.clearCache();
     	}
     	if(SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
     		//check if revision exists
@@ -1420,6 +1421,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     }
     	    
     /**
+     * @deprecated
      * Using Xquery to do objects sync
      * @param objectName
      * @param line
@@ -1450,7 +1452,7 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     		//do sync
     		Util.getXmlServerCtrlLocal().runQuery(line.getSourceRevisionID(), db, xquery, null);
     		//clear cache
-    		ObjectPOJO.clearCache();
+    		//ObjectPOJO.clearCache();
     	}
     	if(SynchronizationPlanPOJO.REMOTE_WINS.equalsIgnoreCase(line.getAlgorithm())){
     		if(!(line.getSourceRevisionID()==null || line.getSourceRevisionID().length()==0)){ //revision is not HEAD
@@ -1466,7 +1468,6 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     
     /**
      * Synchronizes two objects using a particular conflict resolution algorithm
-     * @deprecated
      * @param plan
      * @param remotePort
      * @param planCtrl

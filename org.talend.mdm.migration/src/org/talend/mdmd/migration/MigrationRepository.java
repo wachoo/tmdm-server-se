@@ -86,8 +86,7 @@ public class MigrationRepository{
 		}*/
 		
 		//clear the cache objects
-		ItemPOJO.clearCache();
-		ObjectPOJO.clearCache();
+		_server.clearCache();
 	  }
 	  isExeuted=true;
   }

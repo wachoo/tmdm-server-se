@@ -5,7 +5,7 @@ package com.amalto.core.objects.menu.ejb.local;
 
 /**
  * Local interface for MenuCtrl.
- * @xdoclet-generated at 13-10-09
+ * @xdoclet-generated at 14-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
