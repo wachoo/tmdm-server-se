@@ -173,7 +173,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 				animate : "true",
 				height : 300,
 				title : "Display Panel",
-				loader : new Ext.tree.TreeLoader({
+				loader : this.hierarchicalTreeLoader = new Ext.tree.TreeLoader({
 					dataUrl : "/hierarchical/secure/HierarchicalTreeLoadServlet"
 				}),
 				root : new Ext.tree.AsyncTreeNode({
@@ -225,6 +225,13 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 	                       }
 			}
 		);
+		
+		this.hierarchicalTreeLoader.on('loadexception', function(loader, node, response)
+		    {
+    		    alert(response.responseText);
+    		    return false;
+		    } 
+		,this);
 
 		Ext.apply(this, {
 			title : "Hierarchical View Display",

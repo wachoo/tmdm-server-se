@@ -128,7 +128,7 @@ public class HierarchicalUtil {
 		return xpathToLabel;
 	}
 
-	public static  String[] getHierarchicalTreeView(String dataObjectName,String pivotPath, String titleFieldPath, FilterItem[] filters,String[] pivotDirections, String[] indexDirections, int limit) {
+	public static  String[] getHierarchicalTreeView(String dataObjectName,String pivotPath, String titleFieldPath, FilterItem[] filters,String[] pivotDirections, String[] indexDirections, int limit) throws Exception {
 		Configuration config = null;
 		try {
 			config = Configuration.getInstance();
@@ -141,7 +141,7 @@ public class HierarchicalUtil {
 	
 	
 	public static  String[] getHierarchicalTreeView(String dataClusterName,String dataObjectName,
-			String pivotPath, String titleFieldPath, FilterItem[] filters,String[] pivotDirections, String[] indexDirections, int limit) {
+			String pivotPath, String titleFieldPath, FilterItem[] filters,String[] pivotDirections, String[] indexDirections, int limit) throws Exception{
 
 		String[] result = null;
 
@@ -225,6 +225,7 @@ public class HierarchicalUtil {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw new Exception(e);
 		}
 
 		return result;

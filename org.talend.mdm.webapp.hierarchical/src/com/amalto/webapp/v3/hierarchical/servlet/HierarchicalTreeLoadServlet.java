@@ -33,120 +33,106 @@ public class HierarchicalTreeLoadServlet extends HttpServlet{
 		String jsonTree="";
 		
 		HierarchicalTreeCriterion hierarchicalTreeCriterion=(HierarchicalTreeCriterion) req.getSession().getAttribute(HierarchicalUtil.HIERARCHICAL_TREE_CRITERION);
-		if(hierarchicalTreeCriterion!=null){
-			try {
-				JSONObject json = new JSONObject();
-				ArrayList<JSONObject> rootGroup = new ArrayList<JSONObject>();
-				JSONObject lastL0PivotNode=null;
-				JSONObject lastL1PivotNode=null;
-				String[] results=HierarchicalUtil.getHierarchicalTreeView(
-						hierarchicalTreeCriterion.getClusterName(),
-						hierarchicalTreeCriterion.getDataObjectName(), 
-						hierarchicalTreeCriterion.getPivotPath(), 
-						hierarchicalTreeCriterion.getTitleFieldPath(), 
-						hierarchicalTreeCriterion.getFilters(),
-						hierarchicalTreeCriterion.getPivotDirections(),
-						hierarchicalTreeCriterion.getIndexDirections(),
-						hierarchicalTreeCriterion.getLimit());
-				for (int i = 0; i < results.length; i++) {
-					//parse each path
-					String result=results[i];
-					if(result!=null&&result.length()>0){
-						
-						Document doc=Util.parse(result);
-						
-						//TODO WE only support two level at most now, so just hard code here
-						
-						//pivot
-						List pivotTags=hierarchicalTreeCriterion.parsePivotTagOrderList();
-						//title
-						String titleTag=(String) hierarchicalTreeCriterion.parseTitleTag().get(0);//TODO Maybe it's a list further
-						String titleValue=Util.getFirstTextNode(doc, "/result/"+titleTag);
-						//keys
-						String keys="";
-						List keyTags=hierarchicalTreeCriterion.parseKeysTagList();
-						for (int j = 0; j < keyTags.size(); j++) {
-							String keyTag=(String) keyTags.get(j);
-							String keyValue=Util.getFirstTextNode(doc, "/result/"+keyTag);
-							keys+=("."+keyValue);
-						}
-						keys=keys.substring(1);
-						
-						if(pivotTags.size()==1){
+		
+		try {
+			
+			if(hierarchicalTreeCriterion!=null){
+				
+					JSONObject json = new JSONObject();
+					ArrayList<JSONObject> rootGroup = new ArrayList<JSONObject>();
+					JSONObject lastL0PivotNode=null;
+					JSONObject lastL1PivotNode=null;
+					String[] results=HierarchicalUtil.getHierarchicalTreeView(
+							hierarchicalTreeCriterion.getClusterName(),
+							hierarchicalTreeCriterion.getDataObjectName(), 
+							hierarchicalTreeCriterion.getPivotPath(), 
+							hierarchicalTreeCriterion.getTitleFieldPath(), 
+							hierarchicalTreeCriterion.getFilters(),
+							hierarchicalTreeCriterion.getPivotDirections(),
+							hierarchicalTreeCriterion.getIndexDirections(),
+							hierarchicalTreeCriterion.getLimit());
+					for (int i = 0; i < results.length; i++) {
+						//parse each path
+						String result=results[i];
+						if(result!=null&&result.length()>0){
 							
-							JSONObject titleNode = new JSONObject();
-							titleNode.put("id", keys);
-							titleNode.put("text", titleValue);
-							titleNode.put("leaf", true);
-							titleNode.put("type", "t0");
-							titleNode.put("draggable", true);
-							titleNode.put("allowDrop", false);
-							titleNode.put("xpath", hierarchicalTreeCriterion.parsePivotMainPath());
+							Document doc=Util.parse(result);
 							
-							String l0PivotTag=(String) pivotTags.get(0);
-							String l0PivotText=Util.getFirstTextNode(doc, "/result/"+l0PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/"+l0PivotTag);
-							if(lastL0PivotNode==null||!l0PivotText.equals((String)lastL0PivotNode.get("text"))){
-								JSONObject pivotL0Node = new JSONObject();
-								pivotL0Node.put("id", System.currentTimeMillis()+"");
-								pivotL0Node.put("text", l0PivotText);
-								pivotL0Node.put("leaf", false);
-								pivotL0Node.put("type", "p0");
-								pivotL0Node.put("draggable", false);
-								pivotL0Node.put("allowDrop", true); 
-								rootGroup.add(pivotL0Node);
-								lastL0PivotNode=pivotL0Node;
-								
-								pivotL0Node.put("children", new JSONArray().put(titleNode));
-							}else{
-								JSONArray titleNodes=lastL0PivotNode.getJSONArray("children");
-								titleNodes.put(titleNode);
-								lastL0PivotNode.put("children", titleNodes);
+							//TODO WE only support two level at most now, so just hard code here
+							
+							//pivot
+							List pivotTags=hierarchicalTreeCriterion.parsePivotTagOrderList();
+							//title
+							String titleTag=(String) hierarchicalTreeCriterion.parseTitleTag().get(0);//TODO Maybe it's a list further
+							String titleValue=Util.getFirstTextNode(doc, "/result/"+titleTag);
+							//keys
+							String keys="";
+							List keyTags=hierarchicalTreeCriterion.parseKeysTagList();
+							for (int j = 0; j < keyTags.size(); j++) {
+								String keyTag=(String) keyTags.get(j);
+								String keyValue=Util.getFirstTextNode(doc, "/result/"+keyTag);
+								keys+=("."+keyValue);
 							}
+							keys=keys.substring(1);
 							
-						}else if(pivotTags.size()==2){
-							
-							JSONObject titleNode = new JSONObject();
-							titleNode.put("id", keys);
-							titleNode.put("text", titleValue);
-							titleNode.put("leaf", true);
-							titleNode.put("type", "t0");
-							titleNode.put("draggable", true);
-							titleNode.put("allowDrop", false);
-							titleNode.put("xpath", hierarchicalTreeCriterion.parsePivotMainPath());
-							
-							String l1PivotTag=(String) pivotTags.get(1);
-							String l1PivotText=Util.getFirstTextNode(doc, "/result/"+l1PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/"+l1PivotTag);
-							if(lastL1PivotNode==null||!l1PivotText.equals((String)lastL1PivotNode.get("text"))){
-								//new l1
-								JSONObject pivotL1Node = new JSONObject();
-								pivotL1Node.put("id", System.currentTimeMillis()+"");
-								pivotL1Node.put("text", l1PivotText);
-								pivotL1Node.put("leaf", false);
-								pivotL1Node.put("type", "p1");
-								pivotL1Node.put("draggable", false);
-								pivotL1Node.put("allowDrop", false);
-								rootGroup.add(pivotL1Node);
-								lastL1PivotNode=pivotL1Node;
+							if(pivotTags.size()==1){
 								
-								String l0PivotTag=(String) pivotTags.get(0);
-								String l0PivotText=Util.getFirstTextNode(doc, "/result/"+l0PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/"+l0PivotTag);
-								JSONObject pivotL0Node = new JSONObject();
-								pivotL0Node.put("id", System.currentTimeMillis()+"");
-								pivotL0Node.put("text", l0PivotText);
-								pivotL0Node.put("leaf", false);
-								pivotL0Node.put("type", "p0");
-								pivotL0Node.put("draggable", false);
-								pivotL0Node.put("allowDrop", true);
-								pivotL1Node.put("children", new JSONArray().put(pivotL0Node));
-								lastL0PivotNode=pivotL0Node;
+								JSONObject titleNode = new JSONObject();
+								titleNode.put("id", keys);
+								titleNode.put("text", titleValue);
+								titleNode.put("leaf", true);
+								titleNode.put("type", "t0");
+								titleNode.put("draggable", true);
+								titleNode.put("allowDrop", false);
+								titleNode.put("xpath", hierarchicalTreeCriterion.parsePivotMainPath());
 								
-								pivotL0Node.put("children", new JSONArray().put(titleNode));
-							}else{
-								//duplicate l1
 								String l0PivotTag=(String) pivotTags.get(0);
 								String l0PivotText=Util.getFirstTextNode(doc, "/result/"+l0PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/"+l0PivotTag);
 								if(lastL0PivotNode==null||!l0PivotText.equals((String)lastL0PivotNode.get("text"))){
-									//new l0
+									JSONObject pivotL0Node = new JSONObject();
+									pivotL0Node.put("id", System.currentTimeMillis()+"");
+									pivotL0Node.put("text", l0PivotText);
+									pivotL0Node.put("leaf", false);
+									pivotL0Node.put("type", "p0");
+									pivotL0Node.put("draggable", false);
+									pivotL0Node.put("allowDrop", true); 
+									rootGroup.add(pivotL0Node);
+									lastL0PivotNode=pivotL0Node;
+									
+									pivotL0Node.put("children", new JSONArray().put(titleNode));
+								}else{
+									JSONArray titleNodes=lastL0PivotNode.getJSONArray("children");
+									titleNodes.put(titleNode);
+									lastL0PivotNode.put("children", titleNodes);
+								}
+								
+							}else if(pivotTags.size()==2){
+								
+								JSONObject titleNode = new JSONObject();
+								titleNode.put("id", keys);
+								titleNode.put("text", titleValue);
+								titleNode.put("leaf", true);
+								titleNode.put("type", "t0");
+								titleNode.put("draggable", true);
+								titleNode.put("allowDrop", false);
+								titleNode.put("xpath", hierarchicalTreeCriterion.parsePivotMainPath());
+								
+								String l1PivotTag=(String) pivotTags.get(1);
+								String l1PivotText=Util.getFirstTextNode(doc, "/result/"+l1PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/"+l1PivotTag);
+								if(lastL1PivotNode==null||!l1PivotText.equals((String)lastL1PivotNode.get("text"))){
+									//new l1
+									JSONObject pivotL1Node = new JSONObject();
+									pivotL1Node.put("id", System.currentTimeMillis()+"");
+									pivotL1Node.put("text", l1PivotText);
+									pivotL1Node.put("leaf", false);
+									pivotL1Node.put("type", "p1");
+									pivotL1Node.put("draggable", false);
+									pivotL1Node.put("allowDrop", false);
+									rootGroup.add(pivotL1Node);
+									lastL1PivotNode=pivotL1Node;
+									
+									String l0PivotTag=(String) pivotTags.get(0);
+									String l0PivotText=Util.getFirstTextNode(doc, "/result/"+l0PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/"+l0PivotTag);
 									JSONObject pivotL0Node = new JSONObject();
 									pivotL0Node.put("id", System.currentTimeMillis()+"");
 									pivotL0Node.put("text", l0PivotText);
@@ -154,40 +140,60 @@ public class HierarchicalTreeLoadServlet extends HttpServlet{
 									pivotL0Node.put("type", "p0");
 									pivotL0Node.put("draggable", false);
 									pivotL0Node.put("allowDrop", true);
-									JSONArray l1Nodes=lastL1PivotNode.getJSONArray("children");
-									l1Nodes.put(pivotL0Node);
-									lastL1PivotNode.put("children", l1Nodes);
+									pivotL1Node.put("children", new JSONArray().put(pivotL0Node));
 									lastL0PivotNode=pivotL0Node;
 									
 									pivotL0Node.put("children", new JSONArray().put(titleNode));
-									
 								}else{
-									//duplicate l0
-									JSONArray titleNodes=lastL0PivotNode.getJSONArray("children");
-									titleNodes.put(titleNode);
-									lastL0PivotNode.put("children", titleNodes);
+									//duplicate l1
+									String l0PivotTag=(String) pivotTags.get(0);
+									String l0PivotText=Util.getFirstTextNode(doc, "/result/"+l0PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/"+l0PivotTag);
+									if(lastL0PivotNode==null||!l0PivotText.equals((String)lastL0PivotNode.get("text"))){
+										//new l0
+										JSONObject pivotL0Node = new JSONObject();
+										pivotL0Node.put("id", System.currentTimeMillis()+"");
+										pivotL0Node.put("text", l0PivotText);
+										pivotL0Node.put("leaf", false);
+										pivotL0Node.put("type", "p0");
+										pivotL0Node.put("draggable", false);
+										pivotL0Node.put("allowDrop", true);
+										JSONArray l1Nodes=lastL1PivotNode.getJSONArray("children");
+										l1Nodes.put(pivotL0Node);
+										lastL1PivotNode.put("children", l1Nodes);
+										lastL0PivotNode=pivotL0Node;
+										
+										pivotL0Node.put("children", new JSONArray().put(titleNode));
+										
+									}else{
+										//duplicate l0
+										JSONArray titleNodes=lastL0PivotNode.getJSONArray("children");
+										titleNodes.put(titleNode);
+										lastL0PivotNode.put("children", titleNodes);
+									}
 								}
 							}
+							
 						}
 						
 					}
 					
-				}
+					json.put("head", rootGroup);
+					jsonTree=((JSONArray) json.get("head")).toString();
 				
-				json.put("head", rootGroup);
-				jsonTree=((JSONArray) json.get("head")).toString();
-			} catch (XtentisWebappException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+			}//end if null
 			
-		PrintWriter out = resp.getWriter();
-		out.println(jsonTree);
-		out.close();
+			PrintWriter out = resp.getWriter();
+			out.println(jsonTree);
+			out.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+			PrintWriter out = resp.getWriter();
+			out.println(e.getLocalizedMessage());
+			out.close();
+		}
 		
 	}
-
 
 }
