@@ -204,9 +204,9 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      		//String conf = this.loadConfiguration();
      		Document doc = Util.parse(conf);
      		Util.validate(doc.getDocumentElement(), getConfigurationSchema());
-     		start();
      		 configuration =  (SvnConfiguration)
  			Unmarshaller.unmarshal(SvnConfiguration.class, new InputSource(new StringReader(conf)));
+     		 start();
      		new SvnHandler(configuration).list("/", null);
      	}
      	catch(Exception e)
