@@ -5,7 +5,7 @@ package com.amalto.core.ejb.remote;
 
 /**
  * Remote interface for ItemCtrl2.
- * @xdoclet-generated at 15-10-09
+ * @xdoclet-generated
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

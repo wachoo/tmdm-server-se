@@ -5,7 +5,7 @@ package com.amalto.core.objects.view.ejb.local;
 
 /**
  * Local interface for ViewCtrl.
- * @xdoclet-generated at 15-10-09
+ * @xdoclet-generated
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
