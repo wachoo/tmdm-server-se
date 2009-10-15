@@ -228,8 +228,10 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 		
 		this.hierarchicalTreeLoader.on('loadexception', function(loader, node, response)
 		    {
-    		    alert(response.responseText);
-    		    return false;
+		    	if(response.responseText!=''&&response.responseText.indexOf('[Exception]')==0){
+		    		alert(response.responseText);
+    		        return false;
+		    	}
 		    } 
 		,this);
 
