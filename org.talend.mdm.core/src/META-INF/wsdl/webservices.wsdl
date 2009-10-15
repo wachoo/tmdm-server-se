@@ -829,6 +829,13 @@
 		<part name="wsVersioningItemsVersions" element="tns:WSVersioningItemsVersions"/>
 	</message>
 	
+	<message name="versioningGetItemContentRequest">
+		<part name="wsVersioningGetItemContent" element="tns:WSVersioningGetItemContent"/>
+	</message>
+	<message name="versioningGetItemContentResponse">
+		<part name="wsString" element="tns:WSString"/>
+	</message>
+	
 	<message name="versioningGetObjectsVersionsRequest">
 		<part name="wsVersioningGetObjectsVersions" element="tns:WSVersioningGetObjectsVersions"/>
 	</message>
@@ -1719,6 +1726,10 @@
 			<input message="tns:versioningGetItemsVersionsRequest"/>
 			<output message="tns:versioningGetItemsVersionsResponse"/>
 		</operation>
+		<operation name="versioningGetItemContent">
+			<input message="tns:versioningGetItemContentRequest"/>
+			<output message="tns:versioningGetItemContentResponse"/>
+		</operation>
 		<operation name="versioningGetObjectsVersions">
 			<input message="tns:versioningGetObjectsVersionsRequest"/>
 			<output message="tns:versioningGetObjectsVersionsResponse"/>
@@ -2594,6 +2605,11 @@
 			<output><soap:body use="literal"/></output>			
 		</operation>
 		<operation name="versioningGetItemsVersions">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>			
+		</operation>
+		<operation name="versioningGetItemContent">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>			

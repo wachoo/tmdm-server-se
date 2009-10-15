@@ -316,6 +316,20 @@
 	</xsd:complexType>
 	<xsd:element name="WSVersioningGetItemHistory" type="tns:WSVersioningGetItemHistory"/>
 	
+	<xsd:complexType name="WSVersioningGetItemContent">
+		<xsd:annotation>
+			<xsd:documentation>
+				Get content for one Item instance
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="versioningSystemName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revision" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="WSVersioningGetItemContent" type="tns:WSVersioningGetItemContent"/>
+	
 	<xsd:complexType name="WSVersioningCommitItems">
 		<xsd:annotation>
 			<xsd:documentation>

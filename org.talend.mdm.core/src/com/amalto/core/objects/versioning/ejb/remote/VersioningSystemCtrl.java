@@ -5,7 +5,7 @@ package com.amalto.core.objects.versioning.ejb.remote;
 
 /**
  * Remote interface for VersioningSystemCtrl.
- * @xdoclet-generated at 14-10-09
+ * @xdoclet-generated at 15-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -151,6 +151,13 @@ public interface VersioningSystemCtrl
     * @throws XtentisException
     */
    public com.amalto.core.objects.versioning.util.HistoryInfos getItemHistory( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK itemPOJOPK )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
+    * Get Item Content
+    * @throws XtentisException
+    */
+   public java.lang.String getItemContent( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK itemPK,java.lang.String revision )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
 }

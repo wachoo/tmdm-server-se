@@ -5,7 +5,7 @@ package com.amalto.core.objects.synchronization.ejb.remote;
 
 /**
  * Remote interface for SynchronizationItemCtrl.
- * @xdoclet-generated at 14-10-09
+ * @xdoclet-generated at 15-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

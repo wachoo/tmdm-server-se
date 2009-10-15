@@ -5,7 +5,7 @@ package com.amalto.core.objects.datacluster.ejb.local;
 
 /**
  * Utility class for DataClusterCtrl.
- * @xdoclet-generated at 14-10-09
+ * @xdoclet-generated at 15-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

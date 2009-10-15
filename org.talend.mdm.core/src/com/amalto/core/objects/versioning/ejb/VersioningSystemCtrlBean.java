@@ -2003,6 +2003,60 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 		}
 	}
     
+    /**
+	 * Get Item Content
+	 * 
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */ 
+    public String getItemContent(
+    		VersioningSystemPOJOPK versioningSystemPOJOPK,
+    		ItemPOJOPK itemPK,
+    		String revision
+		)throws XtentisException{
+    	    	
+    	try{
+    		
+    		if (itemPK==null) return null;
+    		if (revision==null||revision.length()==0)revision="-1";
+    		
+    		//get the universe and revision ID
+    		UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+    		if (universe == null) {
+    			String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+    			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+    			throw new XtentisException(err);
+    		}
+    		    				
+			//Get the versioning service
+    		VersioningServiceCtrlLocalBI service = setDefaultVersioningSystem(versioningSystemPOJOPK);
+    		
+    		String revisionID = universe.getConceptRevisionID(itemPK.getConceptName());
+			String clusterName = itemPK.getDataClusterPOJOPK().getUniqueId();
+			String uniqueID = itemPK.getUniqueID();
+			String path = getClusterNameWithRevision(clusterName, revisionID, true)+"/"+URLEncoder.encode(uniqueID,"UTF-8");
+			
+    		String xmls[] = service.checkOut(path, null ,revision);
+			if (xmls==null) {
+				String err = "Unable to check out item "+path+" with revision "+revision;
+				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+			}
+			String xml = xmls[0].replaceAll("<\\?.*?\\?>", "");
+    		
+    		return xml;
+    		
+    	} catch (XtentisException e) {
+    		throw(e);
+		} catch (Exception e) {
+			String err = "Unable to get item content: "
+    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+    	    throw new XtentisException(err);
+		}
+	}
+    
     private String getClusterNameWithRevision(String clusterName,String revisionID,boolean encode) {
     	
     	String clusterNameWithRevision="";

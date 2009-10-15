@@ -4205,6 +4205,32 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * 	role-name = "authenticated"
 	 * 	view-type = "service-endpoint"
 	 */
+	public WSString versioningGetItemContent(WSVersioningGetItemContent wsVersioningGetItemContent) throws RemoteException {
+        try {
+			
+			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			
+			String result = ctrl.getItemContent(
+					wsVersioningGetItemContent.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetItemContent.getVersioningSystemName()),
+					WS2POJO(wsVersioningGetItemContent.getWsItemPK()),
+					wsVersioningGetItemContent.getRevision()
+				);
+			
+			return new WSString(result);
+			
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
 	public WSVersioningObjectsVersions versioningGetObjectsVersions(WSVersioningGetObjectsVersions wsVersioningGetObjectsVersions) throws RemoteException {
 		try {
 			

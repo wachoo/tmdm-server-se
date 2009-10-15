@@ -214,6 +214,8 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSVersioningItemsVersions versioningGetItemsVersions(com.amalto.core.webservice.WSVersioningGetItemsVersions wsVersioningGetItemsVersions) throws 
          java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSString versioningGetItemContent(com.amalto.core.webservice.WSVersioningGetItemContent wsVersioningGetItemContent) throws 
+         java.rmi.RemoteException;
     public com.amalto.core.webservice.WSVersioningObjectsVersions versioningGetObjectsVersions(com.amalto.core.webservice.WSVersioningGetObjectsVersions wsVersioningGetObjectsVersions) throws 
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSVersioningUniverseVersions versioningGetUniverseVersions(com.amalto.core.webservice.WSVersioningGetUniverseVersions wsVersioningGetUniverseVersions) throws 

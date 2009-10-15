@@ -5,7 +5,7 @@ package com.amalto.core.objects.versioning.ejb.local;
 
 /**
  * Local interface for VersioningSystemCtrl.
- * @xdoclet-generated at 14-10-09
+ * @xdoclet-generated at 15-10-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -132,5 +132,11 @@ public interface VersioningSystemCtrlLocal
     * @throws XtentisException
     */
    public com.amalto.core.objects.versioning.util.HistoryInfos getItemHistory( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK itemPOJOPK ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Get Item Content
+    * @throws XtentisException
+    */
+   public java.lang.String getItemContent( com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK versioningSystemPOJOPK,com.amalto.core.ejb.ItemPOJOPK itemPK,java.lang.String revision ) throws com.amalto.core.util.XtentisException;
 
 }
