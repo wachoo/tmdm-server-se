@@ -130,7 +130,7 @@
             destdir="${project.src.dir}"
             mergedir="parent-fake-to-debug"
             excludedtags="@version,@author,@todo"
-            addedtags="@xdoclet-generated at ${TODAY},@copyright The XDoclet Team,@author XDoclet,@version ${version}"
+            addedtags="@xdoclet-generated,@copyright The XDoclet Team,@author XDoclet,@version ${version}"
             ejbspec="2.1"
             force="${project.xdoclet.force}"
             verbose="true"
