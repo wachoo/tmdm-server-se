@@ -190,7 +190,18 @@ public class ItemsRemotePaging  extends HttpServlet{
 				org.apache.log4j.Logger.getLogger(this.getClass()).trace("doPost() end of search");
 			}
 
-
+			String[] totalResults = Util.getPort().viewSearch(
+						new WSViewSearch(
+							new WSDataClusterPK(config.getCluster()),
+							new WSViewPK(view.getViewPK()),
+							wi,
+							-1,
+							0,
+							2147483647,
+							null,
+							null
+					)
+				).getStrings();
 
 			for (int i = 0; i < results.length; i++) {
 				//aiming modify
@@ -234,7 +245,8 @@ public class ItemsRemotePaging  extends HttpServlet{
 				itemsBrowserContent.add(fields);
 			}				
 
-			int totalCount = (Integer)request.getSession().getAttribute("totalCountItems");
+			//int totalCount = (Integer)request.getSession().getAttribute("totalCountItems");
+			int totalCount = totalResults.length;
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
 					"doPost() Total result = "+totalCount);
 
