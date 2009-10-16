@@ -190,7 +190,7 @@ public class HierarchicalTreeLoadServlet extends HttpServlet{
 			e.printStackTrace();
 			
 			PrintWriter out = resp.getWriter();
-			out.println(e.getLocalizedMessage());
+			out.println("[Exception]:"+e.getLocalizedMessage());
 			out.close();
 		}
 		
