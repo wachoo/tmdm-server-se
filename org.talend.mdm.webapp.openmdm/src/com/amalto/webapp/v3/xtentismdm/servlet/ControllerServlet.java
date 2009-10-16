@@ -107,8 +107,11 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 		}
 
 		} catch (Exception e) {
-			out.write("<h1>ERROR</H1>");
-			e.printStackTrace(out);
+			req.getSession().invalidate();
+			out.write("<h3>Login Error</h3> <p><font size=\"4\" color=\"red\"> "+ e.getLocalizedMessage()+"</font></p>"+
+					"<a href='../index.html'>Back to login screen</a> ");
+		
+			//e.printStackTrace(out);
 		} finally {
 			//super.doPost(req, res);			
 		}

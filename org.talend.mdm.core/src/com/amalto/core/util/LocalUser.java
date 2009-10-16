@@ -186,7 +186,7 @@ public class LocalUser {
 						String universeName = group.members().nextElement().getName();
 						UniversePOJO upojo = ObjectPOJO.load(null, UniversePOJO.class, new UniversePOJOPK(universeName));
 						if (upojo == null) {
-							String err ="The universe '"+universeName+"' cannot be loaded";
+							String err ="The universe '"+universeName+"' don't exist!";
 							org.apache.log4j.Logger.getLogger(LocalUser.class).error(err);
 							throw new XtentisException(err);
 						}
