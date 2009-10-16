@@ -2042,6 +2042,7 @@ public class VersioningSystemCtrlBean implements SessionBean, TimedObject{
 			if (xmls==null) {
 				String err = "Unable to check out item "+path+" with revision "+revision;
 				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+				throw new XtentisException(err);
 			}
 			String xml = xmls[0].replaceAll("<\\?.*?\\?>", "");
     		
