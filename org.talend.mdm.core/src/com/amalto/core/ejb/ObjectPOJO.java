@@ -19,6 +19,7 @@ import javax.xml.xpath.XPathFactory;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.talend.mdm.commmon.util.time.TimeMeasure;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -295,9 +296,6 @@ public abstract class ObjectPOJO implements Serializable{
         try {
             //get the xml server wrapper
             XmlServerSLWrapperLocal server =Util.getXmlServerCtrlLocal();
-
-//        	XmldbSLWrapper server = new XmldbSLWrapper();
-        	
             //retrieve the item
             String urlid =  objectPOJOPK.getUniqueId();
             String item=null;
@@ -307,6 +305,13 @@ public abstract class ObjectPOJO implements Serializable{
 //            	item=cachedPojo.get(key);            	
 //            }else{
             	item = server.getDocumentAsString(revisionID, getCluster(objectClass), urlid, null);
+            	//aiming add see 9603 if System Object load faild try to load it from HEAD universe
+            	if(!(revisionID==null || revisionID.length()==0) && item == null){
+            		if(XSystemObjects.isExist(urlid)){
+            			item = server.getDocumentAsString(null, getCluster(objectClass), urlid, null);
+            		}
+            	}
+            	//end
 //            	if(item!=null)
 //            	cachedPojo.put(key, item);
 //            }
