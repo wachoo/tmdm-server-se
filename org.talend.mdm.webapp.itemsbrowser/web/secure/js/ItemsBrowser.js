@@ -328,6 +328,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'fr':'L\'item contient des erreurs. Passez le curseur de la souris au-dessus des pastilles rouge pour plus de détails.',
 		'en':'The item contains errors. Hover your mouse cursor over the red badges for more details.'
 	}
+	var DELETE_ALERT={
+		'fr':'The last item can not be removed!',
+		'en':'The last item can not be removed!'
+	}
+	
 
 	/*****************
 	 * EXT 2.0
@@ -1351,7 +1356,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var siblingNode = itemTree.getNodeByIndex(siblingId);
 		//modified by ymli. If the Items is more than maxOccurs, alert and return
 		if(siblingNode.itemData.maxOccurs>=0&&siblingNode.parent!=null && siblingNode.parent.children.length>=siblingNode.itemData.maxOccurs){
-			alert(siblingNode.itemData.maxOccurs+" "+siblingNode.itemData.name+"(s) at most");
+			Ext.MessageBox.alert("Status",siblingNode.itemData.maxOccurs+" "+siblingNode.itemData.name+"(s) at most");
 			return;
 		}
 		var nodeCount = YAHOO.widget.TreeView.nodeCount;
@@ -1387,41 +1392,49 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		amalto.core.ready();
 	}
 	
-	function removeNode2(id, treeIndex){
+	function removeNode2(id, treeIndex) {
 		updateFlag[treeIndex] = true;
 		var value = "";
-		if(Ext.get(id+"Value"))
-			value = DWRUtil.getValue(id+"Value");
+		if (Ext.get(id + "Value"))
+			value = DWRUtil.getValue(id + "Value");
 		var itemTree = itemTreeList[treeIndex];
-		//add by ymli
-		//modified by ymli. If the Items is less than minOccurs, alert and return
+		// add by ymli
+		// modified by ymli. If the Items is less than minOccurs, alert and
+		// return
 		var node = itemTree.getNodeByIndex(id);
-		if(node.parent!=null && node.parent.children.length<=node.itemData.minOccurs){
-			alert(node.itemData.minOccurs+" "+node.itemData.name+"(s) at least");
+		if (node.parent != null
+				&& node.parent.children.length <= node.itemData.minOccurs) {
+			Ext.MessageBox.alert("Status",node.itemData.minOccurs + " " + node.itemData.name
+					+ "(s) at least");
+			return;
+		} else if (node.parent.children.length <= 1) {
+			Ext.MessageBox.alert("Status",DELETE_ALERT[language]);
 			return;
 		}
 		itemNodes.remove(itemTree.getNodeByIndex(id));
-		itemTree.removeNode(itemTree.getNodeByIndex(id),true);
-		ItemsBrowserInterface.removeNode(id,treeIndex, value,function(result){
-				amalto.core.ready(result);
-			});
+		itemTree.removeNode(itemTree.getNodeByIndex(id), true);
+		ItemsBrowserInterface.removeNode(id, treeIndex, value,
+				function(result) {
+					amalto.core.ready(result);
+				});
 		itemTree.getRoot().refresh();
 		amalto.core.ready();
 	}
-	
-		 
-	function saveItemAndQuit(ids,dataObject,treeIndex,refreshCB){
-		//alert(DWRUtil.toDescriptiveString(itemPK2,2)+" "+dataObject+" "+treeIndex);
 
-		//saveItem(ids,dataObject,treeIndex);
-		saveItem(ids,dataObject,treeIndex,function(){
-				var itempanel = amalto.core.getTabPanel().activeTab;
-				if(itempanel){
-					itempanel.isdirty=false;
-				}			
-				  amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
-			      refreshCB.call();
-				 });
+	function saveItemAndQuit(ids, dataObject, treeIndex, refreshCB) {
+		// alert(DWRUtil.toDescriptiveString(itemPK2,2)+" "+dataObject+"
+		// "+treeIndex);
+
+		// saveItem(ids,dataObject,treeIndex);
+		saveItem(ids, dataObject, treeIndex, function() {
+					var itempanel = amalto.core.getTabPanel().activeTab;
+					if (itempanel) {
+						itempanel.isdirty = false;
+					}
+					amalto.core.getTabPanel().remove('itemDetailsdiv'
+							+ treeIndex);
+					refreshCB.call();
+				});
 
 	}
 	
@@ -1480,7 +1493,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				}else if(result.indexOf('ERROR_3:')==0){
 					//add for before saving transformer check
                     amalto.core.ready(result.substring(8));
-                    alert(result.substring(8));
+                   Ext.MessageBox.alert("Status",result.substring(8));
                 }else{
 			       if(callbackOnSuccess)callbackOnSuccess();   
 				}
