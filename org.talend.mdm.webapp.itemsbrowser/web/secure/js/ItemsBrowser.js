@@ -325,8 +325,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'File Name'
 	}
 	var errorDesc={
-		'fr':'L\'item contient des erreurs. Passez le curseur de la souris au-dessus des pastilles rouge pour plus de détails.',
-		'en':'The item contains errors. Hover your mouse cursor over the red badges for more details.'
+		'fr':'L\'item ne peut pas être sauvegardé, il y a une (des) erreur(s).',
+		'en':'The item can not be saved, it contains error(s).'
 	}
 	var DELETE_ALERT={
 		'fr':'The last item can not be removed!',
