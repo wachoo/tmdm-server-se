@@ -117,6 +117,11 @@ var LOADING={
 	'en':'Loading...'
 }
 
+var CLOSECONFIRM={
+	'fr':'Si vous fermez l\'onglet maintenant, vos modifications seront perdues. Êtes-vous sûr de vouloir continuer ?',
+	'en':'If you close the tab now, your changes will be lost. Are you sure you want to proceed?'
+}
+
 /********************************************************************
 * Hot Loads a Resource
 *********************************************************************/
@@ -407,29 +412,32 @@ amalto.core = function () {
 			        split: true //not documented: renders the panel resizeable
 			    },				
 			    {
-					id: 'centerTabPanel',
-        			region: 'center',
-        			xtype: 'tabpanel',
-        			contentEl: 'centerdiv',
-        			border: true,
-    				bodyborder: true,
-    				layoutOnTabChange: true,
-    				resizeTabs:false,
-    				plugins: new Ext.ux.TabCloseMenu(),
-    				listeners:{
-			    		//add beforeremove listener
-			    		'beforeremove':function(c,e){		
-			            	if(e.isdirty==true){
-			            		return confirm(e.title +' has been changed.'+' Would you like to close it?');
-			            	}else {
-			            		return true;
-			            	} 			    	
-			    		}
-			    	},
-					defaults: {
-						hideMode:'offsets'
+					id : 'centerTabPanel',
+						region : 'center',
+						xtype : 'tabpanel',
+						contentEl : 'centerdiv',
+						border : true,
+						bodyborder : true,
+						layoutOnTabChange : true,
+						resizeTabs : false,
+						plugins : new Ext.ux.TabCloseMenu(),
+						listeners : {
+
+								'beforeremove' : function(c, e) {
+								if (e.isdirty == true) {
+									//return Ext.MessageBox.confirm(
+									return confirm(
+													//'confirm',
+													 CLOSECONFIRM[language])
+								}
+								else
+								return true;
+							}
+						},
+						defaults : {
+							hideMode : 'offsets'
+						}
 					}
-			    }
 		    ]
 		});
 		
