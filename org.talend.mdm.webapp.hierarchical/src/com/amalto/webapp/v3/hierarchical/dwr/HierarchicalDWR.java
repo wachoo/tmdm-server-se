@@ -51,7 +51,12 @@ public class HierarchicalDWR {
     public ListRange getDataObjectsList(int start, int limit,String sort,String dir,String regex) {
     	
     	String language="";
-    	if(regex==null||regex.length()==0||regex.equals("null"))language="en";
+    	if(regex==null||regex.length()==0||regex.equals("null")){
+    		language="en";
+    	}else{
+    		language=regex;
+    	}
+    	
     	
 		ListRange listRange = new ListRange();
 		

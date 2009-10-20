@@ -301,6 +301,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
                                 }
 				}, {
 					fieldLabel : "Title Field",
+					editable : false,
 					xtype : "combo",
 					name : "titleFieldCmp",
 					id : "titleFieldCmp",
