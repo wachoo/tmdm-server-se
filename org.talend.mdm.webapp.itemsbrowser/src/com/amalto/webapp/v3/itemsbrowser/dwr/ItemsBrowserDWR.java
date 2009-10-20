@@ -62,6 +62,7 @@ import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.amalto.webapp.v3.itemsbrowser.bean.Restriction;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
@@ -1437,44 +1438,37 @@ public class ItemsBrowserDWR {
 	
 	public int countItems(String criteria, String dataObjet) throws Exception{
 		Configuration config = Configuration.getInstance();
-		ArrayList<WSWhereItem> conditions=new ArrayList<WSWhereItem>();
-		WSWhereItem wi;
-		String[] filters = criteria.split(",");
-		String[] filterXpaths = new String[filters.length];
-		String[] filterOperators = new String[filters.length];
-		String[] filterValues = new String[filters.length];
-
+		String[] criterias = criteria.split("[\\s]+OR[\\s]+");
+		ArrayList<WSWhereItem> conditions=new ArrayList<WSWhereItem>(); 
 		
-		for (int i = 0; i < filters.length; i++) {
-			if(filters[i].split("#").length>2){
-				filterXpaths[i] = filters[i].split("#")[0];
-				filterOperators[i] = filters[i].split("#")[1];
-				filterValues[i] = filters[i].split("#")[2];
-			}					
-		}
-		for(int i=0;i<filterValues.length;i++){
-			if ((filterValues[i]==null) || ("*".equals(filterValues[i])) || "".equals(filterValues[i])) {
-				continue;
+		for (String cria: criterias)
+		{
+			ArrayList<WSWhereItem> condition=new ArrayList<WSWhereItem>(); 
+			String[] subCriterias = cria.split("[\\s]+AND[\\s]+");
+			for (String subCria: subCriterias)
+			{
+				if (subCria.startsWith("("))
+				{
+					subCria = subCria.substring(1);
+				}
+				if (subCria.endsWith(")"))
+				{
+					subCria = subCria.substring(0, subCria.length() -1);
+				}
+				
+				WSWhereItem whereItem = countItem(subCria, dataObjet);
+				condition.add(whereItem);
 			}
-			WSWhereCondition wc=new WSWhereCondition(
-					filterXpaths[i],
-					getOperator(filterOperators[i]),
-					filterValues[i],
-					WSStringPredicate.NONE,
-					false
-					);
-			//System.out.println("iterator :"+i+"field - getErrors- : " + fields[i] + " " + operator[i]);
-			//System.out.println("Xpath field - getErrors- : " + giveXpath(fields[i]) + " - values : "+ regexs[i]);
-			WSWhereItem item=new WSWhereItem(wc,null,null);
-			conditions.add(item);
-		}				
-		if(conditions.size()==0) { 
-			wi=null;
-		} else {
-			WSWhereAnd and=new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
-			wi=new WSWhereItem(null,and,null);
+			if (condition.size() > 0) {
+				WSWhereAnd and = new WSWhereAnd(condition
+						.toArray(new WSWhereItem[condition.size()]));
+				WSWhereItem whand = new WSWhereItem(null,and,null);
+				conditions.add(whand);
+			}
 		}
-		
+		WSWhereOr or = new WSWhereOr(conditions.toArray(new WSWhereItem[conditions.size()]));
+		WSWhereItem wi = new WSWhereItem(null,null,or);
+
 		//count items 
 		int count = Integer.parseInt(Util.getPort().count(new WSCount(
 				new WSDataClusterPK(config.getCluster()),
@@ -1487,6 +1481,42 @@ public class ItemsBrowserDWR {
 		ctx.getSession().setAttribute("totalCountItems", count);
 		
 		return count;
+	}
+	
+	public WSWhereItem countItem(String criteria, String dataObjet) throws Exception{
+		WSWhereItem wi;
+		String[] filters = criteria.split(" ");
+		String filterXpaths, filterOperators ,filterValues ;
+
+		filterXpaths = filters[0];
+		filterOperators = filters[1];
+		if (filters.length <= 2)
+		    filterValues = " ";
+		else
+			filterValues = filters[2];
+
+		WSWhereCondition wc=new WSWhereCondition(
+				filterXpaths,
+				getOperator(filterOperators),
+				filterValues,
+				WSStringPredicate.NONE,
+				false
+				);
+		//System.out.println("iterator :"+i+"field - getErrors- : " + fields[i] + " " + operator[i]);
+		//System.out.println("Xpath field - getErrors- : " + giveXpath(fields[i]) + " - values : "+ regexs[i]);
+		ArrayList<WSWhereItem> conditions=new ArrayList<WSWhereItem>();
+		WSWhereItem item=new WSWhereItem(wc,null,null);
+		conditions.add(item);
+						
+		if(conditions.size()==0) { 
+			wi=null;
+		} else {
+			WSWhereAnd and=new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
+			wi=new WSWhereItem(null,and,null);
+		}
+		
+		
+		return wi;
 		
 	}
 	

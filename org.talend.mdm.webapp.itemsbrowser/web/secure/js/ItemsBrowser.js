@@ -374,6 +374,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var sortIndex=0;
 	var sortUporDown="ASC";
 	var isUp = true;
+	var _criterias = new Array();
 	
 	function browseItems(){
 		showItemsPanel();
@@ -478,12 +479,18 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	function getViewItemsCB(result){
 		_viewItems = []; 
+		_criterias = [];
 		_viewItems = result;
 		$('labelItemsCriteria').style.display = "block";
-		DWRUtil.setValue('itemsCriterias','<span id="itemsCriteria1"><select id="itemsSearchField1"></select>' +
-						'<select id="itemsSearchOperator1"></select>' +
+		DWRUtil.setValue('itemsCriterias','<span id="itemsCriteria1"><select id="itemsSearchField1" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
+						'<select id="itemsSearchOperator1" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<input id="itemsSearchValue1" type="text" value="*"  onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/> ' +
-						'<span onClick="amalto.itemsbrowser.ItemsBrowser.addItemsCriteria(\'itemsCriteria1\');"><img src="img/genericUI/add-element.gif"/></span><br/></span>');	
+						'<input id="itemSearchCriteriaForAnd1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'AND\');"> AND '+
+						'<input id="itemSearchCriteriaForOR1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'OR\');"> OR '+
+						'<br/></span><br/><span class="ext-mb-content">' +
+					    'Display Resulting Search:<input type="text" value="" id="searchCriteriaResult" size="70">'+
+					    '</span>'
+						);	
 		DWRUtil.addOptions('itemsSearchOperator1',OPERATORS[language]);
 		DWRUtil.removeAllOptions('itemsSearchField1');
 		$('item-search-btn').disabled = false;
@@ -509,6 +516,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    itemsElements = _viewItems.searchables;
 	    dataObjectLocalized = _viewItems.descriptionLocalized;
 		//getElements();
+	    newCriteriaItemSet(0, 'AND');
+	    outPutCriteriaResult();
 		amalto.core.ready();
 	}
 	
@@ -522,30 +531,178 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		});
 	}
 	
-	function addItemsCriteria(criteriaParent){	
+	function addItemsCriteria(criteriaParent, idx, and){	
+		if (isNewCriteria(idx, and) == false) return;
 		criteriaCount ++;
 		var tpl = new Ext.DomHelper.Template(
 						'<span id="itemsCriteria{id}">' +
-						'<select id="itemsSearchField{id}"></select>' +
-						'<select id="itemsSearchOperator{id}"></select>' +
+						'<select id="itemsSearchField{id}" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
+						'<select id="itemsSearchOperator{id}" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<input id="itemsSearchValue{id}" type="text"  onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/>  ' +
-						'<span onClick="amalto.itemsbrowser.ItemsBrowser.addItemsCriteria(\'itemsCriteria{id}\');"><img src="img/genericUI/add-element.gif"/></span> ' +
-						'<span onClick="amalto.itemsbrowser.ItemsBrowser.removeItemsCriteria(\'{id}\');"><img src="img/genericUI/remove-element.gif"/></span> ' +
-						'<br/></span>');
-		tpl.insertAfter(criteriaParent,{id:criteriaCount});
-		DWRUtil.addOptions('itemsSearchOperator'+criteriaCount,OPERATORS[language]);
-		DWRUtil.addOptions('itemsSearchField'+criteriaCount,itemsElements);
+						'<input id="itemSearchCriteriaForAnd{id}" type="radio" name="itemSearchCriteria{id}" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria{id}\', \'{id}\', \'AND\');"> AND '+
+						'<input id="itemSearchCriteriaForOR{id}" type="radio" name="itemSearchCriteria{id}" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria{id}\', \'{id}\', \'OR\');"> OR '+
+						'<span onClick="amalto.itemsbrowser.ItemsBrowser.removeItemsCriteria(\'{id}\');"><img src="img/genericUI/remove-element.gif"/></span> '  +
+						'<br/></span>'
+						);
+		var actulId = parseInt(idx) + 1;
+		tpl.insertAfter(criteriaParent,{id:actulId});
+		DWRUtil.addOptions('itemsSearchOperator'+actulId,OPERATORS[language]);
+		DWRUtil.addOptions('itemsSearchField'+actulId,itemsElements);
+		
+		newCriteriaItemSet(idx, and);
+	}
+	
+	function isNewCriteria(idx, and)
+	{	
+		var parentIdx = parseInt(idx) -1;
+		for (var id = parentIdx; id >= 0; id--)
+		{
+			if (_criterias[id] != null)
+			{
+				_criterias[id][1] = ' ';
+				_criterias[id][2] = and;
+				_criterias[id][3] = ' ';
+				break;
+			}
+		}
+		
+		for (var ic = parseInt(idx); ic < _criterias.length; ic++)
+		{
+			if (_criterias[ic] != undefined)
+				return false;
+		}
+
+		return true;
+	}
+	
+	function newCriteriaItemSet(idx, and)
+	{	
+		var actulId = parseInt(idx) + 1;
+		
+		var criteria = DWRUtil.getValue('itemsSearchField' + actulId) + ' '
+				+ DWRUtil.getValue('itemsSearchOperator' + actulId) + ' '
+				+ DWRUtil.getValue('itemsSearchValue' + actulId);
+		
+		if (_criterias[idx] == undefined)
+		{
+			_criterias[idx] = [];
+			_criterias[idx][0] = criteria;	
+		}
 	}
 	
 	function removeItemsCriteria(id){
 		//criteria.splice(parseInt(id),1);
 		var criteriaId = "itemsCriteria"+id;
 		$('itemsCriterias').removeChild($(criteriaId));
+		
+		id = parseInt(id);
+		_criterias[id-1] = null;
+		for (var subid = id-2; subid >= 0 ; subid--)
+		{
+			if (_criterias[subid] != undefined)
+			{
+				var last = true;
+				for (var l = subid+1; l < _criterias.length; l++)
+				{
+					if (_criterias[l] != undefined)
+					{
+						last = false;
+						break;
+					}
+				}
+				if (last == true)
+				{
+					_criterias[subid][2] = null;
+					_criterias[subid][3] = null;
+					subid = subid +1;
+					$('itemSearchCriteriaForAnd' + subid).checked = false;
+					$('itemSearchCriteriaForOR' + subid).checked = false;
+				}
+
+				criteriaCount--;
+				break;
+			}
+		}
+		
+		 outPutCriteriaResult();
+	}
+	
+	function itemsCriteriaWithConstraints(criteriaParent, id, and){
+		addItemsCriteria(criteriaParent, id, and);
+		outPutCriteriaResult();
 	}
 	
 	
+	function outPutCriteriaResult(){
+		var cpy = new Array();
+		for (var idx = 0; idx < _criterias.length; idx++)
+		{
+			if (_criterias[idx] == undefined)
+				continue;
+			var actulID = idx+1;
+			var criteria = DWRUtil.getValue('itemsSearchField' + actulID) + ' '
+					+ DWRUtil.getValue('itemsSearchOperator' + actulID) + ' '
+					+ DWRUtil.getValue('itemsSearchValue' + actulID);
+			_criterias[idx][0] = criteria;
+		}
+		
+		for (var findex = 0; findex < _criterias.length; findex++)
+		{
+			if (_criterias[findex] != undefined)
+			{
+				for (var sindex = 0; sindex <_criterias[findex].length; sindex++)
+				{
+					var indx = cpy.length;
+					if (_criterias[findex][sindex] != null) {
+						cpy[indx] = _criterias[findex][sindex];
+					}
+				}
+			}
+		}
+		
+		var cruise = true;
+		var sign = 0;
+		
+		while (cruise) {
+			for ( var i = sign; i < cpy.length; i++) {
+				if (cpy[i] == 'AND') {
+					if (cpy[i - 2] == null) {
+						cpy.unshift('(');
+						break;
+					} else if (cpy[i - 4] != '(' && cpy[i - 4] != 'AND') {
+						if (cpy[i - 3] != '(') {
+							cpy.splice(i - 2, 0, '(');
+							break;
+						}
+					}
+
+					if (cpy[i + 4] == 'AND') {
+						sign = i + 2;
+						continue;
+					} else {
+						if (cpy[i + 4] == 'OR') {
+							cpy.splice(i + 3, 0, ')');
+							break;
+						} else if (cpy[i + 4] == null) {
+							cpy.push(')');
+							cruise = false;
+							break;
+						}
+					}
+				}
+
+				if (i == cpy.length - 1) {
+					cruise = false;
+					break;
+				}
+			}
+		}
+		
+		DWRUtil.setValue('searchCriteriaResult', cpy.join(''));
+   }
 	
 	function displayItems(){
+		outPutCriteriaResult();
 		var viewName = DWRUtil.getValue('viewItemsSelect');
 		if(viewName!=LABEL_SELECT_DATAOBJECT[language] && viewName!=""){	
 			amalto.core.working();
@@ -620,13 +777,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		};
 	
 	    
-		//Build a comma-dash separated list of search criteria
-	    var criteria = "";
-	    var nodeList = $('itemsCriterias').childNodes;
-		for(var i=0; i<nodeList.length; i++) {
-			var id = nodeList[i].id.substring(13);
-			criteria += DWRUtil.getValue('itemsSearchField'+id)+"#"+DWRUtil.getValue('itemsSearchOperator'+id)+"#"+DWRUtil.getValue('itemsSearchValue'+id)+"#,";
-		}
+		//Build a comma-dash separated list of search criteria  searchCriteriaResult
+	    var criteria = DWRUtil.getValue('searchCriteriaResult');	
 
 		var store = new Ext.data.Store({
 			    proxy: new Ext.data.HttpProxy({
@@ -2025,6 +2177,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		displayItems:function() {displayItems();},
 		addItemsCriteria:function(criteriaParent) {addItemsCriteria(criteriaParent);},
 		removeItemsCriteria:function(id){removeItemsCriteria(id);},
+		itemsCriteriaWithConstraints:function(criteriaParent, id, add){itemsCriteriaWithConstraints(criteriaParent, id, add);},
+		outPutCriteriaResult:function(){outPutCriteriaResult();},
 		updateNode:function(id,treeIndex){updateNode(id,treeIndex);},
 		setlastUpdatedInputFlagPublic:function(id,treeIndex){alert("setlastUpdatedInputFlagPublic");setlastUpdatedInputFlag(id,treeIndex);},
 		browseForeignKey:function(nodeId, foreignKeyXpath){browseForeignKey(nodeId, foreignKeyXpath);},
