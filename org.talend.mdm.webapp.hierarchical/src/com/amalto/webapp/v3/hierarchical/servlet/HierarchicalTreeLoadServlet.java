@@ -15,7 +15,6 @@ import org.w3c.dom.Document;
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.v3.hierarchical.bean.HierarchicalTreeCriterion;
 import com.amalto.webapp.v3.hierarchical.util.HierarchicalUtil;
 
@@ -65,13 +64,13 @@ public class HierarchicalTreeLoadServlet extends HttpServlet{
 							List pivotTags=hierarchicalTreeCriterion.parsePivotTagOrderList();
 							//title
 							String titleTag=(String) hierarchicalTreeCriterion.parseTitleTag().get(0);//TODO Maybe it's a list further
-							String titleValue=Util.getFirstTextNode(doc, "/result/"+titleTag);
+							String titleValue=Util.getFirstTextNode(doc, "/result/result-title/"+titleTag);
 							//keys
 							String keys="";
 							List keyTags=hierarchicalTreeCriterion.parseKeysTagList();
 							for (int j = 0; j < keyTags.size(); j++) {
 								String keyTag=(String) keyTags.get(j);
-								String keyValue=Util.getFirstTextNode(doc, "/result/"+keyTag);
+								String keyValue=Util.getFirstTextNode(doc, "/result/result-key/"+keyTag);
 								keys+=("."+keyValue);
 							}
 							keys=keys.substring(1);
@@ -88,7 +87,7 @@ public class HierarchicalTreeLoadServlet extends HttpServlet{
 								titleNode.put("xpath", hierarchicalTreeCriterion.parsePivotMainPath());
 								
 								String l0PivotTag=(String) pivotTags.get(0);
-								String l0PivotText=Util.getFirstTextNode(doc, "/result/"+l0PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/"+l0PivotTag);
+								String l0PivotText=Util.getFirstTextNode(doc, "/result/result-pivot/"+l0PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/result-pivot/"+l0PivotTag);
 								if(lastL0PivotNode==null||!l0PivotText.equals((String)lastL0PivotNode.get("text"))){
 									JSONObject pivotL0Node = new JSONObject();
 									pivotL0Node.put("id", System.currentTimeMillis()+"");
@@ -119,7 +118,7 @@ public class HierarchicalTreeLoadServlet extends HttpServlet{
 								titleNode.put("xpath", hierarchicalTreeCriterion.parsePivotMainPath());
 								
 								String l1PivotTag=(String) pivotTags.get(1);
-								String l1PivotText=Util.getFirstTextNode(doc, "/result/"+l1PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/"+l1PivotTag);
+								String l1PivotText=Util.getFirstTextNode(doc, "/result/result-pivot/"+l1PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/result-pivot/"+l1PivotTag);
 								if(lastL1PivotNode==null||!l1PivotText.equals((String)lastL1PivotNode.get("text"))){
 									//new l1
 									JSONObject pivotL1Node = new JSONObject();
@@ -133,7 +132,7 @@ public class HierarchicalTreeLoadServlet extends HttpServlet{
 									lastL1PivotNode=pivotL1Node;
 									
 									String l0PivotTag=(String) pivotTags.get(0);
-									String l0PivotText=Util.getFirstTextNode(doc, "/result/"+l0PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/"+l0PivotTag);
+									String l0PivotText=Util.getFirstTextNode(doc, "/result/result-pivot/"+l0PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/result-pivot/"+l0PivotTag);
 									JSONObject pivotL0Node = new JSONObject();
 									pivotL0Node.put("id", System.currentTimeMillis()+"");
 									pivotL0Node.put("text", l0PivotText);
@@ -148,7 +147,7 @@ public class HierarchicalTreeLoadServlet extends HttpServlet{
 								}else{
 									//duplicate l1
 									String l0PivotTag=(String) pivotTags.get(0);
-									String l0PivotText=Util.getFirstTextNode(doc, "/result/"+l0PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/"+l0PivotTag);
+									String l0PivotText=Util.getFirstTextNode(doc, "/result/result-pivot/"+l0PivotTag)==null?"":Util.getFirstTextNode(doc, "/result/result-pivot/"+l0PivotTag);
 									if(lastL0PivotNode==null||!l0PivotText.equals((String)lastL0PivotNode.get("text"))){
 										//new l0
 										JSONObject pivotL0Node = new JSONObject();
