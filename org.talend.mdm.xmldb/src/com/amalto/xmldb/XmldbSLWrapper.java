@@ -1223,17 +1223,26 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         	if(pivotPaths.length>0){
         		xqReturn.append("return ");
         		xqReturn.append("<result>");
-        		for (int n = pivotPaths.length-1; n > -1; n--) {
-        			xqReturn.append("{$").append(pivotPaths[n]).append("}");
-    			}
-        		for (int n = 0; n < indexPaths.length; n++) {
-        			xqReturn.append("{$").append(indexPaths[n]).append("}");
-    			}
         		
+        		xqReturn.append("<result-pivot>");
+        		for (int n = pivotPaths.length-1; n > -1; n--) {
+        			xqReturn.append("{if ($").append(pivotPaths[n]).append(") then $").append(pivotPaths[n]).append(" else <").append(parseNodeNameFromXpath(pivotPaths[n])).append("/>}");      			
+    			}
+        		xqReturn.append("</result-pivot>");
+        		
+        		xqReturn.append("<result-title>");
+        		for (int n = 0; n < indexPaths.length; n++) {
+        			xqReturn.append("{if ($").append(indexPaths[n]).append(") then $").append(indexPaths[n]).append(" else <").append(parseNodeNameFromXpath(indexPaths[n])).append("/>}");
+    			}
+        		xqReturn.append("</result-title>");
+        		
+        		xqReturn.append("<result-key>");
         		String[] mainKeys=pivotWithKeys.get(pivotPaths[0]);
         		for (int n = 0; n < mainKeys.length; n++) {
-        			xqReturn.append("{$").append(mainKeys[n]).append("}");
+        			xqReturn.append("{if ($").append(mainKeys[n]).append(") then $").append(mainKeys[n]).append(" else <").append(parseNodeNameFromXpath(mainKeys[n])).append("/>}");
     			}
+        		xqReturn.append("</result-key>");
+        		
         		xqReturn.append("</result>  ");
         	}
         	
@@ -1256,6 +1265,17 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	    }
     	
     }
+    
+    private String parseNodeNameFromXpath(String input) {
+    	if(input==null)return "";
+    	
+		String output=input;
+		int pos=input.lastIndexOf("/");
+		if(pos!=-1){
+			output=input.substring(pos+1);
+		}
+		return output;
+	}
 	
 	public long countXtentisObjects(
 		HashMap<String, String> objectRootElementNameToRevisionID, 
