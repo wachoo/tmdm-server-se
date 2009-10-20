@@ -136,11 +136,12 @@ public class HierarchicalUtil {
 			e.printStackTrace();
 		}
 		String dataClusterName = config.getCluster();
-		return getHierarchicalTreeView(dataClusterName,dataObjectName,pivotPath,titleFieldPath,filters,pivotDirections,indexDirections,limit);
+		String dataModelName = config.getModel();
+		return getHierarchicalTreeView(dataClusterName,dataModelName,dataObjectName,pivotPath,titleFieldPath,filters,pivotDirections,indexDirections,limit);
 	}
 	
 	
-	public static  String[] getHierarchicalTreeView(String dataClusterName,String dataObjectName,
+	public static  String[] getHierarchicalTreeView(String dataClusterName,String dataModelName,String dataObjectName,
 			String pivotPath, String titleFieldPath, FilterItem[] filters,String[] pivotDirections, String[] indexDirections, int limit) throws Exception{
 
 		String[] result = null;
@@ -162,7 +163,7 @@ public class HierarchicalUtil {
 				pivotPath = pivotPaths[i];
 				pivotPath = cleanPivotPath(pivotPath);
 				String[] pks = CommonDWR.getBusinessConceptKeyPaths(
-						dataClusterName,
+						dataModelName,
 						parseDataConceptFromPivotPath(pivotPath));
 				WSGetItemsPivotIndexPivotWithKeysTypedContentEntry typedContentEntry = new WSGetItemsPivotIndexPivotWithKeysTypedContentEntry(
 						pivotPath, new WSStringArray(pks));

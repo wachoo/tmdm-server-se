@@ -44,6 +44,7 @@ public class HierarchicalTreeLoadServlet extends HttpServlet{
 					JSONObject lastL1PivotNode=null;
 					String[] results=HierarchicalUtil.getHierarchicalTreeView(
 							hierarchicalTreeCriterion.getClusterName(),
+							hierarchicalTreeCriterion.getModelName(),
 							hierarchicalTreeCriterion.getDataObjectName(), 
 							hierarchicalTreeCriterion.getPivotPath(), 
 							hierarchicalTreeCriterion.getTitleFieldPath(), 

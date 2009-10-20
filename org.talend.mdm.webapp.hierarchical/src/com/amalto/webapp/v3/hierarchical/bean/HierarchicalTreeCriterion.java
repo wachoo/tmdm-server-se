@@ -18,6 +18,7 @@ public class HierarchicalTreeCriterion {
 	private int limit=Integer.MAX_VALUE;
 	
 	private String clusterName;
+	private String modelName;
 	
 	public HierarchicalTreeCriterion(String dataObjectName, String pivotPath,
 			String titleFieldPath, FilterItem[] filters) {
@@ -28,10 +29,12 @@ public class HierarchicalTreeCriterion {
 		this.filters = filters;
 	}
 	
-	public HierarchicalTreeCriterion(String clusterName, String dataObjectName,
+	public HierarchicalTreeCriterion(String clusterName,String modelName, String dataObjectName,
 			String pivotPath, String titleFieldPath, FilterItem[] filters) {
 		super();
+		
 		this.clusterName = clusterName;
+		this.modelName = modelName;
 		this.dataObjectName = dataObjectName;
 		this.pivotPath = pivotPath;
 		this.titleFieldPath = titleFieldPath;
@@ -39,10 +42,12 @@ public class HierarchicalTreeCriterion {
 	}
 	
 	
-	public HierarchicalTreeCriterion(String clusterName, String dataObjectName,
+	public HierarchicalTreeCriterion(String clusterName,String modelName, String dataObjectName,
 			String pivotPath, String titleFieldPath, FilterItem[] filters, String[] pivotDirections,String[] indexDirections,int limit) {
 		super();
+		
 		this.clusterName = clusterName;
+		this.modelName = modelName;
 		this.dataObjectName = dataObjectName;
 		this.pivotPath = pivotPath;
 		this.titleFieldPath = titleFieldPath;
@@ -97,6 +102,14 @@ public class HierarchicalTreeCriterion {
 	}
 	
 	
+	public String getModelName() {
+		return modelName;
+	}
+
+	public void setModelName(String modelName) {
+		this.modelName = modelName;
+	}
+
 	public String[] getPivotDirections() {
 		return pivotDirections;
 	}
@@ -207,7 +220,7 @@ public class HierarchicalTreeCriterion {
 					.parseDataConceptFromPivotPath(mainPivot);
 
 			String[] pks = CommonDWR.getBusinessConceptKeyPaths(
-					clusterName, mainConceptName);
+					modelName, mainConceptName);
 
 			for (int i = 0; i < pks.length; i++) {
 				String tagName = HierarchicalUtil.parseLastPartFromXpath(pks[i]);

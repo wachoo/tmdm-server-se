@@ -126,8 +126,9 @@ public class HierarchicalDWR {
 			WebContext ctx = WebContextFactory.get();
 			Configuration config = Configuration.getInstance();
 			String dataClusterName = config.getCluster();
+			String dataModelName = config.getModel();
 			
-			HierarchicalTreeCriterion criterion=new HierarchicalTreeCriterion(dataClusterName,dataObjectName, pivotPath,titleFieldPath, filters);
+			HierarchicalTreeCriterion criterion=new HierarchicalTreeCriterion(dataClusterName,dataModelName,dataObjectName, pivotPath,titleFieldPath, filters);
 			HierarchicalUtil.equipDirection2HierarchicalTreeCriterion(criterion, orderExpr);
 			HierarchicalUtil.equipLimit2HierarchicalTreeCriterion(criterion, limit);
 			ctx.getSession().setAttribute(
@@ -267,7 +268,7 @@ public class HierarchicalDWR {
 			String dataClusterName = config.getCluster();
 	    	String dataModelName = config.getModel();
 	    	
-			HierarchicalTreeCriterion criterion=new HierarchicalTreeCriterion(dataClusterName,dataObjectName, pivotPath,titleFieldPath, filterItems);
+			HierarchicalTreeCriterion criterion=new HierarchicalTreeCriterion(dataClusterName,dataModelName,dataObjectName, pivotPath,titleFieldPath, filterItems);
 			HierarchicalUtil.equipDirection2HierarchicalTreeCriterion(criterion, orderExpr);
 			HierarchicalUtil.equipLimit2HierarchicalTreeCriterion(criterion, limit);
 			
