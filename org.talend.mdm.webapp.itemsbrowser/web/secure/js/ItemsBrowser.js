@@ -744,24 +744,24 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						    		itemPK[i] = g.getStore().getAt(rowIndex).get(_viewItems2.keys[i]);
 						    	}
 						    	displayItemDetails(itemPK,_dataObject2);
-		                	},
-		        'headerclick':function( g, columnIndex, e){
-		   						//alert(columnIndex);
-		                		var lineMax = DWRUtil.getValue('lineMaxItems');
-		                		if(lineMax==null || lineMax=="") 
-										lineMax=50;
-								sortIndex = columnIndex;
-								if(isUp){
-									isUp=false;
-									sortUporDown = "ASC";
-								}
-								else{
-									isUp = true;
-									sortUporDown = "DESC";
-								}
-								
-								store.load({field: _viewItems2.keys[sortIndex], direction: sortUporDown, viewName: viewName,criteria:criteria});
 		                	}
+//		        'headerclick':function( g, columnIndex, e){
+//		   						//alert(columnIndex);
+//		                		var lineMax = DWRUtil.getValue('lineMaxItems');
+//		                		if(lineMax==null || lineMax=="") 
+//										lineMax=50;
+//								sortIndex = columnIndex;
+//								if(isUp){
+//									isUp=false;
+//									sortUporDown = "ASC";
+//								}
+//								else{
+//									isUp = true;
+//									sortUporDown = "DESC";
+//								}
+//								
+//								store.load({limit:pageSize,field: _viewItems2.keys[sortIndex], direction: sortUporDown, viewName: viewName,criteria:criteria});
+//		                	}
 	    	},
 			tbar: new Ext.PagingToolbar({
 		        pageSize: parseInt(pageSize),
@@ -818,7 +818,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				});
 				
 			}
-			else store.load({params:{start:0, limit:pageSize}});
+			else store.load({params:{start:0,limit:pageSize}});
 			amalto.core.ready();
 		});
 			

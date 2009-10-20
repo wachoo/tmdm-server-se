@@ -113,9 +113,12 @@ public class ItemsRemotePaging  extends HttpServlet{
 		ArrayList<String[]> itemsBrowserContent = new ArrayList<String[]>();
 		
 		try {
-			
-			int max = Integer.parseInt(limit);
-			int skip = Integer.parseInt(start);		
+			int max = 50;
+			if (limit != null && limit.length() > 0)
+				max = Integer.parseInt(limit);
+			int skip = 0;
+			if (limit != null && limit.length() > 0)
+				skip = Integer.parseInt(start);
 			View view = new View(viewName); 
 			
 
