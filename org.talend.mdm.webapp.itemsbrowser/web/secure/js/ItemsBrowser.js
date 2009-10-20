@@ -671,13 +671,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 								    		itemPK[i] = sel[j].get(_viewItems2.keys[i]);
 								    	}
 								    	var ids="";
-										for(var i=0; i<itemPK.length; i++) {
-											ids += (ids==""?"":"@"); 
-											ids += itemPK[i];			
-										}							    	
+//										for(var i=0; i<itemPK.length; i++) {
+//											ids += (ids==""?"":"@"); 
+//											ids += itemPK[i];			
+//										}							    	
 										var treeIndex=1;
 										if(_dataObject==null) _dataObject=_dataObject2;
-										ItemsBrowserInterface.deleteItem(_dataObject, ids, function(result){			
+										ItemsBrowserInterface.deleteItem(_dataObject, itemPK, function(result){			
 											amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 																				
 										});
@@ -685,7 +685,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					        		//display
 					        		displayItems();
 					    		}				    			
-				    		});			        			        		
+				    		});	//comfirm		        			        		
 		        		}
 		        	}
 	        	},
@@ -719,14 +719,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 							    	for(var i=0; i<_viewItems2.keys.length; i++) {
 							    		itemPK[i] = sel[j].get(_viewItems2.keys[i]);
 							    	}
-							    	var ids="";
-									for(var i=0; i<itemPK.length; i++) {
-										ids += (ids==""?"":"@"); 
-										ids += itemPK[i];			
-									}							    	
+//							    	var ids="";
+//									for(var i=0; i<itemPK.length; i++) {
+//										ids += (ids==""?"":"@"); 
+//										ids += itemPK[i];			
+//									}							    	
 									var treeIndex=1;
 									if(_dataObject==null) _dataObject=_dataObject2;
-									ItemsBrowserInterface.logicalDeleteItem(_dataObject, ids, path, function(result){
+									ItemsBrowserInterface.logicalDeleteItem(_dataObject, itemPK, path, function(result){
 											
 									});									
 				        		}		
