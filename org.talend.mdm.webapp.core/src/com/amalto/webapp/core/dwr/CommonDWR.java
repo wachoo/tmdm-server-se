@@ -234,7 +234,7 @@ public class CommonDWR {
 		throws RemoteException, Exception{
 		String x_Label = "X_Label_"+language.toUpperCase();
 		Map<String,XSElementDecl> map = getConceptMap(dataModelPK);	
-    	return getLabel(map.get(concept),x_Label);
+    	return getLabel(map.get(concept),x_Label).equals("")?map.get(concept).getName():getLabel(map.get(concept),x_Label);
 	}
 	
 	public static HashMap<String,String> getFieldsByDataModel(
@@ -252,8 +252,8 @@ public class CommonDWR {
 		Map<String,XSElementDecl> map = getConceptMap(dataModelPK);
     	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
     	
-    	HashMap<String,String> xpathToLabel = new HashMap<String,String>();  
-    	xpathToLabel.put(concept,getLabel(map.get(concept),x_Label));
+    	HashMap<String,String> xpathToLabel = new HashMap<String,String>();
+    	xpathToLabel.put(concept,getLabel(map.get(concept),x_Label).equals("")?map.get(concept).getName():getLabel(map.get(concept),x_Label));
     	//xpathToLabel.put(concept,CommonDWR.getConceptLabel(dataModelPK,concept,language));
     	XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
     	for (int j = 0; j < xsp.length; j++) {  
@@ -279,9 +279,21 @@ public class CommonDWR {
 				String foreignkeyPath=getForeignkeyPath(xsp.getTerm().asElementDecl());
 				if(foreignkeyPath!=null)toPutKey+="@FK_"+foreignkeyPath;
 			}
+			
+			//FIXME:USE XPATH WITHOUT CONCEPT AS LABEL, MAYBE CAUSE SOME BUGS ON OLD INVOKING PLACES  
+			String xlabel="";
+			if(getLabel(xsp.getTerm().asElementDecl(),x_Label).equals("")){
+				xlabel=xpathParent+"/"+xsp.getTerm().asElementDecl().getName();
+				if(xlabel.indexOf("/")!=-1){
+					xlabel=xlabel.substring(xlabel.indexOf("/")+1);
+				}
+			}else{
+				xlabel=getLabel(xsp.getTerm().asElementDecl(),x_Label);
+			}
+			
 			xpathToLabel.put(
 					toPutKey,
-					getLabel(xsp.getTerm().asElementDecl(),x_Label)
+					xlabel
 					);	
 		}		
 		if(xsp.getTerm().asElementDecl().getType().isComplexType()==true ){
@@ -384,7 +396,7 @@ public class CommonDWR {
 	}
 	
 	private static String getLabel(XSElementDecl xsed, String x_Label){
-		String label = xsed.getName();
+		String label = "";
 		try{
 			XSAnnotation xsa = xsed.getAnnotation();
 			Element el = (Element)xsa.getAnnotation();
