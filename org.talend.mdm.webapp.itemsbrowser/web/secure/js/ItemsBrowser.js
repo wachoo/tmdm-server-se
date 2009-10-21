@@ -375,6 +375,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var sortUporDown="ASC";
 	var isUp = true;
 	var _criterias = new Array();
+	var _searchCriteriaResult = "";
 	
 	function browseItems(){
 		showItemsPanel();
@@ -487,9 +488,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						'<input id="itemsSearchValue1" type="text" value="*"  onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/> ' +
 						'<input id="itemSearchCriteriaForAnd1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'AND\');"> AND '+
 						'<input id="itemSearchCriteriaForOR1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'OR\');"> OR '+
-						'<br/></span><br/><span class="ext-mb-content">' +
-					    'Display Resulting Search:<input type="text" value="" id="searchCriteriaResult" size="70">'+
-					    '</span>'
+						'<br/></span>'
 						);	
 		DWRUtil.addOptions('itemsSearchOperator1',OPERATORS[language]);
 		DWRUtil.removeAllOptions('itemsSearchField1');
@@ -698,7 +697,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			}
 		}
 		
-		DWRUtil.setValue('searchCriteriaResult', cpy.join(''));
+		_searchCriteriaResult = cpy.join('');
    }
 	
 	function displayItems(){
@@ -778,7 +777,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	    
 		//Build a comma-dash separated list of search criteria  searchCriteriaResult
-	    var criteria = DWRUtil.getValue('searchCriteriaResult');	
+	    var criteria = _searchCriteriaResult;	
 
 		var store = new Ext.data.Store({
 			    proxy: new Ext.data.HttpProxy({
