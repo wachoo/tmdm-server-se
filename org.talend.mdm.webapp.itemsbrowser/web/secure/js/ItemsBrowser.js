@@ -808,6 +808,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	        	{text:BUTTON_DELETE[language],
 	        		id:'btn-delete',
 	        		xtype:'button',
+	        		disabled:$('item-new-btn').disabled,
 	        		tooltip:PHYSICALLY_DELETE_TOOLTIP[language],
 		        	listeners:{
 		        		'click':function(){
@@ -844,6 +845,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	        	{text:BUTTON_LOGICAL_DEL[language],
 	        		id:'btn-logicaldelete',
 	        		xtype:'button',
+	        		disabled:$('item-new-btn').disabled,
 	        		tooltip:LOGICALLY_DELETE_TOOLTIP[language],
 	        		listeners:{
 		        		'click':function(){
