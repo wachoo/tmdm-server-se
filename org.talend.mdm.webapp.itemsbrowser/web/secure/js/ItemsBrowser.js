@@ -2062,7 +2062,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		
 		var dataObject = foreignKeyXpath.split("/")[0];
-		displayItemDetails(itemPK,dataObject);
+		if(itemPK =="")
+			Ext.Msg.alert("Warning","The concept does not exist.");
+		else
+			displayItemDetails(itemPK,dataObject);
 	}
 	
 	function browseForeignKey2(nodeId, foreignKeyXpath){
