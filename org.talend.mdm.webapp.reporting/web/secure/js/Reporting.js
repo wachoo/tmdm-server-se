@@ -866,11 +866,15 @@ amalto.reporting.Reporting = function () {
 		}
 		
 		//delete entries already in the right grid
+		//k: add by lym mdm:0009719 
 		if(EDIT==true){
-			for(var i=0; i<myData.length; i++) {
+			var k=0;
+			for(var i=0; i<myData.length+k; i++) {
 				for(var j=0; j<reporting.fields.length; j++) {
-					if(myData[i][0]==reporting.fields[j].xpath){
-						myData.splice(i,1);
+					if(myData[i-k][0]==reporting.fields[j].xpath){
+						myData.splice(i-k,1);
+						k++;
+						break;
 					}
 				}	
 			}
