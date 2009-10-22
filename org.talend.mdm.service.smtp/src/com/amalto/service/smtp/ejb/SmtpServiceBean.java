@@ -147,7 +147,7 @@ public class SmtpServiceBean extends ServiceCtrlBean  implements SessionBean {
      */
 	public String getDescription(String twoLetterLanguageCode) throws XtentisException {
 
-		return "This service sends an email through the SMTP connector";
+		return "This service interacts with the Subversion connector";
 	}
 
     /**
