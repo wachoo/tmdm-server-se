@@ -347,7 +347,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					}
 
 				}
-				if (this.itemData.readOnly==false && this.itemData.minOccurs>=1 && (value == null || value == ""))
+				if (this.itemData.readOnly==false && this.itemData.minOccurs>=1 && (value == null || value == "") && this.itemData.choice == false)
 				{
 					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 					return false;

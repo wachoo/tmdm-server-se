@@ -333,7 +333,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'The last item can not be removed!'
 	}
 	
+	var CHOICE_ALLTOGETHER_ALERT={
+			'fr': 'Only one choice item can be set value ',
+			'en': 'Only one choice item can be set value '
+	}
 
+	var CHOICE_NONE_ALERT={
+			'fr': 'No choice item is set value',
+			'en': 'No choice item is set value'
+	}
 	/*****************
 	 * EXT 2.0
 	 *****************/
@@ -1303,7 +1311,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
     						itemNodes[i] = tmp;
-    						map[treeIndex][i] = tmp;
+    						var length = map[treeIndex].length;
+    						map[treeIndex][length + i] = tmp;
     					}
     					fnCallback();
         			});
@@ -1338,7 +1347,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
     						itemNodes[i] = tmp;
-    						map[treeIndex][i] = tmp;
+    						var length = map[treeIndex].length;
+    						map[treeIndex][length + i] = tmp;
     					}
     					fnCallback();
         			});
@@ -1612,8 +1622,41 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	  	var node = nodes[i];
 	  	if (node!=null && node instanceof amalto.itemsbrowser.ItemNode)
 	  	{
-	  		if (node.update() == false)
+	  		if (node.itemData.choice == false && node.update() == false)
 	  		  error = true;
+	  		else if(node.itemData.choice == true)
+	  		{
+	  			var childNodesWithinChoice = node.parent.children;
+	  			var allValid = true;
+	  			for (var m = 0; m < childNodesWithinChoice.length; m++){
+	  				if (childNodesWithinChoice[m] instanceof amalto.itemsbrowser.ItemNode){
+	  					if (childNodesWithinChoice[m].update() == false){
+	  						allValid = false;
+	  					}
+	  				}
+	  			}
+	  			if (allValid == true){
+	  				var inputState = 0;
+	  				for (var m = 0; m < childNodesWithinChoice.length; m++){
+		  				if (childNodesWithinChoice[m] instanceof amalto.itemsbrowser.ItemNode){
+		  					var nodeValue =  DWRUtil.getValue(childNodesWithinChoice[m].itemData.nodeId + "Value");
+		  					if (nodeValue != "")
+		  						inputState += 1;
+		  				}
+	  				}
+	  				
+	  				for (var n = 0; n < childNodesWithinChoice.length; n++){
+		  				if (inputState == 0){
+		  					childNodesWithinChoice[n].displayErrorMessage(childNodesWithinChoice[n].itemData.nodeId, CHOICE_NONE_ALERT[language]);
+		  					error = true;
+		  				}
+		  				else if(inputState <= childNodesWithinChoice.length && inputState > 1){
+		  					childNodesWithinChoice[n].displayErrorMessage(childNodesWithinChoice[n].itemData.nodeId, CHOICE_ALLTOGETHER_ALERT[language]);
+		  					error = true;
+		  				}
+	  				}
+	  			}
+	  		}
 	  	}
 	  	   
 	  }
