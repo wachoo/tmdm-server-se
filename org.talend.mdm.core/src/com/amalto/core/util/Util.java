@@ -386,6 +386,32 @@ public final class Util {
     }
     
     
+    public static void removeXpathFromDocument(Document document, String xpath,boolean reservedRoot)throws Exception {
+    	Element root=document.getDocumentElement();
+		NodeList toDeleteNodeList=Util.getNodeList(document, xpath);
+		if (toDeleteNodeList != null) {
+			Node lastParentNode = null;
+			Node formatSiblingNode = null;
+			for (int i = 0; i < toDeleteNodeList.getLength(); i++) {
+				Node node = toDeleteNodeList.item(i);
+				if(root.isSameNode(node)&&reservedRoot){
+					while (node.hasChildNodes()) {
+						node.removeChild(node.getFirstChild());
+					}
+				}else{
+					lastParentNode = node.getParentNode();
+					formatSiblingNode = node.getNextSibling();
+					if (lastParentNode != null){
+						lastParentNode.removeChild(node);
+					}	
+					if (formatSiblingNode != null && formatSiblingNode.getNodeValue() != null && formatSiblingNode.getNodeValue().matches("\\s+")){
+						lastParentNode.removeChild(formatSiblingNode);
+					}
+				}
+				
+			}
+		}
+	}
 
     public static String[] getTextNodes(Node contextNode, String xPath) throws TransformerException{
     	return getTextNodes(contextNode,xPath,contextNode);

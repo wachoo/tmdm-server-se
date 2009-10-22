@@ -18,7 +18,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
-import org.talend.mdm.commmon.util.time.TimeMeasure;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -44,6 +43,7 @@ import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
+import com.amalto.core.schematron.manage.SchemaManager;
 import com.amalto.core.util.BAMLogger;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -511,6 +511,7 @@ public abstract class ObjectPOJO implements Serializable{
             	
             setLastError("");
             //update the cache
+            SchemaManager.resetParsedDatamodelCache(getPK().getUniqueId());
             //ItemCacheKey key =new ItemCacheKey(revisionID,getPK().getUniqueId(), getCluster(this.getClass()));            
             //cachedPojo.put(key, sw.toString());
             return getPK();

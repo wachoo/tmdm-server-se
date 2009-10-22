@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +27,9 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.schematron.manage.AppinfoSourceHolder;
+import com.amalto.core.schematron.manage.AppinfoSourceHolderPK;
+import com.amalto.core.schematron.manage.SchemaManager;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -314,7 +318,6 @@ public class ItemPOJO implements Serializable{
     
     /**
      * Loads an Item<br/>
-     * User rights are NOT checked
      * @param itemPOJOPK
      * @return
      * 	the {@link ItemPOJO}
@@ -376,7 +379,36 @@ public class ItemPOJO implements Serializable{
             	throw new XtentisException("Cannot parse item read from XML Server");
             }
             
-            return newItem;
+             //check user rights
+            if(newItem.getDataModelName()!=null){
+            	try {
+    				
+               
+                	DataModelPOJO bindingDataModelPOJO =  ObjectPOJO.load(revisionID,DataModelPOJO.class,new ObjectPOJOPK(newItem.getDataModelName()));//FIXME: check objects rights
+                	
+    				AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(
+    						new AppinfoSourceHolderPK(
+    								newItem.getDataModelName(),
+    								newItem.getConceptName())
+    						);
+    				SchemaManager.analyzeAnnotationsOfConcept(bindingDataModelPOJO, newItem.getConceptName(),appinfoSourceHolder);
+    				
+    				String itemContentString = newItem.getProjectionAsString();
+    				HashSet<String> roles = LocalUser.getLocalUser().getRoles();
+    				
+    				Document cleanedDocument = SchemaManager.executeHideCheck(
+    						itemContentString, roles, appinfoSourceHolder);
+    				
+    				if(cleanedDocument!=null)newItem.setProjectionAsString(Util
+    						.nodeToString(cleanedDocument));
+    			} catch (Exception e) {
+    				String err = "Unable to check user rights of the item "+itemPOJOPK.getUniqueID()
+    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+    	            org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err,e);
+    			}
+            }
+            	
+			return newItem;
 	        	                                            
 	    } catch (Exception e) {
     	    String err = "Unable to load the item  "+itemPOJOPK.getUniqueID()
