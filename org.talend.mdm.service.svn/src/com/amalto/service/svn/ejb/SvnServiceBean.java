@@ -96,8 +96,8 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      */
 	public String getDescription(String twoLetterLanguageCode) throws XtentisException {
 		if ("fr".matches(twoLetterLanguageCode.toLowerCase()))
-			return "Service de gestion de Svn";
-		return "Svn Service";
+			return "Ce service interagit avec le connecteur Subversion";
+		return "This service interacts with the Subversion connector";
 	}
 
 
