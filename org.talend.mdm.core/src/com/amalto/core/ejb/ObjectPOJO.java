@@ -511,7 +511,6 @@ public abstract class ObjectPOJO implements Serializable{
             	
             setLastError("");
             //update the cache
-            SchemaManager.resetParsedDatamodelCache(getPK().getUniqueId());
             //ItemCacheKey key =new ItemCacheKey(revisionID,getPK().getUniqueId(), getCluster(this.getClass()));            
             //cachedPojo.put(key, sw.toString());
             return getPK();

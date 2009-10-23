@@ -2,6 +2,8 @@ package com.amalto.core.objects.datamodel.ejb;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.schematron.manage.SchemaManager;
+import com.amalto.core.util.XtentisException;
 
 
 
@@ -77,7 +79,13 @@ public class DataModelPOJO extends ObjectPOJO{
 	}
 	
 
-	
+	@Override
+	public ObjectPOJOPK store() throws XtentisException {
+		ObjectPOJOPK pk=super.store();
+		//update the cache
+		if (getName()!=null)SchemaManager.resetParsedDatamodelCache(getName());
+		return pk;
+	}
 	
 
 }
