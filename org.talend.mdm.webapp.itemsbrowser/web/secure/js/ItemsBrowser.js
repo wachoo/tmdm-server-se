@@ -1682,7 +1682,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 //				if(!Ext.MessageBox.confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
 				Ext.Msg.confirm("confirm",MSG_CONFIRM_SAVE_ITEM[language],function re(en){
 					if(en=="no")
-						return;
+						return;});
 			}
 			var itemPK = ids.split('@');
 			ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
