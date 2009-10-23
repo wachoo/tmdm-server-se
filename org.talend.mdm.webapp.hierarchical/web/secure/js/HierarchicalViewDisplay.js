@@ -184,11 +184,97 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 				}),
 				xtype : "treepanel",
 				containerScroll : "true",
-				tbar : new Ext.Toolbar([{
-					text : "Order expr:",
-					xtype : "tbtext"
+				tbar : new Ext.Toolbar([
+				{
+					text : "Sort Order",
+				    //xtype : "tbsplit",
+					//iconCls: 'bmenu',  // <-- icon
+					handler : function(button, event) {
+						this.onSortButtonClick(button, event);
+					}.createDelegate(this),
+				    menu: new Ext.menu.Menu({
+						        items: [
+						            '<b class="menu-title">Choose Field</b>',
+						            this.sortOrderField1 = new Ext.menu.Item({
+						                text: 'Field1',
+						                menu: {
+						                    items: [
+						                        // stick any markup in a menu
+						                        '<b class="menu-title">Choose Order</b>',
+						                        this.sortOrderField1Ascending = new Ext.menu.CheckItem({
+						                            text: 'Ascending',
+						                            checked: true,
+						                            group: 'field1',
+						                            checkHandler: function(item,checked) {
+														this.onSortItemCheck(item,checked);
+													}.createDelegate(this)
+						                        }), 
+						                        this.sortOrderField1Descending = new Ext.menu.CheckItem({
+						                            text: 'Descending',
+						                            checked: false,
+						                            group: 'field1',
+						                            checkHandler: function(item,checked) {
+														this.onSortItemCheck(item,checked);
+													}.createDelegate(this)
+						                        })
+						                    ]
+						                }
+						            }),
+						            this.sortOrderField2 = new Ext.menu.Item({
+						                text: 'Field2',
+						                menu: {
+						                    items: [
+						                        // stick any markup in a menu
+						                        '<b class="menu-title">Choose Order</b>',
+						                        this.sortOrderField2Ascending = new Ext.menu.CheckItem({
+						                            text: 'Ascending',
+						                            checked: true,
+						                            group: 'field2',
+						                            checkHandler: function(item,checked) {
+														this.onSortItemCheck(item,checked);
+													}.createDelegate(this)
+						                        }), 
+						                        this.sortOrderField2Descending = new Ext.menu.CheckItem({
+						                            text: 'Descending',
+						                            checked: false,
+						                            group: 'field2',
+						                            checkHandler: function(item,checked) {
+														this.onSortItemCheck(item,checked);
+													}.createDelegate(this)
+						                        })
+						                    ]
+						                }
+						            }),
+						            this.sortOrderField3 = new Ext.menu.Item({
+						                text: 'Field3',
+						                menu: {
+						                    items: [
+						                        // stick any markup in a menu
+						                        '<b class="menu-title">Choose Order</b>',
+						                        this.sortOrderField3Ascending = new Ext.menu.CheckItem({
+						                            text: 'Ascending',
+						                            checked: true,
+						                            group: 'field3',
+						                            checkHandler: function(item,checked) {
+														this.onSortItemCheck(item,checked);
+													}.createDelegate(this)
+						                        }), 
+						                        this.sortOrderField3Descending = new Ext.menu.CheckItem({
+						                            text: 'Descending',
+						                            checked: false,
+						                            group: 'field3',
+						                            checkHandler: function(item,checked) {
+														this.onSortItemCheck(item,checked);
+													}.createDelegate(this)
+						                        })
+						                    ]
+						                }
+						            })
+						        ]
+				     })  // assign menu by instance
 				}, {
 					name : "orderExprText",
+					hidden : true,
 					xtype : "textfield",
 					value : "",
 					listeners: {
@@ -351,6 +437,154 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 			id : "hierarchicalViewDisplay",
 			closable:true
 		});
+	},
+	
+	onSortItemCheck: function (item,checked){
+       
+       if(item.checked){
+         //alert(item.group+"/"+item.text);
+       	
+         var orderExprText=DWRUtil.getValue('orderExprText');
+         var orderExprArray=this.orderExprText2Array(orderExprText);
+         if(item.group=='field1'){
+         	if(item.text=='Ascending'){
+         		orderExprArray[0]='ASC';
+         	}else if(item.text=='Descending'){
+         		orderExprArray[0]='DESC';
+         	}
+         }else if(item.group=='field2'){
+         	if(item.text=='Ascending'){
+         		orderExprArray[1]='ASC';
+         	}else if(item.text=='Descending'){
+         		orderExprArray[1]='DESC';
+         	}	
+         }else if(item.group=='field3'){
+         	if(item.text=='Ascending'){
+         		orderExprArray[2]='ASC';
+         	}else if(item.text=='Descending'){
+         		orderExprArray[2]='DESC';
+         	}
+         }
+         
+         var exprText=this.orderExprArray2Text(orderExprArray);
+         DWRUtil.setValue('orderExprText',exprText);
+         
+       }
+    },
+
+	
+	onSortButtonClick : function(button, event){
+
+	   	var pivotLabel=DWRUtil.getValue('pivotCmp');
+	   	var titleLabel=DWRUtil.getValue('titleFieldCmp');
+	   	
+	   	//check
+//	   	var invalidFields="";
+//    	if(pivotLabel=='')invalidFields+="'Pivot' ";
+//    	if(titleLabel=='')invalidFields+="'Title Field' ";
+//    	if(invalidFields!=""){
+//    		Ext.MessageBox.alert('Sorry', "Please input "+invalidFields+"first! ");
+//		    return false;
+//    	}
+	   	
+    	//init label
+    	if(pivotLabel==''||titleLabel==''){
+    		this.sortOrderField1.setVisible(false);
+    	    this.sortOrderField2.setVisible(false);
+    	    this.sortOrderField3.setVisible(false);
+    	}else{
+    		//TODO filter some reserved words
+    		if(pivotLabel.indexOf("->")!=-1){
+    			
+    		  var labels=pivotLabel.split("->");
+    		  this.sortOrderField1.setVisible(true);
+    		  this.sortOrderField2.setVisible(true);
+    		  
+    		  this.sortOrderField1.setText(labels[1]);
+    	      this.sortOrderField2.setText(labels[0]);
+    	      
+    		}else{
+    		  this.sortOrderField1.setVisible(false);	
+    		  this.sortOrderField2.setVisible(true);
+    		  this.sortOrderField2.setText(pivotLabel);
+    		}
+    	    this.sortOrderField3.setVisible(true);
+	   	    this.sortOrderField3.setText(titleLabel);
+    	}
+    	
+    	//init value
+    	var orderExprText=DWRUtil.getValue('orderExprText');
+    	this.setOrderFields(this.orderExprText2Array(orderExprText));
+	},
+	
+	setOrderFields: function(array){
+		for (var index = 0; index < array.length; index++) {
+			if(array[index]!=undefined&&array[index]!=null&&array[index].length>0){
+				if(array[index]=='ASC'){
+					switch(index)
+						{
+						case 0:
+						  this.sortOrderField1Ascending.setChecked(true);
+						  break;
+						case 1:
+						  this.sortOrderField2Ascending.setChecked(true);
+						  break;
+						case 2:
+						  this.sortOrderField3Ascending.setChecked(true);
+						  break;  
+						default:
+						}
+				}else if(array[index]=='DESC'){
+					switch(index)
+						{
+						case 0:
+						  this.sortOrderField1Descending.setChecked(true);
+						  break;
+						case 1:
+						  this.sortOrderField2Descending.setChecked(true);
+						  break;
+						case 2:
+						  this.sortOrderField3Descending.setChecked(true);
+						  break;  
+						default:
+						}
+				}
+			}
+		}
+	},
+	
+	orderExprText2Array: function(orderExprText){
+		
+		var orderExprArray=new Array(3);
+		orderExprText=orderExprText.trim();
+		if(orderExprText!=''){
+			var tmpArray=orderExprText.split('-');
+			if(tmpArray!=null){
+				if(tmpArray.length==2){
+				orderExprArray[0]='';
+				orderExprArray[1]=tmpArray[0];
+				orderExprArray[2]=tmpArray[1];
+				}else if(tmpArray.length==3){
+				orderExprArray[0]=tmpArray[0];
+				orderExprArray[1]=tmpArray[1];
+				orderExprArray[2]=tmpArray[2];
+				}
+			}
+		}
+		return orderExprArray;
+	},
+	
+	orderExprArray2Text: function(array){
+		var expr='';
+		if(array!=null){
+		  	for (var index = 0; index < array.length; index++) {
+		  		if(array[index]!=undefined&&array[index]!=null&&array[index].length>0){
+		  			expr+=array[index];
+		  			if(index<array.length-1)expr+='-';
+		  		}
+		  	}
+		}
+		return expr;
 	},
 	
 	initData : function(){
