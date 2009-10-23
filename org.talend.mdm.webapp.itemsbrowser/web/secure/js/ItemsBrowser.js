@@ -747,7 +747,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		    	displayItemDetails(itemPK,_dataObject2);
 	        }
 	        catch(error){
-	        	alert(error);
+	        	Ext.Msg.alert("error",error);
 	        }
 	    };
 
@@ -1679,7 +1679,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    $('errorDetail'+ treeIndex).style.display = "none";
 		ItemsBrowserInterface.checkIfDocumentExists(keys[treeIndex], dataObject, function(result){
 			if(result==true) {
-				if(!confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
+//				if(!Ext.MessageBox.confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
+				Ext.Msg.confirm("confirm",MSG_CONFIRM_SAVE_ITEM[language],function re(en){
+					if(en=="no")
+						return;
 			}
 			var itemPK = ids.split('@');
 			ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
