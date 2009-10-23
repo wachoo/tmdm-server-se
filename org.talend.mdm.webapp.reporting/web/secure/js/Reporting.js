@@ -570,7 +570,7 @@ amalto.reporting.Reporting = function () {
 		var reportingName = DWRUtil.getValue('reportingSelect');
 		if(reportingName!=LABEL_SELECT[language]){
 			var msg = MSG_CONFIRM_DELETE_REPORTING[language]+reportingName+"?";
-			if (confirm(msg)){
+			if (Ext.Msg.confirm(msg)){
 				ReportingInterface.deleteReporting(deleteReportingCB,reportingName);
 			}
 		}
@@ -736,7 +736,7 @@ amalto.reporting.Reporting = function () {
 	    var pivot = DWRUtil.getValue('pivotList');
 	
 	    if(DWRUtil.getValue('reportingName')==""){
-	    	alert(SAVE_WITHOUT_NAME[language]);
+	    	Ext.Msg.alert(SAVE_WITHOUT_NAME[language]);
 	    	return;
 	    }
 	    
@@ -756,7 +756,7 @@ amalto.reporting.Reporting = function () {
 	    //alert(DWRUtil.toDescriptiveString(grid2.getStore(),1));
 
 	     if(fields.length==0){
-	    	alert(SAVE_WITHOUT_FIELD[language]);
+	    	Ext.Msg.alert(SAVE_WITHOUT_FIELD[language]);
 	    	return;
 	    }
 	    var store = filterGrid2.getStore();
@@ -787,7 +787,7 @@ amalto.reporting.Reporting = function () {
 	
 	function saveReportingCB(result){
 		if(result=="ERROR1") 
-			alert(ALERT_EXISTING_REPORTING[language]);
+			Ext.Msg.alert(ALERT_EXISTING_REPORTING[language]);
 		else{		
 			var tabPanel = amalto.core.getTabPanel();
 			tabPanel.remove('newReportingDiv');
@@ -799,7 +799,7 @@ amalto.reporting.Reporting = function () {
 	
 	function keyEnter(evenement){
 		var touche = window.event ? evenement.keyCode : evenement.which;
-		alert(touche);
+		Ext.Msg.alert(touche);
 	
 	}
 	
@@ -1281,7 +1281,7 @@ amalto.reporting.Reporting = function () {
 	 		var text = myCal.getSelectedDates()[0].getFullYear()+"-"+month+"-"+day;
 	   		try{filterGrid2.dataModel.setValueAt(text,rowIndex,2);}
 	
-	   		catch(error){alert(error);}
+	   		catch(error){Ext.Msg.alert(error);}
 	   		//DWRUtil.setValue(input,text);
 	   		$('dateContainer').style.display="none";
 	   		//ON_CAL=0;
