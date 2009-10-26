@@ -416,22 +416,31 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      * @ejb.facade-method
      */
     public String getDefaultConfiguration() throws XtentisException{
-    	 org.apache.log4j.Logger.getLogger(this.getClass()).warn("SERVICE SVN GET DEFAULT CONFIGURATION");
-    	try {
-    		SvnConfiguration config = new SvnConfiguration();
-    		config.setUrl("http://192.168.0.188/");
-    		config.setPassword("b2box");
-    		config.setUsername("b2box");
-    		config.setAutocommit("false");
-    		return config.serialize().replaceAll("<\\?xml.*?\\?>","");
-    	} catch (XtentisException e) {
-    		throw(e);
-	    } catch (Exception e) {
-    	    String err = "Unable to serialize the default configuration of the File System Service"
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    	    throw new XtentisException(err);
-	    }
+    	org.apache.log4j.Logger.getLogger(this.getClass()).warn("SERVICE SVN GET DEFAULT CONFIGURATION");
+//    	try {
+//    		SvnConfiguration config = new SvnConfiguration();
+//    		config.setUrl("http://192.168.0.188/");
+//    		config.setPassword("b2box");
+//    		config.setUsername("b2box");
+//    		config.setAutocommit("false");
+//    		return config.serialize().replaceAll("<\\?xml.*?\\?>","");
+//    	} catch (XtentisException e) {
+//    		throw(e);
+//	    } catch (Exception e) {
+//    	    String err = "Unable to serialize the default configuration of the File System Service"
+//    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+//    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+//    	    throw new XtentisException(err);
+//	    }
+    	StringBuffer sb=new StringBuffer();
+	    sb.append("<svn-configuration>\n"); 
+	    sb.append("  <url>http://192.168.0.188/</url>\n"); 
+	    sb.append("  <username>b2box</username>\n"); 
+	    sb.append("  <password>b2box</password>\n"); 
+	    sb.append("  <autocommit>false</autocommit>\n"); 
+	    sb.append("</svn-configuration>");
+	    
+	    return sb.toString();
     }
 
 
