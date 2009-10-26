@@ -570,9 +570,12 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			if(itemsCache.size()==CACHE_ITEM_MAX_SIZE)itemsCache.clear();
 			ItemCacheKey key1=new ItemCacheKey(revisionID,uniqueID,clusterName);
 			if(itemsCache.get(key1)!=null){
-				return (encoding == null ? "" : "<?xml version=\"1.0\" encoding=\""+encoding+"\"?>\n")+itemsCache.get(key1);
+				//modified by ymli, 0009760 if the is '<?xml version="1.0" encoding="UTF-8"?>', it will be wrong, so replace it.
+				String projection = itemsCache.get(key1);
+				String subString = projection.replaceAll("<\\?xml.*?\\?>","");
+				return (encoding == null ? "" : "<?xml version=\"1.0\" encoding=\""+encoding+"\"?>\n")+subString;//itemsCache.get(key1);
 			}
-			
+//			
 			org.xmldb.api.base.Collection col = getCollection(revisionID, clusterName, true);
 //			col.setProperty(OutputKeys.INDENT, "yes");
 			col.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
