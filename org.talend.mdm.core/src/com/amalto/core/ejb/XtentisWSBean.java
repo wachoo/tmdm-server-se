@@ -2467,44 +2467,61 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 					null, 
 					"amalto/local/service/"+serviceName.getValue()
 				);
-			String desc = (String)
-			Util.getMethod(service, "getDescription").invoke(
+			
+			String desc = "";
+			Object descObject=Util.getMethod(service, "getDescription").invoke(
 				service,
 				new Object[] {
 						""
 				}
 			);
+			if(descObject!=null)desc=(String)descObject;
 			
-			String configuration = (String)
-				Util.getMethod(service, "getConfiguration").invoke(
+			String configuration = "";
+			Object configurationObject=Util.getMethod(service, "getConfiguration").invoke(
 					service,
 					new Object[] {
 							""
 					}
 				);
+			if(configurationObject!=null)configuration= (String)configurationObject;
+			
 			String doc = "";
 			String schema = "";
 			String defaultConf = "";
 			try{
-				doc=(String)
-				Util.getMethod(service, "getDocumentation").invoke(
-						service,
-						new Object[] {
-								""
-						}
-				);		
 				
-				defaultConf = (String)Util.getMethod(service, "getDefaultConfiguration").invoke(
-						service,
-						new Object[]{
-						}
-				);
-				schema=(String)
-				Util.getMethod(service, "getConfigurationSchema").invoke(
-					service,
-					new Object[] {						
-					}
-			    );
+				Method getDocumentationMethod=Util.getMethod(service, "getDocumentation");
+				if(getDocumentationMethod!=null){
+					Object docObject=getDocumentationMethod.invoke(
+							service,
+							new Object[] {
+									""
+							}
+					);		
+					if(docObject!=null)doc=(String)docObject;
+				}
+				
+				Method getDefaultConfigurationMethod=Util.getMethod(service, "getDefaultConfiguration");
+				if(getDefaultConfigurationMethod!=null){
+					Object defaultConfObject=getDefaultConfigurationMethod.invoke(
+							service,
+							new Object[]{
+							}
+					);
+					if(defaultConfObject!=null)defaultConf=(String)defaultConfObject;
+				}
+				
+				Method getConfigurationSchemaMethod=Util.getMethod(service, "getConfigurationSchema");
+				if(getConfigurationSchemaMethod!=null){
+					Object schemaObject=getConfigurationSchemaMethod.invoke(
+							service,
+							new Object[] {						
+							}
+					    );
+					if(schemaObject!=null)schema=(String)schemaObject;
+				}
+				
 			}catch(Exception e){
 				e.printStackTrace();
 			}
