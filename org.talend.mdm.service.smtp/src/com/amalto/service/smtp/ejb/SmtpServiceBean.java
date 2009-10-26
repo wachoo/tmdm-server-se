@@ -647,14 +647,14 @@ public class SmtpServiceBean extends ServiceCtrlBean  implements SessionBean {
     */
     public String getDefaultConfiguration() {
     	return
-    		"<configuration>"+
-    		"	<host>localhost</host>"+
-    		"	<port>25</port>"+
-    		"	<username></username>"+
-    		"	<password></password>"+
-    		"	<permanentbcc></permanentbcc>"+
-    		"	<transformer></transformer>"+
-    		"	<logfilename></logfilename>"+
+    		"<configuration>\n"+
+    		"	<host>localhost</host>\n"+
+    		"	<port>25</port>\n"+
+    		"	<username></username>\n"+
+    		"	<password></password>\n"+
+    		"	<permanentbcc></permanentbcc>\n"+
+    		"	<transformer></transformer>\n"+
+    		"	<logfilename></logfilename>\n"+
 			"</configuration>";
     }
     /**
