@@ -1255,7 +1255,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					'</div>' ;
 										
 
-				var tbDetail = new Ext.Toolbar({id:'item-tb',hidden:$('item-new-btn').disabled});
+				var tbDetail = new Ext.Toolbar({id:'item-tb'});
 				
 				tbDetail.baseOptions = 0;
 				tbDetail.ids = ids;
