@@ -282,8 +282,10 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 		                		this.onEnterKeyClick(a, e);
 				             }.createDelegate(this)
 		                }
-				}, {
-					text : "Max size:",
+				},{
+				    xtype : "tbspacer"
+			    },{
+					text : "Number of records (-1 = no limit):",
 					xtype : "tbtext"
 				}, {
 					name : "maxSizeText",
@@ -466,9 +468,13 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
          	}
          }
          
-         var exprText=this.orderExprArray2Text(orderExprArray);
-         DWRUtil.setValue('orderExprText',exprText);
+         var newExprText=this.orderExprArray2Text(orderExprArray);
+         DWRUtil.setValue('orderExprText',newExprText);
          
+         if(newExprText!=orderExprText){
+         	//if changed auto search
+    	    this.onSearchClick();
+         }
        }
     },
 
@@ -515,6 +521,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
     	//init value
     	var orderExprText=DWRUtil.getValue('orderExprText');
     	this.setOrderFields(this.orderExprText2Array(orderExprText));
+    	
 	},
 	
 	setOrderFields: function(array){
