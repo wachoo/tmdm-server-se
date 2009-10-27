@@ -20,7 +20,7 @@ import com.amalto.webapp.util.webservices.WSRegexDataModelPKs;
 public class ActionsDWR {
 
 	
-	public static Map<String, String> getClusters(String value){
+	public Map<String, String> getClusters(String value){
 		try {
 			Map<String, String> map = new HashMap<String, String>();
 			WSDataClusterPK[] wsDataClustersPKs = Util.getPort().getDataClusterPKs(
@@ -44,7 +44,7 @@ public class ActionsDWR {
 		}
 	}
 
-	public static Map<String, String> getModels(String value){
+	public Map<String, String> getModels(String value){
 		try {
 			Map<String, String> map = new HashMap<String, String>();
 			WSDataModelPK[] wsDataModelsPKs = Util.getPort().getDataModelPKs(

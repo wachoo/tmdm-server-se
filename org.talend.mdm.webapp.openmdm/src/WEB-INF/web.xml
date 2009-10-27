@@ -38,6 +38,11 @@
             <url-pattern>/secure/dwr/*</url-pattern>
         </servlet-mapping> 
         
+        <servlet-mapping>
+            <servlet-name>dwr-invoker</servlet-name>
+            <url-pattern>/login/dwr/*</url-pattern>
+        </servlet-mapping>
+        
         <security-constraint>
         
         <web-resource-collection>

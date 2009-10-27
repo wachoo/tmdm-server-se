@@ -47,18 +47,43 @@
 		padding-right:10px
 	}
 </style>
+
+<!--  DWR -->
+<script language="javascript1.2" type='text/javascript' src='<%= request.getContextPath() %>/login/dwr/engine.js'></script>
+<script language="javascript1.2" type='text/javascript' src='<%= request.getContextPath() %>/login/dwr/util.js'></script>
+<script language="javascript1.2" type='text/javascript' src='<%= request.getContextPath() %>/login/dwr/interface/LoginInterface.js'></script>
 <script type="text/javascript">
 function f_submit(){	
-	var universe=document.loginform.j_universe.value;
+	
 	var username=document.loginform.j_username.value;
 	var password=document.loginform.j_password.value;
+	var universe=document.loginform.j_universe.value;
+	if(universe!=''&&universe=='HEAD')universe='';
+	
 	if(universe){
 		document.loginform.j_username.value=universe+"/"+username;
 	}	
 	//alert(document.loginform.j_username.value);
 	document.loginform.submit();
 }
+
+function getUniverseList()
+{
+
+    LoginInterface.getUniverseNames({
+	    callback:function(data) { 
+	      DWRUtil.addOptions("j_universe",data);
+	    },
+	    errorHandler:function(message) { alert(message); },
+	    timeout:10000
+    });
+    
+}
+
+getUniverseList();
+
 </script>
+
 </head>
 <body onload="document.loginform.j_username.focus();">
 
@@ -91,7 +116,9 @@ function f_submit(){
 						</tr>
 						<tr>
 							<td align="right" width="120"><%= _UNIVERSE_ %>:&nbsp;</td>
-							<td align="left"><input type="text" name="j_universe" value="" />
+							<td align="left">
+							<!--<input type="text" name="j_universe" value="" />-->
+							<select id="j_universe" name="j_universe" onChange="getUniverseList()"/>
 							</td>
 						</tr>						
 						<tr>
