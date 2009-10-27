@@ -1,3 +1,6 @@
+/**
+ * not in use
+ */
 Ext.namespace('amalto.hierarchical');
 amalto.hierarchical.ItemTreeDisplay = function(config) {
 	Ext.applyIf(this, config);

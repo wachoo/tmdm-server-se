@@ -1,3 +1,6 @@
+/**
+ * not in use
+ */
 Ext.namespace('amalto.hierarchical');
 amalto.hierarchical.HierarchicalViewEdit = function(config) {
 	Ext.applyIf(this, config);

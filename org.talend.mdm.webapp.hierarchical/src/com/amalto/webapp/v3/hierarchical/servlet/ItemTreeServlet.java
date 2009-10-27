@@ -23,6 +23,12 @@ import com.amalto.webapp.v3.hierarchical.bean.HierarchicalTreeCriterion;
 import com.amalto.webapp.v3.hierarchical.util.HierarchicalUtil;
 import com.talend.dom4j.util.XmlUtil;
 
+/**
+ * @author starkey
+ * 
+ * not in use
+ *
+ */
 public class ItemTreeServlet extends HttpServlet{
 	
 	@Override

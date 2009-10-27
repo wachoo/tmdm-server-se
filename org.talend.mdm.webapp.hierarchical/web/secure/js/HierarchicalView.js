@@ -9,11 +9,7 @@ amalto.hierarchical.HierarchicalView = function () {
 	
     loadResource("/hierarchical/secure/js/HierarchicalViewDisplay.js", "");
     
-    loadResource("/hierarchical/secure/js/HierarchicalViewEdit.js", "");
-    
     loadResource("/hierarchical/secure/js/MultiSelectTreePanel.js", "");
-    
-    loadResource("/hierarchical/secure/js/ItemTreeDisplay.js", "");
     
     function initUIAndData(){
 		var tabPanel = amalto.core.getTabPanel();

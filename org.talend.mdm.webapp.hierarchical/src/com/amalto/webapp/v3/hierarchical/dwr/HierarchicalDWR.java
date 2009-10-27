@@ -141,6 +141,21 @@ public class HierarchicalDWR {
 		return true;
 	}
     
+    public boolean updateHierarchicalTreeCriterionAndUpdateHistory(String dataObjectName,String pivotPath,String titleFieldPath,FilterItem[] filters,String orderExpr,int limit) {
+    	
+    	if(updateHierarchicalTreeCriterion(dataObjectName,pivotPath,titleFieldPath,filters,orderExpr,limit)){
+    		try {
+				resetHierarchicalTreeUpdateHistory();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+    		return true;
+    	}
+    	
+    	return false;
+    }
+    
     public void resetHierarchicalTreeCriterion() {
     	WebContext ctx = WebContextFactory.get();
     	ctx.getSession().setAttribute(
@@ -192,7 +207,7 @@ public class HierarchicalDWR {
 				updateHistory);
     }
     
-    public boolean recordChanges(String keys,String xpath,String newValue) {
+    public boolean recordSingleChanges(String keys,String xpath,String newValue) {
     	
     	try {
 			WebContext ctx = WebContextFactory.get();

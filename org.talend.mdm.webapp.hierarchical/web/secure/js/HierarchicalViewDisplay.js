@@ -112,7 +112,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 		this.editorGridPanel1 = new Ext.grid.EditorGridPanel({
 			store : this.store1,
 			width : 500,
-			height : 115,
+			height : 100,
 			title : "",
 			selModel : new Ext.grid.RowSelectionModel({}),
 			border : true,
@@ -168,22 +168,68 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 			}]
 		});
 				
-		this.hierarchicalTree = new Ext.tree.TreePanel(
+		this.hierarchicalTree = new Ext.ux.MultiSelectTreePanel(
 		   {
+		   	    //title : "Display Panel",
+		   	    xtype : "treepanel",
+				region: 'center',
+	    		layout:'fit',
+				containerScroll : "true",
+				autoScroll : true,
 				animate : "true",
-				height : 300,
-				title : "Display Panel",
 				loader : this.hierarchicalTreeLoader = new Ext.tree.TreeLoader({
 					dataUrl : "/hierarchical/secure/HierarchicalTreeLoadServlet"
 				}),
-				root : new Ext.tree.AsyncTreeNode({
+				root : this.hierarchicalTreeRoot=new Ext.tree.AsyncTreeNode({
 					expandable : true,
 					text : "Root",
 					draggable : false,
+					allowDrop : false,
 					id : "0"
 				}),
-				xtype : "treepanel",
-				containerScroll : "true",
+				enableDD: true,
+				rootVisible : true,
+				listeners: {
+				            'dblclick': function(node, e){
+				            	                            this.onTreeLeafNodeClick(node, e);
+				                                          }.createDelegate(this),
+				                                          
+				            'nodedrop': function(dropEvent){
+				            	              if(dropEvent.dropNode.length>0){
+				            	                 
+				            	                 var nodes=dropEvent.dropNode;
+				            	                 var keysArray=new Array(nodes.length);
+				            	                 var xpathArray=new Array(nodes.length);
+				            	                 
+				            	                 for (var index = 0; index < nodes.length; index++) {
+				            	                 	var keys=nodes[index].id;
+						            	            var xpath=nodes[index].attributes.xpath;
+						            	            var newText=dropEvent.target.text; 
+						            	            
+						            	            keysArray[index]=keys;
+						            	            xpathArray[index]=xpath;
+				            	                 }
+				            	                 
+						            	        HierarchicalViewInterface.recordChanges(keysArray,xpathArray,newText,function(status){
+													if(status==false)Ext.MessageBox.alert('Sorry', "This change has not affected the actual data item! ");
+												});
+				            	              } 
+				                        }
+				            
+	                       },
+	            bbar : new Ext.Toolbar([{
+					handler : function(button, event) {
+						this.onSaveChangesClick(button, event);
+					}.createDelegate(this),
+					text : "Save Changes"
+				},{
+				    xtype : "tbspacer"
+			    },{
+					handler : function(button, event) {
+						this.onCancelChangesClick(button, event);
+					}.createDelegate(this),
+					text : "Cancel Changes"
+				}]),
 				tbar : new Ext.Toolbar([
 				{
 					text : "Sort Order",
@@ -298,19 +344,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 		                }
 				}, {
 					xtype : "tbfill"
-				}, {
-					handler : function(button, event) {
-						this.onEditClick(button, event);
-					}.createDelegate(this),
-					text : "Edit"
-				}]),
-				rootVisible : true,
-				autoScroll : true,
-				listeners: {
-				            'dblclick': function(node, e){
-				            	                            this.onTreeLeafNodeClick(node, e);
-				                                          }.createDelegate(this)
-	                       }
+				}])
 			}
 		);
 		
@@ -324,11 +358,18 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 		,this);
 
 		Ext.apply(this, {
+			id : "hierarchicalViewDisplay",
 			title : "Hierarchical View Display",
-			layout : "anchor",
+			layout : "border",
+			closable: true,
 			items : [{
+				region: 'north',
+				layout:'form',
+				height : 255,
+				split:true,
 				collapsible : true,
-				frame : false,
+				collapseFirst : false,
+				autoScroll: true,
 				title : "Search Panel",
 				layout : "form",
 				items : [
@@ -435,9 +476,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 				}],
 				buttonAlign : "left",
 				bodyStyle:'padding:5px'
-			},this.hierarchicalTree],
-			id : "hierarchicalViewDisplay",
-			closable:true
+			},this.hierarchicalTree]
 		});
 	},
 	
@@ -608,20 +647,33 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 	onTreeLeafNodeClick : function(node, e){
 		if(node && node.isLeaf()){
 							
-				var tabPanel = amalto.core.getTabPanel();
-				var itemTreeDisplayPanel = tabPanel.getItem('ItemTreeDisplayPanel');
+//				var tabPanel = amalto.core.getTabPanel();
+//				var itemTreeDisplayPanel = tabPanel.getItem('ItemTreeDisplayPanel');
+//				
+//				if(itemTreeDisplayPanel == undefined){
+//					itemTreeDisplayPanel=new amalto.hierarchical.ItemTreeDisplay({'keys':node.id});			
+//					tabPanel.add(itemTreeDisplayPanel);
+//				}
+//		        
+//		        itemTreeDisplayPanel.show();
+//				itemTreeDisplayPanel.doLayout();
+//				amalto.core.doLayout();
+//				
+//				itemTreeDisplayPanel.initData(node.id);
 				
-				if(itemTreeDisplayPanel == undefined){
-					itemTreeDisplayPanel=new amalto.hierarchical.ItemTreeDisplay({'keys':node.id});			
-					tabPanel.add(itemTreeDisplayPanel);
-				}
-		        
-		        itemTreeDisplayPanel.show();
-				itemTreeDisplayPanel.doLayout();
-				amalto.core.doLayout();
-				
-				itemTreeDisplayPanel.initData(node.id);
+				var dataObjectName='';
+				DWREngine.setAsync(false); 
+		        HierarchicalViewInterface.getDataObjectNameFromHierarchicalTreeCriterion(function(_dataObject){dataObjectName=_dataObject;});
+				DWREngine.setAsync(true);
+						
+				amalto.itemsbrowser.ItemsBrowser.editItemDetails(node.id,dataObjectName,function(){
+					this.doRefreshAfterEdit()
+				}.createDelegate(this));
 		}
+	},
+	
+	doRefreshAfterEdit : function(){
+	   this.reloadHierarchicalTree(true);
 	},
 	
 	onBeforeloadDataObjectStore : function(){
@@ -730,10 +782,11 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
     	var orderExprText=DWRUtil.getValue('orderExprText');
     	var maxSizeText=DWRUtil.getValue('maxSizeText');
     	
-    	HierarchicalViewInterface.updateHierarchicalTreeCriterion(dataObjectValue,pivotValue,titleValue,foa,orderExprText,maxSizeText,function(data){
-	    	    this.reloadHierarchicalTree(data);
+    	HierarchicalViewInterface.updateHierarchicalTreeCriterionAndUpdateHistory(dataObjectValue,pivotValue,titleValue,foa,orderExprText,maxSizeText,function(status){
+    		    //alert(status);
+	    	    this.reloadHierarchicalTree(status);
         }.createDelegate(this));
-	     
+        
     },
     
     onSaveReportClick: function(){
@@ -961,8 +1014,14 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 	    }
     },
     
-    reloadHierarchicalTree: function(data){
-    	 if(data==true){
+    reloadHierarchicalTree: function(isPreconditionOK){
+    	 if(isPreconditionOK==true){
+    	 	    //update root
+    	 	    var dataObjectLabel=DWRUtil.getValue('dataObjectCmp');
+    	 	    if(dataObjectLabel!=''){
+    	 	    	this.hierarchicalTreeRoot.setText(dataObjectLabel);
+    	 	    }
+    	 	    //refresh tree
 	    	    this.hierarchicalTree.getRootNode().reload();
 	    	    this.hierarchicalTree.expandAll();
 	     }
@@ -989,5 +1048,29 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 	    	    	Ext.MessageBox.alert('Sorry', "Please get a 'Result Set' First! ");
 	    	    }
         });
+    },
+    
+    onSaveChangesClick: function(button, event){
+    	Ext.MessageBox.show({
+           msg: 'Saving your data, please wait...',
+           progressText: 'Saving...',
+           width:300,
+           wait:true,
+           waitConfig: {interval:200}
+        });
+    	HierarchicalViewInterface.saveChanges({
+	    	callback:function(data){
+	    		   Ext.MessageBox.hide();
+		    	   Ext.MessageBox.alert('Status', data);
+	        },
+	        errorHandler:function(errorString, exception) {  
+	              alert('Exception:'+ errorString);
+	              Ext.MessageBox.hide();
+	        }
+        });
+    },
+    
+    onCancelChangesClick: function(button, event){
+        this.reloadHierarchicalTree(true);
     }
 });
