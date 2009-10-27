@@ -51,7 +51,6 @@ import org.xml.sax.InputSource;
 import sun.misc.BASE64Decoder;
 
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.webservice.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSBase64KeyValue;
 import com.amalto.webapp.util.webservices.WSConnectorResponseCode;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
@@ -63,7 +62,6 @@ import com.amalto.webapp.util.webservices.XtentisPort;
 import com.amalto.webapp.util.webservices.XtentisService_Impl;
 import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
-import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
@@ -121,6 +119,10 @@ public class Util {
 		return getWSPort(endpointAddress, username, password);
 
 	}
+	
+	public static XtentisPort getPort(String username, String password, int force) throws XtentisWebappException{
+		return getPort(endpoint_address,username,password,force);
+	}
 
 	private static XtentisPort getWSPort(String endpointAddress, String username, String password) throws XtentisWebappException{
 		try {
@@ -143,7 +145,7 @@ public class Util {
 					+": "+e.getLocalizedMessage());
 		}
 	}
-
+	
 	
 	private static XtentisPort getRMIEndPoint() throws XtentisWebappException{
 		
