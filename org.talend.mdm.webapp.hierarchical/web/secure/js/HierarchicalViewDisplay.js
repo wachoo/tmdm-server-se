@@ -218,9 +218,15 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 				            	                 }
 				            	                 
 						            	        HierarchicalViewInterface.recordChanges(keysArray,xpathArray,newText,function(status){
-													if(status==false)Ext.MessageBox.alert('Sorry', "This change has not affected the actual data item! ");
+													if(status==true){
+													  //make dirty
+				            	                      amalto.hierarchical.HierarchicalView.makeDirty();	
+													}else{
+													  Ext.MessageBox.alert('Sorry', "This change has not affected the actual data item! ");
+													}
 												});
-				            	              } 
+				            	              }
+				            	              
 				                        }
 	                       },
 	            bbar : new Ext.Toolbar([{
@@ -1064,8 +1070,12 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
            wait:true,
            waitConfig: {interval:200}
         });
+        
     	HierarchicalViewInterface.saveChanges({
 	    	callback:function(data){
+	    		   //clean dirty
+		           amalto.hierarchical.HierarchicalView.cleanDirty();
+		           
 	    		   Ext.MessageBox.hide();
 		    	   Ext.MessageBox.alert('Status', data);
 	        },
@@ -1074,9 +1084,12 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 	              Ext.MessageBox.hide();
 	        }
         });
+        
     },
     
     onCancelChangesClick: function(button, event){
         this.reloadHierarchicalTree(true);
+        //clean dirty
+		amalto.hierarchical.HierarchicalView.cleanDirty();
     }
 });

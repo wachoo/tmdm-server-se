@@ -32,12 +32,27 @@ amalto.hierarchical.HierarchicalView = function () {
 		//init UI
 		initUIAndData();
 		
-		
+	};
+	
+	function makeDirty(){
+		var itempanel = amalto.core.getTabPanel().activeTab;
+		if(itempanel){
+			itempanel.isdirty=true;
+		}
+	};
+	
+	function cleanDirty(){
+		var itempanel = amalto.core.getTabPanel().activeTab;
+		if(itempanel){
+			itempanel.isdirty=false;
+		}
 	};
 	
  	return {
  		
-		init: function() {openHierarchicalViewDisplayPanel();}
+		init: function() {openHierarchicalViewDisplayPanel();},
+		makeDirty: function() {makeDirty();},
+		cleanDirty: function() {cleanDirty();}
 		
  	}
 }();
