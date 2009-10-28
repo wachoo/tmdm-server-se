@@ -1515,12 +1515,23 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		//alert("flag");
 		lastUpdatedInputFlag[treeIndex] = id;
 	}
+	//add by lym fix bug 0009620;
+	function getSiblingsLength(node){
+		var siblingLength = 0;
+		if(node.parent != null){
+			for(var i = 0;i < node.parent.children.length;i++){
+				if(node.parent.children[i].itemData.name == node.itemData.name)
+					siblingLength++;
+			}
+		}
+		return siblingLength;
+	}
 	
 	function cloneNode2(siblingId, hasIcon, treeIndex){
 		var itemTree = itemTreeList[treeIndex];
 		var siblingNode = itemTree.getNodeByIndex(siblingId);
 		//modified by ymli. If the Items is more than maxOccurs, alert and return
-		if(siblingNode.itemData.maxOccurs>=0&&siblingNode.parent!=null && siblingNode.parent.children.length>=siblingNode.itemData.maxOccurs){
+		if(siblingNode.itemData.maxOccurs>=0&&siblingNode.parent!=null && getSiblingsLength(siblingNode)>=siblingNode.itemData.maxOccurs){
 			Ext.MessageBox.alert("Status",siblingNode.itemData.maxOccurs+" "+siblingNode.itemData.name+"(s) at most");
 			return;
 		}
@@ -1528,7 +1539,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,false,true);
 		newNode.updateNodeId(nodeCount);
-		newNode.updateValue("");
+		newNode.updateValue(" ");
 		ItemsBrowserInterface.cloneNode(siblingId,newNode.index, treeIndex,function(result){
 			amalto.core.ready(result);
 		});
@@ -1557,6 +1568,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		amalto.core.ready();
 	}
 	
+
 	function removeNode2(id, treeIndex) {
 		updateFlag[treeIndex] = true;
 		var value = "";
@@ -1567,12 +1579,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		// modified by ymli. If the Items is less than minOccurs, alert and
 		// return
 		var node = itemTree.getNodeByIndex(id);
+		var siblingLength = getSiblingsLength(node);
 		if (node.parent != null
-				&& node.parent.children.length <= node.itemData.minOccurs) {
+				&& siblingLength<= node.itemData.minOccurs) {
 			Ext.MessageBox.alert("Status",node.itemData.minOccurs + " " + node.itemData.name
 					+ "(s) at least");
 			return;
-		} else if (node.parent.children.length <= 1) {
+		} else if (siblingLength <= 1) {
 			Ext.MessageBox.alert("Status",DELETE_ALERT[language]);
 			return;
 		}
@@ -2244,6 +2257,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		setForeignKey:function(nodeId,treeIndex){setForeignKey(nodeId,treeIndex)},
 		displayItemDetails:function(){displayItemDetails();},
 		editItemDetails:function(itemPK,dataObject,refreshCB){displayItemDetails4Reference(itemPK,dataObject,refreshCB);},
-		filterForeignKey:function(string0, string1, id){filterForeignKey(string0, string1, id);}
+		filterForeignKey:function(string0, string1, id){filterForeignKey(string0, string1, id);},
+		getSiblingsLength:function(node){getSiblingsLength(node);}
  	}
 }();
