@@ -697,7 +697,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			String xquery =
 				"for $pivot in " +
 				getXQueryCollectionName(revisionID, clusterName)+"/ii/p"+conceptName+
-				(whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem)+"\n" : "") +
+				(whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem,true)+"\n" : "") +
 				"\nreturn base-uri($pivot)";
 			
 			Collection<String> res = runQuery(null, null, xquery, null);
@@ -754,7 +754,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			String xquery =
 				"for $pivot in " +
 				getXQueryCollectionName(revisionID, clusterName)+"/"+objectRootElementName+
-				(whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem)+"\n" : "") +
+				(whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem,true)+"\n" : "") +
 				"\nreturn base-uri($pivot)";
 			
 			Collection<String> res = runQuery(null, null, xquery, null);
@@ -885,7 +885,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	    	if (whereItem == null) 
 	    		xqWhere="";
 	    	else
-	    		xqWhere = buildWhere("", pivotsMap, whereItem);
+	    		xqWhere = buildWhere("", pivotsMap, whereItem,true);
 	    	
 	    	//build order by
 	    	if (orderBy == null) {
@@ -1069,7 +1069,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	    	if (whereItem == null) 
 	    		xqWhere="";
 	    	else
-	    		xqWhere = buildWhere("", pivotsMap, whereItem);
+	    		xqWhere = buildWhere("", pivotsMap, whereItem,true);
 	    	
 	    	//build order by
 	    	if (orderBy == null) {
@@ -1200,7 +1200,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         			
         			HashMap<String,String> pivots=new HashMap<String,String>();
         			pivots.put(mainPivotName, mainPivotName);
-    				xqWhere.append(buildWhere(" and ",pivots ,whereItem));
+    				xqWhere.append(buildWhere(" and ",pivots ,whereItem,false));
     				xqWhere.append(" ");
     			
         	}
@@ -1387,7 +1387,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	private String buildWhere(
 			String where,
 			HashMap<String,String> pivots,
-			IWhereItem whereItem
+			IWhereItem whereItem,
+			boolean useValueComparisons
 		) throws XmlServerException{
 		try {
 			if (whereItem instanceof WhereLogicOperator) {
@@ -1397,7 +1398,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 					buildWhere(
 						where,
 						pivots,
-						subItems.iterator().next()
+						subItems.iterator().next(),
+						useValueComparisons
 				);
 				int i=0;
 				for (Iterator<IWhereItem> iter = subItems.iterator(); iter.hasNext(); ) {
@@ -1409,13 +1411,13 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 							where+=" or (";
 					else
 						where+="(";
-					where = buildWhere(where, pivots, item)+")";
+					where = buildWhere(where, pivots, item, useValueComparisons)+")";
 				}//for
 				return where;
 					
 			} else if(whereItem instanceof WhereCondition) {
 				WhereCondition condition = (WhereCondition) whereItem;
-				where+=buildWhereCondition(condition,pivots);
+				where+=buildWhereCondition(condition,pivots,useValueComparisons);
 	            return where;
 			} else {
 				throw new XmlServerException("Unknown Where Type : "+whereItem.getClass().getName());
@@ -1431,7 +1433,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	/**
 	 * Build a where condition in XQuery using paths relative to the provided list of pivots
 	 */
-	public String buildWhereCondition(WhereCondition wc, HashMap<String,String> pivots) throws XmlServerException{
+	public String buildWhereCondition(WhereCondition wc, HashMap<String,String> pivots, boolean useValueComparisons) throws XmlServerException{
 		try {
 			
 			//all this is EXIST specific
@@ -1531,40 +1533,52 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			} else if(operator.equals(WhereCondition.JOINS)) { 
 				where = getPathFromPivots(wc.getRightValueOrPath(),pivots)+" = "+getPathFromPivots(wc.getLeftPath(), pivots);
 			} else	 if(operator.equals(WhereCondition.EQUALS)) {
+				String useOpe="eq";
+				if(!useValueComparisons)useOpe=WhereCondition.EQUALS;
 				if (isNum) {
-					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") eq "+encoded;
+					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") "+useOpe+" "+encoded;
 				} else  {
-					where = getPathFromPivots(wc.getLeftPath(), pivots)+" eq \""+encoded+"\"";
+					where = getPathFromPivots(wc.getLeftPath(), pivots)+" "+useOpe+" \""+encoded+"\"";
 				}
 			} else if(operator.equals(WhereCondition.NOT_EQUALS)) {
+				String useOpe="ne";
+				if(!useValueComparisons)useOpe=WhereCondition.NOT_EQUALS;
 				if (isNum) {
-					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") ne "+encoded;
+					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") "+useOpe+" "+encoded;
 				} else {
-					where = getPathFromPivots(wc.getLeftPath(), pivots)+" ne \""+encoded+"\"";
+					where = getPathFromPivots(wc.getLeftPath(), pivots)+" "+useOpe+" \""+encoded+"\"";
 				}
 			} else	 if(operator.equals(WhereCondition.GREATER_THAN)) {
+				String useOpe="gt";
+				if(!useValueComparisons)useOpe=WhereCondition.GREATER_THAN;
 				if (isNum) {
-					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") gt "+encoded;
+					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") "+useOpe+" "+encoded;
 				} else {
-					where = getPathFromPivots(wc.getLeftPath(), pivots)+" gt \""+encoded+"\"";
+					where = getPathFromPivots(wc.getLeftPath(), pivots)+" "+useOpe+" \""+encoded+"\"";
 				}
-			} else	if(operator.equals(WhereCondition.GREATER_THAN_OR_EQUAL)) { 
+			} else	if(operator.equals(WhereCondition.GREATER_THAN_OR_EQUAL)) {
+				String useOpe="ge";
+				if(!useValueComparisons)useOpe=WhereCondition.GREATER_THAN_OR_EQUAL;
 				if (isNum) {
-					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") ge "+encoded;
+					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") "+useOpe+" "+encoded;
 				} else {
-					where = getPathFromPivots(wc.getLeftPath(), pivots)+" ge \""+encoded+"\"";
+					where = getPathFromPivots(wc.getLeftPath(), pivots)+" "+useOpe+" \""+encoded+"\"";
 				}
-			} else if(operator.equals(WhereCondition.LOWER_THAN)) { 
+			} else if(operator.equals(WhereCondition.LOWER_THAN)) {
+				String useOpe="lt";
+				if(!useValueComparisons)useOpe=WhereCondition.LOWER_THAN;
 				if (isNum) {
-					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") lt "+encoded;
+					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") "+useOpe+" "+encoded;
 				} else {
-					where = getPathFromPivots(wc.getLeftPath(), pivots)+" lt \""+encoded+"\"";
+					where = getPathFromPivots(wc.getLeftPath(), pivots)+" "+useOpe+" \""+encoded+"\"";
 				}
-			} else	if(operator.equals(WhereCondition.LOWER_THAN_OR_EQUAL)) { 
+			} else	if(operator.equals(WhereCondition.LOWER_THAN_OR_EQUAL)) {
+				String useOpe="le";
+				if(!useValueComparisons)useOpe=WhereCondition.LOWER_THAN_OR_EQUAL;
 				if (isNum) {
-					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") le "+encoded;
+					where = "number("+getPathFromPivots(wc.getLeftPath(), pivots)+") "+useOpe+" "+encoded;
 				} else {
-					where = getPathFromPivots(wc.getLeftPath(), pivots)+" le \""+encoded+"\"";
+					where = getPathFromPivots(wc.getLeftPath(), pivots)+" "+useOpe+" \""+encoded+"\"";
 				}
 			} else	if(operator.equals(WhereCondition.NO_OPERATOR)) {
 				where = getPathFromPivots(wc.getLeftPath(), pivots);
