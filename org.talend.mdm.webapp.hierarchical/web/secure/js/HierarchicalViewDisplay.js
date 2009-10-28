@@ -195,6 +195,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 				                                          }.createDelegate(this),
 				                                          
 				            'nodedrop': function(dropEvent){
+
 				            	              if(dropEvent.dropNode.length>0){
 				            	                 
 				            	                 var nodes=dropEvent.dropNode;
@@ -204,8 +205,14 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 				            	                 for (var index = 0; index < nodes.length; index++) {
 				            	                 	var keys=nodes[index].id;
 						            	            var xpath=nodes[index].attributes.xpath;
-						            	            var newText=dropEvent.target.text; 
-						            	            
+						            	            var newText='';
+						            	            if(!dropEvent.target.leaf){
+						            	            	newText=dropEvent.target.text;
+						            	            }else{
+						            	            	//leaf case
+						            	            	newText=dropEvent.target.parentNode.text;
+						            	            }
+						            	                 
 						            	            keysArray[index]=keys;
 						            	            xpathArray[index]=xpath;
 				            	                 }
@@ -215,7 +222,6 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 												});
 				            	              } 
 				                        }
-				            
 	                       },
 	            bbar : new Ext.Toolbar([{
 					handler : function(button, event) {

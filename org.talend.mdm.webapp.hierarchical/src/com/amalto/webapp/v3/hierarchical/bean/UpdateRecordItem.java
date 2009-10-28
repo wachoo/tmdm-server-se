@@ -67,6 +67,12 @@ public class UpdateRecordItem {
 	}
 	
 	@Override
+	public String toString() {
+		String valuePair=(oldValue==null?"":oldValue)+","+(newValue==null?"":newValue);
+		return getUid() + ":"+valuePair;
+	}
+	
+	@Override
 	public boolean equals(Object obj) {
 		if(obj instanceof UpdateRecordItem){
 			return this.getUid().equals(((UpdateRecordItem)obj).getUid());

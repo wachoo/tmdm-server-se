@@ -229,6 +229,7 @@ public class HierarchicalDWR {
 			for (int i = 0; i < keysArray.length; i++) {
 				updateHistory.logChange(keysArray[i], xpathArray[i], newValue);
 			}
+			org.apache.log4j.Logger.getLogger(HierarchicalDWR.class).debug("The size of Update History is: "+updateHistory.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

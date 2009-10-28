@@ -18,6 +18,9 @@ public class UpdateHistory {
 	public void logChange(String keys,String xpath,String newValue) {
 		
 		UpdateRecordItem updateRecordItem=new UpdateRecordItem(keys,xpath,newValue);
+		if(this.UpdateRecordItemsMap.contains(updateRecordItem)){
+			this.UpdateRecordItemsMap.remove(updateRecordItem);
+		}
 		this.UpdateRecordItemsMap.add(updateRecordItem);
 
 	}
@@ -30,6 +33,12 @@ public class UpdateHistory {
 	public Iterator<UpdateRecordItem> iterator() {
 		
 		return this.UpdateRecordItemsMap.iterator();
+
+	}
+	
+    public int size() {
+		
+		return this.UpdateRecordItemsMap.size();
 
 	}
 
