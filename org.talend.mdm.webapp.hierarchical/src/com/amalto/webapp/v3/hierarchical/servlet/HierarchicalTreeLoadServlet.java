@@ -29,6 +29,8 @@ public class HierarchicalTreeLoadServlet extends HttpServlet{
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)throws ServletException, IOException {
 		
+		resp.setCharacterEncoding("utf-8");
+		
 		String jsonTree="";
 		
 		HierarchicalTreeCriterion hierarchicalTreeCriterion=(HierarchicalTreeCriterion) req.getSession().getAttribute(HierarchicalUtil.HIERARCHICAL_TREE_CRITERION);
