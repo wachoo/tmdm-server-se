@@ -382,9 +382,8 @@ public class ItemPOJO implements Serializable{
              //check user rights
             if(newItem.getDataModelName()!=null){
             	try {
-    				
                
-                	DataModelPOJO bindingDataModelPOJO =  ObjectPOJO.load(revisionID,DataModelPOJO.class,new ObjectPOJOPK(newItem.getDataModelName()));//FIXME: check objects rights
+                	DataModelPOJO bindingDataModelPOJO =  ObjectPOJO.load(DataModelPOJO.class,new ObjectPOJOPK(newItem.getDataModelName()));
                 	
     				AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(
     						new AppinfoSourceHolderPK(
