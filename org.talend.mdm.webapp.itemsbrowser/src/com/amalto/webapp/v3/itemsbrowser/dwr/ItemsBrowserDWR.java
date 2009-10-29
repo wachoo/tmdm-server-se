@@ -594,7 +594,8 @@ public class ItemsBrowserDWR {
 	}
 	
 	public String cloneNode(int siblingId, int newId, int docIndex) throws Exception{
-		WebContext ctx = WebContextFactory.get();
+		
+			WebContext ctx = WebContextFactory.get();
 		HashMap<Integer,XSParticle> idToParticle = 
 			(HashMap<Integer,XSParticle>) ctx.getSession().getAttribute("idToParticle");
 		HashMap<Integer,String> idToXpath = 
@@ -606,6 +607,7 @@ public class ItemsBrowserDWR {
 		idToParticle.put(newId,xsp);
 		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);		
 		try {
+			
 			Node node = Util.getNodeList(d,idToXpath.get(siblingId)).item(0);
 			//System.out.println(Util.getNodeList(d,idToXpath.get(siblingId)).getLength()+" "+idToXpath.get(siblingId));
 			Node nodeClone = node.cloneNode(true);
@@ -619,14 +621,18 @@ public class ItemsBrowserDWR {
 */			
 			String siblingXpath = idToXpath.get(siblingId).replaceAll("\\[\\d+\\]$","");
 			int id = Util.getNodeList(d,siblingXpath).getLength();
+			//String exist = idToXpath.get(newId);
 			idToXpath.put(newId,siblingXpath+"["+id+"]");
+			System.out.println("clone:"+newId+" "+siblingXpath+"["+id+"]");
 			nodeAutorization.add(siblingXpath+"["+id+"]");
 			return "Cloned";
+			
 		} catch (Exception e) {
 			e.printStackTrace();	
 			return "Error";
 		}
 //		System.out.println("xml"+CommonDWR.getXMLStringFromDocument(d));
+	
 	}
 	
 	public void updateKeyNodesToEmptyInItemDocument(int docIndex) throws TransformerException{
@@ -770,16 +776,87 @@ public class ItemsBrowserDWR {
 		}
 		return d;
 	}
+	/**
+	 * add by ymli
+	 * if ListItem with xpath like '/PurchaseOrder/ListItems/POItem[i] is deleted, the xpath in idToXpath will be edited , 
+	 * eg.
+	 *  '/PurchaseOrder/ListItems/POItem[j]'(j>i), j--
+	 * 
+	 */
+	public void editXpathInidToXpath(int id ,HashMap<Integer,String> idToXpath){
+		String nodeXpath = idToXpath.get(id).replaceAll("\\[\\d+\\]$","");
+		int b = idToXpath.get(id).indexOf("[")+1;
+		int e = idToXpath.get(id).indexOf("]");
+		int nodeIndex = Integer.parseInt((String) idToXpath.get(id).subSequence(b, e));
+		Iterator<Integer> keys = idToXpath.keySet().iterator();
+		while(keys.hasNext()){
+			int key = keys.next();
+			String xpath = idToXpath.get(key);
+			if(xpath.matches(nodeXpath+"\\[\\d+\\]$")){
+				int star = xpath.indexOf("[")+1;
+				int end = xpath.indexOf("]");
+				
+				int pathIndex = Integer.parseInt((String) xpath.subSequence(star, end));
+				if(nodeIndex<pathIndex){
+					pathIndex--;
+					xpath = nodeXpath+"["+pathIndex+"]";
+//					keys.remove();
+//					idToXpath.remove(key);
+					idToXpath.put(key, xpath);
+					
+				}//if(nodeIndex
+				
+			}//if(xpath
+		}//	while(keys.
+	}
 	
-
+	/**
+	 * add by ymli
+	 * if ListItem with xpath like '/PurchaseOrder/ListItems/POItem[i] is deleted, the xpath in idToXpath will be edited , 
+	 * eg.
+	 *  '/PurchaseOrder/ListItems/POItem[j]'(j>i), j--
+	 * 
+	 */
+	public void editUpdatedPath(HashMap<String,UpdateReportItem>updatedPath,String xpath){
+		String subXpath = xpath.replaceAll("\\[\\d+\\]$", "");
+		int b = xpath.indexOf("[")+1;
+		int e = xpath.indexOf("]");
+		int nodeIndex = Integer.parseInt((String) xpath.subSequence(b, e));
+		Iterator<String> keys = updatedPath.keySet().iterator();
+		while(keys.hasNext()){
+			String key = keys.next();
+			if(key.matches(subXpath+"\\[\\d+\\]$")){
+				int star = key.indexOf("[")+1;
+				int end = key.indexOf("]");
+				int pathIndex = Integer.parseInt((String) key.subSequence(star, end));
+				if(nodeIndex<pathIndex){
+					UpdateReportItem report = updatedPath.get(key);
+					keys.remove();
+					updatedPath.remove(key);
+					pathIndex--;
+					xpath = subXpath+"["+pathIndex+"]";
+					updatedPath.put(xpath, report);
+				}
+			}
+		}
+	}
 	public String removeNode(int id, int docIndex, String oldValue){ 
 		WebContext ctx = WebContextFactory.get();
 		HashMap<Integer,String> idToXpath = 
 			(HashMap<Integer,String>) ctx.getSession().getAttribute("idToXpath");
 		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
-		try{			
+	/*	try {
+			System.out.println("Document:"+Util.nodeToString(d));
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}*/
+		try{
+			
+//			System.out.println("remove:"+id+" "+idToXpath.get(id));
 			Util.getNodeList(d, idToXpath.get(id)).item(0).getParentNode()
 				.removeChild(Util.getNodeList(d, idToXpath.get(id)).item(0));
+			//add by ymli
 			HashMap<String,UpdateReportItem> updatedPath;
 			if(ctx.getSession().getAttribute("updatedPath")!=null){
 				updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
@@ -788,14 +865,20 @@ public class ItemsBrowserDWR {
 				updatedPath = new HashMap<String,UpdateReportItem>();
 			}
 			UpdateReportItem ri = new UpdateReportItem(idToXpath.get(id),oldValue,"");
+			
+			//editUpdatedPath(updatedPath,idToXpath.get(id));
+			editXpathInidToXpath(id,idToXpath);
+			
 			updatedPath.put(idToXpath.get(id),ri);
+			idToXpath.remove(id);
+			ctx.getSession().setAttribute("idToXpath",idToXpath);
 			ctx.getSession().setAttribute("updatedPath",updatedPath);
 			return "Deleted";
 		}
 		catch(Exception e){
 			e.printStackTrace();
 			return "Error";
-		}		
+		}	
 	}
 	
 	//back up for old revision of save item
@@ -936,6 +1019,7 @@ public class ItemsBrowserDWR {
 			//put update report
 			synchronizeUpdateState(ctx);
 					
+
 			return persistentUpdateReport(resultUpdateReport,true);
 		}
 		catch(Exception e){			
