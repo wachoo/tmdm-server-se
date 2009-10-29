@@ -785,18 +785,23 @@ public class ItemsBrowserDWR {
 	 */
 	public void editXpathInidToXpath(int id ,HashMap<Integer,String> idToXpath){
 		String nodeXpath = idToXpath.get(id).replaceAll("\\[\\d+\\]$","");
-		int b = idToXpath.get(id).indexOf("[")+1;
-		int e = idToXpath.get(id).indexOf("]");
-		int nodeIndex = Integer.parseInt((String) idToXpath.get(id).subSequence(b, e));
+		String patternXpath = nodeXpath.replaceAll("\\[", "\\\\[");
+		patternXpath = patternXpath.replaceAll("\\]", "\\\\]");;
+		Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\]$)");
+		Matcher m = p.matcher(idToXpath.get(id));
+		int nodeIndex = -1;
+		if (m.matches()) 
+			nodeIndex =  Integer.parseInt(m.group(3));
 		Iterator<Integer> keys = idToXpath.keySet().iterator();
 		while(keys.hasNext()){
 			int key = keys.next();
 			String xpath = idToXpath.get(key);
-			if(xpath.matches(nodeXpath+"\\[\\d+\\]$")){
-				int star = xpath.indexOf("[")+1;
-				int end = xpath.indexOf("]");
-				
-				int pathIndex = Integer.parseInt((String) xpath.subSequence(star, end));
+			
+			if(xpath.matches(patternXpath+"\\[\\d+\\]$")){
+				int pathIndex = -1;
+				Matcher m1 = p.matcher(xpath);
+				if (m1.matches()) 
+					pathIndex =  Integer.parseInt(m1.group(3));
 				if(nodeIndex<pathIndex){
 					pathIndex--;
 					xpath = nodeXpath+"["+pathIndex+"]";
@@ -819,6 +824,7 @@ public class ItemsBrowserDWR {
 	 */
 	public void editUpdatedPath(HashMap<String,UpdateReportItem>updatedPath,String xpath){
 		String subXpath = xpath.replaceAll("\\[\\d+\\]$", "");
+		
 		int b = xpath.indexOf("[")+1;
 		int e = xpath.indexOf("]");
 		int nodeIndex = Integer.parseInt((String) xpath.subSequence(b, e));
@@ -845,7 +851,7 @@ public class ItemsBrowserDWR {
 		HashMap<Integer,String> idToXpath = 
 			(HashMap<Integer,String>) ctx.getSession().getAttribute("idToXpath");
 		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
-	/*	try {
+		/*try {
 			System.out.println("Document:"+Util.nodeToString(d));
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
