@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.talend.mdm.commmon.util.core.CommonUtil;
 
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSExistsMenu;
@@ -129,15 +133,15 @@ public class Menu {
 		} catch (XtentisWebappException e) {
 			throw(e);
 		}catch (Exception e) {
-			String err;
-			try {
-				err="Unable to get The root Menu for user "+Util.getAjaxSubject().getUsername()+
-					": "+(e.getClass().getName().contains("RemoteException")? "" : e.getClass().getName()+": ")+e.getLocalizedMessage();
-			}catch (Exception ex) {
-				err="Unable to get user when fetching the root menu "+
-					": "+ex.getClass().getName()+": "+ex.getLocalizedMessage();
-			}
-			throw new XtentisWebappException(err);
+//			String err;
+//			try {
+//				err="Unable to get The root Menu for user "+Util.getAjaxSubject().getUsername()+
+//					": "+(e.getClass().getName().contains("RemoteException")? "" : e.getClass().getName()+": ")+e.getLocalizedMessage();
+//			}catch (Exception ex) {
+//				err="Unable to get user when fetching the root menu "+
+//					": "+ex.getClass().getName()+": "+ex.getLocalizedMessage();
+//			}
+			throw new XtentisWebappException(CommonUtil.getErrMsgFromException(e));
 		}
 	}
 	
@@ -199,14 +203,15 @@ public class Menu {
 			throw(e);
 		} catch (Exception e) {
 			String err;
-			try {
-				err="Unable to fetch roles for user "+Util.getAjaxSubject().getUsername()+
-					": "+(e.getClass().getName().contains("RemoteException")? "" : e.getClass().getName()+": ")+e.getLocalizedMessage();
-			}catch (Exception ex) {
-				err="Unable to get user when fetching roles "+
-					": "+ex.getClass().getName()+": "+ex.getLocalizedMessage();
-			}
-			throw new XtentisWebappException(err);
+//			try {
+//				err="Unable to fetch roles for user "+Util.getAjaxSubject().getUsername()+
+//					": "+e.getLocalizedMessage();
+//			}catch (Exception ex) {
+//				err="Unable to get user when fetching roles "+
+//					": "+": "+ex.getLocalizedMessage();
+//			}
+
+			throw new XtentisWebappException(CommonUtil.getErrMsgFromException(e));
 		}
 	}
 	
@@ -233,15 +238,15 @@ public class Menu {
 		} catch (XtentisWebappException e) {
 			throw(e);
 		} catch (Exception e) {
-			String err;
-			try {
-				err="Unable to build the menu entry "+instance.getInstanceName()+" for user "+Util.getAjaxSubject().getUsername()+
-					": "+(e.getClass().getName().contains("RemoteException")? "" : e.getClass().getName()+": ")+e.getLocalizedMessage();
-			}catch (Exception ex) {
-				err="Unable to get user when adding the menu entries "+
-					": "+ex.getClass().getName()+": "+ex.getLocalizedMessage();
-			}
-			throw new XtentisWebappException(err);
+//			String err;
+//			try {
+//				err="Unable to build the menu entry "+instance.getInstanceName()+" for user "+Util.getAjaxSubject().getUsername()+
+//					": "+(e.getClass().getName().contains("RemoteException")? "" : e.getClass().getName()+": ")+e.getLocalizedMessage();
+//			}catch (Exception ex) {
+//				err="Unable to get user when adding the menu entries "+
+//					": "+ex.getClass().getName()+": "+ex.getLocalizedMessage();
+//			}
+			throw new XtentisWebappException(CommonUtil.getErrMsgFromException(e));
 		}
 	}
 	
@@ -281,15 +286,15 @@ public class Menu {
 		} catch (XtentisWebappException e) {
 			throw(e);
 		} catch (Exception e) {
-			String err;
-			try {
-				err="Unable to convert the ws menu Entry "+entry.getId()+" for user "+Util.getAjaxSubject().getUsername()+
-					": "+(e.getClass().getName().contains("RemoteException")? "" : e.getClass().getName()+": ")+e.getLocalizedMessage();
-			}catch (Exception ex) {
-				err="Unable to get user when converting the ws menu entries "+
-					": "+ex.getClass().getName()+": "+ex.getLocalizedMessage();
-			}
-			throw new XtentisWebappException(err);
+//			String err;
+//			try {
+//				err="Unable to convert the ws menu Entry "+entry.getId()+" for user "+Util.getAjaxSubject().getUsername()+
+//					": "+(e.getClass().getName().contains("RemoteException")? "" : e.getClass().getName()+": ")+e.getLocalizedMessage();
+//			}catch (Exception ex) {
+//				err="Unable to get user when converting the ws menu entries "+
+//					": "+ex.getClass().getName()+": "+ex.getLocalizedMessage();
+//			}
+			throw new XtentisWebappException(CommonUtil.getErrMsgFromException(e));
 		}
 
 	}
