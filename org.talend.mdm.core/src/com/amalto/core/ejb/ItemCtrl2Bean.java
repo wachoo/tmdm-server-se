@@ -1612,9 +1612,9 @@ public class ItemCtrl2Bean implements SessionBean {
         		parameters
             );
     		
-    		org.apache.log4j.Logger.getLogger(this.getClass()).trace("runQuery() in '"+revisionID+"/"+dataClusterPOJOPK.getUniqueId()+"' " +
-    				"returned "+res.size()+" items \n"+query
-    		);
+//    		org.apache.log4j.Logger.getLogger(this.getClass()).trace("runQuery() in '"+revisionID+"/"+dataClusterPOJOPK.getUniqueId()+"' " +
+//    				"returned "+res.size()+" items \n"+query
+//    		);
     		
     		return res;
 
