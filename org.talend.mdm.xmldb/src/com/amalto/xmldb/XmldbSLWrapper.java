@@ -113,7 +113,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	private HashMap<String,org.xmldb.api.base.Collection> clusters = new HashMap<String,org.xmldb.api.base.Collection>();
 	
 	/** A cache of items, the key is the item id*/
-	private Hashtable<ItemCacheKey, String> itemsCache=new Hashtable<ItemCacheKey, String>();
+	//private Hashtable<ItemCacheKey, String> itemsCache=new Hashtable<ItemCacheKey, String>();
 	/**Max size of the cache*/
 	private static int CACHE_ITEM_MAX_SIZE=20000;
 	
@@ -286,12 +286,12 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				((revisionID == null) || "".equals(revisionID) ? "__HEAD__" : revisionID)
 				+((clusterName == null) ? "__ROOT__" : clusterName);
 			clusters.remove(key);
-			//clear items from the cache
-			for(ItemCacheKey key1: itemsCache.keySet()){
-				if(key1.getRevisionID().equals((revisionID == null) || "".equals(revisionID)?"__HEAD__":revisionID) && key1.getDataClusterID().equals(clusterName==null?"__ROOT__":clusterName)){
-					itemsCache.remove(key1);
-				}				
-			}
+//			//clear items from the cache
+//			for(ItemCacheKey key1: itemsCache.keySet()){
+//				if(key1.getRevisionID().equals((revisionID == null) || "".equals(revisionID)?"__HEAD__":revisionID) && key1.getDataClusterID().equals(clusterName==null?"__ROOT__":clusterName)){
+//					itemsCache.remove(key1);
+//				}				
+//			}
 			long time = System.currentTimeMillis() - startT;
 			return time;
 		} catch (Exception e) {
@@ -323,11 +323,11 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			//clear cache
 			clusters.clear();
 			//clear items from the cache
-			for(ItemCacheKey key1: itemsCache.keySet()){
-				if(key1.getRevisionID().equals((revisionID == null) || "".equals(revisionID)?"__HEAD__":revisionID) ){
-					itemsCache.remove(key1);
-				}			
-			}
+//			for(ItemCacheKey key1: itemsCache.keySet()){
+//				if(key1.getRevisionID().equals((revisionID == null) || "".equals(revisionID)?"__HEAD__":revisionID) ){
+//					itemsCache.remove(key1);
+//				}			
+//			}
 			long time = System.currentTimeMillis() - startT;
 			return time;
 		} catch (Exception e) {
@@ -415,7 +415,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	        col.storeResource(document);
 	        //put item to cache
 	        ItemCacheKey key=new ItemCacheKey(revisionID,uniqueID,clusterName);
-	        itemsCache.put(key, document.getContent().toString());
+	        //itemsCache.put(key, document.getContent().toString());
 			long time = System.currentTimeMillis() - startT;
 			return time;
 		} catch (Exception e) {
@@ -468,8 +468,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			document.setContent(xmlString);
 			col.storeResource(document);
 	        //update item cache
-			ItemCacheKey key=new ItemCacheKey(revisionID,uniqueID,clusterName);
-			itemsCache.put(key, document.getContent().toString());
+			//ItemCacheKey key=new ItemCacheKey(revisionID,uniqueID,clusterName);
+			//itemsCache.put(key, document.getContent().toString());
 		} catch (XmlServerException e) {
 			throw (e);
 		} catch (Exception e) {
@@ -502,8 +502,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			document.setContentAsDOM(root);
 			col.storeResource(document);
 			//put item to cache
-			 ItemCacheKey key=new ItemCacheKey(revisionID,uniqueID,clusterName);
-			 itemsCache.put(key, document.getContent().toString());
+			// ItemCacheKey key=new ItemCacheKey(revisionID,uniqueID,clusterName);
+			 //itemsCache.put(key, document.getContent().toString());
 		} catch (XmlServerException e) {
 			throw (e);
 		} catch (Exception e) {
@@ -567,14 +567,14 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 		XMLResource res=null;
 		try {
 			//aiming add item cache 
-			if(itemsCache.size()==CACHE_ITEM_MAX_SIZE)itemsCache.clear();
-			ItemCacheKey key1=new ItemCacheKey(revisionID,uniqueID,clusterName);
-			if(itemsCache.get(key1)!=null){
-				//modified by ymli, 0009760 if the is '<?xml version="1.0" encoding="UTF-8"?>', it will be wrong, so replace it.
-				String projection = itemsCache.get(key1);
-				String subString = projection.replaceAll("<\\?xml.*?\\?>","");
-				return (encoding == null ? "" : "<?xml version=\"1.0\" encoding=\""+encoding+"\"?>\n")+subString;//itemsCache.get(key1);
-			}
+//			if(itemsCache.size()==CACHE_ITEM_MAX_SIZE)itemsCache.clear();
+//			ItemCacheKey key1=new ItemCacheKey(revisionID,uniqueID,clusterName);
+//			if(itemsCache.get(key1)!=null){
+//				//modified by ymli, 0009760 if the is '<?xml version="1.0" encoding="UTF-8"?>', it will be wrong, so replace it.
+//				String projection = itemsCache.get(key1);
+//				String subString = projection.replaceAll("<\\?xml.*?\\?>","");
+//				return (encoding == null ? "" : "<?xml version=\"1.0\" encoding=\""+encoding+"\"?>\n")+subString;//itemsCache.get(key1);
+//			}
 //			
 			org.xmldb.api.base.Collection col = getCollection(revisionID, clusterName, true);
 //			col.setProperty(OutputKeys.INDENT, "yes");
@@ -585,7 +585,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	        
 	        if (res==null||res.getContent()==null) return null;	        
 	        //store xml in cache
-	        itemsCache.put(key1, res.getContent().toString());
+	        //itemsCache.put(key1, res.getContent().toString());
 	        return (encoding == null ? "" : "<?xml version=\"1.0\" encoding=\""+encoding+"\"?>\n")+res.getContent();
 		} catch (Exception e) {
 			String err = "Unable to get the document "+uniqueID+" on " +getFullURL(revisionID, clusterName)+"\n"+res;
@@ -639,8 +639,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				res = col.createResource(encodedID, "XMLResource");
 			col.removeResource(res);
 			//remove item from cache
-			ItemCacheKey key1=new ItemCacheKey(revisionID,uniqueID,clusterName);
-			itemsCache.remove(key1);
+//			ItemCacheKey key1=new ItemCacheKey(revisionID,uniqueID,clusterName);
+//			itemsCache.remove(key1);
 		} catch (Exception e) {
 			  String err = "Unable to delete the document "+uniqueID+"on " +getFullURL(revisionID, clusterName)
 			   +": "+e.getLocalizedMessage();
@@ -712,8 +712,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				Resource resource = col.createResource(uri, "XMLResource");
 				col.removeResource(resource);
 				//remove item from cache
-				ItemCacheKey key=new ItemCacheKey(null,uri,null);
-				itemsCache.remove(key);
+//				ItemCacheKey key=new ItemCacheKey(null,uri,null);
+//				itemsCache.remove(key);
 			}
 			
 			return res.size();
@@ -769,8 +769,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				Resource resource = col.createResource(uri, "XMLResource");
 				col.removeResource(resource);
 				//remove item from cache
-				ItemCacheKey key=new ItemCacheKey(null,uri,null);
-				itemsCache.remove(uri);
+//				ItemCacheKey key=new ItemCacheKey(null,uri,null);
+//				itemsCache.remove(uri);
 			}
 			
 			return res.size();
@@ -1792,7 +1792,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 
 
 	public void clearCache() {
-		itemsCache.clear();		
+		//itemsCache.clear();		
 	}
 	
 	
