@@ -75,6 +75,16 @@ public class RoutingOrderV2CtrlRemote extends Observable
 
    }
 
+   public java.lang.String executeSynchronously ( com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO,boolean cleanUpRoutingOrder,com.amalto.core.objects.universe.ejb.UniversePOJO universePOJO )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        java.lang.String retval;
+       retval =  getSession().executeSynchronously( routingOrderPOJO,cleanUpRoutingOrder,universePOJO );
+
+      return retval;
+
+   }
+
    public void executeAsynchronously ( com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO,long delayInMillis )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
@@ -86,6 +96,13 @@ public class RoutingOrderV2CtrlRemote extends Observable
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
       getSession().executeAsynchronously( routingOrderPOJO );
+
+   }
+
+   public void executeAsynchronously ( com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO,com.amalto.core.objects.universe.ejb.UniversePOJO universePOJO )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+      getSession().executeAsynchronously( routingOrderPOJO,universePOJO );
 
    }
 

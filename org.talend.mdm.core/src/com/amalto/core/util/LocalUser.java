@@ -128,15 +128,7 @@ public class LocalUser {
 		}			
     	
     	//Extract roles and username
-    	String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container";       		
-		Subject subject;
-		try {
-			subject = (Subject) PolicyContext.getContext(SUBJECT_CONTEXT_KEY);
-		} catch (PolicyContextException e1) {
-			String err = "Unable find the local user: the JACC Policy Context cannot be accessed: "+e1.getMessage();
-			org.apache.log4j.Logger.getLogger(LocalUser.class).error(err,e1);
-			throw new XtentisException(err);
-		}
+    	Subject subject = getCurrentSubject();
 
 		//This should not happen but it does
 		if (subject==null) {
@@ -322,6 +314,18 @@ public class LocalUser {
 			
 
     }
+    public static Subject getCurrentSubject() throws XtentisException {
+		String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container";       		
+		Subject subject;
+		try {
+			subject = (Subject) PolicyContext.getContext(SUBJECT_CONTEXT_KEY);
+		} catch (PolicyContextException e1) {
+			String err = "Unable find the local user: the JACC Policy Context cannot be accessed: "+e1.getMessage();
+			org.apache.log4j.Logger.getLogger(LocalUser.class).error(err,e1);
+			throw new XtentisException(err);
+		}
+		return subject;
+	}
     
     public static void resetLocalUsers() throws XtentisException{
     	 localUserCache.clear();
@@ -337,16 +341,7 @@ public class LocalUser {
     public void logout() throws XtentisException{
     	org.apache.log4j.Logger.getLogger(this.getClass()).debug("logout() "+getUsername()+" in "+getUniverse().getName());
     	
-    	//Extract roles and username
-    	String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container";       		
-		Subject subject;
-		try {
-			subject = (Subject) PolicyContext.getContext(SUBJECT_CONTEXT_KEY);
-		} catch (PolicyContextException e1) {
-			String err = "Unable find the local user: the JACC Policy Context cannot be accessed: "+e1.getMessage();
-			org.apache.log4j.Logger.getLogger(LocalUser.class).error(err,e1);
-			throw new XtentisException(err);
-		}
+    	Subject subject = getCurrentSubject();
 		
 		//update last access
 		Integer subjectHash = subject.hashCode();

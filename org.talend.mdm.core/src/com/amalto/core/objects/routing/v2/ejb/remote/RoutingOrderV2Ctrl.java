@@ -35,6 +35,13 @@ public interface RoutingOrderV2Ctrl
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
+    * Executes a Routing Order now in a particular universe
+    * @throws XtentisException
+    */
+   public java.lang.String executeSynchronously( com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO,boolean cleanUpRoutingOrder,com.amalto.core.objects.universe.ejb.UniversePOJO universePOJO )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
     * Executes a Routing Order in delay milliseconds
     * @throws XtentisException
     */
@@ -46,6 +53,13 @@ public interface RoutingOrderV2Ctrl
     * @throws XtentisException
     */
    public void executeAsynchronously( com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
+    * Executes a Routing Order in default DELAY milliseconds
+    * @throws XtentisException
+    */
+   public void executeAsynchronously( com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO,com.amalto.core.objects.universe.ejb.UniversePOJO universePOJO )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
