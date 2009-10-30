@@ -13,8 +13,10 @@ import talend.webapp.v3.updatereport.bean.DataChangeLog;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSGetItems;
+import com.amalto.webapp.util.webservices.WSString;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
@@ -135,6 +137,11 @@ public class UpdateReportDWR {
 			WSWhereAnd and=new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
 			wi=new WSWhereItem(null,and,null);
 		}
+		
+		//count each time
+		WSString totalString=Util.getPort().count(new WSCount(wsDataClusterPK,conceptName,wi,-1));
+		int totalSize=0;
+		if(totalString!=null&&totalString.getValue()!=null&&totalString.getValue().length()>0)totalSize=Integer.parseInt(totalString.getValue());
  		
  		String[] results =
 			Util.getPort().getItems(new WSGetItems(
@@ -142,21 +149,22 @@ public class UpdateReportDWR {
 					conceptName,
 					wi,
             		-1,
-            		0,
-            		Integer.MAX_VALUE
+            		start,
+            		limit
             	)
             ).getStrings();
  		
+ 		logger.debug("Total:"+totalSize+";Start:"+start+";Limit:"+limit+";Length:"+(results==null?0:results.length));
  		//sub result
- 		start=start<results.length?start:results.length-1;
- 		if(start<0)start=0;
-		int end=results.length<(start+limit)?results.length-1:(start+limit-1);
-		
-		String[] subResults=end+1-start<limit?new String[end+1-start]:new String[limit];
-		for (int i = start,j=0; i < end+1; i++,j++) {
-			subResults[j]=results[i];
-		}
-		
+// 		start=start<results.length?start:results.length-1;
+// 		if(start<0)start=0;
+//		int end=results.length<(start+limit)?results.length-1:(start+limit-1);
+//		
+//		String[] subResults=end+1-start<limit?new String[end+1-start]:new String[limit];
+//		for (int i = start,j=0; i < end+1; i++,j++) {
+//			subResults[j]=results[i];
+//		}
+ 		String[] subResults=results;
 		//parse data
 		DataChangeLog[] data=new DataChangeLog[subResults.length];
 		for (int i = 0; i < data.length; i++) {
@@ -202,7 +210,7 @@ public class UpdateReportDWR {
 		
 		
 		listRange.setData(data);
-		listRange.setTotalSize(results.length);			
+		listRange.setTotalSize(totalSize);			
 		return listRange;
 	}
 	
