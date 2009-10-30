@@ -55,10 +55,10 @@
     
     <login-config>
         <auth-method>FORM</auth-method>
-        <realm-name>xtentisWebAppSecurity</realm-name>
+        <realm-name>xtentisSecurity</realm-name>
         <form-login-config>
-            <form-login-page>/b2boxv3/auth/login.jsp</form-login-page>
-            <form-error-page>/b2boxv3/auth/login.jsp?error=loginFailed</form-error-page>
+            <form-login-page>/loginAgent.html</form-login-page>
+            <form-error-page>/loginErrorAgent.html</form-error-page>
         </form-login-config>
     </login-config>
     
