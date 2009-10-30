@@ -49,13 +49,6 @@ public interface RoutingOrderV2Ctrl
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
-    * Executes a Routing Order in default DELAY milliseconds
-    * @throws XtentisException
-    */
-   public void executeAsynchronously( com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO,com.amalto.core.objects.universe.ejb.UniversePOJO universePOJO )
-      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
-
-   /**
     * Remove an item
     * @throws XtentisException
     */

@@ -20,6 +20,7 @@ public class CompletedRoutingOrderV2POJO extends AbstractRoutingOrderV2POJO{
 		setTimeScheduled(roPOJO.getTimeScheduled());
 		setServiceJNDI(roPOJO.getServiceJNDI());
 		setServiceParameters(roPOJO.getServiceParameters());
+		setBindingUniverseName(roPOJO.getBindingUniverseName());
 		
 	}
 	

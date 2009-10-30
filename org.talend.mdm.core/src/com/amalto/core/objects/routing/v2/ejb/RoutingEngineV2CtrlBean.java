@@ -1,6 +1,5 @@
 package com.amalto.core.objects.routing.v2.ejb;
 
-import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -326,6 +325,16 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 			//create the routing Order
 			Date now = new Date();
 			String name = itemPOJOPK.getUniqueID()+"-"+sdf.format(now);
+			//bind a universe to a Routing Order
+			String bindingUniverseName=null;
+			UniversePOJO universePOJO=null;
+			if(LocalUser.getCurrentSubject()!=null){
+				universePOJO = LocalUser.getLocalUser().getUniverse();
+				if(universePOJO!=null&&universePOJO.getName()!=null){
+					bindingUniverseName=universePOJO.getName();
+				}
+			}
+			
 			ActiveRoutingOrderV2POJO routingOrderPOJO = new ActiveRoutingOrderV2POJO(
 				name,
 				routingRule.isSynchronous() ? now.getTime() : now.getTime()+DELAY,
@@ -333,8 +342,11 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 				"Routing of '"+itemPOJOPK.getUniqueID()+"' to service '"+routingRule.getServiceJNDI().replaceFirst("amalto/local/service/", "")+"'"
 					+" triggered by rule '"+routingRulePOJOPK.getUniqueId()+"'",
 				routingRule.getServiceJNDI(),
-				routingRule.getParameters()
+				routingRule.getParameters(),
+				bindingUniverseName
 			);
+			
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug("Routing Order "+routingOrderPOJO.getName()+" bind universe "+routingOrderPOJO.getBindingUniverseName());
 				
 			//there is one case where everything is run now
 			if (routingRule.isSynchronous()) {
@@ -517,29 +529,9 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
      * @return a TimerHandle
      */
     private TimerHandle createTimer(RoutingEngineV2POJOPK routingEnginePOJOPK, long ms) {
-    	UniversePOJO universePOJO = null;
-    	try {
-			
-    		if(LocalUser.getCurrentSubject()!=null){
-				
-			   universePOJO = LocalUser.getLocalUser().getUniverse();
-			    
-			}
-			
-		} catch (XtentisException e) {
-			e.printStackTrace();
-			String err = "Unable to get the Universe for the local user: using head. "+e.getMessage();
-	        org.apache.log4j.Logger.getLogger(this.getClass().getName()).warn("createTimer "+err);
-	        e.printStackTrace();
-		}
-    	
-        
-        //Create Routing Engine Data
-        AsynchronousRoutingEngineData routingEngineData = new AsynchronousRoutingEngineData(universePOJO, routingEnginePOJOPK);
-    	
     	ms  = Math.max(ms, RoutingEngineV2POJO.getInstance().getMinRunPeriodMillis());
         TimerService timerService =  context.getTimerService();
-        Timer timer = timerService.createTimer(ms,routingEngineData);  
+        Timer timer = timerService.createTimer(ms,routingEnginePOJOPK);  
         TimerHandle th = timer.getHandle();
         return th;
     }
@@ -549,7 +541,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 	 * @see javax.ejb.TimedObject#ejbTimeout(javax.ejb.Timer)
 	 */
 	public void ejbTimeout(Timer timer) {
-		AsynchronousRoutingEngineData routingEngineData = (AsynchronousRoutingEngineData) timer.getInfo();
+		
 		//RoutingEngineV2POJOPK routingEngine = (RoutingEngineV2POJOPK) timer.getInfo();
 		//for the moment we have a single static routing engine
 		RoutingEngineV2POJO routingEngine = RoutingEngineV2POJO.getInstance();
@@ -743,7 +735,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 			routingOrder.setRoutingEngineToken(token);
 			//execute
 			try {
-				routingOrderCtrl.executeAsynchronously(routingOrder,routingEngineData.currentUniversePOJO);
+				routingOrderCtrl.executeAsynchronously(routingOrder);
 			}catch (XtentisException e) {
 				//mark the engine as stopped
 				routingEngine.setStatus(RoutingEngineV2POJO.STOPPED);
@@ -768,25 +760,6 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 	}
 
 
-	@SuppressWarnings("serial")
-
-    class AsynchronousRoutingEngineData implements Serializable{
-
-       private UniversePOJO currentUniversePOJO;
-
-       private RoutingEngineV2POJOPK routingEnginePOJOPK;
-
-       public AsynchronousRoutingEngineData(UniversePOJO currentUniversePOJO,RoutingEngineV2POJOPK routingEnginePOJOPK) {
-
-               super();
-
-               this.currentUniversePOJO = currentUniversePOJO;
-
-               this.routingEnginePOJOPK = routingEnginePOJOPK;
-
-        }
-
-    }
 
 
 }

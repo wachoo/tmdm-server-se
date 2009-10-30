@@ -3780,6 +3780,10 @@
 <java-variable-name>message</java-variable-name>
 <xml-element-name>message</xml-element-name>
 </variable-mapping>
+<variable-mapping>
+<java-variable-name>bindingUniverseName</java-variable-name>
+<xml-element-name>bindingUniverseName</xml-element-name>
+</variable-mapping>
 </java-xml-type-mapping>
 <java-xml-type-mapping>
 <java-type>com.amalto.core.webservice.WSTransformerV2</java-type>

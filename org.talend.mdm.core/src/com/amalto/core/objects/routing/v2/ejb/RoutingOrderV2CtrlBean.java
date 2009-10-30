@@ -25,6 +25,7 @@ import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -151,7 +152,8 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     				routingOrderPOJO.getItemPOJOPK(),
     				routingOrderPOJO.getMessage(),
     				routingOrderPOJO.getServiceJNDI(),
-    				routingOrderPOJO.getServiceParameters()
+    				routingOrderPOJO.getServiceParameters(),
+    				routingOrderPOJO.getBindingUniverseName()
     			);
     			//delete the existing one
     			if (cleanUpRoutingOrder) removeRoutingOrder(routingOrderPOJO.getAbstractRoutingOrderPOJOPK());
@@ -225,15 +227,14 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 	 * 
 	 * Executes a Routing Order now in a particular universe
 	 * @throws XtentisException
-	 *  
+	 * 
+	 * 
 	 * @ejb.interface-method view-type = "both"
 	 * @ejb.facade-method
 	 */
-
 	public String executeSynchronously(
 			AbstractRoutingOrderV2POJO routingOrderPOJO,
-			boolean cleanUpRoutingOrder, 
-			UniversePOJO universePOJO)
+			boolean cleanUpRoutingOrder, UniversePOJO universePOJO)
 			throws XtentisException {
 
 		org.apache.log4j.Logger.getLogger(this.getClass()).trace(
@@ -245,7 +246,8 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 
 		);
 
-		//set the universe for the anonymous user
+		// set the universe for the anonymous user
+
 		if (universePOJO != null) {
 
 			try {
@@ -293,7 +295,6 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 		return executeSynchronously(routingOrderPOJO, cleanUpRoutingOrder);
 
 	}
-    
     
     
     private void moveToFailedQueue(AbstractRoutingOrderV2POJO routingOrderPOJO, String message, Exception e, boolean cleanUpRoutingOrder)  throws XtentisException{   	
@@ -361,7 +362,7 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method 
      */
     public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, long delayInMillis) throws XtentisException {
-    	createTimer(routingOrderPOJO, null, delayInMillis);
+    	createTimer(routingOrderPOJO, delayInMillis);
     }
 
     /**
@@ -372,18 +373,7 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method 
      */
     public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
-    	createTimer(routingOrderPOJO, null, DELAY);
-    }
-    
-    /**
-     * Executes a Routing Order in default DELAY milliseconds
-     * @throws XtentisException
-     * 
-     * @ejb.interface-method view-type = "both"
-     * @ejb.facade-method 
-     */
-    public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO,UniversePOJO universePOJO) throws XtentisException {
-    	createTimer(routingOrderPOJO, universePOJO, DELAY);
+    	createTimer(routingOrderPOJO,DELAY);
     }
     
     /**
@@ -904,25 +894,28 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
      * @param intervalDuration
      * @return a TimerHandle
      */
-    private TimerHandle createTimer(AbstractRoutingOrderV2POJO routingOrderPOJO,UniversePOJO universePOJO, long ms) {
+    private TimerHandle createTimer(AbstractRoutingOrderV2POJO routingOrderPOJO, long ms) {
     	
-    	 if(universePOJO==null){
-    		try {
-
-                universePOJO = LocalUser.getLocalUser().getUniverse();
-
-            } catch (XtentisException e) {
-           	 
-                   String err = "Unable to get the Universe for the local user: using head. "+e.getMessage();
-                   org.apache.log4j.Logger.getLogger(this.getClass().getName()).warn("createTimer "+err);
-                   e.printStackTrace();
-            }
-    	 }
+    	UniversePOJO universePOJO = null;
+    	
+    	try {
+    		
+	    	if(routingOrderPOJO.getBindingUniverseName()!=null&&!routingOrderPOJO.getBindingUniverseName().equals("[HEAD]")){
+	    		universePOJO = ObjectPOJO.load(null, UniversePOJO.class, new UniversePOJOPK(routingOrderPOJO.getBindingUniverseName()));
+	    	}else{
+	    		universePOJO = LocalUser.getLocalUser().getUniverse();
+	    	}
+	    	
+        } catch (XtentisException e) {
+                String err = "Unable to get the Universe for the local user: using head. "+e.getMessage();
+                org.apache.log4j.Logger.getLogger(this.getClass().getName()).warn("createTimer "+err);
+                e.printStackTrace();
+        }
         
-         //Create routing order data
-         AsynchronousOrderData routingOrderData = new AsynchronousOrderData(universePOJO, routingOrderPOJO);
+        //Create routing order data
+        AsynchronousOrderData routingOrderData = new AsynchronousOrderData(universePOJO, routingOrderPOJO);
 
-
+  
     	if (ms < DELAY) ms = DELAY;
         TimerService timerService =  context.getTimerService();
         Timer timer = timerService.createTimer(ms,routingOrderData);  
@@ -937,20 +930,17 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 	public void ejbTimeout(Timer timer) {		
 		
 		//recover routing order data
-
         AsynchronousOrderData routingOrderData = (AsynchronousOrderData) timer.getInfo();
         org.apache.log4j.Logger.getLogger(this.getClass()).trace(
                "ejbTimeout() retrieving routing order "+routingOrderData.routingOrderV2POJO.getPK().getUniqueId()+
                "in universe "+routingOrderData.currentUniversePOJO.getPK().getUniqueId()
         );
 
-       
+        
         //retrieve the Routing Order Ctrl. This should re-initialize the JACC Context
         RoutingOrderV2CtrlLocal routingOrderCtrl = null;
         try {
-
              routingOrderCtrl = Util.getRoutingOrderV2CtrlLocal();
-
         } catch (Exception e) {
                //an error occurred  - free the executor
                org.apache.log4j.Logger.getLogger(this.getClass()).info(
@@ -963,16 +953,16 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 
         try {
              routingOrderCtrl.executeSynchronously(routingOrderData.routingOrderV2POJO, true, routingOrderData.currentUniversePOJO);
-
         } catch (Exception e) {
-               //an error occurred  - free the executor
-               org.apache.log4j.Logger.getLogger(this.getClass()).info("ejbTimeout() ERROR SYSTRACE: Asynchronous execution failed. "+e.getMessage());
+             //an error occurred  - free the executor
+             org.apache.log4j.Logger.getLogger(this.getClass()).info("ejbTimeout() ERROR SYSTRACE: Asynchronous execution failed. "+e.getMessage());
         }
 
 
 	}
     
-	@SuppressWarnings("serial")
+	
+    @SuppressWarnings("serial")
 
     class AsynchronousOrderData implements Serializable{
 
@@ -980,7 +970,7 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 
        private AbstractRoutingOrderV2POJO routingOrderV2POJO;
 
-       public AsynchronousOrderData(UniversePOJO currentUniversePOJO, AbstractRoutingOrderV2POJO routingOrderV2POJO) {
+             public AsynchronousOrderData(UniversePOJO currentUniversePOJO, AbstractRoutingOrderV2POJO routingOrderV2POJO) {
 
                super();
 
@@ -991,5 +981,6 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
         }
 
     }
+
       
 }

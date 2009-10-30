@@ -40,7 +40,7 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
     protected String message = "---> CREATED "+sdf.format(new Date());
     protected RoutingEngineV2POJOPK routingEnginePOJOPK;
     protected String routingEngineToken = null;
-    
+    protected String bindingUniverseName = null;
     
     protected AbstractRoutingOrderV2POJO() {
     	super();
@@ -74,7 +74,24 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
 		this.routingEngineToken = routingEngineToken;
 	}
 
-
+	protected AbstractRoutingOrderV2POJO(
+			String name,
+			int status,
+			long timeCreated,
+			long timeScheduled,
+			long timeLastRunStarted,
+			long timeLastRunCompleted,
+			ItemPOJOPK itemPOJOPK,
+			String serviceJNDI,
+			String serviceParameters,
+			String message,
+			RoutingEngineV2POJOPK routingEnginePOJOPK,
+			String routingEngineToken,
+			String bindingUniverseName) {
+		    this(name,status,timeCreated,timeScheduled,timeLastRunStarted,timeLastRunCompleted,itemPOJOPK,serviceJNDI,serviceParameters,message,routingEnginePOJOPK,routingEngineToken);
+			this.bindingUniverseName=bindingUniverseName;
+			
+		}
 
 
 
@@ -183,8 +200,16 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
 		String routingEngineToken) {
 		this.routingEngineToken = routingEngineToken;
 	}
+	
+    public String getBindingUniverseName() {
+		return bindingUniverseName;
+	}
 
-    public Class<? extends AbstractRoutingOrderV2POJO> getRoutingOrderClass() {
+	public void setBindingUniverseName(String bindingUniverseName) {
+		this.bindingUniverseName = bindingUniverseName;
+	}
+
+	public Class<? extends AbstractRoutingOrderV2POJO> getRoutingOrderClass() {
         switch (this.status) {
            	case AbstractRoutingOrderV2POJO.ACTIVE:
            		return ActiveRoutingOrderV2POJO.class;
@@ -213,4 +238,5 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
         }
         return null;
 	}
+
 }

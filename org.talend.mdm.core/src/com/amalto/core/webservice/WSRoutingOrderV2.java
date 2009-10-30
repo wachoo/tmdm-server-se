@@ -17,11 +17,12 @@ public class WSRoutingOrderV2 {
     protected java.lang.String serviceJNDI;
     protected java.lang.String serviceParameters;
     protected java.lang.String message;
+    protected java.lang.String bindingUniverseName;
     
     public WSRoutingOrderV2() {
     }
     
-    public WSRoutingOrderV2(java.lang.String name, com.amalto.core.webservice.WSRoutingOrderV2Status status, long timeCreated, long timeScheduled, long timeLastRunStarted, long timeLastRunCompleted, com.amalto.core.webservice.WSItemPK wsItemPK, java.lang.String serviceJNDI, java.lang.String serviceParameters, java.lang.String message) {
+    public WSRoutingOrderV2(java.lang.String name, com.amalto.core.webservice.WSRoutingOrderV2Status status, long timeCreated, long timeScheduled, long timeLastRunStarted, long timeLastRunCompleted, com.amalto.core.webservice.WSItemPK wsItemPK, java.lang.String serviceJNDI, java.lang.String serviceParameters, java.lang.String message, java.lang.String bindingUniverseName) {
         this.name = name;
         this.status = status;
         this.timeCreated = timeCreated;
@@ -32,6 +33,7 @@ public class WSRoutingOrderV2 {
         this.serviceJNDI = serviceJNDI;
         this.serviceParameters = serviceParameters;
         this.message = message;
+        this.bindingUniverseName = bindingUniverseName;
     }
     
     public java.lang.String getName() {
@@ -112,5 +114,13 @@ public class WSRoutingOrderV2 {
     
     public void setMessage(java.lang.String message) {
         this.message = message;
+    }
+    
+    public java.lang.String getBindingUniverseName() {
+        return bindingUniverseName;
+    }
+    
+    public void setBindingUniverseName(java.lang.String bindingUniverseName) {
+        this.bindingUniverseName = bindingUniverseName;
     }
 }
