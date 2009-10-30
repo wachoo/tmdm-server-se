@@ -38,11 +38,11 @@
     </security-constraint>
     
     <login-config>
-        <auth-method>BASIC</auth-method>
-        <realm-name>xtentisWebAppSecurity</realm-name>
+        <auth-method>FORM</auth-method>
+        <realm-name>xtentisSecurity</realm-name>
         <form-login-config>
-            <form-login-page>/auth/login.jsp</form-login-page>
-            <form-error-page>/auth/login.jsp?error=loginFailed</form-error-page>
+            <form-login-page>/loginAgent.html</form-login-page>
+            <form-error-page>/loginErrorAgent.html</form-error-page>
         </form-login-config>
     </login-config>
     
