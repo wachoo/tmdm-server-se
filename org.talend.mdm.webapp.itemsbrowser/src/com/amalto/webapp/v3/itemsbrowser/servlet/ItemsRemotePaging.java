@@ -3,7 +3,6 @@ package com.amalto.webapp.v3.itemsbrowser.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -21,7 +20,9 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSString;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSViewSearch;
@@ -129,6 +130,16 @@ public class ItemsRemotePaging  extends HttpServlet{
 
 			org.apache.log4j.Logger.getLogger(this.getClass()).trace("doPost() starting to search");
 			
+			//count each time
+			WSString totalString=Util.getPort().count(new WSCount(
+					new WSDataClusterPK(config.getCluster()),
+					concept,
+					wi,
+            		-1
+            	));
+			int totalSize=0;
+			if(totalString!=null&&totalString.getValue()!=null&&totalString.getValue().length()>0)totalSize=Integer.parseInt(totalString.getValue());
+			
 			results = Util.getPort().viewSearch(
 					new WSViewSearch(
 						new WSDataClusterPK(config.getCluster()),
@@ -143,19 +154,6 @@ public class ItemsRemotePaging  extends HttpServlet{
 			).getStrings();
 			org.apache.log4j.Logger.getLogger(this.getClass()).trace("doPost() end of search");
 			
-
-			String[] totalResults = Util.getPort().viewSearch(
-					new WSViewSearch(
-						new WSDataClusterPK(config.getCluster()),
-						new WSViewPK(view.getViewPK()),
-						wi,
-						-1,
-						0,
-						2147483647,
-						null,
-						null
-				)
-			).getStrings();
 
 			for (int i = 0; i < results.length; i++) {
 				//aiming modify
@@ -200,7 +198,7 @@ public class ItemsRemotePaging  extends HttpServlet{
 			}				
 
 			//int totalCount = (Integer)request.getSession().getAttribute("totalCountItems");
-			int totalCount = totalResults.length;
+			int totalCount = totalSize;
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
 					"doPost() Total result = "+totalCount);
 
