@@ -122,18 +122,6 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public void executeASynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
-    	createTimer(routingOrderPOJO,null,DELAY);
-    }
-    
-
-    /**
-     * Executes a Routing Order now
-     * @throws XtentisException
-     * 
-     * @ejb.interface-method view-type = "both"
-     * @ejb.facade-method 
-     */
     public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
     	return executeSynchronously(routingOrderPOJO,true);
     }

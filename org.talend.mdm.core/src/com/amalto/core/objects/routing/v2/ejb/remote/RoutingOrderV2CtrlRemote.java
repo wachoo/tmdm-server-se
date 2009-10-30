@@ -48,13 +48,6 @@ public class RoutingOrderV2CtrlRemote extends Observable
       }
    }
 
-   public void executeASynchronously ( com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO )
-	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
-   {
-      getSession().executeASynchronously( routingOrderPOJO );
-
-   }
-
    public java.lang.String executeSynchronously ( com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {

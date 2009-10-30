@@ -17,12 +17,6 @@ public interface RoutingOrderV2CtrlLocal
     * Executes a Routing Order now
     * @throws XtentisException
     */
-   public void executeASynchronously( com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO ) throws com.amalto.core.util.XtentisException;
-
-   /**
-    * Executes a Routing Order now
-    * @throws XtentisException
-    */
    public java.lang.String executeSynchronously( com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO ) throws com.amalto.core.util.XtentisException;
 
    /**
