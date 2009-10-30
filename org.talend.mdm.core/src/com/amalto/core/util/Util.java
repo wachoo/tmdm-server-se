@@ -791,6 +791,7 @@ public final class Util {
     	}
     	return list;
     }
+   
     private static void getChildren(XSParticle xsp, List<XSParticle> list){
 		//aiming added see 0009563
 		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
@@ -852,6 +853,15 @@ public final class Util {
 		return targetSystems;
 	}
     
+    /**
+     * 
+     * @param schema
+     * @param dataCluster
+     * @param concept
+     * @param elementname null:表示根接点
+     * @param conceptRoot
+     * @throws Exception
+     */
     private static void generateUUIDForElement(String schema,String dataCluster,String concept, Element conceptRoot) throws Exception{
     	List<XSParticle> uuidLists=getUUIDNodes(schema, concept);
 		//Element conceptRoot = (Element)root.cloneNode(true);	
@@ -859,48 +869,52 @@ public final class Util {
 			XSParticle xsp=uuidLists.get(i);
 			String name= xsp.getTerm().asElementDecl().getName();
 			String type=xsp.getTerm().asElementDecl().getType().getName();
-			String value=null;
+			
 			for(int j=0; j<conceptRoot.getChildNodes().getLength(); j++){
 				Node node= conceptRoot.getChildNodes().item(j);
-				if(node.getNodeType() != Node.ELEMENT_NODE) continue;	
-				if(node.getChildNodes().getLength()>1){
-					generateUUIDForElement(schema, dataCluster,node.getNodeName(),(Element)node);
-				}else{
-					if(node.getNodeName().equalsIgnoreCase(name)){
-						if(node.getTextContent()==null ||node.getTextContent().length()==0 ){							
-							if(EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type)){								
-								//value=String.valueOf(new UID().getID());								
-								String id=String.valueOf(AutoIncrementGenerator.generateNum(LocalUser.getLocalUser().getUniverse().getName(), dataCluster,concept+"."+name));
-								//check id exists								
-								ItemPOJOPK pk=new ItemPOJOPK(new DataClusterPOJOPK(dataCluster),concept,new String[]{id});
-								ItemPOJO pojo=ItemPOJO.load(pk);
-								while(pojo!=null){
-									id=String.valueOf(AutoIncrementGenerator.generateNum(LocalUser.getLocalUser().getUniverse().getName(), dataCluster,concept+"."+name));
-									pk=new ItemPOJOPK(new DataClusterPOJOPK(dataCluster),concept,new String[]{id});
-									pojo=ItemPOJO.load(pk);
-									if(pojo==null){ //if don't exist, select the id 
-										value=id;
-										break;
-									}
-								}
-								if(pojo==null){
-									value=id;
-								}
-								
-							}
-							if(EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)){
-								value=String.valueOf(UUID.randomUUID().toString());
-							}							
-							node.setTextContent(value);
-						}
-						break;
-					}					
-				}
+				setUUIDNodeText(node, name,type,dataCluster,concept);
 			}	
-		}
-		
+		}		
     }
- 	 
+
+ 	private static void setUUIDNodeText(Node node, String name,String type,String dataCluster,String concept)throws Exception{
+ 		if(node.getNodeType() != Node.ELEMENT_NODE) return ;
+ 		if(node.getChildNodes().getLength()>1){
+ 			for(int i=0; i<node.getChildNodes().getLength(); i++){
+ 				setUUIDNodeText(node.getChildNodes().item(i),name,type,dataCluster,concept);
+ 			}
+ 		}else{
+			if(node.getNodeName().equalsIgnoreCase(name)){
+				if(node.getTextContent()==null ||node.getTextContent().length()==0 ){							
+					if(EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type)){								
+						//value=String.valueOf(new UID().getID());								
+						String id=String.valueOf(AutoIncrementGenerator.generateNum(LocalUser.getLocalUser().getUniverse().getName(), dataCluster,concept+"."+name));
+						//check id exists								
+						ItemPOJOPK pk=new ItemPOJOPK(new DataClusterPOJOPK(dataCluster),concept,new String[]{id});
+						ItemPOJO pojo=ItemPOJO.load(pk);
+						while(pojo!=null){
+							id=String.valueOf(AutoIncrementGenerator.generateNum(LocalUser.getLocalUser().getUniverse().getName(), dataCluster,concept+"."+name));
+							pk=new ItemPOJOPK(new DataClusterPOJOPK(dataCluster),concept,new String[]{id});
+							pojo=ItemPOJO.load(pk);
+							if(pojo==null){ //if don't exist, select the id 
+								node.setTextContent(id);
+								return;
+							}
+						}
+						if(pojo==null){
+							node.setTextContent(id);
+							return;
+						}
+						
+					}
+					if(EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)){
+						node.setTextContent(String.valueOf(UUID.randomUUID().toString()));	
+						return;
+					}											
+				}
+			} 		
+ 		}
+ 	}
 	public static String getXMLStringFromNode(Node d) throws TransformerException{
 		StringWriter writer = new StringWriter();
 		TransformerFactory.newInstance().newTransformer()

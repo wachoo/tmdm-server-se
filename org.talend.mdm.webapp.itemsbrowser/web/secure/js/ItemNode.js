@@ -137,7 +137,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			
 			var value = "";
 			if(itemData.value!=null) value = itemData.value;
-			if(newItem==true&&itemData.key==true&&(itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT")){
+			if(newItem==true&&(itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT")){
 				value = KEY_DEFAULT_vALUE[language];
 				mandatory='<span style="color:red">*</span>';
 			}
