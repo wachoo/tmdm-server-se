@@ -119,7 +119,7 @@ getUniverseList();
 							<td align="right" width="120"><%= _UNIVERSE_ %>:&nbsp;</td>
 							<td align="left">
 							<!--<input type="text" name="j_universe" value="" />-->
-							<select id="j_universe" name="j_universe" onChange="getUniverseList()"/>
+							<select id="j_universe" name="j_universe"/>
 							</td>
 						</tr>						
 						<tr>
