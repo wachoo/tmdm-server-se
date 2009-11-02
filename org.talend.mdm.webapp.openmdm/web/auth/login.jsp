@@ -72,6 +72,7 @@ function getUniverseList()
 
     LoginInterface.getUniverseNames({
 	    callback:function(data) { 
+	      DWRUtil.removeAllOptions("j_universe");
 	      DWRUtil.addOptions("j_universe",data);
 	    },
 	    errorHandler:function(message) { alert(message); },
