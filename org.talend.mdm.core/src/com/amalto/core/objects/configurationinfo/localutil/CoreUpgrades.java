@@ -14,12 +14,21 @@ import javax.ejb.CreateException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.talend.mdm.commmon.util.core.ICoreConstants;
+
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
+import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJOPK;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocalHome;
@@ -30,8 +39,13 @@ import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocalH
 import com.amalto.core.objects.transformers.v2.util.TransformerProcessStep;
 import com.amalto.core.objects.transformers.v2.util.TransformerVariablesMapping;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.util.Util;
 import com.amalto.core.util.Version;
 import com.amalto.core.util.XtentisException;
+import com.amalto.core.webservice.WSDataModel;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSExistsDataModel;
+import com.amalto.core.webservice.WSPutDataModel;
 
 
 /**
@@ -53,8 +67,38 @@ public class CoreUpgrades {
     public CoreUpgrades() {
         super();
     }
+    /**
+     * init cross referencing datamodel/datacluster
+     * @throws Exception
+     */
+    private static void initCrossReferencing()throws XtentisException{
 
+        org.apache.log4j.Logger.getLogger(CoreUpgrades.class).debug("init() Cross-Referencing - checking cluster and data model");
+    	//create the cluster and data model  if they do not exist
+		try {
+			DataClusterCtrlLocal local=com.amalto.core.util.Util.getDataClusterCtrlLocal();
+			if (local.existsDataCluster(new DataClusterPOJOPK(ICoreConstants.datacluster)) ==null) {
+				local.putDataCluster(new DataClusterPOJO(ICoreConstants.datacluster, "MDM Cross Referencing Data",""));
+			}
+			DataModelCtrlLocal datamodelLocal=Util.getDataModelCtrlLocal();
+			if (datamodelLocal.existsDataModel(new DataModelPOJOPK(ICoreConstants.datamodel))==null) {
+				datamodelLocal.putDataModel(
+						new DataModelPOJO(ICoreConstants.datamodel, "MDM Cross Referencing Table Definitions",""));
+			}
+		} catch (Exception e) {
+			String err = "Unable to initialize the crossreferencing data cluster and data model.";
+			org.apache.log4j.Logger.getLogger(CoreUpgrades.class).error(err, e);
+			throw new XtentisException(err);
+		}   	
+    }
+    
     public static void autoUpgrade(ConfigurationInfoCtrlLocal ctrl) throws XtentisException,NamingException,CreateException{
+    	//init crossreferencing datamodel/datacluster
+    	initCrossReferencing(); //aiming added
+    	org.apache.log4j.Logger.getLogger(CoreUpgrades.class).info("execute initCrossReferencing  sucessfully!");
+    	//execute migration task, aiming added
+    	MigrationRepository.getInstance().connect();
+    	org.apache.log4j.Logger.getLogger(CoreUpgrades.class).info("execute migration tasks sucessfully!");
     	ConfigurationInfoPOJO previousCoreConf = getPreviousCoreConfigurationInfo(ctrl);
     	//We must make sure we use a Class NOT present in z.com.amalto.core.jar
     	Version thisVersion = Version.getVersion(ConfigurationInfoCtrlLocal.class);

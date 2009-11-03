@@ -28,7 +28,11 @@ public class DataModelPOJO extends ObjectPOJO{
 		super();
 		this.name = name;
 	}
-	
+	public DataModelPOJO(String name, String desc,String schema){
+		this.name=name;
+		this.description=desc;
+		this.schema=schema;
+	}
 
 	/**
 	 * @return Returns the Name.
