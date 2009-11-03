@@ -15,6 +15,7 @@ import com.amalto.webapp.util.webservices.WSExistsDataCluster;
 import com.amalto.webapp.util.webservices.WSExistsDataModel;
 import com.amalto.webapp.util.webservices.WSPutDataCluster;
 import com.amalto.webapp.util.webservices.WSPutDataModel;
+import com.amalto.webapp.util.webservices.XtentisPort;
 
 /**
  * Initializes the "package" if needed.
@@ -35,24 +36,26 @@ public class InitServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
-        //detect if this is a hot deploy
-        try {
-        	Util.getAjaxSubject();
-        } catch (Exception e1) {
-	        return;
-        }
+//        //detect if this is a hot deploy
+//        try {
+//        	Util.getAjaxSubject();
+//        } catch (Exception e1) {
+//        	e1.printStackTrace();
+//	        return;
+//        }
 
         org.apache.log4j.Logger.getLogger(this.getClass()).debug("init() Cross-Referencing - checking cluster and data model");
     	//create the cluster and data model  if they do not exist
 		try {
-			if (!Util.getPort().existsDataCluster(new WSExistsDataCluster(new WSDataClusterPK(Configuration.datacluster))).is_true()) {
-				Util.getPort().putDataCluster(new WSPutDataCluster(
-						new WSDataCluster(Configuration.datacluster, "b2box Cross Referencing Data","")
+			XtentisPort port= Util.getPort(null,null,Util._FORCE_RMI_);
+			if (!port.existsDataCluster(new WSExistsDataCluster(new WSDataClusterPK(Configuration.datacluster))).is_true()) {
+				port.putDataCluster(new WSPutDataCluster(
+						new WSDataCluster(Configuration.datacluster, "MDM Cross Referencing Data","")
 				));
 			}
-			if (!Util.getPort().existsDataModel(new WSExistsDataModel(new WSDataModelPK(Configuration.datamodel))).is_true()) {
-				Util.getPort().putDataModel(new WSPutDataModel(
-						new WSDataModel(Configuration.datamodel, "b2box Cross Referencing Table Definitions","")
+			if (!port.existsDataModel(new WSExistsDataModel(new WSDataModelPK(Configuration.datamodel))).is_true()) {
+				port.putDataModel(new WSPutDataModel(
+						new WSDataModel(Configuration.datamodel, "MDM Cross Referencing Table Definitions","")
 				));
 			}
 		} catch (Exception e) {
