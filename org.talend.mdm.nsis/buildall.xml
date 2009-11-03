@@ -121,11 +121,37 @@
 	
 
 	<!-- generate installer for windows-->
+	
+	<!-- generate openMDM_installer.exe-->
+	<target name="geneate.openMDM_installer.exe">
+   		<copy todir="${tmp.dir}">
+   			<fileset dir="src/scripts">
+   				<include name="openMDM_installer.nsi"/>
+   			</fileset>
+   			<fileset dir="src/resources">
+   				<include name="logo-openMDM.bmp"/>
+   				<include name="mdm_installer.ico"/>
+   				<include name="mdm_uninstaller.ico"/>
+   			</fileset>
+   		</copy>
+		<!-- run make nsis -->
+		<exec executable="${makensis.file.name}">
+			<arg value="/V4"/>
+			<arg value="${tmp.dir}/openMDM_installer.nsi"/>
+		</exec>
+	</target>
+		
+	<target name="generate.openMDM.exe">
+		<!-- run makensi -->
+		<exec executable="${makensis.file.name}">
+			<arg value="src/scripts/JavaLauncher.nsi"/>
+		</exec>
+	</target>	
+
 	<target name="generate.installer.windows" depends="clean,init">	
 
    		<copy todir="${tmp.dir}/openMDM">
-   			<fileset dir="${jboss.dir}">
-   				<include name="**/*.*"/>   				
+   			<fileset dir="${jboss.dir}">   						
    			</fileset>
    		</copy>
 		<unjar dest="${tmp.dir}/openMDM" src="src/resources/jre-1.5.0_windows.zip"></unjar>
@@ -155,37 +181,10 @@
 		<move file="${basedir}/build/openMDM_installer.exe" tofile="${basedir}/build/${output.file.name}-Win32-r${Revision}-V${version.id}.exe"/>		
 	</target>
 	
-	<!-- generate openMDM_installer.exe-->
-	<target name="geneate.openMDM_installer.exe">
-   		<copy todir="${tmp.dir}">
-   			<fileset dir="src/scripts">
-   				<include name="openMDM_installer.nsi"/>
-   			</fileset>
-   			<fileset dir="src/resources">
-   				<include name="logo-openMDM.bmp"/>
-   				<include name="mdm_installer.ico"/>
-   				<include name="mdm_uninstaller.ico"/>
-   			</fileset>
-   		</copy>
-		<!-- run make nsis -->
-		<exec executable="${makensis.file.name}">
-			<arg value="/V4"/>
-			<arg value="${tmp.dir}/openMDM_installer.nsi"/>
-		</exec>
-	</target>
-		
-	<target name="generate.openMDM.exe">
-		<!-- run makensi -->
-		<exec executable="${makensis.file.name}">
-			<arg value="src/scripts/JavaLauncher.nsi"/>
-		</exec>
-	</target>	
-	
 	<!-- generate installer for all OS-->
 	<target name="generate.installer.all" depends="clean,init">
    		<copy todir="${tmp.dir}/openMDM">
-   			<fileset dir="${jboss.dir}">
-   				<include name="**/*.*"/>   				
+   			<fileset dir="${jboss.dir}">			
    			</fileset>
    		</copy>
 		<unjar dest="${tmp.dir}/openMDM" src="src/resources/jre-1.5.0_windows.zip"></unjar>
@@ -197,7 +196,7 @@
    		</copy>
 		
 		<!--zip the openMDM  -->
-	    <jar destfile="${basedir}/build/${output.file.name}-ALL-r${Revision}-V${version.id}.zip"   basedir="${tmp.dir}/openMDM"   includes="**/*.*"     />		
+	    <jar destfile="${basedir}/build/${output.file.name}-ALL-r${Revision}-V${version.id}.zip"   basedir="${tmp.dir}/openMDM"    />		
 	
 	</target>
 
