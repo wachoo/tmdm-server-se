@@ -77,13 +77,13 @@ public class CoreUpgrades {
     	//create the cluster and data model  if they do not exist
 		try {
 			DataClusterCtrlLocal local=com.amalto.core.util.Util.getDataClusterCtrlLocal();
-			if (local.existsDataCluster(new DataClusterPOJOPK(ICoreConstants.datacluster)) ==null) {
-				local.putDataCluster(new DataClusterPOJO(ICoreConstants.datacluster, "MDM Cross Referencing Data",""));
+			if (local.existsDataCluster(new DataClusterPOJOPK(ICoreConstants.CrossReferencing_datacluster)) ==null) {
+				local.putDataCluster(new DataClusterPOJO(ICoreConstants.CrossReferencing_datacluster, "MDM Cross Referencing Data",""));
 			}
 			DataModelCtrlLocal datamodelLocal=Util.getDataModelCtrlLocal();
-			if (datamodelLocal.existsDataModel(new DataModelPOJOPK(ICoreConstants.datamodel))==null) {
+			if (datamodelLocal.existsDataModel(new DataModelPOJOPK(ICoreConstants.CrossReferencing_datamodel))==null) {
 				datamodelLocal.putDataModel(
-						new DataModelPOJO(ICoreConstants.datamodel, "MDM Cross Referencing Table Definitions",""));
+						new DataModelPOJO(ICoreConstants.CrossReferencing_datamodel, "MDM Cross Referencing Table Definitions",""));
 			}
 		} catch (Exception e) {
 			String err = "Unable to initialize the crossreferencing data cluster and data model.";
