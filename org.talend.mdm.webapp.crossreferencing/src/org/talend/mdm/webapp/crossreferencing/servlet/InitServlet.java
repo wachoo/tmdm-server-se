@@ -44,25 +44,25 @@ public class InitServlet extends HttpServlet {
 //	        return;
 //        }
 
-        org.apache.log4j.Logger.getLogger(this.getClass()).debug("init() Cross-Referencing - checking cluster and data model");
-    	//create the cluster and data model  if they do not exist
-		try {
-			XtentisPort port= Util.getPort(null,null,Util._FORCE_RMI_);
-			if (!port.existsDataCluster(new WSExistsDataCluster(new WSDataClusterPK(Configuration.datacluster))).is_true()) {
-				port.putDataCluster(new WSPutDataCluster(
-						new WSDataCluster(Configuration.datacluster, "MDM Cross Referencing Data","")
-				));
-			}
-			if (!port.existsDataModel(new WSExistsDataModel(new WSDataModelPK(Configuration.datamodel))).is_true()) {
-				port.putDataModel(new WSPutDataModel(
-						new WSDataModel(Configuration.datamodel, "MDM Cross Referencing Table Definitions","")
-				));
-			}
-		} catch (Exception e) {
-			String err = "Unable to initialize the crossreferencing data cluster and data model.";
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-			throw new ServletException(err);
-		}
+//        org.apache.log4j.Logger.getLogger(this.getClass()).debug("init() Cross-Referencing - checking cluster and data model");
+//    	//create the cluster and data model  if they do not exist
+//		try {
+//			XtentisPort port= Util.getPort();
+//			if (!port.existsDataCluster(new WSExistsDataCluster(new WSDataClusterPK(Configuration.datacluster))).is_true()) {
+//				port.putDataCluster(new WSPutDataCluster(
+//						new WSDataCluster(Configuration.datacluster, "MDM Cross Referencing Data","")
+//				));
+//			}
+//			if (!port.existsDataModel(new WSExistsDataModel(new WSDataModelPK(Configuration.datamodel))).is_true()) {
+//				port.putDataModel(new WSPutDataModel(
+//						new WSDataModel(Configuration.datamodel, "MDM Cross Referencing Table Definitions","")
+//				));
+//			}
+//		} catch (Exception e) {
+//			String err = "Unable to initialize the crossreferencing data cluster and data model.";
+//			org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+//			throw new ServletException(err);
+//		}
     }
 
 }
