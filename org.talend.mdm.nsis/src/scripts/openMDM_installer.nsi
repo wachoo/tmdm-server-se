@@ -128,6 +128,8 @@ SectionEnd
 Section "Uninstall"
   ;remove the service  
   Exec '"$INSTDIR\openMDM\bin\service.bat" uninstall /NCRC'	
+  ;delete the service
+  Exec 'sc delete OPENMDM'
   
   ;Remove files
   RMDir /r "$INSTDIR\openMDM"
