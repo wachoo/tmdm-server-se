@@ -19,6 +19,7 @@ import org.talend.mdm.commmon.util.core.ICoreConstants;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
+import com.amalto.core.initdb.InitDBUtil;
 import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJOPK;
@@ -93,6 +94,15 @@ public class CoreUpgrades {
     }
     
     public static void autoUpgrade(ConfigurationInfoCtrlLocal ctrl) throws XtentisException,NamingException,CreateException{
+    	//init db aiming added see 0009892: Allow a MDM server to start from a blank database. 
+    	InitDBUtil.init();
+    	try {
+			InitDBUtil.initDB();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			org.apache.log4j.Logger.getLogger(CoreUpgrades.class).error("...init db error!!!");
+		}
+    	
     	//init crossreferencing datamodel/datacluster
     	initCrossReferencing(); //aiming added
     	org.apache.log4j.Logger.getLogger(CoreUpgrades.class).info("execute initCrossReferencing  sucessfully!");

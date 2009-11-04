@@ -64,8 +64,7 @@
 			<zipfileset dir=".">
 				<include name="version.properties" />
 			</zipfileset>
-			<zipfileset dir="bin" includes="**/*.class" />
-			<zipfileset dir="bin" includes="**/*.xml" />
+			<zipfileset dir="bin"  />
 			<!--
 			<zipfileset dir="bin" includes="**/ejb/**/*.class" />
 			<zipfileset dir="bin" includes="**/localutil/**/*.class" />
