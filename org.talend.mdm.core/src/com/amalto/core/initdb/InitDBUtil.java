@@ -88,7 +88,9 @@ public class InitDBUtil {
 				uniqueID=uniqueID.replaceAll("\\+", " ");
 //				System.out.println("===================================");
 //				System.out.println(xmlString);
-				Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, uniqueID, datacluster, null);
+				if(Util.getXmlServerCtrlLocal().getDocumentAsString(null, datacluster, uniqueID)==null){
+					Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, uniqueID, datacluster, null);
+				}
 			}
 		}
 	}
