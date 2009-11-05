@@ -666,7 +666,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 		
 		org.xmldb.api.base.Collection col = null;
 		try {
-			HashMap<String,String> pivots = new HashMap<String,String>();
+			LinkedHashMap<String,String> pivots = new LinkedHashMap<String,String>();
 			pivots.put(conceptName,"pivot");
 			
 			//determine revision
@@ -692,11 +692,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			if (clusterName == null) 
 				throw new XmlServerException("Unable to find a cluster for concept '"+conceptName+"'");
 			
-			String xquery =
-				"for $pivot in " +
-				getXQueryCollectionName(revisionID, clusterName)+"/ii/p"+conceptName+
-				(whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem,true)+"\n" : "") +
-				"\nreturn base-uri($pivot)";
+			//Replace for QueryBuilder
+			//String xquery ="for $pivot in " + getXQueryCollectionName(revisionID, clusterName)+"/ii/p"+conceptName+(whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem,true)+"\n" : "") + "\nreturn base-uri($pivot)";
+			String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p" + conceptName + (whereItem != null ? "\nwhere " + QueryBuilder.buildWhere("", pivots, whereItem) + "\n" : "")+ "\nreturn base-uri($pivot)";
 			
 			Collection<String> res = runQuery(null, null, xquery, null);
 			
@@ -738,7 +736,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 		
 		org.xmldb.api.base.Collection col = null;
 		try {
-			HashMap<String,String> pivots = new HashMap<String,String>();
+			LinkedHashMap<String,String> pivots = new LinkedHashMap<String,String>();
 			pivots.put(objectRootElementName,"pivot");
 			
 			//determine revision
@@ -749,11 +747,14 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			if (clusterName == null) 
 				throw new XmlServerException("Unable to find a cluster for Xtentis Object Root Element Name '"+objectRootElementName+"'");
 			
-			String xquery =
-				"for $pivot in " +
-				getXQueryCollectionName(revisionID, clusterName)+"/"+objectRootElementName+
-				(whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem,true)+"\n" : "") +
-				"\nreturn base-uri($pivot)";
+			//Replace for QueryBuilder
+//			String xquery =
+//				"for $pivot in " +
+//				getXQueryCollectionName(revisionID, clusterName)+"/"+objectRootElementName+
+//				(whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem,true)+"\n" : "") +
+//				"\nreturn base-uri($pivot)";
+			String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/" + objectRootElementName + (whereItem != null ? "\nwhere " + QueryBuilder.buildWhere("", pivots, whereItem) + "\n" : "")
+		    + "\nreturn base-uri($pivot)";
 			
 			Collection<String> res = runQuery(null, null, xquery, null);
 			
@@ -829,7 +830,31 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			throw new XmlServerException(err);
 		}
 	}
-
+    
+    public String getItemsQuery(
+        	LinkedHashMap<String, String> conceptPatternsToRevisionID, 
+        	LinkedHashMap<String, String> conceptPatternsToClusterName, 
+        	String forceMainPivot, 
+        	ArrayList<String> viewableFullPaths, 
+        	IWhereItem whereItem, 
+        	String orderBy, 
+        	String direction, 
+        	int start, 
+        	int limit
+        ) throws XmlServerException {
+    	return getItemsQuery(
+    			conceptPatternsToRevisionID,
+    			conceptPatternsToClusterName,
+    			forceMainPivot,
+    			viewableFullPaths,
+    			whereItem,
+    			orderBy,
+    			direction,
+    			start,
+    			limit,
+    			false
+    		);
+    }
 
 
     public String getItemsQuery(
@@ -841,113 +866,23 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     	String orderBy, 
     	String direction, 
     	int start, 
-    	int limit
+    	long limit,
+    	boolean totalCountOnfirstRow
     ) throws XmlServerException {
-
-    	try {
-    		
-	    	String xqFor ="";
-	    	String xqWhere="";
-	    	String xqOrderBy = "";
-    		String xqReturn = "";
-	    	
-    		//build Pivots Map
-    		LinkedHashMap<String,String> pivotsMap = new LinkedHashMap<String,String>();
-    		int i=0;
-			if (forceMainPivot != null) pivotsMap.put(forceMainPivot,"pivot"+(i++));
-    			
-	    	//Build the return using the vars
-	    	Collection<String> c = viewableFullPaths;
-	    	boolean moreThanOneViewable = viewableFullPaths.size()>1;
-	    	for (Iterator<String> iter = c.iterator(); iter.hasNext(); ) {
-				String bename = iter.next();
-				String[] paths = bename.split("/");
-				//retrieve the element name from the last path and remove any Xpath condition e.g. concept[toto='titi']
-				String elementName = paths[paths.length-1].split("\\[")[0];
-				String pivotPath = getPathFromPivots(bename, pivotsMap);
-				//find pivot
-				xqReturn+=
-					(moreThanOneViewable ? "{" :"");
-				if (elementName.startsWith("@")) { //attribute
-					xqReturn+= "<"+elementName.substring(1)+">{string("+pivotPath+ ")}</"+elementName.substring(1)+">";
-				} else {
-					xqReturn+=
-						"if ("+pivotPath+") then "+pivotPath+" else <"+elementName+"/>";
-						//"if (empty("+pivotPath+"/*)) then <"+elementName+">{"+pivotPath+"/text()}</"+elementName+"> else  "+pivotPath;
-				}
-				xqReturn+=
-					(moreThanOneViewable ? "}" :"");
-	    	}
-	    				
-	    	// 	build from  WhereItem
-	    	if (whereItem == null) 
-	    		xqWhere="";
-	    	else
-	    		xqWhere = buildWhere("", pivotsMap, whereItem,true);
-	    	
-	    	//build order by
-	    	if (orderBy == null) {
-	    		xqOrderBy = "";
-	    	} else {
-	    		xqOrderBy = "order by "
-	    					+getPathFromPivots(orderBy, pivotsMap)
-	    					+(direction == null ? "" : " "+direction);
-	    	}
-	    	
-			//build for
-	    	for (Iterator<String> iter = pivotsMap.keySet().iterator(); iter.hasNext(); ) {
-				String path = iter.next();
-				//get the pivot namefor this path
-				String pivotName = pivotsMap.get(path);
-				//get the concept
-				String conceptName = getRootElementNameFromPath(path);
-				//determine revision
-				String revisionID = null;
-				Set<String> patterns = conceptPatternsToRevisionID.keySet();
-				for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
-					String pattern = iterator.next();
-					if (conceptName.matches(pattern)) {
-						revisionID = conceptPatternsToRevisionID.get(pattern);
-						break;
-					}
-				}
-				//determine cluster
-				String clusterName = null;
-				patterns = conceptPatternsToClusterName.keySet();
-				for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
-					String pattern = iterator.next();
-					if (conceptName.matches(pattern)) {
-						clusterName = conceptPatternsToClusterName.get(pattern);
-						break;
-					}
-				}
-
-				xqFor+="".equals(xqFor)?"for ": ", ";
-//				xqFor+="$"+pivotName+" in "+getXQueryCollectionName(revisionID, clusterName)+"/ii/p/"+path;
-//				Optimization - speeds up text queries but the risk is to query sub items with the same name
-				xqFor+="$"+pivotName+" in "+getXQueryCollectionName(revisionID, clusterName)+"//"+path;
-	    	}
-	    	
-	    	
-	    	String query =
-	    		xqFor
-	    		+("".equals(xqWhere)? "" : "\nwhere "+xqWhere)
-	    		+("".equals(xqOrderBy) ? "" : "\n"+xqOrderBy)
-	    		+"\nreturn "+(moreThanOneViewable ? "<result>":"")+xqReturn+(moreThanOneViewable ? "</result>":""); 
-	    	
-	    	if (start>=0 && limit>0) {
-	    		query = 
-	    			"let $leres := \n"+query
-	    			+"\n return subsequence($leres,"+(start+1)+","+limit+")";
-	    	}
-	    	
-	    	return query;
-	    	
-	    } catch (Exception e) {
-     	    String err = "Unable to build the Item XQuery";
-     	    org.apache.log4j.Logger.getLogger("INFO SYSTRACE "+this.getClass()).info(err,e);
-     	    throw new XmlServerException(err);
-	    } 
+    	//Replace for QueryBuilder
+    	return QueryBuilder.getQuery(
+    			true,
+    			conceptPatternsToRevisionID,
+    			conceptPatternsToClusterName,
+    			forceMainPivot,
+    			viewableFullPaths,
+    			whereItem,
+    			orderBy,
+    			direction,
+    			start,
+    			limit,
+    			totalCountOnfirstRow
+    		);
     }
     
     
@@ -965,7 +900,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     		//if the where Item is null, try to make a simplified x path query
     		if (whereItem == null) {
 				//get the concept
-				String conceptName = getRootElementNameFromPath(fullPath);
+    			//Replace for QueryBuilder
+				//String conceptName = getRootElementNameFromPath(fullPath);
+    			String conceptName = QueryBuilder.getRootElementNameFromPath(fullPath);
 				//determine revision
 				String revisionID = null;
 				Set<String> patterns = conceptPatternsToRevisionID.keySet();
@@ -986,8 +923,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 						break;
 					}
 				}
-				
-				xquery = "count("+getXQueryCollectionName(revisionID, clusterName)+"/ii/p/"+fullPath+")";
+				//Replace for QueryBuilder
+				//xquery = "count("+getXQueryCollectionName(revisionID, clusterName)+"/ii/p/"+fullPath+")";
+				 xquery = "count(" + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p/" + fullPath + ")";
     		} else {
     			xquery = "let $zcount := ";
     			xquery += getItemsQuery(
@@ -1014,108 +952,76 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
      	    throw new XmlServerException(err);
 	    } 
     }
+    
+    public String getXtentisObjectsQuery(
+        	HashMap<String, String> objectRootElementNameToRevisionID, 
+        	HashMap<String, String> objectRootElementNameToClusterName, 
+        	String mainObjectRootElementName, 
+        	ArrayList<String> viewableFullPaths, 
+        	IWhereItem whereItem, 
+        	String orderBy, 
+        	String direction, 
+        	int start, 
+        	int limit
+        ) throws XmlServerException {
+    	
+    	LinkedHashMap<String, String> copyObjectRootElementNameToRevisionID=null;
+    	LinkedHashMap<String, String> copyObjectRootElementNameToClusterName=null;
+    	
+    	if(objectRootElementNameToRevisionID instanceof LinkedHashMap){
+    		copyObjectRootElementNameToRevisionID=(LinkedHashMap<String, String>) objectRootElementNameToRevisionID;
+    	}else{
+    		copyObjectRootElementNameToRevisionID=new LinkedHashMap<String, String>();
+    		copyObjectRootElementNameToRevisionID.putAll(objectRootElementNameToRevisionID);
+    	}
+    	if(objectRootElementNameToClusterName instanceof LinkedHashMap){
+    		copyObjectRootElementNameToClusterName=(LinkedHashMap<String, String>) objectRootElementNameToClusterName;
+    	}else{
+    		copyObjectRootElementNameToClusterName=new LinkedHashMap<String, String>();
+    		copyObjectRootElementNameToClusterName.putAll(objectRootElementNameToClusterName);
+    	}
+    	
+    	return getXtentisObjectsQuery(
+    			copyObjectRootElementNameToRevisionID, 
+    			copyObjectRootElementNameToClusterName, 
+            	mainObjectRootElementName, 
+            	viewableFullPaths, 
+            	whereItem, 
+            	orderBy, 
+            	direction, 
+            	start, 
+            	limit,
+            	false
+               );
+    }
 
     
     public String getXtentisObjectsQuery(
-    	HashMap<String, String> objectRootElementNameToRevisionID, 
-    	HashMap<String, String> objectRootElementNameToClusterName, 
+    	LinkedHashMap<String, String> objectRootElementNameToRevisionID, 
+    	LinkedHashMap<String, String> objectRootElementNameToClusterName, 
     	String mainObjectRootElementName, 
     	ArrayList<String> viewableFullPaths, 
     	IWhereItem whereItem, 
     	String orderBy, 
     	String direction, 
     	int start, 
-    	int limit
+    	long limit,
+    	boolean totalCountOnfirstRow
     ) throws XmlServerException {
-    	
-    	try {
-    		
-	    	String xqFor ="";
-	    	String xqWhere="";
-	    	String xqOrderBy = "";
-    		String xqReturn = "";
-	    	
-    		//build Pivots Map
-    		LinkedHashMap<String,String> pivotsMap = new LinkedHashMap<String,String>();
-    		int i=0;
-			if (mainObjectRootElementName != null) pivotsMap.put(mainObjectRootElementName,"pivot"+(i++));
-    			
-	    	//Build the return using the vars
-	    	Collection<String> c = viewableFullPaths;
-	    	boolean moreThanOneViewable = viewableFullPaths.size()>1;
-	    	for (Iterator<String> iter = c.iterator(); iter.hasNext(); ) {
-				String bename = iter.next();
-				String[] paths = bename.split("/");
-				//retrieve the element name from the last path and remove any Xpath condition e.g. concept[toto='titi']
-				String elementName = paths[paths.length-1].split("\\[")[0];
-				String pivotPath = getPathFromPivots(bename, pivotsMap);
-				//find pivot
-				xqReturn+=
-					(moreThanOneViewable ? "{" :"");
-				if (elementName.startsWith("@")) { //attribute
-					xqReturn+= "<"+elementName.substring(1)+">{string("+pivotPath+ ")}</"+elementName.substring(1)+">";
-				} else {
-					xqReturn+=
-						"if ("+pivotPath+") then "+pivotPath+" else <"+elementName+"/>";
-						//"if (empty("+pivotPath+"/*)) then <"+elementName+">{"+pivotPath+"/text()}</"+elementName+"> else  "+pivotPath;
-				}
-				xqReturn+=
-					(moreThanOneViewable ? "}" :"");
-	    	}
-	    				
-	    	// 	build from  WhereItem
-	    	if (whereItem == null) 
-	    		xqWhere="";
-	    	else
-	    		xqWhere = buildWhere("", pivotsMap, whereItem,true);
-	    	
-	    	//build order by
-	    	if (orderBy == null) {
-	    		orderBy = "";
-	    	} else {
-	    		orderBy = "order by "
-	    					+getPathFromPivots(orderBy, pivotsMap)
-	    					+(direction == null ? "" : " "+direction);
-	    	}
-	    	
-			//build for
-	    	for (Iterator<String> iter = pivotsMap.keySet().iterator(); iter.hasNext(); ) {
-				String path = iter.next();
-				//get the pivot name for this path
-				String pivotName = pivotsMap.get(path);
-				//get the concept
-				String rootElementName = getRootElementNameFromPath(path);
-				//determine revision
-				String revisionID = objectRootElementNameToRevisionID.get(rootElementName);
-				//determine cluster
-				String clusterName = objectRootElementNameToClusterName.get(rootElementName);
-
-				xqFor+="".equals(xqFor)?"for ": ", ";
-				xqFor+="$"+pivotName+" in "+getXQueryCollectionName(revisionID, clusterName)+"/"+path;
-	    	}
-	    	
-	    	
-	    	String query =
-	    		xqFor
-	    		+("".equals(xqWhere)? "" : "\nwhere "+xqWhere)
-	    		+("".equals(xqOrderBy) ? "" : "\n"+xqOrderBy)
-	    		+"\nreturn "+(moreThanOneViewable ? "<result>":"")+xqReturn+(moreThanOneViewable ? "</result>":""); 
-	    	
-	    	if (start>=0 && limit>0) {
-	    		query = 
-	    			"let $leres := \n"+query
-	    			+"\n return subsequence($leres,"+(start+1)+","+limit+")";
-	    	}
-	    	
-	    	return query;
-	    	
-	    } catch (Exception e) {
-     	    String err = "Unable to build the Item XQuery";
-     	    org.apache.log4j.Logger.getLogger("INFO SYSTRACE "+this.getClass()).info(err,e);
-     	    throw new XmlServerException(err);
-	    } 
-    	
-    	
+    	//Replace for QueryBuilder
+    	return QueryBuilder.getQuery(
+    			false,
+    			objectRootElementNameToRevisionID,
+    			objectRootElementNameToClusterName,
+    			mainObjectRootElementName,
+    			viewableFullPaths,
+    			whereItem,
+    			orderBy,
+    			direction,
+    			start,
+    			limit,
+    			totalCountOnfirstRow
+    		);
     }
     
     public String getPivotIndexQuery(
@@ -1291,13 +1197,17 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     		//if the where Item is null, try to make a simplified x path query
     		if (whereItem == null) {
 				//get the concept
-				String rootElementName = getRootElementNameFromPath(objectFullPath);
+    			//Replace for QueryBuilder
+				//String rootElementName = getRootElementNameFromPath(objectFullPath);
+				String rootElementName = QueryBuilder.getRootElementNameFromPath(objectFullPath);
 				//determine revision
 				String revisionID = objectRootElementNameToRevisionID.get(rootElementName);
 				//determine cluster
 				String clusterName = objectRootElementNameToClusterName.get(rootElementName);
 				
-				xquery = "count("+getXQueryCollectionName(revisionID, clusterName)+"/"+objectFullPath+")";
+				//Replace for QueryBuilder
+				//xquery = "count("+getXQueryCollectionName(revisionID, clusterName)+"/"+objectFullPath+")";
+				xquery = "count(" + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/" + objectFullPath + ")";
     		} else {
     			xquery = "let $zcount := ";
     			xquery += getXtentisObjectsQuery(

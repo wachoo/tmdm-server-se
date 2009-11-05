@@ -1,4 +1,12 @@
 RELEASE NOTES
+3.2.1
+Using xpathUtil, following is the changed methods:   
+deleteItems
+deleteXtentisObjects
+getItemsQuery
+countItems
+getXtentisObjectsQuery
+countXtentisObjects
 
 The wrapper needed to run XML DB type databases, eXist in particular.
 
