@@ -407,6 +407,34 @@ public interface IXmlServerSLWrapper {
 		int limit
 	) throws XmlServerException;
 	
+	/**
+	 * Builds an Items query in the native language of the DB (for instance XQuery) based on conditions
+	 * @param conceptPatternsToRevisionID
+	 * @param conceptPatternsToClusterName
+	 * @param forceMainPivot
+	 * @param viewableFullPaths
+	 * @param whereItem
+	 * @param orderBy
+	 * @param direction
+	 * @param start
+	 * @param limit
+	 * @param totalCountOnfirstRow
+	 * @return the XQuery in the native language of the database
+	 * @throws XmlServerException
+	 */
+	public String getItemsQuery(
+			LinkedHashMap<String, String> conceptPatternsToRevisionID,
+			LinkedHashMap<String, String> conceptPatternsToClusterName,
+			String forceMainPivot,
+			ArrayList<String> viewableFullPaths,	
+			IWhereItem whereItem,
+			String orderBy,
+			String direction,
+			int start,
+			long limit,
+			boolean totalCountOnfirstRow
+	) throws XmlServerException;
+	
 	
 	/**
 	 * Builds a query in the native language of the DB (for instance XQuery) based on conditions
@@ -443,6 +471,34 @@ public interface IXmlServerSLWrapper {
 		int start,
 		int limit
 	) throws XmlServerException;
+	
+	/**
+	 * Builds a query in the native language of the DB (for instance XQuery) based on conditions
+	 * @param objectRootElementNameToRevisionID
+	 * @param objectRootElementNameToClusterName
+	 * @param mainObjectRootElementName
+	 * @param viewableFullPaths
+	 * @param whereItem
+	 * @param orderBy
+	 * @param direction
+	 * @param start
+	 * @param limit
+	 * @param totalCountOnfirstRow
+	 * @return the XQuery in the native language of the database
+	 * @throws XmlServerException
+	 */
+	public String getXtentisObjectsQuery(
+			LinkedHashMap<String, String> objectRootElementNameToRevisionID,
+			LinkedHashMap<String, String> objectRootElementNameToClusterName,
+			String mainObjectRootElementName,
+			ArrayList<String> viewableFullPaths,
+			IWhereItem whereItem,
+			String orderBy,
+			String direction,
+			int start,
+			long limit,
+			boolean totalCountOnfirstRow
+		) throws XmlServerException;
 	
 	/**
 	 * @param clusterName
