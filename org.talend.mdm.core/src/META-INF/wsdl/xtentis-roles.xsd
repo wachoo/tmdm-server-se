@@ -25,6 +25,7 @@
 								<xsd:sequence>
 									<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="instanceName" type="xsd:string"/>
 									<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="writable" type="xsd:boolean"/>
+									<xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="readonly" type="xsd:boolean"/>
 									<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="parameter" type="xsd:string"/>
 								</xsd:sequence>
 							</xsd:complexType>

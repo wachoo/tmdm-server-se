@@ -9,14 +9,16 @@ package com.amalto.core.webservice;
 public class WSRoleSpecificationInstance {
     protected java.lang.String instanceName;
     protected boolean writable;
+    protected java.lang.Boolean readonly;
     protected java.lang.String[] parameter;
     
     public WSRoleSpecificationInstance() {
     }
     
-    public WSRoleSpecificationInstance(java.lang.String instanceName, boolean writable, java.lang.String[] parameter) {
+    public WSRoleSpecificationInstance(java.lang.String instanceName, boolean writable, java.lang.Boolean readonly, java.lang.String[] parameter) {
         this.instanceName = instanceName;
         this.writable = writable;
+        this.readonly = readonly;
         this.parameter = parameter;
     }
     
@@ -34,6 +36,14 @@ public class WSRoleSpecificationInstance {
     
     public void setWritable(boolean writable) {
         this.writable = writable;
+    }
+    
+    public java.lang.Boolean getReadonly() {
+        return readonly;
+    }
+    
+    public void setReadonly(java.lang.Boolean readonly) {
+        this.readonly = readonly;
     }
     
     public java.lang.String[] getParameter() {
