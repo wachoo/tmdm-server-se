@@ -3523,6 +3523,10 @@
 <xml-element-name>writable</xml-element-name>
 </variable-mapping>
 <variable-mapping>
+<java-variable-name>readonly</java-variable-name>
+<xml-element-name>readonly</xml-element-name>
+</variable-mapping>
+<variable-mapping>
 <java-variable-name>parameter</java-variable-name>
 <xml-element-name>parameter</xml-element-name>
 </variable-mapping>
