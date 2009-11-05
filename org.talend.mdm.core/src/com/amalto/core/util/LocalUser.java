@@ -237,7 +237,9 @@ public class LocalUser {
 					user.adminPermissions.add(objectType);
 				} else {
 					//Items are "admin" by default - if we have a spec, then the user is not admin
-					if ("Item".equals(objectType)) user.isItemPOJOsAdmin = false;
+					if ("Item".equals(objectType)) {
+						user.isItemPOJOsAdmin = false;						
+					}
 					//loop over the instance patterns for this object
 					Set<String> instancePatterns  = specification.getInstances().keySet();
 					for (Iterator<String> iterator3 = instancePatterns.iterator(); iterator3.hasNext(); ) {

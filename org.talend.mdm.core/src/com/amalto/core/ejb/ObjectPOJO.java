@@ -93,7 +93,8 @@ public abstract class ObjectPOJO implements Serializable{
 				{"Universe", UniversePOJO.class},
 				{"Synchronization Plan", SynchronizationPlanPOJO.class},
 				{"Synchronization Conflict", SynchronizationItemPOJO.class},
-				{"Versioning System", VersioningSystemPOJO.class}
+				{"Versioning System", VersioningSystemPOJO.class},
+				{"Item",ItemPOJO.class}
 		};
 	
 	

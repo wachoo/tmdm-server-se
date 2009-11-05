@@ -3800,6 +3800,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 				WSRoleSpecificationInstance wsInstance = new WSRoleSpecificationInstance(
 						id,
 						instance.isWriteable(),
+						instance.isReadOnly(),
 						wsParameters
 				);
 				wsInstances.add(wsInstance);
@@ -3830,6 +3831,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 						WSRoleSpecificationInstance wsInstance =wsSpecification.getInstance()[j];
 						RoleInstance instance = new RoleInstance();
 						instance.setWriteable(wsInstance.isWritable());
+						instance.setReadOnly(wsInstance.getReadonly());
 						instance.setParameters(new HashSet<String>());
 						if (wsInstance.getParameter()!=null)
 							instance.getParameters().addAll(Arrays.asList(wsInstance.getParameter()));

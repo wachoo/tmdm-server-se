@@ -4,6 +4,7 @@ import java.util.HashSet;
 
 public class RoleInstance {
 	private boolean isWriteable = false;
+	private boolean isReadOnly;
 	private HashSet<String> parameters = new HashSet<String>();
 	public boolean isWriteable() {
 		return isWriteable;
@@ -16,6 +17,12 @@ public class RoleInstance {
 	}
 	public void setParameters(HashSet<String> parameters) {
 		this.parameters = parameters;
+	}
+	public boolean isReadOnly() {
+		return isReadOnly;
+	}
+	public void setReadOnly(boolean isReadOnly) {
+		this.isReadOnly = isReadOnly;
 	}
 	
 }
