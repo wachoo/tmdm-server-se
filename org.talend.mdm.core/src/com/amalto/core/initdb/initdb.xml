@@ -29,11 +29,13 @@
 		<item>
 			<name>amaltoOBJECTSActiveRoutingOrderV2</name>
 			<list></list>								
-		</item>	
+		</item>
+		<!--	
 		<item>
 			<name>amaltoOBJECTSBackgroundJob</name>
 			<list></list>			
 		</item>
+		-->
 		<item>
 			<name>amaltoOBJECTSCompletedRoutingOrderV2</name>
 			<list></list>			

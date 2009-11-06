@@ -65,7 +65,7 @@ public class Version {
 		"v"
 		+props.getProperty("major")+"."+props.getProperty("minor")+"."+props.getProperty("rev")+"_"+props.getProperty("build.number")
 		+" "+props.getProperty("build.date")
-		+" : "+props.getProperty("description");
+		+" : "+((props.getProperty("description")==null||props.getProperty("description").length()==0)?"[no description]":props.getProperty("description"));
 	}
 
 

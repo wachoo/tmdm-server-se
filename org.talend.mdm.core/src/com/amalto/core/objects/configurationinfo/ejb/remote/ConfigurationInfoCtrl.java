@@ -62,4 +62,11 @@ public interface ConfigurationInfoCtrl
    public void autoUpgradeInBackground(  )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
+   /**
+    * Auto Upgrades the core in the background- called by servlet
+    * @throws XtentisException
+    */
+   public void autoUpgradeInBackground( com.amalto.core.objects.configurationinfo.assemble.AssembleProc assembleProc )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
 }

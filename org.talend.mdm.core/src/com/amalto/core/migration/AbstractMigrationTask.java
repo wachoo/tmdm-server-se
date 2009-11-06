@@ -1,31 +1,22 @@
 package com.amalto.core.migration;
 
-import java.io.Serializable;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
-public  class AbstractMigrationTask implements  Serializable{
-    private Map<String, Boolean> handlerMap = new HashMap<String, Boolean>();
-    private static final String CLUSTER_MIGRATION = "MIGRATION";
-    private static final String UNIQUE_MIGRATION = "MIGRATION";
+
+public abstract class AbstractMigrationTask {
+    
+	private Map<String, Boolean> handlerMap = null;
+    public static final String CLUSTER_MIGRATION = "MDMMigration";
+    private static final String UNIQUE_MIGRATION = "MIGRATION.completed.record";
     
 	public AbstractMigrationTask() {
-	}
-	
-	public void setHandlerMap(Map<String, Boolean> map) {
-		handlerMap = map;
-	}
-	
-	public Map<String, Boolean> getHandlerMap() {
-		return handlerMap;
 	}
 	
 	 
@@ -33,13 +24,20 @@ public  class AbstractMigrationTask implements  Serializable{
 		Boolean res = false;
 		try {
 			String content = Util.getXmlServerCtrlLocal().getDocumentAsString(null, CLUSTER_MIGRATION, UNIQUE_MIGRATION);
-			if (content == null) return false;
-			AbstractMigrationTask cpy = unmarshal(content);
-			handlerMap = cpy.getHandlerMap();
+			if (content == null){
+				if(handlerMap==null)handlerMap=new HashMap<String, Boolean>();
+				return false;
+			}
+			MigrationTaskBox box = unmarshal(content);
+			
+			handlerMap = box.getHandlerMap();
+			if(handlerMap==null)handlerMap=new HashMap<String, Boolean>();
+			
 			res = handlerMap.get(this.getClass().getName());
 			if (res == null) return false;
 		} catch (Exception e) {
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(e.getMessage());
+			e.printStackTrace();
 			return res;
 		}
 		return res;
@@ -53,6 +51,8 @@ public  class AbstractMigrationTask implements  Serializable{
 		}
 		
 		Boolean result = execute();
+		if(result==null)result=false;
+		
 
 		if (result)
 		{
@@ -64,41 +64,20 @@ public  class AbstractMigrationTask implements  Serializable{
 		}
 		
 		try {
-			Util.getXmlServerCtrlLocal().putDocumentFromString(this.toString(), UNIQUE_MIGRATION,
-					CLUSTER_MIGRATION, null);
+			MigrationTaskBox newBox=new MigrationTaskBox(handlerMap);
+			Util.getXmlServerCtrlLocal().putDocumentFromString(newBox.toString(), UNIQUE_MIGRATION, CLUSTER_MIGRATION, null);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(e.getMessage());
 		}
+		
+		org.apache.log4j.Logger.getLogger(this.getClass()).info(this.getClass().getName()+" has been done. ");
 	}
 	
-	protected  Boolean execute(){
-		return false;
-	}
-	
-
-	 public String  marshal() throws XtentisException {	
-	    try {
-			StringWriter sw = new StringWriter();
-			Marshaller.marshal(this, sw);
-			return sw.toString();
-	    } catch (Exception e) {
-		    org.apache.log4j.Logger.getLogger(this.getClass()).error(e);
-		    throw new XtentisException(e.getMessage());
-	    } 
-	 }
-	 
-	public String toString() {
+   protected abstract Boolean execute();
+		
+   public static MigrationTaskBox  unmarshal(String marshalledRevision) throws XtentisException {	
         try {
-	        return marshal();
-        } catch (XtentisException e) {
-	        return null;
-        }
-	}
-	
-	 public static AbstractMigrationTask  unmarshal(String marshalledRevision) throws XtentisException {	
-        try {
-    		return (AbstractMigrationTask) Unmarshaller.unmarshal(AbstractMigrationTask.class, new StringReader(marshalledRevision));
+    		return (MigrationTaskBox) Unmarshaller.unmarshal(MigrationTaskBox.class, new StringReader(marshalledRevision));
 	    } catch (Exception e) {
     	    org.apache.log4j.Logger.getLogger(AbstractMigrationTask.class).error(e);
     	    throw new XtentisException(e.getMessage());

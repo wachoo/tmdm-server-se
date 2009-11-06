@@ -13,7 +13,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.core.util.Util;
-import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 
 public class MigrationRepository{
 
@@ -21,7 +20,7 @@ public class MigrationRepository{
   
   private static MigrationRepository repository = null;
   
-  private  MigrationRepository() {
+  private MigrationRepository() {
   }
   
   synchronized public static MigrationRepository getInstance() {
@@ -56,12 +55,11 @@ public class MigrationRepository{
 					AbstractMigrationTask task=(AbstractMigrationTask)Class.forName(clazz).newInstance();					
 					task.start();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} 
 			}
 			
-			//clear the cache objects
+			//clear the cache objects, is this still need?
 			Util.getXmlServerCtrlLocal().clearCache();
 		} catch (Exception e) {
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(e.getCause());

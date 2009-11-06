@@ -112,6 +112,13 @@ public class ConfigurationInfoCtrlRemote extends Observable
 
    }
 
+   public void autoUpgradeInBackground ( com.amalto.core.objects.configurationinfo.assemble.AssembleProc assembleProc )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+      getSession().autoUpgradeInBackground( assembleProc );
+
+   }
+
   /**
    * override this method to provide feedback to interested objects
    * in case collections were changed.

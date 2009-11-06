@@ -13,18 +13,16 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.naming.InitialContext;
 
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
-import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
+import com.amalto.core.objects.configurationinfo.assemble.AssembleConcreteBuilder;
+import com.amalto.core.objects.configurationinfo.assemble.AssembleDirector;
+import com.amalto.core.objects.configurationinfo.assemble.AssembleProc;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocalHome;
 import com.amalto.core.objects.configurationinfo.localutil.CoreUpgrades;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocalHome;
 import com.amalto.core.util.XtentisException;
 
 
@@ -264,27 +262,49 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method 
      */
     public void autoUpgradeInBackground() throws XtentisException{
+    	autoUpgradeInBackground(null);
+    } 
+    
+    /**
+     * Auto Upgrades the core in the background- called by servlet
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public void autoUpgradeInBackground(AssembleProc assembleProc) throws XtentisException{
         org.apache.log4j.Logger.getLogger(this.getClass()).info("Scheduling upgrade check in 5 seconds ");
         
         try {
 	        TimerService timerService =  context.getTimerService();
-	        timerService.createTimer(5234,"autoUpgradeInBackground");  
+	        
+	        if(assembleProc==null){
+	        	final AssembleConcreteBuilder concreteBuilder = new AssembleConcreteBuilder();
+				final AssembleDirector director = new AssembleDirector(concreteBuilder);
+				director.constructAll();
+				assembleProc = concreteBuilder.getAssembleProc();
+	        }
+			
+	        timerService.createTimer(5234,assembleProc);  
 	    } catch (Exception e) {
 		    String err = "Unable to upgrade in the background"
 		    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
 		    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
 		    throw new XtentisException(err);
 	    }    	
-    }    
+    } 
     
 
     /**
      * @see #autoUpgradeInBackground()
      */
 	public void ejbTimeout(Timer timer) {
-		org.apache.log4j.Logger.getLogger(this.getClass()).debug("ejbTimeout() AutoUpgrade "+(String) timer.getInfo());
+		org.apache.log4j.Logger.getLogger(this.getClass()).debug("ejbTimeout() AutoUpgrade autoUpgradeInBackground ");
 		
-		try {
+		//recover assemble Proc
+		AssembleProc assembleProc = (AssembleProc) timer.getInfo();
+
+		
 			XmlServerSLWrapperLocal server = null;
 			try {
 				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
@@ -304,63 +324,17 @@ public class ConfigurationInfoCtrlBean implements SessionBean, TimedObject {
 			}
 			
 			if (server.isUpAndRunning()) {
-				//clean-up
-				cleanup(server);
+				org.apache.log4j.Logger.getLogger(this.getClass()).info("--Starting configuration...");
 				
-				//peform upgrades
-				autoUpgrade();
+				assembleProc.run();
 				
-				//autoUpgrade completed - start the routing engine
-	        	//Start Routing Engine
-				boolean autostart = "true".equals(MDMConfiguration.getConfiguration().getProperty(
-					"subscription.engine.autostart", 
-					"true"
-				));
-				if (autostart) {
-					org.apache.log4j.Logger.getLogger(this.getClass()).debug("Configuration Info: autostarting the Subscription Engine");
-    	        	RoutingEngineV2CtrlLocal enginectrl = null;
-    				try {
-    					enginectrl = ((RoutingEngineV2CtrlLocalHome)new InitialContext().lookup(RoutingEngineV2CtrlLocalHome.JNDI_NAME)).create();
-    				} catch (Exception e) {
-    					String err = "Auto Configuration in the background completed but Unable to start the routing Engine";
-    					org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    					throw new RuntimeException(err);					
-    				}
-    	        	enginectrl.start();
-				}
-				
+				org.apache.log4j.Logger.getLogger(this.getClass()).info("--Done configuration.");
 			} else {
 				org.apache.log4j.Logger.getLogger(this.getClass()).info("Auto Upgrade. XML Server not ready. Retrying in 5 seconds ");
 				//TimerService timerService =  context.getTimerService();
-	        	timerService.createTimer(5000,"autoUpgradeInBackground");
+	        	timerService.createTimer(5000,assembleProc);
 			}
-        } catch (XtentisException e) {
-        	e.printStackTrace();		
-		}
-	}
-	
-	
-	/**
-	 * Perform some start-up cleaning
-	 * @param server
-	 */
-	private void cleanup(XmlServerSLWrapperLocal server) {
-		
-		org.apache.log4j.Logger.getLogger(this.getClass()).info("Cleaning up...");
-		
-		//zap Background jobs
-		try {
-			org.apache.log4j.Logger.getLogger(this.getClass()).info("----Cleaning Jobs...");
-	        server.deleteCluster(null, ObjectPOJO.getCluster(BackgroundJobPOJO.class));
-	        server.createCluster(null, ObjectPOJO.getCluster(BackgroundJobPOJO.class));
-	        org.apache.log4j.Logger.getLogger(this.getClass()).info("----Done.");
-        } catch (XtentisException e) {
-        	String err = "Cleanup of Jobs failed!";
-			org.apache.log4j.Logger.getLogger(this.getClass()).warn(err,e);
-        }
-		
-        org.apache.log4j.Logger.getLogger(this.getClass()).info("Done Cleanup");
-		
+        
 	}
     
 }

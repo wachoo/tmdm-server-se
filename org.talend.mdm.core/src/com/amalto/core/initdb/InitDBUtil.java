@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -19,10 +18,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.util.Util;
+import com.amalto.core.objects.configurationinfo.localutil.ConfigurationHelper;
 
 /**
  * Create system init datacluster/datamodel. etc
+ * Current only support head universe
  * @author achen
  *
  */
@@ -58,7 +58,7 @@ public class InitDBUtil {
 					}
 				}
 			}
-			System.out.println(initdb.size());
+			
 		}catch(Exception e){
 			org.apache.log4j.Logger.getLogger(InitDBUtil.class).error(e.getCause());
 		}
@@ -72,7 +72,8 @@ public class InitDBUtil {
 		for(Entry<String, List<String>> entry: initdb.entrySet()){
 			String datacluster=entry.getKey();
 			//create datacluster
-			Util.getXmlServerCtrlLocal().createCluster(null, datacluster);
+			//Util.getXmlServerCtrlLocal().createCluster(null, datacluster);
+			ConfigurationHelper.createCluster(null, datacluster);//slow but more reliable 
 			
 			List<String> list=entry.getValue();
 			
@@ -88,9 +89,7 @@ public class InitDBUtil {
 				uniqueID=uniqueID.replaceAll("\\+", " ");
 //				System.out.println("===================================");
 //				System.out.println(xmlString);
-				if(Util.getXmlServerCtrlLocal().getDocumentAsString(null, datacluster, uniqueID)==null){
-					Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, uniqueID, datacluster, null);
-				}
+				ConfigurationHelper.putDomcument(datacluster, xmlString, uniqueID);
 			}
 		}
 	}
