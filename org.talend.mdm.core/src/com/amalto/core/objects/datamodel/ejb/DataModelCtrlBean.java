@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.ejb.EJBException;
@@ -14,7 +15,6 @@ import javax.ejb.SessionContext;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.core.ejb.ObjectPOJO;
@@ -381,8 +381,13 @@ public class DataModelCtrlBean implements SessionBean{
 	        		datamodel.getDocumentElement(),
 					"./*[@name='"+templateName+"'  and ((local-name()='complexType') or (local-name()='simpleType'))]"
 			);
+            	
             int len = l.getLength();
-            if (len==0) return null;
+            if (len==0) 
+            {
+            	return Util.getNameSpaceFromSchema(datamodel.getDocumentElement(), templateName);
+            }
+
 	        return (Element)l.item(0);            
 	    } catch (XtentisException e) {
 	    	throw(e);
@@ -544,21 +549,9 @@ public class DataModelCtrlBean implements SessionBean{
             Document d = Util.parse(datamodel.getSchema());
             
             //build the results
-            String results[]=null;
-            String prefix = d.getDocumentElement().getPrefix();
-            NodeList l = Util.getNodeList(
-            		d.getDocumentElement(), 
-					"./"+prefix+":element/@name"
-			);
-	        if (l!=null) {
-	            int len = l.getLength();
-	            results = new String[len];
-	            for (int i = 0; i < len; i++) {
-	                Node n = l.item(i);
-	                results[i] = n.getNodeValue();
-	            }
-	        }
-	        Arrays.sort(results);
+            List<String> resultNodes = Util.getALLNodesFromSchema(d.getDocumentElement());
+            String[] results = resultNodes.toArray(new String[]{});
+            Arrays.sort(results);
 	        return results;            
 	    } catch (XtentisException e) {
 	    	throw(e);

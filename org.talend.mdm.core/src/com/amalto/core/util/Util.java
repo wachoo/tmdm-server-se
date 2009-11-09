@@ -1,13 +1,18 @@
 package com.amalto.core.util;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.URL;
+import java.net.URLConnection;
 import java.rmi.RemoteException;
 import java.security.Principal;
 import java.security.acl.Group;
@@ -22,6 +27,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
@@ -55,6 +61,7 @@ import org.apache.commons.jxpath.Pointer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -62,6 +69,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import sun.misc.BASE64Encoder;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
@@ -501,9 +510,164 @@ public final class Util {
 		}
 		return results;
 
-    }    
+    }   
     
+    public static List<String> getALLNodesFromSchema(Node doc) throws XtentisException
+    {
+    	List<String> list = new ArrayList<String>();
+        String prefix = doc.getPrefix();
+        NodeList l = Util.getNodeList(doc, "./"+prefix+":element/@name");
+        
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setNamespaceAware(true);
+		factory.setValidating(false);
+		DocumentBuilder builder;
+
+        for (int i = 0; i < l.getLength(); i++) {
+            Node n = l.item(i);
+            list.add(n.getNodeValue());
+        }
+        
+        try
+        {
+        	for(int xsdType = 0; xsdType < 2; xsdType++)
+        	{
+        		if(xsdType == 0)
+	               l = Util.getNodeList(doc, "./xsd:import");
+        		else
+        			l = Util.getNodeList(doc, "./xsd:include");
+		        for (int elemNum = 0; elemNum < l.getLength(); elemNum++)
+		        {
+		        	Node importNode = l.item(elemNum);
+		        	String xsdLocation = importNode.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+		        	builder = factory.newDocumentBuilder();
+		        	Document d = builder.parse(new FileInputStream(xsdLocation));
+		        	list.addAll(getALLNodesFromSchema(d.getDocumentElement()));
+		        }
+        	}
+        }
+        catch(Exception ex)
+        {
+        	ex.printStackTrace();
+        }
+
+        return list;
+    }
     
+    /**
+     * 
+     * @param doc
+     * @param type
+     * @return
+     * @throws XtentisException 
+     * @throws ParserConfigurationException 
+     * @throws IOException 
+     * @throws SAXException 
+     * @throws  
+     */
+    public static Element getNameSpaceFromSchema(Node doc, String typeName) throws XtentisException
+    {
+		Pattern mask = Pattern.compile("(.*?):(.*?)");
+		Matcher matcher = mask.matcher(typeName);
+		String prefix = "";
+		if (matcher.matches())
+		{
+			prefix = matcher.group(1);
+		}
+		else
+			prefix = null;
+		
+		Element ns = null;
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		//Schema validation based on schemaURL
+		factory.setNamespaceAware(true);
+		factory.setValidating(false);
+		DocumentBuilder builder;
+		try {
+			builder = factory.newDocumentBuilder();
+	    	NodeList list = Util.getNodeList(doc,".//" + "xsd:import");
+	    	for (int id = 0; id < list.getLength() && prefix != null; id++)
+	    	{
+	    		Node node = list.item(id);
+	    		String schemalocation = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+	    		String namespace = node.getAttributes().getNamedItem("namespace").getNodeValue();
+            	NodeList l = Util.getNodeList(doc, "//*[@type='" + typeName + "']", 
+            			namespace, prefix);
+            	if (l.getLength() > 0)
+            		return (Element)l.item(0);
+	    		Document d = builder.parse(new FileInputStream(schemalocation));
+            	ns = getNameSpaceFromSchema(d, typeName);
+            	if (ns != null)return ns;
+	    	}
+	    	if(list.getLength() == 0 || prefix == null)
+	    	{
+	    		list = Util.getNodeList(doc,".//" + "xsd:include");
+	    		for(int id = 0; id < list.getLength(); id++)
+	    		{
+		    		Node node = list.item(id);
+		    		Document d ;
+		    		String schemalocation = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+		    		Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
+		    		Matcher match = httpUrl.matcher(schemalocation);
+		    		if(match.matches())
+		    		{
+			    		// to-fix : we need to provide a flexible way to find the user/pwd, rather than the hard code out here.
+			    		String user = "admin";
+			    		String pwd = "talend";
+			    		String xsd = Util.getResponseFromURL(schemalocation, user, pwd);
+			    		d = Util.parse(xsd);
+		    		}
+		    		else
+		    		{
+		    			d = builder.parse(new FileInputStream(schemalocation));
+		    		}
+		    		
+		    		
+	            	ns = getNameSpaceFromSchema(d, typeName);
+	            	if (ns != null)return ns;
+	    		}
+	    		list = Util.getNodeList(doc,"//*[@name='" + typeName + "']");
+	    		if(list.getLength() > 0)
+	    			return (Element)list.item(0);
+	    	}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	return ns;
+    }
+    
+    public static String getResponseFromURL(String url, String user, String pwd)
+    {
+        BASE64Encoder encoder = new BASE64Encoder();
+        StringBuffer buffer = new StringBuffer();
+        String credentials = encoder.encode(new String(user + ":" + pwd).getBytes());
+        
+        try {
+				URL urlCn = new URL(url);
+				URLConnection conn = urlCn.openConnection();
+				conn.setAllowUserInteraction(true);
+				conn.setDoOutput(true);
+				conn.setDoInput(true);
+	            conn.setRequestProperty("Authorization", "Basic " + credentials);
+	            conn.setRequestProperty("Expect", "100-continue"); 
+	
+	            InputStreamReader doc = 
+	                new InputStreamReader(conn.getInputStream());
+	            BufferedReader reader = new BufferedReader(doc);
+	            String line = reader.readLine();
+	            while(line != null)
+	            {
+	            	buffer.append(line);
+	            	line = reader.readLine();
+	            }
+		    } catch (Exception e) {
+			e.printStackTrace();
+		    }
+		    
+		  return buffer.toString();
+    }
     /**
      * Check if a local or remote
      * component for the JNDI Name exists 
@@ -728,7 +892,32 @@ public final class Util {
 				getRootElement("nsholder",xsd.getDocumentElement().getNamespaceURI(),"xsd")
 				);
         	return new XSDKey(selector,fields);
-    	} catch(TransformerException e) {
+    	} catch(Exception e) {
+    		try {
+        		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        		factory.setNamespaceAware(true);
+        		factory.setValidating(false);
+        		DocumentBuilder builder;
+				builder = factory.newDocumentBuilder();
+				NodeList list = null;
+	        	for(int xsdType = 0; xsdType < 2; xsdType++)
+	        	{
+	        		if(xsdType == 0)
+		               list = Util.getNodeList(xsd, "./xsd:import");
+	        		else
+	        			list = Util.getNodeList(xsd, "./xsd:include");
+			        for (int elemNum = 0; elemNum < list.getLength(); elemNum++)
+			        {
+			        	Node importNode = list.item(elemNum);
+			        	String xsdLocation = importNode.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+			        	builder = factory.newDocumentBuilder();
+			        	Document d = builder.parse(new FileInputStream(xsdLocation));
+			        	return getBusinessConceptKey(d, businessConceptName);
+			        }
+	        	}
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
     	    String err = "Unable to get the keys for the Business Concept "+businessConceptName+": "+e.getLocalizedMessage();
     		throw new TransformerException(err);
     	}
@@ -827,12 +1016,14 @@ public final class Util {
 	    reader.parse(new StringReader(xsd));
 	    XSSchemaSet xss = reader.getResult();
 		Collection xssList = xss.getSchemas();
+    	Map<String,XSElementDecl> mapForAll = new HashMap<String,XSElementDecl>() ;
 		Map<String,XSElementDecl> map = null ;
 		for (Iterator iter = xssList.iterator(); iter.hasNext();) {
 			XSSchema schema = (XSSchema) iter.next();
 			map = schema.getElementDecls();
+			mapForAll.putAll(map);
 		}   
-		return map;
+		return mapForAll;
 	}
 	
     public static String[] getTargetSystemsFromSchema(Document schema, String concept) throws Exception{

@@ -31,6 +31,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.util.SAXErrorHandler;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -426,13 +427,16 @@ public class CommonDWR {
         		new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
 		XSOMParser reader = new XSOMParser();
 		reader.setAnnotationParser(new DomAnnotationParserFactory());
+		SAXErrorHandler errorHandler = new SAXErrorHandler(); 
+		reader.setErrorHandler(errorHandler);
         reader.parse(new StringReader(xsd));
         XSSchemaSet xss = reader.getResult();
     	Collection xssList = xss.getSchemas();
-    	Map<String,XSElementDecl> map = null ;
+    	Map<String,XSElementDecl> map = new HashMap<String,XSElementDecl>() ;
     	for (Iterator iter = xssList.iterator(); iter.hasNext();) {
     		XSSchema schema = (XSSchema) iter.next();
-    		map = schema.getElementDecls();
+    		Map<String,XSElementDecl> submap = schema.getElementDecls();
+    		map.putAll(submap);
 		}   
     	return map;
 	}
