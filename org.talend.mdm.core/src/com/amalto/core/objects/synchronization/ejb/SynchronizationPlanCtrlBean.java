@@ -1746,7 +1746,9 @@ public class SynchronizationPlanCtrlBean implements SessionBean, TimedObject{
     	if(remoteXML!=null && remoteXML.equals(localXML) || localXML!=null && localXML.equals(remoteXML)){
     		return;
     	} 
-    		
+    	if(remotePOJO!=null && localPOJO!=null && remotePOJO.getProjectionAsString().equals(localPOJO.getProjectionAsString())){
+    		return;
+    	}    		
 		//Check if we have an existing Synchronization for this object
 		SynchronizationItemPOJO synchro = synchroItemCtrl.existsSynchronizationItem(
 			new SynchronizationItemPOJOPK(localRevisionID, itemPOJOPK)

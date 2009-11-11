@@ -11,7 +11,7 @@ amalto.SynchronizationItem.SynchronizationItem=function(){
     loadResource("/SynchronizationItem/secure/js/SynchronizationItemLocal.js", "amalto.SynchronizationItem.SynchronizationItemLocal" );
     
     loadResource("/SynchronizationItem/secure/css/SynchronizationItem.css", "" );
-
+    
     var recordType = Ext.data.Record.create([
 	  //{name: "id", type: "int"},
 	  {name:"itemPOJOPK"},
@@ -86,15 +86,23 @@ amalto.SynchronizationItem.SynchronizationItem=function(){
    	   	        listeners:
    	   	        {
    	    			'rowdblclick' : function(grid,rowIndex, e ){
+   	    				var isinit=false;
    	    				loadResource("/SynchronizationItem/secure/js/SyncXMLPanel.js", "amalto.SynchronizationItem.SyncXMLPanel",function(){
    	    				   var record=grid.getStore().getAt(rowIndex);
    	    				   //if(record.data.status == 'MANUAL'){
    	    					   	    					
    	   	    			   var xmlData= amalto.SynchronizationItem.SyncXMLPanel(record.data,store);
-   	   	    			   xmlData.init();  	    					
+   	   	    			   xmlData.init();
+   	   	    			   isinit=true;
    	    				   //}
    	    				});
-   	    				
+   	    				if(isinit == false){
+   	    				   var record=grid.getStore().getAt(rowIndex);
+   	    				   //if(record.data.status == 'MANUAL'){
+   	    					   	    					
+   	   	    			   var xmlData= amalto.SynchronizationItem.SyncXMLPanel(record.data,store);
+   	   	    			   xmlData.init();   	    					
+   	    				}
    	    			}
    	   	        },
 				tbar:[

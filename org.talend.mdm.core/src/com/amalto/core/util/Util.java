@@ -1321,7 +1321,7 @@ public final class Util {
 				new StreamResult(sw)
 				);
        	if (sw==null) return null;       	
-		return sw.toString();
+		return sw.toString().replaceAll("\r\n", "\n");
 	}
 	
 	/**
