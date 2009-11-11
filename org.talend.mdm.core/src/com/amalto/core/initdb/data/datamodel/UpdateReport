@@ -10,7 +10,7 @@
 &lt;/xsd:element&gt;
 &lt;xsd:complexType abstract="false" mixed="false" name="Update"&gt;
 &lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
-            &lt;xsd:element maxOccurs="1" minOccurs="0" name="UserName" nillable="false" type="xsd:string"/&gt;
+            &lt;xsd:element maxOccurs="1" minOccurs="0" name="UserName" nillable="true" type="xsd:string"/&gt;
             &lt;xsd:element maxOccurs="1" minOccurs="1" name="Source" nillable="false" type="xsd:string"/&gt;
             &lt;xsd:element maxOccurs="1" minOccurs="1" name="TimeInMillis" nillable="false" type="xsd:string"/&gt;
             &lt;xsd:element maxOccurs="1" minOccurs="1" name="OperationType" nillable="false"&gt;
@@ -22,17 +22,17 @@
 						&lt;/xsd:restriction&gt;
 					&lt;/xsd:simpleType&gt;
 			&lt;/xsd:element&gt;
-            &lt;xsd:element maxOccurs="1" minOccurs="0" name="RevisionID" nillable="false" type="xsd:string"/&gt;
-            &lt;xsd:element maxOccurs="1" minOccurs="0" name="DataCluster" nillable="false" type="xsd:string"/&gt;
-            &lt;xsd:element maxOccurs="1" minOccurs="0" name="DataModel" nillable="false" type="xsd:string"/&gt;
+            &lt;xsd:element maxOccurs="1" minOccurs="0" name="RevisionID" nillable="true" type="xsd:string"/&gt;
+            &lt;xsd:element maxOccurs="1" minOccurs="0" name="DataCluster" nillable="true" type="xsd:string"/&gt;
+            &lt;xsd:element maxOccurs="1" minOccurs="0" name="DataModel" nillable="true" type="xsd:string"/&gt;
             &lt;xsd:element maxOccurs="1" minOccurs="1" name="Concept" nillable="false" type="xsd:string"/&gt;
             &lt;xsd:element maxOccurs="1" minOccurs="1" name="Key" nillable="false" type="xsd:string"/&gt;
 &lt;xsd:element maxOccurs="unbounded" minOccurs="0" name="Item" nillable="false"&gt;
 &lt;xsd:complexType mixed="false"&gt;
 &lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
-&lt;xsd:element maxOccurs="1" minOccurs="1" name="path" nillable="false" type="xsd:string"/&gt;
-&lt;xsd:element maxOccurs="1" minOccurs="1" name="oldValue" nillable="false" type="xsd:string"/&gt;
-&lt;xsd:element maxOccurs="1" minOccurs="1" name="newValue" nillable="false" type="xsd:string"/&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="0" name="path" nillable="true" type="xsd:string"/&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="0" name="oldValue" nillable="true" type="xsd:string"/&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="0" name="newValue" nillable="true" type="xsd:string"/&gt;
 &lt;/xsd:sequence&gt;
 &lt;/xsd:complexType&gt;
 &lt;/xsd:element&gt;
@@ -45,6 +45,5 @@
         <ids>UpdateReport</ids>
         <unique-id>UpdateReport</unique-id>
     </PK>
-    <last-synch>test</last-synch>
     <last-error/>
 </data-model-pOJO>
