@@ -18,6 +18,7 @@ import javax.naming.NamingException;
 import org.apache.log4j.Logger;
 
 import com.amalto.core.ejb.AutoCommitToSvnMsg;
+import com.amalto.core.ejb.AutoCommitToSvnSendBean;
 import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
 import com.amalto.core.util.Util;
 
@@ -82,16 +83,20 @@ public class AutoCommitToSvnMDB implements MessageDrivenBean, MessageListener {
 	                
 	    public void onMessage(Message msg)
 	    {
+	    	TextMessage tm = null;
 	    	if(msg instanceof TextMessage){		      
 		        try {
-		            TextMessage tm = (TextMessage) msg;
+		            tm = (TextMessage) msg;
 		            Logger.getLogger(this.getClass()).info("AutoCommitToSvnMDB.onMessage, msg="+tm.getText());
 		            AutoCommitToSvnMsg msg1=AutoCommitToSvnMsg.unmarshal(tm.getText());
 		            Util.getVersioningSystemCtrlLocal().commitItem(new VersioningSystemPOJOPK(msg1.getVersionSystemPk()), msg1.getItemPk(), msg1.getComment());
 		            //Queue dest = (Queue) msg.getJMSReplyTo();
 		            //sendReply(text, dest);
 		        } catch(Throwable t) {
-		            t.printStackTrace();
+		        	Logger.getLogger(this.getClass()).info("Svn server not up, save faild message to db");
+		        	try{
+		        		Util.getXmlServerCtrlLocal().putDocumentFromString(tm.getText(), tm.getJMSMessageID(), AutoCommitToSvnSendBean.FailedAutoCommitSvnMessage, null);
+		        	}catch(Exception e){}
 		        }
 	    	}
 	    }

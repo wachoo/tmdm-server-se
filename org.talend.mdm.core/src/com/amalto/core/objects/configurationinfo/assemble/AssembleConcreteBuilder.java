@@ -51,4 +51,11 @@ public class AssembleConcreteBuilder implements AssembleBuilder {
 	}
 
 
+	public void buildFaildMessage() {
+		assembleProc.add(new ResendFaildMessageSubProc());
+		
+	}
+
+
+
 }

@@ -25,5 +25,9 @@ public interface AssembleBuilder {
 	 * This method constructs and assembles a particular part of a Proc.
 	 */
 	public void buildPartStartEngine();
-
+	
+	/**
+	 * This method resend the autocommittosvn failed message
+	 */
+	public void buildFaildMessage();
 }

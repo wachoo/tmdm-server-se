@@ -25,6 +25,7 @@ public class AssembleDirector {
 		fBuilder.buildPartInitData();
 		fBuilder.buildPartMigrateVersion();
 		fBuilder.buildPartStartEngine();
+		fBuilder.buildFaildMessage();
 	}
 	
 	public void constructCleanPart() {

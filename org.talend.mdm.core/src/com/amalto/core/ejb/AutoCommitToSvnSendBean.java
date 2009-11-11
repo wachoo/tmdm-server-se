@@ -48,7 +48,7 @@ public class AutoCommitToSvnSendBean implements SessionBean {
     QueueConnection conn;
     QueueSession session;
     Queue que;
-    
+    public static final String FailedAutoCommitSvnMessage="FailedAutoCommitSvnMessage"; //datacluster to store failed autocommittosvn message
     public AutoCommitToSvnSendBean(){
 
 
