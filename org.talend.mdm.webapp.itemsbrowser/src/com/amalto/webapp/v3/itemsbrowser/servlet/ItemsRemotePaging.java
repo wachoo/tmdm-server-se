@@ -72,7 +72,8 @@ public class ItemsRemotePaging  extends HttpServlet{
 		Configuration config = null;
 		try {
 			org.apache.log4j.Logger.getLogger(this.getClass()).trace("doPost() session items "+request.getSession().getId());
-			config = (Configuration)request.getSession().getAttribute("configuration");
+			//config = (Configuration)request.getSession().getAttribute("configuration");
+			config=Configuration.getInstance(true);
 			if(config==null) {
 				org.apache.log4j.Logger.getLogger(this.getClass()).debug(
 						"doPost() config items null");
