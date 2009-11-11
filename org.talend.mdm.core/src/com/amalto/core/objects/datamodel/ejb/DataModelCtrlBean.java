@@ -151,6 +151,7 @@ public class DataModelCtrlBean implements SessionBean{
     public DataModelPOJO getDataModel(DataModelPOJOPK pk) throws XtentisException{
 
         try {
+        	if(pk.getUniqueId()==null)  throw new XtentisException("The Data Model should not be null!");
         	DataModelPOJO sp =  ObjectPOJO.load(DataModelPOJO.class,pk);
         	if (sp == null) {
         		String err= "The Data Model "+pk.getUniqueId()+" does not exist.";

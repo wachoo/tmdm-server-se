@@ -173,6 +173,7 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
     throws XtentisException{
         
         try {
+        	if(pk.getUniqueId()==null)throw new XtentisException("The Data Cluster should not be null!");
         	DataClusterPOJO dataCluster =  ObjectPOJO.load(DataClusterPOJO.class,pk);
         	if (dataCluster == null) {
         		String err= "The Data Cluster "+pk.getUniqueId()+" does not exist.";
