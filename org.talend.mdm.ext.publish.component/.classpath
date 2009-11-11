@@ -8,5 +8,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commmon"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry kind="lib" path="libs/dom4j-1.6.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
