@@ -35,7 +35,7 @@ public class HierarchicalUtil {
 		TreeMap<String, String> map = new TreeMap<String, String>();
 
 		try {
-			Configuration config = Configuration.getInstance();
+			Configuration config = Configuration.getInstance(true);
 			String dataModelPK = config.getModel();
 			String[] bc = Util.getPort().getBusinessConcepts(
 					new WSGetBusinessConcepts(new WSDataModelPK(dataModelPK)))
