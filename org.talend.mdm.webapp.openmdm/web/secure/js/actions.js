@@ -82,10 +82,11 @@ amalto.actions = function () {
 		ActionsInterface.setClusterAndModel(cluster,model,function(result){
 			alert(result);
 			var tabPanel = amalto.core.getTabPanel();
-			var itemsBrowserPanel = tabPanel.getItem('itemsBrowser');
-			if(itemsBrowserPanel!=undefined){
-				tabPanel.remove(itemsBrowserPanel);
-			}
+			tabPanel.items.each(function(item){
+                        if(item.closable){
+                            tabPanel.remove(item);
+                        }            
+            });
 		});
 	}
 
