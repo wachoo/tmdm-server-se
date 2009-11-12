@@ -580,10 +580,10 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element maxOccurs="1" minOccurs="1" name="leftPath" nillable="false" type="xsd:string"/>
-			<xsd:element maxOccurs="1" minOccurs="1" name="operator" nillable="false" type="tns:WSWhereOperator"/>
-			<xsd:element maxOccurs="1" minOccurs="1" name="rightValueOrPath" nillable="false" type="xsd:string"/>
-			<xsd:element maxOccurs="1" minOccurs="1" name="stringPredicate" nillable="false" type="tns:WSStringPredicate"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="leftPath" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="operator" nillable="true" type="tns:WSWhereOperator"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="rightValueOrPath" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="stringPredicate" nillable="true" type="tns:WSStringPredicate"/>
 			<xsd:element maxOccurs="1" minOccurs="1" name="spellCheck" nillable="false" type="xsd:boolean"/>
 		</xsd:sequence>		
 	</xsd:complexType>
@@ -1202,10 +1202,10 @@
 	
 	<xsd:complexType name="WSRoutingRuleExpression">
 		<xsd:sequence>
-			<xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="true" type="xsd:string"/>
-			<xsd:element maxOccurs="1" minOccurs="1" name="xpath" nillable="false" type="xsd:string"/>
-			<xsd:element maxOccurs="1" minOccurs="1" name="wsOperator" nillable="false" type="tns:WSRoutingRuleOperator"/>
-			<xsd:element maxOccurs="1" minOccurs="1" name="value" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="name" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="xpath" nillable="true" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="wsOperator" nillable="true" type="tns:WSRoutingRuleOperator"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="value" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
 	
