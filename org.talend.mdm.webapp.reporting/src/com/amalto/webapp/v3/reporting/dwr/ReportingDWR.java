@@ -1,5 +1,6 @@
 package com.amalto.webapp.v3.reporting.dwr;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -15,8 +16,6 @@ import org.directwebremoting.WebContextFactory;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.bean.XMLConfiguration;
-import com.amalto.webapp.core.bean.XMLConfiguration_Document;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -25,18 +24,14 @@ import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
 import com.amalto.webapp.util.webservices.WSExecuteStoredProcedure;
 import com.amalto.webapp.util.webservices.WSExistsItem;
-import com.amalto.webapp.util.webservices.WSExistsView;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
-import com.amalto.webapp.util.webservices.WSPutView;
+import com.amalto.webapp.util.webservices.WSRegexStoredProcedure;
 import com.amalto.webapp.util.webservices.WSStoredProcedurePK;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
-import com.amalto.webapp.util.webservices.WSView;
-import com.amalto.webapp.util.webservices.WSViewPK;
-import com.amalto.webapp.util.webservices.WSViewSearch;
 import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
@@ -47,8 +42,6 @@ import com.amalto.webapp.v3.reporting.bean.Reporting;
 import com.amalto.webapp.v3.reporting.bean.ReportingContent;
 import com.amalto.webapp.v3.reporting.bean.ReportingField;
 import com.amalto.webapp.v3.reporting.bean.ReportingFilter;
-import com.amalto.webapp.v3.reporting.bean.Translation;
-import com.amalto.webapp.v3.reporting.bean.TranslationField;
 
 
 /**
@@ -293,17 +286,6 @@ public class ReportingDWR {
 	
 	public Map<String,String> getBusinessConcepts(String language){
 		TreeMap<String,String> map = new TreeMap<String,String>();
-		//b2box
-		try{
-			XMLConfiguration config = XMLConfiguration.getInstance();
-			
-			Iterator<XMLConfiguration_Document> iter = config.getDocuments().iterator();
-			while(iter.hasNext()) {
-				XMLConfiguration_Document doc = iter.next();
-				map.put(doc.getConceptName(), doc.getName());
-			}
-		}
-		catch(Exception e){
 		
 		//MDM
 		try {
@@ -321,95 +303,44 @@ public class ReportingDWR {
 			return null;
 		}
 		
-		}
 		return map;
+	}
+	
+	public Map<String, String> getStoredProcedurePKs(){
+		
+		Map<String, String> storedProcedurePKs = new HashMap<String, String>();
+		
+		
+		try {
+			WSStoredProcedurePK[] pkArray=Util.getPort().getStoredProcedurePKs(new WSRegexStoredProcedure(".*")).getWsStoredProcedurePK();
+			for (int i = 0; i < pkArray.length; i++) {
+				storedProcedurePKs.put(pkArray[i].getPk(), pkArray[i].getPk());
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		} catch (XtentisWebappException e) {
+			e.printStackTrace();
+		}
+		
+		return storedProcedurePKs;
+		
 	}
 	
 	public Map<String, String> getXpathToLabel(String dataObject,String language){
 		HashMap<String, String> xpathToLabel = new HashMap<String, String>();
 		
-		
-		//b2box
-		try{
-			XMLConfiguration config = XMLConfiguration.getInstance();
-			String dataModel = config.getDocumentsDataModel();
-	    	String view = dataModel+" Translation View";
-	    	
-	    	if(!(Util.getPort().existsView(new WSExistsView(new WSViewPK(view)))).is_true()){
-	    		Util.getPort().putView(
-	    				new WSPutView(
-	    						new WSView(
-	    								view,
-	    								"View for translation of "+dataModel,
-	    								new String[] {"Translation"},
-	    								new WSWhereCondition[] {
-	    										new WSWhereCondition("Translation/Format",WSWhereOperator.EQUALS,config.getName(),WSStringPredicate.NONE,false)
-	    								},
-	    								new String[] {"Translation/Document"}
-	    							)
-	    						)
-	    				);
-	    	}
-	    	
-	    	
-			WSWhereItem wi = new WSWhereItem();
-	    	//System.out.println("regex : "+documentType);
-	    	if ((dataObject==null) || ("*".equals(dataObject)) || "".equals(dataObject)) { 
-	    		wi = null;
-	    	} else {
-	    		WSWhereCondition wc = new WSWhereCondition(
-	    				"Translation/Document",
-	    				WSWhereOperator.EQUALS,
-	    				dataObject,
-	    				WSStringPredicate.NONE,
-	    				false
-	    				);
-	    		wi.setWhereCondition(wc);
-	    	}
-	    	/*if(language.toUpperCase().equals("FR")){
-	    		view = "B2BOX Translation FR View";
-	    	}*/
-			String[] results = Util.getPort().viewSearch(
-	    			new WSViewSearch(
-	    				new WSDataClusterPK("CONF"),
-						new WSViewPK(view),
-						wi,  //where
-						0, //treshold
-						0, //skip
-						Integer.MAX_VALUE,
-						null, //order by
-						null //direction
-					)
-				).getStrings();
-			if(results.length>0){
-				Translation translation = Translation.parse(results[0]);
-				TranslationField[] fields = translation.getTranslationFields();
-				if(language.toUpperCase().equals("FR")){
-					for (int i = 0; i < fields.length; i++) {					
-						xpathToLabel.put(fields[i].getXpath(), fields[i].getFr());
-					}
-				}
-				else{
-					for (int i = 0; i < fields.length; i++) {					
-						xpathToLabel.put(fields[i].getXpath(), fields[i].getEn());
-					}
-				}
-			}
+		//MDM
+		try {
+			Configuration config = Configuration.getInstance();
+			String dataModelPK = config.getModel();
+			xpathToLabel = CommonDWR
+					.getFieldsByDataModel(dataModelPK, dataObject, language,false);
+			xpathToLabel.remove(dataObject);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			return null;
 		}
-		catch(Exception e){
 		
-			//MDM
-			try {
-				Configuration config = Configuration.getInstance();
-				String dataModelPK = config.getModel();
-				xpathToLabel = CommonDWR
-						.getFieldsByDataModel(dataModelPK, dataObject, language,false);
-				xpathToLabel.remove(dataObject);
-			} catch (Exception e1) {
-				e1.printStackTrace();
-				return null;
-			}
-		}
 		// sort
 		TreeSet<Map.Entry<String,String>> set = new TreeSet<Map.Entry<String,String>>(new Comparator<Map.Entry<String,String>>() {
 			public int compare(Map.Entry<String,String> obj, Map.Entry<String,String> obj1) {
@@ -462,7 +393,7 @@ public class ReportingDWR {
 	}
 */
 	public void deleteReporting(String reportingName) throws XtentisWebappException, Exception{
-		if(getReporting(reportingName).isErasable()==true){
+		if(getReporting(reportingName).isErasable()==true||(getReporting(reportingName).isErasable()==false&&getReporting(reportingName).isUnErasableButDeleteable()==true)){
 			Util.getPort().deleteItem(
 				new WSDeleteItem(
 					new WSItemPK(
@@ -472,7 +403,7 @@ public class ReportingDWR {
 					)
 				)					
 			);	
-		}		
+		}
 	}
 	
 	public String saveReporting(Reporting reporting,String concept, String language, boolean edit) throws XtentisWebappException, Exception{
@@ -511,15 +442,15 @@ public class ReportingDWR {
 			reporting.setPivotField(xpathToLabel.get(reporting.getPivotXpath()));
 			reporting.setOwner(Util.getAjaxSubject().getUsername());
 			
+			
 			//b2box
-			try{
-				XMLConfiguration xmlConfig = XMLConfiguration.getInstance();
-				reporting.setCluster(xmlConfig.getDocumentsDataCluster());
-			}
-			//MDM
-			catch(Exception e){
-				reporting.setCluster(config.getCluster());
-			}
+//			try{
+//				XMLConfiguration xmlConfig = XMLConfiguration.getInstance();
+//				reporting.setCluster(xmlConfig.getDocumentsDataCluster());
+//			}
+			
+			reporting.setCluster(config.getCluster());
+			
 			System.out.println("config cluster "+config.getCluster());
 	        Util.getPort().putItem(
 	                new WSPutItem(

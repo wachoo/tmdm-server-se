@@ -131,9 +131,9 @@ public class ReportingRemotePaging  extends HttpServlet{
 			ReportingField[] fields = rep.getFields();
 			ArrayList<ReportingContent> reportingContentList = new ArrayList<ReportingContent>();			
 			
-			if(request.getSession().getAttribute("totalCount")==null 
-					|| !reportingName.equals(request.getSession().getAttribute("reportingName"))
-				){
+//			if(request.getSession().getAttribute("totalCount")==null 
+//					|| !reportingName.equals(request.getSession().getAttribute("reportingName"))
+//				){
 				org.apache.log4j.Logger.getLogger(this.getClass()).debug(
 						"case : new reporting");
 				reportingContentList = reportingDWR.getReportingContent(reportingName, parameters);
@@ -143,11 +143,11 @@ public class ReportingRemotePaging  extends HttpServlet{
 				request.getSession().setAttribute("reportingName",reportingName);
 				request.getSession().setAttribute("sortCol",sortCol);
 				request.getSession().setAttribute("sortDir",sortDir);
-			}
-			else{
-				reportingContentList = (ArrayList<ReportingContent>)request.getSession().getAttribute("reportingContentList");
-				totalCount=(Integer)request.getSession().getAttribute("totalCount");
-			}			
+//			}
+//			else{
+//				reportingContentList = (ArrayList<ReportingContent>)request.getSession().getAttribute("reportingContentList");
+//				totalCount=(Integer)request.getSession().getAttribute("totalCount");
+//			}			
 
 			//System.out.println("sort col de session "+request.getSession().getAttribute("sortCol"));
 			if(!sortCol.equals(request.getSession().getAttribute("sortCol")) 

@@ -148,9 +148,24 @@ amalto.reporting.Reporting = function () {
 		'en':'Search pivot'
 	}
 	
+	var LABEL_STORED_PROCEDURE = {
+		'fr':'La procédure stockée',
+		'en':'Stored procedure'
+	}
+	
+	var LABEL_STORED_PROCEDURE_PARAM = {
+		'fr':'Paramètres de procédure stockée',
+		'en':'Stored procedure parameters'
+	}
+	
 	var BUTTON_ADD_FILTER = {
 		'fr':'Ajouter un filtre',
 		'en':'Add a filter'
+	}
+	
+	var BUTTON_ADD_PARAM = {
+		'fr':'Ajoutez un paramètre',
+		'en':'Add a parameter'
 	}
 	
 	var config_cal = {
@@ -370,9 +385,12 @@ amalto.reporting.Reporting = function () {
 			Ext.getCmp('deleteButton').setDisabled(false);
 			Ext.getCmp('editButton').setDisabled(false);
 			Ext.getCmp('duplicateButton').setDisabled(false);
-		}
-		else{
-			Ext.getCmp('deleteButton').setDisabled(true);
+		}else{
+			if(reporting.unErasableButDeleteable){
+				Ext.getCmp('deleteButton').setDisabled(false);
+			}else{
+				Ext.getCmp('deleteButton').setDisabled(true);
+			}
 			Ext.getCmp('editButton').setDisabled(true);
 			Ext.getCmp('duplicateButton').setDisabled(true);
 		}
@@ -655,6 +673,19 @@ amalto.reporting.Reporting = function () {
 				'<option value=""></option></select>' +
 				'</div>' +
 				'<br/><br style="clear: both;"/>	' +
+				'<div id="chooseStoredProcedure" style="display:none;">	' +
+				'	<div class="left">'+LABEL_STORED_PROCEDURE[language]+' :</div>' +
+				'	<select id="storedProcedureList"  style="text-align:leftField" onChange="amalto.reporting.Reporting.getTranslation2();"><option value=""></option></select>' +
+				'</div>' +
+				'   <br/><br style="clear: both;"/>	' +
+				' <div id="chooseStoredProcedureParams" style="display:none;">	'+
+				'	<div class="left">'+LABEL_STORED_PROCEDURE_PARAM[language]+' :</div>'+
+				'	<div id="SPPEditGrid"  style="text-align:left;border: 1px solid #c3daf9;float: left; width:508px;height:100px;" class="ygrid-mso"></div>' +
+				'	<div class="leftField">&nbsp;</div>' +
+				'	<input type="button" value="'+BUTTON_ADD_PARAM[language]+'" onclick="amalto.reporting.Reporting.addParamToTable();"/>' +
+				' </div>' +
+				'' +
+				'<br style="clear: both;"/><br style="clear: both;"/>' +
 				'<div id="finish" style="display:inline;">' +
 				'	<div class="leftField">' +
 				'		<input type="button" value="'+BUTTON_SAVE[language]+'"  onclick="amalto.reporting.Reporting.saveReporting();" /></div>' +
@@ -707,6 +738,7 @@ amalto.reporting.Reporting = function () {
 		$('chooseDisplayFields').style.display="inline";
 		$('chooseFilterFields').style.display="inline";
 		$('choosePivot').style.display="inline";
+		$('chooseStoredProcedure').style.display="inline";
 	    var businessConcept = DWRUtil.getValue('businessConceptsList');
 	    
 	    ReportingInterface.getXpathToLabel(businessConcept,language, function(result){
@@ -717,12 +749,27 @@ amalto.reporting.Reporting = function () {
 			//DWRUtil.removeAllOptions('pivotList');
 			DWRUtil.addOptions( 'pivotList', result);
 			if(reporting.pivotXpath)
-				DWRUtil.setValue('pivotList',xPathToLabel[reporting.pivotXpath]);			
-	    	//ReportingInterface.getElements(businessConcept,language,function(result){
-	    		createGrid(result);	
-	    		amalto.core.ready();
-	    	//});
+				DWRUtil.setValue('pivotList',xPathToLabel[reporting.pivotXpath]);
+				
+		    ReportingInterface.getStoredProcedurePKs(function(result){
+				DWRUtil.removeAllOptions('storedProcedureList');
+				DWRUtil.addOptions( 'storedProcedureList',[LABEL_SELECT[language]]);
+				DWRUtil.addOptions( 'storedProcedureList', result);
+				
+				if(reporting.storedProcedure){
+					DWRUtil.setValue('storedProcedureList',reporting.storedProcedure);
+					$('chooseStoredProcedureParams').style.display="inline";
+				}
+	       });	
+	    
+	    	createGrid(result);	
+	    	amalto.core.ready();
+	    	
 	    });
+	    
+	    
+	    
+	    
 	    
 	    if(EDIT==true){
 	    	
@@ -730,11 +777,26 @@ amalto.reporting.Reporting = function () {
 	    }
 	}
 	
+	function getTranslation2(){
+		var storedProcedure = DWRUtil.getValue('storedProcedureList');
+	    if(storedProcedure==[LABEL_SELECT[language]])storedProcedure='';
+	    
+	    if(storedProcedure==''){
+	    	$('chooseStoredProcedureParams').style.display="none";
+	    }else{
+	    	$('chooseStoredProcedureParams').style.display="inline";
+	    }
+		
+	}
+	
 	function saveReporting(){
 	    var documentType = DWRUtil.getValue('businessConceptsList');
 	    var fields = new Array();
 	    var filters = new Array();
+	    var parameters = new Array();
 	    var pivot = DWRUtil.getValue('pivotList');
+	    var storedProcedure = DWRUtil.getValue('storedProcedureList');
+	    if(storedProcedure==[LABEL_SELECT[language]])storedProcedure='';
 	
 	    if(DWRUtil.getValue('reportingName')==""){
 	    	Ext.Msg.alert("alert",SAVE_WITHOUT_NAME[language]);
@@ -773,13 +835,28 @@ amalto.reporting.Reporting = function () {
 	        //alert(DWRUtil.toDescriptiveString(filters[i]));
 	    }
 	    
+	    if(storedProcedure!=null&&storedProcedure!=''){
+	    	var pstore = paramGrid1.getStore();
+	    	for(var i=0; i<pstore.getCount(); i++) {	
+		        if(pstore.getAt(i).get('Name')!=""){
+		        	parameters[i]={
+		            name:pstore.getAt(i).get('Name'),
+		            description:pstore.getAt(i).get('Description'),
+		            type:pstore.getAt(i).get('Type')
+		        	}    
+		        }
+	        }
+	    }
+	    
 	    var reporting={
 	        reportingName:DWRUtil.getValue('reportingName'),
 	        concept:DWRUtil.getValue('businessConceptsList'),
 	        shared:DWRUtil.getValue('sharedCheckBox'),
 	        fields:fields,
 	        filters:filters,
-	        pivotXpath:pivot
+	        pivotXpath:pivot,
+	        storedProcedure:storedProcedure,
+	        parameters:parameters
 	    };
 	    //alert(DWRUtil.toDescriptiveString(reporting,2));
 	    ReportingInterface.saveReporting(saveReportingCB,reporting,documentType,language, DUPLICATE ? false : EDIT);
@@ -840,10 +917,38 @@ amalto.reporting.Reporting = function () {
 	    filterGrid2.getStore().commitChanges();
 	}
 	
+	function addParamToTable(){ 
+		var recordType = Ext.data.Record.create([
+		  //{name: "id", type: "int"},
+		  {name: "Name", type: "string"},
+		  {name: "Description", type: "string"},
+		  {name: "Type", type: "string"}
+		  ]);
+		  
+		var nrec = new recordType();
+        nrec.data = {
+        	Name:"",
+        	Description:"",
+        	Type:"",
+        	trash:''
+        };
+        nrec.data.newRecord = true;
+        nrec.commit();
+        paramGrid1.stopEditing();
+        paramGrid1.getStore().add(nrec);
+        paramGrid1.startEditing(0, 0);
+            
+	    var rowTemplate = new Array();
+		rowTemplate[0]="";
+		rowTemplate[1]="";
+		rowTemplate[2]="";
+		rowTemplate[3]="<img src='img/genericUI/trash.gif'  border=\"0\" />";
+	    paramGrid1.getStore().commitChanges();
+	}
 	
 	
 	var grid1, grid2;
-	var filterGrid1, filterGrid2;
+	var filterGrid1, filterGrid2, paramGrid1;
 	
 
 	
@@ -1225,6 +1330,78 @@ amalto.reporting.Reporting = function () {
         // style:'	border: 1px solid #c3daf9;float: left;	width:508px;height:100px;'
 	    });
   	filterGrid2.render();
+  	
+  	var dsParam = new Ext.data.SimpleStore({
+	        fields: [
+	            {name: 'Name'},
+	            {name: 'Description'},
+	            {name: 'Type'},
+	            {name: 'trash'}
+	        ]
+	    });
+	    
+	 var paramData =new Array();
+	    if(EDIT==true){
+	    	for(var i=0; i<reporting.parameters.length; i++) {
+	    		paramData.push([reporting.parameters[i].name,reporting.parameters[i].description,reporting.parameters[i].type]);
+	    	}
+	    }
+	    
+	dsParam.loadData(paramData);
+  	
+  	var typeStore = new Ext.data.SimpleStore({
+		  fields: [ "value", "text" ],
+		  data: [
+        		['String','String'],
+        		['Date','Date']
+		  ]
+		});
+		
+	var comboType = new Ext.form.ComboBox({
+		  store: typeStore,
+		  valueField: "value",
+		  displayField: "text",
+          mode:'local',
+          triggerAction:'all',
+          editable:true
+		});
+  	
+  	var myColumnsParam = [
+		    
+		    {header: 'Name', dataIndex:'Name', editor: new Ext.form.TextField({allowBlank: false,blankText:FIELD_REQUIRED[language]}),  width:150},
+		    {header: 'Description', dataIndex:'Description', editor: new Ext.form.TextField({allowBlank: false,blankText:FIELD_REQUIRED[language]}),  width:150},
+		    {
+		    	header: 'Type', 
+		    	dataIndex:'Type',    
+                editor: comboType,
+			    renderer: Ext.ux.comboBoxRenderer(comboType),
+	            width:120
+	         },
+		    {header: BUTTON_DELETE[language], dataIndex:'trash', width:30,renderer:trash}
+		];
+  	
+  	paramGrid1 = new Ext.grid.EditorGridPanel({
+	        applyTo: 'SPPEditGrid',
+	       	store: dsParam,
+	        columns: myColumnsParam,
+	        stripeRows: true,
+	        width:508,
+	        height:100,
+	        border:false,
+	        viewConfig: {
+	        	forceFit: true
+	        },
+	        clicksToEdit:1,
+			listeners: {
+	        	cellclick: function(g, rowIndex,  columnIndex, e){
+								if (columnIndex ==3) {
+									dsParam.remove(dsParam.getAt(rowIndex));
+								}				
+	        	}
+	        }
+            // style:'	border: 1px solid #c3daf9;float: left;	width:508px;height:100px;'
+	    });
+  	paramGrid1.render();
 
 	}
 
@@ -1301,7 +1478,9 @@ amalto.reporting.Reporting = function () {
 			editReporting: function(){editReporting()},
 			duplicateReporting: function(){duplicateReporting()},
 			getTranslation: function(){getTranslation();},
+			getTranslation2: function(){getTranslation2();},
 			addFilterToTable: function(){addFilterToTable();},
+			addParamToTable: function(){addParamToTable();},
 			saveReporting: function(){saveReporting();}
 	 	}
 	

@@ -1,5 +1,8 @@
 package com.amalto.webapp.v3.reporting.bean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -19,6 +22,7 @@ public class Reporting {
 	private ReportingField[] fields;
 	private ReportingFilter[] filters;
 	private boolean erasable = true;
+	private boolean unErasableButDeleteable = false;
 	
 	private String storedProcedure;
 	private ReportingParameter[] parameters;
@@ -98,8 +102,10 @@ public class Reporting {
 			reporting.setPivotField(Util.getFirstTextNode(result, "//Pivot/Field"));
 			reporting.setPivotXpath(Util.getFirstTextNode(result, "//Pivot/XPath"));
 			reporting.setStoredProcedure(Util.getFirstTextNode(result, "//StoredProcedure/Name"));
-			if (reporting.getStoredProcedure()!=null && !reporting.getStoredProcedure().equals(""))
-				reporting.setErasable(false);
+//			if (reporting.getStoredProcedure()!=null && !reporting.getStoredProcedure().equals("")){
+//				reporting.setErasable(false);
+//				reporting.setUnErasableButDeleteable(true);
+//			}
 			
 			NodeList fields = Util.getNodeList(result,"/Reporting/ListOfFields/DisplayField");
 			if (fields!=null){
@@ -127,15 +133,19 @@ public class Reporting {
 			}
 			NodeList parameters = Util.getNodeList(result,"/Reporting/StoredProcedure/ListOfParameters/Parameter");
 			if (parameters!=null){
-				ReportingParameter[] reportingParameters = new ReportingParameter[parameters.getLength()];
+				List<ReportingParameter> reportingParameters = new ArrayList<ReportingParameter>();
 				for (int i=0;i<parameters.getLength();i++){
-					ReportingParameter  reportingParameter = new ReportingParameter();
-					reportingParameter.setName(Util.getFirstTextNode(parameters.item(i),"./Name"));
-					reportingParameter.setDescription(Util.getFirstTextNode(parameters.item(i),"./Description"));
-					reportingParameter.setType(Util.getFirstTextNode(parameters.item(i),"./Type"));
-					reportingParameters[i] = reportingParameter;					
+					
+					if(Util.getFirstTextNode(parameters.item(i),"./Name")!=null){
+						ReportingParameter  reportingParameter = new ReportingParameter();
+						reportingParameter.setName(Util.getFirstTextNode(parameters.item(i),"./Name"));
+						reportingParameter.setDescription(Util.getFirstTextNode(parameters.item(i),"./Description"));
+						reportingParameter.setType(Util.getFirstTextNode(parameters.item(i),"./Type"));
+						reportingParameters.add(reportingParameter);
+					}
+										
 				}
-				reporting.setParameters(reportingParameters);
+				reporting.setParameters(reportingParameters.toArray(new ReportingParameter[reportingParameters.size()]));
 			}	
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -158,12 +168,14 @@ public class Reporting {
             xml.append("<StoredProcedure>");
             xml.append("<Name>"+StringEscapeUtils.escapeXml(storedProcedure)+"</Name>");
             xml.append("<ListOfParameters>");
-            for(int i=0;i<parameters.length;i++) {
-            	xml.append("<Parameter>");
-            	xml.append("<Name>"+StringEscapeUtils.escapeXml(parameters[i].getName())+"</Field>");
-            	xml.append("<Description>"+StringEscapeUtils.escapeXml(parameters[i].getName())+"</Description>");
-            	xml.append("<Type>"+StringEscapeUtils.escapeXml(parameters[i].getType())+"</Type>");
-            	xml.append("</Parameter>");
+            if(parameters!=null){
+            	for(int i=0;i<parameters.length;i++) {
+                	xml.append("<Parameter>");
+                	xml.append("<Name>"+StringEscapeUtils.escapeXml(parameters[i].getName())+"</Name>");
+                	xml.append("<Description>"+StringEscapeUtils.escapeXml(parameters[i].getDescription())+"</Description>");
+                	xml.append("<Type>"+StringEscapeUtils.escapeXml(parameters[i].getType())+"</Type>");
+                	xml.append("</Parameter>");
+                }
             }
             xml.append("</ListOfParameters>");
             xml.append("</StoredProcedure>");
@@ -214,6 +226,14 @@ public class Reporting {
 	public void setErasable(boolean erasable) {
 		this.erasable = erasable;
 	}
+	
+	public boolean isUnErasableButDeleteable() {
+		return unErasableButDeleteable;
+	}
+
+	public void setUnErasableButDeleteable(boolean unErasableButDeleteable) {
+		this.unErasableButDeleteable = unErasableButDeleteable;
+	}
 
 	public String getCluster() {
 		return cluster;
@@ -235,8 +255,8 @@ public class Reporting {
 		return storedProcedure;
 	}
 
-	public void setStoredProcedure(String query) {
-		this.storedProcedure = query;
+	public void setStoredProcedure(String name) {
+		this.storedProcedure = name;
 	}
 
 
