@@ -382,19 +382,19 @@ public abstract class ConnectorMDB implements MessageDrivenBean, MessageListener
 	   org.apache.log4j.Logger.getLogger(this.getClass()).trace("getJCAAdaptersCluster() ");
 	   	   
 		try {
-			DataClusterCtrlLocal dcctrl = getDataClusterCtrlLocal();
-			DataClusterPOJO dataCluster = 
-				dcctrl.existsDataCluster(new DataClusterPOJOPK("JCAAdapters"));
-			if (dataCluster==null) {
-				//the cluster was not found - attempt to create it
-				return dcctrl.putDataCluster(
-						new DataClusterPOJO(
-								"JCAAdapters", 
-								"JCA Adapters", 
-								"" //no intitial vocabulary
-				));
-			}  
-			return new DataClusterPOJOPK(dataCluster.getPK());
+//			DataClusterCtrlLocal dcctrl = getDataClusterCtrlLocal();
+//			DataClusterPOJO dataCluster = 
+//				dcctrl.existsDataCluster(new DataClusterPOJOPK("JCAAdapters"));
+//			if (dataCluster==null) {
+//				//the cluster was not found - attempt to create it
+//				return dcctrl.putDataCluster(
+//						new DataClusterPOJO(
+//								"JCAAdapters", 
+//								"JCA Adapters", 
+//								"" //no intitial vocabulary
+//				));
+//			}  
+			return new DataClusterPOJOPK("JCAAdapters");
 		} catch (Exception e) {
 			throw new ResourceException(e.getClass().getName() + ": " + e.getLocalizedMessage());
 		}
