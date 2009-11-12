@@ -3,7 +3,7 @@
     <schema>&lt;xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" blockDefault="" elementFormDefault="unqualified" finalDefault=""&gt;
     &lt;xsd:element abstract="false" name="Reporting" nillable="false"&gt;
         &lt;xsd:complexType mixed="false"&gt;
-            &lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+            &lt;xsd:all maxOccurs="1" minOccurs="1"&gt;
                 &lt;xsd:element maxOccurs="1" minOccurs="1" name="ReportingName" nillable="false" type="xsd:string"/&gt;
                 &lt;xsd:element maxOccurs="1" minOccurs="1" name="Concept" nillable="false" type="xsd:string"/&gt;
                 &lt;xsd:element maxOccurs="1" minOccurs="1" name="Cluster" nillable="false" type="xsd:string"/&gt;
@@ -22,7 +22,7 @@
 &lt;xsd:complexType mixed="false"&gt;
 &lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
 &lt;xsd:element maxOccurs="1" minOccurs="1" name="Name" nillable="false" type="xsd:string"/&gt;
-&lt;xsd:element maxOccurs="1" minOccurs="1" name="ListOfParameters" nillable="false"&gt;
+&lt;xsd:element maxOccurs="1" minOccurs="0" name="ListOfParameters" nillable="false"&gt;
 &lt;xsd:complexType mixed="false"&gt;
 &lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
 &lt;xsd:element maxOccurs="unbounded" minOccurs="0" name="Parameter" nillable="false"&gt;
@@ -70,7 +70,7 @@
                         &lt;/xsd:sequence&gt;
                     &lt;/xsd:complexType&gt;
                 &lt;/xsd:element&gt;
-            &lt;/xsd:sequence&gt;
+            &lt;/xsd:all&gt;
         &lt;/xsd:complexType&gt;
         &lt;xsd:unique name="Reporting"&gt;
             &lt;xsd:selector xpath="."/&gt;
@@ -121,6 +121,5 @@
         <ids>Reporting</ids>
         <unique-id>Reporting</unique-id>
     </PK>
-    <last-synch>test</last-synch>
     <last-error/>
 </data-model-pOJO>
