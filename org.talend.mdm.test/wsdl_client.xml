@@ -4,7 +4,7 @@
 	<property name="axis.src" location="${axis.home}/src" />
 	<property name="axis.lib" location="${axis.home}/lib" />
 	<property name="axis.classes" location="${axis.home}/bin" />
-	<property name="local.wsdl" location="${axis.home}/wsdl/webservices.wsdl" />
+	<property name="local.wsdl" location="../org.talend.mdm.core/src/META-INF/wsdl/webservices.wsdl" />
 	
 	<path id="axis.classpath">
 		<fileset dir="${axis.lib}">
