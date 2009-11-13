@@ -223,7 +223,7 @@ public class Util {
     
     
     public static WSWhereCondition getConditionFromPath(String path) {
-    	Pattern p = Pattern.compile("(.*?)\\[(.*?)(&=|!=|=|>=|>|<=|<])(.*?)\\].*");
+    	Pattern p = Pattern.compile("(.*?)\\[(.*?)(&=|!=|>=|<=|>|<|=])(.*?)\\].*");
     	if (!path.endsWith("/")) path+="/";
     	Matcher m = p.matcher(path);
     	if (m.matches()){
@@ -233,7 +233,7 @@ public class Util {
     		wc.setOperator(operator);
     		wc.setRightValueOrPath(m.group(4).trim().replaceAll("'|\"", ""));
     		wc.setSpellCheck(true);
-    		wc.setStringPredicate(WSStringPredicate.OR);
+    		wc.setStringPredicate(WSStringPredicate.NONE);
     		return wc;
     	}
    		return null;
