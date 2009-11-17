@@ -408,12 +408,14 @@ public class LocalUser {
     	if (objectTypeClass.equals(ItemPOJO.class)) {
     		if (isAdmin(ItemPOJO.class)) return true;
     		HashSet<String> patterns = readWritePermissions.get("Item");
+    		if(patterns==null || patterns.size()==0) return true;
     		for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
     			String pattern = iterator.next();
     			if (instanceId.matches(pattern)) {
     				return true;
     			}
     		}
+    		
     		return false;
     	}
     	
@@ -464,6 +466,7 @@ public class LocalUser {
     	if (objectTypeClass.equals(ItemPOJO.class)) {
     		if (userCanWrite(ItemPOJO.class, instanceId)) return true;
     		HashSet<String> patterns = readOnlyPermissions.get("Item");
+    		if(patterns==null || patterns.size()==0) return true;
         	for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
     			String pattern = iterator.next();
     			if (instanceId.matches(pattern)) {
