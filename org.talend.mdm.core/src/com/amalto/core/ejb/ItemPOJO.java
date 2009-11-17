@@ -289,7 +289,8 @@ public class ItemPOJO implements Serializable{
     	LocalUser user = LocalUser.getLocalUser();
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
-    	} else if (user.userCanRead(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
+    	//} else if (user.userCanRead(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
+    	}else if(user.userItemCanRead(adminLoad(itemPOJOPK))){ //aiming modify see 10027
     		authorized = true;
     	}
     	
@@ -315,7 +316,25 @@ public class ItemPOJO implements Serializable{
 	        	                                            
 
     }
-    
+    /**
+     * 
+     * @param itemPOJOPK
+     * @return
+     * @throws XtentisException
+     */
+    public static ItemPOJO adminLoad(ItemPOJOPK itemPOJOPK)throws XtentisException {
+    	//get the universe and revision ID
+    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+    	if (universe == null) {
+    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+    		org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err);
+    		throw new XtentisException(err);
+    	}
+    	String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
+    	
+    	//load the item
+		return load(revisionID, itemPOJOPK);    	
+    }
     /**
      * Loads an Item<br/>
      * @param itemPOJOPK
@@ -438,7 +457,8 @@ public class ItemPOJO implements Serializable{
     	LocalUser user = LocalUser.getLocalUser();
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
-    	} else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
+    	//} else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
+    	}else if(user.userItemCanWrite(adminLoad(itemPOJOPK))){ //aiming modify see 10027
     		authorized = true;
     	}
     	
@@ -502,7 +522,8 @@ public class ItemPOJO implements Serializable{
     	LocalUser user = LocalUser.getLocalUser();
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
-    	} else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
+    	//} else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
+    	}else if(user.userItemCanWrite(adminLoad(itemPOJOPK))){ //aiming modify see 10027    		
     		authorized = true;
     	}
     	
@@ -681,7 +702,8 @@ public class ItemPOJO implements Serializable{
     	LocalUser user = LocalUser.getLocalUser();
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
-    	} else if (user.userCanWrite(ItemPOJO.class, getItemPOJOPK().getUniqueID())) {
+    	//} else if (user.userCanWrite(ItemPOJO.class, getItemPOJOPK().getUniqueID())) {
+    	}else if(user.userItemCanWrite(adminLoad(getItemPOJOPK()))){ //aiming modify see 10027    		
     		authorized = true;
     	}
     	
