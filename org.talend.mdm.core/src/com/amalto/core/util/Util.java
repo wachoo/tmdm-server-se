@@ -785,15 +785,15 @@ public final class Util {
      * Dumps info on a class
      * @param clazz
      */
-    public static void dumpClass(Class<Object> clazz) {
+    public static void dumpClass(Class<?> clazz) {
     	org.apache.log4j.Logger.getLogger(Util.class).debug("dumpClass() CLASS "+clazz.getName());
-		Class<Object>[] interfaces = clazz.getInterfaces();
+		Class<?>[] interfaces = clazz.getInterfaces();
 		if (interfaces!=null) {
 			for (int i = 0; i < interfaces.length; i++) {
 				org.apache.log4j.Logger.getLogger(Util.class).debug("()  Class Interface "+i+": "+interfaces[i].getName());		
 			}
 		}
-		Class<Object>[] classes = clazz.getClasses();
+		Class<?>[] classes = clazz.getClasses();
 		if (classes!=null) {
 			for (int i = 0; i < classes.length; i++) {
 				org.apache.log4j.Logger.getLogger(Util.class).debug("()  Classes "+i+": "+classes[i].getName());		
