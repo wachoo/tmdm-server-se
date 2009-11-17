@@ -252,7 +252,14 @@ public class ItemsRemotePaging  extends HttpServlet{
 //			}
 //			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
 //					"doPost() sorting the result...");
-			//Collections.sort(itemsBrowserContent, sort);
+			//Collections.sort(itemsBrowserContent, sortDir);
+			/**
+			 * sort the collections		
+			 */
+			int col = getSortCol(view.getViewables(),sortCol);
+			if(checkDigist(itemsBrowserContent,col)){
+				sortCollections(itemsBrowserContent,col, sortDir);
+			}
 					
 			
 			//get part we are interested
@@ -443,5 +450,68 @@ public class ItemsRemotePaging  extends HttpServlet{
 			res = WSWhereOperator.STRICTCONTAINS;
 		return res;											
 	}
-
+	
+	/**
+	 * check the certain column is digit
+	 * @author ymli
+	 * @param itemsBrowserContent
+	 * @param col
+	 * @return
+	 */
+private boolean checkDigist(ArrayList<String[]> itemsBrowserContent,int col){
+	if(col==-1)return false;
+	for(String[] temp:itemsBrowserContent){
+		if(!temp[col].matches("^(-|)[0-9]*(.?)[0-9]*$"))
+			return false;
+	}
+	return true;
+}
+/**
+ * sort the ArrayList by col in direction of dir 
+ * @author ymli
+ * @param itemsBrowserContent
+ * @param col
+ * @param dir
+ */
+ private void sortCollections(ArrayList<String[]> itemsBrowserContent,int col, String dir) {
+		System.out.println(dir);
+		if (col < 0)
+			return;
+		if ("descending".equals(dir)) {
+			for (int j = 1; j < itemsBrowserContent.size(); j++) {
+				String temp[] = itemsBrowserContent.get(j);
+				int i = j;
+				while (i > 0&& Double.parseDouble(itemsBrowserContent.get(i-1)[col]) < Double.parseDouble(temp[col])) {
+					itemsBrowserContent.set(i, itemsBrowserContent.get(i-1));
+					i--;
+				}
+				itemsBrowserContent.set(i, temp);
+			}
+		} else {
+			for (int j = 1; j < itemsBrowserContent.size(); j++) {
+				String temp[] = itemsBrowserContent.get(j);
+				int i = j;
+				while (i > 0&& Double.parseDouble(itemsBrowserContent.get(i-1)[col]) > Double.parseDouble(temp[col])) {
+					itemsBrowserContent.set(i, itemsBrowserContent.get(i-1));
+					i--;
+				}
+				itemsBrowserContent.set(i, temp);
+			}
+		}
+	}
+	/**
+	 * get the column number of the certain title in Array columns
+	 * @author ymli
+	 * @param columns
+	 * @param title
+	 * @return
+	 */
+ private int getSortCol(String[] columns, String title) {
+		int col = -1;
+		for (int i = 0; i < columns.length; i++)
+			if (("/"+columns[i]).equals(title))
+				return i;
+		return col;
+	}
+ 
 }
