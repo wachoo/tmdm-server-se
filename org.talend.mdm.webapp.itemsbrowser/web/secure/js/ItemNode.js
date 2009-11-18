@@ -273,14 +273,28 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		
 		
 		this.resetErrorMessage(this.itemData.nodeId);
+		
 		if(this.itemData.restrictions!=null){	
 			for(var i=0;i<this.itemData.restrictions.length;i++){
 				var errorMessage = this.itemData.facetErrorMsg[language];
+				if(value.length==0&&this.itemData.minOccurs>=1){
+				if (errorMessage == null){
+				   errorMessage = "The value does not comply with the facet defined in the model: "
+							+ "minOccurs"
+							+": "
+							+this.itemData.minOccurs;
+					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+					return false;
+				}
+			}
+			if(this.itemData.restrictions[i].name!="whiteSpace")
 				if (errorMessage == null)
 				   errorMessage = "The value does not comply with the facet defined in the model: "
 							+ this.itemData.restrictions[i].name
 							+ ":"
 							+ this.itemData.restrictions[i].value;
+					
+							
 				if(this.itemData.restrictions[i].name=="minLength" 
 				&& value.length<parseInt(this.itemData.restrictions[i].value)){
 					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
