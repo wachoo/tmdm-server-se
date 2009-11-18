@@ -40,7 +40,9 @@ public class AccessControlFilter extends Filter {
 							.getInstance();
 					if (resourceType.equals(ResourceType.DATAMODEL.getName())) {
 						accessController = new DataModelAccessControl();
-					} else {
+					}else if(resourceType.equals(ResourceType.DATAMODELTYPES.getName())){
+						accessController = new DataModelTypesAccessControl();
+					}else {
 						//TODO support more types
 					}
 

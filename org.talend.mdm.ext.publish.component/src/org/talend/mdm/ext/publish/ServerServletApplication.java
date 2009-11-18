@@ -32,7 +32,7 @@ public class ServerServletApplication extends Application {
         // Defines a route for the resource "dataModel"
         router.attach("/"+ResourceType.DATAMODEL.getName()+"/{dataModelName}", DataModelResource.class);
         
-        router.attach("/"+ResourceType.DATAMODEL.getName()+"/{dataModelName}/types", DataModelTypesResource.class);
+        router.attach("/"+ResourceType.DATAMODELTYPES.getName()+"/{dataModelName}", DataModelTypesResource.class);
 
 
          //creates the filter and add it in front of the router
