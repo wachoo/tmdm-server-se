@@ -2,17 +2,17 @@ package org.talend.mdm.ext.publish.filter;
 
 import java.util.List;
 
-public class DataModelTypesAccessControl extends AccessController {
+public class DataModelsAccessControl extends AccessController {
 
 	@Override
 	public boolean validate(List<String> resourceInstances,AccessControlPropertiesReader propertiesReader) {
 		
-		String bannedPattern=propertiesReader.getProperty("datamodeltypes.name.ban.pattern");
+		String bannedPattern=propertiesReader.getProperty("datamodels.name.ban.pattern");
 		
 		if(resourceInstances!=null&&resourceInstances.size()>0&&bannedPattern!=null){
 			String datamodelName=resourceInstances.get(0);
 			if(datamodelName.matches(bannedPattern)){
-				getLocalLogger().debug("The types of datamodel "+datamodelName+" was banned! ");
+				getLocalLogger().debug("Datamodel "+datamodelName+" was banned! ");
 				return false;
 			}
 		}

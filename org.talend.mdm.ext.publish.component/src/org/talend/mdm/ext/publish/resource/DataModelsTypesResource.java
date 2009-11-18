@@ -21,12 +21,12 @@ import com.amalto.core.util.Util;
  * Resource which has only one representation.
  * 
  */
-public class DataModelTypesResource extends BaseResource {
+public class DataModelsTypesResource extends BaseResource {
 	
 	String dataModelName;
 	DataModelPOJO dataModelPOJO=null;
 	
-    public DataModelTypesResource(Context context, Request request,
+    public DataModelsTypesResource(Context context, Request request,
             Response response) {
         super(context, request, response);
         // Get the "dataModelName" attribute value taken from the URI template

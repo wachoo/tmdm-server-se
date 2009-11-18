@@ -4,8 +4,9 @@ package org.talend.mdm.ext.publish;
 
 public enum ResourceType {
 	
-	DATAMODEL("dataModels"),
-	DATAMODELTYPES("dataModelTypes");
+	DATAMODELS("dataModels"),
+	DATAMODELSTYPES("dataModelsTypes");
+	//CUSTOMTYPESSETS("customTypesSets");
 	
 	ResourceType(String name) {
 		this.name = name;
