@@ -5,7 +5,7 @@ package com.amalto.core.plugin.base.xpath.ejb.local;
 
 /**
  * Session layer for xPathTransformerPlugin.
- * @xdoclet-generated at 16-07-09
+ * @xdoclet-generated at 18-11-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

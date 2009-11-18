@@ -5,7 +5,7 @@ package com.amalto.core.plugin.base.project.ejb.local;
 
 /**
  * Session layer for ProjectTransformerPlugin.
- * @xdoclet-generated at 16-07-09
+ * @xdoclet-generated at 18-11-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}

@@ -5,7 +5,7 @@ package com.amalto.core.plugin.base.codec.ejb.local;
 
 /**
  * Session layer for CodecPlugin.
- * @xdoclet-generated at 16-07-09
+ * @xdoclet-generated at 18-11-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
