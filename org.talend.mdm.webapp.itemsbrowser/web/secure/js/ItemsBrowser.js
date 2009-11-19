@@ -1567,7 +1567,99 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		siblingNode.parent.refresh();
 		amalto.core.ready();
 	}
+	function showEditWindow(nodeIndex, treeIndex, nodeType){
+		var tree=itemTreeList[treeIndex];
+		var node=tree.getNodeByIndex(nodeIndex);
+		var values=new Array();
+		if(node.itemData.value!=null) values=node.itemData.value.split('@@');
+		 var form = new Ext.form.FormPanel({
+		        baseCls: 'x-plain',
+		        labelWidth: 55,
+		        url:'save-form.php',
+		        defaultType: 'textfield',
+
+		        items: [{
+		            fieldLabel: 'Name',
+		            id: 'name',
+		            value: values[0]==null?"":values[0],
+		            anchor:'100%'  
+		        },{
+		            fieldLabel: 'Url',
+		            id: 'url',
+		            value: values[1]==null?"":values[1],
+		            anchor: '100%'  
+		        }]
+		    });
+
+		    var window = new Ext.Window({
+		        title: 'Edit Url',
+		        width: 300,
+		        height:200,
+		        minWidth: 300,
+		        minHeight: 200,
+		        layout: 'fit',
+		        plain:true,
+		        bodyStyle:'padding:5px;',
+		        buttonAlign:'center',
+		        items: form,
+
+		        buttons: [{
+		            text: 'Save',
+		            handler: function() {
+		        	DWRUtil.setValue(nodeIndex+"Value",Ext.getCmp('name').getValue()+"@@"+Ext.getCmp('url').getValue());
+		        	DWRUtil.setValue('showUrl',"<a target='_blank' href='"+ Ext.getCmp('url').getValue()+ "'>"+Ext.getCmp('name').getValue()+"</a>");
+		        	updateNode(nodeIndex,treeIndex);
+		        	window.destroy();
+		        		
+		           }
+		        },{
+		            text: 'Cancel',
+		            handler: function() {
+		        	window.destroy();
+		        }
+		        }]
+		    });
+
+		    window.show();
+	}
+	function editNode2(siblingId, hasIcon, treeIndex){
+		var itemTree = itemTreeList[treeIndex];
+		var siblingNode = itemTree.getNodeByIndex(siblingId);
+		//modified by ymli. If the Items is more than maxOccurs, alert and return
+		if(siblingNode.itemData.maxOccurs>=0&&siblingNode.parent!=null && getSiblingsLength(siblingNode)>=siblingNode.itemData.maxOccurs){
+			Ext.MessageBox.alert("Status",siblingNode.itemData.maxOccurs+" "+siblingNode.itemData.name+"(s) at most");
+			return;
+		}
+		var nodeCount = YAHOO.widget.TreeView.nodeCount;
 	
+		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,false,true);
+		newNode.updateNodeId(nodeCount);
+		newNode.updateValue(" ");
+	
+		newNode.insertAfter(siblingNode);
+		//newNode.appendTo(siblingNode.parent);
+		itemTree.getRoot().childrenRendered=false;
+		
+		var fnLoadData = function(oNode,fnCallback){
+			//getChildren(oNode.index,fnCallback, false, newItem, itemTree, treeIndex);
+			ItemsBrowserInterface.getChildren(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,function(result){
+				if(result==null) {
+					fnCallback();
+					return;
+				}
+				for(var i=0; i<result.length; i++) {					
+					var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,itemTree.getNodeByIndex(oNode.index),false,true);
+				if(result[i].type=="simple") tmp.setDynamicLoad();
+				else tmp.setDynamicLoad(fnLoadData,1);
+			}
+			fnCallback();
+			});
+		};
+		
+		newNode.setDynamicLoad(fnLoadData);
+		siblingNode.parent.refresh();
+		amalto.core.ready();
+	}
 
 	function removeNode2(id, treeIndex) {
 		updateFlag[treeIndex] = true;
@@ -2258,6 +2350,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		displayItemDetails:function(){displayItemDetails();},
 		editItemDetails:function(itemPK,dataObject,refreshCB){displayItemDetails4Reference(itemPK,dataObject,refreshCB);},
 		filterForeignKey:function(string0, string1, id){filterForeignKey(string0, string1, id);},
-		getSiblingsLength:function(node){getSiblingsLength(node);}
+		getSiblingsLength:function(node){getSiblingsLength(node);},
+		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);}
  	}
 }();

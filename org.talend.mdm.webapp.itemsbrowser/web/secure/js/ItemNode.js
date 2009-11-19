@@ -13,7 +13,7 @@
  */
  
 //amalto.namespace("amalto.itemsbrowser");
- 
+
 amalto.itemsbrowser.ItemNode = function(itemData, newItem, treeIndex, oParent, expanded, hasIcon) {
     //if (oData) 
     {
@@ -88,7 +88,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			removeNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.removeNode2(\''+itemData.nodeId+'\','+treeIndex+')">' +
 					' <img src="img/genericUI/remove-element.gif"/></span>';
 		}
-		if(itemData.typeName!=null&&(itemData.typeName=="PICTURE")){
+		if(itemData.typeName!=null&&(itemData.typeName=="PICTURE" || itemData.typeName=="URL")){
 			type='hidden';
 		}
 		
@@ -142,7 +142,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				mandatory='<span style="color:red">*</span>';
 			}
 			var typeStatus = true;
-			typeStatus = value.length<70 ||(itemData.typeName=="PICTURE")
+			typeStatus = value.length<70 ||(itemData.typeName=="PICTURE")||(itemData.typeName=="URL")
 
 			// select list
 			if(itemData.readOnly==false && itemData.enumeration.length!=0) {
@@ -165,6 +165,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						'onchange="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');" size="72" type="'+ type+ '"  ' +
 						'id="'+itemData.nodeId+'Value" value="'+value+'"'+'/>';
 			}
+			//input hidden
+//			else if(itemData.typeName!=null && itemData.typeName=="URL"){
+//				var input=' ' +'<input type="text" id="'+itemData.nodeId+'" value="'+value+'"'+'/>';
+//			}
 			//text area
 			else {
 				
@@ -190,11 +194,20 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					html[html.length]='<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removePicture(\''+itemData.nodeId+'\','+treeIndex+')">' +
 					'<img alt="Remove the picture" src="img/genericUI/clear-icon.gif"/></span>';									
 				    html[html.length] ='<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showUploadFile(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\')"><img alt="Select a picture" src="img/genericUI/image_add.png"/></span>'+'</div>';
+			}else if(itemData.typeName!=null&&(itemData.typeName=="URL")){//URL
+				   html[html.length] = ' ' +'<input type="hidden" id="'+itemData.nodeId+'Value" value="'+value+'"'+'/>';
+				   if(value.length>0){
+				 		html[html.length] ='<span style="cursor: pointer;"><label id="showUrl"><a target="_blank" href=\'' + itemData.value.trim().split("@@")[1]+ '\'>'+itemData.value.trim().split("@@")[0]+'</a></label></span>';	
+				   }else{
+					   html[html.length] ='<span style="cursor: pointer;"><label id="showUrl"></label></span>';
+				   }
+				   html[html.length] ='<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.showEditWindow('+itemData.nodeId+','+treeIndex+',\''+itemData.typeName+'\')">' +
+					' <img src="img/genericUI/add-element.gif"/></span>'+'</div>';
 			}else{
-			  html[html.length] = input +'</div>';
+			       html[html.length] = input +'</div>';
 			}
 			
-			html[html.length] = '<span id="'+itemData.nodeId+'ValidateBadge" style="background-image:url(img/genericUI/validateBadge.gif);background-repeat:no-repeat;background-position:bottom;width:16px;height:16px;padding-left:4px;display:none"></span>' ;
+			html[html.length] = '<span id="'+itemData.nodeId+'ValidateBadge" style="background-image:url(img/genericUI/validateBadge.gif);background-repeat:no-repeat;background-position:bottom;width:16px;height:16px;padding-left:4px;display:none"></span>'+'</div>' ;
 			html[html.length] = '<span id="'+itemData.nodeId+'OpenDetails" style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >';
 			html[html.length] = '<img src="img/genericUI/open-detail2.gif"/></span>' ;
 			html[html.length] = 		cloneNodeImg+' '+removeNodeImg+' '+foreignKeyImg ;
