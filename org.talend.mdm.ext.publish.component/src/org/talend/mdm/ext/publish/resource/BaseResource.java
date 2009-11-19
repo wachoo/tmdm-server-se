@@ -3,6 +3,9 @@ package org.talend.mdm.ext.publish.resource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.ejb.CreateException;
 import javax.naming.NamingException;
@@ -108,6 +111,7 @@ public abstract class BaseResource extends Resource {
 			Document d = representation.getDocument();
 
 			Element eltError = d.createElement("error");
+			d.appendChild(eltError);
 
 			Element eltCode = d.createElement("code");
 			eltCode.appendChild(d.createTextNode(errorCode));
@@ -121,6 +125,75 @@ public abstract class BaseResource extends Resource {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	protected Representation generateListRepresentation(List<String> inputList) {
+		
+		DomRepresentation representation=null;
+		
+		try {	
+			representation = new DomRepresentation(MediaType.TEXT_XML);
+			Document d = representation.getDocument();
+
+			Element listElement = d.createElement("list");
+			d.appendChild(listElement);
+
+			if(inputList!=null){
+				for (Iterator<String> iterator = inputList.iterator(); iterator.hasNext();) {
+					String entry =  iterator.next();
+					if(entry!=null){
+						Element entryElement = d.createElement("entry");
+						entryElement.appendChild(d.createTextNode(entry));
+						listElement.appendChild(entryElement);
+					}
+				}
+			}
+			
+			d.normalize();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return representation;
+	}
+	
+    protected Representation generateMapRepresentation(Map<String,String> inputMap) {
+		
+		DomRepresentation representation=null;
+		
+		try {	
+			representation = new DomRepresentation(MediaType.TEXT_XML);
+			Document d = representation.getDocument();
+
+			Element listElement = d.createElement("list");
+			d.appendChild(listElement);
+
+			if(inputMap!=null){
+				
+				for (Iterator<String> iterator = inputMap.keySet().iterator(); iterator.hasNext();) {
+					String entryName =  iterator.next();
+					
+					Element entryElement = d.createElement("entry");
+					listElement.appendChild(entryElement);
+					
+					Element entryNameElement = d.createElement("name");
+					entryNameElement.appendChild(d.createTextNode(entryName));
+					entryElement.appendChild(entryNameElement);
+					
+					Element entryUriElement = d.createElement("uri");
+					entryUriElement.appendChild(d.createTextNode(inputMap.get(entryName)));
+					entryElement.appendChild(entryUriElement);
+				}
+			}
+			
+			d.normalize();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return representation;
 	}
 
 	/**
