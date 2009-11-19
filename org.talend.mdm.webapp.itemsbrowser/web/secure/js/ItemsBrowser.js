@@ -1586,7 +1586,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		        },{
 		            fieldLabel: 'Url',
 		            id: 'url',
-		            value: values[1]==null?"":values[1],
+		            value: values[1]==null?"http://":values[1],
 		            anchor: '100%'  
 		        }]
 		    });
