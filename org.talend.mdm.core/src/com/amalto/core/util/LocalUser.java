@@ -20,6 +20,8 @@ import javax.security.jacc.PolicyContextException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.jxpath.JXPathContext;
+import org.talend.mdm.commmon.util.webapp.XObjectType;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -405,37 +407,46 @@ public class LocalUser {
 		if(patterns==null || patterns.size()==0)return false; 
 		for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
 			String pattern = iterator.next();
-			//patterns maybe 1.{datacluster}.{concept}.{id} ,2.{datacluster}.{concept}.{element}={pattern}
-			Pattern p=Pattern.compile("(.*?)\\.(.*?)\\.(.*?)=(.*?)");
-			Matcher m=p.matcher(pattern);
-			if(m.matches()){ //2.{datacluster}.{concept}.{element}={pattern}
-				String concept=m.group(2);
-				String element=m.group(3);
-				String pt=m.group(4);
-				if("*".equals(pt)){
-					pt=".*";
-				}
-			    JXPathContext jcontext = JXPathContext.newContext ( item.getProjection() );
-			    jcontext.setLenient(true);
-			    String value=(String)jcontext.getValue(element, String.class);
-			    //if element is foreign key [.*]
-			    Matcher m1=Pattern.compile("\\[(.*?)\\]").matcher(value);
-			    if(m1.matches()){
-			    	if(m1.group(1).matches(pt) || m1.group(1).equals(pt)){
-			    		return true;
-			    	}
-			    }
-			    if(value!=null && value.matches(pt)|| value.equals(pt)){
-			    	return true;
-			    }
-			}else{//1.{datacluster}.{concept}.{id}
-				if (item.getItemPOJOPK().getUniqueID().matches(pattern)) {
-					return true;
-				}
-			}
+			if(checkPattern(item, pattern))return true;
 		}
 		
 		return false;    	
+    }
+    
+    private boolean checkPattern(ItemPOJO item,String pattern) throws XtentisException{
+    	//system datacluster don't need to check
+    	if(XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER, item.getDataClusterPOJOPK().getIds()[0])){
+    		return true;
+    	}
+		//patterns maybe 1.{datacluster}.{concept}.{id} ,2.{datacluster}.{concept}.{element}={pattern}
+		Pattern p=Pattern.compile("(.*?)\\.(.*?)\\.(.*?)=(.*?)");
+		Matcher m=p.matcher(pattern);
+		if(m.matches()){ //2.{datacluster}.{concept}.{element}={pattern}
+			String concept=m.group(2);
+			String element=m.group(3);
+			String pt=m.group(4);
+			if("*".equals(pt)){
+				pt=".*";
+			}
+		    JXPathContext jcontext = JXPathContext.newContext ( item.getProjection() );
+		    jcontext.setLenient(true);
+		    String value=(String)jcontext.getValue(element, String.class);
+		    //if element is foreign key [.*]
+		    Matcher m1=Pattern.compile("\\[(.*?)\\]").matcher(value);
+		    if(m1.matches()){
+		    	if(m1.group(1).matches(pt) || m1.group(1).equals(pt)){
+		    		return true;
+		    	}
+		    }
+		    if(value!=null && value.matches(pt)|| value.equals(pt)){
+		    	return true;
+		    }
+		}else{//1.{datacluster}.{concept}.{id}
+			if (item.getItemPOJOPK().getUniqueID().matches(pattern)) {
+				return true;
+			}
+		}
+    	return false;
     }
     /**
      * 
@@ -445,40 +456,14 @@ public class LocalUser {
      */
     public boolean userItemCanRead(ItemPOJO item)throws XtentisException{
 		if (isAdmin(ItemPOJO.class)) return true;
-		if(userItemCanWrite(item)) return false;
+		if(userItemCanWrite(item)) return true;
 		HashSet<String> patterns = readOnlyPermissions.get("Item");
 		if(patterns==null || patterns.size()==0) return false;
 			
 		for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
 			String pattern = iterator.next();
 			//patterns maybe 1.{datacluster}.{concept}.{id} ,2.{datacluster}.{concept}.{element}={pattern}
-			Pattern p=Pattern.compile("(.*?)\\.(.*?)\\.(.*?)=(.*?)");
-			Matcher m=p.matcher(pattern);
-			if(m.matches()){ //2.{datacluster}.{concept}.{element}={pattern}
-				String concept=m.group(2);
-				String element=m.group(3);
-				String pt=m.group(4);
-				if("*".equals(pt)){
-					pt=".*";
-				}				
-			    JXPathContext jcontext = JXPathContext.newContext ( item.getProjection() );
-			    jcontext.setLenient(true);
-			    String value=(String)jcontext.getValue(element, String.class);
-			    //if element is foreign key [.*]
-			    Matcher m1=Pattern.compile("\\[(.*?)\\]").matcher(value);
-			    if(m1.matches()){
-			    	if(m1.group(1).matches(pt) || m1.group(1).equals(pt)){
-			    		return true;
-			    	}
-			    }
-			    if(value!=null && value.matches(pt)|| value.equals(pt)){
-			    	return true;
-			    }
-			}else{//1.{datacluster}.{concept}.{id}
-				if (item.getItemPOJOPK().getUniqueID().matches(pattern)) {
-					return true;
-				}
-			}
+			if(checkPattern(item, pattern)) return true;
 		}
 		
 		return false;    	
