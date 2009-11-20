@@ -14,6 +14,7 @@ import org.xml.sax.SAXException;
 
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.util.Util;
+import com.amalto.core.util.SecurityEntityResolver;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSSchema;
@@ -68,6 +69,7 @@ public class SchemaManager {
 			//parse
 			XSOMParser reader = new XSOMParser();
 			reader.setAnnotationParser(new DomAnnotationParserFactory());
+			reader.setEntityResolver(new SecurityEntityResolver());
 			reader.parse(new StringReader(bindingDataModelPOJO.getSchema()));
 			result  = reader.getResult();
 			
@@ -170,6 +172,5 @@ public class SchemaManager {
 		
 	}
 	
-	
-
 }
+ 

@@ -27,7 +27,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
@@ -61,7 +60,6 @@ import org.apache.commons.jxpath.Pointer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -349,9 +347,12 @@ public final class Util {
 				new InputSource(new StringReader(schema))
 				);
 		}
+
 		DocumentBuilder builder;
 		builder = factory.newDocumentBuilder();
 		builder.setErrorHandler(seh);
+		builder.setEntityResolver(new SecurityEntityResolver());
+
 		String xmlstr=Util.nodeToString(element);
        	//if element is null, remove it aiming added 
        	//see 7828
@@ -365,7 +366,41 @@ public final class Util {
 				String xmlString = Util.nodeToString(element); 
 				String err = "The item "+element.getLocalName()+" did not validate against the model: \n" + errors+"\n"
 					+xmlString;	//.substring(0, Math.min(100, xmlString.length()));
-				throw new SAXException(err);
+				Document xsdDoc = Util.parse(schema);
+				Map<String, String> nsMap = Util.getNamespaceFromImportXSD(xsdDoc.getDocumentElement());
+				Iterator<Map.Entry<String, String>> iter = nsMap.entrySet().iterator();
+				seh = new SAXErrorHandler();
+				boolean error = true;
+				while(iter.hasNext())
+				{
+					Map.Entry<String, String> entry = (Map.Entry<String, String>)iter.next();
+					String type = entry.getKey().substring(0, entry.getKey().indexOf(" : "));
+					String location = entry.getValue();
+					factory.setNamespaceAware(true);
+					factory.setValidating((schema!=null));
+					factory.setAttribute(
+							"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+							"http://www.w3.org/2001/XMLSchema");
+				    factory.setAttribute(
+							"http://java.sun.com/xml/jaxp/properties/schemaSource",
+							new InputSource(new StringReader(schema))
+							);
+					javax.xml.namespace.QName weather = new javax.xml.namespace.QName(location,
+						    type, location);
+				    factory.setAttribute("http://apache.org/xml/properties/validation/schema/root-type-definition",
+				    		weather);
+					builder = factory.newDocumentBuilder();
+					builder.setErrorHandler(seh);
+					builder.setEntityResolver(new SecurityEntityResolver());
+					builder.parse(new InputSource(new StringReader(xmlstr)));
+				    if(seh.getErrors().equals(""))
+				    {
+				    	error = false;
+				    	break;
+				    }
+				}
+				if(error)
+				 throw new SAXException(seh.getErrors());
 			}
 		}
 		//schematron validate see 0008753: Implement Schematron
@@ -394,6 +429,107 @@ public final class Util {
 		return d;
     }
     
+    
+    public static Map<String, String> getNamespaceFromImportXSD(Element element)
+    {		
+    	HashMap<String, String> nsMap = new HashMap<String, String>();
+		NodeList list = null;
+		// for Import
+		try {
+			list = Util.getNodeList(element, "//xsd:import");
+			for(int i=0; i < list.getLength(); i++)
+			{
+				Node node = list.item(i);
+				String ns = node.getAttributes().getNamedItem("namespace").getNodeValue();
+				String location = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+				Document subDoc = parseImportedFile(location);
+				parseTypeFromImport(subDoc.getDocumentElement(), nsMap, ns);
+				nsMap.putAll(getNamespaceFromImportXSD(subDoc.getDocumentElement()));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return nsMap;
+		}
+
+		// for Include
+		try {
+			list = Util.getNodeList(element, "//xsd:include");
+			for(int i=0; i < list.getLength(); i++)
+			{
+				Node node = list.item(i);
+				String ns = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+				Document subDoc = parseImportedFile(ns);
+				parseTypeFromImport(subDoc.getDocumentElement(), nsMap, ns);
+				nsMap.putAll(getNamespaceFromImportXSD(subDoc.getDocumentElement()));
+			}
+		} catch (XtentisException e) {
+			e.printStackTrace();
+			return nsMap;
+		}
+
+    	return nsMap;
+    }
+    
+    private static void parseTypeFromImport(Element elem, HashMap<String, String> map, String location)
+    {
+    	NodeList list;
+		try {
+			for(int i = 0; i < 2; i++)
+			{
+				if(i == 0)
+				{
+					list = Util.getNodeList(elem, "//xsd:complexType");
+				}
+				else
+				{
+					list = Util.getNodeList(elem, "//xsd:simpleType");
+				}
+				
+				for (int idx = 0; idx < list.getLength(); idx++)
+				{
+					Node node = list.item(idx);
+					if(node.getAttributes().getNamedItem("name") == null)continue;
+					String typeName = node.getAttributes().getNamedItem("name").getNodeValue();
+				    map.put(typeName + " : " + location , location);	
+				}
+			}
+		} catch (XtentisException e) {
+			e.printStackTrace();
+		}
+
+    }
+    
+    private static Document parseImportedFile(String xsdLocation)
+    {
+	    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		documentBuilderFactory.setNamespaceAware(true);
+		documentBuilderFactory.setValidating(false);
+		
+		Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
+		Matcher match = httpUrl.matcher(xsdLocation);
+		Document d = null;
+		try
+		{
+			if(match.matches())
+			{
+	    		String user = "admin";
+	    		String pwd = "talend";
+	    		String xsd = Util.getResponseFromURL(xsdLocation, user, pwd);
+	    		d = Util.parse(xsd);
+			}
+			else
+			{
+				DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+	        	d = documentBuilder.parse(new FileInputStream(xsdLocation));
+			}
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+			return null;
+		}
+		return d;
+    }
     
     public static void removeXpathFromDocument(Document document, String xpath,boolean reservedRoot)throws Exception {
     	Element root=document.getDocumentElement();
@@ -540,8 +676,22 @@ public final class Util {
 		        {
 		        	Node importNode = l.item(elemNum);
 		        	String xsdLocation = importNode.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-		        	builder = factory.newDocumentBuilder();
-		        	Document d = builder.parse(new FileInputStream(xsdLocation));
+		    		Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
+		    		Matcher match = httpUrl.matcher(xsdLocation);
+		    		Document d = null;
+		    		if(match.matches())
+		    		{
+			    		String user = "admin";
+			    		String pwd = "talend";
+			    		String xsd = Util.getResponseFromURL(xsdLocation, user, pwd);
+			    		d = Util.parse(xsd);
+		    		}
+		    		else
+		    		{
+			        	builder = factory.newDocumentBuilder();
+			        	d = builder.parse(new FileInputStream(xsdLocation));
+		    		}
+
 		        	list.addAll(getALLNodesFromSchema(d.getDocumentElement()));
 		        }
         	}
@@ -910,8 +1060,22 @@ public final class Util {
 			        {
 			        	Node importNode = list.item(elemNum);
 			        	String xsdLocation = importNode.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-			        	builder = factory.newDocumentBuilder();
-			        	Document d = builder.parse(new FileInputStream(xsdLocation));
+			    		Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
+			    		Matcher match = httpUrl.matcher(xsdLocation);
+			    		Document d = null;
+			    		if(match.matches())
+			    		{
+				    		String user = "admin";
+				    		String pwd = "talend";
+				    		String data = Util.getResponseFromURL(xsdLocation, user, pwd);
+				    		d = Util.parse(data);
+			    		}
+			    		else
+			    		{
+				        	builder = factory.newDocumentBuilder();
+				        	d = builder.parse(new FileInputStream(xsdLocation));
+			    		}
+
 			        	return getBusinessConceptKey(d, businessConceptName);
 			        }
 	        	}
@@ -1013,6 +1177,7 @@ public final class Util {
 
 		XSOMParser reader = new XSOMParser();
 		reader.setAnnotationParser(new DomAnnotationParserFactory());
+		reader.setEntityResolver(new SecurityEntityResolver());
 	    reader.parse(new StringReader(xsd));
 	    XSSchemaSet xss = reader.getResult();
 		Collection xssList = xss.getSchemas();
@@ -2423,4 +2588,4 @@ public final class Util {
 	// 	System.out.println(getTimestamp());
 	 }
 	
-}
+} 

@@ -30,6 +30,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.util.SecurityEntityResolver;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.SAXErrorHandler;
 import com.amalto.webapp.core.util.Util;
@@ -429,6 +430,7 @@ public class CommonDWR {
 		reader.setAnnotationParser(new DomAnnotationParserFactory());
 		SAXErrorHandler errorHandler = new SAXErrorHandler(); 
 		reader.setErrorHandler(errorHandler);
+		reader.setEntityResolver(new SecurityEntityResolver());
         reader.parse(new StringReader(xsd));
         XSSchemaSet xss = reader.getResult();
     	Collection xssList = xss.getSchemas();
