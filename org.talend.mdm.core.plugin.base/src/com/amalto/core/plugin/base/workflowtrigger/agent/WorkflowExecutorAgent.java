@@ -5,13 +5,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
-import org.ow2.bonita.facade.runtime.ActivityInstance;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
-import org.ow2.bonita.facade.uuid.PackageDefinitionUUID;
+import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
+import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
-import org.ow2.bonita.facade.uuid.TaskUUID;
 import org.ow2.bonita.util.BonitaException;
 import org.ow2.bonita.util.BonitaRuntimeException;
 
@@ -29,7 +28,7 @@ public final class WorkflowExecutorAgent extends WorkflowAgent{
 		
 		ProcessDefinition processDefinition = null;
 		
-		processDefinition = queryDefinitionAPI.getProcess(processPK.getPackageId(), processPK.getProcessId(), processPK.getProcessVersion());
+		processDefinition = queryDefinitionAPI.getProcess(processPK.getProcessId(), processPK.getProcessVersion());
 		
 		// instantiation
 		final ProcessInstanceUUID instanceUUID = runtimeAPI.instantiateProcess(processDefinition.getUUID());
@@ -45,15 +44,16 @@ public final class WorkflowExecutorAgent extends WorkflowAgent{
 		
 
 		// tasks execution
-		Collection<ActivityInstance<TaskInstance>> activities = queryRuntimeAPI.getTaskList(instanceUUID, ActivityState.READY);
-		if (activities.isEmpty()) {
-			throw new BonitaRuntimeException("No task found? Bad User?");
-		}
+		Collection<TaskInstance> activities = queryRuntimeAPI.getTaskList(instanceUUID, ActivityState.READY);
+	    if (activities.isEmpty()) {
+	      throw new BonitaRuntimeException("No task found? Bad User?");
+	    }
+	    
 		while (!activities.isEmpty()) {
 			
-			for (ActivityInstance<TaskInstance> activity : activities) {
-				final TaskUUID taskUUID = activity.getBody().getUUID();
-				final String activityId = activity.getActivityId();
+			for (TaskInstance activity : activities) {
+				final ActivityInstanceUUID taskUUID = activity.getUUID();
+		        final String activityId = activity.getActivityName();
 				this.console.writeln("Starting task associated to activity: " + activityId);
 				runtimeAPI.startTask(taskUUID, true);
 				if(activityVariableBoxes.contains(activityId)){
@@ -84,12 +84,12 @@ public final class WorkflowExecutorAgent extends WorkflowAgent{
 	 public void cleanPackage(ProcessInstanceUUID instanceUUID) throws BonitaException {
 		   
 		    final ProcessInstance instance = queryRuntimeAPI.getProcessInstance(instanceUUID);
-		    final PackageDefinitionUUID packageUUID = instance.getPackageDefinitionUUID();
+		    final ProcessDefinitionUUID processUUID = instance.getProcessDefinitionUUID();
 
 		    //undeployment
-		    managementAPI.undeploy(packageUUID);
+		    managementAPI.undeploy(processUUID);
 		    //journal + history cleaning
-		    managementAPI.deletePackage(packageUUID);
+		    managementAPI.deleteProcess(processUUID);
 		    
 	 }
 	 

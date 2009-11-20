@@ -126,7 +126,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 		"	initialContextFactory [mandatory]: the Initial Context Factory "+"\n"+
 		"	providerURL [mandatory]: the provider URL "+"\n"+
 		"	apiType [mandatory]: the API type "+"\n"+
-		"	packageId [mandatory]: the packageId of the process "+"\n"+
+		//"	packageId [mandatory]: the packageId of the process "+"\n"+
 		"	processId [mandatory]: the processId of the process "+"\n"+
 		"	processVersion [mandatory]: the processVersion of the process "+"\n"+
 		//"	username [mandatory]: the username used to login workflow "+"\n"+
@@ -146,7 +146,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 		"		<initialContextFactory>org.jnp.interfaces.NamingContextFactory</initialContextFactory>" +"\n"+
 		"		<providerURL>jnp://localhost:1099</providerURL>" +"\n"+
 		"		<apiType>EJB2</apiType>" +"\n"+
-		"		<packageId>ApprovalWorkflow</packageId>" +"\n"+
+		//"		<packageId>ApprovalWorkflow</packageId>" +"\n"+
 		"		<processId>ApprovalWorkflow</processId>" +"\n"+
 		"		<processVersion>1.0</processVersion>" +"\n"+
 		//"		<username>admin</username>" +"\n"+
@@ -287,13 +287,13 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 			}
     		compiled.setApiType(apiType);
     		
-    		String packageId = Util.getFirstTextNode(params, "packageId");
-			if (packageId==null||packageId.length()==0) {
-				String err = "The packageId parameter of the WorkflowTriggerPluginBean Transformer Plugin cannot be empty";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-				throw new XtentisException(err);
-			}
-    		compiled.setPackageId(packageId);
+//    		String packageId = Util.getFirstTextNode(params, "packageId");
+//			if (packageId==null||packageId.length()==0) {
+//				String err = "The packageId parameter of the WorkflowTriggerPluginBean Transformer Plugin cannot be empty";
+//				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+//				throw new XtentisException(err);
+//			}
+//    		compiled.setPackageId(packageId);
     		
     		String processId = Util.getFirstTextNode(params, "processId");
 			if (processId==null||processId.length()==0) {
@@ -493,7 +493,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
     		"		<initialContextFactory>org.jnp.interfaces.NamingContextFactory</initialContextFactory>" +"\n"+
     		"		<providerURL>jnp://localhost:1099</providerURL>" +"\n"+
     		"		<apiType>EJB2</apiType>" +"\n"+
-    		"		<packageId>ApprovalWorkflow</packageId>" +"\n"+
+    		//"		<packageId>ApprovalWorkflow</packageId>" +"\n"+
     		"		<processId>ApprovalWorkflow</processId>" +"\n"+
     		"		<processVersion>1.0</processVersion>" +"\n"+
     		//"		<username>admin</username>" +"\n"+

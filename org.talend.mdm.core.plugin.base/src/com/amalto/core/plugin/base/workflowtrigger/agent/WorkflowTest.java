@@ -12,20 +12,22 @@ public class WorkflowTest {
 	 */
 	public static void main(String[] args) {
 		
-		
+		WorkflowAgent workflowAgent=null;
 		
 		WorkflowConnectInfo workflowConnectInfo=new WorkflowConnectInfo(
 				"org.jnp.interfaces.NamingContextFactory",
 				"jnp://localhost:1099",
 				"EJB2",
-				"MDMWorkflowAdmin",
-				"talend");
+				"jack",
+				"bpm");
+		
 		
 		//deploy
-//		WorkflowDeployAgent workflowDeployAgent=new WorkflowDeployAgent();
+//		workflowAgent=new WorkflowDeployAgent();
+//		WorkflowDeployAgent workflowDeployAgent=(WorkflowDeployAgent)workflowAgent;
 //		try {
 //			workflowDeployAgent.start(workflowConnectInfo);
-//			workflowDeployAgent.deploy("E:/IDE/eclipse-talend-mdm/eclipse-3.4/tom/bonitaExample/bars/ApprovalWorkflow.bar", "ApprovalWorkflow1");
+//			workflowDeployAgent.deploy("E:/IDE/eclipse-talend-mdm/eclipse-3.4/tom/bonitaExample/bars/approvalWorkflow.bar");
 //			workflowDeployAgent.end();
 //		} catch (LoginException e) {
 //			e.printStackTrace();
@@ -34,11 +36,13 @@ public class WorkflowTest {
 //		}
 		
 		//execute
-		WorkflowExecutorAgent workflowExecutorAgent =new WorkflowExecutorAgent();
+		workflowAgent=new WorkflowExecutorAgent();
+		WorkflowExecutorAgent workflowExecutorAgent =(WorkflowExecutorAgent)workflowAgent;
 		
 		WorkflowProcessVariableBox workflowProcessVariableBox =new WorkflowProcessVariableBox();
-		workflowProcessVariableBox.addVariable("SampleItemId", "1", "String");
-		workflowProcessVariableBox.addVariable("SampleItemName", "SampleItem", "String");
+//		workflowProcessVariableBox.addVariable("SampleItemId", "1", "String");
+//		workflowProcessVariableBox.addVariable("SampleItemName", "SampleItem", "String");
+		
 		WorkflowActivityVariableBoxes workflowActivityVariableBoxes=new WorkflowActivityVariableBoxes();
 		workflowActivityVariableBoxes.addVariable("Approval", "isGranted", "true", "Boolean");
 		
@@ -59,6 +63,8 @@ public class WorkflowTest {
 			e.printStackTrace();
 		}
 		
+		//print
+		System.out.println(workflowAgent.getConsole().getContent());
 		
 	}
 

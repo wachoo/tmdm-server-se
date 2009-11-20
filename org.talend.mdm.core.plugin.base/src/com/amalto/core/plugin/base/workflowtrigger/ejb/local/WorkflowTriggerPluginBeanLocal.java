@@ -5,7 +5,7 @@ package com.amalto.core.plugin.base.workflowtrigger.ejb.local;
 
 /**
  * Local interface for WorkflowTriggerPluginBean.
- * @xdoclet-generated at 18-11-09
+ * @xdoclet-generated at 20-11-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
