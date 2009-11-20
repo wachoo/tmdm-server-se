@@ -369,7 +369,6 @@ public final class Util {
 				Document xsdDoc = Util.parse(schema);
 				Map<String, String> nsMap = Util.getNamespaceFromImportXSD(xsdDoc.getDocumentElement());
 				Iterator<Map.Entry<String, String>> iter = nsMap.entrySet().iterator();
-				seh = new SAXErrorHandler();
 				boolean error = true;
 				while(iter.hasNext())
 				{
@@ -390,6 +389,7 @@ public final class Util {
 				    factory.setAttribute("http://apache.org/xml/properties/validation/schema/root-type-definition",
 				    		weather);
 					builder = factory.newDocumentBuilder();
+					seh = new SAXErrorHandler();
 					builder.setErrorHandler(seh);
 					builder.setEntityResolver(new SecurityEntityResolver());
 					builder.parse(new InputSource(new StringReader(xmlstr)));
@@ -400,7 +400,7 @@ public final class Util {
 				    }
 				}
 				if(error)
-				 throw new SAXException(seh.getErrors());
+				 throw new SAXException(errors);
 			}
 		}
 		//schematron validate see 0008753: Implement Schematron
