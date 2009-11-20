@@ -326,8 +326,11 @@ public class ItemsBrowserDWR {
 			(ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization");
 		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
 		String[] keys = (String[]) ctx.getSession().getAttribute("foreignKeys");
-
-
+		//add by ymli
+		/*ArrayList<String> pathToType = 
+			(ArrayList<String>) ctx.getSession().getAttribute("pathToType");*/
+		
+		
 		ArrayList<String> roles = new ArrayList<String>();
 		try {
 			roles = Util.getAjaxSubject().getRoles();
@@ -623,7 +626,7 @@ public class ItemsBrowserDWR {
 			int id = Util.getNodeList(d,siblingXpath).getLength();
 			//String exist = idToXpath.get(newId);
 			idToXpath.put(newId,siblingXpath+"["+id+"]");
-			System.out.println("clone:"+newId+" "+siblingXpath+"["+id+"]");
+			//System.out.println("clone:"+newId+" "+siblingXpath+"["+id+"]");
 			nodeAutorization.add(siblingXpath+"["+id+"]");
 			return "Cloned";
 			
