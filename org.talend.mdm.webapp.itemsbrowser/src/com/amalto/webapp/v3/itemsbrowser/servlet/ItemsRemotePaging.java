@@ -481,7 +481,10 @@ private boolean checkDigist(ArrayList<String[]> itemsBrowserContent,int col){
 			for (int j = 1; j < itemsBrowserContent.size(); j++) {
 				String temp[] = itemsBrowserContent.get(j);
 				int i = j;
-				while (i > 0&& Double.parseDouble(itemsBrowserContent.get(i-1)[col]) < Double.parseDouble(temp[col])) {
+				while (i > 0 
+						&& (itemsBrowserContent.get(i-1)[col].length()==0 
+								||(itemsBrowserContent.get(i-1)[col].length()>0 &&temp[col].length()>0 
+										&& Double.parseDouble(itemsBrowserContent.get(i-1)[col]) < Double.parseDouble(temp[col])))) {
 					itemsBrowserContent.set(i, itemsBrowserContent.get(i-1));
 					i--;
 				}
@@ -491,11 +494,13 @@ private boolean checkDigist(ArrayList<String[]> itemsBrowserContent,int col){
 			for (int j = 1; j < itemsBrowserContent.size(); j++) {
 				String temp[] = itemsBrowserContent.get(j);
 				int i = j;
-				while (i > 0&& Double.parseDouble(itemsBrowserContent.get(i-1)[col]) > Double.parseDouble(temp[col])) {
-					itemsBrowserContent.set(i, itemsBrowserContent.get(i-1));
-					i--;
-				}
-				itemsBrowserContent.set(i, temp);
+					while ((i > 0 && itemsBrowserContent.get(i-1)[col].length()>0&&Double.parseDouble(itemsBrowserContent.get(i-1)[col]) > Double.parseDouble(temp[col]))
+							||i>0&&temp[col].length()==0) {
+						itemsBrowserContent.set(i, itemsBrowserContent.get(i-1));
+						i--;
+					}
+					itemsBrowserContent.set(i, temp);
+				
 			}
 		}
 	}
