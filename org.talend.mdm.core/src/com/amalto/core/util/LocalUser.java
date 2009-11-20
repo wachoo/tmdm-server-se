@@ -402,6 +402,7 @@ public class LocalUser {
      * @throws XtentisException
      */
     public boolean userItemCanWrite(ItemPOJO item)throws XtentisException{
+    	if(item==null) return true; //if create item
 		if (isAdmin(ItemPOJO.class)) return true;
 		HashSet<String> patterns = readWritePermissions.get("Item");
 		if(patterns==null || patterns.size()==0)return false; 
@@ -414,7 +415,7 @@ public class LocalUser {
     }
     
     private boolean checkPattern(ItemPOJO item,String pattern) throws XtentisException{
-    	//system datacluster don't need to check
+    	//system datacluster don't need to check    	
     	if(XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER, item.getDataClusterPOJOPK().getIds()[0])){
     		return true;
     	}
