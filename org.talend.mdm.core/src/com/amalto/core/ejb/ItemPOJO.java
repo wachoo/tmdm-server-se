@@ -402,7 +402,7 @@ public class ItemPOJO implements Serializable{
             if(newItem.getDataModelName()!=null){
             	try {
                
-                	DataModelPOJO bindingDataModelPOJO =  ObjectPOJO.load(DataModelPOJO.class,new ObjectPOJOPK(newItem.getDataModelName()));
+                	DataModelPOJO bindingDataModelPOJO =  ObjectPOJO.load(newItem.getDataModelRevision(), DataModelPOJO.class,new ObjectPOJOPK(newItem.getDataModelName()));
                 	
     				AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(
     						new AppinfoSourceHolderPK(
