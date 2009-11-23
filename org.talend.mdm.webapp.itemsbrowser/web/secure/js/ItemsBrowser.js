@@ -98,6 +98,16 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Select'
 	};
 	
+	var MESSAGE_MULTI_SHOW = {
+		'fr':'clés possibles trouvées',
+		'en':'possible keys are found'
+	};
+	var MESSAGE_SINGLE_SHOW = {
+		'fr':'clé possible trouvée',
+		'en':'possible key is found'
+	};
+	
+	
 	var OPERATORS = {
 		'fr':{
 	   			CONTAINS:"contient le(s) mot(s)",
@@ -2191,7 +2201,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 height: 150,
                 closeAction:'hide',
                 plain: true,
-                title: TITLE_WINDOW_FK[language]+'<br/>('+count+' '+(count>1?'clés possibles trouvées)':'clé possible trouvée)'),
+                title: TITLE_WINDOW_FK[language]+'<br/>('+count+' '+(count>1?MESSAGE_MULTI_SHOW[language]+')':MESSAGE_SINGLE_SHOW[language]+')'),
                 
                 items: [new Ext.form.FormPanel({
                 	labelAlign: 'top',
