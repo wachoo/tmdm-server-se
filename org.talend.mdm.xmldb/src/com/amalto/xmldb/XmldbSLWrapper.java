@@ -1066,7 +1066,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         			String conceptName = (String) iterator.next();
         			String revisionID=CommonUtil.getConceptRevisionID(itemsRevisionIDs, defaultRevisionID, conceptName);
         			String collectionPath = (revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")+(clusterName == null ? "" : clusterName);//TODO ENCODE
-        			xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")//").append(conceptName);
+        			xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/").append(conceptName);
         			
         			if(j<conceptMap.size()-1){
         				xqFor.append(", ");
