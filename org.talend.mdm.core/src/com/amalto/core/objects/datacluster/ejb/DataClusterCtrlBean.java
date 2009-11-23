@@ -20,6 +20,7 @@ import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
 
@@ -223,28 +224,34 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
      */
     public DataClusterPOJOPK removeDataCluster(DataClusterPOJOPK pk) 
     throws XtentisException{
-        try {
+    
 
-        	//remove the actual physical cluster - do it asynchronously
-    		try {
-    	        TimerService timerService =  context.getTimerService();
-    	        timerService.createTimer(200,pk.getUniqueId());  
-    		} catch (Exception e) {
-    			String err = "Unable to physically delete the data cluster "+pk.getUniqueId()+
-    			": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    			try {ObjectPOJO.remove(DataClusterPOJO.class, new ObjectPOJOPK(pk.getUniqueId()));} catch(Exception x) {}
-    			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    			throw new XtentisException(err);
-    		}
-        	return new DataClusterPOJOPK(ObjectPOJO.remove(DataClusterPOJO.class,pk));
-	    } catch (XtentisException e) {
-	    	throw(e);
-	    } catch (Exception e) {
-    	    String err = "Unable to remove the DataCluster "+pk.toString()
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    throw new XtentisException(err);
-	    }
+    	//remove the actual physical cluster - do it asynchronously
+		try {
+				String dataClusterName= pk.getUniqueId();
+	   	    	//get the universe and revision ID for Clusters - this assumes the user is kept across the timeout call...
+		    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+		    	if (universe == null) {
+		    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+		    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+		    		throw new XtentisException(err);
+		    	}
+		    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(DataClusterPOJO.class));
+		    	
+	            //get the xml server wrapper
+	            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+
+				server.deleteCluster(revisionID, dataClusterName);
+
+		} catch (Exception e) {
+			String err = "Unable to physically delete the data cluster "+pk.getUniqueId()+
+			": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+			try {ObjectPOJO.remove(DataClusterPOJO.class, new ObjectPOJOPK(pk.getUniqueId()));} catch(Exception x) {}
+			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+			throw new XtentisException(err);
+		}
+    	return new DataClusterPOJOPK(ObjectPOJO.remove(DataClusterPOJO.class,pk));
+	  
     }    
     
     
@@ -312,37 +319,7 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
     
 
 	public void ejbTimeout(Timer timer) {
-		org.apache.log4j.Logger.getLogger(this.getClass()).debug("ejbTimeout() Delete data cluster "+(String) timer.getInfo());
-    	//remove the actual physical cluster - do it asynchronously
-		String dataClusterName = (String) timer.getInfo();
-		try {
-   	    	//get the universe and revision ID for Clusters - this assumes the user is kept across the timeout call...
-	    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-	    	if (universe == null) {
-	    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
-	    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-	    		throw new XtentisException(err);
-	    	}
-	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(DataClusterPOJO.class));
-	    	
-            //get the xml server wrapper
-            XmlServerSLWrapperLocal server = null;
-  			try {
-  				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-  			} catch (Exception e) {
-  				String err = "Error deleteing cluster '"+dataClusterName+"' : unable to access the XML Server wrapper";
-  				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-  				throw new XtentisException(err);
-  			}
-			server.deleteCluster(revisionID, dataClusterName);
-		} catch (Exception e) {
-			String err = "Unable to physically delete the data cluster "+dataClusterName+
-			": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-			try {ObjectPOJO.remove(DataClusterPOJO.class, new ObjectPOJOPK(dataClusterName));} catch(Exception x) {}
-			if (! (e instanceof XtentisException))
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-		}
-		
+
 	}
     
     
