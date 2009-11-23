@@ -490,7 +490,7 @@ public class QueryBuilder {
 	 */
 	public static String getXQueryCollectionName(String revisionID, String clusterName) throws XmlServerException {
        	String collectionPath =
-       		(revisionID == null || "".equals(revisionID) ? "" : revisionID+"/")
+       		(revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")
        		+(clusterName == null ? "" : clusterName);
 
        	if ("".equals(collectionPath)) return "";
@@ -509,6 +509,8 @@ public class QueryBuilder {
        	// have been encoded by URLEncoder.encode()
        	// control = control.replace("+", "%20");//only works with JDK 1.5
        	encoded = encoded.replaceAll("\\+", "%20");
+        //%2F seems to be useless
+    	encoded = encoded.replaceAll("%2F", "/");
 
        	return "collection(\""+encoded+"\")";
 	}
