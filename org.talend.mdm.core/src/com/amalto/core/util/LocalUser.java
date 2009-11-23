@@ -424,24 +424,26 @@ public class LocalUser {
 		Matcher m=p.matcher(pattern);
 		if(m.matches()){ //2.{datacluster}.{concept}.{element}={pattern}
 			String concept=m.group(2);
-			String element=m.group(3);
-			String pt=m.group(4);
-			if("*".equals(pt)){
-				pt=".*";
+			if(concept.equals(item.getConceptName())){
+				String element=m.group(3);
+				String pt=m.group(4);
+				if("*".equals(pt)){
+					pt=".*";
+				}
+			    JXPathContext jcontext = JXPathContext.newContext ( item.getProjection() );
+			    jcontext.setLenient(true);
+			    String value=(String)jcontext.getValue(element, String.class);
+			    //if element is foreign key [.*]
+			    Matcher m1=Pattern.compile("\\[(.*?)\\]").matcher(value);
+			    if(m1.matches()){
+			    	if(m1.group(1).matches(pt) || m1.group(1).equals(pt)){
+			    		return true;
+			    	}
+			    }
+			    if(value!=null && value.matches(pt)|| value.equals(pt)){
+			    	return true;
+			    }
 			}
-		    JXPathContext jcontext = JXPathContext.newContext ( item.getProjection() );
-		    jcontext.setLenient(true);
-		    String value=(String)jcontext.getValue(element, String.class);
-		    //if element is foreign key [.*]
-		    Matcher m1=Pattern.compile("\\[(.*?)\\]").matcher(value);
-		    if(m1.matches()){
-		    	if(m1.group(1).matches(pt) || m1.group(1).equals(pt)){
-		    		return true;
-		    	}
-		    }
-		    if(value!=null && value.matches(pt)|| value.equals(pt)){
-		    	return true;
-		    }
 		}else{//1.{datacluster}.{concept}.{id}
 			if (item.getItemPOJOPK().getUniqueID().matches(pattern)) {
 				return true;

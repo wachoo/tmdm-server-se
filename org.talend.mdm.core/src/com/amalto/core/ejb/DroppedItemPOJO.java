@@ -530,7 +530,7 @@ public class DroppedItemPOJO implements Serializable{
     		
     		if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
         		authorized = true;
-        	} else if (user.userCanWrite(ItemPOJO.class, refItemPOJOPK.getUniqueID())) {
+        	} else if (user.userItemCanWrite(ItemPOJO.adminLoad(refItemPOJOPK))) {
         		authorized = true;
         	}
     		
@@ -538,7 +538,7 @@ public class DroppedItemPOJO implements Serializable{
     		
     		if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
         		authorized = true;
-        	} else if (user.userCanRead(ItemPOJO.class, refItemPOJOPK.getUniqueID())) {
+        	} else if (user.userItemCanRead(ItemPOJO.adminLoad(refItemPOJOPK))) {
         		authorized = true;
         	}
     	}
