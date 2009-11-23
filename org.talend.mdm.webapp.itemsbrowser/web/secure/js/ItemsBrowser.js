@@ -1805,9 +1805,22 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				}
 				
 			},
-			errorHandler:function(errorString, exception) {//on exception  
-//              alert(''+ errorString);
-				var error = itemTreeList[treeIndex];
+			errorHandler:function(errorString, exception) {//on exception
+			  var errorsArray = errorString.split("][");
+			  for(var i=0;i<errorsArray.length;i++){
+				  if(errorsArray[i].indexOf("[")>=0){
+					  errorsArray[i] = errorsArray[i].replace("["," ").trim();
+				  }
+				  if(errorsArray[i].indexOf("]")>=0){
+					  errorsArray[i] = errorsArray[i].replace("]"," ").trim();
+				  }
+			  }
+			  for(var i=0;i<errorsArray.length;i++){
+				  if(language==errorsArray[i].split(":")[0].toLowerCase()){
+					  errorString=errorsArray[i].split(":")[1];
+				  }
+			  }
+        	   var error = itemTreeList[treeIndex];
                $('errorDesc'+ treeIndex).style.display = "block";
                 var reCat = /\[Error\].*\n/gi;
                 var innerHml ="";
