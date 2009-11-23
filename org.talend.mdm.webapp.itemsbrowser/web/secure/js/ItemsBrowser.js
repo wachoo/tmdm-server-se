@@ -1815,10 +1815,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					  errorsArray[i] = errorsArray[i].replace("]"," ").trim();
 				  }
 			  }
+			  var flag=false;
+			  var defualtErrorMsg="";
 			  for(var i=0;i<errorsArray.length;i++){
 				  if(language==errorsArray[i].split(":")[0].toLowerCase()){
 					  errorString=errorsArray[i].split(":")[1];
+					  flag=true;
 				  }
+				  if("en"==errorsArray[i].split(":")[0].toLowerCase()){
+					  defualtErrorMsg=errorsArray[i].split(":")[1];
+				  }
+			  }
+			  if(!flag){
+				  errorString=defualtErrorMsg;
 			  }
         	   var error = itemTreeList[treeIndex];
                $('errorDesc'+ treeIndex).style.display = "block";
