@@ -402,7 +402,23 @@ public class LocalUser {
      * @throws XtentisException
      */
     public boolean userItemCanWrite(ItemPOJO item)throws XtentisException{
-    	if(item==null) return true; //if create item
+    	if(item==null){  //if create item
+    		HashSet<String> patterns = readOnlyPermissions.get("Item");
+    		if(patterns.size()>0){
+	    		for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
+	    			String pattern = iterator.next();
+	    			//patterns maybe 1.{datacluster}.{concept}.* 
+	    			if(pattern.indexOf("=")==-1 &&  pattern.endsWith(".*") && Pattern.matches("(.*?)\\.(.*?)\\.(.*?)",pattern)){
+	    				return false;
+	    			}
+	    		}
+    		}
+    		return true;
+    	}
+    	//system datacluster don't need to check    	
+    	if(XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER, item.getDataClusterPOJOPK().getIds()[0])){
+    		return true;
+    	}    	
 		if (isAdmin(ItemPOJO.class)) return true;
 		HashSet<String> patterns = readWritePermissions.get("Item");
 		if(patterns==null || patterns.size()==0)return false; 
@@ -415,10 +431,7 @@ public class LocalUser {
     }
     
     private boolean checkPattern(ItemPOJO item,String pattern) throws XtentisException{
-    	//system datacluster don't need to check    	
-    	if(XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER, item.getDataClusterPOJOPK().getIds()[0])){
-    		return true;
-    	}
+
 		//patterns maybe 1.{datacluster}.{concept}.{id} ,2.{datacluster}.{concept}.{element}={pattern}
 		Pattern p=Pattern.compile("(.*?)\\.(.*?)\\.(.*?)=(.*?)");
 		Matcher m=p.matcher(pattern);
@@ -458,7 +471,12 @@ public class LocalUser {
      * @throws XtentisException
      */
     public boolean userItemCanRead(ItemPOJO item)throws XtentisException{
-		if (isAdmin(ItemPOJO.class)) return true;
+    	if(item==null) return true; //if create item
+    	//system datacluster don't need to check    	
+    	if(XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER, item.getDataClusterPOJOPK().getIds()[0])){
+    		return true;
+    	}    	
+		if (isAdmin(ItemPOJO.class)) return true;		
 		if(userItemCanWrite(item)) return true;
 		HashSet<String> patterns = readOnlyPermissions.get("Item");
 		if(patterns==null || patterns.size()==0) return false;

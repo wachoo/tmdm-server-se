@@ -847,7 +847,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 //										}							    	
 										var treeIndex=1;
 										if(_dataObject==null) _dataObject=_dataObject2;
-										ItemsBrowserInterface.deleteItem(_dataObject, itemPK, function(result){			
+										ItemsBrowserInterface.deleteItem(_dataObject, itemPK, function(result){
+											if(result.lastIndexOf("ERROR")>-1){
+												var err1=result.substring(7);
+												Ext.MessageBox.alert("ERROR", err1);
+												return;
+											}
 											amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 																				
 										});
@@ -1816,29 +1821,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				
 			},
 			errorHandler:function(errorString, exception) {//on exception
-			  var errorsArray = errorString.split("][");
-			  for(var i=0;i<errorsArray.length;i++){
-				  if(errorsArray[i].indexOf("[")>=0){
-					  errorsArray[i] = errorsArray[i].replace("["," ").trim();
-				  }
-				  if(errorsArray[i].indexOf("]")>=0){
-					  errorsArray[i] = errorsArray[i].replace("]"," ").trim();
-				  }
-			  }
-			  var flag=false;
-			  var defualtErrorMsg="";
-			  for(var i=0;i<errorsArray.length;i++){
-				  if(language==errorsArray[i].split(":")[0].toLowerCase()){
-					  errorString=errorsArray[i].split(":")[1];
-					  flag=true;
-				  }
-				  if("en"==errorsArray[i].split(":")[0].toLowerCase()){
-					  defualtErrorMsg=errorsArray[i].split(":")[1];
-				  }
-			  }
-			  if(!flag){
-				  errorString=defualtErrorMsg;
-			  }
         	   var error = itemTreeList[treeIndex];
                $('errorDesc'+ treeIndex).style.display = "block";
                 var reCat = /\[Error\].*\n/gi;
@@ -1873,6 +1855,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		Ext.MessageBox.confirm("confirm",MSG_CONFIRM_DELETE_ITEM[language]+ " ?",function re(en){
 		if(en=="yes"){
 			ItemsBrowserInterface.deleteItem(dataObject, itemPK, function(result){
+				if(result.lastIndexOf("ERROR")>-1){
+					var err1=result.substring(7);
+					//Ext.MessageBox.alert("ERROR", err1);
+					$('errorDetail' + treeIndex).style.display = "block";
+					$('errorDetail' + treeIndex).innerHTML ="<br/>"+err1+"<br/>";					
+					return;
+				}				
 				var itempanel = amalto.core.getTabPanel().activeTab;
 				if(itempanel){
 					itempanel.isdirty=false;

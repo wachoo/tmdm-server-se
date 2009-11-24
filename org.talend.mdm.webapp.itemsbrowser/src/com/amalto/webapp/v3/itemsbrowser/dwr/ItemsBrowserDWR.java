@@ -1034,7 +1034,7 @@ public class ItemsBrowserDWR {
 		catch(Exception e){			
 			String err= "Unable to save item '"+concept+"."+Util.joinStrings(ids, ".")+"'";
 			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).error(err,e);
-			throw new Exception(e.getLocalizedMessage());
+			throw e;
 		}		
 
 	}
@@ -1075,7 +1075,7 @@ public class ItemsBrowserDWR {
 	        }
 		}
 		catch(Exception e){
-			return "ERROR";
+			return "ERROR -" + e.getLocalizedMessage();
 		}        
 	}
 	
