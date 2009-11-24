@@ -3,10 +3,13 @@ package com.amalto.core.objects.transformers.v2.ejb;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+import java.security.Principal;
+import java.security.acl.Group;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -22,6 +25,7 @@ import javax.ejb.Timer;
 import javax.ejb.TimerHandle;
 import javax.ejb.TimerService;
 import javax.naming.InitialContext;
+import javax.security.auth.Subject;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
@@ -44,6 +48,7 @@ import com.amalto.core.objects.transformers.v2.util.TypedContent_Do_Not_Process;
 import com.amalto.core.objects.transformers.v2.util.TypedContent_Drop_Variable;
 import com.amalto.core.objects.transformers.v2.util.TypedContent_Use_Default;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
 import com.amalto.core.util.JobActionInfo;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -855,6 +860,38 @@ public class TransformerV2CtrlBean implements SessionBean, TimedObject, Transfor
      */
     private TimerHandle createTimer(JobActionInfo actionInfo) {
         TimerService timerService =  sessionContext.getTimerService();
+        //Get Local User Token
+        try {
+        	String userName=null;
+        	String password=null;
+        	
+			Subject subject=LocalUser.getCurrentSubject();
+			Set<Principal> set = subject.getPrincipals();
+			for (Iterator<Principal> iter = set.iterator(); iter.hasNext(); ) {
+				Principal principal = iter.next();
+				if (principal instanceof Group) {
+					Group group = (Group) principal;
+					if("Username".equals(group.getName())) {
+						if (group.members().hasMoreElements()) {
+							userName=group.members().nextElement().getName();
+						}
+					}else if("Password".equals(group.getName())){
+						if (group.members().hasMoreElements()) {
+							password=group.members().nextElement().getName();
+						}
+					}
+				}
+			}//for
+			
+			if(userName==null)userName="";
+			if(password==null)password="";
+			
+			String token=userName+"/"+password;
+			actionInfo.setUserToken(token);
+		} catch (XtentisException e) {
+			e.printStackTrace();
+		}
+        
         Timer timer = timerService.createTimer(150,actionInfo);  //0,15 second
         TimerHandle th = timer.getHandle();
         return th;
@@ -888,6 +925,10 @@ public class TransformerV2CtrlBean implements SessionBean, TimedObject, Transfor
 			bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
 			try { Util.getBackgroundJobCtrlLocal().putBackgroundJob(bgPOJO); } catch (Exception unlikely) {unlikely.printStackTrace();}
 			globalContext.setJob(bgPOJO);
+			
+			//set user token
+			String userToken=actionInfo.getUserToken();
+			if(userToken!=null)globalContext.setUserToken(userToken);
 			
 			//Execute
 			ctrl.execute(

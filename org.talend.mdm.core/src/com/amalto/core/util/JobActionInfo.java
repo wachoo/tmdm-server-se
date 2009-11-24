@@ -17,6 +17,7 @@ public class JobActionInfo  implements Serializable {
 	String action="";
 	Serializable info;
 	UniversePOJO universe;
+	String userToken;
 	
 	public JobActionInfo() {
 		super();
@@ -53,4 +54,13 @@ public class JobActionInfo  implements Serializable {
 	public void setInfo(Serializable info) {
 		this.info = info;
 	}
+
+	public String getUserToken() {
+		return userToken;
+	}
+
+	public void setUserToken(String userToken) {
+		this.userToken = userToken;
+	}
+	
 }

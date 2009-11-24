@@ -1,6 +1,5 @@
 package com.amalto.core.objects.transformers.v2.util;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -26,6 +25,7 @@ public class TransformerGlobalContext extends TransformerContext{
 	private static final String DECISION_TABLE = "com.amalto.core.util.TransformerGlobalContext.DECISION_TABLE";
 	private static final String TIME = "com.amalto.core.util.TransformerGlobalContext.TIME";
 	private static final String JOB = "com.amalto.core.util.TransformerGlobalContext.JBO";
+	private static final String USERTOKEN = "com.amalto.core.util.TransformerGlobalContext.USERTOKEN";
 
 	
 	//private HashMap<Integer, TransformerPluginContext> pluginContexts;
@@ -155,6 +155,12 @@ public class TransformerGlobalContext extends TransformerContext{
 		put(JOB,jobPOJO);
 	}
 	
+	public String getUserToken() {
+		return (String) get(USERTOKEN);
+	}
+	public void setUserToken(String userToken) {
+		put(USERTOKEN,userToken);
+	}
 	
 //	
 //	@Override
