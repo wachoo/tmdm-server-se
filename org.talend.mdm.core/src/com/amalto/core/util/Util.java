@@ -356,7 +356,9 @@ public final class Util {
 		String xmlstr=Util.nodeToString(element);
        	//if element is null, remove it aiming added 
        	//see 7828
-		xmlstr=xmlstr.replaceAll("<\\w+?/>", "");		
+		xmlstr=xmlstr.replaceAll("<\\w+?/>", "");	
+		Map<String, String> outerMap = getNamespaceFromImportXSD(Util.parse(schema).getDocumentElement(), false);
+		xmlstr = addNMSpaceForImportedElement(outerMap, xmlstr);
 		d = builder.parse(new InputSource(new StringReader(xmlstr)));
 		
 		//check if dcument parsed correctly against the schema
@@ -367,7 +369,7 @@ public final class Util {
 				String err = "The item "+element.getLocalName()+" did not validate against the model: \n" + errors+"\n"
 					+xmlString;	//.substring(0, Math.min(100, xmlString.length()));
 				Document xsdDoc = Util.parse(schema);
-				Map<String, String> nsMap = Util.getNamespaceFromImportXSD(xsdDoc.getDocumentElement());
+				Map<String, String> nsMap = Util.getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), true);
 				Iterator<Map.Entry<String, String>> iter = nsMap.entrySet().iterator();
 				boolean error = true;
 				while(iter.hasNext())
@@ -429,8 +431,68 @@ public final class Util {
 		return d;
     }
     
+
+    public static String addNMSpaceForImportedElement(Map<String, String> elemMap, String xmlData)
+    {
+    	Document docElem = null;
+    	Iterator<Map.Entry<String, String>> iter = elemMap.entrySet().iterator();
+    	LOOP:
+    	while(iter.hasNext())
+    	{
+    		Map.Entry<String, String> entry = (Map.Entry<String, String>)iter.next();
+    		if(entry.getValue() != null && !entry.getValue().equals(""))
+    		{
+    			String elem = entry.getKey();
+    			String ns = elem.substring(elem.indexOf(" : ") + 3, elem.length());
+    			elem = elem.substring(0, elem.indexOf(" : "));
+    			String[] rawData = entry.getValue().split(" ");
+    			String xpath = "//" + elem ;
+    			try
+    			{
+    				if(docElem == null)
+	    			   docElem = Util.parse(xmlData);
+	    			for(String slice: rawData)
+	    			{
+	    				if(Util.getNodeList(docElem, xpath + "/" + slice).getLength() == 0)
+	    				{
+	    					break LOOP;
+	    				}
+	    			}
+    		    	// replace the orgnial elem with one prefixed with namespace
+    		    	Element targetElem = (Element)Util.getNodeList(docElem, xpath).item(0);
+    		    	Element parentElem = (Element)targetElem.getParentNode();
+    		    	String prefix = ns.substring((ns.lastIndexOf("/") != -1 ? ns.lastIndexOf("/")+1 : 0));
+    		    	Element newElem = docElem.createElement(prefix + ":" + targetElem.getTagName());
+    		    	newElem.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:"+prefix, ns);
+    		    	for(int idx = 0; idx < targetElem.getChildNodes().getLength(); idx++)
+    		    	{
+    		    		Node child = targetElem.getChildNodes().item(idx);
+    		    		Node newChild = child.cloneNode(true);
+    		    		newElem.appendChild(newChild);
+    		    	}
+    		    	parentElem.removeChild(targetElem);
+    		    	parentElem.appendChild(newElem);
+    			}
+    			catch(Exception ex)
+    			{
+    				ex.printStackTrace();
+    				return "";
+    			}
+    		}
+    	}
+    	
+    	String newDoc = "";
+    	try {
+			 newDoc =  Util.nodeToString(docElem.getDocumentElement());
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		}
+		
+		return newDoc;
+    }
     
-    public static Map<String, String> getNamespaceFromImportXSD(Element element)
+    
+    public static Map<String, String> getNamespaceFromImportXSD(Element element, boolean type)
     {		
     	HashMap<String, String> nsMap = new HashMap<String, String>();
 		NodeList list = null;
@@ -443,8 +505,11 @@ public final class Util {
 				String ns = node.getAttributes().getNamedItem("namespace").getNodeValue();
 				String location = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
 				Document subDoc = parseImportedFile(location);
-				parseTypeFromImport(subDoc.getDocumentElement(), nsMap, ns);
-				nsMap.putAll(getNamespaceFromImportXSD(subDoc.getDocumentElement()));
+				if(type)
+				   parseTypeFromImport(subDoc.getDocumentElement(), nsMap, ns);
+				else
+					parseElementFromImport(subDoc.getDocumentElement(), nsMap, ns);
+				nsMap.putAll(getNamespaceFromImportXSD(subDoc.getDocumentElement(), type));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -459,8 +524,11 @@ public final class Util {
 				Node node = list.item(i);
 				String ns = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
 				Document subDoc = parseImportedFile(ns);
-				parseTypeFromImport(subDoc.getDocumentElement(), nsMap, ns);
-				nsMap.putAll(getNamespaceFromImportXSD(subDoc.getDocumentElement()));
+				if(type)
+				    parseTypeFromImport(subDoc.getDocumentElement(), nsMap, ns);
+				else
+					parseElementFromImport(subDoc.getDocumentElement(), nsMap, ns);
+				nsMap.putAll(getNamespaceFromImportXSD(subDoc.getDocumentElement(), type));
 			}
 		} catch (XtentisException e) {
 			e.printStackTrace();
@@ -499,6 +567,42 @@ public final class Util {
 
     }
     
+    private static void parseElementFromImport(Element elem, HashMap<String, String> map, String location)
+    {
+    	NodeList list;
+		try {
+			list = Util.getNodeList(elem, "/xsd:schema/xsd:element");
+			for (int idx = 0; idx < list.getLength(); idx++)
+			{
+				Node node = list.item(idx);
+				if(node.getAttributes().getNamedItem("name") == null)continue;
+				String typeName = node.getAttributes().getNamedItem("name").getNodeValue();
+				String typeCatg = node.getAttributes().getNamedItem("type").getNodeValue();
+				NodeList subList = null;
+				if(typeCatg == null)
+				{
+				  subList= Util.getNodeList(node, "//xsd:element");
+				}
+				else
+				{
+					subList = Util.getNodeList(node, "//xsd:complexType[@name='" + typeCatg + "']" + "//xsd:element" );
+				}
+                String subNames = "";
+                for(int i = 0; i < subList.getLength(); i++)
+                {
+                	subNames += subList.item(i).getAttributes().getNamedItem("name").getNodeValue() + " ";
+                }
+                if(!subNames.equals(""))
+                {
+    			    map.put(typeName + " : " + location , subNames.trim());	
+                }
+			}
+			
+		} catch (XtentisException e) {
+			e.printStackTrace();
+		}
+
+    }
     private static Document parseImportedFile(String xsdLocation)
     {
 	    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -1028,28 +1132,29 @@ public final class Util {
     
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException{
     	try {
-        	String selector = null;
+        	String[] selectors = null;
         	String[] fields = null;
-    		selector = Util.getTextNodes(
+        	selectors = Util.getTextNodes(
     			xsd.getDocumentElement(),
     			"xsd:element/xsd:unique[@name='"+businessConceptName+"']/xsd:selector/@xpath",
 				getRootElement("nsholder",xsd.getDocumentElement().getNamespaceURI(),"xsd")
-				)[0];
+				);
     	
     		fields =  Util.getTextNodes(
     			xsd.getDocumentElement(),
     			"xsd:element/xsd:unique[@name='"+businessConceptName+"']/xsd:field/@xpath",
 				getRootElement("nsholder",xsd.getDocumentElement().getNamespaceURI(),"xsd")
 				);
-        	return new XSDKey(selector,fields);
-    	} catch(Exception e) {
-    		try {
+    		
+    		if(selectors.length == 0)
+    		{
         		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         		factory.setNamespaceAware(true);
         		factory.setValidating(false);
         		DocumentBuilder builder;
 				builder = factory.newDocumentBuilder();
 				NodeList list = null;
+				XSDKey key = null;
 	        	for(int xsdType = 0; xsdType < 2; xsdType++)
 	        	{
 	        		if(xsdType == 0)
@@ -1076,12 +1181,16 @@ public final class Util {
 				        	d = builder.parse(new FileInputStream(xsdLocation));
 			    		}
 
-			        	return getBusinessConceptKey(d, businessConceptName);
+			        	key = getBusinessConceptKey(d, businessConceptName);
+			        	if(key != null)
+			        		return key;
 			        }
 	        	}
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
+	        	
+                return key;
+    		}
+    		else return new XSDKey(selectors[0],fields);
+    	} catch(Exception e) {
     	    String err = "Unable to get the keys for the Business Concept "+businessConceptName+": "+e.getLocalizedMessage();
     		throw new TransformerException(err);
     	}
