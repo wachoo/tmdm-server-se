@@ -1769,64 +1769,89 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	function saveItem(ids,dataObject,treeIndex,callbackOnSuccess){
-		if(navigator.appName=="Microsoft Internet Explorer" && lastUpdatedInputFlag[treeIndex]!=null) {
-			updateNode(lastUpdatedInputFlag[treeIndex], treeIndex);
-		}
-		
-	    if (updateItemNodesBeforeSaving(treeIndex) == true) {
-			$('errorDesc'+ treeIndex).style.display = "block";
-			$('errorDetail'+ treeIndex).style.display = "none";
-			return;
-		}
-		
-	    $('errorDesc'+ treeIndex).style.display = "none";
-	    $('errorDetail'+ treeIndex).style.display = "none";
-		ItemsBrowserInterface.checkIfDocumentExists(keys[treeIndex], dataObject, function(result){
-			if(result==true) {
-//				if(!Ext.MessageBox.confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
-				Ext.Msg.confirm("confirm",MSG_CONFIRM_SAVE_ITEM[language],function re(en){
-					if(en=="no")
-						return;});
-			}
-			var itemPK = ids.split('@');
-			ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
-			callback:function(result){ 
-				amalto.core.ready(result);
-				if(result=="ERROR_2"){
-					amalto.core.ready(ALERT_NO_CHANGE[language]);
-					//alert(ALERT_NO_CHANGE[language]);
-				}else if(result.indexOf('ERROR_3:')==0){
-					//add for before saving transformer check
-                    amalto.core.ready(result.substring(8));
-                   Ext.MessageBox.alert("Status",result.substring(8));
-                }else{
-			       if(callbackOnSuccess)callbackOnSuccess();   
+		if(navigator.appName=="Microsoft Internet Explorer" && lastUpdatedInputFlag[treeIndex]!=null) 
+
+		{
+					updateNode(lastUpdatedInputFlag[treeIndex], treeIndex);
 				}
 				
-			},
-			errorHandler:function(errorString, exception) {//on exception
-        	   var error = itemTreeList[treeIndex];
-               $('errorDesc'+ treeIndex).style.display = "block";
-                var reCat = /\[Error\].*\n/gi;
-                var innerHml ="";
-             	var arrMactches = errorString.match(reCat);
-             	if (arrMactches != null)
-	             	for (var i=0; i < arrMactches.length ; i++)
-					{
-					  innerHml +=arrMactches[i];
-					  if (i < arrMactches.length-1)
-					   innerHml += '<br/>';
+			    if (updateItemNodesBeforeSaving(treeIndex) == true) {
+					$('errorDesc'+ treeIndex).style.display = "block";
+					$('errorDetail'+ treeIndex).style.display = "none";
+					return;
+				}
+				
+			    $('errorDesc'+ treeIndex).style.display = "none";
+			    $('errorDetail'+ treeIndex).style.display = "none";
+				ItemsBrowserInterface.checkIfDocumentExists(keys[treeIndex], dataObject, function(result){
+					if(result==true) {
+//						if(!Ext.MessageBox.confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
+						Ext.Msg.confirm("confirm",MSG_CONFIRM_SAVE_ITEM[language],function re(en){
+							if(en=="no")
+								return;});
 					}
-				else
-				 innerHml += errorString +'<br/>'
-				$('errorDetail' + treeIndex).style.display = "block";
-				$('errorDetail' + treeIndex).innerHTML = innerHml;
-            }
-           });
-			amalto.core.ready();
-		});
-
-	}
+					var itemPK = ids.split('@');
+					ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
+					callback:function(result){ 
+						amalto.core.ready(result);
+						if(result=="ERROR_2"){
+							amalto.core.ready(ALERT_NO_CHANGE[language]);
+							//alert(ALERT_NO_CHANGE[language]);
+						}else if(result.indexOf('ERROR_3:')==0){
+							//add for before saving transformer check
+		                    amalto.core.ready(result.substring(8));
+		                   Ext.MessageBox.alert("Status",result.substring(8));
+		                }else{
+					       if(callbackOnSuccess)callbackOnSuccess();   
+						}
+						
+					},
+					errorHandler:function(errorString, exception) {//on exception
+					var reg = /\[(.*?):(.*?)\]/gi;
+					var errorsArray = errorString.match(reg);
+					for(var i=0;i<errorsArray.length;i++){
+						  if(errorsArray[i].indexOf("[")>=0){
+							  errorsArray[i] = errorsArray[i].replace("["," ").trim();
+						  }
+						  if(errorsArray[i].indexOf("]")>=0){
+						      errorsArray[i] = errorsArray[i].replace("]"," ").trim();
+						  }
+					   }
+					   var flag=false;
+					   var defualtErrorMsg="";
+					   for(var i=0;i<errorsArray.length;i++){
+						   if(language==errorsArray[i].split(":")[0].toLowerCase()){
+							   errorString=errorsArray[i].split(":")[1];
+							   	flag=true;
+						   }
+						   if("en"==errorsArray[i].split(":")[0].toLowerCase()){
+							   defualtErrorMsg=errorsArray[i].split(":")[1];
+						   }
+					   }
+					   if(!flag){
+						   errorString=defualtErrorMsg;
+					   }
+					   var error = itemTreeList[treeIndex];
+		               $('errorDesc'+ treeIndex).style.display = "block";
+		                var reCat = /\[Error\].*\n/gi;
+		                var innerHml ="";
+		             	var arrMactches = errorString.match(reCat);
+		             	if (arrMactches != null)
+			             	for (var i=0; i < arrMactches.length ; i++)
+							{
+							  innerHml +=arrMactches[i];
+							  if (i < arrMactches.length-1)
+							   innerHml += '<br/>';
+							}
+						else
+						 innerHml += errorString +'<br/>'
+						$('errorDetail' + treeIndex).style.display = "block";
+						$('errorDetail' + treeIndex).innerHTML = innerHml;
+		            }
+		           });
+					amalto.core.ready();
+				});
+}
 	
 	function deleteItem(ids, dataObject, treeIndex) {
 		//var viewName = DWRUtil.getValue('viewItemsSelect');
