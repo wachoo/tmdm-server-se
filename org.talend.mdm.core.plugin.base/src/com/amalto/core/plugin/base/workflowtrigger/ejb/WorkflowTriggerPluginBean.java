@@ -317,8 +317,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 //				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
 //				throw new XtentisException(err);
 //			}
-    		//FIXME:BAD HARD CODE
-    		compiled.setUsername("MDMWorkflowAdmin");
+            //compiled.setUsername("jack");
     		
 //    		String password = Util.getFirstTextNode(params, "password");
 //			if (password==null||password.length()==0) {
@@ -327,7 +326,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 //				throw new XtentisException(err);
 //			}
     		//FIXME:BAD HARD CODE
-    		compiled.setPassword("talend");
+    		//compiled.setPassword("bpm");
     		
     		//optional case
     		//TODO check dependency
@@ -378,7 +377,14 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 			if (!configurationLoaded) loadConfiguration();
 
 			//parse parameters
-			CompiledParameters parameters=CompiledParameters.deserialize(compiledParameters);	
+			CompiledParameters parameters=CompiledParameters.deserialize(compiledParameters);
+			String userToken=context.getTransformerGlobalContext().getUserToken();
+			if(userToken!=null){
+				String[] tokens=userToken.split("/");  
+				parameters.setUsername(tokens[0]);
+	            parameters.setPassword(tokens[1]);
+			}
+            
 
 			context.put(PARAMETERS, parameters);
 			
