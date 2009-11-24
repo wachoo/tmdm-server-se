@@ -616,9 +616,8 @@ public final class Util {
 		{
 			if(match.matches())
 			{
-	    		String user = "admin";
-	    		String pwd = "talend";
-	    		String xsd = Util.getResponseFromURL(xsdLocation, user, pwd);
+				List<String> authorizations = Util.getAuthorizationInfo();
+	    		String xsd = Util.getResponseFromURL(xsdLocation, authorizations.get(0), authorizations.get(1));
 	    		d = Util.parse(xsd);
 			}
 			else
@@ -785,9 +784,8 @@ public final class Util {
 		    		Document d = null;
 		    		if(match.matches())
 		    		{
-			    		String user = "admin";
-			    		String pwd = "talend";
-			    		String xsd = Util.getResponseFromURL(xsdLocation, user, pwd);
+		    			List<String> authorizations = Util.getAuthorizationInfo();
+			    		String xsd = Util.getResponseFromURL(xsdLocation, authorizations.get(0), authorizations.get(1));
 			    		d = Util.parse(xsd);
 		    		}
 		    		else
@@ -866,9 +864,8 @@ public final class Util {
 		    		if(match.matches())
 		    		{
 			    		// to-fix : we need to provide a flexible way to find the user/pwd, rather than the hard code out here.
-			    		String user = "admin";
-			    		String pwd = "talend";
-			    		String xsd = Util.getResponseFromURL(schemalocation, user, pwd);
+		    			List<String> authorizations = Util.getAuthorizationInfo();
+			    		String xsd = Util.getResponseFromURL(schemalocation, authorizations.get(0), authorizations.get(1));
 			    		d = Util.parse(xsd);
 		    		}
 		    		else
@@ -1170,9 +1167,8 @@ public final class Util {
 			    		Document d = null;
 			    		if(match.matches())
 			    		{
-				    		String user = "admin";
-				    		String pwd = "talend";
-				    		String data = Util.getResponseFromURL(xsdLocation, user, pwd);
+			    			List<String> authorizations = Util.getAuthorizationInfo();
+				    		String data = Util.getResponseFromURL(xsdLocation, authorizations.get(0), authorizations.get(1));
 				    		d = Util.parse(data);
 			    		}
 			    		else
@@ -1195,6 +1191,38 @@ public final class Util {
     		throw new TransformerException(err);
     	}
     
+    }
+    
+    public static List<String> getAuthorizationInfo()
+    {
+    	ArrayList<String> authorizations = new ArrayList<String>();
+    	String user = "", pwd = "";
+    	try {
+			Subject subject=LocalUser.getCurrentSubject();
+			Set<Principal> set = subject.getPrincipals();
+			for (Iterator<Principal> iter = set.iterator(); iter.hasNext(); ) {
+				Principal principal = iter.next();
+				if (principal instanceof Group) {
+					Group group = (Group) principal;
+					if("Username".equals(group.getName())) {
+						if (group.members().hasMoreElements()) {
+							user=group.members().nextElement().getName();
+						}
+					}else if("Password".equals(group.getName())){
+						if (group.members().hasMoreElements()) {
+							pwd=group.members().nextElement().getName();
+						}
+					}
+				}
+			}//for
+			authorizations.add(user);
+			authorizations.add(pwd);
+		} catch (XtentisException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return authorizations;
     }
     
     public static boolean isUUIDType(String type){
