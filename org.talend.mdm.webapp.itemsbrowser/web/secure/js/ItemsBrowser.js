@@ -726,7 +726,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var columnsHeader = [];
 			ItemsBrowserInterface.getViewables(viewName, language, function(result){		
 				columnsHeader = result;
-				displayItems2(columnsHeader,50);
+				displayItems2(columnsHeader,20);
 				
 				//delete/logicaldelete should be the same as new buttton
 				$('btn-logicaldelete').disabled=$('item-new-btn').disabled;
@@ -957,7 +957,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					            if(e.getKey() == e.ENTER) {
 			                		var lineMax = DWRUtil.getValue('lineMaxItems');
 									if(lineMax==null || lineMax=="") 
-										lineMax=50;
+										lineMax=20;
 									displayItems2(columnsHeader,lineMax);
 					            } 
 							}
@@ -976,29 +976,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		itemsBrowserPanel.doLayout();  
 		amalto.core.doLayout();
 		grid.setHeight(gridContainerPanel.getInnerHeight());	
-		//update by lym mdm:0009613  delete the test of totalCount, so the search is faster
-//		ItemsBrowserInterface.countItems(criteria, _dataObject, function(result){
-//			if(result>1000) {
-//				Ext.MessageBox.buttonText.yes = "Oui"; //french
-//				Ext.MessageBox.buttonText.no = "Non"; //french
-//				Ext.MessageBox.show({
-//					title:SEARCH_RESULT[language],
-//				   	msg:result+" "+TOO_MANY_RESULTS[language],
-//				   	buttons: Ext.Msg.YESNO,
-//				   	fn: function(btn){
-//		                	if(btn!="yes") return;
-//		                	store.load({params:{start:0, limit:pageSize}});
-//		                },
-//				   	animEl: 'elId',
-//				   	icon: Ext.MessageBox.QUESTION
-//				});
-//				
-//			}
-//			else 
-			store.load({params:{start:0,limit:pageSize}});
-			amalto.core.ready();
-//		});
-			
+
+		store.load({params:{start:0,limit:pageSize}});
+		amalto.core.ready();
+
+		store.on('load',function(){
+			grid.render();
+		});	
 
 	}   
 	
