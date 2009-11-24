@@ -404,7 +404,7 @@ public class LocalUser {
     public boolean userItemCanWrite(ItemPOJO item)throws XtentisException{
     	if(item==null){  //if create item
     		HashSet<String> patterns = readOnlyPermissions.get("Item");
-    		if(patterns.size()>0){
+    		if(patterns!=null && patterns.size()>0){
 	    		for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
 	    			String pattern = iterator.next();
 	    			//patterns maybe 1.{datacluster}.{concept}.* 
