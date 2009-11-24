@@ -180,8 +180,12 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			
 
 			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;font-size:13px">'+itemData.name+' '+mandatory+' '+descInfo+'</div>';
-			if(itemData.typeName!=null&&(itemData.typeName=="date"||itemData.typeName=="dateTime")){//DATE			
-			   html[html.length] = input +'<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\')"><img src="img/genericUI/date-picker.gif"/></span>'+'</div>';
+			if(itemData.typeName!=null&&(itemData.typeName=="date"||itemData.typeName=="dateTime")){//DATE		
+				html[html.length] = input;
+				var tmpStatus=true;
+				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
+				if(itemData.readOnly==false||tmpStatus)
+			   			html[html.length]  = '<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\')"><img src="img/genericUI/date-picker.gif"/></span>'+'</div>';
 			}else if(itemData.typeName!=null&&(itemData.typeName=="PICTURE")){//PICTURE
 				   html[html.length] = input;
 				   //show picture
@@ -191,9 +195,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				 		html[html.length] = '<span style="cursor: pointer;"> '+	' <img alt="Picture" id="showPicture" src="img/genericUI/no_image.gif"/></span>';	
 				 	}					
 					//remove picture
+				var tmpStatus=true;
+				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
+				if(itemData.readOnly==false||tmpStatus){
 					html[html.length]='<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removePicture(\''+itemData.nodeId+'\','+treeIndex+')">' +
 					'<img alt="Remove the picture" src="img/genericUI/clear-icon.gif"/></span>';									
 				    html[html.length] ='<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showUploadFile(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\')"><img alt="Select a picture" src="img/genericUI/image_add.png"/></span>'+'</div>';
+				}			
 			}else if(itemData.typeName!=null&&(itemData.typeName=="URL")){//URL
 				   html[html.length] = ' ' +'<input type="hidden" id="'+itemData.nodeId+'Value" value="'+value+'"'+'/>';
 				   if(value.length>0){
