@@ -253,6 +253,13 @@ public class XtentisLoginModule extends AbstractServerLoginModule {
 			username = getIdentity().getName();
 		return username;
 	}
+	
+	protected String getPassword() {
+		String password = null;
+		if (getCredentials() != null)
+			password = new String((char[])getCredentials());
+		return password;
+	}
 
 	protected String getUniverse() {
 		return universe;
@@ -442,6 +449,10 @@ public class XtentisLoginModule extends AbstractServerLoginModule {
 		//The username group maintains the username
 		Group usernameGroup = new SimpleGroup("Username");
 		usernameGroup.addMember(new SimplePrincipal(getUsername()));
+		
+		Group passwordGroup = new SimpleGroup("Password");
+		passwordGroup.addMember(new SimplePrincipal(getPassword()));
+		
 
 		//The Universe Group maintains the Universe name
 		Group universeGroup = new SimpleGroup("Universe");
@@ -463,7 +474,7 @@ public class XtentisLoginModule extends AbstractServerLoginModule {
 		//super admin
 		if (getUsername().equals("admin")) {
 			rolesGroup.addMember(new SimplePrincipal(adminPermission));
-			return new Group[]{usernameGroup, universeGroup, rolesGroup};
+			return new Group[]{usernameGroup,passwordGroup, universeGroup, rolesGroup};
 		}
 
 		//Fetch the xtentis based saved User Details
@@ -507,6 +518,7 @@ public class XtentisLoginModule extends AbstractServerLoginModule {
 
 		return new Group[]{
 			usernameGroup,
+			passwordGroup,
 			universeGroup,
 			rolesGroup,
 			xtentisUserGroup
