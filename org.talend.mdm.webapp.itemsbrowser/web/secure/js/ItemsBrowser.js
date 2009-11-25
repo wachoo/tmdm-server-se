@@ -1809,27 +1809,29 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					errorHandler:function(errorString, exception) {//on exception
 					var reg = /\[(.*?):(.*?)\]/gi;
 					var errorsArray = errorString.match(reg);
-					for(var i=0;i<errorsArray.length;i++){
-						  if(errorsArray[i].indexOf("[")>=0){
-							  errorsArray[i] = errorsArray[i].replace("["," ").trim();
-						  }
-						  if(errorsArray[i].indexOf("]")>=0){
-						      errorsArray[i] = errorsArray[i].replace("]"," ").trim();
-						  }
-					   }
-					   var flag=false;
-					   var defualtErrorMsg="";
-					   for(var i=0;i<errorsArray.length;i++){
-						   if(language==errorsArray[i].split(":")[0].toLowerCase()){
-							   errorString=errorsArray[i].split(":")[1];
-							   	flag=true;
+					if(errorsArray!=null){
+						for(var i=0;i<errorsArray.length;i++){
+							  if(errorsArray[i].indexOf("[")>=0){
+								  errorsArray[i] = errorsArray[i].replace("[","").trim();
+							  }
+							  if(errorsArray[i].indexOf("]")>=0){
+							      errorsArray[i] = errorsArray[i].replace("]"," ").trim();
+							  }
 						   }
-						   if("en"==errorsArray[i].split(":")[0].toLowerCase()){
-							   defualtErrorMsg=errorsArray[i].split(":")[1];
+						   var flag=false;
+						   var defualtErrorMsg="";
+						   for(var i=0;i<errorsArray.length;i++){
+							   if(language==errorsArray[i].split(":")[0].toLowerCase()&&errorsArray[i].split(":")[1]!=null&&errorsArray[i].split(":")[0].trim()!=""){
+								   errorString=errorsArray[i].split(":")[1];
+								   flag=true;
+							   }
+							   if("en"==errorsArray[i].split(":")[0].toLowerCase()){
+								   defualtErrorMsg=errorsArray[i].split(":")[1];
+							   }
 						   }
-					   }
-					   if(!flag){
-						   errorString=defualtErrorMsg;
+						   if(!flag){
+							   errorString=defualtErrorMsg;
+						   }
 					   }
 					   var error = itemTreeList[treeIndex];
 		               $('errorDesc'+ treeIndex).style.display = "block";
