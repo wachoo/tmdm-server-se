@@ -19,8 +19,11 @@
 	font-size:13px;
 	}
 
-.inputTreeREADONLY{ background-color:f4f4f4;padding-left:1px;
-border-color:f4f4f4;border-width:1;border-style:solid;font: 13px tahoma, verdana, helvetica;}
+/*.inputTreeREADONLY{ background-color:f4f4f4;padding-left:1px;
+
+border-color:f4f4f4;border-width:1;border-style:solid;font: 13px tahoma, verdana, helvetica;}*/
+
+.inputTreeREADONLY{ background-color:f4f4f4;border-color:787878;border-width:1;border-style:solid;padding-left:1px;font: 13px tahoma, verdana, helvetica;}
 
 .inputTree{ border-color:787878;border-width:1;border-style:solid;padding-left:1px;font: 13px tahoma, verdana, helvetica;}
 
