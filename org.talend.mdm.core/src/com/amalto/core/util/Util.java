@@ -2560,6 +2560,22 @@ public final class Util {
 		}
 		return null;
 	}
+	
+	public static boolean isDefaultSVNUP() throws Exception{
+		Object service= 
+			Util.retrieveComponent(
+				null, 
+				"amalto/local/service/svn"
+			);
+		
+		Boolean result = (Boolean)
+			Util.getMethod(service, "isUp").invoke(
+				service,
+				new Object[] {				
+				}
+			);	
+		return result.booleanValue();
+	}
 	/*********************************************************************
 	 *  TESTS
 	 *********************************************************************/

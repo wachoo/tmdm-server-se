@@ -753,4 +753,23 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
 		return Boolean.valueOf(configuration.autocommit);		
 	}
 
+    /**
+     * check server up
+     *
+     *
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     */
+	public boolean isUp() {
+		try {
+			start();
+			new SvnHandler(configuration).list("/", null);
+			return true;
+		} catch (XtentisException e) {
+			// TODO Auto-generated catch block
+			return false;
+		}
+	}
+
+	
 }
