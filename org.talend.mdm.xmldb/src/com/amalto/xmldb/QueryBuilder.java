@@ -212,7 +212,17 @@ public class QueryBuilder {
      	    throw new XmlServerException(err);
 	    }
 	}
-
+	
+	private static String buildContains(String factorPivots, String encoded){
+		if("*".equals(encoded)){
+			return "("+factorPivots+"/descendant-or-self::* &= \"*\") "+		
+				"or (empty("+factorPivots+"/descendant-or-self::text())) "+
+				"or ("+factorPivots+"/descendant-or-self::*/attribute() &= \"*\") ";
+		}else{
+			return "("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+						
+				"or ("+factorPivots+"/descendant-or-self::*/attribute() &= \""+encoded+"\") ";
+		}
+	}
 	/**
 	 * Build a where condition in XQuery using paths relative to the provided list of pivots
 	 */
@@ -249,8 +259,13 @@ public class QueryBuilder {
 
     			//String encoded = wc.getRightValueOrPath().replaceAll("\\&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
     			encoded = StringEscapeUtils.escapeXml(wc.getRightValueOrPath());
+    			//aiming modify convert "" & " " to *
+    			if(encoded!=null && encoded.trim().length()==0){
+    				encoded="*";
+    			}
 			}
 
+			String factorPivots=XPathUtils.factor(wc.getLeftPath(), pivots)+"";
 			if(operator.equals(WhereCondition.CONTAINS)) {
 				String predicate = wc.getStringPredicate();
 				//check if the left path is an attribute or an element
@@ -258,109 +273,108 @@ public class QueryBuilder {
 				if (path.endsWith("/")) path = path.substring(0, wc.getLeftPath().length()-1);
 				String[] nodes = path.split("/");
 				boolean isAttribute = nodes[nodes.length-1].startsWith("@");
-
 				if ((predicate==null) || predicate.equals(WhereCondition.PRE_NONE)) {
 					if (isAttribute) {
 						where =
-							XPathUtils.factor(wc.getLeftPath(), pivots)+" &= \""+encoded+"\" ";
+							factorPivots+" &= \""+encoded+"\" ";
 					} else {
-						where =
-							"("+XPathUtils.factor(wc.getLeftPath(), pivots)+"/descendant-or-self::* &= \""+encoded+"\") "+
-							"or ("+XPathUtils.factor(wc.getLeftPath(), pivots)+"/descendant-or-self::*/attribute() &= \""+encoded+"\") ";
+						where =buildContains(factorPivots, encoded);
+//							"("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+						
+//							"or ("+factorPivots+"/descendant-or-self::*/attribute() &= \""+encoded+"\") ";
 					}
 				} else	 if (predicate.equals(WhereCondition.PRE_AND)) {
 					if (isAttribute) {
 						where =
-							XPathUtils.factor(wc.getLeftPath(), pivots)+" &= \""+encoded+"\" ";
+							factorPivots+" &= \""+encoded+"\" ";
 					} else {
-						where =
-							"("+XPathUtils.factor(wc.getLeftPath(), pivots)+"/descendant-or-self::* &= \""+encoded+"\") "+
-							"or ("+XPathUtils.factor(wc.getLeftPath(), pivots)+"/descendant-or-self::*/attribute() &= \""+encoded+"\") ";
+						where =buildContains(factorPivots, encoded);
+//							"("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+
+//							"or ("+factorPivots+"/descendant-or-self::*/attribute() &= \""+encoded+"\") ";
 					}
 				} else if (predicate.equals(WhereCondition.PRE_EXACTLY)) {
-					where = XPathUtils.factor(wc.getLeftPath(), pivots)+" eq \""+encoded+"\"";
+					where = factorPivots+" eq \""+encoded+"\"";
 				} else if (predicate.equals(WhereCondition.PRE_STRICTAND)) {
-					where = "near("+XPathUtils.factor(wc.getLeftPath(), pivots)+", \""+encoded+"\",1)";
+					where = "near("+factorPivots+", \""+encoded+"\",1)";
 				} else	if (predicate.equals(WhereCondition.PRE_OR)) {
 					if (isAttribute) {
 						where =
-							XPathUtils.factor(wc.getLeftPath(), pivots)+" |= \""+encoded+"\" ";
+							factorPivots+" |= \""+encoded+"\" ";
 					} else {
 						where =
-							"("+XPathUtils.factor(wc.getLeftPath(), pivots)+"/descendant-or-self::* |= \""+encoded+"\") "+
-							"or ("+XPathUtils.factor(wc.getLeftPath(), pivots)+"/descendant-or-self::*/attribute() |= \""+encoded+"\") ";
+							"("+factorPivots+"/descendant-or-self::* |= \""+encoded+"\") "+
+							"or ("+factorPivots+"/descendant-or-self::*/attribute() |= \""+encoded+"\") ";
 					}
 				} else	if (predicate.equals(WhereCondition.PRE_NOT)) {
 					if (isAttribute) {
 						where =
-							"not("+XPathUtils.factor(wc.getLeftPath(), pivots)+" &= \""+encoded+"\") ";
+							"not("+factorPivots+" &= \""+encoded+"\") ";
 					} else {
 						where =
 							"not("+
-								"("+XPathUtils.factor(wc.getLeftPath(), pivots)+"/descendant-or-self::* &= \""+encoded+"\") "+
-								"or ("+XPathUtils.factor(wc.getLeftPath(), pivots)+"/descendant-or-self::*/attribute() &= \""+encoded+"\") "+
+								"("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+
+								"or ("+factorPivots+"/descendant-or-self::*/attribute() &= \""+encoded+"\") "+
 							")";
 					}
 				}
 				/* WAITING FOR FIX FROM EXIST
 				if ((predicate==null) || predicate.equals(WhereCondition.PRE_NONE))
-					where = "contains("+XPathUtils.factor(wc.getLeftPath(), pivots)+",\""+encoded+"\")";
+					where = "contains("+factorPivots+",\""+encoded+"\")";
 				else	 if (predicate.equals(WhereCondition.PRE_AND))
-					where = "contains("+XPathUtils.factor(wc.getLeftPath(), pivots)+",\""+encoded+"\")";
+					where = "contains("+factorPivots+",\""+encoded+"\")";
 				else if (predicate.equals(WhereCondition.PRE_EXACTLY))
-					where = XPathUtils.factor(wc.getLeftPath(), pivots)+" eq \""+encoded+"\"";
+					where = factorPivots+" eq \""+encoded+"\"";
 				else if (predicate.equals(WhereCondition.PRE_STRICTAND))
-					where = "near("+XPathUtils.factor(wc.getLeftPath(), pivots)+", \""+encoded+"\",1)";
+					where = "near("+factorPivots+", \""+encoded+"\",1)";
 				else	if (predicate.equals(WhereCondition.PRE_OR))
-					where = XPathUtils.factor(wc.getLeftPath(), pivots)+" |= \""+encoded+"\"";
+					where = factorPivots+" |= \""+encoded+"\"";
 				else	if (predicate.equals(WhereCondition.PRE_NOT))
-					where = "not(contains("+XPathUtils.factor(wc.getLeftPath(), pivots)+",\""+encoded+"\"))";
+					where = "not(contains("+factorPivots+",\""+encoded+"\"))";
 				*/
 
 			} else if(operator.equals(WhereCondition.STRICTCONTAINS)) {
-				where = "near("+XPathUtils.factor(wc.getLeftPath(), pivots)+", \""+encoded+"\",1)";
+				where = "near("+factorPivots+", \""+encoded+"\",1)";
 			} else if(operator.equals(WhereCondition.STARTSWITH)) {
-				where = "near("+XPathUtils.factor(wc.getLeftPath(), pivots)+", \""+encoded+"*\",1)";
+				where = "near("+factorPivots+", \""+encoded+"*\",1)";
 			} else if(operator.equals(WhereCondition.JOINS)) {
-				where = XPathUtils.factor(wc.getRightValueOrPath(),pivots)+" = "+XPathUtils.factor(wc.getLeftPath(), pivots);
+				where = XPathUtils.factor(wc.getRightValueOrPath(),pivots)+" = "+factorPivots;
 			} else	 if(operator.equals(WhereCondition.EQUALS)) {
 				if (isNum) {
-					where = "number("+XPathUtils.factor(wc.getLeftPath(), pivots)+") eq "+encoded;
+					where = "number("+factorPivots+") eq "+encoded;
 				} else  {
-					where = XPathUtils.factor(wc.getLeftPath(), pivots)+" eq \""+encoded+"\"";
+					where = factorPivots+" eq \""+encoded+"\"";
 				}
 			} else if(operator.equals(WhereCondition.NOT_EQUALS)) {
 				if (isNum) {
-					where = "number("+XPathUtils.factor(wc.getLeftPath(), pivots)+") ne "+encoded;
+					where = "number("+factorPivots+") ne "+encoded;
 				} else {
-					where = XPathUtils.factor(wc.getLeftPath(), pivots)+" ne \""+encoded+"\"";
+					where = factorPivots+" ne \""+encoded+"\"";
 				}
 			} else	 if(operator.equals(WhereCondition.GREATER_THAN)) {
 				if (isNum) {
-					where = "number("+XPathUtils.factor(wc.getLeftPath(), pivots)+") gt "+encoded;
+					where = "number("+factorPivots+") gt "+encoded;
 				} else {
-					where = XPathUtils.factor(wc.getLeftPath(), pivots)+" gt \""+encoded+"\"";
+					where = factorPivots+" gt \""+encoded+"\"";
 				}
 			} else	if(operator.equals(WhereCondition.GREATER_THAN_OR_EQUAL)) {
 				if (isNum) {
-					where = "number("+XPathUtils.factor(wc.getLeftPath(), pivots)+") ge "+encoded;
+					where = "number("+factorPivots+") ge "+encoded;
 				} else {
-					where = XPathUtils.factor(wc.getLeftPath(), pivots)+" ge \""+encoded+"\"";
+					where = factorPivots+" ge \""+encoded+"\"";
 				}
 			} else if(operator.equals(WhereCondition.LOWER_THAN)) {
 				if (isNum) {
-					where = "number("+XPathUtils.factor(wc.getLeftPath(), pivots)+") lt "+encoded;
+					where = "number("+factorPivots+") lt "+encoded;
 				} else {
-					where = XPathUtils.factor(wc.getLeftPath(), pivots)+" lt \""+encoded+"\"";
+					where = factorPivots+" lt \""+encoded+"\"";
 				}
 			} else	if(operator.equals(WhereCondition.LOWER_THAN_OR_EQUAL)) {
 				if (isNum) {
-					where = "number("+XPathUtils.factor(wc.getLeftPath(), pivots)+") le "+encoded;
+					where = "number("+factorPivots+") le "+encoded;
 				} else {
-					where = XPathUtils.factor(wc.getLeftPath(), pivots)+" le \""+encoded+"\"";
+					where = factorPivots+" le \""+encoded+"\"";
 				}
 			} else	if(operator.equals(WhereCondition.NO_OPERATOR)) {
-				where = XPathUtils.factor(wc.getLeftPath(), pivots).toString();
+				where = factorPivots.toString();
 			}
 
 			return where;
