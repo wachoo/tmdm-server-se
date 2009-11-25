@@ -1227,8 +1227,11 @@ public class ItemsBrowserDWR {
 			String conceptName = initxpathForeignKey;
 
 			//determine if we have xPath Infos: e.g. labels to display
-			String[] xpathInfos = new String[0];
-			if(!"".equals(xpathInfoForeignKey))	xpathInfos = xpathInfoForeignKey.split(",");
+			String[] xpathInfos = new String[1];
+			if(!"".equals(xpathInfoForeignKey))	
+				xpathInfos = xpathInfoForeignKey.split(",");
+			else
+				xpathInfos[0] = conceptName;
 			
 			// build query - add a content condition on the pivot if we search for a particular value
 			String filteredConcept = conceptName;
@@ -1278,7 +1281,7 @@ public class ItemsBrowserDWR {
 
 				//recover keys - which are last
 				String keys = "";
-				for (int j = xpathInfos.length; j<list.getLength(); j++) {
+				for (int j = "".equals(xpathInfoForeignKey)?1:xpathInfos.length; j<list.getLength(); j++) {
 					Node textNode = list.item(j).getFirstChild();
 					keys += "["+(textNode == null ? "" : textNode.getNodeValue())+"]";
 				}
@@ -1287,7 +1290,7 @@ public class ItemsBrowserDWR {
 				String infos = null;
 				
 				//if no xPath Infos given, use the key values
-				if (xpathInfos.length == 0) {
+				if (xpathInfos.length == 0||"".equals(xpathInfoForeignKey)) {
 					infos = keys;
 				} else {
 					//build a dash separated string of xPath Infos
