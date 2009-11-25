@@ -24,7 +24,12 @@ public class ResendFaildMessageSubProc extends AssembleSubProc{
 			String m=Util.getXmlServerCtrlLocal().getDocumentAsString(null, AutoCommitToSvnSendBean.FailedAutoCommitSvnMessage, id);
 			AutoCommitToSvnMsg msg=(AutoCommitToSvnMsg)Unmarshaller.unmarshal(AutoCommitToSvnMsg.class, new InputSource(new StringReader(m)));
 			AutoCommitToSvnSendBeanLocalHome h=(AutoCommitToSvnSendBeanLocalHome) Util.getLocalHome("amalto/local/core/autocommittosvnsend");
+			try{
 			h.create().sendMsg(msg.marshal());
+			}catch(Exception e){
+				//svn not up
+				return;
+			}
 			Util.getXmlServerCtrlLocal().deleteDocument(null, AutoCommitToSvnSendBean.FailedAutoCommitSvnMessage, id);
 		}
 
