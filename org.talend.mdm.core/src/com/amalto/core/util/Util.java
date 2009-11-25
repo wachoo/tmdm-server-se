@@ -356,9 +356,15 @@ public final class Util {
 		String xmlstr=Util.nodeToString(element);
        	//if element is null, remove it aiming added 
        	//see 7828
-		xmlstr=xmlstr.replaceAll("<\\w+?/>", "");	
-		Map<String, String> outerMap = getNamespaceFromImportXSD(Util.parse(schema).getDocumentElement(), false);
-		xmlstr = addNMSpaceForImportedElement(outerMap, xmlstr);
+		xmlstr=xmlstr.replaceAll("<\\w+?/>", "");
+		if (Util.getNodeList(Util.parse(schema).getDocumentElement(),
+				"//xsd:import").getLength() > 0
+				|| Util.getNodeList(Util.parse(schema).getDocumentElement(),
+						"//xsd:include").getLength() > 0)
+		{
+			Map<String, String> outerMap = getNamespaceFromImportXSD(Util.parse(schema).getDocumentElement(), false);
+			xmlstr = addNMSpaceForImportedElement(outerMap, xmlstr);
+		}
 		d = builder.parse(new InputSource(new StringReader(xmlstr)));
 		
 		//check if dcument parsed correctly against the schema
@@ -483,7 +489,10 @@ public final class Util {
     	
     	String newDoc = "";
     	try {
-			 newDoc =  Util.nodeToString(docElem.getDocumentElement());
+    		 if(docElem != null)
+			   newDoc =  Util.nodeToString(docElem.getDocumentElement());
+    		 else
+    			 newDoc = xmlData;
 		} catch (TransformerException e) {
 			e.printStackTrace();
 		}
