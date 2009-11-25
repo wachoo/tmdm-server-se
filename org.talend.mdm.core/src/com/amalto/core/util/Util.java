@@ -357,12 +357,13 @@ public final class Util {
        	//if element is null, remove it aiming added 
        	//see 7828
 		xmlstr=xmlstr.replaceAll("<\\w+?/>", "");
-		if (Util.getNodeList(Util.parse(schema).getDocumentElement(),
+		Document xsdDoc = Util.parse(schema);
+		if (Util.getNodeList(xsdDoc.getDocumentElement(),
 				"//xsd:import").getLength() > 0
-				|| Util.getNodeList(Util.parse(schema).getDocumentElement(),
+				|| Util.getNodeList(xsdDoc.getDocumentElement(),
 						"//xsd:include").getLength() > 0)
 		{
-			Map<String, String> outerMap = getNamespaceFromImportXSD(Util.parse(schema).getDocumentElement(), false);
+			Map<String, String> outerMap = getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), false);
 			xmlstr = addNMSpaceForImportedElement(outerMap, xmlstr);
 		}
 		d = builder.parse(new InputSource(new StringReader(xmlstr)));
@@ -374,7 +375,7 @@ public final class Util {
 				String xmlString = Util.nodeToString(element); 
 				String err = "The item "+element.getLocalName()+" did not validate against the model: \n" + errors+"\n"
 					+xmlString;	//.substring(0, Math.min(100, xmlString.length()));
-				Document xsdDoc = Util.parse(schema);
+				//Document xsdDoc = Util.parse(schema);
 				Map<String, String> nsMap = Util.getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), true);
 				Iterator<Map.Entry<String, String>> iter = nsMap.entrySet().iterator();
 				boolean error = true;
