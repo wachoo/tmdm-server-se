@@ -19,17 +19,16 @@ public class ResendFaildMessageSubProc extends AssembleSubProc{
 
 	@Override
 	public void run() throws Exception {
+		//check default svn server isup or not?
+		if(!Util.isDefaultSVNUP()){
+			return;
+		}
 		String[] ids=Util.getXmlServerCtrlLocal().getAllDocumentsUniqueID(null, AutoCommitToSvnSendBean.FailedAutoCommitSvnMessage);
 		for(String id: ids){
 			String m=Util.getXmlServerCtrlLocal().getDocumentAsString(null, AutoCommitToSvnSendBean.FailedAutoCommitSvnMessage, id);
 			AutoCommitToSvnMsg msg=(AutoCommitToSvnMsg)Unmarshaller.unmarshal(AutoCommitToSvnMsg.class, new InputSource(new StringReader(m)));
-			AutoCommitToSvnSendBeanLocalHome h=(AutoCommitToSvnSendBeanLocalHome) Util.getLocalHome("amalto/local/core/autocommittosvnsend");
-			try{
-			h.create().sendMsg(msg.marshal());
-			}catch(Exception e){
-				//svn not up
-				return;
-			}
+			AutoCommitToSvnSendBeanLocalHome h=(AutoCommitToSvnSendBeanLocalHome) Util.getLocalHome("amalto/local/core/autocommittosvnsend");			
+			h.create().sendMsg(msg.marshal());			
 			Util.getXmlServerCtrlLocal().deleteDocument(null, AutoCommitToSvnSendBean.FailedAutoCommitSvnMessage, id);
 		}
 
