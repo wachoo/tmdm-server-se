@@ -98,4 +98,10 @@ public interface VersioningServiceCtrlLocalBI   extends ServiceCtrlLocalBI
      * @throws XtentisException
      */
     public boolean isAutocommittosvn()throws XtentisException;
+    
+    /**
+     * check svn server is up
+     * @return
+     */
+    public boolean isUp();
    }
