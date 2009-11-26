@@ -1,5 +1,6 @@
 package com.amalto.core.plugin.base.workflowtrigger.ejb;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,6 +29,8 @@ import com.amalto.core.plugin.base.workflowtrigger.agent.WorkflowConnectInfo;
 import com.amalto.core.plugin.base.workflowtrigger.agent.WorkflowExecutorAgent;
 import com.amalto.core.plugin.base.workflowtrigger.agent.WorkflowProcessPK;
 import com.amalto.core.plugin.base.workflowtrigger.agent.WorkflowProcessVariableBox;
+import com.amalto.core.plugin.base.workflowtrigger.agent.WorkflowVariableSet;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
@@ -435,15 +438,39 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 			//parse parameter
 			WorkflowProcessVariableBox workflowProcessVariableBox =new WorkflowProcessVariableBox();
 			WorkflowActivityVariableBoxes workflowActivityVariableBoxes=new WorkflowActivityVariableBoxes();
-			VariableParameter[] variableParameters=parameters.getVariableParameters();
 			
+			//set build-in parameters
+			InetAddress addr = InetAddress.getLocalHost();
+			String ip=addr.getHostAddress().toString();
+			String portUrl = "http://"+ip+":8080/talend/TalendPort";
+			workflowProcessVariableBox.addVariable("MDM_url", portUrl, WorkflowVariableSet.STRING_TYPE);
+			
+			String universeName=LocalUser.getLocalUser().getUniverse().getName();
+			workflowProcessVariableBox.addVariable("MDM_universe", universeName, WorkflowVariableSet.STRING_TYPE);
+			
+			String dataClusterName=pk.getDataClusterPOJOPK().getUniqueId();
+			workflowProcessVariableBox.addVariable("MDM_dataCluster", dataClusterName, WorkflowVariableSet.STRING_TYPE);
+			
+			String dataModelName=item.getDataModelName();
+			workflowProcessVariableBox.addVariable("MDM_dataModel", dataModelName, WorkflowVariableSet.STRING_TYPE);
+			
+			//set custom parameters
+			VariableParameter[] variableParameters=parameters.getVariableParameters();
 			if(variableParameters!=null&&variableParameters.length>0){
 				for (int i = 0; i < variableParameters.length; i++) {
 					VariableParameter variableParameter=variableParameters[i];
 					if(variableParameter.getScope().equals("process")){
 						workflowProcessVariableBox.addVariable(variableParameter.getName(), getVariableValue(itemElement,variableParameter), variableParameter.getType());
+						//set dual xpath var
+						if(variableParameter.getXpath()!=null&&variableParameter.getXpath().length()>0){
+							workflowProcessVariableBox.addVariable(variableParameter.getName()+"_xpath", variableParameter.getXpath(), WorkflowVariableSet.STRING_TYPE);
+						}
 					}else if(variableParameter.getScope().equals("activity")){
 						workflowActivityVariableBoxes.addVariable(variableParameter.getActivityId(), variableParameter.getName(), getVariableValue(itemElement,variableParameter), variableParameter.getType());
+						//set dual xpath var
+						if(variableParameter.getXpath()!=null&&variableParameter.getXpath().length()>0){
+							workflowActivityVariableBoxes.addVariable(variableParameter.getActivityId(),variableParameter.getName()+"_xpath", variableParameter.getXpath(), WorkflowVariableSet.STRING_TYPE);
+						}
 					}
 				}
 			}
@@ -484,7 +511,9 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 			VariableParameter variableParameter) throws TransformerException {
 		String value=null;
 		if(variableParameter.isFromItem()){
-			value=Util.getFirstTextNode(itemElement, variableParameter.getXpath());
+			String xpath=variableParameter.getXpath();
+			if(!xpath.startsWith("/")&&!xpath.startsWith("//"))xpath="/"+xpath;
+			value=Util.getFirstTextNode(itemElement,xpath);
 		}else{
 			value=variableParameter.getValue();
 		}
