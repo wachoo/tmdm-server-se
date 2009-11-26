@@ -1066,7 +1066,7 @@ public class ItemsBrowserDWR {
 				if(wsItem!=null)
 					pushUpdateReport(ids,concept, "DELETE");
 				else
-					return "ERROR";
+					return "ERROR - delteItem is NULL";
 				ctx.getSession().setAttribute("viewNameItems",null);
 				return "OK";
 	        }
@@ -1095,7 +1095,7 @@ public class ItemsBrowserDWR {
 				if(wsItem!=null)
 					pushUpdateReport(ids,concept, "DELETE");
 				else
-					return "ERROR";
+					return "ERROR - dropItem is NULL";
 				ctx.getSession().setAttribute("viewNameItems",null);
 				return "OK";
 	        }
@@ -1103,13 +1103,8 @@ public class ItemsBrowserDWR {
 	        	return "OK - But no update report";
 	        }
 		}
-		 catch (RemoteException e) {
-	    	throw new RuntimeException(e.getLocalizedMessage());
-	    } catch (Exception e) {
-	    	if (e.getCause()==null)
-	    		throw new RuntimeException(e.getClass().getName()+": "+e.getLocalizedMessage());
-	    	else
-	    		throw new RuntimeException(e.getCause().getClass().getName()+": "+e.getCause().getLocalizedMessage());
+		catch (Exception e) {
+	    	return "ERROR -" + e.getLocalizedMessage();
 	    }    	
 	}
 	/**

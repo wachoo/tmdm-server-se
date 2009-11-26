@@ -903,7 +903,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 									var treeIndex=1;
 									if(_dataObject==null) _dataObject=_dataObject2;
 									ItemsBrowserInterface.logicalDeleteItem(_dataObject, itemPK, path, function(result){
-											
+											if(result.lastIndexOf("ERROR")>-1){
+												var err1=result.substring(7);
+												Ext.MessageBox.alert("ERROR", err1);
+												return;
+											}											
 									});									
 				        		}		
 				        		displayItems();	
@@ -1890,6 +1894,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			tmp += " "+itemPK[i];
 		}
 		ItemsBrowserInterface.logicalDeleteItem(dataObject, itemPK, path, function(result){
+			if(result.lastIndexOf("ERROR")>-1){
+				var err1=result.substring(7);
+				//Ext.MessageBox.alert("ERROR", err1);
+				$('errorDetail' + treeIndex).style.display = "block";
+				$('errorDetail' + treeIndex).innerHTML ="<br/>"+err1+"<br/>";					
+				return;
+			}			
 			var itempanel = amalto.core.getTabPanel().activeTab;
 			if(itempanel){
 				itempanel.isdirty=false;
@@ -2369,7 +2380,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		itemsCriteriaWithConstraints:function(criteriaParent, id, add){itemsCriteriaWithConstraints(criteriaParent, id, add);},
 		outPutCriteriaResult:function(){outPutCriteriaResult();},
 		updateNode:function(id,treeIndex){updateNode(id,treeIndex);},
-		setlastUpdatedInputFlagPublic:function(id,treeIndex){alert("setlastUpdatedInputFlagPublic");setlastUpdatedInputFlag(id,treeIndex);},
+		setlastUpdatedInputFlagPublic:function(id,treeIndex){setlastUpdatedInputFlag(id,treeIndex);},
 		browseForeignKey:function(nodeId, foreignKeyXpath){browseForeignKey(nodeId, foreignKeyXpath);},
 		showDatePicker:function(nodeId,treeIndex,nodeType){showDatePicker(nodeId,treeIndex,nodeType);},
 		showUploadFile: function (nodeId, treeIndex, nodeType){showUploadFile(nodeId, treeIndex, nodeType)},
