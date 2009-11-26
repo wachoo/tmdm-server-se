@@ -446,6 +446,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 			workflowProcessVariableBox.addVariable("MDM_url", portUrl, WorkflowVariableSet.STRING_TYPE);
 			
 			String universeName=LocalUser.getLocalUser().getUniverse().getName();
+			if(universeName.equals("[HEAD]"))universeName="";
 			workflowProcessVariableBox.addVariable("MDM_universe", universeName, WorkflowVariableSet.STRING_TYPE);
 			
 			String dataClusterName=pk.getDataClusterPOJOPK().getUniqueId();
