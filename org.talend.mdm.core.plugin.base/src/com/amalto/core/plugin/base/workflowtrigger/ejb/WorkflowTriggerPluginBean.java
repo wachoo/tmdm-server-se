@@ -132,6 +132,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 		//"	packageId [mandatory]: the packageId of the process "+"\n"+
 		"	processId [mandatory]: the processId of the process "+"\n"+
 		"	processVersion [mandatory]: the processVersion of the process "+"\n"+
+		"	useBuildInVariable [optional]: default value is true "+"\n"+
 		//"	username [mandatory]: the username used to login workflow "+"\n"+
 		//"	password [mandatory]: the password used to login workflow "+"\n"+
 		"	variable [optional]: the variable which will be used in workflow "+"\n"+
@@ -152,6 +153,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 		//"		<packageId>ApprovalWorkflow</packageId>" +"\n"+
 		"		<processId>ApprovalWorkflow</processId>" +"\n"+
 		"		<processVersion>1.0</processVersion>" +"\n"+
+		"		<useBuildInVariable>true</useBuildInVariable>" +"\n"+
 		//"		<username>admin</username>" +"\n"+
 		//"		<password>talend</password>" +"\n"+
 		"		<variable>" +"\n"+	
@@ -332,6 +334,11 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
     		//compiled.setPassword("bpm");
     		
     		//optional case
+    		boolean isUseBuildInVariable=true;
+    		String useBuildInVariable = Util.getFirstTextNode(params, "useBuildInVariable");
+    		if(useBuildInVariable!=null&&useBuildInVariable.equals("false"))isUseBuildInVariable=false;
+    		compiled.setUseBuildInVariable(isUseBuildInVariable);
+    		
     		//TODO check dependency
     		List<VariableParameter> variableParameterList=new ArrayList<VariableParameter>();
 			NodeList variableNodeList = Util.getNodeList(params, "//variable");
@@ -440,21 +447,22 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 			WorkflowActivityVariableBoxes workflowActivityVariableBoxes=new WorkflowActivityVariableBoxes();
 			
 			//set build-in parameters
-			InetAddress addr = InetAddress.getLocalHost();
-			String ip=addr.getHostAddress().toString();
-			String portUrl = "http://"+ip+":8080/talend/TalendPort";
-			workflowProcessVariableBox.addVariable("MDM_url", portUrl, WorkflowVariableSet.STRING_TYPE);
-			
-			String universeName=LocalUser.getLocalUser().getUniverse().getName();
-			if(universeName.equals("[HEAD]"))universeName="";
-			workflowProcessVariableBox.addVariable("MDM_universe", universeName, WorkflowVariableSet.STRING_TYPE);
-			
-			String dataClusterName=pk.getDataClusterPOJOPK().getUniqueId();
-			workflowProcessVariableBox.addVariable("MDM_dataCluster", dataClusterName, WorkflowVariableSet.STRING_TYPE);
-			
-			String dataModelName=item.getDataModelName();
-			workflowProcessVariableBox.addVariable("MDM_dataModel", dataModelName, WorkflowVariableSet.STRING_TYPE);
-			
+			if(parameters.isUseBuildInVariable()){
+				InetAddress addr = InetAddress.getLocalHost();
+				String ip=addr.getHostAddress().toString();
+				String portUrl = "http://"+ip+":8080/talend/TalendPort";
+				workflowProcessVariableBox.addVariable("MDM_url", portUrl, WorkflowVariableSet.STRING_TYPE);
+				
+				String universeName=LocalUser.getLocalUser().getUniverse().getName();
+				if(universeName.equals("[HEAD]"))universeName="";
+				workflowProcessVariableBox.addVariable("MDM_universe", universeName, WorkflowVariableSet.STRING_TYPE);
+				
+				String dataClusterName=pk.getDataClusterPOJOPK().getUniqueId();
+				workflowProcessVariableBox.addVariable("MDM_dataCluster", dataClusterName, WorkflowVariableSet.STRING_TYPE);
+				
+				String dataModelName=item.getDataModelName();
+				workflowProcessVariableBox.addVariable("MDM_dataModel", dataModelName, WorkflowVariableSet.STRING_TYPE);
+			}
 			//set custom parameters
 			VariableParameter[] variableParameters=parameters.getVariableParameters();
 			if(variableParameters!=null&&variableParameters.length>0){
@@ -463,13 +471,13 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 					if(variableParameter.getScope().equals("process")){
 						workflowProcessVariableBox.addVariable(variableParameter.getName(), getVariableValue(itemElement,variableParameter), variableParameter.getType());
 						//set dual xpath var
-						if(variableParameter.getXpath()!=null&&variableParameter.getXpath().length()>0){
+						if(parameters.isUseBuildInVariable()&&variableParameter.getXpath()!=null&&variableParameter.getXpath().length()>0){
 							workflowProcessVariableBox.addVariable(variableParameter.getName()+"_xpath", variableParameter.getXpath(), WorkflowVariableSet.STRING_TYPE);
 						}
 					}else if(variableParameter.getScope().equals("activity")){
 						workflowActivityVariableBoxes.addVariable(variableParameter.getActivityId(), variableParameter.getName(), getVariableValue(itemElement,variableParameter), variableParameter.getType());
 						//set dual xpath var
-						if(variableParameter.getXpath()!=null&&variableParameter.getXpath().length()>0){
+						if(parameters.isUseBuildInVariable()&&variableParameter.getXpath()!=null&&variableParameter.getXpath().length()>0){
 							workflowActivityVariableBoxes.addVariable(variableParameter.getActivityId(),variableParameter.getName()+"_xpath", variableParameter.getXpath(), WorkflowVariableSet.STRING_TYPE);
 						}
 					}

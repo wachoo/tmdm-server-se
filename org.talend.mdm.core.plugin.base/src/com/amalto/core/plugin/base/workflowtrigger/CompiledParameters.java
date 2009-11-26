@@ -12,12 +12,18 @@ import sun.misc.BASE64Encoder;
 
 public class CompiledParameters implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4298695227990666177L;
+	
 	private String initialContextFactory = null;
 	private String providerURL = null;
 	private String apiType = null;
 	private String packageId = null;
 	private String processId = null;
 	private String processVersion = null;
+	private boolean useBuildInVariable;
 	private String username = null;
 	private String password = null;
 	private VariableParameter[] variableParameters = null;
@@ -69,6 +75,14 @@ public class CompiledParameters implements Serializable {
 
 	public void setProcessVersion(String processVersion) {
 		this.processVersion = processVersion;
+	}
+	
+	public boolean isUseBuildInVariable() {
+		return useBuildInVariable;
+	}
+
+	public void setUseBuildInVariable(boolean useBuildInVariable) {
+		this.useBuildInVariable = useBuildInVariable;
 	}
 
 	public String getUsername() {
