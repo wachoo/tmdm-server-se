@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<project name="cxf wsdl2java" basedir="." default="cxfWSDLToJava">   
+   <property name="cxf.home" location ="E:/IDE/eclipse-talend-mdm/eclipse-3.4/tom/mdmclient/apache-cxf-2.2.5"/>
+   <property name="local.wsdl" location="../org.talend.mdm.core/src/META-INF/wsdl/webservices.wsdl" />
+	
+   <path id="cxf.classpath">
+      <fileset dir="${cxf.home}/lib">
+         <include name="*.jar"/>
+      </fileset>
+   </path>
+      
+   <target name="cxfWSDLToJava">
+      <java classname="org.apache.cxf.tools.wsdlto.WSDLToJava" fork="true">
+         <arg value="-client"/>
+         <arg value="-d"/>
+         <arg value="src"/>
+         <arg value="${local.wsdl}"/>
+         <classpath>
+            <path refid="cxf.classpath"/>
+         </classpath>
+      </java>
+   </target>
+</project>
