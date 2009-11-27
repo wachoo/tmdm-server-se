@@ -44,6 +44,7 @@ public final class WorkflowExecutorAgent extends WorkflowAgent{
 		
 
 		// tasks execution
+		// FIXME: maybe this is muti thread
 		Collection<TaskInstance> activities = queryRuntimeAPI.getTaskList(instanceUUID, ActivityState.READY);
 	    if (activities.isEmpty()) {
 	      throw new BonitaRuntimeException("No task found? Bad User?");

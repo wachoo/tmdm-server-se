@@ -23,7 +23,7 @@ public class CompiledParameters implements Serializable {
 	private String packageId = null;
 	private String processId = null;
 	private String processVersion = null;
-	private boolean useBuildInVariable;
+	private boolean useBuiltInVariable;
 	private String username = null;
 	private String password = null;
 	private VariableParameter[] variableParameters = null;
@@ -77,12 +77,12 @@ public class CompiledParameters implements Serializable {
 		this.processVersion = processVersion;
 	}
 	
-	public boolean isUseBuildInVariable() {
-		return useBuildInVariable;
+	public boolean isUseBuiltInVariable() {
+		return useBuiltInVariable;
 	}
 
-	public void setUseBuildInVariable(boolean useBuildInVariable) {
-		this.useBuildInVariable = useBuildInVariable;
+	public void setUseBuiltInVariable(boolean useBuiltInVariable) {
+		this.useBuiltInVariable = useBuiltInVariable;
 	}
 
 	public String getUsername() {

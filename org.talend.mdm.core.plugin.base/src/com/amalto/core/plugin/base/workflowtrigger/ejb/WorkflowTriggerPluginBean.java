@@ -132,7 +132,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 		//"	packageId [mandatory]: the packageId of the process "+"\n"+
 		"	processId [mandatory]: the processId of the process "+"\n"+
 		"	processVersion [mandatory]: the processVersion of the process "+"\n"+
-		"	useBuildInVariable [optional]: default value is true "+"\n"+
+		"	useBuiltInVariable [optional]: default value is true "+"\n"+
 		//"	username [mandatory]: the username used to login workflow "+"\n"+
 		//"	password [mandatory]: the password used to login workflow "+"\n"+
 		"	variable [optional]: the variable which will be used in workflow "+"\n"+
@@ -153,7 +153,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 		//"		<packageId>ApprovalWorkflow</packageId>" +"\n"+
 		"		<processId>ApprovalWorkflow</processId>" +"\n"+
 		"		<processVersion>1.0</processVersion>" +"\n"+
-		"		<useBuildInVariable>true</useBuildInVariable>" +"\n"+
+		"		<useBuiltInVariable>true</useBuiltInVariable>" +"\n"+
 		//"		<username>admin</username>" +"\n"+
 		//"		<password>talend</password>" +"\n"+
 		"		<variable>" +"\n"+	
@@ -334,10 +334,10 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
     		//compiled.setPassword("bpm");
     		
     		//optional case
-    		boolean isUseBuildInVariable=true;
-    		String useBuildInVariable = Util.getFirstTextNode(params, "useBuildInVariable");
-    		if(useBuildInVariable!=null&&useBuildInVariable.equals("false"))isUseBuildInVariable=false;
-    		compiled.setUseBuildInVariable(isUseBuildInVariable);
+    		boolean isUseBuiltInVariable=true;
+    		String useBuiltInVariable = Util.getFirstTextNode(params, "useBuiltInVariable");
+    		if(useBuiltInVariable!=null&&useBuiltInVariable.equals("false"))isUseBuiltInVariable=false;
+    		compiled.setUseBuiltInVariable(isUseBuiltInVariable);
     		
     		//TODO check dependency
     		List<VariableParameter> variableParameterList=new ArrayList<VariableParameter>();
@@ -447,7 +447,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 			WorkflowActivityVariableBoxes workflowActivityVariableBoxes=new WorkflowActivityVariableBoxes();
 			
 			//set build-in parameters
-			if(parameters.isUseBuildInVariable()){
+			if(parameters.isUseBuiltInVariable()){
 				InetAddress addr = InetAddress.getLocalHost();
 				String ip=addr.getHostAddress().toString();
 				String portUrl = "http://"+ip+":8080/talend/TalendPort";
@@ -471,13 +471,13 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 					if(variableParameter.getScope().equals("process")){
 						workflowProcessVariableBox.addVariable(variableParameter.getName(), getVariableValue(itemElement,variableParameter), variableParameter.getType());
 						//set dual xpath var
-						if(parameters.isUseBuildInVariable()&&variableParameter.getXpath()!=null&&variableParameter.getXpath().length()>0){
+						if(parameters.isUseBuiltInVariable()&&variableParameter.getXpath()!=null&&variableParameter.getXpath().length()>0){
 							workflowProcessVariableBox.addVariable(variableParameter.getName()+"_xpath", variableParameter.getXpath(), WorkflowVariableSet.STRING_TYPE);
 						}
 					}else if(variableParameter.getScope().equals("activity")){
 						workflowActivityVariableBoxes.addVariable(variableParameter.getActivityId(), variableParameter.getName(), getVariableValue(itemElement,variableParameter), variableParameter.getType());
 						//set dual xpath var
-						if(parameters.isUseBuildInVariable()&&variableParameter.getXpath()!=null&&variableParameter.getXpath().length()>0){
+						if(parameters.isUseBuiltInVariable()&&variableParameter.getXpath()!=null&&variableParameter.getXpath().length()>0){
 							workflowActivityVariableBoxes.addVariable(variableParameter.getActivityId(),variableParameter.getName()+"_xpath", variableParameter.getXpath(), WorkflowVariableSet.STRING_TYPE);
 						}
 					}
@@ -540,6 +540,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
     		//"		<packageId>ApprovalWorkflow</packageId>" +"\n"+
     		"		<processId>ApprovalWorkflow</processId>" +"\n"+
     		"		<processVersion>1.0</processVersion>" +"\n"+
+    		"		<useBuiltInVariable>true</useBuiltInVariable>" +"\n"+
     		//"		<username>admin</username>" +"\n"+
     		//"		<password>talend</password>" +"\n"+
     		"		<variable>" +"\n"+	
