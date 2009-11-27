@@ -55,6 +55,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	treeIndex: null,	
 	hasIcon: null,
 	
+	result : null,
 	
     /**
      * Sets up the node label
@@ -93,7 +94,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		}
 		
 		var mandatory = "";
-		if(itemData.readOnly==false && itemData.minOccurs==1) mandatory='<span style="color:red">*</span>';
+		this.result = null;
+		var check = this.checkMinOccurs(itemData,null);
+		if(itemData.readOnly==false && itemData.minOccurs==1 && check) mandatory='<span style="color:red">*</span>';
+		// (itemData.parent==null || (itemData.parent!=null && itemData.parent.minOccurs>=1))
 		var descInfo = "";
 		if(itemData.description!=null)descInfo='<img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'+itemData.description+'"/>';
 		if(itemData.type=="simple"){
@@ -106,7 +110,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == true && itemData.readOnly==true) ;
 			//alert("before: "+tmpStatus);
-			if(tmpStatus){
+			if(tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"){
 				//alert("after: "+tmpStatus);
 				readOnlyStyle = readOnly = "READONLY";
 			}
@@ -120,7 +124,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				//modify by ymli, if the parent or itself is writable, the foreign key can be set
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
-				if(itemData.readOnly==false||tmpStatus){
+				if(itemData.readOnly==false||tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"){
 					//for a foreign key, direct edit is disabled.
 					readOnly = "READONLY";
 					readOnlyStyle = "ForeignKey";
@@ -270,6 +274,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
         return document.getElementById(this.contentElId);
     },
     
+  
+    
 	/*
 	 * Return true if the new value is valid against the restrictions
 	 * and update the inner value of the node to the new value
@@ -298,7 +304,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		if(this.itemData.restrictions!=null){	
 			for(var i=0;i<this.itemData.restrictions.length;i++){
 				var errorMessage = this.itemData.facetErrorMsg[language];
-				if(value.length==0&&this.itemData.minOccurs>=1){
+				//var checkParentminOIsReturn = null
+				this.result = null
+				var check = this.checkMinOccurs(this.itemData,null);
+				if(value.length==0&& this.itemData.minOccurs>=1&& check){//(this.itemData.parent==null || (this.itemData.parent!=null && this.itemData.parent.minOccurs>=1))){
 				if (errorMessage == null){
 				   errorMessage = "The value does not comply with the facet defined in the model: "
 							+ "minOccurs"
@@ -382,7 +391,11 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					}
 
 				}
-				if (this.itemData.readOnly==false && this.itemData.minOccurs>=1 && (value == null || value == "") && this.itemData.choice == false)
+				
+				// var checkParentminOIsReturn = null;
+				this.result = null;
+				var check = this.checkMinOccurs(this.itemData,null);
+				if (this.itemData.readOnly==false && this.itemData.minOccurs>=1 && (value == null || value == "") && check && this.itemData.choice == false)
 				{
 					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 					return false;
@@ -424,6 +437,31 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			$(nodeId + "ValidateBadge").style.display = "none";
 		}
 	},
+	/**
+	 * @author ymli fix bug 0009642
+	 * if the parent or grant ... parent's minOccurs >=1, the onde is non-mandatory
+	 * @param {} node
+	 * @param {} checkParentminOIsReturn
+	 * @return {Boolean}
+	 */
+	 checkMinOccurs:function(node,checkParentminOIsReturn){
+	 	if(checkParentminOIsReturn==null && this.result == null ){
+	 		var itemNode = node.parent;
+    		if(itemNode==null){
+    			checkParentminOIsReturn = true;
+    			this.result=true;
+    			return true;
+    		}
+    		else if(itemNode!=null && itemNode.minOccurs==0){
+    			checkParentminOIsReturn = false;
+    			this.result=false;
+    			return false;
+    		}
+    			 else if(itemNode!=null && itemNode.minOccurs>=1)
+    					this.checkMinOccurs(itemNode,checkParentminOIsReturn);
+	 	}
+	 	return this.result;
+    },
 	
 	displayErrorMessage: function(nodeId,msg){
         //var errorMessageDivId = nodeId+"ErrorMessage";

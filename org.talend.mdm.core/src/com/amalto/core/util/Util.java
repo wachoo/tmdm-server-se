@@ -63,6 +63,7 @@ import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -321,6 +322,58 @@ public final class Util {
            throw new XtentisException(sb.toString());
          }
     }
+    /**
+     * @author ymli  fix bug 0009642
+     * if the node's minOccurs is 0, set its chirldren's minOccurs 0 to match the w3c roles
+     * @param xsdDoc
+     * @param conceptName
+     */
+    private static void setMinOccurs(Document xsdDoc, String conceptName){
+    	
+    	try {
+    		String xpath ="//xsd:element[@name='" + conceptName + "']/xsd:complexType//xsd:element";
+			NodeList nodeList = Util.getNodeList(xsdDoc.getDocumentElement(),xpath);
+			if(nodeList.getLength()==0)
+				return;
+			for(int i=0;i<nodeList.getLength();i++){
+				Node node = nodeList.item(i);
+				node.getAttributes().getNamedItem("name");
+				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
+				if(minOccursNode.getNodeValue().equals("0")){
+					setMinOccursDeep(node,xpath);
+				}
+			}
+			
+		} catch (XtentisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}    	
+    	
+    }
+    /**
+     * @author ymli fix bug 0009642
+     * set Parentnode's chirldren's minOccurs 0 to match the w3c roles
+     * @param Parentnode
+     * @param xPath
+     */
+    private static void setMinOccursDeep(Node Parentnode,String xPath){
+    	try {
+    		NodeList nodeList = Util.getNodeList(Parentnode, xPath+"/xsd:complexType//xsd:element");
+    		if(nodeList.getLength()==0)
+    			return;
+    		for(int i=0;i<nodeList.getLength();i++){
+				Node node = nodeList.item(i);
+				node.getAttributes().getNamedItem("name");
+				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
+				minOccursNode.setNodeValue("0");
+				setMinOccursDeep(node,xPath+"/xsd:complexType//xsd:element");
+    		}
+		} catch (XtentisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
     
     public static Document validate(Element element, String schema) 
     	throws Exception{
@@ -338,6 +391,19 @@ public final class Util {
 		//Schema validation based on schemaURL
 		factory.setNamespaceAware(true);
 		factory.setValidating((schema!=null));
+		
+		
+		Document xsdDoc = Util.parse(schema);
+		
+		
+		
+		
+		
+		setMinOccurs(xsdDoc, element.getLocalName());
+		
+		schema = Util.nodeToString(xsdDoc);
+		
+		
 		factory.setAttribute(
 				"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
 				"http://www.w3.org/2001/XMLSchema");
@@ -356,8 +422,12 @@ public final class Util {
 		String xmlstr=Util.nodeToString(element);
        	//if element is null, remove it aiming added 
        	//see 7828
+		
 		xmlstr=xmlstr.replaceAll("<\\w+?/>", "");
-		Document xsdDoc = Util.parse(schema);
+		//xmlstr=xmlstr.replaceAll("<\\w+?>\\s+?</\\w+?>", "");
+		
+		
+		
 		if (Util.getNodeList(xsdDoc.getDocumentElement(),
 				"//xsd:import").getLength() > 0
 				|| Util.getNodeList(xsdDoc.getDocumentElement(),
@@ -366,6 +436,9 @@ public final class Util {
 			Map<String, String> outerMap = getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), false);
 			xmlstr = addNMSpaceForImportedElement(outerMap, xmlstr);
 		}
+		
+		
+		
 		d = builder.parse(new InputSource(new StringReader(xmlstr)));
 		
 		//check if dcument parsed correctly against the schema
@@ -1361,7 +1434,7 @@ public final class Util {
      * @param schema
      * @param dataCluster
      * @param concept
-     * @param elementname null:±íÊ¾¸ù½Óµã
+     * @param elementname null:ï¿½ï¿½Ê¾ï¿½ï¿½Óµï¿½
      * @param conceptRoot
      * @throws Exception
      */
