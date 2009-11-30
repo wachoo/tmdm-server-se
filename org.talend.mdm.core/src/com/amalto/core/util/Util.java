@@ -337,10 +337,10 @@ public final class Util {
 				return;
 			for(int i=0;i<nodeList.getLength();i++){
 				Node node = nodeList.item(i);
-				node.getAttributes().getNamedItem("name");
+				Node nameNode = node.getAttributes().getNamedItem("name");
 				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
 				if(minOccursNode.getNodeValue().equals("0")){
-					setMinOccursDeep(node,xpath);
+					setMinOccursDeep(node,xpath,nameNode.getNodeValue());
 				}
 			}
 			
@@ -356,17 +356,23 @@ public final class Util {
      * @param Parentnode
      * @param xPath
      */
-    private static void setMinOccursDeep(Node Parentnode,String xPath){
+    private static void setMinOccursDeep(Node Parentnode,String xPath,String namefar){
     	try {
-    		NodeList nodeList = Util.getNodeList(Parentnode, xPath+"/xsd:complexType//xsd:element");
+    		String xPathLocal = xPath;
+    		if(namefar!=null)
+    			xPathLocal = xPath+"[@name='"+namefar+"']/xsd:complextType//xsd:element";
+    		else 
+    			xPathLocal = xPath+"/xsd:complexType//xsd:element";
+    		NodeList nodeList = Util.getNodeList(Parentnode, xPathLocal);
     		if(nodeList.getLength()==0)
     			return;
     		for(int i=0;i<nodeList.getLength();i++){
 				Node node = nodeList.item(i);
-				node.getAttributes().getNamedItem("name");
+				Node nodename = node.getAttributes().getNamedItem("name");
+				String name1 = nodename.getNodeValue();
 				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
 				minOccursNode.setNodeValue("0");
-				setMinOccursDeep(node,xPath+"/xsd:complexType//xsd:element");
+				setMinOccursDeep(node,xPathLocal+"/xsd:complexType//xsd:element",name1);
     		}
 		} catch (XtentisException e) {
 			// TODO Auto-generated catch block
@@ -394,10 +400,6 @@ public final class Util {
 		
 		
 		Document xsdDoc = Util.parse(schema);
-		
-		
-		
-		
 		
 		setMinOccurs(xsdDoc, element.getLocalName());
 		
