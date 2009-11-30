@@ -535,7 +535,7 @@ public final class Util {
 	    			{
 	    				if(Util.getNodeList(docElem, xpath + "/" + slice).getLength() == 0)
 	    				{
-	    					break LOOP;
+	    					continue LOOP;
 	    				}
 	    			}
     		    	// replace the orgnial elem with one prefixed with namespace
@@ -660,11 +660,15 @@ public final class Util {
 				Node node = list.item(idx);
 				if(node.getAttributes().getNamedItem("name") == null)continue;
 				String typeName = node.getAttributes().getNamedItem("name").getNodeValue();
-				String typeCatg = node.getAttributes().getNamedItem("type").getNodeValue();
+				String typeCatg = null;
+				if(node.getAttributes().getNamedItem("type") != null)
+				{
+					typeCatg = node.getAttributes().getNamedItem("type").getNodeValue();
+				}
 				NodeList subList = null;
 				if(typeCatg == null)
 				{
-				  subList= Util.getNodeList(node, "//xsd:element");
+				  subList= Util.getNodeList(node, "//xsd:complexType//xsd:element");
 				}
 				else
 				{
