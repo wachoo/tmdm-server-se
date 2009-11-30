@@ -2184,7 +2184,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			    );
 		    
 		    var combo = new Ext.form.ComboBox({
-                width: 250,
+                width: 350,
+                resizable:true, 
                 fieldLabel: FILTER[language],
                 id: 'foreign-key-filter',
 		        store: store,
@@ -2210,6 +2211,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 layout:'fit',
                 width:300,
                 height: 150,
+                resizable:true, 
                 closeAction:'hide',
                 plain: true,
                 title: TITLE_WINDOW_FK[language]+'<br/>('+count+' '+(count>1?MESSAGE_MULTI_SHOW[language]+')':MESSAGE_SINGLE_SHOW[language]+')'),
@@ -2217,8 +2219,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 items: [new Ext.form.FormPanel({
                 	labelAlign: 'top',
                     items: [
-                        new Ext.Panel({html: '', border: false}),
-	                    combo
+                        new Ext.Panel({
+                       	 	html: '', 
+               		 		border: false
+               		 	}),
+	                  	combo
 	                ]
                 })]
 
@@ -2227,6 +2232,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			foreignKeyWindow.on('show', function() {
 				var combo = Ext.getCmp('foreign-key-filter');
 				combo.focus(true, 100);
+				combo.setSize(foreignKeyWindow.getSize());
 				combo.reset();
 				if(count<500) {
 					
@@ -2238,7 +2244,18 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				}
 			});
 
-			
+			/*foreignKeyWindow.on('syncSize', function() {
+				var combo = Ext.getCmp('foreign-key-filter');
+				combo.focus(true, 100);
+				combo.reset();
+				if(count<500) {
+					combo.setSize(foreignKeyWindow.getSize());
+					combo.setRawValue(".*");
+					combo.doQuery(".*",true);
+					combo.focus();
+		            combo.expand();
+				}
+			});*/
 			foreignKeyWindow.show(this);
 			
 		});
