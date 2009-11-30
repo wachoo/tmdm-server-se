@@ -2184,7 +2184,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			    );
 		    
 		    var combo = new Ext.form.ComboBox({
-                width: 350,
+                width: 280,
                 resizable:true, 
                 fieldLabel: FILTER[language],
                 id: 'foreign-key-filter',
@@ -2232,7 +2232,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			foreignKeyWindow.on('show', function() {
 				var combo = Ext.getCmp('foreign-key-filter');
 				combo.focus(true, 100);
-				combo.setSize(foreignKeyWindow.getSize());
+				//combo.setSize(foreignKeyWindow.getSize());
 				combo.reset();
 				if(count<500) {
 					
