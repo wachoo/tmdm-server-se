@@ -979,4 +979,10 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSCheckServiceConfigResponse _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSWorkflowProcessDefinitionUUIDArray workflowGetProcessDefinitions(com.amalto.core.webservice.WSWorkflowGetProcessDefinitions wsWorkflowGetProcessDefinitions) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSWorkflowProcessDefinitionUUIDArray _retVal = null;
+        return _retVal;
+    }
 }

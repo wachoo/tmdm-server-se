@@ -1231,6 +1231,12 @@
 	</message>
 	<message name="checkServiceConfigurationResponse">
 		<part name="result" element="tns:WSCheckServiceConfigResponse"></part>
+	</message>
+	<message name="workflowGetProcessDefinitionsRequest">
+	    <part name="wsWorkflowGetProcessDefinitions" element="tns:WSWorkflowGetProcessDefinitions"></part>
+	</message>
+	<message name="workflowGetProcessDefinitionsResponse">
+		<part name="wsWorkflowProcessDefinitionUUIDArray" element="tns:WSWorkflowProcessDefinitionUUIDArray"></part>
 	</message>	
 	<!-- *****************************************************
 		              P O R T		
@@ -1986,7 +1992,12 @@
 		<operation name="checkServiceConfiguration">
             <input message="tns:checkServiceConfigurationRequest"/>
 			<output message="tns:checkServiceConfigurationResponse"></output>
-		</operation>		
+		</operation>
+		<operation name="workflowGetProcessDefinitions">
+            <input message="tns:workflowGetProcessDefinitionsRequest"/>
+			<output message="tns:workflowGetProcessDefinitionsResponse"/>
+		</operation>
+				
 	</portType>
 	
 
@@ -2923,6 +2934,11 @@
 			<output><soap:body use="literal"/></output>
 		</operation>
 		<operation name="checkServiceConfiguration">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="workflowGetProcessDefinitions">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>

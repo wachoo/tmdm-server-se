@@ -14,5 +14,6 @@
 	<xsd:include schemaLocation="xtentis-roles.xsd"/>
 	<xsd:include schemaLocation="xtentis-universes.xsd"/>
 	<xsd:include schemaLocation="xtentis-synchronization.xsd"/>
+	<xsd:include schemaLocation="xtentis-workflow.xsd"/>
 	
 </xsd:schema>

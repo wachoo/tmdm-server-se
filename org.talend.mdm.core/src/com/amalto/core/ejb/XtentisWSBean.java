@@ -44,6 +44,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.jboss.security.Base64Encoder;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -6498,6 +6499,36 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		}
 	}
 
-
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSWorkflowProcessDefinitionUUIDArray workflowGetProcessDefinitions(WSWorkflowGetProcessDefinitions wsWorkflowGetProcessDefinitions) throws RemoteException{
+		
+		List<WSWorkflowProcessDefinitionUUID> rtnList=new ArrayList<WSWorkflowProcessDefinitionUUID>();
+        try {
+			
+        	Set<ProcessDefinition> processes=Util.getWorkflowService().getProcessDefinitions();
+			
+			if(processes!=null){
+				for (Iterator iterator = processes.iterator(); iterator.hasNext();) {
+					ProcessDefinition processDefinition = (ProcessDefinition) iterator.next();
+					String processName=processDefinition.getUUID().getProcessName();
+					String processVersion=processDefinition.getUUID().getProcessVersion();
+					WSWorkflowProcessDefinitionUUID wsWorkflowProcessDefinitionUUID=new WSWorkflowProcessDefinitionUUID(processName,processVersion);
+					rtnList.add(wsWorkflowProcessDefinitionUUID);
+				}
+			}
+			
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+		WSWorkflowProcessDefinitionUUIDArray rtnArray=new WSWorkflowProcessDefinitionUUIDArray(rtnList.toArray(new WSWorkflowProcessDefinitionUUID[rtnList.size()]));
+		return rtnArray;
+	}
 	
 }

@@ -1,0 +1,42 @@
+<xsd:schema 
+	elementFormDefault="unqualified"
+	targetNamespace="urn-com-amalto-xtentis-webservice"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="urn-com-amalto-xtentis-webservice"
+	>
+
+	<xsd:include schemaLocation="xtentis-core.xsd"/>
+	
+	<!-- *****************************************************
+		Workflow Objects
+		*******************************************************-->
+	<xsd:complexType name="WSWorkflowProcessDefinitionUUID">
+		<xsd:annotation>
+			<xsd:documentation>
+				A process definition UUID
+			</xsd:documentation>
+		</xsd:annotation>				
+		<xsd:all>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="processName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="processVersion" type="xsd:string"/>
+		</xsd:all>		
+	</xsd:complexType>
+	<xsd:element name="WSWorkflowProcessDefinitionUUID" type="tns:WSWorkflowProcessDefinitionUUID"/>
+	
+	<xsd:complexType name="WSWorkflowProcessDefinitionUUIDArray">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsWorkflowProcessDefinitions" nillable="false" type="tns:WSWorkflowProcessDefinitionUUID"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSWorkflowProcessDefinitionUUIDArray" type="tns:WSWorkflowProcessDefinitionUUIDArray"/>
+	
+	<xsd:complexType name="WSWorkflowGetProcessDefinitions">
+		<xsd:all>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:all>		
+	</xsd:complexType>
+	<xsd:element name="WSWorkflowGetProcessDefinitions" type="tns:WSWorkflowGetProcessDefinitions"/>
+	
+	
+	
+</xsd:schema>
