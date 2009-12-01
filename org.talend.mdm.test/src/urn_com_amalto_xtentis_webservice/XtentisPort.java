@@ -171,4 +171,5 @@ public interface XtentisPort extends java.rmi.Remote {
     public urn_com_amalto_xtentis_webservice.WSDroppedItemPK removeDroppedItem(urn_com_amalto_xtentis_webservice.WSRemoveDroppedItem wsRemoveDroppedItem) throws java.rmi.RemoteException;
     public urn_com_amalto_xtentis_webservice.WSMDMConfig getMDMConfiguration() throws java.rmi.RemoteException;
     public urn_com_amalto_xtentis_webservice.WSCheckServiceConfigResponse checkServiceConfiguration(urn_com_amalto_xtentis_webservice.WSCheckServiceConfigRequest serviceName) throws java.rmi.RemoteException;
+    public urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[] workflowGetProcessDefinitions(urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions wsWorkflowGetProcessDefinitions) throws java.rmi.RemoteException;
 }

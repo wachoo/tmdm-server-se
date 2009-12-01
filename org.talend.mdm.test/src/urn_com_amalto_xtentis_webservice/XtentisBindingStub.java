@@ -16,7 +16,7 @@ public class XtentisBindingStub extends org.apache.axis.client.Stub implements u
     static org.apache.axis.description.OperationDesc [] _operations;
 
     static {
-        _operations = new org.apache.axis.description.OperationDesc[163];
+        _operations = new org.apache.axis.description.OperationDesc[164];
         _initOperationDesc1();
         _initOperationDesc2();
         _initOperationDesc3();
@@ -2016,6 +2016,19 @@ public class XtentisBindingStub extends org.apache.axis.client.Stub implements u
         oper.setStyle(org.apache.axis.constants.Style.DOCUMENT);
         oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[162] = oper;
+
+        oper = new org.apache.axis.description.OperationDesc();
+        oper.setName("workflowGetProcessDefinitions");
+        param = new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowGetProcessDefinitions"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowGetProcessDefinitions"), urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions.class, false, false);
+        oper.addParameter(param);
+        oper.setReturnType(new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowProcessDefinitionUUIDArray"));
+        oper.setReturnClass(urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[].class);
+        oper.setReturnQName(new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowProcessDefinitionUUIDArray"));
+        param = oper.getReturnParamDesc();
+        param.setItemQName(new javax.xml.namespace.QName("", "wsWorkflowProcessDefinitions"));
+        oper.setStyle(org.apache.axis.constants.Style.DOCUMENT);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
+        _operations[163] = oper;
 
     }
 
@@ -4225,6 +4238,29 @@ public class XtentisBindingStub extends org.apache.axis.client.Stub implements u
             cachedSerClasses.add(cls);
             qName = new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWhereItem");
             qName2 = new javax.xml.namespace.QName("", "whereItems");
+            cachedSerFactories.add(new org.apache.axis.encoding.ser.ArraySerializerFactory(qName, qName2));
+            cachedDeserFactories.add(new org.apache.axis.encoding.ser.ArrayDeserializerFactory());
+
+            qName = new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowGetProcessDefinitions");
+            cachedSerQNames.add(qName);
+            cls = urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions.class;
+            cachedSerClasses.add(cls);
+            cachedSerFactories.add(beansf);
+            cachedDeserFactories.add(beandf);
+
+            qName = new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowProcessDefinitionUUID");
+            cachedSerQNames.add(qName);
+            cls = urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID.class;
+            cachedSerClasses.add(cls);
+            cachedSerFactories.add(beansf);
+            cachedDeserFactories.add(beandf);
+
+            qName = new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowProcessDefinitionUUIDArray");
+            cachedSerQNames.add(qName);
+            cls = urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[].class;
+            cachedSerClasses.add(cls);
+            qName = new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowProcessDefinitionUUID");
+            qName2 = new javax.xml.namespace.QName("", "wsWorkflowProcessDefinitions");
             cachedSerFactories.add(new org.apache.axis.encoding.ser.ArraySerializerFactory(qName, qName2));
             cachedDeserFactories.add(new org.apache.axis.encoding.ser.ArrayDeserializerFactory());
 
@@ -9510,6 +9546,38 @@ public class XtentisBindingStub extends org.apache.axis.client.Stub implements u
                 return (urn_com_amalto_xtentis_webservice.WSCheckServiceConfigResponse) _resp;
             } catch (java.lang.Exception _exception) {
                 return (urn_com_amalto_xtentis_webservice.WSCheckServiceConfigResponse) org.apache.axis.utils.JavaUtils.convert(_resp, urn_com_amalto_xtentis_webservice.WSCheckServiceConfigResponse.class);
+            }
+        }
+  } catch (org.apache.axis.AxisFault axisFaultException) {
+  throw axisFaultException;
+}
+    }
+
+    public urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[] workflowGetProcessDefinitions(urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions wsWorkflowGetProcessDefinitions) throws java.rmi.RemoteException {
+        if (super.cachedEndpoint == null) {
+            throw new org.apache.axis.NoEndPointException();
+        }
+        org.apache.axis.client.Call _call = createCall();
+        _call.setOperation(_operations[163]);
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
+        _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
+        _call.setOperationName(new javax.xml.namespace.QName("", "workflowGetProcessDefinitions"));
+
+        setRequestHeaders(_call);
+        setAttachments(_call);
+ try {        java.lang.Object _resp = _call.invoke(new java.lang.Object[] {wsWorkflowGetProcessDefinitions});
+
+        if (_resp instanceof java.rmi.RemoteException) {
+            throw (java.rmi.RemoteException)_resp;
+        }
+        else {
+            extractAttachments(_call);
+            try {
+                return (urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[]) _resp;
+            } catch (java.lang.Exception _exception) {
+                return (urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[]) org.apache.axis.utils.JavaUtils.convert(_resp, urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[].class);
             }
         }
   } catch (org.apache.axis.AxisFault axisFaultException) {

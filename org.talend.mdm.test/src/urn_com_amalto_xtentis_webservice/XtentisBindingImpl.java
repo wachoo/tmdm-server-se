@@ -660,4 +660,8 @@ public class XtentisBindingImpl implements urn_com_amalto_xtentis_webservice.Xte
         return null;
     }
 
+    public urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[] workflowGetProcessDefinitions(urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions wsWorkflowGetProcessDefinitions) throws java.rmi.RemoteException {
+        return null;
+    }
+
 }

@@ -24,24 +24,8 @@
 
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSConceptKey"
-        type="java:urn_com_amalto_xtentis_webservice.WSConceptKey"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSTypedContent"
         type="java:urn_com_amalto_xtentis_webservice.WSTypedContent"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersioningGetItemsVersions"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningGetItemsVersions"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -56,24 +40,16 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSVersioningGetItemsVersions"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningGetItemsVersions"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSSynchronizationPutObjectXML"
         type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPutObjectXML"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSServiceAction"
-        type="java:urn_com_amalto_xtentis_webservice.WSServiceAction"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSBase64KeyValue"
-        type="java:urn_com_amalto_xtentis_webservice.WSBase64KeyValue"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -88,8 +64,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSSynchronizationPlanStatus"
-        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPlanStatus"
+        qname="ns:WSBase64KeyValue"
+        type="java:urn_com_amalto_xtentis_webservice.WSBase64KeyValue"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -102,17 +78,10 @@
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRoutingOrderV2Array"
-        type="java:urn_com_amalto_xtentis_webservice.WSRoutingOrderV2[]"
-        innerType="cmp-ns:WSRoutingOrderV2" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSProcessBytesUsingTransformerAsBackgroundJob"
-        type="java:urn_com_amalto_xtentis_webservice.WSProcessBytesUsingTransformerAsBackgroundJob"
+        qname="ns:WSSynchronizationPlanStatus"
+        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPlanStatus"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -127,24 +96,23 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSLanguage"
-        type="java:urn_com_amalto_xtentis_webservice.WSLanguage"
-        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
+        qname="ns:WSProcessBytesUsingTransformerAsBackgroundJob"
+        type="java:urn_com_amalto_xtentis_webservice.WSProcessBytesUsingTransformerAsBackgroundJob"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRoutingOrderV2Array"
+        type="java:urn_com_amalto_xtentis_webservice.WSRoutingOrderV2[]"
+        innerType="cmp-ns:WSRoutingOrderV2" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
         encodingStyle=""
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:>WSUniverse>itemsRevisionIDs"
         type="java:urn_com_amalto_xtentis_webservice.WSUniverseItemsRevisionIDs"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRoutingEngineV2Action"
-        type="java:urn_com_amalto_xtentis_webservice.WSRoutingEngineV2Action"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -167,16 +135,1088 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSCheckServiceConfigRequest"
-        type="java:urn_com_amalto_xtentis_webservice.WSCheckServiceConfigRequest"
+        qname="ns:WSBoolean"
+        type="java:urn_com_amalto_xtentis_webservice.WSBoolean"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSPutItem"
-        type="java:urn_com_amalto_xtentis_webservice.WSPutItem"
+        qname="ns:WSVersioningCommitItems"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningCommitItems"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSVersioningObjectsVersions"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningObjectsVersionsObjects[]"
+        innerType="cmp-ns:>WSVersioningObjectsVersions>objects" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSPutRoutingRule"
+        type="java:urn_com_amalto_xtentis_webservice.WSPutRoutingRule"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExtractedContent"
+        type="java:urn_com_amalto_xtentis_webservice.WSExtractedContent"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>WSTransformerContext>pipeline"
+        type="java:urn_com_amalto_xtentis_webservice.WSTransformerContextPipelinePipelineItem[]"
+        innerType="cmp-ns:>>WSTransformerContext>pipeline>pipelineItem" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:BackgroundJobStatusType"
+        type="java:urn_com_amalto_xtentis_webservice.BackgroundJobStatusType"
+        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetConceptsInDataClusterWithRevisions"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetConceptsInDataClusterWithRevisions"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRoutingRuleExpression"
+        type="java:urn_com_amalto_xtentis_webservice.WSRoutingRuleExpression"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetObjectsForRoles"
+        type="java:java.lang.String[]"
+        innerType="cmp-ns:string" xmlns:cmp-ns="http://www.w3.org/2001/XMLSchema"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>WSSynchronizationPlan>xtentisObjectsSynchronizations"
+        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPlanXtentisObjectsSynchronizations"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSPutRole"
+        type="java:urn_com_amalto_xtentis_webservice.WSPutRole"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>WSLinkedHashMap>typedContentEntry"
+        type="java:urn_com_amalto_xtentis_webservice.WSLinkedHashMapTypedContentEntry"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>WSVersioningObjectsVersions>objects"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningObjectsVersionsObjects"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSMenuPKArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSMenuPK[]"
+        innerType="cmp-ns:WSMenuPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExistsDataCluster"
+        type="java:urn_com_amalto_xtentis_webservice.WSExistsDataCluster"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSVersioningGetUniverseVersions"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningGetUniverseVersions"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExecuteStoredProcedure"
+        type="java:urn_com_amalto_xtentis_webservice.WSExecuteStoredProcedure"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSBusinessConceptPK"
+        type="java:urn_com_amalto_xtentis_webservice.WSBusinessConceptPK"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSPutItemWithReport"
+        type="java:urn_com_amalto_xtentis_webservice.WSPutItemWithReport"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetComponentVersion"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetComponentVersion"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSWorkflowGetProcessDefinitions"
+        type="java:urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>WSItemPKsByCriteriaResponse>results"
+        type="java:urn_com_amalto_xtentis_webservice.WSItemPKsByCriteriaResponseResults"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRoutingRulePKArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSRoutingRulePK[]"
+        innerType="cmp-ns:WSRoutingRulePK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExistsSynchronizationItem"
+        type="java:urn_com_amalto_xtentis_webservice.WSExistsSynchronizationItem"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetItem"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetItem"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSTransformerPluginV2sList"
+        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPluginV2SListItem[]"
+        innerType="cmp-ns:>WSTransformerPluginV2sList>Item" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSDeleteTransformer"
+        type="java:urn_com_amalto_xtentis_webservice.WSDeleteTransformer"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetRolePKs"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetRolePKs"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSWorkflowProcessDefinitionUUID"
+        type="java:urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRolePKArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSRolePK[]"
+        innerType="cmp-ns:WSRolePK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExistsRole"
+        type="java:urn_com_amalto_xtentis_webservice.WSExistsRole"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSVersioningGetInfo"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningGetInfo"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetTransformerV2PKs"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetTransformerV2PKs"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSDeleteItem"
+        type="java:urn_com_amalto_xtentis_webservice.WSDeleteItem"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSDataModel"
+        type="java:urn_com_amalto_xtentis_webservice.WSDataModel"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>WSTransformerContext>projectedItemPKs"
+        type="java:urn_com_amalto_xtentis_webservice.WSItemPK[]"
+        innerType="cmp-ns:WSItemPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSItemPKArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSItemPK[]"
+        innerType="cmp-ns:WSItemPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSServiceGetConfiguration"
+        type="java:urn_com_amalto_xtentis_webservice.WSServiceGetConfiguration"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExistsTransformerPluginV2"
+        type="java:urn_com_amalto_xtentis_webservice.WSExistsTransformerPluginV2"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSCheckServiceConfigResponse"
+        type="java:urn_com_amalto_xtentis_webservice.WSCheckServiceConfigResponse"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSSynchronizationGetObjectXML"
+        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationGetObjectXML"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetTransformer"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetTransformer"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSLinkedHashMap"
+        type="java:urn_com_amalto_xtentis_webservice.WSLinkedHashMapTypedContentEntry[]"
+        innerType="cmp-ns:>WSLinkedHashMap>typedContentEntry" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetView"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetView"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetTransformerPKs"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetTransformerPKs"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExecuteRoutingOrderV2Synchronously"
+        type="java:urn_com_amalto_xtentis_webservice.WSExecuteRoutingOrderV2Synchronously"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRoutingEngineV2ActionCode"
+        type="java:urn_com_amalto_xtentis_webservice.WSRoutingEngineV2ActionCode"
+        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSVersion"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersion"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSServiceGetDocument"
+        type="java:urn_com_amalto_xtentis_webservice.WSServiceGetDocument"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSDeleteRoutingRule"
+        type="java:urn_com_amalto_xtentis_webservice.WSDeleteRoutingRule"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSTransformer"
+        type="java:urn_com_amalto_xtentis_webservice.WSTransformer"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSVersioningTagUniverse"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningTagUniverse"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetRoutingRule"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetRoutingRule"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSStringArray"
+        type="java:java.lang.String[]"
+        innerType="cmp-ns:string" xmlns:cmp-ns="http://www.w3.org/2001/XMLSchema"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSTransformerPKArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPK[]"
+        innerType="cmp-ns:WSTransformerPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRoutingOrderV2"
+        type="java:urn_com_amalto_xtentis_webservice.WSRoutingOrderV2"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSVersioningRestoreUniverse"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningRestoreUniverse"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExistsSynchronizationPlan"
+        type="java:urn_com_amalto_xtentis_webservice.WSExistsSynchronizationPlan"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSByteArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSByteArray"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSI18nString"
+        type="java:urn_com_amalto_xtentis_webservice.WSI18NString"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSBackgroundJobPKArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSBackgroundJobPK[]"
+        innerType="cmp-ns:WSBackgroundJobPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSSynchronizationPlanActionCode"
+        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPlanActionCode"
+        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSDroppedItemPK"
+        type="java:urn_com_amalto_xtentis_webservice.WSDroppedItemPK"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSDataModelPK"
+        type="java:urn_com_amalto_xtentis_webservice.WSDataModelPK"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetVersioningSystemConfiguration"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetVersioningSystemConfiguration"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSConceptRevisionMap"
+        type="java:urn_com_amalto_xtentis_webservice.WSConceptRevisionMapMapEntry[]"
+        innerType="cmp-ns:>WSConceptRevisionMap>mapEntry" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetUniverseByRevisionType"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetUniverseByRevisionType"
+        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSVersioningGetItemContent"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningGetItemContent"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>WSRole>specification"
+        type="java:urn_com_amalto_xtentis_webservice.WSRoleSpecification"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSPutTransformer"
+        type="java:urn_com_amalto_xtentis_webservice.WSPutTransformer"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSVersioningItemsVersions"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningItemsVersionsItems[]"
+        innerType="cmp-ns:>WSVersioningItemsVersions>items" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSServiceActionCode"
+        type="java:urn_com_amalto_xtentis_webservice.WSServiceActionCode"
+        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetMenuPKs"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetMenuPKs"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExistsView"
+        type="java:urn_com_amalto_xtentis_webservice.WSExistsView"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSXPathsSearch"
+        type="java:urn_com_amalto_xtentis_webservice.WSXPathsSearch"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetDataModel"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetDataModel"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExtractUsingTransformer"
+        type="java:urn_com_amalto_xtentis_webservice.WSExtractUsingTransformer"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExtractThroughTransformerV2"
+        type="java:urn_com_amalto_xtentis_webservice.WSExtractThroughTransformerV2"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSTransformerPluginV2VariableDescriptor"
+        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPluginV2VariableDescriptor"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSPutItemArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSPutItem[]"
+        innerType="cmp-ns:WSPutItem" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSUniversePKArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSUniversePK[]"
+        innerType="cmp-ns:WSUniversePK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSResolveSynchronizationItem"
+        type="java:urn_com_amalto_xtentis_webservice.WSResolveSynchronizationItem"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetSynchronizationPlanItemsAlgorithms"
+        type="java:java.lang.String[]"
+        innerType="cmp-ns:string" xmlns:cmp-ns="http://www.w3.org/2001/XMLSchema"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetItemsPivotIndex"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetItemsPivotIndex"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>WSConceptRevisionMap>mapEntry"
+        type="java:urn_com_amalto_xtentis_webservice.WSConceptRevisionMapMapEntry"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetConceptsInDataCluster"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetConceptsInDataCluster"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSInitData"
+        type="java:urn_com_amalto_xtentis_webservice.WSInitData"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRoutingOrderV2PKArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSRoutingOrderV2PK[]"
+        innerType="cmp-ns:WSRoutingOrderV2PK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>>WSTransformerContext>pipeline>pipelineItem"
+        type="java:urn_com_amalto_xtentis_webservice.WSTransformerContextPipelinePipelineItem"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSMDMConfig"
+        type="java:urn_com_amalto_xtentis_webservice.WSMDMConfig"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSTransformerPluginSpec"
+        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPluginSpec"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSSynchronizationPutItemXML"
+        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPutItemXML"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSPutTransformerV2"
+        type="java:urn_com_amalto_xtentis_webservice.WSPutTransformerV2"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSLoadDroppedItem"
+        type="java:urn_com_amalto_xtentis_webservice.WSLoadDroppedItem"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>>WSSynchronizationPlan>xtentisObjectsSynchronizations>synchronizations"
+        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPlanXtentisObjectsSynchronizationsSynchronizations"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>WSPipeline>typedContentEntry"
+        type="java:urn_com_amalto_xtentis_webservice.WSPipelineTypedContentEntry"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSTransformerV2PKArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSTransformerV2PK[]"
+        innerType="cmp-ns:WSTransformerV2PK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSPutSynchronizationPlan"
+        type="java:urn_com_amalto_xtentis_webservice.WSPutSynchronizationPlan"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetSynchronizationItem"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetSynchronizationItem"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSSynchronizationItem"
+        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationItem"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSDroppedItemPKArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSDroppedItemPK[]"
+        innerType="cmp-ns:WSDroppedItemPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetSynchronizationItemPKs"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetSynchronizationItemPKs"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSConnectorFunction"
+        type="java:urn_com_amalto_xtentis_webservice.WSConnectorFunction"
+        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSWhereAnd"
+        type="java:urn_com_amalto_xtentis_webservice.WSWhereItem[]"
+        innerType="cmp-ns:WSWhereItem" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSDeleteDataCluster"
+        type="java:urn_com_amalto_xtentis_webservice.WSDeleteDataCluster"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSStringPredicate"
+        type="java:urn_com_amalto_xtentis_webservice.WSStringPredicate"
+        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSFindBackgroundJobPKs"
+        type="java:urn_com_amalto_xtentis_webservice.WSFindBackgroundJobPKs"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetCurrentUniverse"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetCurrentUniverse"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSTransformerPK"
+        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPK"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRolePK"
+        type="java:urn_com_amalto_xtentis_webservice.WSRolePK"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSServicePutConfiguration"
+        type="java:urn_com_amalto_xtentis_webservice.WSServicePutConfiguration"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSUniverse"
+        type="java:urn_com_amalto_xtentis_webservice.WSUniverse"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSPutVersioningSystemConfiguration"
+        type="java:urn_com_amalto_xtentis_webservice.WSPutVersioningSystemConfiguration"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRoutingEngineV2Status"
+        type="java:urn_com_amalto_xtentis_webservice.WSRoutingEngineV2Status"
+        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSWorkflowProcessDefinitionUUIDArray"
+        type="java:urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[]"
+        innerType="cmp-ns:WSWorkflowProcessDefinitionUUID" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetStoredProcedure"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetStoredProcedure"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSDeleteStoredProcedure"
+        type="java:urn_com_amalto_xtentis_webservice.WSDeleteStoredProcedure"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSConnectorInteractionResponse"
+        type="java:urn_com_amalto_xtentis_webservice.WSConnectorInteractionResponse"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRoutingOrderV2PK"
+        type="java:urn_com_amalto_xtentis_webservice.WSRoutingOrderV2PK"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <arrayMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSVersioningUniverseVersions"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningUniverseVersionsTagStructure[]"
+        innerType="cmp-ns:>WSVersioningUniverseVersions>tagStructure" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSSynchronizationGetUnsynchronizedObjectsIDs"
+        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationGetUnsynchronizedObjectsIDs"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSInt"
+        type="java:urn_com_amalto_xtentis_webservice.WSInt"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSPutUniverse"
+        type="java:urn_com_amalto_xtentis_webservice.WSPutUniverse"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRoutingRule"
+        type="java:urn_com_amalto_xtentis_webservice.WSRoutingRule"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetSynchronizationPlanPKs"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetSynchronizationPlanPKs"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExistsRoutingOrderV2"
+        type="java:urn_com_amalto_xtentis_webservice.WSExistsRoutingOrderV2"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSWhereOperator"
+        type="java:urn_com_amalto_xtentis_webservice.WSWhereOperator"
+        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSExistsRoutingRule"
+        type="java:urn_com_amalto_xtentis_webservice.WSExistsRoutingRule"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetBackgroundJob"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetBackgroundJob"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSVersioningTagItems"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningTagItems"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSSynchronizationPlan"
+        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPlan"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSSynchronizationGetItemXML"
+        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationGetItemXML"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetRoutingOrderV2"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetRoutingOrderV2"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSDeleteRole"
+        type="java:urn_com_amalto_xtentis_webservice.WSDeleteRole"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSConceptKey"
+        type="java:urn_com_amalto_xtentis_webservice.WSConceptKey"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSServiceAction"
+        type="java:urn_com_amalto_xtentis_webservice.WSServiceAction"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSLanguage"
+        type="java:urn_com_amalto_xtentis_webservice.WSLanguage"
+        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRoutingEngineV2Action"
+        type="java:urn_com_amalto_xtentis_webservice.WSRoutingEngineV2Action"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -191,24 +1231,24 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSPutItem"
+        type="java:urn_com_amalto_xtentis_webservice.WSPutItem"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSCheckServiceConfigRequest"
+        type="java:urn_com_amalto_xtentis_webservice.WSCheckServiceConfigRequest"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSGetUniverse"
         type="java:urn_com_amalto_xtentis_webservice.WSGetUniverse"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetTransformerPluginV2sList"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetTransformerPluginV2SList"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetBusinessConceptKey"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetBusinessConceptKey"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -223,8 +1263,16 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSBoolean"
-        type="java:urn_com_amalto_xtentis_webservice.WSBoolean"
+        qname="ns:WSGetBusinessConceptKey"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetBusinessConceptKey"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSGetTransformerPluginV2sList"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetTransformerPluginV2SList"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -255,16 +1303,16 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetSynchronizationPlan"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetSynchronizationPlan"
+        qname="ns:WSExecuteTransformerV2"
+        type="java:urn_com_amalto_xtentis_webservice.WSExecuteTransformerV2"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExecuteTransformerV2"
-        type="java:urn_com_amalto_xtentis_webservice.WSExecuteTransformerV2"
+        qname="ns:WSGetSynchronizationPlan"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetSynchronizationPlan"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -279,31 +1327,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersioningCommitItems"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningCommitItems"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersioningObjectsVersions"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningObjectsVersionsObjects[]"
-        innerType="cmp-ns:>WSVersioningObjectsVersions>objects" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:>WSTransformerPluginV2sList>Item"
         type="java:urn_com_amalto_xtentis_webservice.WSTransformerPluginV2SListItem"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSPutRoutingRule"
-        type="java:urn_com_amalto_xtentis_webservice.WSPutRoutingRule"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -326,39 +1351,16 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExtractedContent"
-        type="java:urn_com_amalto_xtentis_webservice.WSExtractedContent"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSGetItems"
         type="java:urn_com_amalto_xtentis_webservice.WSGetItems"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>WSTransformerContext>pipeline"
-        type="java:urn_com_amalto_xtentis_webservice.WSTransformerContextPipelinePipelineItem[]"
-        innerType="cmp-ns:>>WSTransformerContext>pipeline>pipelineItem" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSGetBusinessConceptValue"
         type="java:urn_com_amalto_xtentis_webservice.WSGetBusinessConceptValue"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSWhereItem"
-        type="java:urn_com_amalto_xtentis_webservice.WSWhereItem"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -373,32 +1375,16 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSWhereItem"
+        type="java:urn_com_amalto_xtentis_webservice.WSWhereItem"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSExtractUsingTransformerThruView"
         type="java:urn_com_amalto_xtentis_webservice.WSExtractUsingTransformerThruView"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetConceptsInDataClusterWithRevisions"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetConceptsInDataClusterWithRevisions"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:BackgroundJobStatusType"
-        type="java:urn_com_amalto_xtentis_webservice.BackgroundJobStatusType"
-        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRoutingRuleExpression"
-        type="java:urn_com_amalto_xtentis_webservice.WSRoutingRuleExpression"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -411,25 +1397,10 @@
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetObjectsForRoles"
-        type="java:java.lang.String[]"
-        innerType="cmp-ns:string" xmlns:cmp-ns="http://www.w3.org/2001/XMLSchema"
-        encodingStyle=""
-      />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSItem"
         type="java:urn_com_amalto_xtentis_webservice.WSItem"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>WSSynchronizationPlan>xtentisObjectsSynchronizations"
-        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPlanXtentisObjectsSynchronizations"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -476,14 +1447,6 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSPutRole"
-        type="java:urn_com_amalto_xtentis_webservice.WSPutRole"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSDeleteUniverse"
         type="java:urn_com_amalto_xtentis_webservice.WSDeleteUniverse"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
@@ -500,47 +1463,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>WSLinkedHashMap>typedContentEntry"
-        type="java:urn_com_amalto_xtentis_webservice.WSLinkedHashMapTypedContentEntry"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSFindAllDroppedItemsPKs"
         type="java:urn_com_amalto_xtentis_webservice.WSFindAllDroppedItemsPKs"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>WSVersioningObjectsVersions>objects"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningObjectsVersionsObjects"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSMenuPKArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSMenuPK[]"
-        innerType="cmp-ns:WSMenuPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersioningGetUniverseVersions"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningGetUniverseVersions"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExistsDataCluster"
-        type="java:urn_com_amalto_xtentis_webservice.WSExistsDataCluster"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -554,8 +1478,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExecuteStoredProcedure"
-        type="java:urn_com_amalto_xtentis_webservice.WSExecuteStoredProcedure"
+        qname="ns:WSGetRole"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetRole"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -570,8 +1494,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetRole"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetRole"
+        qname="ns:WSExecuteTransformerV2AsJob"
+        type="java:urn_com_amalto_xtentis_webservice.WSExecuteTransformerV2AsJob"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -586,24 +1510,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExecuteTransformerV2AsJob"
-        type="java:urn_com_amalto_xtentis_webservice.WSExecuteTransformerV2AsJob"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSLogout"
         type="java:urn_com_amalto_xtentis_webservice.WSLogout"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSBusinessConceptPK"
-        type="java:urn_com_amalto_xtentis_webservice.WSBusinessConceptPK"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -617,40 +1525,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetComponentVersion"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetComponentVersion"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSPutItemWithReport"
-        type="java:urn_com_amalto_xtentis_webservice.WSPutItemWithReport"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:>WSOutputDecisionTable>decisions"
         type="java:urn_com_amalto_xtentis_webservice.WSOutputDecisionTableDecisions"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>WSItemPKsByCriteriaResponse>results"
-        type="java:urn_com_amalto_xtentis_webservice.WSItemPKsByCriteriaResponseResults"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>WSVersioningUniverseVersions>tagStructure"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningUniverseVersionsTagStructure"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -663,11 +1539,12 @@
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
-      <arrayMapping
+      <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRoutingRulePKArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSRoutingRulePK[]"
-        innerType="cmp-ns:WSRoutingRulePK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:>WSVersioningUniverseVersions>tagStructure"
+        type="java:urn_com_amalto_xtentis_webservice.WSVersioningUniverseVersionsTagStructure"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
       <typeMapping
@@ -688,14 +1565,6 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSPutDBDataCluster"
-        type="java:urn_com_amalto_xtentis_webservice.WSPutDBDataCluster"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSPutDataModel"
         type="java:urn_com_amalto_xtentis_webservice.WSPutDataModel"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
@@ -704,23 +1573,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExistsSynchronizationItem"
-        type="java:urn_com_amalto_xtentis_webservice.WSExistsSynchronizationItem"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSTransformerPluginV2sList"
-        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPluginV2SListItem[]"
-        innerType="cmp-ns:>WSTransformerPluginV2sList>Item" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetItem"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetItem"
+        qname="ns:WSPutDBDataCluster"
+        type="java:urn_com_amalto_xtentis_webservice.WSPutDBDataCluster"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -743,39 +1597,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSDeleteTransformer"
-        type="java:urn_com_amalto_xtentis_webservice.WSDeleteTransformer"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetRolePKs"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetRolePKs"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSConnectorInteraction"
         type="java:urn_com_amalto_xtentis_webservice.WSConnectorInteraction"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRolePKArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSRolePK[]"
-        innerType="cmp-ns:WSRolePK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExistsRole"
-        type="java:urn_com_amalto_xtentis_webservice.WSExistsRole"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -784,14 +1607,6 @@
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSTransformerV2"
         type="java:urn_com_amalto_xtentis_webservice.WSTransformerV2"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersioningGetInfo"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningGetInfo"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -819,14 +1634,6 @@
         deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
         encodingStyle=""
       />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetTransformerV2PKs"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetTransformerV2PKs"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
       <arrayMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSOutputDecisionTable"
@@ -836,23 +1643,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSDeleteItem"
-        type="java:urn_com_amalto_xtentis_webservice.WSDeleteItem"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>WSTransformerContext>projectedItemPKs"
-        type="java:urn_com_amalto_xtentis_webservice.WSItemPK[]"
-        innerType="cmp-ns:WSItemPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSDataModel"
-        type="java:urn_com_amalto_xtentis_webservice.WSDataModel"
+        qname="ns:WSDeleteDataModel"
+        type="java:urn_com_amalto_xtentis_webservice.WSDeleteDataModel"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -867,55 +1659,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSDeleteDataModel"
-        type="java:urn_com_amalto_xtentis_webservice.WSDeleteDataModel"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSDeleteSynchronizationPlan"
         type="java:urn_com_amalto_xtentis_webservice.WSDeleteSynchronizationPlan"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSItemPKArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSItemPK[]"
-        innerType="cmp-ns:WSItemPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSServiceGetConfiguration"
-        type="java:urn_com_amalto_xtentis_webservice.WSServiceGetConfiguration"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExistsTransformerPluginV2"
-        type="java:urn_com_amalto_xtentis_webservice.WSExistsTransformerPluginV2"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSCheckServiceConfigResponse"
-        type="java:urn_com_amalto_xtentis_webservice.WSCheckServiceConfigResponse"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSSynchronizationGetObjectXML"
-        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationGetObjectXML"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -938,8 +1683,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetTransformer"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetTransformer"
+        qname="ns:WSTransformerV2PK"
+        type="java:urn_com_amalto_xtentis_webservice.WSTransformerV2PK"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -954,39 +1699,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSTransformerV2PK"
-        type="java:urn_com_amalto_xtentis_webservice.WSTransformerV2PK"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetView"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetView"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSRegexDataModelPKs"
         type="java:urn_com_amalto_xtentis_webservice.WSRegexDataModelPKs"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSLinkedHashMap"
-        type="java:urn_com_amalto_xtentis_webservice.WSLinkedHashMapTypedContentEntry[]"
-        innerType="cmp-ns:>WSLinkedHashMap>typedContentEntry" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetTransformerPKs"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetTransformerPKs"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -998,43 +1712,11 @@
         innerType="cmp-ns:string" xmlns:cmp-ns="http://www.w3.org/2001/XMLSchema"
         encodingStyle=""
       />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExecuteRoutingOrderV2Synchronously"
-        type="java:urn_com_amalto_xtentis_webservice.WSExecuteRoutingOrderV2Synchronously"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
       <arrayMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSItemPKsByCriteriaResponse"
         type="java:urn_com_amalto_xtentis_webservice.WSItemPKsByCriteriaResponseResults[]"
         innerType="cmp-ns:>WSItemPKsByCriteriaResponse>results" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRoutingEngineV2ActionCode"
-        type="java:urn_com_amalto_xtentis_webservice.WSRoutingEngineV2ActionCode"
-        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersion"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersion"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSServiceGetDocument"
-        type="java:urn_com_amalto_xtentis_webservice.WSServiceGetDocument"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
       <typeMapping
@@ -1063,14 +1745,6 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSDeleteRoutingRule"
-        type="java:urn_com_amalto_xtentis_webservice.WSDeleteRoutingRule"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSBackgroundJobPK"
         type="java:urn_com_amalto_xtentis_webservice.WSBackgroundJobPK"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
@@ -1079,24 +1753,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSTransformer"
-        type="java:urn_com_amalto_xtentis_webservice.WSTransformer"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:>WSVersioningItemsVersions>items"
         type="java:urn_com_amalto_xtentis_webservice.WSVersioningItemsVersionsItems"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersioningTagUniverse"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningTagUniverse"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -1117,33 +1775,11 @@
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetRoutingRule"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetRoutingRule"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSTransformerPKArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPK[]"
-        innerType="cmp-ns:WSTransformerPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
       <arrayMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSWhereOr"
         type="java:urn_com_amalto_xtentis_webservice.WSWhereItem[]"
         innerType="cmp-ns:WSWhereItem" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSStringArray"
-        type="java:java.lang.String[]"
-        innerType="cmp-ns:string" xmlns:cmp-ns="http://www.w3.org/2001/XMLSchema"
         encodingStyle=""
       />
       <typeMapping
@@ -1154,11 +1790,12 @@
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
-      <arrayMapping
+      <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSSynchronizationItemPK"
-        type="java:java.lang.String[]"
-        innerType="cmp-ns:string" xmlns:cmp-ns="http://www.w3.org/2001/XMLSchema"
+        qname="ns:WSGetServicesList"
+        type="java:urn_com_amalto_xtentis_webservice.WSGetServicesList"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
       <arrayMapping
@@ -1168,12 +1805,11 @@
         innerType="cmp-ns:WSPutItemWithReport" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
         encodingStyle=""
       />
-      <typeMapping
+      <arrayMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetServicesList"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetServicesList"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        qname="ns:WSSynchronizationItemPK"
+        type="java:java.lang.String[]"
+        innerType="cmp-ns:string" xmlns:cmp-ns="http://www.w3.org/2001/XMLSchema"
         encodingStyle=""
       />
       <typeMapping
@@ -1196,14 +1832,6 @@
         qname="ns:WSViewPKArray"
         type="java:urn_com_amalto_xtentis_webservice.WSViewPK[]"
         innerType="cmp-ns:WSViewPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRoutingOrderV2"
-        type="java:urn_com_amalto_xtentis_webservice.WSRoutingOrderV2"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
       <typeMapping
@@ -1232,32 +1860,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersioningRestoreUniverse"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningRestoreUniverse"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSPutDataCluster"
         type="java:urn_com_amalto_xtentis_webservice.WSPutDataCluster"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExistsSynchronizationPlan"
-        type="java:urn_com_amalto_xtentis_webservice.WSExistsSynchronizationPlan"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSByteArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSByteArray"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -1272,25 +1876,10 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSI18nString"
-        type="java:urn_com_amalto_xtentis_webservice.WSI18NString"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSVersioningItemHistory"
         type="java:urn_com_amalto_xtentis_webservice.WSVersioningItemHistory"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSBackgroundJobPKArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSBackgroundJobPK[]"
-        innerType="cmp-ns:WSBackgroundJobPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
         encodingStyle=""
       />
       <typeMapping
@@ -1310,32 +1899,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSSynchronizationPlanActionCode"
-        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPlanActionCode"
-        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSDroppedItemPK"
-        type="java:urn_com_amalto_xtentis_webservice.WSDroppedItemPK"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSGetBusinessConcepts"
         type="java:urn_com_amalto_xtentis_webservice.WSGetBusinessConcepts"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSDataModelPK"
-        type="java:urn_com_amalto_xtentis_webservice.WSDataModelPK"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -1350,41 +1915,10 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetVersioningSystemConfiguration"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetVersioningSystemConfiguration"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSConceptRevisionMap"
-        type="java:urn_com_amalto_xtentis_webservice.WSConceptRevisionMapMapEntry[]"
-        innerType="cmp-ns:>WSConceptRevisionMap>mapEntry" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSPutMenu"
         type="java:urn_com_amalto_xtentis_webservice.WSPutMenu"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersioningGetItemContent"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningGetItemContent"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetUniverseByRevisionType"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetUniverseByRevisionType"
-        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
         encodingStyle=""
       />
       <typeMapping
@@ -1405,41 +1939,10 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>WSRole>specification"
-        type="java:urn_com_amalto_xtentis_webservice.WSRoleSpecification"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSPutTransformer"
-        type="java:urn_com_amalto_xtentis_webservice.WSPutTransformer"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersioningItemsVersions"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningItemsVersionsItems[]"
-        innerType="cmp-ns:>WSVersioningItemsVersions>items" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSDeleteItems"
         type="java:urn_com_amalto_xtentis_webservice.WSDeleteItems"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSServiceActionCode"
-        type="java:urn_com_amalto_xtentis_webservice.WSServiceActionCode"
-        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
         encodingStyle=""
       />
       <typeMapping
@@ -1468,40 +1971,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetMenuPKs"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetMenuPKs"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExistsView"
-        type="java:urn_com_amalto_xtentis_webservice.WSExistsView"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSXPathsSearch"
-        type="java:urn_com_amalto_xtentis_webservice.WSXPathsSearch"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:>WSSynchronizationPlan>itemsSynchronizations"
         type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPlanItemsSynchronizations"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetDataModel"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetDataModel"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -1516,24 +1987,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExtractUsingTransformer"
-        type="java:urn_com_amalto_xtentis_webservice.WSExtractUsingTransformer"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSDeleteRoutingOrderV2"
         type="java:urn_com_amalto_xtentis_webservice.WSDeleteRoutingOrderV2"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSTransformerPluginV2Details"
-        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPluginV2Details"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -1548,16 +2003,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSTransformerPluginV2VariableDescriptor"
-        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPluginV2VariableDescriptor"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExtractThroughTransformerV2"
-        type="java:urn_com_amalto_xtentis_webservice.WSExtractThroughTransformerV2"
+        qname="ns:WSTransformerPluginV2Details"
+        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPluginV2Details"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -1568,20 +2015,6 @@
         type="java:urn_com_amalto_xtentis_webservice.WSGetRoutingOrderV2SByCriteria"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSPutItemArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSPutItem[]"
-        innerType="cmp-ns:WSPutItem" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSUniversePKArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSUniversePK[]"
-        innerType="cmp-ns:WSUniversePK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
         encodingStyle=""
       />
       <typeMapping
@@ -1633,39 +2066,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSResolveSynchronizationItem"
-        type="java:urn_com_amalto_xtentis_webservice.WSResolveSynchronizationItem"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSRemoveDroppedItem"
         type="java:urn_com_amalto_xtentis_webservice.WSRemoveDroppedItem"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetSynchronizationPlanItemsAlgorithms"
-        type="java:java.lang.String[]"
-        innerType="cmp-ns:string" xmlns:cmp-ns="http://www.w3.org/2001/XMLSchema"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>WSConceptRevisionMap>mapEntry"
-        type="java:urn_com_amalto_xtentis_webservice.WSConceptRevisionMapMapEntry"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetItemsPivotIndex"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetItemsPivotIndex"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -1696,47 +2098,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetConceptsInDataCluster"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetConceptsInDataCluster"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRoutingOrderV2PKArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSRoutingOrderV2PK[]"
-        innerType="cmp-ns:WSRoutingOrderV2PK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSInitData"
-        type="java:urn_com_amalto_xtentis_webservice.WSInitData"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSGetTransformerPluginV2Details"
         type="java:urn_com_amalto_xtentis_webservice.WSGetTransformerPluginV2Details"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>>WSTransformerContext>pipeline>pipelineItem"
-        type="java:urn_com_amalto_xtentis_webservice.WSTransformerContextPipelinePipelineItem"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSMDMConfig"
-        type="java:urn_com_amalto_xtentis_webservice.WSMDMConfig"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -1749,61 +2112,6 @@
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSSynchronizationPutItemXML"
-        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPutItemXML"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSTransformerPluginSpec"
-        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPluginSpec"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSPutTransformerV2"
-        type="java:urn_com_amalto_xtentis_webservice.WSPutTransformerV2"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSLoadDroppedItem"
-        type="java:urn_com_amalto_xtentis_webservice.WSLoadDroppedItem"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>>WSSynchronizationPlan>xtentisObjectsSynchronizations>synchronizations"
-        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPlanXtentisObjectsSynchronizationsSynchronizations"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:>WSPipeline>typedContentEntry"
-        type="java:urn_com_amalto_xtentis_webservice.WSPipelineTypedContentEntry"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSTransformerV2PKArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSTransformerV2PK[]"
-        innerType="cmp-ns:WSTransformerV2PK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
       <arrayMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSDataClusterPKArray"
@@ -1813,32 +2121,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetSynchronizationItem"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetSynchronizationItem"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSPutSynchronizationPlan"
-        type="java:urn_com_amalto_xtentis_webservice.WSPutSynchronizationPlan"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSBackgroundJob"
         type="java:urn_com_amalto_xtentis_webservice.WSBackgroundJob"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSProcessBytesUsingTransformer"
-        type="java:urn_com_amalto_xtentis_webservice.WSProcessBytesUsingTransformer"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -1853,8 +2137,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSSynchronizationItem"
-        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationItem"
+        qname="ns:WSProcessBytesUsingTransformer"
+        type="java:urn_com_amalto_xtentis_webservice.WSProcessBytesUsingTransformer"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -1868,33 +2152,10 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetSynchronizationItemPKs"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetSynchronizationItemPKs"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSDroppedItemPKArray"
-        type="java:urn_com_amalto_xtentis_webservice.WSDroppedItemPK[]"
-        innerType="cmp-ns:WSDroppedItemPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSGetUniversePKs"
         type="java:urn_com_amalto_xtentis_webservice.WSGetUniversePKs"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSConnectorFunction"
-        type="java:urn_com_amalto_xtentis_webservice.WSConnectorFunction"
-        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
         encodingStyle=""
       />
       <typeMapping
@@ -1913,41 +2174,10 @@
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSWhereAnd"
-        type="java:urn_com_amalto_xtentis_webservice.WSWhereItem[]"
-        innerType="cmp-ns:WSWhereItem" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSDeleteDataCluster"
-        type="java:urn_com_amalto_xtentis_webservice.WSDeleteDataCluster"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSStringPredicate"
-        type="java:urn_com_amalto_xtentis_webservice.WSStringPredicate"
-        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
-        encodingStyle=""
-      />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSPing"
         type="java:urn_com_amalto_xtentis_webservice.WSPing"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRegexDataClusterPKs"
-        type="java:urn_com_amalto_xtentis_webservice.WSRegexDataClusterPKs"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -1962,24 +2192,16 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
+        qname="ns:WSRegexDataClusterPKs"
+        type="java:urn_com_amalto_xtentis_webservice.WSRegexDataClusterPKs"
+        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
+        encodingStyle=""
+      />
+      <typeMapping
+        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSVersioningRestoreItems"
         type="java:urn_com_amalto_xtentis_webservice.WSVersioningRestoreItems"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSFindBackgroundJobPKs"
-        type="java:urn_com_amalto_xtentis_webservice.WSFindBackgroundJobPKs"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetCurrentUniverse"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetCurrentUniverse"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -2002,54 +2224,6 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSTransformerPK"
-        type="java:urn_com_amalto_xtentis_webservice.WSTransformerPK"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRolePK"
-        type="java:urn_com_amalto_xtentis_webservice.WSRolePK"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSUniverse"
-        type="java:urn_com_amalto_xtentis_webservice.WSUniverse"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSServicePutConfiguration"
-        type="java:urn_com_amalto_xtentis_webservice.WSServicePutConfiguration"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRoutingEngineV2Status"
-        type="java:urn_com_amalto_xtentis_webservice.WSRoutingEngineV2Status"
-        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSPutVersioningSystemConfiguration"
-        type="java:urn_com_amalto_xtentis_webservice.WSPutVersioningSystemConfiguration"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSSynchronizationItemStatus"
         type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationItemStatus"
         serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
@@ -2060,14 +2234,6 @@
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSStoredProcedurePK"
         type="java:urn_com_amalto_xtentis_webservice.WSStoredProcedurePK"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetStoredProcedure"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetStoredProcedure"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -2088,35 +2254,11 @@
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSConnectorInteractionResponse"
-        type="java:urn_com_amalto_xtentis_webservice.WSConnectorInteractionResponse"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSDeleteStoredProcedure"
-        type="java:urn_com_amalto_xtentis_webservice.WSDeleteStoredProcedure"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
       <arrayMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSDataModelPKArray"
         type="java:urn_com_amalto_xtentis_webservice.WSDataModelPK[]"
         innerType="cmp-ns:WSDataModelPK" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRoutingOrderV2PK"
-        type="java:urn_com_amalto_xtentis_webservice.WSRoutingOrderV2PK"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
       <typeMapping
@@ -2127,25 +2269,10 @@
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
       />
-      <arrayMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersioningUniverseVersions"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningUniverseVersionsTagStructure[]"
-        innerType="cmp-ns:>WSVersioningUniverseVersions>tagStructure" xmlns:cmp-ns="urn-com-amalto-xtentis-webservice"
-        encodingStyle=""
-      />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSDroppedItem"
         type="java:urn_com_amalto_xtentis_webservice.WSDroppedItem"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSSynchronizationGetUnsynchronizedObjectsIDs"
-        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationGetUnsynchronizedObjectsIDs"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -2160,48 +2287,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSInt"
-        type="java:urn_com_amalto_xtentis_webservice.WSInt"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSPutUniverse"
-        type="java:urn_com_amalto_xtentis_webservice.WSPutUniverse"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSVersioningRestoreObjects"
         type="java:urn_com_amalto_xtentis_webservice.WSVersioningRestoreObjects"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetSynchronizationPlanPKs"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetSynchronizationPlanPKs"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSRoutingRule"
-        type="java:urn_com_amalto_xtentis_webservice.WSRoutingRule"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExistsRoutingOrderV2"
-        type="java:urn_com_amalto_xtentis_webservice.WSExistsRoutingOrderV2"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -2212,14 +2299,6 @@
         type="java:urn_com_amalto_xtentis_webservice.WSRoutingOrderV2SearchCriteria"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSWhereOperator"
-        type="java:urn_com_amalto_xtentis_webservice.WSWhereOperator"
-        serializer="org.apache.axis.encoding.ser.EnumSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.EnumDeserializerFactory"
         encodingStyle=""
       />
       <typeMapping
@@ -2248,40 +2327,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSExistsRoutingRule"
-        type="java:urn_com_amalto_xtentis_webservice.WSExistsRoutingRule"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetBackgroundJob"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetBackgroundJob"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSPutBackgroundJob"
         type="java:urn_com_amalto_xtentis_webservice.WSPutBackgroundJob"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSSynchronizationPlan"
-        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationPlan"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSVersioningTagItems"
-        type="java:urn_com_amalto_xtentis_webservice.WSVersioningTagItems"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""
@@ -2296,14 +2343,6 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSSynchronizationGetItemXML"
-        type="java:urn_com_amalto_xtentis_webservice.WSSynchronizationGetItemXML"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSStoredProcedure"
         type="java:urn_com_amalto_xtentis_webservice.WSStoredProcedure"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
@@ -2312,24 +2351,8 @@
       />
       <typeMapping
         xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSGetRoutingOrderV2"
-        type="java:urn_com_amalto_xtentis_webservice.WSGetRoutingOrderV2"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
         qname="ns:WSGetFullPathValues"
         type="java:urn_com_amalto_xtentis_webservice.WSGetFullPathValues"
-        serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
-        deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
-        encodingStyle=""
-      />
-      <typeMapping
-        xmlns:ns="urn-com-amalto-xtentis-webservice"
-        qname="ns:WSDeleteRole"
-        type="java:urn_com_amalto_xtentis_webservice.WSDeleteRole"
         serializer="org.apache.axis.encoding.ser.BeanSerializerFactory"
         deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory"
         encodingStyle=""

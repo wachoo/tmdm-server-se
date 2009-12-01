@@ -12,8 +12,6 @@ public class WSRoleSpecificationInstance  implements java.io.Serializable {
 
     private boolean writable;
 
-    private java.lang.Boolean readonly;
-
     private java.lang.String[] parameter;
 
     public WSRoleSpecificationInstance() {
@@ -22,11 +20,9 @@ public class WSRoleSpecificationInstance  implements java.io.Serializable {
     public WSRoleSpecificationInstance(
            java.lang.String instanceName,
            boolean writable,
-           java.lang.Boolean readonly,
            java.lang.String[] parameter) {
            this.instanceName = instanceName;
            this.writable = writable;
-           this.readonly = readonly;
            this.parameter = parameter;
     }
 
@@ -68,26 +64,6 @@ public class WSRoleSpecificationInstance  implements java.io.Serializable {
      */
     public void setWritable(boolean writable) {
         this.writable = writable;
-    }
-
-
-    /**
-     * Gets the readonly value for this WSRoleSpecificationInstance.
-     * 
-     * @return readonly
-     */
-    public java.lang.Boolean getReadonly() {
-        return readonly;
-    }
-
-
-    /**
-     * Sets the readonly value for this WSRoleSpecificationInstance.
-     * 
-     * @param readonly
-     */
-    public void setReadonly(java.lang.Boolean readonly) {
-        this.readonly = readonly;
     }
 
 
@@ -134,9 +110,6 @@ public class WSRoleSpecificationInstance  implements java.io.Serializable {
              (this.instanceName!=null &&
               this.instanceName.equals(other.getInstanceName()))) &&
             this.writable == other.isWritable() &&
-            ((this.readonly==null && other.getReadonly()==null) || 
-             (this.readonly!=null &&
-              this.readonly.equals(other.getReadonly()))) &&
             ((this.parameter==null && other.getParameter()==null) || 
              (this.parameter!=null &&
               java.util.Arrays.equals(this.parameter, other.getParameter())));
@@ -155,9 +128,6 @@ public class WSRoleSpecificationInstance  implements java.io.Serializable {
             _hashCode += getInstanceName().hashCode();
         }
         _hashCode += (isWritable() ? Boolean.TRUE : Boolean.FALSE).hashCode();
-        if (getReadonly() != null) {
-            _hashCode += getReadonly().hashCode();
-        }
         if (getParameter() != null) {
             for (int i=0;
                  i<java.lang.reflect.Array.getLength(getParameter());
@@ -189,13 +159,6 @@ public class WSRoleSpecificationInstance  implements java.io.Serializable {
         elemField.setFieldName("writable");
         elemField.setXmlName(new javax.xml.namespace.QName("", "writable"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "boolean"));
-        elemField.setNillable(false);
-        typeDesc.addFieldDesc(elemField);
-        elemField = new org.apache.axis.description.ElementDesc();
-        elemField.setFieldName("readonly");
-        elemField.setXmlName(new javax.xml.namespace.QName("", "readonly"));
-        elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "boolean"));
-        elemField.setMinOccurs(0);
         elemField.setNillable(false);
         typeDesc.addFieldDesc(elemField);
         elemField = new org.apache.axis.description.ElementDesc();

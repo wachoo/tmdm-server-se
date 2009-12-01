@@ -3605,4 +3605,26 @@ public class XtentisServiceTestCase extends junit.framework.TestCase {
         // TBD - validate results
     }
 
+    public void test164XtentisPortWorkflowGetProcessDefinitions() throws Exception {
+        urn_com_amalto_xtentis_webservice.XtentisBindingStub binding;
+        try {
+            binding = (urn_com_amalto_xtentis_webservice.XtentisBindingStub)
+                          new urn_com_amalto_xtentis_webservice.XtentisServiceLocator().getXtentisPort();
+        }
+        catch (javax.xml.rpc.ServiceException jre) {
+            if(jre.getLinkedCause()!=null)
+                jre.getLinkedCause().printStackTrace();
+            throw new junit.framework.AssertionFailedError("JAX-RPC ServiceException caught: " + jre);
+        }
+        assertNotNull("binding is null", binding);
+
+        // Time out after a minute
+        binding.setTimeout(60000);
+
+        // Test operation
+        urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[] value = null;
+        value = binding.workflowGetProcessDefinitions(new urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions());
+        // TBD - validate results
+    }
+
 }

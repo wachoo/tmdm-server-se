@@ -1822,6 +1822,17 @@ public class XtentisBindingSkeleton implements urn_com_amalto_xtentis_webservice
             _myOperations.put("checkServiceConfiguration", new java.util.ArrayList());
         }
         ((java.util.List)_myOperations.get("checkServiceConfiguration")).add(_oper);
+        _params = new org.apache.axis.description.ParameterDesc [] {
+            new org.apache.axis.description.ParameterDesc(new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowGetProcessDefinitions"), org.apache.axis.description.ParameterDesc.IN, new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowGetProcessDefinitions"), urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions.class, false, false), 
+        };
+        _oper = new org.apache.axis.description.OperationDesc("workflowGetProcessDefinitions", _params, new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowProcessDefinitionUUIDArray"));
+        _oper.setReturnType(new javax.xml.namespace.QName("urn-com-amalto-xtentis-webservice", "WSWorkflowProcessDefinitionUUIDArray"));
+        _oper.setElementQName(new javax.xml.namespace.QName("", "workflowGetProcessDefinitions"));
+        _myOperationsList.add(_oper);
+        if (_myOperations.get("workflowGetProcessDefinitions") == null) {
+            _myOperations.put("workflowGetProcessDefinitions", new java.util.ArrayList());
+        }
+        ((java.util.List)_myOperations.get("workflowGetProcessDefinitions")).add(_oper);
     }
 
     public XtentisBindingSkeleton() {
@@ -2806,6 +2817,12 @@ public class XtentisBindingSkeleton implements urn_com_amalto_xtentis_webservice
     public urn_com_amalto_xtentis_webservice.WSCheckServiceConfigResponse checkServiceConfiguration(urn_com_amalto_xtentis_webservice.WSCheckServiceConfigRequest serviceName) throws java.rmi.RemoteException
     {
         urn_com_amalto_xtentis_webservice.WSCheckServiceConfigResponse ret = impl.checkServiceConfiguration(serviceName);
+        return ret;
+    }
+
+    public urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[] workflowGetProcessDefinitions(urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions wsWorkflowGetProcessDefinitions) throws java.rmi.RemoteException
+    {
+        urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID[] ret = impl.workflowGetProcessDefinitions(wsWorkflowGetProcessDefinitions);
         return ret;
     }
 

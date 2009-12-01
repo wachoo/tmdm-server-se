@@ -8,6 +8,8 @@ import org.talend.mdm.test.util.Util;
 import talend.mdm.test.MDMTestCase;
 import urn_com_amalto_xtentis_webservice.WSPing;
 import urn_com_amalto_xtentis_webservice.WSString;
+import urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions;
+import urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID;
 import urn_com_amalto_xtentis_webservice.XtentisPort;
 
 
@@ -34,6 +36,23 @@ public class WebserviceTestCase extends MDMTestCase{
 		try {
 			WSString echo=defaultPort.ping(new WSPing(msg));
 			assertEquals(msg, echo.getValue());
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+    public void testWorkflowGetProcessDefinitions() {
+		
+
+		try {
+			WSWorkflowProcessDefinitionUUID[] processes=defaultPort.workflowGetProcessDefinitions(new WSWorkflowGetProcessDefinitions(".*"));
+			for (int i = 0; i < processes.length; i++) {
+				System.out.print(processes[i].getProcessName());
+				System.out.print(",");
+				System.out.print(processes[i].getProcessVersion());
+				System.out.println();
+			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
