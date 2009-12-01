@@ -322,62 +322,6 @@ public final class Util {
            throw new XtentisException(sb.toString());
          }
     }
-    /**
-     * @author ymli  fix bug 0009642
-     * if the node's minOccurs is 0, set its chirldren's minOccurs 0 to match the w3c roles
-     * @param xsdDoc
-     * @param conceptName
-     */
-    private static void setMinOccurs(Document xsdDoc, String conceptName){
-    	
-    	try {
-    		String xpath ="//xsd:element[@name='" + conceptName + "']/xsd:complexType//xsd:element";
-			NodeList nodeList = Util.getNodeList(xsdDoc.getDocumentElement(),xpath);
-			if(nodeList.getLength()==0)
-				return;
-			for(int i=0;i<nodeList.getLength();i++){
-				Node node = nodeList.item(i);
-				node.getBaseURI();
-				Node nameNode = node.getAttributes().getNamedItem("name");
-				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
-				
-				if(minOccursNode.getNodeValue().equals("0")){
-					setMinOccursDeep(xsdDoc,"//xsd:element[@name='" + nameNode.getNodeValue() + "']/xsd:complexType//xsd:element");
-				}
-			}
-			
-		} catch (XtentisException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}    	
-    	
-    }
-    /**
-     * @author ymli fix bug 0009642
-     * set Parentnode's chirldren's minOccurs 0 to match the w3c roles
-     * @param Parentnode
-     * @param xPath
-     */
-    private static void setMinOccursDeep(Node Parentnode,String xPath){
-    	try {
-    		//String xPathLocal = "//xsd:element[@name='" + conceptName + "']/xsd:complexType//xsd:element";
-    		NodeList nodeList = Util.getNodeList(Parentnode,xPath );
-    		if(nodeList.getLength()==0)
-    			return;
-    		for(int i=0;i<nodeList.getLength();i++){
-				Node node = nodeList.item(i);
-				Node nodename = node.getAttributes().getNamedItem("name");
-				String name1 = nodename.getNodeValue();
-				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
-				minOccursNode.setNodeValue("0");
-				//setMinOccursDeep(node,xPathLocal+"[@name='"+name1+"']");
-    		}
-		} catch (XtentisException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
-    
     
     public static Document validate(Element element, String schema) 
     	throws Exception{
@@ -395,15 +339,6 @@ public final class Util {
 		//Schema validation based on schemaURL
 		factory.setNamespaceAware(true);
 		factory.setValidating((schema!=null));
-		
-		
-		Document xsdDoc = Util.parse(schema);
-		
-		setMinOccurs(xsdDoc, element.getLocalName());
-		
-		schema = Util.nodeToString(xsdDoc);
-		
-		
 		factory.setAttribute(
 				"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
 				"http://www.w3.org/2001/XMLSchema");
@@ -422,23 +357,15 @@ public final class Util {
 		String xmlstr=Util.nodeToString(element);
        	//if element is null, remove it aiming added 
        	//see 7828
-		
 		xmlstr=xmlstr.replaceAll("<\\w+?/>", "");
-		//xmlstr=xmlstr.replaceAll("<\\w+?>\\s+?</\\w+?>", "");
-		
-		
-		
-		if (Util.getNodeList(xsdDoc.getDocumentElement(),
+		if (Util.getNodeList(Util.parse(schema).getDocumentElement(),
 				"//xsd:import").getLength() > 0
-				|| Util.getNodeList(xsdDoc.getDocumentElement(),
+				|| Util.getNodeList(Util.parse(schema).getDocumentElement(),
 						"//xsd:include").getLength() > 0)
 		{
-			Map<String, String> outerMap = getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), false);
+			Map<String, String> outerMap = getNamespaceFromImportXSD(Util.parse(schema).getDocumentElement(), false);
 			xmlstr = addNMSpaceForImportedElement(outerMap, xmlstr);
 		}
-		
-		
-		
 		d = builder.parse(new InputSource(new StringReader(xmlstr)));
 		
 		//check if dcument parsed correctly against the schema
@@ -448,7 +375,7 @@ public final class Util {
 				String xmlString = Util.nodeToString(element); 
 				String err = "The item "+element.getLocalName()+" did not validate against the model: \n" + errors+"\n"
 					+xmlString;	//.substring(0, Math.min(100, xmlString.length()));
-				//Document xsdDoc = Util.parse(schema);
+				Document xsdDoc = Util.parse(schema);
 				Map<String, String> nsMap = Util.getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), true);
 				Iterator<Map.Entry<String, String>> iter = nsMap.entrySet().iterator();
 				boolean error = true;
@@ -540,7 +467,13 @@ public final class Util {
 	    			}
     		    	// replace the orgnial elem with one prefixed with namespace
     		    	Element targetElem = (Element)Util.getNodeList(docElem, xpath).item(0);
-    		    	Element parentElem = (Element)targetElem.getParentNode();
+    		    	Element parentElem = null;
+    		    	if(targetElem.getParentNode() instanceof Document)
+    		    	{
+    		    		parentElem = ((Document)targetElem.getParentNode()).getDocumentElement();
+    		    	}
+    		    	else
+    		    		parentElem = (Element)targetElem.getParentNode();
     		    	String prefix = ns.substring((ns.lastIndexOf("/") != -1 ? ns.lastIndexOf("/")+1 : 0));
     		    	Element newElem = docElem.createElement(prefix + ":" + targetElem.getTagName());
     		    	newElem.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:"+prefix, ns);
@@ -550,8 +483,16 @@ public final class Util {
     		    		Node newChild = child.cloneNode(true);
     		    		newElem.appendChild(newChild);
     		    	}
-    		    	parentElem.removeChild(targetElem);
-    		    	parentElem.appendChild(newElem);
+    		    	if(parentElem != targetElem)
+    		    	{
+        		    	parentElem.removeChild(targetElem);
+        		    	parentElem.appendChild(newElem);
+    		    	}
+    		    	else
+    		    	{
+    		    		String newXML = Util.nodeToString(newElem);
+    		    		docElem = Util.parse(newXML);
+    		    	}
     			}
     			catch(Exception ex)
     			{
@@ -1438,7 +1379,7 @@ public final class Util {
      * @param schema
      * @param dataCluster
      * @param concept
-     * @param elementname null:ï¿½ï¿½Ê¾ï¿½ï¿½Óµï¿½
+     * @param elementname null:±íÊ¾¸ù½Óµã
      * @param conceptRoot
      * @throws Exception
      */
@@ -2636,22 +2577,6 @@ public final class Util {
 			}
 		}
 		return null;
-	}
-	
-	public static boolean isDefaultSVNUP() throws Exception{
-		Object service= 
-			Util.retrieveComponent(
-				null, 
-				"amalto/local/service/svn"
-			);
-		
-		Boolean result = (Boolean)
-			Util.getMethod(service, "isUp").invoke(
-				service,
-				new Object[] {				
-				}
-			);	
-		return result.booleanValue();
 	}
 	/*********************************************************************
 	 *  TESTS

@@ -133,6 +133,51 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	   		}	
 	};
 	
+	var DATE_OPERS = {
+			'fr':{
+		           EQUALS:"est égal à",
+		           LOWER_THAN:"est antérieure à",
+		           GREATER_THAN:"est postérieure à"
+	             },
+ 			'en':{
+		           EQUALS:"equals",
+		           LOWER_THAN:"is before",
+		           GREATER_THAN:"is after"
+	             }
+	};
+	
+	var NUMBER_OPERS = {
+			'fr':{
+					EQUALS:"est égal à",
+					NOT_EQUALS:"n'est pas égal à",
+					GREATER_THAN:"est supérieur à",
+					GREATER_THAN_OR_EQUAL:"est supérieur ou égal à",
+					LOWER_THAN:"est inférieur à",
+					LOWER_THAN_OR_EQUAL:"est inférieur ou égal à",
+					STRICTCONTAINS:"contient la phrase"
+		         },
+			'en':{
+					EQUALS:"is equal to",
+					NOT_EQUALS:"is not equal to",
+					GREATER_THAN:"is greater than",
+					GREATER_THAN_OR_EQUAL:"is greater or equals",
+					LOWER_THAN:"is lower than",
+					LOWER_THAN_OR_EQUAL:"is lower or equals",
+					STRICTCONTAINS:"contains the sentence"
+				  }	
+	};
+	
+	var BOOLEAN_OPERS = {
+			'fr' : {
+		              TRUE : "vrai",
+		              FALSE : "faux"
+	               },
+	        'en' : {
+	            	   TRUE : "true",
+	            	   FALSE :"false"
+	               }
+	};
+	
 	var OPERATOR_UNDEFINED = {
 	    'fr' : 'cliquer pour choisir',
 	    'en' : 'click to select'	
@@ -352,6 +397,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			'fr': 'No choice item is set value',
 			'en': 'No choice item is set value'
 	}
+	
+
 	/*****************
 	 * EXT 2.0
 	 *****************/
@@ -369,6 +416,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var dataObjectLocalized ="";
 	var _tbItems; 
 	var itemsElements;
+	var itemsPredicates = [];
 	var newItem = [];
 	var itemTreeList = [];
 
@@ -486,6 +534,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		amalto.core.working();
 		if(viewName!=LABEL_SELECT_DATAOBJECT[language]){	
 			ItemsBrowserInterface.getView(getViewItemsCB,viewName, language);
+			ItemsBrowserInterface.getMetaDataTypes(getItemsPredicateList, viewName);
 		}
 		else{
 			$('item-search-btn').disabled = true;
@@ -501,15 +550,17 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		_criterias = [];
 		_viewItems = result;
 		$('labelItemsCriteria').style.display = "block";
-		DWRUtil.setValue('itemsCriterias','<span id="itemsCriteria1"><select id="itemsSearchField1" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
+		DWRUtil.setValue('itemsCriterias','<span id="itemsCriteria1"><select id="itemsSearchField1" onChange="amalto.itemsbrowser.ItemsBrowser.updateOperatorList(\'1\');amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<select id="itemsSearchOperator1" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
-						'<input id="itemsSearchValue1" type="text" value="*"  onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/> ' +
+						'<input id="itemsSearchValue1" type="text" value="*"  style="display:none;" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/> ' +
+						'<span id="itemSearchCalendar1" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue1\' , \'-1\', \'date\')"><img src="img/genericUI/date-picker.gif"/></span>' +
 						'<input id="itemSearchCriteriaForAnd1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'AND\');"> AND '+
 						'<input id="itemSearchCriteriaForOR1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'OR\');"> OR '+
 						'<br/></span>'
 						);	
 		DWRUtil.addOptions('itemsSearchOperator1',OPERATORS[language]);
 		DWRUtil.removeAllOptions('itemsSearchField1');
+
 		$('item-search-btn').disabled = false;
 
 		var viewName = DWRUtil.getValue('viewItemsSelect');
@@ -535,6 +586,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		//getElements();
 	    newCriteriaItemSet(0, 'AND');
 	    outPutCriteriaResult();
+		updateOperatorList(1)
 		amalto.core.ready();
 	}
 	
@@ -553,9 +605,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		criteriaCount ++;
 		var tpl = new Ext.DomHelper.Template(
 						'<span id="itemsCriteria{id}">' +
-						'<select id="itemsSearchField{id}" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
+						'<select id="itemsSearchField{id}" onChange="amalto.itemsbrowser.ItemsBrowser.updateOperatorList(\'{id}\');amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<select id="itemsSearchOperator{id}" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<input id="itemsSearchValue{id}" type="text"  onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/>  ' +
+						'<span id="itemSearchCalendar{id}" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue{id}\' , \'-1\', \'date\')"><img src="img/genericUI/date-picker.gif"/></span>' +
 						'<input id="itemSearchCriteriaForAnd{id}" type="radio" name="itemSearchCriteria{id}" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria{id}\', \'{id}\', \'AND\');"> AND '+
 						'<input id="itemSearchCriteriaForOR{id}" type="radio" name="itemSearchCriteria{id}" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria{id}\', \'{id}\', \'OR\');"> OR '+
 						'<span onClick="amalto.itemsbrowser.ItemsBrowser.removeItemsCriteria(\'{id}\');"><img src="img/genericUI/remove-element.gif"/></span> '  +
@@ -567,6 +620,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		DWRUtil.addOptions('itemsSearchField'+actulId,itemsElements);
 		
 		newCriteriaItemSet(idx, and);
+		updateOperatorList(actulId);
 	}
 	
 	function isNewCriteria(idx, and)
@@ -649,6 +703,72 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		outPutCriteriaResult();
 	}
 	
+	function getItemsPredicateList(result)
+	{
+		itemsPredicates = result;
+		updateOperatorList(1);
+	}
+	
+	function updateOperatorList(id){
+        if($('itemsSearchField' + id) == null)return;
+		var search = $('itemsSearchField' + id).value;
+		var delimeter = search.indexOf("/");
+		if(delimeter != -1)
+		{
+			search = search.substring(delimeter + 1);
+		}
+        if(itemsPredicates[search] == null) return;
+		var predicateValues =  itemsPredicates[search][0];
+		var itemsSearchValuex = "itemsSearchValue" + id;
+		DWRUtil.removeAllOptions('itemsSearchOperator' + id);
+		$('itemSearchCalendar' + id).style.display = 'none';
+		
+		if(predicateValues == 'xsd:string')
+		{
+			DWRUtil.addOptions('itemsSearchOperator' + id ,OPERATORS[language]);
+			$(itemsSearchValuex).style.display = 'inline';
+		}
+		else if(predicateValues == 'xsd:date')
+		{
+			DWRUtil.addOptions('itemsSearchOperator' + id ,DATE_OPERS[language]);
+			$('itemSearchCalendar' + id).style.display = 'inline';
+			$(itemsSearchValuex).style.display = 'inline';
+		}
+		else if(predicateValues == 'xsd:double' || predicateValues == 'xsd:integer')
+		{
+			DWRUtil.addOptions('itemsSearchOperator' + id ,NUMBER_OPERS[language]);
+			$(itemsSearchValuex).style.display = 'inline';
+		}
+		else if(predicateValues == 'xsd:boolean')
+		{
+			DWRUtil.addOptions('itemsSearchOperator' + id ,BOOLEAN_OPERS[language]);
+			$(itemsSearchValuex).style.display = 'none';
+		}
+		else if(predicateValues == 'foreign key')
+		{
+			var foreignValues = itemsPredicates[search];
+			var foreignPredicates = []; 
+			var prefix = "equals ";
+			for(var i = 1; i < foreignValues.length; i++)
+			{
+				foreignPredicates[i -1] = prefix + foreignValues[i];
+			}
+			DWRUtil.addOptions('itemsSearchOperator' + id ,foreignPredicates);
+			$(itemsSearchValuex).style.display = "none";
+		}
+		else if(predicateValues == 'enumeration')
+		{
+			var enumValues = itemsPredicates[search];
+			var enumPredicates = [];
+			var prefix = "equals ";
+			for(var i = 1; i < enumValues.length; i++)
+			{
+				enumPredicates[i -1] = prefix + enumValues[i];
+			}
+			DWRUtil.addOptions('itemsSearchOperator' + id ,enumPredicates);
+			$(itemsSearchValuex).style.display = "none";
+		}
+	}
 	
 	function outPutCriteriaResult(){
 		var cpy = new Array();
@@ -658,9 +778,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				continue;
 			var actulID = idx+1;
 			var criteria = DWRUtil.getValue('itemsSearchField' + actulID) + ' '
-					+ DWRUtil.getValue('itemsSearchOperator' + actulID) + ' '
-					+ DWRUtil.getValue('itemsSearchValue' + actulID);
-			_criterias[idx][0] = criteria;
+					+ DWRUtil.getValue('itemsSearchOperator' + actulID) + ' ';
+			var searchValue = $('itemsSearchValue' + actulID).style.display == "inline" ?  DWRUtil.getValue('itemsSearchValue' + actulID) : "";
+			_criterias[idx][0] = criteria + searchValue;
 		}
 		
 		for (var findex = 0; findex < _criterias.length; findex++)
@@ -1972,6 +2092,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 
 		var inputText = nodeId + "Value";
+		if(treeIndex == -1)
+		{
+			inputText = nodeId;
+		}
+		
 		var nodeDatePickerPanel = new Ext.form.FormPanel({
 					baseCls : 'x-plain',
 					labelAlign : 'right',
@@ -1992,7 +2117,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 											setValue += "T00:00:00"
 										};
 										DWRUtil.setValue(inputText, setValue);
-										updateNode(nodeId, treeIndex);
+										if(treeIndex != -1)
+										{
+										  updateNode(nodeId, treeIndex);	
+										}
 										nodeDatePickerWindow.hide();
 										nodeDatePickerWindow.destroy();										
 									}
@@ -2396,6 +2524,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		removeItemsCriteria:function(id){removeItemsCriteria(id);},
 		itemsCriteriaWithConstraints:function(criteriaParent, id, add){itemsCriteriaWithConstraints(criteriaParent, id, add);},
 		outPutCriteriaResult:function(){outPutCriteriaResult();},
+		updateOperatorList:function(id){updateOperatorList(id);},
 		updateNode:function(id,treeIndex){updateNode(id,treeIndex);},
 		setlastUpdatedInputFlagPublic:function(id,treeIndex){setlastUpdatedInputFlag(id,treeIndex);},
 		browseForeignKey:function(nodeId, foreignKeyXpath){browseForeignKey(nodeId, foreignKeyXpath);},

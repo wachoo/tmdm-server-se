@@ -7,6 +7,7 @@ package com.amalto.webapp.core.util;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,13 +16,18 @@ import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.rmi.RemoteException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.security.acl.Group;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -49,8 +55,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.util.webservices.WSBase64KeyValue;
 import com.amalto.webapp.util.webservices.WSConnectorResponseCode;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
@@ -237,6 +246,191 @@ public class Util {
     		return wc;
     	}
    		return null;
+    }
+    
+    /**
+     * 
+     * @param doc
+     * @param type
+     * @return 
+     *   a specific value for Simple Type, "" for Complex Type
+     * @throws Exception 
+     */
+    public static boolean findXSDSimpleTypeInDocument(Document doc, Node elem, String type, ArrayList<String> typeInfo) throws Exception
+    {
+    	if(type != null && type.trim().equals(""))
+    	{
+    		if(Util.getNodeList(elem, ".//xsd:simpleType").getLength() > 0)
+    		{
+	    		NodeList list = Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction");
+	    		if(list.getLength() > 0)
+	    		{
+	    			if(Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration").getLength() > 0)
+	    			{
+	    				NodeList emumList = Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration");
+	    				typeInfo.add("enumeration");
+	    				for(int i = 0; i < emumList.getLength(); i++)
+	    				{
+	    					typeInfo.add(emumList.item(i).getAttributes().getNamedItem("value").getNodeValue());
+	    				}
+	    			}
+	    			else
+	    			{
+	    				typeInfo.add(list.item(0).getAttributes().getNamedItem("base").getNodeValue());
+	    			}
+	    		}
+	    		return true;
+    		}
+    		else if(Util.getNodeList(elem, "/xsd:complexType").getLength() > 0)
+    		{
+    			return false;
+    		}
+    	}
+    	
+    	String path = "//xsd:simpleType";
+    	if(type != null && !type.trim().equals(""))
+    	{
+    		path += "[@name='" + type + "']";
+    	}
+    	if(Util.getNodeList(doc, path).getLength() > 0)
+    	{
+    		Node node = Util.getNodeList(doc, path).item(0);
+    		if(Util.getNodeList(node, "//xsd:restriction").getLength() > 0)
+    		{
+    			Node resNode = Util.getNodeList(node, "//xsd:restriction").item(0);
+    			NodeList enumList = Util.getNodeList(resNode, "/xsd:enumeration");
+    			if(enumList.getLength() > 0)
+    			{
+    				//enumeration occurs
+    				typeInfo.add("enumeration");
+    				for(int i = 0; i < enumList.getLength(); i++)
+    				{
+    					typeInfo.add(enumList.item(i).getAttributes().getNamedItem("value").getNodeValue());
+    				}
+    			}
+    			else
+    			{
+        			typeInfo.add(resNode.getAttributes().getNamedItem("base").getNodeValue());
+    			}
+    			return true;
+    		}
+    		return false;
+    	}
+    	else
+    	{
+    		NodeList importList = null;
+    		for (int nm = 0; nm < 2; nm++)
+    		{
+    			if (nm == 0) {
+					importList = Util.getNodeList(doc, "//xsd:import");
+				} else {
+					importList = Util.getNodeList(doc, "//xsd:include");
+				}
+
+	    		for (int i = 0; i < importList.getLength(); i++)
+	    		{
+	    			String location = importList.item(i).getAttributes().getNamedItem("schemaLocation").getNodeValue();
+	    			Document subDoc = parseImportedFile(location);
+	    			return findXSDSimpleTypeInDocument(subDoc, importList.item(i), type, typeInfo);
+	    		}
+    		}
+    	}
+    	
+    	return false;
+    }
+    
+    public static Document parseImportedFile(String xsdLocation)
+    {
+	    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		documentBuilderFactory.setNamespaceAware(true);
+		documentBuilderFactory.setValidating(false);
+		
+		Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
+		Matcher match = httpUrl.matcher(xsdLocation);
+		Document d = null;
+		try
+		{
+			if(match.matches())
+			{
+				List<String> authorizations = Util.getAuthorizationInfo();
+	    		String xsd = Util.getResponseFromURL(xsdLocation, authorizations.get(0), authorizations.get(1));
+	    		d = Util.parse(xsd);
+			}
+			else
+			{
+				DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+	        	d = documentBuilder.parse(new FileInputStream(xsdLocation));
+			}
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+			return null;
+		}
+		return d;
+    }
+    
+    public static List<String> getAuthorizationInfo()
+    {
+    	ArrayList<String> authorizations = new ArrayList<String>();
+    	String user = "", pwd = "";
+    	try {
+			Subject subject=LocalUser.getCurrentSubject();
+			Set<Principal> set = subject.getPrincipals();
+			for (Iterator<Principal> iter = set.iterator(); iter.hasNext(); ) {
+				Principal principal = iter.next();
+				if (principal instanceof Group) {
+					Group group = (Group) principal;
+					if("Username".equals(group.getName())) {
+						if (group.members().hasMoreElements()) {
+							user=group.members().nextElement().getName();
+						}
+					}else if("Password".equals(group.getName())){
+						if (group.members().hasMoreElements()) {
+							pwd=group.members().nextElement().getName();
+						}
+					}
+				}
+			}//for
+			authorizations.add(user);
+			authorizations.add(pwd);
+		} catch (XtentisException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return authorizations;
+    }
+    
+    public static String getResponseFromURL(String url, String user, String pwd)
+    {
+        BASE64Encoder encoder = new BASE64Encoder();
+        StringBuffer buffer = new StringBuffer();
+        String credentials = encoder.encode(new String(user + ":" + pwd).getBytes());
+        
+        try {
+				URL urlCn = new URL(url);
+				URLConnection conn = urlCn.openConnection();
+				conn.setAllowUserInteraction(true);
+				conn.setDoOutput(true);
+				conn.setDoInput(true);
+	            conn.setRequestProperty("Authorization", "Basic " + credentials);
+	            conn.setRequestProperty("Expect", "100-continue"); 
+	
+	            InputStreamReader doc = 
+	                new InputStreamReader(conn.getInputStream());
+	            BufferedReader reader = new BufferedReader(doc);
+	            String line = reader.readLine();
+	            while(line != null)
+	            {
+	            	buffer.append(line);
+	            	line = reader.readLine();
+	            }
+		    } catch (Exception e) {
+			e.printStackTrace();
+		    }
+		    
+		  return buffer.toString();
     }
     
     public static com.amalto.webapp.util.webservices.WSWhereOperator changeToWSOperator(String operator){

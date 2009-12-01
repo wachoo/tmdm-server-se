@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -41,12 +42,15 @@ import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
+import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSGetItemPKsByCriteria;
 import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
+import com.amalto.webapp.util.webservices.WSItemPKsByCriteriaResponseResults;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
@@ -1644,6 +1648,168 @@ public class ItemsBrowserDWR {
 
 	}
 	
+    private void parseMetaDataTypes(Document doc, String concept, HashMap<String, ArrayList<String>> metaDataTypes) throws Exception
+    {
+		NodeList nodeList = Util.getNodeList(doc, "//xsd:element[@name='" + concept + "']");
+		for(int i = 0; i < nodeList.getLength(); i++)
+		{
+			String foreignKey = null;
+			NodeList elemList = null;
+			Node node = nodeList.item(i);
+			String typeName = null;
+			if(node.getAttributes().getNamedItem("type") != null)
+			{
+				typeName = node.getAttributes().getNamedItem("type").getNodeValue();
+			}
+			if(typeName != null)
+			{
+				elemList = Util.getNodeList(doc, "//xsd:complexType[@name='" + typeName + "']//xsd:element");
+			}
+			else
+			{
+				elemList = Util.getNodeList(doc, "//xsd:element[@name='" + concept + "']/xsd:complexType//xsd:element");
+			}
+			
+
+			for(int c = 0; c < elemList.getLength() ;c++)
+			{
+				Node elem = elemList.item(c);
+				String type = "";
+				if(elem.getAttributes().getNamedItem("type") != null)
+				{
+					type = elem.getAttributes().getNamedItem("type").getNodeValue();
+				}
+				String name = "";
+				if(elem.getAttributes().getNamedItem("name") != null)
+				{
+					name = elem.getAttributes().getNamedItem("name").getNodeValue();
+				}
+				
+				if(Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").getLength() > 0)
+				{
+					foreignKey = Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").item(0).getTextContent();
+					if(foreignKey != null)
+					{
+						getForeignKeyInfo(metaDataTypes, elem.getAttributes().getNamedItem("name").getNodeValue(), foreignKey);
+						continue;
+					}
+
+				}
+				
+				if(type.startsWith("xsd:"))
+				{
+					ArrayList<String> contents = new ArrayList<String>();
+					contents.add(type);
+					metaDataTypes.put(name, contents);
+				}
+				else
+				{
+					ArrayList<String> typeInfo = new ArrayList<String>();
+					if(Util.findXSDSimpleTypeInDocument(doc, elem, type, typeInfo))
+					{
+						metaDataTypes.put(name, typeInfo);
+					}
+					else
+					{
+						// meet a complex type
+						typeInfo.add(0, "complex type");
+						metaDataTypes.put(name, typeInfo);
+					}
+				}
+			}
+		
+		}
+		
+		NodeList importList = null;
+		for (int nm = 0; nm < 2; nm++)
+		{
+			if (nm == 0) {
+				importList = Util.getNodeList(doc, "//xsd:import");
+			} else {
+				importList = Util.getNodeList(doc, "//xsd:include");
+			}
+    		for (int i = 0; i < importList.getLength(); i++)
+    		{
+    			String location = importList.item(i).getAttributes().getNamedItem("schemaLocation").getNodeValue();
+    			Document subDoc = Util.parseImportedFile(location);
+    			parseMetaDataTypes(subDoc, concept, metaDataTypes);
+    		}
+		}
+    }
+    
+	public Map<String, ArrayList<String>> getMetaDataTypes(String viewPK) throws Exception
+	{
+		HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
+		String concept = viewPK;
+		if(concept.contains("Browse_items_"))
+			 concept = CommonDWR.getConceptFromBrowseItemView(viewPK);
+	    Map<String, List<String>> map = new HashMap<String, List<String>>();
+		Configuration config = Configuration.getInstance();
+		String xsd = Util.getPort().getDataModel(
+        		new WSGetDataModel(new WSDataModelPK(config.getModel()))).getXsdSchema();
+		Document doc = Util.parse(xsd);
+		NodeList nodeList = Util.getNodeList(doc, "//xsd:element[@name='" + concept + "']");
+
+		parseMetaDataTypes(doc, concept, metaDataTypes);
+
+		return metaDataTypes;
+	}
+	
+    private void getForeignKeyInfo(HashMap<String, ArrayList<String>> metaDataTypes, String elemName, String foreignKey) throws Exception
+    {
+		Configuration config = Configuration.getInstance();
+    	Pattern pattern =  Pattern.compile("(.*?)\\[(.*+)");
+		Matcher match = pattern.matcher(foreignKey);
+		if(match.find())
+		{
+			foreignKey = match.group(1);
+		}
+		int delimeter = foreignKey.indexOf("/");
+		delimeter = delimeter != -1 ? delimeter : foreignKey.length();
+		String foreignConcept = foreignKey.substring(0, delimeter);
+		WSDataClusterPK pk = new WSDataClusterPK();
+		pk.setPk(config.getModel());
+        WSItemPKsByCriteriaResponseResults[] results =
+            Util.getPort().getItemPKsByCriteria(new WSGetItemPKsByCriteria(
+            		pk,
+            		foreignConcept,
+            		null,
+            		null,
+            		-1L,
+            		-1L,
+            		0,
+            		Integer.MAX_VALUE
+            	)
+            ).getResults();
+        
+        for(WSItemPKsByCriteriaResponseResults result : results)
+        {
+			WSItem wsItem=Util.getPort().getItem(
+					new WSGetItem(
+							new WSItemPK(
+									pk,
+									result.getWsItemPK().getConceptName(),
+									result.getWsItemPK().getIds()
+							)
+					)
+			);
+			String xml = wsItem.getContent();
+			Document d = Util.parse(xml);
+			NodeList foreignKeyList = Util.getNodeList(d, "/" + foreignKey);
+			ArrayList<String> contents = metaDataTypes.get(elemName);
+			if(contents == null)
+			{
+				contents = new ArrayList<String>();
+				contents.add("foreign key");
+				metaDataTypes.put(elemName, contents);
+			}
+			for(int ix = 0; ix < foreignKeyList.getLength(); ix++)
+			{
+				contents.add(foreignKeyList.item(ix).getTextContent());
+			}
+        }
+		
+    }
 	private WSWhereOperator getOperator(String option){
 		WSWhereOperator res = null;
 		if (option.equalsIgnoreCase("CONTAINS"))
