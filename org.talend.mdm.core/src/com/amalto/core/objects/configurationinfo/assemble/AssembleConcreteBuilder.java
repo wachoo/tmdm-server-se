@@ -55,6 +55,11 @@ public class AssembleConcreteBuilder implements AssembleBuilder {
 		assembleProc.add(new ResendFaildMessageSubProc());
 		
 	}
+	
+	public void buildStartService() {
+		assembleProc.add(new StartServiceSubProc());
+		
+	}
 
 
 
