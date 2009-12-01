@@ -63,7 +63,6 @@ import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -337,10 +336,12 @@ public final class Util {
 				return;
 			for(int i=0;i<nodeList.getLength();i++){
 				Node node = nodeList.item(i);
+				node.getBaseURI();
 				Node nameNode = node.getAttributes().getNamedItem("name");
 				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
+				
 				if(minOccursNode.getNodeValue().equals("0")){
-					setMinOccursDeep(node,xpath,nameNode.getNodeValue());
+					setMinOccursDeep(xsdDoc,"//xsd:element[@name='" + nameNode.getNodeValue() + "']/xsd:complexType//xsd:element");
 				}
 			}
 			
@@ -356,14 +357,10 @@ public final class Util {
      * @param Parentnode
      * @param xPath
      */
-    private static void setMinOccursDeep(Node Parentnode,String xPath,String namefar){
+    private static void setMinOccursDeep(Node Parentnode,String xPath){
     	try {
-    		String xPathLocal = xPath;
-    		if(namefar!=null)
-    			xPathLocal = xPath+"[@name='"+namefar+"']/xsd:complextType//xsd:element";
-    		else 
-    			xPathLocal = xPath+"/xsd:complexType//xsd:element";
-    		NodeList nodeList = Util.getNodeList(Parentnode, xPathLocal);
+    		//String xPathLocal = "//xsd:element[@name='" + conceptName + "']/xsd:complexType//xsd:element";
+    		NodeList nodeList = Util.getNodeList(Parentnode,xPath );
     		if(nodeList.getLength()==0)
     			return;
     		for(int i=0;i<nodeList.getLength();i++){
@@ -372,7 +369,7 @@ public final class Util {
 				String name1 = nodename.getNodeValue();
 				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
 				minOccursNode.setNodeValue("0");
-				setMinOccursDeep(node,xPathLocal+"/xsd:complexType//xsd:element",name1);
+				//setMinOccursDeep(node,xPathLocal+"[@name='"+name1+"']");
     		}
 		} catch (XtentisException e) {
 			// TODO Auto-generated catch block
