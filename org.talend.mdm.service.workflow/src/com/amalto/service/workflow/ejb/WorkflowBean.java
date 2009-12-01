@@ -15,6 +15,7 @@ import javax.security.auth.login.LoginContext;
 import org.exolab.castor.xml.Unmarshaller;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
@@ -341,7 +342,7 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 	 public Set<ProcessDefinition> getProcessDefinitions() throws XtentisException {
 		Set<ProcessDefinition> processes=null; 
 		try {
-			processes=AccessorUtil.getAPIAccessor().getQueryDefinitionAPI().getProcesses();
+			processes=AccessorUtil.getAPIAccessor().getQueryDefinitionAPI().getProcesses(ProcessState.ENABLED);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
