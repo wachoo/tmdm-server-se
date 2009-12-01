@@ -5,6 +5,8 @@ import javax.security.auth.login.LoginException;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.util.BonitaException;
 
+import com.amalto.core.util.XtentisException;
+
 public class WorkflowTest {
 
 	/**
@@ -60,6 +62,8 @@ public class WorkflowTest {
 		} catch (LoginException e) {
 			e.printStackTrace();
 		} catch (BonitaException e) {
+			e.printStackTrace();
+		} catch (XtentisException e) {
 			e.printStackTrace();
 		}
 		

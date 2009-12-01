@@ -4,15 +4,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
-import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
-import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.util.BonitaException;
 import org.ow2.bonita.util.BonitaRuntimeException;
+
+import com.amalto.core.util.XtentisException;
 
 /**
  * @author starkey
@@ -24,28 +23,25 @@ public final class WorkflowExecutorAgent extends WorkflowAgent{
 	   super();
 	}
 
-	public ProcessInstanceUUID execute(WorkflowProcessPK processPK,WorkflowProcessVariableBox processVariableBox,WorkflowActivityVariableBoxes activityVariableBoxes) throws BonitaException {
+	public ProcessInstanceUUID execute(WorkflowProcessPK processPK,WorkflowProcessVariableBox processVariableBox,WorkflowActivityVariableBoxes activityVariableBoxes) throws BonitaException, XtentisException {
 		
-		ProcessDefinition processDefinition = null;
-		
-		processDefinition = queryDefinitionAPI.getProcess(processPK.getProcessId(), processPK.getProcessVersion());
-		
+	
 		// instantiation
-		final ProcessInstanceUUID instanceUUID = runtimeAPI.instantiateProcess(processDefinition.getUUID());
+		final ProcessInstanceUUID instanceUUID = getWorkflowService().instantiateProcessInstance(processPK.getProcessId(), processPK.getProcessVersion());		
 		this.console.writeln("Init a new Process Instance: " + instanceUUID);
 		if(!processVariableBox.isEmpty()){
 			Map<String, Object> gvars=processVariableBox.getVariables();
 			for (Iterator<String> iterator = gvars.keySet().iterator(); iterator.hasNext();) {
 				String gvariableId =  iterator.next();
 				Object gvariableValue = gvars.get(gvariableId);
-				runtimeAPI.setProcessInstanceVariable(instanceUUID,gvariableId,gvariableValue );
+				getWorkflowService().setProcessInstanceVariable(instanceUUID,gvariableId,gvariableValue );
 			}
 		}
 		
 
 		// tasks execution
 		// FIXME: maybe this is muti thread
-		Collection<TaskInstance> activities = queryRuntimeAPI.getTaskList(instanceUUID, ActivityState.READY);
+		Collection<TaskInstance> activities = getWorkflowService().getTaskList(instanceUUID, ActivityState.READY);
 	    if (activities.isEmpty()) {
 	      throw new BonitaRuntimeException("No task found? Bad User?");
 	    }
@@ -56,24 +52,24 @@ public final class WorkflowExecutorAgent extends WorkflowAgent{
 				final ActivityInstanceUUID taskUUID = activity.getUUID();
 		        final String activityId = activity.getActivityName();
 				this.console.writeln("Starting task associated to activity: " + activityId);
-				runtimeAPI.startTask(taskUUID, true);
+				getWorkflowService().startTask(taskUUID);
 				if(activityVariableBoxes.contains(activityId)){
 					
 					Map<String, Object> vars=activityVariableBoxes.getVariablesMap(activityId);
 					for (Iterator<String> iterator = vars.keySet().iterator(); iterator.hasNext();) {
 						String key = iterator.next();
 						Object value = vars.get(key);
-						runtimeAPI.setActivityInstanceVariable(activity.getUUID(),key, value);
+						getWorkflowService().setActivityInstanceVariable(activity.getUUID(),key, value);
 					}
 					
 				}
 				this.console.writeln("Finishing task associated to activity: " + activityId);
-				runtimeAPI.finishTask(taskUUID, true);
+				getWorkflowService().finishTask(taskUUID);
 				this.console.writeln("Task associated to activity: " + activityId + " finished.");
 			}
-			System.out.println("Process Instance Variables on each step: "+queryRuntimeAPI.getProcessInstanceVariables(instanceUUID));
+			System.out.println("Process Instance Variables on each step: "+getWorkflowService().getProcessInstanceVariables(instanceUUID));
 			
-			activities = queryRuntimeAPI.getTaskList(instanceUUID,ActivityState.READY);
+			activities = getWorkflowService().getTaskList(instanceUUID,ActivityState.READY);
 			
 		}
 		
@@ -81,18 +77,6 @@ public final class WorkflowExecutorAgent extends WorkflowAgent{
 
 		return instanceUUID;
 	}
-	
-	 public void cleanPackage(ProcessInstanceUUID instanceUUID) throws BonitaException {
-		   
-		    final ProcessInstance instance = queryRuntimeAPI.getProcessInstance(instanceUUID);
-		    final ProcessDefinitionUUID processUUID = instance.getProcessDefinitionUUID();
 
-		    //undeployment
-		    managementAPI.undeploy(processUUID);
-		    //journal + history cleaning
-		    managementAPI.deleteProcess(processUUID);
-		    
-	 }
-	 
 
 }

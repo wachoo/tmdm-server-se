@@ -1,5 +1,6 @@
 package com.amalto.core.plugin.base.workflowtrigger.ejb;
 
+import java.io.StringReader;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,10 +12,12 @@ import javax.ejb.SessionBean;
 import javax.security.auth.login.LoginException;
 import javax.xml.transform.TransformerException;
 
+import org.exolab.castor.xml.Unmarshaller;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.util.BonitaException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
@@ -126,9 +129,9 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 		"\n" +
 		"\n" +
 		"Parameters\n" +
-		"	initialContextFactory [mandatory]: the Initial Context Factory "+"\n"+
-		"	providerURL [mandatory]: the provider URL "+"\n"+
-		"	apiType [mandatory]: the API type "+"\n"+
+		//"	initialContextFactory [mandatory]: the Initial Context Factory "+"\n"+
+		//"	providerURL [mandatory]: the provider URL "+"\n"+
+		//"	apiType [mandatory]: the API type "+"\n"+
 		//"	packageId [mandatory]: the packageId of the process "+"\n"+
 		"	processId [mandatory]: the processId of the process "+"\n"+
 		"	processVersion [mandatory]: the processVersion of the process "+"\n"+
@@ -147,9 +150,9 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 		"\n"+
 		"Example" +"\n"+
 		"	<parameters>" +"\n"+
-		"		<initialContextFactory>org.jnp.interfaces.NamingContextFactory</initialContextFactory>" +"\n"+
-		"		<providerURL>jnp://localhost:1099</providerURL>" +"\n"+
-		"		<apiType>EJB2</apiType>" +"\n"+
+		//"		<initialContextFactory>org.jnp.interfaces.NamingContextFactory</initialContextFactory>" +"\n"+
+		//"		<providerURL>jnp://localhost:1099</providerURL>" +"\n"+
+		//"		<apiType>EJB2</apiType>" +"\n"+
 		//"		<packageId>ApprovalWorkflow</packageId>" +"\n"+
 		"		<processId>ApprovalWorkflow</processId>" +"\n"+
 		"		<processVersion>1.0</processVersion>" +"\n"+
@@ -267,30 +270,30 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
     		CompiledParameters compiled = new CompiledParameters();
     		Element params = Util.parse(parameters).getDocumentElement();
     		
-    		//mandatory case
-			String initialContextFactory = Util.getFirstTextNode(params, "initialContextFactory");
-			if (initialContextFactory==null||initialContextFactory.length()==0) {
-				String err = "The initialContextFactory parameter of the WorkflowTriggerPluginBean Transformer Plugin cannot be empty";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-				throw new XtentisException(err);
-			}
-    		compiled.setInitialContextFactory(initialContextFactory);
-    		
-    		String providerURL = Util.getFirstTextNode(params, "providerURL");
-			if (providerURL==null||providerURL.length()==0) {
-				String err = "The providerURL parameter of the WorkflowTriggerPluginBean Transformer Plugin cannot be empty";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-				throw new XtentisException(err);
-			}
-    		compiled.setProviderURL(providerURL);
-    		
-    		String apiType = Util.getFirstTextNode(params, "apiType");
-			if (apiType==null||apiType.length()==0) {
-				String err = "The apiType parameter of the WorkflowTriggerPluginBean Transformer Plugin cannot be empty";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-				throw new XtentisException(err);
-			}
-    		compiled.setApiType(apiType);
+    		//mandatory case	
+//			String initialContextFactory = Util.getFirstTextNode(params, "initialContextFactory");
+//			if (initialContextFactory==null||initialContextFactory.length()==0) {
+//				String err = "The initialContextFactory parameter of the WorkflowTriggerPluginBean Transformer Plugin cannot be empty";
+//				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+//				throw new XtentisException(err);
+//			}
+//    		compiled.setInitialContextFactory(initialContextFactory);
+//    		
+//    		String providerURL = Util.getFirstTextNode(params, "providerURL");
+//			if (providerURL==null||providerURL.length()==0) {
+//				String err = "The providerURL parameter of the WorkflowTriggerPluginBean Transformer Plugin cannot be empty";
+//				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+//				throw new XtentisException(err);
+//			}
+//    		compiled.setProviderURL(providerURL);
+//    		
+//    		String apiType = Util.getFirstTextNode(params, "apiType");
+//			if (apiType==null||apiType.length()==0) {
+//				String err = "The apiType parameter of the WorkflowTriggerPluginBean Transformer Plugin cannot be empty";
+//				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+//				throw new XtentisException(err);
+//			}
+//    		compiled.setApiType(apiType);
     		
 //    		String packageId = Util.getFirstTextNode(params, "packageId");
 //			if (packageId==null||packageId.length()==0) {
@@ -388,6 +391,32 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 
 			//parse parameters
 			CompiledParameters parameters=CompiledParameters.deserialize(compiledParameters);
+			
+			//get connect configuration
+    		Object workflowService= 
+    			com.amalto.core.util.Util.retrieveComponent(
+    				null, 
+    				"amalto/local/service/workflow"
+    			);
+    		
+    		String marshalledConfiguration = (String)
+			Util.getMethod(workflowService, "getConfiguration").invoke(
+				workflowService,
+				new Object[] {null}
+			);
+    		
+    		Element connectConfiguration = Util.parse(marshalledConfiguration).getDocumentElement();
+    		String initialContextFactory = Util.getFirstTextNode(connectConfiguration, "initial-context-factory");
+    		String providerURL = Util.getFirstTextNode(connectConfiguration, "provider-uRL");
+    		String apiType = Util.getFirstTextNode(connectConfiguration, "api-type");
+    		parameters.setInitialContextFactory(initialContextFactory);
+    		parameters.setProviderURL(providerURL);
+    		parameters.setApiType(apiType);
+    		org.apache.log4j.Logger.getLogger(this.getClass()).info("InitialContextFactory: "+initialContextFactory);
+    		org.apache.log4j.Logger.getLogger(this.getClass()).info("ProviderURL: "+providerURL);
+    		org.apache.log4j.Logger.getLogger(this.getClass()).info("ApiType: "+apiType);
+			
+			//user/pwd
 			String userToken=context.getTransformerGlobalContext().getUserToken();
 			if(userToken!=null){
 				String[] tokens=userToken.split("/");  
@@ -534,9 +563,9 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 	private String getDefaultConfiguration(){
     	return
     		"<configuration>"+
-    		"		<initialContextFactory>org.jnp.interfaces.NamingContextFactory</initialContextFactory>" +"\n"+
-    		"		<providerURL>jnp://localhost:1099</providerURL>" +"\n"+
-    		"		<apiType>EJB2</apiType>" +"\n"+
+    		//"		<initialContextFactory>org.jnp.interfaces.NamingContextFactory</initialContextFactory>" +"\n"+
+    		//"		<providerURL>jnp://localhost:1099</providerURL>" +"\n"+
+    		//"		<apiType>EJB2</apiType>" +"\n"+
     		//"		<packageId>ApprovalWorkflow</packageId>" +"\n"+
     		"		<processId>ApprovalWorkflow</processId>" +"\n"+
     		"		<processVersion>1.0</processVersion>" +"\n"+
