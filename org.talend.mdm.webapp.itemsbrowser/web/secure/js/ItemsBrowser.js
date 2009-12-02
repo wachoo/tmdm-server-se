@@ -167,16 +167,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				  }	
 	};
 	
-	var BOOLEAN_OPERS = {
-			'fr' : {
-		              TRUE : "vrai",
-		              FALSE : "faux"
-	               },
-	        'en' : {
-	            	   TRUE : "true",
-	            	   FALSE :"false"
-	               }
-	};
 	
 	var OPERATOR_UNDEFINED = {
 	    'fr' : 'cliquer pour choisir',
@@ -741,7 +731,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		else if(predicateValues == 'xsd:boolean')
 		{
-			DWRUtil.addOptions('itemsSearchOperator' + id ,BOOLEAN_OPERS[language]);
+			var booleanPredicates = ['true' , 'false']; 
+			var prefix = "equals ";
+		    for(var i = 0; i < booleanPredicates.length; i++)
+		    {
+		    	booleanPredicates[i] = prefix + booleanPredicates[i];
+		    }
+			DWRUtil.addOptions('itemsSearchOperator' + id ,booleanPredicates);
 			$(itemsSearchValuex).style.display = 'none';
 		}
 		else if(predicateValues == 'foreign key')
