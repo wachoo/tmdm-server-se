@@ -3,8 +3,10 @@ package com.amalto.service.workflow.ejb;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -321,14 +323,34 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 		    try {
 				File businessArchiveFile = new File(barFilePath);
 				BusinessArchive businessArchive = BusinessArchiveFactory.getBusinessArchive(businessArchiveFile);
-				process = AccessorUtil.getAPIAccessor().getManagementAPI().deploy(businessArchive);
-				
+				process = AccessorUtil.getAPIAccessor().getManagementAPI().deploy(businessArchive);				
 		    } catch (Exception e) {
 				throw new XtentisException(e);
 			}
 		    
 			return process.getUUID();
 
+	 }
+
+	 /**
+	  * UnDeploy Process 
+	  * @throws XtentisException 
+	  *
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 @SuppressWarnings("deprecation")
+	public void undeploy(ProcessDefinitionUUID uuid) throws XtentisException {
+
+
+		    try {
+		    	List<ProcessDefinitionUUID> l=new ArrayList<ProcessDefinitionUUID>();
+		    	l.add(uuid);
+		    	AccessorUtil.getAPIAccessor().getManagementAPI().delete(l);			
+		    } catch (Exception e) {
+				throw new XtentisException(e);
+			}
 	 }
 	 
 	 /**
@@ -423,16 +445,35 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 	  */
 	 public Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID,ActivityState state) throws XtentisException  {
 		 
-		Collection<TaskInstance> activities=null;
+		Collection<TaskInstance> activities=null;		
 		try {
 			activities = AccessorUtil.getAPIAccessor().getQueryRuntimeAPI().getTaskList(instanceUUID, state);
+			TaskInstance in;			
 		} catch (InstanceNotFoundException e) {
 			throw new XtentisException(e);
 		}
 		return activities;
 
 	 }
-	 
+	 /**
+	  * Get Task List
+	  * @throws XtentisException
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID) throws XtentisException  {
+		
+		Collection<TaskInstance> activities=null;		
+		try {
+			activities = AccessorUtil.getAPIAccessor().getQueryRuntimeAPI().getTasks(instanceUUID);
+			TaskInstance in;			
+		} catch (InstanceNotFoundException e) {
+			throw new XtentisException(e);
+		}
+		return activities;
+
+	 }	 
 	 /**
 	  * Start Task
 	  * @throws XtentisException
@@ -442,7 +483,7 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 	  */
 	 public void startTask(ActivityInstanceUUID taskUUID) throws XtentisException  {
 		    try {
-				AccessorUtil.getAPIAccessor().getRuntimeAPI().startTask(taskUUID, true);
+				AccessorUtil.getAPIAccessor().getRuntimeAPI().startTask(taskUUID, true);				
 			} catch (Exception e) {
 				throw new XtentisException(e);
 			}

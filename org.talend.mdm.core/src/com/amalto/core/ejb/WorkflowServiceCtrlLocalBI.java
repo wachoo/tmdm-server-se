@@ -54,6 +54,11 @@ public interface WorkflowServiceCtrlLocalBI extends ServiceCtrlLocalBI{
 	public abstract ProcessDefinitionUUID deploy(String barFilePath) throws XtentisException;
   
 	/**
+     * undeploy
+     * 
+     */
+	public abstract void undeploy(ProcessDefinitionUUID uuid) throws XtentisException;	
+	/**
      * Get Process Definitions
      * 
      */
@@ -79,7 +84,16 @@ public interface WorkflowServiceCtrlLocalBI extends ServiceCtrlLocalBI{
 	  * Get Task List
 	  */
 	public abstract Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID,ActivityState state) throws XtentisException;
-	
+
+	/**
+	 * Get Task List
+	 * 
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+	public abstract Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID) throws XtentisException;		
 	/**
 	  * Start Task
 	  */
