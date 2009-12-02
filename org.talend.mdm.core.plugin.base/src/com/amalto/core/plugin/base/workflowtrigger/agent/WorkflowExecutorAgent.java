@@ -27,7 +27,7 @@ public final class WorkflowExecutorAgent extends WorkflowAgent{
 		
 	
 		// instantiation
-		final ProcessInstanceUUID instanceUUID = getWorkflowService().instantiateProcessInstance(processPK.getProcessId(), processPK.getProcessVersion());		
+		final ProcessInstanceUUID instanceUUID = getWorkflowService().instantiateProcess(processPK.getProcessId(), processPK.getProcessVersion());		
 		this.console.writeln("Init a new Process Instance: " + instanceUUID);
 		if(!processVariableBox.isEmpty()){
 			Map<String, Object> gvars=processVariableBox.getVariables();
