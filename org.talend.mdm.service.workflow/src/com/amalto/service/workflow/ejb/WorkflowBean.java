@@ -21,6 +21,7 @@ import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
 import org.ow2.bonita.facade.exception.ProcessNotFoundException;
 import org.ow2.bonita.facade.runtime.ActivityState;
+import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
@@ -340,17 +341,15 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 	  * @ejb.interface-method view-type = "both"
 	  * @ejb.facade-method
 	  */
-	 @SuppressWarnings("deprecation")
 	public void undeploy(ProcessDefinitionUUID uuid) throws XtentisException {
 
-
 		    try {
-		    	List<ProcessDefinitionUUID> l=new ArrayList<ProcessDefinitionUUID>();
-		    	l.add(uuid);
-		    	AccessorUtil.getAPIAccessor().getManagementAPI().delete(l);			
+		    	AccessorUtil.getAPIAccessor().getRuntimeAPI().deleteAllProcessInstances(uuid);
+		    	AccessorUtil.getAPIAccessor().getManagementAPI().deleteProcess(uuid);
 		    } catch (Exception e) {
 				throw new XtentisException(e);
 			}
+		    
 	 }
 	 
 	 /**
@@ -375,18 +374,18 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 	 
 	 
 	 /**
-	  * Instantiate Process Instance
+	  * Instantiate Process 
 	  * @throws XtentisException 
 	  *
 	  *
 	  * @ejb.interface-method view-type = "both"
 	  * @ejb.facade-method
 	  */
-	 public ProcessInstanceUUID instantiateProcessInstance(String processDefinitionId, String processDefinitionVersion) throws XtentisException {
+	 public ProcessInstanceUUID instantiateProcess(String processDefinitionId, String processDefinitionVersion) throws XtentisException {
 		 // instantiation
 		ProcessInstanceUUID instanceUUID=null;
 		try {
-			ProcessDefinition processDefinition = null;
+			 ProcessDefinition processDefinition = null;
 				
 			 processDefinition = AccessorUtil.getAPIAccessor().getQueryDefinitionAPI().getProcess(processDefinitionId, processDefinitionVersion);
 			 instanceUUID = AccessorUtil.getAPIAccessor().getRuntimeAPI().instantiateProcess(processDefinition.getUUID());
@@ -395,6 +394,58 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 		}
 		 
 		 return instanceUUID;
+	 }
+	 
+	 /**
+	  * Get Process Instances 
+	  * @throws XtentisException 
+	  *
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public Set<ProcessInstance> getProcessInstances(ProcessDefinitionUUID processDefinitionUUID) throws XtentisException {
+		 Set<ProcessInstance> processInstances=null;
+		 try {
+			 processInstances=AccessorUtil.getAPIAccessor().getQueryRuntimeAPI().getProcessInstances(processDefinitionUUID);
+		 } catch (ProcessNotFoundException e) {
+			throw new XtentisException(e);
+		 }
+		 return processInstances;
+	 }
+	 
+	 /**
+	  * Cancel Process Instances 
+	  * @throws XtentisException 
+	  *
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public void cancelProcessInstance(ProcessInstanceUUID instanceUUID) throws XtentisException {
+		 
+		 try {
+			 AccessorUtil.getAPIAccessor().getRuntimeAPI().cancelProcessInstance(instanceUUID);
+		 } catch (Exception e) {
+			throw new XtentisException(e);
+		 } 
+	 }
+	 
+	 /**
+	  * Delete Process Instances 
+	  * @throws XtentisException 
+	  *
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public void deleteProcessInstance(ProcessInstanceUUID instanceUUID) throws XtentisException {
+		 
+		 try {
+			 AccessorUtil.getAPIAccessor().getRuntimeAPI().deleteProcessInstance(instanceUUID);
+		 } catch (Exception e) {
+			throw new XtentisException(e);
+		 }
 	 }
 	 
 	 /**
@@ -447,8 +498,7 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 		 
 		Collection<TaskInstance> activities=null;		
 		try {
-			activities = AccessorUtil.getAPIAccessor().getQueryRuntimeAPI().getTaskList(instanceUUID, state);
-			TaskInstance in;			
+			activities = AccessorUtil.getAPIAccessor().getQueryRuntimeAPI().getTaskList(instanceUUID, state);	
 		} catch (InstanceNotFoundException e) {
 			throw new XtentisException(e);
 		}
@@ -473,7 +523,28 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 		}
 		return activities;
 
-	 }	 
+	 }
+	 
+	 /**
+	  * Get Task State
+	  * @throws XtentisException
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public ActivityState getTaskState(ActivityInstanceUUID taskUUID) throws XtentisException {
+		 ActivityState taskState=null;
+		 try {
+			
+			 TaskInstance taskInstance = AccessorUtil.getAPIAccessor().getQueryRuntimeAPI().getTask(taskUUID);
+			 taskState=taskInstance.getState();
+				 			
+		} catch (Exception e) {
+				throw new XtentisException(e);
+		}
+		
+		return taskState;
+	 }
 	 /**
 	  * Start Task
 	  * @throws XtentisException
@@ -488,6 +559,37 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 				throw new XtentisException(e);
 			}
 	 }
+	 
+	 /**
+	  * Suspend Task
+	  * @throws XtentisException
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public void suspendTask(ActivityInstanceUUID taskUUID) throws XtentisException  {
+		    try {
+				AccessorUtil.getAPIAccessor().getRuntimeAPI().suspendTask(taskUUID, true);				
+			} catch (Exception e) {
+				throw new XtentisException(e);
+			}
+	 }
+	 
+	 /**
+	  * Resume Task
+	  * @throws XtentisException
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public void resumeTask(ActivityInstanceUUID taskUUID) throws XtentisException  {
+		    try {
+				AccessorUtil.getAPIAccessor().getRuntimeAPI().resumeTask(taskUUID, true);				
+			} catch (Exception e) {
+				throw new XtentisException(e);
+			}
+	 }
+	 
 	
 	 
 	 /**
