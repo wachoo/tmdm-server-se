@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
+import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
@@ -52,7 +53,6 @@ public interface WorkflowServiceCtrlLocalBI extends ServiceCtrlLocalBI{
      * 
      */
 	public abstract ProcessDefinitionUUID deploy(String barFilePath) throws XtentisException;
-  
 	/**
      * undeploy
      * 
@@ -63,12 +63,29 @@ public interface WorkflowServiceCtrlLocalBI extends ServiceCtrlLocalBI{
      * 
      */
 	public abstract Set<ProcessDefinition> getProcessDefinitions() throws XtentisException;
-	
     /**
-     * instantiate Process Instance
+     * instantiate Process 
      * 
      */
-	public abstract ProcessInstanceUUID instantiateProcessInstance(String processDefinitionId, String processDefinitionVersion) throws XtentisException;
+	public abstract ProcessInstanceUUID instantiateProcess(String processDefinitionId, String processDefinitionVersion) throws XtentisException;
+	
+	/**
+     * Get Process Instances 
+     * 
+     */
+	public abstract Set<ProcessInstance> getProcessInstances(ProcessDefinitionUUID processDefinitionUUID) throws XtentisException;
+	
+	/**
+     * Cancel ProcessInstance 
+     * 
+     */
+	public abstract void cancelProcessInstance(ProcessInstanceUUID instanceUUID) throws XtentisException;
+	
+	
+	/**
+	 * Delete Process Instances 
+	 */
+	public abstract void deleteProcessInstance(ProcessInstanceUUID instanceUUID) throws XtentisException;
 	
 	/**
      * Get Process Instance Variables
@@ -79,25 +96,34 @@ public interface WorkflowServiceCtrlLocalBI extends ServiceCtrlLocalBI{
 	  * Set Process Instance Variable
 	  */
 	public abstract void setProcessInstanceVariable(ProcessInstanceUUID instanceUUID,String variableName,Object variableValue) throws XtentisException;
-	
 	/**
 	  * Get Task List
 	  */
-	public abstract Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID,ActivityState state) throws XtentisException;
-
+	public abstract Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID,ActivityState state) throws XtentisException;	
+	
 	/**
 	 * Get Task List
-	 * 
-     * @throws XtentisException
-     * 
-     * @ejb.interface-method view-type = "both"
-     * @ejb.facade-method 
-     */
-	public abstract Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID) throws XtentisException;		
+	 */
+	public abstract Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID) throws XtentisException;
+	
+	 /**
+	  * Get Task State
+	  */
+	public abstract ActivityState getTaskState(ActivityInstanceUUID taskUUID) throws XtentisException;
 	/**
 	  * Start Task
 	  */
 	public abstract void startTask(ActivityInstanceUUID taskUUID) throws XtentisException;
+	
+	/**
+	  * Suspend Task
+	  */
+	public abstract void suspendTask(ActivityInstanceUUID taskUUID) throws XtentisException;  
+	
+	/**
+	  * Resume Task
+	  */
+	public abstract void resumeTask(ActivityInstanceUUID taskUUID) throws XtentisException;
 	/**
 	  * Finish Task
 	  */

@@ -20,16 +20,40 @@ public interface WorkflowServiceCtrlLocal
    public org.ow2.bonita.facade.uuid.ProcessDefinitionUUID deploy( java.lang.String barFilePath ) throws com.amalto.core.util.XtentisException;
 
    /**
+    * undeploy
+    * @throws XtentisException
+    */
+   public void undeploy( org.ow2.bonita.facade.uuid.ProcessDefinitionUUID uuid ) throws com.amalto.core.util.XtentisException;
+
+   /**
     * Get Process Definitions
     * @throws XtentisException
     */
    public java.util.Set getProcessDefinitions(  ) throws com.amalto.core.util.XtentisException;
 
    /**
-    * instantiate Process Instance
+    * instantiate Process
     * @throws XtentisException
     */
-   public org.ow2.bonita.facade.uuid.ProcessInstanceUUID instantiateProcessInstance( java.lang.String processDefinitionId,java.lang.String processDefinitionVersion ) throws com.amalto.core.util.XtentisException;
+   public org.ow2.bonita.facade.uuid.ProcessInstanceUUID instantiateProcess( java.lang.String processDefinitionId,java.lang.String processDefinitionVersion ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Get Process Instances
+    * @throws XtentisException
+    */
+   public java.util.Set getProcessInstances( org.ow2.bonita.facade.uuid.ProcessDefinitionUUID processDefinitionUUID ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Cancel ProcessInstance
+    * @throws XtentisException
+    */
+   public void cancelProcessInstance( org.ow2.bonita.facade.uuid.ProcessInstanceUUID instanceUUID ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Delete Process Instances
+    * @throws XtentisException
+    */
+   public void deleteProcessInstance( org.ow2.bonita.facade.uuid.ProcessInstanceUUID instanceUUID ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Get Process Instance Variables
@@ -38,16 +62,46 @@ public interface WorkflowServiceCtrlLocal
    public java.util.Map getProcessInstanceVariables( org.ow2.bonita.facade.uuid.ProcessInstanceUUID instanceUUID ) throws com.amalto.core.util.XtentisException;
 
    /**
+    * Set Process Instance Variable
+    * @throws XtentisException
+    */
+   public void setProcessInstanceVariable( org.ow2.bonita.facade.uuid.ProcessInstanceUUID instanceUUID,java.lang.String variableName,java.lang.Object variableValue ) throws com.amalto.core.util.XtentisException;
+
+   /**
     * Get Task List
     * @throws XtentisException
     */
    public java.util.Collection getTaskList( org.ow2.bonita.facade.uuid.ProcessInstanceUUID instanceUUID,org.ow2.bonita.facade.runtime.ActivityState state ) throws com.amalto.core.util.XtentisException;
 
    /**
+    * Get Task List
+    * @throws XtentisException
+    */
+   public java.util.Collection getTaskList( org.ow2.bonita.facade.uuid.ProcessInstanceUUID instanceUUID ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Get Task State
+    * @throws XtentisException
+    */
+   public org.ow2.bonita.facade.runtime.ActivityState getTaskState( org.ow2.bonita.facade.uuid.ActivityInstanceUUID taskUUID ) throws com.amalto.core.util.XtentisException;
+
+   /**
     * Start Task
     * @throws XtentisException
     */
    public void startTask( org.ow2.bonita.facade.uuid.ActivityInstanceUUID taskUUID ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Suspend Task
+    * @throws XtentisException
+    */
+   public void suspendTask( org.ow2.bonita.facade.uuid.ActivityInstanceUUID taskUUID ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Resume Task
+    * @throws XtentisException
+    */
+   public void resumeTask( org.ow2.bonita.facade.uuid.ActivityInstanceUUID taskUUID ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Finish Task

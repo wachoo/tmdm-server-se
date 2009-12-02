@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
+import org.ow2.bonita.facade.runtime.ProcessInstance;
 import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.facade.uuid.ActivityInstanceUUID;
 import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
@@ -59,6 +60,15 @@ public abstract class WorkflowServiceCtrlBean extends ServiceCtrlBean implements
      * @ejb.facade-method 
      */
 	public abstract ProcessDefinitionUUID deploy(String barFilePath) throws XtentisException;
+	/**
+     * undeploy
+     * 
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+	public abstract void undeploy(ProcessDefinitionUUID uuid) throws XtentisException;
     /**
      * Get Process Definitions
      * 
@@ -70,14 +80,43 @@ public abstract class WorkflowServiceCtrlBean extends ServiceCtrlBean implements
 	public abstract Set<ProcessDefinition> getProcessDefinitions() throws XtentisException;
 	
 	/**
-     * instantiate Process Instance
+     * instantiate Process 
      * 
      * @throws XtentisException
      * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public abstract ProcessInstanceUUID instantiateProcessInstance(String processDefinitionId, String processDefinitionVersion) throws XtentisException;
+    public abstract ProcessInstanceUUID instantiateProcess(String processDefinitionId, String processDefinitionVersion) throws XtentisException;
+    
+    /**
+     * Get Process Instances 
+     * 
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public abstract Set<ProcessInstance> getProcessInstances(ProcessDefinitionUUID processDefinitionUUID) throws XtentisException;
+    
+    /**
+     * Cancel ProcessInstance 
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+	public abstract void cancelProcessInstance(ProcessInstanceUUID instanceUUID) throws XtentisException;
+	
+	
+	/**
+	 * Delete Process Instances 
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+	public abstract void deleteProcessInstance(ProcessInstanceUUID instanceUUID) throws XtentisException;
 	
 	/**
      * Get Process Instance Variables
@@ -88,9 +127,14 @@ public abstract class WorkflowServiceCtrlBean extends ServiceCtrlBean implements
      * @ejb.facade-method 
      */
 	public abstract Map<String, Object> getProcessInstanceVariables(ProcessInstanceUUID instanceUUID) throws XtentisException;
+	
 	/**
-	  * Set Process Instance Variable
-	  */
+	 * Set Process Instance Variable
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+	 */
 	public abstract void setProcessInstanceVariable(ProcessInstanceUUID instanceUUID,String variableName,Object variableValue) throws XtentisException;
 	
 	/**
@@ -103,6 +147,26 @@ public abstract class WorkflowServiceCtrlBean extends ServiceCtrlBean implements
      */
 	public abstract Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID,ActivityState state) throws XtentisException;
 	
+	
+	/**
+	 * Get Task List
+	 * 
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+	public abstract Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID) throws XtentisException;
+	
+	/**
+	 * Get Task State
+	 * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+	public abstract ActivityState getTaskState(ActivityInstanceUUID taskUUID) throws XtentisException;
+	
 	/**
 	 * Start Task
 	 * 
@@ -112,6 +176,26 @@ public abstract class WorkflowServiceCtrlBean extends ServiceCtrlBean implements
      * @ejb.facade-method 
      */
 	public abstract void startTask(ActivityInstanceUUID taskUUID) throws XtentisException;
+	
+	/**
+	 * Suspend Task
+	 * 
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+	public abstract void suspendTask(ActivityInstanceUUID taskUUID) throws XtentisException; 
+	
+	/**
+	 * Resume Task
+	 * 
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+	public abstract void resumeTask(ActivityInstanceUUID taskUUID) throws XtentisException;
 	/**
 	 * Finish Task
 	 * 
