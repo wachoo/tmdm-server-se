@@ -963,6 +963,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 //										}							    	
 										var treeIndex=1;
 										if(_dataObject==null) _dataObject=_dataObject2;
+			ItemsBrowserInterface.getUri(_dataObject, itemPK, function(picUri){
+				if(uri!=""){
+					 var pos=picUri.indexOf('?');
+	 				 var uri=picUri.substring("/imageserver/".length,pos); 
+    Ext.Ajax.request({  
+       	url:'/imageserver/secure/ImageDeleteServlet?uri='+uri,
+         method: 'post',  
+         callback: function(options, success, response) {  
+              
+         }  
+    });    
+				}
+			});										
 										ItemsBrowserInterface.deleteItem(_dataObject, itemPK, function(result){
 											if(result.lastIndexOf("ERROR")>-1){
 												var err1=result.substring(7);
@@ -1985,6 +1998,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		Ext.MessageBox.confirm("confirm",MSG_CONFIRM_DELETE_ITEM[language]+ " ?",function re(en){
 		if(en=="yes"){
+			ItemsBrowserInterface.getUri(dataObject, itemPK, function(picUri){
+				if(uri!=""){
+					 var pos=picUri.indexOf('?');
+	 				 var uri=picUri.substring("/imageserver/".length,pos); 
+    Ext.Ajax.request({  
+       	url:'/imageserver/secure/ImageDeleteServlet?uri='+uri,
+         method: 'post',  
+         callback: function(options, success, response) {  
+              
+         }  
+    });    
+				}
+			});
 			ItemsBrowserInterface.deleteItem(dataObject, itemPK, function(result){
 				if(result.lastIndexOf("ERROR")>-1){
 					var err1=result.substring(7);
@@ -1992,7 +2018,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					$('errorDetail' + treeIndex).style.display = "block";
 					$('errorDetail' + treeIndex).innerHTML ="<br/>"+err1+"<br/>";					
 					return;
-				}				
+				}
+				else if(result.lastIndexOf)
 				var itempanel = amalto.core.getTabPanel().activeTab;
 				if(itempanel){
 					itempanel.isdirty=false;
@@ -2248,7 +2275,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		           var inputText=nodeId+"Value";	
 				    DWRUtil.setValue(inputText,url);
 				    updateNode(nodeId,treeIndex);		           
-		            Ext.Msg.alert('Sucess', 'File upload sucessfully!');
+		            Ext.Msg.alert('Success', 'File upload sucessfully!');
 		            if($('showPicture'))$('showPicture').src=url;
 		            uploadFileWindow.hide();
 		        },    

@@ -1,5 +1,6 @@
 package com.amalto.webapp.v3.itemsbrowser.dwr;
 
+import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +18,8 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
-
+import org.jboss.dom4j.DocumentException;
+import org.jboss.dom4j.io.SAXReader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1082,7 +1084,26 @@ public class ItemsBrowserDWR {
 			return "ERROR -" + e.getLocalizedMessage();
 		}        
 	}
-	
+	public String getUri(String concept, String[] ids){
+		Configuration config;
+		String uri="";
+		try {
+			config = Configuration.getInstance();
+		String dataClusterPK = config.getCluster();
+		String content="";
+		WSItemPK wsItem=new WSItemPK(new WSDataClusterPK(dataClusterPK),concept,ids);
+    	if(wsItem!=null)
+    		content=Util.getPort().getItem(new WSGetItem(wsItem))
+					.getContent();
+    	uri = parsXMLString(content).getRootElement().element("Logo").getStringValue();
+    	System.out.println(uri);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return uri;
+		}
+
 	public String logicalDeleteItem(String concept, String[] ids, String path)
 	{
 		WebContext ctx = WebContextFactory.get();
@@ -1834,5 +1855,21 @@ public class ItemsBrowserDWR {
 			res = WSWhereOperator.STRICTCONTAINS;
 		return res;											
 	}
-	
+	public static void main(String[] args) {
+		new ItemsBrowserDWR().deleteItem("Custom", new String[]{"28"});
+	}
+	private org.jboss.dom4j.Document parsXMLString(String xmlString) {
+        SAXReader saxReader = new SAXReader();   
+        org.jboss.dom4j.Document document = null;   
+        try  
+        {   
+            document = saxReader.read(new StringReader(xmlString));   
+        } catch (DocumentException e)   
+        {   
+            e.printStackTrace();   
+            return null;   
+        }
+		return document;
+		
+	}
 }
