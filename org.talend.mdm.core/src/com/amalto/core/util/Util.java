@@ -1379,7 +1379,7 @@ public final class Util {
      * @param schema
      * @param dataCluster
      * @param concept
-     * @param elementname null:±íÊ¾¸ù½Óµã
+     * @param elementname null:ï¿½ï¿½Ê¾ï¿½ï¿½Óµï¿½
      * @param conceptRoot
      * @throws Exception
      */
@@ -1848,6 +1848,47 @@ public final class Util {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * @return
+	 *   the username/password
+	 */
+	public static String getUsernameAndPasswordToken() {
+		
+		String token=null;
+		try {
+        	String userName=null;
+        	String password=null;
+        	
+			Subject subject=LocalUser.getCurrentSubject();
+			Set<Principal> set = subject.getPrincipals();
+			for (Iterator<Principal> iter = set.iterator(); iter.hasNext(); ) {
+				Principal principal = iter.next();
+				if (principal instanceof Group) {
+					Group group = (Group) principal;
+					if("Username".equals(group.getName())) {
+						if (group.members().hasMoreElements()) {
+							userName=group.members().nextElement().getName();
+						}
+					}else if("Password".equals(group.getName())){
+						if (group.members().hasMoreElements()) {
+							password=group.members().nextElement().getName();
+						}
+					}
+				}
+			}//for
+			
+			if(userName==null)userName="";
+			if(password==null)password="";
+			
+			token=userName+"/"+password;
+		} catch (XtentisException e) {
+			e.printStackTrace();
+		}
+		
+		return token;
+
 	}
 
 	/**
