@@ -1,6 +1,6 @@
 package com.amalto.core.plugin.base.workflowtrigger.agent;
 
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
@@ -20,17 +20,16 @@ public final class WorkflowExecutorAgent extends WorkflowAgent{
 
 	public ProcessInstanceUUID execute(WorkflowProcessPK processPK,WorkflowProcessVariableBox processVariableBox,WorkflowActivityVariableBoxes activityVariableBoxes) throws BonitaException, XtentisException {
 		
-	
-		// instantiation
-		final ProcessInstanceUUID instanceUUID = getWorkflowService().instantiateProcess(processPK.getProcessId(), processPK.getProcessVersion());
+
+		//get process variables
+		Map<String, Object> gvars=new HashMap<String, Object>();
 		if(!processVariableBox.isEmpty()){
-			Map<String, Object> gvars=processVariableBox.getVariables();
-			for (Iterator<String> iterator = gvars.keySet().iterator(); iterator.hasNext();) {
-				String gvariableId =  iterator.next();
-				Object gvariableValue = gvars.get(gvariableId);
-				getWorkflowService().setProcessInstanceVariable(instanceUUID,gvariableId,gvariableValue );
-			}
+			gvars=processVariableBox.getVariables();
 		}
+		//instantiation
+		final ProcessInstanceUUID instanceUUID = getWorkflowService().instantiateProcess(processPK.getProcessId(), processPK.getProcessVersion(),gvars);
+		
+		//message
 		this.console.writeln("Started a new Process Instance: " + instanceUUID);
 		this.console.writeln("Init Process Variables: " + getWorkflowService().getProcessInstanceVariables(instanceUUID),false);
 
