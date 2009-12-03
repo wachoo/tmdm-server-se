@@ -32,6 +32,7 @@ public final class WorkflowExecutorAgent extends WorkflowAgent{
 			}
 		}
 		this.console.writeln("Started a new Process Instance: " + instanceUUID);
+		this.console.writeln("Init Process Variables: " + getWorkflowService().getProcessInstanceVariables(instanceUUID),false);
 
 		// tasks execution
 //		// FIXME: maybe this is muti thread

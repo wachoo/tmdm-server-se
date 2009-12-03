@@ -15,12 +15,18 @@ public class WorkflowConsole {
 	}
 	
 	public void writeln(String msg) {
-		this.broad.write("[");
-		this.broad.write(df.format(new Date()));
-		this.broad.write("]:");
+		writeln(msg,true);
+	}
+	
+	public void writeln(String msg,boolean withTime) {
 		this.broad.write(msg);
+		if(withTime){
+			this.broad.write(" on ");
+			this.broad.write(df.format(new Date()));
+		}
 		this.broad.write("\n");
 	}
+	
 	public String getContent() {
 		return getContent(true);
 	}
