@@ -332,6 +332,14 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSCheckServiceConfigResponse checkServiceConfiguration(com.amalto.core.webservice.WSCheckServiceConfigRequest serviceName) throws 
          java.rmi.RemoteException;
-    public com.amalto.core.webservice.WSWorkflowProcessDefinitionUUIDArray workflowGetProcessDefinitions(com.amalto.core.webservice.WSWorkflowGetProcessDefinitions wsWorkflowGetProcessDefinitions) throws 
+    public com.amalto.core.webservice.WSWorkflowProcessDefinitionUUIDArray workflowGetProcessDefinitions(com.amalto.core.webservice.WSWorkflowGetProcessDefinitions wsworkflowProcessDefinitions) throws 
+         java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSWorkflowProcessDefinitionUUID workflowDeploy(com.amalto.core.webservice.WSWorkflowDeploy wsWorkflowDeploy) throws 
+         java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSBoolean workflowUnDeploy(com.amalto.core.webservice.WSWorkflowUnDeploy wsWorkflowUnDeploy) throws 
+         java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSProcessTaskInstanceArray workflowGetTaskList(com.amalto.core.webservice.WSWorkflowGetTaskList uuid) throws 
+         java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSProcessInstanceArray workflowGetProcessInstances(com.amalto.core.webservice.WSWorkflowGetProcessInstances uuid) throws 
          java.rmi.RemoteException;
 }

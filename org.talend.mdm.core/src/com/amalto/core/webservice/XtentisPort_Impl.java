@@ -979,10 +979,34 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSCheckServiceConfigResponse _retVal = null;
         return _retVal;
     }
-    public com.amalto.core.webservice.WSWorkflowProcessDefinitionUUIDArray workflowGetProcessDefinitions(com.amalto.core.webservice.WSWorkflowGetProcessDefinitions wsWorkflowGetProcessDefinitions) throws 
+    public com.amalto.core.webservice.WSWorkflowProcessDefinitionUUIDArray workflowGetProcessDefinitions(com.amalto.core.webservice.WSWorkflowGetProcessDefinitions wsworkflowProcessDefinitions) throws 
          java.rmi.RemoteException {
         
         com.amalto.core.webservice.WSWorkflowProcessDefinitionUUIDArray _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSWorkflowProcessDefinitionUUID workflowDeploy(com.amalto.core.webservice.WSWorkflowDeploy wsWorkflowDeploy) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSWorkflowProcessDefinitionUUID _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSBoolean workflowUnDeploy(com.amalto.core.webservice.WSWorkflowUnDeploy wsWorkflowUnDeploy) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSBoolean _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSProcessTaskInstanceArray workflowGetTaskList(com.amalto.core.webservice.WSWorkflowGetTaskList uuid) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSProcessTaskInstanceArray _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSProcessInstanceArray workflowGetProcessInstances(com.amalto.core.webservice.WSWorkflowGetProcessInstances uuid) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSProcessInstanceArray _retVal = null;
         return _retVal;
     }
 }

@@ -90,6 +90,7 @@ public class UploadFile extends HttpServlet {
         //while (iter.hasNext()) {
         	//FIXME: should handle more than files in parts e.g. text passed as parameter
             FileItem item = iter.next();
+            System.out.println(item.getFieldName());
             if (item.isFormField()) {
             	//we are not expecting any field just (one) file(s)
             } else {
@@ -102,7 +103,7 @@ public class UploadFile extends HttpServlet {
             }//if field
         //}// while item
         
-        writer.write(filename);
+        writer.write(tempFile.getAbsolutePath());
         writer.close();
         
     }

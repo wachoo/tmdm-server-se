@@ -45,6 +45,10 @@ import javax.xml.xpath.XPathFactory;
 
 import org.jboss.security.Base64Encoder;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
+import org.ow2.bonita.facade.runtime.ProcessInstance;
+import org.ow2.bonita.facade.runtime.TaskInstance;
+import org.ow2.bonita.facade.uuid.ProcessDefinitionUUID;
+import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -6531,4 +6535,91 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		return rtnArray;
 	}
 	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSWorkflowProcessDefinitionUUID workflowDeploy(WSWorkflowDeploy deploy) throws RemoteException{
+		try {
+			ProcessDefinitionUUID uuid=Util.getWorkflowService().deploy(deploy.getFilename());			
+			return new WSWorkflowProcessDefinitionUUID(uuid.getProcessName(),uuid.getProcessVersion());
+		} catch (XtentisException e) {			
+			throw(new RemoteException(e.getLocalizedMessage()));
+		}		
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSBoolean workflowUnDeploy(WSWorkflowUnDeploy undeploy) throws RemoteException{
+		try {
+			Util.getWorkflowService().undeploy(new ProcessDefinitionUUID(undeploy.getUuid().getProcessName(),undeploy.getUuid().getProcessVersion()));
+			return new WSBoolean(true);
+		} catch (XtentisException e) {			
+			throw(new RemoteException(e.getLocalizedMessage()));
+		}		
+	}	
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSProcessInstanceArray workflowGetProcessInstances(WSWorkflowGetProcessInstances instance) throws RemoteException{
+		try {
+			Set<ProcessInstance> set=Util.getWorkflowService().getProcessInstances(new ProcessDefinitionUUID(instance.getUuid().getProcessName(),instance.getUuid().getProcessVersion()));
+			List<WSProcessInstance> list=new ArrayList<WSProcessInstance>();
+			for(ProcessInstance in: set){	
+				WSProcessInstance pi=new WSProcessInstance();
+				pi.setName(in.getProcessInstanceUUID().getValue());
+				pi.setState(in.getInstanceState().toString());
+				list.add(pi);
+			}
+			return new WSProcessInstanceArray(list.toArray(new WSProcessInstance[list.size()]));
+			
+		} catch (XtentisException e) {			
+			throw(new RemoteException(e.getLocalizedMessage()));
+		}		
+	}	
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSProcessTaskInstanceArray workflowGetTaskList(WSWorkflowGetTaskList tasklist) throws RemoteException{
+		try {
+			Collection<TaskInstance> col=Util.getWorkflowService().getTaskList(new ProcessInstanceUUID(tasklist.getProcessinstanceuuid()));
+			List<WSProcessTaskInstance> list=new ArrayList<WSProcessTaskInstance>();
+			
+			for(TaskInstance instance: col){
+				String id=instance.getUUID().getValue();
+				String status=instance.getState().toString();
+				Set<String> candidates=instance.getTaskCandidates();
+				StringBuffer sb=new StringBuffer();
+				int i=0;
+				for(String str:candidates){
+					if(i== candidates.size()-1){
+						sb=sb.append(str).append(",");
+					}else{
+						sb=sb.append(str);
+					}
+					i++;
+				}
+				WSProcessTaskInstance p=new WSProcessTaskInstance(id,status, sb.toString());
+				list.add(p);
+			}
+			return new WSProcessTaskInstanceArray(list.toArray(new WSProcessTaskInstance[list.size()]));
+			
+		} catch (XtentisException e) {			
+			throw(new RemoteException(e.getLocalizedMessage()));
+		}		
+	}	
 }
