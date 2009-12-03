@@ -372,7 +372,6 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 	}
 	 
 	 
-	 
 	 /**
 	  * Instantiate Process 
 	  * @throws XtentisException 
@@ -394,6 +393,29 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 		}
 		 
 		 return instanceUUID;
+	 }
+	 
+	 /**
+	  * Instantiate Process 
+	  * @throws XtentisException 
+	  *
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public ProcessInstanceUUID instantiateProcess(String processDefinitionId, String processDefinitionVersion,Map<String, Object> variables) throws XtentisException {
+		 // instantiation
+		ProcessInstanceUUID instanceUUID=null;
+		try {
+			 ProcessDefinition processDefinition = null;
+				
+			 processDefinition = AccessorUtil.getAPIAccessor().getQueryDefinitionAPI().getProcess(processDefinitionId, processDefinitionVersion);
+			 instanceUUID = AccessorUtil.getAPIAccessor().getRuntimeAPI().instantiateProcess(processDefinition.getUUID(),variables);
+		} catch (Exception e) {
+			throw new XtentisException(e);
+		}
+		 
+		return instanceUUID;
 	 }
 	 
 	 /**

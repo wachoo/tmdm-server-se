@@ -5,7 +5,7 @@ package com.amalto.service.workflow.ejb.local;
 
 /**
  * Session layer for Workflow.
- * @xdoclet-generated at 2-12-09
+ * @xdoclet-generated at 3-12-09
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
