@@ -63,11 +63,18 @@ public interface WorkflowServiceCtrlLocalBI extends ServiceCtrlLocalBI{
      * 
      */
 	public abstract Set<ProcessDefinition> getProcessDefinitions() throws XtentisException;
+	
     /**
      * instantiate Process 
      * 
      */
 	public abstract ProcessInstanceUUID instantiateProcess(String processDefinitionId, String processDefinitionVersion) throws XtentisException;
+	
+	/**
+     * instantiate Process 
+     * 
+     */
+	public abstract ProcessInstanceUUID instantiateProcess(String processDefinitionId, String processDefinitionVersion,Map<String, Object> variables) throws XtentisException;
 	
 	/**
      * Get Process Instances 

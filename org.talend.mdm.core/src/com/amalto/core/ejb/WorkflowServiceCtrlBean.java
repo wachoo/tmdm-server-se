@@ -90,6 +90,16 @@ public abstract class WorkflowServiceCtrlBean extends ServiceCtrlBean implements
     public abstract ProcessInstanceUUID instantiateProcess(String processDefinitionId, String processDefinitionVersion) throws XtentisException;
     
     /**
+     * instantiate Process 
+     * 
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public abstract ProcessInstanceUUID instantiateProcess(String processDefinitionId, String processDefinitionVersion,Map<String, Object> variables) throws XtentisException;
+    
+    /**
      * Get Process Instances 
      * 
      * @throws XtentisException

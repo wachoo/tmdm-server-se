@@ -38,6 +38,12 @@ public interface WorkflowServiceCtrlLocal
    public org.ow2.bonita.facade.uuid.ProcessInstanceUUID instantiateProcess( java.lang.String processDefinitionId,java.lang.String processDefinitionVersion ) throws com.amalto.core.util.XtentisException;
 
    /**
+    * instantiate Process
+    * @throws XtentisException
+    */
+   public org.ow2.bonita.facade.uuid.ProcessInstanceUUID instantiateProcess( java.lang.String processDefinitionId,java.lang.String processDefinitionVersion,java.util.Map variables ) throws com.amalto.core.util.XtentisException;
+
+   /**
     * Get Process Instances
     * @throws XtentisException
     */
