@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="Tom Workflow" default="entry">
+<project name="Tom Workflow" default="all">
     <description>
     	Tom Workflow
     </description>
@@ -18,9 +18,9 @@
 
 
     <!-- ================================= 
-          target: entry              
+          target: all              
          ================================= -->
-	<target name="entry" depends="version,build_client_jar,undeploy,deploy">
+	<target name="all" depends="version,build_client_jar,undeploy,deploy">
 		<eclipse.refreshLocal resource="org.talend.mdm.workflow"/>
 	</target>
 	
