@@ -6622,4 +6622,105 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			throw(new RemoteException(e.getLocalizedMessage()));
 		}		
 	}	
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */	
+    public WSBoolean putMDMJob(WSPUTMDMJob job)throws RemoteException {
+    	DocumentBuilder documentBuilder;
+		try 
+		{
+			documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			Document doc = null;
+			Element jobElem = null, newOne = null;
+		    String xmlData = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "amaltoOBJECTSDataCluster", "JOB");
+		    if(xmlData == null || xmlData.equals(""))
+		    {
+			   doc = documentBuilder.newDocument();
+			   jobElem = doc.createElement("jobs");
+			   doc.appendChild(jobElem);
+		    }
+		    else
+		    {
+			   doc = Util.parse(xmlData);
+			   jobElem = doc.getDocumentElement();
+		    }
+		   
+		   
+		   newOne = doc.createElement("job");
+		   newOne.setAttribute("name", job.getJobName());
+		   newOne.setAttribute("version", job.getJobVersion());
+		   jobElem.appendChild(newOne);
+
+		   Util.getXmlServerCtrlLocal().putDocumentFromString(Util.nodeToString(doc.getDocumentElement()), "JOB", "amaltoOBJECTSDataCluster", null);
+		   return new WSBoolean(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+			
+		}
+    }
+	   
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */	
+    public WSBoolean deleteMDMJob(WSDELMDMJob job)throws RemoteException {
+    	Document doc = null;
+    	try {
+			String xmlData = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "amaltoOBJECTSDataCluster", "JOB");
+			doc = Util.parse(xmlData);
+			NodeList list = Util.getNodeList(doc, "/jobs/job[@name='" + job.getJobName() + "']");
+			if(list.getLength() > 0)
+			{
+				doc.getDocumentElement().removeChild(list.item(0));
+				xmlData = Util.nodeToString(doc);
+				Util.getXmlServerCtrlLocal().putDocumentFromString(xmlData, "JOB", "amaltoOBJECTSDataCluster", null);
+				return new WSBoolean(true);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+		
+		return new WSBoolean(false);
+    }
+    
+    
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */	
+    
+    public WSMDMJobArray getMDMJob(WSMDMNULL job)
+    {
+    	Document doc = null;
+		String xmlData;
+		WSMDMJobArray jobSet = new WSMDMJobArray();
+
+		try {
+			xmlData = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "amaltoOBJECTSDataCluster", "JOB");
+			doc = Util.parse(xmlData);
+			NodeList list = Util.getNodeList(doc, "/jobs/child::*");
+			WSMDMJob[] jobs = new WSMDMJob[list.getLength()];
+			for(int i = 0; i < list.getLength(); i++)
+			{
+			   Node node = list.item(i);
+			   jobs[i] = new WSMDMJob(node.getAttributes().getNamedItem("name").getNodeValue(), 
+					                  node.getAttributes().getNamedItem("version").getNodeValue());
+			}
+			jobSet.setWsMDMJob(jobs);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return jobSet;
+    }
 }

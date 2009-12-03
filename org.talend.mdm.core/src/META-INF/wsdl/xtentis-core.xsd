@@ -1655,4 +1655,42 @@
 	   </xsd:sequence>	
 	</xsd:complexType>
 	<xsd:element name="WSCheckServiceConfigResponse" type="tns:WSCheckServiceConfigResponse"/>
+
+		<xsd:complexType name="WSMDMNULL">
+	   <xsd:sequence>
+	      <xsd:element maxOccurs="0" minOccurs="0" name="mdmjob" nillable="true" type="xsd:string"/>
+	   </xsd:sequence>	
+	</xsd:complexType>
+	<xsd:element name="WSMDMNULL" type="tns:WSMDMNULL"/>
+	
+		<xsd:complexType name="WSPUTMDMJob">
+	   <xsd:sequence>
+	      <xsd:element maxOccurs="1" minOccurs="1" name="jobName" nillable="true" type="xsd:string"/>
+	      <xsd:element maxOccurs="1" minOccurs="1" name="jobVersion" nillable="true" type="xsd:string"/>
+	   </xsd:sequence>	
+	</xsd:complexType>
+	<xsd:element name="WSPUTMDMJob" type="tns:WSPUTMDMJob"/>
+	
+	<xsd:complexType name="WSDELMDMJob">
+	   <xsd:sequence>
+	      <xsd:element maxOccurs="1" minOccurs="1" name="jobName" nillable="true" type="xsd:string"/>
+	      <xsd:element maxOccurs="1" minOccurs="1" name="jobVersion" nillable="true" type="xsd:string"/>
+	   </xsd:sequence>	
+	</xsd:complexType>
+	<xsd:element name="WSDELMDMJob" type="tns:WSDELMDMJob"/>
+	
+	<xsd:complexType name="WSMDMJob">
+	   <xsd:sequence>
+	      <xsd:element maxOccurs="1" minOccurs="1" name="jobName" nillable="true" type="xsd:string"/>
+	      <xsd:element maxOccurs="1" minOccurs="1" name="jobVersion" nillable="true" type="xsd:string"/>
+	   </xsd:sequence>	
+	</xsd:complexType>
+	<xsd:element name="WSMDMJob" type="tns:WSMDMJob"/>
+	
+	<xsd:complexType name="WSMDMJobArray">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="wsMDMJob" nillable="false" type="tns:WSMDMJob"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSMDMJobArray" type="tns:WSMDMJobArray"/>
 </xsd:schema>
