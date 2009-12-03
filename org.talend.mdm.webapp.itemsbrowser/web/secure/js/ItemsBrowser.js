@@ -2324,7 +2324,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		        itemSelector: 'div.search-item',
 		        onSelect: function(record){
                     this.collapse();
-                	DWRUtil.setValue(nodeId+'Value', "{"+record.get("keys")+"}-{"+record.get("infos")+"}");//
+                	DWRUtil.setValue(nodeId+'Value', record.get("keys")+"--"+record.get("infos"));//
                 	updateNode(nodeId,treeIndex);
 		        	foreignKeyWindow.hide();
 		        }
@@ -2396,10 +2396,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var keyValue = keys;
 		
 		//edit by ymli.fix bug 0009625: Made the foreign key like "{key} - {info}" 
-		if(DWRUtil.getValue(nodeId+'Value').match(/(\{.*?\})-(\{.*?\})/)){
+		if(DWRUtil.getValue(nodeId+'Value').match(/(.*?)--(.*?)/)){
 			var r = "";
-			r=keys.match(/(\{.*?\})-(\{.*?\})/);
-			keyValue = r[1].replace(/\{|\}/g,"");
+			r=keys.match(/(.*?)--(.*?)/);
+			keyValue = r[1];//.replace(/\{|\}/g,"");
 		}
 		/*if(DWRUtil.getValue(nodeId+'Value').match(/\[(.*?)\]/g)!=null){
 			var tmp =  DWRUtil.getValue(nodeId+'Value').replace(/\[(.*?)\]/g,"$1###").split("###");
