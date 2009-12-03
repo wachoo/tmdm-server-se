@@ -2324,7 +2324,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		        itemSelector: 'div.search-item',
 		        onSelect: function(record){
                     this.collapse();
-                	DWRUtil.setValue(nodeId+'Value', record.get("keys"));
+                	DWRUtil.setValue(nodeId+'Value', "{"+record.get("keys")+"}-{"+record.get("infos")+"}");//
                 	updateNode(nodeId,treeIndex);
 		        	foreignKeyWindow.hide();
 		        }
@@ -2392,11 +2392,26 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 	function browseForeignKey(nodeId, foreignKeyXpath){
 		//Check if have a Primary key made of multiple Item Ids or a single one
-		if(DWRUtil.getValue(nodeId+'Value').match(/\[(.*?)\]/g)!=null){
+		var keys = DWRUtil.getValue(nodeId+'Value');
+		var keyValue = keys;
+		
+		//edit by ymli.fix bug 0009625: Made the foreign key like "{key} - {info}" 
+		if(DWRUtil.getValue(nodeId+'Value').match(/(\{.*?\})-(\{.*?\})/)){
+			var r = "";
+			r=keys.match(/(\{.*?\})-(\{.*?\})/);
+			keyValue = r[1].replace(/\{|\}/g,"");
+		}
+		/*if(DWRUtil.getValue(nodeId+'Value').match(/\[(.*?)\]/g)!=null){
 			var tmp =  DWRUtil.getValue(nodeId+'Value').replace(/\[(.*?)\]/g,"$1###").split("###");
 			var itemPK =tmp.splice(0,tmp.length-1);
 		} else{
 			var itemPK = [DWRUtil.getValue(nodeId+'Value')];
+		}*/
+		if(keyValue.match(/\[(.*?)\]/g)!=null){
+			var tmp = keyValue.replace(/\[(.*?)\]/g,"$1###").split("###");
+			var itemPK =tmp.splice(0,tmp.length-1);
+		} else{
+			var itemPK = [keyValue];
 		}
 		
 		var dataObject = foreignKeyXpath.split("/")[0];
