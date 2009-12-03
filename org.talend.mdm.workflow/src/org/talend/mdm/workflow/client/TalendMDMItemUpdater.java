@@ -9,6 +9,7 @@ import urn_com_amalto_xtentis_webservice.WSDataClusterPK;
 import urn_com_amalto_xtentis_webservice.WSDataModelPK;
 import urn_com_amalto_xtentis_webservice.WSItemPK;
 import urn_com_amalto_xtentis_webservice.WSPutItem;
+import urn_com_amalto_xtentis_webservice.WSPutItemWithReport;
 
 public class TalendMDMItemUpdater extends TalendMDMAdapter{
 	
@@ -81,7 +82,12 @@ public class TalendMDMItemUpdater extends TalendMDMAdapter{
 		wsPutItem.setIsUpdate(true);// isUpdate true:update the item,false: create the item.
 		wsPutItem.setXmlString(inputSegment);
 		
-		WSItemPK wsItemPK=port.putItem(wsPutItem);
+		WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport();
+		wsPutItemWithReport.setWsPutItem(wsPutItem);
+		wsPutItemWithReport.setSource("workflow");
+		wsPutItemWithReport.setInvokeBeforeSaving(new Boolean(false));
+		
+		WSItemPK wsItemPK=port.putItemWithReport(wsPutItemWithReport);
 		System.out.println(CommonUtil.filterNullString(dataCluster)+"."+CommonUtil.filterNullString(wsItemPK.getConceptName())+"."+CommonUtil.joinStrings(wsItemPK.getIds(),".")+" has been updated! ");
 
 	}
