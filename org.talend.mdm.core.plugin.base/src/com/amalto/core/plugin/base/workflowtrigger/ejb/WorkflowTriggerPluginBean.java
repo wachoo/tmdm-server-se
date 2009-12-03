@@ -479,8 +479,10 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 			if(parameters.isUseBuiltInVariable()){
 				InetAddress addr = InetAddress.getLocalHost();
 				String ip=addr.getHostAddress().toString();
-				String portUrl = "http://"+ip+":8080/talend/TalendPort";
-				workflowProcessVariableBox.addVariable("MDM_url", portUrl, WorkflowVariableSet.STRING_TYPE);
+				String port="8080";
+				String portUrl = "http://"+ip+":"+port+"/talend/TalendPort";
+				workflowProcessVariableBox.addVariable("MDM_host", ip, WorkflowVariableSet.STRING_TYPE);
+				workflowProcessVariableBox.addVariable("MDM_port", port, WorkflowVariableSet.STRING_TYPE);
 				
 				String universeName=LocalUser.getLocalUser().getUniverse().getName();
 				if(universeName.equals("[HEAD]"))universeName="";
