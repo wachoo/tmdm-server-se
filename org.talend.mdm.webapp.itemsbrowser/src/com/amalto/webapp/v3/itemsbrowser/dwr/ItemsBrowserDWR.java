@@ -1095,7 +1095,13 @@ public class ItemsBrowserDWR {
     	if(wsItem!=null)
     		content=Util.getPort().getItem(new WSGetItem(wsItem))
 					.getContent();
-    	uri = parsXMLString(content).getRootElement().element("Logo").getStringValue();
+   	 for (Iterator iterator = parsXMLString(content).getRootElement().nodeIterator(); iterator.hasNext();) {
+   		org.jboss.dom4j.Node node = ( org.jboss.dom4j.Node) iterator.next();
+			if(node.getStringValue().startsWith("/imageserver"))
+				{	uri=node.getStringValue();
+					break;	
+ 				}
+		}
     	System.out.println(uri);
 		} catch (Exception e) {
 			e.printStackTrace();
