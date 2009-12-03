@@ -23,6 +23,7 @@ import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
+import com.amalto.core.objects.transformers.v2.util.TransformerGlobalContext;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -232,9 +233,11 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
 
 					TransformerContext context = new TransformerContext(new TransformerV2POJOPK(transformer));
 					context.putInPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE, new TypedContent(pojo.getProjectionAsString().getBytes(),"text/xml"));
-
+					
+					TransformerGlobalContext globalContext=new TransformerGlobalContext(context);
+					globalContext.setUserToken(Util.getUsernameAndPasswordToken());
 //					TransformerContext contextResult =
-					tctrl.executeUntilDone(context);
+					tctrl.executeUntilDone(globalContext);
 
 				}
 			}
