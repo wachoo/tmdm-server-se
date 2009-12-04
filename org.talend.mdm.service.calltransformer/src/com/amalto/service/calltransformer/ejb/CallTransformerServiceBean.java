@@ -2,7 +2,9 @@
 
 package com.amalto.service.calltransformer.ejb;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -15,10 +17,14 @@ import javax.ejb.SessionContext;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 
+import sun.misc.BASE64Decoder;
+
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ServiceCtrlBean;
 import com.amalto.core.ejb.local.ItemCtrl2Local;
+import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
@@ -234,8 +240,21 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
 					TransformerContext context = new TransformerContext(new TransformerV2POJOPK(transformer));
 					context.putInPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE, new TypedContent(pojo.getProjectionAsString().getBytes(),"text/xml"));
 					
+					AbstractRoutingOrderV2POJO routingOrder=Util.getRoutingOrderV2CtrlLocal().getRoutingOrder(new ActiveRoutingOrderV2POJOPK(routingOrderID));
+					String userToken=null;
+					if(routingOrder!=null){
+						try {
+							userToken = new String((new BASE64Decoder()).decodeBuffer(routingOrder.getBindingUserToken()),"UTF-8");
+						} catch (UnsupportedEncodingException e) {
+							e.printStackTrace();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+					
 					TransformerGlobalContext globalContext=new TransformerGlobalContext(context);
-					globalContext.setUserToken(Util.getUsernameAndPasswordToken());
+					globalContext.setUserToken(userToken);
+					
 //					TransformerContext contextResult =
 					tctrl.executeUntilDone(globalContext);
 
