@@ -133,6 +133,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 		"	processId [mandatory]: the processId of the process "+"\n"+
 		"	processVersion [mandatory]: the processVersion of the process "+"\n"+
 		"	useBuiltInVariable [optional]: default value is true "+"\n"+
+		"	needGoThrough [optional]: default value is false "+"\n"+
 		//"	username [mandatory]: the username used to login workflow "+"\n"+
 		//"	password [mandatory]: the password used to login workflow "+"\n"+
 		"	variable [optional]: the variable which will be used in workflow "+"\n"+
@@ -153,7 +154,6 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 		//"		<packageId>ApprovalWorkflow</packageId>" +"\n"+
 		"		<processId>ApprovalWorkflow</processId>" +"\n"+
 		"		<processVersion>1.0</processVersion>" +"\n"+
-		"		<useBuiltInVariable>true</useBuiltInVariable>" +"\n"+
 		//"		<username>admin</username>" +"\n"+
 		//"		<password>talend</password>" +"\n"+
 		"		<variable>" +"\n"+	
@@ -339,6 +339,11 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
     		if(useBuiltInVariable!=null&&useBuiltInVariable.equals("false"))isUseBuiltInVariable=false;
     		compiled.setUseBuiltInVariable(isUseBuiltInVariable);
     		
+    		boolean needGoThrough=false;
+    		String needGoThroughStr = Util.getFirstTextNode(params, "needGoThrough");
+    		if(needGoThroughStr!=null&&needGoThroughStr.equals("true"))needGoThrough=true;
+    		compiled.setNeedGoThrough(needGoThrough);
+    		
     		//TODO check dependency
     		List<VariableParameter> variableParameterList=new ArrayList<VariableParameter>();
 			NodeList variableNodeList = Util.getNodeList(params, "//variable");
@@ -518,7 +523,8 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 					                                            parameters.getProcessId(),
 					                                            parameters.getProcessVersion()),
 						                                        workflowProcessVariableBox,                     
-						                                        workflowActivityVariableBoxes
+						                                        workflowActivityVariableBoxes,
+						                                        parameters.isNeedGoThrough()
 						                      );
 			workflowExecutorAgent.end();
 			
@@ -568,7 +574,6 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
     		//"		<packageId>ApprovalWorkflow</packageId>" +"\n"+
     		"		<processId>ApprovalWorkflow</processId>" +"\n"+
     		"		<processVersion>1.0</processVersion>" +"\n"+
-    		"		<useBuiltInVariable>true</useBuiltInVariable>" +"\n"+
     		//"		<username>admin</username>" +"\n"+
     		//"		<password>talend</password>" +"\n"+
     		"		<variable>" +"\n"+	

@@ -24,6 +24,7 @@ public class CompiledParameters implements Serializable {
 	private String processId = null;
 	private String processVersion = null;
 	private boolean useBuiltInVariable;
+	private boolean needGoThrough=false;
 	private String username = null;
 	private String password = null;
 	private VariableParameter[] variableParameters = null;
@@ -83,6 +84,14 @@ public class CompiledParameters implements Serializable {
 
 	public void setUseBuiltInVariable(boolean useBuiltInVariable) {
 		this.useBuiltInVariable = useBuiltInVariable;
+	}
+	
+	public boolean isNeedGoThrough() {
+		return needGoThrough;
+	}
+
+	public void setNeedGoThrough(boolean needGoThrough) {
+		this.needGoThrough = needGoThrough;
 	}
 
 	public String getUsername() {
