@@ -776,11 +776,11 @@ public class XtentisRMIPort implements XtentisPort {
 			//FIXME: xQuery only
 	 		String query = 
 					"for $ii in /ii"+
-					(wsGetItemPKsByCriteria.getContentKeywords() == null ? "": "[./p &= '"+wsGetItemPKsByCriteria.getContentKeywords()+"']")+
+					(wsGetItemPKsByCriteria.getContentKeywords() == null ? "": "[matches(./p , '"+wsGetItemPKsByCriteria.getContentKeywords()+"')]")+
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
-					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[./i &= '"+wsGetItemPKsByCriteria.getKeysKeywords()+"']")+
-					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n &= '"+wsGetItemPKsByCriteria.getConceptName()+"']")+
+					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[matches(./i , '"+wsGetItemPKsByCriteria.getKeysKeywords()+"')]")+
+					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[matches(./n , '"+wsGetItemPKsByCriteria.getConceptName()+"')]")+
 					" return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>";
 			
 			DataClusterPOJOPK dcpk =	new DataClusterPOJOPK(wsGetItemPKsByCriteria.getWsDataClusterPK().getPk());

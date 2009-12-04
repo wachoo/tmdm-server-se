@@ -1264,7 +1264,7 @@ public class ItemsBrowserDWR {
 			if(value!=null && !"".equals(value.trim())){
 				//filteredConcept+="[(descendant-or-self::* &= \""+value+"*\"),(descendant-or-self::*/attribute() &= \""+value+"*\")]";
 				//Value is unlikely to be in attributes
-				filteredConcept+="[descendant-or-self::* &= \""+value+"\"]";
+				filteredConcept+="[matches(descendant-or-self::* , \""+value+"\")]";
 			}
 			
 			//add the xPath Infos Path
@@ -1302,13 +1302,14 @@ public class ItemsBrowserDWR {
 				if(!results[i].startsWith("<result>")){
 					results[i]="<result>"+results[i]+"</result>";
 				}
+				results[i]=results[i].replaceAll("\\n", "");//replace \n
 				Element root = Util.parse(results[i]).getDocumentElement();
 				NodeList list = root.getChildNodes();
 
 				//recover keys - which are last
 				String keys = "";
 				for (int j = "".equals(xpathInfoForeignKey)?1:xpathInfos.length; j<list.getLength(); j++) {
-					Node textNode = list.item(j).getFirstChild();
+					Node textNode = list.item(j).getFirstChild();					
 					keys += "["+(textNode == null ? "" : textNode.getNodeValue())+"]";
 				}
 				
@@ -1368,7 +1369,7 @@ public class ItemsBrowserDWR {
 			String left=xpath.substring(pos);
 			
 			String filteredConcept=conceptName;
-			filteredConcept+="[descendant-or-self::* &= \""+value+"\"]";
+			filteredConcept+="[matches(descendant-or-self::* , \""+value+"\")]";
 			xpath=filteredConcept+left;
 			
 			xpaths[i]=xpath;

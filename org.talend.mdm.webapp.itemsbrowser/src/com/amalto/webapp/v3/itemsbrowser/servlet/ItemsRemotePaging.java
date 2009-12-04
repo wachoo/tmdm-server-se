@@ -157,33 +157,23 @@ public class ItemsRemotePaging  extends HttpServlet{
 
 			for (int i = 0; i < results.length; i++) {
 				//aiming modify
-//				results[i] = results[i].replaceAll("<result>","<"+ concept+">");
-//				results[i] = results[i].replaceAll("</result>","</"+ concept+">");
-//				//add concept root in case results[i] don't contains concept root
-//				if(results[i].indexOf("<"+ concept+">") ==-1){
-//					results[i]="<"+ concept+">"+results[i]+"</"+ concept+">";
-//				}
-//				Element root = Util.parse(results[i]).getDocumentElement();
-//				HashMap<String, String> vMap=com.amalto.core.util.Util.getElementValueMap("/"+concept, root);
-//				String[] fields = new String[view.getViewables().length];
-//				for(int j=0; j<view.getViewables().length; j++){
-//					fields[j]=vMap.get("/"+view.getViewables()[j]);
-//				}
-//				results[i] = results[i].replaceAll("<result>","");
-//				results[i] = results[i].replaceAll("</result>","");	
-////					results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
-////					results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
-//				results[i] =openingTags.matcher(results[i]).replaceAll("");
-//				results[i] =closingTags.matcher(results[i]).replaceAll("#");	
-//				results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
-//				String[] elements = results[i].split("#");
-				//aiming modify when there is null value in fields, the viewable fields sequence is the same as the childlist of result
-				if(!results[i].startsWith("<result>")){
-					results[i]="<result>" + results[i] + "</result>";
+				List<String> list=null;
+				try{
+					Element root1 = Util.parse(results[i]).getDocumentElement(); //exist 1.4 return <concept>...</concept>
+					if(root1.getLocalName().equals(concept)){
+						list=getElementValues("/"+concept,root1);
+					}
+				}catch(Exception e){}
+
+				if(list==null){
+					//aiming modify when there is null value in fields, the viewable fields sequence is the same as the childlist of result
+					if(!results[i].startsWith("<result>")){
+						results[i]="<result>" + results[i] + "</result>";
+					}
+					Element root = Util.parse(results[i]).getDocumentElement();
+					list=getElementValues("/result",root);
 				}
-				Element root = Util.parse(results[i]).getDocumentElement();
-				List<String> l=getElementValues("/result",root);
-				String[] elements =l.toArray(new String[l.size()]);
+				String[] elements =list.toArray(new String[list.size()]);
 				//end
 				String[] fields = new String[view.getViewables().length];
 				//aiming modify
@@ -202,57 +192,7 @@ public class ItemsRemotePaging  extends HttpServlet{
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
 					"doPost() Total result = "+totalCount);
 
-			//sort arraylist
-//			int tmp = 0;
-//			for (int i = 0; i < view.getViewables().length; i++) {
-//				org.apache.log4j.Logger.getLogger(this.getClass())
-//				.debug("doPost() sortCol "+sortCol+" "+view.getViewables()[i]+" "+i);
-//				if(sortCol.equals("/"+view.getViewables()[i])){
-//					tmp = i;
-//					break;
-//				}
-//
-//			}
-//
-//			final int column = tmp;
-//			final String direction = sortDir;
-//			Comparator sort;
-//			if(direction.equals("ASC")){
-//				sort = new Comparator() {
-//					  public int compare(Object o1, Object o2) {
-//						  try{
-//							  Double test= ( Double.parseDouble(((String[]) o1)[column])-
-//									  			Double.parseDouble(((String[]) o2)[column]));
-//							  return test.intValue();
-//						  }
-//						  catch(Exception e){}
-//						  try{
-//							  return (((String[]) o1)[column]).compareTo(((String[]) o2)[column]);
-//						  }						  
-//						  catch(Exception e){return 0;}
-//					  }
-//					};
-//			}
-//			else{
-//				sort = new Comparator() {
-//					  public int compare(Object o1, Object o2) {
-//						try{
-//							Double test= ( Double.parseDouble(((String[]) o2)[column])-
-//						  			Double.parseDouble(((String[]) o1)[column]));
-//							return test.intValue();
-//						}
-//						catch(Exception e){}
-//						try{
-//							return (((String[]) o2)[column]).compareTo(((String[]) o1)[column]);
-//						}
-//						
-//						catch(Exception e){return 0;}
-//					  }
-//					};			
-//			}
-//			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-//					"doPost() sorting the result...");
-			//Collections.sort(itemsBrowserContent, sortDir);
+
 			/**
 			 * sort the collections		
 			 */
@@ -402,24 +342,7 @@ public class ItemsRemotePaging  extends HttpServlet{
 		return false;
 
 	}
-	
-//	private ArrayList<String[]> getItemsBrowserContent(View view, String[] results) throws Exception{
-//		ArrayList<String[]> itemsBrowserContent = new ArrayList<String[]>();
-//		String[] viewables = view.getViewables();
-//		for (int i = 0; i < results.length; i++) {
-//			Document document = Util.parse(results[i]);
-//			String tmp = "";
-//			String[] field = new String[view.getViewables().length];
-//			for (int j = 0; j < viewables.length; j++) {		
-//				field[i] = Util.getFirstTextNode(document,viewables[j].replaceAll("@",""));
-//			}
-//			tmp = tmp.replaceAll("__h","");
-//			tmp = tmp.replaceAll("h__","");
-//			//System.out.println(tmp);
-//			itemsBrowserContent.add(field);
-//		}
-//		return itemsBrowserContent;
-//	}
+
 	
 	/**
 	 * gives the operator associated to the string 'option'
