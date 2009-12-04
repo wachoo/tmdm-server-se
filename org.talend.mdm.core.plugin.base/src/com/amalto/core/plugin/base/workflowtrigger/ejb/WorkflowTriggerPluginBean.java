@@ -1,6 +1,5 @@
 package com.amalto.core.plugin.base.workflowtrigger.ejb;
 
-import java.io.StringReader;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,12 +11,10 @@ import javax.ejb.SessionBean;
 import javax.security.auth.login.LoginException;
 import javax.xml.transform.TransformerException;
 
-import org.exolab.castor.xml.Unmarshaller;
 import org.ow2.bonita.facade.uuid.ProcessInstanceUUID;
 import org.ow2.bonita.util.BonitaException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
@@ -421,7 +418,7 @@ public class WorkflowTriggerPluginBean extends TransformerPluginV2CtrlBean  impl
 			if(userToken!=null){
 				String[] tokens=userToken.split("/");  
 				parameters.setUsername(tokens[0]);
-	            parameters.setPassword(tokens[1]);
+	            if(tokens.length>1)parameters.setPassword(tokens[1]);
 			}
             
 

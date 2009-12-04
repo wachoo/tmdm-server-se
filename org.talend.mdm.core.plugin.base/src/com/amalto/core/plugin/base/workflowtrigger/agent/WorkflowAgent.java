@@ -38,7 +38,7 @@ public abstract class WorkflowAgent {
 	}
 	
 	public void end() throws LoginException {
-		logout();
+		//logout();
 	}
 	
 	
