@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,12 +37,11 @@ public class UploadFile extends HttpServlet {
     public UploadFile() {
         super();
     }
-
-    
+    String jobdeployPath="";
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         //start JCA Adapters
-        
+        jobdeployPath=config.getServletContext().getRealPath("/");
     }
 
     protected void doPost(
@@ -60,7 +60,20 @@ public class UploadFile extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         PrintWriter writer = resp.getWriter();
+        //delete file
+        String filename= req.getParameter("deletefile");
         
+        String path = jobdeployPath.substring(0,jobdeployPath.length()-1);
+        path = path.substring(0,path.lastIndexOf("\\"));
+        
+        if(filename!=null){
+        	  File f=new File(path+"/"+filename+".war");
+        	  f.delete();
+        	  writer.write("Delete sucessfully");
+              writer.close();
+        	  return ;
+        }
+        //upload file
         if (!FileUploadBase.isMultipartContent(req)) {
             throw new ServletException("Upload File Error: the request is not multipart!");
         }
@@ -84,7 +97,7 @@ public class UploadFile extends HttpServlet {
         //String returnURL=null;
         ArrayList<String> files = new ArrayList<String>();
         
-        String filename=null;
+       
         //Process the uploaded items
         Iterator<FileItem> iter = items.iterator();
         //while (iter.hasNext()) {
@@ -95,6 +108,10 @@ public class UploadFile extends HttpServlet {
             	//we are not expecting any field just (one) file(s)
             } else {
                 try {
+                	if(req.getParameter("deployjob")!=null){//deploy job
+                		//tempFile=new File(path+"/"+item.getName());
+                		tempFile=new File(path+"/"+item.getFieldName());
+                	}
                     item.write(tempFile);
                     files.add(tempFile.getAbsolutePath());
                 } catch(Exception e) {
