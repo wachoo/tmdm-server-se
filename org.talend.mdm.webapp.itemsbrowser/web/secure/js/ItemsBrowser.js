@@ -167,6 +167,28 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				  }	
 	};
 	
+	var BOOLEAN_OPERS = {
+			'fr':{
+		           EQUALSTRUE:"est égal à vrai",
+		           EQUALSFALSE:"est égal à faux"
+	             },
+	        'en' :{
+			         EQUALSTRUE:"is equal to true",
+			         EQUALSFALSE:"is equal to false"
+	              }
+	};
+	
+	var BOOLEAN_MAP =
+	{
+	   'EQUALSTRUE'	 : 'equals true',
+	   'EQUALSFALSE' : 'equals false'
+	};
+	
+	var EQUAL_OPERS = 
+	{
+		'fr' : 'est égal à'	,
+		'en' : 'equals'
+	};
 	
 	var OPERATOR_UNDEFINED = {
 	    'fr' : 'cliquer pour choisir',
@@ -407,6 +429,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var _tbItems; 
 	var itemsElements;
 	var itemsPredicates = [];
+	var currentPredicate = [];
 	var newItem = [];
 	var itemTreeList = [];
 
@@ -697,6 +720,32 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	{
 		itemsPredicates = result;
 		updateOperatorList(1);
+		currentPredicate = [];
+	}
+	
+	function updateCurrentPredicate(id)
+	{
+		currentPredicate[id] = "";
+		var search = $('itemsSearchField' + id).value;
+		var delimeter = search.indexOf("/");
+		if(delimeter != -1)
+		{
+			search = search.substring(delimeter + 1);
+		}
+		if(itemsPredicates[search] == null)return;
+		var predicateValues =  itemsPredicates[search][0];
+		if(predicateValues == 'xsd:boolean')
+		{
+			currentPredicate[id] = 'boolean';
+		}
+		else if(predicateValues == 'foreign key')
+		{
+			currentPredicate[id] = 'foreign key';
+		}
+		else if(predicateValues == 'enumeration')
+		{
+			currentPredicate[id] = 'enumeration';
+		}
 	}
 	
 	function updateOperatorList(id){
@@ -712,19 +761,35 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var itemsSearchValuex = "itemsSearchValue" + id;
 		DWRUtil.removeAllOptions('itemsSearchOperator' + id);
 		$('itemSearchCalendar' + id).style.display = 'none';
+		currentPredicate[id] = "";
 		
-		if(predicateValues == 'xsd:string')
+		if(predicateValues == 'xsd:string' || predicateValues == 'xsd:normalizedString' || predicateValues == 'xsd:token')
 		{
 			DWRUtil.addOptions('itemsSearchOperator' + id ,OPERATORS[language]);
+			$(itemsSearchValuex).value = "*";
 			$(itemsSearchValuex).style.display = 'inline';
 		}
-		else if(predicateValues == 'xsd:date')
+		else if(predicateValues == 'xsd:date' || predicateValues == 'xsd:time' || predicateValues == 'xsd:dateTime')
 		{
 			DWRUtil.addOptions('itemsSearchOperator' + id ,DATE_OPERS[language]);
 			$('itemSearchCalendar' + id).style.display = 'inline';
 			$(itemsSearchValuex).style.display = 'inline';
 		}
-		else if(predicateValues == 'xsd:double' || predicateValues == 'xsd:integer')
+		else if (predicateValues == 'xsd:double'
+				|| predicateValues == 'xsd:integer'
+				|| predicateValues == 'xsd:decimal'
+				|| predicateValues == 'xsd:byte'
+				|| predicateValues == 'xsd:int'
+				|| predicateValues == 'xsd:long'
+				|| predicateValues == 'xsd:negativeInteger'
+				|| predicateValues == 'xsd:nonNegativeInteger'
+				|| predicateValues == 'xsd:nonPositiveInteger'
+				|| predicateValues == 'xsd:positiveInteger'
+				|| predicateValues == 'xsd:short'
+				|| predicateValues == 'xsd:unsignedLong'
+				|| predicateValues == 'xsd:unsignedInt'
+				|| predicateValues == 'xsd:unsignedShort'
+				|| predicateValues == 'xsd:unsignedByte')
 		{
 			DWRUtil.addOptions('itemsSearchOperator' + id ,NUMBER_OPERS[language]);
 			$(itemsSearchValuex).style.display = 'inline';
@@ -732,39 +797,44 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		else if(predicateValues == 'xsd:boolean')
 		{
 			var booleanPredicates = ['true' , 'false']; 
-			var prefix = "equals ";
+			var prefix = EQUAL_OPERS[language];
 		    for(var i = 0; i < booleanPredicates.length; i++)
 		    {
-		    	booleanPredicates[i] = prefix + booleanPredicates[i];
+		    	booleanPredicates[i] = prefix + " " +  booleanPredicates[i];
 		    }
-			DWRUtil.addOptions('itemsSearchOperator' + id ,booleanPredicates);
+			DWRUtil.addOptions('itemsSearchOperator' + id ,BOOLEAN_OPERS[language]);
 			$(itemsSearchValuex).style.display = 'none';
+			currentPredicate[id] = 'boolean';
 		}
 		else if(predicateValues == 'foreign key')
 		{
 			var foreignValues = itemsPredicates[search];
 			var foreignPredicates = []; 
-			var prefix = "equals ";
+			var prefix = EQUAL_OPERS[language];
 			for(var i = 1; i < foreignValues.length; i++)
 			{
-				foreignPredicates[i -1] = prefix + foreignValues[i];
+				foreignPredicates[i -1] = prefix + " " + foreignValues[i];
 			}
 			DWRUtil.addOptions('itemsSearchOperator' + id ,foreignPredicates);
 			$(itemsSearchValuex).style.display = "none";
+			currentPredicate[id] = 'foreign key';
 		}
 		else if(predicateValues == 'enumeration')
 		{
 			var enumValues = itemsPredicates[search];
 			var enumPredicates = [];
-			var prefix = "equals ";
+			var prefix = EQUAL_OPERS[language];
 			for(var i = 1; i < enumValues.length; i++)
 			{
-				enumPredicates[i -1] = prefix + enumValues[i];
+				enumPredicates[i -1] = prefix + " " + enumValues[i];
 			}
 			DWRUtil.addOptions('itemsSearchOperator' + id ,enumPredicates);
 			$(itemsSearchValuex).style.display = "none";
+			currentPredicate[id] = 'enumeration';
 		}
 	}
+	
+
 	
 	function outPutCriteriaResult(){
 		var cpy = new Array();
@@ -774,7 +844,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				continue;
 			var actulID = idx+1;
 			var criteria = DWRUtil.getValue('itemsSearchField' + actulID) + ' '
-					+ DWRUtil.getValue('itemsSearchOperator' + actulID) + ' ';
+					+ convertSearchValueInEnglish(actulID) + ' ';
 			var searchValue = $('itemsSearchValue' + actulID).style.display == "inline" ?  DWRUtil.getValue('itemsSearchValue' + actulID) : "";
 			_criterias[idx][0] = criteria + searchValue;
 		}
@@ -834,7 +904,45 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		_searchCriteriaResult = cpy.join('');
    }
 	
+
+	function convertSearchValueInEnglish(id)
+	{
+		var searchValue = $('itemsSearchValue' + id).value;
+		var operValue = $('itemsSearchOperator' + id).value;
+
+		if(currentPredicate[id] == 'boolean')
+		{
+			searchValue = BOOLEAN_MAP[operValue];
+		}
+		else if((currentPredicate[id] == 'foreign key') || (currentPredicate[id] == 'enumeration'))
+		{
+			var cpyOper = operValue;
+			var equalInFr = 'est égal à';
+			var v = cpyOper.indexOf(equalInFr);
+			
+            if(v == 0)
+			{
+				var res = "equals " + cpyOper.substring(v + 11);
+				searchValue = res;
+			}
+            else
+            {
+            	searchValue = cpyOper;
+            }
+
+			
+		}
+		else
+		{
+			searchValue = operValue;
+		}
+		
+		
+		return searchValue;
+	}
+	
 	function displayItems(){
+		updateCurrentPredicate(1);
 		outPutCriteriaResult();
 		var viewName = DWRUtil.getValue('viewItemsSelect');
 		if(viewName!=LABEL_SELECT_DATAOBJECT[language] && viewName!=""){	
@@ -2562,6 +2670,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		removeItemsCriteria:function(id){removeItemsCriteria(id);},
 		itemsCriteriaWithConstraints:function(criteriaParent, id, add){itemsCriteriaWithConstraints(criteriaParent, id, add);},
 		outPutCriteriaResult:function(){outPutCriteriaResult();},
+		convertSearchValueInEnglish:function(id){convertSearchValueInEnglish(id);},
 		updateOperatorList:function(id){updateOperatorList(id);},
 		updateNode:function(id,treeIndex){updateNode(id,treeIndex);},
 		setlastUpdatedInputFlagPublic:function(id,treeIndex){setlastUpdatedInputFlag(id,treeIndex);},

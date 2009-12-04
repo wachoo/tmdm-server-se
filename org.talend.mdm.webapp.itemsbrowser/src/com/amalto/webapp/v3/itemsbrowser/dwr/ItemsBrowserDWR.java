@@ -1832,8 +1832,14 @@ public class ItemsBrowserDWR {
 			}
 			for(int ix = 0; ix < foreignKeyList.getLength(); ix++)
 			{
-				contents.add(foreignKeyList.item(ix).getTextContent());
+				contents.add("[" + foreignKeyList.item(ix).getTextContent() + "]");
 			}
+        }
+        if(results.length == 0)
+        {
+        	ArrayList<String> contents = new ArrayList<String>();
+			contents.add("foreign key");
+			metaDataTypes.put(elemName, contents);
         }
 		
     }
