@@ -1,11 +1,16 @@
 package com.amalto.webapp.v3.itemstrash.dwr;
 
 
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.jboss.dom4j.DocumentException;
+import org.jboss.dom4j.io.SAXReader;
 
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
@@ -13,6 +18,7 @@ import com.amalto.webapp.util.webservices.WSDroppedItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSDroppedItemPKArray;
 import com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs;
+import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSLoadDroppedItem;
 import com.amalto.webapp.util.webservices.WSRecoverDroppedItem;
@@ -107,4 +113,43 @@ public class ItemsTrashDWR {
 		}
 		
 	}
+	public String getUri(String concept, String[] ids){
+		Configuration config;
+		String uri="";
+		try {
+			config = Configuration.getInstance();
+		String dataClusterPK = config.getCluster();
+		String content="";
+		WSItemPK wsItem=new WSItemPK(new WSDataClusterPK(dataClusterPK),concept,ids);
+    	if(wsItem!=null)
+    		content=Util.getPort().getItem(new WSGetItem(wsItem))
+					.getContent();
+   	 for (Iterator iterator = parsXMLString(content).getRootElement().nodeIterator(); iterator.hasNext();) {
+   		org.jboss.dom4j.Node node = ( org.jboss.dom4j.Node) iterator.next();
+			if(node.getStringValue().startsWith("/imageserver"))
+				{	uri=node.getStringValue();
+					break;	
+ 				}
+		}
+    	System.out.println(uri);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return uri;
+		}
+	private org.jboss.dom4j.Document parsXMLString(String xmlString) {
+        SAXReader saxReader = new SAXReader();   
+        org.jboss.dom4j.Document document = null;   
+        try  
+        {   
+            document = saxReader.read(new StringReader(xmlString));   
+        } catch (DocumentException e)   
+        {   
+            e.printStackTrace();   
+            return null;   
+        }
+		return document;
+		
+	}	
 }

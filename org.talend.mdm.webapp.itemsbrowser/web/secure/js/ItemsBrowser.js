@@ -964,7 +964,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 										var treeIndex=1;
 										if(_dataObject==null) _dataObject=_dataObject2;
 			ItemsBrowserInterface.getUri(_dataObject, itemPK, function(picUri){
-				if(uri!=""){
+				if(picUri!=""){
 					 var pos=picUri.indexOf('?');
 	 				 var uri=picUri.substring("/imageserver/".length,pos); 
     Ext.Ajax.request({  
@@ -1999,7 +1999,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		Ext.MessageBox.confirm("confirm",MSG_CONFIRM_DELETE_ITEM[language]+ " ?",function re(en){
 		if(en=="yes"){
 			ItemsBrowserInterface.getUri(dataObject, itemPK, function(picUri){
-				if(uri!=""){
+				if(picUri!=""){
 					 var pos=picUri.indexOf('?');
 	 				 var uri=picUri.substring("/imageserver/".length,pos); 
     Ext.Ajax.request({  

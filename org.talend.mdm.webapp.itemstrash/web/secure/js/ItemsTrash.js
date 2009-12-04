@@ -55,8 +55,21 @@ amalto.ItemsTrash.ItemsTrash=function(){
 
     function toDelete(pk,partPath,revisionID,conceptName,ids){
     	Ext.MessageBox.confirm("confirm",amalto.ItemsTrash.ItemsTrashLocal.get("delete_conform"),function de(e){
-    		if(e.toLocaleString()=="yes")
+    		if(e.toLocaleString()=="yes"){
+    			ItemsTrashInterface.getUri(conceptName, ids, function(picUri){
+    				if(picUri!=""){
+    					 var pos=picUri.indexOf('?');
+    	 				 var uri=picUri.substring("/imageserver/".length,pos); 
+        Ext.Ajax.request({  
+           	url:'/imageserver/secure/ImageDeleteServlet?uri='+uri,
+             method: 'post',  
+             callback: function(options, success, response) {  
+             }  
+        });    
+    				}
+    			});	
     			ItemsTrashInterface.removeDroppedItem(pk,partPath,revisionID,conceptName,ids,showTrashItems);
+    			}
     		}) ;
     }
     function toRestore(pk,partPath,revisionID,conceptName,ids){
