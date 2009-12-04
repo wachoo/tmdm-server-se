@@ -776,6 +776,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			$(itemsSearchValuex).style.display = 'inline';
 		}
 		else if (predicateValues == 'xsd:double'
+			    || predicateValues == 'xsd:float'
 				|| predicateValues == 'xsd:integer'
 				|| predicateValues == 'xsd:decimal'
 				|| predicateValues == 'xsd:byte'

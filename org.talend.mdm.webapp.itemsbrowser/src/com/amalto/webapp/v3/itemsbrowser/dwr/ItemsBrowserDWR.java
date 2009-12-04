@@ -1322,7 +1322,7 @@ public class ItemsBrowserDWR {
 				} else {
 					//build a dash separated string of xPath Infos
     				for (int j = 0; j < xpathInfos.length; j++) {
-    					infos = (infos == null ? "" : infos+" - ");
+    					infos = (infos == null ? "" : infos+"-");
     					Node textNode = list.item(j).getFirstChild();
     					infos  += textNode == null ? "" : textNode.getNodeValue();
     				}
@@ -1716,9 +1716,16 @@ public class ItemsBrowserDWR {
 				if(Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").getLength() > 0)
 				{
 					foreignKey = Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").item(0).getTextContent();
+					NodeList foreignKeyInfos = Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKeyInfo']");
+					String keyInfo = "";
+					for (int x = 0; x < foreignKeyInfos.getLength(); x++)
+					{
+						keyInfo += foreignKeyInfos.item(x).getTextContent() + (x == foreignKeyInfos.getLength()-1 ? "" : ",");
+					}
 					if(foreignKey != null)
 					{
-						getForeignKeyInfo(metaDataTypes, elem.getAttributes().getNamedItem("name").getNodeValue(), foreignKey);
+						String jasonData = getForeignKeyList(0, 100, ".*",  foreignKey, keyInfo);
+						getForeignKeyInfo(metaDataTypes, elem.getAttributes().getNamedItem("name").getNodeValue(), jasonData);
 						continue;
 					}
 
@@ -1783,67 +1790,25 @@ public class ItemsBrowserDWR {
 		return metaDataTypes;
 	}
 	
-    private void getForeignKeyInfo(HashMap<String, ArrayList<String>> metaDataTypes, String elemName, String foreignKey) throws Exception
+    private void getForeignKeyInfo(HashMap<String, ArrayList<String>> metaDataTypes, String elemName, String jasonData) throws Exception
     {
-		Configuration config = Configuration.getInstance();
-    	Pattern pattern =  Pattern.compile("(.*?)\\[(.*+)");
-		Matcher match = pattern.matcher(foreignKey);
-		if(match.find())
+
+		ArrayList<String> contents = metaDataTypes.get(elemName);
+		if(contents == null)
 		{
-			foreignKey = match.group(1);
-		}
-		int delimeter = foreignKey.indexOf("/");
-		delimeter = delimeter != -1 ? delimeter : foreignKey.length();
-		String foreignConcept = foreignKey.substring(0, delimeter);
-		WSDataClusterPK pk = new WSDataClusterPK();
-		pk.setPk(config.getModel());
-        WSItemPKsByCriteriaResponseResults[] results =
-            Util.getPort().getItemPKsByCriteria(new WSGetItemPKsByCriteria(
-            		pk,
-            		foreignConcept,
-            		null,
-            		null,
-            		-1L,
-            		-1L,
-            		0,
-            		Integer.MAX_VALUE
-            	)
-            ).getResults();
-        
-        for(WSItemPKsByCriteriaResponseResults result : results)
-        {
-			WSItem wsItem=Util.getPort().getItem(
-					new WSGetItem(
-							new WSItemPK(
-									pk,
-									result.getWsItemPK().getConceptName(),
-									result.getWsItemPK().getIds()
-							)
-					)
-			);
-			String xml = wsItem.getContent();
-			Document d = Util.parse(xml);
-			NodeList foreignKeyList = Util.getNodeList(d, "/" + foreignKey);
-			ArrayList<String> contents = metaDataTypes.get(elemName);
-			if(contents == null)
-			{
-				contents = new ArrayList<String>();
-				contents.add("foreign key");
-				metaDataTypes.put(elemName, contents);
-			}
-			for(int ix = 0; ix < foreignKeyList.getLength(); ix++)
-			{
-				contents.add("[" + foreignKeyList.item(ix).getTextContent() + "]");
-			}
-        }
-        if(results.length == 0)
-        {
-        	ArrayList<String> contents = new ArrayList<String>();
+			contents = new ArrayList<String>();
 			contents.add("foreign key");
 			metaDataTypes.put(elemName, contents);
-        }
-		
+		}
+		JSONObject jason = new JSONObject(jasonData);
+		JSONArray rows = (JSONArray)jason.get("rows");
+		for(int n = 0; n < rows.length(); n++)
+		{
+			JSONObject row = (JSONObject)rows.get(n);
+			contents.add(row.get("keys") + "--" + row.get("infos"));
+		}
     }
+    
 	private WSWhereOperator getOperator(String option){
 		WSWhereOperator res = null;
 		if (option.equalsIgnoreCase("CONTAINS"))
