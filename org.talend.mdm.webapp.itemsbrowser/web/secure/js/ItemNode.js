@@ -194,9 +194,9 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				   html[html.length] = input;
 				   //show picture
 				   if(value.length>0){
-				 		html[html.length] = '<span style="cursor: pointer;"> '+	' <img alt="Picture" id="showPicture" src="'+ itemData.value+ '"/></span>';	
+				 		html[html.length] = '<span style="cursor: pointer;"> '+	' <img alt="Picture" id="'+itemData.nodeId+'showPicture" src="'+ itemData.value+ '"/></span>';	
 				 	}else{				 		
-				 		html[html.length] = '<span style="cursor: pointer;"> '+	' <img alt="Picture" id="showPicture" src="img/genericUI/no_image.gif"/></span>';	
+				 		html[html.length] = '<span style="cursor: pointer;"> '+	' <img alt="Picture" id="'+itemData.nodeId+'showPicture" src="img/genericUI/no_image.gif"/></span>';	
 				 	}					
 					//remove picture
 				var tmpStatus=true;

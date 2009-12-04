@@ -2316,8 +2316,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				    var inputText=nodeId+"Value";	
 				    DWRUtil.setValue(inputText,'');
 				    updateNode(nodeId,treeIndex);
-				    if($('showPicture'))
-				       $('showPicture').src='img/genericUI/no_image.gif';		            
+				    if($(nodeId+'showPicture'))
+				       $(nodeId+'showPicture').src='img/genericUI/no_image.gif';		            
 		           window.hide();
 		        },    
 		       failure: function(form, action){  
@@ -2384,7 +2384,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				    DWRUtil.setValue(inputText,url);
 				    updateNode(nodeId,treeIndex);		           
 		            Ext.Msg.alert('Success', 'File upload sucessfully!');
-		            if($('showPicture'))$('showPicture').src=url;
+		            if($(nodeId+'showPicture'))$(nodeId+'showPicture').src=url;
 		            uploadFileWindow.hide();
 		        },    
 		       failure: function(form, action){    
