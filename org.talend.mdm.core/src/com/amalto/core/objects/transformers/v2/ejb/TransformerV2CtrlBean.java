@@ -861,36 +861,8 @@ public class TransformerV2CtrlBean implements SessionBean, TimedObject, Transfor
     private TimerHandle createTimer(JobActionInfo actionInfo) {
         TimerService timerService =  sessionContext.getTimerService();
         //Get Local User Token
-        try {
-        	String userName=null;
-        	String password=null;
-        	
-			Subject subject=LocalUser.getCurrentSubject();
-			Set<Principal> set = subject.getPrincipals();
-			for (Iterator<Principal> iter = set.iterator(); iter.hasNext(); ) {
-				Principal principal = iter.next();
-				if (principal instanceof Group) {
-					Group group = (Group) principal;
-					if("Username".equals(group.getName())) {
-						if (group.members().hasMoreElements()) {
-							userName=group.members().nextElement().getName();
-						}
-					}else if("Password".equals(group.getName())){
-						if (group.members().hasMoreElements()) {
-							password=group.members().nextElement().getName();
-						}
-					}
-				}
-			}//for
-			
-			if(userName==null)userName="";
-			if(password==null)password="";
-			
-			String token=userName+"/"+password;
-			actionInfo.setUserToken(token);
-		} catch (XtentisException e) {
-			e.printStackTrace();
-		}
+        String token=Util.getUsernameAndPasswordToken();
+		actionInfo.setUserToken(token);
         
         Timer timer = timerService.createTimer(150,actionInfo);  //0,15 second
         TimerHandle th = timer.getHandle();

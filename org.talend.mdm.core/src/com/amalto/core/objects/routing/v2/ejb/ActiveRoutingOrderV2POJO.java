@@ -18,7 +18,8 @@ public class ActiveRoutingOrderV2POJO extends AbstractRoutingOrderV2POJO impleme
 		String message,
 		String serviceJNDI,
 		String serviceParameters,
-		String bindingUniverseName
+		String bindingUniverseName,
+		String bindingUserToken
 	) {
 		super();
 		if (message==null) message = "";
@@ -37,6 +38,7 @@ public class ActiveRoutingOrderV2POJO extends AbstractRoutingOrderV2POJO impleme
 		this.setRoutingEnginePOJOPK(null);
 		this.setRoutingEngineToken(null);
 		this.setBindingUniverseName(bindingUniverseName);
+		this.setBindingUserToken(bindingUserToken);
 	}
     
     /**

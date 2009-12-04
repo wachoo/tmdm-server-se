@@ -153,7 +153,8 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     				routingOrderPOJO.getMessage(),
     				routingOrderPOJO.getServiceJNDI(),
     				routingOrderPOJO.getServiceParameters(),
-    				routingOrderPOJO.getBindingUniverseName()
+    				routingOrderPOJO.getBindingUniverseName(),
+    				routingOrderPOJO.getBindingUserToken()
     			);
     			//delete the existing one
     			if (cleanUpRoutingOrder) removeRoutingOrder(routingOrderPOJO.getAbstractRoutingOrderPOJOPK());

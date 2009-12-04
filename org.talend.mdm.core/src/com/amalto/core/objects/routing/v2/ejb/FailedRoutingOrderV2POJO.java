@@ -20,6 +20,7 @@ public class FailedRoutingOrderV2POJO extends AbstractRoutingOrderV2POJO{
 		setServiceJNDI(roPOJO.getServiceJNDI());
 		setServiceParameters(roPOJO.getServiceParameters());
 		setBindingUniverseName(roPOJO.getBindingUniverseName());
+		setBindingUserToken(roPOJO.getBindingUserToken());
 	}
 	
 }

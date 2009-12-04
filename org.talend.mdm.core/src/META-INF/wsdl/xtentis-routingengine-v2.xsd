@@ -44,6 +44,7 @@
             <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="serviceParameters" type="xsd:string"/>
             <xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="message" type="xsd:string"/>
             <xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="bindingUniverseName" type="xsd:string"/>
+            <xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="bindingUserToken" type="xsd:string"/>
         </xsd:sequence>		
     </xsd:complexType>
     <xsd:element name="WSRoutingOrderV2" type = "tns:WSRoutingOrderV2"/>

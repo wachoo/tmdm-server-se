@@ -1,5 +1,6 @@
 package com.amalto.core.objects.routing.v2.ejb;
 
+import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import javax.ejb.TimerService;
 import javax.naming.NamingException;
 import javax.xml.transform.TransformerException;
 
+import sun.misc.BASE64Encoder;
 import bsh.EvalError;
 import bsh.Interpreter;
 
@@ -334,6 +336,14 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 					bindingUniverseName=universePOJO.getName();
 				}
 			}
+			//bind a bindingUserToken to a Routing Order
+			String userToken=Util.getUsernameAndPasswordToken();
+			String bindingUserToken=userToken;
+			try {
+				bindingUserToken = (new BASE64Encoder()).encode(userToken.getBytes("UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
 			
 			ActiveRoutingOrderV2POJO routingOrderPOJO = new ActiveRoutingOrderV2POJO(
 				name,
@@ -343,7 +353,8 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 					+" triggered by rule '"+routingRulePOJOPK.getUniqueId()+"'",
 				routingRule.getServiceJNDI(),
 				routingRule.getParameters(),
-				bindingUniverseName
+				bindingUniverseName,
+				bindingUserToken
 			);
 			
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug("Routing Order "+routingOrderPOJO.getName()+" bind universe "+routingOrderPOJO.getBindingUniverseName());

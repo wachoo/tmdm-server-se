@@ -1,7 +1,12 @@
 package com.amalto.core.objects.routing.v2.ejb;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -41,6 +46,7 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
     protected RoutingEngineV2POJOPK routingEnginePOJOPK;
     protected String routingEngineToken = null;
     protected String bindingUniverseName = null;
+    protected String bindingUserToken = null;
     
     protected AbstractRoutingOrderV2POJO() {
     	super();
@@ -90,6 +96,26 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
 			String bindingUniverseName) {
 		    this(name,status,timeCreated,timeScheduled,timeLastRunStarted,timeLastRunCompleted,itemPOJOPK,serviceJNDI,serviceParameters,message,routingEnginePOJOPK,routingEngineToken);
 			this.bindingUniverseName=bindingUniverseName;
+			
+		}
+	
+	protected AbstractRoutingOrderV2POJO(
+			String name,
+			int status,
+			long timeCreated,
+			long timeScheduled,
+			long timeLastRunStarted,
+			long timeLastRunCompleted,
+			ItemPOJOPK itemPOJOPK,
+			String serviceJNDI,
+			String serviceParameters,
+			String message,
+			RoutingEngineV2POJOPK routingEnginePOJOPK,
+			String routingEngineToken,
+			String bindingUniverseName,
+			String bindingUserToken) {
+		    this(name,status,timeCreated,timeScheduled,timeLastRunStarted,timeLastRunCompleted,itemPOJOPK,serviceJNDI,serviceParameters,message,routingEnginePOJOPK,routingEngineToken,bindingUniverseName);
+			this.bindingUserToken=bindingUserToken;
 			
 		}
 
@@ -207,6 +233,14 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
 
 	public void setBindingUniverseName(String bindingUniverseName) {
 		this.bindingUniverseName = bindingUniverseName;
+	}
+	
+	public String getBindingUserToken() {
+		return this.bindingUserToken;
+	}
+
+	public void setBindingUserToken(String bindingUserToken) {
+		this.bindingUserToken = bindingUserToken;
 	}
 
 	public Class<? extends AbstractRoutingOrderV2POJO> getRoutingOrderClass() {

@@ -4937,6 +4937,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		    ws.setTimeScheduled(pojo.getTimeScheduled());
 		    ws.setWsItemPK(POJO2WS(pojo.getItemPOJOPK()));
 		    ws.setBindingUniverseName(pojo.getBindingUniverseName());
+		    ws.setBindingUserToken(pojo.getBindingUserToken());
 			return ws;
 		} catch (Exception e) {
 			String err = "ERROR SYSTRACE: "+e.getMessage();
