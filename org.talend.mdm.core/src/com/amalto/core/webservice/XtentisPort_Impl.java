@@ -265,6 +265,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSItemPK _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSItemPK putItemWithCustomReport(com.amalto.core.webservice.WSPutItemWithCustomReport wsPutItemWithCustomReport) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSItemPK _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSPipeline extractUsingTransformer(com.amalto.core.webservice.WSExtractUsingTransformer wsExtractUsingTransformer) throws 
          java.rmi.RemoteException {
         

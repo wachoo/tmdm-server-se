@@ -1937,6 +1937,16 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * 	view-type = "service-endpoint"
 	 */
 	public WSItemPK putItemWithReport(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport) throws RemoteException {
+		
+		return doPutItemWithCustomReport(wsPutItemWithReport,null);
+		
+	}
+
+	private WSItemPK doPutItemWithCustomReport(
+			com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport,
+			String customUserName
+			)
+			throws RemoteException {
 		try {
 
 			WSPutItem wsPutItem=wsPutItemWithReport.getWsPutItem();
@@ -1967,7 +1977,12 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
 			ItemPOJOPK itemPOJOPK=new ItemPOJOPK(dcpk,concept, ids);	
 			LocalUser user = LocalUser.getLocalUser();
-			String userName=user.getUsername();
+			String userName="";
+			if(customUserName!=null&&customUserName.length()>0){
+				userName=customUserName;
+			}else{
+				userName=user.getUsername();
+			}
 			String revisionID ="";
 			UniversePOJO universe = user.getUniverse();
             if(universe!=null){
@@ -2036,6 +2051,17 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		} catch (Exception e) {
 			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
 		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSItemPK putItemWithCustomReport(com.amalto.core.webservice.WSPutItemWithCustomReport wsPutItemWithCustomReport) throws RemoteException{
+		
+		return doPutItemWithCustomReport(wsPutItemWithCustomReport.getWsPutItemWithReport(),wsPutItemWithCustomReport.getUser());
 		
 	}
     

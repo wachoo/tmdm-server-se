@@ -1057,6 +1057,19 @@
 	</xsd:complexType>
 	<xsd:element name="WSPutItemWithReport" type="tns:WSPutItemWithReport"/>
 	
+	<xsd:complexType name="WSPutItemWithCustomReport">
+		<xsd:annotation>
+			<xsd:documentation>
+				Puts an item in the xml storage with custom update report
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsPutItemWithReport" nillable="false" type="tns:WSPutItemWithReport"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="user" nillable="true" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutItemWithCustomReport" type="tns:WSPutItemWithCustomReport"/>
+	
 	<xsd:complexType name="WSPutItemWithReportArray">
 		<xsd:sequence>
 			<xsd:element maxOccurs="unbounded" minOccurs="1" name="wsPutItem" nillable="true" type="tns:WSPutItemWithReport"/>

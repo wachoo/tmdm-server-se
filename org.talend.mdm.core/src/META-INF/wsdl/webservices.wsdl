@@ -372,6 +372,12 @@
 	<message name="putItemWithReportResponse">
 		<part name="wsItemPK" element="tns:WSItemPK"/>
 	</message>
+	<message name="putItemWithCustomReportRequest">
+		<part name="wsPutItemWithCustomReport" element="tns:WSPutItemWithCustomReport"/>
+	</message>
+	<message name="putItemWithCustomReportResponse">
+		<part name="wsItemPK" element="tns:WSItemPK"/>
+	</message>
 	<message name="putItemWithReportArrayRequest">
 		<part name="wsPutItemWithReportArray" element="tns:WSPutItemWithReportArray"/>
 	</message>
@@ -1491,6 +1497,10 @@
 			<input message="tns:putItemWithReportRequest"/>
 			<output message="tns:putItemWithReportResponse"/>
 		</operation>
+		<operation name="putItemWithCustomReport">
+			<input message="tns:putItemWithCustomReportRequest"/>
+			<output message="tns:putItemWithCustomReportResponse"/>
+		</operation>
 		<operation name="putItemWithReportArray">
 			<input message="tns:putItemWithReportArrayRequest"/>
 			<output message="tns:putItemWithReportArrayResponse"/>
@@ -2335,6 +2345,11 @@
 		</operation>
 		
 		<operation name="putItemWithReport">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="putItemWithCustomReport">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
