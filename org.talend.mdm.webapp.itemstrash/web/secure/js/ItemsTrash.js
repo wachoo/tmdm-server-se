@@ -53,21 +53,21 @@ amalto.ItemsTrash.ItemsTrash=function(){
 		store.load({params:{start:0, limit:pageSize}});
     };
 
-    function toDelete(pk,partPath,revisionID,conceptName,ids){
+    function toDelete(pk,partPath,revisionID,conceptName,ids,projection){
     	Ext.MessageBox.confirm("confirm",amalto.ItemsTrash.ItemsTrashLocal.get("delete_conform"),function de(e){
     		if(e.toLocaleString()=="yes"){
-    			ItemsTrashInterface.getUri(conceptName, ids, function(picUri){
-    				if(picUri!=""){
-    					 var pos=picUri.indexOf('?');
-    	 				 var uri=picUri.substring("/imageserver/".length,pos); 
+    				if(projection!=""){
+    					var startPos=projection.indexOf("/imageserver/")+"/imageserver/".length;
+    					var endPos=projection.indexOf('?');
+    					if(startPos!=-1&&endPos!=-1){
+    					var uri=projection.substring(startPos,endPos); 
         Ext.Ajax.request({  
            	url:'/imageserver/secure/ImageDeleteServlet?uri='+uri,
              method: 'post',  
              callback: function(options, success, response) {  
              }  
-        });    
+        });    }
     				}
-    			});	
     			ItemsTrashInterface.removeDroppedItem(pk,partPath,revisionID,conceptName,ids,showTrashItems);
     			}
     		}) ;
@@ -91,7 +91,8 @@ amalto.ItemsTrash.ItemsTrash=function(){
 		{header: amalto.ItemsTrash.ItemsTrashLocal.get('UserName'), sortable: true,dataIndex: 'insertionUserName'},
 		{header: amalto.ItemsTrash.ItemsTrashLocal.get('Date'),  sortable: true,dataIndex: 'insertionTime'},
 		{header: amalto.ItemsTrash.ItemsTrashLocal.get('delete'), sortable: false, renderer:deleteItem},
-		{header: amalto.ItemsTrash.ItemsTrashLocal.get('restore'), sortable: false, renderer:restore}
+		{header: amalto.ItemsTrash.ItemsTrashLocal.get('restore'), sortable: false, renderer:restore},
+		{header: amalto.ItemsTrash.ItemsTrashLocal.get('projection'),   sortable: true, dataIndex: 'projection', hidden:true}
 	    ];
    	    var columnModel = new Ext.grid.ColumnModel(myColumns);
    	    columnModel.defaultWidth;
@@ -121,7 +122,7 @@ amalto.ItemsTrash.ItemsTrash=function(){
 		   						var record = g.getStore().getAt(rowIndex);
 		   						if(columnIndex==7){
 		   							
-		   							toDelete(record.data.itemPK,record.data.partPath,record.data.revisionID,record.data.conceptName,record.data.ids);
+		   							toDelete(record.data.itemPK,record.data.partPath,record.data.revisionID,record.data.conceptName,record.data.ids,record.data.projection);
 		   						}
 		   						else{ 
 		   							if(columnIndex==8){
