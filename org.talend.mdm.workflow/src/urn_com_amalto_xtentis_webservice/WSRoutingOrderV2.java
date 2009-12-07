@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="serviceParameters" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="message" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="bindingUniverseName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="bindingUserToken" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -48,7 +49,8 @@ import javax.xml.bind.annotation.XmlType;
     "serviceJNDI",
     "serviceParameters",
     "message",
-    "bindingUniverseName"
+    "bindingUniverseName",
+    "bindingUserToken"
 })
 public class WSRoutingOrderV2 {
 
@@ -68,6 +70,7 @@ public class WSRoutingOrderV2 {
     protected String serviceParameters;
     protected String message;
     protected String bindingUniverseName;
+    protected String bindingUserToken;
 
     /**
      * Gets the value of the name property.
@@ -299,6 +302,30 @@ public class WSRoutingOrderV2 {
      */
     public void setBindingUniverseName(String value) {
         this.bindingUniverseName = value;
+    }
+
+    /**
+     * Gets the value of the bindingUserToken property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getBindingUserToken() {
+        return bindingUserToken;
+    }
+
+    /**
+     * Sets the value of the bindingUserToken property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setBindingUserToken(String value) {
+        this.bindingUserToken = value;
     }
 
 }

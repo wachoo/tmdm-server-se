@@ -2,6 +2,7 @@ package org.talend.mdm.workflow.client;
 
 import java.util.Map;
 
+import org.ow2.bonita.facade.AutoDetectSecurityContext;
 import org.talend.mdm.workflow.client.util.CommonUtil;
 import org.talend.mdm.workflow.client.util.XmlFromSimpleXpathsBuilder;
 
@@ -9,6 +10,7 @@ import urn_com_amalto_xtentis_webservice.WSDataClusterPK;
 import urn_com_amalto_xtentis_webservice.WSDataModelPK;
 import urn_com_amalto_xtentis_webservice.WSItemPK;
 import urn_com_amalto_xtentis_webservice.WSPutItem;
+import urn_com_amalto_xtentis_webservice.WSPutItemWithCustomReport;
 import urn_com_amalto_xtentis_webservice.WSPutItemWithReport;
 
 public class TalendMDMItemUpdater extends TalendMDMAdapter{
@@ -19,6 +21,15 @@ public class TalendMDMItemUpdater extends TalendMDMAdapter{
 	private String dataModel;//mdm data model name
 	private Map<String,Object> itemUpdateMap;//mdm xpath-values pairs of an item, you want to update
 
+	
+	/**
+	 * @param url
+	 * @param universe
+	 * 
+	 */
+	public TalendMDMItemUpdater(String url, String universe){
+		super(url,universe);
+	}
 	/**
 	 * @param url
 	 * @param username
@@ -67,6 +78,7 @@ public class TalendMDMItemUpdater extends TalendMDMAdapter{
 	 *  update an item of MDM
 	 */
 	public void update() throws Exception{
+		
 		// Create WSPutItem instance
 		WSDataClusterPK wsDataCluster = new WSDataClusterPK();
 		wsDataCluster.setPk(dataCluster);
@@ -87,7 +99,15 @@ public class TalendMDMItemUpdater extends TalendMDMAdapter{
 		wsPutItemWithReport.setSource("workflow");
 		wsPutItemWithReport.setInvokeBeforeSaving(new Boolean(false));
 		
-		WSItemPK wsItemPK=port.putItemWithReport(wsPutItemWithReport);
+		WSPutItemWithCustomReport wsPutItemWithCustomReport=new WSPutItemWithCustomReport();
+		wsPutItemWithCustomReport.setWsPutItemWithReport(wsPutItemWithReport);
+		AutoDetectSecurityContext autoDetectSecurityContext=new AutoDetectSecurityContext();
+		String loginUser=autoDetectSecurityContext.getUser();
+		wsPutItemWithCustomReport.setUser(loginUser);
+		
+		//TODO add put item with custom report
+		//WSItemPK wsItemPK=port.putItemWithReport(wsPutItemWithReport);
+		WSItemPK wsItemPK=port.putItemWithCustomReport(wsPutItemWithCustomReport);
 		System.out.println(CommonUtil.filterNullString(dataCluster)+"."+CommonUtil.filterNullString(wsItemPK.getConceptName())+"."+CommonUtil.joinStrings(wsItemPK.getIds(),".")+" has been updated! ");
 
 	}

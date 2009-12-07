@@ -10,13 +10,10 @@ import org.talend.mdm.workflow.client.TalendMDMItemUpdater;
 import org.talend.mdm.workflow.client.TalendMDMUserFinder;
 
 public class ClientTestCase extends TestCase{
-	
-	
+		
 	public  void testUpdateItem() {
 		  //mock
 		  String url="http://localhost:8080/talend/TalendPort";//get from variable named 'MDM_url', passed by MDM Trigger
-		  String username="user";//get from login in user in this activity
-		  String password="user";//get from login in user in this activity
 		  String universe="";//get from variable named 'MDM_universe', passed by MDM Trigger
 		  
 		  String dataCluster="Order";//get from variable named 'MDM_dataCluster', passed by MDM Trigger
@@ -31,7 +28,7 @@ public class ClientTestCase extends TestCase{
 		  itemUpdateMap.put("User/state", "approved");//field which has been changed
 		  
 		  //call
-		  TalendMDMItemUpdater itemUpdater=new TalendMDMItemUpdater(url, username, password,universe);
+		  TalendMDMItemUpdater itemUpdater=new TalendMDMItemUpdater(url,universe);
 		  itemUpdater.setDataCluster(dataCluster);
 		  itemUpdater.setDataModel(dataModel);
 		  itemUpdater.setItemUpdateMap(itemUpdateMap);
