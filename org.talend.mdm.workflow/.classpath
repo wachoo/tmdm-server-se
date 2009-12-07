@@ -10,6 +10,7 @@
 	<classpathentry kind="lib" path="apache-cxf-2.2.5/lib/XmlSchema-1.4.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="libs/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="libs/bonita-ejbjar.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

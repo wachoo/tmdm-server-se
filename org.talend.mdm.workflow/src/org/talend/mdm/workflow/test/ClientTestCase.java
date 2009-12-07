@@ -4,12 +4,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.security.auth.login.LoginContext;
+
 import junit.framework.TestCase;
 
+import org.ow2.bonita.util.BonitaConstants;
+import org.ow2.bonita.util.SimpleCallbackHandler;
 import org.talend.mdm.workflow.client.TalendMDMItemUpdater;
 import org.talend.mdm.workflow.client.TalendMDMUserFinder;
 
 public class ClientTestCase extends TestCase{
+	
+	private LoginContext loginContext;
+	private String login = "user";
+	private String password = "user";
+	
+    protected void setUp() throws Exception {
+	    System.setProperty(BonitaConstants.API_TYPE_PROPERTY, "EJB2");
+	    System.setProperty(BonitaConstants.INITIAL_CONTEXT_FACTORY_PROPERTY, "org.jnp.interfaces.NamingContextFactory");
+	    System.setProperty(BonitaConstants.PROVIDER_URL_PROPERTY, "jnp://localhost:1099");
+	    System.setProperty(BonitaConstants.JAAS_PROPERTY, "resources/jaas-jboss.cfg");
+	    this.loginContext = new LoginContext("Bonita", new SimpleCallbackHandler(login, password));
+	    this.loginContext.login();
+    }
 		
 	public  void testUpdateItem() {
 		  //mock

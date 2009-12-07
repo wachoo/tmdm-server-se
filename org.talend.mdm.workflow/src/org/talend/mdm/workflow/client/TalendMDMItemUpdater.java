@@ -2,7 +2,7 @@ package org.talend.mdm.workflow.client;
 
 import java.util.Map;
 
-import org.ow2.bonita.facade.AutoDetectSecurityContext;
+import org.ow2.bonita.util.AccessorUtil;
 import org.talend.mdm.workflow.client.util.CommonUtil;
 import org.talend.mdm.workflow.client.util.XmlFromSimpleXpathsBuilder;
 
@@ -101,8 +101,10 @@ public class TalendMDMItemUpdater extends TalendMDMAdapter{
 		
 		WSPutItemWithCustomReport wsPutItemWithCustomReport=new WSPutItemWithCustomReport();
 		wsPutItemWithCustomReport.setWsPutItemWithReport(wsPutItemWithReport);
-		AutoDetectSecurityContext autoDetectSecurityContext=new AutoDetectSecurityContext();
-		String loginUser=autoDetectSecurityContext.getUser();
+		//AutoDetectSecurityContext autoDetectSecurityContext=new AutoDetectSecurityContext();
+		//String loginUser=autoDetectSecurityContext.getUser();
+		String loginUser=AccessorUtil.getAPIAccessor().getManagementAPI().getLoggedUser();
+		//System.out.println("loginUser:"+loginUser);
 		wsPutItemWithCustomReport.setUser(loginUser);
 		
 		//TODO add put item with custom report
