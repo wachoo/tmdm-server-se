@@ -61,13 +61,16 @@ public class UploadFile extends HttpServlet {
 
         PrintWriter writer = resp.getWriter();
         //delete file
-        String filename= req.getParameter("deletefile");
+        String deleteFilename= req.getParameter("deletefile");
         
-        String path = jobdeployPath.substring(0,jobdeployPath.length()-1);
-        path = path.substring(0,path.lastIndexOf("\\"));
+        //String path = jobdeployPath.substring(0,jobdeployPath.length()-1);
         
-        if(filename!=null){
-        	  File f=new File(path+"/"+filename+".war");
+        String  path = new File(jobdeployPath).getParentFile().getParentFile().getParentFile().getAbsolutePath();
+        
+        path = path+File.separator+"deploy"+File.separator;
+        //delete file
+        if(deleteFilename!=null){
+        	  File f=new File(path+File.separator+deleteFilename+".war");
         	  f.delete();
         	  writer.write("Delete sucessfully");
               writer.close();
@@ -110,7 +113,7 @@ public class UploadFile extends HttpServlet {
                 try {
                 	if(req.getParameter("deployjob")!=null){//deploy job
                 		//tempFile=new File(path+"/"+item.getName());
-                		tempFile=new File(path+"/"+item.getFieldName());
+                		tempFile=new File(path+File.separator+item.getFieldName());
                 	}
                     item.write(tempFile);
                     files.add(tempFile.getAbsolutePath());
