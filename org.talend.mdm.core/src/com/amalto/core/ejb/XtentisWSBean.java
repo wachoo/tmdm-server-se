@@ -6663,7 +6663,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = null;
 			Element jobElem = null, newOne = null;
-		    String xmlData = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "amaltoOBJECTSDataCluster", "JOB");
+		    String xmlData = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "MDMTISJOB", "JOB");
 		    if(xmlData == null || xmlData.equals(""))
 		    {
 			   doc = documentBuilder.newDocument();
@@ -6682,7 +6682,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		   newOne.setAttribute("version", job.getJobVersion());
 		   jobElem.appendChild(newOne);
 
-		   Util.getXmlServerCtrlLocal().putDocumentFromString(Util.nodeToString(doc.getDocumentElement()), "JOB", "amaltoOBJECTSDataCluster", null);
+		   Util.getXmlServerCtrlLocal().putDocumentFromString(Util.nodeToString(doc.getDocumentElement()), "JOB", "MDMTISJOB", null);
 		   return new WSBoolean(true);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -6700,14 +6700,14 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
     public WSBoolean deleteMDMJob(WSDELMDMJob job)throws RemoteException {
     	Document doc = null;
     	try {
-			String xmlData = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "amaltoOBJECTSDataCluster", "JOB");
+			String xmlData = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "MDMTISJOB", "JOB");
 			doc = Util.parse(xmlData);
 			NodeList list = Util.getNodeList(doc, "/jobs/job[@name='" + job.getJobName() + "']");
 			if(list.getLength() > 0)
 			{
 				doc.getDocumentElement().removeChild(list.item(0));
 				xmlData = Util.nodeToString(doc);
-				Util.getXmlServerCtrlLocal().putDocumentFromString(xmlData, "JOB", "amaltoOBJECTSDataCluster", null);
+				Util.getXmlServerCtrlLocal().putDocumentFromString(xmlData, "JOB", "MDMTISJOB", null);
 				return new WSBoolean(true);
 			}
 		} catch (Exception e) {
@@ -6733,7 +6733,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		WSMDMJobArray jobSet = new WSMDMJobArray();
 
 		try {
-			xmlData = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "amaltoOBJECTSDataCluster", "JOB");
+			xmlData = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "MDMTISJOB", "JOB");
 			doc = Util.parse(xmlData);
 			NodeList list = Util.getNodeList(doc, "/jobs/child::*");
 			WSMDMJob[] jobs = new WSMDMJob[list.getLength()];
