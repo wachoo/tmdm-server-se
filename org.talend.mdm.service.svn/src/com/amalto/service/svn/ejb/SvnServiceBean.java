@@ -416,7 +416,7 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      * @ejb.facade-method
      */
     public String getDefaultConfiguration() throws XtentisException{
-    	org.apache.log4j.Logger.getLogger(this.getClass()).warn("SERVICE SVN GET DEFAULT CONFIGURATION");
+    	//org.apache.log4j.Logger.getLogger(this.getClass()).warn("SERVICE SVN GET DEFAULT CONFIGURATION");
 //    	try {
 //    		SvnConfiguration config = new SvnConfiguration();
 //    		config.setUrl("http://192.168.0.188/");
