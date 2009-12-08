@@ -59,8 +59,9 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
 
 //    private SessionContext context;
     private SvnConfiguration configuration;
-
-
+    
+    static Boolean isautocommit=null;
+    
     /* (non-Javadoc)
      * @see javax.ejb.SessionBean#setSessionContext(javax.ejb.SessionContext)
      */
@@ -416,7 +417,7 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      * @ejb.facade-method
      */
     public String getDefaultConfiguration() throws XtentisException{
-    	//org.apache.log4j.Logger.getLogger(this.getClass()).warn("SERVICE SVN GET DEFAULT CONFIGURATION");
+//    	org.apache.log4j.Logger.getLogger(this.getClass()).warn("SERVICE SVN GET DEFAULT CONFIGURATION");
 //    	try {
 //    		SvnConfiguration config = new SvnConfiguration();
 //    		config.setUrl("http://192.168.0.188/");
@@ -515,7 +516,8 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
 	        configuration =  (SvnConfiguration)
 				Unmarshaller.unmarshal(SvnConfiguration.class, new InputSource(new StringReader(marshalledConfiguration)));
    			//configuration = SvnConfiguration.parse(marshalledConfiguration);
-
+	        
+	        isautocommit=Boolean.valueOf(configuration.autocommit);
 	    } catch (Exception e) {
     	    String err = "Unable to deserialize the configuration of the Svn Service"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
@@ -749,8 +751,12 @@ public class SvnServiceBean extends VersioningServiceCtrlBean implements Session
      * @ejb.facade-method
      */
 	public boolean isAutocommittosvn() throws XtentisException {
-		getConfiguration(null);
-		return Boolean.valueOf(configuration.autocommit);		
+		if(isautocommit==null){
+			getConfiguration(null);
+			isautocommit=Boolean.valueOf(configuration.autocommit);	
+		}
+		return isautocommit;
+		
 	}
 
     /**
