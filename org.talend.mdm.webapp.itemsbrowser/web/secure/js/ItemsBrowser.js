@@ -2068,11 +2068,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						   var defualtErrorMsg="";
 						   for(var i=0;i<errorsArray.length;i++){
 							   if(language==errorsArray[i].split(":")[0].toLowerCase()&&errorsArray[i].split(":")[1]!=null&&errorsArray[i].split(":")[0].trim()!=""){
-								   errorString=errorsArray[i].split(":")[1];
+								   errorString=errorsArray[i].substr(errorsArray[i].indexOf(":")+1);
 								   flag=true;
 							   }
 							   if("en"==errorsArray[i].split(":")[0].toLowerCase()){
-								   defualtErrorMsg=errorsArray[i].split(":")[1];
+//								   defualtErrorMsg=errorsArray[i].split(":",1)[1];
+								   defualtErrorMsg=errorsArray[i].substr(errorsArray[i].indexOf(":")+1);
+							   	
 							   }
 						   }
 						   if(!flag){
