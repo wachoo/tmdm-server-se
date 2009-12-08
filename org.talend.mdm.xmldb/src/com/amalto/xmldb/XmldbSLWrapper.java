@@ -1373,7 +1373,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			}
 			//change * to .*
 			encoded=encoded.replaceAll("\\.\\*|\\*", "\\.\\*");			
-			String factorPivots=getPathFromPivots(wc.getLeftPath(), pivots);
+			String factorPivots=getPathFromPivots(wc.getLeftPath(), pivots);			
 			if(operator.equals(WhereCondition.CONTAINS)) {
 				String predicate = wc.getStringPredicate();
 				//check if the left path is an attribute or an element
@@ -1402,7 +1402,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				} else if (predicate.equals(WhereCondition.PRE_EXACTLY)) {
 					where = factorPivots+" eq \""+encoded+"\"";
 				} else if (predicate.equals(WhereCondition.PRE_STRICTAND)) {
-					where = "near("+factorPivots+", \""+encoded+"\",1)";
+					//where = "near("+factorPivots+", \""+encoded+"\",1)";
+					where = "matches("+factorPivots+", \""+encoded+"\")";
 				} else	if (predicate.equals(WhereCondition.PRE_OR)) {
 					if (isAttribute) {
 						where =
@@ -1440,9 +1441,11 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				*/
 
 			} else if(operator.equals(WhereCondition.STRICTCONTAINS)) { 
-				where = "near("+factorPivots+", \""+encoded+"\",1)"; 
+				//where = "near("+factorPivots+", \""+encoded+"\",1)"; 
+				where = "matches("+factorPivots+", \""+encoded+"\")";
 			} else if(operator.equals(WhereCondition.STARTSWITH)) { 
-				where = "near("+factorPivots+", \""+encoded+"*\",1)";
+				//where = "near("+factorPivots+", \""+encoded+"*\",1)";
+				where = "matches("+factorPivots+", \""+encoded+".*\")";
 			} else if(operator.equals(WhereCondition.JOINS)) { 
 				where = getPathFromPivots(wc.getRightValueOrPath(),pivots)+" = "+factorPivots;
 			} else	 if(operator.equals(WhereCondition.EQUALS)) {

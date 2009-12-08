@@ -214,13 +214,14 @@ public class QueryBuilder {
 	}
 	
 	public static String buildContains(String factorPivots, String encoded){
-		if("*".equals(encoded) || ".*".equals(encoded)){
+		if("*".equals(encoded) || ".*".equals(encoded)){				
 			return "matches("+factorPivots+"/descendant-or-self::* , \".*\") "+		
 				"or (empty("+factorPivots+"/descendant-or-self::text())) "+
 				"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \".*\") ";
 		}else{
-			return "matches("+factorPivots+"/descendant-or-self::* , \""+encoded+"\") "+						
-				"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") ";
+			//case insensitive aiming added
+			return "matches(lower-case("+factorPivots+"/descendant-or-self::*) , \""+encoded+"\") "+						
+				"or matches(lower-case("+factorPivots+"/descendant-or-self::*/attribute()) , \""+encoded+"\") ";
 		}
 	}
 	/**
@@ -268,6 +269,9 @@ public class QueryBuilder {
 			}
 
 			String factorPivots=XPathUtils.factor(wc.getLeftPath(), pivots)+"";
+			//case insensitive aiming added			
+			encoded=encoded.toLowerCase();
+			//end
 			if(operator.equals(WhereCondition.CONTAINS)) {
 				String predicate = wc.getStringPredicate();
 				//check if the left path is an attribute or an element
@@ -278,7 +282,7 @@ public class QueryBuilder {
 				if ((predicate==null) || predicate.equals(WhereCondition.PRE_NONE)) {
 					if (isAttribute) {
 						where =
-							" matches("+factorPivots+" , \""+encoded+"\") ";//factorPivots+" &= \""+encoded+"\" ";
+							" matches(lower-case("+factorPivots+") , \""+encoded+"\") ";//factorPivots+" &= \""+encoded+"\" ";
 					} else {
 						where =buildContains(factorPivots, encoded);
 //							"("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+						
@@ -287,7 +291,7 @@ public class QueryBuilder {
 				} else	 if (predicate.equals(WhereCondition.PRE_AND)) {
 					if (isAttribute) {
 						where =
-							" matches("+factorPivots+" , \""+encoded+"\") ";//factorPivots+" &= \""+encoded+"\" ";
+							" matches(lower-case("+factorPivots+") , \""+encoded+"\") ";//factorPivots+" &= \""+encoded+"\" ";
 					} else {
 						where =buildContains(factorPivots, encoded);
 //							"("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+
@@ -296,25 +300,26 @@ public class QueryBuilder {
 				} else if (predicate.equals(WhereCondition.PRE_EXACTLY)) {
 					where = factorPivots+" eq \""+encoded+"\"";
 				} else if (predicate.equals(WhereCondition.PRE_STRICTAND)) {
-					where = "near("+factorPivots+", \""+encoded+"\",1)";
+					//where = "near("+factorPivots+", \""+encoded+"\",1)";
+					where = "matches(lower-case("+factorPivots+"), \""+encoded+"\")";
 				} else	if (predicate.equals(WhereCondition.PRE_OR)) {
 					if (isAttribute) {
 						where =
-							" matches("+factorPivots+" , \""+encoded+"\") ";
+							" matches(lower-case("+factorPivots+") , \""+encoded+"\") ";
 					} else {
 						where =
-							" matches("+factorPivots+"/descendant-or-self::* , \""+encoded+"\") "+
-							"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") ";
+							" matches(lower-case("+factorPivots+"/descendant-or-self::*) , \""+encoded+"\") "+
+							"or matches(lower-case("+factorPivots+"/descendant-or-self::*/attribute()) , \""+encoded+"\") ";
 					}
 				} else	if (predicate.equals(WhereCondition.PRE_NOT)) {
 					if (isAttribute) {
 						where =
-							"not matches("+factorPivots+" , \""+encoded+"\") ";
+							"not matches(lower-case("+factorPivots+") , \""+encoded+"\") ";
 					} else {
 						where =
 							"not("+
-								" matches("+factorPivots+"/descendant-or-self::* , \""+encoded+"\") "+
-								"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") "+
+								" matches(lower-case("+factorPivots+"/descendant-or-self::*) , \""+encoded+"\") "+
+								"or matches(lower-case("+factorPivots+"/descendant-or-self::*/attribute()) , \""+encoded+"\") "+
 							")";
 					}
 				}
@@ -334,9 +339,11 @@ public class QueryBuilder {
 				*/
 
 			} else if(operator.equals(WhereCondition.STRICTCONTAINS)) {
-				where = "near("+factorPivots+", \""+encoded+"\",1)";
+				//where = "near("+factorPivots+", \""+encoded+"\",1)";
+				where = "matches(lower-case("+factorPivots+"), \""+encoded+"\")";
 			} else if(operator.equals(WhereCondition.STARTSWITH)) {
-				where = "near("+factorPivots+", \""+encoded+"*\",1)";
+				//where = "near("+factorPivots+", \""+encoded+"*\",1)";
+				where = "matches(lower-case("+factorPivots+"), \""+encoded+".*\")";
 			} else if(operator.equals(WhereCondition.JOINS)) {
 				where = XPathUtils.factor(wc.getRightValueOrPath(),pivots)+" = "+factorPivots;
 			} else	 if(operator.equals(WhereCondition.EQUALS)) {
@@ -423,7 +430,6 @@ public class QueryBuilder {
 
 	    	String xqWhere="";
 	    	String xqOrderBy = "";
-
     		//build Pivots Map
     		LinkedHashMap<String,String> pivotsMap = new LinkedHashMap<String,String>();
 			if (forceMainPivot != null) pivotsMap.put("$pivot0", forceMainPivot);

@@ -1306,13 +1306,14 @@ public class ItemsBrowserDWR {
 					results[i]="<result>"+results[i]+"</result>";
 				}
 				results[i]=results[i].replaceAll("\\n", "");//replace \n
+				results[i]=results[i].replaceAll(">(\\s+)<", "><"); //replace spaces between elements
 				Element root = Util.parse(results[i]).getDocumentElement();
 				NodeList list = root.getChildNodes();
 
 				//recover keys - which are last
 				String keys = "";
 				for (int j = "".equals(xpathInfoForeignKey)?1:xpathInfos.length; j<list.getLength(); j++) {
-					Node textNode = list.item(j).getFirstChild();					
+					Node textNode = list.item(j).getFirstChild();		
 					keys += "["+(textNode == null ? "" : textNode.getNodeValue())+"]";
 				}
 				
@@ -1808,7 +1809,7 @@ public class ItemsBrowserDWR {
 		for(int n = 0; n < rows.length(); n++)
 		{
 			JSONObject row = (JSONObject)rows.get(n);
-			contents.add(row.get("keys") + "--" + row.get("infos"));
+			contents.add(row.get("keys")+"");
 		}
     }
     
