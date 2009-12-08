@@ -1372,7 +1372,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				encoded="*";
 			}
 			//change * to .*
-			encoded=encoded.replaceAll("\\.\\*|\\*", "\\.\\*");			
+			encoded=encoded.replaceAll("\\.\\*|\\*", "\\.\\*");		
+			if(".*".equals(encoded)) return "";
 			String factorPivots=getPathFromPivots(wc.getLeftPath(), pivots);			
 			if(operator.equals(WhereCondition.CONTAINS)) {
 				String predicate = wc.getStringPredicate();
@@ -1410,8 +1411,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 							" matches("+factorPivots+" , \""+encoded+"\") ";
 					} else {
 						where =
-							" matches("+factorPivots+"/descendant-or-self::* , \""+encoded+"\") "+
-							"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") ";
+							" matches("+factorPivots+" , \""+encoded+"\") ";
+							//"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") ";
 					}
 				} else	if (predicate.equals(WhereCondition.PRE_NOT)) {
 					if (isAttribute) {
@@ -1420,8 +1421,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 					} else {
 						where =
 							"not("+
-								" matches("+factorPivots+"/descendant-or-self::* , \""+encoded+"\") "+
-								"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") "+
+								" matches("+factorPivots+" , \""+encoded+"\") "+
+								//"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") "+
 							")";
 					}
 				}

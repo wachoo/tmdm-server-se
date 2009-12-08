@@ -215,13 +215,11 @@ public class QueryBuilder {
 	
 	public static String buildContains(String factorPivots, String encoded){
 		if("*".equals(encoded) || ".*".equals(encoded)){				
-			return "matches("+factorPivots+"/descendant-or-self::* , \".*\") "+		
-				"or (empty("+factorPivots+"/descendant-or-self::text())) "+
-				"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \".*\") ";
+			return "matches("+factorPivots+" , \".*\") "+		
+				"or (empty("+factorPivots+"/text())) ";
 		}else{
 			//case insensitive aiming added
-			return "matches("+factorPivots+"/descendant-or-self::* , \""+encoded+"\") "+						
-				"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") ";
+			return "matches("+factorPivots+" , \""+encoded+"\") ";									
 		}
 	}
 	/**
@@ -267,7 +265,7 @@ public class QueryBuilder {
     			//change * to .*
     			encoded=encoded.replaceAll("\\.\\*|\\*", "\\.\\*");
 			}
-
+			if(".*".equals(encoded)) return "";
 			String factorPivots=XPathUtils.factor(wc.getLeftPath(), pivots)+"";
 			//case insensitive aiming added			
 			//encoded=encoded.toLowerCase();
@@ -308,8 +306,8 @@ public class QueryBuilder {
 							" matches("+factorPivots+" , \""+encoded+"\") ";
 					} else {
 						where =
-							" matches("+factorPivots+"/descendant-or-self::* , \""+encoded+"\") "+
-							"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") ";
+							" matches("+factorPivots+" , \""+encoded+"\") ";
+							
 					}
 				} else	if (predicate.equals(WhereCondition.PRE_NOT)) {
 					if (isAttribute) {
@@ -318,8 +316,8 @@ public class QueryBuilder {
 					} else {
 						where =
 							"not("+
-								" matches("+factorPivots+"/descendant-or-self::* , \""+encoded+"\") "+
-								"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") "+
+								" matches("+factorPivots+" , \""+encoded+"\") "+
+								//"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") "+
 							")";
 					}
 				}
