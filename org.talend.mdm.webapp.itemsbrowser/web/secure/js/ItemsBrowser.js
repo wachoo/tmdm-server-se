@@ -1072,7 +1072,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 //										}							    	
 										var treeIndex=1;
 										if(_dataObject==null) _dataObject=_dataObject2;
-			ItemsBrowserInterface.getUri(_dataObject, itemPK, function(picUri){
+			ItemsBrowserInterface.getUriArray(_dataObject, itemPK, function(picUriArray){
+				var uriArray = [];
+				uriArray=picUriArray;
+				for (var index = 0; index < uriArray.length; index++) {
+					var picUri=uriArray[index]
 				if(picUri!=""){
 					 var pos=picUri.indexOf('?');
 	 				 var uri=picUri.substring("/imageserver/".length,pos); 
@@ -1080,10 +1084,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
        	url:'/imageserver/secure/ImageDeleteServlet?uri='+uri,
          method: 'post',  
          callback: function(options, success, response) {  
-              
          }  
     });    
 				}
+			}
 			});										
 										ItemsBrowserInterface.deleteItem(_dataObject, itemPK, function(result){
 											if(result.lastIndexOf("ERROR")>-1){
@@ -2107,7 +2111,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		Ext.MessageBox.confirm("confirm",MSG_CONFIRM_DELETE_ITEM[language]+ " ?",function re(en){
 		if(en=="yes"){
-			ItemsBrowserInterface.getUri(dataObject, itemPK, function(picUri){
+			ItemsBrowserInterface.getUriArray(dataObject, itemPK, function(picUriArray){
+				var uriArray = [];
+				uriArray=picUriArray;
+				for (var index = 0; index < uriArray.length; index++) {
+					var picUri=uriArray[index]
 				if(picUri!=""){
 					 var pos=picUri.indexOf('?');
 	 				 var uri=picUri.substring("/imageserver/".length,pos); 
@@ -2115,10 +2123,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
        	url:'/imageserver/secure/ImageDeleteServlet?uri='+uri,
          method: 'post',  
          callback: function(options, success, response) {  
-              
          }  
     });    
 				}
+			}
 			});
 			ItemsBrowserInterface.deleteItem(dataObject, itemPK, function(result){
 				if(result.lastIndexOf("ERROR")>-1){

@@ -3,6 +3,7 @@ package com.amalto.webapp.v3.itemsbrowser.dwr;
 import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1084,9 +1085,9 @@ public class ItemsBrowserDWR {
 			return "ERROR -" + e.getLocalizedMessage();
 		}        
 	}
-	public String getUri(String concept, String[] ids){
+	public String[] getUriArray(String concept, String[] ids){
 		Configuration config;
-		String uri="";
+		List<String> uriList=new ArrayList<String>();
 		try {
 			config = Configuration.getInstance();
 		String dataClusterPK = config.getCluster();
@@ -1098,16 +1099,18 @@ public class ItemsBrowserDWR {
    	 for (Iterator iterator = parsXMLString(content).getRootElement().nodeIterator(); iterator.hasNext();) {
    		org.jboss.dom4j.Node node = ( org.jboss.dom4j.Node) iterator.next();
 			if(node.getStringValue().startsWith("/imageserver"))
-				{	uri=node.getStringValue();
-					break;	
+				{	uriList.add(node.getStringValue());
  				}
 		}
-    	System.out.println(uri);
+    	System.out.println(uriList.toArray());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		return uri;
+		String[] uriArray=new String[uriList.size()];
+		for (int i = 0; i < uriList.size(); i++) {
+			uriArray[i]=uriList.get(i);
+		}
+		return uriArray;
 		}
 
 	public String logicalDeleteItem(String concept, String[] ids, String path)
