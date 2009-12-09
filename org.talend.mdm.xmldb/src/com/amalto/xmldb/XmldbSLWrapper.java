@@ -1314,12 +1314,13 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 					IWhereItem item = iter.next();
 					if (++i>1) 
 						if (((WhereLogicOperator)whereItem).getType() == WhereLogicOperator.AND)
-							where+=" and (";
+							where=where.length()==0?where:where+" and ";
 						else
-							where+=" or (";
+							where=where.length()==0?where:where+" or ";
 					else
-						where+="(";
-					where = buildWhere(where, pivots, item, useValueComparisons)+")";
+						where+="";
+					String strwhere=buildWhere(where, pivots, item, useValueComparisons);
+					where = strwhere.length()==0?"":strwhere;
 				}//for
 				return where;
 					

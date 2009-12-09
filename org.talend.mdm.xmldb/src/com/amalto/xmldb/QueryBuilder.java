@@ -188,13 +188,16 @@ public class QueryBuilder {
 				for (Iterator<IWhereItem> iter = subItems.iterator(); iter.hasNext(); ) {
 					IWhereItem item = iter.next();
 					if (++i>1)
-						if (((WhereLogicOperator)whereItem).getType() == WhereLogicOperator.AND)
-							where+=" and (";
-						else
-							where+=" or (";
+						if (((WhereLogicOperator)whereItem).getType() == WhereLogicOperator.AND){
+							where=where.length()==0?where:where+" and ";					
+						}
+						else{
+							where=where.length()==0?where:where+" or ";							
+						}
 					else
-						where+="(";
-					where = buildWhere(where, pivots, item)+")";
+						where+="";
+					String strwhere=buildWhere(where, pivots, item);
+					where=strwhere.length()==0?"":strwhere;
 				}//for
 				return where;
 
