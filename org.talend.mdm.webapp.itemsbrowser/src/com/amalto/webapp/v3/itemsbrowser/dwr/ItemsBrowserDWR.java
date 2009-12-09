@@ -1357,80 +1357,80 @@ public class ItemsBrowserDWR {
 			return json.toString();
 		}
 		
-
-		//This is the "classic" case where not a Concept name but a full Path to a key is given
-		String[] xpaths = null;
-		
-		//if we have xPaths Infos data, add them to the xPath Query to pull them
-		if(!"".equals(xpathInfoForeignKey)){
-			String[] xpathInfos = xpathInfoForeignKey.split(",");			
-			xpaths = new String[xpathInfos.length+1];
-			xpaths[0] = initxpathForeignKey;
-			System.arraycopy(xpathInfos, 0, xpaths, 1, xpathInfos.length);
-		}else {
-			xpaths = new String[1];
-			xpaths[0] = initxpathForeignKey;
-		}
-		
-		//filter with value 
-		for (int i = 0; i < xpaths.length; i++) {
-			String xpath=xpaths[i];
-			
-			int pos=xpath.indexOf("/");
-			String conceptName=xpath.substring(0,pos);
-			String left=xpath.substring(pos);
-			
-			String filteredConcept=conceptName;
-			filteredConcept+="[matches(descendant-or-self::* , \""+value+"\")]";
-			xpath=filteredConcept+left;
-			
-			xpaths[i]=xpath;
-		}
-		 
-		//run the search
-		String[] results = Util.getPort().xPathsSearch(
-				new WSXPathsSearch(
-					new WSDataClusterPK(config.getCluster()),
-					xpaths[0],//pivot
-					new WSStringArray(xpaths),
-					whereItem,
-					-1,		//spell Threshold
-					0,		//start
-					Integer.MAX_VALUE,
-					null, 	//order By
-					null	//direction
-					)
-				).getStrings();
-		
-		if (results == null) results = new String[0];
-		
-		JSONObject json = new JSONObject();
-		json.put("count", results.length);
-		
-		JSONArray rows = new JSONArray();
-		json.put("rows", rows);
-		
-		//parse the results to put them in the map
-		for (int i = 0; i < results.length; i++) {
-			if(results[i]!=null){
-				Document d = Util.parse(results[i]);
-				String tmp = "";
-				for (int j = 0; j < xpaths.length; j++) {
-					tmp += " - "+Util.getFirstTextNode(d,"//"+xpaths[j].split("/")[xpaths[j].split("/").length-1]);
-				}
-				if(Util.getFirstTextNode(d,"//"+initxpathForeignKey.split("/")[initxpathForeignKey.split("/").length-1])!=null) {
-					String keys = Util.getFirstTextNode(d,"//"+initxpathForeignKey.split("/")[initxpathForeignKey.split("/").length-1]);
-					String infos = tmp.substring(3);
-					JSONObject row = new JSONObject();
-					row.put("keys", keys);
-					row.put("infos", infos);
-					rows.put(row);
-//					map.put(Util.getFirstTextNode(d,"//"+xpathForeignKey.split("/")[xpathForeignKey.split("/").length-1]),tmp.substring(3));	
-				}
-			}		
-		}
-	
-		return json.toString();
+		throw new Exception("this should not happen");
+//		//This is the "classic" case where not a Concept name but a full Path to a key is given
+//		String[] xpaths = null;
+//		
+//		//if we have xPaths Infos data, add them to the xPath Query to pull them
+//		if(!"".equals(xpathInfoForeignKey)){
+//			String[] xpathInfos = xpathInfoForeignKey.split(",");			
+//			xpaths = new String[xpathInfos.length+1];
+//			xpaths[0] = initxpathForeignKey;
+//			System.arraycopy(xpathInfos, 0, xpaths, 1, xpathInfos.length);
+//		}else {
+//			xpaths = new String[1];
+//			xpaths[0] = initxpathForeignKey;
+//		}
+//		
+//		//filter with value 
+//		for (int i = 0; i < xpaths.length; i++) {
+//			String xpath=xpaths[i];
+//			
+//			int pos=xpath.indexOf("/");
+//			String conceptName=xpath.substring(0,pos);
+//			String left=xpath.substring(pos);
+//			
+//			String filteredConcept=conceptName;
+//			filteredConcept+="[matches(descendant-or-self::* , \""+value+"\")]";
+//			xpath=filteredConcept+left;
+//			
+//			xpaths[i]=xpath;
+//		}
+//		 
+//		//run the search
+//		String[] results = Util.getPort().xPathsSearch(
+//				new WSXPathsSearch(
+//					new WSDataClusterPK(config.getCluster()),
+//					xpaths[0],//pivot
+//					new WSStringArray(xpaths),
+//					whereItem,
+//					-1,		//spell Threshold
+//					0,		//start
+//					Integer.MAX_VALUE,
+//					null, 	//order By
+//					null	//direction
+//					)
+//				).getStrings();
+//		
+//		if (results == null) results = new String[0];
+//		
+//		JSONObject json = new JSONObject();
+//		json.put("count", results.length);
+//		
+//		JSONArray rows = new JSONArray();
+//		json.put("rows", rows);
+//		
+//		//parse the results to put them in the map
+//		for (int i = 0; i < results.length; i++) {
+//			if(results[i]!=null){
+//				Document d = Util.parse(results[i]);
+//				String tmp = "";
+//				for (int j = 0; j < xpaths.length; j++) {
+//					tmp += " - "+Util.getFirstTextNode(d,"//"+xpaths[j].split("/")[xpaths[j].split("/").length-1]);
+//				}
+//				if(Util.getFirstTextNode(d,"//"+initxpathForeignKey.split("/")[initxpathForeignKey.split("/").length-1])!=null) {
+//					String keys = Util.getFirstTextNode(d,"//"+initxpathForeignKey.split("/")[initxpathForeignKey.split("/").length-1]);
+//					String infos = tmp.substring(3);
+//					JSONObject row = new JSONObject();
+//					row.put("keys", keys);
+//					row.put("infos", infos);
+//					rows.put(row);
+////					map.put(Util.getFirstTextNode(d,"//"+xpathForeignKey.split("/")[xpathForeignKey.split("/").length-1]),tmp.substring(3));	
+//				}
+//			}		
+//		}
+//	
+//		return json.toString();
 //		return map;
 	}
 	
