@@ -1262,7 +1262,10 @@ public class ItemsBrowserDWR {
 				xpathInfos = xpathInfoForeignKey.split(",");
 			else
 				xpathInfos[0] = conceptName;
-			
+			//aiming add .* to value
+			value=value==null?"":value;
+			value=value+".*";
+			//end
 			// build query - add a content condition on the pivot if we search for a particular value
 			String filteredConcept = conceptName;
 			if(value!=null && !"".equals(value.trim())){

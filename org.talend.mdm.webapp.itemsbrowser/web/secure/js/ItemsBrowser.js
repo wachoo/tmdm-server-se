@@ -2515,7 +2515,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				combo.reset();
 				if(count<500) {
 					
-					combo.setRawValue(".*");
+					combo.setRawValue("");
 					combo.doQuery(".*",true);
 					combo.focus();
 		            combo.expand();
