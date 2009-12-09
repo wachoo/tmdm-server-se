@@ -3,7 +3,6 @@ package com.amalto.webapp.v3.itemsbrowser.dwr;
 import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,13 +46,11 @@ import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSGetItemPKsByCriteria;
 import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSItemPKsByCriteriaResponseResults;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
@@ -477,7 +474,10 @@ public class ItemsBrowserDWR {
 						idToXpath.put(nodeCount,xpath+"["+(i+1)+"]");
 						TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
 						if(nodeList.item(i).getFirstChild()!=null)
+						{
 							treeNodeTmp.setValue(nodeList.item(i).getFirstChild().getNodeValue());
+							setForeignKeyValueInfoToTreeNode(xpath, treeNodeTmp, d, nodeList.item(i).getFirstChild().getNodeValue());
+						}
 						treeNodeTmp.setNodeId(nodeCount);
 						// TODO check addThisNode
 		    			list.add(treeNodeTmp);  
@@ -498,6 +498,7 @@ public class ItemsBrowserDWR {
 						nodeAutorization.add(xpath);
 					idToXpath.put(nodeCount,xpath);
 					treeNode.setValue(StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath)));
+					setForeignKeyValueInfoToTreeNode(xpath, treeNode, d, Util.getFirstTextNode(d,xpath));	
 		    		if(treeNode.isVisible()==true){
 		    			list.add(treeNode);    			
 		    			nodeCount++; 
@@ -1684,6 +1685,140 @@ public class ItemsBrowserDWR {
 
 	}
 	
+    private void setForeignKeyValueInfoToTreeNode(String xpath, TreeNode treeNode, Document doc, String realKey) throws Exception
+    {
+		Element elem = getForeignKeyInfoFromXSD(xpath);
+		if(elem != null)
+		{
+			if(Util.getNodeList(elem, "./xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").getLength() > 0)
+			{
+				String forgKey = Util.getNodeList(elem, "./xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").item(0).getTextContent();
+				String infos = "";
+				NodeList infoList = Util.getNodeList(elem, "./xsd:annotation/xsd:appinfo[@source='X_ForeignKeyInfo']");
+				for (int infoID = 0; infoID < infoList.getLength(); infoID++)
+				{
+					infos +=infoList.item(infoID).getTextContent() + ",";
+				}
+				if(infos.endsWith(","))
+				{
+					infos = infos.substring(0, infos.length() -1);
+				}
+				String valueInfo = "";
+				String jasonInfo = getForeignKeyList(0, 100, ".*",  forgKey, infos);
+				JSONObject jason = new JSONObject(jasonInfo);
+				JSONArray rows = (JSONArray)jason.get("rows");
+				if(realKey != null)
+				{
+					for(int n = 0; n < rows.length(); n++)
+					{
+						JSONObject row = (JSONObject)rows.get(n);
+						if(realKey.equals(row.get("keys")))
+						{
+							valueInfo +=row.get("keys")+ "--" + row.get("infos");
+							break;
+						}
+
+					}
+					treeNode.setValueInfo(valueInfo);
+				}
+			}
+
+		}
+    }
+    
+    private Element getForeignKeyInfoFromXSD(String xpath)
+    {
+    	Element findOne = null;
+    	try {
+    		Configuration config = Configuration.getInstance(true);
+    		String xsd = Util.getPort().getDataModel(
+            		new WSGetDataModel(new WSDataModelPK(config.getModel()))).getXsdSchema();
+    		Document doc = Util.parse(xsd);
+    		if(xpath.charAt(0) == '/')
+    			xpath = xpath.substring(1);
+    		String[] elems = xpath.split("/");
+    		if(elems.length > 0)
+    		{
+    			findOne = lookUpForeignInfos(doc.getDocumentElement(), null,  elems[0]);
+    			int current = 1;
+    			while(findOne != null && current < elems.length)
+    			{
+    				findOne = lookUpForeignInfos(doc.getDocumentElement(), findOne, elems[current]);
+    				current++;
+    			}
+    		}
+    		
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+    	return findOne;
+    }
+    
+    private Element lookUpForeignInfos(Element content, Element parent, String name)
+    {
+    	Element result = null;
+    	try {
+			NodeList list = Util.getNodeList(content, "./xsd:element[@name='" + name + "']");
+			if(list.getLength() == 0 || parent != null)
+			{
+				if(parent != null)
+				{
+					String typeAttr = null;
+					Node typeNode = parent.getAttributes().getNamedItem("type");
+					if(typeNode != null)
+					{
+						list = Util.getNodeList(content, "./xsd:complexType[@name='" + typeNode.getNodeValue() + "']//xsd:element[@name='" + name + "']");
+						if(list.getLength() > 0)
+						{
+							return (Element)list.item(0);
+						}
+						
+					}
+					else
+					{
+						list = Util.getNodeList(parent, "./xsd:complexType//xsd:element[@name='" + name + "']");
+						if(list.getLength() > 0)
+						{
+							return (Element)list.item(0);
+						}
+					}
+				}
+				
+				NodeList importList = null;
+				for (int nm = 0; nm < 2; nm++)
+				{
+					if (nm == 0) {
+						importList = Util.getNodeList(content, "//xsd:import");
+					} else {
+						importList = Util.getNodeList(content, "//xsd:include");
+					}
+		    		for (int i = 0; i < importList.getLength(); i++)
+		    		{
+		    			String location = importList.item(i).getAttributes().getNamedItem("schemaLocation").getNodeValue();
+		    			Document subDoc = Util.parseImportedFile(location);
+		    			result =  lookUpForeignInfos(subDoc.getDocumentElement(), null, name);
+		    			if(result != null)
+		    			{
+		    				break;
+		    			}
+		    		}
+				}
+			}
+			else if(parent == null)
+			{
+				return (Element)list.item(0);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return result;
+    }
+    
+    
     private void parseMetaDataTypes(Document doc, String concept, HashMap<String, ArrayList<String>> metaDataTypes) throws Exception
     {
 		NodeList nodeList = Util.getNodeList(doc, "//xsd:element[@name='" + concept + "']");

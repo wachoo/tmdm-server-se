@@ -20,6 +20,7 @@ public class TreeNode implements Cloneable {
 	private String name;
 	private String description;
 	private String value;
+	private String valueInfo;
 	private boolean expandable;
 	private String type;
 	private int nodeId;
@@ -263,6 +264,15 @@ public class TreeNode implements Cloneable {
 		this.value = value;
 	}
 
+	public String getValueInfo(){
+		return valueInfo;
+	}
+	
+	public void setValueInfo(String info)
+	{
+		this.valueInfo = info;
+	}
+	
 	public String getXmlTag() {
 		return xmlTag;
 	}
