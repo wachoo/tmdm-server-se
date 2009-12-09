@@ -1298,6 +1298,7 @@ public class ItemsBrowserDWR {
 			
 			JSONArray rows = new JSONArray();
 			json.put("rows", rows);
+			int filterCount = 0;
 			
 			//parse the results - each result contains the xPathInfo values, followed by the keys
 			for (int i = 0; i < results.length; i++) {
@@ -1336,9 +1337,12 @@ public class ItemsBrowserDWR {
 					//empty row
 				}else{
 					JSONObject row = new JSONObject();
-					row.put("keys", keys);
-					row.put("infos", infos);
-					rows.put(row);
+					//add by ymli. retrieve the correct results according value. fig bug:0010481
+					if(keys.matches(value)||infos.matches(value)||keys.indexOf("["+value)!=-1||infos.indexOf(value)!=-1){
+						row.put("keys", keys);
+						row.put("infos", infos);
+						rows.put(row);
+					}
 				}
 				
 				json.put("count", rows.length());
