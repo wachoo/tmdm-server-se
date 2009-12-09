@@ -513,7 +513,8 @@ public class QueryBuilder {
 	 * Determine the collection name based on the revision ID and Cluster Name
 	 */
 	public static String getXQueryCollectionName(String revisionID, String clusterName) throws XmlServerException {
-       	String collectionPath =
+		if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
+		String collectionPath =
        		(revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")
        		+(clusterName == null ? "" : clusterName);
 

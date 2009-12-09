@@ -122,6 +122,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
      * @return
      */
     private String getFullURL(String revisionID, String cluster) {
+    	if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
    	 	return "xmldb:"+DBID+"://"+SERVERNAME+":"+SERVERPORT+"/"+DBURL
    	 			+((revisionID == null) || "".equals(revisionID) ? "": "/"+"R-"+revisionID)
    	 			+((cluster== null) || "".equals(cluster) ? "": "/"+cluster);
@@ -1065,6 +1066,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
             	for (Iterator iterator = conceptMap.iterator(); iterator.hasNext();j++) {
         			String conceptName = (String) iterator.next();
         			String revisionID=CommonUtil.getConceptRevisionID(itemsRevisionIDs, defaultRevisionID, conceptName);
+        			if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
         			String collectionPath = (revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")+(clusterName == null ? "" : clusterName);//TODO ENCODE
         			xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/").append(conceptName);
         			
@@ -1661,6 +1663,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	
 	
     private static String getXQueryCollectionName(String revisionID, String clusterName) throws XmlServerException {
+    	if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
     	String collectionPath = 
     		(revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")
     		+(clusterName == null ? "" : clusterName);
