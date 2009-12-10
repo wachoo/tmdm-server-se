@@ -2,12 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="apache-cxf-2.2.5/lib/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="apache-cxf-2.2.5/lib/cxf-2.2.5.jar"/>
-	<classpathentry kind="lib" path="apache-cxf-2.2.5/lib/jra-1.0-alpha-4.jar"/>
-	<classpathentry kind="lib" path="apache-cxf-2.2.5/lib/neethi-2.0.4.jar"/>
-	<classpathentry kind="lib" path="apache-cxf-2.2.5/lib/wsdl4j-1.6.2.jar"/>
-	<classpathentry kind="lib" path="apache-cxf-2.2.5/lib/XmlSchema-1.4.5.jar"/>
+	<classpathentry kind="lib" path="libs/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="libs/cxf-2.2.5.jar"/>
+	<classpathentry kind="lib" path="libs/jra-1.0-alpha-4.jar"/>
+	<classpathentry kind="lib" path="libs/neethi-2.0.4.jar"/>
+	<classpathentry kind="lib" path="libs/wsdl4j-1.6.2.jar"/>
+	<classpathentry kind="lib" path="libs/XmlSchema-1.4.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="libs/dom4j-1.6.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
