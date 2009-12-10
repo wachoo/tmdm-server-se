@@ -1,4 +1,92 @@
 RELEASE NOTES
 
 1.0.0
-Initial release
+Initial release -- Workflow Integration 
+
+##################################
+#  Related projects  
+##################################
+
+talend.mdm.libraries: contain a jar of workflow client
+
+org.talend.mdm.service.workflow: services implementations of the workflow client
+org.talend.mdm.core：interfaces of the workflow client
+org.talend.mdm.workflow: workflow connectors and some distributed libraries 
+
+org.talend.mdm.workbench: contain a admin console of workflow 
+org.talend.mdm.webapp.workflow.tasks: todo tasks list for workflow users
+
+
+##################################
+#  How to install?  
+##################################
+
+1. Deploy runtime ear package of bonita:
+   get package from this path: '/org.talend.mdm.workflow/runtime/bonita.ear'
+   deploy to the target path: <jboss_home>/default/deploy
+   
+2. Deploy client jars of bonita:
+   get these two jars:'/talend.mdm.libraries/lib/asm-3.1.jar'
+                      '/talend.mdm.libraries/lib/bonita-client-5.0.M5.jar'
+   deploy to the target path:<jboss_home>/default/lib
+   
+
+3. Deploy bonita-connectors and its related libraries to <jboss_home>/default/lib:
+   - Get these files from '/org.talend.mdm.workflow/connector' and deploy them:
+	 TalendMDMRoleResolver.jar
+	 TalendMDMConnector.jar
+	
+   - run the ant build file of the org.talend.mdm.workflow project:
+	org.talend.mdm.workflow.client.jar
+	
+   - Subset of the CXF libs and Dom4j(retrieved from /org.talend.mdm.workflow/libs):
+	commons-logging-1.1.1.jar
+	cxf-2.2.5.jar
+	jra-1.0-alpha-4.jar
+	neethi-2.0.4.jar
+	wsdl4j-1.6.2.jar
+	XmlSchema-1.4.5.jar
+	dom4j-1.6.1.jar
+   
+4. Define a security domain for bonita in login-config.xml of jboss:
+    -update this file  <jboss_home>/default/conf/login-config.xml,and add this segment:
+    
+    <application-policy name="Bonita">
+      <authentication>
+ 
+        <login-module code="com.amalto.jaas.xtentis.jboss.XtentisLoginModule"
+          flag="required">
+          <module-option name="unauthenticatedIdentity">anonymous</module-option>
+          <!-- <module-option name="password-stacking">useFirstPass</module-option> -->
+          <module-option name="provisioningCluster">PROVISIONING</module-option>
+          <module-option name="userConcept">User</module-option>
+          <module-option name="passwordPath">./password</module-option>
+          <module-option name="rolesPath">./roles/role</module-option>
+          <module-option name="adminPassword">1a254116eb5e70714b0680dfd4d8f7d4</module-option>
+        </login-module>
+      
+        <login-module code="org.jboss.security.ClientLoginModule" flag="required" />
+ 
+      </authentication>
+    </application-policy>
+   
+##################################
+#  How to use?  
+##################################
+
+1. Define your approval process in Bonita Studio:
+   Tips: - don't forget to user the connectors of MDM
+         - don't forget the MDM built-in variables(patterns: ^MDM_.* or .*_xpath$)
+         
+2. Use workflow console in MDM workbench:
+   - Import the bar file of the process
+   - generate a trigger transformer for this process
+   
+3. Define a routing rule to call the generated transformer
+
+4. Create/Update/Delete item in MDM to trigger a route rule and then start a approval process automatically
+
+5. The users can use a web-app 'workflow tasks' to handle the approval forms
+ 
+6. At the end , of course you can use workflow console on workbench to management all processes and tasks 
+ 
