@@ -1271,7 +1271,7 @@ public class ItemsBrowserDWR {
 			if(value!=null && !"".equals(value.trim())){
 				//filteredConcept+="[(descendant-or-self::* &= \""+value+"*\"),(descendant-or-self::*/attribute() &= \""+value+"*\")]";
 				//Value is unlikely to be in attributes
-				filteredConcept+="[matches(descendant-or-self::* , \""+value+"\")]";
+				filteredConcept+="[matches(descendant-or-self::* , \""+value+"\", \"i\")]";
 			}
 			
 			//add the xPath Infos Path
@@ -1302,8 +1302,8 @@ public class ItemsBrowserDWR {
 			
 			JSONArray rows = new JSONArray();
 			json.put("rows", rows);
-			int filterCount = 0;
-			
+
+			//add (?i) to incasesensitive
 			//parse the results - each result contains the xPathInfo values, followed by the keys
 			for (int i = 0; i < results.length; i++) {
 				//process no infos case
@@ -1340,9 +1340,9 @@ public class ItemsBrowserDWR {
 				if((keys.equals("[]")||keys.equals(""))&&(infos.equals("")||infos.equals("[]"))){
 					//empty row
 				}else{
-					JSONObject row = new JSONObject();
-					//add by ymli. retrieve the correct results according value. fig bug:0010481
-					if(keys.matches(value)||infos.matches(value)||keys.indexOf("["+value)!=-1||infos.indexOf(value)!=-1){
+					JSONObject row = new JSONObject();		
+					//add by ymli. retrieve the correct results according value. fig bug:0010481					
+					if(keys.matches("(?i)"+value)||infos.matches("(?i)"+value)||keys.indexOf("["+value)!=-1||infos.indexOf(value)!=-1){
 						row.put("keys", keys);
 						row.put("infos", infos);
 						rows.put(row);

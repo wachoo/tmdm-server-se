@@ -1388,7 +1388,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				if ((predicate==null) || predicate.equals(WhereCondition.PRE_NONE)) {
 					if (isAttribute) {
 						where =
-							" matches("+factorPivots+" , \""+encoded+"\") ";//factorPivots+" &= \""+encoded+"\" ";
+							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";//factorPivots+" &= \""+encoded+"\" ";
 					} else {
 						where =QueryBuilder.buildContains(factorPivots, encoded);
 //							"("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+						
@@ -1397,7 +1397,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				} else	 if (predicate.equals(WhereCondition.PRE_AND)) {
 					if (isAttribute) {
 						where =
-							" matches("+factorPivots+" , \""+encoded+"\") ";//factorPivots+" &= \""+encoded+"\" ";
+							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";//factorPivots+" &= \""+encoded+"\" ";
 					} else {
 						where =QueryBuilder.buildContains(factorPivots, encoded);
 //							"("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+
@@ -1407,24 +1407,24 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 					where = factorPivots+" eq \""+encoded+"\"";
 				} else if (predicate.equals(WhereCondition.PRE_STRICTAND)) {
 					//where = "near("+factorPivots+", \""+encoded+"\",1)";
-					where = "matches("+factorPivots+", \""+encoded+"\")";
+					where = "matches("+factorPivots+", \""+encoded+"\",\"i\") ";
 				} else	if (predicate.equals(WhereCondition.PRE_OR)) {
 					if (isAttribute) {
 						where =
-							" matches("+factorPivots+" , \""+encoded+"\") ";
+							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";
 					} else {
 						where =
-							" matches("+factorPivots+" , \""+encoded+"\") ";
+							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";
 							//"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") ";
 					}
 				} else	if (predicate.equals(WhereCondition.PRE_NOT)) {
 					if (isAttribute) {
 						where =
-							"not matches("+factorPivots+" , \""+encoded+"\") ";
+							"not matches("+factorPivots+" , \""+encoded+"\",\"i\") ";
 					} else {
 						where =
 							"not("+
-								" matches("+factorPivots+" , \""+encoded+"\") "+
+								" matches("+factorPivots+" , \""+encoded+"\",\"i\") "+
 								//"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") "+
 							")";
 					}
@@ -1446,12 +1446,13 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 
 			} else if(operator.equals(WhereCondition.STRICTCONTAINS)) { 
 				//where = "near("+factorPivots+", \""+encoded+"\",1)"; 
-				where = "matches("+factorPivots+", \""+encoded+"\")";
+				where = "matches("+factorPivots+", \""+encoded+"\",\"i\") ";
 			} else if(operator.equals(WhereCondition.STARTSWITH)) { 
 				//where = "near("+factorPivots+", \""+encoded+"*\",1)";
-				where = "matches("+factorPivots+", \""+encoded+".*\")";
+				where = "matches("+factorPivots+", \""+encoded+".*\",\"i\") ";
 			} else if(operator.equals(WhereCondition.JOINS)) { 
-				where = getPathFromPivots(wc.getRightValueOrPath(),pivots)+" = "+factorPivots;
+				//where = getPathFromPivots(wc.getRightValueOrPath(),pivots)+" = "+factorPivots; //JOIN error
+				where = "matches("+factorPivots+", \""+encoded+"\",\"i\") ";
 			} else	 if(operator.equals(WhereCondition.EQUALS)) {
 				String useOpe="eq";
 				if(!useValueComparisons)useOpe=WhereCondition.EQUALS;

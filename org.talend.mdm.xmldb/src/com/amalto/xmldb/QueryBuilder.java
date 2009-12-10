@@ -218,11 +218,11 @@ public class QueryBuilder {
 	
 	public static String buildContains(String factorPivots, String encoded){
 		if("*".equals(encoded) || ".*".equals(encoded)){				
-			return "matches("+factorPivots+" , \".*\") "+		
+			return "matches("+factorPivots+" , \".*\", \"i\") "+		
 				"or (empty("+factorPivots+"/text())) ";
 		}else{
 			//case insensitive aiming added
-			return "matches("+factorPivots+" , \""+encoded+"\") ";									
+			return "matches("+factorPivots+" , \""+encoded+"\",\"i\") ";									
 		}
 	}
 	/**
@@ -283,7 +283,7 @@ public class QueryBuilder {
 				if ((predicate==null) || predicate.equals(WhereCondition.PRE_NONE)) {
 					if (isAttribute) {
 						where =
-							" matches("+factorPivots+") , \""+encoded+"\" ";//factorPivots+" &= \""+encoded+"\" ";
+							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";//factorPivots+" &= \""+encoded+"\" ";
 					} else {
 						where =buildContains(factorPivots, encoded);
 //							"("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+						
@@ -292,7 +292,7 @@ public class QueryBuilder {
 				} else	 if (predicate.equals(WhereCondition.PRE_AND)) {
 					if (isAttribute) {
 						where =
-							" matches("+factorPivots+" , \""+encoded+"\") ";//factorPivots+" &= \""+encoded+"\" ";
+							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";//factorPivots+" &= \""+encoded+"\" ";
 					} else {
 						where =buildContains(factorPivots, encoded);
 //							"("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+
@@ -302,24 +302,24 @@ public class QueryBuilder {
 					where = factorPivots+" eq \""+encoded+"\"";
 				} else if (predicate.equals(WhereCondition.PRE_STRICTAND)) {
 					//where = "near("+factorPivots+", \""+encoded+"\",1)";
-					where = "matches("+factorPivots+", \""+encoded+"\")";
+					where = "matches("+factorPivots+", \""+encoded+"\",\"i\") ";
 				} else	if (predicate.equals(WhereCondition.PRE_OR)) {
 					if (isAttribute) {
 						where =
-							" matches("+factorPivots+" , \""+encoded+"\") ";
+							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";
 					} else {
 						where =
-							" matches("+factorPivots+" , \""+encoded+"\") ";
+							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";
 							
 					}
 				} else	if (predicate.equals(WhereCondition.PRE_NOT)) {
 					if (isAttribute) {
 						where =
-							"not matches("+factorPivots+" , \""+encoded+"\") ";
+							"not matches("+factorPivots+" , \""+encoded+"\",\"i\") ";
 					} else {
 						where =
 							"not("+
-								" matches("+factorPivots+" , \""+encoded+"\") "+
+								" matches("+factorPivots+" , \""+encoded+"\",\"i\") "+
 								//"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") "+
 							")";
 					}
@@ -341,12 +341,13 @@ public class QueryBuilder {
 
 			} else if(operator.equals(WhereCondition.STRICTCONTAINS)) {
 				//where = "near("+factorPivots+", \""+encoded+"\",1)";
-				where = "matches("+factorPivots+", \""+encoded+"\")";
+				where = "matches("+factorPivots+", \""+encoded+"\",\"i\") ";
 			} else if(operator.equals(WhereCondition.STARTSWITH)) {
 				//where = "near("+factorPivots+", \""+encoded+"*\",1)";
-				where = "matches("+factorPivots+", \""+encoded+".*\")";
+				where = "matches("+factorPivots+", \""+encoded+".*\" ,\"i\") ";
 			} else if(operator.equals(WhereCondition.JOINS)) {
-				where = XPathUtils.factor(wc.getRightValueOrPath(),pivots)+" = "+factorPivots;
+				//where = XPathUtils.factor(wc.getRightValueOrPath(),pivots)+" = "+factorPivots; //Join error aiming added
+				where = "matches("+factorPivots+", \""+encoded+"\",\"i\") ";
 			} else	 if(operator.equals(WhereCondition.EQUALS)) {
 				if (isNum) {
 					where = "number("+factorPivots+") eq "+encoded;
