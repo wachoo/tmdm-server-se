@@ -14,6 +14,8 @@ import javax.ejb.EJBException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.exolab.castor.xml.Marshaller;
+import org.talend.mdm.commmon.util.webapp.XObjectType;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -458,7 +460,7 @@ public class ItemPOJO implements Serializable{
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
     	//} else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
-    	}else if(user.userItemCanWrite(adminLoad(itemPOJOPK))){ //aiming modify see 10027
+    	}else if(XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId()) ||user.userItemCanWrite(adminLoad(itemPOJOPK))){ //aiming modify see 10027
     		authorized = true;
     	}
     	
@@ -523,7 +525,7 @@ public class ItemPOJO implements Serializable{
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
     	//} else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
-    	}else if(user.userItemCanWrite(adminLoad(itemPOJOPK))){ //aiming modify see 10027    		
+    	}else if(XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId()) ||user.userItemCanWrite(adminLoad(itemPOJOPK))){ //aiming modify see 10027    		
     		authorized = true;
     	}
     	
@@ -703,7 +705,7 @@ public class ItemPOJO implements Serializable{
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
     	//} else if (user.userCanWrite(ItemPOJO.class, getItemPOJOPK().getUniqueID())) {
-    	}else if(user.userItemCanWrite(adminLoad(getItemPOJOPK()))){ //aiming modify see 10027    		
+    	}else if(XSystemObjects.isExist(XObjectType.DATA_CLUSTER, getItemPOJOPK().getDataClusterPOJOPK().getUniqueId()) ||user.userItemCanWrite(adminLoad(getItemPOJOPK()))){ //aiming modify see 10027    		
     		authorized = true;
     	}
     	

@@ -13,6 +13,8 @@ import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.ValidationException;
+import org.talend.mdm.commmon.util.webapp.XObjectType;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -530,7 +532,7 @@ public class DroppedItemPOJO implements Serializable{
     		
     		if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
         		authorized = true;
-        	} else if (user.userItemCanWrite(ItemPOJO.adminLoad(refItemPOJOPK))) {
+        	} else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, refItemPOJOPK.getDataClusterPOJOPK().getUniqueId()) || user.userItemCanWrite(ItemPOJO.adminLoad(refItemPOJOPK))) {
         		authorized = true;
         	}
     		
