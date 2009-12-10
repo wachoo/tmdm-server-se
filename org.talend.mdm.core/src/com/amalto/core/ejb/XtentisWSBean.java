@@ -6734,6 +6734,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 
 		try {
 			xmlData = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "MDMTISJOB", "JOB");
+			if(xmlData==null) return jobSet;
 			doc = Util.parse(xmlData);
 			NodeList list = Util.getNodeList(doc, "/jobs/child::*");
 			WSMDMJob[] jobs = new WSMDMJob[list.getLength()];
