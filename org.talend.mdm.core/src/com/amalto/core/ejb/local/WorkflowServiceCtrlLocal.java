@@ -86,6 +86,12 @@ public interface WorkflowServiceCtrlLocal
    public java.util.Collection getTaskList( org.ow2.bonita.facade.uuid.ProcessInstanceUUID instanceUUID ) throws com.amalto.core.util.XtentisException;
 
    /**
+    * Get Task List
+    * @throws XtentisException
+    */
+   public java.util.Collection getTaskList( java.lang.String userId,org.ow2.bonita.facade.runtime.ActivityState taskState ) throws com.amalto.core.util.XtentisException;
+
+   /**
     * Get Task State
     * @throws XtentisException
     */
@@ -110,6 +116,12 @@ public interface WorkflowServiceCtrlLocal
    public void resumeTask( org.ow2.bonita.facade.uuid.ActivityInstanceUUID taskUUID ) throws com.amalto.core.util.XtentisException;
 
    /**
+    * Execute Task
+    * @throws XtentisException
+    */
+   public void executeTask( org.ow2.bonita.facade.uuid.ActivityInstanceUUID taskUUID ) throws com.amalto.core.util.XtentisException;
+
+   /**
     * Finish Task
     * @throws XtentisException
     */
@@ -120,6 +132,24 @@ public interface WorkflowServiceCtrlLocal
     * @throws XtentisException
     */
    public void setActivityInstanceVariable( org.ow2.bonita.facade.uuid.ActivityInstanceUUID taskUUID,java.lang.String variableName,java.lang.Object variableValue ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Get Activity Instance Variables
+    * @throws XtentisException
+    */
+   public java.util.Map getActivityInstanceVariables( org.ow2.bonita.facade.uuid.ActivityInstanceUUID activityInstanceUUID ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Get Process Data Fields
+    * @throws XtentisException
+    */
+   public java.util.Set getProcessDataFields( org.ow2.bonita.facade.uuid.ProcessDefinitionUUID processDefinitionUUID ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Get Activity Data Fields
+    * @throws XtentisException
+    */
+   public java.util.Set getActivityDataFields( org.ow2.bonita.facade.uuid.ActivityInstanceUUID taskUUID ) throws com.amalto.core.util.XtentisException;
 
    /**
     * To be Implemented. Returns the unique JNDI name of the service. The JNDI name must be of the type amalto/local/service/[NAME] where [NAME] matchs the pattern "[a-zA-Z][a-zA-Z0-9]*" and is unique accross services

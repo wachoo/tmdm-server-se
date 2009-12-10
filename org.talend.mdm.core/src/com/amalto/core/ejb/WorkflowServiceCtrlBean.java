@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
@@ -168,6 +169,17 @@ public abstract class WorkflowServiceCtrlBean extends ServiceCtrlBean implements
      */
 	public abstract Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID) throws XtentisException;
 	
+	
+	/**
+	 * Get Task List
+	 * 
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+	public abstract Collection<TaskInstance> getTaskList(String userId,ActivityState taskState) throws XtentisException;
+	
 	/**
 	 * Get Task State
 	 * @throws XtentisException
@@ -206,6 +218,16 @@ public abstract class WorkflowServiceCtrlBean extends ServiceCtrlBean implements
      * @ejb.facade-method 
      */
 	public abstract void resumeTask(ActivityInstanceUUID taskUUID) throws XtentisException;
+	
+	/**
+	  * Execute Task
+	  * @throws XtentisException
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public abstract void executeTask(ActivityInstanceUUID taskUUID) throws XtentisException;
+	 
 	/**
 	 * Finish Task
 	 * 
@@ -225,6 +247,33 @@ public abstract class WorkflowServiceCtrlBean extends ServiceCtrlBean implements
      * @ejb.facade-method 
      */
 	public abstract void setActivityInstanceVariable(ActivityInstanceUUID taskUUID,String variableName,Object variableValue) throws XtentisException;
+	
+	/**
+	  * Get Activity Instance Variables
+	  * @throws XtentisException 
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	public abstract Map<String, Object> getActivityInstanceVariables(ActivityInstanceUUID activityInstanceUUID) throws XtentisException;
+	
+	/**
+	  * Get Process Data Fields
+	  * @throws XtentisException
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+    public abstract Set<DataFieldDefinition> getProcessDataFields(ProcessDefinitionUUID processDefinitionUUID) throws XtentisException;
+    
+    /**
+	  * Get Activity Data Fields
+	  * @throws XtentisException
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	public abstract Set<DataFieldDefinition> getActivityDataFields(ActivityInstanceUUID taskUUID) throws XtentisException; 
     
     
 }

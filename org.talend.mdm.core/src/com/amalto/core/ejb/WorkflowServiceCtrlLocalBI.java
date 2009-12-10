@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.runtime.ActivityState;
 import org.ow2.bonita.facade.runtime.ProcessInstance;
@@ -113,6 +114,11 @@ public interface WorkflowServiceCtrlLocalBI extends ServiceCtrlLocalBI{
 	 */
 	public abstract Collection<TaskInstance> getTaskList(ProcessInstanceUUID instanceUUID) throws XtentisException;
 	
+	/**
+	 * Get Task List 
+     */
+	public abstract Collection<TaskInstance> getTaskList(String userId,ActivityState taskState) throws XtentisException;
+	
 	 /**
 	  * Get Task State
 	  */
@@ -131,6 +137,11 @@ public interface WorkflowServiceCtrlLocalBI extends ServiceCtrlLocalBI{
 	  * Resume Task
 	  */
 	public abstract void resumeTask(ActivityInstanceUUID taskUUID) throws XtentisException;
+	
+	/**
+	  * Execute Task
+	  */
+	public abstract void executeTask(ActivityInstanceUUID taskUUID) throws XtentisException;
 	/**
 	  * Finish Task
 	  */
@@ -140,4 +151,19 @@ public interface WorkflowServiceCtrlLocalBI extends ServiceCtrlLocalBI{
 	  * Set Activity Instance Variable
 	  */
 	public abstract void setActivityInstanceVariable(ActivityInstanceUUID taskUUID,String variableName,Object variableValue) throws XtentisException;
+	
+	/**
+	  * Get Activity Instance Variables
+	  */
+	public abstract Map<String, Object> getActivityInstanceVariables(ActivityInstanceUUID activityInstanceUUID) throws XtentisException;
+	
+	/**
+	  * Get Process Data Fields
+	  */
+   public abstract Set<DataFieldDefinition> getProcessDataFields(ProcessDefinitionUUID processDefinitionUUID) throws XtentisException;
+   
+   /**
+	 * Get Activity Data Fields
+	 */
+   public abstract Set<DataFieldDefinition> getActivityDataFields(ActivityInstanceUUID taskUUID) throws XtentisException; 
 }
