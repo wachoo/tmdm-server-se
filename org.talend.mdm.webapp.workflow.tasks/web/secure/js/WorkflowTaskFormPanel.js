@@ -116,7 +116,10 @@ Ext.extend(amalto.workflowtasks.WorkflowTaskFormPanel, Ext.Panel, {
 				            name : dataFieldDefinition.name+"_"+this.activityUUID,
 				            xtype:"hidden",
 				            hidden:true,  
-                            hiddenLabel:true  
+                            hiddenLabel:true,
+                            dataTypeClassName:dataFieldDefinition.dataTypeClassName,
+							isActivityVariable:dataFieldDefinition.activityVariable,
+							initialValue:dataFieldDefinition.initialValue
 						 });		
 			}
 						 
