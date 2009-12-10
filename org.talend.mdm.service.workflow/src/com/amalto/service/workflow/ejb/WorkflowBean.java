@@ -3,10 +3,8 @@ package com.amalto.service.workflow.ejb;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +14,8 @@ import javax.security.auth.login.LoginContext;
 
 import org.exolab.castor.xml.Unmarshaller;
 import org.ow2.bonita.facade.def.element.BusinessArchive;
+import org.ow2.bonita.facade.def.majorElement.ActivityDefinition;
+import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition;
 import org.ow2.bonita.facade.def.majorElement.ProcessDefinition.ProcessState;
 import org.ow2.bonita.facade.exception.InstanceNotFoundException;
@@ -548,6 +548,25 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 	 }
 	 
 	 /**
+	  * Get Task List
+	  * @throws XtentisException
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public Collection<TaskInstance> getTaskList(String userId,ActivityState taskState) throws XtentisException  {
+		 
+		Collection<TaskInstance> activities=null;		
+		try {
+			activities = AccessorUtil.getAPIAccessor().getQueryRuntimeAPI().getTaskList(userId, taskState);	
+		} catch (Exception e) {
+			throw new XtentisException(e);
+		}
+		return activities;
+
+	 }
+	 
+	 /**
 	  * Get Task State
 	  * @throws XtentisException
 	  *
@@ -597,6 +616,7 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 			}
 	 }
 	 
+	 
 	 /**
 	  * Resume Task
 	  * @throws XtentisException
@@ -612,7 +632,20 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 			}
 	 }
 	 
-	
+	 /**
+	  * Execute Task
+	  * @throws XtentisException
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public void executeTask(ActivityInstanceUUID taskUUID) throws XtentisException  {
+		    try {
+				AccessorUtil.getAPIAccessor().getRuntimeAPI().executeTask(taskUUID, true);				
+			} catch (Exception e) {
+				throw new XtentisException(e);
+			}
+	 }
 	 
 	 /**
 	  * Finish Task
@@ -645,11 +678,83 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
 		}
 
 	 }
+	 
+	 /**
+	  * Get Activity Instance Variables
+	  * @throws XtentisException 
+	  *
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public Map<String, Object> getActivityInstanceVariables(ActivityInstanceUUID activityInstanceUUID) throws XtentisException {
+		 
+		Map<String, Object> instanceVariables=null;
+		try {
+			instanceVariables=AccessorUtil.getAPIAccessor().getQueryRuntimeAPI().getActivityInstanceVariables(activityInstanceUUID);
+		} catch (Exception e) {
+			throw new XtentisException(e);
+		}
+		return instanceVariables;
 
-
-	
+	 }
 	 
 	 
+	 
+	 /**
+	  * Get Process Data Fields
+	  * @throws XtentisException
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public Set<DataFieldDefinition> getProcessDataFields(ProcessDefinitionUUID processDefinitionUUID) throws XtentisException {
+		 
+		 Set<DataFieldDefinition> processDataFields = null;
+		 
+		 try {
+			
+			ProcessDefinition processDefinition = AccessorUtil.getAPIAccessor().getQueryDefinitionAPI().getProcess(processDefinitionUUID);
+			
+			processDataFields = processDefinition.getDataFields();
+			
+		} catch (Exception e) {
+			throw new XtentisException(e);
+		}
+		
+		
+		return processDataFields;
 
+	}
+	 
+	 /**
+	  * Get Activity Data Fields
+	  * @throws XtentisException
+	  *
+	  * @ejb.interface-method view-type = "both"
+	  * @ejb.facade-method
+	  */
+	 public Set<DataFieldDefinition> getActivityDataFields(ActivityInstanceUUID taskUUID) throws XtentisException {
+		 
+		 Set<DataFieldDefinition> activityDataFields=null;
+		 
+		 try {
+			TaskInstance activity=AccessorUtil.getAPIAccessor().getQueryRuntimeAPI().getTask(taskUUID);
+			
+			ActivityDefinition activityDefinition = activity.getActivityDefinition();
+			
+			activityDataFields=activityDefinition.getDataFields();
+			
+			
+		} catch (Exception e) {
+			throw new XtentisException(e);
+		}
+		
+		
+		return activityDataFields;
+
+	}
+	 
 	
 }
+
