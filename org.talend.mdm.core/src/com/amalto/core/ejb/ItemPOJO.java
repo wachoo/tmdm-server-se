@@ -460,7 +460,7 @@ public class ItemPOJO implements Serializable{
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
     	//} else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
-    	}else if(XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId()) ||user.userItemCanWrite(adminLoad(itemPOJOPK))){ //aiming modify see 10027
+    	}else if(XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId()) ||user.userItemCanWrite(adminLoad(itemPOJOPK),itemPOJOPK.getDataClusterPOJOPK().getUniqueId(),itemPOJOPK.getConceptName())){ //aiming modify see 10027
     		authorized = true;
     	}
     	
@@ -525,7 +525,7 @@ public class ItemPOJO implements Serializable{
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
     	//} else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
-    	}else if(XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId()) ||user.userItemCanWrite(adminLoad(itemPOJOPK))){ //aiming modify see 10027    		
+    	}else if(XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId()) ||user.userItemCanWrite(adminLoad(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId(),itemPOJOPK.getConceptName())){ //aiming modify see 10027    		
     		authorized = true;
     	}
     	
@@ -705,7 +705,7 @@ public class ItemPOJO implements Serializable{
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
     	//} else if (user.userCanWrite(ItemPOJO.class, getItemPOJOPK().getUniqueID())) {
-    	}else if(XSystemObjects.isExist(XObjectType.DATA_CLUSTER, getItemPOJOPK().getDataClusterPOJOPK().getUniqueId()) ||user.userItemCanWrite(adminLoad(getItemPOJOPK()))){ //aiming modify see 10027    		
+    	}else if(XSystemObjects.isExist(XObjectType.DATA_CLUSTER, getItemPOJOPK().getDataClusterPOJOPK().getUniqueId()) ||user.userItemCanWrite(adminLoad(getItemPOJOPK()),getItemPOJOPK().getDataClusterPOJOPK().getUniqueId(),getItemPOJOPK().getConceptName())){ //aiming modify see 10027    		
     		authorized = true;
     	}
     	

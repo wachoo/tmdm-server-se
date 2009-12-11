@@ -532,7 +532,7 @@ public class DroppedItemPOJO implements Serializable{
     		
     		if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
         		authorized = true;
-        	} else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, refItemPOJOPK.getDataClusterPOJOPK().getUniqueId()) || user.userItemCanWrite(ItemPOJO.adminLoad(refItemPOJOPK))) {
+        	} else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, refItemPOJOPK.getDataClusterPOJOPK().getUniqueId()) || user.userItemCanWrite(ItemPOJO.adminLoad(refItemPOJOPK),refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(),refItemPOJOPK.getConceptName())) {
         		authorized = true;
         	}
     		
