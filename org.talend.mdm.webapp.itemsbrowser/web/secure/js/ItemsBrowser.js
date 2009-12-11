@@ -2431,7 +2431,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var store = new Ext.data.Store({
 				proxy: new Ext.ux.data.ImprovedDWRProxy({
 			        dwrFunction: ItemsBrowserInterface.getForeignKeyList,
-			        dwrAdditional: [xpathForeignKey, ""] //, Ext.getCmp('foreign-key-filter').getValue()]}
+			        dwrAdditional: [xpathForeignKey, xpathInfoForeignKey ] //, Ext.getCmp('foreign-key-filter').getValue()]}
 				}),
 		        reader: new Ext.data.JsonReader({
 		            root: 'rows',

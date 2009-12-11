@@ -1344,7 +1344,7 @@ public class ItemsBrowserDWR {
 					//add by ymli. retrieve the correct results according value. fig bug:0010481					
 					if(keys.matches("(?i)"+value)||infos.matches("(?i)"+value)||keys.indexOf("["+value)!=-1||infos.indexOf(value)!=-1){
 						row.put("keys", keys);
-//						row.put("infos", infos);
+						row.put("infos", infos);
 						rows.put(row);
 					}
 				}
