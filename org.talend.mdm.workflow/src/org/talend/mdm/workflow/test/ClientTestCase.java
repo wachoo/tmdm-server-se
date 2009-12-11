@@ -10,6 +10,7 @@ import junit.framework.TestCase;
 
 import org.ow2.bonita.util.BonitaConstants;
 import org.ow2.bonita.util.SimpleCallbackHandler;
+import org.talend.mdm.workflow.client.TalendMDMChecker;
 import org.talend.mdm.workflow.client.TalendMDMItemUpdater;
 import org.talend.mdm.workflow.client.TalendMDMUserFinder;
 
@@ -18,19 +19,34 @@ public class ClientTestCase extends TestCase{
 	private LoginContext loginContext;
 	private String login = "user";
 	private String password = "user";
+	private String host = "localhost";
 	
     protected void setUp() throws Exception {
 	    System.setProperty(BonitaConstants.API_TYPE_PROPERTY, "EJB2");
 	    System.setProperty(BonitaConstants.INITIAL_CONTEXT_FACTORY_PROPERTY, "org.jnp.interfaces.NamingContextFactory");
-	    System.setProperty(BonitaConstants.PROVIDER_URL_PROPERTY, "jnp://localhost:1099");
+	    System.setProperty(BonitaConstants.PROVIDER_URL_PROPERTY, "jnp://192.168.0.59:1099");
 	    System.setProperty(BonitaConstants.JAAS_PROPERTY, "resources/jaas-jboss.cfg");
 	    this.loginContext = new LoginContext("Bonita", new SimpleCallbackHandler(login, password));
 	    this.loginContext.login();
     }
+    
+    public void testValidate() {
+		// mock
+		String url = "http://"+host+":8080/talend/TalendPort";//get from variable named 'MDM_url', passed by MDM Trigger
+		String universe = "";//get from variable named 'MDM_universe', passed by MDM Trigger
+		
+		TalendMDMChecker MDMChecker = new TalendMDMChecker(url, universe);
+		try {
+			MDMChecker.validate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
 		
 	public  void testUpdateItem() {
 		  //mock
-		  String url="http://localhost:8080/talend/TalendPort";//get from variable named 'MDM_url', passed by MDM Trigger
+		  String url="http://"+host+":8080/talend/TalendPort";//get from variable named 'MDM_url', passed by MDM Trigger
 		  String universe="";//get from variable named 'MDM_universe', passed by MDM Trigger
 		  
 		  String dataCluster="Order";//get from variable named 'MDM_dataCluster', passed by MDM Trigger
@@ -57,11 +73,11 @@ public class ClientTestCase extends TestCase{
 
 	}
 	
-	public  void testfindUsers() {
+	public void testfindUsers() {
 		// mock
 		String roleId="Order_User";
 		
-		String url = "http://localhost:8080/talend/TalendPort";//get from variable named 'MDM_url', passed by MDM Trigger
+		String url = "http://"+host+":8080/talend/TalendPort";//get from variable named 'MDM_url', passed by MDM Trigger
 		String universe = "";//get from variable named 'MDM_universe', passed by MDM Trigger
 
 		// call
@@ -76,7 +92,6 @@ public class ClientTestCase extends TestCase{
 		assertEquals("user", users.iterator().next());
 
 	}
-	
 	
 
 }

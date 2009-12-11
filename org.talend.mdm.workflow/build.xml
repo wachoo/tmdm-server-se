@@ -48,6 +48,7 @@
 			<zipfileset dir="bin" includes="urn_com_amalto_xtentis_webservice/*.class" />
 			<zipfileset dir="bin" includes="org/talend/mdm/workflow/client/util/*.class" />
 			<zipfileset dir="bin" includes="org/talend/mdm/workflow/client/*.class" />
+			<zipfileset dir="bin" includes="wsdl/*.*" />
 		</jar>
    		
     </target>
