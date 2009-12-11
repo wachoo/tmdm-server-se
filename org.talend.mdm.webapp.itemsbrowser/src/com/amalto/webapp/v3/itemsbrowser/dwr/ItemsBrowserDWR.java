@@ -476,7 +476,7 @@ public class ItemsBrowserDWR {
 						if(nodeList.item(i).getFirstChild()!=null)
 						{
 							treeNodeTmp.setValue(nodeList.item(i).getFirstChild().getNodeValue());
-							setForeignKeyValueInfoToTreeNode(xpath, treeNodeTmp, d, nodeList.item(i).getFirstChild().getNodeValue());
+//							setForeignKeyValueInfoToTreeNode(xpath, treeNodeTmp, d, nodeList.item(i).getFirstChild().getNodeValue());
 						}
 						treeNodeTmp.setNodeId(nodeCount);
 						// TODO check addThisNode
@@ -498,7 +498,7 @@ public class ItemsBrowserDWR {
 						nodeAutorization.add(xpath);
 					idToXpath.put(nodeCount,xpath);
 					treeNode.setValue(StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath)));
-					setForeignKeyValueInfoToTreeNode(xpath, treeNode, d, Util.getFirstTextNode(d,xpath));	
+//					setForeignKeyValueInfoToTreeNode(xpath, treeNode, d, Util.getFirstTextNode(d,xpath));	
 		    		if(treeNode.isVisible()==true){
 		    			list.add(treeNode);    			
 		    			nodeCount++; 
@@ -1344,7 +1344,7 @@ public class ItemsBrowserDWR {
 					//add by ymli. retrieve the correct results according value. fig bug:0010481					
 					if(keys.matches("(?i)"+value)||infos.matches("(?i)"+value)||keys.indexOf("["+value)!=-1||infos.indexOf(value)!=-1){
 						row.put("keys", keys);
-						row.put("infos", infos);
+//						row.put("infos", infos);
 						rows.put(row);
 					}
 				}
@@ -1822,8 +1822,9 @@ public class ItemsBrowserDWR {
     }
     
     
-    private void parseMetaDataTypes(Document doc, String concept, HashMap<String, ArrayList<String>> metaDataTypes) throws Exception
+    private void parseMetaDataTypes(Document doc, String concept, HashMap<String, ArrayList<String>> metaDataTypes, String hierarchicalName) throws Exception
     {
+    	String hierarchy = hierarchicalName != null && !hierarchicalName.equals("")? hierarchicalName + "/" : hierarchicalName;
 		NodeList nodeList = Util.getNodeList(doc, "//xsd:element[@name='" + concept + "']");
 		for(int i = 0; i < nodeList.getLength(); i++)
 		{
@@ -1859,6 +1860,37 @@ public class ItemsBrowserDWR {
 					name = elem.getAttributes().getNamedItem("name").getNodeValue();
 				}
 				
+				if(name.equals("") && type.equals("") )
+				{
+					String ref = elem.getAttributes().getNamedItem("ref").getNodeValue();
+					Pattern refDoc = Pattern.compile("(.*?):(.*?)");
+					Matcher match = refDoc.matcher(ref);
+					if(match.matches())
+					{
+						String prefix = match.group(1);
+						String refName = match.group(2);
+						String refUrl = doc.getDocumentElement().getAttributes().getNamedItem("xmlns:" + prefix).getNodeValue();
+						NodeList importList = Util.getNodeList(doc, "./xsd:import[@namespace='" + refUrl + "']");
+						NodeList includeList = Util.getNodeList(doc, "./xsd:include");
+						if(importList.getLength() > 0)
+						{
+							Node imp = importList.item(0);
+							String schemaLocation = imp.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+							Document impDoc = Util.parseImportedFile(schemaLocation);
+							parseMetaDataTypes(impDoc, refName, metaDataTypes, (hierarchy == null ? "" : hierarchy ) + refName);
+						}
+						else if(includeList.getLength() > 0)
+						{
+							for (int includeIdx = 0; includeIdx < includeList.getLength(); includeIdx++)
+							{
+								Node incud = includeList.item(0);
+								String schemaLocation = incud.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+								Document incudDoc = Util.parseImportedFile(schemaLocation);
+								parseMetaDataTypes(incudDoc, refName, metaDataTypes, (hierarchy == null ? "" : hierarchy ) + refName);
+							}
+						}
+					}
+				}
 				if(Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").getLength() > 0)
 				{
 					foreignKey = Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").item(0).getTextContent();
@@ -1881,20 +1913,20 @@ public class ItemsBrowserDWR {
 				{
 					ArrayList<String> contents = new ArrayList<String>();
 					contents.add(type);
-					metaDataTypes.put(name, contents);
+					metaDataTypes.put((hierarchy == null ? "" : hierarchy ) + name, contents);
 				}
-				else
+				else if(!type.equals(""))
 				{
 					ArrayList<String> typeInfo = new ArrayList<String>();
 					if(Util.findXSDSimpleTypeInDocument(doc, elem, type, typeInfo))
 					{
-						metaDataTypes.put(name, typeInfo);
+						metaDataTypes.put((hierarchy == null ? "" : hierarchy )  + name, typeInfo);
 					}
 					else
 					{
 						// meet a complex type
 						typeInfo.add(0, "complex type");
-						metaDataTypes.put(name, typeInfo);
+						metaDataTypes.put((hierarchy == null ? "" : hierarchy ) + name, typeInfo);
 					}
 				}
 			}
@@ -1902,7 +1934,7 @@ public class ItemsBrowserDWR {
 		}
 		
 		NodeList importList = null;
-		for (int nm = 0; nm < 2; nm++)
+		for (int nm = 0; nm < 2 && nodeList.getLength() == 0; nm++)
 		{
 			if (nm == 0) {
 				importList = Util.getNodeList(doc, "//xsd:import");
@@ -1913,7 +1945,7 @@ public class ItemsBrowserDWR {
     		{
     			String location = importList.item(i).getAttributes().getNamedItem("schemaLocation").getNodeValue();
     			Document subDoc = Util.parseImportedFile(location);
-    			parseMetaDataTypes(subDoc, concept, metaDataTypes);
+    			parseMetaDataTypes(subDoc, concept, metaDataTypes, hierarchy);
     		}
 		}
     }
@@ -1931,7 +1963,7 @@ public class ItemsBrowserDWR {
 		Document doc = Util.parse(xsd);
 		NodeList nodeList = Util.getNodeList(doc, "//xsd:element[@name='" + concept + "']");
 
-		parseMetaDataTypes(doc, concept, metaDataTypes);
+		parseMetaDataTypes(doc, concept, metaDataTypes, null);
 
 		return metaDataTypes;
 	}

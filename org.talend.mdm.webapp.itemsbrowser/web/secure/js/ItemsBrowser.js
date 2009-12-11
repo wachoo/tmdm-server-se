@@ -1744,15 +1744,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			 $('errorDesc' + treeIndex).style.display = "none";
 		}
 		
-		if(node.itemData.foreignKey != null)
-		{
-			var realValue = value.split("--")[0];
-			if(realValue != null)
-			{
-				value = realValue;
-			}
-		}
-		
 		ItemsBrowserInterface.updateNode(id,value,treeIndex,function(result){
 			amalto.core.ready(result);
 		});
@@ -2440,7 +2431,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var store = new Ext.data.Store({
 				proxy: new Ext.ux.data.ImprovedDWRProxy({
 			        dwrFunction: ItemsBrowserInterface.getForeignKeyList,
-			        dwrAdditional: [xpathForeignKey, xpathInfoForeignKey ] //, Ext.getCmp('foreign-key-filter').getValue()]}
+			        dwrAdditional: [xpathForeignKey, ""] //, Ext.getCmp('foreign-key-filter').getValue()]}
 				}),
 		        reader: new Ext.data.JsonReader({
 		            root: 'rows',
@@ -2479,7 +2470,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		        itemSelector: 'div.search-item',
 		        onSelect: function(record){
                     this.collapse();
-                	DWRUtil.setValue(nodeId+'Value', record.get("keys")+"--"+record.get("infos"));
+                	DWRUtil.setValue(nodeId+'Value', record.get("keys"));//+"--"+record.get("infos"));
                 	updateNode(nodeId,treeIndex);
 		        	foreignKeyWindow.hide();
 		        }
