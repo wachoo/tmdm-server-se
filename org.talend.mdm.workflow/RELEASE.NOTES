@@ -84,9 +84,11 @@ org.talend.mdm.webapp.workflow.tasks: todo tasks list for workflow users
    
 3. Define a routing rule to call the generated transformer
 
-4. Create/Update/Delete item in MDM to trigger a route rule and then start a approval process automatically
+4. Configure the connection info of the workflow service( measns where is your workflow runtime engine )
 
-5. The users can use a web-app 'workflow tasks' to handle the approval forms
+5. Create/Update/Delete item in MDM to trigger a route rule and then start a approval process automatically
+
+6. The users can use a web-app 'workflow tasks' to handle the approval forms
  
-6. At the end , of course you can use workflow console on workbench to management all processes and tasks 
+7. At the end , of course you can use workflow console on workbench to management all processes and tasks 
  
