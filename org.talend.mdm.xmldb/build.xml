@@ -59,11 +59,7 @@
 		
     <target name="undeploy" description="--> remove packages">		
 		<delete>
-			<fileset dir="${jboss.instance.lib}" includes="z.xtentis.MDM-xmldb.ejb.jar"/>
 			<fileset dir="${jboss.instance.lib}" includes="${jar}"/>
-			<fileset dir="${jboss.instance.lib}" includes="z.exist*.*"/>
-			<fileset dir="${jboss.instance.lib}" includes="z.xmlrpc*.*"/>
-			<fileset dir="${jboss.instance.lib}" includes="z.xmdb*.*"/>
 		</delete>
     </target>
 	
@@ -71,9 +67,6 @@
 		<property file="${version.props}" />
 		<echo>Deploying ${major}.${minor}.${rev}-${build.number}</echo>
 		<copy file="${jar}" tofile="${jboss.instance.lib}/${jar}"/>
-		<copy todir="${jboss.instance.lib}">
-			<fileset dir="lib-1.2.6/common" includes="*.jar"/>
-		</copy>
 	</target>
 
   
