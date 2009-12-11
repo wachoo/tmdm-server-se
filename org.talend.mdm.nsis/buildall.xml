@@ -154,7 +154,7 @@
    			<fileset dir="${jboss.dir}">   						
    			</fileset>
    		</copy>
-		<unjar dest="${tmp.dir}/openMDM" src="src/resources/jre-1.5.0_windows.zip"></unjar>
+		<unjar dest="${tmp.dir}/openMDM" src="src/resources/jre6.zip"></unjar>
 		<!-- generate open mdm -->
 		<antcall target="generate.openMDM.exe"/>
 		
@@ -187,7 +187,7 @@
    			<fileset dir="${jboss.dir}">			
    			</fileset>
    		</copy>
-		<unjar dest="${tmp.dir}/openMDM" src="src/resources/jre-1.5.0_windows.zip"></unjar>
+		<unjar dest="${tmp.dir}/openMDM" src="src/resources/jre6.zip"></unjar>
 
    		<copy todir="${tmp.dir}/openMDM">
    			<fileset dir="src/resources">
