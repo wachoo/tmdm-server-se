@@ -401,14 +401,22 @@ public class LocalUser {
      * @return
      * @throws XtentisException
      */
-    public boolean userItemCanWrite(ItemPOJO item)throws XtentisException{
+    public boolean userItemCanWrite(ItemPOJO item,String datacluster, String concept)throws XtentisException{
     	if(item==null){  //if create item
     		HashSet<String> patterns = readOnlyPermissions.get("Item");
     		if(patterns!=null && patterns.size()>0){
 	    		for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
 	    			String pattern = iterator.next();
 	    			//patterns maybe 1.{datacluster}.{concept}.* 
-	    			if(pattern.indexOf("=")==-1 &&  pattern.endsWith(".*") && Pattern.matches("(.*?)\\.(.*?)\\.(.*?)",pattern)){
+	    			Pattern p=Pattern.compile("(.*?)\\.(.*?)\\.(.*?)");
+	    			Matcher m=p.matcher(pattern);
+	    			String cluster="";
+	    			String conceptName="";
+	    			if(m.matches()){
+	    				cluster=m.group(1);
+	    				conceptName=m.group(2);
+	    			}
+	    			if(pattern.indexOf("=")==-1 &&  pattern.endsWith(".*") && cluster.equals(datacluster) && conceptName.equals(concept)){
 	    				return false;
 	    			}
 	    		}
@@ -477,7 +485,7 @@ public class LocalUser {
     		return true;
     	}    	
 		if (isAdmin(ItemPOJO.class)) return true;		
-		if(userItemCanWrite(item)) return true;
+		if(userItemCanWrite(item,null,null)) return true;
 		HashSet<String> patterns = readOnlyPermissions.get("Item");
 		if(patterns==null || patterns.size()==0) return false;
 			
