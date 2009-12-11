@@ -1,0 +1,22 @@
+<menu-pOJO>
+    <menu-entries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:com.amalto.core.objects.menu.ejb.MenuEntryPOJO">
+        <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+            <key xsi:type="java:java.lang.String">fr</key>
+            <value xsi:type="java:java.lang.String">Tâches de Workflow</value>
+        </descriptions>
+        <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+            <key xsi:type="java:java.lang.String">en</key>
+            <value xsi:type="java:java.lang.String">Workflow Tasks</value>
+        </descriptions>
+        <application>WorkflowTasks</application>
+        <context>workflowtasks</context>
+        <id>WorkflowTasks</id>
+    </menu-entries>
+    <name>WorkflowTasks</name>
+    <description/>
+    <PK>
+        <ids>WorkflowTasks</ids>
+        <unique-id>WorkflowTasks</unique-id>
+    </PK>
+    <last-error/>
+</menu-pOJO>

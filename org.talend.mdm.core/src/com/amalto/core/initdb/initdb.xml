@@ -58,7 +58,7 @@
 		</item>			
 		<item>
 			<name>amaltoOBJECTSMenu</name>
-			<list>menu/Browse+items;menu/Browse+views;menu/Cross+Referencing;menu/Hierarchical+View;menu/ItemsTrash;menu/logging;menu/Manage+users;menu/Reporting;menu/Service+Schedule;menu/smtp;menu/SynchronizationAction;menu/SynchronizationItem;menu/Universe+Manager;menu/UpdateReport</list>			
+			<list>menu/Browse+items;menu/Browse+views;menu/Cross+Referencing;menu/Hierarchical+View;menu/ItemsTrash;menu/logging;menu/Manage+users;menu/Reporting;menu/Service+Schedule;menu/smtp;menu/SynchronizationAction;menu/SynchronizationItem;menu/Universe+Manager;menu/UpdateReport;menu/WorkflowTasks</list>			
 		</item>	
 		<item>
 			<name>amaltoOBJECTSRole</name>
