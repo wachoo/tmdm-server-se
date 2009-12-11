@@ -116,7 +116,7 @@ public class WorkflowBean extends WorkflowServiceCtrlBean  implements SessionBea
      * @ejb.facade-method 
      */
     public boolean checkConfigure(String conf) throws XtentisException {
-    	//TODO
+    	getProcessDefinitions();
 		return true;
 	}
     
