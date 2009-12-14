@@ -421,7 +421,29 @@ public class LocalUser {
 	    			}
 	    		}
     		}
-    		return true;
+    		 patterns = readWritePermissions.get("Item");
+    		if(patterns!=null && patterns.size()>0){
+	    		for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
+	    			String pattern = iterator.next();
+	    			//patterns maybe 1.{datacluster}.{concept}.* 
+	    			Pattern p=Pattern.compile("(.*?)\\.(.*?)\\.(.*?)");
+	    			Matcher m=p.matcher(pattern);
+	    			String cluster="";
+	    			String conceptName="";
+	    			String elementName="";
+	    			if(m.matches()){
+	    				cluster=m.group(1);
+	    				conceptName=m.group(2);
+	    				elementName=m.group(3);
+	    			}
+	    			if(pattern.indexOf("=")==-1 &&  pattern.endsWith(".*")&& cluster.equals(datacluster) && conceptName.equals(concept)){
+	    				return true;
+	    			}
+	    			if(!elementName.equals("")&& pattern.endsWith("=*")&&cluster.equals(datacluster) && conceptName.equals(concept))
+	    				return true;
+	    		}
+    		}    		
+    		return false;
     	}
     	//system datacluster don't need to check    	
     	if(XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER, item.getDataClusterPOJOPK().getIds()[0])){
