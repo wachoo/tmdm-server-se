@@ -33,6 +33,7 @@ import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import sun.misc.BASE64Decoder;
 
@@ -982,6 +983,31 @@ public class XtentisRMIPort implements XtentisPort {
    				conceptKey
 			);										
 			DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
+			
+			// update the item using new field values 
+			// load the item first if itemkey provided
+			if(wsPutItem.getIsUpdate()){
+				if(itemKeyValues.length>0){
+					ItemPOJO pj=new ItemPOJO(
+							dcpk,
+							concept,
+							itemKeyValues,
+							System.currentTimeMillis(),
+							projection
+					);
+					String revisionId=LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
+					pj=ItemPOJO.load(revisionId, pj.getItemPOJOPK(),false);				
+					if(pj!=null){// get the new projection
+						// get updated path			
+						Node old=pj.getProjection();
+						Node newNode=root;					
+						HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
+						old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
+						String newProjection=Util.getXMLStringFromNode(old);
+						projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
+					}		
+				}
+			}
 			
 			ItemPOJOPK itemPOJOPK =  
 				com.amalto.core.util.Util.getItemCtrl2Local().putItem(
