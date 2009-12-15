@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Enterprice
+Bundle-SymbolicName: org.talend.mdm.workbench.enterprice;singleton:=true
+Bundle-Version: 3.2.0.qualifier
+Bundle-Activator: org.talend.mdm.workbench.enterprice.Activator
+Bundle-Vendor: .Talend SA.
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.ui.forms;bundle-version="3.3.100",
+ org.talend.mdm.workbench;bundle-version="3.2.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: META-INF/lib/commons-httpclient-2.0.2.jar,
+ .,
+ META-INF/lib/castor-1.1-xml.jar
