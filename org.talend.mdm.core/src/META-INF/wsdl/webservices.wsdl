@@ -1269,6 +1269,15 @@
 		<part name="processlist" element="tns:WSProcessInstanceArray"></part>
 	</message>
 	
+	
+	<message name="workflowDeleteProcessInstancesRequest">
+	    <part name="deleteWolkflowRequest" element="tns:WSWorkflowDeleteProcessInstancesRequest"></part>
+	</message>
+	<message name="workflowDeleteProcessInstancesResponse">
+		<part name="deleteWolkflowResponse" element="tns:WSBoolean"></part>
+	</message>
+	
+	
 	<message name="getMDMJobRequest">
 	  <part name="mdmJobRequest" element="tns:WSMDMNULL"></part>
 	</message>
@@ -2067,6 +2076,11 @@
 		<operation name="workflowGetProcessInstances">
             <input message="tns:workflowGetProcessInstancesRequest"/>
 			<output message="tns:workflowGetProcessInstancesResponse"/>
+		</operation>
+		
+		<operation name="workflowDeleteProcessInstances">
+            <input message="tns:workflowDeleteProcessInstancesRequest"/>
+			<output message="tns:workflowDeleteProcessInstancesResponse"/>
 		</operation>
 		
 		<operation name="getMDMJob">
@@ -3051,6 +3065,14 @@
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
 		</operation>
+		
+		
+		<operation name="workflowDeleteProcessInstances">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		
 		<operation name="getMDMJob">
 	        <soap:operation/>
 			<input><soap:body use="literal"/></input>

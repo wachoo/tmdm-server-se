@@ -1015,6 +1015,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSProcessInstanceArray _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSBoolean workflowDeleteProcessInstances(com.amalto.core.webservice.WSWorkflowDeleteProcessInstancesRequest deleteWolkflowRequest) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSBoolean _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSMDMJobArray getMDMJob(com.amalto.core.webservice.WSMDMNULL mdmJobRequest) throws 
          java.rmi.RemoteException {
         

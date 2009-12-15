@@ -6621,6 +6621,22 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * 	role-name = "authenticated"
 	 * 	view-type = "service-endpoint"
 	 */
+    public WSBoolean workflowDeleteProcessInstances(WSWorkflowDeleteProcessInstancesRequest deleteWolkflowRequest) throws RemoteException{
+    	try {
+			Util.getWorkflowService().deleteProcessInstance(new ProcessInstanceUUID(deleteWolkflowRequest.getProcessName()));
+		} catch (XtentisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return new WSBoolean(true);
+    }
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
 	public WSProcessTaskInstanceArray workflowGetTaskList(WSWorkflowGetTaskList tasklist) throws RemoteException{
 		try {
 			Collection<TaskInstance> col=Util.getWorkflowService().getTaskList(new ProcessInstanceUUID(tasklist.getProcessinstanceuuid()));
