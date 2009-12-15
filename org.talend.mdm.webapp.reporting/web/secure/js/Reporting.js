@@ -158,6 +158,11 @@ amalto.reporting.Reporting = function () {
 		'en':'Stored procedure parameters'
 	}
 	
+	var BUTTON_ADD_FIELD = {
+		'fr':'Ajouter un fieldre',
+		'en':'Add a field'
+	}
+	
 	var BUTTON_ADD_FILTER = {
 		'fr':'Ajouter un filtre',
 		'en':'Add a filter'
@@ -657,6 +662,7 @@ amalto.reporting.Reporting = function () {
 				'	<div class="leftField">&nbsp;</div>'+
 				'	<div id="ddgrid2" style="text-align:left;border: 1px solid #c3daf9;float: left;	width:250px;height:225px;" class="ygrid-mso"></div>'+
 				'	</div>'+
+				'	<input type="button" id="addFieldBTN" value="'+BUTTON_ADD_FIELD[language]+'" onclick="amalto.reporting.Reporting.addFieldToTable();"/>' +				
 				'	<br style="clear: both;"/><br style="clear: both;"/>'+
 				' <div id="chooseFilterFields" style="display:none;">	'+
 				'	<div class="left">'+LABEL_FILTER[language]+' :</div>'+
@@ -739,6 +745,7 @@ amalto.reporting.Reporting = function () {
 		$('chooseFilterFields').style.display="inline";
 		$('choosePivot').style.display="inline";
 		$('chooseStoredProcedure').style.display="inline";
+		$('addFieldBTN').disabled = true;
 	    var businessConcept = DWRUtil.getValue('businessConceptsList');
 	    
 	    ReportingInterface.getXpathToLabel(businessConcept,language, function(result){
@@ -759,6 +766,8 @@ amalto.reporting.Reporting = function () {
 				if(reporting.storedProcedure){
 					DWRUtil.setValue('storedProcedureList',reporting.storedProcedure);
 					$('chooseStoredProcedureParams').style.display="inline";
+					$('addFieldBTN').disabled = false;
+				    fixParametersGrid(reporting.storedProcedure);
 				}
 	       });	
 	    
@@ -783,10 +792,27 @@ amalto.reporting.Reporting = function () {
 	    
 	    if(storedProcedure==''){
 	    	$('chooseStoredProcedureParams').style.display="none";
+	    	$('addFieldBTN').disabled = true;
 	    }else{
 	    	$('chooseStoredProcedureParams').style.display="inline";
+	    	$('addFieldBTN').disabled = false;
+	    	fixParametersGrid(storedProcedure);
 	    }
 		
+	}
+	
+	/**
+	 * fix the paramGrid with default parameters.
+	 */
+	function fixParametersGrid(storedProcedure) {
+		ReportingInterface.getNumberOfParamters(storedProcedure, function(result){
+    		paramGrid1.getStore().removeAll();
+	    	paramGrid1.getStore().commitChanges();
+	    	
+	    	for(var i = 0; i < result; i++) {
+	    		addParamToTable(true, i);
+	    	}
+	    });
 	}
 	
 	function saveReporting(){
@@ -807,7 +833,8 @@ amalto.reporting.Reporting = function () {
 	    store.commitChanges();
 	    for(var i=0; i<store.getCount(); i++) {
 	    	fields[i]={
-	            xpath:store.getAt(i).get('element')
+	            xpath:store.getAt(i).get('element'),
+	            field:store.getAt(i).get('element').substring(store.getAt(i).get('element').indexOf("/") + 1)
 	        };
 	    }
 	   // alert(grid1.getStore().getTotalCount());
@@ -888,6 +915,132 @@ amalto.reporting.Reporting = function () {
 		if(touche==13) saveReporting();	
 	}
 	
+	/**
+	 * add the xpathtolabel.
+	 */
+	function addFiledToXPath(xPath, label) {
+        xPathToLabel[xPath] = label;
+	}
+	
+    /**
+     * ok listener
+     */
+	function okAddFieldToTable(businessConcept, label) {
+    	var businessConcept = DWRUtil.getValue('editConceptCombo');
+ 		var label = DWRUtil.getValue('fieldsCombo');
+
+ 		if(label == ''){
+			alert("Field Name can't be empty! ");
+			return;
+ 		}
+		
+		var xpath = businessConcept != "" ? businessConcept + "/" + label : label;
+		ReportingInterface.addFieldsToXpath(xpath, label);
+		addFiledToXPath(xpath, label);
+		
+		var store = grid2.getStore();
+		var recordType = Ext.data.Record.create([
+   		  {name: "element", type: "string"}]);
+
+		orec = new recordType();
+        orec.data = {element:xpath};
+        orec.data.newRecord = true;
+        orec.commit();
+           
+    	grid2.getStore().add(orec);
+		
+		grid2.getStore().commitChanges();
+		grid2.getView().refresh();
+		
+		editFieldsWindow.hide();
+		editFieldsWindow.destroy();
+	}
+	
+	/**
+	 * add a field to grid2
+	 */
+	function addFieldToTable() {
+		this.fieldsStore = new Ext.data.Store({
+			proxy: new Ext.data.SimpleDWRProxy(ReportingInterface.getXpathToLabel),
+        	reader: new Ext.data.MapReader()
+		});
+		
+		function onBeforeloadXpathStore(){
+		    var conceptValue = DWRUtil.getValue('editConceptCombo');
+	        Ext.apply(this.fieldsStore.baseParams,{
+	          regex: conceptValue
+	        });
+		}
+		
+		this.fieldsStore.on('beforeload', 
+            function(button, event) {
+				onBeforeloadXpathStore();
+			}.createDelegate(this)
+		);
+		
+	    var editFieldPanel = new Ext.form.FormPanel({
+	         baseCls: 'x-plain',
+		     labelAlign: 'left',     
+		     xtype : "form",
+		     items : [{
+		     	name : "editConceptCombo",
+				fieldLabel : "Data Object",
+				xtype : "combo",
+				store: new Ext.data.Store({
+					proxy: new Ext.data.SimpleDWRProxy(ReportingInterface.getBusinessConcepts),
+		        	reader: new Ext.data.MapReader()
+				}),
+				displayField: 'value',
+				valueField: 'key',
+				mode:'remote',
+				triggerAction:'all',
+				editable:false,
+				listeners : {
+		    	    select : function(combo, record, index) {
+		    	 		fieldsStore.reload();
+		    	 	}.createDelegate(this)
+		     	}
+			 },{
+				name : "fieldsCombo",
+				fieldLabel : "Available fields",
+				xtype : "combo",
+				store: fieldsStore,
+				displayField: 'value',
+				valueField: 'key',
+				mode:'remote',
+				triggerAction:'all',
+				editable:true,
+				allowBlank : false
+			 }]
+		});
+        
+	    this.editFieldsWindow = new Ext.Window({
+	        title: "Fields Editor",
+	        width: 320,
+	        height:200,
+	        layout: 'fit',
+	        plain:true,
+	        bodyStyle:'padding:5px;',
+	        buttonAlign:'center',
+	        items: editFieldPanel,
+	        modal:true,
+		    buttons: [{
+	            text: "OK",
+	            handler: function(){
+		    		okAddFieldToTable();
+				}.createDelegate(this)
+	        },{
+	        	text: "CANCEL",
+	        	handler: function() {
+		    		this.editFieldsWindow.hide();
+					this.editFieldsWindow.destroy();
+	        	}.createDelegate(this)
+	        }]
+	    });
+	
+	    this.editFieldsWindow.show();
+	}
+	
 	function addFilterToTable(){ 
 		var recordType = Ext.data.Record.create([
 		  //{name: "id", type: "int"},
@@ -917,7 +1070,7 @@ amalto.reporting.Reporting = function () {
 	    filterGrid2.getStore().commitChanges();
 	}
 	
-	function addParamToTable(){ 
+	function addParamToTable(defaultParmeter, index){ 
 		var recordType = Ext.data.Record.create([
 		  //{name: "id", type: "int"},
 		  {name: "Name", type: "string"},
@@ -926,12 +1079,24 @@ amalto.reporting.Reporting = function () {
 		  ]);
 		  
 		var nrec = new recordType();
-        nrec.data = {
-        	Name:"",
-        	Description:"",
-        	Type:"",
-        	trash:''
-        };
+		
+		if(defaultParmeter) {
+			nrec.data = {
+		        	Name:"parameter" + index,
+		        	Description:"",
+		        	Type:"String",
+		        	trash:''
+		        };
+		}
+		else {
+	        nrec.data = {
+	        	Name:"",
+	        	Description:"",
+	        	Type:"",
+	        	trash:''
+	        };
+		}
+		
         nrec.data.newRecord = true;
         nrec.commit();
         paramGrid1.stopEditing();
@@ -1248,7 +1413,8 @@ amalto.reporting.Reporting = function () {
 
 	    
 	   	function renderField(val){
-	    	return xPathToLabel[val];
+	   		return  (typeof xPathToLabel[val] != "undefined") ? 
+	   		   xPathToLabel[val] : val.substring(val.indexOf("/") + 1);
 	    }
 	    
 	    function renderOperator(val){
@@ -1481,7 +1647,8 @@ amalto.reporting.Reporting = function () {
 			getTranslation2: function(){getTranslation2();},
 			addFilterToTable: function(){addFilterToTable();},
 			addParamToTable: function(){addParamToTable();},
-			saveReporting: function(){saveReporting();}
+			saveReporting: function(){saveReporting();},
+			addFieldToTable: function(){addFieldToTable();}
 	 	}
 	
 }();
