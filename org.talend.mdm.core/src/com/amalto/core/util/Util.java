@@ -322,6 +322,62 @@ public final class Util {
            throw new XtentisException(sb.toString());
          }
     }
+    /**
+     * @author ymli  fix bug 0009642
+     * if the node's minOccurs is 0, set its chirldren's minOccurs 0 to match the w3c roles
+     * @param xsdDoc
+     * @param conceptName
+     */
+    private static void setMinOccurs(Document xsdDoc, String conceptName){
+    	
+    	try {
+    		String xpath ="//xsd:element[@name='" + conceptName + "']/xsd:complexType//xsd:element";
+			NodeList nodeList = Util.getNodeList(xsdDoc.getDocumentElement(),xpath);
+			if(nodeList.getLength()==0)
+				return;
+			for(int i=0;i<nodeList.getLength();i++){
+				Node node = nodeList.item(i);
+				node.getBaseURI();
+				Node nameNode = node.getAttributes().getNamedItem("name");
+				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
+				
+				if(minOccursNode.getNodeValue().equals("0")){
+					setMinOccursDeep(xsdDoc,"//xsd:element[@name='" + nameNode.getNodeValue() + "']/xsd:complexType//xsd:element");
+				}
+			}
+			
+		} catch (XtentisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}    	
+    	
+    }
+    /**
+     * @author ymli fix bug 0009642
+     * set Parentnode's chirldren's minOccurs 0 to match the w3c roles
+     * @param Parentnode
+     * @param xPath
+     */
+    private static void setMinOccursDeep(Node Parentnode,String xPath){
+    	try {
+    		//String xPathLocal = "//xsd:element[@name='" + conceptName + "']/xsd:complexType//xsd:element";
+    		NodeList nodeList = Util.getNodeList(Parentnode,xPath );
+    		if(nodeList.getLength()==0)
+    			return;
+    		for(int i=0;i<nodeList.getLength();i++){
+				Node node = nodeList.item(i);
+				Node nodename = node.getAttributes().getNamedItem("name");
+				String name1 = nodename.getNodeValue();
+				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
+				minOccursNode.setNodeValue("0");
+				//setMinOccursDeep(node,xPathLocal+"[@name='"+name1+"']");
+    		}
+		} catch (XtentisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
     
     public static Document validate(Element element, String schema) 
     	throws Exception{
@@ -339,6 +395,15 @@ public final class Util {
 		//Schema validation based on schemaURL
 		factory.setNamespaceAware(true);
 		factory.setValidating((schema!=null));
+		
+		
+		Document xsdDoc = Util.parse(schema);
+		
+		setMinOccurs(xsdDoc, element.getLocalName());
+		
+		schema = Util.nodeToString(xsdDoc);
+		
+		
 		factory.setAttribute(
 				"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
 				"http://www.w3.org/2001/XMLSchema");
@@ -357,7 +422,12 @@ public final class Util {
 		String xmlstr=Util.nodeToString(element);
        	//if element is null, remove it aiming added 
        	//see 7828
+		
 		xmlstr=xmlstr.replaceAll("<\\w+?/>", "");
+		//xmlstr=xmlstr.replaceAll("<\\w+?>\\s+?</\\w+?>", "");
+		
+		
+		
 		if (Util.getNodeList(Util.parse(schema).getDocumentElement(),
 				"//xsd:import").getLength() > 0
 				|| Util.getNodeList(Util.parse(schema).getDocumentElement(),
@@ -366,6 +436,9 @@ public final class Util {
 			Map<String, String> outerMap = getNamespaceFromImportXSD(Util.parse(schema).getDocumentElement(), false);
 			xmlstr = addNMSpaceForImportedElement(outerMap, xmlstr);
 		}
+		
+		
+		
 		d = builder.parse(new InputSource(new StringReader(xmlstr)));
 		
 		//check if dcument parsed correctly against the schema
@@ -375,7 +448,7 @@ public final class Util {
 				String xmlString = Util.nodeToString(element); 
 				String err = "The item "+element.getLocalName()+" did not validate against the model: \n" + errors+"\n"
 					+xmlString;	//.substring(0, Math.min(100, xmlString.length()));
-				Document xsdDoc = Util.parse(schema);
+				//Document xsdDoc = Util.parse(schema);
 				Map<String, String> nsMap = Util.getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), true);
 				Iterator<Map.Entry<String, String>> iter = nsMap.entrySet().iterator();
 				boolean error = true;
@@ -485,8 +558,8 @@ public final class Util {
     		    	}
     		    	if(parentElem != targetElem)
     		    	{
-        		    	parentElem.removeChild(targetElem);
-        		    	parentElem.appendChild(newElem);
+    		    	parentElem.removeChild(targetElem);
+    		    	parentElem.appendChild(newElem);
     		    	}
     		    	else
     		    	{
@@ -1849,18 +1922,15 @@ public final class Util {
 		}
 		return null;
 	}
-	
 	/**
 	 * @return
 	 *   the username/password
 	 */
 	public static String getUsernameAndPasswordToken() {
-		
 		String token=null;
 		try {
         	String userName=null;
         	String password=null;
-        	
 			Subject subject=LocalUser.getCurrentSubject();
 			Set<Principal> set = subject.getPrincipals();
 			for (Iterator<Principal> iter = set.iterator(); iter.hasNext(); ) {
@@ -1878,17 +1948,13 @@ public final class Util {
 					}
 				}
 			}//for
-			
 			if(userName==null)userName="";
 			if(password==null)password="";
-			
 			token=userName+"/"+password;
 		} catch (XtentisException e) {
 			e.printStackTrace();
 		}
-		
 		return token;
-
 	}
 
 	/**
@@ -2618,7 +2684,7 @@ public final class Util {
 			}
 		}
 		return null;
-	}
+	}	
 	/*********************************************************************
 	 *  TESTS
 	 *********************************************************************/
