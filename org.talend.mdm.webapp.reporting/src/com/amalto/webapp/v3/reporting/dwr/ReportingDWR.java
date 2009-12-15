@@ -4,11 +4,14 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.directwebremoting.WebContext;
@@ -26,6 +29,7 @@ import com.amalto.webapp.util.webservices.WSExecuteStoredProcedure;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSGetStoredProcedure;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSRegexStoredProcedure;
@@ -432,7 +436,10 @@ public class ReportingDWR {
 
 			ReportingField[] reportingFields = reporting.getFields();
 			for (int i = 0; i < reportingFields.length; i++) {
-				reportingFields[i].setField(xpathToLabel.get(reportingFields[i].getXpath()));
+				if(xpathToLabel.get(reportingFields[i].getXpath()) != null) {
+					reportingFields[i].setField(
+					   xpathToLabel.get(reportingFields[i].getXpath()));
+				}
 			}
 			ReportingFilter[] reportingFilters = reporting.getFilters();
 			for (int i = 0; i < reportingFilters.length; i++) {
@@ -493,5 +500,46 @@ public class ReportingDWR {
 		else if (option.equalsIgnoreCase("STRICTCONTAINS"))
 			res = WSWhereOperator.STRICTCONTAINS;
 		return res;											
-	}	
+	}
+	
+	/**
+	 * Get the number of paramters in specified storedProduce. 
+	 * @param name is the specified storedProduce.
+	 * @return 
+	 */
+	public int getNumberOfParamters(String name) throws 
+		XtentisWebappException, Exception 
+	{
+		String proceduce = "";
+		
+		try {
+			WSGetStoredProcedure storedProcedure = 
+				new WSGetStoredProcedure(new WSStoredProcedurePK(name));
+			proceduce = Util.getPort().getStoredProcedure(storedProcedure).getProcedure();
+		}
+		catch(RemoteException e) {
+			e.printStackTrace();
+		}
+		
+		Pattern pattern = Pattern.compile("\\%\\d+");
+		Matcher matcher = pattern.matcher(proceduce);
+		Set<String> parameters = new HashSet<String>();
+		
+		while(matcher.find()) {
+			parameters.add(matcher.group(0));
+		}
+		
+		return parameters.size();
+	}
+	
+	/**
+	 * syn a field to xpathtolabel with web.
+	 * @param xpath
+	 * @param label
+	 */
+	public void addFieldsToXpath(String xpath, String label) {
+		WebContext ctx = WebContextFactory.get();
+		HashMap<String,String> xpathToLabel = (HashMap<String,String>) ctx.getSession().getAttribute("xpathToLabel");
+		xpathToLabel.put(xpath, label);
+	}
 }
