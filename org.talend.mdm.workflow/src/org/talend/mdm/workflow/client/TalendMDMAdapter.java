@@ -4,10 +4,6 @@ import java.net.URL;
 
 import javax.xml.ws.BindingProvider;
 
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.frontend.ClientProxy;
-import org.apache.cxf.transport.http.HTTPConduit;
-
 import urn_com_amalto_xtentis_webservice.XtentisPort;
 import urn_com_amalto_xtentis_webservice.XtentisService;
 
@@ -107,10 +103,11 @@ public abstract class TalendMDMAdapter {
 		stub.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY,password);
 		
 		
+		// FIXME:cxf java.lang.ClassCastException: org.jboss.ws.core.jaxws.client.ClientProxy cannot be cast to org.apache.cxf.frontend.ClientProxy
 		// setting the timeout  
-		Client c = ClientProxy.getClient(port);  
-		HTTPConduit httpConduit = (HTTPConduit) c.getConduit();  
-		httpConduit.getClient().setReceiveTimeout(TIMEOUT_THRESHOLD);
+//		Client c = org.apache.cxf.frontend.ClientProxy.getClient(port);  
+//		HTTPConduit httpConduit = (HTTPConduit) c.getConduit();  
+//		httpConduit.getClient().setReceiveTimeout(TIMEOUT_THRESHOLD);
 		
 	}
 	

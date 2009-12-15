@@ -12,6 +12,8 @@
 	<property name="jboss.bin.dir" value="${jboss.dir}/bin"/>
 
 	<property name="runtime.ear" value="bonita.ear"/>
+	<property name="resolver.jar" value="z.TalendMDMRoleResolver.jar"/>
+	<property name="connector.jar" value="z.TalendMDMConnector.jar"/>
 	<property name="client.jar" value="org.talend.mdm.workflow.client.jar"/>
 	
 	<property name="version.props" value="version.properties"/>
@@ -55,15 +57,22 @@
 
 		
     <target name="undeploy" description="remove packages">		
-		<delete>
-			<fileset dir="${jboss.lib.dir}" includes="${client.jar}"/>
-		</delete>
+    	<echo>Deleting ${resolver.jar}</echo>
+    	<delete file="${jboss.lib.dir}/${resolver.jar}"/>
+    	<echo>Deploying ${connector.jar}</echo>
+    	<delete file="${jboss.lib.dir}/${connector.jar}"/>
+    	<echo>Deploying ${client.jar}</echo>
+    	<delete file="${jboss.lib.dir}/${client.jar}"/>
     </target>
 	
 	<target name="deploy">
 		
+		<echo>Deploying ${resolver.jar}</echo>
+		<copy file="connector/${resolver.jar}" tofile="${jboss.lib.dir}/${resolver.jar}"/>
+		<echo>Deploying ${connector.jar}</echo>
+		<copy file="connector/${connector.jar}" tofile="${jboss.lib.dir}/${connector.jar}"/>
 		<echo>Deploying ${client.jar}</echo>
-		<copy file="${client.jar}" tofile="${jboss.lib.dir}/${client.jar}"/>	 
+		<copy file="${client.jar}" tofile="${jboss.lib.dir}/${client.jar}"/>
 		
     </target>
 
