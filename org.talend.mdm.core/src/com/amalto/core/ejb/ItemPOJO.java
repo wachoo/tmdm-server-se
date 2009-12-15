@@ -339,13 +339,26 @@ public class ItemPOJO implements Serializable{
     }
     /**
      * Loads an Item<br/>
+     * @param revisionID
      * @param itemPOJOPK
      * @return
      * 	the {@link ItemPOJO}
      * @throws XtentisException
      */
     public static ItemPOJO load(String revisionID, ItemPOJOPK itemPOJOPK) throws XtentisException {
-    	
+    	return load(revisionID,itemPOJOPK,true);
+    	 
+    }
+
+    /**
+     * Loads an Item<br/>
+     * @param itemPOJOPK
+     * @param checkRights
+     * @return
+     * 	the {@link ItemPOJO}
+     * @throws XtentisException
+     */
+    public static ItemPOJO load(String revisionID, ItemPOJOPK itemPOJOPK,boolean checkRights) throws XtentisException {
     	XmlServerSLWrapperLocal server=Util.getXmlServerCtrlLocal();
 
         try {
@@ -401,7 +414,7 @@ public class ItemPOJO implements Serializable{
             }
             
              //check user rights
-            if(newItem.getDataModelName()!=null){
+            if(checkRights&&newItem.getDataModelName()!=null){
             	try {
                
                 	DataModelPOJO bindingDataModelPOJO =  ObjectPOJO.load(newItem.getDataModelRevision(), DataModelPOJO.class,new ObjectPOJOPK(newItem.getDataModelName()));
@@ -435,10 +448,8 @@ public class ItemPOJO implements Serializable{
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err,e);
     	    throw new EJBException(err);
-	    } 
+	    }
     }
-
-
 
     /**
      * Removes an item

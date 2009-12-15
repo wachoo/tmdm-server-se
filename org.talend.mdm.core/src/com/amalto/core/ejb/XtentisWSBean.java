@@ -1800,7 +1800,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 						projection
 				);
 				String revisionId=LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
-				pj=pj.load(revisionId, pj.getItemPOJOPK());				
+				pj=ItemPOJO.load(revisionId, pj.getItemPOJOPK(),false);				
 				if(pj!=null){// get the new projection
 					// get updated path			
 					Node old=pj.getProjection();
