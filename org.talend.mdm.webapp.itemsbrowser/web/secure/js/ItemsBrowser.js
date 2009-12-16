@@ -2555,13 +2555,34 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var itemPK = [DWRUtil.getValue(nodeId+'Value')];
 		}*/
 		if(keyValue.match(/\[(.*?)\]/g)!=null){
-			var tmp = keyValue.replace(/\[(.*?)\]/g,"$1###").split("###");
-			var itemPK =tmp.splice(0,tmp.length-1);
+			var tmp = keyValue.replace(/\[(.*?)\]/g,"###$1###").split("###");
+			var result = [];
+			var idx = 0;
+			for (var i =0; i < tmp.length ; i++)
+			{
+		       var splice = tmp[i];
+			   if(splice.match(/\[(.*?)/g)!=null)
+			   {
+			     splice = splice.replace(/\]*(.*?)/g, "$1");
+				 result[idx] = (splice + tmp[i+1]);
+				 idx++;
+			   }
+			   else if(splice.match(/\w+/g)!= null)
+			   {
+			     result[idx] = splice;
+				 idx++;
+			   }
+			 }
+			var itemPK =result;
 		} else{
 			var itemPK = [keyValue];
 		}
 		
 		var dataObject = foreignKeyXpath.split("/")[0];
+		if(dataObject.split("[")[0] != null)
+		{
+			dataObject = dataObject.split("[")[0];
+		}
 		if(itemPK =="")
 			Ext.Msg.alert("Warning","The concept does not exist.");
 		else
