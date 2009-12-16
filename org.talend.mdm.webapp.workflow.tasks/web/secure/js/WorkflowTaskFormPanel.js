@@ -190,6 +190,14 @@ Ext.extend(amalto.workflowtasks.WorkflowTaskFormPanel, Ext.Panel, {
     
     onSubmitClick : function(button, event){
     	
+    	Ext.MessageBox.show({
+           msg: 'Submitting your data, please wait...',
+           progressText: 'Submitting...',
+           width:300,
+           wait:true,
+           waitConfig: {interval:200}
+        });
+    	
         var dataFieldsValues = {};
 		for (var index = 0; index < this.fieldRecords.length; index++) {
 			var fieldRecord=this.fieldRecords[index];
@@ -228,13 +236,17 @@ Ext.extend(amalto.workflowtasks.WorkflowTaskFormPanel, Ext.Panel, {
     },
     
     onSubmitSuccess : function(){
-    	alert("Successfully submitted! ");
+    	
+    	Ext.MessageBox.hide();
+		Ext.MessageBox.alert('Status', "Successfully submitted! ");
     	this.refreshTasksStore();
 		this.closeThisPanel();
     },
     
     onSubmitFail : function(){
-    	alert("Submit failed! ");
+
+    	Ext.MessageBox.hide();
+		Ext.MessageBox.alert('Status', "Submit failed! ");
 		//this.closeThisPanel();
     }
     
