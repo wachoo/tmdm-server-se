@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Enterprise
+Bundle-SymbolicName: org.talend.mdm.workbench.enterprise;singleton:=true
+Bundle-Version: 3.2.0.qualifier
+Bundle-Activator: org.talend.mdm.workbench.enterprice.Activator
+Bundle-Vendor: .Talend SA.
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.ui.forms,
+ org.talend.mdm.workbench
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: META-INF/lib/commons-httpclient-2.0.2.jar,
+ .,
+ META-INF/lib/castor-1.1-xml.jar
