@@ -402,6 +402,7 @@ public class LocalUser {
      * @throws XtentisException
      */
     public boolean userItemCanWrite(ItemPOJO item,String datacluster, String concept)throws XtentisException{
+		if (isAdmin(ItemPOJO.class)) return true;	
     	if(item==null){  //if create item
     		HashSet<String> patterns = readOnlyPermissions.get("Item");
     		if(patterns!=null && patterns.size()>0){
