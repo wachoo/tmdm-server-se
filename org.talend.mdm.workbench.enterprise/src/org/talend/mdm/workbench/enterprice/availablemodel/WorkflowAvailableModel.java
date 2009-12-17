@@ -3,6 +3,7 @@ package org.talend.mdm.workbench.enterprice.availablemodel;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.PartInitException;
+import org.talend.mdm.workbench.enterprice.actions.DeleteWorkflowProcessAction;
 import org.talend.mdm.workbench.enterprice.actions.GenerateWorkflowDefaultTransformerAction;
 import org.talend.mdm.workbench.enterprice.actions.ImportWorkflowProcessAction;
 import org.talend.mdm.workbench.enterprice.editors.WorkflowBrowserMainPage;
@@ -60,6 +61,7 @@ public class WorkflowAvailableModel extends AbstractAvailableModel {
 			manager.add(new ImportWorkflowProcessAction());
 			break;
 		case TreeObject.WORKFLOW_PROCESS:
+			manager.add(new DeleteWorkflowProcessAction());
 			manager.add(new GenerateWorkflowDefaultTransformerAction());
 			break;
 		}

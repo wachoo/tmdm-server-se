@@ -3,6 +3,7 @@ package org.talend.mdm.workbench.enterprice.availablemodel;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.PartInitException;
+import org.talend.mdm.workbench.enterprice.actions.DeleteJobAction;
 import org.talend.mdm.workbench.enterprice.actions.GenerateJobDefaultTransformerAction;
 import org.talend.mdm.workbench.enterprice.actions.ImportTISJobAction;
 import org.talend.mdm.workbench.enterprice.editors.JobMainPage;
@@ -54,9 +55,11 @@ public class JobAvailableModel extends AbstractAvailableModel {
 	public void fillContextMenu(TreeObject xobject,IMenuManager manager) {
 		switch(xobject.getType()){
 			case TreeObject.JOB:
+				manager.add(new DeleteJobAction());
 				manager.add(new GenerateJobDefaultTransformerAction());
 				break;
 			case TreeObject.JOB_REGISTRY:
+				
 				manager.add(new ImportTISJobAction());
 				break;	
 		}
