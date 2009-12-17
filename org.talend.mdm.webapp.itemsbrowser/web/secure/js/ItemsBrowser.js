@@ -1050,6 +1050,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	        bbar: [
 	        	{text:BUTTON_DELETE[language],
 	        		id:'btn-delete',
+	        		hidden :true,
 	        		xtype:'button',
 	        		disabled:$('item-new-btn').disabled,
 	        		tooltip:PHYSICALLY_DELETE_TOOLTIP[language],
@@ -1072,23 +1073,23 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 //										}							    	
 										var treeIndex=1;
 										if(_dataObject==null) _dataObject=_dataObject2;
-			ItemsBrowserInterface.getUriArray(_dataObject, itemPK, function(picUriArray){
-				var uriArray = [];
-				uriArray=picUriArray;
-				for (var index = 0; index < uriArray.length; index++) {
-					var picUri=uriArray[index]
-				if(picUri!=""){
-					 var pos=picUri.indexOf('?');
-	 				 var uri=picUri.substring("/imageserver/".length,pos); 
-    Ext.Ajax.request({  
-       	url:'/imageserver/secure/ImageDeleteServlet?uri='+uri,
-         method: 'post',  
-         callback: function(options, success, response) {  
-         }  
-    });    
-				}
-			}
-			});										
+										ItemsBrowserInterface.getUriArray(_dataObject, itemPK, function(picUriArray){
+											var uriArray = [];
+											uriArray=picUriArray;
+											for (var index = 0; index < uriArray.length; index++) {
+												var picUri=uriArray[index]
+											     if(picUri!=""){
+													 var pos=picUri.indexOf('?');
+									 				 var uri=picUri.substring("/imageserver/".length,pos); 
+													 Ext.Ajax.request({  
+													       	 url:'/imageserver/secure/ImageDeleteServlet?uri='+uri,
+													         method: 'post',  
+													         callback: function(options, success, response) {  
+													         }  
+													 });
+											     }//end if
+			                               }//end for
+			                            });//end callback									
 										ItemsBrowserInterface.deleteItem(_dataObject, itemPK, function(result){
 											if(result.lastIndexOf("ERROR")>-1){
 												var err1=result.substring(7);
@@ -2101,7 +2102,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		           });
 					amalto.core.ready();
 				});
-}
+    }
 	
 	function deleteItem(ids, dataObject, treeIndex) {
 		//var viewName = DWRUtil.getValue('viewItemsSelect');
@@ -2121,14 +2122,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				if(picUri!=""){
 					 var pos=picUri.indexOf('?');
 	 				 var uri=picUri.substring("/imageserver/".length,pos); 
-    Ext.Ajax.request({  
-       	url:'/imageserver/secure/ImageDeleteServlet?uri='+uri,
-         method: 'post',  
-         callback: function(options, success, response) {  
-         }  
-    });    
-				}
-			}
+				     Ext.Ajax.request({  
+				       	 url:'/imageserver/secure/ImageDeleteServlet?uri='+uri,
+				         method: 'post',  
+				         callback: function(options, success, response) {  
+				         }  
+				     });    
+				  }
+			   }
 			});
 			ItemsBrowserInterface.deleteItem(dataObject, itemPK, function(result){
 				if(result.lastIndexOf("ERROR")>-1){
@@ -2145,10 +2146,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				}				
 				amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 				amalto.core.ready(result);
-				displayItems();				
+				displayItems();
+				
+				if(result)Ext.MessageBox.alert('Status', result);
 			});		
 		}});		
 	}
+	
 	function logicalDelOneItem(ids, dataObject, treeIndex, path, refreshCB){
 		var tmp = "";
 		var itemPK = ids.split('@');
@@ -2171,8 +2175,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			amalto.core.ready(result);
 			//displayItems();
 			refreshCB.call();
-			if(result)
-			Ext.MessageBox.alert('Status', result);				
+			if(result)Ext.MessageBox.alert('Status', result);				
 		});
 	}
 	
