@@ -7,7 +7,7 @@ import org.ow2.bonita.facade.def.majorElement.DataFieldDefinition;
 
 import com.amalto.webapp.v3.workflow.tasks.util.HiddenPropertiesReader;
 
-public class DataFieldDefinitionVO implements Comparable{
+public class DataFieldDefinitionVO implements Comparable<DataFieldDefinitionVO>{
 	
 	private String dataTypeClassName;
 	
@@ -142,15 +142,15 @@ public class DataFieldDefinitionVO implements Comparable{
 	}
 
 
-	public int compareTo(Object o) {
-    	
-    	 if (o == null) {
+	public int compareTo(DataFieldDefinitionVO o) {
+		
+		 if (o == null) {
 			return 0;
 		 }
 		 
-		 if (!o.getClass().equals(this.getClass())) {
-			return 0;
-		 }
+//		 if (!o.getClass().equals(this.getClass())) {
+//			return 0;
+//		 }
 	
 		 DataFieldDefinitionVO other=(DataFieldDefinitionVO)o;
 		 
@@ -159,9 +159,7 @@ public class DataFieldDefinitionVO implements Comparable{
 		 }
 		 
 		 return this.name.compareTo(other.name);
-
 	}
     
-  
 
 }

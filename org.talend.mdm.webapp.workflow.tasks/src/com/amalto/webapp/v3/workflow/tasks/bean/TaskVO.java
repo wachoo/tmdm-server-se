@@ -4,7 +4,7 @@ import org.ow2.bonita.facade.runtime.TaskInstance;
 
 import com.amalto.webapp.v3.workflow.tasks.util.DateUtil;
 
-public class TaskVO implements Comparable{
+public class TaskVO implements Comparable<TaskVO>{
 	
 	private String processName;
 	
@@ -131,16 +131,14 @@ public class TaskVO implements Comparable{
 		
 	}
 
-
-	public int compareTo(Object o) {
-		
-		 if (o == null) {
+	public int compareTo(TaskVO o) {
+		if (o == null) {
 			return 0;
 		 }
 		 
-		 if (!o.getClass().equals(this.getClass())) {
-			return 0;
-		 }
+//		 if (!o.getClass().equals(this.getClass())) {
+//			return 0;
+//		 }
 		 
 		 TaskVO other=(TaskVO)o;
 		 
