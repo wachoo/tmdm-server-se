@@ -232,7 +232,7 @@ public class Util {
     
     
     public static WSWhereCondition getConditionFromPath(String path) {
-    	Pattern p = Pattern.compile("(.*?)\\[(.*?)(&=|!=|>=|<=|>|<|=])(.*?)\\].*");
+    	Pattern p = Pattern.compile("(.*?)\\[(.*?)(&=|!=|>=|<=|>|<|=)(.*?)\\].*");
     	if (!path.endsWith("/")) path+="/";
     	Matcher m = p.matcher(path);
     	if (m.matches()){
