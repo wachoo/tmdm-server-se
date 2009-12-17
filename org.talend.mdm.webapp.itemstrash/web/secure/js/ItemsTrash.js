@@ -37,10 +37,10 @@ amalto.ItemsTrash.ItemsTrash=function(){
     
     	
 		function deleteItem(){
-			return "<img src='img/genericUI/delete.gif' border=\"0\" />";
+			return "<img src='img/genericUI/delete.gif' style=\"cursor:pointer;\" border=\"0\" />";
 		}
 		function restore(){
-			return "<img src='img/genericUI/restore.gif' border=\"0\" />";
+			return "<img src='img/genericUI/restore.gif' style=\"cursor:pointer;\" border=\"0\" />";
 		}
     
     function showTrashItems(){
