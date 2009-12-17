@@ -2555,23 +2555,28 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var itemPK = [DWRUtil.getValue(nodeId+'Value')];
 		}*/
 		if(keyValue.match(/\[(.*?)\]/g)!=null){
-			var tmp = keyValue.replace(/\[(.*?)\]/g,"###$1###").split("###");
-			var result = [];
-			var idx = 0;
-			for (var i =0; i < tmp.length ; i++)
-			{
-		       var splice = tmp[i];
-			   if(splice.match(/\[(.*?)/g)!=null)
-			   {
-			     splice = splice.replace(/\]*(.*?)/g, "$1");
-				 result[idx] = (splice + tmp[i+1]);
-				 idx++;
-			   }
-			   else if(splice.match(/\w+/g)!= null)
-			   {
-			     result[idx] = splice;
-				 idx++;
-			   }
+		     var result = new Array();
+			 var aggregate = 0;
+			 var cordon = 0;
+		     for(var i = 0; i < keyValue.length; i++)
+			 {
+		        var ch = keyValue.charAt(i);
+				if(ch == '[')
+				{
+				 aggregate++;
+				 if(aggregate == 1)
+				 {
+				   cordon = i;
+				 }
+				}
+				else if(ch == ']')
+				{
+		          aggregate--;
+				  if(aggregate == 0)
+				  {
+					 result.push(keyValue.substring(cordon+1, i));
+				  }
+				}
 			 }
 			var itemPK =result;
 		} else{
