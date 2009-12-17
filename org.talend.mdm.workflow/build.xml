@@ -22,7 +22,7 @@
     <!-- ================================= 
           target: all              
          ================================= -->
-	<target name="all" depends="version,build_client_jar,undeploy,deploy">
+	<target name="all" depends="version,package,undeploy,deploy">
 		<eclipse.refreshLocal resource="org.talend.mdm.workflow"/>
 	</target>
 	
@@ -38,8 +38,31 @@
 	          just build a client jar without
 	          any dependencies libraries              
 	     ================================= -->
-   	<target name="build_client_jar">
+   	<target name="package">
    		
+   		<echo>Packaging ${connector.jar}</echo>
+   		<jar destfile="connector/${connector.jar}">
+   			<zipfileset dir="src">
+   				<include name="org/talend/mdm/workflow/integration/TalendMDMConnector.java"/>
+   				<include name="org/talend/mdm/workflow/integration/TalendMDMConnector.xml"/>
+   				<include name="org/talend/mdm/workflow/integration/TalendMDMConnector.properties"/>
+   				<include name="org/talend/mdm/workflow/integration/TalendMDMConnector.png"/>
+   			</zipfileset>
+   		    <zipfileset dir="bin" includes="org/talend/mdm/workflow/integration/TalendMDMConnector.class" />	
+   		</jar>
+   		
+   		<echo>Packaging ${resolver.jar}</echo>
+   		<jar destfile="connector/${resolver.jar}">
+   		   	<zipfileset dir="src">
+   		   		<include name="org/talend/mdm/workflow/integration/TalendMDMRoleResolver.java"/>
+   		   		<include name="org/talend/mdm/workflow/integration/TalendMDMRoleResolver.xml"/>
+   		   		<include name="org/talend/mdm/workflow/integration/TalendMDMRoleResolver.properties"/>
+   		   		<include name="org/talend/mdm/workflow/integration/TalendMDMRoleResolver.png"/>
+   		   	</zipfileset>
+   		   	<zipfileset dir="bin" includes="org/talend/mdm/workflow/integration/TalendMDMRoleResolver.class" />	
+   		</jar>
+   		
+   		<echo>Packaging ${client.jar}</echo>
 		<jar destfile="${client.jar}">
 			<zipfileset dir=".">
 				<include name="RELEASE.NOTES" />
