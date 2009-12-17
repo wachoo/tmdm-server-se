@@ -44,9 +44,10 @@ public abstract class WorkflowAgent {
 	
 	private void login(WorkflowConnectInfo connectInfo) throws LoginException {
 		//login TODO:jaas of workflow
-		loginContext = new LoginContext("Bonita", new SimpleCallbackHandler(connectInfo.getUsername(), connectInfo.getPassword()));
-		loginContext.login();
-
+		if(connectInfo.getUsername()!=null){
+			loginContext = new LoginContext("Bonita", new SimpleCallbackHandler(connectInfo.getUsername(), connectInfo.getPassword()));
+			loginContext.login();
+		}
 	}
 	
 	private void logout() throws LoginException {
