@@ -661,8 +661,8 @@ amalto.reporting.Reporting = function () {
 				'	<div id="ddgrid1" style="text-align:left;border: 1px solid #c3daf9;float: left;	width:250px;height:225px;" class="ygrid-mso"></div>'+
 				'	<div class="leftField">&nbsp;</div>'+
 				'	<div id="ddgrid2" style="text-align:left;border: 1px solid #c3daf9;float: left;	width:250px;height:225px;" class="ygrid-mso"></div>'+
-				'	</div>'+
 				'	<input type="button" id="addFieldBTN" value="'+BUTTON_ADD_FIELD[language]+'" onclick="amalto.reporting.Reporting.addFieldToTable();"/>' +				
+				'	</div>'+
 				'	<br style="clear: both;"/><br style="clear: both;"/>'+
 				' <div id="chooseFilterFields" style="display:none;">	'+
 				'	<div class="left">'+LABEL_FILTER[language]+' :</div>'+
@@ -994,7 +994,7 @@ amalto.reporting.Reporting = function () {
 				valueField: 'key',
 				mode:'remote',
 				triggerAction:'all',
-				editable:false,
+				editable:true,
 				listeners : {
 		    	    select : function(combo, record, index) {
 		    	 		fieldsStore.reload();
