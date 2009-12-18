@@ -27,6 +27,9 @@
       <model
             class="org.talend.mdm.workbench.enterprice.availablemodel.SubscriptionEngineAvailableModel">
       </model>
+<model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.SvnAvailableModel">
+      </model>      
    </extension>
 
 </plugin>

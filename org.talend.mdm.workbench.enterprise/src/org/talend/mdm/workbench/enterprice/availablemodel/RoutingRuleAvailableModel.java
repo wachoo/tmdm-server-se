@@ -2,9 +2,11 @@ package org.talend.mdm.workbench.enterprice.availablemodel;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.ui.PartInitException;
+import org.talend.mdm.workbench.enterprice.editors.RoutingRuleMainPage;
 
 import com.amalto.workbench.availablemodel.AbstractAvailableModel;
-import com.amalto.workbench.availablemodel.IAvailableModel;
+import com.amalto.workbench.editors.XObjectEditor;
 import com.amalto.workbench.models.TreeObject;
 import com.amalto.workbench.models.TreeParent;
 import com.amalto.workbench.utils.EXtentisObjects;
@@ -55,4 +57,17 @@ public class RoutingRuleAvailableModel extends AbstractAvailableModel {
 		
 	}
 
+	@Override
+	public void addPage(TreeObject xobject, XObjectEditor editor) {
+		switch(xobject.getType()){
+		case TreeObject.ROUTING_RULE:
+	        try {
+				editor.addPage(new RoutingRuleMainPage(editor));
+			} catch (PartInitException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	   		break;
+		}
+	}
 }

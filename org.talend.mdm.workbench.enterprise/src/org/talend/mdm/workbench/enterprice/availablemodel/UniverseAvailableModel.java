@@ -2,9 +2,13 @@ package org.talend.mdm.workbench.enterprice.availablemodel;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.ui.PartInitException;
+import org.talend.mdm.workbench.enterprice.editors.TransformerMainPage;
+import org.talend.mdm.workbench.enterprice.editors.UniverseMainPage;
 
 import com.amalto.workbench.availablemodel.AbstractAvailableModel;
 import com.amalto.workbench.availablemodel.IAvailableModel;
+import com.amalto.workbench.editors.XObjectEditor;
 import com.amalto.workbench.models.TreeObject;
 import com.amalto.workbench.models.TreeParent;
 import com.amalto.workbench.utils.EXtentisObjects;
@@ -52,5 +56,17 @@ public class UniverseAvailableModel extends AbstractAvailableModel {
 		// TODO Auto-generated method stub
 		
 	}
-
+	@Override
+	public void addPage(TreeObject xobject, XObjectEditor editor) {
+		switch(xobject.getType()){
+		case TreeObject.UNIVERSE:
+			try {
+				editor.addPage(new UniverseMainPage(editor));
+			} catch (PartInitException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	   		break;	
+		}
+	}
 }

@@ -8,7 +8,10 @@ Bundle-Vendor: .Talend SA.
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.forms,
- org.talend.mdm.workbench
+ org.talend.mdm.workbench,
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors,
+ org.talend.mdm.commmon
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: META-INF/lib/commons-httpclient-2.0.2.jar,
  .,
