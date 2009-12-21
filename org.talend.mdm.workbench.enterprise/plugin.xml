@@ -27,9 +27,12 @@
       <model
             class="org.talend.mdm.workbench.enterprice.availablemodel.SubscriptionEngineAvailableModel">
       </model>
-<model
+        <model
             class="org.talend.mdm.workbench.enterprice.availablemodel.SvnAvailableModel">
       </model>      
+        <model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.SchematronAvailableModel">
+      </model>       
    </extension>
 
 </plugin>
