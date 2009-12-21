@@ -628,7 +628,14 @@ amalto.reporting.Reporting = function () {
 		if(!isEdit && !isDuplicate)
 			readonly = 'readonly="true" ';
 			
-		if(edit!=undefined)	EDIT= edit;
+		if(edit == true) {
+			EDIT = edit;
+			ReportingInterface.getReporting(function(result) {reporting = result}, DWRUtil.getValue('reportingSelect'));
+		}
+		else {
+			EDIT = false;
+			reporting = {};
+		}
 		DUPLICATE = isDuplicate;
 		var tabPanel = amalto.core.getTabPanel();
 		amalto.core.working();
@@ -702,7 +709,7 @@ amalto.reporting.Reporting = function () {
 				
 			var contentPanel = new Ext.Panel({
 				id:'newReportingDiv', 
-				title:(edit==true?reporting.reportingName:NEW_REPORTING[language] ), 
+				title:(edit==true?DWRUtil.getValue('reportingSelect'):NEW_REPORTING[language] ), 
 				layout:'fit',
 				bodyStyle:'padding:5px',
 				autoScroll:true,
@@ -731,6 +738,7 @@ amalto.reporting.Reporting = function () {
 				DWRUtil.setValue('businessConceptsList',reporting.concept);
 //				DWRUtil.setValue('pivotList',reporting.pivotXpath);
 				getTranslation();	
+				getTranslation2();
 			}
 		});
 		
@@ -745,32 +753,42 @@ amalto.reporting.Reporting = function () {
 		$('chooseFilterFields').style.display="inline";
 		$('choosePivot').style.display="inline";
 		$('chooseStoredProcedure').style.display="inline";
-		$('addFieldBTN').disabled = true;
+		var storedProcedure = DWRUtil.getValue('storedProcedureList');
 	    var businessConcept = DWRUtil.getValue('businessConceptsList');
+
+	    if(storedProcedure == '') {
+			$('addFieldBTN').disabled = true;
+		}
 	    
 	    ReportingInterface.getXpathToLabel(businessConcept,language, function(result){
 	    	//alert(DWRUtil.toDescriptiveString(result,2));
 	    	xPathToLabel = result;
 	    	DWRUtil.removeAllOptions('fieldListGrid');
 			DWRUtil.addOptions( 'fieldListGrid', result);
-			//DWRUtil.removeAllOptions('pivotList');
+			DWRUtil.removeAllOptions('pivotList');
 			DWRUtil.addOptions( 'pivotList', result);
 			if(reporting.pivotXpath)
 				DWRUtil.setValue('pivotList',xPathToLabel[reporting.pivotXpath]);
-				
+			
+			if(storedProcedure == '') {
 		    ReportingInterface.getStoredProcedurePKs(function(result){
 				DWRUtil.removeAllOptions('storedProcedureList');
 				DWRUtil.addOptions( 'storedProcedureList',[LABEL_SELECT[language]]);
 				DWRUtil.addOptions( 'storedProcedureList', result);
 				
 				if(reporting.storedProcedure){
-					DWRUtil.setValue('storedProcedureList',reporting.storedProcedure);
+					if(EDIT == true) {
+						DWRUtil.setValue('storedProcedureList',reporting.storedProcedure);
+					}
+					else {
+						fixParametersGrid(reporting.storedProcedure);
+					}
+					
 					$('chooseStoredProcedureParams').style.display="inline";
 					$('addFieldBTN').disabled = false;
-				    fixParametersGrid(reporting.storedProcedure);
 				}
-	       });	
-	    
+	        });	
+			}
 	    	createGrid(result);	
 	    	amalto.core.ready();
 	    	
@@ -798,7 +816,8 @@ amalto.reporting.Reporting = function () {
 	    	$('addFieldBTN').disabled = false;
 	    	fixParametersGrid(storedProcedure);
 	    }
-		
+	    
+	    createParameterGrid();
 	}
 	
 	/**
@@ -1115,7 +1134,9 @@ amalto.reporting.Reporting = function () {
 	var grid1, grid2;
 	var filterGrid1, filterGrid2, paramGrid1;
 	
-
+	function trash(){
+		return "<img src='img/genericUI/trash.gif' border=\"0\" />";
+	}
 	
 	
 	function createGrid(){
@@ -1440,9 +1461,7 @@ amalto.reporting.Reporting = function () {
 	    
 	    dsFilter.loadData(filterData);
 	    
-	    function trash(){
-			return "<img src='img/genericUI/trash.gif' border=\"0\" />";
-		}
+	    
 		
 		
 	    var myColumnsFilter = [
@@ -1496,7 +1515,9 @@ amalto.reporting.Reporting = function () {
         // style:'	border: 1px solid #c3daf9;float: left;	width:508px;height:100px;'
 	    });
   	filterGrid2.render();
-  	
+	}
+	
+  	function createParameterGrid() {
   	var dsParam = new Ext.data.SimpleStore({
 	        fields: [
 	            {name: 'Name'},
