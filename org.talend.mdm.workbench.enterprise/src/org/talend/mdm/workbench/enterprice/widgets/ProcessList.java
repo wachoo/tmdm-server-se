@@ -1,5 +1,6 @@
 package org.talend.mdm.workbench.enterprice.widgets;
 
+import java.rmi.RemoteException;
 import java.util.HashMap;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -10,6 +11,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.amalto.workbench.webservices.WSWorkflowDeleteProcessInstancesRequest;
+import com.amalto.workbench.webservices.XtentisPort;
+
 public class ProcessList {
 	int processNum;
 	ProcessWidget cur;
@@ -19,7 +23,9 @@ public class ProcessList {
 	private Composite parent;
 	private ScrolledComposite ccrollComposite;
 	TableViewer viewer;
-	public ProcessList(FormToolkit toolkit, Composite composite,ScrolledComposite ccrollComposite,TableViewer viewer){
+	private XtentisPort port;
+	public ProcessList(XtentisPort port,FormToolkit toolkit, Composite composite,ScrolledComposite ccrollComposite,TableViewer viewer){
+		this.port = port;
 		this.toolkit= toolkit;
 		this.parent=composite;
 		this.ccrollComposite=ccrollComposite;
@@ -34,7 +40,13 @@ public class ProcessList {
 		pw.getDelButton().addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				delete(pw.getName());
+				try {
+					delete(pw.getName());
+					port.workflowDeleteProcessInstances(new WSWorkflowDeleteProcessInstancesRequest(pw.getName()));
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		map.put(name, pw);

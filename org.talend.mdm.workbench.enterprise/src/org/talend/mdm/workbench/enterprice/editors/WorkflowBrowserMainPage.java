@@ -90,14 +90,15 @@ public class WorkflowBrowserMainPage extends AMainPage implements IXObjectModelL
         	ccrollComposite.setExpandHorizontal(true);
         	ccrollComposite.setExpandVertical(true);
         	ccrollComposite.setMinSize(400,4*31);
-        	plist=new ProcessList(toolkit, processCom, ccrollComposite,viewer);
+        	
         	xobject=getXObject();
 			port = Util.getPort(
 					new URL(xobject.getEndpointAddress()),
 					xobject.getUniverse(),
 					xobject.getUsername(),
 					xobject.getPassword()
-			);	  
+			);	
+			plist=new ProcessList(port,toolkit, processCom, ccrollComposite,viewer);
 			WSWorkflowProcessDefinitionUUID uuid= (WSWorkflowProcessDefinitionUUID)xobject.getWsKey();
 
 			WSProcessInstanceArray array=port.workflowGetProcessInstances(new WSWorkflowGetProcessInstances(uuid));
