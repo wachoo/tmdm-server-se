@@ -88,7 +88,6 @@ public class RoutingRuleMainPage extends AMainPageV2 {
 	protected boolean comitting = false;
 	
 	protected	TreeParent treeParent;
-	protected boolean version_greater_than_2_17_0 = true;//false;
 	
 	private static String ROUTE_SERVICE = "amalto/local/service/";
 	private String dataModelName;
@@ -261,7 +260,7 @@ public class RoutingRuleMainPage extends AMainPageV2 {
             		markDirty();
             	}
             }); 
-            if (version_greater_than_2_17_0) {
+           
 	            WSServicesList list = Util.getPort(getXObject()).getServicesList(new WSGetServicesList(""));
 	            WSServicesListItem[] items = list.getItem();
 	            if (items!=null) {
@@ -275,7 +274,7 @@ public class RoutingRuleMainPage extends AMainPageV2 {
 					}
 	            	//serviceNameCombo.add("");
 	            }
-            }
+            
 
             //default parameters button 
             defultParameterBtn = toolkit.createButton(subPanel, "", SWT.PUSH);
