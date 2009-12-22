@@ -96,8 +96,10 @@ public class ProcessWidget {
 		for(Map.Entry<String, ProcessWidget> entry: plist.map.entrySet()){
 			if(name.equals(entry.getKey())){
 				setBackground(parent.getShell().getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION));
+				setForground(parent.getShell().getDisplay().getSystemColor(SWT.COLOR_WHITE));
 			}else{
 				entry.getValue().setBackground(parent.getParent().getBackground());
+				entry.getValue().setForground(parent.getShell().getDisplay().getSystemColor(SWT.COLOR_BLACK));
 			}
 		}
 		WSProcessTaskInstanceArray tasklist;
@@ -116,6 +118,13 @@ public class ProcessWidget {
 			c.setBackground(color);
 		}
 		parent.setBackground(color);		
+	}
+	private void setForground(Color color){
+		Control[] childs=parent.getChildren();
+		for(Control c:childs){
+			c.setForeground(color);
+		}
+		parent.setForeground(color);		
 	}
 	SelectionAdapter listener=new SelectionAdapter(){
 		@Override
