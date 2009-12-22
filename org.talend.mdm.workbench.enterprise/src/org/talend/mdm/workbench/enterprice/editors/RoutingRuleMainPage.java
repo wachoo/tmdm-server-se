@@ -88,7 +88,7 @@ public class RoutingRuleMainPage extends AMainPageV2 {
 	protected boolean comitting = false;
 	
 	protected	TreeParent treeParent;
-	protected boolean version_greater_than_2_17_0 = false;
+	protected boolean version_greater_than_2_17_0 = true;//false;
 	
 	private static String ROUTE_SERVICE = "amalto/local/service/";
 	private String dataModelName;
