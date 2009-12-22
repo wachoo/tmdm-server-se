@@ -6,13 +6,14 @@ import java.rmi.RemoteException;
 import org.talend.mdm.test.util.Util;
 
 import talend.mdm.test.MDMTestCase;
+import urn_com_amalto_xtentis_webservice.WSDataClusterPK;
+import urn_com_amalto_xtentis_webservice.WSDataModelPK;
 import urn_com_amalto_xtentis_webservice.WSPing;
+import urn_com_amalto_xtentis_webservice.WSPutItem;
 import urn_com_amalto_xtentis_webservice.WSString;
 import urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions;
 import urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID;
 import urn_com_amalto_xtentis_webservice.XtentisPort;
-
-
 
 public class WebserviceTestCase extends MDMTestCase{
 	
@@ -30,7 +31,7 @@ public class WebserviceTestCase extends MDMTestCase{
 		}
 	}
 	
-	public void testPing() {
+   public void testPing() {
 		
 		String msg="Hello MDM";
 		try {
@@ -42,7 +43,7 @@ public class WebserviceTestCase extends MDMTestCase{
 		
 	}
 	
-    public void testWorkflowGetProcessDefinitions() {
+   public void testWorkflowGetProcessDefinitions() {
 		
 
 		try {
@@ -58,7 +59,31 @@ public class WebserviceTestCase extends MDMTestCase{
 		}
 		
 	}
+   
+   public void testBatchInsert() {
+   	
+   	for (int i = 0; i < 10000; i++) {
+   		
+   		String xmlString="<User><id>"+i+"</id><name>Newton"+i+"</name><country>UK</country><state>new</state></User>";
+   		WSPutItem wsPutItem=new WSPutItem(
+	                   new WSDataClusterPK("User"),
+	                   xmlString,
+	                   new WSDataModelPK("User"),
+	                   new Boolean(false)
+	                   );
+   		
+   		try {
+				defaultPort.putItem(wsPutItem);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+			System.out.println("Inserted item "+i);
+		}
+		
+	}
 	
 	//TODO: Add more test case here
+    
+    
 
 }
