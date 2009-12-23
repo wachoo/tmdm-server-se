@@ -8,9 +8,11 @@ import org.talend.mdm.test.util.Util;
 import talend.mdm.test.MDMTestCase;
 import urn_com_amalto_xtentis_webservice.WSDataClusterPK;
 import urn_com_amalto_xtentis_webservice.WSDataModelPK;
+import urn_com_amalto_xtentis_webservice.WSGetUniversePKs;
 import urn_com_amalto_xtentis_webservice.WSPing;
 import urn_com_amalto_xtentis_webservice.WSPutItem;
 import urn_com_amalto_xtentis_webservice.WSString;
+import urn_com_amalto_xtentis_webservice.WSUniversePK;
 import urn_com_amalto_xtentis_webservice.WSWorkflowGetProcessDefinitions;
 import urn_com_amalto_xtentis_webservice.WSWorkflowProcessDefinitionUUID;
 import urn_com_amalto_xtentis_webservice.XtentisPort;
@@ -37,6 +39,20 @@ public class WebserviceTestCase extends MDMTestCase{
 		try {
 			WSString echo=defaultPort.ping(new WSPing(msg));
 			assertEquals(msg, echo.getValue());
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		
+	}
+   
+   public void testGetUniversePks() {
+		
+		try {
+			WSUniversePK[] pks=defaultPort.getUniversePKs(new WSGetUniversePKs(".*"));
+			for (int i = 0; i < pks.length; i++) {
+				WSUniversePK pk=pks[i];
+				System.out.println(pk.getPk());
+			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
