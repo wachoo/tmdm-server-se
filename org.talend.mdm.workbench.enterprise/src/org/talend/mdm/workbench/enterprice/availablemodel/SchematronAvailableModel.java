@@ -1,7 +1,6 @@
 package org.talend.mdm.workbench.enterprice.availablemodel;
 
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.xsd.XSDAnnotation;
 import org.talend.mdm.workbench.enterprice.actions.XSDDeleteAnnotationSchematronAction;
 import org.talend.mdm.workbench.enterprice.actions.XSDDeleteValidationRulesAction;
 import org.talend.mdm.workbench.enterprice.actions.XSDSetAnnotationSchematronAction;
@@ -20,10 +19,11 @@ public class SchematronAvailableModel extends AbstractAvailableModel {
 				manager.add(new XSDDeleteAnnotationSchematronAction(page, dataModelName));
 			} 
 		}
-		if(obj instanceof XSDAnnotation)
+					
+		if(obj ==null){
 			manager.add(new XSDSetAnnotationSchematronAction(page, dataModelName));
-		if(obj ==null)
 			manager.add(new XSDDeleteValidationRulesAction(page));
+		}
 		
 	}
 	

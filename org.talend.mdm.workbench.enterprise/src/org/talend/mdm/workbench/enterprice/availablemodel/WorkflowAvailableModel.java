@@ -3,13 +3,18 @@ package org.talend.mdm.workbench.enterprice.availablemodel;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.PartInitException;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.workbench.enterprice.actions.DeleteWorkflowProcessAction;
 import org.talend.mdm.workbench.enterprice.actions.GenerateWorkflowDefaultTransformerAction;
 import org.talend.mdm.workbench.enterprice.actions.ImportWorkflowProcessAction;
+import org.talend.mdm.workbench.enterprice.actions.XSDDeleteAnnotationSchematronAction;
+import org.talend.mdm.workbench.enterprice.actions.XSDSetAnnotationSchematronAction;
+import org.talend.mdm.workbench.enterprice.actions.XSDSetAnnotationWorkflowAction;
 import org.talend.mdm.workbench.enterprice.editors.WorkflowBrowserMainPage;
+import org.w3c.dom.Element;
 
 import com.amalto.workbench.availablemodel.AbstractAvailableModel;
-import com.amalto.workbench.availablemodel.IAvailableModel;
+import com.amalto.workbench.editors.DataModelMainPage;
 import com.amalto.workbench.editors.XObjectBrowser;
 import com.amalto.workbench.models.TreeObject;
 import com.amalto.workbench.models.TreeParent;
@@ -81,4 +86,20 @@ public class WorkflowAvailableModel extends AbstractAvailableModel {
 		}
 		
 	}
+	
+	public void fillContextMenu(Object obj, IMenuManager manager,DataModelMainPage page,String dataModelName) {					
+		if(obj ==null){
+			manager.add(new XSDSetAnnotationWorkflowAction(page, dataModelName));			
+		}		
+	}
+	
+
+	public void doubleClickOnElement(int type,DataModelMainPage page,String dataModelName) {
+		switch (type){
+		case 111:
+			new XSDSetAnnotationWorkflowAction(page,dataModelName).run();
+			break;
+		}
+	}
+	
 }
