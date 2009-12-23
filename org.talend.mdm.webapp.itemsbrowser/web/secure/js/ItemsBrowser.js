@@ -833,6 +833,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			$(itemsSearchValuex).style.display = "none";
 			currentPredicate[id] = 'enumeration';
 		}
+		else if(predicateValues == 'complex type')
+		{
+			DWRUtil.addOptions('itemsSearchOperator' + id ,OPERATORS[language]);
+			$(itemsSearchValuex).value = "*";
+			$(itemsSearchValuex).style.display = 'inline';
+		}
 	}
 	
 
@@ -2536,6 +2542,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 	}
 	
+	function removeForeignKey(nodeId,treeIndex) {
+		
+		var url=$(nodeId+"Value").value;
+		DWRUtil.setValue(nodeId+'Value','');
+		updateNode(nodeId,treeIndex);
+	}
+	
 	var fnLoadData2;
 	
 		
@@ -2724,6 +2737,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		removeNode2:function(id,treeIndex){removeNode2(id,treeIndex)},
 		displayXsdDetails:function(id){displayXsdDetails(id)},
 		setForeignKey:function(nodeId,treeIndex){setForeignKey(nodeId,treeIndex)},
+		removeForeignKey:function(nodeId, treeIndex){removeForeignKey(nodeId,treeIndex)},
 		displayItemDetails:function(){displayItemDetails();},
 		editItemDetails:function(itemPK,dataObject,refreshCB){displayItemDetails4Reference(itemPK,dataObject,refreshCB);},
 		filterForeignKey:function(string0, string1, id){filterForeignKey(string0, string1, id);},

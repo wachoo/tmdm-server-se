@@ -129,9 +129,12 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					readOnly = "READONLY";
 					readOnlyStyle = "ForeignKey";
 					foreignKeyImg = '' +
+					   '<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removeForeignKey(\''+itemData.nodeId+'\','+treeIndex+')">' +
+					   '<img alt="Remove the picture" src="img/genericUI/clear-icon.gif"/></span>';
+					foreignKeyImg += '' +
 						'<span style="cursor: pointer;" ' +
 						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\','+treeIndex+')" >' +
-						' <img src="img/genericUI/magnifier_plus.gif"/></span>';						
+						' <img src="img/genericUI/magnifier_plus.gif"/></span>';
 				}
 			foreignKeyImg += ''+
 						'<span style="cursor: pointer;" ' +
