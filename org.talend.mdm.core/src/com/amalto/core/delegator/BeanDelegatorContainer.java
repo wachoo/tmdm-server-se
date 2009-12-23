@@ -28,8 +28,9 @@ public class BeanDelegatorContainer {
 
 	/** 
 	 * Get the unique instance of this class.
+	 * In order to improve the performace, removed synchronized, using pseudo singleton mode
 	 */
-	public static synchronized BeanDelegatorContainer getUniqueInstance() {
+	public static BeanDelegatorContainer getUniqueInstance() {
 
 		if (sInstance == null) {
 			sInstance = new BeanDelegatorContainer();
