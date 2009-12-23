@@ -1900,6 +1900,16 @@ public class ItemsBrowserDWR {
 						}
 					}
 				}
+				else if(!name.equals("") && type.equals(""))
+				{
+					if(Util.getNodeList(elem, ".//xsd:complexType//xsd:element").getLength() > 0)
+					{
+						ArrayList<String> contents = new ArrayList<String>();
+						contents.add("complex type");
+						metaDataTypes.put((hierarchy == null ? "" : hierarchy ) + name, contents);
+					}
+				}
+				
 				if(Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").getLength() > 0)
 				{
 					foreignKey = Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").item(0).getTextContent();
