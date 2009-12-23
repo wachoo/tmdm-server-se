@@ -129,7 +129,6 @@ import com.amalto.core.schematron.validation.Schema;
 import com.amalto.core.schematron.validation.SchemaFactory;
 import com.amalto.core.schematron.validation.Validator;
 import com.amalto.core.schematron.validation.Violation;
-import com.amalto.core.webservice.WSItemPK;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSComplexType;
