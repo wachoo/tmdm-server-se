@@ -2919,46 +2919,8 @@ public final class Util {
 	
 	public static WorkflowServiceCtrlLocalBI getWorkflowService() throws XtentisException{
 		String JNDI="amalto/local/service/workflow";
-    	try {
-    		
-    		EJBLocalHome pluginHome=null;
-    		InitialContext ctx = new InitialContext();
-    		
-   			pluginHome = (EJBLocalHome)ctx.lookup(JNDI);
-
-	        //find create 
-	        Method[] m = pluginHome.getClass().getMethods();
-	        Method create = null;
-	        for (int i = 0; i < m.length; i++) {
-				if ("create".equals(m[i].getName())) {
-					create = m[i];
-					break;
-				}
-			}
-	        if (create == null) {
-	        	String err = "Unable to find create method on workflow service \""+JNDI+"\"";
-	        	org.apache.log4j.Logger.getLogger(Util.class).error("getWorkflowService() "+err);
-	    		throw new XtentisException(err);        	
-	        }
-	        
-	        //call it
-	        Object plugin = create.invoke(pluginHome,(Object[])null);
-            //Util.dumpClass(plugin.getClass());
-	    	return (WorkflowServiceCtrlLocalBI)plugin;
-	    	
-	    } catch (XtentisException e) {
-	    	throw(e);
-	    } catch (Exception e) {
-    		String err = 
-    			"Unable to instantiate the plugin  '"+JNDI+"': ";
-    		if (e.getCause()!=null) {
-    			err+="caused by "+e.getCause().getClass().getName()+": "+e.getCause().getMessage();
-    		} else {
-				err+=e.getClass().getName()+": "+e.getMessage();
-    		}
-    		org.apache.log4j.Logger.getLogger(Util.class).error("getWorkflowService() "+err);
-    		throw new XtentisException(err);
-	    }
+		Object service= Util.retrieveComponent(null, JNDI);
+		return (WorkflowServiceCtrlLocalBI)service;
     }
 	
 	 public static boolean isDefaultSVNUP() throws Exception{
