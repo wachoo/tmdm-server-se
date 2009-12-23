@@ -331,10 +331,30 @@ public final class Util {
     private static void setMinOccurs(Document xsdDoc, String conceptName){
     	
     	try {
-    		String xpath ="//xsd:element[@name='" + conceptName + "']/xsd:complexType//xsd:element";
+    		
+			String rootPath = "//xsd:element[@name='" + conceptName + "']";
+			NodeList root = Util.getNodeList(xsdDoc.getDocumentElement(),rootPath);
+			Node rootnode = root.item(0);
+			Node type = rootnode.getAttributes().getNamedItem("type");
+			//System.out.println(type.getNodeValue());
+			
+			
+			String typePath =  "//xsd:complexType[@name='" + type.getNodeValue() + "']//xsd:element";
+			NodeList typeNodeList = Util.getNodeList(xsdDoc.getDocumentElement(),typePath);
+			for(int i=0;i<typeNodeList.getLength();i++){
+				Node node = typeNodeList.item(i);
+				node.getBaseURI();
+				Node nameNode = node.getAttributes().getNamedItem("name");
+				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
+				
+				if(minOccursNode.getNodeValue().equals("0")){
+					setMinOccursDeep(xsdDoc,"//xsd:element[@name='" + nameNode.getNodeValue() + "']/xsd:complexType//xsd:element");
+				}
+			}
+			
+			String xpath ="//xsd:element[@name='" + conceptName + "']//xsd:complexType//xsd:element";
 			NodeList nodeList = Util.getNodeList(xsdDoc.getDocumentElement(),xpath);
-			if(nodeList.getLength()==0)
-				return;
+			
 			for(int i=0;i<nodeList.getLength();i++){
 				Node node = nodeList.item(i);
 				node.getBaseURI();
@@ -348,7 +368,7 @@ public final class Util {
 			
 		} catch (XtentisException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e.printStackTrace(); 	
 		}    	
     	
     }
@@ -2918,8 +2938,46 @@ public final class Util {
 	
 	public static WorkflowServiceCtrlLocalBI getWorkflowService() throws XtentisException{
 		String JNDI="amalto/local/service/workflow";
-		Object service= Util.retrieveComponent(null, JNDI);
-		return (WorkflowServiceCtrlLocalBI)service;
+    	try {
+    		
+    		EJBLocalHome pluginHome=null;
+    		InitialContext ctx = new InitialContext();
+    		
+   			pluginHome = (EJBLocalHome)ctx.lookup(JNDI);
+
+	        //find create 
+	        Method[] m = pluginHome.getClass().getMethods();
+	        Method create = null;
+	        for (int i = 0; i < m.length; i++) {
+				if ("create".equals(m[i].getName())) {
+					create = m[i];
+					break;
+				}
+			}
+	        if (create == null) {
+	        	String err = "Unable to find create method on workflow service \""+JNDI+"\"";
+	        	org.apache.log4j.Logger.getLogger(Util.class).error("getWorkflowService() "+err);
+	    		throw new XtentisException(err);        	
+	        }
+	        
+	        //call it
+	        Object plugin = create.invoke(pluginHome,(Object[])null);
+            //Util.dumpClass(plugin.getClass());
+	    	return (WorkflowServiceCtrlLocalBI)plugin;
+	    	
+	    } catch (XtentisException e) {
+	    	throw(e);
+	    } catch (Exception e) {
+    		String err = 
+    			"Unable to instantiate the plugin  '"+JNDI+"': ";
+    		if (e.getCause()!=null) {
+    			err+="caused by "+e.getCause().getClass().getName()+": "+e.getCause().getMessage();
+    		} else {
+				err+=e.getClass().getName()+": "+e.getMessage();
+    		}
+    		org.apache.log4j.Logger.getLogger(Util.class).error("getWorkflowService() "+err);
+    		throw new XtentisException(err);
+	    }
     }
 	
 	 public static boolean isDefaultSVNUP() throws Exception{
