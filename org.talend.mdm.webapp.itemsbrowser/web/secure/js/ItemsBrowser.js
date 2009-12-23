@@ -1397,7 +1397,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		
 		// duplicate
-		if ( (options&O_DUPLICATE)==O_DUPLICATE && amalto.updatereport)
+		if ( (options&O_DUPLICATE)==O_DUPLICATE )
 		{
 			if (nbButtons>0)
 			{
@@ -1410,7 +1410,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		
 		// journal
-		if ( (options&O_JOURNAL)==O_JOURNAL )
+		if ( (options&O_JOURNAL)==O_JOURNAL && amalto.updatereport)
 		{
 			if (nbButtons>0)
 			{
