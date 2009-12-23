@@ -458,7 +458,8 @@ public class CrossReferencingTransformerPluginBean extends TransformerPluginV2Ct
 						} else
 							throw new XtentisException("Invalid xrefIn path "+xrefElement+" - xref path should correspond to attributes or text nodes only.");
 					}
-					itemvals.put(xrefPath,itemval);
+					
+					itemvals.put(xrefPath,stripeOuterBracket(itemval));
 				}
 
 				if (itemvals.size() == 0)
@@ -512,7 +513,41 @@ public class CrossReferencingTransformerPluginBean extends TransformerPluginV2Ct
     }
 
 
-
+    private String stripeOuterBracket(String rowData)
+    {
+	     ArrayList<String> result = new ArrayList<String>();
+		 int aggregate = 0;
+		 int cordon = 0;
+	     for(int i = 0; i < rowData.length(); i++)
+		 {
+	        char ch = rowData.charAt(i);
+			if(ch == '[')
+			{
+			 aggregate++;
+			 if(aggregate == 1)
+			 {
+			   cordon = i;
+			 }
+			}
+			else if(ch == ']')
+			{
+	          aggregate--;
+			  if(aggregate == 0)
+			  {
+				 result.add(rowData.substring(cordon+1, i));
+			  }
+			}
+			else if(aggregate == 0)
+				result.add(ch + "");
+		 }
+	     
+	     String out = "";
+	     for (String slip: result)
+	     {
+	    	 out +=slip;
+	     }
+	     return out;
+    }
 
     private String getCrossReferencedValue(HashMap<String,String> itemvals, String xrefcluster, String xrefOutPath, boolean xrefIgnore, String xrefDefault)  throws XtentisException{
     	org.apache.log4j.Logger.getLogger(this.getClass()).debug("getCrossReferencedValue() xrefcluster = "+ xrefcluster+" xrefOutPath = "+xrefOutPath+" xrefIgnore = "+xrefIgnore+" xrefDefault = "+xrefDefault);
