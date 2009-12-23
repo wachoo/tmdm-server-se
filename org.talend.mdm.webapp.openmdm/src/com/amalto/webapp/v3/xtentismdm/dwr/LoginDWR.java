@@ -18,13 +18,12 @@ public class LoginDWR {
 
 	}
 	
-	public String[] getUniverseNames() throws XtentisWebappException {
+	public String[] getUniverseNames(String username,String password) throws XtentisWebappException {
 		
 		List<String> universeNames=new ArrayList<String>();
 		universeNames.add("HEAD");
 		try {
-			//FIXME use RMI port
-			XtentisPort port=Util.getPort(null, null, Util._FORCE_RMI_);
+			XtentisPort port=Util.getPort(username, password);
 			WSUniversePKArray pks=port.getUniversePKs(new WSGetUniversePKs(".*"));
 			if(pks!=null){
 				WSUniversePK[] wsUniversePKs=pks.getWsUniversePK();
