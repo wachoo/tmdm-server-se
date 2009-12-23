@@ -92,8 +92,10 @@ public class TreeNode implements Cloneable {
     					}		
     					else if("X_ForeignKeyInfo".equals(appinfoSource)){							
     						fkInfoList.add(annotList.item(k).getFirstChild().getNodeValue());
-    					}else if(("X_Description_"+language.toUpperCase()).equals(appinfoSource)){						
-    						setDescription(annotList.item(k).getFirstChild().getNodeValue());
+    					}else if(("X_Description_"+language.toUpperCase()).equals(appinfoSource)){		
+    					   String description = annotList.item(k).getFirstChild().getNodeValue();
+    					   String encodedDESP = description != null ? description.replaceAll("\"", "&quot;") : "";
+    						setDescription(encodedDESP);
     					}
     					else if(appinfoSource.indexOf("X_Facet_") != -1)
     					{
