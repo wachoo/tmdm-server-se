@@ -19,8 +19,11 @@ import java.util.logging.Logger;
 
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
+import org.w3c.dom.*;
+
 
 import com.amalto.core.schematron.validation.Validator;
+import com.amalto.core.util.Util;
 
 /**
  * An object representing a single Schematron schema, used to validate
@@ -282,7 +285,8 @@ public class SchematronValidator implements Validator
         boolean passed = evalTest( localJxpContext, assertion.getTest() );
         if (!passed) 
         {
-          nextFailedRule.addAssert ( assertion );
+           parseMsg(assertion, localJxpContext);
+           nextFailedRule.addAssert ( assertion );
         }
       }
       
@@ -296,7 +300,8 @@ public class SchematronValidator implements Validator
         boolean passed = evalTest( localJxpContext, report.getTest() );
         if (passed) 
         {
-          nextFailedRule.addReport ( report );
+           parseMsg(report, localJxpContext);
+           nextFailedRule.addReport ( report );
         }
       }
       
@@ -309,6 +314,34 @@ public class SchematronValidator implements Validator
     }
     
     return failedRules;
+  }
+  
+  /**
+   * parse message and replace name element with element of instance.
+   * @param assertion
+   * @param localJxpContext
+   */
+  private void parseMsg(Assert assertion, JXPathContext localJxpContext) {
+     try {
+        Document dom = Util.parse("<msg>" + assertion.getMessage() + "</msg>");
+        NodeList nlist = dom.getFirstChild().getChildNodes();
+        
+        for(int i = 0; i < nlist.getLength(); i++) {
+           Node node = nlist.item(i);
+           
+           if("name".equals(node.getNodeName())) {
+              Node nameNode = node.getAttributes().getNamedItem("path");
+              String xpath = nameNode != null ? nameNode.getNodeValue() : ".";
+              node.setTextContent(
+                 ((Node)localJxpContext.getPointer(xpath).getNode()).getNodeName());
+           }
+        }
+        
+        assertion.setMessage(Util.nodeToString(dom));
+     }
+     catch(Exception e) {
+        e.printStackTrace();
+     }
   }
 
   
