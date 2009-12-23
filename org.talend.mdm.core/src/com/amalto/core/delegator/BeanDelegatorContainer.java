@@ -28,7 +28,7 @@ public class BeanDelegatorContainer {
 
 	/** 
 	 * Get the unique instance of this class.
-	 * In order to improve the performace, removed synchronized, using pseudo singleton mode
+	 * In order to improve the performance, removed synchronized, using pseudo singleton mode
 	 */
 	public static BeanDelegatorContainer getUniqueInstance() {
 
