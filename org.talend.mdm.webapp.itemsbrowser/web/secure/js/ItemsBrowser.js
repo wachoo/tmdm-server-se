@@ -1397,7 +1397,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		
 		// duplicate
-		if ( (options&O_DUPLICATE)==O_DUPLICATE )
+		if ( (options&O_DUPLICATE)==O_DUPLICATE && amalto.updatereport)
 		{
 			if (nbButtons>0)
 			{
