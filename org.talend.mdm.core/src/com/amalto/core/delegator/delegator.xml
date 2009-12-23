@@ -1,0 +1,13 @@
+<bean>
+  <delegator>
+    
+    <OPEN>
+      <name>XtentisWSBeanDelegator#com.amalto.core.delegator.open.XtentisWSBeanOpenDelegator</name>
+    </OPEN>
+    
+    <ENTERPRISE>
+       <name>XtentisWSBeanDelegator#com.amalto.core.delegator.enterprise.XtentisWSBeanEnterpriseDelegator</name>
+    </ENTERPRISE>
+    
+  </delegator>
+</bean>

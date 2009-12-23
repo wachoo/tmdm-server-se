@@ -61,6 +61,7 @@ import sun.misc.BASE64Decoder;
 
 import com.amalto.connector.jca.InteractionSpecImpl;
 import com.amalto.connector.jca.RecordFactoryImpl;
+import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
@@ -343,7 +344,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * 	view-type = "service-endpoint"
 	 */
 	public WSString ping(WSPing wsPing) throws RemoteException {
-		return new WSString(wsPing.getEcho());
+		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSBeanDelegator().ping(wsPing);
 	}
 
 	/***************************************************************************
@@ -5146,24 +5147,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * 	view-type = "service-endpoint"
 	 */
 	public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex) throws RemoteException {
-		try {
-			UniverseCtrlLocal ctrl = UniverseCtrlUtil.getLocalHome().create();
-			Collection c =
-				ctrl.getUniversePKs(
-					regex.getRegex()
-				);
-			if (c==null) return null;
-			WSUniversePK[] pks = new WSUniversePK[c.size()];
-			int i=0;
-			for (Iterator iter = c.iterator(); iter.hasNext(); ) {
-				pks[i++] = new WSUniversePK(
-						((UniversePOJOPK) iter.next()).getUniqueId()
-				);
-			}
-			return new WSUniversePKArray(pks);
-		} catch (Exception e) {
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
+		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSBeanDelegator().getUniversePKs(regex);
 	}
 
 	/**
