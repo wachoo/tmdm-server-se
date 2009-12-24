@@ -43,16 +43,15 @@ amalto.updatereport.UpdateReport = function () {
 		
 	};
 	
-	function browseUpdateReportWithSearchCriteria(dataObject,ids){
-		
+	function browseUpdateReportWithSearchCriteria(dataObject, ids, itemsBroswer){
 		var isFirstTime=initUI();
 		//set search criteria
 		updateReportPanel.setSearchCriteria(dataObject,ids,"","","","");
 		// load data
 		if(isFirstTime){
-			updateReportPanel.initListData();
+			updateReportPanel.initListData(itemsBroswer);
 		}else{
-			updateReportPanel.doSearchList();
+			updateReportPanel.doSearchList(itemsBroswer);
 		}
 		
 	}
@@ -61,6 +60,6 @@ amalto.updatereport.UpdateReport = function () {
  	return {
  		
 		init: function() {browseUpdateReport();},
-		browseUpdateReportWithSearchCriteria: function(dataObject,ids) {browseUpdateReportWithSearchCriteria(dataObject,ids);}
+		browseUpdateReportWithSearchCriteria: function(dataObject,ids,itemsBrower) {browseUpdateReportWithSearchCriteria(dataObject,ids,itemsBrower);}
  	}
 }();

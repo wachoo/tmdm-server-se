@@ -10,6 +10,7 @@ import org.w3c.dom.Document;
 
 import talend.webapp.v3.updatereport.bean.DataChangeLog;
 
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
@@ -31,7 +32,9 @@ public class UpdateReportDWR {
 		
 	}
 	
-	public ListRange getUpdateReportList(int start, int limit,String sort,String dir,String regex)throws Exception{
+	public ListRange getUpdateReportList(int start, int limit, String sort, 
+	   String dir,String regex) throws Exception
+   {
 		
 		ListRange listRange = new ListRange();
 		
@@ -44,12 +47,41 @@ public class UpdateReportDWR {
  		ArrayList<WSWhereItem> conditions=new ArrayList<WSWhereItem>();
  		if(regex!=null&&regex.length()>0){
  			JSONObject criteria=new JSONObject(regex);
+ 			boolean itemsBrowser = !criteria.isNull("itemsBrowser") && 
+ 			   criteria.get("itemsBrowser").equals("true");
+ 			
+ 			if(itemsBrowser){
+ 			   Configuration configuration = Configuration.getInstance();
+ 			   String dataCluster = configuration.getCluster();
+ 			   String dataModel = configuration.getModel();
+ 			   
+            WSWhereCondition clusterwc = new WSWhereCondition(
+               "/Update/DataCluster",
+               WSWhereOperator.EQUALS,
+               dataCluster.trim(),
+               WSStringPredicate.NONE,
+               false
+               );
+            
+            WSWhereCondition modelwc =new WSWhereCondition(
+               "/Update/DataModel",
+               WSWhereOperator.EQUALS,
+               dataModel.trim(),
+               WSStringPredicate.NONE,
+               false
+               );
+            
+            WSWhereItem wsWhereDataCluster = new WSWhereItem(clusterwc, null, null);
+            WSWhereItem wsWhereDataModel = new WSWhereItem(modelwc, null, null);
+            conditions.add(wsWhereDataCluster);
+            conditions.add(wsWhereDataModel);
+         }
  			
             if(!criteria.isNull("concept")){
             	String concept=(String) criteria.get("concept");
             	WSWhereCondition wc=new WSWhereCondition(
         				"/Update/Concept",
-        				WSWhereOperator.CONTAINS,
+        				itemsBrowser ? WSWhereOperator.EQUALS : WSWhereOperator.CONTAINS,
         				concept.trim(),
         				WSStringPredicate.NONE,
         				false
@@ -62,7 +94,7 @@ public class UpdateReportDWR {
             	String key=(String) criteria.get("key");
             	WSWhereCondition wc=new WSWhereCondition(
         				"/Update/Key",
-        				WSWhereOperator.CONTAINS,
+        				itemsBrowser ? WSWhereOperator.EQUALS : WSWhereOperator.CONTAINS,
         				key.trim(),
         				WSStringPredicate.NONE,
         				false

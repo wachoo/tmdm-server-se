@@ -2217,7 +2217,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	function journalItem(ids, dataObject){
 		if(ids.indexOf("@")>0)ids=ids.replaceAll("@",".");
-	    amalto.updatereport.UpdateReport.browseUpdateReportWithSearchCriteria(dataObject,ids);	
+	    amalto.updatereport.UpdateReport.browseUpdateReportWithSearchCriteria(dataObject, ids, true);	
 	}	
 
 	/**

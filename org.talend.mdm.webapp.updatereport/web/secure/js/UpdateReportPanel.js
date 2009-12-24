@@ -312,30 +312,31 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 		});
 		
 	},
-	
-	initListData : function(){
-
+    
+	initListData : function(itemsBroswer){
+		this.isItemsBrowser = itemsBroswer;
 		this.store1.load({params:{start:0, limit:this.initPageSize}});
 		
     },
     
-    doSearchList : function(){
-
+    isItemsBrowser : false,
+    
+    doSearchList : function(itemsBrowser){
+    	this.isItemsBrowser = itemsBrowser;
 		var pageSize=Ext.getCmp("updateReportPagingToolbar").pageSize;
 		this.store1.reload({params:{start:0, limit:pageSize}});
-		
     },
     
     onSearchBtnClick : function(button, event){
     	
-		this.doSearchList();
+		this.doSearchList(false);
 		
     },
     
     onSearchKeyClick : function(field, event){
     	
     	if (event.getKey() == Ext.EventObject.ENTER) {
-	      this.doSearchList();
+	      this.doSearchList(false);
 	    }
 		
     },
@@ -377,7 +378,8 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 		if(startDate!="")requestParam+=",startDate:'"+startDate+"'";
 		var endDate = DWRUtil.getValue('endDate');
 		if(endDate!="")requestParam+=",endDate:'"+endDate+"'";
-		
+		if(this.isItemsBrowser == true) requestParam += ",itemsBrowser:'" + this.isItemsBrowser +"'";
+
 		if(requestParam!=""){
 		requestParam=requestParam.substring(1)
 		requestParam="{"+requestParam+"}";
