@@ -8,7 +8,7 @@ import com.amalto.core.webservice.WSUniversePKArray;
 
 public class XtentisWSBeanOpenDelegator extends XtentisWSBeanDefaultDelegator{
 
-	@Override
+
 	public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex)
 			throws RemoteException {
 		throw new RemoteException("Not Supported");
