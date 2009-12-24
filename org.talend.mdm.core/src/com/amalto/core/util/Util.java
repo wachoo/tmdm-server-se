@@ -328,50 +328,62 @@ public final class Util {
      * @param xsdDoc
      * @param conceptName
      */
-    private static void setMinOccurs(Document xsdDoc, String conceptName){
-    	
-    	try {
-    		
+	private static void setMinOccurs(Document xsdDoc, String conceptName) {
+
+		try {
+			//if the node's type is complex, get the type and setMinOccurs for the type
 			String rootPath = "//xsd:element[@name='" + conceptName + "']";
-			NodeList root = Util.getNodeList(xsdDoc.getDocumentElement(),rootPath);
+			NodeList root = Util.getNodeList(xsdDoc.getDocumentElement(),
+					rootPath);
 			Node rootnode = root.item(0);
 			Node type = rootnode.getAttributes().getNamedItem("type");
-			//System.out.println(type.getNodeValue());
-			
-			
-			String typePath =  "//xsd:complexType[@name='" + type.getNodeValue() + "']//xsd:element";
-			NodeList typeNodeList = Util.getNodeList(xsdDoc.getDocumentElement(),typePath);
-			for(int i=0;i<typeNodeList.getLength();i++){
-				Node node = typeNodeList.item(i);
-				node.getBaseURI();
-				Node nameNode = node.getAttributes().getNamedItem("name");
-				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
-				
-				if(minOccursNode.getNodeValue().equals("0")){
-					setMinOccursDeep(xsdDoc,"//xsd:element[@name='" + nameNode.getNodeValue() + "']/xsd:complexType//xsd:element");
+			// System.out.println(type.getNodeValue());
+
+			if (type != null) {
+				String typePath = "//xsd:complexType[@name='"
+						+ type.getNodeValue() + "']//xsd:element";
+				NodeList typeNodeList = Util.getNodeList(xsdDoc
+						.getDocumentElement(), typePath);
+				for (int i = 0; i < typeNodeList.getLength(); i++) {
+					Node node = typeNodeList.item(i);
+					node.getBaseURI();
+					Node nameNode = node.getAttributes().getNamedItem("name");
+					Node minOccursNode = node.getAttributes().getNamedItem(
+							"minOccurs");
+
+					if (minOccursNode.getNodeValue().equals("0")) {
+						setMinOccursDeep(xsdDoc, "//xsd:element[@name='"
+								+ nameNode.getNodeValue()
+								+ "']/xsd:complexType//xsd:element");
+					}
 				}
 			}
-			
-			String xpath ="//xsd:element[@name='" + conceptName + "']//xsd:complexType//xsd:element";
-			NodeList nodeList = Util.getNodeList(xsdDoc.getDocumentElement(),xpath);
-			
-			for(int i=0;i<nodeList.getLength();i++){
+
+			String xpath = "//xsd:element[@name='" + conceptName
+					+ "']//xsd:complexType//xsd:element";
+			NodeList nodeList = Util.getNodeList(xsdDoc.getDocumentElement(),
+					xpath);
+
+			for (int i = 0; i < nodeList.getLength(); i++) {
 				Node node = nodeList.item(i);
 				node.getBaseURI();
 				Node nameNode = node.getAttributes().getNamedItem("name");
-				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
-				
-				if(minOccursNode.getNodeValue().equals("0")){
-					setMinOccursDeep(xsdDoc,"//xsd:element[@name='" + nameNode.getNodeValue() + "']/xsd:complexType//xsd:element");
+				Node minOccursNode = node.getAttributes().getNamedItem(
+						"minOccurs");
+
+				if (minOccursNode.getNodeValue().equals("0")) {
+					setMinOccursDeep(xsdDoc, "//xsd:element[@name='"
+							+ nameNode.getNodeValue()
+							+ "']/xsd:complexType//xsd:element");
 				}
 			}
-			
+
 		} catch (XtentisException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace(); 	
-		}    	
-    	
-    }
+			e.printStackTrace();
+		}
+
+	}
     /**
      * @author ymli fix bug 0009642
      * set Parentnode's chirldren's minOccurs 0 to match the w3c roles
