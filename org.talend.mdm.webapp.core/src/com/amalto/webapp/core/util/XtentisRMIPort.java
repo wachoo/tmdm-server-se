@@ -1023,7 +1023,7 @@ public class XtentisRMIPort implements XtentisPort {
 			if (itemPOJOPK==null) return null;
 			
 			//update vocabulary
-			com.amalto.core.util.Util.getDataClusterCtrlLocal().addToVocabulary(dcpk, projection);
+			//com.amalto.core.util.Util.getDataClusterCtrlLocal().addToVocabulary(dcpk, projection);
 			
 			return new WSItemPK(
 					new WSDataClusterPK(itemPOJOPK.getDataClusterPOJOPK().getUniqueId()),

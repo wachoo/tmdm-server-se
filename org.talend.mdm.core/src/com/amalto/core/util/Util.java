@@ -1391,19 +1391,6 @@ public final class Util {
 		return content;
     }
     
-    /**
-     * @deprecated
-     * @param schema
-     * @param concept
-     * @return
-     * @throws Exception
-     */
-    public static NodeList getUUIDNodes(Document schema, String concept) throws Exception{
-		Element rootNS=Util.getRootElement("nsholder",schema.getDocumentElement().getNamespaceURI(),"xsd");	
-		String xpath="//xsd:element[@name='"+concept+"']//xsd:element[@type='"+EUUIDCustomType.AUTO_INCREMENT+"' or @type='"+EUUIDCustomType.UUID+"']";
-		NodeList uuidLists=Util.getNodeList(schema.getDocumentElement(),xpath,rootNS.getNamespaceURI(),"xsd");
-		return uuidLists;
-    }
 
     public static List<XSParticle> getUUIDNodes(String schema, String concept)throws Exception{
     	XSComplexType xsct = (XSComplexType)(getConceptMap(schema).get(concept).getType()); 
@@ -1460,7 +1447,67 @@ public final class Util {
 		}   
 		return mapForAll;
 	}
+	public static String updateItem(String concept, String xsd, Node updateNode)throws Exception{
+		Element newNode=createItem(concept, xsd);
+		Map<String,String> map=getElementValueMap("/"+concept, updateNode);
+		JXPathContext newcontext = JXPathContext.newContext(newNode);		
+		for(Map.Entry<String,String> entry:map.entrySet()){
+			String xpath= entry.getKey();
+			xpath=xpath.replaceAll("/"+concept, "");
+			newcontext.setValue(xpath, entry.getValue());
+		}
+		String xml=getXMLStringFromNode((Node)newcontext.getContextBean());
+		return xml.replaceAll("<\\?xml.*?\\?>","");
+	}
 	
+	/**
+	 * create an "empty" item from scratch, set every text node to empty
+	 * @param concept
+	 * @param xsd
+	 * @return
+	 * @throws Exception
+	 */
+	public static Element createItem(String concept, String xsd) throws Exception{
+		
+		String xml1 = "<"+concept+"></"+concept+">";
+		Document d = Util.parse(xml1);						
+		Map<String,XSElementDecl> map = getConceptMap(xsd);
+    	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
+    	XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+    	for (int j = 0; j < xsp.length; j++) {  		
+    		//why don't set up children element? FIXME    		
+    		setChilden(xsp[j], "/"+concept,d);
+    	}
+    	return d.getDocumentElement();
+	}
+	
+	private static void setChilden(XSParticle xsp, String xpathParent, Document d) throws Exception{
+		//aiming added see 0009563
+		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
+			XSParticle[] xsps=xsp.getTerm().asModelGroup().getChildren();			
+			for (int i = 0; i < xsps.length; i++) {
+				setChilden(xsps[i],xpathParent,d);
+			}
+		}
+		if(xsp.getTerm().asElementDecl()==null) return;
+		//end
+			
+		Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
+		Node node = Util.getNodeList(d,xpathParent).item(0);
+		node.appendChild(el);
+		if(xsp.getTerm().asElementDecl().getType().isComplexType()==true ){
+			XSParticle particle = xsp.getTerm().asElementDecl()
+			.getType().asComplexType().getContentType().asParticle();
+			if(particle!=null){
+				XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
+				xpathParent = xpathParent+"/"+xsp.getTerm().asElementDecl().getName();
+				for (int i = 0; i < xsps.length; i++) {
+					setChilden(xsps[i],xpathParent, d);
+				}
+			}
+		}		
+	}
+
     public static String[] getTargetSystemsFromSchema(Document schema, String concept) throws Exception{
     	String[] targetSystems=null;
     	
@@ -3012,8 +3059,7 @@ public final class Util {
 	 *********************************************************************/	
  
 	 public static void main(String args[]) throws Exception {
-	 	//testSpellCheck();
-	// 	System.out.println(getTimestamp());
+	 	//testSpellCheck();		
 	 }
 	
 } 

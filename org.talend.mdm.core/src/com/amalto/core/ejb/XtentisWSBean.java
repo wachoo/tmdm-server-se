@@ -1813,6 +1813,9 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 					projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
 				}		
 			}
+		}else{
+			//update the item according to datamodel 
+			projection=Util.updateItem(concept, dataModel.getSchema(), root);
 		}
 		//end
 		ItemPOJOPK itemPOJOPK =  
