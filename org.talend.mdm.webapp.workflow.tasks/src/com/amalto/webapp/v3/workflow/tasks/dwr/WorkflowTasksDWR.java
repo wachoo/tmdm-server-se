@@ -29,6 +29,7 @@ import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.util.SimpleCallbackHandler;
 
 import com.amalto.core.ejb.WorkflowServiceCtrlLocalBI;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.bean.ListRange;
@@ -36,6 +37,8 @@ import com.amalto.webapp.v3.workflow.tasks.bean.DataFieldDefinitionVO;
 import com.amalto.webapp.v3.workflow.tasks.bean.DataFieldValueVO;
 import com.amalto.webapp.v3.workflow.tasks.bean.NameValueCouple;
 import com.amalto.webapp.v3.workflow.tasks.bean.TaskVO;
+import com.amalto.webapp.v3.workflow.tasks.schema.BPMSchemaManager;
+import com.amalto.webapp.v3.workflow.tasks.schema.VAnnotationInfo;
 import com.amalto.webapp.v3.workflow.tasks.util.DateUtil;
 
 
@@ -188,11 +191,10 @@ public class WorkflowTasksDWR {
 	 * @param activityUUIDValue
 	 * @return
 	 */
-	public Set<DataFieldDefinitionVO> getDataFields(String processDefineUUIDValue,String processInstanceUUIDValue,String activityUUIDValue) {
+	public Set<DataFieldDefinitionVO> getDataFields(String processDefineUUIDValue,String processInstanceUUIDValue,String activityUUIDValue,String language) {
 		
          Set<DataFieldDefinitionVO> dataFields=new TreeSet<DataFieldDefinitionVO>();
-
-		 
+       
 		 try {
 			 
 			Set<DataFieldDefinition> processDataFields=getWorkflowService().getProcessDataFields(new ProcessDefinitionUUID(processDefineUUIDValue));
@@ -220,8 +222,75 @@ public class WorkflowTasksDWR {
 			e.printStackTrace();
 		}
 		
+		//analyzing schema
+		analyzeSchema4GettingDataFields(processDefineUUIDValue,processInstanceUUIDValue, dataFields,language);
+		
 		return dataFields;
 
+	}
+
+	private void analyzeSchema4GettingDataFields(
+			String processDefineUUIDValue,
+			String processInstanceUUIDValue,
+			Set<DataFieldDefinitionVO> dataFields,
+			String language) {
+		try {
+			
+			
+			Map<String, Object> processDataFieldsValues = getWorkflowService().getProcessInstanceVariables(new ProcessInstanceUUID(processInstanceUUIDValue));
+			
+			String dataModelPK=(String) processDataFieldsValues.get("MDM_dataModel");
+			Map<String,String> xpathVariablesMap=new HashMap<String, String>();
+			
+			for (Iterator iterator = dataFields.iterator(); iterator.hasNext();) {
+				DataFieldDefinitionVO dataFieldDefinitionVO = (DataFieldDefinitionVO) iterator.next();
+				if(dataFieldDefinitionVO.getName().matches(".*_xpath$")){
+					xpathVariablesMap.put(dataFieldDefinitionVO.getName(), (String) processDataFieldsValues.get(dataFieldDefinitionVO.getName()));
+				}
+			}
+			
+			Map<String, VAnnotationInfo> annotationMap = BPMSchemaManager.parseAnnotationMapOnAConcept(dataModelPK, xpathVariablesMap);
+			
+			for (Iterator iterator = dataFields.iterator(); iterator.hasNext();) {
+				DataFieldDefinitionVO dataFieldDefinitionVO = (DataFieldDefinitionVO) iterator.next();
+				dataFieldDefinitionVO.setLabel(dataFieldDefinitionVO.getName());
+				if(annotationMap.containsKey(dataFieldDefinitionVO.getName())){
+					VAnnotationInfo vAnnotationInfo=annotationMap.get(dataFieldDefinitionVO.getName());
+					if(vAnnotationInfo!=null){
+						String accessRightToken=vAnnotationInfo.getAccessRightToken();
+						Map<String,String> labelMap=vAnnotationInfo.getLabelMap();
+						if(language==null||language.length()==0)language="en";
+						language=language.toUpperCase();
+						if(labelMap!=null&&labelMap.get(language)!=null&&labelMap.get(language).length()>0)dataFieldDefinitionVO.setLabel(labelMap.get(language));
+						
+						//accessRightToken
+						if(accessRightToken!=null&&accessRightToken.length()>0){
+							String[] parts=accessRightToken.split("#");
+							String definedRoleName=parts[0];
+							String definedProcessID=parts[1];
+							String definedRight=parts[2];
+							
+							ProcessDefinitionUUID processDefinitionUUID=new ProcessDefinitionUUID(processDefineUUIDValue);
+							String thisProcessID=processDefinitionUUID.getProcessName()+"_"+processDefinitionUUID.getProcessVersion();
+							HashSet<String> thisRoles=LocalUser.getLocalUser().getRoles();
+							
+							if(thisProcessID.equals(definedProcessID)&&thisRoles.contains(definedRoleName)){
+								if(definedRight.equals("Read-only")){
+									dataFieldDefinitionVO.setReadonly(true);
+								}else if(definedRight.equals("Hidden")){
+									dataFieldDefinitionVO.setHidden(true);
+								}
+							}
+						}
+						
+					}
+				}
+				
+			}	
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
     /**

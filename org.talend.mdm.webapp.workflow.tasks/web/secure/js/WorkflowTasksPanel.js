@@ -125,7 +125,7 @@ Ext.extend(amalto.workflowtasks.WorkflowTasksPanel, Ext.Panel, {
    	    				
    	    				var dataFieldsDefinition;
    	    				DWREngine.setAsync(false); 
-                        WorkflowTasksInterface.getDataFields(processDefineUUID,processInstanceUUID,activityUUID,
+                        WorkflowTasksInterface.getDataFields(processDefineUUID,processInstanceUUID,activityUUID,language,
                           function(result){
                             dataFieldsDefinition=result;
                           }

@@ -25,6 +25,8 @@ public class DataFieldDefinitionVO implements Comparable<DataFieldDefinitionVO>{
 	
 	private boolean hidden;
 	
+	private boolean readonly;
+	
 	private String processInstanceUUIDValue;//redundancy
 	
 	private String activityUUIDValue;//redundancy
@@ -91,6 +93,14 @@ public class DataFieldDefinitionVO implements Comparable<DataFieldDefinitionVO>{
 
 	public void setHidden(boolean isHidden) {
 		this.hidden = isHidden;
+	}
+	
+	public boolean isReadonly() {
+		return readonly;
+	}
+
+	public void setReadonly(boolean readonly) {
+		this.readonly = readonly;
 	}
 
 	public String getProcessInstanceUUIDValue() {

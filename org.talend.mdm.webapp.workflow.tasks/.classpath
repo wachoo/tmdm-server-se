@@ -5,5 +5,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.webapp.core"/>
+	<classpathentry kind="lib" path="libs/trang.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
