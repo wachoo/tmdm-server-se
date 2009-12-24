@@ -765,6 +765,10 @@ public class ItemPOJO implements Serializable{
         	
         	String xml = serialize();
     		org.apache.log4j.Logger.getLogger(this.getClass()).trace("store() "+getItemPOJOPK().getUniqueID()+"\n"+xml);
+    		//check cluster exist or not
+    		if(!server.existCluster(revisionID, getDataClusterPOJOPK().getUniqueId())){
+    			return null;
+    		}
             //store
             if ( -1 == server.putDocumentFromString(
             		xml, 

@@ -126,6 +126,9 @@ public interface XmlServerSLWrapper
    public java.lang.String getDocumentAsString( java.lang.String revisionID,java.lang.String clusterName,java.lang.String uniqueID )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
+   public boolean existCluster( java.lang.String revision,java.lang.String cluster )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
    /**
     * Gets an XML document from the DB<br> The XML instruction will have the encoding specified in the encoding parameter<br> If encoding is null, the document will not have an XML instruction
     * @param uniqueID The unique ID of the document

@@ -1782,6 +1782,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 *Put Item
 	 * **************************************************************************/
     private WSItemPK putItem(WSPutItem wsPutItem,DataModelPOJO dataModel,Document schema,String[] itemKeyValues ) throws RemoteException {
+    	
     	try{
 		String projection = wsPutItem.getXmlString();
 		

@@ -448,12 +448,12 @@ public final class Util {
 		
 		
 		
-		if (Util.getNodeList(Util.parse(schema).getDocumentElement(),
+		if (Util.getNodeList(xsdDoc.getDocumentElement(),
 				"//xsd:import").getLength() > 0
-				|| Util.getNodeList(Util.parse(schema).getDocumentElement(),
+				|| Util.getNodeList(xsdDoc.getDocumentElement(),
 						"//xsd:include").getLength() > 0)
 		{
-			Map<String, String> outerMap = getNamespaceFromImportXSD(Util.parse(schema).getDocumentElement(), false);
+			Map<String, String> outerMap = getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), false);
 			xmlstr = addNMSpaceForImportedElement(outerMap, xmlstr);
 		}
 		
@@ -507,7 +507,7 @@ public final class Util {
 		}
 		//schematron validate see 0008753: Implement Schematron
 		String concept=element.getLocalName();
-		Node schemaRoot=parse(schema).getDocumentElement();
+		Node schemaRoot=xsdDoc.getDocumentElement();
 	   	Element rootNS=Util.getRootElement("nsholder",schemaRoot.getNamespaceURI(),"xsd");	
 	   	String xpath="//xsd:element[@name='" + concept + "']//xsd:appinfo[@source='"+ ICoreConstants.X_Schematron+"']/text()";
 		NodeList tsList=Util.getNodeList(schemaRoot,xpath,rootNS.getNamespaceURI(),"xsd");
@@ -1472,7 +1472,7 @@ public final class Util {
      * @param schema
      * @param dataCluster
      * @param concept
-     * @param elementname null:��ʾ��ӵ�
+     * @param elementname null:锟斤拷示锟斤拷拥锟�
      * @param conceptRoot
      * @throws Exception
      */

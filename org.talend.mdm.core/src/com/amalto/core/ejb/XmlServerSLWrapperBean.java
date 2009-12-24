@@ -413,7 +413,22 @@ public class XmlServerSLWrapperBean implements SessionBean {
 			throw new XtentisException(e.getMessage());
 		}
 	}
-
+	/**
+	 * 
+	 * @param revision
+	 * @param cluster
+	 * @return
+	 * @throws XtentisException
+	 * @ejb.interface-method view-type = "both"
+	 * @ejb.facade-method 
+	 */
+	public boolean existCluster(String revision,String cluster)throws XtentisException{
+		try {
+			return server.existCluster(revision, cluster);
+		} catch (XmlServerException e) {
+			throw new XtentisException(e.getMessage());
+		}
+	}
 	/**
 	 * Gets an XML document from the DB<br>
 	 * The XML instruction will have the encoding specified in the encoding parameter<br>

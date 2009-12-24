@@ -165,6 +165,16 @@ public class XmlServerSLWrapperRemote extends Observable
 
    }
 
+   public boolean existCluster ( java.lang.String revision,java.lang.String cluster )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        boolean retval;
+       retval =  getSession().existCluster( revision,cluster );
+
+      return retval;
+
+   }
+
    public java.lang.String getDocumentAsString ( java.lang.String revisionID,java.lang.String clusterName,java.lang.String uniqueID,java.lang.String encoding )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {

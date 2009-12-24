@@ -136,8 +136,14 @@ public interface IXmlServerSLWrapper {
 		String revisionID,
 		String documentType
 	) throws XmlServerException;
-
-
+	
+	/**
+	 * 
+	 * @param cluster
+	 * @return
+	 * @throws XmlServerException
+	 */
+	public boolean existCluster(String revision,String cluster)throws XmlServerException;
 	/**
 	 * Read a document from s String an store it in the DB as "DOCUMENT"
 	 * @param xmlString
