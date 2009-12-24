@@ -3,6 +3,7 @@ package org.talend.mdm.workbench.enterprice.availablemodel;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.xsd.XSDParticle;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.workbench.enterprice.actions.DeleteWorkflowProcessAction;
 import org.talend.mdm.workbench.enterprice.actions.GenerateWorkflowDefaultTransformerAction;
@@ -88,7 +89,7 @@ public class WorkflowAvailableModel extends AbstractAvailableModel {
 	}
 	
 	public void fillContextMenu(Object obj, IMenuManager manager,DataModelMainPage page,String dataModelName) {					
-		if(obj ==null){
+		if(obj instanceof XSDParticle){
 			manager.add(new XSDSetAnnotationWorkflowAction(page, dataModelName));			
 		}		
 	}

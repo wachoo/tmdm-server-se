@@ -10,6 +10,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.xsd.XSDAnnotation;
 import org.eclipse.xsd.XSDComponent;
 import org.eclipse.xsd.XSDElementDeclaration;
+import org.eclipse.xsd.XSDParticle;
 import org.talend.mdm.workbench.enterprice.dialog.WorkflowAccessDialog;
 import org.w3c.dom.Element;
 
@@ -58,12 +59,8 @@ public class XSDSetAnnotationWorkflowAction extends UndoAction {
 								+ xSDCom.getClass().getName());
 			}
 
-			if (xSDCom instanceof XSDElementDeclaration) {
-				conceptName = xSDCom.getElement().getAttributes().getNamedItem(
-						"name").getNodeValue();
-			}
 			if (xSDCom instanceof XSDAnnotation
-					|| xSDCom instanceof XSDElementDeclaration) {
+					|| xSDCom instanceof XSDElementDeclaration || xSDCom instanceof XSDParticle) {
 
 				dlg = new WorkflowAccessDialog(page.getSite().getShell(),
 						getText(), struc.getWorkflows().values(), page,
