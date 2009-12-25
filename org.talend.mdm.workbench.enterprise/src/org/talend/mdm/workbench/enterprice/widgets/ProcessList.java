@@ -76,5 +76,13 @@ public class ProcessList {
 		}
 	}
 	
+	public void removeAll(){
+		for(ProcessWidget pw:map.values()){
+			Composite com=pw.getComposite().getParent();
+			pw.getComposite().dispose();
+			com.layout(true);
+		}
+		map.clear();
+	}
 	
 }

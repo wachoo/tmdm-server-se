@@ -1,6 +1,7 @@
 package org.talend.mdm.workbench.enterprice.editors;
 
 import java.net.URL;
+import java.rmi.RemoteException;
 
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -99,24 +100,6 @@ public class WorkflowBrowserMainPage extends AMainPage implements IXObjectModelL
 					xobject.getPassword()
 			);	
 			plist=new ProcessList(port,toolkit, processCom, ccrollComposite,viewer);
-			WSWorkflowProcessDefinitionUUID uuid= (WSWorkflowProcessDefinitionUUID)xobject.getWsKey();
-
-			WSProcessInstanceArray array=port.workflowGetProcessInstances(new WSWorkflowGetProcessInstances(uuid));
-//			//test code
-//			List<WSProcessInstance> list=new ArrayList<WSProcessInstance>();
-//			for(int i=0; i<2; i++){
-//				WSProcessInstance wsprocess=new WSProcessInstance("name"+i,"RUNNING");
-//				list.add(wsprocess);
-//			}
-//			array.setInstance(list.toArray(new WSProcessInstance[list.size()]));
-//			//end
-			if(array!=null && array.getInstance()!=null){
-				for(final WSProcessInstance instance:array.getInstance()){
-					final ProcessWidget pw=plist.add(instance.getName());
-					pw.setPort(port);
-					pw.getStatusLabel().setText(instance.getState());					
-				}
-			}        				
         	//process Tasks 
         	Label label1=toolkit.createLabel(composite, "Process Tasks:");
         	label1.setLayoutData(    
@@ -228,8 +211,23 @@ public class WorkflowBrowserMainPage extends AMainPage implements IXObjectModelL
 
 	@Override
 	protected void refreshData() {
-		// TODO Auto-generated method stub
-		
+		WSWorkflowProcessDefinitionUUID uuid= (WSWorkflowProcessDefinitionUUID)xobject.getWsKey();
+
+		WSProcessInstanceArray array=null;
+		try {
+			array = port.workflowGetProcessInstances(new WSWorkflowGetProcessInstances(uuid));
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		plist.removeAll();
+		if(array!=null && array.getInstance()!=null){
+			for(final WSProcessInstance instance:array.getInstance()){
+				final ProcessWidget pw=plist.add(instance.getName());
+				pw.setPort(port);
+				pw.getStatusLabel().setText(instance.getState());					
+			}
+		}        						
 	}
 
 	public void handleEvent(int type, TreeObject parent, TreeObject child) {
