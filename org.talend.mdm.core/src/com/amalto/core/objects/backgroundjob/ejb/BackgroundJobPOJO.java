@@ -3,9 +3,9 @@ package com.amalto.core.objects.backgroundjob.ejb;
 import java.io.IOException;
 import java.util.HashMap;
 
+import com.amalto.core.delegator.XtentisWSBeanDefaultDelegator;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.ejb.XtentisWSBean;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.webservice.WSPipeline;
@@ -108,7 +108,7 @@ public class BackgroundJobPOJO extends ObjectPOJO{
 	 * @throws IOException 
 	 */
 	public void setPipeline(HashMap<String, TypedContent> pipeline) throws Exception {
-    	this.wsPipeline = XtentisWSBean.POJO2WS(pipeline);
+    	this.wsPipeline = XtentisWSBeanDefaultDelegator.POJO2WS(pipeline);
     }
 	
 	

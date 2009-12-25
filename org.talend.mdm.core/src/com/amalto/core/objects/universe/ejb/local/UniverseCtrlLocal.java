@@ -45,23 +45,27 @@ public interface UniverseCtrlLocal
 
    /**
     * getAllCreatedRevisions
+    * @throws XtentisException
     */
-   public java.util.Collection getAllCreatedRevisions( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk ) ;
+   public java.util.Collection getAllCreatedRevisions( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk ) throws com.amalto.core.util.XtentisException;
 
    /**
     * getAllQuotedRevisions
+    * @throws XtentisException
     */
-   public java.util.Collection getAllQuotedRevisions( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk ) ;
+   public java.util.Collection getAllQuotedRevisions( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk ) throws com.amalto.core.util.XtentisException;
 
    /**
     * getUniverseCreator
+    * @throws XtentisException
     */
-   public com.amalto.core.objects.universe.ejb.UniversePOJOPK getUniverseCreator( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk ) ;
+   public com.amalto.core.objects.universe.ejb.UniversePOJOPK getUniverseCreator( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk ) throws com.amalto.core.util.XtentisException;
 
    /**
     * getUniverseQuoter
+    * @throws XtentisException
     */
-   public java.util.Collection getUniverseQuoter( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk ) ;
+   public java.util.Collection getUniverseQuoter( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Retrieve all Universe PKS

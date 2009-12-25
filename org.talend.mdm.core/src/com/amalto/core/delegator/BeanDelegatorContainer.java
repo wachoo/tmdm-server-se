@@ -79,9 +79,11 @@ public class BeanDelegatorContainer {
     }
 	
 	//TODO add more delegator get method
-	public XtentisWSBeanDelegator getXtentisWSBeanDelegator() {
-		return (XtentisWSBeanDelegator) delegatorInstancePool.get("XtentisWSBeanDelegator");
+	public IXtentisWSBeanDelegator getXtentisWSBeanDelegator() {
+		return (IXtentisWSBeanDelegator) delegatorInstancePool.get("XtentisWSBeanDelegator");
 	}
 
-
+	public IUniverseCtrlBeanDelegator getUniverseCtrlBeanDelegator() {
+		return (IUniverseCtrlBeanDelegator) delegatorInstancePool.get("UniverseCtrlBean");
+	}
 }

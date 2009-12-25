@@ -14,6 +14,7 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
+import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
@@ -50,8 +51,7 @@ import com.amalto.core.webservice.WSUniversePKArray;
 public class UniverseCtrlBean implements SessionBean{
   
 	public static final long serialVersionUID = 1L;
-	
-	private  RevisionPOJO revisePojo = new RevisionPOJO();
+		
 
     /* (non-Javadoc)
      * @see javax.ejb.SessionBean#setSessionContext(javax.ejb.SessionContext)
@@ -101,35 +101,8 @@ public class UniverseCtrlBean implements SessionBean{
      * @ejb.facade-method 
      */
     public UniversePOJOPK putUniverse(UniversePOJO universe) throws XtentisException{  
-    	org.apache.log4j.Logger.getLogger(this.getClass()).trace("putUniverse() "+universe.getName());
     	
-        try {
-            
-        	if ("[HEAD]".equals(universe.getName())) {
-        		String err = "[HEAD] is a reserved name for Universes";
-        		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-        		throw new XtentisException(err);
-        	}
-            
-            if (universe.store() == null)
-            	throw new XtentisException("Check the XML Server logs");
-            
-            revisePojo.load(universe.getPK().getUniqueId(), universe, false);
-            universe = revisePojo.addMetaDataIntoUniverse(universe);
-            
-            ObjectPOJOPK pk = universe.store();
-            if (pk == null) throw new XtentisException("Check the XML Server logs");
-            return new UniversePOJOPK(pk);
-            
-	    } catch (XtentisException e) {
-	    	throw(e);
-	    } catch (Exception e) {
-    	    String err = "Unable to create/update the Universe "+universe.getName()
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    	    throw new XtentisException(err);
-	    }
-
+    	return BeanDelegatorContainer.getUniqueInstance().getUniverseCtrlBeanDelegator().putUniverse(universe);
     }
     /**
      * Creates or updates a Universe
@@ -140,32 +113,7 @@ public class UniverseCtrlBean implements SessionBean{
      */
     public WSUniversePKArray getUniverseByRevision(String  name,String revision, String type) throws XtentisException{
 
-		Collection c =
-			getUniversePKs(
-				""
-			);
-		
-		if (c==null) return null;
-		
-		List<WSUniversePK> pks=new ArrayList<WSUniversePK>(); 
-		for (Iterator iter = c.iterator(); iter.hasNext(); ) {		
-			UniversePOJO pojo=getUniverse((UniversePOJOPK) iter.next());				
-			if(WSGetUniverseByRevisionType._ITEM.equals(type)){
-				for(Map.Entry<String, String> entry:pojo.getItemsRevisionIDs().entrySet()){
-					if(Pattern.matches(entry.getKey(), name) && entry.getValue().equalsIgnoreCase(revision)){
-						pks.add(new WSUniversePK(pojo.getName()));
-					}
-				}
-			}
-			if(WSGetUniverseByRevisionType._OBJECT.equals(type)){
-				for(Map.Entry<String, String> entry:pojo.getXtentisObjectsRevisionIDs().entrySet()){
-					if(Pattern.matches(entry.getKey(), name) && entry.getValue().equalsIgnoreCase(revision)){
-						pks.add(new WSUniversePK(pojo.getName()));
-					}
-				}
-			}				
-		}
-		return  new WSUniversePKArray(pks.toArray(new WSUniversePK[pks.size()]));
+    	return BeanDelegatorContainer.getUniqueInstance().getUniverseCtrlBeanDelegator().getUniverseByRevision(name, revision, type);
 
     }
     /**
@@ -176,23 +124,7 @@ public class UniverseCtrlBean implements SessionBean{
      * @ejb.facade-method 
      */
     public UniversePOJO getUniverse(UniversePOJOPK pk) throws XtentisException{
-
-        try {
-        	UniversePOJO sp =  ObjectPOJO.load(UniversePOJO.class,pk);
-        	if (sp == null) {
-        		String err= "The Universe "+pk.getUniqueId()+" does not exist.";
-        		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-        		throw new XtentisException(err);
-        	}
-        	return sp;
-	    } catch (XtentisException e) {
-	    	throw(e);
-	    } catch (Exception e) {
-    	    String err = "Unable to get the Universe "+pk.toString()
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    	    throw new XtentisException(err);
-	    }
+    	return BeanDelegatorContainer.getUniqueInstance().getUniverseCtrlBeanDelegator().getUniverse(pk);
     }
     
     /**
@@ -203,17 +135,7 @@ public class UniverseCtrlBean implements SessionBean{
      * @ejb.facade-method 
      */
     public UniversePOJO existsUniverse(UniversePOJOPK pk)    throws XtentisException{
-    	
-        try {
-        	return ObjectPOJO.load(UniversePOJO.class,pk);        	
-	    } catch (XtentisException e) {
-	    	return null;
-	    } catch (Exception e) {
-    	    String info = "Could not check whether this Universe exists:  "+pk.getUniqueId()
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).debug(info, e);
-    	   return null;
-	    }
+    	return BeanDelegatorContainer.getUniqueInstance().getUniverseCtrlBeanDelegator().existsUniverse(pk);
     }
     
 
@@ -226,60 +148,51 @@ public class UniverseCtrlBean implements SessionBean{
      */
     public UniversePOJOPK removeUniverse(UniversePOJOPK pk) 
     throws XtentisException{
-    	org.apache.log4j.Logger.getLogger(this.getClass()).trace("Removing "+pk.getUniqueId());
-
-        try {
-        	ObjectPOJOPK universePk = ObjectPOJO.remove(UniversePOJO.class,pk);
-            revisePojo.load(pk.getUniqueId(), null, true);
-        	return new UniversePOJOPK(universePk);
-	    } catch (XtentisException e) {
-	    	throw(e);
-	    } catch (Exception e) {
-    	    String err = "Unable to remove the Universe "+pk.toString()
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    	    throw new XtentisException(err);
-	    }
+    	return BeanDelegatorContainer.getUniqueInstance().getUniverseCtrlBeanDelegator().removeUniverse(pk);
     }    
     
     /**
      * getAllCreatedRevisions
+     * @throws XtentisException 
      * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public Collection<RevisionItem> getAllCreatedRevisions(UniversePOJOPK pk){
-    	return revisePojo.getAllCreatedRevisions(pk);
+    public Collection<RevisionItem> getAllCreatedRevisions(UniversePOJOPK pk) throws XtentisException{
+    	return BeanDelegatorContainer.getUniqueInstance().getUniverseCtrlBeanDelegator().getAllCreatedRevisions(pk);
     }
     
     /**
      * getAllQuotedRevisions
+     * @throws XtentisException 
      * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public Collection<RevisionItem> getAllQuotedRevisions(UniversePOJOPK pk) {
-    	return revisePojo.getAllQuotedRevisions(pk);
+    public Collection<RevisionItem> getAllQuotedRevisions(UniversePOJOPK pk) throws XtentisException {
+    	return BeanDelegatorContainer.getUniqueInstance().getUniverseCtrlBeanDelegator().getAllQuotedRevisions(pk);
     }
     
     /**
      * getUniverseCreator
+     * @throws XtentisException 
      * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public UniversePOJOPK getUniverseCreator(RevisionPOJOPK pk){
-    	return revisePojo.getUniverseCreator(pk);
+    public UniversePOJOPK getUniverseCreator(RevisionPOJOPK pk) throws XtentisException{
+    	return BeanDelegatorContainer.getUniqueInstance().getUniverseCtrlBeanDelegator().getUniverseCreator(pk);
     }
     
     /**
      * getUniverseQuoter
+     * @throws XtentisException 
      * 
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public Collection<UniversePOJOPK> getUniverseQuoter(RevisionPOJOPK pk) {
-    	return revisePojo.getUniverseQuoter(pk);
+    public Collection<UniversePOJOPK> getUniverseQuoter(RevisionPOJOPK pk) throws XtentisException {
+    	return BeanDelegatorContainer.getUniqueInstance().getUniverseCtrlBeanDelegator().getUniverseQuoter(pk);
     }
     /**
 	 * Retrieve all Universe PKS 
@@ -290,14 +203,7 @@ public class UniverseCtrlBean implements SessionBean{
      * @ejb.facade-method 
      */       
     public Collection<UniversePOJOPK> getUniversePKs(String regex) throws XtentisException {
-    	Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(UniversePOJO.class,regex);
-    	ArrayList<UniversePOJOPK> l = new ArrayList<UniversePOJOPK>();
-    	for (Iterator<ObjectPOJOPK> iter = c.iterator(); iter.hasNext(); ) {
-    		UniversePOJOPK pojoPk = new UniversePOJOPK(iter.next());
-    		revisePojo.load(pojoPk.getUniqueId(), null, false);
-			l.add(pojoPk);
-		}
-    	return l;
+    	return BeanDelegatorContainer.getUniqueInstance().getUniverseCtrlBeanDelegator().getUniversePKs(regex);
     }
 	
 		

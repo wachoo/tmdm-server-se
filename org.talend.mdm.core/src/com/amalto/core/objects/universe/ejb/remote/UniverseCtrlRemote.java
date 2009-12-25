@@ -99,7 +99,7 @@ public class UniverseCtrlRemote extends Observable
    }
 
    public java.util.Collection getAllCreatedRevisions ( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk )
-	  throws java.rmi.RemoteException
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
         java.util.Collection retval;
        retval =  getSession().getAllCreatedRevisions( pk );
@@ -109,7 +109,7 @@ public class UniverseCtrlRemote extends Observable
    }
 
    public java.util.Collection getAllQuotedRevisions ( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk )
-	  throws java.rmi.RemoteException
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
         java.util.Collection retval;
        retval =  getSession().getAllQuotedRevisions( pk );
@@ -119,7 +119,7 @@ public class UniverseCtrlRemote extends Observable
    }
 
    public com.amalto.core.objects.universe.ejb.UniversePOJOPK getUniverseCreator ( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk )
-	  throws java.rmi.RemoteException
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
         com.amalto.core.objects.universe.ejb.UniversePOJOPK retval;
        retval =  getSession().getUniverseCreator( pk );
@@ -129,7 +129,7 @@ public class UniverseCtrlRemote extends Observable
    }
 
    public java.util.Collection getUniverseQuoter ( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk )
-	  throws java.rmi.RemoteException
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
         java.util.Collection retval;
        retval =  getSession().getUniverseQuoter( pk );

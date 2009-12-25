@@ -2,11 +2,13 @@
   <delegator>
     
     <OPEN>
-      <name>XtentisWSBeanDelegator#com.amalto.core.delegator.open.XtentisWSBeanOpenDelegator</name>
+      <name>XtentisWSBeanDelegator#com.amalto.core.delegator.XtentisWSBeanDefaultDelegator</name>
+      <name>UniverseCtrlBean#com.amalto.core.delegator.UniverseCtrlBeanDefaultDelegator</name>
     </OPEN>
     
     <ENTERPRISE>
        <name>XtentisWSBeanDelegator#com.amalto.core.delegator.enterprise.XtentisWSBeanEnterpriseDelegator</name>
+       <name>UniverseCtrlBean#com.amalto.core.delegator.enterprise.UniverseCtrlBeanEnterpriseDelegator</name>
     </ENTERPRISE>
     
   </delegator>

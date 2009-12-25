@@ -50,27 +50,31 @@ public interface UniverseCtrl
 
    /**
     * getAllCreatedRevisions
+    * @throws XtentisException
     */
    public java.util.Collection getAllCreatedRevisions( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk )
-      throws java.rmi.RemoteException;
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * getAllQuotedRevisions
+    * @throws XtentisException
     */
    public java.util.Collection getAllQuotedRevisions( com.amalto.core.objects.universe.ejb.UniversePOJOPK pk )
-      throws java.rmi.RemoteException;
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * getUniverseCreator
+    * @throws XtentisException
     */
    public com.amalto.core.objects.universe.ejb.UniversePOJOPK getUniverseCreator( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk )
-      throws java.rmi.RemoteException;
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * getUniverseQuoter
+    * @throws XtentisException
     */
    public java.util.Collection getUniverseQuoter( com.amalto.core.objects.universe.ejb.RevisionPOJOPK pk )
-      throws java.rmi.RemoteException;
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * Retrieve all Universe PKS
