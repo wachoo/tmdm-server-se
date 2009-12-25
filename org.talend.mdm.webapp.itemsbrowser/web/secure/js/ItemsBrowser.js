@@ -133,6 +133,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	   		}	
 	};
 	
+	var FULL_TEXT_OPERS = {
+			'fr':{
+		           FULLTEXTSEARCH:"Recherche plein-texte"
+	             },
+ 			'en':{
+		           FULLTEXTSEARCH:"Full text search"
+	             }
+	};
+	
 	var DATE_OPERS = {
 			'fr':{
 		           EQUALS:"est égal à",
@@ -752,10 +761,21 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         if($('itemsSearchField' + id) == null)return;
 		var search = $('itemsSearchField' + id).value;
 		var delimeter = search.indexOf("/");
-		if(delimeter != -1)
-		{
+		if(delimeter==-1){
+			 var viewName = DWRUtil.getValue('viewItemsSelect');
+			 var conceptName = viewName.replace("Browse_items_","");
+			 if(search==conceptName){
+			 	DWRUtil.removeAllOptions('itemsSearchOperator' + id);
+			 	DWRUtil.addOptions('itemsSearchOperator' + id ,FULL_TEXT_OPERS[language]);
+			 	var itemsSearchValuex = "itemsSearchValue" + id;
+			 	$(itemsSearchValuex).value = "*";
+			    $(itemsSearchValuex).style.display = 'inline';
+			 	return;
+			 }
+		}else{
 			search = search.substring(delimeter + 1);
 		}
+		
         if(itemsPredicates[search] == null) return;
 		var predicateValues =  itemsPredicates[search][0];
 		var itemsSearchValuex = "itemsSearchValue" + id;

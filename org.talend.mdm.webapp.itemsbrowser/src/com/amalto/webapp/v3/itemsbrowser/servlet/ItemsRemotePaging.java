@@ -371,6 +371,8 @@ public class ItemsRemotePaging  extends HttpServlet{
 			res = WSWhereOperator.STARTSWITH;
 		else if (option.equalsIgnoreCase("STRICTCONTAINS"))
 			res = WSWhereOperator.STRICTCONTAINS;
+		else if (option.equalsIgnoreCase("FULLTEXTSEARCH"))
+			res = WSWhereOperator.FULLTEXTSEARCH;
 		return res;											
 	}
 	
