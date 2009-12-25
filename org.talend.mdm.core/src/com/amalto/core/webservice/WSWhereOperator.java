@@ -23,6 +23,7 @@ public class WSWhereOperator {
     public static final String _LOWER_THANString = "LOWER_THAN";
     public static final String _LOWER_THAN_OR_EQUALString = "LOWER_THAN_OR_EQUAL";
     public static final String _NO_OPERATORString = "NO_OPERATOR";
+    public static final String _FULLTEXTSEARCHString = "FULLTEXTSEARCH";
     
     public static final java.lang.String _JOIN = new java.lang.String(_JOINString);
     public static final java.lang.String _CONTAINS = new java.lang.String(_CONTAINSString);
@@ -35,6 +36,7 @@ public class WSWhereOperator {
     public static final java.lang.String _LOWER_THAN = new java.lang.String(_LOWER_THANString);
     public static final java.lang.String _LOWER_THAN_OR_EQUAL = new java.lang.String(_LOWER_THAN_OR_EQUALString);
     public static final java.lang.String _NO_OPERATOR = new java.lang.String(_NO_OPERATORString);
+    public static final java.lang.String _FULLTEXTSEARCH = new java.lang.String(_FULLTEXTSEARCHString);
     
     public static final WSWhereOperator JOIN = new WSWhereOperator(_JOIN);
     public static final WSWhereOperator CONTAINS = new WSWhereOperator(_CONTAINS);
@@ -47,6 +49,7 @@ public class WSWhereOperator {
     public static final WSWhereOperator LOWER_THAN = new WSWhereOperator(_LOWER_THAN);
     public static final WSWhereOperator LOWER_THAN_OR_EQUAL = new WSWhereOperator(_LOWER_THAN_OR_EQUAL);
     public static final WSWhereOperator NO_OPERATOR = new WSWhereOperator(_NO_OPERATOR);
+    public static final WSWhereOperator FULLTEXTSEARCH = new WSWhereOperator(_FULLTEXTSEARCH);
     
     protected WSWhereOperator(java.lang.String value) {
         this.value = value;
@@ -81,6 +84,8 @@ public class WSWhereOperator {
             return LOWER_THAN_OR_EQUAL;
         } else if (NO_OPERATOR.value.equals(value)) {
             return NO_OPERATOR;
+        } else if (FULLTEXTSEARCH.value.equals(value)) {
+            return FULLTEXTSEARCH;
         }
         throw new IllegalArgumentException();
     }
@@ -113,6 +118,8 @@ public class WSWhereOperator {
             return LOWER_THAN_OR_EQUAL;
         } else if (value.equals(_NO_OPERATORString)) {
             return NO_OPERATOR;
+        } else if (value.equals(_FULLTEXTSEARCHString)) {
+            return FULLTEXTSEARCH;
         }
         throw new IllegalArgumentException();
     }

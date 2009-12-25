@@ -601,6 +601,7 @@
 			<xsd:enumeration value="LOWER_THAN"/>
 			<xsd:enumeration value="LOWER_THAN_OR_EQUAL"/>
 			<xsd:enumeration value="NO_OPERATOR"/>
+			<xsd:enumeration value="FULLTEXTSEARCH"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 
