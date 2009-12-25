@@ -25,6 +25,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.util.UUIDItemContent;
+import com.amalto.core.util.XSDKey;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dwr.CommonDWR;
@@ -667,7 +669,43 @@ public class ItemsBrowserDWR {
 		}
 	}
 	
+    public boolean validateItem(int docIndex) throws TransformerException
+    {
+		WebContext ctx = WebContextFactory.get();
+		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
+		String concept = d.getDocumentElement().getLocalName();
 
+		try {
+    		Configuration config = Configuration.getInstance(true);
+    		String schema = Util.getPort().getDataModel(
+            		new WSGetDataModel(new WSDataModelPK(config.getModel()))).getXsdSchema();
+        	if(com.amalto.core.util.Util.getUUIDNodes(schema, concept).size()>0){ //check uuid key exists
+    	    	String dataCluster=config.getCluster();
+    	        XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
+    	        		Util.parse(schema),
+    					concept					
+    			);	       
+    			//get key values
+    	        String xmlCont = Util.nodeToString(d);
+    	        Element root=(Element)Util.parse(xmlCont).getDocumentElement().cloneNode(true);
+    			String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem(
+    	   			root,
+    			    conceptKey
+    			);			
+    			UUIDItemContent content=com.amalto.core.util.Util.processUUID(root, schema, dataCluster, concept, conceptKey, itemKeyValues);
+    			d = Util.parse(content.getItemContent());
+        	}
+    		com.amalto.core.util.Util.validate(d.getDocumentElement(), schema);
+		} catch (Exception e) {
+	    	String prefix = "Unable to create/update the item " + ": ";
+            String err = prefix +e.getClass().getName()+": "+e.getLocalizedMessage();
+            org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+            throw new TransformerException(err);
+		}
+		
+		return true;
+    }
+    
 	public String updateNode(int id, String content, int docIndex) throws TransformerException{
 		WebContext ctx = WebContextFactory.get();
 		HashMap<Integer,String> idToXpath = 
