@@ -129,7 +129,7 @@ public class Util {
 
 	}
 	
-	public static XtentisPort getPort(String username, String password, int force) throws XtentisWebappException{
+	private static XtentisPort getPort(String username, String password, int force) throws XtentisWebappException{
 		return getPort(endpoint_address,username,password,force);
 	}
 
