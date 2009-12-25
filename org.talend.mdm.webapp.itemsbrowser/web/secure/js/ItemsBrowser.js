@@ -1452,7 +1452,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var itemTreeFK;
 	
 	function displayItemDetails(itemPK2, dataObject){
-		
 	    displayItemDetails2(itemPK2, dataObject, false ,displayItems);
 	}
 	
@@ -2468,7 +2467,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	var panel;
 	function chooseForeignKey(nodeId, xpathForeignKey, xpathInfoForeignKey, treeIndex) {
-		
 		amalto.core.working('Running...');
 	    amalto.core.ready();
 	    
@@ -2781,7 +2779,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		displayXsdDetails:function(id){displayXsdDetails(id)},
 		setForeignKey:function(nodeId,treeIndex){setForeignKey(nodeId,treeIndex)},
 		removeForeignKey:function(nodeId, treeIndex){removeForeignKey(nodeId,treeIndex)},
-		displayItemDetails:function(){displayItemDetails();},
+		displayItemDetails:function(itemPK2, dataObject){displayItemDetails(itemPK2, dataObject);},
 		editItemDetails:function(itemPK,dataObject,refreshCB){displayItemDetails4Reference(itemPK,dataObject,refreshCB);},
 		filterForeignKey:function(string0, string1, id){filterForeignKey(string0, string1, id);},
 		getSiblingsLength:function(node){getSiblingsLength(node);},

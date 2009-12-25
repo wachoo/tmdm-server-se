@@ -136,10 +136,26 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\','+treeIndex+')" >' +
 						' <img src="img/genericUI/magnifier_plus.gif"/></span>';
 				}
-			foreignKeyImg += ''+
+				
+				foreignKeyImg += ''+
 						'<span style="cursor: pointer;" ' +
 						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\')" >' +
 						' <img src="img/genericUI/magnifier.gif"/></span>';
+				var foreignKeyInfo = itemData.foreignKeyInfo;
+				var fkDataObject = foreignKeyInfo[0] != undefined ? foreignKeyInfo[0].split("/")[0] : undefined;
+				
+				if(fkDataObject != undefined) {
+					foreignKeyImg += '' +
+						'<span id = "' + fkDataObject +'" style="cursor: pointer;" ' +
+						'onclick="amalto.itemsbrowser.ItemsBrowser.displayItemDetails(' + null +',\'' + fkDataObject +'\')" >' +
+						' <img src="img/genericUI/add-element.gif"/></span>';
+					
+					ItemsBrowserInterface.getRootNode(fkDataObject, language, function(fkNode) {
+						if(fkNode.readOnly != false) {
+							$(fkDataObject).style.display = 'none';
+						}
+					}); 
+				}
 			}
 			
 			var value = "";
