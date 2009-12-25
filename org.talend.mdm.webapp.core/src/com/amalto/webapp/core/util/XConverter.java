@@ -320,6 +320,8 @@ public class XConverter {
 			operator = WhereCondition.LOWER_THAN_OR_EQUAL;
 		} else	if (ws.getOperator().equals(WSWhereOperator.NO_OPERATOR)) {
 			operator = WhereCondition.NO_OPERATOR;
+		} else	if (ws.getOperator().equals(WSWhereOperator.FULLTEXTSEARCH)) {
+			operator = WhereCondition.FULLTEXTSEARCH;
 		}
 		
 		String predicate = WhereCondition.PRE_AND;
