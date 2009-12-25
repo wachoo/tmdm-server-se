@@ -339,6 +339,9 @@ public class QueryBuilder {
 					where = "not(contains("+factorPivots+",\""+encoded+"\"))";
 				*/
 
+			} else if(operator.equals(WhereCondition.FULLTEXTSEARCH)) {
+				//where = "near("+factorPivots+", \""+encoded+"\",1)";
+				where = "ft:query(..,\""+StringEscapeUtils.escapeXml(wc.getRightValueOrPath().trim())+"\")";
 			} else if(operator.equals(WhereCondition.STRICTCONTAINS)) {
 				//where = "near("+factorPivots+", \""+encoded+"\",1)";
 				where = "matches("+factorPivots+", \""+encoded+"\",\"i\") ";
