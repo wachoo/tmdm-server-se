@@ -15,11 +15,11 @@ public class SvnAvailableModel extends AbstractAvailableModel {
 	public void fillContextMenu(TreeObject xobject,IMenuManager manager) {
 		switch(xobject.getType()){
 		case TreeObject._SERVER_:
-			manager.add(new VersioningXObjectAction(ServerView.show(),VersioningXObjectAction.ACTION_TYPE_VERSIONS));
+			manager.add(new VersioningXObjectAction(ServerView.show(),VersioningXObjectAction.ACTION_TYPE_TAGUNIVERSE));
 			break;
 		default:
 			if(xobject.getType()!=TreeObject.WORKFLOW_PROCESS && xobject.getType()!=TreeObject.JOB && Util.hasTags(xobject))
-				manager.add(new VersioningXObjectAction(ServerView.show(),VersioningXObjectAction.ACTION_TYPE_TAGUNIVERSE));
+				manager.add(new VersioningXObjectAction(ServerView.show(),VersioningXObjectAction.ACTION_TYPE_VERSIONS));
 			break;
 		}
 		
