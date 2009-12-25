@@ -21,6 +21,7 @@ import org.w3c.dom.Document;
  */
 public class WhereCondition  implements IWhereItem, Serializable {
 	
+	public static final String FULLTEXTSEARCH ="FULLTEXTSEARCH";
 	public static final String CONTAINS ="CONTAINS";
 	public static String STRICTCONTAINS ="STRICTCONTAINS";
 	public static String STARTSWITH ="STARTSWITH";
