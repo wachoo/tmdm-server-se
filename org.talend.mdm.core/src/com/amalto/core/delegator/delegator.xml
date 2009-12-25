@@ -4,11 +4,17 @@
     <OPEN>
       <name>XtentisWSBeanDelegator#com.amalto.core.delegator.XtentisWSBeanDefaultDelegator</name>
       <name>UniverseCtrlBean#com.amalto.core.delegator.UniverseCtrlBeanDefaultDelegator</name>
+      <name>VersioningSystemCtrlBean#com.amalto.core.delegator.UniverseCtrlBeanDefaultDelegator</name>
+      <name>RoleCtrlBean#com.amalto.core.delegator.RoleCtrlBeanDefaultDelegator</name>
+      <name>TransformerV2CtrlBean#com.amalto.core.delegator.TransformerV2CtrlBeanDefaultDelegator</name>
     </OPEN>
     
     <ENTERPRISE>
        <name>XtentisWSBeanDelegator#com.amalto.core.delegator.enterprise.XtentisWSBeanEnterpriseDelegator</name>
        <name>UniverseCtrlBean#com.amalto.core.delegator.enterprise.UniverseCtrlBeanEnterpriseDelegator</name>
+       <name>VersioningSystemCtrlBean#com.amalto.core.delegator.enterprise.VersioningSystemCtrlBeanEnterpriseDelegator</name>
+       <name>RoleCtrlBean#com.amalto.core.delegator.enterprise.RoleCtrlBeanEnterpriseDelegator</name>
+       <name>TransformerV2CtrlBean#com.amalto.core.delegator.enterprise.TransformerV2CtrlBeanEnterpriseDelegator</name>
     </ENTERPRISE>
     
   </delegator>

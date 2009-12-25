@@ -86,4 +86,13 @@ public class BeanDelegatorContainer {
 	public IUniverseCtrlBeanDelegator getUniverseCtrlBeanDelegator() {
 		return (IUniverseCtrlBeanDelegator) delegatorInstancePool.get("UniverseCtrlBean");
 	}
+	public IVersioningSystemCtrlBeanDelegator getVersioningSystemCtrlBeanDelegator() {
+		return (IVersioningSystemCtrlBeanDelegator) delegatorInstancePool.get("VersioningSystemCtrlBean");
+	}
+	public IRoleCtrlBeanDelegator getRoleCtrlBeanDelegator() {
+		return (IRoleCtrlBeanDelegator) delegatorInstancePool.get("RoleCtrlBean");
+	}	
+	public ITransformerV2CtrlBeanDelegator getTransformerV2CtrlBeanDelegator() {
+		return (ITransformerV2CtrlBeanDelegator) delegatorInstancePool.get("TransformerV2CtrlBean");
+	}		
 }
