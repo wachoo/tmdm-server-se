@@ -2,6 +2,7 @@ package com.amalto.webapp.v3.workflow.tasks.dwr;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -272,7 +273,12 @@ public class WorkflowTasksDWR {
 							
 							ProcessDefinitionUUID processDefinitionUUID=new ProcessDefinitionUUID(processDefineUUIDValue);
 							String thisProcessID=processDefinitionUUID.getProcessName()+"_"+processDefinitionUUID.getProcessVersion();
-							HashSet<String> thisRoles=LocalUser.getLocalUser().getRoles();
+							
+							List<String> thisRoles=new ArrayList<String>();
+							String thisRolesTokens=com.amalto.webapp.core.util.Util.getLoginRoles();
+							if(thisRolesTokens!=null&&thisRolesTokens.length()>0){
+								thisRoles=Arrays.asList(thisRolesTokens.split(","));
+							}
 							
 							if(thisProcessID.equals(definedProcessID)&&thisRoles.contains(definedRoleName)){
 								if(definedRight.equals("Read-only")){
