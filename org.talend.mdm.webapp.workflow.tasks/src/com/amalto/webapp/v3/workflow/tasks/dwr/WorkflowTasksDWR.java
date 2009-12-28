@@ -30,7 +30,6 @@ import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.util.SimpleCallbackHandler;
 
 import com.amalto.core.ejb.WorkflowServiceCtrlLocalBI;
-import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.bean.ListRange;
@@ -72,11 +71,14 @@ public class WorkflowTasksDWR {
 	 * login
 	 */
 	public void doubleLogin() throws LoginException {
-		
-		String userToken=Util.getUsernameAndPasswordToken();
-		String[] userTokenParts=userToken.split("/");
-		String username=userTokenParts[0];
-		String password=userTokenParts.length>1?userTokenParts[1]:"";
+		String username="";
+		String password="";
+		try {
+			username=com.amalto.webapp.core.util.Util.getPrincipalMember("Username");
+			password=com.amalto.webapp.core.util.Util.getPrincipalMember("Password");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		LoginContext loginContext = new LoginContext("Bonita", new SimpleCallbackHandler(username, password));
 		loginContext.login();
