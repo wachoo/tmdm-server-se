@@ -19,7 +19,12 @@ public class StartEngineSubProc extends AssembleSubProc{
 			"subscription.engine.autostart", 
 			"true"
 		));
-		if (autostart) {
+		
+		boolean isEnterpriseVersion  = "ENTERPRISE".equals(MDMConfiguration.getConfiguration().getProperty(
+			"system.release.type"
+		));
+		
+		if (autostart&&isEnterpriseVersion) {
 			
         	RoutingEngineV2CtrlLocal enginectrl = null;
 			try {
@@ -30,6 +35,7 @@ public class StartEngineSubProc extends AssembleSubProc{
 				throw new RuntimeException(err);					
 			}
         	enginectrl.start();
+        	org.apache.log4j.Logger.getLogger(this.getClass()).info("Routing Engine has been started! ");
         
 		}
 		

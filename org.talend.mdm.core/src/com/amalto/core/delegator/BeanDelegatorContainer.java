@@ -86,13 +86,40 @@ public class BeanDelegatorContainer {
 	public IUniverseCtrlBeanDelegator getUniverseCtrlBeanDelegator() {
 		return (IUniverseCtrlBeanDelegator) delegatorInstancePool.get("UniverseCtrlBean");
 	}
+	
 	public IVersioningSystemCtrlBeanDelegator getVersioningSystemCtrlBeanDelegator() {
 		return (IVersioningSystemCtrlBeanDelegator) delegatorInstancePool.get("VersioningSystemCtrlBean");
 	}
+	
 	public IRoleCtrlBeanDelegator getRoleCtrlBeanDelegator() {
 		return (IRoleCtrlBeanDelegator) delegatorInstancePool.get("RoleCtrlBean");
-	}	
+	}
+	
 	public ITransformerV2CtrlBeanDelegator getTransformerV2CtrlBeanDelegator() {
 		return (ITransformerV2CtrlBeanDelegator) delegatorInstancePool.get("TransformerV2CtrlBean");
-	}		
+	}
+	
+	public ISynchronizationItemCtrlBeanDelegator getSynchronizationItemCtrlBeanDelegator() {
+		return (ISynchronizationItemCtrlBeanDelegator) delegatorInstancePool.get("SynchronizationItemCtrlBean");
+	}
+	
+	public ISynchronizationObjectCtrlBeanDelegator getSynchronizationObjectCtrlBeanDelegator() {
+		return (ISynchronizationObjectCtrlBeanDelegator) delegatorInstancePool.get("SynchronizationObjectCtrlBean");
+	}
+	
+	public ISynchronizationPlanCtrlBeanDelegator getSynchronizationPlanCtrlBeanDelegator() {
+		return (ISynchronizationPlanCtrlBeanDelegator) delegatorInstancePool.get("SynchronizationPlanCtrlBean");
+	}
+	
+	public IRoutingRuleCtrlBeanDelegator getRoutingRuleCtrlBeanDelegator() {
+		return (IRoutingRuleCtrlBeanDelegator) delegatorInstancePool.get("RoutingRuleCtrlBean");
+	}
+	
+	public IRoutingOrderCtrlBeanDelegator getRoutingOrderCtrlBeanDelegator() {
+		return (IRoutingOrderCtrlBeanDelegator) delegatorInstancePool.get("RoutingOrderCtrlBean");
+	}
+	
+	public IRoutingEngineV2CtrlBeanDelegator getRoutingEngineV2CtrlBeanDelegator() {
+		return (IRoutingEngineV2CtrlBeanDelegator) delegatorInstancePool.get("RoutingEngineV2CtrlBean");
+	}
 }
