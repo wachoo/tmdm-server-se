@@ -1832,7 +1832,11 @@ try {
 					}
 					i++;
 				}
-				WSProcessTaskInstance p=new WSProcessTaskInstance(id,status, sb.toString());
+				WSProcessTaskInstance p=new WSProcessTaskInstance();
+				p.setUuid(id);
+				p.setStatus(status);
+				p.setCandidates(sb.toString());
+				 
 				list.add(p);
 			}
 			return new WSProcessTaskInstanceArray(list.toArray(new WSProcessTaskInstance[list.size()]));
