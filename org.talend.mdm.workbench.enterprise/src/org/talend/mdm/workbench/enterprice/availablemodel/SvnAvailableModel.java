@@ -18,7 +18,7 @@ public class SvnAvailableModel extends AbstractAvailableModel {
 			manager.add(new VersioningXObjectAction(ServerView.show(),VersioningXObjectAction.ACTION_TYPE_TAGUNIVERSE));
 			break;
 		default:
-			if(xobject.getType()!=TreeObject.WORKFLOW_PROCESS && xobject.getType()!=TreeObject.JOB && Util.hasTags(xobject))
+			if(xobject.getType()!=TreeObject.WORKFLOW_PROCESS && xobject.getType()!=TreeObject.JOB && Util.hasTags(xobject) && xobject.getType()!=TreeObject.DATA_MODEL_TYPES_RESOURCE && xobject.getType()!=TreeObject.DATA_MODEL_RESOURCE)
 				manager.add(new VersioningXObjectAction(ServerView.show(),VersioningXObjectAction.ACTION_TYPE_VERSIONS));
 			break;
 		}
