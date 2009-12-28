@@ -44,7 +44,14 @@
 		<xsd:all>
 			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="uuid" type="xsd:string"/>
 			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="status" type="xsd:string"/>
-			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="candidates" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true"  name="candidates" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="readyDate" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="processName" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="processVersion" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="processInstanceNb" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="processInstanceUUID" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="processDefineUUID" type="xsd:string"/>
 		</xsd:all>		
 	</xsd:complexType>
 	<xsd:element name="WSProcessTaskInstance" type="tns:WSProcessTaskInstance"/>

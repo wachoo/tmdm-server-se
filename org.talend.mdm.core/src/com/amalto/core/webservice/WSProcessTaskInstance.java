@@ -10,14 +10,28 @@ public class WSProcessTaskInstance {
     protected java.lang.String uuid;
     protected java.lang.String status;
     protected java.lang.String candidates;
+    protected java.lang.String name;
+    protected java.lang.String readyDate;
+    protected java.lang.String processName;
+    protected java.lang.String processVersion;
+    protected java.lang.String processInstanceNb;
+    protected java.lang.String processInstanceUUID;
+    protected java.lang.String processDefineUUID;
     
     public WSProcessTaskInstance() {
     }
     
-    public WSProcessTaskInstance(java.lang.String uuid, java.lang.String status, java.lang.String candidates) {
+    public WSProcessTaskInstance(java.lang.String uuid, java.lang.String status, java.lang.String candidates, java.lang.String name, java.lang.String readyDate, java.lang.String processName, java.lang.String processVersion, java.lang.String processInstanceNb, java.lang.String processInstanceUUID, java.lang.String processDefineUUID) {
         this.uuid = uuid;
         this.status = status;
         this.candidates = candidates;
+        this.name = name;
+        this.readyDate = readyDate;
+        this.processName = processName;
+        this.processVersion = processVersion;
+        this.processInstanceNb = processInstanceNb;
+        this.processInstanceUUID = processInstanceUUID;
+        this.processDefineUUID = processDefineUUID;
     }
     
     public java.lang.String getUuid() {
@@ -42,5 +56,61 @@ public class WSProcessTaskInstance {
     
     public void setCandidates(java.lang.String candidates) {
         this.candidates = candidates;
+    }
+    
+    public java.lang.String getName() {
+        return name;
+    }
+    
+    public void setName(java.lang.String name) {
+        this.name = name;
+    }
+    
+    public java.lang.String getReadyDate() {
+        return readyDate;
+    }
+    
+    public void setReadyDate(java.lang.String readyDate) {
+        this.readyDate = readyDate;
+    }
+    
+    public java.lang.String getProcessName() {
+        return processName;
+    }
+    
+    public void setProcessName(java.lang.String processName) {
+        this.processName = processName;
+    }
+    
+    public java.lang.String getProcessVersion() {
+        return processVersion;
+    }
+    
+    public void setProcessVersion(java.lang.String processVersion) {
+        this.processVersion = processVersion;
+    }
+    
+    public java.lang.String getProcessInstanceNb() {
+        return processInstanceNb;
+    }
+    
+    public void setProcessInstanceNb(java.lang.String processInstanceNb) {
+        this.processInstanceNb = processInstanceNb;
+    }
+    
+    public java.lang.String getProcessInstanceUUID() {
+        return processInstanceUUID;
+    }
+    
+    public void setProcessInstanceUUID(java.lang.String processInstanceUUID) {
+        this.processInstanceUUID = processInstanceUUID;
+    }
+    
+    public java.lang.String getProcessDefineUUID() {
+        return processDefineUUID;
+    }
+    
+    public void setProcessDefineUUID(java.lang.String processDefineUUID) {
+        this.processDefineUUID = processDefineUUID;
     }
 }
