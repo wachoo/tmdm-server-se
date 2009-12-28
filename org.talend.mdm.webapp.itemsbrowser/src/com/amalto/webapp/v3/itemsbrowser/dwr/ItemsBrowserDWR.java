@@ -730,10 +730,10 @@ public class ItemsBrowserDWR {
 		
 		int i = xpath.lastIndexOf("/");
 		String subXpath = xpath.substring(0, i);
-		if(!nodeAutorization.contains(xpath) 
-				&& !nodeAutorization.contains(xpath.replaceAll("\\[.*\\]",""))&&!nodeAutorization.contains(subXpath)){
-			return "Not authorized";
-		}
+//		if(!nodeAutorization.contains(xpath) 
+//				&& !nodeAutorization.contains(xpath.replaceAll("\\[.*\\]",""))&&!nodeAutorization.contains(subXpath)){
+//			return "Not authorized";
+//		}
 		try {			
 			Document d2 = checkNode(xpath, d);
 			String oldValue = Util.getFirstTextNode(d,xpath);
