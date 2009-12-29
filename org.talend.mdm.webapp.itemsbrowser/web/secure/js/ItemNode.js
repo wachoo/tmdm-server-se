@@ -227,13 +227,17 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				}			
 			}else if(itemData.typeName!=null&&(itemData.typeName=="URL")){//URL
 				   html[html.length] = ' ' +'<input type="hidden" id="'+itemData.nodeId+'Value" value="'+value+'"'+'/>';
+				   
 				   if(value.length>0){
 				 		html[html.length] ='<span style="cursor: pointer;"><label id="showUrl"><a target="_blank" href=\'' + itemData.value.trim().split("@@")[1]+ '\'>'+itemData.value.trim().split("@@")[0]+'</a></label></span>';	
 				   }else{
 					   html[html.length] ='<span style="cursor: pointer;"><label id="showUrl"></label></span>';
 				   }
-				   html[html.length] ='<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.showEditWindow('+itemData.nodeId+','+treeIndex+',\''+itemData.typeName+'\')">' +
-					' <img src="img/genericUI/add-element.gif"/></span>'+'</div>';
+				   
+				   if(!itemData.readOnly) {
+					   html[html.length] ='<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.showEditWindow('+itemData.nodeId+','+treeIndex+',\''+itemData.typeName+'\')">' +
+						' <img src="img/genericUI/add-element.gif"/></span>'+'</div>';
+				   }
 			}else{
 			       html[html.length] = input +'</div>';
 			}
