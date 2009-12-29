@@ -60,11 +60,21 @@ function f_submit(){
 	var universe=document.loginform.j_universe.value;
 	if(universe!=''&&universe=='HEAD')universe='';
 	
-	if(universe){
-		document.loginform.j_username.value=universe+"/"+username;
-	}	
-	//alert(document.loginform.j_username.value);
-	document.loginform.submit();
+	LoginInterface.isTimeOut(function(result) {
+		if(result) {
+			alert("Session time out!");
+			window.location.reload();
+		}
+		else {
+			if(universe){
+				document.loginform.j_username.value=universe+"/"+username;
+			}	
+			
+			//alert(document.loginform.j_username.value);
+			document.loginform.submit();
+		}
+	});
+	
 }
 
 function getUniverseList()
@@ -132,7 +142,7 @@ function getUniverseList()
 							</td>
 						</tr>						
 						<tr>
-							<td colspan="2" align="center"><input type="submit" name="login" value="Login" onclick="f_submit()"/></td>
+							<td colspan="2" align="center"><input type="button" name="login" value="Login" onclick="f_submit()"/></td>
 						</tr>
 					</table>
 				</form>

@@ -3,6 +3,9 @@ package com.amalto.webapp.v3.xtentismdm.dwr;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.directwebremoting.WebContext;
+import org.directwebremoting.WebContextFactory;
+
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSGetUniversePKs;
@@ -16,6 +19,20 @@ public class LoginDWR {
 		
 		return "Welcome to use Talend MDM";
 
+	}
+	
+	/**
+	 * if the session of login page invalidate
+	 */
+	public boolean isTimeOut() {
+	   boolean timeout = false;
+	   WebContext ctx = WebContextFactory.get();
+	   
+	   if(ctx.getSession(false) == null) {
+	      return true;
+	   }
+	   
+	   return timeout;
 	}
 	
 	public String[] getUniverseNames(String username,String password) throws XtentisWebappException {
