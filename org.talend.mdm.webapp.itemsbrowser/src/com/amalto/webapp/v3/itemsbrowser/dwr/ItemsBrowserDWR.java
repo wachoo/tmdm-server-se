@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import javax.security.jacc.PolicyContextException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
@@ -1161,7 +1162,7 @@ public class ItemsBrowserDWR {
 		return uriArray;
 		}
 
-	public String logicalDeleteItem(String concept, String[] ids, String path)
+	public String logicalDeleteItem(String concept, String[] ids, String path, int docIndex)
 	{
 		WebContext ctx = WebContextFactory.get();
 		try {
@@ -1169,13 +1170,36 @@ public class ItemsBrowserDWR {
 			String dataClusterPK = config.getCluster();
 			TreeNode rootNode = getRootNode(concept, "en");
 	        if(ids!=null && !rootNode.isReadOnly()){
+				Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
+				String xml=null;
+				if(d==null){//get item from db
+					WSItem item=Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+					xml=item.getContent();
+				}else{
+					xml = CommonDWR.getXMLStringFromDocument(d);
+				}
 	        	WSDroppedItemPK wsItem = Util.getPort().dropItem(
 						new WSDropItem(new WSItemPK(
 								new WSDataClusterPK(dataClusterPK),
 								concept, ids
 								), path));
-				if(wsItem!=null)
-					pushUpdateReport(ids,concept, "DELETE");
+				if(wsItem!=null && xml!=null)
+					if("/".equalsIgnoreCase(path)){
+						pushUpdateReport(ids,concept, "DELETE");
+					}else{//part delete consider as 'UPDATE'																		
+						xml = xml.replaceAll("<\\?xml.*?\\?>","");
+						String xpath= path.replaceAll("/"+concept, "");
+						JXPathContext jxpContext= JXPathContext.newContext(Util.parse(xml).getDocumentElement());
+						Object oldValue=jxpContext.getValue(xpath);
+						if(oldValue!=null && !oldValue.equals("")){
+							UpdateReportItem item = new UpdateReportItem(path,oldValue.toString(),"");
+							HashMap<String,UpdateReportItem> updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
+							if(updatedPath==null)updatedPath = new HashMap<String,UpdateReportItem>();
+							updatedPath.put(path,item);
+							ctx.getSession().setAttribute("updatedPath",updatedPath);
+							pushUpdateReport(ids,concept, "UPDATE");
+						}
+					}
 				else
 					return "ERROR - dropItem is NULL";
 				ctx.getSession().setAttribute("viewNameItems",null);

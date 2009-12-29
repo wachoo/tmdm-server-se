@@ -1171,7 +1171,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 //									}							    	
 									var treeIndex=1;
 									if(_dataObject==null) _dataObject=_dataObject2;
-									ItemsBrowserInterface.logicalDeleteItem(_dataObject, itemPK, path, function(result){
+									ItemsBrowserInterface.logicalDeleteItem(_dataObject, itemPK, path,treeIndex, function(result){
 											if(result.lastIndexOf("ERROR")>-1){
 												var err1=result.substring(7);
 												Ext.MessageBox.alert("ERROR", err1);
@@ -1194,23 +1194,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						    	}
 						    	displayItemDetails(itemPK,_dataObject2);
 		                	}
-//		        'headerclick':function( g, columnIndex, e){
-//		   						//alert(columnIndex);
-//		                		var lineMax = DWRUtil.getValue('lineMaxItems');
-//		                		if(lineMax==null || lineMax=="") 
-//										lineMax=50;
-//								sortIndex = columnIndex;
-//								if(isUp){
-//									isUp=false;
-//									sortUporDown = "ASC";
-//								}
-//								else{
-//									isUp = true;
-//									sortUporDown = "DESC";
-//								}
-//								
-//								store.load({limit:pageSize,field: _viewItems2.keys[sortIndex], direction: sortUporDown, viewName: viewName,criteria:criteria});
-//		                	}
 	    	},
 			tbar: new Ext.PagingToolbar({
 		        pageSize: parseInt(pageSize),
@@ -2207,7 +2190,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		for(var i=0; i<itemPK.length; i++) {
 			tmp += " "+itemPK[i];
 		}
-		ItemsBrowserInterface.logicalDeleteItem(dataObject, itemPK, path, function(result){
+		ItemsBrowserInterface.logicalDeleteItem(dataObject, itemPK, path, treeIndex, function(result){
 			if(result.lastIndexOf("ERROR")>-1){
 				var err1=result.substring(7);
 				//Ext.MessageBox.alert("ERROR", err1);
