@@ -227,7 +227,8 @@ public class WorkflowBrowserMainPage extends AMainPage implements IXObjectModelL
 				pw.setPort(port);
 				pw.getStatusLabel().setText(instance.getState());					
 			}
-		}        						
+		}        			
+		viewer.setInput(null);
 	}
 
 	public void handleEvent(int type, TreeObject parent, TreeObject child) {
