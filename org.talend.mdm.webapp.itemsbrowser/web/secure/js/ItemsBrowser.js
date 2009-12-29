@@ -1926,8 +1926,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		        buttons: [{
 		            text: 'Save',
 		            handler: function() {
+		        	var showUrlIndex = "showUrl" + nodeIndex;
 		        	DWRUtil.setValue(nodeIndex+"Value",Ext.getCmp('name').getValue()+"@@"+Ext.getCmp('url').getValue());
-		        	DWRUtil.setValue('showUrl',"<a target='_blank' href='"+ Ext.getCmp('url').getValue()+ "'>"+Ext.getCmp('name').getValue()+"</a>");
+		        	DWRUtil.setValue(showUrlIndex, "<a target='_blank' href='"+ Ext.getCmp('url').getValue()+ "'>"+Ext.getCmp('name').getValue()+"</a>");
 		        	updateNode(nodeIndex,treeIndex);
 		        	window.destroy();
 		        		
