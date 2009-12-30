@@ -2008,8 +2008,23 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				function(result) {
 					amalto.core.ready(result);
 				});
+		
+		var array = map[treeIndex];
+		
+		for (var i = 0; i < array.length; i++) {
+	  		var nodenew = array[i];
+	  		if(nodenew!=null && nodenew.itemData.nodeId==node.itemData.nodeId)
+	  			array.splice(i,1);
+		}
+		
+		
 		itemTree.getRoot().refresh();
 		amalto.core.ready();
+	}
+	
+	function removeEleFromArray(array,deleteNode){
+		
+	  	
 	}
 
 	function saveItemAndQuit(ids, dataObject, treeIndex, refreshCB) {
