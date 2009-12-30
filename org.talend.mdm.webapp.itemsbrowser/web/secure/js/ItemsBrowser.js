@@ -2125,31 +2125,43 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 //						if(!Ext.MessageBox.confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
 						Ext.Msg.confirm("confirm",MSG_CONFIRM_SAVE_ITEM[language],function re(en){
 							if(en=="no")
-								return;});
+								return;
+							else {
+								saveItem0(ids, dataObject, treeIndex, callbackOnSuccess);
+							}
+						});
 					}
-					var itemPK = ids.split('@');
-					ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
-					callback:function(result){ 
-						amalto.core.ready(result);
-						if(result=="ERROR_2"){
-							amalto.core.ready(ALERT_NO_CHANGE[language]);
-							//alert(ALERT_NO_CHANGE[language]);
-						}else if(result.indexOf('ERROR_3:')==0){
-							//add for before saving transformer check
-		                    amalto.core.ready(result.substring(8));
-		                   Ext.MessageBox.alert("Status",result.substring(8));
-		                }else{
-					       if(callbackOnSuccess)callbackOnSuccess();   
-						}
-						
-					},
-					errorHandler:function(errorString, exception) {//on exception
-						showExceptionMsg(errorString, exception, treeIndex);
-		            }
-		           });
+					else {
+						saveItem0(ids, dataObject, treeIndex, callbackOnSuccess);
+					}
+					
 					amalto.core.ready();
 				});
     }
+	
+	function saveItem0(ids,dataObject,treeIndex,callbackOnSuccess) {
+		var itemPK = ids.split('@');
+		
+		ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
+			callback:function(result){ 
+				amalto.core.ready(result);
+				if(result=="ERROR_2"){
+					amalto.core.ready(ALERT_NO_CHANGE[language]);
+					//alert(ALERT_NO_CHANGE[language]);
+				}else if(result.indexOf('ERROR_3:')==0){
+					//add for before saving transformer check
+                    amalto.core.ready(result.substring(8));
+                   Ext.MessageBox.alert("Status",result.substring(8));
+                }else{
+			       if(callbackOnSuccess)callbackOnSuccess();   
+				}
+				
+			},
+			errorHandler:function(errorString, exception) {//on exception
+				showExceptionMsg(errorString, exception, treeIndex);
+            }
+        });
+	}
 	
 	function deleteItem(ids, dataObject, treeIndex) {
 		//var viewName = DWRUtil.getValue('viewItemsSelect');
