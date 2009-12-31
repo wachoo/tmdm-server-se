@@ -19,8 +19,6 @@ import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocalHome;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocalHome;
-import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocal;
-import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocalHome;
 import com.amalto.core.objects.synchronization.ejb.local.SynchronizationItemCtrlLocal;
 import com.amalto.core.objects.synchronization.ejb.local.SynchronizationItemCtrlLocalHome;
 import com.amalto.core.objects.synchronization.ejb.local.SynchronizationObjectCtrlLocal;
