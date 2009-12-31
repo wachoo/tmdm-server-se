@@ -103,10 +103,10 @@ import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocalH
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
-import com.amalto.core.schematron.validation.Schema;
-import com.amalto.core.schematron.validation.SchemaFactory;
-import com.amalto.core.schematron.validation.Validator;
-import com.amalto.core.schematron.validation.Violation;
+import com.amalto.core.schema.validation.Schema;
+import com.amalto.core.schema.validation.SchemaFactory;
+import com.amalto.core.schema.validation.Validator;
+import com.amalto.core.schema.validation.Violation;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSComplexType;

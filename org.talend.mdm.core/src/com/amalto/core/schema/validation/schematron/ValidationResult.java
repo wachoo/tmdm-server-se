@@ -8,7 +8,7 @@
  * under the Apache Software License, Version 1.1
  */
 
-package com.amalto.core.schematron.validation.schematron;
+package com.amalto.core.schema.validation.schematron;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.amalto.core.schematron.validation.Violation;
+import com.amalto.core.schema.validation.Violation;
 
 /**
  * Represents the result of a Schematron validation process

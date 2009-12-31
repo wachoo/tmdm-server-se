@@ -8,7 +8,7 @@
  * under the Apache Software License, Version 1.1
  */
 
-package com.amalto.core.schematron.validation.schematron;
+package com.amalto.core.schema.validation.schematron;
 
 
 

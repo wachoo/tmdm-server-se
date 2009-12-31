@@ -8,7 +8,7 @@
  * under the Apache Software License, Version 1.1
  */
 
-package com.amalto.core.schematron.validation.schematron;
+package com.amalto.core.schema.validation.schematron;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ import org.apache.commons.jxpath.Pointer;
 import org.w3c.dom.*;
 
 
-import com.amalto.core.schematron.validation.Validator;
+import com.amalto.core.schema.validation.Validator;
 import com.amalto.core.util.Util;
 
 /**

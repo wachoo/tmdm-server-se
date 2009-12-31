@@ -1,4 +1,4 @@
-package com.amalto.core.schematron.manage;
+package com.amalto.core.schema.manage;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;

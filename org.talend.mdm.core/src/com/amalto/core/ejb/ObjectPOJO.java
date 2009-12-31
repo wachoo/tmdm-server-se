@@ -43,7 +43,7 @@ import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
-import com.amalto.core.schematron.manage.SchemaManager;
+import com.amalto.core.schema.manage.SchemaManager;
 import com.amalto.core.util.BAMLogger;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;

@@ -1,9 +1,0 @@
-<root>
-    <name>dog</name>
-    <count>0</count>
-    <scope>galaxy1</scope>
-    <scope>galaxy2</scope>
-    <scope>request</scope>
-    <AA>30</AA>
-    <BB>20</BB>
-</root>

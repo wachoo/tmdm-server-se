@@ -1,4 +1,4 @@
-package com.amalto.core.schematron.manage;
+package com.amalto.core.schema.manage;
 import java.util.Iterator;
 import java.util.List;
 
