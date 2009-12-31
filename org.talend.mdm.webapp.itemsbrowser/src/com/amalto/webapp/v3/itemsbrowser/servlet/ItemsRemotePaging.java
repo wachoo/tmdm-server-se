@@ -20,9 +20,7 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSString;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSViewSearch;
@@ -130,15 +128,7 @@ public class ItemsRemotePaging  extends HttpServlet{
 
 			org.apache.log4j.Logger.getLogger(this.getClass()).trace("doPost() starting to search");
 			
-			//count each time
-			WSString totalString=Util.getPort().count(new WSCount(
-					new WSDataClusterPK(config.getCluster()),
-					concept,
-					wi,
-            		-1
-            	));
 			int totalSize=0;
-			if(totalString!=null&&totalString.getValue()!=null&&totalString.getValue().length()>0)totalSize=Integer.parseInt(totalString.getValue());
 			
 			results = Util.getPort().viewSearch(
 					new WSViewSearch(
@@ -157,6 +147,13 @@ public class ItemsRemotePaging  extends HttpServlet{
 
 			for (int i = 0; i < results.length; i++) {
 				//aiming modify
+			   //yin guo fix bug 0010867. the totalCountOnfirstRow is true.
+			   if(i == 0) {
+			      totalSize = Integer.parseInt(Util.parse(results[i]).
+			         getDocumentElement().getTextContent());
+			      continue;
+			   }
+			   
 				List<String> list=null;
 				try{
 					Element root1 = Util.parse(results[i]).getDocumentElement(); //exist 1.4 return <concept>...</concept>
