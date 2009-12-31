@@ -26,7 +26,6 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ServiceCtrlBean;
 import com.amalto.core.ejb.local.ItemCtrl2Local;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
@@ -207,7 +206,7 @@ public class JdbcBean extends ServiceCtrlBean  implements SessionBean{
 			ItemPOJO pojo = ictrl.getItem(itemPK);
 
 			TransformerContext context = new TransformerContext(new TransformerV2POJOPK(jdbcInfos.getTransformer()));
-			context.putInPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE, new TypedContent(itemXml.getBytes("UTF-8"),"text/xml"));
+			context.putInPipeline("_DEFAULT_", new TypedContent(itemXml.getBytes("UTF-8"),"text/xml"));
 
 			TransformerContext contextResult =tctrl.executeUntilDone(context);
 			if(contextResult.getFromPipeline(ITransformerConstants.VARIABLE_OUTPUT_TO_JDBCSERVICE)!=null){
