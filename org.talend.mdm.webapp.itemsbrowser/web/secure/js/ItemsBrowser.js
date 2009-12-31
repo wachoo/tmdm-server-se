@@ -1742,8 +1742,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						// amalto.core.ready();
 			
 			$('errorDesc' + treeIndex).style.display = "block";
-			return;
 					});
+			allUpdate = true;
 		} 
 		else
 		{
