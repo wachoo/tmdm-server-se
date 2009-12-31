@@ -29,7 +29,6 @@ import talend.core.transformer.plugin.v2.tiscall.webservices.ArrayOfXsdString;
 import talend.core.transformer.plugin.v2.tiscall.webservices.WSxml;
 import talend.core.transformer.plugin.v2.tiscall.webservices.WSxmlService;
 
-import com.amalto.core.objects.synchronization.ejb.local.SynchronizationPlanCtrlLocal;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
@@ -193,7 +192,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 			CompiledParameters parameters = CompiledParameters.deserialize(compiledParameters);			
 			//context.put(PARAMETERS, parameters);
 	        this.compiledParameters=parameters;
-	        URL wsdlURL = SynchronizationPlanCtrlLocal.class.getResource("/META-INF/wsdl/tis.wsdl");
+	        URL wsdlURL = TISCallTransformerPluginBean.class.getResource("/META-INF/wsdl/tis.wsdl");
 			
 			WSxmlService service = new WSxmlService(wsdlURL, new QName("http://talend.org", "WSxmlService"));
 			WSxml port = service.getWSxml();

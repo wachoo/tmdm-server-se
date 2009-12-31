@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.xmlserver.interfaces"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.core.enterprise"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

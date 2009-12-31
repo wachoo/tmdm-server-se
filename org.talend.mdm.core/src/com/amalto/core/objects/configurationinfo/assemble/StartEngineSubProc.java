@@ -6,6 +6,7 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocalHome;
+import com.amalto.core.util.Util;
 
 public class StartEngineSubProc extends AssembleSubProc{
 	
@@ -20,11 +21,11 @@ public class StartEngineSubProc extends AssembleSubProc{
 			"true"
 		));
 		
-		boolean isEnterpriseVersion  = "ENTERPRISE".equals(MDMConfiguration.getConfiguration().getProperty(
-			"system.release.type"
-		));
+//		boolean isEnterpriseVersion  = "ENTERPRISE".equals(MDMConfiguration.getConfiguration().getProperty(
+//			"system.release.type"
+//		));
 		
-		if (autostart&&isEnterpriseVersion) {
+		if (autostart&&Util.isEnterprise()) {
 			
         	RoutingEngineV2CtrlLocal enginectrl = null;
 			try {

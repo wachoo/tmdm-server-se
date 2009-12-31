@@ -50,8 +50,8 @@ import com.amalto.core.ejb.TransformerPOJO;
 import com.amalto.core.ejb.TransformerPOJOPK;
 import com.amalto.core.ejb.UpdateReportItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
-import com.amalto.core.ejb.XtentisWSBean;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
+import com.amalto.core.enterpriseutil.EnterpriseUtil;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlUtil;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
@@ -137,7 +137,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSVersion getComponentVersion(WSGetComponentVersion wsGetComponentVersion) throws RemoteException {
 		try {
 			if (WSComponent.DataManager.equals(wsGetComponentVersion.getComponent())) {	
-				Version version = Version.getVersion(XtentisWSBean.class);
+				Version version = Version.getVersion(this.getClass());
 				return new WSVersion(
 						version.getMajor(),
 						version.getMinor(),
@@ -522,53 +522,7 @@ public class XtentisRMIPort implements XtentisPort {
 	}
 
 	
-	public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws RemoteException {
-				
-		try {
-			    UniversePOJO pojo=null;
-			    
-			    if(wsGetConceptsInDataClusterWithRevisions==null||
-			       wsGetConceptsInDataClusterWithRevisions.getUniversePK()==null||
-			       wsGetConceptsInDataClusterWithRevisions.getUniversePK().getPk()==null||
-			       wsGetConceptsInDataClusterWithRevisions.getUniversePK().getPk().equals("")){
-			    	pojo=new UniversePOJO();//default head revision
-			    }else{
-			    	//get universe
-					UniverseCtrlLocal ctrl = com.amalto.core.util.Util.getUniverseCtrlLocal();
-				    pojo=
-						ctrl.getUniverse(
-							new UniversePOJOPK(
-									 wsGetConceptsInDataClusterWithRevisions.getUniversePK().getPk()
-							)
-						);
-			    }
-			    
-			   //get conceptRevisions    
-			   Map concepts = Util.getItemCtrl2Local().getConceptsInDataCluster(
-						new DataClusterPOJOPK(wsGetConceptsInDataClusterWithRevisions.getDataClusterPOJOPK().getPk()),pojo
-					);
-			   
-			   //convert
-			   WSConceptRevisionMapMapEntry[] mapEntry=new WSConceptRevisionMapMapEntry[concepts.size()];
-			   int i=0;
-			   for (Iterator iterator = concepts.keySet().iterator(); iterator.hasNext();i++) {
-				  String concept = (String) iterator.next();
-				  String revisionId = (String) concepts.get(concept);
-				  WSConceptRevisionMapMapEntry entry=new WSConceptRevisionMapMapEntry(concept,revisionId);
-				  mapEntry[i]=entry;
-			   }
-			   WSConceptRevisionMap wsConceptRevisionMap=new WSConceptRevisionMap(mapEntry);
-			   
-			   return wsConceptRevisionMap;
-	
-		} catch (XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));			
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}    
-		
-	
+
 
 	/***************************************************************************
 	 * View
@@ -1043,24 +997,7 @@ public class XtentisRMIPort implements XtentisPort {
 	 *Extract Items
 	 * **************************************************************************/
 	public WSPipeline extractUsingTransformer(WSExtractUsingTransformer wsExtractUsingTransformer) throws RemoteException {
-		try {
-			com.amalto.core.util.TransformerPluginContext context = com.amalto.core.util.Util.getItemCtrl2Local().extractUsingTransformer(
-					new ItemPOJOPK(
-							new DataClusterPOJOPK(wsExtractUsingTransformer.getWsItemPK().getWsDataClusterPK().getPk()),
-							wsExtractUsingTransformer.getWsItemPK().getConceptName(),
-							wsExtractUsingTransformer.getWsItemPK().getIds()
-					),
-					new TransformerPOJOPK(wsExtractUsingTransformer.getWsTransformerPK().getPk())
-			);
-			HashMap<String, com.amalto.core.util.TypedContent> pipeline = (HashMap<String, com.amalto.core.util.TypedContent>)context.get(TransformerCtrlBean.CTX_PIPELINE);
-			return XConverter.POJO2WSOLD(pipeline);				
-		} catch (com.amalto.core.util.XtentisException e) {
-			e.printStackTrace();
-			throw(new RemoteException(e.getLocalizedMessage()));			
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
+		throw new RemoteException("Not Support!");
 	}
 
 	public WSPipeline extractUsingTransformerThruView(WSExtractUsingTransformerThruView wsExtractUsingTransformerThruView) throws RemoteException {
@@ -1164,7 +1101,7 @@ public class XtentisRMIPort implements XtentisPort {
 	throws RemoteException {
 		try {
 		    return XConverter.VO2WS( 
-		    		com.amalto.core.util.Util.getRoutingRuleCtrlLocal().getRoutingRule(
+		    		EnterpriseUtil.getRoutingRuleCtrlLocal().getRoutingRule(
 							new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())
 					)
 			);
@@ -1181,7 +1118,7 @@ public class XtentisRMIPort implements XtentisPort {
 	   throws RemoteException {
 			try {
 			    return new WSBoolean( 
-			    		com.amalto.core.util.Util.getRoutingRuleCtrlLocal().existsRoutingRule(
+			    		EnterpriseUtil.getRoutingRuleCtrlLocal().existsRoutingRule(
 								new RoutingRulePOJOPK(wsExistsRoutingRule.getWsRoutingRulePK().getPk())
 						) != null
 				);
@@ -1196,7 +1133,7 @@ public class XtentisRMIPort implements XtentisPort {
     public WSRoutingRulePKArray getRoutingRulePKs(WSGetRoutingRulePKs regexp)
     throws RemoteException {
 		try {
-		    Collection<RoutingRulePOJOPK> pks = com.amalto.core.util.Util.getRoutingRuleCtrlLocal().getRoutingRulePKs(regexp.getRegex());
+		    Collection<RoutingRulePOJOPK> pks = EnterpriseUtil.getRoutingRuleCtrlLocal().getRoutingRulePKs(regexp.getRegex());
 		    ArrayList<WSRoutingRulePK> list = new ArrayList<WSRoutingRulePK>();
 		    for (Iterator iter = pks.iterator(); iter.hasNext(); ) {
 				RoutingRulePOJOPK pk = (RoutingRulePOJOPK) iter.next();
@@ -1214,7 +1151,7 @@ public class XtentisRMIPort implements XtentisPort {
     throws RemoteException {
 		try {
 		    return new WSRoutingRulePK(
-		    		com.amalto.core.util.Util.getRoutingRuleCtrlLocal().removeRoutingRule(
+		    		EnterpriseUtil.getRoutingRuleCtrlLocal().removeRoutingRule(
 							new RoutingRulePOJOPK(wsDeleteRoutingRule.getWsRoutingRulePK().getPk())
 					).getUniqueId()
 			);
@@ -1229,7 +1166,7 @@ public class XtentisRMIPort implements XtentisPort {
     throws RemoteException {
 		try {
 		    return new WSRoutingRulePK(
-		    		com.amalto.core.util.Util.getRoutingRuleCtrlLocal().putRoutingRule(
+		    		EnterpriseUtil.getRoutingRuleCtrlLocal().putRoutingRule(
 		    				XConverter.WS2VO(wsRoutingRule.getWsRoutingRule())
 					).getUniqueId()
 			);
@@ -2260,7 +2197,7 @@ public class XtentisRMIPort implements XtentisPort {
 
     public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
 		try {
-			RoleCtrlLocal ctrl = com.amalto.core.util.Util.getRoleCtrlLocal();
+			RoleCtrlLocal ctrl = EnterpriseUtil.getRoleCtrlLocal();
 			return
 				new WSRolePK(
 					ctrl.removeRole(
@@ -2277,7 +2214,7 @@ public class XtentisRMIPort implements XtentisPort {
     
 	public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
 		try {
-			RoleCtrlLocal ctrl = com.amalto.core.util.Util.getRoleCtrlLocal();
+			RoleCtrlLocal ctrl = EnterpriseUtil.getRoleCtrlLocal();
 			RolePOJO pojo =
 				ctrl.getRole(
 					new RolePOJOPK(
@@ -2292,7 +2229,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException {
 		try {
-			RoleCtrlLocal ctrl = com.amalto.core.util.Util.getRoleCtrlLocal();
+			RoleCtrlLocal ctrl = EnterpriseUtil.getRoleCtrlLocal();
 			RolePOJO pojo =
 				ctrl.existsRole(
 					new RolePOJOPK(
@@ -2308,7 +2245,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {
 		try {
-			RoleCtrlLocal ctrl = com.amalto.core.util.Util.getRoleCtrlLocal();
+			RoleCtrlLocal ctrl = EnterpriseUtil.getRoleCtrlLocal();
 			Collection c =
 				ctrl.getRolePKs(
 					regex.getRegex()
@@ -2329,7 +2266,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
 		try {
-			RoleCtrlLocal ctrl = com.amalto.core.util.Util.getRoleCtrlLocal();
+			RoleCtrlLocal ctrl = EnterpriseUtil.getRoleCtrlLocal();
 			RolePOJOPK pk =
 				ctrl.putRole(
 						XConverter.WS2POJO(wsRole.getWsRole())
@@ -2506,7 +2443,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
 			return XConverter.POJO2WS(ctrl.removeRoutingOrder(XConverter.WS2POJO(wsDeleteRoutingOrder.getWsRoutingOrderPK())));
 		} catch (com.amalto.core.util.XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
@@ -2521,7 +2458,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
 			AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(XConverter.WS2POJO(wsExecuteRoutingOrderAsynchronously.getRoutingOrderV2PK()));
 			ctrl.executeAsynchronously(ro);
 			return XConverter.POJO2WS(ro.getAbstractRoutingOrderPOJOPK());
@@ -2538,7 +2475,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
 			AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(XConverter.WS2POJO(wsExecuteRoutingOrderSynchronously.getRoutingOrderV2PK()));
 			return new WSString(ctrl.executeSynchronously(ro));
 		} catch (com.amalto.core.util.XtentisException e) {
@@ -2554,7 +2491,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRoutingOrderV2 existsRoutingOrderV2(WSExistsRoutingOrderV2 wsExistsRoutingOrder) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
 			return XConverter.POJO2WS(ctrl.existsRoutingOrder(XConverter.WS2POJO(wsExistsRoutingOrder.getWsRoutingOrderPK())));
 		} catch (com.amalto.core.util.XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
@@ -2569,7 +2506,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRoutingOrderV2 getRoutingOrderV2(WSGetRoutingOrderV2 wsGetRoutingOrderV2) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
 			return XConverter.POJO2WS(ctrl.getRoutingOrder(XConverter.WS2POJO(wsGetRoutingOrderV2.getWsRoutingOrderPK())));
 		} catch (com.amalto.core.util.XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
@@ -2607,7 +2544,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRoutingOrderV2Array getRoutingOrderV2SByCriteria(WSGetRoutingOrderV2SByCriteria wsGetRoutingOrderV2SByCriteria) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
 			WSRoutingOrderV2Array wsPKArray = new WSRoutingOrderV2Array();
 			ArrayList<WSRoutingOrderV2> list = new ArrayList<WSRoutingOrderV2>();
 			//fetch results
@@ -2630,7 +2567,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	private Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrdersByCriteria(WSRoutingOrderV2SearchCriteria criteria) throws Exception{
 		try {
-			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
 			Class<? extends AbstractRoutingOrderV2POJO> clazz = null;
 		    if (criteria.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
 		    	clazz = ActiveRoutingOrderV2POJO.class;
@@ -2685,7 +2622,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSString putVersioningSystemConfiguration(WSPutVersioningSystemConfiguration wsPutVersioningSystemConfiguration) throws RemoteException {
 		 try {
 			  WSVersioningSystemConfiguration conf=wsPutVersioningSystemConfiguration.getVersioningSystemConfiguration();
-			  VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			  VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
 			  VersioningSystemPOJO pojo=new VersioningSystemPOJO(conf.getName(),conf.getJndi(),conf.getDescription(),conf.getUrl(),conf.getUsername(),conf.getPassword(),conf.getAutocommit());
 			  VersioningSystemPOJOPK pk=ctrl.putVersioningSystem(pojo);
 			  return new WSString(pk.getUniqueId());
@@ -2701,7 +2638,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSVersioningInfo versioningGetInfo(WSVersioningGetInfo wsVersioningGetInfo) throws RemoteException {
 		try {
 			try {
-				VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+				VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
 				String res = 
 					ctrl.getVersioningSystemAvailability(
 							wsVersioningGetInfo.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetInfo.getVersioningSystemName())
@@ -2726,7 +2663,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSBackgroundJobPK versioningCommitItems(WSVersioningCommitItems wsVersioningCommitItems) throws RemoteException {
 		try {
-			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
 			
 			return new WSBackgroundJobPK(
 				ctrl.commitItemsAsJob(
@@ -2747,7 +2684,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSBoolean versioningRestoreItemByRevision(WSVersioningRestoreItemByRevision wsVersioningRestoreItemByRevision) throws RemoteException {
 		try {
 			
-			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
 			
 			
 				ctrl.restoreItemByRevision(
@@ -2769,7 +2706,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSVersioningItemHistory versioningGetItemHistory(WSVersioningGetItemHistory wsVersioningGetItemHistory) throws RemoteException {
 		try {
 			
-			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
 			
 			HistoryInfos historyInfos = ctrl.getItemHistory(
 						wsVersioningGetItemHistory.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetItemHistory.getVersioningSystemName()),
@@ -2793,7 +2730,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSVersioningItemsVersions versioningGetItemsVersions(WSVersioningGetItemsVersions wsVersioningGetItemsVersions) throws RemoteException {
        try {
 			
-			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
 			
 			HistoryInfos historyInfos =	ctrl.getItemsVersions(
 					wsVersioningGetItemsVersions.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetItemsVersions.getVersioningSystemName()), 
@@ -2825,7 +2762,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSVersioningObjectsVersions versioningGetObjectsVersions(WSVersioningGetObjectsVersions wsVersioningGetObjectsVersions) throws RemoteException {
 		try {
 			
-			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
 			
 			HistoryInfos historyInfos =	ctrl.getObjectsVersions(
 					wsVersioningGetObjectsVersions.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetObjectsVersions.getVersioningSystemName()), 
@@ -2864,7 +2801,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSBackgroundJobPK versioningRestoreItems(WSVersioningRestoreItems wsVersioningRestoreItems) throws RemoteException {
 		try {
-			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
 			ArrayList<ItemPOJOPK> itemPKs = new ArrayList<ItemPOJOPK>();
 			if (wsVersioningRestoreItems.getWsItemPKs()!=null) {
 				for (int i = 0; i < wsVersioningRestoreItems.getWsItemPKs().length; i++) {
@@ -2891,7 +2828,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSBackgroundJobPK versioningRestoreObjects(WSVersioningRestoreObjects wsVersioningRestoreObjects) throws RemoteException {
 		try {
-			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
 			return new WSBackgroundJobPK(
 				ctrl.restoreObjectsAsJob(
 						wsVersioningRestoreObjects.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningRestoreObjects.getVersioningSystemName()),
@@ -2911,7 +2848,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSBackgroundJobPK versioningTagItems(WSVersioningTagItems wsVersioningTagItems) throws RemoteException {
 		try {
-			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
 			ArrayList<ItemPOJOPK> itemPKs = new ArrayList<ItemPOJOPK>();
 			if (wsVersioningTagItems.getWsItemPKs()!=null) {
 				for (int i = 0; i < wsVersioningTagItems.getWsItemPKs().length; i++) {
@@ -2939,7 +2876,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSBackgroundJobPK versioningTagObjects(WSVersioningTagObjects wsVersioningTagObjects) throws RemoteException {
 		try {
-			VersioningSystemCtrlLocal ctrl = Util.getVersioningSystemCtrlLocal();
+			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
 			return new WSBackgroundJobPK(
 				ctrl.tagObjectsAsJob(
 						wsVersioningTagObjects.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningTagObjects.getVersioningSystemName()),
@@ -3031,7 +2968,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSUniversePK deleteUniverse(WSDeleteUniverse wsUniverseDelete) throws RemoteException {
 		try {
 			
-			UniverseCtrlLocal ctrl = Util.getUniverseCtrlLocal();
+			UniverseCtrlLocal ctrl = EnterpriseUtil.getUniverseCtrlLocal();
 			return
 				new WSUniversePK(
 					ctrl.removeUniverse(
@@ -3051,7 +2988,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSBoolean existsUniverse(WSExistsUniverse wsExistsUniverse) throws RemoteException {
 		try {
 			
-			UniverseCtrlLocal ctrl = Util.getUniverseCtrlLocal();
+			UniverseCtrlLocal ctrl = EnterpriseUtil.getUniverseCtrlLocal();
 			UniversePOJO pojo =
 				ctrl.existsUniverse(
 					new UniversePOJOPK(
@@ -3083,7 +3020,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSUniverse getUniverse(WSGetUniverse wsGetUniverse) throws RemoteException {
 		try {
 			
-			UniverseCtrlLocal ctrl = Util.getUniverseCtrlLocal();
+			UniverseCtrlLocal ctrl = EnterpriseUtil.getUniverseCtrlLocal();
 			UniversePOJO pojo =
 				ctrl.getUniverse(
 					new UniversePOJOPK(
@@ -3104,7 +3041,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex) throws RemoteException {
 		try {
 			
-			UniverseCtrlLocal ctrl = Util.getUniverseCtrlLocal();
+			UniverseCtrlLocal ctrl = EnterpriseUtil.getUniverseCtrlLocal();
 			Collection c =
 				ctrl.getUniversePKs(
 					regex.getRegex()
@@ -3129,7 +3066,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSUniversePK putUniverse(WSPutUniverse wsUniverse) throws RemoteException {
 		try {
 			
-			UniverseCtrlLocal ctrl = Util.getUniverseCtrlLocal();
+			UniverseCtrlLocal ctrl = EnterpriseUtil.getUniverseCtrlLocal();
 			UniversePOJOPK pk =
 				ctrl.putUniverse(
 						XConverter.WS2POJO(wsUniverse.getWsUniverse())
@@ -3147,8 +3084,6 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
 		try {
-			//this should force the User in the JACC context
-			Util.getUniverseCtrlLocal();
 			//Fetch the user
 			LocalUser user = LocalUser.getLocalUser();
 			return XConverter.POJO2WS(user.getUniverse());
@@ -3170,7 +3105,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSSynchronizationPlanPK deleteSynchronizationPlan(WSDeleteSynchronizationPlan wsSynchronizationPlanDelete) throws RemoteException {
 		try {
 			
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal();
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
 			return
 				new WSSynchronizationPlanPK(
 					ctrl.removeSynchronizationPlan(
@@ -3190,7 +3125,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSBoolean existsSynchronizationPlan(WSExistsSynchronizationPlan wsExistsSynchronizationPlan) throws RemoteException {
 		try {
 			
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal();
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
 			SynchronizationPlanPOJO pojo =
 				ctrl.existsSynchronizationPlan(
 					new SynchronizationPlanPOJOPK(
@@ -3225,7 +3160,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSSynchronizationPlan getSynchronizationPlan(WSGetSynchronizationPlan wsGetSynchronizationPlan) throws RemoteException {
 		try {
 			
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal();
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
 			SynchronizationPlanPOJO pojo =
 				ctrl.getSynchronizationPlan(
 					new SynchronizationPlanPOJOPK(
@@ -3259,7 +3194,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSSynchronizationPlanPKArray getSynchronizationPlanPKs(WSGetSynchronizationPlanPKs regex) throws RemoteException {
 		try {
 			
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal();
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
 			Collection c =
 				ctrl.getSynchronizationPlanPKs(
 					regex.getRegex()
@@ -3284,7 +3219,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSSynchronizationPlanPK putSynchronizationPlan(WSPutSynchronizationPlan wsSynchronizationPlan) throws RemoteException {
 		try {
 			
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal();
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
 			SynchronizationPlanPOJOPK pk =
 				ctrl.putSynchronizationPlan(
 						XConverter.WS2POJO(wsSynchronizationPlan.getWsSynchronizationPlan())
@@ -3317,7 +3252,7 @@ public class XtentisRMIPort implements XtentisPort {
 			}
 			
 			//SynchronizationPlanCtrlLocal ctrl = SynchronizationPlanCtrlUtil.getLocalHome().create();
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal(); 
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal(); 
 			String[] res = ctrl.action(
 				actionCode, 
 				new SynchronizationPlanPOJOPK(wsSynchronizationPlanAction.getWsSynchronizationPlanPK().getPk())
@@ -3365,7 +3300,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSStringArray synchronizationGetUnsynchronizedObjectsIDs(WSSynchronizationGetUnsynchronizedObjectsIDs wsSynchronizationGetUnsynchronizedObjectsIDs) throws RemoteException {
 		try {
 			
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal();
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
 			ArrayList<String> list = ctrl.synchronizationGetAllUnsynchronizedObjectsIDs(
 				wsSynchronizationGetUnsynchronizedObjectsIDs.getRevisionID(), 
 				wsSynchronizationGetUnsynchronizedObjectsIDs.getObjectName(), 
@@ -3387,7 +3322,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSString synchronizationGetObjectXML(WSSynchronizationGetObjectXML wsSynchronizationGetObjectXML) throws RemoteException {
 		try {
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal();
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
 			String xml = ctrl.synchronizationGetMarshaledObject(
 				wsSynchronizationGetObjectXML.getRevisionID(), 
 				wsSynchronizationGetObjectXML.getObjectName(), 
@@ -3406,7 +3341,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSString synchronizationPutObjectXML(WSSynchronizationPutObjectXML wsSynchronizationPutObjectXML) throws RemoteException {
 		try {
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal();
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
 			ctrl.synchronizationPutMarshaledObject(
 				wsSynchronizationPutObjectXML.getRevisionID(), 
 				wsSynchronizationPutObjectXML.getObjectName(), 
@@ -3428,7 +3363,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSItemPKArray synchronizationGetUnsynchronizedItemPKs(WSSynchronizationGetUnsynchronizedItemPKs wsSynchronizationGetUnsynchronizedItemPKs) throws RemoteException {
 		try {
 			
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal();
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
 			ArrayList<ItemPOJOPK> list = ctrl.synchronizationGetAllUnsynchronizedItemPOJOPKs(
 				wsSynchronizationGetUnsynchronizedItemPKs.getRevisionID(),
 				new DataClusterPOJOPK(wsSynchronizationGetUnsynchronizedItemPKs.getWsDataClusterPOJOPK().getPk()),
@@ -3458,7 +3393,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSString synchronizationGetItemXML(WSSynchronizationGetItemXML wsSynchronizationGetItemXML) throws RemoteException {
 		try {
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal();
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
 			String xml = ctrl.synchronizationGetMarshaledItem(
 				wsSynchronizationGetItemXML.getRevisionID(), 
 				XConverter.WS2POJO(wsSynchronizationGetItemXML.getWsItemPOJOPK())
@@ -3475,7 +3410,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSItemPK synchronizationPutItemXML(WSSynchronizationPutItemXML wsSynchronizationPutItemXML) throws RemoteException {
 		try {
-			SynchronizationPlanCtrlLocal ctrl = Util.getSynchronizationPlanCtrlLocal();
+			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
 			ItemPOJOPK pojoPK = ctrl.synchronizationPutMarshaledItem(
 				wsSynchronizationPutItemXML.getRevisionID(), 
 				wsSynchronizationPutItemXML.getXml()
@@ -3497,7 +3432,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSSynchronizationItemPK deleteSynchronizationItem(WSDeleteSynchronizationItem wsSynchronizationItemDelete) throws RemoteException {
 		try {
-			SynchronizationItemCtrlLocal ctrl = Util.getSynchronizationItemCtrlLocal();
+			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
 			
 			SynchronizationItemPOJOPK pojoPK = ctrl.removeSynchronizationItem(
 				new SynchronizationItemPOJOPK(wsSynchronizationItemDelete.getWsSynchronizationItemPK().getIds())
@@ -3514,7 +3449,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSSynchronizationItem getSynchronizationItem(WSGetSynchronizationItem wsGetSynchronizationItem) throws RemoteException {
 		try {
-			SynchronizationItemCtrlLocal ctrl = Util.getSynchronizationItemCtrlLocal();
+			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
 			SynchronizationItemPOJO pojo =
 				ctrl.getSynchronizationItem(
 					new SynchronizationItemPOJOPK(wsGetSynchronizationItem.getWsSynchronizationItemPK().getIds())
@@ -3531,7 +3466,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSBoolean existsSynchronizationItem(WSExistsSynchronizationItem wsExistsSynchronizationItem) throws RemoteException {
 		try {
-			SynchronizationItemCtrlLocal ctrl = Util.getSynchronizationItemCtrlLocal();
+			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
 			SynchronizationItemPOJO pojo =
 				ctrl.existsSynchronizationItem(
 					new SynchronizationItemPOJOPK(wsExistsSynchronizationItem.getWsSynchronizationItemPK().getIds())
@@ -3548,7 +3483,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSSynchronizationItemPKArray getSynchronizationItemPKs(WSGetSynchronizationItemPKs regex) throws RemoteException {
 		try {
-			SynchronizationItemCtrlLocal ctrl = Util.getSynchronizationItemCtrlLocal();
+			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
 			Collection c =
 				ctrl.getSynchronizationItemPKs(
 					regex.getRegex()
@@ -3571,7 +3506,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSSynchronizationItemPK putSynchronizationItem(WSPutSynchronizationItem wsSynchronizationItem) throws RemoteException {
 		try {
-			SynchronizationItemCtrlLocal ctrl = Util.getSynchronizationItemCtrlLocal();
+			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
 			SynchronizationItemPOJOPK pk =
 				ctrl.putSynchronizationItem(
 						XConverter.WS2POJO(wsSynchronizationItem.getWsSynchronizationItem())
@@ -3588,7 +3523,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	public WSSynchronizationItem resolveSynchronizationItem(WSResolveSynchronizationItem wsResolveSynchronizationItem) throws RemoteException {
 		try {
-			SynchronizationItemCtrlLocal ctrl = Util.getSynchronizationItemCtrlLocal();
+			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
 			SynchronizationItemPOJO pojo =
 				ctrl.resolveSynchronization(
 					new SynchronizationItemPOJOPK(wsResolveSynchronizationItem.getWsSynchronizationItemPK().getIds()),
@@ -3810,14 +3745,15 @@ public class XtentisRMIPort implements XtentisPort {
 			
 			String resultUpdateReport= Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem.getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
 			//invoke before saving
-			if(wsPutItemWithReport.getInvokeBeforeSaving()){
-				String err=Util.beforeSaving(concept, projection, resultUpdateReport);
-				if(err!=null){
-					err="execute beforeSaving ERROR:"+ err;
-					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+			if(Util.isEnterprise()){
+				if(wsPutItemWithReport.getInvokeBeforeSaving()){
+					String err=EnterpriseUtil.beforeSaving(concept, projection, resultUpdateReport);
+					if(err!=null){
+						err="execute beforeSaving ERROR:"+ err;
+						org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+					}
 				}
 			}
-						
 			String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
 	
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[putItem-of-putItemWithReport] in dataCluster:"+dataClusterPK);
@@ -3921,6 +3857,15 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSBackgroundJobPK versioningTagUniverse(
 			WSVersioningTagUniverse wsVersioningTagUniverse)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(
+			WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions)
 			throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;

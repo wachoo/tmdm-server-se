@@ -218,23 +218,6 @@ public class ItemCtrl2Remote extends Observable
 
    }
 
-   public com.amalto.core.util.TransformerPluginContext extractUsingTransformer ( com.amalto.core.ejb.ItemPOJOPK pojoPK,com.amalto.core.ejb.TransformerPOJOPK transformerPOJOPK )
-	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
-   {
-        com.amalto.core.util.TransformerPluginContext retval;
-       retval =  getSession().extractUsingTransformer( pojoPK,transformerPOJOPK );
-
-      return retval;
-
-   }
-
-   public void extractUsingTransformer ( com.amalto.core.ejb.ItemPOJOPK pojoPK,com.amalto.core.ejb.TransformerPOJOPK transformerPOJOPK,com.amalto.core.util.TransformerPluginContext context,com.amalto.core.util.TransformerPluginCallBack globalCallBack )
-	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
-   {
-      getSession().extractUsingTransformer( pojoPK,transformerPOJOPK,context,globalCallBack );
-
-   }
-
    public void extractUsingTransformerThroughView ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,com.amalto.core.objects.transformers.v2.util.TransformerContext context,com.amalto.core.objects.transformers.v2.util.TransformerCallBack globalCallBack,com.amalto.core.objects.view.ejb.ViewPOJOPK viewPOJOPK,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,java.lang.String orderBy,java.lang.String direction,int start,int limit )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {

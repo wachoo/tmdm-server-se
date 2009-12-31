@@ -30,6 +30,7 @@ import org.ow2.bonita.util.AccessorUtil;
 import org.ow2.bonita.util.SimpleCallbackHandler;
 
 import com.amalto.core.ejb.WorkflowServiceCtrlLocalBI;
+import com.amalto.core.enterpriseutil.EnterpriseUtil;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.bean.ListRange;
@@ -57,7 +58,7 @@ public class WorkflowTasksDWR {
 	private WorkflowServiceCtrlLocalBI getWorkflowService() {
 		if(workflowService==null){
 			try {
-				workflowService=Util.getWorkflowService();
+				workflowService=EnterpriseUtil.getWorkflowService();
 			} catch (XtentisException e) {
 				e.printStackTrace();
 			}

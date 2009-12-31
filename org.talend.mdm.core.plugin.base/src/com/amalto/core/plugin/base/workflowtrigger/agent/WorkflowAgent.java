@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.ow2.bonita.util.SimpleCallbackHandler;
 
 import com.amalto.core.ejb.WorkflowServiceCtrlLocalBI;
+import com.amalto.core.enterpriseutil.EnterpriseUtil;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
@@ -30,7 +31,7 @@ public abstract class WorkflowAgent {
 	public void start(WorkflowConnectInfo connectInfo) throws LoginException {
 		this.login(connectInfo);
 		try {
-			this.workflowService=Util.getWorkflowService();
+			this.workflowService=EnterpriseUtil.getWorkflowService();
 		} catch (XtentisException e) {
 			e.printStackTrace();
 		}

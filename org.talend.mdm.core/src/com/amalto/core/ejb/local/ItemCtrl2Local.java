@@ -196,20 +196,6 @@ public interface ItemCtrl2Local
    public java.util.ArrayList getFullPathValues( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String businessElementPath,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold,java.lang.String orderBy,java.lang.String direction ) throws com.amalto.core.util.XtentisException;
 
    /**
-    * Extracts data using a transformer In addtion to any entry added by the plugins, the returned context contains at least one entry <code>com.amalto.core.pipeline</code> which holds a Hashmap with entries containing the outputs of the various plugins as TypedContent
-    * @deprecated - Use a combination of {@link ItemCtrl2Bean#getItem(ItemPOJOPK)} and {@link TransformerV2CtrlBean#executeUntilDone(TransformerContext)}
-    * @throws XtentisException
-    */
-   public com.amalto.core.util.TransformerPluginContext extractUsingTransformer( com.amalto.core.ejb.ItemPOJOPK pojoPK,com.amalto.core.ejb.TransformerPOJOPK transformerPOJOPK ) throws com.amalto.core.util.XtentisException;
-
-   /**
-    * Extract an Item thru a transformer
-    * @deprecated - Use a combination of {@link ItemCtrl2Bean#getItem(ItemPOJOPK)} and {@link TransformerV2CtrlBean#execute(TransformerContext, TransformerCallBack)}
-    * @throws XtentisException
-    */
-   public void extractUsingTransformer( com.amalto.core.ejb.ItemPOJOPK pojoPK,com.amalto.core.ejb.TransformerPOJOPK transformerPOJOPK,com.amalto.core.util.TransformerPluginContext context,com.amalto.core.util.TransformerPluginCallBack globalCallBack ) throws com.amalto.core.util.XtentisException;
-
-   /**
     * Extract results thru a view and transform them using a transformer<br/> This call is asynchronous and results will be pushed via the passed {@link TransformerCallBack}
     * @param dataClusterPOJOPK The Data Cluster where to run the query
     * @param context The {@link TransformerContext} containi the inital context and the transformer name

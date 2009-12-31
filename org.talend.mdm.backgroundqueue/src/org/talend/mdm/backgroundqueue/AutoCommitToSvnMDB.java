@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 
 import com.amalto.core.ejb.AutoCommitToSvnMsg;
 import com.amalto.core.ejb.AutoCommitToSvnSendBean;
+import com.amalto.core.enterpriseutil.EnterpriseUtil;
 import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
 import com.amalto.core.util.Util;
 
@@ -89,7 +90,7 @@ public class AutoCommitToSvnMDB implements MessageDrivenBean, MessageListener {
 		            tm = (TextMessage) msg;
 		            Logger.getLogger(this.getClass()).info("AutoCommitToSvnMDB.onMessage, msg="+tm.getText());
 		            AutoCommitToSvnMsg msg1=AutoCommitToSvnMsg.unmarshal(tm.getText());
-		            Util.getVersioningSystemCtrlLocal().commitItem(new VersioningSystemPOJOPK(msg1.getVersionSystemPk()), msg1.getItemPk(), msg1.getComment());
+		            EnterpriseUtil.getVersioningSystemCtrlLocal().commitItem(new VersioningSystemPOJOPK(msg1.getVersionSystemPk()), msg1.getItemPk(), msg1.getComment());
 		            //Queue dest = (Queue) msg.getJMSReplyTo();
 		            //sendReply(text, dest);
 		        } catch(Throwable t) {

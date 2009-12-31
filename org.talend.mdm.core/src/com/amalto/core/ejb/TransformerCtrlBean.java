@@ -41,7 +41,6 @@ import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
@@ -437,7 +436,7 @@ public class TransformerCtrlBean implements SessionBean, TimedObject{
         					try {
 	        					callBack.contentIsReady(
 	        							0, 
-	        							TypedContent.getOldTypedContent(context.getFromPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE)), 
+	        							TypedContent.getOldTypedContent(context.getFromPipeline("_DEFAULT_")), 
 	        							TransformerPluginContext.getOldTransformerContext(context)
 	        					);
         					} catch (IOException e) {
@@ -787,7 +786,7 @@ public class TransformerCtrlBean implements SessionBean, TimedObject{
         					try {
 	        					callBack.contentIsReady(
 	        							0, 
-	        							TypedContent.getOldTypedContent(context.getFromPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE)), 
+	        							TypedContent.getOldTypedContent(context.getFromPipeline("_DEFAULT_")), 
 	        							TransformerPluginContext.getOldTransformerContext(context)
 	        					);
         					} catch (IOException e) {

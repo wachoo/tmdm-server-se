@@ -1,6 +1,5 @@
 package com.amalto.core.ejb;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,21 +11,17 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.jboss.injection.PojoInjector;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.amalto.core.ejb.local.AutoCommitToSvnSendBeanLocalHome;
-import com.amalto.core.ejb.local.AutoCommitToSvnSendBeanUtil;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
@@ -34,22 +29,17 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.role.ejb.RolePOJO;
 import com.amalto.core.objects.role.ejb.RolePOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
-import com.amalto.core.objects.versioning.util.VersioningServiceCtrlLocalBI;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.JazzyConfiguration;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.RoleSpecification;
 import com.amalto.core.util.RoleWhereCondition;
-import com.amalto.core.util.TransformerPluginCallBack;
-import com.amalto.core.util.TransformerPluginContext;
 import com.amalto.core.util.UUIDItemContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
@@ -84,7 +74,7 @@ import com.amalto.xmlserver.interfaces.WhereOr;
 
 @SuppressWarnings("deprecation")
 public class ItemCtrl2Bean implements SessionBean {
-  
+	public static final String DEFAULT_VARIABLE = "_DEFAULT_";
 	public static final long serialVersionUID = 200;
 	
 	//private SessionContext context;
@@ -1250,160 +1240,7 @@ public class ItemCtrl2Bean implements SessionBean {
     
  
 
-    /*****************************************************************
-     *  E X T R A C T I O N
-    *****************************************************************/
-
-    /**
-     * Extracts data using a transformer
-     * In addtion to any entry added by the plugins, the returned context contains at least one entry
-     * <code>com.amalto.core.pipeline</code> which holds a Hashmap with entries containing
-     * the outputs of the various plugins as TypedContent
-     * 
-     * @deprecated - Use a combination of {@link ItemCtrl2Bean#getItem(ItemPOJOPK)} and {@link TransformerV2CtrlBean#executeUntilDone(TransformerContext)}
-     * 
-     * @throws XtentisException
-     * 
-     * @ejb.interface-method view-type = "both"
-     * @ejb.facade-method 
-     */
-    public TransformerPluginContext extractUsingTransformer(
-    		ItemPOJOPK pojoPK,
-    		TransformerPOJOPK transformerPOJOPK
-    ) 
-    throws XtentisException{
-    	TransformerPluginContext context = new TransformerPluginContext();
-        try {
-        	TransformerContext newContext = TransformerPluginContext.getNewTransformerContext(context, transformerPOJOPK);
-        	org.apache.log4j.Logger.getLogger(this.getClass()).debug("extractUsingTransformer "+newContext.getTransformerV2POJOPK().getUniqueId());           	
-        	
-    		ItemPOJO item =getItem(pojoPK);
-            if (item==null) {
-            	String err = 
-            		"Unable to extract item " +pojoPK.getConceptName()+"["+Util.joinStrings(pojoPK.getIds(),".")+"]"+
-            		" using transformer "+newContext.getTransformerV2POJOPK().getUniqueId()+". The item cannot be found.";
-            	org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-            	throw new XtentisException(err);
-            }
-
-        	TransformerContext finalNewContext = Util.getTransformerV2CtrlLocal().executeUntilDone(
-        			newContext, 
-        			new TypedContent(item.getProjectionAsString().getBytes("utf-8"),"text/xml; charset=\"utf-8\"")
-        	);
-        	
-        	
-        	return TransformerPluginContext.getOldTransformerContext(finalNewContext);
-  
-	    } catch (XtentisException e) {
-	    	throw (e);
-	    } catch (Exception e) {
-	    	e.printStackTrace();
-	    	String err = 
-        		"Unable to extract item " +pojoPK.getConceptName()+"["+Util.joinStrings(pojoPK.getIds(),".")+"]"+
-        		" using transformer "+transformerPOJOPK.getUniqueId()+
-    	    	": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-	    	if ("logging_event".equals(pojoPK.getConceptName())) 
-	    		err+="\nTo avoid infinite looping, no other error will be thrown.";
-	    	else
-	    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    throw new XtentisException(err);
-	    }
-    }
-    
-    /**
-     * Extract an Item thru a transformer
-     * 
-     * @deprecated - Use a combination of {@link ItemCtrl2Bean#getItem(ItemPOJOPK)} and {@link TransformerV2CtrlBean#execute(TransformerContext, TransformerCallBack)}
-     * 
-     * @throws XtentisException
-     * 
-     * @ejb.interface-method view-type = "both"
-     * @ejb.facade-method 
-     */
-    public void extractUsingTransformer(
-    		ItemPOJOPK pojoPK,
-    		TransformerPOJOPK transformerPOJOPK,
-    		TransformerPluginContext context,
-    		TransformerPluginCallBack globalCallBack
-    ) 
-    throws XtentisException{                 
-    	
-        try {
-        	TransformerContext newContext = TransformerPluginContext.getNewTransformerContext(context, transformerPOJOPK);
-        	org.apache.log4j.Logger.getLogger(this.getClass()).debug("extractUsingTransformer "+newContext.getTransformerV2POJOPK().getUniqueId());           	
-        	newContext.put("com.amalto.core.ejb.itemctrl.globalCallBack", globalCallBack);
-        	
-    		ItemPOJO item =getItem(pojoPK);
-            if (item==null) {
-            	String err = 
-            		"Unable to extract item " +pojoPK.getConceptName()+"["+Util.joinStrings(pojoPK.getIds(),".")+"]"+
-            		" using transformer "+newContext.getTransformerV2POJOPK().getUniqueId()+". The item cannot be found.";
-            	org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-            	throw new XtentisException(err);
-            }
-
-        	Util.getTransformerV2CtrlLocal().execute(
-        			newContext, 
-        			new TypedContent(item.getProjectionAsString().getBytes("utf-8"),"text/xml; charset=\"utf-8\""),
-        			new TransformerCallBack() {
-        				public void contentIsReady(TransformerContext context) throws XtentisException {
-        					TransformerPluginCallBack callBack = (TransformerPluginCallBack)context.get("com.amalto.core.ejb.itemctrl.globalCallBack");
-        					try {
-	        					callBack.contentIsReady(
-	        							0, 
-	        							com.amalto.core.util.TypedContent.getOldTypedContent(context.getFromPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE)), 
-	        							TransformerPluginContext.getOldTransformerContext(context)
-	        					);
-        					} catch (IOException e) {
-        				    	e.printStackTrace();
-        			    	    String err = "Unable to call the execute call back 'content is ready' of Transformer: "+context.getTransformerV2POJOPK().getUniqueId()
-        			    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-        			    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-        			    	    throw new XtentisException(err);
-
-        					}
-        				}
-        				public void done(TransformerContext context) throws XtentisException {
-        					TransformerPluginCallBack callBack = (TransformerPluginCallBack)context.get("com.amalto.core.ejb.itemctrl.globalCallBack");
-        					try {
-	        					callBack.done(
-	        							0, 
-	        							TransformerPluginContext.getOldTransformerContext(context)
-	        					);
-        					} catch (IOException e) {
-        				    	e.printStackTrace();
-        			    	    String err = "Unable to call the execute the call back 'done' of Transformer: "+context.getTransformerV2POJOPK().getUniqueId()
-        			    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-        			    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-        			    	    throw new XtentisException(err);
-        					}
-        				}//done
-        			}
-        	);//execute
-        	
-        	//do not wait for projection to finish even if it is asynchronous
-        	//this is handled by the calling object
-
-  
-	    } catch (XtentisException e) {
-	    	throw (e);
-	    } catch (Exception e) {
-	    	e.printStackTrace();
-	    	String err = 
-        		"Unable to extract item " +pojoPK.getConceptName()+"["+Util.joinStrings(pojoPK.getIds(),".")+"]"+
-        		" using transformer "+transformerPOJOPK.getUniqueId()+
-    	    	": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-	    	if ("logging_event".equals(pojoPK.getConceptName())) 
-	    		err+="\nTo avoid infinite looping, no other error will be thrown.";
-	    	else
-	    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    throw new XtentisException(err);
-	    }
-
-    }
-    
-    
-
+ 
     /**
      * Extract results thru a view and transform them using a transformer<br/>
      * This call is asynchronous and results will be pushed via the passed {@link TransformerCallBack}
@@ -1464,7 +1301,7 @@ public class ItemCtrl2Bean implements SessionBean {
 	        			new TransformerCallBack() {
 	        				public void contentIsReady(TransformerContext context) throws XtentisException {
 	        					//add numberd content to the pipeline
-	        					TypedContent content = context.getFromPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE);
+	        					TypedContent content = context.getFromPipeline(DEFAULT_VARIABLE);
 	        					int count = ((Integer)context.get("com.amalto.core.ejb.itemctrl.count")).intValue()+1;
 	        					context.putInPipeline("com.amalto.core.extract."+count, content);
 	        					//context.put(TransformerCtrlBean.CTX_PIPELINE, pipeline);

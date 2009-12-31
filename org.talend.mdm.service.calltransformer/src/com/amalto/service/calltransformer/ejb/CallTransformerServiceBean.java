@@ -23,6 +23,7 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ServiceCtrlBean;
 import com.amalto.core.ejb.local.ItemCtrl2Local;
+import com.amalto.core.enterpriseutil.EnterpriseUtil;
 import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
 import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
@@ -31,7 +32,6 @@ import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerGlobalContext;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
 
@@ -227,20 +227,20 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
 		            	throw new XtentisException("Service CallTransformer - mandatory parameter transformer name is missing");
 		    		}
 
-					TransformerV2CtrlLocal tctrl = Util.getTransformerV2CtrlLocal();
+					TransformerV2CtrlLocal tctrl = EnterpriseUtil.getTransformerV2CtrlLocal();
 
 					if (tctrl.existsTransformer(new TransformerV2POJOPK(transformer)) == null) {
 		            	org.apache.log4j.Logger.getLogger(this.getClass()).debug("Service CallTransformer is unable to call transformer "+transformer+" - transformer doesn't exist");
 		            	throw new XtentisException("Unable to find the transformer "+transformer);
 		    		}
 
-					ItemCtrl2Local ictrl  = Util.getItemCtrl2Local();
+					ItemCtrl2Local ictrl  = EnterpriseUtil.getItemCtrl2Local();
 					ItemPOJO pojo = ictrl.getItem(itemPK);
 
 					TransformerContext context = new TransformerContext(new TransformerV2POJOPK(transformer));
 					context.putInPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE, new TypedContent(pojo.getProjectionAsString().getBytes(),"text/xml"));
 					
-					AbstractRoutingOrderV2POJO routingOrder=Util.getRoutingOrderV2CtrlLocal().getRoutingOrder(new ActiveRoutingOrderV2POJOPK(routingOrderID));
+					AbstractRoutingOrderV2POJO routingOrder=EnterpriseUtil.getRoutingOrderV2CtrlLocal().getRoutingOrder(new ActiveRoutingOrderV2POJOPK(routingOrderID));
 					String userToken=null;
 					if(routingOrder!=null){
 						try {
@@ -347,11 +347,11 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
 			
 			//parse input parameter
 			if(parameters==null||parameters.length()==0)throw new XtentisException("Parameters can not be empty! ");
-			Document paramDoc=Util.parse(parameters);
-			String transformerName=Util.getFirstTextNode(paramDoc, "//transformer");
+			Document paramDoc=EnterpriseUtil.parse(parameters);
+			String transformerName=EnterpriseUtil.getFirstTextNode(paramDoc, "//transformer");
 			
-			String  typedContentType=Util.getFirstTextNode(paramDoc, "//typedContent/type");
-			String	typedContentValue=Util.getFirstTextNode(paramDoc, "//typedContent/value");
+			String  typedContentType=EnterpriseUtil.getFirstTextNode(paramDoc, "//typedContent/type");
+			String	typedContentValue=EnterpriseUtil.getFirstTextNode(paramDoc, "//typedContent/value");
 			typedContentValue=StringEscapeUtils.unescapeXml(typedContentValue);
 			
 			//TODO care about output log to UI-console
@@ -362,7 +362,7 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
             	throw new XtentisException("Service CallTransformer - mandatory parameter transformer name is missing");
     		}
 			
-			TransformerV2CtrlLocal tctrl = Util.getTransformerV2CtrlLocal();
+			TransformerV2CtrlLocal tctrl = EnterpriseUtil.getTransformerV2CtrlLocal();
 			if (tctrl.existsTransformer(new TransformerV2POJOPK(transformerName)) == null) {
             	org.apache.log4j.Logger.getLogger(this.getClass()).debug("Service CallTransformer is unable to call transformer "+transformerName+" - transformer doesn't exist");
             	throw new XtentisException("Unable to find the transformer "+transformerName);

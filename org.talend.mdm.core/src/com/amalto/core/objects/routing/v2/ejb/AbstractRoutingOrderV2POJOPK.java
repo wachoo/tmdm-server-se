@@ -31,8 +31,7 @@ public abstract class AbstractRoutingOrderV2POJOPK extends ObjectPOJOPK {
            	case AbstractRoutingOrderV2POJO.FAILED:
            		return FailedRoutingOrderV2POJO.class;
            	default:
-           		String err= "Unknown Routing Order Class :"+getStatus();
-           		org.apache.log4j.Logger.getLogger(RoutingOrderV2CtrlBean.class).error(err);
+           		String err= "Unknown Routing Order Class :"+getStatus();           		
            		throw new XtentisException(err);        		
         }
     }

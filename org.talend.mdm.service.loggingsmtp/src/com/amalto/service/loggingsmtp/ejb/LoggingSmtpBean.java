@@ -31,10 +31,10 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ServiceCtrlBean;
 import com.amalto.core.ejb.local.ItemCtrl2Local;
+import com.amalto.core.enterpriseutil.EnterpriseUtil;
 import com.amalto.core.objects.routing.v2.ejb.RoutingRuleExpressionPOJO;
 import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
 import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
@@ -202,7 +202,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean  implements SessionBean {
 	        step.setParameters(xslt);
 
 	        TransformerVariablesMapping inputMapping = new TransformerVariablesMapping();
-	        inputMapping.setPipelineVariable(TransformerV2CtrlBean.DEFAULT_VARIABLE);
+	        inputMapping.setPipelineVariable("_DEFAULT_");
 	        inputMapping.setPluginVariable("xml");
 	        step.setInputMappings(new ArrayList<TransformerVariablesMapping>(Arrays.asList(new TransformerVariablesMapping[]{inputMapping})));
 
@@ -229,33 +229,33 @@ public class LoggingSmtpBean extends ServiceCtrlBean  implements SessionBean {
 
 	private void createRoutingRule() throws XtentisException {
 
-		try {
-			if (Util.getRoutingRuleCtrlLocal().existsRoutingRule(new RoutingRulePOJOPK(routingRuleName))!=null)
-				return;
+		
+			try {
+				if(Util.isEnterprise()){
+					if (EnterpriseUtil.getRoutingRuleCtrlLocal().existsRoutingRule(new RoutingRulePOJOPK(routingRuleName))!=null)
+						return;
 
-			//TODO change default mail address
-			Util.getRoutingRuleCtrlLocal().putRoutingRule(
-				new RoutingRulePOJO(
-					routingRuleName,
-					"Sends all logging events to the logging stmp service",
-					new ArrayList<RoutingRuleExpressionPOJO>(),
-					false,
-					"logging_event",
-					getJNDIName(),
-					"from=support@talend.com&to=MDMAdmin@talend.com&subjectprefix=Talend MDM Logging Event ",
-					null,
-					true
-				)
-			);
-		} catch (NamingException e) {
-			String err = "Unable to instantiate the routing rules controller: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-			throw new XtentisException(err);
-		} catch (CreateException e) {
-			String err = "Unable to create the 'Logging events to loggingSMTP service' routing rule: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-			throw new XtentisException(err);
-		}
+					//TODO change default mail address
+					EnterpriseUtil.getRoutingRuleCtrlLocal().putRoutingRule(
+						new RoutingRulePOJO(
+							routingRuleName,
+							"Sends all logging events to the logging stmp service",
+							new ArrayList<RoutingRuleExpressionPOJO>(),
+							false,
+							"logging_event",
+							getJNDIName(),
+							"from=support@talend.com&to=MDMAdmin@talend.com&subjectprefix=Talend MDM Logging Event ",
+							null,
+							true
+						)
+					);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new XtentisException(e.getMessage());
+			}
+		
 
 	}
 

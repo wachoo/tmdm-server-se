@@ -42,37 +42,14 @@
    	<target name="package">
    		
 		<jar destfile="${ejbs}" manifest="src/META-INF/MANIFEST.MF">
-			<zipfileset dir="src/META-INF" prefix="META-INF">
-				<include name="ejb-jar.xml" />
-			</zipfileset>
-			<zipfileset dir="src/META-INF" prefix="META-INF">
-				<include name="jboss.xml" />
-			</zipfileset>
-			<zipfileset dir="src/META-INF" prefix="META-INF">
-				<include name="mapping.xml" />
-			</zipfileset>
-			<zipfileset dir="src/META-INF" prefix="META-INF">
-				<include name="webservices.xml" />
-			</zipfileset>
-			<zipfileset dir="src/META-INF/wsdl" prefix="META-INF/wsdl">
-				<include name="webservices.wsdl" />
-			</zipfileset>
-			<zipfileset dir="src/META-INF/wsdl" prefix="META-INF/wsdl">
-				<include name="*.xsd" />
-			</zipfileset>
+
 			<zipfileset dir=".">
 				<include name="RELEASE.NOTES" />
 			</zipfileset>
 			<zipfileset dir=".">
 				<include name="version.properties" />
 			</zipfileset>
-			<zipfileset dir="bin"  />
-			<!--
-			<zipfileset dir="bin" includes="**/ejb/**/*.class" />
-			<zipfileset dir="bin" includes="**/localutil/**/*.class" />
-			<zipfileset dir="bin" includes="**/webservice/**/*.class" />
-			<zipfileset dir="src" includes="**/com/amalto/core/util/phonet*.*" />
-			-->
+			<zipfileset dir="bin" />
 		</jar>
    		
    		<!-- used by transformer plugins -->
@@ -118,13 +95,11 @@
 	
 	<target name="deploy">
 		<echo>Deploying ${ejbs}, ${war} ${lib} and ${conf}</echo>
-		
+	
 		<copy file="${lib}" tofile="${jboss.lib.dir}/${lib}"/>	 
 		<copy file="${ejbs}" tofile="${jboss.deploy.dir}/${ejbs}"/>
 		<copy file="${war}" tofile="${jboss.deploy.dir}/${war}"/>
 		<copy file="${conf}" tofile="${jboss.bin.dir}/${conf}"/>
     </target>
-
-
 
 </project>
