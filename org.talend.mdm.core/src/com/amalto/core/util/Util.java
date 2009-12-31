@@ -2782,7 +2782,7 @@ public  class Util {
 	 */
 	public static boolean isEnterprise()throws Exception{
 		  Object service= 
-			   retrieveComponent(
+			   Util.retrieveComponent(
 			    null, 
 			    "amalto/local/service/svn"
 			   );
