@@ -1076,7 +1076,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	        bbar: [
 	        	{text:BUTTON_DELETE[language],
 	        		id:'btn-delete',
-	        		hidden :true,
+	        		//hidden :true,
 	        		xtype:'button',
 	        		disabled:$('item-new-btn').disabled,
 	        		tooltip:PHYSICALLY_DELETE_TOOLTIP[language],
