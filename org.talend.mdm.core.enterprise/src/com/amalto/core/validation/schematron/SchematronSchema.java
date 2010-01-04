@@ -8,14 +8,14 @@
  * under the Apache Software License, Version 1.1
  */
 
-package com.amalto.core.schema.validation.schematron;
+package com.amalto.core.validation.schematron;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.amalto.core.schema.validation.Schema;
-import com.amalto.core.schema.validation.Validator;
+import com.amalto.core.validation.Schema;
+import com.amalto.core.validation.Validator;
 
 
 /**

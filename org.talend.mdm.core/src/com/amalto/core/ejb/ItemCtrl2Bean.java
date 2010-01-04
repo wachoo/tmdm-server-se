@@ -21,6 +21,7 @@ import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.AutoCommitToSvnSendBeanLocalHome;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
@@ -656,7 +657,7 @@ public class ItemCtrl2Bean implements SessionBean {
         	}
         	
         	//2.13.1 - Add Filters from the Roles
-        	LocalUser user = LocalUser.getLocalUser();
+        	ILocalUser user = LocalUser.getLocalUser();
         	HashSet<String> roleNames = user.getRoles();
         	if (! roleNames.contains("administration")) {
         		ArrayList<IWhereItem> roleWhereConditions = new ArrayList<IWhereItem>();
@@ -1492,7 +1493,7 @@ public class ItemCtrl2Bean implements SessionBean {
      */
     public TreeMap<String, String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK,UniversePOJO universe) throws XtentisException {
     	try {
-			LocalUser user = LocalUser.getLocalUser();
+			ILocalUser user = LocalUser.getLocalUser();
 			boolean authorized = false;
 	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
 	    		authorized = true;

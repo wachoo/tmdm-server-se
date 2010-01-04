@@ -3,13 +3,10 @@ package com.amalto.core.objects.transformers.v2.ejb;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.security.Principal;
-import java.security.acl.Group;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -25,8 +22,8 @@ import javax.ejb.Timer;
 import javax.ejb.TimerHandle;
 import javax.ejb.TimerService;
 import javax.naming.InitialContext;
-import javax.security.auth.Subject;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -49,7 +46,6 @@ import com.amalto.core.objects.transformers.v2.util.TypedContent_Do_Not_Process;
 import com.amalto.core.objects.transformers.v2.util.TypedContent_Drop_Variable;
 import com.amalto.core.objects.transformers.v2.util.TypedContent_Use_Default;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
 import com.amalto.core.util.JobActionInfo;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
@@ -365,7 +361,7 @@ public class TransformerV2CtrlBean implements SessionBean, TimedObject, Transfor
     		TransformerCallBack callBack
 		)throws XtentisException{
     	
-    	LocalUser user = LocalUser.getLocalUser();
+    	ILocalUser user = LocalUser.getLocalUser();
     	
     	if (! user.getRoles().contains("administration")) {
     		String err = "The user '"+LocalUser.getLocalUser().getUsername()+"' does not have the 'administration' role";

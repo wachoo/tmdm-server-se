@@ -61,11 +61,11 @@ import sun.misc.BASE64Decoder;
 
 import com.amalto.connector.jca.InteractionSpecImpl;
 import com.amalto.connector.jca.RecordFactoryImpl;
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.enterpriseutil.EnterpriseUtil;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
-import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlUtil;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
@@ -97,7 +97,6 @@ import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlUtil;
 import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJO;
 import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJOPK;
 import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocal;
-import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlUtil;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationItemPOJO;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationItemPOJOPK;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanItemLine;
@@ -129,7 +128,6 @@ import com.amalto.core.objects.versioning.util.HistoryInfos;
 import com.amalto.core.objects.versioning.util.TagStructureInfo;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
-import com.amalto.core.objects.view.ejb.local.ViewCtrlUtil;
 import com.amalto.core.util.ArrayListHolder;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.RoleInstance;
@@ -316,7 +314,7 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
 	public WSString logout(WSLogout logout) throws RemoteException {
 		String msg = "OK";
 		try {
-		    LocalUser user = LocalUser.getLocalUser();
+		    ILocalUser user = LocalUser.getLocalUser();
 		    user.logout();
 		} catch (Exception e) {
 			msg = e.getMessage();
@@ -1389,7 +1387,7 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
 			String dataClusterName = wsGetItemPKsByCriteria.getWsDataClusterPK().getPk();
 			
 			//Check if user is allowed to read the cluster
-			LocalUser user = LocalUser.getLocalUser();			
+			ILocalUser user = LocalUser.getLocalUser();			
 			boolean authorized = false;
 	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
 	    		authorized = true;
@@ -1931,7 +1929,7 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
 			);				
 			DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
 			ItemPOJOPK itemPOJOPK=new ItemPOJOPK(dcpk,concept, ids);	
-			LocalUser user = LocalUser.getLocalUser();
+			ILocalUser user = LocalUser.getLocalUser();
 			String userName="";
 			if(customUserName!=null&&customUserName.length()>0){
 				userName=customUserName;
@@ -3099,7 +3097,7 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
 			//thei should force the User in the JACC context
 			//UniverseCtrlUtil.getLocalHome().create();
 			//Fetch the user
-			LocalUser user = LocalUser.getLocalUser();
+			ILocalUser user = LocalUser.getLocalUser();
 			return POJO2WS(user.getUniverse());
 		} catch (Exception e) {
 			String err = "ERROR SYSTRACE: "+e.getMessage();

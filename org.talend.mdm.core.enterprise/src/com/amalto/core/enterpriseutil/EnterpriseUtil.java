@@ -1,8 +1,11 @@
 package com.amalto.core.enterpriseutil;
 
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,6 +14,14 @@ import javax.ejb.CreateException;
 import javax.ejb.EJBLocalHome;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.WorkflowServiceCtrlLocalBI;
 import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
@@ -37,6 +48,10 @@ import com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocal;
 import com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocalHome;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import com.amalto.core.validation.Schema;
+import com.amalto.core.validation.SchemaFactory;
+import com.amalto.core.validation.Validator;
+import com.amalto.core.validation.Violation;
 
 public class EnterpriseUtil extends Util{
 	//The only Static HashMap around (hopefully)
@@ -305,5 +320,67 @@ public class EnterpriseUtil extends Util{
     		throw new XtentisException(err);
 	    }
     }
-	
+	public static Document validate(Element element, String schema) 
+	throws Exception{
+		Document d=Util.validate(element, schema);
+		Document xsdDoc = Util.parse(schema);
+		//schematron validate see 0008753: Implement Schematron
+		String concept=element.getLocalName();
+		Node schemaRoot=xsdDoc.getDocumentElement();
+	   	Element rootNS=Util.getRootElement("nsholder",schemaRoot.getNamespaceURI(),"xsd");	
+	   	String xpath="//xsd:element[@name='" + concept + "']//xsd:appinfo[@source='"+ ICoreConstants.X_Schematron+"']/text()";
+		NodeList tsList=Util.getNodeList(schemaRoot,xpath,rootNS.getNamespaceURI(),"xsd");
+		
+		//String SCHEMATRON=ICoreConstants.SCHEMATRON_TAG;//"<schema xmlns=\"http://www.ascc.net/xml/schematron\" ns=\"http://xml.apache.cocoon/xmlform\">";
+		for(int i=0; i<tsList.getLength();i++){
+			String sch= nodeToString(tsList.item(i), true);
+			sch=StringEscapeUtils.unescapeXml(sch);
+			//String sch= tsList.item(i).getNodeValue();
+			//sch=sch.replaceAll("<"+ICoreConstants.SCHEMATRON_RULE+">", SCHEMATRON);
+			//sch=sch.replaceAll("</"+ICoreConstants.SCHEMATRON_RULE+">", "</schema>");
+			if(sch ==null || sch.trim().length()==0) continue;
+			StringBuffer sb=new StringBuffer();
+			sb.append("<schema xmlns=\"http://www.ascc.net/xml/schematron\" >");
+			sb.append(sch);
+			sb.append("</schema>");
+			schematronValidate(element, sb.toString(), concept);
+		}
+		//end
+		return d;
+	}
+    public static void schematronValidate(Element element, String schematron, String concept)throws Exception{
+        
+    	InputSource is = new InputSource ( new ByteArrayInputStream(schematron.getBytes("utf-8")) );
+        SchemaFactory schf = SchemaFactory.lookup( SchemaFactory.NAMESPACE_SCHEMATRON );
+        Schema sch = schf.compileSchema( is );
+        Validator validator = sch.newValidator();
+
+        // set preprocessor parameters 
+         //if (args.length > 1)
+           // validator.setProperty(Validator.PROPERTY_PHASE, "New");
+         
+         List violations = null;
+
+         //violations = validator.validate( tbean );
+         violations=validator.validate(element);
+ 
+         // everything ok?
+         if (violations == null || violations.size()==0) 
+         {
+           System.out.println("\nValidation ok, no messages generated");
+         }
+         else {
+           System.out.println("Validation encountered errors. Messages :");
+           Iterator viter = violations.iterator();
+           StringBuffer sb =new StringBuffer();
+           while (viter.hasNext ())
+           {
+             Violation v = (Violation) viter.next();
+             //sb.append("Violation path: " + v.getPath() + ", message: " + v.getMessage() );
+             sb.append( v.getMessage()+"\n" );
+           }
+           if(sb.toString().length()>0)
+           throw new XtentisException(sb.toString());
+         }
+    }
 }

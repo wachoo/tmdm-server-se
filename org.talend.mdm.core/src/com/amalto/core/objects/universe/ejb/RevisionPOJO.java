@@ -19,6 +19,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
@@ -68,7 +69,7 @@ public class RevisionPOJO implements Serializable{
         	one.setModifyTimeStamp(timeStamp);
 		}
         
-    	LocalUser user = LocalUser.getLocalUser();
+    	ILocalUser user = LocalUser.getLocalUser();
         if (one.getCreator() == null) {
         	one.setCreator(user.getUsername());
 		} else {

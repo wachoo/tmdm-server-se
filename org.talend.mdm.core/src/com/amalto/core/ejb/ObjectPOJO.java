@@ -22,6 +22,7 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
@@ -43,7 +44,6 @@ import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
-import com.amalto.core.schema.manage.SchemaManager;
 import com.amalto.core.util.BAMLogger;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -250,7 +250,7 @@ public abstract class ObjectPOJO implements Serializable{
 
     	try {
 	    	//for the user have a role of administration , or role of write on instance or role of read on instance
-    		LocalUser user = LocalUser.getLocalUser();
+    		ILocalUser user = LocalUser.getLocalUser();
 	    	if (! user.userCanRead(objectClass, objectPOJOPK.getUniqueId())) {
 	    	    String err = 
 	    	    	"Unauthorized read access by " +
@@ -347,7 +347,7 @@ public abstract class ObjectPOJO implements Serializable{
     	try {
 	    	//for delete we need to be admin, or have a role of admin , or role of write on instance 
 	    	boolean authorized = false;
-	    	LocalUser user = LocalUser.getLocalUser();
+	    	ILocalUser user = LocalUser.getLocalUser();
 	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
 	    		authorized = true;
 	    	} else if (user.isAdmin(objectClass)) {
@@ -431,7 +431,7 @@ public abstract class ObjectPOJO implements Serializable{
        	try {
 	    	//for storing we need to be admin, or have a role of admin , or role of write on instance 
 	    	boolean authorized = false;
-	    	LocalUser user = LocalUser.getLocalUser();
+	    	ILocalUser user = LocalUser.getLocalUser();
 	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
 	    		authorized = true;
 	    	} else if (user.userCanWrite(this.getClass(), this.getPK().getUniqueId())) {
@@ -542,7 +542,7 @@ public abstract class ObjectPOJO implements Serializable{
        		int numItems = 0;
        		
 	    	//check if we are admin 
-	    	LocalUser user = LocalUser.getLocalUser();
+	    	ILocalUser user = LocalUser.getLocalUser();
 	    	
 	    	//get the universe and revision ID
 	    	UniversePOJO universe = user.getUniverse();
@@ -614,7 +614,7 @@ public abstract class ObjectPOJO implements Serializable{
        	try {
        		
 	    	//check if we are admin 
-	    	LocalUser user = LocalUser.getLocalUser();
+	    	ILocalUser user = LocalUser.getLocalUser();
 	    	if (!user.getRoles().contains("administration")) {
 	    		String err = "Only an user with the 'administration' role can call the synchronization methods";
 				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
@@ -663,7 +663,7 @@ public abstract class ObjectPOJO implements Serializable{
        	try {
        		
 	    	//check if we are admin 
-	    	LocalUser user = LocalUser.getLocalUser();
+	    	ILocalUser user = LocalUser.getLocalUser();
 	    	if (!user.getRoles().contains("administration")) {
 	    		String err = "Only an user with the 'administration' role can call the synchronization methods";
 				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
@@ -718,7 +718,7 @@ public abstract class ObjectPOJO implements Serializable{
        	try {
        		
 	    	//check if we are admin 
-	    	LocalUser user = LocalUser.getLocalUser();
+	    	ILocalUser user = LocalUser.getLocalUser();
 	    	if (!user.getRoles().contains("administration")) {
 	    		String err = "Only an user with the 'administration' role can call the synchronization methods";
 				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
@@ -783,7 +783,7 @@ public abstract class ObjectPOJO implements Serializable{
        		
 	    	//check if we are admin 
 	    	boolean isAdmin = false;
-	    	LocalUser user = LocalUser.getLocalUser();
+	    	ILocalUser user = LocalUser.getLocalUser();
 	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
 	    		isAdmin = true;
 	    	} else if (user.isAdmin(objectClass)) {

@@ -8,9 +8,11 @@
  * under the Apache Software License, Version 1.1
  */
 
-package com.amalto.core.schema.validation;
+package com.amalto.core.validation;
 
 import org.xml.sax.InputSource;
+
+import com.amalto.core.validation.schematron.SchematronFactory;
 
 /**
  * 
@@ -46,7 +48,7 @@ public abstract class SchemaFactory
     // until another schema validator is implemented
     /* @todo create SchematronValidatorFactory */  
     if ( ns.equals ( NAMESPACE_SCHEMATRON ) )
-      return new com.amalto.core.schema.validation.schematron.SchematronFactory();
+      return new SchematronFactory();
     return null;
   }
 

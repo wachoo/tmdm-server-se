@@ -22,6 +22,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
@@ -337,7 +338,7 @@ public class DroppedItemPOJO implements Serializable{
     	
     	String actionName="findAllPKs";
     	
-    	LocalUser user = LocalUser.getLocalUser();
+    	ILocalUser user = LocalUser.getLocalUser();
     	universeFilter();
     	//get XmlServerSLWrapperLocal
     	XmlServerSLWrapperLocal server=obtainXmlServerSLWrapperLocal();
@@ -526,7 +527,7 @@ public class DroppedItemPOJO implements Serializable{
 	
 	private static String rolesFilter(ItemPOJOPK refItemPOJOPK,String actionName,String authorizeMode)throws XtentisException {
 		boolean authorized = false;
-    	LocalUser user = LocalUser.getLocalUser();
+    	ILocalUser user = LocalUser.getLocalUser();
     	
     	if(authorizeMode.equals("w")){
     		

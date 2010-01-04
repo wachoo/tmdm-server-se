@@ -1,7 +1,6 @@
 package com.amalto.core.util;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -58,7 +57,6 @@ import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
-import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -69,6 +67,7 @@ import org.xml.sax.SAXException;
 
 import sun.misc.BASE64Encoder;
 
+import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -103,10 +102,6 @@ import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocalH
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
-import com.amalto.core.schema.validation.Schema;
-import com.amalto.core.schema.validation.SchemaFactory;
-import com.amalto.core.schema.validation.Validator;
-import com.amalto.core.schema.validation.Violation;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSComplexType;
@@ -265,41 +260,7 @@ public  class Util {
 		}
 		return d;
     }
-    public static void schematronValidate(Element element, String schematron, String concept)throws Exception{
-        
-    	InputSource is = new InputSource ( new ByteArrayInputStream(schematron.getBytes("utf-8")) );
-        SchemaFactory schf = SchemaFactory.lookup( SchemaFactory.NAMESPACE_SCHEMATRON );
-        Schema sch = schf.compileSchema( is );
-        Validator validator = sch.newValidator();
-
-        // set preprocessor parameters 
-         //if (args.length > 1)
-           // validator.setProperty(Validator.PROPERTY_PHASE, "New");
-         
-         List violations = null;
-
-         //violations = validator.validate( tbean );
-         violations=validator.validate(element);
  
-         // everything ok?
-         if (violations == null || violations.size()==0) 
-         {
-           System.out.println("\nValidation ok, no messages generated");
-         }
-         else {
-           System.out.println("Validation encountered errors. Messages :");
-           Iterator viter = violations.iterator();
-           StringBuffer sb =new StringBuffer();
-           while (viter.hasNext ())
-           {
-             Violation v = (Violation) viter.next();
-             //sb.append("Violation path: " + v.getPath() + ", message: " + v.getMessage() );
-             sb.append( v.getMessage()+"\n" );
-           }
-           if(sb.toString().length()>0)
-           throw new XtentisException(sb.toString());
-         }
-    }
     /**
      * @author ymli  fix bug 0009642
      * if the node's minOccurs is 0, set its chirldren's minOccurs 0 to match the w3c roles
@@ -387,13 +348,9 @@ public  class Util {
 			e.printStackTrace();
 		}
     }
-    
-    
-    public static Document validate(Element element, String schema) 
-    	throws Exception{
-
+    public static Document defaultValidate(Element element, String schema)throws Exception{
     	org.apache.log4j.Logger.getLogger(Util.class).trace("validate() "+element.getLocalName());
-    	    	
+    	
 		//parse
 		Document d=null;
 		SAXErrorHandler seh = new SAXErrorHandler();
@@ -495,30 +452,13 @@ public  class Util {
 				 throw new SAXException(errors);
 			}
 		}
-		//schematron validate see 0008753: Implement Schematron
-		String concept=element.getLocalName();
-		Node schemaRoot=xsdDoc.getDocumentElement();
-	   	Element rootNS=Util.getRootElement("nsholder",schemaRoot.getNamespaceURI(),"xsd");	
-	   	String xpath="//xsd:element[@name='" + concept + "']//xsd:appinfo[@source='"+ ICoreConstants.X_Schematron+"']/text()";
-		NodeList tsList=Util.getNodeList(schemaRoot,xpath,rootNS.getNamespaceURI(),"xsd");
-		
-		//String SCHEMATRON=ICoreConstants.SCHEMATRON_TAG;//"<schema xmlns=\"http://www.ascc.net/xml/schematron\" ns=\"http://xml.apache.cocoon/xmlform\">";
-		for(int i=0; i<tsList.getLength();i++){
-			String sch= nodeToString(tsList.item(i), true);
-			sch=StringEscapeUtils.unescapeXml(sch);
-			//String sch= tsList.item(i).getNodeValue();
-			//sch=sch.replaceAll("<"+ICoreConstants.SCHEMATRON_RULE+">", SCHEMATRON);
-			//sch=sch.replaceAll("</"+ICoreConstants.SCHEMATRON_RULE+">", "</schema>");
-			if(sch ==null || sch.trim().length()==0) continue;
-			StringBuffer sb=new StringBuffer();
-			sb.append("<schema xmlns=\"http://www.ascc.net/xml/schematron\" >");
-			sb.append(sch);
-			sb.append("</schema>");
-			schematronValidate(element, sb.toString(), concept);
-		}
-		//end
 		
 		return d;
+    }
+    
+    public static Document validate(Element element, String schema) 
+    	throws Exception{
+    	return BeanDelegatorContainer.getUniqueInstance().getValidationDelegator().validate(element, schema);    	
     }
     
 
@@ -2780,13 +2720,25 @@ public  class Util {
 	/**
 	 * check current server is Enterprise or Open
 	 */
-	public static boolean isEnterprise()throws Exception{
-		  Object service= 
-			   Util.retrieveComponent(
-			    null, 
-			    "amalto/local/service/svn"
-			   );
-		  return service==null;
+	public static boolean isEnterprise(){
+		try{
+	    	Object home = null;
+	    	InitialContext initialContext = null;
+	    	String jndiName="amalto/local/service/svn";	    	
+	        try {
+	        	initialContext= new InitialContext(null);
+	        	home = initialContext.lookup(jndiName);
+	        } catch(NamingException e) {
+	    		String err = "Unable to lookup \""+jndiName+"\""
+				+ ": " + e.getClass().getName() + ": "+ e.getLocalizedMessage();
+	    		throw new XtentisException(err);        	
+	        } finally {
+	           try {initialContext.close();} catch(Exception e){};
+	        }
+	        return home!=null;
+		}catch(Exception e){
+			return false;
+		}
 	}
 	
 	 public static boolean isDefaultSVNUP() throws Exception{

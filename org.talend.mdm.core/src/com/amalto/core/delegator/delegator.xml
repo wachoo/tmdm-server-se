@@ -1,0 +1,15 @@
+<bean>
+  <delegator>
+    
+    <OPEN>
+      <name>LocalUser#com.amalto.core.delegator.DefaultLocalUserDelegator</name>
+      <name>Validation#com.amalto.core.delegator.DefaultValidationDelegator</name>
+    </OPEN>
+    
+    <ENTERPRISE>
+       <name>LocalUser#com.amalto.core.delegator.enterprise.EnterpriseLocalUserDelegator</name>
+       <name>Validation#com.amalto.core.delegator.enterprise.EnterpriseValidationDelegator</name>
+    </ENTERPRISE>
+    
+  </delegator>
+</bean>

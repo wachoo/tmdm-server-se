@@ -22,6 +22,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -288,7 +289,7 @@ public class ItemPOJO implements Serializable{
         
     	//Check authorizations
     	boolean authorized = false;
-    	LocalUser user = LocalUser.getLocalUser();
+    	ILocalUser user = LocalUser.getLocalUser();
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
     	//} else if (user.userCanRead(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
@@ -467,7 +468,7 @@ public class ItemPOJO implements Serializable{
     	
     	//for load we need to be admin, or have a role of admin , or role of write on instance or role of read on instance
     	boolean authorized = false;
-    	LocalUser user = LocalUser.getLocalUser();
+    	ILocalUser user = LocalUser.getLocalUser();
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
     	//} else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
@@ -532,7 +533,7 @@ public class ItemPOJO implements Serializable{
     	
     	//for load we need to be admin, or have a role of admin , or role of write on instance or role of read on instance
     	boolean authorized = false;
-    	LocalUser user = LocalUser.getLocalUser();
+    	ILocalUser user = LocalUser.getLocalUser();
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
     	//} else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
@@ -712,7 +713,7 @@ public class ItemPOJO implements Serializable{
     	    	
     	//for load we need to be admin, or have a role of admin , or role of write on instance or role of read on instance
     	boolean authorized = false;
-    	LocalUser user = LocalUser.getLocalUser();
+    	ILocalUser user = LocalUser.getLocalUser();
     	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
     		authorized = true;
     	//} else if (user.userCanWrite(ItemPOJO.class, getItemPOJOPK().getUniqueID())) {
@@ -888,7 +889,7 @@ public class ItemPOJO implements Serializable{
        	try {
        		
 	    	//check if we are admin 
-	    	LocalUser user = LocalUser.getLocalUser();
+	    	ILocalUser user = LocalUser.getLocalUser();
 	    	if (!user.getRoles().contains("administration")) {
 	    		String err = "Only an user with the 'administration' role can call the synchronization methods";
 				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);

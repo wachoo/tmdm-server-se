@@ -8,7 +8,7 @@
  * under the Apache Software License, Version 1.1
  */
 
-package com.amalto.core.schema.validation.schematron;
+package com.amalto.core.validation.schematron;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,11 +19,12 @@ import java.util.logging.Logger;
 
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-
-import com.amalto.core.schema.validation.Validator;
 import com.amalto.core.util.Util;
+import com.amalto.core.validation.Validator;
 
 /**
  * An object representing a single Schematron schema, used to validate

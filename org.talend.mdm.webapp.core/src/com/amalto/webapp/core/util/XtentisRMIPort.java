@@ -39,6 +39,7 @@ import sun.misc.BASE64Decoder;
 
 import com.amalto.connector.jca.InteractionSpecImpl;
 import com.amalto.connector.jca.RecordFactoryImpl;
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.DroppedItemPOJOPK;
 import com.amalto.core.ejb.ItemPOJO;
@@ -173,7 +174,7 @@ public class XtentisRMIPort implements XtentisPort {
 		org.apache.log4j.Logger.getLogger(this.getClass()).trace("logout() ");
 		String msg = "OK";
 		try {
-		    LocalUser user = LocalUser.getLocalUser();
+		    ILocalUser user = LocalUser.getLocalUser();
 		    user.logout();
 		} catch (Exception e) {
 			String err = "Error trying to logout";
@@ -699,7 +700,7 @@ public class XtentisRMIPort implements XtentisPort {
 			String dataClusterName = wsGetItemPKsByCriteria.getWsDataClusterPK().getPk();
 			
 			//Check if user is allowed to read the cluster
-			LocalUser user = LocalUser.getLocalUser();			
+			ILocalUser user = LocalUser.getLocalUser();			
 			boolean authorized = false;
 	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
 	    		authorized = true;
@@ -3085,7 +3086,7 @@ public class XtentisRMIPort implements XtentisPort {
 	public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
 		try {
 			//Fetch the user
-			LocalUser user = LocalUser.getLocalUser();
+			ILocalUser user = LocalUser.getLocalUser();
 			return XConverter.POJO2WS(user.getUniverse());
 		} catch (com.amalto.core.util.XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
@@ -3762,7 +3763,7 @@ public class XtentisRMIPort implements XtentisPort {
 			concept=wsi.getConceptName();
 			ids=wsi.getIds();			
 			//additional attributes for data changes log
-			LocalUser user = LocalUser.getLocalUser();
+			ILocalUser user = LocalUser.getLocalUser();
 			String userName=user.getUsername();
 			String revisionID ="";
 			UniversePOJO universe = user.getUniverse();
