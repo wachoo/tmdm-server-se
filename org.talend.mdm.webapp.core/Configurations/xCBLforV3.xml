@@ -1,0 +1,615 @@
+<Configuration>
+    <Application>b2box</Application>
+    <b2boxConfiguration>
+        <Name>xCBL</Name>
+        <Description>
+            <EN>b2box with an xCBL Pivot Format</EN>
+        </Description>
+        <DataCluster>B2BOX</DataCluster>
+        <DataModel>B2BOX</DataModel>
+        <DateFormat>yyyyMMdd'T'HH:mm:ss</DateFormat>
+        <ListOfDocuments>
+            
+            <!-- 
+                Order
+            -->
+            <Document>
+                <Name>Order</Name>
+                <Description>
+                    <EN>Purchase Order</EN>
+                    <FR>Commande</FR>
+                </Description>
+                <ConceptName>Order</ConceptName>
+                <ListOfKeys>
+                    <Key>
+                        <Name>Buyer Order Number</Name>
+                        <Description>
+                            <EN>Purchase Order Number</EN>
+                            <FR>Numéro de la Commande</FR>
+                        </Description>
+                        <XPath>Order/OrderHeader/OrderNumber/BuyerOrderNumber</XPath>
+                    </Key>
+                    <Key>
+                        <Name>Buyer Party ID</Name>
+                        <Description>
+                            <EN>Buyer Party Identification</EN>
+                            <FR>Identifiant de l'acheteur</FR>
+                        </Description>
+                        <XPath>Order/OrderHeader/OrderParty/BuyerParty/Party/PartyID/Identifier/Ident</XPath>
+                    </Key>
+                    <Key>
+                        <Name>Seller Party ID</Name>
+                        <Description>
+                            <EN>Seller Party Identification</EN>
+                            <FR>Identifiant du fournisseur</FR>
+                        </Description>
+                        <XPath>Order/OrderHeader/OrderParty/SellerParty/Party/PartyID/Identifier/Ident</XPath>
+                    </Key>
+                </ListOfKeys>
+                <ListOfViewables>
+                    <Viewable>
+                        <Name>InsertionTime</Name>
+                        <Description>
+                            <EN>Received Date</EN>
+                            <FR>Date de réception</FR>
+                        </Description>
+                        <XPath>Order/../../t</XPath>
+                        <Type>Millis</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Order Date</Name>
+                        <Description>
+                            <EN>Purchase Order Date</EN>
+                            <FR>Date de la Commande</FR>
+                        </Description>
+                        <XPath>Order/OrderHeader/OrderIssueDate</XPath>
+                        <Type>Date</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Buyer Order Number</Name>
+                        <Description>
+                            <EN>Purchase Order Number</EN>
+                            <FR>Numéro de la Commande</FR>
+                        </Description>
+                        <XPath>Order/OrderHeader/OrderNumber/BuyerOrderNumber</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Buyer Party Name1</Name>
+                        <Description>
+                            <EN>Buyer Party Name</EN>
+                            <FR>Nom de l'acheteur</FR>
+                        </Description>
+                        <XPath>Order/OrderHeader/OrderParty/BuyerParty/Party/NameAddress/Name1</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Seller Party Name1</Name>
+                        <Description>
+                            <EN>Seller Party Name</EN>
+                            <FR>Nom du fournisseur</FR>
+                        </Description>
+                        <XPath>Order/OrderHeader/OrderParty/SellerParty/Party/NameAddress/Name1</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                </ListOfViewables>
+                <ListOfSearchables>
+                    <Searchable>
+                        <Name>InsertionTime</Name>
+                        <Description>
+                            <EN>Received Date</EN>
+                            <FR>Date de réception</FR>
+                        </Description>
+                        <XPath>Order/../../t</XPath>
+                        <Type>RangeOfMillis</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>Buyer Order Number</Name>
+                        <Description>
+                            <EN>Purchase Order Number</EN>
+                            <FR>Numéro de la Commande</FR>
+                        </Description>
+                        <XPath>Order/OrderHeader/OrderNumber/BuyerOrderNumber</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>Buyer Party Name1</Name>
+                        <Description>
+                            <EN>Buyer Party Name</EN>
+                            <FR>Nom de l'acheteur</FR>
+                        </Description>
+                        <XPath>Order/OrderHeader/OrderParty/BuyerParty/Party/NameAddress/Name1</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>AnyField</Name>
+                        <Description>
+                            <EN>Contains the words</EN>
+                            <FR>Contient les mots</FR>
+                        </Description>
+                        <XPath>Order</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                </ListOfSearchables>
+            </Document>
+            
+            
+            <!-- 
+                Change Order
+            -->
+            <Document>
+                <Name>ChangeOrder</Name>
+                <Description>
+                    <EN>Purchase Order Change</EN>
+                    <FR>Avenant de Commande</FR>
+                </Description>
+                <ConceptName>ChangeOrder</ConceptName>
+                <ListOfKeys>
+                    <Key>
+                        <Name>Buyer Change Order Number</Name>
+                        <Description>
+                            <EN>Change Order Number</EN>
+                            <FR>Numéro de l'avenant</FR>
+                        </Description>
+                        <XPath>ChangeOrder/ChangeOrderHeader/ChangeOrderNumber/BuyerChangeOrderNumber</XPath>
+                    </Key>
+                    <Key>
+                        <Name>Buyer Party ID</Name>
+                        <Description>
+                            <EN>Buyer Party Identification</EN>
+                            <FR>Identifiant de l'acheteur</FR>
+                        </Description>
+                        <XPath>ChangeOrder/ChangeOrderHeader/BuyerParty/Party/PartyID/Identifier/Ident</XPath>
+                    </Key>
+                    <Key>
+                        <Name>Seller Party ID</Name>
+                        <Description>
+                            <EN>Seller Party Identification</EN>
+                            <FR>Identifiant du fournisseur</FR>
+                        </Description>
+                        <XPath>ChangeOrder/ChangeOrderHeader/SellerParty/Party/PartyID/Identifier/Ident</XPath>
+                    </Key>
+                </ListOfKeys>
+                <ListOfViewables>
+                    <Viewable>
+                        <Name>InsertionTime</Name>
+                        <Description>
+                            <EN>Received Date</EN>
+                            <FR>Date de réception</FR>
+                        </Description>
+                        <XPath>ChangeOrder/../../t</XPath>
+                        <Type>Millis</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Change Order Date</Name>
+                        <Description>
+                            <EN>Change Order Date</EN>
+                            <FR>Date de l'avenant</FR>
+                        </Description>
+                        <XPath>ChangeOrder/ChangeOrderHeader/ChangeOrderIssueDate</XPath>
+                        <Type>Date</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Change Order Number</Name>
+                        <Description>
+                            <EN>Purchase Order Change Number</EN>
+                            <FR>Numéro de l'avenant de Commande</FR>
+                        </Description>
+                        <XPath>ChangeOrder/ChangeOrderHeader/ChangeOrderNumber/BuyerChangeOrderNumber</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Buyer Party Name1</Name>
+                        <Description>
+                            <EN>Buyer Party Name</EN>
+                            <FR>Nom de l'acheteur</FR>
+                        </Description>
+                        <XPath>ChangeOrder/ChangeOrderHeader/BuyerParty/Party/NameAddress/Name1</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Seller Party Name1</Name>
+                        <Description>
+                            <EN>Seller Party Name</EN>
+                            <FR>Nom du fournisseur</FR>
+                        </Description>
+                        <XPath>ChangeOrder/ChangeOrderHeader/SellerParty/Party/NameAddress/Name1</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                </ListOfViewables>
+                <ListOfSearchables>
+                    <Searchable>
+                        <Name>InsertionTime</Name>
+                        <Description>
+                            <EN>Received Date</EN>
+                            <FR>Date de réception</FR>
+                        </Description>
+                        <XPath>ChangeOrder/../../t</XPath>
+                        <Type>RangeOfMillis</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>Change Order Number</Name>
+                        <Description>
+                            <EN>Change OrderNumber</EN>
+                            <FR>Numéro de l'avenant</FR>
+                        </Description>
+                        <XPath>ChangeOrder/ChangeOrderHeader/ChangeOrderNumber/BuyerChangeOrderNumber</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>Buyer Party Name1</Name>
+                        <Description>
+                            <EN>Buyer Party Name</EN>
+                            <FR>Nom de l'acheteur</FR>
+                        </Description>
+                        <XPath>ChangeOrder/ChangeOrderHeader/BuyerParty/Party/NameAddress/Name1</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>AnyField</Name>
+                        <Description>
+                            <EN>Contains the words</EN>
+                            <FR>Contient les mots</FR>
+                        </Description>
+                        <XPath>ChangeOrder</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                </ListOfSearchables>
+            </Document>
+            
+            <!--
+                Order Response
+            -->
+            <Document>
+                <Name>OrderResponse</Name>
+                <Description>
+                    <EN>Order Response</EN>
+                    <FR>Accusé de réception</FR>
+                </Description>
+                <ConceptName>OrderResponse</ConceptName>
+                <ListOfKeys>
+                    <Key>
+                        <Name>Order Response Number</Name>
+                        <Description>
+                            <EN>Response Number</EN>
+                            <FR>Numéro de l'accusé</FR>
+                        </Description>
+                        <XPath>OrderResponse/OrderResponseHeader/OrderResponseNumber/BuyerOrderResponseNumber</XPath>
+                    </Key>
+                    <Key>
+                        <Name>Seller Party ID</Name>
+                        <Description>
+                            <EN>Seller Party Identification</EN>
+                            <FR>Identifiant du fournisseur</FR>
+                        </Description>
+                        <XPath>OrderResponse/OrderResponseHeader/SellerParty/Party/PartyID/Identifier/Ident</XPath>
+                    </Key>
+                    <Key>
+                        <Name>Buyer Party ID</Name>
+                        <Description>
+                            <EN>Buyer Party Identification</EN>
+                            <FR>Identifiant de l'acheteur</FR>
+                        </Description>
+                        <XPath>OrderResponse/OrderResponseHeader/BuyerParty/Party/PartyID/Identifier/Ident</XPath>
+                    </Key>
+                </ListOfKeys>
+                <ListOfViewables>
+                    <Viewable>
+                        <Name>InsertionTime</Name>
+                        <Description>
+                            <EN>Creation Date</EN>
+                            <FR>Date de création</FR>
+                        </Description>
+                        <XPath>OrderResponse/../../t</XPath>
+                        <Type>Millis</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Order Response Date</Name>
+                        <Description>
+                            <EN>Response Date</EN>
+                            <FR>Date de l'accusé</FR>
+                        </Description>
+                        <XPath>OrderResponse/OrderResponseHeader/OrderResponseIssueDate</XPath>
+                        <Type>Date</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Order Response Number</Name>
+                        <Description>
+                            <EN>Response Number</EN>
+                            <FR>Numéro de l'accusé</FR>
+                        </Description>
+                        <XPath>OrderResponse/OrderResponseHeader/OrderResponseNumber/BuyerOrderResponseNumber</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Buyer Party Name1</Name>
+                        <Description>
+                            <EN>Buyer Party Name</EN>
+                            <FR>Nom de l'acheteur</FR>
+                        </Description>
+                        <XPath>OrderResponse/OrderResponseHeader/BuyerParty/Party/NameAddress/Name1</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Seller Party Name1</Name>
+                        <Description>
+                            <EN>Seller Party Name</EN>
+                            <FR>Nom du fournisseur</FR>
+                        </Description>
+                        <XPath>OrderResponse/OrderResponseHeader/SellerParty/Party/NameAddress/Name1</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                </ListOfViewables>
+                <ListOfSearchables>
+                    <Searchable>
+                        <Name>InsertionTime</Name>
+                        <Description>
+                            <EN>Received Date</EN>
+                            <FR>Date de réception</FR>
+                        </Description>
+                        <XPath>OrderResponse/../../t</XPath>
+                        <Type>RangeOfMillis</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>Order Response Number</Name>
+                        <Description>
+                            <EN>Response Number</EN>
+                            <FR>Numéro de l'accusé</FR>
+                        </Description>
+                        <XPath>OrderResponse/OrderResponseHeader/OrderResponseNumber/BuyerOrderResponseNumber</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>Buyer Party Name1</Name>
+                        <Description>
+                            <EN>Buyer Party Name</EN>
+                            <FR>Nom de l'acheteur</FR>
+                        </Description>
+                        <XPath>OrderResponse/OrderResponseHeader/BuyerParty/Party/NameAddress/Name1</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>AnyField</Name>
+                        <Description>
+                            <EN>Contains the words</EN>
+                            <FR>Contient les mots</FR>
+                        </Description>
+                        <XPath>OrderResponse</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                </ListOfSearchables>
+            </Document>
+            
+            
+            <!-- 
+                Quote
+            -->
+            <Document>
+                <Name>Quote</Name>
+                <Description>
+                    <EN>Quote</EN>
+                    <FR>Cotation</FR>
+                </Description>
+                <ConceptName>Quote</ConceptName>
+                <ListOfKeys>
+                    <Key>
+                        <Name>Quote Number</Name>
+                        <Description>
+                            <EN>Quote Number</EN>
+                            <FR>Numéro de la Cotation</FR>
+                        </Description>
+                        <XPath>Quote/QuoteHeader/QuoteID/Reference/RefNum</XPath>
+                    </Key>
+                    <Key>
+                        <Name>Seller Party ID</Name>
+                        <Description>
+                            <EN>Seller Party Identification</EN>
+                            <FR>Identifiant du fournisseur</FR>
+                        </Description>
+                        <XPath>Quote/QuoteHeader/QuoteParty/OrderParty/SellerParty/Party/PartyID/Identifier/Ident</XPath>
+                    </Key>
+                    <Key>
+                        <Name>Buyer Party ID</Name>
+                        <Description>
+                            <EN>Buyer Party Identification</EN>
+                            <FR>Identifiant de l'acheteur</FR>
+                        </Description>
+                        <XPath>Quote/QuoteHeader/QuoteParty/OrderParty/BuyerParty/Party/PartyID/Identifier/Ident</XPath>
+                    </Key>
+                </ListOfKeys>
+                <ListOfViewables>
+                    <Viewable>
+                        <Name>InsertionTime</Name>
+                        <Description>
+                            <EN>Creation Date</EN>
+                            <FR>Date de création</FR>
+                        </Description>
+                        <XPath>Quote/../../t</XPath>
+                        <Type>Millis</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Quote Date</Name>
+                        <Description>
+                            <EN>Quote Date</EN>
+                            <FR>Date de la Cotation</FR>
+                        </Description>
+                        <XPath>Quote/QuoteHeader/QuoteIssueDate</XPath>
+                        <Type>Date</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Quote Number</Name>
+                        <Description>
+                            <EN>Quote Number</EN>
+                            <FR>Numéro de la Cotation</FR>
+                        </Description>
+                        <XPath>Quote/QuoteHeader/QuoteID/Reference/RefNum</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Buyer Party Name1</Name>
+                        <Description>
+                            <EN>Buyer Party Name</EN>
+                            <FR>Nom de l'acheteur</FR>
+                        </Description>
+                        <XPath>Quote/QuoteHeader/QuoteParty/OrderParty/BuyerParty/Party/NameAddress/Name1</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Seller Party Name1</Name>
+                        <Description>
+                            <EN>Seller Party Name</EN>
+                            <FR>Nom du fournisseur</FR>
+                        </Description>
+                        <XPath>Quote/QuoteHeader/QuoteParty/OrderParty/SellerParty/Party/NameAddress/Name1</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                </ListOfViewables>
+                <ListOfSearchables>
+                    <Searchable>
+                        <Name>InsertionTime</Name>
+                        <Description>
+                            <EN>Received Date</EN>
+                            <FR>Date de réception</FR>
+                        </Description>
+                        <XPath>Quote/../../t</XPath>
+                        <Type>RangeOfMillis</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>Quote Number</Name>
+                        <Description>
+                            <EN>Quote Number</EN>
+                            <FR>Numéro de la Cotation</FR>
+                        </Description>
+                        <XPath>Quote/QuoteHeader/QuoteID/Reference/RefNum</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>Buyer Party Name1</Name>
+                        <Description>
+                            <EN>Buyer Party Name</EN>
+                            <FR>Nom de l'acheteur</FR>
+                        </Description>
+                        <XPath>Quote/QuoteHeader/QuoteParty/OrderParty/BuyerParty/Party/NameAddress/Name1</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>AnyField</Name>
+                        <Description>
+                            <EN>Contains the words</EN>
+                            <FR>Contient les mots</FR>
+                        </Description>
+                        <XPath>Quote</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                </ListOfSearchables>
+            </Document>
+            
+            <!-- 
+                Request For Quotation
+            -->
+            <Document>
+                <Name>RequestForQuotation</Name>
+                <Description>
+                    <EN>Request For Quotation</EN>
+                    <FR>Demande de cotation</FR>
+                </Description>
+                <ConceptName>RequestForQuotation</ConceptName>
+                <ListOfKeys>
+                    <Key>
+                        <Name>Request For Quotation Number</Name>
+                        <Description>
+                            <EN>Request For Quotation Number</EN>
+                            <FR>Numéro de la demande de cotation</FR>
+                        </Description>
+                        <XPath>RequestForQuotation/RequestQuoteHeader/RequestQuoteID/Reference/RefNum</XPath>
+                    </Key>
+                    <Key>
+                        <Name>Buyer Party ID</Name>
+                        <Description>
+                            <EN>Buyer Party Identification</EN>
+                            <FR>Identifiant de l'acheteur</FR>
+                        </Description>
+                        <XPath>RequestForQuotation/RequestQuoteHeader/RequestQuoteParty/OrderParty/BuyerParty/Party/PartyID/Identifier/Ident</XPath>
+                    </Key>
+                </ListOfKeys>
+                <ListOfViewables>
+                    <Viewable>
+                        <Name>InsertionTime</Name>
+                        <Description>
+                            <EN>Reception Date</EN>
+                            <FR>Date de réception</FR>
+                        </Description>
+                        <XPath>RequestForQuotation/../../t</XPath>
+                        <Type>Millis</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Request For Quotation Date</Name>
+                        <Description>
+                            <EN>Request For Quotation Date</EN>
+                            <FR>Date de la demande de cotation</FR>
+                        </Description>
+                        <XPath>RequestForQuotation/RequestQuoteHeader/RequestQuoteIssueDate</XPath>
+                        <Type>Date</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Request For Quotation Number</Name>
+                        <Description>
+                            <EN>Request For Quotation Number</EN>
+                            <FR>Numéro de la demande de cotation</FR>
+                        </Description>
+                        <XPath>RequestForQuotation/RequestQuoteHeader/RequestQuoteID/Reference/RefNum</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                    <Viewable>
+                        <Name>Buyer Party Name1</Name>
+                        <Description>
+                            <EN>Buyer Party Name</EN>
+                            <FR>Nom de l'acheteur</FR>
+                        </Description>
+                        <XPath>RequestForQuotation/RequestQuoteHeader/RequestQuoteParty/OrderParty/BuyerParty/Party/NameAddress/Name1</XPath>
+                        <Type>String</Type>
+                    </Viewable>
+                </ListOfViewables>
+                <ListOfSearchables>
+                    <Searchable>
+                        <Name>InsertionTime</Name>
+                        <Description>
+                            <EN>Received Date</EN>
+                            <FR>Date de réception</FR>
+                        </Description>
+                        <XPath>RequestForQuotation/../../t</XPath>
+                        <Type>RangeOfMillis</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>Request For Quotation Number</Name>
+                        <Description>
+                            <EN>Request For Quotation Number</EN>
+                            <FR>Numéro de la demande de cotation</FR>
+                        </Description>
+                        <XPath>RequestForQuotation/RequestQuoteHeader/RequestQuoteID/Reference/RefNum</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>Buyer Party Name1</Name>
+                        <Description>
+                            <EN>Buyer Party Name</EN>
+                            <FR>Nom de l'acheteur</FR>
+                        </Description>
+                        <XPath>RequestForQuotation/RequestQuoteHeader/RequestQuoteParty/OrderParty/BuyerParty/Party/NameAddress/Name1</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                    <Searchable>
+                        <Name>AnyField</Name>
+                        <Description>
+                            <EN>Contains the words</EN>
+                            <FR>Contient les mots</FR>
+                        </Description>
+                        <XPath>RequestForQuotation</XPath>
+                        <Type>StringContains</Type>
+                    </Searchable>
+                </ListOfSearchables>
+            </Document>
+        </ListOfDocuments>
+    </b2boxConfiguration>
+
+</Configuration>
