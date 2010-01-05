@@ -1,0 +1,79 @@
+RELEASE NOTES
+
+Core libraries implemented by Xtentis JCA connectors
+To use build a ResourceAdapted that implements IXtentisResourceAdapter
+
+1.4.0 NOT RELEASED 
+For core 2.20.0
+
+1.3.7
+Added the possibility to call from a connector the receiveFromAnotherConnector method of another connector, in order
+to chain them. The receiving connector should re-implement receiveFromAnotherConnector.
+The function to call on the receiving connector is InteractionSpecImpl.FUNCTION_RECEIVE_FROM_ANOTHER_CONNECTOR
+
+1.3.6
+New format of document names containing the configuration in amaltoObjectsJcaadapters facilitating backup.
+Old names are automatically updated to the new ones.
+receiveFromEIS can now get an Hashmap of parameters containing any type of objects extending Serializable
+Clean Up
+
+1.3.5
+Added the possibility to save any Configuration in AbstractXtentisResourceAdapter
+Better logging by moving to level TRACE calls to methods in AbstractXtentisResourceAdapter
+
+1.3.4
+Fixed Multiple timers issue with JBoss 4.2.2
+
+1.3.3
+Added fileName field to MailPart.
+
+1.3.2
+Fixed bug in stopConnector of AbstractXtentisResourceAdapter generating systematic NPE
+Other but minor bug fixing
+Improved Javadoc of AbstractXtentisResourceAdapter
+
+1.3.1
+Refactored build
+Cleaned Up logging
+
+1.3.0
+For core 2.14.0 
+Updates for DataModels: move from DataModelValue --> DataModelPOJO
+Addition of AbstractXtentisResourceAdapter
+Added possibility to return a synchronous response on an inbound connection.
+ 
+1.2.9
+Better compliance with Java 5
+
+1.2.8
+Change to comply with core 2.9.0
+
+1.2.7
+Added ReleaseNotes to deployment package
+
+1.2.6
+Forced default cluster to B2Box on pushViaService
+
+1.2.5
+Fixed NPR in pushViaService on null params
+
+1.2.4
+Clean-up
+
+1.2.3
+Bug fixing on the service framework
+
+1.2.2
+Changed Default Cluster from DEFAULT to B2BOX
+
+1.2.1
+Reviewed Librairies
+
+1.2.0 
+Support for auto server restart
+
+1.1.1 
+Added routing to an inboundAdaptor to connectorMDB
+
+1.0.0 
+Initial release
