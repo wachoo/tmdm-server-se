@@ -30,8 +30,8 @@ amalto.ItemsTrash.ItemsTrashLocal=function(){
                   'title':'Recycle bin',
                   'search':'search',
                   'serarch_tooltip':'First four fields can be input as search text',
-                  'delete_conform':'Are you sure to delete the this physically?',
-                  'restore_conform':'Are you sure to restore this item?',
+                  'delete_conform':'Are you sure to delete the item physically?',
+                  'restore_conform':'Are you sure to restore the item?',
                   'lines_per_page':'Number of lines per page'
                  };
                  
@@ -48,8 +48,8 @@ amalto.ItemsTrash.ItemsTrashLocal=function(){
                   'title':'Corbeille',
                   'search':'Recherche',
                   'serarch_tooltip':'Les quatre premiers champs sont des champs de recherche texte',
-                  'delete_conform':'Are you sure to delete the this physically?',
-                  'restore_conform':'Are you sure to restore this item?',
+                  'delete_conform':'Are you sure to delete the item physically?',
+                  'restore_conform':'Are you sure to restore the item?',
                   'lines_per_page':'Number of lines per page'
                  };
                  
