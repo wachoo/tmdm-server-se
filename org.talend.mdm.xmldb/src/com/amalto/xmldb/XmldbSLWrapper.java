@@ -853,7 +853,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     			direction,
     			start,
     			limit,
-    			true
+    			false
     		);
     }
 

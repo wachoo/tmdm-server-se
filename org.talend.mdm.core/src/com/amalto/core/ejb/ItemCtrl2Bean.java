@@ -710,7 +710,8 @@ public class ItemCtrl2Bean implements SessionBean {
             	direction, 
             	start, 
             	limit, 
-            	spellThreshold
+            	spellThreshold,
+            	true
             );
             
             return server.runQuery(null, null, query, null);

@@ -283,6 +283,23 @@ public interface XmlServerSLWrapper
    public java.lang.String getItemsQuery( java.util.LinkedHashMap conceptPatternsToRevisionID,java.util.LinkedHashMap conceptPatternsToClusterName,java.lang.String forceMainPivot,java.util.ArrayList viewableFullPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit,int spellThreshold )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
+   /**
+    * Builds an Items query in the native language of the DB (for instance XQuery) based on conditions
+    * @param conceptPatternsToRevisionID A map that gives the revision ID of a pattern matching a concept name Concept (isItemQuery is true) or Xtentis Object (isItemQuery is false)
+    * @param conceptPatternsToClusterName An ordered map that gives the cluster name of a Concept when matching the first pattern found
+    * @param forceMainPivot An optional pivot that will appear first in the list of pivots in the query<br>: This allows forcing cartesian products: for instance Order Header vs Order Line
+    * @param viewableFullPaths The Full xPaths (starting with concept name) of the elements and their sub elements that constitute the top elements of the returned documents
+    * @param whereItem The condition to apply
+    * @param orderBy The path of the element to order by. <code>null</code> to avoid ordering
+    * @param direction If orderBy is not <code>null</code>, the direction. One of
+    * @param start The index of the first element to return (start at 0)
+    * @param limit The index of the last element to search. A negative value or {@value Integer#MAX_VALUE} means no limit
+    * @param spellThreshold Spell check the whereItem if threshold is greater than zero. The setting is ignored is this not an item query.
+    * @return the xquery in the native language of the db
+    */
+   public java.lang.String getItemsQuery( java.util.LinkedHashMap conceptPatternsToRevisionID,java.util.LinkedHashMap conceptPatternsToClusterName,java.lang.String forceMainPivot,java.util.ArrayList viewableFullPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit,int spellThreshold,boolean firstTotalCount )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
    public java.lang.String getPivotIndexQuery( java.lang.String clusterName,java.lang.String mainPivotName,java.util.LinkedHashMap pivotWithKeys,java.util.LinkedHashMap itemsRevisionIDs,java.lang.String defaultRevisionID,java.lang.String[] indexPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String[] pivotDirections,java.lang.String[] indexDirections,int start,int limit )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 

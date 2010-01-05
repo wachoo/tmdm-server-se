@@ -831,6 +831,77 @@ public class XmlServerSLWrapperBean implements SessionBean {
 			throw new XtentisException("Unable to build the query: "+e.getLocalizedMessage());
 		}
 	}
+	/**
+	 * Builds an Items query in the native language of the DB (for instance XQuery) based on conditions
+	 * @param conceptPatternsToRevisionID
+	 * 			A map that gives the revision ID of a pattern matching a concept name Concept (isItemQuery is true) or Xtentis Object (isItemQuery is false)
+	 * @param conceptPatternsToClusterName
+	 * 			An ordered map that gives the cluster name of a Concept when matching the first pattern found
+	 * @param forceMainPivot
+	 * 			An optional pivot that will appear first in the list of pivots in the query<br>:
+	 * 			This allows forcing cartesian products: for instance Order Header vs Order Line 
+	 * @param viewableFullPaths 
+	 * 			The Full xPaths (starting with concept name) of the elements and their sub elements 
+	 * 			that constitute the top elements of the returned documents
+	 * @param whereItem 
+	 * 			The condition to apply
+	 * @param orderBy
+	 * 			The path of the element to order by. <code>null</code> to avoid ordering
+	 * @param direction
+	 * 			If orderBy is not <code>null</code>, the direction. One of 
+	 * @param start
+	 * 			The index of the first element to return (start at 0)
+	 * @param limit
+	 * 			The index of the last element to search. A negative value or {@value Integer#MAX_VALUE} means no limit
+	 * @param spellThreshold
+	 * 			Spell check the whereItem if threshold is greater than zero. The setting is ignored is this not an item query.
+	 * @return the xquery in the native language of the db
+	 * 
+	 * @ejb.interface-method view-type = "both"
+	 * @ejb.facade-method
+	 */
+	public String getItemsQuery(
+		LinkedHashMap<String, String> conceptPatternsToRevisionID,
+		LinkedHashMap<String, String> conceptPatternsToClusterName,
+		String forceMainPivot,
+		ArrayList<String> viewableFullPaths,	
+		IWhereItem whereItem,
+		String orderBy,
+		String direction,
+		int start,
+		int limit,
+		int spellThreshold,
+		boolean firstTotalCount
+	)throws XtentisException {
+
+		try {
+			
+			//Spell check the where Item is this is an item query an the threshold is greater than zero
+			if ((spellThreshold>0) && (whereItem != null)) {
+				whereItem = spellCheckWhere(conceptPatternsToRevisionID, conceptPatternsToClusterName, whereItem, spellThreshold);
+			}
+			
+			String q =  server.getItemsQuery(
+				conceptPatternsToRevisionID, 
+				conceptPatternsToClusterName, 
+				forceMainPivot,
+				viewableFullPaths, 
+				whereItem, 
+				orderBy, 
+				direction, 
+				start, 
+				limit,
+				firstTotalCount
+			);
+			
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug("getQuery():\n "+q);
+			return q;
+		} catch (XtentisException e) {
+			throw(e);
+		} catch (Exception e) {
+			throw new XtentisException("Unable to build the query: "+e.getLocalizedMessage());
+		}
+	}
 	
 	/**
 	 * @param clusterName

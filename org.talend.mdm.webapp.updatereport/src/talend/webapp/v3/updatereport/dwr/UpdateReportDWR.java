@@ -171,9 +171,9 @@ public class UpdateReportDWR {
 		}
 		
 		//count each time
-		//WSString totalString=Util.getPort().count(new WSCount(wsDataClusterPK,conceptName,wi,-1));
+		WSString totalString=Util.getPort().count(new WSCount(wsDataClusterPK,conceptName,wi,-1));
 		int totalSize=0;
-		//if(totalString!=null&&totalString.getValue()!=null&&totalString.getValue().length()>0)totalSize=Integer.parseInt(totalString.getValue());
+		if(totalString!=null&&totalString.getValue()!=null&&totalString.getValue().length()>0)totalSize=Integer.parseInt(totalString.getValue());
  		
  		String[] results =
 			Util.getPort().getItems(new WSGetItems(
@@ -199,14 +199,7 @@ public class UpdateReportDWR {
  		String[] subResults=results;
 		//parse data
 		DataChangeLog[] data=new DataChangeLog[subResults.length];
-		//the first row is totalCount
 		for (int i = 0; i < data.length; i++) {
-		   //yin guo fix bug 0010867. the totalCountOnfirstRow is true.
-		   if(i == 0) {
-		      totalSize = Integer.parseInt(Util.parse(results[i]).
-		         getDocumentElement().getTextContent());
-		      continue;
-		   }			
 			DataChangeLog item=new DataChangeLog();
 			
 			String result=subResults[i];

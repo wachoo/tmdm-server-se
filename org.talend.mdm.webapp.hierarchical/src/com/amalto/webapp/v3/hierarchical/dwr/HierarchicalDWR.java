@@ -457,8 +457,7 @@ public class HierarchicalDWR {
 			).getStrings();
 		
 		Map<String,String> map = new HashMap<String,String>();
-		//the first row is totalCount
-		for (int i = 1; i < results.length; i++) {
+		for (int i = 0; i < results.length; i++) {
 			results[i] = results[i].replaceAll("<report-name>(.*)</report-name>", "$1");
 			map.put(results[i],results[i]);
 		}

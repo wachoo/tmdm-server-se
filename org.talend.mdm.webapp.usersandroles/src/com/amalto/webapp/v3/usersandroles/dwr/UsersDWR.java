@@ -55,9 +55,9 @@ public class UsersDWR {
 					).getStrings();
 //			if ((results == null) || (results.length == 0))
 //				return null;
-			//the first row is totalCount
+
 			ArrayList<User> names = new ArrayList<User>();
-			for (int i = 1; i < results.length; i++) {
+			for (int i = 0; i < results.length; i++) {
 //				results[i] = results[i].replaceAll("\\s*__h(.*?)h__\\s*", "$1");
 				User user = User.parse(results[i]);
 				names.add(user);
