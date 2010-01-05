@@ -1106,7 +1106,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         			
         			HashMap<String,String> pivots=new HashMap<String,String>();
         			pivots.put(mainPivotName, mainPivotName);
-    				xqWhere.append(buildWhere(" and ",pivots ,whereItem,false));
+    				xqWhere.append(buildWhere(" ",pivots ,whereItem,false));
     				xqWhere.append(" ");
     			
         	}
@@ -1166,7 +1166,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         	}
         	
     		return query;
-    		
+    		    	
     	} catch (Exception e) {
      	    String err = "Unable to build the PivotIndex XQuery";
      	    org.apache.log4j.Logger.getLogger("INFO SYSTRACE "+this.getClass()).info(err,e);
