@@ -80,7 +80,8 @@ public class CrossReferencingDWR {
 			XPath xpath = XPathFactory.newInstance().newXPath();
 
 			ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
-			for(int i=0;i<results.length;i++){
+			//the first row is totalCount
+			for(int i=1;i<results.length;i++){
 //				org.apache.log4j.Logger.getLogger(this.getClass()).debug("getCrossReferencingContent() "+results[i]);
 				Element lineElement = documentBuilder.parse(new InputSource(new StringReader(results[i]))).getDocumentElement();
 				NodeList rowList = (NodeList) xpath.evaluate("./*", lineElement, XPathConstants.NODESET);
