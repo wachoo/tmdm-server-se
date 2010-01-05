@@ -100,7 +100,8 @@ public class ReportingDWR {
 			).getStrings();
 		
 		Map<String,String> map = new HashMap<String,String>();
-		for (int i = 0; i < results.length; i++) {
+		//the first row is totalCount
+		for (int i = 1; i < results.length; i++) {
 			results[i] = results[i].replaceAll("<ReportingName>(.*)</ReportingName>", "$1");
 			map.put(results[i],results[i]);
 		}
@@ -252,8 +253,8 @@ public class ReportingDWR {
 //		</result>
 			
 			
-
-			for (int i = 0; i < results.length; i++) {
+			//the first row is totalCount
+			for (int i = 1; i < results.length; i++) {
 				ReportingContent reportingContent = new ReportingContent();
 				//Document document = Util.parse(results[i]);
 				//String tmp = "";

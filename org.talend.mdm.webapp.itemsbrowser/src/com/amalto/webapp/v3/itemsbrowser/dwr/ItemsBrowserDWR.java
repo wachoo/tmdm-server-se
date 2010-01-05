@@ -1376,7 +1376,8 @@ public class ItemsBrowserDWR {
 
 			//add (?i) to incasesensitive
 			//parse the results - each result contains the xPathInfo values, followed by the keys
-			for (int i = 0; i < results.length; i++) {
+			//the first row is totalCount
+			for (int i = 1; i < results.length; i++) {
 				//process no infos case
 				if(!results[i].startsWith("<result>")){
 					results[i]="<result>"+results[i]+"</result>";
