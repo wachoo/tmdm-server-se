@@ -79,28 +79,18 @@ function f_submit(){
 
 function getUniverseList()
 {
-    if(document.loginform.j_universe.length==0){
-        var inputUsername=document.loginform.j_username.value;
-	    var inputPassword=document.loginform.j_password.value;
-	    
-	    if(inputUsername==""){
-	       alert("Please input a user name first! ");
-	       return;
-	    }
-	    
-        //retrieve data
-	    LoginInterface.getUniverseNames(inputUsername,inputPassword,{
-		    callback:function(data) { 
-		      DWRUtil.removeAllOptions("j_universe");
-		      DWRUtil.addOptions("j_universe",data);
-		    },
-		    errorHandler:function(message) { alert(message); },
-		    timeout:10000
-	    });
-    }
-    
+    //retrieve data
+    LoginInterface.getUniverseNames({
+        callback:function(data) { 
+          DWRUtil.removeAllOptions("j_universe");
+          DWRUtil.addOptions("j_universe",data);
+        },
+        errorHandler:function(message) { alert(message); },
+        timeout:10000
+    });
 }
 
+getUniverseList();
 
 </script>
 
@@ -131,14 +121,14 @@ function getUniverseList()
 						</tr>
 						<tr>
 							<td align="right" width="120"><%= _PASSWORD_ %>:&nbsp;</td>
-							<td align="left"><input type="password" name="j_password" value="" />
+							<td align="left"><input type="password" name="j_password" value="" onKeyDown="if(event.keyCode==13){document.all.login.click()}"/>
 							</td>
 						</tr>
 						<tr>
 							<td align="right" width="120"><%= _UNIVERSE_ %>:&nbsp;</td>
 							<td align="left">
 							<!--<input type="text" name="j_universe" value="" />-->
-							<select id="j_universe" name="j_universe" onClick="getUniverseList();"/>
+							<select id="j_universe" name="j_universe"/>
 							</td>
 						</tr>						
 						<tr>

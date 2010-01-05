@@ -35,12 +35,12 @@ public class LoginDWR {
 	   return timeout;
 	}
 	
-	public String[] getUniverseNames(String username,String password) throws XtentisWebappException {
+	public String[] getUniverseNames() throws XtentisWebappException {
 		
 		List<String> universeNames=new ArrayList<String>();
 		universeNames.add("HEAD");
 		try {
-			XtentisPort port=Util.getPort(username, password);
+			XtentisPort port=Util.getPort(null, null);
 			WSUniversePKArray pks=port.getUniversePKs(new WSGetUniversePKs(".*"));
 			if(pks!=null){
 				WSUniversePK[] wsUniversePKs=pks.getWsUniversePK();
