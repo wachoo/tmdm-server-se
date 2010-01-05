@@ -18,7 +18,7 @@
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
 
 	<property name="jar" value="z.mdm.jaas.ldap.jboss.jar"/>
-
+	<property name="conf" value="login-config.xml_LDAP"/>
     <!-- ================================= 
           target: all              
          ================================= -->
@@ -50,12 +50,14 @@
     <target name="undeploy" description="--> remove packages">		
 		<delete>
 			<fileset dir="${jboss.instance.lib}" includes="${jar}"/>
+			<fileset dir="${jboss.instance.dir}/conf" includes="${conf}"/>
 		</delete>
     </target>
 	
 	<target name="deploy">
 		<echo>Deploying build: ${version.build.new}</echo>
 		<copy file="${jar}" tofile="${jboss.instance.lib}/${jar}"/>
+		<copy file="${conf}" tofile="${jboss.instance.dir}/conf/${conf}"/>
     </target>
 
 </project>
