@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Webapp core" default="all">
+
+	<property name="version.props" value="version.properties"/>
+
+	<property name="jar" value="z.mdm.common.commons.core"/>
+	<!--<property name="war" value="zz.20.commons.core"/>-->
+
+	<property name="jboss.dir" value="c:/opt/jboss"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+
+
+    <!-- =================================
+          target: all
+         ================================= -->
+	<target name="all" depends="package,undeploy,deploy" description="-->webapp core">
+		<eclipse.refreshLocal resource="${basedir}"/>
+	</target>
+
+	<target name="package">
+
+		<delete>
+			<fileset dir="." includes="${jar}*.jar"/>
+			<!--<fileset dir="." includes="${war}*.war"/>-->
+		</delete>
+
+       	<propertyfile file="${version.props}">
+       		<entry key="build.date" type="date" value="now" />
+       		<entry key="built.by" type="string" value="${user.name}" />
+       		<entry key="java.version" type="string" value="${java.vm.version}" />
+       		<entry key="build.number" default="0" type="int" operation="+" value="1"/>
+       	</propertyfile>
+		<property file="${version.props}" />
+
+		<copy file="RELEASE.NOTES" tofile="RELEASE-${major}.${minor}.${rev}_${build.number}.NOTES"/>
+		<jar destfile="${jar}-${major}.${minor}.${rev}_${build.number}.jar">
+			<zipfileset dir=".">
+				<include name="version.properties" />
+				<include name="RELEASE-${major}.${minor}.${rev}_${build.number}.NOTES" />
+			</zipfileset>
+			<zipfileset dir="bin">
+				<include name="**/*.class" />
+				<exclude name="**/webapp/**/*.class"/>
+			</zipfileset>
+		</jar>
+		<!--
+		<jar destfile="${war}-${major}.${minor}.${rev}_${build.number}.war">
+			<zipfileset dir="src/WEB-INF" prefix="WEB-INF">
+				<include name="web.xml" />
+			</zipfileset>
+			<zipfileset dir="src/WEB-INF" prefix="WEB-INF">
+				<include name="jboss-web.xml" />
+			</zipfileset>
+			<zipfileset dir=".">
+				<include name="version.properties" />
+				<include name="RELEASE-${major}.${minor}.${rev}_${build.number}.NOTES" />
+			</zipfileset>
+			<zipfileset dir="bin">
+				<include name="**/webapp/**/*.class"/>
+			</zipfileset>
+			<zipfileset dir="web" includes="**/*" />
+			<zipfileset dir="Resources" prefix="WEB-INF/Resources" includes="**/*"/>
+		</jar>
+		-->
+		<delete file="RELEASE-${major}.${minor}.${rev}_${build.number}.NOTES" />
+
+
+	</target>
+
+    <target name="undeploy" description="--> remove packages">
+    	<property file="${version.props}" />
+		<delete>
+			<fileset dir="${jboss.instance.lib}" includes="${jar}*.jar"/>
+			<!-- <fileset dir="${jboss.deploy.dir}" includes="${war}*.war"/> -->
+			<!-- XML server interfaces have been incorporated here 
+			<fileset dir="${jboss.instance.lib}" includes="z.com.amalto.xmlserver.jar"/>
+			-->
+		</delete>
+    </target>
+
+	<target name="deploy">
+		<property file="${version.props}" />
+		<echo>Deploying ${major}.${minor}.${rev}-${build.number}</echo>
+		<copy
+			file="${jar}-${major}.${minor}.${rev}_${build.number}.jar"
+			tofile="${jboss.instance.lib}/${jar}-${major}.${minor}.${rev}_${build.number}.jar"/>
+		    <!--<copy
+			file="${war}-${major}.${minor}.${rev}_${build.number}.war"
+			tofile="${jboss.deploy.dir}/${war}-${major}.${minor}.${rev}_${build.number}.war"/>
+			-->
+    </target>
+
+
+</project>
+

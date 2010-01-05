@@ -1,0 +1,2064 @@
+<xs:schema xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xades="http://uri.etsi.org/01903/v1.1.1#" xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" blockDefault="" elementFormDefault="qualified" finalDefault="">
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+	<xs:complexType abstract="false" mixed="true" name="Name">
+		<xs:attribute ref="xml:lang" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Name" nillable="false" type="Name"/>
+	<xs:complexType abstract="false" mixed="true" name="Extrinsic">
+		<xs:complexContent>
+			<xs:restriction base="xs:anyType">
+				<xs:attribute name="name" type="xs:anySimpleType" use="required"/>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element abstract="false" name="Extrinsic" nillable="false" type="Extrinsic"/>
+	<xs:complexType abstract="false" mixed="true" name="Description">
+		<xs:choice maxOccurs="unbounded" minOccurs="0">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ShortName"/>
+		</xs:choice>
+		<xs:attribute ref="xml:lang" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Description" nillable="false" type="Description"/>
+	<xs:complexType abstract="false" mixed="true" name="ShortName"/>
+	<xs:element abstract="false" name="ShortName" nillable="false" type="ShortName"/>
+	<xs:complexType abstract="false" mixed="true" name="CountryCode">
+		<xs:attribute name="isoCountryCode" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="CountryCode" nillable="false" type="CountryCode"/>
+	<xs:complexType abstract="false" mixed="true" name="AreaOrCityCode"/>
+	<xs:element abstract="false" name="AreaOrCityCode" nillable="false" type="AreaOrCityCode"/>
+	<xs:complexType abstract="false" mixed="true" name="Number"/>
+	<xs:element abstract="false" name="Number" nillable="false" type="Number"/>
+	<xs:complexType abstract="false" mixed="true" name="Extension"/>
+	<xs:element abstract="false" name="Extension" nillable="false" type="Extension"/>
+	<xs:complexType abstract="false" mixed="false" name="TelephoneNumber">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="CountryCode"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="AreaOrCityCode"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Number"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Extension"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="TelephoneNumber" nillable="false" type="TelephoneNumber"/>
+	<xs:complexType abstract="false" mixed="false" name="Phone">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="TelephoneNumber"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Phone" nillable="false" type="Phone"/>
+	<xs:complexType abstract="false" mixed="false" name="Fax">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="TelephoneNumber"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="URL"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Email"/>
+		</xs:choice>
+		<xs:attribute name="name" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Fax" nillable="false" type="Fax"/>
+	<xs:complexType abstract="false" mixed="true" name="URL">
+		<xs:attribute name="name" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="URL" nillable="false" type="URL"/>
+	<xs:complexType abstract="false" mixed="true" name="Email">
+		<xs:attribute name="name" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="preferredLang" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Email" nillable="false" type="Email"/>
+	<xs:complexType abstract="false" mixed="false" name="Contact">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Name"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="PostalAddress"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Email"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Phone"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Fax"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="URL"/>
+		</xs:sequence>
+		<xs:attribute name="role" type="xs:NMTOKEN" use="optional"/>
+		<xs:attribute name="addressID" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Contact" nillable="false" type="Contact"/>
+	<xs:complexType abstract="false" mixed="true" name="DeliverTo"/>
+	<xs:element abstract="false" name="DeliverTo" nillable="false" type="DeliverTo"/>
+	<xs:complexType abstract="false" mixed="true" name="Street"/>
+	<xs:element abstract="false" name="Street" nillable="false" type="Street"/>
+	<xs:complexType abstract="false" mixed="true" name="City"/>
+	<xs:element abstract="false" name="City" nillable="false" type="City"/>
+	<xs:complexType abstract="false" mixed="true" name="State"/>
+	<xs:element abstract="false" name="State" nillable="false" type="State"/>
+	<xs:complexType abstract="false" mixed="true" name="PostalCode"/>
+	<xs:element abstract="false" name="PostalCode" nillable="false" type="PostalCode"/>
+	<xs:complexType abstract="false" mixed="true" name="Country">
+		<xs:attribute name="isoCountryCode" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Country" nillable="false" type="Country"/>
+	<xs:complexType abstract="false" mixed="false" name="PostalAddress">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="DeliverTo"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Street"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="City"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="State"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="PostalCode"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Country"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="PostalAddress" nillable="false" type="PostalAddress"/>
+	<xs:complexType abstract="false" mixed="false" name="Address">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Name"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="PostalAddress"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Email"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Phone"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Fax"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="URL"/>
+		</xs:sequence>
+		<xs:attribute name="isoCountryCode" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="addressID" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Address" nillable="false" type="Address"/>
+	<xs:complexType abstract="false" mixed="true" name="Money">
+		<xs:attribute name="currency" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="alternateAmount" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="alternateCurrency" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Money" nillable="false" type="Money"/>
+	<xs:complexType abstract="false" mixed="true" name="Comments">
+		<xs:choice maxOccurs="unbounded" minOccurs="0">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Attachment"/>
+		</xs:choice>
+		<xs:attribute ref="xml:lang" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Comments" nillable="false" type="Comments"/>
+	<xs:complexType abstract="false" mixed="false" name="Attachment">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="URL"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Attachment" nillable="false" type="Attachment"/>
+	<xs:complexType abstract="false" mixed="false" name="AttachmentReference">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Name"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Description"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="InternalID"/>
+		</xs:sequence>
+		<xs:attribute name="length" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="AttachmentReference" nillable="false" type="AttachmentReference"/>
+	<xs:complexType abstract="false" mixed="false" name="UnitPrice">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="UnitPrice" nillable="false" type="UnitPrice"/>
+	<xs:complexType abstract="false" mixed="false" name="DocumentReference">
+		<xs:attribute name="payloadID" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="DocumentReference" nillable="false" type="DocumentReference"/>
+	<xs:complexType abstract="false" mixed="true" name="InternalID">
+		<xs:attribute name="domain" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="InternalID" nillable="false" type="InternalID"/>
+	<xs:complexType abstract="false" mixed="true" name="OriginatorCookie"/>
+	<xs:element abstract="false" name="OriginatorCookie" nillable="false" type="OriginatorCookie"/>
+	<xs:complexType abstract="false" mixed="false" name="BrowserFormPost">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="URL"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="BrowserFormPost" nillable="false" type="BrowserFormPost"/>
+	<xs:complexType abstract="false" mixed="true" name="SelectedService"/>
+	<xs:element abstract="false" name="SelectedService" nillable="false" type="SelectedService"/>
+	<xs:complexType abstract="false" mixed="false" name="StartPage">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="URL"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="StartPage" nillable="false" type="StartPage"/>
+	<xs:complexType abstract="false" mixed="false" name="ReturnData">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ReturnValue"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Name"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="ReturnData" nillable="false" type="ReturnData"/>
+	<xs:complexType abstract="false" mixed="true" name="ReturnValue"/>
+	<xs:element abstract="false" name="ReturnValue" nillable="false" type="ReturnValue"/>
+	<xs:complexType abstract="false" mixed="false" name="TimeRange">
+		<xs:attribute name="startDate" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="endDate" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="TimeRange" nillable="false" type="TimeRange"/>
+	<xs:complexType abstract="false" mixed="false" name="Period">
+		<xs:attribute name="startDate" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="endDate" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Period" nillable="false" type="Period"/>
+	<xs:complexType abstract="false" mixed="true" name="UnitOfMeasure"/>
+	<xs:element abstract="false" name="UnitOfMeasure" nillable="false" type="UnitOfMeasure"/>
+	<xs:complexType abstract="false" mixed="false" name="TermReference">
+		<xs:attribute name="termName" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="term" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="TermReference" nillable="false" type="TermReference"/>
+	<xs:complexType abstract="false" mixed="false" name="UnitRate">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="UnitOfMeasure"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="TermReference"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="UnitRate" nillable="false" type="UnitRate"/>
+	<xs:complexType abstract="false" mixed="false" name="Supplier">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Name"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Comments"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="SupplierID"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="SupplierLocation"/>
+		</xs:sequence>
+		<xs:attribute name="corporateURL" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="storeFrontURL" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Supplier" nillable="false" type="Supplier"/>
+	<xs:complexType abstract="false" mixed="false" name="SupplierLocation">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Address"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="OrderMethods"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SupplierLocation" nillable="false" type="SupplierLocation"/>
+	<xs:complexType abstract="false" mixed="false" name="OrderMethods">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="OrderMethod"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Contact"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="OrderMethods" nillable="false" type="OrderMethods"/>
+	<xs:complexType abstract="false" mixed="false" name="OrderMethod">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="OrderTarget"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="OrderProtocol"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="OrderMethod" nillable="false" type="OrderMethod"/>
+	<xs:complexType abstract="false" mixed="false" name="OrderTarget">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Phone"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Email"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Fax"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="URL"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="OtherOrderTarget"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element abstract="false" name="OrderTarget" nillable="false" type="OrderTarget"/>
+	<xs:complexType abstract="false" mixed="true" name="OrderProtocol"/>
+	<xs:element abstract="false" name="OrderProtocol" nillable="false" type="OrderProtocol"/>
+	<xs:complexType abstract="false" mixed="true" name="OtherOrderTarget">
+		<xs:complexContent>
+			<xs:restriction base="xs:anyType">
+				<xs:attribute name="name" type="xs:anySimpleType" use="optional"/>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element abstract="false" name="OtherOrderTarget" nillable="false" type="OtherOrderTarget"/>
+	<xs:complexType abstract="false" mixed="true" name="SupplierID">
+		<xs:attribute name="domain" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="SupplierID" nillable="false" type="SupplierID"/>
+	<xs:complexType abstract="false" mixed="false" name="SupplierList">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Supplier"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SupplierList" nillable="false" type="SupplierList"/>
+	<xs:complexType abstract="false" mixed="true" name="ManufacturerPartID"/>
+	<xs:element abstract="false" name="ManufacturerPartID" nillable="false" type="ManufacturerPartID"/>
+	<xs:complexType abstract="false" mixed="true" name="ManufacturerName">
+		<xs:attribute ref="xml:lang" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="ManufacturerName" nillable="false" type="ManufacturerName"/>
+	<xs:complexType abstract="false" mixed="true" name="Classification">
+		<xs:attribute name="domain" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Classification" nillable="false" type="Classification"/>
+	<xs:complexType abstract="false" mixed="true" name="LeadTime"/>
+	<xs:element abstract="false" name="LeadTime" nillable="false" type="LeadTime"/>
+	<xs:complexType abstract="false" mixed="true" name="SupplierPartID"/>
+	<xs:element abstract="false" name="SupplierPartID" nillable="false" type="SupplierPartID"/>
+	<xs:complexType abstract="false" mixed="true" name="SupplierPartAuxiliaryID">
+		<xs:complexContent>
+			<xs:restriction base="xs:anyType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element abstract="false" name="SupplierPartAuxiliaryID" nillable="false" type="SupplierPartAuxiliaryID"/>
+	<xs:complexType abstract="false" mixed="false" name="ItemID">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="SupplierPartID"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="SupplierPartAuxiliaryID"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="ItemID" nillable="false" type="ItemID"/>
+	<xs:complexType abstract="false" mixed="false" name="ItemDetail">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="UnitPrice"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Description"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="UnitOfMeasure"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Classification"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ManufacturerPartID"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ManufacturerName"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="URL"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="LeadTime"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Extrinsic"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="ItemDetail" nillable="false" type="ItemDetail"/>
+	<xs:complexType abstract="false" mixed="false" name="TravelDetail">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:choice maxOccurs="1" minOccurs="1">
+				<xs:element maxOccurs="1" minOccurs="1"   ref="AirDetail"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="CarRentalDetail"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="HotelDetail"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="RailDetail"/>
+			</xs:choice>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="PolicyViolation"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Comments"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="TermsAndConditions"/>
+		</xs:sequence>
+		<xs:attribute name="confirmationNumber" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="pnrLocator" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="quoteExpirationTime" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="TravelDetail" nillable="false" type="TravelDetail"/>
+	<xs:complexType abstract="false" mixed="false" name="AirDetail">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="TripType"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="AirLeg"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="AvailablePrice"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Penalty"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="AirDetail" nillable="false" type="AirDetail"/>
+	<xs:complexType abstract="false" mixed="false" name="AirLeg">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Vendor"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="AirLegOrigin"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="AirLegDestination"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="BookingClassCode"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Rate"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Meal"/>
+		</xs:sequence>
+		<xs:attribute name="travelSegment" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="departureTime" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="arrivalTime" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="flightNumber" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="seatNumber" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="seatType" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="aisle"/>
+					<xs:enumeration value="window"/>
+					<xs:enumeration value="middle"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="upgrade" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="stops" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="equipment" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="AirLeg" nillable="false" type="AirLeg"/>
+	<xs:complexType abstract="false" mixed="false" name="AirLegOrigin">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Airport"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="AirLegOrigin" nillable="false" type="AirLegOrigin"/>
+	<xs:complexType abstract="false" mixed="false" name="AirLegDestination">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Airport"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="AirLegDestination" nillable="false" type="AirLegDestination"/>
+	<xs:complexType abstract="false" mixed="false" name="Airport">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Address"/>
+		</xs:sequence>
+		<xs:attribute name="airportCode" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Airport" nillable="false" type="Airport"/>
+	<xs:complexType abstract="false" mixed="false" name="Meal">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="BookingClassCode"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Description"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Meal" nillable="false" type="Meal"/>
+	<xs:complexType abstract="false" mixed="false" name="CarRentalDetail">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Vendor"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="CarRentalPickup"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="CarRentalDropoff"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="BookingClassCode"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="CarRentalFee"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="LimitedMileage"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="AvailablePrice"/>
+		</xs:sequence>
+		<xs:attribute name="travelSegment" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="pickupTime" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="dropoffTime" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="CarRentalDetail" nillable="false" type="CarRentalDetail"/>
+	<xs:complexType abstract="false" mixed="false" name="CarRentalPickup">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Airport"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Address"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element abstract="false" name="CarRentalPickup" nillable="false" type="CarRentalPickup"/>
+	<xs:complexType abstract="false" mixed="false" name="CarRentalDropoff">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Airport"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Address"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element abstract="false" name="CarRentalDropoff" nillable="false" type="CarRentalDropoff"/>
+	<xs:complexType abstract="false" mixed="false" name="LimitedMileage">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="UnitOfMeasure"/>
+		</xs:sequence>
+		<xs:attribute name="quantity" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="LimitedMileage" nillable="false" type="LimitedMileage"/>
+	<xs:complexType abstract="false" mixed="false" name="CarRentalFee">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Total"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Rate"/>
+		</xs:sequence>
+		<xs:attribute default="baseRate" name="type" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="mobilePhone"/>
+					<xs:enumeration value="additionalDriver"/>
+					<xs:enumeration value="baseRate"/>
+					<xs:enumeration value="vehicleLicensingFee"/>
+					<xs:enumeration value="prepaidGasoline"/>
+					<xs:enumeration value="touristTax"/>
+					<xs:enumeration value="liabilityInsurance"/>
+					<xs:enumeration value="airportAccessFee"/>
+					<xs:enumeration value="collisionDamageInsurance"/>
+					<xs:enumeration value="navigationSystem"/>
+					<xs:enumeration value="other"/>
+					<xs:enumeration value="childSeat"/>
+					<xs:enumeration value="luggageRack"/>
+					<xs:enumeration value="dropOffCharge"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="CarRentalFee" nillable="false" type="CarRentalFee"/>
+	<xs:complexType abstract="false" mixed="false" name="HotelDetail">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Vendor"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Address"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="RoomType"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="BookingClassCode"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Meal"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Rate"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="AvailablePrice"/>
+		</xs:sequence>
+		<xs:attribute name="travelSegment" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="arrivalTime" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="departureTime" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="checkinTime" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="checkoutTime" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="earlyCheckinAllowed" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="lateCheckoutAllowed" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="HotelDetail" nillable="false" type="HotelDetail"/>
+	<xs:complexType abstract="false" mixed="false" name="RoomType">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Description"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Amenities"/>
+		</xs:sequence>
+		<xs:attribute name="smoking" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+					<xs:enumeration value="no"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="numberOfBed" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="bedType" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="single"/>
+					<xs:enumeration value="full"/>
+					<xs:enumeration value="other"/>
+					<xs:enumeration value="king"/>
+					<xs:enumeration value="queen"/>
+					<xs:enumeration value="double"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="RoomType" nillable="false" type="RoomType"/>
+	<xs:complexType abstract="false" mixed="false" name="Amenities">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Description"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Amenities" nillable="false" type="Amenities"/>
+	<xs:complexType abstract="false" mixed="false" name="RailDetail">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="TripType"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="RailLeg"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="AvailablePrice"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Penalty"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="RailDetail" nillable="false" type="RailDetail"/>
+	<xs:complexType abstract="false" mixed="false" name="RailLeg">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Vendor"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="RailLegOrigin"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="RailLegDestination"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="BookingClassCode"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Rate"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Meal"/>
+		</xs:sequence>
+		<xs:attribute name="travelSegment" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="departureTime" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="arrivalTime" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="trainNumber" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="seatNumber" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="carType" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="seat"/>
+					<xs:enumeration value="sleeper"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="RailLeg" nillable="false" type="RailLeg"/>
+	<xs:complexType abstract="false" mixed="false" name="RailLegOrigin">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Airport"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Address"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element abstract="false" name="RailLegOrigin" nillable="false" type="RailLegOrigin"/>
+	<xs:complexType abstract="false" mixed="false" name="RailLegDestination">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Airport"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Address"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element abstract="false" name="RailLegDestination" nillable="false" type="RailLegDestination"/>
+	<xs:complexType abstract="false" mixed="false" name="TripType">
+		<xs:attribute name="type" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="oneWay"/>
+					<xs:enumeration value="multiLeg"/>
+					<xs:enumeration value="round"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="TripType" nillable="false" type="TripType"/>
+	<xs:complexType abstract="false" mixed="false" name="Vendor">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Address"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="SupplierID"/>
+		</xs:sequence>
+		<xs:attribute name="preferred" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+					<xs:enumeration value="no"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="Vendor" nillable="false" type="Vendor"/>
+	<xs:complexType abstract="false" mixed="false" name="TermsAndConditions">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Description"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="TermsAndConditions" nillable="false" type="TermsAndConditions"/>
+	<xs:complexType abstract="false" mixed="false" name="PolicyViolation">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Description"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="PolicyViolationJustification"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Comments"/>
+		</xs:sequence>
+		<xs:attribute name="level" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="warning"/>
+					<xs:enumeration value="violation"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="PolicyViolation" nillable="false" type="PolicyViolation"/>
+	<xs:complexType abstract="false" mixed="false" name="PolicyViolationJustification">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Description"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="PolicyViolationJustification" nillable="false" type="PolicyViolationJustification"/>
+	<xs:complexType abstract="false" mixed="false" name="Penalty">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Description"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Penalty" nillable="false" type="Penalty"/>
+	<xs:complexType abstract="false" mixed="false" name="AvailablePrice">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Description"/>
+		</xs:sequence>
+		<xs:attribute name="type" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="highest"/>
+					<xs:enumeration value="lowest"/>
+					<xs:enumeration value="other"/>
+					<xs:enumeration value="highestCompliant"/>
+					<xs:enumeration value="lowestCompliant"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="AvailablePrice" nillable="false" type="AvailablePrice"/>
+	<xs:complexType abstract="false" mixed="false" name="Rate">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Total"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="UnitRate"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Description"/>
+		</xs:sequence>
+		<xs:attribute name="quantity" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Rate" nillable="false" type="Rate"/>
+	<xs:complexType abstract="false" mixed="false" name="BookingClassCode">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Description"/>
+		</xs:sequence>
+		<xs:attribute name="domain" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="code" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="BookingClassCode" nillable="false" type="BookingClassCode"/>
+	<xs:complexType abstract="false" mixed="false" name="Total">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Total" nillable="false" type="Total"/>
+	<xs:complexType abstract="false" mixed="false" name="BillTo">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Address"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="BillTo" nillable="false" type="BillTo"/>
+	<xs:complexType abstract="false" mixed="false" name="ShipTo">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Address"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="ShipTo" nillable="false" type="ShipTo"/>
+	<xs:complexType abstract="false" mixed="false" name="Shipping">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Description"/>
+		</xs:sequence>
+		<xs:attribute name="trackingDomain" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="trackingId" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="tracking" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Shipping" nillable="false" type="Shipping"/>
+	<xs:complexType abstract="false" mixed="false" name="Discount">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="DiscountPercent"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="DiscountAmount"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element abstract="false" name="Discount" nillable="false" type="Discount"/>
+	<xs:complexType abstract="false" mixed="false" name="DiscountPercent">
+		<xs:attribute name="percent" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="DiscountPercent" nillable="false" type="DiscountPercent"/>
+	<xs:complexType abstract="false" mixed="false" name="PaymentTerm">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Discount"/>
+		</xs:sequence>
+		<xs:attribute name="payInNumberOfDays" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="PaymentTerm" nillable="false" type="PaymentTerm"/>
+	<xs:complexType abstract="false" mixed="false" name="Payment">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="PCard"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Payment" nillable="false" type="Payment"/>
+	<xs:complexType abstract="false" mixed="false" name="Segment">
+		<xs:attribute name="type" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="id" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="description" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Segment" nillable="false" type="Segment"/>
+	<xs:complexType abstract="false" mixed="false" name="AccountingSegment">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Name"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Description"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="AccountingSegment" nillable="false" type="AccountingSegment"/>
+	<xs:complexType abstract="false" mixed="false" name="Accounting">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:choice maxOccurs="1" minOccurs="1">
+				<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Segment"/>
+				<xs:element maxOccurs="unbounded" minOccurs="1"   ref="AccountingSegment"/>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Accounting" nillable="false" type="Accounting"/>
+	<xs:complexType abstract="false" mixed="false" name="Charge">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Charge" nillable="false" type="Charge"/>
+	<xs:complexType abstract="false" mixed="false" name="Distribution">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Accounting"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Charge"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Distribution" nillable="false" type="Distribution"/>
+	<xs:complexType abstract="false" mixed="false" name="TaxAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="TaxAmount" nillable="false" type="TaxAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="TaxableAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="TaxableAmount" nillable="false" type="TaxableAmount"/>
+	<xs:complexType abstract="false" mixed="true" name="TaxLocation">
+		<xs:attribute ref="xml:lang" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="TaxLocation" nillable="false" type="TaxLocation"/>
+	<xs:complexType abstract="false" mixed="true" name="TriangularTransactionLawReference">
+		<xs:attribute ref="xml:lang" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="TriangularTransactionLawReference" nillable="false" type="TriangularTransactionLawReference"/>
+	<xs:complexType abstract="false" mixed="false" name="TaxDetail">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="TaxableAmount"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="TaxAmount"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="TaxLocation"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Description"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="TriangularTransactionLawReference"/>
+		</xs:sequence>
+		<xs:attribute name="purpose" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="category" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="percentageRate" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="isVatRecoverable" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="taxPointDate" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="paymentDate" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="isTriangularTransaction" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="TaxDetail" nillable="false" type="TaxDetail"/>
+	<xs:complexType abstract="false" mixed="false" name="Tax">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Description"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="TaxDetail"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Tax" nillable="false" type="Tax"/>
+	<xs:complexType abstract="false" mixed="false" name="ItemOut">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ItemID"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Path"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ItemDetail"/>
+			<xs:choice maxOccurs="1" minOccurs="0">
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SupplierID"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SupplierList"/>
+			</xs:choice>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ShipTo"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Shipping"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Tax"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="SpendDetail"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Distribution"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Contact"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Comments"/>
+		</xs:sequence>
+		<xs:attribute name="quantity" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="lineNumber" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="requisitionID" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="agreementItemNumber" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="requestedDeliveryDate" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="isAdHoc" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="ItemOut" nillable="false" type="ItemOut"/>
+	<xs:complexType abstract="false" mixed="false" name="ItemIn">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ItemID"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Path"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ItemDetail"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="SupplierID"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ShipTo"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Shipping"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Tax"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="SpendDetail"/>
+		</xs:sequence>
+		<xs:attribute name="quantity" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="lineNumber" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="ItemIn" nillable="false" type="ItemIn"/>
+	<xs:complexType abstract="false" mixed="false" name="PaymentStatus">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="PCard"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Total"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Shipping"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Tax"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Extrinsic"/>
+		</xs:sequence>
+		<xs:attribute name="orderID" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="transactionTimestamp" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="type" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="Credit"/>
+					<xs:enumeration value="Sale"/>
+					<xs:enumeration value="Authorization"/>
+					<xs:enumeration value="Settlement"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="isFailed" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="transactionID" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="authorizationID" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="PaymentStatus" nillable="false" type="PaymentStatus"/>
+	<xs:complexType abstract="false" mixed="false" name="PartialAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="PartialAmount" nillable="false" type="PartialAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="InvoiceStatus">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="InvoiceIDInfo"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="PartialAmount"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Comments"/>
+		</xs:sequence>
+		<xs:attribute name="type" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="canceled"/>
+					<xs:enumeration value="reconciled"/>
+					<xs:enumeration value="processing"/>
+					<xs:enumeration value="paying"/>
+					<xs:enumeration value="paid"/>
+					<xs:enumeration value="rejected"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="InvoiceStatus" nillable="false" type="InvoiceStatus"/>
+	<xs:complexType abstract="false" mixed="false" name="OrderRequest">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="OrderRequestHeader"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="ItemOut"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="OrderRequest" nillable="false" type="OrderRequest"/>
+	<xs:complexType abstract="false" mixed="false" name="OrderRequestHeader">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Total"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ShipTo"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="BillTo"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Shipping"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Tax"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Payment"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="PaymentTerm"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Contact"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Comments"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Followup"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="DocumentReference"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="SupplierOrderInfo"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Extrinsic"/>
+		</xs:sequence>
+		<xs:attribute name="orderID" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="orderDate" type="xs:anySimpleType" use="required"/>
+		<xs:attribute default="regular" name="orderType" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="release"/>
+					<xs:enumeration value="regular"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute default="new" name="type" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="update"/>
+					<xs:enumeration value="delete"/>
+					<xs:enumeration value="new"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="orderVersion" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="isInternalVersion" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="agreementID" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="agreementPayloadID" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="requisitionID" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="shipComplete" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="OrderRequestHeader" nillable="false" type="OrderRequestHeader"/>
+	<xs:complexType abstract="false" mixed="false" name="MasterAgreementRequest">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="MasterAgreementRequestHeader"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="AgreementItemOut"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="MasterAgreementRequest" nillable="false" type="MasterAgreementRequest"/>
+	<xs:complexType abstract="false" mixed="false" name="MasterAgreementRequestHeader">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="MaxAmount"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="MinAmount"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="MaxReleaseAmount"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="MinReleaseAmount"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Contact"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Comments"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="DocumentReference"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Extrinsic"/>
+		</xs:sequence>
+		<xs:attribute name="agreementID" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="agreementDate" type="xs:anySimpleType" use="required"/>
+		<xs:attribute default="value" name="type" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="quantity"/>
+					<xs:enumeration value="value"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="effectiveDate" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="expirationDate" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="parentAgreementPayloadID" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute default="new" name="operation" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="update"/>
+					<xs:enumeration value="delete"/>
+					<xs:enumeration value="new"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="MasterAgreementRequestHeader" nillable="false" type="MasterAgreementRequestHeader"/>
+	<xs:complexType abstract="false" mixed="false" name="AgreementItemOut">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="MaxAmount"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="MinAmount"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="MaxReleaseAmount"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="MinReleaseAmount"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ItemOut"/>
+		</xs:sequence>
+		<xs:attribute name="maxQuantity" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="minQuantity" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="maxReleaseQuantity" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="minReleaseQuantity" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="AgreementItemOut" nillable="false" type="AgreementItemOut"/>
+	<xs:complexType abstract="false" mixed="false" name="MaxAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="MaxAmount" nillable="false" type="MaxAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="MinAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="MinAmount" nillable="false" type="MinAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="MaxReleaseAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="MaxReleaseAmount" nillable="false" type="MaxReleaseAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="MinReleaseAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="MinReleaseAmount" nillable="false" type="MinReleaseAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="Followup">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="URL"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Followup" nillable="false" type="Followup"/>
+	<xs:complexType abstract="false" mixed="false" name="PunchOutSetupRequest">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="BuyerCookie"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Extrinsic"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="BrowserFormPost"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Contact"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="SupplierSetup"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ShipTo"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="SelectedItem"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="ItemOut"/>
+		</xs:sequence>
+		<xs:attribute name="operation" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="create"/>
+					<xs:enumeration value="edit"/>
+					<xs:enumeration value="inspect"/>
+					<xs:enumeration value="source"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="PunchOutSetupRequest" nillable="false" type="PunchOutSetupRequest"/>
+	<xs:complexType abstract="false" mixed="true" name="BuyerCookie">
+		<xs:complexContent>
+			<xs:restriction base="xs:anyType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element abstract="false" name="BuyerCookie" nillable="false" type="BuyerCookie"/>
+	<xs:complexType abstract="false" mixed="false" name="SelectedItem">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ItemID"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SelectedItem" nillable="false" type="SelectedItem"/>
+	<xs:complexType abstract="false" mixed="false" name="SupplierSetup">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="URL"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SupplierSetup" nillable="false" type="SupplierSetup"/>
+	<xs:complexType abstract="false" mixed="false" name="PunchOutSetupResponse">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="StartPage"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="PunchOutSetupResponse" nillable="false" type="PunchOutSetupResponse"/>
+	<xs:complexType abstract="false" mixed="false" name="PunchOutOrderMessage">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="BuyerCookie"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="PunchOutOrderMessageHeader"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="ItemIn"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="PunchOutOrderMessage" nillable="false" type="PunchOutOrderMessage"/>
+	<xs:complexType abstract="false" mixed="false" name="PunchOutOrderMessageHeader">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="SourcingStatus"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Total"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ShipTo"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Shipping"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Tax"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="SupplierOrderInfo"/>
+		</xs:sequence>
+		<xs:attribute name="operationAllowed" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="create"/>
+					<xs:enumeration value="edit"/>
+					<xs:enumeration value="inspect"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute default="final" name="quoteStatus" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="final"/>
+					<xs:enumeration value="pending"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="PunchOutOrderMessageHeader" nillable="false" type="PunchOutOrderMessageHeader"/>
+	<xs:complexType abstract="false" mixed="false" name="StatusUpdateRequest">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="DocumentReference"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Status"/>
+			<xs:choice maxOccurs="1" minOccurs="0">
+				<xs:choice maxOccurs="1" minOccurs="1">
+					<xs:element maxOccurs="1" minOccurs="1"   ref="PaymentStatus"/>
+					<xs:element maxOccurs="1" minOccurs="1"   ref="SourcingStatus"/>
+					<xs:element maxOccurs="1" minOccurs="1"   ref="InvoiceStatus"/>
+				</xs:choice>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="StatusUpdateRequest" nillable="false" type="StatusUpdateRequest"/>
+	<xs:complexType abstract="false" mixed="false" name="cXMLAttachment">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Attachment"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="cXMLAttachment" nillable="false" type="cXMLAttachment"/>
+	<xs:complexType abstract="false" mixed="false" name="CopyRequest">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="cXMLAttachment"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="cXML"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element abstract="false" name="CopyRequest" nillable="false" type="CopyRequest"/>
+	<xs:complexType abstract="false" mixed="true" name="SourcingStatus">
+		<xs:attribute name="action" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="cancel"/>
+					<xs:enumeration value="approve"/>
+					<xs:enumeration value="deny"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute ref="xml:lang" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="SourcingStatus" nillable="false" type="SourcingStatus"/>
+	<xs:complexType abstract="false" mixed="false" name="DepositAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="DepositAmount" nillable="false" type="DepositAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="SubtotalAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SubtotalAmount" nillable="false" type="SubtotalAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="SpecialHandlingAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Description"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SpecialHandlingAmount" nillable="false" type="SpecialHandlingAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="ShippingAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="ShippingAmount" nillable="false" type="ShippingAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="GrossAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="GrossAmount" nillable="false" type="GrossAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="NetAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="NetAmount" nillable="false" type="NetAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="DueAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="DueAmount" nillable="false" type="DueAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="DiscountAmount">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Money"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="DiscountAmount" nillable="false" type="DiscountAmount"/>
+	<xs:complexType abstract="false" mixed="false" name="PCard">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="PostalAddress"/>
+		</xs:sequence>
+		<xs:attribute name="number" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="expiration" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="name" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="PCard" nillable="false" type="PCard"/>
+	<xs:complexType abstract="false" mixed="false" name="SpendDetail">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="TravelDetail"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="FeeDetail"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="LaborDetail"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Extrinsic"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element abstract="false" name="SpendDetail" nillable="false" type="SpendDetail"/>
+	<xs:complexType abstract="false" mixed="false" name="FeeDetail">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="UnitRate"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Period"/>
+		</xs:sequence>
+		<xs:attribute name="isRecurring" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="FeeDetail" nillable="false" type="FeeDetail"/>
+	<xs:complexType abstract="false" mixed="false" name="LaborDetail">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="UnitRate"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Period"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Contractor"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="JobDescription"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Supervisor"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="WorkLocation"/>
+		</xs:sequence>
+		<xs:attribute name="supplierReferenceCode" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="LaborDetail" nillable="false" type="LaborDetail"/>
+	<xs:complexType abstract="false" mixed="false" name="JobDescription">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Description"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="JobDescription" nillable="false" type="JobDescription"/>
+	<xs:complexType abstract="false" mixed="false" name="Supervisor">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Contact"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Supervisor" nillable="false" type="Supervisor"/>
+	<xs:complexType abstract="false" mixed="false" name="WorkLocation">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Address"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="WorkLocation" nillable="false" type="WorkLocation"/>
+	<xs:complexType abstract="false" mixed="false" name="Contractor">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ContractorIdentifier"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Contact"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Contractor" nillable="false" type="Contractor"/>
+	<xs:complexType abstract="false" mixed="true" name="ContractorIdentifier">
+		<xs:attribute name="domain" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="buyerReferenceID"/>
+					<xs:enumeration value="supplierReferenceID"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="ContractorIdentifier" nillable="false" type="ContractorIdentifier"/>
+	<xs:complexType abstract="false" mixed="false" name="OrderReference">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="DocumentReference"/>
+		</xs:sequence>
+		<xs:attribute name="orderID" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="orderDate" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="OrderReference" nillable="false" type="OrderReference"/>
+	<xs:complexType abstract="false" mixed="false" name="OrderIDInfo">
+		<xs:attribute name="orderID" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="orderDate" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="OrderIDInfo" nillable="false" type="OrderIDInfo"/>
+	<xs:complexType abstract="false" mixed="false" name="OrderInfo">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="OrderReference"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="OrderIDInfo"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element abstract="false" name="OrderInfo" nillable="false" type="OrderInfo"/>
+	<xs:complexType abstract="false" mixed="false" name="InvoiceReference">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="DocumentReference"/>
+		</xs:sequence>
+		<xs:attribute name="invoiceID" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="invoiceDate" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="InvoiceReference" nillable="false" type="InvoiceReference"/>
+	<xs:complexType abstract="false" mixed="false" name="InvoiceIDInfo">
+		<xs:attribute name="invoiceID" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="invoiceDate" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="InvoiceIDInfo" nillable="false" type="InvoiceIDInfo"/>
+	<xs:complexType abstract="false" mixed="false" name="MasterAgreementIDInfo">
+		<xs:attribute name="agreementID" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="agreementDate" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="MasterAgreementIDInfo" nillable="false" type="MasterAgreementIDInfo"/>
+	<xs:complexType abstract="false" mixed="false" name="MasterAgreementReference">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="DocumentReference"/>
+		</xs:sequence>
+		<xs:attribute name="agreementID" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="agreementDate" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="MasterAgreementReference" nillable="false" type="MasterAgreementReference"/>
+	<xs:complexType abstract="false" mixed="true" name="CarrierIdentifier">
+		<xs:attribute name="domain" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="CarrierIdentifier" nillable="false" type="CarrierIdentifier"/>
+	<xs:complexType abstract="false" mixed="true" name="ShipmentIdentifier"/>
+	<xs:element abstract="false" name="ShipmentIdentifier" nillable="false" type="ShipmentIdentifier"/>
+	<xs:complexType abstract="false" mixed="true" name="Creator">
+		<xs:attribute ref="xml:lang" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Creator" nillable="false" type="Creator"/>
+	<xs:complexType abstract="false" mixed="false" name="IdReference">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Creator"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Description"/>
+		</xs:sequence>
+		<xs:attribute name="identifier" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="domain" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="IdReference" nillable="false" type="IdReference"/>
+	<xs:complexType abstract="false" mixed="false" name="SupplierOrderInfo">
+		<xs:attribute name="orderID" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="SupplierOrderInfo" nillable="false" type="SupplierOrderInfo"/>
+	<xs:complexType abstract="false" mixed="false" name="ShipNoticeReference">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="DocumentReference"/>
+		</xs:sequence>
+		<xs:attribute name="shipNoticeID" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="shipNoticeDate" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="ShipNoticeReference" nillable="false" type="ShipNoticeReference"/>
+	<xs:complexType abstract="false" mixed="false" name="ShipNoticeIDInfo">
+		<xs:attribute name="shipNoticeID" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="shipNoticeDate" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="ShipNoticeIDInfo" nillable="false" type="ShipNoticeIDInfo"/>
+	<xs:complexType abstract="false" mixed="false" name="ProfileRequest"/>
+	<xs:element abstract="false" name="ProfileRequest" nillable="false" type="ProfileRequest"/>
+	<xs:complexType abstract="false" mixed="false" name="ProfileResponse">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Option"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Transaction"/>
+		</xs:sequence>
+		<xs:attribute name="effectiveDate" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="lastRefresh" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute fixed="effectiveDate dateTime.tz                              lastRefresh dateTime.tz" name="a-dtype" type="xs:NMTOKENS" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="ProfileResponse" nillable="false" type="ProfileResponse"/>
+	<xs:complexType abstract="false" mixed="true" name="Option">
+		<xs:attribute name="name" type="xs:anySimpleType" use="required"/>
+		<xs:attribute fixed="name string" name="a-dtype" type="xs:NMTOKENS" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Option" nillable="false" type="Option"/>
+	<xs:complexType abstract="false" mixed="false" name="Transaction">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="URL"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Option"/>
+		</xs:sequence>
+		<xs:attribute name="requestName" type="xs:anySimpleType" use="required"/>
+		<xs:attribute fixed="requestName NMTOKEN" name="a-dtype" type="xs:NMTOKENS" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Transaction" nillable="false" type="Transaction"/>
+	<xs:complexType abstract="false" mixed="false" name="cXML">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:choice maxOccurs="1" minOccurs="1">
+				<xs:sequence maxOccurs="1" minOccurs="1">
+					<xs:element maxOccurs="1" minOccurs="1"   ref="Header"/>
+					<xs:choice maxOccurs="1" minOccurs="1">
+						<xs:element maxOccurs="1" minOccurs="1"   ref="Message"/>
+						<xs:element maxOccurs="1" minOccurs="1"   ref="Request"/>
+					</xs:choice>
+				</xs:sequence>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="Response"/>
+			</xs:choice>
+			<xs:element maxOccurs="1" minOccurs="0" name="Signature" nillable="false" type="xs:anyType"/>
+		</xs:sequence>
+		<xs:attribute default="1.2.016" name="version" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="payloadID" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="timestamp" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="signatureVersion" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="1.0"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute ref="xml:lang" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="cXML" nillable="false" type="cXML">
+<xs:unique name="cXML">
+<xs:selector xpath="."/>
+<xs:field xpath="@payloadID"/>
+<xs:field xpath="@timestamp"/>
+</xs:unique>
+</xs:element>
+	<xs:complexType abstract="false" mixed="false" name="Header">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="From"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="To"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Sender"/>
+			<xs:sequence maxOccurs="1" minOccurs="0">
+				<xs:element maxOccurs="1" minOccurs="1"   ref="Path"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="OriginalDocument"/>
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Header" nillable="false" type="Header"/>
+	<xs:complexType abstract="false" mixed="false" name="From">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Credential"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Correspondent"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="From" nillable="false" type="From"/>
+	<xs:complexType abstract="false" mixed="false" name="To">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Credential"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Correspondent"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="To" nillable="false" type="To"/>
+	<xs:complexType abstract="false" mixed="false" name="Sender">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Credential"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="UserAgent"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Sender" nillable="false" type="Sender"/>
+	<xs:complexType abstract="false" mixed="false" name="Path">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Node"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Path" nillable="false" type="Path"/>
+	<xs:complexType abstract="false" mixed="false" name="Node">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Credential"/>
+		</xs:sequence>
+		<xs:attribute name="type" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="copy"/>
+					<xs:enumeration value="route"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="itemDetailsRequired" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="yes"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="Node" nillable="false" type="Node"/>
+	<xs:complexType abstract="false" mixed="false" name="OriginalDocument">
+		<xs:attribute name="payloadID" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="OriginalDocument" nillable="false" type="OriginalDocument"/>
+	<xs:complexType abstract="false" mixed="true" name="UserAgent"/>
+	<xs:element abstract="false" name="UserAgent" nillable="false" type="UserAgent"/>
+	<xs:complexType abstract="false" mixed="true" name="DigitalSignature">
+		<xs:complexContent>
+			<xs:restriction base="xs:anyType">
+				<xs:attribute default="PK7 self-contained" name="type" type="xs:anySimpleType" use="optional"/>
+				<xs:attribute default="Base64" name="encoding" type="xs:anySimpleType" use="optional"/>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element abstract="false" name="DigitalSignature" nillable="false" type="DigitalSignature"/>
+	<xs:complexType abstract="false" mixed="true" name="SharedSecret">
+		<xs:complexContent>
+			<xs:restriction base="xs:anyType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element abstract="false" name="SharedSecret" nillable="false" type="SharedSecret"/>
+	<xs:complexType abstract="false" mixed="true" name="Identity">
+		<xs:complexContent>
+			<xs:restriction base="xs:anyType">
+				<xs:attribute name="lastChangedTimestamp" type="xs:anySimpleType" use="optional"/>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element abstract="false" name="Identity" nillable="false" type="Identity"/>
+	<xs:complexType abstract="false" mixed="true" name="CredentialMac">
+		<xs:attribute name="type" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="algorithm" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="creationDate" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="expirationDate" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="CredentialMac" nillable="false" type="CredentialMac"/>
+	<xs:complexType abstract="false" mixed="false" name="Credential">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Identity"/>
+			<xs:choice maxOccurs="1" minOccurs="0">
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SharedSecret"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="DigitalSignature"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="CredentialMac"/>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="domain" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="type" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="marketplace"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="Credential" nillable="false" type="Credential"/>
+	<xs:complexType abstract="false" mixed="true" name="Status">
+		<xs:attribute name="code" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="text" type="xs:anySimpleType" use="required"/>
+		<xs:attribute ref="xml:lang" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Status" nillable="false" type="Status"/>
+	<xs:complexType abstract="false" mixed="false" name="Message">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Status"/>
+			<xs:choice maxOccurs="1" minOccurs="1">
+				<xs:element maxOccurs="1" minOccurs="1"   ref="PunchOutOrderMessage"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="ProviderDoneMessage"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SubscriptionChangeMessage"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="DataAvailableMessage"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SupplierChangeMessage"/>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute default="production" name="deploymentMode" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="production"/>
+					<xs:enumeration value="test"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="inReplyTo" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="Id" type="xs:ID" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Message" nillable="false" type="Message"/>
+	<xs:complexType abstract="false" mixed="false" name="Request">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:choice maxOccurs="1" minOccurs="1">
+				<xs:element maxOccurs="1" minOccurs="1"   ref="ProfileRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="OrderRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="MasterAgreementRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="PunchOutSetupRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="ProviderSetupRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="StatusUpdateRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="GetPendingRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SubscriptionListRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SubscriptionContentRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SupplierListRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SupplierDataRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="CopyRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="CatalogUploadRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="AuthRequest"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="DataRequest"/>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute default="production" name="deploymentMode" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="production"/>
+					<xs:enumeration value="test"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Id" type="xs:ID" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Request" nillable="false" type="Request"/>
+	<xs:complexType abstract="false" mixed="false" name="Response">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Status"/>
+			<xs:choice maxOccurs="1" minOccurs="0">
+				<xs:element maxOccurs="1" minOccurs="1"   ref="ProfileResponse"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="PunchOutSetupResponse"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="ProviderSetupResponse"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="GetPendingResponse"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SubscriptionListResponse"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SubscriptionContentResponse"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SupplierListResponse"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="SupplierDataResponse"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="AuthResponse"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="DataResponse"/>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="Id" type="xs:ID" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Response" nillable="false" type="Response"/>
+	<xs:complexType abstract="false" mixed="false" name="cXMLSignedInfo">
+		<xs:attribute name="signatureVersion" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="1.0"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="payloadID" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="Id" type="xs:ID" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="cXMLSignedInfo" nillable="false" type="cXMLSignedInfo"/>
+	<xs:complexType abstract="false" mixed="false" name="Correspondent">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Contact"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Extrinsic"/>
+		</xs:sequence>
+		<xs:attribute name="preferredLanguage" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Correspondent" nillable="false" type="Correspondent"/>
+	<xs:complexType abstract="false" mixed="false" name="Contract">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="SupplierID"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Comments"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="ItemSegment"/>
+		</xs:sequence>
+		<xs:attribute name="effectiveDate" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="expirationDate" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Contract" nillable="false" type="Contract"/>
+	<xs:complexType abstract="false" mixed="false" name="ItemSegment">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="ContractItem"/>
+		</xs:sequence>
+		<xs:attribute name="segmentKey" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="ItemSegment" nillable="false" type="ItemSegment"/>
+	<xs:complexType abstract="false" mixed="false" name="ContractItem">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ItemID"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="UnitPrice"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Extrinsic"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="ContractItem" nillable="false" type="ContractItem"/>
+	<xs:complexType abstract="false" mixed="false" name="IndexItemAdd">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ItemID"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ItemDetail"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="IndexItemDetail"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="IndexItemAdd" nillable="false" type="IndexItemAdd"/>
+	<xs:complexType abstract="false" mixed="false" name="IndexItemDelete">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ItemID"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="IndexItemDelete" nillable="false" type="IndexItemDelete"/>
+	<xs:complexType abstract="false" mixed="false" name="IndexItemPunchout">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="ItemID"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="PunchoutDetail"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="IndexItemPunchout" nillable="false" type="IndexItemPunchout"/>
+	<xs:complexType abstract="false" mixed="false" name="IndexItem">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="IndexItemAdd"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="IndexItemDelete"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="IndexItemPunchout"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element abstract="false" name="IndexItem" nillable="false" type="IndexItem"/>
+	<xs:complexType abstract="false" mixed="false" name="PunchoutDetail">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Description"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="URL"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Classification"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ManufacturerName"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ManufacturerPartID"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ExpirationDate"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="EffectiveDate"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="SearchGroupData"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="TerritoryAvailable"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Extrinsic"/>
+		</xs:sequence>
+		<xs:attribute default="store" name="punchoutLevel" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="store"/>
+					<xs:enumeration value="aisle"/>
+					<xs:enumeration value="product"/>
+					<xs:enumeration value="shelf"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="PunchoutDetail" nillable="false" type="PunchoutDetail"/>
+	<xs:complexType abstract="false" mixed="false" name="Index">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="SupplierID"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Comments"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="SearchGroup"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="IndexItem"/>
+		</xs:sequence>
+		<xs:attribute name="loadmode" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="Full"/>
+					<xs:enumeration value="Incremental"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="Index" nillable="false" type="Index"/>
+	<xs:complexType abstract="false" mixed="false" name="SearchGroup">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Name"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="SearchAttribute"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SearchGroup" nillable="false" type="SearchGroup"/>
+	<xs:complexType abstract="false" mixed="false" name="SearchAttribute">
+		<xs:attribute name="name" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="type" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="SearchAttribute" nillable="false" type="SearchAttribute"/>
+	<xs:complexType abstract="false" mixed="true" name="ExpirationDate"/>
+	<xs:element abstract="false" name="ExpirationDate" nillable="false" type="ExpirationDate"/>
+	<xs:complexType abstract="false" mixed="true" name="EffectiveDate"/>
+	<xs:element abstract="false" name="EffectiveDate" nillable="false" type="EffectiveDate"/>
+	<xs:complexType abstract="false" mixed="false" name="IndexItemDetail">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="LeadTime"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="ExpirationDate"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="EffectiveDate"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="SearchGroupData"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="TerritoryAvailable"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="IndexItemDetail" nillable="false" type="IndexItemDetail"/>
+	<xs:complexType abstract="false" mixed="true" name="TerritoryAvailable"/>
+	<xs:element abstract="false" name="TerritoryAvailable" nillable="false" type="TerritoryAvailable"/>
+	<xs:complexType abstract="false" mixed="false" name="SearchGroupData">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Name"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="SearchDataElement"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SearchGroupData" nillable="false" type="SearchGroupData"/>
+	<xs:complexType abstract="false" mixed="false" name="SearchDataElement">
+		<xs:attribute name="name" type="xs:anySimpleType" use="required"/>
+		<xs:attribute name="value" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="SearchDataElement" nillable="false" type="SearchDataElement"/>
+	<xs:complexType abstract="false" mixed="false" name="GetPendingRequest">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="MessageType"/>
+		</xs:sequence>
+		<xs:attribute name="maxMessages" type="xs:anySimpleType" use="optional"/>
+		<xs:attribute name="lastReceivedTimestamp" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="GetPendingRequest" nillable="false" type="GetPendingRequest"/>
+	<xs:complexType abstract="false" mixed="true" name="MessageType"/>
+	<xs:element abstract="false" name="MessageType" nillable="false" type="MessageType"/>
+	<xs:complexType abstract="false" mixed="false" name="GetPendingResponse">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="cXML"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="GetPendingResponse" nillable="false" type="GetPendingResponse"/>
+	<xs:complexType abstract="false" mixed="false" name="SubscriptionChangeMessage">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Subscription"/>
+		</xs:sequence>
+		<xs:attribute name="type" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="update"/>
+					<xs:enumeration value="delete"/>
+					<xs:enumeration value="new"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="SubscriptionChangeMessage" nillable="false" type="SubscriptionChangeMessage"/>
+	<xs:complexType abstract="false" mixed="false" name="Subscription">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="InternalID"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Name"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Changetime"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="SupplierID"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Format"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Description"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Subscription" nillable="false" type="Subscription"/>
+	<xs:complexType abstract="false" mixed="true" name="Changetime"/>
+	<xs:element abstract="false" name="Changetime" nillable="false" type="Changetime"/>
+	<xs:complexType abstract="false" mixed="true" name="Format">
+		<xs:attribute name="version" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="Format" nillable="false" type="Format"/>
+	<xs:complexType abstract="false" mixed="false" name="SubscriptionListRequest"/>
+	<xs:element abstract="false" name="SubscriptionListRequest" nillable="false" type="SubscriptionListRequest"/>
+	<xs:complexType abstract="false" mixed="false" name="SubscriptionListResponse">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Subscription"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SubscriptionListResponse" nillable="false" type="SubscriptionListResponse"/>
+	<xs:complexType abstract="false" mixed="false" name="SubscriptionContentRequest">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="InternalID"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="SupplierID"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SubscriptionContentRequest" nillable="false" type="SubscriptionContentRequest"/>
+	<xs:complexType abstract="false" mixed="false" name="SubscriptionContentResponse">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Subscription"/>
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="SubscriptionContent"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SubscriptionContentResponse" nillable="false" type="SubscriptionContentResponse"/>
+	<xs:complexType abstract="false" mixed="false" name="SubscriptionContent">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="CIFContent"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Index"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Contract"/>
+		</xs:choice>
+		<xs:attribute name="filename" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="SubscriptionContent" nillable="false" type="SubscriptionContent"/>
+	<xs:complexType abstract="false" mixed="true" name="CIFContent"/>
+	<xs:element abstract="false" name="CIFContent" nillable="false" type="CIFContent"/>
+	<xs:complexType abstract="false" mixed="false" name="SupplierChangeMessage">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Supplier"/>
+		</xs:sequence>
+		<xs:attribute name="type" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="update"/>
+					<xs:enumeration value="delete"/>
+					<xs:enumeration value="new"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="SupplierChangeMessage" nillable="false" type="SupplierChangeMessage"/>
+	<xs:complexType abstract="false" mixed="false" name="SupplierListRequest"/>
+	<xs:element abstract="false" name="SupplierListRequest" nillable="false" type="SupplierListRequest"/>
+	<xs:complexType abstract="false" mixed="false" name="SupplierListResponse">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Supplier"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SupplierListResponse" nillable="false" type="SupplierListResponse"/>
+	<xs:complexType abstract="false" mixed="false" name="SupplierDataRequest">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="SupplierID"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SupplierDataRequest" nillable="false" type="SupplierDataRequest"/>
+	<xs:complexType abstract="false" mixed="false" name="SupplierDataResponse">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Supplier"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="SupplierDataResponse" nillable="false" type="SupplierDataResponse"/>
+	<xs:complexType abstract="false" mixed="false" name="ProviderSetupRequest">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="OriginatorCookie"/>
+			<xs:sequence maxOccurs="1" minOccurs="0">
+				<xs:element maxOccurs="1" minOccurs="1"   ref="BrowserFormPost"/>
+				<xs:element maxOccurs="1" minOccurs="0"   ref="Followup"/>
+			</xs:sequence>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="SelectedService"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="Extrinsic"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="ProviderSetupRequest" nillable="false" type="ProviderSetupRequest"/>
+	<xs:complexType abstract="false" mixed="false" name="ProviderSetupResponse">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="StartPage"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="ProviderSetupResponse" nillable="false" type="ProviderSetupResponse"/>
+	<xs:complexType abstract="false" mixed="false" name="ProviderDoneMessage">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="OriginatorCookie"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0"   ref="ReturnData"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="ProviderDoneMessage" nillable="false" type="ProviderDoneMessage"/>
+	<xs:complexType abstract="false" mixed="false" name="DataAvailableMessage">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="InternalID"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="DataAvailableMessage" nillable="false" type="DataAvailableMessage"/>
+	<xs:complexType abstract="false" mixed="false" name="DataRequest">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="InternalID"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="DataRequest" nillable="false" type="DataRequest"/>
+	<xs:complexType abstract="false" mixed="false" name="DataResponse">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Attachment"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="DataResponse" nillable="false" type="DataResponse"/>
+	<xs:complexType abstract="false" mixed="false" name="CatalogUploadRequest">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="CatalogName"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Description"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Attachment"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Commodities"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="AutoPublish"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Notification"/>
+		</xs:sequence>
+		<xs:attribute name="operation" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="update"/>
+					<xs:enumeration value="new"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element abstract="false" name="CatalogUploadRequest" nillable="false" type="CatalogUploadRequest"/>
+	<xs:complexType abstract="false" mixed="true" name="CatalogName">
+		<xs:attribute ref="xml:lang" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="CatalogName" nillable="false" type="CatalogName"/>
+	<xs:complexType abstract="false" mixed="false" name="Commodities">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="CommodityCode"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Commodities" nillable="false" type="Commodities"/>
+	<xs:complexType abstract="false" mixed="true" name="CommodityCode"/>
+	<xs:element abstract="false" name="CommodityCode" nillable="false" type="CommodityCode"/>
+	<xs:complexType abstract="false" mixed="false" name="AutoPublish">
+		<xs:attribute name="enabled" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="AutoPublish" nillable="false" type="AutoPublish"/>
+	<xs:complexType abstract="false" mixed="false" name="Notification">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="0"   ref="Email"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="URLPost"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="Notification" nillable="false" type="Notification"/>
+	<xs:complexType abstract="false" mixed="false" name="URLPost">
+		<xs:attribute name="enabled" type="xs:anySimpleType" use="required"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="URLPost" nillable="false" type="URLPost"/>
+	<xs:complexType abstract="false" mixed="false" name="AuthRequest">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="unbounded" minOccurs="1"   ref="Credential"/>
+			<xs:element maxOccurs="1" minOccurs="0"   ref="X509Data"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="AuthRequest" nillable="false" type="AuthRequest"/>
+	<xs:complexType abstract="false" mixed="false" name="X509Data">
+		<xs:choice maxOccurs="1" minOccurs="1">
+			<xs:choice maxOccurs="unbounded" minOccurs="1">
+				<xs:element maxOccurs="1" minOccurs="1"   ref="X509IssuerSerial"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="X509SKI"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="X509SubjectName"/>
+				<xs:element maxOccurs="1" minOccurs="1"   ref="X509Certificate"/>
+			</xs:choice>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="X509CRL"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:element abstract="false" name="X509Data" nillable="false" type="X509Data"/>
+	<xs:complexType abstract="false" mixed="false" name="X509IssuerSerial">
+		<xs:sequence maxOccurs="1" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="X509IssuerName"/>
+			<xs:element maxOccurs="1" minOccurs="1"   ref="X509SerialNumber"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element abstract="false" name="X509IssuerSerial" nillable="false" type="X509IssuerSerial"/>
+	<xs:complexType abstract="false" mixed="true" name="X509IssuerName"/>
+	<xs:element abstract="false" name="X509IssuerName" nillable="false" type="X509IssuerName"/>
+	<xs:complexType abstract="false" mixed="true" name="X509SubjectName"/>
+	<xs:element abstract="false" name="X509SubjectName" nillable="false" type="X509SubjectName"/>
+	<xs:complexType abstract="false" mixed="true" name="X509SerialNumber"/>
+	<xs:element abstract="false" name="X509SerialNumber" nillable="false" type="X509SerialNumber"/>
+	<xs:complexType abstract="false" mixed="true" name="X509SKI"/>
+	<xs:element abstract="false" name="X509SKI" nillable="false" type="X509SKI"/>
+	<xs:complexType abstract="false" mixed="true" name="X509Certificate"/>
+	<xs:element abstract="false" name="X509Certificate" nillable="false" type="X509Certificate"/>
+	<xs:complexType abstract="false" mixed="true" name="X509CRL"/>
+	<xs:element abstract="false" name="X509CRL" nillable="false" type="X509CRL"/>
+	<xs:complexType abstract="false" mixed="false" name="AuthResponse">
+		<xs:sequence maxOccurs="unbounded" minOccurs="1">
+			<xs:element maxOccurs="1" minOccurs="1"   ref="Credential"/>
+		</xs:sequence>
+		<xs:attribute name="expirationDate" type="xs:anySimpleType" use="optional"/>
+	</xs:complexType>
+	<xs:element abstract="false" name="AuthResponse" nillable="false" type="AuthResponse"/>
+</xs:schema>
