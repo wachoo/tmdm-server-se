@@ -1,0 +1,23 @@
+<menu-pOJO>
+    <menu-entries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:com.amalto.core.objects.menu.ejb.MenuEntryPOJO">
+        <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+            <key xsi:type="java:java.lang.String">en</key>
+            <value xsi:type="java:java.lang.String">Browse items</value>
+        </descriptions>
+        <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+            <key xsi:type="java:java.lang.String">fr</key>
+            <value xsi:type="java:java.lang.String">Accès aux items</value>
+        </descriptions>
+        <application>ItemsBrowser</application>
+        <context>itemsbrowser</context>
+        <id>Browse items</id>
+    </menu-entries>
+    <name>Browse items</name>
+    <description>Browse all concept items</description>
+    <PK>
+        <ids>Browse items</ids>
+        <unique-id>Browse items</unique-id>
+    </PK>
+    <last-synch>test</last-synch>
+    <last-error/>
+</menu-pOJO>
