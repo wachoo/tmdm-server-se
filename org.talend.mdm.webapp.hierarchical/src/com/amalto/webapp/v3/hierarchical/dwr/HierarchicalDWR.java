@@ -1,10 +1,14 @@
 package com.amalto.webapp.v3.hierarchical.dwr;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
@@ -16,17 +20,23 @@ import org.w3c.dom.NodeList;
 import com.amalto.webapp.core.bean.ComboItemBean;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
+import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSGetView;
+import com.amalto.webapp.util.webservices.WSGetViewPKs;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
+import com.amalto.webapp.util.webservices.WSView;
+import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
@@ -42,38 +52,113 @@ import com.amalto.webapp.v3.hierarchical.bean.UpdateHistory;
 import com.amalto.webapp.v3.hierarchical.bean.UpdateRecordItem;
 import com.amalto.webapp.v3.hierarchical.util.HierarchicalUtil;
 
+
 public class HierarchicalDWR {
 
 	public HierarchicalDWR() {
 
 	}
 
-    public ListRange getDataObjectsList(int start, int limit,String sort,String dir,String regex) {
-    	
-    	String language="";
-    	if(regex==null||regex.length()==0||regex.equals("null")){
-    		language="en";
-    	}else{
-    		language=regex;
-    	}
-    	
-    	
-		ListRange listRange = new ListRange();
-		
-		List<ComboItemBean> comboItem=new ArrayList<ComboItemBean>();
-		Map<String, String> businessConcepts=HierarchicalUtil.getBusinessConcepts(language);
-		for (Iterator<String> iterator = businessConcepts.keySet().iterator(); iterator.hasNext();) {
-			String xpath = iterator.next();
-			String label = businessConcepts.get(xpath);
-			comboItem.add(new ComboItemBean(xpath,label));
-		}
-		
-		listRange.setData(comboItem.toArray());
-		listRange.setTotalSize(comboItem.size());
 
-		return listRange;
+	public ListRange getDataObjectsList(int start, int limit, String sort,
+			String dir, String regex) throws Exception {
+		try {
+			String language = "";
+			if (regex == null || regex.length() == 0 || regex.equals("null")) {
+				language = "en";
+			} else {
+				language = regex;
+			}
+
+			ListRange listRange = new ListRange();
+
+			List<ComboItemBean> comboItem = new ArrayList<ComboItemBean>();
+			Map<String, String> businessConcepts = HierarchicalUtil
+					.getBusinessConcepts(language);
+			for (Iterator<String> iterator = businessConcepts.keySet()
+					.iterator(); iterator.hasNext();) {
+				String xpath = iterator.next();
+				String label = businessConcepts.get(xpath);
+				comboItem.add(new ComboItemBean(xpath, label));
+			}
+			listRange.setData(comboItem.toArray());
+			listRange.setTotalSize(comboItem.size());
+			Map<String, String> map = this.getViewsList(language);
+			this.synchronizeConecptList(listRange, map);
+			return listRange;
+		} catch (Exception e) {
+			String err = "Unable to get Data Objects List! ";
+			org.apache.log4j.Logger.getLogger(HierarchicalDWR.class).error(err,
+					e);
+			throw new Exception(e.getLocalizedMessage());
+		}
 	}
-    
+
+	// remove the concept which user can not access from ListRange
+	private void synchronizeConecptList(ListRange listRange,
+			Map<String, String> map) {
+		Object[] ObjectArray = listRange.getData();
+		ArrayList<ComboItemBean> comboItemBeanList = new ArrayList<ComboItemBean>();
+		for (int i = 0; i < ObjectArray.length; i++) {
+			ComboItemBean comboItemBean = (ComboItemBean) ObjectArray[i];
+			comboItemBeanList.add(comboItemBean);
+		}
+		Collection collection = map.values();
+		int x = comboItemBeanList.size();
+		ArrayList<ComboItemBean> removeList = new ArrayList<ComboItemBean>();
+		for (int i = 0; i < x; i++) {
+			ComboItemBean comboItemBean = comboItemBeanList.get(i);
+			boolean flag = false;
+			for (Iterator iterator = collection.iterator(); iterator.hasNext();) {
+				String concept = (String) iterator.next();
+				if (comboItemBean.getText().equals(concept)) {
+					flag = !flag;
+				}
+			}
+			if (!flag) {
+				removeList.add(comboItemBean);
+			}
+		}
+		for (Iterator iterator = removeList.iterator(); iterator.hasNext();) {
+			ComboItemBean comboItemBean = (ComboItemBean) iterator.next();
+			comboItemBeanList.remove(comboItemBean);
+		}
+		ObjectArray = comboItemBeanList.toArray();
+		listRange.setData(ObjectArray);
+
+	}
+
+	// get the concept which user can access
+	private Map<String, String> getViewsList(String language)
+			throws RemoteException, Exception {
+		Configuration config = Configuration.getInstance(true);
+		String model = config.getModel();
+		String[] businessConcept = Util.getPort().getBusinessConcepts(
+				new WSGetBusinessConcepts(new WSDataModelPK(model)))
+				.getStrings();
+		ArrayList<String> bc = new ArrayList<String>();
+		for (int i = 0; i < businessConcept.length; i++) {
+			bc.add(businessConcept[i]);
+		}
+		WSViewPK[] wsViewsPK = Util.getPort().getViewPKs(
+				new WSGetViewPKs("Browse_items.*")).getWsViewPK();
+		String[] names = new String[wsViewsPK.length];
+		TreeMap<String, String> views = new TreeMap<String, String>();
+		Pattern p = Pattern.compile(".*\\[" + language.toUpperCase()
+				+ ":(.*?)\\].*", Pattern.DOTALL);
+		for (int i = 0; i < wsViewsPK.length; i++) {
+			WSView wsview = Util.getPort().getView(new WSGetView(wsViewsPK[i]));
+			String concept = wsview.getName().replaceAll("Browse_items_", "")
+					.replaceAll("#.*", "");
+			names[i] = wsViewsPK[i].getPk();
+			if (bc.contains(concept)) {
+				views.put(wsview.getName(), p.matcher(wsview.getDescription())
+						.replaceAll("$1"));
+			}
+		}
+		return CommonDWR.getMapSortedByValue(views);
+	}
+
     public ListRange getPossiblePivotsList(int start, int limit,String sort,String dir,String regex){
 
 		ListRange listRange = new ListRange();
