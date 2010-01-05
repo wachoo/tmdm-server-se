@@ -1072,7 +1072,7 @@ public class ItemsBrowserDWR {
 					new WSPutItem(
 							new WSDataClusterPK(dataClusterPK), 
 							xml,
-							new WSDataModelPK(dataModelPK),false));
+							new WSDataModelPK(dataModelPK),isUpdateThisItem));
 			//update update report key
 			resultUpdateReport=resultUpdateReport.replaceFirst("<Key>.*</Key>", "<Key>"+Util.joinStrings(wsi.getIds(),".")+"</Key>"); 
 			//put update report
