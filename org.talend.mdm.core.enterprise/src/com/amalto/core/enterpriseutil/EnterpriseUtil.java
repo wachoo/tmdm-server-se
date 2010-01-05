@@ -322,14 +322,15 @@ public class EnterpriseUtil extends Util{
     }
 	public static Document validate(Element element, String schema) 
 	throws Exception{
-		Document d=Util.validate(element, schema);
-		Document xsdDoc = Util.parse(schema);
+		Document d=defaultValidate(element, schema);
+		
+		Document xsdDoc = parse(schema);
 		//schematron validate see 0008753: Implement Schematron
 		String concept=element.getLocalName();
 		Node schemaRoot=xsdDoc.getDocumentElement();
-	   	Element rootNS=Util.getRootElement("nsholder",schemaRoot.getNamespaceURI(),"xsd");	
+	   	Element rootNS=getRootElement("nsholder",schemaRoot.getNamespaceURI(),"xsd");	
 	   	String xpath="//xsd:element[@name='" + concept + "']//xsd:appinfo[@source='"+ ICoreConstants.X_Schematron+"']/text()";
-		NodeList tsList=Util.getNodeList(schemaRoot,xpath,rootNS.getNamespaceURI(),"xsd");
+		NodeList tsList=getNodeList(schemaRoot,xpath,rootNS.getNamespaceURI(),"xsd");
 		
 		//String SCHEMATRON=ICoreConstants.SCHEMATRON_TAG;//"<schema xmlns=\"http://www.ascc.net/xml/schematron\" ns=\"http://xml.apache.cocoon/xmlform\">";
 		for(int i=0; i<tsList.getLength();i++){

@@ -9,7 +9,7 @@ import com.amalto.core.enterpriseutil.EnterpriseUtil;
 
 public class EnterpriseValidationDelegator implements IValidation,IBeanDelegator {
 
-	public Document validate(Element element, String schema) throws Exception {
+	public Document validation(Element element, String schema) throws Exception {
 		return EnterpriseUtil.validate(element, schema);
 	}
 

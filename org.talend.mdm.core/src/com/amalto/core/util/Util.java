@@ -458,7 +458,7 @@ public  class Util {
     
     public static Document validate(Element element, String schema) 
     	throws Exception{
-    	return BeanDelegatorContainer.getUniqueInstance().getValidationDelegator().validate(element, schema);    	
+    	return BeanDelegatorContainer.getUniqueInstance().getValidationDelegator().validation(element, schema);    	
     }
     
 
