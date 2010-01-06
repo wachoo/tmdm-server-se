@@ -31,7 +31,6 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ServiceCtrlBean;
 import com.amalto.core.ejb.local.ItemCtrl2Local;
-import com.amalto.core.enterpriseutil.EnterpriseUtil;
 import com.amalto.core.objects.routing.v2.ejb.RoutingRuleExpressionPOJO;
 import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
 import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK;
@@ -231,12 +230,12 @@ public class LoggingSmtpBean extends ServiceCtrlBean  implements SessionBean {
 
 		
 			try {
-				if(Util.isEnterprise()){
-					if (EnterpriseUtil.getRoutingRuleCtrlLocal().existsRoutingRule(new RoutingRulePOJOPK(routingRuleName))!=null)
+				
+					if (Util.getRoutingRuleCtrlLocal().existsRoutingRule(new RoutingRulePOJOPK(routingRuleName))!=null)
 						return;
 
 					//TODO change default mail address
-					EnterpriseUtil.getRoutingRuleCtrlLocal().putRoutingRule(
+					Util.getRoutingRuleCtrlLocal().putRoutingRule(
 						new RoutingRulePOJO(
 							routingRuleName,
 							"Sends all logging events to the logging stmp service",
@@ -249,7 +248,7 @@ public class LoggingSmtpBean extends ServiceCtrlBean  implements SessionBean {
 							true
 						)
 					);
-				}
+				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
