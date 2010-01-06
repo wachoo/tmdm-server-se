@@ -2,19 +2,27 @@
 
 <project name="DumpToConsoleService - xdoclet generate" default="xdoclet-generation" basedir=".">
 	
-	<property name="xdoclet.root.dir" value="/opt/xdoclet-1.2.3.patched"/>
+    <property name="jboss.dir" value="c:/opt/jboss"/>
+    <property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+    <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+    <property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+    
+    <property name="jwsdp.dir" location="c:/opt/jwsdp-1.5"/>
+
+    <property name="xdoclet.root.dir" value="c:/opt/xdoclet-1.2.3.patched"/>
     <property file="${xdoclet.root.dir}/build.properties"/>
-	<property name="xdoclet.lib.dir" value = "${xdoclet.root.dir}/lib"/>
-	<property name="dist.lib.dir" value = "${xdoclet.lib.dir}"/>
+    <property name="xdoclet.lib.dir" value = "${xdoclet.root.dir}/lib"/>
+    <property name="dist.lib.dir" value = "${xdoclet.lib.dir}"/>
+    
+    <property name="project.dir" value = "${basedir}"/>
+    <property name="project.lib.dir" value = "${project.dir}/lib"/>
+    <property name="project.src.dir" value = "${project.dir}/src"/>
+    <property name="project.classes.dir" value = "${project.dir}/bin"/>
+    <property name="project.meta-inf.dir" value = "${project.src.dir}/META-INF"/>
+    <property name="project.web-inf.dir" value = "${project.src.dir}/WEB-INF"/>
+    <property name="project.web.dir" value = "${project.src.dir}/web"/>
 	
-	<property name="project.dir" value = "${basedir}"/>
-	<property name="project.lib.dir" value = "${project.dir}/lib"/>
-	<property name="project.src.dir" value = "${project.dir}/src"/>
-	<property name="project.classes.dir" value = "${project.dir}/bin"/>
-	<property name="project.meta-inf.dir" value = "${project.src.dir}/META-INF"/>
-	<property name="project.web-inf.dir" value = "${project.src.dir}/WEB-INF"/>
-	<property name="project.web.dir" value = "${project.src.dir}/web"/>
-	
+
 
 
     <!-- =================================================================== -->
@@ -23,16 +31,16 @@
     <path id="xdoclet.lib.path">
         <fileset dir="${xdoclet.lib.dir}">
             <include name="*.jar"/>
-        </fileset>	
-        <fileset dir="/opt/jboss/server/default/lib">
+        </fileset>  
+        <fileset dir="${jboss.instance.lib}">
             <include name="*.jar"/>
         </fileset>
-        <fileset dir="/opt/jboss/lib">
+        <fileset dir="${jboss.dir}/lib">
             <include name="*.jar"/>
         </fileset>
-    	<fileset dir="/opt/jwsdp-1.5/jaxp/lib">
-    		<include name="**/*.jar"/>
-    	</fileset>
+        <fileset dir="${jwsdp.dir}/jaxp/lib">
+            <include name="**/*.jar"/>
+        </fileset>
     </path>
 	
 
