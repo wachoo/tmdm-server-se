@@ -1,0 +1,10 @@
+###########step to build#####################
+1. install nsis
+	
+2. install jboss
+	
+3. setup parameters in build.properties file
+
+4. run buildall.xml
+   
+	

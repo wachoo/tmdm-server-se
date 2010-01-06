@@ -523,4 +523,166 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSCheckServiceConfigResponse _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSRoutingRulePKArray getRoutingRulePKs(com.amalto.core.webservice.WSGetRoutingRulePKs regexp) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingRulePKArray _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSRoutingRule getRoutingRule(com.amalto.core.webservice.WSGetRoutingRule wsRoutingRulePK) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingRule _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSBoolean existsRoutingRule(com.amalto.core.webservice.WSExistsRoutingRule wsExistsRoutingRule) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSBoolean _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSRoutingRulePK putRoutingRule(com.amalto.core.webservice.WSPutRoutingRule wsRoutingRule) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingRulePK _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSRoutingRulePK deleteRoutingRule(com.amalto.core.webservice.WSDeleteRoutingRule wsRoutingRuleDel) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingRulePK _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSTransformerV2 getTransformerV2(com.amalto.core.webservice.WSGetTransformerV2 wsGetTransformerV2) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSTransformerV2 _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSBoolean existsTransformerV2(com.amalto.core.webservice.WSExistsTransformerV2 wsExistsTransformerV2) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSBoolean _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSTransformerV2PKArray getTransformerV2PKs(com.amalto.core.webservice.WSGetTransformerV2PKs regex) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSTransformerV2PKArray _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSTransformerV2PK putTransformerV2(com.amalto.core.webservice.WSPutTransformerV2 wsTransformerV2) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSTransformerV2PK _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSTransformerV2PK deleteTransformerV2(com.amalto.core.webservice.WSDeleteTransformerV2 wsDeleteTransformerV2) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSTransformerV2PK _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSTransformerContext executeTransformerV2(com.amalto.core.webservice.WSExecuteTransformerV2 wsExecuteTransformerV2) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSTransformerContext _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSBackgroundJobPK executeTransformerV2AsJob(com.amalto.core.webservice.WSExecuteTransformerV2AsJob wsExecuteTransformerV2AsJob) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSBackgroundJobPK _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSTransformerContext extractThroughTransformerV2(com.amalto.core.webservice.WSExtractThroughTransformerV2 wsExtractThroughTransformerV2) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSTransformerContext _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSBoolean existsTransformerPluginV2(com.amalto.core.webservice.WSExistsTransformerPluginV2 wsExistsTransformerPluginV2) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSBoolean _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSString getTransformerPluginV2Configuration(com.amalto.core.webservice.WSTransformerPluginV2GetConfiguration wsGetConfiguration) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSString _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSString putTransformerPluginV2Configuration(com.amalto.core.webservice.WSTransformerPluginV2PutConfiguration wsPutConfiguration) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSString _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSTransformerPluginV2Details getTransformerPluginV2Details(com.amalto.core.webservice.WSGetTransformerPluginV2Details wsGetTransformerPluginV2Details) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSTransformerPluginV2Details _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSTransformerPluginV2SList getTransformerPluginV2SList(com.amalto.core.webservice.WSGetTransformerPluginV2SList wsGetTransformerPluginV2SList) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSTransformerPluginV2SList _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSRoutingOrderV2 getRoutingOrderV2(com.amalto.core.webservice.WSGetRoutingOrderV2 wsGetRoutingOrderV2) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingOrderV2 _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSRoutingOrderV2 existsRoutingOrderV2(com.amalto.core.webservice.WSExistsRoutingOrderV2 wsExistsRoutingOrder) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingOrderV2 _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSRoutingOrderV2PK deleteRoutingOrderV2(com.amalto.core.webservice.WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingOrderV2PK _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(com.amalto.core.webservice.WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingOrderV2PK _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSString executeRoutingOrderV2Synchronously(com.amalto.core.webservice.WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSString _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(com.amalto.core.webservice.WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingOrderV2PKArray _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSRoutingOrderV2Array getRoutingOrderV2SByCriteria(com.amalto.core.webservice.WSGetRoutingOrderV2SByCriteria wsGetRoutingOrderV2SByCriteria) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingOrderV2Array _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSRoutingRulePKArray routeItemV2(com.amalto.core.webservice.WSRouteItemV2 wsRouteItem) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingRulePKArray _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSRoutingEngineV2Status routingEngineV2Action(com.amalto.core.webservice.WSRoutingEngineV2Action wsRoutingEngineAction) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSRoutingEngineV2Status _retVal = null;
+        return _retVal;
+    }
 }

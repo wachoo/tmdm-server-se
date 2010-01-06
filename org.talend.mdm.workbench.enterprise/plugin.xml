@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin>
+   <extension
+         point="org.talend.mdm.workbench.AvailableModel">
+      <model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.WorkflowAvailableModel">
+      </model>
+      <model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.JobAvailableModel">
+      </model>
+      <model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.RoleAvailableModel">
+      </model>
+      <model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.RoutingRuleAvailableModel">
+      </model>
+      <model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.SyncAvailableModel">
+      </model>
+      <model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.UniverseAvailableModel">
+      </model>
+      <model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.TransformerAvailableModel">
+      </model>
+      <model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.SubscriptionEngineAvailableModel">
+      </model>
+        <model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.SvnAvailableModel">
+      </model>      
+        <model
+            class="org.talend.mdm.workbench.enterprice.availablemodel.SchematronAvailableModel">
+      </model>       
+   </extension>
+
+</plugin>

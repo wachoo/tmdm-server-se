@@ -204,19 +204,6 @@
 
       </session>
 
-      <session >
-         <description><![CDATA[Description for WorkflowTriggerPluginBean]]></description>
-         <display-name>Name for WorkflowTriggerPluginBean</display-name>
-
-         <ejb-name>WorkflowTriggerPluginBean</ejb-name>
-
-         <local-home>com.amalto.core.plugin.base.workflowtrigger.ejb.local.WorkflowTriggerPluginBeanLocalHome</local-home>
-         <local>com.amalto.core.plugin.base.workflowtrigger.ejb.local.WorkflowTriggerPluginBeanLocal</local>
-         <ejb-class>com.amalto.core.plugin.base.workflowtrigger.ejb.local.WorkflowTriggerPluginBeanSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
 
      <!--
        To add session beans that you have deployment descriptor info for, add
@@ -838,46 +825,6 @@
       </method>
    </method-permission>
 
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>WorkflowTriggerPluginBean</ejb-name>
-         <method-intf>Remote</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>WorkflowTriggerPluginBean</ejb-name>
-         <method-intf>Home</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>WorkflowTriggerPluginBean</ejb-name>
-         <method-intf>Local</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>WorkflowTriggerPluginBean</ejb-name>
-         <method-intf>LocalHome</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
 
    <!-- transactions -->
      <!--

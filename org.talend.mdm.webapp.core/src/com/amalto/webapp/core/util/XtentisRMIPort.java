@@ -3746,15 +3746,15 @@ public class XtentisRMIPort implements XtentisPort {
 			
 			String resultUpdateReport= Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem.getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
 			//invoke before saving
-			if(Util.isEnterprise()){
-				if(wsPutItemWithReport.getInvokeBeforeSaving()){
-					String err=EnterpriseUtil.beforeSaving(concept, projection, resultUpdateReport);
-					if(err!=null){
-						err="execute beforeSaving ERROR:"+ err;
-						org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-					}
+
+			if(wsPutItemWithReport.getInvokeBeforeSaving()){
+				String err=EnterpriseUtil.beforeSaving(concept, projection, resultUpdateReport);
+				if(err!=null){
+					err="execute beforeSaving ERROR:"+ err;
+					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
 				}
 			}
+			
 			String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
 	
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[putItem-of-putItemWithReport] in dataCluster:"+dataClusterPK);

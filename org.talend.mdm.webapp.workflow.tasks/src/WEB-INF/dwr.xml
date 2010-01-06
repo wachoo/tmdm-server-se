@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 2.0//EN" "http://getahead.org/dwr/dwr20.dtd">
+<dwr>
+	<allow>
+		<create creator="new" javascript="WorkflowTasksInterface">
+			<param name="class" value="com.amalto.webapp.v3.workflow.tasks.dwr.WorkflowTasksDWR" />
+		</create>
+		
+		<convert converter="bean" match="com.amalto.webapp.v3.workflow.tasks.bean.DataFieldDefinitionVO"/>
+		<convert converter="bean" match="com.amalto.webapp.v3.workflow.tasks.bean.DataFieldValueVO"/>
+		<convert converter="bean" match="com.amalto.webapp.v3.workflow.tasks.bean.NameValueCouple"/>
+		
+		<convert converter="bean" match="javax.security.auth.login.LoginException"/>
+		<convert converter="bean" match="com.amalto.core.util.XtentisException"/>
+		<convert converter="bean" match="com.amalto.webapp.core.bean.ListRange"/>
+		<convert converter="bean" match="com.amalto.webapp.v3.workflow.tasks.bean.TaskVO"/>
+		<convert converter="bean" match="java.lang.Exception"/>
+		<convert converter="bean" match="java.lang.StackTraceElement"/>
+	
+	</allow>
+</dwr>
