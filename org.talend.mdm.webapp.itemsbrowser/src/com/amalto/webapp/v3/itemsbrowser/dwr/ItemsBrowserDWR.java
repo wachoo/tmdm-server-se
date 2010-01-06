@@ -1106,11 +1106,11 @@ public class ItemsBrowserDWR {
 		try {
 			Configuration config = Configuration.getInstance();
 			String dataClusterPK = config.getCluster();
-			if(com.amalto.core.util.Util.isEnterprise()){
-				if(com.amalto.core.enterpriseutil.EnterpriseUtil.beforeDeleting(dataClusterPK,concept,ids)){
+			
+				if(com.amalto.core.util.Util.beforeDeleting(dataClusterPK,concept,ids)){
 					return "OK - But go through the beforeDeleting transformer first";
 				}
-			}
+			
 			TreeNode rootNode = getRootNode(concept, "en");
 	        if(ids!=null && !rootNode.isReadOnly()){
 				WSItemPK wsItem = Util.getPort().deleteItem(

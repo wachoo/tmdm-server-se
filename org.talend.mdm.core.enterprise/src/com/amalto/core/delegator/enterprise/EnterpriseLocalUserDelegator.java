@@ -239,6 +239,7 @@ public class EnterpriseLocalUserDelegator implements ILocalUser ,IBeanDelegator{
 			Set<String> objectTypes = roleSpecifications.keySet();
 			for (Iterator<String> iterator2 = objectTypes.iterator(); iterator2.hasNext(); ) {
 				String objectType = iterator2.next();
+				if(objectType==null || objectType.length()==0)continue;
 				RoleSpecification specification = rolePOJO.getRoleSpecifications().get(objectType);
 				if (specification.isAdmin()) {
 					user.adminPermissions.add(objectType);

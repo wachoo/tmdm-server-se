@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -95,10 +96,18 @@ import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocalHome;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocalHome;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocalHome;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocalHome;
 import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocal;
 import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocalHome;
+import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
 import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocalHome;
+import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
+import com.amalto.core.objects.transformers.v2.util.TransformerContext;
+import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
@@ -2052,7 +2061,19 @@ public  class Util {
 //		dumpClass(localHome.getClass());
 		return localHome;
 	}
-    
+	public static RoutingOrderV2CtrlLocal getRoutingOrderV2CtrlLocal() throws NamingException,CreateException {
+		return getRoutingOrderV2CtrlLocalHome().create();
+	}		
+	public static RoutingRuleCtrlLocalHome getRoutingRuleCtrlLocalHome() throws NamingException {
+		return (RoutingRuleCtrlLocalHome) getLocalHome(RoutingRuleCtrlLocalHome.JNDI_NAME);
+	}
+	public static RoutingRuleCtrlLocal getRoutingRuleCtrlLocal() throws NamingException,CreateException {
+		return getRoutingRuleCtrlLocalHome().create();
+	}		
+	
+	public static RoutingOrderV2CtrlLocalHome getRoutingOrderV2CtrlLocalHome() throws NamingException {
+		return (RoutingOrderV2CtrlLocalHome) getLocalHome(RoutingOrderV2CtrlLocalHome.JNDI_NAME);
+	}	
 	public static StoredProcedureCtrlLocalHome getStoredProcedureCtrlLocalHome() throws NamingException {
 		return (StoredProcedureCtrlLocalHome) getLocalHome(StoredProcedureCtrlLocalHome.JNDI_NAME);
 	}
@@ -2336,7 +2357,148 @@ public  class Util {
 		ItemPOJOPK itemPOJOPK=new ItemPOJOPK(dcpk,concept, ids);
 		return ItemPOJO.load(itemPOJOPK);
 	}
+	public static String beforeSaving(String concept,String xml, String resultUpdateReport)throws Exception{
+		//check before saving transformer
+		boolean isBeforeSavingTransformerExist=false;
+		Collection<TransformerV2POJOPK> wst = getTransformerV2CtrlLocal().getTransformerPKs("*");
+		for(TransformerV2POJOPK id: wst){
+			if(id.getIds()[0].equals("beforeSaving_"+concept)){
+				isBeforeSavingTransformerExist=true;
+				break;
+			}
+		}
+		//call before saving transformer
+		if(isBeforeSavingTransformerExist){
+			
+			try {
+				final String RUNNING = "XtentisWSBean.executeTransformerV2.running";
+				TransformerContext context = new TransformerContext(
+						new TransformerV2POJOPK("beforeSaving_" + concept));
+				String exchangeData = mergeExchangeData(xml,resultUpdateReport);
+				//String exchangeData = resultUpdateReport;
+				context.put(RUNNING, Boolean.TRUE);
+				TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
+				TypedContent wsTypedContent = new TypedContent(
+						exchangeData
+								.getBytes("UTF-8"),
+						"text/xml; charset=utf-8");
+				ctrl.execute(
+						context, 
+						wsTypedContent,
+						new TransformerCallBack() {
+							public void contentIsReady(TransformerContext context) throws XtentisException {
+								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.contentIsReady() ");
+							}
+							public void done(TransformerContext context) throws XtentisException {
+								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.done() ");
+								context.put(RUNNING, Boolean.FALSE);
+							}
+						}
+				);
+				while (((Boolean)context.get(RUNNING)).booleanValue()) {
+					Thread.sleep(100);
+				}				
+				//TODO process no plug-in issue
+				String outputErrorMessage = "";
+				//Scan the entries - in priority, taka the content of the 'output_error_message' entry, 
+				for(Entry<String, TypedContent> entry: context.getPipelineClone().entrySet()){
+
+					if ("output_error_message".equals(entry.getKey()	)) {
+						outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8");
+						break;
+					}
+				}
+				//handle error message
+				if (outputErrorMessage.length() > 0) {
+
+					String errorCode = "";
+					String errorMessage = "";
+					Pattern pattern = Pattern
+							.compile("<error code=['\042](.*)['\042]>(.*)</error>");
+					Matcher matcher = pattern.matcher(outputErrorMessage);
+					while (matcher.find())
+
+					{
+						errorCode = matcher.group(1);
+						errorMessage = matcher.group(2);
+
+					}
+					if (!errorCode.equals("") && !errorCode.equals("0")) {
+						errorMessage = "ERROR_3:" + errorMessage;
+						return errorMessage;
+					}
+
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}	
 	
+	public static boolean beforeDeleting(String clusterName,String concept,String[] ids)throws Exception{
+		//check before deleting transformer
+		boolean isBeforeDeletingTransformerExist=false;
+		Collection<TransformerV2POJOPK> transformers = getTransformerV2CtrlLocal().getTransformerPKs("*");
+		for(TransformerV2POJOPK id: transformers){
+			if(id.getIds()[0].equals("beforeDeleting_"+concept)){
+				isBeforeDeletingTransformerExist=true;
+				break;
+			}
+		}
+		
+		if(!isBeforeDeletingTransformerExist)return false;
+		
+		//call before deleting transformer
+		
+		final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
+	    TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_" + concept));
+		context.put(RUNNING, Boolean.TRUE);
+		TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
+		TypedContent wsTypedContent = new TypedContent(
+				        buildItemPKString(clusterName,concept,ids).getBytes("UTF-8"),
+						"text/xml; charset=utf-8");
+				
+		ctrl.execute(
+						context, 
+						wsTypedContent,
+						new TransformerCallBack() {
+							public void contentIsReady(TransformerContext context) throws XtentisException {
+								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.beforeDeleting.contentIsReady() ");
+							}
+							public void done(TransformerContext context) throws XtentisException {
+								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.beforeDeleting.done() ");
+								context.put(RUNNING, Boolean.FALSE);
+							}
+						}
+				);
+				
+		while (((Boolean)context.get(RUNNING)).booleanValue()) {
+					Thread.sleep(100);
+		}
+				
+		//TODO Scan the entries - in priority, taka the content of the specific entry
+		
+		return true;
+	}
+	public static String buildItemPKString(String clusterName,String conceptName,String[] ids) {
+		
+		 StringBuffer itemPKXmlString = new StringBuffer();
+		
+		 if(clusterName==null||clusterName.length()==0)return itemPKXmlString.toString();
+		 if(conceptName==null||conceptName.length()==0)return itemPKXmlString.toString();
+		 if(ids==null)return itemPKXmlString.toString();
+		 
+		 itemPKXmlString.append("<item-pOJOPK><concept-name>")
+		                .append(conceptName)
+		                .append("</concept-name><ids>")
+		                .append(joinStrings(ids, "."))
+		                .append("</ids><data-cluster-pOJOPK><ids>")
+		                .append(clusterName)
+		                .append("</ids></data-cluster-pOJOPK></item-pOJOPK>");
+		                
+      return itemPKXmlString.toString();
+	}
 	public static HashMap<String, UpdateReportItem> compareElement(String parentPath,Node newElement, Node oldElement )throws Exception{
 		HashMap<String, UpdateReportItem> map =new HashMap<String, UpdateReportItem>();
 		Set<String> xpaths=getXpaths(parentPath, newElement);

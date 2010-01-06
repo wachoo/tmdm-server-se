@@ -182,14 +182,6 @@ import com.amalto.xmlserver.interfaces.WhereOr;
  * 					ref-name = "ejb/UniverseCtrlLocal" 
  * 					view-type = "local"
  * 
- * @ejb.ejb-ref 
- * 					ejb-name = "RoutingRuleCtrl" 
- * 					ref-name = "ejb/RoutingRuleCtrlLocal" 
- * 					view-type = "local"
- * @ejb.ejb-ref 
- * 					ejb-name = "TransformerV2Ctrl" 
- * 					ref-name = "ejb/TransformerV2CtrlLocal" 
- * 					view-type = "local"
  * 
  * @ejb.ejb-ref 
  * 					ejb-name = "SynchronizationPlanCtrl" 
@@ -1970,14 +1962,14 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
 			String resultUpdateReport= Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem.getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
 
 			//invoke before saving
-//			if(wsPutItemWithReport.getInvokeBeforeSaving()){
-//				String err=Util.beforeSaving(concept, projection, resultUpdateReport);
-//				if(err!=null){
-//					err="execute beforeSaving ERROR:"+ err;
-//					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-//					throw new XtentisException(err);
-//				}
-//			}
+			if(wsPutItemWithReport.getInvokeBeforeSaving()){
+				String err=Util.beforeSaving(concept, projection, resultUpdateReport);
+				if(err!=null){
+					err="execute beforeSaving ERROR:"+ err;
+					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+					throw new XtentisException(err);
+				}
+			}
 			
 			concept=wsi.getConceptName();
 			ids=wsi.getIds();			
@@ -1993,7 +1985,7 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
 								new WSDataClusterPK("UpdateReport"), 
 								updateReportPOJO.serialize(),
 								new WSDataModelPK("UpdateReport"),false));			
-				//routeItemV2(new WSRouteItemV2(itemPK));
+				routeItemV2(new WSRouteItemV2(itemPK));
 			}
 
 			return wsi;	
@@ -3095,7 +3087,7 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
 	public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
 		try {
 			//thei should force the User in the JACC context
-			//UniverseCtrlUtil.getLocalHome().create();
+			UniverseCtrlUtil.getLocalHome().create();
 			//Fetch the user
 			ILocalUser user = LocalUser.getLocalUser();
 			return POJO2WS(user.getUniverse());
@@ -3592,7 +3584,7 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
 			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
 		}
 	}
-/******************************the following is Enterprise version**************/
+
 	/***************************************************************************
 	 * RoutingRule
 	 * **************************************************************************/
@@ -3607,7 +3599,7 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
     throws RemoteException {
 		try {
 		    return VO2WS( 
-					RoutingRuleCtrlUtil.getLocalHome().create().getRoutingRule(
+					Util.getRoutingRuleCtrlLocal().getRoutingRule(
 							new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())
 					)
 			);
@@ -3628,7 +3620,7 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
 	   throws RemoteException {
 			try {
 			    return new WSBoolean( 
-						RoutingRuleCtrlUtil.getLocalHome().create().existsRoutingRule(
+						Util.getRoutingRuleCtrlLocal().existsRoutingRule(
 								new RoutingRulePOJOPK(wsExistsRoutingRule.getWsRoutingRulePK().getPk())
 						) != null
 				);
@@ -3650,7 +3642,7 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
     throws RemoteException {
 		try {
 		    return new WSRoutingRulePK(
-					RoutingRuleCtrlUtil.getLocalHome().create().removeRoutingRule(
+					Util.getRoutingRuleCtrlLocal().removeRoutingRule(
 							new RoutingRulePOJOPK(wsDeleteRoutingRule.getWsRoutingRulePK().getPk())
 					).getUniqueId()
 			);
@@ -3671,7 +3663,7 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
     throws RemoteException {
 		try {
 		    return new WSRoutingRulePK(
-					RoutingRuleCtrlUtil.getLocalHome().create().putRoutingRule(
+					Util.getRoutingRuleCtrlLocal().putRoutingRule(
 							WS2VO(wsRoutingRule.getWsRoutingRule())
 					).getUniqueId()
 			);
@@ -4475,6 +4467,345 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
 		wsDescriptor.setPossibleValuesRegex(possibleValuesRegex.toArray(new String[possibleValuesRegex.size()]));
 		return wsDescriptor;
 	}
+	/***************************************************************************
+	 * Routing Order V2
+	 * **************************************************************************/
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2 getRoutingOrderV2(WSGetRoutingOrderV2 wsGetRoutingOrder) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			return POJO2WS(ctrl.getRoutingOrder(WS2POJO(wsGetRoutingOrder.getWsRoutingOrderPK())));
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2 existsRoutingOrderV2(WSExistsRoutingOrderV2 wsExistsRoutingOrder) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			return POJO2WS(ctrl.existsRoutingOrder(WS2POJO(wsExistsRoutingOrder.getWsRoutingOrderPK())));
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			return POJO2WS(ctrl.removeRoutingOrder(WS2POJO(wsDeleteRoutingOrder.getWsRoutingOrderPK())));
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(WS2POJO(wsExecuteRoutingOrderAsynchronously.getRoutingOrderV2PK()));
+			ctrl.executeAsynchronously(ro);
+			return POJO2WS(ro.getAbstractRoutingOrderPOJOPK());
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(WS2POJO(wsExecuteRoutingOrderSynchronously.getRoutingOrderV2PK()));
+			return new WSString(ctrl.executeSynchronously(ro));
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	private Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrdersByCriteria(WSRoutingOrderV2SearchCriteria criteria) throws Exception{
+		try {
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			Class<? extends AbstractRoutingOrderV2POJO> clazz = null;
+		    if (criteria.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
+		    	clazz = ActiveRoutingOrderV2POJO.class;
+		    } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
+		    	clazz = CompletedRoutingOrderV2POJO.class;
+		    } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
+		    	clazz = FailedRoutingOrderV2POJO.class;
+		    }  
+			Collection<AbstractRoutingOrderV2POJOPK> pks = ctrl.getRoutingOrderPKsByCriteria(
+				clazz, 
+				criteria.getAnyFieldContains(), 
+				criteria.getNameContains(), 
+				criteria.getTimeCreatedMin(),
+				criteria.getTimeCreatedMax(), 
+				criteria.getTimeScheduledMin(), 
+				criteria.getTimeScheduledMax(), 
+				criteria.getTimeLastRunStartedMin(), 
+				criteria.getTimeLastRunStartedMax(), 
+				criteria.getTimeLastRunCompletedMin(), 
+				criteria.getTimeLastRunCompletedMax(),
+				criteria.getItemPKConceptContains(),
+				criteria.getItemPKIDFieldsContain(),
+				criteria.getServiceJNDIContains(),
+				criteria.getServiceParametersContain(),
+				criteria.getMessageContain()
+			);
+			
+			return pks;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws RemoteException {
+		try {
+			WSRoutingOrderV2PKArray wsPKArray = new WSRoutingOrderV2PKArray();
+			ArrayList<WSRoutingOrderV2PK> list = new ArrayList<WSRoutingOrderV2PK>();
+			//fetch results
+			Collection<AbstractRoutingOrderV2POJOPK> pks = getRoutingOrdersByCriteria(wsGetRoutingOrderV2PKsByCriteria.getWsSearchCriteria());
+			for (Iterator<AbstractRoutingOrderV2POJOPK> iterator = pks.iterator(); iterator.hasNext(); ) {
+				AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK = iterator.next();
+				list.add(POJO2WS(abstractRoutingOrderV2POJOPK));
+			}
+			wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2PK[list.size()]));
+			return wsPKArray;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2Array getRoutingOrderV2SByCriteria(WSGetRoutingOrderV2SByCriteria wsGetRoutingOrderV2SByCriteria) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			WSRoutingOrderV2Array wsPKArray = new WSRoutingOrderV2Array();
+			ArrayList<WSRoutingOrderV2> list = new ArrayList<WSRoutingOrderV2>();
+			//fetch results
+			Collection<AbstractRoutingOrderV2POJOPK> pks = getRoutingOrdersByCriteria(wsGetRoutingOrderV2SByCriteria.getWsSearchCriteria());
+			for (Iterator<AbstractRoutingOrderV2POJOPK> iterator = pks.iterator(); iterator.hasNext(); ) {
+				AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK = iterator.next();
+				list.add(POJO2WS(ctrl.getRoutingOrder(abstractRoutingOrderV2POJOPK)));
+			}
+			wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2[list.size()]));
+			return wsPKArray;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		} 
+	}
+	
+
+	
+	
+	private WSRoutingOrderV2PK POJO2WS(AbstractRoutingOrderV2POJOPK pojo) throws Exception{
+		if (pojo==null) return null;
+		try {
+		    WSRoutingOrderV2PK ws = new WSRoutingOrderV2PK();
+		    ws.setName(pojo.getName());
+		    switch(pojo.getStatus()) {
+		    	case AbstractRoutingOrderV2POJO.ACTIVE:
+		    		ws.setStatus(WSRoutingOrderV2Status.ACTIVE);
+		    		break;
+		    	case AbstractRoutingOrderV2POJO.COMPLETED:
+		    		ws.setStatus(WSRoutingOrderV2Status.COMPLETED);
+		    		break;
+		    	case AbstractRoutingOrderV2POJO.FAILED:
+		    		ws.setStatus(WSRoutingOrderV2Status.FAILED);
+		    		break;
+		    }	
+		    return ws;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw(e);
+		}
+	}	    
+	
+	
+	private AbstractRoutingOrderV2POJOPK WS2POJO(WSRoutingOrderV2PK s) throws Exception{
+		if (s==null) return null;
+		try {			
+		    AbstractRoutingOrderV2POJOPK pojo = null;
+		    if (s.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
+		    	pojo = new ActiveRoutingOrderV2POJOPK(s.getName());
+		    } else if (s.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
+		    	pojo = new CompletedRoutingOrderV2POJOPK(s.getName());
+		    } else if (s.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
+		    	pojo = new FailedRoutingOrderV2POJOPK(s.getName());
+		    }  
+			return pojo;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw(e);
+		}
+	}
+	
+	private WSRoutingOrderV2 POJO2WS(AbstractRoutingOrderV2POJO pojo) throws Exception{
+		if (pojo==null) return null;
+		try {
+		    WSRoutingOrderV2 ws = new WSRoutingOrderV2();
+		    ws.setMessage(pojo.getMessage());
+		    ws.setName(pojo.getName());
+		    ws.setServiceJNDI(pojo.getServiceJNDI());
+		    ws.setServiceParameters(pojo.getServiceParameters());
+		    switch(pojo.getStatus()) {
+		    	case AbstractRoutingOrderV2POJO.ACTIVE:
+		    		ws.setStatus(WSRoutingOrderV2Status.ACTIVE);
+		    		break;
+		    	case AbstractRoutingOrderV2POJO.COMPLETED:
+		    		ws.setStatus(WSRoutingOrderV2Status.COMPLETED);
+		    		break;
+		    	case AbstractRoutingOrderV2POJO.FAILED:
+		    		ws.setStatus(WSRoutingOrderV2Status.FAILED);
+		    		break;
+		    }		    
+		    ws.setTimeCreated(pojo.getTimeCreated());
+		    ws.setTimeLastRunCompleted(pojo.getTimeLastRunCompleted());
+		    ws.setTimeLastRunStarted(pojo.getTimeLastRunStarted());
+		    ws.setTimeScheduled(pojo.getTimeScheduled());
+		    ws.setWsItemPK(POJO2WS(pojo.getItemPOJOPK()));
+		    ws.setBindingUniverseName(pojo.getBindingUniverseName());
+		    ws.setBindingUserToken(pojo.getBindingUserToken());
+			return ws;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw(e);
+		}
+	}
+		
+	
+	/***************************************************************************
+	 * Routing Engine V2
+	 * **************************************************************************/
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
+		try {
+			RoutingEngineV2CtrlLocal ctrl = EnterpriseUtil.getRoutingEngineV2CtrlLocal();
+			RoutingRulePOJOPK[] rules = ctrl.route(WS2POJO(wsRouteItem.getWsItemPK()));
+			ArrayList<WSRoutingRulePK> list = new ArrayList<WSRoutingRulePK>();
+			for (int i = 0; i < rules.length; i++) {
+				list.add(new WSRoutingRulePK(rules[i].getUniqueId()));
+			}
+			return new WSRoutingRulePKArray(list.toArray(new WSRoutingRulePK[list.size()]));
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingEngineV2Status routingEngineV2Action(WSRoutingEngineV2Action wsRoutingEngineAction) throws RemoteException {
+		try {
+			RoutingEngineV2CtrlLocal ctrl = EnterpriseUtil.getRoutingEngineV2CtrlLocal();
+			if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.START)) {
+				ctrl.start();
+			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.STOP)) {
+				ctrl.stop();
+			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.SUSPEND)) {
+				ctrl.suspend(true);
+			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.RESUME)) {
+				ctrl.suspend(false);
+			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.STATUS)) {
+				//done below;
+			}
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+		
+		//get status
+		try {
+			RoutingEngineV2CtrlLocal ctrl = EnterpriseUtil.getRoutingEngineV2CtrlLocal();
+			int status = ctrl.getStatus();
+			switch (status) {
+				case RoutingEngineV2POJO.RUNNING:
+					return WSRoutingEngineV2Status.RUNNING;
+				case RoutingEngineV2POJO.STOPPED:
+					return WSRoutingEngineV2Status.STOPPED;
+				case RoutingEngineV2POJO.SUSPENDED:
+					return WSRoutingEngineV2Status.SUSPENDED;
+				default:
+					return WSRoutingEngineV2Status.DEAD;
+			}
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+		
+		
+	}
+	
+/******************************the following is Enterprise version**************/
 
 	/***************************************************************************
 	 * Role
@@ -5160,343 +5491,6 @@ public class XtentisEnterpriseWSBean  implements SessionBean, XtentisPort {
 		throw new RemoteException("Not Supported Yet");
 	};
 	
-	/***************************************************************************
-	 * Routing Order V2
-	 * **************************************************************************/
-	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSRoutingOrderV2 getRoutingOrderV2(WSGetRoutingOrderV2 wsGetRoutingOrder) throws RemoteException {
-		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
-			return POJO2WS(ctrl.getRoutingOrder(WS2POJO(wsGetRoutingOrder.getWsRoutingOrderPK())));
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSRoutingOrderV2 existsRoutingOrderV2(WSExistsRoutingOrderV2 wsExistsRoutingOrder) throws RemoteException {
-		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
-			return POJO2WS(ctrl.existsRoutingOrder(WS2POJO(wsExistsRoutingOrder.getWsRoutingOrderPK())));
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException {
-		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
-			return POJO2WS(ctrl.removeRoutingOrder(WS2POJO(wsDeleteRoutingOrder.getWsRoutingOrderPK())));
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
-		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
-			AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(WS2POJO(wsExecuteRoutingOrderAsynchronously.getRoutingOrderV2PK()));
-			ctrl.executeAsynchronously(ro);
-			return POJO2WS(ro.getAbstractRoutingOrderPOJOPK());
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously) throws RemoteException {
-		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
-			AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(WS2POJO(wsExecuteRoutingOrderSynchronously.getRoutingOrderV2PK()));
-			return new WSString(ctrl.executeSynchronously(ro));
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-	
-	private Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrdersByCriteria(WSRoutingOrderV2SearchCriteria criteria) throws Exception{
-		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
-			Class<? extends AbstractRoutingOrderV2POJO> clazz = null;
-		    if (criteria.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
-		    	clazz = ActiveRoutingOrderV2POJO.class;
-		    } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
-		    	clazz = CompletedRoutingOrderV2POJO.class;
-		    } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
-		    	clazz = FailedRoutingOrderV2POJO.class;
-		    }  
-			Collection<AbstractRoutingOrderV2POJOPK> pks = ctrl.getRoutingOrderPKsByCriteria(
-				clazz, 
-				criteria.getAnyFieldContains(), 
-				criteria.getNameContains(), 
-				criteria.getTimeCreatedMin(),
-				criteria.getTimeCreatedMax(), 
-				criteria.getTimeScheduledMin(), 
-				criteria.getTimeScheduledMax(), 
-				criteria.getTimeLastRunStartedMin(), 
-				criteria.getTimeLastRunStartedMax(), 
-				criteria.getTimeLastRunCompletedMin(), 
-				criteria.getTimeLastRunCompletedMax(),
-				criteria.getItemPKConceptContains(),
-				criteria.getItemPKIDFieldsContain(),
-				criteria.getServiceJNDIContains(),
-				criteria.getServiceParametersContain(),
-				criteria.getMessageContain()
-			);
-			
-			return pks;
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws RemoteException {
-		try {
-			WSRoutingOrderV2PKArray wsPKArray = new WSRoutingOrderV2PKArray();
-			ArrayList<WSRoutingOrderV2PK> list = new ArrayList<WSRoutingOrderV2PK>();
-			//fetch results
-			Collection<AbstractRoutingOrderV2POJOPK> pks = getRoutingOrdersByCriteria(wsGetRoutingOrderV2PKsByCriteria.getWsSearchCriteria());
-			for (Iterator<AbstractRoutingOrderV2POJOPK> iterator = pks.iterator(); iterator.hasNext(); ) {
-				AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK = iterator.next();
-				list.add(POJO2WS(abstractRoutingOrderV2POJOPK));
-			}
-			wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2PK[list.size()]));
-			return wsPKArray;
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSRoutingOrderV2Array getRoutingOrderV2SByCriteria(WSGetRoutingOrderV2SByCriteria wsGetRoutingOrderV2SByCriteria) throws RemoteException {
-		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
-			WSRoutingOrderV2Array wsPKArray = new WSRoutingOrderV2Array();
-			ArrayList<WSRoutingOrderV2> list = new ArrayList<WSRoutingOrderV2>();
-			//fetch results
-			Collection<AbstractRoutingOrderV2POJOPK> pks = getRoutingOrdersByCriteria(wsGetRoutingOrderV2SByCriteria.getWsSearchCriteria());
-			for (Iterator<AbstractRoutingOrderV2POJOPK> iterator = pks.iterator(); iterator.hasNext(); ) {
-				AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK = iterator.next();
-				list.add(POJO2WS(ctrl.getRoutingOrder(abstractRoutingOrderV2POJOPK)));
-			}
-			wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2[list.size()]));
-			return wsPKArray;
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		} 
-	}
-	
-
-	
-	
-	private WSRoutingOrderV2PK POJO2WS(AbstractRoutingOrderV2POJOPK pojo) throws Exception{
-		if (pojo==null) return null;
-		try {
-		    WSRoutingOrderV2PK ws = new WSRoutingOrderV2PK();
-		    ws.setName(pojo.getName());
-		    switch(pojo.getStatus()) {
-		    	case AbstractRoutingOrderV2POJO.ACTIVE:
-		    		ws.setStatus(WSRoutingOrderV2Status.ACTIVE);
-		    		break;
-		    	case AbstractRoutingOrderV2POJO.COMPLETED:
-		    		ws.setStatus(WSRoutingOrderV2Status.COMPLETED);
-		    		break;
-		    	case AbstractRoutingOrderV2POJO.FAILED:
-		    		ws.setStatus(WSRoutingOrderV2Status.FAILED);
-		    		break;
-		    }	
-		    return ws;
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw(e);
-		}
-	}	    
-	
-	
-	private AbstractRoutingOrderV2POJOPK WS2POJO(WSRoutingOrderV2PK s) throws Exception{
-		if (s==null) return null;
-		try {			
-		    AbstractRoutingOrderV2POJOPK pojo = null;
-		    if (s.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
-		    	pojo = new ActiveRoutingOrderV2POJOPK(s.getName());
-		    } else if (s.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
-		    	pojo = new CompletedRoutingOrderV2POJOPK(s.getName());
-		    } else if (s.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
-		    	pojo = new FailedRoutingOrderV2POJOPK(s.getName());
-		    }  
-			return pojo;
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw(e);
-		}
-	}
-	
-	private WSRoutingOrderV2 POJO2WS(AbstractRoutingOrderV2POJO pojo) throws Exception{
-		if (pojo==null) return null;
-		try {
-		    WSRoutingOrderV2 ws = new WSRoutingOrderV2();
-		    ws.setMessage(pojo.getMessage());
-		    ws.setName(pojo.getName());
-		    ws.setServiceJNDI(pojo.getServiceJNDI());
-		    ws.setServiceParameters(pojo.getServiceParameters());
-		    switch(pojo.getStatus()) {
-		    	case AbstractRoutingOrderV2POJO.ACTIVE:
-		    		ws.setStatus(WSRoutingOrderV2Status.ACTIVE);
-		    		break;
-		    	case AbstractRoutingOrderV2POJO.COMPLETED:
-		    		ws.setStatus(WSRoutingOrderV2Status.COMPLETED);
-		    		break;
-		    	case AbstractRoutingOrderV2POJO.FAILED:
-		    		ws.setStatus(WSRoutingOrderV2Status.FAILED);
-		    		break;
-		    }		    
-		    ws.setTimeCreated(pojo.getTimeCreated());
-		    ws.setTimeLastRunCompleted(pojo.getTimeLastRunCompleted());
-		    ws.setTimeLastRunStarted(pojo.getTimeLastRunStarted());
-		    ws.setTimeScheduled(pojo.getTimeScheduled());
-		    ws.setWsItemPK(POJO2WS(pojo.getItemPOJOPK()));
-		    ws.setBindingUniverseName(pojo.getBindingUniverseName());
-		    ws.setBindingUserToken(pojo.getBindingUserToken());
-			return ws;
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw(e);
-		}
-	}
-		
-	
-	/***************************************************************************
-	 * Routing Engine V2
-	 * **************************************************************************/
-	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
-		try {
-			RoutingEngineV2CtrlLocal ctrl = EnterpriseUtil.getRoutingEngineV2CtrlLocal();
-			RoutingRulePOJOPK[] rules = ctrl.route(WS2POJO(wsRouteItem.getWsItemPK()));
-			ArrayList<WSRoutingRulePK> list = new ArrayList<WSRoutingRulePK>();
-			for (int i = 0; i < rules.length; i++) {
-				list.add(new WSRoutingRulePK(rules[i].getUniqueId()));
-			}
-			return new WSRoutingRulePKArray(list.toArray(new WSRoutingRulePK[list.size()]));
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-	
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "authenticated"
-	 * 	view-type = "service-endpoint"
-	 */
-	public WSRoutingEngineV2Status routingEngineV2Action(WSRoutingEngineV2Action wsRoutingEngineAction) throws RemoteException {
-		try {
-			RoutingEngineV2CtrlLocal ctrl = EnterpriseUtil.getRoutingEngineV2CtrlLocal();
-			if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.START)) {
-				ctrl.start();
-			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.STOP)) {
-				ctrl.stop();
-			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.SUSPEND)) {
-				ctrl.suspend(true);
-			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.RESUME)) {
-				ctrl.suspend(false);
-			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.STATUS)) {
-				//done below;
-			}
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-		
-		//get status
-		try {
-			RoutingEngineV2CtrlLocal ctrl = EnterpriseUtil.getRoutingEngineV2CtrlLocal();
-			int status = ctrl.getStatus();
-			switch (status) {
-				case RoutingEngineV2POJO.RUNNING:
-					return WSRoutingEngineV2Status.RUNNING;
-				case RoutingEngineV2POJO.STOPPED:
-					return WSRoutingEngineV2Status.STOPPED;
-				case RoutingEngineV2POJO.SUSPENDED:
-					return WSRoutingEngineV2Status.SUSPENDED;
-				default:
-					return WSRoutingEngineV2Status.DEAD;
-			}
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-		
-		
-	}
 	
 	/***************************************************************************
 	 * Universe

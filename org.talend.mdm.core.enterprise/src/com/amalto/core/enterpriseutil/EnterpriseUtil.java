@@ -80,19 +80,7 @@ public class EnterpriseUtil extends Util{
 	public static VersioningSystemCtrlLocal getVersioningSystemCtrlLocal() throws NamingException,CreateException {
 		return getVersioningSystemCtrlLocalHome().create();
 	}	
-	
-	public static RoutingOrderV2CtrlLocalHome getRoutingOrderV2CtrlLocalHome() throws NamingException {
-		return (RoutingOrderV2CtrlLocalHome) getLocalHome(RoutingOrderV2CtrlLocalHome.JNDI_NAME);
-	}
-	public static RoutingOrderV2CtrlLocal getRoutingOrderV2CtrlLocal() throws NamingException,CreateException {
-		return getRoutingOrderV2CtrlLocalHome().create();
-	}		
-	public static RoutingRuleCtrlLocalHome getRoutingRuleCtrlLocalHome() throws NamingException {
-		return (RoutingRuleCtrlLocalHome) getLocalHome(RoutingRuleCtrlLocalHome.JNDI_NAME);
-	}
-	public static RoutingRuleCtrlLocal getRoutingRuleCtrlLocal() throws NamingException,CreateException {
-		return getRoutingRuleCtrlLocalHome().create();
-	}		
+
 	public static RoleCtrlLocalHome getRoleCtrlLocalHome() throws NamingException {
 		return (RoleCtrlLocalHome) getLocalHome(RoleCtrlLocalHome.JNDI_NAME);
 	}
@@ -100,12 +88,7 @@ public class EnterpriseUtil extends Util{
 		return getRoleCtrlLocalHome().create();
 	}
 	
-	public static TransformerV2CtrlLocalHome getTransformerV2CtrlLocalHome() throws NamingException {
-		return (TransformerV2CtrlLocalHome) getLocalHome(TransformerV2CtrlLocalHome.JNDI_NAME);
-	}
-	public static TransformerV2CtrlLocal getTransformerV2CtrlLocal() throws NamingException,CreateException {
-		return getTransformerV2CtrlLocalHome().create();
-	}		
+		
 	public static UniverseCtrlLocalHome getUniverseCtrlLocalHome() throws NamingException {
 		return (UniverseCtrlLocalHome) getLocalHome(UniverseCtrlLocalHome.JNDI_NAME);
 	}
@@ -134,149 +117,7 @@ public class EnterpriseUtil extends Util{
 		return getSynchronizationItemCtrlLocalHome().create();
 	}
 
-	public static String beforeSaving(String concept,String xml, String resultUpdateReport)throws Exception{
-		//check before saving transformer
-		boolean isBeforeSavingTransformerExist=false;
-		Collection<TransformerV2POJOPK> wst = getTransformerV2CtrlLocal().getTransformerPKs("*");
-		for(TransformerV2POJOPK id: wst){
-			if(id.getIds()[0].equals("beforeSaving_"+concept)){
-				isBeforeSavingTransformerExist=true;
-				break;
-			}
-		}
-		//call before saving transformer
-		if(isBeforeSavingTransformerExist){
-			
-			try {
-				final String RUNNING = "XtentisWSBean.executeTransformerV2.running";
-				TransformerContext context = new TransformerContext(
-						new TransformerV2POJOPK("beforeSaving_" + concept));
-				String exchangeData = mergeExchangeData(xml,resultUpdateReport);
-				//String exchangeData = resultUpdateReport;
-				context.put(RUNNING, Boolean.TRUE);
-				TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
-				TypedContent wsTypedContent = new TypedContent(
-						exchangeData
-								.getBytes("UTF-8"),
-						"text/xml; charset=utf-8");
-				ctrl.execute(
-						context, 
-						wsTypedContent,
-						new TransformerCallBack() {
-							public void contentIsReady(TransformerContext context) throws XtentisException {
-								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.contentIsReady() ");
-							}
-							public void done(TransformerContext context) throws XtentisException {
-								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.done() ");
-								context.put(RUNNING, Boolean.FALSE);
-							}
-						}
-				);
-				while (((Boolean)context.get(RUNNING)).booleanValue()) {
-					Thread.sleep(100);
-				}				
-				//TODO process no plug-in issue
-				String outputErrorMessage = "";
-				//Scan the entries - in priority, taka the content of the 'output_error_message' entry, 
-				for(Entry<String, TypedContent> entry: context.getPipelineClone().entrySet()){
-
-					if ("output_error_message".equals(entry.getKey()	)) {
-						outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8");
-						break;
-					}
-				}
-				//handle error message
-				if (outputErrorMessage.length() > 0) {
-
-					String errorCode = "";
-					String errorMessage = "";
-					Pattern pattern = Pattern
-							.compile("<error code=['\042](.*)['\042]>(.*)</error>");
-					Matcher matcher = pattern.matcher(outputErrorMessage);
-					while (matcher.find())
-
-					{
-						errorCode = matcher.group(1);
-						errorMessage = matcher.group(2);
-
-					}
-					if (!errorCode.equals("") && !errorCode.equals("0")) {
-						errorMessage = "ERROR_3:" + errorMessage;
-						return errorMessage;
-					}
-
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}	
 	
-	public static boolean beforeDeleting(String clusterName,String concept,String[] ids)throws Exception{
-		//check before deleting transformer
-		boolean isBeforeDeletingTransformerExist=false;
-		Collection<TransformerV2POJOPK> transformers = getTransformerV2CtrlLocal().getTransformerPKs("*");
-		for(TransformerV2POJOPK id: transformers){
-			if(id.getIds()[0].equals("beforeDeleting_"+concept)){
-				isBeforeDeletingTransformerExist=true;
-				break;
-			}
-		}
-		
-		if(!isBeforeDeletingTransformerExist)return false;
-		
-		//call before deleting transformer
-		
-		final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
-	    TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_" + concept));
-		context.put(RUNNING, Boolean.TRUE);
-		TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
-		TypedContent wsTypedContent = new TypedContent(
-				        buildItemPKString(clusterName,concept,ids).getBytes("UTF-8"),
-						"text/xml; charset=utf-8");
-				
-		ctrl.execute(
-						context, 
-						wsTypedContent,
-						new TransformerCallBack() {
-							public void contentIsReady(TransformerContext context) throws XtentisException {
-								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.beforeDeleting.contentIsReady() ");
-							}
-							public void done(TransformerContext context) throws XtentisException {
-								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.beforeDeleting.done() ");
-								context.put(RUNNING, Boolean.FALSE);
-							}
-						}
-				);
-				
-		while (((Boolean)context.get(RUNNING)).booleanValue()) {
-					Thread.sleep(100);
-		}
-				
-		//TODO Scan the entries - in priority, taka the content of the specific entry
-		
-		return true;
-	}
-	
-	public static String buildItemPKString(String clusterName,String conceptName,String[] ids) {
-		
-		 StringBuffer itemPKXmlString = new StringBuffer();
-		
-		 if(clusterName==null||clusterName.length()==0)return itemPKXmlString.toString();
-		 if(conceptName==null||conceptName.length()==0)return itemPKXmlString.toString();
-		 if(ids==null)return itemPKXmlString.toString();
-		 
-		 itemPKXmlString.append("<item-pOJOPK><concept-name>")
-		                .append(conceptName)
-		                .append("</concept-name><ids>")
-		                .append(joinStrings(ids, "."))
-		                .append("</ids><data-cluster-pOJOPK><ids>")
-		                .append(clusterName)
-		                .append("</ids></data-cluster-pOJOPK></item-pOJOPK>");
-		                
-       return itemPKXmlString.toString();
-	}
 	public static WorkflowServiceCtrlLocalBI getWorkflowService() throws XtentisException{
 		String JNDI="amalto/local/service/workflow";
     	try {

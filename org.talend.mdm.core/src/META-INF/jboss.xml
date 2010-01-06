@@ -49,9 +49,25 @@
         </method-attributes>
       </session>
       <session>
+         <ejb-name>RoutingRuleCtrl</ejb-name>
+         <jndi-name>amalto/remote/core/routingrulectrl</jndi-name>
+         <local-jndi-name>amalto/local/core/routingrulectrl</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
          <ejb-name>XmlServerSLWrapper</ejb-name>
          <jndi-name>amalto/remote/xmldb/xmlserverslwrapper</jndi-name>
          <local-jndi-name>amalto/local/xmldb/xmlserverslwrapper</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
+         <jndi-name>amalto/remote/core/RoutingOrderCtrlV2</jndi-name>
+         <local-jndi-name>amalto/local/core/RoutingOrderCtrlV2</local-jndi-name>
 
         <method-attributes>
         </method-attributes>
@@ -89,9 +105,25 @@
         </method-attributes>
       </session>
       <session>
+         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
+         <jndi-name>amalto/remote/core/routingenginev2ctrl</jndi-name>
+         <local-jndi-name>amalto/local/core/routingenginev2ctrl</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
          <ejb-name>AutoCommitToSvnSendBean</ejb-name>
          <jndi-name>amalto/remote/core/autocommittosvnsend</jndi-name>
          <local-jndi-name>amalto/local/core/autocommittosvnsend</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
+         <ejb-name>TransformerV2Ctrl</ejb-name>
+         <jndi-name>amalto/remote/core/transformerv2ctrl</jndi-name>
+         <local-jndi-name>amalto/local/core/transformerv2ctrl</local-jndi-name>
 
         <method-attributes>
         </method-attributes>

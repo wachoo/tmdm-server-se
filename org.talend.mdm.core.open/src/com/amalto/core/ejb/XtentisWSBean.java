@@ -19,13 +19,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
 import javax.resource.ResourceException;
 import javax.resource.cci.Connection;
 import javax.resource.cci.ConnectionFactory;
@@ -62,11 +66,32 @@ import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
+import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK;
+import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJOPK;
+import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJOPK;
+import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJOPK;
+import com.amalto.core.objects.routing.v2.ejb.RoutingEngineV2POJO;
+import com.amalto.core.objects.routing.v2.ejb.RoutingRuleExpressionPOJO;
+import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
+import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
 import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJO;
 import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJOPK;
 import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocal;
+import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
+import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
+import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
+import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.v2.util.TransformerProcessStep;
+import com.amalto.core.objects.transformers.v2.util.TransformerVariablesMapping;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
@@ -1649,7 +1674,6 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 
 	
 
-
 	/***************************************************************************
 	 *Put Item
 	 * **************************************************************************/
@@ -1888,14 +1912,14 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			String resultUpdateReport= Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem.getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
 
 			//invoke before saving
-//			if(wsPutItemWithReport.getInvokeBeforeSaving()){
-//				String err=Util.beforeSaving(concept, projection, resultUpdateReport);
-//				if(err!=null){
-//					err="execute beforeSaving ERROR:"+ err;
-//					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-//					throw new XtentisException(err);
-//				}
-//			}
+			if(wsPutItemWithReport.getInvokeBeforeSaving()){
+				String err=Util.beforeSaving(concept, projection, resultUpdateReport);
+				if(err!=null){
+					err="execute beforeSaving ERROR:"+ err;
+					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+					throw new XtentisException(err);
+				}
+			}
 			
 			concept=wsi.getConceptName();
 			ids=wsi.getIds();			
@@ -1911,7 +1935,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 								new WSDataClusterPK("UpdateReport"), 
 								updateReportPOJO.serialize(),
 								new WSDataModelPK("UpdateReport"),false));			
-				//routeItemV2(new WSRouteItemV2(itemPK));
+				routeItemV2(new WSRouteItemV2(itemPK));
 			}
 
 			return wsi;	
@@ -1977,27 +2001,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		}
 	}
 
-	public static WSPipeline POJO2WS(HashMap<String,TypedContent> pipeline) throws Exception{
-		if (pipeline == null) return null;
-		
-		ArrayList<WSPipelineTypedContentEntry> entries = new ArrayList<WSPipelineTypedContentEntry>();
-		Set keys = pipeline.keySet();
-		for (Iterator iter = keys.iterator(); iter.hasNext(); ) {
-			String output = (String) iter.next();
-			TypedContent content = pipeline.get(output);
-			byte[] bytes = content.getContentBytes();
-			WSExtractedContent wsContent = new WSExtractedContent(
-				new WSByteArray(bytes),
-				content.getContentType()
-			);
-			WSPipelineTypedContentEntry wsEntry = new WSPipelineTypedContentEntry(
-				output,
-				wsContent
-			);
-			entries.add(wsEntry);
-		}
-		return new WSPipeline(entries.toArray(new WSPipelineTypedContentEntry[entries.size()]));
-	}
+
 
     
 	
@@ -3035,7 +3039,7 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	 * 	view-type = "service-endpoint"
      */	
 	public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
-		return new WSUniverse();
+		return null;
 	}
 	
 	private WSUniverse POJO2WS(UniversePOJO universePOJO) throws Exception{
@@ -3586,5 +3590,1224 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		}
 	}
 
+	/***************************************************************************
+	 * RoutingRule
+	 * **************************************************************************/
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */	
+   public WSRoutingRule getRoutingRule(WSGetRoutingRule wsRoutingRuleGet)
+    throws RemoteException {
+		try {
+		    return VO2WS( 
+					Util.getRoutingRuleCtrlLocal().getRoutingRule(
+							new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())
+					)
+			);
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));		    
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+    }
+  
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */	
+	  public WSBoolean existsRoutingRule(WSExistsRoutingRule wsExistsRoutingRule)
+	   throws RemoteException {
+			try {
+			    return new WSBoolean( 
+						Util.getRoutingRuleCtrlLocal().existsRoutingRule(
+								new RoutingRulePOJOPK(wsExistsRoutingRule.getWsRoutingRulePK().getPk())
+						) != null
+				);
+			} catch (XtentisException e) {
+				throw(new RemoteException(e.getLocalizedMessage()));		    
+			} catch (Exception e) {
+				throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+			}
+	   }	    
+
+		    
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+    public WSRoutingRulePK deleteRoutingRule(WSDeleteRoutingRule wsDeleteRoutingRule)
+    throws RemoteException {
+		try {
+		    return new WSRoutingRulePK(
+					Util.getRoutingRuleCtrlLocal().removeRoutingRule(
+							new RoutingRulePOJOPK(wsDeleteRoutingRule.getWsRoutingRulePK().getPk())
+					).getUniqueId()
+			);
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));		    
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+    }	
+    
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */   
+    public WSRoutingRulePK putRoutingRule(WSPutRoutingRule wsRoutingRule)
+    throws RemoteException {
+		try {
+		    return new WSRoutingRulePK(
+					Util.getRoutingRuleCtrlLocal().putRoutingRule(
+							WS2VO(wsRoutingRule.getWsRoutingRule())
+					).getUniqueId()
+			);
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));		    
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+    }
+    
+    
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingRulePKArray getRoutingRulePKs(WSGetRoutingRulePKs regex) throws RemoteException {
+		try {
+			RoutingRuleCtrlLocal ctrl = Util.getRoutingRuleCtrlLocal();
+			Collection c =
+				ctrl.getRoutingRulePKs(
+					regex.getRegex()
+				);
+			if (c==null) return null;
+			WSRoutingRulePK[] pks = new WSRoutingRulePK[c.size()];
+			int i=0;
+			for (Iterator iter = c.iterator(); iter.hasNext(); ) {
+				pks[i++] = new WSRoutingRulePK(
+						((RoutingRulePOJOPK) iter.next()).getUniqueId()
+				);
+			}
+			return new WSRoutingRulePKArray(pks);
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+
+    private WSRoutingRule VO2WS(RoutingRulePOJO pojo) throws Exception{
+	    WSRoutingRule s = new WSRoutingRule();
+	    s.setName(pojo.getName());
+		s.setDescription(pojo.getDescription());
+		s.setConcept(pojo.getConcept());
+		s.setParameters(pojo.getParameters());
+		s.setServiceJNDI(pojo.getServiceJNDI());
+		s.setSynchronous(pojo.isSynchronous());
+
+		WSRoutingRuleExpression[] routingExpressions = null;
+		Collection c = pojo.getRoutingExpressions();
+		if (c!=null) {		
+			routingExpressions = new WSRoutingRuleExpression[c.size()];
+			int i=0;
+			for (Iterator iter = c.iterator(); iter.hasNext(); ) {
+				RoutingRuleExpressionPOJO rre = (RoutingRuleExpressionPOJO) iter.next();
+				routingExpressions[i++] = VO2WS(rre);
+			}
+		}
+		s.setWsRoutingRuleExpressions(routingExpressions);
+		s.setCondition(pojo.getCondition());
+		s.setDeactive(pojo.isDeActive());
+		return s;
+	}
+	
+    
+	private RoutingRulePOJO WS2VO(WSRoutingRule ws) throws Exception{
+		RoutingRulePOJO pojo = new RoutingRulePOJO();
+		pojo.setName(ws.getName());
+		pojo.setDescription(ws.getDescription());
+		pojo.setConcept(ws.getConcept());
+		pojo.setParameters(ws.getParameters());
+		pojo.setServiceJNDI(ws.getServiceJNDI());
+		pojo.setSynchronous(ws.isSynchronous());
+		
+		ArrayList l = new ArrayList();
+	    WSRoutingRuleExpression[] rre = ws.getWsRoutingRuleExpressions();
+	    if (rre!=null) {
+		    for (int i = 0; i < rre.length; i++) {
+		    	l.add(WS2VO(rre[i]));
+			}
+	    }
+	    pojo.setRoutingExpressions(l);
+	    pojo.setCondition(ws.getCondition());
+	    pojo.setDeActive(ws.getDeactive());
+		return pojo;
+	}	
+
+	
+    private WSRoutingRuleExpression VO2WS(RoutingRuleExpressionPOJO vo) throws Exception{
+    	WSRoutingRuleExpression ws = new WSRoutingRuleExpression();
+    	
+    	ws.setName(vo.getName());
+    	ws.setXpath(vo.getXpath());
+    	ws.setValue(vo.getValue());
+    	switch (vo.getOperator()) {
+    		case RoutingRuleExpressionPOJO.CONTAINS:
+    			ws.setWsOperator(WSRoutingRuleOperator.CONTAINS);
+    			break;
+    		case RoutingRuleExpressionPOJO.EQUALS:
+    			ws.setWsOperator(WSRoutingRuleOperator.EQUALS);
+    			break;
+    		case RoutingRuleExpressionPOJO.GREATER_THAN:
+    			ws.setWsOperator(WSRoutingRuleOperator.GREATER_THAN);
+    			break;
+    		case RoutingRuleExpressionPOJO.GREATER_THAN_OR_EQUAL:
+    			ws.setWsOperator(WSRoutingRuleOperator.GREATER_THAN_OR_EQUAL);
+    			break;
+    		case RoutingRuleExpressionPOJO.IS_NOT_NULL:
+    			ws.setWsOperator(WSRoutingRuleOperator.IS_NOT_NULL);
+    			break;
+    		case RoutingRuleExpressionPOJO.IS_NULL:
+    			ws.setWsOperator(WSRoutingRuleOperator.IS_NULL);
+    			break;
+    		case RoutingRuleExpressionPOJO.LOWER_THAN:
+    			ws.setWsOperator(WSRoutingRuleOperator.LOWER_THAN);
+    			break;
+    		case RoutingRuleExpressionPOJO.LOWER_THAN_OR_EQUAL:
+    			ws.setWsOperator(WSRoutingRuleOperator.LOWER_THAN_OR_EQUAL);
+    			break;
+    		case RoutingRuleExpressionPOJO.MATCHES:
+    			ws.setWsOperator(WSRoutingRuleOperator.MATCHES);
+    			break;
+    		case RoutingRuleExpressionPOJO.NOT_EQUALS:
+    			ws.setWsOperator(WSRoutingRuleOperator.NOT_EQUALS);
+    			break;
+    		case RoutingRuleExpressionPOJO.STARTSWITH:
+    			ws.setWsOperator(WSRoutingRuleOperator.STARTSWITH);
+    			break;
+    	}
+    	
+    	return ws;
+    }
+	
+    
+    private RoutingRuleExpressionPOJO WS2VO(WSRoutingRuleExpression ws) throws Exception{
+    	
+    	if (ws==null) return null;
+    	
+    	int operator = 1;
+    	if (ws.getWsOperator().equals(WSRoutingRuleOperator.CONTAINS))
+    		operator = RoutingRuleExpressionPOJO.CONTAINS;
+    	else if (ws.getWsOperator().equals(WSRoutingRuleOperator.EQUALS))
+    		operator = RoutingRuleExpressionPOJO.EQUALS;
+    	else if (ws.getWsOperator().equals(WSRoutingRuleOperator.GREATER_THAN))
+    		operator = RoutingRuleExpressionPOJO.GREATER_THAN;
+    	else if (ws.getWsOperator().equals(WSRoutingRuleOperator.GREATER_THAN_OR_EQUAL))
+    		operator = RoutingRuleExpressionPOJO.GREATER_THAN_OR_EQUAL;
+    	else if (ws.getWsOperator().equals(WSRoutingRuleOperator.IS_NOT_NULL))
+    		operator = RoutingRuleExpressionPOJO.IS_NOT_NULL;
+    	else if (ws.getWsOperator().equals(WSRoutingRuleOperator.IS_NULL))
+    		operator = RoutingRuleExpressionPOJO.IS_NULL;
+    	else if (ws.getWsOperator().equals(WSRoutingRuleOperator.LOWER_THAN))
+    		operator = RoutingRuleExpressionPOJO.LOWER_THAN;
+    	else if (ws.getWsOperator().equals(WSRoutingRuleOperator.LOWER_THAN_OR_EQUAL))
+    		operator = RoutingRuleExpressionPOJO.LOWER_THAN_OR_EQUAL;
+    	else if (ws.getWsOperator().equals(WSRoutingRuleOperator.MATCHES))
+    		operator = RoutingRuleExpressionPOJO.MATCHES;
+    	else if (ws.getWsOperator().equals(WSRoutingRuleOperator.NOT_EQUALS))
+    		operator = RoutingRuleExpressionPOJO.NOT_EQUALS;
+    	else if (ws.getWsOperator().equals(WSRoutingRuleOperator.STARTSWITH))
+    		operator = RoutingRuleExpressionPOJO.STARTSWITH;
+    	
+    	return new RoutingRuleExpressionPOJO(
+    			ws.getName(),
+    			ws.getXpath(),
+    			operator,
+    			ws.getValue()
+    	);
+    }
+    
+
+	/***************************************************************************
+	 * TransformerV2
+	 * **************************************************************************/
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+    public WSTransformerV2PK deleteTransformerV2(WSDeleteTransformerV2 wsTransformerV2Delete) throws RemoteException {
+		try {
+			TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
+			return
+				new WSTransformerV2PK(
+					ctrl.removeTransformer(
+						new TransformerV2POJOPK(
+								wsTransformerV2Delete.getWsTransformerV2PK().getPk()
+						)
+					).getUniqueId()
+				);
+	
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+    
+
+
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSTransformerV2 getTransformerV2(WSGetTransformerV2 wsGetTransformerV2) throws RemoteException {
+		try {
+			TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
+			TransformerV2POJO pojo =
+				ctrl.getTransformer(
+					new TransformerV2POJOPK(
+							wsGetTransformerV2.getWsTransformerV2PK().getPk()
+					)
+				);
+			return POJO2WS(pojo);
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSBoolean existsTransformerV2(WSExistsTransformerV2 wsExistsTransformerV2) throws RemoteException {
+		try {
+			TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
+			TransformerV2POJO pojo =
+				ctrl.existsTransformer(
+					new TransformerV2POJOPK(
+							wsExistsTransformerV2.getWsTransformerV2PK().getPk()
+					)
+				);
+			return new WSBoolean(pojo!=null);
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSTransformerV2PKArray getTransformerV2PKs(WSGetTransformerV2PKs regex) throws RemoteException {
+		try {
+			TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
+			Collection c =
+				ctrl.getTransformerPKs(
+					regex.getRegex()
+				);
+			if (c==null) return null;
+			WSTransformerV2PK[] pks = new WSTransformerV2PK[c.size()];
+			int i=0;
+			for (Iterator iter = c.iterator(); iter.hasNext(); ) {
+				pks[i++] = new WSTransformerV2PK(
+						((TransformerV2POJOPK) iter.next()).getUniqueId()
+				);
+			}
+			return new WSTransformerV2PKArray(pks);
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSTransformerV2PK putTransformerV2(WSPutTransformerV2 wsTransformerV2) throws RemoteException {
+		try {
+			TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
+			TransformerV2POJOPK pk =
+				ctrl.putTransformer(
+					WS2POJO(wsTransformerV2.getWsTransformerV2())
+				);
+			return new WSTransformerV2PK(pk.getUniqueId());
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSTransformerContext executeTransformerV2(WSExecuteTransformerV2 wsExecuteTransformerV2) throws RemoteException {
+		try {
+			final String RUNNING = "XtentisWSBean.executeTransformerV2.running";
+			TransformerContext context = WS2POJO(wsExecuteTransformerV2.getWsTransformerContext());
+			context.put(RUNNING, Boolean.TRUE);
+			TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
+			ctrl.execute(
+					context, 
+					WS2POJO(wsExecuteTransformerV2.getWsTypedContent()), 
+					new TransformerCallBack() {
+						public void contentIsReady(TransformerContext context) throws XtentisException {
+							org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.contentIsReady() ");
+						}
+						public void done(TransformerContext context) throws XtentisException {
+							org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.done() ");
+							context.put(RUNNING, Boolean.FALSE);
+						}
+					}
+			);
+			while (((Boolean)context.get(RUNNING)).booleanValue()) {
+				Thread.sleep(100);
+			}
+			return POJO2WS(context);
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSBackgroundJobPK executeTransformerV2AsJob(WSExecuteTransformerV2AsJob wsExecuteTransformerV2AsJob) throws RemoteException {
+		try {
+			TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
+			BackgroundJobPOJOPK bgPK = 
+				ctrl.executeAsJob(					
+						WS2POJO(wsExecuteTransformerV2AsJob.getWsTransformerContext()),
+						new TransformerCallBack() {
+							public void contentIsReady(TransformerContext context) throws XtentisException {
+								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2AsJob.contentIsReady() ");
+							}
+							public void done(TransformerContext context) throws XtentisException {
+								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2AsJob.done() ");
+							}
+						}
+				);
+			return new WSBackgroundJobPK(bgPK.getUniqueId());
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSTransformerContext extractThroughTransformerV2(WSExtractThroughTransformerV2 wsExtractThroughTransformerV2) throws RemoteException {
+		try {
+			TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
+			return POJO2WS(
+				ctrl.extractThroughTransformer(
+					new TransformerV2POJOPK(wsExtractThroughTransformerV2.getWsTransformerV2PK().getPk()),
+					WS2POJO(wsExtractThroughTransformerV2.getWsItemPK())
+				)
+			);
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	
+	protected WSTransformerContext POJO2WS(TransformerContext context) throws Exception{
+		WSTransformerContext wsContext = new WSTransformerContext();
+		
+		WSTransformerContextPipeline wsPipeline = new WSTransformerContextPipeline();
+		ArrayList<WSTransformerContextPipelinePipelineItem> wsList = new ArrayList<WSTransformerContextPipelinePipelineItem>();
+		LinkedHashMap<String, TypedContent> pipeline = context.getPipelineClone();
+		Set< String> variables = pipeline.keySet();
+		for (Iterator iter = variables.iterator(); iter.hasNext(); ) {
+			String variable = (String) iter.next();
+			WSTransformerContextPipelinePipelineItem wsItem = new WSTransformerContextPipelinePipelineItem();
+			wsItem.setVariable(variable);
+			wsItem.setWsTypedContent(POJO2WS(pipeline.get(variable)));
+			wsList.add(wsItem);
+		}
+		wsPipeline.setPipelineItem(wsList.toArray(new WSTransformerContextPipelinePipelineItem[wsList.size()]));
+		wsContext.setPipeline(wsPipeline);
+		
+		WSTransformerContextProjectedItemPKs wsProjectedItemPKs = new WSTransformerContextProjectedItemPKs();
+		ArrayList<WSItemPK> wsPKList = new ArrayList<WSItemPK>();
+		SortedSet<ItemPOJOPK>projectedPKs = context.getProjectedPKs();
+		for (Iterator iter = projectedPKs.iterator(); iter.hasNext(); ) {
+			ItemPOJOPK pk = (ItemPOJOPK) iter.next();
+			wsPKList.add(POJO2WS(pk));
+		}
+		wsProjectedItemPKs.setWsItemPOJOPK(wsPKList.toArray(new WSItemPK[wsPKList.size()]));
+		wsContext.setProjectedItemPKs(wsProjectedItemPKs);
+		
+		return wsContext;
+	}
+	
+	protected TransformerContext WS2POJO(WSTransformerContext wsContext) throws Exception{
+		TransformerContext context = new TransformerContext(new TransformerV2POJOPK(wsContext.getWsTransformerPK().getPk()));
+		
+		if (wsContext.getPipeline()!=null) {
+			if (wsContext.getPipeline().getPipelineItem()!=null)
+				for (int i = 0; i < wsContext.getPipeline().getPipelineItem().length; i++) {
+					WSTransformerContextPipelinePipelineItem wsItem = wsContext.getPipeline().getPipelineItem()[i];
+					context.putInPipeline(wsItem.getVariable(), WS2POJO(wsItem.getWsTypedContent()));
+				}
+		}
+		
+		if (wsContext.getProjectedItemPKs() != null) {
+			if (wsContext.getProjectedItemPKs().getWsItemPOJOPK() !=null)
+				for (int i = 0; i < wsContext.getProjectedItemPKs().getWsItemPOJOPK().length; i++) {
+					WSItemPK wsPK = wsContext.getProjectedItemPKs().getWsItemPOJOPK()[i];
+					context.getProjectedPKs().add(WS2POJO(wsPK));
+				}
+		}
+		
+		return context;
+	}
+
+
+	protected WSTypedContent POJO2WS(TypedContent content) throws Exception{
+		if (content==null) return null;
+		WSTypedContent wsTypedContent = new WSTypedContent();
+		if (content.getUrl() == null) {
+			wsTypedContent.setWsBytes(new WSByteArray(content.getContentBytes()));
+		}
+		wsTypedContent.setUrl(content.getUrl());
+		wsTypedContent.setContentType(content.getContentType());
+		return wsTypedContent;
+	}
+	
+	protected TypedContent WS2POJO(WSTypedContent wsContent) throws Exception{
+		if (wsContent == null) return null;
+		TypedContent content =null;
+		if (wsContent.getUrl() == null) {
+			content = new TypedContent(wsContent.getWsBytes().getBytes(),wsContent.getContentType());
+		} else {
+			content = new TypedContent(wsContent.getUrl(),wsContent.getContentType());
+		}
+		return content;
+	}
+	
+	private WSTransformerVariablesMapping POJO2WS(TransformerVariablesMapping mappings) throws Exception{
+		WSTransformerVariablesMapping wsMapping = new WSTransformerVariablesMapping();
+		wsMapping.setPluginVariable(mappings.getPluginVariable());
+		wsMapping.setPipelineVariable(mappings.getPipelineVariable());
+		wsMapping.setHardCoding(POJO2WS(mappings.getHardCoding()));
+		return wsMapping;
+	}
+	
+	private TransformerVariablesMapping WS2POJO(WSTransformerVariablesMapping wsMapping) throws Exception{
+		TransformerVariablesMapping mapping = new TransformerVariablesMapping();
+		mapping.setPluginVariable(wsMapping.getPluginVariable());
+		mapping.setPipelineVariable(wsMapping.getPipelineVariable());
+		mapping.setHardCoding(WS2POJO(wsMapping.getHardCoding()));
+		return mapping;
+	}
+	
+	private WSTransformerProcessStep POJO2WS(TransformerProcessStep processStep) throws Exception{
+		WSTransformerProcessStep wsProcessStep = new WSTransformerProcessStep();
+		wsProcessStep.setDescription(processStep.getDescription());
+		wsProcessStep.setDisabled(processStep.isDisabled());
+		wsProcessStep.setParameters(processStep.getParameters());
+		wsProcessStep.setPluginJNDI(processStep.getPluginJNDI());
+		
+		ArrayList<WSTransformerVariablesMapping> wsMappings = new ArrayList<WSTransformerVariablesMapping>(); 
+		ArrayList<TransformerVariablesMapping> list = processStep.getInputMappings();
+		for (Iterator iter = list.iterator(); iter.hasNext(); ) {
+			TransformerVariablesMapping mapping = (TransformerVariablesMapping) iter.next();
+			wsMappings.add(POJO2WS(mapping));
+		}
+		wsProcessStep.setInputMappings(wsMappings.toArray(new WSTransformerVariablesMapping[wsMappings.size()]));
+		
+		wsMappings = new ArrayList<WSTransformerVariablesMapping>(); 
+		list = processStep.getOutputMappings();
+		for (Iterator iter = list.iterator(); iter.hasNext(); ) {
+			TransformerVariablesMapping mapping = (TransformerVariablesMapping) iter.next();
+			wsMappings.add(POJO2WS(mapping));
+		}
+		wsProcessStep.setOutputMappings(wsMappings.toArray(new WSTransformerVariablesMapping[wsMappings.size()]));
+		return wsProcessStep;
+	}
+	
+	private TransformerProcessStep WS2POJO(WSTransformerProcessStep wsProcessStep) throws Exception{
+		TransformerProcessStep processStep = new TransformerProcessStep();
+		processStep.setDescription(wsProcessStep.getDescription());
+		processStep.setDisabled(wsProcessStep.getDisabled().booleanValue());
+		processStep.setParameters(wsProcessStep.getParameters());
+		processStep.setPluginJNDI(wsProcessStep.getPluginJNDI());
+		ArrayList<TransformerVariablesMapping> inputMappings = new ArrayList<TransformerVariablesMapping>();
+		if (wsProcessStep.getInputMappings()!=null) {
+			for (int i = 0; i < wsProcessStep.getInputMappings().length; i++) {
+				inputMappings.add(WS2POJO(wsProcessStep.getInputMappings()[i]));
+			}
+		}
+		processStep.setInputMappings(inputMappings);
+		ArrayList<TransformerVariablesMapping> outputMappings = new ArrayList<TransformerVariablesMapping>();
+		if (wsProcessStep.getOutputMappings()!=null) {
+			for (int i = 0; i < wsProcessStep.getOutputMappings().length; i++) {
+				outputMappings.add(WS2POJO(wsProcessStep.getOutputMappings()[i]));
+			}
+		}
+		processStep.setOutputMappings(outputMappings);
+		return processStep;
+	}
+    
+	private WSTransformerV2 POJO2WS(TransformerV2POJO transformerPOJO) throws Exception{
+		WSTransformerV2 ws = new WSTransformerV2();
+		ws.setName(transformerPOJO.getName());
+		ws.setDescription(transformerPOJO.getDescription());
+		ArrayList<WSTransformerProcessStep> wsSteps = new ArrayList<WSTransformerProcessStep>();
+		ArrayList< TransformerProcessStep> processSteps = transformerPOJO.getProcessSteps();
+		if (processSteps!=null) {
+			for (Iterator iter = processSteps.iterator(); iter.hasNext(); ) {
+				TransformerProcessStep processStep = (TransformerProcessStep)iter.next();
+				wsSteps.add(POJO2WS(processStep));
+			}
+		}
+		ws.setProcessSteps(wsSteps.toArray(new WSTransformerProcessStep[wsSteps.size()]));
+		return ws;
+	}
+
+	private TransformerV2POJO WS2POJO(WSTransformerV2 wsTransformerV2) throws Exception{
+		TransformerV2POJO pojo = new TransformerV2POJO();
+		pojo.setName(wsTransformerV2.getName());
+		pojo.setDescription(wsTransformerV2.getDescription());
+		ArrayList<TransformerProcessStep> steps = new ArrayList<TransformerProcessStep>();
+		WSTransformerProcessStep[] wsSteps = wsTransformerV2.getProcessSteps();
+		if (wsSteps!=null) {
+			for (int i = 0; i < wsSteps.length; i++) {
+				TransformerProcessStep step = WS2POJO(wsSteps[i]);
+				steps.add(step);		
+			}
+		}
+		pojo.setProcessSteps(steps);
+		return pojo;
+	}
+	
+	
+	public static WSPipeline POJO2WS(HashMap<String,TypedContent> pipeline) throws Exception{
+		if (pipeline == null) return null;
+		
+		ArrayList<WSPipelineTypedContentEntry> entries = new ArrayList<WSPipelineTypedContentEntry>();
+		Set keys = pipeline.keySet();
+		for (Iterator iter = keys.iterator(); iter.hasNext(); ) {
+			String output = (String) iter.next();
+			TypedContent content = pipeline.get(output);
+			byte[] bytes = content.getContentBytes();
+			WSExtractedContent wsContent = new WSExtractedContent(
+				new WSByteArray(bytes),
+				content.getContentType()
+			);
+			WSPipelineTypedContentEntry wsEntry = new WSPipelineTypedContentEntry(
+				output,
+				wsContent
+			);
+			entries.add(wsEntry);
+		}
+		return new WSPipeline(entries.toArray(new WSPipelineTypedContentEntry[entries.size()]));
+	}
+	
+	
+	public static HashMap<String, TypedContent> WS2POJO(WSPipeline wsPipeline) throws Exception{
+		if (wsPipeline == null) return null;
+		
+		HashMap<String, TypedContent> pipeline = new HashMap<String, TypedContent>();
+		WSPipelineTypedContentEntry[] entries = wsPipeline.getTypedContentEntry();
+		if (entries == null) return pipeline;
+		
+		for (int i = 0; i < entries.length; i++) {
+			pipeline.put(
+				entries[i].getOutput(), 
+				new TypedContent(
+					entries[i].getWsExtractedContent().getWsByteArray().getBytes(),
+					entries[i].getWsExtractedContent().getContentType()
+				)
+			);
+		}
+		return pipeline;
+	}
+	
+	/***************************************************************************
+	 * TRANSFORMER PLUGINS V2
+	 * **************************************************************************/
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 	 
+	 *  	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSBoolean existsTransformerPluginV2(WSExistsTransformerPluginV2 wsExistsTransformerPlugin) throws RemoteException {
+		try {
+			return new WSBoolean(
+				Util.existsComponent(
+					null, 
+					wsExistsTransformerPlugin.getJndiName()
+				)
+			);
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSString getTransformerPluginV2Configuration(WSTransformerPluginV2GetConfiguration wsGetConfiguration) throws RemoteException {
+		try {
+			Object service= 
+				Util.retrieveComponent(
+					null, 
+					wsGetConfiguration.getJndiName()
+				);
+			
+			String configuration = (String)
+				Util.getMethod(service, "getConfiguration").invoke(
+					service,
+					new Object[] {
+							wsGetConfiguration.getOptionalParameter()
+					}
+				);
+			return new WSString(configuration);
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSString putTransformerPluginV2Configuration(WSTransformerPluginV2PutConfiguration wsPutConfiguration) throws RemoteException {
+		try {
+			Object service= 
+				Util.retrieveComponent(
+					null, 
+					wsPutConfiguration.getJndiName()
+				);
+			
+			Util.getMethod(service, "putConfiguration").invoke(
+				service,
+				new Object[] {
+						wsPutConfiguration.getConfiguration()
+				}
+			);
+			return new WSString(wsPutConfiguration.getConfiguration());
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 	 
+	 *  	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSTransformerPluginV2Details getTransformerPluginV2Details(WSGetTransformerPluginV2Details wsGetTransformerPluginDetails) throws RemoteException {
+		try {
+			Object service= 
+				Util.retrieveComponent(
+					null, 
+					wsGetTransformerPluginDetails.getJndiName()
+				);
+			String description = (String)Util.getMethod(service, "getDescription").invoke(
+				service,
+				new Object[] {
+						wsGetTransformerPluginDetails.getLanguage() == null ? "" : wsGetTransformerPluginDetails.getLanguage() 
+				}
+			);
+			String documentation = (String)Util.getMethod(service, "getDocumentation").invoke(
+					service,
+					new Object[] {
+							wsGetTransformerPluginDetails.getLanguage() == null ? "" : wsGetTransformerPluginDetails.getLanguage() 
+					}
+				);
+			String parametersSchema = (String)Util.getMethod(service, "getParametersSchema").invoke(
+					service,
+					new Object[] {}
+				);
+			
+			ArrayList<TransformerPluginVariableDescriptor> inputVariableDescriptors = 
+				(ArrayList<TransformerPluginVariableDescriptor>)Util.getMethod(service, "getInputVariableDescriptors").invoke(
+						service,
+						new Object[] {
+								wsGetTransformerPluginDetails.getLanguage() == null ? "" : wsGetTransformerPluginDetails.getLanguage() 
+						}
+				);
+			ArrayList<WSTransformerPluginV2VariableDescriptor> wsInputVariableDescriptors = new ArrayList<WSTransformerPluginV2VariableDescriptor>();
+			if (inputVariableDescriptors != null) {
+				for (Iterator iter = inputVariableDescriptors.iterator(); iter.hasNext(); ) {
+					TransformerPluginVariableDescriptor descriptor = (TransformerPluginVariableDescriptor) iter.next();
+					wsInputVariableDescriptors.add(POJO2WS(descriptor));
+				}
+			}
+			
+			ArrayList<TransformerPluginVariableDescriptor> outputVariableDescriptors = 
+				(ArrayList<TransformerPluginVariableDescriptor>)Util.getMethod(service, "getOutputVariableDescriptors").invoke(
+						service,
+						new Object[] {
+							wsGetTransformerPluginDetails.getLanguage() == null ? "" : wsGetTransformerPluginDetails.getLanguage() 
+						}
+				);
+			ArrayList<WSTransformerPluginV2VariableDescriptor> wsOutputVariableDescriptors = new ArrayList<WSTransformerPluginV2VariableDescriptor>();
+			if (outputVariableDescriptors != null) {
+				for (Iterator iter = outputVariableDescriptors.iterator(); iter.hasNext(); ) {
+					TransformerPluginVariableDescriptor descriptor = (TransformerPluginVariableDescriptor) iter.next();
+					wsOutputVariableDescriptors.add(POJO2WS(descriptor));
+				}
+			}
+
+			return new WSTransformerPluginV2Details(
+					wsInputVariableDescriptors.toArray(new WSTransformerPluginV2VariableDescriptor[wsInputVariableDescriptors.size()]),
+					wsOutputVariableDescriptors.toArray(new WSTransformerPluginV2VariableDescriptor[wsOutputVariableDescriptors.size()]),
+					description,
+					documentation,
+					parametersSchema
+			);
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+
+
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 	 
+	 *  	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSTransformerPluginV2SList getTransformerPluginV2SList(WSGetTransformerPluginV2SList wsGetTransformerPluginsList) throws RemoteException {
+		try {
+			ArrayList<WSTransformerPluginV2SListItem> wsList = new ArrayList<WSTransformerPluginV2SListItem>();
+			InitialContext ctx = new InitialContext();
+			NamingEnumeration<NameClassPair> list = ctx.list("amalto/local/transformer/plugin");
+			while (list.hasMore()) {
+			    NameClassPair nc = list.next();
+			    WSTransformerPluginV2SListItem item =new WSTransformerPluginV2SListItem();
+			    item.setJndiName(nc.getName());
+				Object service= 
+					Util.retrieveComponent(
+						null, 
+						"amalto/local/transformer/plugin/"+nc.getName()
+					);
+				String description = (String)Util.getMethod(service, "getDescription").invoke(
+					service,
+					new Object[] {
+							wsGetTransformerPluginsList.getLanguage() == null ? "" : wsGetTransformerPluginsList.getLanguage() 
+					}
+				);
+				item.setDescription(description);
+			    wsList.add(item);
+			}
+			return new WSTransformerPluginV2SList(wsList.toArray(new WSTransformerPluginV2SListItem[wsList.size()]));
+//		} catch (XtentisException e) {
+//			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+	
+	private WSTransformerPluginV2VariableDescriptor POJO2WS(TransformerPluginVariableDescriptor descriptor) throws Exception{
+		WSTransformerPluginV2VariableDescriptor wsDescriptor = new WSTransformerPluginV2VariableDescriptor();
+		wsDescriptor.setVariableName(descriptor.getVariableName());
+		if (descriptor.getDescriptions().size()>0)
+			wsDescriptor.setDescription(descriptor.getDescriptions().values().iterator().next());
+		wsDescriptor.setMandatory(descriptor.isMandatory());
+		ArrayList<String> contentTypesRegex = new ArrayList<String>();
+		if (descriptor.getContentTypesRegex()!=null) {
+			for (Iterator iterator = descriptor.getContentTypesRegex().iterator(); iterator.hasNext(); ) {
+				Pattern p = (Pattern) iterator.next();
+				contentTypesRegex.add(p.toString());
+			}
+		}
+		wsDescriptor.setContentTypesRegex(contentTypesRegex.toArray(new String[contentTypesRegex.size()]));
+		ArrayList<String> possibleValuesRegex = new ArrayList<String>();
+		if (descriptor.getPossibleValuesRegex()!=null) {
+			for (Iterator iterator = descriptor.getPossibleValuesRegex().iterator(); iterator.hasNext(); ) {
+				Pattern p = (Pattern) iterator.next();
+				possibleValuesRegex.add(p.toString());
+			}
+		}
+		wsDescriptor.setPossibleValuesRegex(possibleValuesRegex.toArray(new String[possibleValuesRegex.size()]));
+		return wsDescriptor;
+	}
+	/***************************************************************************
+	 * Routing Order V2
+	 * **************************************************************************/
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2 getRoutingOrderV2(WSGetRoutingOrderV2 wsGetRoutingOrder) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			return POJO2WS(ctrl.getRoutingOrder(WS2POJO(wsGetRoutingOrder.getWsRoutingOrderPK())));
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2 existsRoutingOrderV2(WSExistsRoutingOrderV2 wsExistsRoutingOrder) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			return POJO2WS(ctrl.existsRoutingOrder(WS2POJO(wsExistsRoutingOrder.getWsRoutingOrderPK())));
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			return POJO2WS(ctrl.removeRoutingOrder(WS2POJO(wsDeleteRoutingOrder.getWsRoutingOrderPK())));
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(WS2POJO(wsExecuteRoutingOrderAsynchronously.getRoutingOrderV2PK()));
+			ctrl.executeAsynchronously(ro);
+			return POJO2WS(ro.getAbstractRoutingOrderPOJOPK());
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(WS2POJO(wsExecuteRoutingOrderSynchronously.getRoutingOrderV2PK()));
+			return new WSString(ctrl.executeSynchronously(ro));
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	private Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrdersByCriteria(WSRoutingOrderV2SearchCriteria criteria) throws Exception{
+		try {
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			Class<? extends AbstractRoutingOrderV2POJO> clazz = null;
+		    if (criteria.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
+		    	clazz = ActiveRoutingOrderV2POJO.class;
+		    } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
+		    	clazz = CompletedRoutingOrderV2POJO.class;
+		    } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
+		    	clazz = FailedRoutingOrderV2POJO.class;
+		    }  
+			Collection<AbstractRoutingOrderV2POJOPK> pks = ctrl.getRoutingOrderPKsByCriteria(
+				clazz, 
+				criteria.getAnyFieldContains(), 
+				criteria.getNameContains(), 
+				criteria.getTimeCreatedMin(),
+				criteria.getTimeCreatedMax(), 
+				criteria.getTimeScheduledMin(), 
+				criteria.getTimeScheduledMax(), 
+				criteria.getTimeLastRunStartedMin(), 
+				criteria.getTimeLastRunStartedMax(), 
+				criteria.getTimeLastRunCompletedMin(), 
+				criteria.getTimeLastRunCompletedMax(),
+				criteria.getItemPKConceptContains(),
+				criteria.getItemPKIDFieldsContain(),
+				criteria.getServiceJNDIContains(),
+				criteria.getServiceParametersContain(),
+				criteria.getMessageContain()
+			);
+			
+			return pks;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws RemoteException {
+		try {
+			WSRoutingOrderV2PKArray wsPKArray = new WSRoutingOrderV2PKArray();
+			ArrayList<WSRoutingOrderV2PK> list = new ArrayList<WSRoutingOrderV2PK>();
+			//fetch results
+			Collection<AbstractRoutingOrderV2POJOPK> pks = getRoutingOrdersByCriteria(wsGetRoutingOrderV2PKsByCriteria.getWsSearchCriteria());
+			for (Iterator<AbstractRoutingOrderV2POJOPK> iterator = pks.iterator(); iterator.hasNext(); ) {
+				AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK = iterator.next();
+				list.add(POJO2WS(abstractRoutingOrderV2POJOPK));
+			}
+			wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2PK[list.size()]));
+			return wsPKArray;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingOrderV2Array getRoutingOrderV2SByCriteria(WSGetRoutingOrderV2SByCriteria wsGetRoutingOrderV2SByCriteria) throws RemoteException {
+		try {
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
+			WSRoutingOrderV2Array wsPKArray = new WSRoutingOrderV2Array();
+			ArrayList<WSRoutingOrderV2> list = new ArrayList<WSRoutingOrderV2>();
+			//fetch results
+			Collection<AbstractRoutingOrderV2POJOPK> pks = getRoutingOrdersByCriteria(wsGetRoutingOrderV2SByCriteria.getWsSearchCriteria());
+			for (Iterator<AbstractRoutingOrderV2POJOPK> iterator = pks.iterator(); iterator.hasNext(); ) {
+				AbstractRoutingOrderV2POJOPK abstractRoutingOrderV2POJOPK = iterator.next();
+				list.add(POJO2WS(ctrl.getRoutingOrder(abstractRoutingOrderV2POJOPK)));
+			}
+			wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2[list.size()]));
+			return wsPKArray;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		} 
+	}
+	
+
+	
+	
+	private WSRoutingOrderV2PK POJO2WS(AbstractRoutingOrderV2POJOPK pojo) throws Exception{
+		if (pojo==null) return null;
+		try {
+		    WSRoutingOrderV2PK ws = new WSRoutingOrderV2PK();
+		    ws.setName(pojo.getName());
+		    switch(pojo.getStatus()) {
+		    	case AbstractRoutingOrderV2POJO.ACTIVE:
+		    		ws.setStatus(WSRoutingOrderV2Status.ACTIVE);
+		    		break;
+		    	case AbstractRoutingOrderV2POJO.COMPLETED:
+		    		ws.setStatus(WSRoutingOrderV2Status.COMPLETED);
+		    		break;
+		    	case AbstractRoutingOrderV2POJO.FAILED:
+		    		ws.setStatus(WSRoutingOrderV2Status.FAILED);
+		    		break;
+		    }	
+		    return ws;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw(e);
+		}
+	}	    
+	
+	
+	private AbstractRoutingOrderV2POJOPK WS2POJO(WSRoutingOrderV2PK s) throws Exception{
+		if (s==null) return null;
+		try {			
+		    AbstractRoutingOrderV2POJOPK pojo = null;
+		    if (s.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
+		    	pojo = new ActiveRoutingOrderV2POJOPK(s.getName());
+		    } else if (s.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
+		    	pojo = new CompletedRoutingOrderV2POJOPK(s.getName());
+		    } else if (s.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
+		    	pojo = new FailedRoutingOrderV2POJOPK(s.getName());
+		    }  
+			return pojo;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw(e);
+		}
+	}
+	
+	private WSRoutingOrderV2 POJO2WS(AbstractRoutingOrderV2POJO pojo) throws Exception{
+		if (pojo==null) return null;
+		try {
+		    WSRoutingOrderV2 ws = new WSRoutingOrderV2();
+		    ws.setMessage(pojo.getMessage());
+		    ws.setName(pojo.getName());
+		    ws.setServiceJNDI(pojo.getServiceJNDI());
+		    ws.setServiceParameters(pojo.getServiceParameters());
+		    switch(pojo.getStatus()) {
+		    	case AbstractRoutingOrderV2POJO.ACTIVE:
+		    		ws.setStatus(WSRoutingOrderV2Status.ACTIVE);
+		    		break;
+		    	case AbstractRoutingOrderV2POJO.COMPLETED:
+		    		ws.setStatus(WSRoutingOrderV2Status.COMPLETED);
+		    		break;
+		    	case AbstractRoutingOrderV2POJO.FAILED:
+		    		ws.setStatus(WSRoutingOrderV2Status.FAILED);
+		    		break;
+		    }		    
+		    ws.setTimeCreated(pojo.getTimeCreated());
+		    ws.setTimeLastRunCompleted(pojo.getTimeLastRunCompleted());
+		    ws.setTimeLastRunStarted(pojo.getTimeLastRunStarted());
+		    ws.setTimeScheduled(pojo.getTimeScheduled());
+		    ws.setWsItemPK(POJO2WS(pojo.getItemPOJOPK()));
+		    ws.setBindingUniverseName(pojo.getBindingUniverseName());
+		    ws.setBindingUserToken(pojo.getBindingUserToken());
+			return ws;
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw(e);
+		}
+	}
+		
+	
+	/***************************************************************************
+	 * Routing Engine V2
+	 * **************************************************************************/
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
+		try {
+			RoutingEngineV2CtrlLocal ctrl = Util.getRoutingEngineV2CtrlLocal();
+			RoutingRulePOJOPK[] rules = ctrl.route(WS2POJO(wsRouteItem.getWsItemPK()));
+			ArrayList<WSRoutingRulePK> list = new ArrayList<WSRoutingRulePK>();
+			for (int i = 0; i < rules.length; i++) {
+				list.add(new WSRoutingRulePK(rules[i].getUniqueId()));
+			}
+			return new WSRoutingRulePKArray(list.toArray(new WSRoutingRulePK[list.size()]));
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSRoutingEngineV2Status routingEngineV2Action(WSRoutingEngineV2Action wsRoutingEngineAction) throws RemoteException {
+		try {
+			RoutingEngineV2CtrlLocal ctrl = Util.getRoutingEngineV2CtrlLocal();
+			if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.START)) {
+				ctrl.start();
+			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.STOP)) {
+				ctrl.stop();
+			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.SUSPEND)) {
+				ctrl.suspend(true);
+			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.RESUME)) {
+				ctrl.suspend(false);
+			} else if (wsRoutingEngineAction.getWsAction().equals(WSRoutingEngineV2ActionCode.STATUS)) {
+				//done below;
+			}
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+		
+		//get status
+		try {
+			RoutingEngineV2CtrlLocal ctrl = Util.getRoutingEngineV2CtrlLocal();
+			int status = ctrl.getStatus();
+			switch (status) {
+				case RoutingEngineV2POJO.RUNNING:
+					return WSRoutingEngineV2Status.RUNNING;
+				case RoutingEngineV2POJO.STOPPED:
+					return WSRoutingEngineV2Status.STOPPED;
+				case RoutingEngineV2POJO.SUSPENDED:
+					return WSRoutingEngineV2Status.SUSPENDED;
+				default:
+					return WSRoutingEngineV2Status.DEAD;
+			}
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+		
+		
+	}
 
 }

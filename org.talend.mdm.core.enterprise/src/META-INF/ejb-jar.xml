@@ -73,70 +73,6 @@
       </session>
 
       <session >
-         <description><![CDATA[Description for VersioningSystemCtrl]]></description>
-         <display-name>Name for VersioningSystemCtrl</display-name>
-
-         <ejb-name>VersioningSystemCtrl</ejb-name>
-
-         <home>com.amalto.core.objects.versioning.ejb.remote.VersioningSystemCtrlHome</home>
-         <remote>com.amalto.core.objects.versioning.ejb.remote.VersioningSystemCtrl</remote>
-         <local-home>com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocalHome</local-home>
-         <local>com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocal</local>
-         <ejb-class>com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
-
-      <session >
-         <description><![CDATA[Description for RoutingRuleCtrl]]></description>
-         <display-name>Name for RoutingRuleCtrl</display-name>
-
-         <ejb-name>RoutingRuleCtrl</ejb-name>
-
-         <home>com.amalto.core.objects.routing.v2.ejb.remote.RoutingRuleCtrlHome</home>
-         <remote>com.amalto.core.objects.routing.v2.ejb.remote.RoutingRuleCtrl</remote>
-         <local-home>com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocalHome</local-home>
-         <local>com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal</local>
-         <ejb-class>com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
-
-      <session >
-         <description><![CDATA[Routing Engine]]></description>
-         <display-name>RoutingOrderV2Ctrl</display-name>
-
-         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
-
-         <home>com.amalto.core.objects.routing.v2.ejb.remote.RoutingOrderV2CtrlHome</home>
-         <remote>com.amalto.core.objects.routing.v2.ejb.remote.RoutingOrderV2Ctrl</remote>
-         <local-home>com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocalHome</local-home>
-         <local>com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal</local>
-         <ejb-class>com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
-
-      <session >
-         <description><![CDATA[Routing Engine]]></description>
-         <display-name>RoutingEngineV2Ctrl</display-name>
-
-         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
-
-         <home>com.amalto.core.objects.routing.v2.ejb.remote.RoutingEngineV2CtrlHome</home>
-         <remote>com.amalto.core.objects.routing.v2.ejb.remote.RoutingEngineV2Ctrl</remote>
-         <local-home>com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocalHome</local-home>
-         <local>com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal</local>
-         <ejb-class>com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
-
-      <session >
          <description><![CDATA[The Xtentis WebServices]]></description>
          <display-name>The Xtentis</display-name>
 
@@ -160,20 +96,6 @@
             <local-home>com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocalHome</local-home>
             <local>com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal</local>
             <ejb-link>UniverseCtrl</ejb-link>
-         </ejb-local-ref>
-         <ejb-local-ref >
-            <ejb-ref-name>ejb/RoutingRuleCtrlLocal</ejb-ref-name>
-            <ejb-ref-type>Session</ejb-ref-type>
-            <local-home>com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocalHome</local-home>
-            <local>com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal</local>
-            <ejb-link>RoutingRuleCtrl</ejb-link>
-         </ejb-local-ref>
-         <ejb-local-ref >
-            <ejb-ref-name>ejb/TransformerV2CtrlLocal</ejb-ref-name>
-            <ejb-ref-type>Session</ejb-ref-type>
-            <local-home>com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocalHome</local-home>
-            <local>com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal</local>
-            <ejb-link>TransformerV2Ctrl</ejb-link>
          </ejb-local-ref>
          <ejb-local-ref >
             <ejb-ref-name>ejb/SynchronizationPlanCtrlLocal</ejb-ref-name>
@@ -200,16 +122,30 @@
       </session>
 
       <session >
-         <description><![CDATA[Description for TransformerCtrl]]></description>
-         <display-name>Name for TransformerCtrl</display-name>
+         <description><![CDATA[Description for WorkflowTriggerPluginBean]]></description>
+         <display-name>Name for WorkflowTriggerPluginBean</display-name>
 
-         <ejb-name>TransformerV2Ctrl</ejb-name>
+         <ejb-name>WorkflowTriggerPluginBean</ejb-name>
 
-         <home>com.amalto.core.objects.transformers.v2.ejb.remote.TransformerV2CtrlHome</home>
-         <remote>com.amalto.core.objects.transformers.v2.ejb.remote.TransformerV2Ctrl</remote>
-         <local-home>com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocalHome</local-home>
-         <local>com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal</local>
-         <ejb-class>com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlSession</ejb-class>
+         <local-home>com.amalto.core.plugin.base.workflowtrigger.ejb.local.WorkflowTriggerPluginBeanLocalHome</local-home>
+         <local>com.amalto.core.plugin.base.workflowtrigger.ejb.local.WorkflowTriggerPluginBeanLocal</local>
+         <ejb-class>com.amalto.core.plugin.base.workflowtrigger.ejb.local.WorkflowTriggerPluginBeanSession</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
+      <session >
+         <description><![CDATA[Description for VersioningSystemCtrl]]></description>
+         <display-name>Name for VersioningSystemCtrl</display-name>
+
+         <ejb-name>VersioningSystemCtrl</ejb-name>
+
+         <home>com.amalto.core.objects.versioning.ejb.remote.VersioningSystemCtrlHome</home>
+         <remote>com.amalto.core.objects.versioning.ejb.remote.VersioningSystemCtrl</remote>
+         <local-home>com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocalHome</local-home>
+         <local>com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocal</local>
+         <ejb-class>com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlSession</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
 
@@ -444,148 +380,6 @@
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
          <ejb-name>RoleCtrl</ejb-name>
-         <method-intf>LocalHome</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>VersioningSystemCtrl</ejb-name>
-         <method-intf>Remote</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>VersioningSystemCtrl</ejb-name>
-         <method-intf>Home</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>VersioningSystemCtrl</ejb-name>
-         <method-intf>Local</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>VersioningSystemCtrl</ejb-name>
-         <method-intf>LocalHome</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingRuleCtrl</ejb-name>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingRuleCtrl</ejb-name>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
-         <method-intf>Remote</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
-         <method-intf>Home</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
-         <method-intf>Local</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
-         <method-intf>LocalHome</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
-         <method-intf>Remote</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
-         <method-intf>Home</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
-         <method-intf>Local</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
          <method-intf>LocalHome</method-intf>
          <method-name>*</method-name>
       </method>
@@ -1975,6 +1769,123 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
+         <method-name>getRoutingOrderV2</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSGetRoutingOrderV2</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>existsRoutingOrderV2</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSExistsRoutingOrderV2</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>deleteRoutingOrderV2</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSDeleteRoutingOrderV2</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>executeRoutingOrderV2Asynchronously</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSExecuteRoutingOrderV2Asynchronously</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>executeRoutingOrderV2Synchronously</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSExecuteRoutingOrderV2Synchronously</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>getRoutingOrderV2PKsByCriteria</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSGetRoutingOrderV2PKsByCriteria</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>getRoutingOrderV2SByCriteria</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSGetRoutingOrderV2SByCriteria</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>routeItemV2</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSRouteItemV2</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>routingEngineV2Action</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSRoutingEngineV2Action</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
          <method-name>deleteRole</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSDeleteRole</method-param>
@@ -2251,123 +2162,6 @@
          <method-name>getVersioningSystemConfiguration</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSGetVersioningSystemConfiguration</method-param>
-         </method-params>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name>authenticated</role-name>
-      <method >
-         <description><![CDATA[]]></description>
-         <ejb-name>XtentisWS</ejb-name>
-         <method-intf>ServiceEndpoint</method-intf>
-         <method-name>getRoutingOrderV2</method-name>
-         <method-params>
-            <method-param>com.amalto.core.webservice.WSGetRoutingOrderV2</method-param>
-         </method-params>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name>authenticated</role-name>
-      <method >
-         <description><![CDATA[]]></description>
-         <ejb-name>XtentisWS</ejb-name>
-         <method-intf>ServiceEndpoint</method-intf>
-         <method-name>existsRoutingOrderV2</method-name>
-         <method-params>
-            <method-param>com.amalto.core.webservice.WSExistsRoutingOrderV2</method-param>
-         </method-params>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name>authenticated</role-name>
-      <method >
-         <description><![CDATA[]]></description>
-         <ejb-name>XtentisWS</ejb-name>
-         <method-intf>ServiceEndpoint</method-intf>
-         <method-name>deleteRoutingOrderV2</method-name>
-         <method-params>
-            <method-param>com.amalto.core.webservice.WSDeleteRoutingOrderV2</method-param>
-         </method-params>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name>authenticated</role-name>
-      <method >
-         <description><![CDATA[]]></description>
-         <ejb-name>XtentisWS</ejb-name>
-         <method-intf>ServiceEndpoint</method-intf>
-         <method-name>executeRoutingOrderV2Asynchronously</method-name>
-         <method-params>
-            <method-param>com.amalto.core.webservice.WSExecuteRoutingOrderV2Asynchronously</method-param>
-         </method-params>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name>authenticated</role-name>
-      <method >
-         <description><![CDATA[]]></description>
-         <ejb-name>XtentisWS</ejb-name>
-         <method-intf>ServiceEndpoint</method-intf>
-         <method-name>executeRoutingOrderV2Synchronously</method-name>
-         <method-params>
-            <method-param>com.amalto.core.webservice.WSExecuteRoutingOrderV2Synchronously</method-param>
-         </method-params>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name>authenticated</role-name>
-      <method >
-         <description><![CDATA[]]></description>
-         <ejb-name>XtentisWS</ejb-name>
-         <method-intf>ServiceEndpoint</method-intf>
-         <method-name>getRoutingOrderV2PKsByCriteria</method-name>
-         <method-params>
-            <method-param>com.amalto.core.webservice.WSGetRoutingOrderV2PKsByCriteria</method-param>
-         </method-params>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name>authenticated</role-name>
-      <method >
-         <description><![CDATA[]]></description>
-         <ejb-name>XtentisWS</ejb-name>
-         <method-intf>ServiceEndpoint</method-intf>
-         <method-name>getRoutingOrderV2SByCriteria</method-name>
-         <method-params>
-            <method-param>com.amalto.core.webservice.WSGetRoutingOrderV2SByCriteria</method-param>
-         </method-params>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name>authenticated</role-name>
-      <method >
-         <description><![CDATA[]]></description>
-         <ejb-name>XtentisWS</ejb-name>
-         <method-intf>ServiceEndpoint</method-intf>
-         <method-name>routeItemV2</method-name>
-         <method-params>
-            <method-param>com.amalto.core.webservice.WSRouteItemV2</method-param>
-         </method-params>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name>authenticated</role-name>
-      <method >
-         <description><![CDATA[]]></description>
-         <ejb-name>XtentisWS</ejb-name>
-         <method-intf>ServiceEndpoint</method-intf>
-         <method-name>routingEngineV2Action</method-name>
-         <method-params>
-            <method-param>com.amalto.core.webservice.WSRoutingEngineV2Action</method-param>
          </method-params>
       </method>
    </method-permission>
@@ -2855,30 +2649,10 @@
 
    <method-permission >
       <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>TransformerV2Ctrl</ejb-name>
-         <method-intf>Remote</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>TransformerV2Ctrl</ejb-name>
-         <method-intf>Home</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>TransformerV2Ctrl</ejb-name>
+         <ejb-name>WorkflowTriggerPluginBean</ejb-name>
          <method-intf>Local</method-intf>
          <method-name>*</method-name>
       </method>
@@ -2888,7 +2662,48 @@
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>TransformerV2Ctrl</ejb-name>
+         <ejb-name>WorkflowTriggerPluginBean</ejb-name>
+         <method-intf>LocalHome</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>VersioningSystemCtrl</ejb-name>
+         <method-intf>Remote</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>VersioningSystemCtrl</ejb-name>
+         <method-intf>Home</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>VersioningSystemCtrl</ejb-name>
+         <method-intf>Local</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>VersioningSystemCtrl</ejb-name>
          <method-intf>LocalHome</method-intf>
          <method-name>*</method-name>
       </method>

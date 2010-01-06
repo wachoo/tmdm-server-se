@@ -25,7 +25,7 @@ public class StartEngineSubProc extends AssembleSubProc{
 //			"system.release.type"
 //		));
 		
-		if (autostart&&Util.isEnterprise()) {
+		if (autostart) {
 			
         	RoutingEngineV2CtrlLocal enginectrl = null;
 			try {
