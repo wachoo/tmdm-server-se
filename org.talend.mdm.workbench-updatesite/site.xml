@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <description url="http://org.talendforge/mdm/workbench/updatesite">
-      Talend MDM Studio Workbench UpdateSite
-   </description>
-   <feature url="features/org.talend.mdm.workbench_feature_3.2.0.200912151422.jar" id="org.talend.mdm.workbench_feature" version="3.2.0.200912151422"/>
-</site>
