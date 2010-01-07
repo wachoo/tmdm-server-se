@@ -23,7 +23,10 @@ public abstract class AbstractMigrationTask {
 	protected  boolean isDone(){
 		Boolean res = false;
 		try {
-			String content = Util.getXmlServerCtrlLocal().getDocumentAsString(null, CLUSTER_MIGRATION, UNIQUE_MIGRATION);
+			String content = null;
+			try{
+				content=Util.getXmlServerCtrlLocal().getDocumentAsString(null, CLUSTER_MIGRATION, UNIQUE_MIGRATION);				
+			}catch(Exception e){}
 			if (content == null){
 				if(handlerMap==null)handlerMap=new HashMap<String, Boolean>();
 				return false;

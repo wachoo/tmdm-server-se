@@ -2886,7 +2886,7 @@ public  class Util {
 		try{
 	    	Object home = null;
 	    	InitialContext initialContext = null;
-	    	String jndiName="amalto/local/service/svn";	    	
+	    	String jndiName="amalto/local/service/workflow";	    	
 	        try {
 	        	initialContext= new InitialContext(null);
 	        	home = initialContext.lookup(jndiName);

@@ -52,7 +52,6 @@ import com.amalto.core.ejb.TransformerPOJOPK;
 import com.amalto.core.ejb.UpdateReportItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
-import com.amalto.core.enterpriseutil.EnterpriseUtil;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlUtil;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
@@ -64,7 +63,6 @@ import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
 import com.amalto.core.objects.role.ejb.RolePOJO;
 import com.amalto.core.objects.role.ejb.RolePOJOPK;
-import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
 import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK;
 import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO;
@@ -81,8 +79,6 @@ import com.amalto.core.objects.synchronization.ejb.SynchronizationItemPOJO;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationItemPOJOPK;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJO;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJOPK;
-import com.amalto.core.objects.synchronization.ejb.local.SynchronizationItemCtrlLocal;
-import com.amalto.core.objects.synchronization.ejb.local.SynchronizationPlanCtrlLocal;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
@@ -91,10 +87,8 @@ import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
-import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
 import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO;
 import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
-import com.amalto.core.objects.versioning.ejb.local.VersioningSystemCtrlLocal;
 import com.amalto.core.objects.versioning.util.HistoryInfos;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.LocalUser;
@@ -1102,7 +1096,7 @@ public class XtentisRMIPort implements XtentisPort {
 	throws RemoteException {
 		try {
 		    return XConverter.VO2WS( 
-		    		EnterpriseUtil.getRoutingRuleCtrlLocal().getRoutingRule(
+		    		Util.getRoutingRuleCtrlLocal().getRoutingRule(
 							new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())
 					)
 			);
@@ -1119,7 +1113,7 @@ public class XtentisRMIPort implements XtentisPort {
 	   throws RemoteException {
 			try {
 			    return new WSBoolean( 
-			    		EnterpriseUtil.getRoutingRuleCtrlLocal().existsRoutingRule(
+			    		Util.getRoutingRuleCtrlLocal().existsRoutingRule(
 								new RoutingRulePOJOPK(wsExistsRoutingRule.getWsRoutingRulePK().getPk())
 						) != null
 				);
@@ -1134,7 +1128,7 @@ public class XtentisRMIPort implements XtentisPort {
     public WSRoutingRulePKArray getRoutingRulePKs(WSGetRoutingRulePKs regexp)
     throws RemoteException {
 		try {
-		    Collection<RoutingRulePOJOPK> pks = EnterpriseUtil.getRoutingRuleCtrlLocal().getRoutingRulePKs(regexp.getRegex());
+		    Collection<RoutingRulePOJOPK> pks = Util.getRoutingRuleCtrlLocal().getRoutingRulePKs(regexp.getRegex());
 		    ArrayList<WSRoutingRulePK> list = new ArrayList<WSRoutingRulePK>();
 		    for (Iterator iter = pks.iterator(); iter.hasNext(); ) {
 				RoutingRulePOJOPK pk = (RoutingRulePOJOPK) iter.next();
@@ -1152,7 +1146,7 @@ public class XtentisRMIPort implements XtentisPort {
     throws RemoteException {
 		try {
 		    return new WSRoutingRulePK(
-		    		EnterpriseUtil.getRoutingRuleCtrlLocal().removeRoutingRule(
+		    		Util.getRoutingRuleCtrlLocal().removeRoutingRule(
 							new RoutingRulePOJOPK(wsDeleteRoutingRule.getWsRoutingRulePK().getPk())
 					).getUniqueId()
 			);
@@ -1167,7 +1161,7 @@ public class XtentisRMIPort implements XtentisPort {
     throws RemoteException {
 		try {
 		    return new WSRoutingRulePK(
-		    		EnterpriseUtil.getRoutingRuleCtrlLocal().putRoutingRule(
+		    		Util.getRoutingRuleCtrlLocal().putRoutingRule(
 		    				XConverter.WS2VO(wsRoutingRule.getWsRoutingRule())
 					).getUniqueId()
 			);
@@ -2192,99 +2186,6 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	
 	
-	/***************************************************************************
-	 * Role
-	 * **************************************************************************/
-
-    public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
-		try {
-			RoleCtrlLocal ctrl = EnterpriseUtil.getRoleCtrlLocal();
-			return
-				new WSRolePK(
-					ctrl.removeRole(
-						new RolePOJOPK(
-								wsRoleDelete.getWsRolePK().getPk()
-						)
-					).getUniqueId()
-				);
-	
-		} catch (Exception e) {
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-    
-	public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
-		try {
-			RoleCtrlLocal ctrl = EnterpriseUtil.getRoleCtrlLocal();
-			RolePOJO pojo =
-				ctrl.getRole(
-					new RolePOJOPK(
-							wsGetRole.getWsRolePK().getPk()
-					)
-				);
-			return XConverter.POJO2WS(pojo);
-		} catch (Exception e) {
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-	
-	public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException {
-		try {
-			RoleCtrlLocal ctrl = EnterpriseUtil.getRoleCtrlLocal();
-			RolePOJO pojo =
-				ctrl.existsRole(
-					new RolePOJOPK(
-							wsExistsRole.getWsRolePK().getPk()
-					)
-				);
-			return new WSBoolean(pojo!=null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-
-	public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {
-		try {
-			RoleCtrlLocal ctrl = EnterpriseUtil.getRoleCtrlLocal();
-			Collection c =
-				ctrl.getRolePKs(
-					regex.getRegex()
-				);
-			if (c==null) return null;
-			WSRolePK[] pks = new WSRolePK[c.size()];
-			int i=0;
-			for (Iterator iter = c.iterator(); iter.hasNext(); ) {
-				pks[i++] = new WSRolePK(
-						((RolePOJOPK) iter.next()).getUniqueId()
-				);
-			}
-			return new WSRolePKArray(pks);
-		} catch (Exception e) {
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-
-	public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
-		try {
-			RoleCtrlLocal ctrl = EnterpriseUtil.getRoleCtrlLocal();
-			RolePOJOPK pk =
-				ctrl.putRole(
-						XConverter.WS2POJO(wsRole.getWsRole())
-				);
-			return new WSRolePK(pk.getUniqueId());
-		} catch (Exception e) {
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-	
-	public WSStringArray getObjectsForRoles(WSGetObjectsForRoles wsRoleDelete) throws RemoteException {
-		Set<String> names = ObjectPOJO.getObjectsNames2ClassesMap().keySet(); 
-		return new WSStringArray(
-				names.toArray(new String[names.size()])
-		);
-	}
-
 
 
 	/***************************************************************************
@@ -2444,7 +2345,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
 			return XConverter.POJO2WS(ctrl.removeRoutingOrder(XConverter.WS2POJO(wsDeleteRoutingOrder.getWsRoutingOrderPK())));
 		} catch (com.amalto.core.util.XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
@@ -2459,7 +2360,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
 			AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(XConverter.WS2POJO(wsExecuteRoutingOrderAsynchronously.getRoutingOrderV2PK()));
 			ctrl.executeAsynchronously(ro);
 			return XConverter.POJO2WS(ro.getAbstractRoutingOrderPOJOPK());
@@ -2476,7 +2377,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
 			AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(XConverter.WS2POJO(wsExecuteRoutingOrderSynchronously.getRoutingOrderV2PK()));
 			return new WSString(ctrl.executeSynchronously(ro));
 		} catch (com.amalto.core.util.XtentisException e) {
@@ -2492,7 +2393,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRoutingOrderV2 existsRoutingOrderV2(WSExistsRoutingOrderV2 wsExistsRoutingOrder) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
 			return XConverter.POJO2WS(ctrl.existsRoutingOrder(XConverter.WS2POJO(wsExistsRoutingOrder.getWsRoutingOrderPK())));
 		} catch (com.amalto.core.util.XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
@@ -2507,7 +2408,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRoutingOrderV2 getRoutingOrderV2(WSGetRoutingOrderV2 wsGetRoutingOrderV2) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
 			return XConverter.POJO2WS(ctrl.getRoutingOrder(XConverter.WS2POJO(wsGetRoutingOrderV2.getWsRoutingOrderPK())));
 		} catch (com.amalto.core.util.XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));
@@ -2545,7 +2446,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSRoutingOrderV2Array getRoutingOrderV2SByCriteria(WSGetRoutingOrderV2SByCriteria wsGetRoutingOrderV2SByCriteria) throws RemoteException {
 		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
 			WSRoutingOrderV2Array wsPKArray = new WSRoutingOrderV2Array();
 			ArrayList<WSRoutingOrderV2> list = new ArrayList<WSRoutingOrderV2>();
 			//fetch results
@@ -2568,7 +2469,7 @@ public class XtentisRMIPort implements XtentisPort {
 
 	private Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrdersByCriteria(WSRoutingOrderV2SearchCriteria criteria) throws Exception{
 		try {
-			RoutingOrderV2CtrlLocal ctrl = EnterpriseUtil.getRoutingOrderV2CtrlLocal();
+			RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
 			Class<? extends AbstractRoutingOrderV2POJO> clazz = null;
 		    if (criteria.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
 		    	clazz = ActiveRoutingOrderV2POJO.class;
@@ -2607,292 +2508,6 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	
 		
-	
-	/***************************************************************************
-	 * Versioning
-	 * **************************************************************************/
-	
-	
-	
-	public WSVersioningSystemConfiguration getVersioningSystemConfiguration(WSGetVersioningSystemConfiguration wsGetVersioningSystemConfiguration) throws RemoteException {
-		throw new RemoteException("Not Supported Yet");
-    }
-
-
-
-	public WSString putVersioningSystemConfiguration(WSPutVersioningSystemConfiguration wsPutVersioningSystemConfiguration) throws RemoteException {
-		 try {
-			  WSVersioningSystemConfiguration conf=wsPutVersioningSystemConfiguration.getVersioningSystemConfiguration();
-			  VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
-			  VersioningSystemPOJO pojo=new VersioningSystemPOJO(conf.getName(),conf.getJndi(),conf.getDescription(),conf.getUrl(),conf.getUsername(),conf.getPassword(),conf.getAutocommit());
-			  VersioningSystemPOJOPK pk=ctrl.putVersioningSystem(pojo);
-			  return new WSString(pk.getUniqueId());
-		} catch (Exception e) {
-			   String err = "ERROR SYSTRACE: "+e.getMessage();
-			   org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			   throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-
-
-
-	public WSVersioningInfo versioningGetInfo(WSVersioningGetInfo wsVersioningGetInfo) throws RemoteException {
-		try {
-			try {
-				VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
-				String res = 
-					ctrl.getVersioningSystemAvailability(
-							wsVersioningGetInfo.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetInfo.getVersioningSystemName())
-					);
-				return new WSVersioningInfo(res.startsWith("OK"),res);
-			} catch (Exception e) {
-				String err = "ERROR SYSTRACE: "+e.getMessage();
-				org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-				throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-			}
-//		} catch (XtentisException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (RemoteException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-    }
-
-
-
-
-	public WSBackgroundJobPK versioningCommitItems(WSVersioningCommitItems wsVersioningCommitItems) throws RemoteException {
-		try {
-			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
-			
-			return new WSBackgroundJobPK(
-				ctrl.commitItemsAsJob(
-						wsVersioningCommitItems.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningCommitItems.getVersioningSystemName()),
-						XConverter.WS2POJO(wsVersioningCommitItems.getWsItemPKs()),
-						wsVersioningCommitItems.getComment()
-				).getUniqueId()
-			);
-			
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	};
-	
-
-	public WSBoolean versioningRestoreItemByRevision(WSVersioningRestoreItemByRevision wsVersioningRestoreItemByRevision) throws RemoteException {
-		try {
-			
-			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
-			
-			
-				ctrl.restoreItemByRevision(
-						wsVersioningRestoreItemByRevision.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningRestoreItemByRevision.getVersioningSystemName()), 
-						XConverter.WS2POJO(wsVersioningRestoreItemByRevision.getWsItemPK()), 
-						wsVersioningRestoreItemByRevision.getRevision()
-					);
-				
-			return new WSBoolean(true);
-			
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			return new WSBoolean(false);
-		}
-	};
-	
-
-	public WSVersioningItemHistory versioningGetItemHistory(WSVersioningGetItemHistory wsVersioningGetItemHistory) throws RemoteException {
-		try {
-			
-			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
-			
-			HistoryInfos historyInfos = ctrl.getItemHistory(
-						wsVersioningGetItemHistory.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetItemHistory.getVersioningSystemName()),
-						XConverter.WS2POJO(wsVersioningGetItemHistory.getWsItemPK())
-				);
-			
-			WSVersioningHistoryEntry[] wsVersioningHistoryEntries= XConverter.convertHistoryInfosToWSVersioningHistoryEntries(historyInfos);
-			
-			return new WSVersioningItemHistory(wsVersioningGetItemHistory.getWsItemPK(),wsVersioningHistoryEntries);
-			
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	};
-	
-
-	
-
-	public WSVersioningItemsVersions versioningGetItemsVersions(WSVersioningGetItemsVersions wsVersioningGetItemsVersions) throws RemoteException {
-       try {
-			
-			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
-			
-			HistoryInfos historyInfos =	ctrl.getItemsVersions(
-					wsVersioningGetItemsVersions.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetItemsVersions.getVersioningSystemName()), 
-					XConverter.WS2POJO(wsVersioningGetItemsVersions.getWsItemPKs())
-				);
-			
-			WSVersioningHistoryEntry[] wsVersioningHistoryEntries= XConverter.convertHistoryInfosToWSVersioningHistoryEntries(historyInfos);
-			
-			WSItemPK[] itemPKs= wsVersioningGetItemsVersions.getWsItemPKs();
-			if(itemPKs==null)new RemoteException("No item PK! ");
-			
-			WSVersioningItemsVersionsItems[] wsVersioningItemsVersionsItems=new WSVersioningItemsVersionsItems[itemPKs.length];
-				for (int i = 0; i < itemPKs.length; i++) {
-					WSItemPK itemPK=itemPKs[i];
-					WSVersioningItemsVersionsItems wsVersioningItemsVersionsItem=new WSVersioningItemsVersionsItems(itemPK,wsVersioningHistoryEntries);
-					wsVersioningItemsVersionsItems[i]=wsVersioningItemsVersionsItem;
-				}
-				
-			return new WSVersioningItemsVersions(wsVersioningItemsVersionsItems);
-			
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	};
-	
-
-	public WSVersioningObjectsVersions versioningGetObjectsVersions(WSVersioningGetObjectsVersions wsVersioningGetObjectsVersions) throws RemoteException {
-		try {
-			
-			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
-			
-			HistoryInfos historyInfos =	ctrl.getObjectsVersions(
-					wsVersioningGetObjectsVersions.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningGetObjectsVersions.getVersioningSystemName()), 
-					wsVersioningGetObjectsVersions.getType(), 
-					wsVersioningGetObjectsVersions.getNames()
-				);
-			
-			WSVersioningHistoryEntry[] wsVersioningHistoryEntries= XConverter.convertHistoryInfosToWSVersioningHistoryEntries(historyInfos);
-			
-			String[] names= wsVersioningGetObjectsVersions.getNames();
-			if(names==null){
-				return new WSVersioningObjectsVersions(
-						new WSVersioningObjectsVersionsObjects[]{
-								new WSVersioningObjectsVersionsObjects(wsVersioningGetObjectsVersions.getType(),null,wsVersioningHistoryEntries)
-								});
-			}else{
-				WSVersioningObjectsVersionsObjects[] wsVersioningObjectsVersionsObjects=new WSVersioningObjectsVersionsObjects[names.length];
-				for (int i = 0; i < names.length; i++) {
-					String name=names[i];
-					WSVersioningObjectsVersionsObjects wsVersioningObjectsVersionsObject=new WSVersioningObjectsVersionsObjects(wsVersioningGetObjectsVersions.getType(),name,wsVersioningHistoryEntries);
-					wsVersioningObjectsVersionsObjects[i]=wsVersioningObjectsVersionsObject;
-				}
-				
-				return new WSVersioningObjectsVersions(
-						wsVersioningObjectsVersionsObjects);
-			}
-			
-		} catch (Exception e) {
-			String err = "ERROR SYSTRACE: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
-		}
-	}
-
-
-
-	public WSBackgroundJobPK versioningRestoreItems(WSVersioningRestoreItems wsVersioningRestoreItems) throws RemoteException {
-		try {
-			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
-			ArrayList<ItemPOJOPK> itemPKs = new ArrayList<ItemPOJOPK>();
-			if (wsVersioningRestoreItems.getWsItemPKs()!=null) {
-				for (int i = 0; i < wsVersioningRestoreItems.getWsItemPKs().length; i++) {
-					itemPKs.add(XConverter.WS2POJO(wsVersioningRestoreItems.getWsItemPKs()[i]));
-				}
-			}
-			return new WSBackgroundJobPK(
-				ctrl.restoreItemsAsJob(
-						wsVersioningRestoreItems.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningRestoreItems.getVersioningSystemName()),
-						wsVersioningRestoreItems.getTag(),
-						itemPKs.toArray(new ItemPOJOPK[itemPKs.size()])
-				).getUniqueId()
-			);
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (RemoteException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-    }
-
-
-
-	public WSBackgroundJobPK versioningRestoreObjects(WSVersioningRestoreObjects wsVersioningRestoreObjects) throws RemoteException {
-		try {
-			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
-			return new WSBackgroundJobPK(
-				ctrl.restoreObjectsAsJob(
-						wsVersioningRestoreObjects.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningRestoreObjects.getVersioningSystemName()),
-						wsVersioningRestoreObjects.getTag(),
-						wsVersioningRestoreObjects.getType(),
-						wsVersioningRestoreObjects.getNames()
-				).getUniqueId()
-			);
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-    }
-
-
-
-	public WSBackgroundJobPK versioningTagItems(WSVersioningTagItems wsVersioningTagItems) throws RemoteException {
-		try {
-			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
-			ArrayList<ItemPOJOPK> itemPKs = new ArrayList<ItemPOJOPK>();
-			if (wsVersioningTagItems.getWsItemPKs()!=null) {
-				for (int i = 0; i < wsVersioningTagItems.getWsItemPKs().length; i++) {
-					itemPKs.add(XConverter.WS2POJO(wsVersioningTagItems.getWsItemPKs()[i]));
-				}
-			}
-			return new WSBackgroundJobPK(
-				ctrl.tagItemsAsJob(
-						wsVersioningTagItems.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningTagItems.getVersioningSystemName()),
-						wsVersioningTagItems.getTag(),
-						wsVersioningTagItems.getComment(),
-						itemPKs.toArray(new ItemPOJOPK[itemPKs.size()])
-				).getUniqueId()
-			);	
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (RemoteException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-    }
-
-
-
-	public WSBackgroundJobPK versioningTagObjects(WSVersioningTagObjects wsVersioningTagObjects) throws RemoteException {
-		try {
-			VersioningSystemCtrlLocal ctrl = EnterpriseUtil.getVersioningSystemCtrlLocal();
-			return new WSBackgroundJobPK(
-				ctrl.tagObjectsAsJob(
-						wsVersioningTagObjects.getVersioningSystemName() == null ? null : new VersioningSystemPOJOPK(wsVersioningTagObjects.getVersioningSystemName()),
-						wsVersioningTagObjects.getTag(),
-						wsVersioningTagObjects.getComment(),
-						wsVersioningTagObjects.getType(),
-						wsVersioningTagObjects.getNames()
-				).getUniqueId()
-			);
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-    }		
 	
 	
 	
@@ -2961,128 +2576,7 @@ public class XtentisRMIPort implements XtentisPort {
 		}
 	}
 	
-	
-	/***************************************************************************
-	 * Universes
-	 ***************************************************************************/
-	
-	public WSUniversePK deleteUniverse(WSDeleteUniverse wsUniverseDelete) throws RemoteException {
-		try {
-			
-			UniverseCtrlLocal ctrl = EnterpriseUtil.getUniverseCtrlLocal();
-			return
-				new WSUniversePK(
-					ctrl.removeUniverse(
-						new UniversePOJOPK(
-								wsUniverseDelete.getWsUniversePK().getPk()
-						)
-					).getUniqueId()
-				);
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSBoolean existsUniverse(WSExistsUniverse wsExistsUniverse) throws RemoteException {
-		try {
-			
-			UniverseCtrlLocal ctrl = EnterpriseUtil.getUniverseCtrlLocal();
-			UniversePOJO pojo =
-				ctrl.existsUniverse(
-					new UniversePOJOPK(
-							wsExistsUniverse.getWsUniversePK().getPk()
-					)
-				);
-			return new WSBoolean(pojo!=null);
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSStringArray getObjectsForUniverses(WSGetObjectsForUniverses regex) throws RemoteException {
-		try {
-			
-			Set<String> names = UniversePOJO.getXtentisObjectName(); 
-			return new WSStringArray(
-					names.toArray(new String[names.size()])
-			);
-			
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSUniverse getUniverse(WSGetUniverse wsGetUniverse) throws RemoteException {
-		try {
-			
-			UniverseCtrlLocal ctrl = EnterpriseUtil.getUniverseCtrlLocal();
-			UniversePOJO pojo =
-				ctrl.getUniverse(
-					new UniversePOJOPK(
-							wsGetUniverse.getWsUniversePK().getPk()
-					)
-				);
-			return XConverter.POJO2WS(pojo);
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (RemoteException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex) throws RemoteException {
-		try {
-			
-			UniverseCtrlLocal ctrl = EnterpriseUtil.getUniverseCtrlLocal();
-			Collection c =
-				ctrl.getUniversePKs(
-					regex.getRegex()
-				);
-			if (c==null) return null;
-			WSUniversePK[] pks = new WSUniversePK[c.size()];
-			int i=0;
-			for (Iterator iter = c.iterator(); iter.hasNext(); ) {
-				pks[i++] = new WSUniversePK(
-						((UniversePOJOPK) iter.next()).getUniqueId()
-				);
-			}
-			return new WSUniversePKArray(pks);
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSUniversePK putUniverse(WSPutUniverse wsUniverse) throws RemoteException {
-		try {
-			
-			UniverseCtrlLocal ctrl = EnterpriseUtil.getUniverseCtrlLocal();
-			UniversePOJOPK pk =
-				ctrl.putUniverse(
-						XConverter.WS2POJO(wsUniverse.getWsUniverse())
-				);
-			return new WSUniversePK(pk.getUniqueId());
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (RemoteException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
+
 	public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
 		try {
 			//Fetch the user
@@ -3099,446 +2593,6 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	
 	
-	/***************************************************************************
-	 * Syncronization Plan
-	 ***************************************************************************/
-	
-	public WSSynchronizationPlanPK deleteSynchronizationPlan(WSDeleteSynchronizationPlan wsSynchronizationPlanDelete) throws RemoteException {
-		try {
-			
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
-			return
-				new WSSynchronizationPlanPK(
-					ctrl.removeSynchronizationPlan(
-						new SynchronizationPlanPOJOPK(
-								wsSynchronizationPlanDelete.getWsSynchronizationPlanPK().getPk()
-						)
-					).getUniqueId()
-				);
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSBoolean existsSynchronizationPlan(WSExistsSynchronizationPlan wsExistsSynchronizationPlan) throws RemoteException {
-		try {
-			
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
-			SynchronizationPlanPOJO pojo =
-				ctrl.existsSynchronizationPlan(
-					new SynchronizationPlanPOJOPK(
-							wsExistsSynchronizationPlan.getWsSynchronizationPlanPK().getPk()
-					)
-				);
-			return new WSBoolean(pojo!=null);
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	
-	public WSStringArray getSynchronizationPlanItemsAlgorithms(WSGetSynchronizationPlanItemsAlgorithms regex) throws RemoteException {
-		Set<String> names = SynchronizationPlanPOJO.getItemsAlgorithmNames(); 
-		return new WSStringArray(
-				names.toArray(new String[names.size()])
-		);
-	}
-	
-	public WSStringArray getSynchronizationPlanObjectsAlgorithms(WSGetSynchronizationPlanObjectsAlgorithms regex) throws RemoteException {
-		Set<String> names = SynchronizationPlanPOJO.getObjectsAlgorithmNames(); 
-		return new WSStringArray(
-				names.toArray(new String[names.size()])
-		);
-	}
-
-	
-	public WSSynchronizationPlan getSynchronizationPlan(WSGetSynchronizationPlan wsGetSynchronizationPlan) throws RemoteException {
-		try {
-			
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
-			SynchronizationPlanPOJO pojo =
-				ctrl.getSynchronizationPlan(
-					new SynchronizationPlanPOJOPK(
-							wsGetSynchronizationPlan.getWsSynchronizationPlanPK().getPk()
-					)
-				);
-			return XConverter.POJO2WS(pojo);
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (RemoteException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSStringArray getObjectsForSynchronizationPlans(WSGetObjectsForSynchronizationPlans regex) throws RemoteException {
-		try {
-			
-			Set<String> names = SynchronizationPlanPOJO.getXtentisObjectNames(); 
-			return new WSStringArray(
-					names.toArray(new String[names.size()])
-			);
-			
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSSynchronizationPlanPKArray getSynchronizationPlanPKs(WSGetSynchronizationPlanPKs regex) throws RemoteException {
-		try {
-			
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
-			Collection c =
-				ctrl.getSynchronizationPlanPKs(
-					regex.getRegex()
-				);
-			if (c==null) return null;
-			WSSynchronizationPlanPK[] pks = new WSSynchronizationPlanPK[c.size()];
-			int i=0;
-			for (Iterator iter = c.iterator(); iter.hasNext(); ) {
-				pks[i++] = new WSSynchronizationPlanPK(
-						((SynchronizationPlanPOJOPK) iter.next()).getUniqueId()
-				);
-			}
-			return new WSSynchronizationPlanPKArray(pks);
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSSynchronizationPlanPK putSynchronizationPlan(WSPutSynchronizationPlan wsSynchronizationPlan) throws RemoteException {
-		try {
-			
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
-			SynchronizationPlanPOJOPK pk =
-				ctrl.putSynchronizationPlan(
-						XConverter.WS2POJO(wsSynchronizationPlan.getWsSynchronizationPlan())
-				);
-			return new WSSynchronizationPlanPK(pk.getUniqueId());
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (RemoteException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSSynchronizationPlanStatus synchronizationPlanAction(WSSynchronizationPlanAction wsSynchronizationPlanAction) throws RemoteException {
-		try {
-			
-			int actionCode = -1;
-			if (WSSynchronizationPlanActionCode.START_FULL.equals(wsSynchronizationPlanAction.getWsAction())) {
-				actionCode = SynchronizationPlanPOJO.ACTION_START_FULL;
-			} else if (WSSynchronizationPlanActionCode.START_DIFFERENTIAL.equals(wsSynchronizationPlanAction.getWsAction())) {
-				actionCode = SynchronizationPlanPOJO.ACTION_START_DIFFERENTIAL;
-			} else if (WSSynchronizationPlanActionCode.STOP.equals(wsSynchronizationPlanAction.getWsAction())) {
-				actionCode = SynchronizationPlanPOJO.ACTION_STOP;
-			} else if (WSSynchronizationPlanActionCode.STATUS.equals(wsSynchronizationPlanAction.getWsAction())) {
-				actionCode = SynchronizationPlanPOJO.ACTION_GET_STATUS;
-			} else if (WSSynchronizationPlanActionCode.RESET.equals(wsSynchronizationPlanAction.getWsAction())) {
-				actionCode = SynchronizationPlanPOJO.ACTION_RESET;
-			}
-			
-			//SynchronizationPlanCtrlLocal ctrl = SynchronizationPlanCtrlUtil.getLocalHome().create();
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal(); 
-			String[] res = ctrl.action(
-				actionCode, 
-				new SynchronizationPlanPOJOPK(wsSynchronizationPlanAction.getWsSynchronizationPlanPK().getPk())
-			);
-			String statusCode = res[0];
-			String statusMsg = res[1];
-			long lastRunStartedMillis = Long.parseLong(res[2]);
-			long lastRunStoppedMillis = Long.parseLong(res[3]);
-				
-			Calendar lastRunStarted = Calendar.getInstance();
-			lastRunStarted.setTimeInMillis(lastRunStartedMillis);
-			
-			Calendar lastRunStopped = Calendar.getInstance();
-			lastRunStopped.setTimeInMillis(lastRunStoppedMillis);
-			
-			WSSynchronizationPlanStatusCode wsStatusCode = null;
-			if (SynchronizationPlanPOJO.STATUS_COMPLETED.equals(statusCode)) {
-				wsStatusCode = WSSynchronizationPlanStatusCode.COMPLETED;
-			} else if (SynchronizationPlanPOJO.STATUS_FAILED.equals(statusCode)) {
-				wsStatusCode = WSSynchronizationPlanStatusCode.FAILED;
-			} else if (SynchronizationPlanPOJO.STATUS_RUNNING.equals(statusCode)) {
-				wsStatusCode = WSSynchronizationPlanStatusCode.RUNNING;
-			} else if (SynchronizationPlanPOJO.STATUS_SCHEDULED.equals(statusCode)) {
-				wsStatusCode = WSSynchronizationPlanStatusCode.SCHEDULED;
-			} else if (SynchronizationPlanPOJO.STATUS_STOPPING.equals(statusCode)) {
-				wsStatusCode = WSSynchronizationPlanStatusCode.STOPPING;
-			}
-				
-				
-			return new WSSynchronizationPlanStatus(
-				wsStatusCode, 
-				statusMsg,
-				lastRunStarted,
-				lastRunStopped
-			);
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	
-	public WSStringArray synchronizationGetUnsynchronizedObjectsIDs(WSSynchronizationGetUnsynchronizedObjectsIDs wsSynchronizationGetUnsynchronizedObjectsIDs) throws RemoteException {
-		try {
-			
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
-			ArrayList<String> list = ctrl.synchronizationGetAllUnsynchronizedObjectsIDs(
-				wsSynchronizationGetUnsynchronizedObjectsIDs.getRevisionID(), 
-				wsSynchronizationGetUnsynchronizedObjectsIDs.getObjectName(), 
-				wsSynchronizationGetUnsynchronizedObjectsIDs.getInstancePattern(), 
-				wsSynchronizationGetUnsynchronizedObjectsIDs.getSynchronizationPlanName()
-			);
-			
-			return new WSStringArray(list.toArray(new String[list.size()]));
-			
-			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSString synchronizationGetObjectXML(WSSynchronizationGetObjectXML wsSynchronizationGetObjectXML) throws RemoteException {
-		try {
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
-			String xml = ctrl.synchronizationGetMarshaledObject(
-				wsSynchronizationGetObjectXML.getRevisionID(), 
-				wsSynchronizationGetObjectXML.getObjectName(), 
-				wsSynchronizationGetObjectXML.getUniqueID()
-			);
-			return new WSString(xml);			
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-
-	
-	public WSString synchronizationPutObjectXML(WSSynchronizationPutObjectXML wsSynchronizationPutObjectXML) throws RemoteException {
-		try {
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
-			ctrl.synchronizationPutMarshaledObject(
-				wsSynchronizationPutObjectXML.getRevisionID(), 
-				wsSynchronizationPutObjectXML.getObjectName(), 
-				wsSynchronizationPutObjectXML.getUniqueID(),
-				wsSynchronizationPutObjectXML.getXml()
-			);
-			return new WSString(System.currentTimeMillis()+"");
-
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	
-	public WSItemPKArray synchronizationGetUnsynchronizedItemPKs(WSSynchronizationGetUnsynchronizedItemPKs wsSynchronizationGetUnsynchronizedItemPKs) throws RemoteException {
-		try {
-			
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
-			ArrayList<ItemPOJOPK> list = ctrl.synchronizationGetAllUnsynchronizedItemPOJOPKs(
-				wsSynchronizationGetUnsynchronizedItemPKs.getRevisionID(),
-				new DataClusterPOJOPK(wsSynchronizationGetUnsynchronizedItemPKs.getWsDataClusterPOJOPK().getPk()),
-				wsSynchronizationGetUnsynchronizedItemPKs.getConceptName(), 
-				wsSynchronizationGetUnsynchronizedItemPKs.getInstancePattern(), 
-				new SynchronizationPlanPOJOPK(wsSynchronizationGetUnsynchronizedItemPKs.getSynchronizationPlanName()),
-				wsSynchronizationGetUnsynchronizedItemPKs.getStart(),
-				wsSynchronizationGetUnsynchronizedItemPKs.getLimit()
-			);
-			
-			ArrayList<WSItemPK> result = new ArrayList<WSItemPK>();
-			for (Iterator<ItemPOJOPK> iterator = list.iterator(); iterator.hasNext(); ) {
-				ItemPOJOPK itemPOJOPK = iterator.next();
-				result.add(XConverter.POJO2WS(itemPOJOPK));
-			}
-			
-			return new WSItemPKArray(result.toArray(new WSItemPK[result.size()]));
-
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSString synchronizationGetItemXML(WSSynchronizationGetItemXML wsSynchronizationGetItemXML) throws RemoteException {
-		try {
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
-			String xml = ctrl.synchronizationGetMarshaledItem(
-				wsSynchronizationGetItemXML.getRevisionID(), 
-				XConverter.WS2POJO(wsSynchronizationGetItemXML.getWsItemPOJOPK())
-			);
-			return new WSString(xml);
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSItemPK synchronizationPutItemXML(WSSynchronizationPutItemXML wsSynchronizationPutItemXML) throws RemoteException {
-		try {
-			SynchronizationPlanCtrlLocal ctrl = EnterpriseUtil.getSynchronizationPlanCtrlLocal();
-			ItemPOJOPK pojoPK = ctrl.synchronizationPutMarshaledItem(
-				wsSynchronizationPutItemXML.getRevisionID(), 
-				wsSynchronizationPutItemXML.getXml()
-			);
-			return XConverter.POJO2WS(pojoPK);
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	
-	/***************************************************************************
-	 * Synchronization Item
-	 * **************************************************************************/
-	
-	public WSSynchronizationItemPK deleteSynchronizationItem(WSDeleteSynchronizationItem wsSynchronizationItemDelete) throws RemoteException {
-		try {
-			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
-			
-			SynchronizationItemPOJOPK pojoPK = ctrl.removeSynchronizationItem(
-				new SynchronizationItemPOJOPK(wsSynchronizationItemDelete.getWsSynchronizationItemPK().getIds())
-			);
-			return new WSSynchronizationItemPK(pojoPK.getIds());
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSSynchronizationItem getSynchronizationItem(WSGetSynchronizationItem wsGetSynchronizationItem) throws RemoteException {
-		try {
-			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
-			SynchronizationItemPOJO pojo =
-				ctrl.getSynchronizationItem(
-					new SynchronizationItemPOJOPK(wsGetSynchronizationItem.getWsSynchronizationItemPK().getIds())
-				);
-			return XConverter.POJO2WS(pojo);
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSBoolean existsSynchronizationItem(WSExistsSynchronizationItem wsExistsSynchronizationItem) throws RemoteException {
-		try {
-			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
-			SynchronizationItemPOJO pojo =
-				ctrl.existsSynchronizationItem(
-					new SynchronizationItemPOJOPK(wsExistsSynchronizationItem.getWsSynchronizationItemPK().getIds())
-				);
-			return new WSBoolean(pojo!=null);
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSSynchronizationItemPKArray getSynchronizationItemPKs(WSGetSynchronizationItemPKs regex) throws RemoteException {
-		try {
-			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
-			Collection c =
-				ctrl.getSynchronizationItemPKs(
-					regex.getRegex()
-				);
-			if (c==null) return null;
-			WSSynchronizationItemPK[] pks = new WSSynchronizationItemPK[c.size()];
-			int i=0;
-			for (Iterator iter = c.iterator(); iter.hasNext(); ) {
-				pks[i++] = new WSSynchronizationItemPK(((SynchronizationItemPOJOPK) iter.next()).getIds());
-			}
-			return new WSSynchronizationItemPKArray(pks);
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSSynchronizationItemPK putSynchronizationItem(WSPutSynchronizationItem wsSynchronizationItem) throws RemoteException {
-		try {
-			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
-			SynchronizationItemPOJOPK pk =
-				ctrl.putSynchronizationItem(
-						XConverter.WS2POJO(wsSynchronizationItem.getWsSynchronizationItem())
-				);
-			return new WSSynchronizationItemPK(pk.getIds());
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
-	
-	public WSSynchronizationItem resolveSynchronizationItem(WSResolveSynchronizationItem wsResolveSynchronizationItem) throws RemoteException {
-		try {
-			SynchronizationItemCtrlLocal ctrl = EnterpriseUtil.getSynchronizationItemCtrlLocal();
-			SynchronizationItemPOJO pojo =
-				ctrl.resolveSynchronization(
-					new SynchronizationItemPOJOPK(wsResolveSynchronizationItem.getWsSynchronizationItemPK().getIds()),
-					wsResolveSynchronizationItem.getNewProjection()
-				);
-			return XConverter.POJO2WS(pojo);
-		} catch (com.amalto.core.util.XtentisException e) {
-			throw(new RemoteException(e.getLocalizedMessage()));
-//		} catch (RemoteException e) {
-//			throw(new RemoteException(e.getLocalizedMessage()));
-		} catch (Exception e) {
-			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-		}
-	}
 
 
 	public com.amalto.webapp.util.webservices.WSServiceGetDocument getServiceDocument(WSString serviceName)
@@ -3748,7 +2802,7 @@ public class XtentisRMIPort implements XtentisPort {
 			//invoke before saving
 
 			if(wsPutItemWithReport.getInvokeBeforeSaving()){
-				String err=EnterpriseUtil.beforeSaving(concept, projection, resultUpdateReport);
+				String err=Util.beforeSaving(concept, projection, resultUpdateReport);
 				if(err!=null){
 					err="execute beforeSaving ERROR:"+ err;
 					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
@@ -3867,6 +2921,391 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(
 			WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSRolePK deleteRole(WSDeleteRole wsRoleDelete)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSSynchronizationItemPK deleteSynchronizationItem(
+			WSDeleteSynchronizationItem wsSynchronizationItemDelete)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSSynchronizationPlanPK deleteSynchronizationPlan(
+			WSDeleteSynchronizationPlan wsSynchronizationPlanDelete)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSUniversePK deleteUniverse(WSDeleteUniverse wsUniverseDelete)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSBoolean existsRole(WSExistsRole wsExistsRole)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSBoolean existsSynchronizationItem(
+			WSExistsSynchronizationItem wsExistsSynchronizationItem)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSBoolean existsSynchronizationPlan(
+			WSExistsSynchronizationPlan wsExistsSynchronizationPlan)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSBoolean existsUniverse(WSExistsUniverse wsExistsUniverse)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSStringArray getObjectsForRoles(WSGetObjectsForRoles wsRoleDelete)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSStringArray getObjectsForSynchronizationPlans(
+			WSGetObjectsForSynchronizationPlans regex) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSStringArray getObjectsForUniverses(WSGetObjectsForUniverses regex)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSSynchronizationItem getSynchronizationItem(
+			WSGetSynchronizationItem wsGetSynchronizationItem)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSSynchronizationItemPKArray getSynchronizationItemPKs(
+			WSGetSynchronizationItemPKs regex) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSSynchronizationPlan getSynchronizationPlan(
+			WSGetSynchronizationPlan wsGetSynchronizationPlan)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSStringArray getSynchronizationPlanItemsAlgorithms(
+			WSGetSynchronizationPlanItemsAlgorithms regex)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSStringArray getSynchronizationPlanObjectsAlgorithms(
+			WSGetSynchronizationPlanObjectsAlgorithms regex)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSSynchronizationPlanPKArray getSynchronizationPlanPKs(
+			WSGetSynchronizationPlanPKs regex) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSUniverse getUniverse(WSGetUniverse wsGetUniverse)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSVersioningSystemConfiguration getVersioningSystemConfiguration(
+			WSGetVersioningSystemConfiguration wsGetVersioningSystemConfiguration)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSSynchronizationItemPK putSynchronizationItem(
+			WSPutSynchronizationItem wsSynchronizationItem)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSSynchronizationPlanPK putSynchronizationPlan(
+			WSPutSynchronizationPlan wsSynchronizationPlan)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSUniversePK putUniverse(WSPutUniverse wsUniverse)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSString putVersioningSystemConfiguration(
+			WSPutVersioningSystemConfiguration wsPutVersioningSystemConfiguration)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSSynchronizationItem resolveSynchronizationItem(
+			WSResolveSynchronizationItem wsResolveSynchronizationItem)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSString synchronizationGetItemXML(
+			WSSynchronizationGetItemXML wsSynchronizationGetItemXML)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSString synchronizationGetObjectXML(
+			WSSynchronizationGetObjectXML wsSynchronizationGetObjectXML)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSItemPKArray synchronizationGetUnsynchronizedItemPKs(
+			WSSynchronizationGetUnsynchronizedItemPKs wsSynchronizationGetUnsynchronizedItemPKs)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSStringArray synchronizationGetUnsynchronizedObjectsIDs(
+			WSSynchronizationGetUnsynchronizedObjectsIDs wsSynchronizationGetUnsynchronizedObjectsIDs)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSSynchronizationPlanStatus synchronizationPlanAction(
+			WSSynchronizationPlanAction wsSynchronizationPlanAction)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSItemPK synchronizationPutItemXML(
+			WSSynchronizationPutItemXML wsSynchronizationPutItemXML)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSString synchronizationPutObjectXML(
+			WSSynchronizationPutObjectXML wsSynchronizationPutObjectXML)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSBackgroundJobPK versioningCommitItems(
+			WSVersioningCommitItems wsVersioningCommitItems)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSVersioningInfo versioningGetInfo(
+			WSVersioningGetInfo wsVersioningGetInfo) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSVersioningItemHistory versioningGetItemHistory(
+			WSVersioningGetItemHistory wsVersioningGetItemHistory)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSVersioningItemsVersions versioningGetItemsVersions(
+			WSVersioningGetItemsVersions wsVersioningGetItemsVersions)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSVersioningObjectsVersions versioningGetObjectsVersions(
+			WSVersioningGetObjectsVersions wsVersioningGetObjectsVersions)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSBoolean versioningRestoreItemByRevision(
+			WSVersioningRestoreItemByRevision wsVersioningRestoreItemByRevision)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSBackgroundJobPK versioningRestoreItems(
+			WSVersioningRestoreItems wsVersioningRestoreItems)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSBackgroundJobPK versioningRestoreObjects(
+			WSVersioningRestoreObjects wsVersioningRestoreObjects)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSBackgroundJobPK versioningTagItems(
+			WSVersioningTagItems wsVersioningTagItems) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	public WSBackgroundJobPK versioningTagObjects(
+			WSVersioningTagObjects wsVersioningTagObjects)
 			throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
