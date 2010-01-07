@@ -40,15 +40,17 @@ public class LoginDWR {
 		List<String> universeNames=new ArrayList<String>();
 		universeNames.add("HEAD");
 		try {
-			XtentisPort port=Util.getPort(null, null);
-			WSUniversePKArray pks=port.getUniversePKs(new WSGetUniversePKs(".*"));
-			if(pks!=null){
-				WSUniversePK[] wsUniversePKs=pks.getWsUniversePK();
-			    if(wsUniversePKs!=null&&wsUniversePKs.length>0){
-			    	for (int i = 0; i < wsUniversePKs.length; i++) {
-			    		universeNames.add(wsUniversePKs[i].getPk());
-					}
-			    }
+			if(com.amalto.core.util.Util.isEnterprise()){
+				XtentisPort port=Util.getPort(null, null);
+				WSUniversePKArray pks=port.getUniversePKs(new WSGetUniversePKs(".*"));
+				if(pks!=null){
+					WSUniversePK[] wsUniversePKs=pks.getWsUniversePK();
+				    if(wsUniversePKs!=null&&wsUniversePKs.length>0){
+				    	for (int i = 0; i < wsUniversePKs.length; i++) {
+				    		universeNames.add(wsUniversePKs[i].getPk());
+						}
+				    }
+				}
 			}
 			
 		} catch (Exception e) {
