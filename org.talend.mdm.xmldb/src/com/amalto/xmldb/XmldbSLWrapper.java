@@ -1080,7 +1080,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         	
         	//where
         	if(pivotPaths.length>0){
-        		xqWhere.append("where 1=1 ");
+        		xqWhere.append("where  ");
         		if(pivotPaths.length>1){
             		for (int k = 0; k < pivotPaths.length-1 ; k++) {
             			String[] k1keys=pivotWithKeys.get(pivotPaths[k+1]);
@@ -1322,7 +1322,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 					else
 						where+="";
 					String strwhere=buildWhere(where, pivots, item, useValueComparisons);
-					where = strwhere.length()==0?"":strwhere;
+					where = strwhere.trim().length()==0?"":strwhere;
 				}//for
 				return where;
 					

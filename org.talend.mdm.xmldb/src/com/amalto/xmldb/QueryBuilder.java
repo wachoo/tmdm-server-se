@@ -197,7 +197,7 @@ public class QueryBuilder {
 					else
 						where+="";
 					String strwhere=buildWhere(where, pivots, item);
-					where=strwhere.length()==0?"":strwhere;
+					where=strwhere.trim().length()==0?"":strwhere;
 				}//for
 				return where;
 
