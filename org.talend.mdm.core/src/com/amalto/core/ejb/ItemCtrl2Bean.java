@@ -893,7 +893,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.facade-method 
      */
     public ArrayList<String> getItemsPivotIndex(
-    		String clusterName, 
+    		String clusterName,     		
 			String mainPivotName,
 			LinkedHashMap<String, String[]> pivotWithKeys, 
 			String[] indexPaths,
@@ -934,7 +934,74 @@ public class ItemCtrl2Bean implements SessionBean {
     			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
     			throw new XtentisException(err);
     		}
-            
+    		ViewPOJOPK viewPOJOPK=new ViewPOJOPK("Browse_items_"+clusterName);
+        	ViewPOJO view = Util.getViewCtrlLocalHome().create().getView(new ViewPOJOPK("Browse_items_"+mainPivotName));
+        	//ViewLocal view = ViewUtil.getLocalHome().findByPrimaryKey(viewPK);
+
+        	//Create an ItemWhere which combines the search and and view wheres 
+        	IWhereItem fullWhere;
+        	if(		(view.getWhereConditions()==null) 
+        			|| (view.getWhereConditions().getList().size()==0)
+        	) {
+        		if (whereItem==null)
+        			fullWhere = null;
+        		else
+        			fullWhere = whereItem;
+        	} else {
+        		if (whereItem==null){
+        			fullWhere = new WhereAnd(view.getWhereConditions().getList());
+        		} else {
+        			WhereAnd viewWhere = new WhereAnd(view.getWhereConditions().getList());
+                    WhereAnd wAnd = new WhereAnd();
+        			wAnd.add(whereItem);
+        			wAnd.add(viewWhere);
+        			fullWhere = wAnd;
+        		}
+        	}
+        	
+        	//2.13.1 - Add Filters from the Roles
+        	ILocalUser user = LocalUser.getLocalUser();
+        	HashSet<String> roleNames = user.getRoles();
+        	if (!roleNames.contains("administration")) {
+        		ArrayList<IWhereItem> roleWhereConditions = new ArrayList<IWhereItem>();
+	           	String objectType = "View";
+	        	for (Iterator<String> iter = roleNames.iterator(); iter.hasNext(); ) {
+	    			String roleName = iter.next();
+	    			if ("authenticated".equals(roleName)) continue;
+	    			//load Role
+	    			RolePOJO role = ObjectPOJO.load(RolePOJO.class, new RolePOJOPK(roleName));
+	    			//get Specifications for the View Object
+	    			RoleSpecification specification = role.getRoleSpecifications().get(objectType);
+	    			if (specification!=null) {
+	    				if (!specification.isAdmin()) {
+	    					Set<String> regexIds = specification.getInstances().keySet();
+	    					for (Iterator<String> iterator = regexIds.iterator(); iterator.hasNext(); ) {
+	    						String regexId = iterator.next();
+	    						if (viewPOJOPK.getIds()[0].matches(regexId)) {
+	    							HashSet<String> parameters = specification.getInstances().get(regexId).getParameters();
+	    							for (Iterator<String> it = parameters.iterator(); it.hasNext(); ) {
+										String marshalledWC = it.next();
+										roleWhereConditions.add(RoleWhereCondition.parse(marshalledWC).toWhereCondition());
+									}
+	    						}
+	    					}
+	    				}
+	    			}
+	        	}//for role Names
+	        	//add collected additional conditions
+	        	if (roleWhereConditions.size()>0) {
+		        	if (fullWhere==null){
+	        			fullWhere = new WhereAnd(roleWhereConditions);
+	        		} else {
+	        			WhereAnd viewWhere = new WhereAnd(roleWhereConditions);
+	                    WhereAnd wAnd = new WhereAnd();
+	        			wAnd.add(fullWhere);
+	        			wAnd.add(viewWhere);
+	        			fullWhere = wAnd;
+	        		}
+	        	}
+        	}
+
             String query = server.getPivotIndexQuery(
             		                clusterName, 
             		                mainPivotName, 
@@ -942,7 +1009,7 @@ public class ItemCtrl2Bean implements SessionBean {
             		                universe.getItemsRevisionIDs(),
             		                universe.getDefaultItemRevisionID(),
             		                indexPaths, 
-            		                whereItem, 
+            		                fullWhere, 
             		                pivotDirections,
             		                indexDirections, 
             		                start,
