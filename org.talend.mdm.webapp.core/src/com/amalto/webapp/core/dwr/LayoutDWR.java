@@ -79,10 +79,15 @@ public class LayoutDWR {
 	
 	public String getUsernameAndUniverse() throws Exception{
 		try {
+			String givenname = null;
+			String familyname = null;
 			String xml = Util.getAjaxSubject().getXml();
-			Document d = Util.parse(xml);
-			String givenname = Util.getFirstTextNode(d,"//givenname");
-			String familyname = Util.getFirstTextNode(d,"//familyname");
+			if(xml!=null){
+				Document d = Util.parse(xml);
+				givenname=Util.getFirstTextNode(d,"//givenname");
+				familyname= Util.getFirstTextNode(d,"//familyname");
+			}
+			
 			String name = "";
 			String universe = Util.getLoginUniverse();
 			if(familyname!=null && givenname!=null) name = givenname+" "+familyname +","+universe;
