@@ -94,6 +94,8 @@ import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocalHome;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocalHome;
+import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
+import com.amalto.core.objects.role.ejb.local.RoleCtrlLocalHome;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocalHome;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
@@ -109,6 +111,8 @@ import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
+import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocalHome;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
 import com.sun.org.apache.xpath.internal.XPathAPI;
@@ -2061,6 +2065,21 @@ public  class Util {
 //		dumpClass(localHome.getClass());
 		return localHome;
 	}
+	public static RoleCtrlLocalHome getRoleCtrlLocalHome() throws NamingException {
+		return (RoleCtrlLocalHome) getLocalHome(RoleCtrlLocalHome.JNDI_NAME);
+	}
+	public static RoleCtrlLocal getRoleCtrlLocal() throws NamingException,CreateException {
+		return getRoleCtrlLocalHome().create();
+	}
+	
+		
+	public static UniverseCtrlLocalHome getUniverseCtrlLocalHome() throws NamingException {
+		return (UniverseCtrlLocalHome) getLocalHome(UniverseCtrlLocalHome.JNDI_NAME);
+	}
+	public static UniverseCtrlLocal getUniverseCtrlLocal() throws NamingException,CreateException {
+		return getUniverseCtrlLocalHome().create();
+	}
+		
 	public static RoutingOrderV2CtrlLocal getRoutingOrderV2CtrlLocal() throws NamingException,CreateException {
 		return getRoutingOrderV2CtrlLocalHome().create();
 	}		
@@ -2904,6 +2923,7 @@ public  class Util {
 	}
 	
 	 public static boolean isDefaultSVNUP() throws Exception{
+		 if(isEnterprise()){
 		  Object service= 
 		   Util.retrieveComponent(
 		    null, 
@@ -2917,7 +2937,27 @@ public  class Util {
 		    }
 		   ); 
 		  return result.booleanValue();
+		 }else{
+			 return false;
+		 }
      }
+	 public static boolean isSVNAutocommit()throws Exception{
+		 if(isDefaultSVNUP()){
+ 			Object service= 
+				Util.retrieveComponent(
+					null, 
+					"amalto/local/service/svn"
+				);
+
+			Boolean isauto = (Boolean)
+				Util.getMethod(service, "isAutocommittosvn").invoke(
+					service,
+					new Object[] {}
+				);            	
+			return isauto;
+		 }
+		 return false;
+	 }
 	/*********************************************************************
 	 *MAIN
 	 *********************************************************************/	

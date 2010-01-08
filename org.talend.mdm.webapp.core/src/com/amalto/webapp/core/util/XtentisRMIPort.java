@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -63,6 +62,7 @@ import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
 import com.amalto.core.objects.role.ejb.RolePOJO;
 import com.amalto.core.objects.role.ejb.RolePOJOPK;
+import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
 import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK;
 import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO;
@@ -75,10 +75,6 @@ import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
 import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJO;
 import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJOPK;
 import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocal;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationItemPOJO;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationItemPOJOPK;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJO;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
@@ -87,7 +83,7 @@ import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
-
+import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.UpdateReportItem;
@@ -2184,6 +2180,100 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	
 	
+	/***************************************************************************
+	 * Role
+	 * **************************************************************************/
+
+    public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
+		try {
+			RoleCtrlLocal ctrl = Util.getRoleCtrlLocal();
+			return
+				new WSRolePK(
+					ctrl.removeRole(
+						new RolePOJOPK(
+								wsRoleDelete.getWsRolePK().getPk()
+						)
+					).getUniqueId()
+				);
+	
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+    
+	public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
+		if(!Util.isEnterprise())return new WSRole("Order_Admin", "",new WSRoleSpecification[0]);
+		try {
+			RoleCtrlLocal ctrl = Util.getRoleCtrlLocal();
+			RolePOJO pojo =
+				ctrl.getRole(
+					new RolePOJOPK(
+							wsGetRole.getWsRolePK().getPk()
+					)
+				);
+			return XConverter.POJO2WS(pojo);
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException {
+		try {
+			RoleCtrlLocal ctrl = Util.getRoleCtrlLocal();
+			RolePOJO pojo =
+				ctrl.existsRole(
+					new RolePOJOPK(
+							wsExistsRole.getWsRolePK().getPk()
+					)
+				);
+			return new WSBoolean(pojo!=null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+
+	public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {
+		try {
+			RoleCtrlLocal ctrl = Util.getRoleCtrlLocal();
+			Collection c =
+				ctrl.getRolePKs(
+					regex.getRegex()
+				);
+			if (c==null) return null;
+			WSRolePK[] pks = new WSRolePK[c.size()];
+			int i=0;
+			for (Iterator iter = c.iterator(); iter.hasNext(); ) {
+				pks[i++] = new WSRolePK(
+						((RolePOJOPK) iter.next()).getUniqueId()
+				);
+			}
+			return new WSRolePKArray(pks);
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+
+	public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
+		try {
+			RoleCtrlLocal ctrl = Util.getRoleCtrlLocal();
+			RolePOJOPK pk =
+				ctrl.putRole(
+						XConverter.WS2POJO(wsRole.getWsRole())
+				);
+			return new WSRolePK(pk.getUniqueId());
+		} catch (Exception e) {
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
+	}
+	
+	public WSStringArray getObjectsForRoles(WSGetObjectsForRoles wsRoleDelete) throws RemoteException {
+		Set<String> names = ObjectPOJO.getObjectsNames2ClassesMap().keySet(); 
+		return new WSStringArray(
+				names.toArray(new String[names.size()])
+		);
+	}
+
 
 
 	/***************************************************************************
@@ -2507,6 +2597,12 @@ public class XtentisRMIPort implements XtentisPort {
 	
 		
 	
+	/***************************************************************************
+	 * Versioning
+	 * **************************************************************************/
+	
+	
+	
 	
 	
 	/***************************************************************************
@@ -2574,7 +2670,129 @@ public class XtentisRMIPort implements XtentisPort {
 		}
 	}
 	
-
+	
+	/***************************************************************************
+	 * Universes
+	 ***************************************************************************/
+	
+	public WSUniversePK deleteUniverse(WSDeleteUniverse wsUniverseDelete) throws RemoteException {
+		try {
+			
+			UniverseCtrlLocal ctrl = Util.getUniverseCtrlLocal();
+			return
+				new WSUniversePK(
+					ctrl.removeUniverse(
+						new UniversePOJOPK(
+								wsUniverseDelete.getWsUniversePK().getPk()
+						)
+					).getUniqueId()
+				);
+			
+		} catch (com.amalto.core.util.XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+	
+	public WSBoolean existsUniverse(WSExistsUniverse wsExistsUniverse) throws RemoteException {
+		try {
+			
+			UniverseCtrlLocal ctrl = Util.getUniverseCtrlLocal();
+			UniversePOJO pojo =
+				ctrl.existsUniverse(
+					new UniversePOJOPK(
+							wsExistsUniverse.getWsUniversePK().getPk()
+					)
+				);
+			return new WSBoolean(pojo!=null);
+			
+		} catch (com.amalto.core.util.XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+	
+	public WSStringArray getObjectsForUniverses(WSGetObjectsForUniverses regex) throws RemoteException {
+		try {
+			
+			Set<String> names = UniversePOJO.getXtentisObjectName(); 
+			return new WSStringArray(
+					names.toArray(new String[names.size()])
+			);
+			
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+	
+	public WSUniverse getUniverse(WSGetUniverse wsGetUniverse) throws RemoteException {
+		try {
+			
+			UniverseCtrlLocal ctrl = Util.getUniverseCtrlLocal();
+			UniversePOJO pojo =
+				ctrl.getUniverse(
+					new UniversePOJOPK(
+							wsGetUniverse.getWsUniversePK().getPk()
+					)
+				);
+			return XConverter.POJO2WS(pojo);
+			
+		} catch (com.amalto.core.util.XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (RemoteException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+	
+	public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex) throws RemoteException {
+		try {
+			if(Util.isEnterprise()){
+			UniverseCtrlLocal ctrl = Util.getUniverseCtrlLocal();
+			Collection c =
+				ctrl.getUniversePKs(
+					regex.getRegex()
+				);
+			if (c==null) return null;
+			WSUniversePK[] pks = new WSUniversePK[c.size()];
+			int i=0;
+			for (Iterator iter = c.iterator(); iter.hasNext(); ) {
+				pks[i++] = new WSUniversePK(
+						((UniversePOJOPK) iter.next()).getUniqueId()
+				);
+			}
+			return new WSUniversePKArray(pks);
+			}else return new WSUniversePKArray();
+			
+		} catch (com.amalto.core.util.XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+	
+	public WSUniversePK putUniverse(WSPutUniverse wsUniverse) throws RemoteException {
+		try {
+			
+			UniverseCtrlLocal ctrl = Util.getUniverseCtrlLocal();
+			UniversePOJOPK pk =
+				ctrl.putUniverse(
+						XConverter.WS2POJO(wsUniverse.getWsUniverse())
+				);
+			return new WSUniversePK(pk.getUniqueId());
+			
+		} catch (com.amalto.core.util.XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (RemoteException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+	
 	public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
 		try {
 			//Fetch the user
@@ -2591,6 +2809,7 @@ public class XtentisRMIPort implements XtentisPort {
 	
 	
 	
+
 
 
 	public com.amalto.webapp.util.webservices.WSServiceGetDocument getServiceDocument(WSString serviceName)
@@ -2798,15 +3017,15 @@ public class XtentisRMIPort implements XtentisPort {
 			
 			String resultUpdateReport= Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem.getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
 			//invoke before saving
-
-			if(wsPutItemWithReport.getInvokeBeforeSaving()){
-				String err=Util.beforeSaving(concept, projection, resultUpdateReport);
-				if(err!=null){
-					err="execute beforeSaving ERROR:"+ err;
-					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+			if(Util.isEnterprise()){
+				if(wsPutItemWithReport.getInvokeBeforeSaving()){
+					String err=Util.beforeSaving(concept, projection, resultUpdateReport);
+					if(err!=null){
+						err="execute beforeSaving ERROR:"+ err;
+						org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+					}
 				}
 			}
-			
 			String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
 	
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[putItem-of-putItemWithReport] in dataCluster:"+dataClusterPK);
@@ -2926,14 +3145,6 @@ public class XtentisRMIPort implements XtentisPort {
 
 
 
-	public WSRolePK deleteRole(WSDeleteRole wsRoleDelete)
-			throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
 	public WSSynchronizationItemPK deleteSynchronizationItem(
 			WSDeleteSynchronizationItem wsSynchronizationItemDelete)
 			throws RemoteException {
@@ -2945,22 +3156,6 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSSynchronizationPlanPK deleteSynchronizationPlan(
 			WSDeleteSynchronizationPlan wsSynchronizationPlanDelete)
-			throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-	public WSUniversePK deleteUniverse(WSDeleteUniverse wsUniverseDelete)
-			throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-	public WSBoolean existsRole(WSExistsRole wsExistsRole)
 			throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
@@ -2986,46 +3181,8 @@ public class XtentisRMIPort implements XtentisPort {
 
 
 
-	public WSBoolean existsUniverse(WSExistsUniverse wsExistsUniverse)
-			throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-	public WSStringArray getObjectsForRoles(WSGetObjectsForRoles wsRoleDelete)
-			throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
 	public WSStringArray getObjectsForSynchronizationPlans(
 			WSGetObjectsForSynchronizationPlans regex) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-	public WSStringArray getObjectsForUniverses(WSGetObjectsForUniverses regex)
-			throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-	public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-	public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -3084,32 +3241,9 @@ public class XtentisRMIPort implements XtentisPort {
 
 
 
-	public WSUniverse getUniverse(WSGetUniverse wsGetUniverse)
-			throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-	public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex)
-			throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
 	public WSVersioningSystemConfiguration getVersioningSystemConfiguration(
 			WSGetVersioningSystemConfiguration wsGetVersioningSystemConfiguration)
 			throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-	public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -3127,14 +3261,6 @@ public class XtentisRMIPort implements XtentisPort {
 
 	public WSSynchronizationPlanPK putSynchronizationPlan(
 			WSPutSynchronizationPlan wsSynchronizationPlan)
-			throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-	public WSUniversePK putUniverse(WSPutUniverse wsUniverse)
 			throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;

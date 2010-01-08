@@ -1,6 +1,8 @@
 package com.amalto.core.delegator;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
@@ -21,17 +23,23 @@ public class DefaultLocalUserDelegator implements ILocalUser,IBeanDelegator{
 
 	public ILocalUser getILocalUser() throws XtentisException {
 		// TODO Auto-generated method stub
-		return null;
+		return new DefaultLocalUserDelegator();
 	}
 
 	public HashSet<String> getRoles() {
 		// TODO Auto-generated method stub
-		return null;
+		HashSet<String> set=new HashSet<String>();
+		set.add("administration");
+		set.add("authenticated");
+		return set;
 	}
 
 	public UniversePOJO getUniverse() {
-		// TODO Auto-generated method stub
-		return null;
+		HashMap<String, String>map=new HashMap<String, String>();
+		for(String name:UniversePOJO.getXtentisObjectName()){
+			map.put(name, null);
+		}
+		return new UniversePOJO("[HEAD]","",map,new LinkedHashMap<String, String>());
 	}
 
 	public String getUserXML() {
@@ -41,7 +49,7 @@ public class DefaultLocalUserDelegator implements ILocalUser,IBeanDelegator{
 
 	public String getUsername() {
 		// TODO Auto-generated method stub
-		return null;
+		return "admin";
 	}
 
 	public boolean isAdmin(Class<?> objectTypeClass) throws XtentisException {

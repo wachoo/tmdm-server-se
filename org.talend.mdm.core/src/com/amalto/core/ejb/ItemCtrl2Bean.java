@@ -196,19 +196,8 @@ public class ItemCtrl2Bean implements SessionBean {
             
             //autocommittosvn?
             try{
-	            //VersioningServiceCtrlLocalBI service=Util.getVersioningSystemCtrlLocal().setDefaultVersioningSystem(new VersioningSystemPOJOPK(ICoreConstants.DEFAULT_SVN));
-    			Object service= 
-    				Util.retrieveComponent(
-    					null, 
-    					"amalto/local/service/svn"
-    				);
 
-    			Boolean isauto = (Boolean)
-    				Util.getMethod(service, "isAutocommittosvn").invoke(
-    					service,
-    					new Object[] {}
-    				);            	
-	            if(isauto){
+	            if(Util.isSVNAutocommit()){
 	            	//TODO
 	            	AutoCommitToSvnMsg msg=new AutoCommitToSvnMsg(ICoreConstants.DEFAULT_SVN, item.getItemPOJOPK(),"item autocommittosvn");
 	            	AutoCommitToSvnSendBeanLocalHome h=(AutoCommitToSvnSendBeanLocalHome) Util.getLocalHome("amalto/local/core/autocommittosvnsend");
