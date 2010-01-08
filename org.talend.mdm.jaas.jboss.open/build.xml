@@ -24,10 +24,10 @@
     <!-- ================================= 
           target: all              
          ================================= -->
-    <target name="all" depends="version,packaging,undeploy,deploy">
+    <target name="all" depends="version,package,undeploy,deploy">
     </target>
 	
-	<target name="packaging" >
+	<target name="package" >
 		<buildnumber file="${version.props}"/>
 		<property file="${version.props}" />
    	   	<property name="version.build.new" value="${major}-${minor}-${rev}_${build.number}"  />
