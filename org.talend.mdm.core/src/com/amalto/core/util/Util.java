@@ -2909,7 +2909,7 @@ public  class Util {
 		    null, 
 		    "amalto/local/service/svn"
 		   );
-		  
+		  if(service==null)return false;
 		  Boolean result = (Boolean)
 		   Util.getMethod(service, "isUp").invoke(
 		    service,
