@@ -117,7 +117,7 @@ getUniverseList();
 						</tr>
 						<tr>
 							<td align="right" width="120"><%= _USERNAME_ %>:&nbsp;</td>
-							<td align="left"><input type="text" name="j_username" value="" /></td>
+							<td align="left"><input type="text" name="j_username" value="" onKeyDown="if(event.keyCode==13){document.all.login.click()}"/></td>
 						</tr>
 						<tr>
 							<td align="right" width="120"><%= _PASSWORD_ %>:&nbsp;</td>
