@@ -244,50 +244,7 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 		return true;
     }
 
-    /**
-     * <p> This method is called if the LoginContext's
-     * overall authentication succeeded
-     * (the relevant REQUIRED, REQUISITE, SUFFICIENT and OPTIONAL LoginModules
-     * succeeded).
-     *
-     * <p> If this LoginModule's own authentication attempt
-     * succeeded (checked by retrieving the private state saved by the
-     * <code>login</code> method), then this method associates a
-     * <code>SamplePrincipal</code>
-     * with the <code>Subject</code> located in the
-     * <code>LoginModule</code>.  If this LoginModule's own
-     * authentication attempted failed, then this method removes
-     * any state that was originally saved.
-     *
-     * <p>
-     *
-     * @exception LoginException if the commit fails.
-     *
-     * @return true if this LoginModule's own login and commit
-     *		attempts succeeded, or false otherwise.
-     */
-    public boolean commit() throws LoginException {
-	if (succeeded == false) {
-	    return false;
-	} else {
-	    // add a Principal (authenticated identity)
-	    // to the Subject
-
-	    // assume the user we authenticated is the SamplePrincipal
-	    identity = new SimplePrincipal(username);
-	    if (!subject.getPrincipals().contains(identity))
-		subject.getPrincipals().add(identity);
-
-	    // in any case, clean out state
-	    username = null;
-	    for (int i = 0; i < password.length; i++)
-		password[i] = ' ';
-	    password = null;
-
-	    commitSucceeded = true;
-	    return true;
-	}
-    }
+  
 
 
 
@@ -322,10 +279,10 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 
 		//The username group maintains the username
 		Group usernameGroup = new SimpleGroup("Username");
-		usernameGroup.addMember(new SimplePrincipal(username));
+		usernameGroup.addMember(new SimplePrincipal(getUsername()));
 		
 		Group passwordGroup = new SimpleGroup("Password");
-		passwordGroup.addMember(new SimplePrincipal(String.valueOf(password)));
+		passwordGroup.addMember(new SimplePrincipal(String.valueOf(getPassword())));
 		
 
 		//The Universe Group maintains the Universe name
@@ -339,18 +296,19 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 		rolesGroup.addMember(new SimplePrincipal("authenticated"));
 
 		//getRoleSets is called by the InitialContext.lookup with user anonymous when internal calls are made.
-		if (username.equals(unauthenticatedIdentity.getName())) {
+		if (getUsername().equals(unauthenticatedIdentity.getName())) {
 			rolesGroup.addMember(new SimplePrincipal(adminPermission));
 			return new Group[]{usernameGroup, universeGroup, rolesGroup};
 		}
 
 		//super admin
-		if (username.equals("admin")) {
+		if (getUsername().equals("admin")) {
 			rolesGroup.addMember(new SimplePrincipal(adminPermission));
 			return new Group[]{usernameGroup,passwordGroup, universeGroup, rolesGroup};
 		}
 		//add an 'openTest' role 
-		rolesGroup.addMember(new SimplePrincipal("Order_Administrator"));		
+		rolesGroup.addMember(new SimplePrincipal("Order_Administrator"));
+		rolesGroup.addMember(new SimplePrincipal(adminPermission));
 		return new Group[]{usernameGroup,passwordGroup, universeGroup, rolesGroup};
 	}
 
@@ -443,6 +401,22 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 	protected Object getCredentials() {
 		return credential;
 	}
+	protected String getUsername() {
+		String username = null;
+		if (getIdentity() != null)
+			username = getIdentity().getName();
+		return username;
+	}
+	
+	protected String getPassword() {
+		String password = null;
+		if (getCredentials() != null)
+			password = new String((char[])getCredentials());
+		return password;
+	}
 
+	protected String getUniverse() {
+		return universe;
+	}
 
 }
