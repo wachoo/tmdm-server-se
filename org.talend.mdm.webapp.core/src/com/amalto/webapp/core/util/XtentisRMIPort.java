@@ -87,9 +87,7 @@ import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
-import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO;
-import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJOPK;
-import com.amalto.core.objects.versioning.util.HistoryInfos;
+
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.UpdateReportItem;
