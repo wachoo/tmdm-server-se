@@ -42,7 +42,6 @@ import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJO;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2POJO;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.versioning.ejb.VersioningSystemPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.util.BAMLogger;
 import com.amalto.core.util.LocalUser;
@@ -93,7 +92,6 @@ public abstract class ObjectPOJO implements Serializable{
 				{"Universe", UniversePOJO.class},
 				{"Synchronization Plan", SynchronizationPlanPOJO.class},
 				{"Synchronization Conflict", SynchronizationItemPOJO.class},
-				{"Versioning System", VersioningSystemPOJO.class},
 				{"Item",ItemPOJO.class}
 		};
 	

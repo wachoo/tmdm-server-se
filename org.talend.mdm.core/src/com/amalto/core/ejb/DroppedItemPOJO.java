@@ -338,7 +338,6 @@ public class DroppedItemPOJO implements Serializable{
     	
     	String actionName="findAllPKs";
     	
-    	ILocalUser user = LocalUser.getLocalUser();
     	universeFilter();
     	//get XmlServerSLWrapperLocal
     	XmlServerSLWrapperLocal server=obtainXmlServerSLWrapperLocal();
