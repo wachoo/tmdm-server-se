@@ -923,8 +923,9 @@ public class ItemCtrl2Bean implements SessionBean {
     			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
     			throw new XtentisException(err);
     		}
-    		ViewPOJOPK viewPOJOPK=new ViewPOJOPK("Browse_items_"+clusterName);
-        	ViewPOJO view = Util.getViewCtrlLocalHome().create().getView(new ViewPOJOPK("Browse_items_"+mainPivotName));
+    		// ctoum - 20100110
+    		ViewPOJOPK viewPOJOPK=new ViewPOJOPK("Browse_items_" + mainPivotName);
+        	ViewPOJO view = Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
         	//ViewLocal view = ViewUtil.getLocalHome().findByPrimaryKey(viewPK);
 
         	//Create an ItemWhere which combines the search and and view wheres 
