@@ -48,14 +48,19 @@ public class SmartViewServlet extends HttpServlet {
 		String[] ids = idsString.split("@");
 		String language = (request.getParameter("language")!=null?request.getParameter("language").toUpperCase():"EN");
 		
-		boolean transfo = ItemsBrowserDWR.checkIfTransformerExists(concept,language);
-
+		boolean transfo_lang = ItemsBrowserDWR.checkIfTransformerExists(concept,language);
 		
+		boolean transfo_no_lang = ItemsBrowserDWR.checkIfTransformerExists(concept,null);
 		String content="";
 		String contentType = "text/html";
+		String transformer=null;
+		if(transfo_lang) {
+			transformer = "Smart_view_"+concept+"_"+language.toUpperCase();
+		}else if(transfo_no_lang){
+			transformer = "Smart_view_"+concept;
+		}
 		
-		
-		if(transfo) {		
+		if(transformer!=null) {		
     		String dataClusterPK = "";
     		try {
     			Configuration conf = (Configuration)(request.getSession().getAttribute("configuration"));
@@ -66,7 +71,7 @@ public class SmartViewServlet extends HttpServlet {
     			throw new ServletException(err, e);
     		}
     		
-    		String transformer = "Smart_view_"+concept+"_"+language.toUpperCase();
+    		//String transformer = "Smart_view_"+concept+"_"+language.toUpperCase();
     		
     		try {
     			//run the Transformer
