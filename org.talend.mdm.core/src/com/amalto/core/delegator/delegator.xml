@@ -4,11 +4,13 @@
     <OPEN>
       <name>LocalUser#com.amalto.core.delegator.DefaultLocalUserDelegator</name>
       <name>Validation#com.amalto.core.delegator.DefaultValidationDelegator</name>
+      <name>ItemCtrl#com.amalto.core.delegator.DefaultItemCtrlDelegator</name>
     </OPEN>
     
     <ENTERPRISE>
        <name>LocalUser#com.amalto.core.delegator.enterprise.EnterpriseLocalUserDelegator</name>
        <name>Validation#com.amalto.core.delegator.enterprise.EnterpriseValidationDelegator</name>
+       <name>ItemCtrl#com.amalto.core.delegator.enterprise.EnterpriseItemCtrlDelegator</name>
     </ENTERPRISE>
     
   </delegator>

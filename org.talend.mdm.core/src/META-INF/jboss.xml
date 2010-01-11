@@ -121,14 +121,6 @@
         </method-attributes>
       </session>
       <session>
-         <ejb-name>AutoCommitToSvnSendBean</ejb-name>
-         <jndi-name>amalto/remote/core/autocommittosvnsend</jndi-name>
-         <local-jndi-name>amalto/local/core/autocommittosvnsend</local-jndi-name>
-
-        <method-attributes>
-        </method-attributes>
-      </session>
-      <session>
          <ejb-name>TransformerV2Ctrl</ejb-name>
          <jndi-name>amalto/remote/core/transformerv2ctrl</jndi-name>
          <local-jndi-name>amalto/local/core/transformerv2ctrl</local-jndi-name>

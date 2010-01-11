@@ -84,5 +84,7 @@ public class BeanDelegatorContainer {
 	public IValidation getValidationDelegator() {
 		return (IValidation) delegatorInstancePool.get("Validation");
 	}
-
+	public IItemCtrlDelegator getItemCtrlDelegator() {
+		return (IItemCtrlDelegator) delegatorInstancePool.get("ItemCtrl");
+	}
 }

@@ -3,7 +3,6 @@ package com.amalto.core.ejb;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -21,15 +20,13 @@ import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.local.AutoCommitToSvnSendBeanLocalHome;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.role.ejb.RolePOJO;
-import com.amalto.core.objects.role.ejb.RolePOJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
@@ -39,15 +36,12 @@ import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.JazzyConfiguration;
 import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.RoleSpecification;
-import com.amalto.core.util.RoleWhereCondition;
 import com.amalto.core.util.UUIDItemContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
-import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereOr;
 
@@ -144,87 +138,7 @@ public class ItemCtrl2Bean implements SessionBean {
     }
     
     protected ItemPOJOPK putItem(ItemPOJO item, String schema,String dataModelName) throws XtentisException{
-    	
-    	org.apache.log4j.Logger.getLogger(this.getClass()).trace("putItem() "+item.getItemPOJOPK().getUniqueID());
-    	
-        try {
-        	//parse the item against the datamodel - no parsing for cache items
-        	
-        	if (schema!=null) {            	
-        		Document schema1=Util.parse(schema);
-    	    	String concept=item.getConceptName();
-    	    	if(Util.getUUIDNodes(schema, concept).size()>0){ //check uuid key exists
-    		    	String dataCluster=item.getDataClusterPOJOPK().getIds()[0];
-    		    	Element root=(Element)item.getProjection().cloneNode(true);
-    		        XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
-    		        		schema1,
-    						concept					
-    				);	       
-    				//get key values
-    				String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem(
-    		   			root,
-    						conceptKey
-    				);			
-    				UUIDItemContent content=Util.processUUID(root, schema, dataCluster, concept, conceptKey, itemKeyValues);
-    				//reset item projection & itemids
-    				item.setProjectionAsString(content.getItemContent());    				
-    				item.setItemIds(content.getItemKeyValues());
-    	    	}
-    	    	
-        		Util.validate(item.getProjection(),schema);
-        		//schematron validate
-        	}
-        	
-            //FIXME: update the vocabulary . Universe dependent?
-        	/*
-            DataClusterLocal dc =  (DataClusterLocal)dataClusters.get(item.getDataClusterPK().getName());
-            if (dc == null) {
-            	dc = DataClusterUtil.getLocalHome().findByPrimaryKey(item.getDataClusterPK());
-            	dataClusters.put(item.getDataClusterPK().getName(), dc);
-            }
-            if (dc.getSpellerRefreshPeriodInSeconds()>-1)
-            	dc.addToVocabulary(item.getProjection());
-            */
-            
-        	//make sure the plan is reset
-        	item.setPlanPK(null);
-        	//used for binding data model
-        	if(dataModelName!=null)item.setDataModelName(dataModelName);
-        	//Store
-            ItemPOJOPK pk = item.store();
-            if (pk == null) throw new XtentisException("Could not put item "+Util.joinStrings(item.getItemIds(),".")+".Check the XML Server logs");
-            
-            //autocommittosvn?
-            try{
-
-	            if(Util.isSVNAutocommit()){
-	            	//TODO
-	            	AutoCommitToSvnMsg msg=new AutoCommitToSvnMsg(ICoreConstants.DEFAULT_SVN, item.getItemPOJOPK(),"item autocommittosvn");
-	            	AutoCommitToSvnSendBeanLocalHome h=(AutoCommitToSvnSendBeanLocalHome) Util.getLocalHome("amalto/local/core/autocommittosvnsend");
-	            	h.create().sendMsg(msg.marshal());
-	            }   
-	            }catch(Exception e){
-            	e.printStackTrace();
-            }
-            return pk;
-	    } catch (XtentisException e) {
-	    	throw(e);
-	    } catch (Exception e) {
-	    	String prefix = "Unable to create/update the item "+item.getDataClusterPOJOPK().getUniqueId()+"."+Util.joinStrings(item.getItemIds(), ".")
-    	    		+": ";
-    	    String err = prefix +e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    // simplify the error message
-    	    if (dataModelName.equalsIgnoreCase("Reporting"))
-    	    {
-    	    	if (err.indexOf("One of '{ListOfFilters}'") !=-1)
-    	    	{
-    	    		err = prefix + "At least one filter must be defined";
-    	    	}
-    	    }
-    	    throw new XtentisException(err);
-	    }
-
+        	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().putItem(item, schema, dataModelName);
     }
     
      
@@ -594,125 +508,8 @@ public class ItemCtrl2Bean implements SessionBean {
 			int start,
 			int limit
 		) throws XtentisException{
-    	
-    	//get the universe and revision ID
-    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-    	if (universe == null) {
-    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
-    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    		throw new XtentisException(err);
-    	}
-    	
-    	//build the patterns to revision ID map
-    	LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(universe.getItemsRevisionIDs());
-    	if (universe.getDefaultItemRevisionID() != null&&universe.getDefaultItemRevisionID().length()>0) conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
-    	
-    	//build the patterns to cluster map - only one cluster at this stage
-    	LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-    	conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
-    	
-    	XmlServerSLWrapperLocal server = null;
-		try {
-			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-		} catch (Exception e) {
-			String err = "Unable to search items in data cluster '"+dataClusterPOJOPK.getUniqueId()+"': unable to access the XML Server wrapper";
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-			throw new XtentisException(err);
-		}
-    	
-        try {            
-        	ViewPOJO view = Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
-        	//ViewLocal view = ViewUtil.getLocalHome().findByPrimaryKey(viewPK);
+    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().viewSearch(dataClusterPOJOPK, viewPOJOPK, whereItem, spellThreshold, orderBy, direction, start, limit);    	
 
-        	//Create an ItemWhere which combines the search and and view wheres 
-        	IWhereItem fullWhere;
-        	if(		(view.getWhereConditions()==null) 
-        			|| (view.getWhereConditions().getList().size()==0)
-        	) {
-        		if (whereItem==null)
-        			fullWhere = null;
-        		else
-        			fullWhere = whereItem;
-        	} else {
-        		if (whereItem==null){
-        			fullWhere = new WhereAnd(view.getWhereConditions().getList());
-        		} else {
-        			WhereAnd viewWhere = new WhereAnd(view.getWhereConditions().getList());
-                    WhereAnd wAnd = new WhereAnd();
-        			wAnd.add(whereItem);
-        			wAnd.add(viewWhere);
-        			fullWhere = wAnd;
-        		}
-        	}
-        	
-        	//2.13.1 - Add Filters from the Roles
-        	ILocalUser user = LocalUser.getLocalUser();
-        	HashSet<String> roleNames = user.getRoles();
-        	if (! roleNames.contains("administration")) {
-        		ArrayList<IWhereItem> roleWhereConditions = new ArrayList<IWhereItem>();
-	           	String objectType = "View";
-	        	for (Iterator<String> iter = roleNames.iterator(); iter.hasNext(); ) {
-	    			String roleName = iter.next();
-	    			if ("authenticated".equals(roleName)) continue;
-	    			//load Role
-	    			RolePOJO role = ObjectPOJO.load(RolePOJO.class, new RolePOJOPK(roleName));
-	    			//get Specifications for the View Object
-	    			RoleSpecification specification = role.getRoleSpecifications().get(objectType);
-	    			if (specification!=null) {
-	    				if (!specification.isAdmin()) {
-	    					Set<String> regexIds = specification.getInstances().keySet();
-	    					for (Iterator<String> iterator = regexIds.iterator(); iterator.hasNext(); ) {
-	    						String regexId = iterator.next();
-	    						if (viewPOJOPK.getIds()[0].matches(regexId)) {
-	    							HashSet<String> parameters = specification.getInstances().get(regexId).getParameters();
-	    							for (Iterator<String> it = parameters.iterator(); it.hasNext(); ) {
-										String marshalledWC = it.next();
-										roleWhereConditions.add(RoleWhereCondition.parse(marshalledWC).toWhereCondition());
-									}
-	    						}
-	    					}
-	    				}
-	    			}
-	        	}//for role Names
-	        	//add collected additional conditions
-	        	if (roleWhereConditions.size()>0) {
-		        	if (fullWhere==null){
-	        			fullWhere = new WhereAnd(roleWhereConditions);
-	        		} else {
-	        			WhereAnd viewWhere = new WhereAnd(roleWhereConditions);
-	                    WhereAnd wAnd = new WhereAnd();
-	        			wAnd.add(fullWhere);
-	        			wAnd.add(viewWhere);
-	        			fullWhere = wAnd;
-	        		}
-	        	}
-        	}
-        	
-       	
-            String query = server.getItemsQuery(
-            	conceptPatternsToRevisionID, 
-            	conceptPatternsToClusterName, 
-            	null, //the main pivots will be that of the first element of the viewable list
-            	view.getViewableBusinessElements().getList(), 
-            	fullWhere, 
-            	orderBy, 
-            	direction, 
-            	start, 
-            	limit, 
-            	spellThreshold,
-            	true
-            );
-            
-            return server.runQuery(null, null, query, null);
-            
-	    } catch (XtentisException e) {
-	    	throw(e);
-	    } catch (Exception e) {
-    	    String err = "Unable to single search: "
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    throw new XtentisException(err);
-	    }
     }    
 
     
@@ -819,14 +616,7 @@ public class ItemCtrl2Bean implements SessionBean {
         	LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
         	conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
         	
-        	XmlServerSLWrapperLocal server = null;
-    		try {
-    			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-    		} catch (Exception e) {
-    			String err = "Unable to search items in data cluster '"+dataClusterPOJOPK.getUniqueId()+"': unable to access the XML Server wrapper";
-    			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    			throw new XtentisException(err);
-    		}
+        	XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
             
             String query = server.getItemsQuery(
             	conceptPatternsToRevisionID, 
@@ -892,135 +682,7 @@ public class ItemCtrl2Bean implements SessionBean {
 			int start, 
 			int limit
 		) throws XtentisException{
-        try {
-        	
-            //validate parameters
-        	if (pivotWithKeys.size()==0) {
-        	    String err = "The Map of pivots must contain at least one element";
-        	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-        	    throw new XtentisException(err);
-        	}
-        	
-        	if (indexPaths.length==0) {
-        	    String err = "The Array of Index Paths must contain at least one element";
-        	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-        	    throw new XtentisException(err);
-        	}
-        	
-        	//get the universe and revision ID
-        	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-        	if (universe == null) {
-        		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
-        		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-        		throw new XtentisException(err);
-        	}
-        	
-        	XmlServerSLWrapperLocal server = null;
-    		try {
-    			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-    		} catch (Exception e) {
-    			String err = "Unable to search items in data cluster '"+clusterName+"': unable to access the XML Server wrapper";
-    			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    			throw new XtentisException(err);
-    		}
-    		// ctoum - 20100110
-    		ViewPOJOPK viewPOJOPK=new ViewPOJOPK("Browse_items_" + mainPivotName);
-        	ViewPOJO view = Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
-        	//ViewLocal view = ViewUtil.getLocalHome().findByPrimaryKey(viewPK);
-
-        	//Create an ItemWhere which combines the search and and view wheres 
-        	IWhereItem fullWhere;
-        	if(		(view.getWhereConditions()==null) 
-        			|| (view.getWhereConditions().getList().size()==0)
-        	) {
-        		if (whereItem==null)
-        			fullWhere = null;
-        		else
-        			fullWhere = whereItem;
-        	} else {
-        		if (whereItem==null){
-        			fullWhere = new WhereAnd(view.getWhereConditions().getList());
-        		} else {
-        			WhereAnd viewWhere = new WhereAnd(view.getWhereConditions().getList());
-                    WhereAnd wAnd = new WhereAnd();
-        			wAnd.add(whereItem);
-        			wAnd.add(viewWhere);
-        			fullWhere = wAnd;
-        		}
-        	}
-        	
-        	//2.13.1 - Add Filters from the Roles
-        	ILocalUser user = LocalUser.getLocalUser();
-        	HashSet<String> roleNames = user.getRoles();
-        	for (Iterator iterator = roleNames.iterator(); iterator.hasNext();) {
-				String roleName = (String) iterator.next();
-				
-			}
-        	//if (!roleNames.contains("administration")) {
-        		ArrayList<IWhereItem> roleWhereConditions = new ArrayList<IWhereItem>();
-	           	String objectType = "View";
-	        	for (Iterator<String> iter = roleNames.iterator(); iter.hasNext(); ) {
-	    			String roleName = iter.next();
-	    			if ("administration".equals(roleName)||"authenticated".equals(roleName)) continue;
-	    			//load Role
-	    			RolePOJO role = ObjectPOJO.load(RolePOJO.class, new RolePOJOPK(roleName));
-	    			//get Specifications for the View Object
-	    			RoleSpecification specification = role.getRoleSpecifications().get(objectType);
-	    			if (specification!=null) {
-	    				if (!specification.isAdmin()) {
-	    					Set<String> regexIds = specification.getInstances().keySet();
-	    					for (Iterator<String> iterator = regexIds.iterator(); iterator.hasNext(); ) {
-	    						String regexId = iterator.next();
-	    						if (viewPOJOPK.getIds()[0].matches(regexId)) {
-	    							HashSet<String> parameters = specification.getInstances().get(regexId).getParameters();
-	    							for (Iterator<String> it = parameters.iterator(); it.hasNext(); ) {
-										String marshalledWC = it.next();
-										roleWhereConditions.add(RoleWhereCondition.parse(marshalledWC).toWhereCondition());
-									}
-	    						}
-	    					}
-	    				}
-	    			}
-	        	}//for role Names
-	        	//add collected additional conditions
-	        	if (roleWhereConditions.size()>0) {
-		        	if (fullWhere==null){
-	        			fullWhere = new WhereAnd(roleWhereConditions);
-	        		} else {
-	        			WhereAnd viewWhere = new WhereAnd(roleWhereConditions);
-	                    WhereAnd wAnd = new WhereAnd();
-	        			wAnd.add(fullWhere);
-	        			wAnd.add(viewWhere);
-	        			fullWhere = wAnd;
-	        		}
-	        	}
-        	//}
-
-            String query = server.getPivotIndexQuery(
-            		                clusterName, 
-            		                mainPivotName, 
-            		                pivotWithKeys,
-            		                universe.getItemsRevisionIDs(),
-            		                universe.getDefaultItemRevisionID(),
-            		                indexPaths, 
-            		                fullWhere, 
-            		                pivotDirections,
-            		                indexDirections, 
-            		                start,
-            		                limit);
-            
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(query);
-            
-            return server.runQuery(null, null, query, null);
-            
-	    } catch (XtentisException e) {
-	    	throw(e);
-	    } catch (Exception e) {
-    	    String err = "Unable to search: "
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    throw new XtentisException(err);
-	    }
+    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().getItemsPivotIndex(clusterName, mainPivotName, pivotWithKeys, indexPaths, whereItem, pivotDirections, indexDirections, start, limit);
     }
 
     
