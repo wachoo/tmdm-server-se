@@ -1205,13 +1205,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		        	new Ext.Toolbar.Separator(),
 		        	new Ext.Toolbar.TextItem(LABEL_LINES_PER_PAGE[language]+" : "),
 		        	new Ext.form.TextField({
-    					id:'lineMaxItems',
+    					id:'itemslineMaxItems',
     					value:pageSize,
     					width:30,
     					listeners: {
 		                	'specialkey': function(a, e) {
 					            if(e.getKey() == e.ENTER) {
-			                		var lineMax = DWRUtil.getValue('lineMaxItems');
+			                		var lineMax = DWRUtil.getValue('itemslineMaxItems');
 									if(lineMax==null || lineMax=="") 
 										lineMax=20;
 									displayItems2(columnsHeader,lineMax);

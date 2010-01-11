@@ -152,13 +152,13 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 		        	new Ext.Toolbar.Separator(),
 		        	new Ext.Toolbar.TextItem(amalto.updatereport.UpdateReportLocal.get("lines_per_page")+" : "),
 		        	new Ext.form.TextField({
-    					id:'lineMaxItems',
+    					id:'updateRLineMaxItems',
     					value:this.initPageSize,
     					width:30,
     					listeners: {
 		                	'specialkey': function(a, e) {
 					            if(e.getKey() == e.ENTER) {
-			                		var lineMax = DWRUtil.getValue('lineMaxItems');
+			                		var lineMax = DWRUtil.getValue('updateRLineMaxItems');
 									if(lineMax==null || lineMax=="")lineMax=20;
 									Ext.getCmp("updateReportPagingToolbar").pageSize=parseInt(lineMax);
 									Ext.getCmp("updateReportGridPanel").store.reload({params:{start:0, limit:lineMax}});

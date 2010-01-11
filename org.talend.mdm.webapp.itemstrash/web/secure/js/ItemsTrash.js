@@ -44,7 +44,7 @@ amalto.ItemsTrash.ItemsTrash=function(){
 		}
     
     function showTrashItems(){
-		var lineMax = DWRUtil.getValue('lineMaxItems');
+		var lineMax = DWRUtil.getValue('trashLineMaxItems');
 		var criteria = DWRUtil.getValue('trash-criteria');
 		if(lineMax==null || lineMax=="")
 			lineMax=50;		
@@ -170,7 +170,7 @@ amalto.ItemsTrash.ItemsTrash=function(){
 						        	new Ext.Toolbar.Separator(),
 						        	new Ext.Toolbar.TextItem(amalto.ItemsTrash.ItemsTrashLocal.get('lines_per_page')+" : "),
 						        	new Ext.form.TextField({
-				    					id:'lineMaxItems',
+				    					id:'trashLineMaxItems',
 				    					value:pageSize,
 				    					width:30,
 				    					//disabled:true,
