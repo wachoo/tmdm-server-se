@@ -2190,11 +2190,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	function saveItem(ids,dataObject,treeIndex,callbackOnSuccess){
-		amalto.core.working("Saving...");
-		var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
-		tbDetail.items.get('saveBTN').disable();
-		tbDetail.items.get('saveAndQBTN').disable();
-		
 		if(navigator.appName=="Microsoft Internet Explorer" && lastUpdatedInputFlag[treeIndex]!=null) 
 
 		{
@@ -2213,27 +2208,26 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					if(result==true) {
 //						if(!Ext.MessageBox.confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
 						Ext.Msg.confirm("confirm",MSG_CONFIRM_SAVE_ITEM[language],function re(en){
-							if(en=="no")
+							if(en=="no") {
 								return;
+							}
 							else {
 								saveItem0(ids, dataObject, treeIndex, callbackOnSuccess);
-								amalto.core.ready();
-								tbDetail.items.get('saveBTN').enable();
-								tbDetail.items.get('saveAndQBTN').enable();
 							}
 						});
 					}
 					else {
 						saveItem0(ids, dataObject, treeIndex, callbackOnSuccess);
-						amalto.core.ready();
-						tbDetail.items.get('saveBTN').enable();
-						tbDetail.items.get('saveAndQBTN').enable();
 					}
 				});
     }
 	
 	function saveItem0(ids,dataObject,treeIndex,callbackOnSuccess) {
 		var itemPK = ids.split('@');
+		amalto.core.working("Saving...");
+		var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
+		tbDetail.items.get('saveBTN').disable();
+		tbDetail.items.get('saveAndQBTN').disable();
 		
 		ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
 			callback:function(result){ 
@@ -2248,9 +2242,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 }else{
 			       if(callbackOnSuccess)callbackOnSuccess();   
 				}
-				
+				amalto.core.ready();
+				tbDetail.items.get('saveBTN').enable();
+				tbDetail.items.get('saveAndQBTN').enable();
 			},
 			errorHandler:function(errorString, exception) {//on exception
+				amalto.core.ready();
+				tbDetail.items.get('saveBTN').enable();
+				tbDetail.items.get('saveAndQBTN').enable();
 				showExceptionMsg(errorString, exception, treeIndex);
             }
         });
