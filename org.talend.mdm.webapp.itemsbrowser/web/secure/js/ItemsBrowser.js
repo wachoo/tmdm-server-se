@@ -2217,19 +2217,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 								return;
 							else {
 								saveItem0(ids, dataObject, treeIndex, callbackOnSuccess);
+								amalto.core.ready();
+								tbDetail.items.get('saveBTN').enable();
+								tbDetail.items.get('saveAndQBTN').enable();
 							}
 						});
 					}
 					else {
 						saveItem0(ids, dataObject, treeIndex, callbackOnSuccess);
+						amalto.core.ready();
+						tbDetail.items.get('saveBTN').enable();
+						tbDetail.items.get('saveAndQBTN').enable();
 					}
-					
-					amalto.core.ready();
 				});
-				
-		amalto.core.ready();
-		tbDetail.items.get('saveBTN').enable();
-		tbDetail.items.get('saveAndQBTN').enable();
     }
 	
 	function saveItem0(ids,dataObject,treeIndex,callbackOnSuccess) {
