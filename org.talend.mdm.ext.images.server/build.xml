@@ -11,7 +11,7 @@
 		=================================
 	-->
 	<target name="all" depends="clean,version,package,deploy" description="--> MDM Image Server App">
-		<eclipse.refreshLocal resource="../" />
+		<!--eclipse.refreshLocal resource="../" /-->
 	</target>
 	<target name="clean" description="Clean old release">
 		<delete dir="zz.20.ext.imageserver.war"/>
