@@ -1729,14 +1729,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var itemTree = itemTreeList[treeIndex];
 		//var data = itemTree.getNodeByIndex(id).data;	
 		var node = itemTree.getNodeByIndex(id);
-	
-		var value = DWRUtil.getValue(id+"Value");
+		var value  = DWRUtil.getValue(id+"Value");
 		if(node.itemData.key==true){
 			keys[treeIndex][node.itemData.keyIndex] = value;
 		}
 		
 	    $('errorDetail' + treeIndex).style.display = "none";
 	    
+	    //node.itemData.nodeId = id;
 		if(node.updateValue(value)==false){
 			ItemsBrowserInterface.updateNode(id, value, treeIndex, function() {
 						// amalto.core.ready();
@@ -1754,12 +1754,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			else
 			 $('errorDesc' + treeIndex).style.display = "none";
 		}
-		
+				
 
 		ItemsBrowserInterface.updateNode(id,value,treeIndex,function(result){
 			amalto.core.ready(result);
 		});
-		
+
 		if(allUpdate == false)
 		{			
 			ItemsBrowserInterface.validateItem(treeIndex, {
@@ -1850,6 +1850,20 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function cloneNode2(siblingId, hasIcon, treeIndex){
 		var itemTree = itemTreeList[treeIndex];
 		var siblingNode = itemTree.getNodeByIndex(siblingId);
+		
+		//add by ymli. remember the values of the siblingNodes.fix the bug:0010576
+		var values = [];
+		var array = siblingNode.parent.children;
+		var j = 0;
+		for (var i = 0; i < array.length;i++) {
+			var nodenew = array[i];
+	  		if(!(typeof(nodenew) == "undefined")&& $(nodenew.index+"Value")!=null){// && nodenew.itemData.nodeId==node.itemData.nodeId)
+				var value1 = nodenew.index+"--"+$(nodenew.index+"Value").value;//DWRUtil.getValue(nodenew.index+"Value");
+				values[j] = value1;
+				 j++;
+	  		}
+		}
+		//var value = DWRUtil.getValue(siblingId+"Value");
 		//modified by ymli. If the Items is more than maxOccurs, alert and return
 		if(siblingNode.itemData.maxOccurs>=0&&siblingNode.parent!=null && getSiblingsLength(siblingNode)>=siblingNode.itemData.maxOccurs){
 			Ext.MessageBox.alert("Status",siblingNode.itemData.maxOccurs+" "+siblingNode.itemData.name+"(s) at most");
@@ -1858,6 +1872,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var nodeCount = YAHOO.widget.TreeView.nodeCount;
 	
 		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,false,true);
+		
 		newNode.updateNodeId(nodeCount);
 		newNode.updateValue(" ");
 		ItemsBrowserInterface.cloneNode(siblingId,newNode.index, treeIndex,function(result){
@@ -1877,16 +1892,29 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				for(var i=0; i<result.length; i++) {					
 					var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,itemTree.getNodeByIndex(oNode.index),false,true);
 				if(result[i].type=="simple") tmp.setDynamicLoad();
-				else tmp.setDynamicLoad(fnLoadData,1);
+				   else tmp.setDynamicLoad(fnLoadData,1);
 			}
 			fnCallback();
 			});
 		};
-		
+		var length = map[treeIndex].length;
+    	map[treeIndex][length + i] = newNode;
+    	
 		newNode.setDynamicLoad(fnLoadData);
+		//itemTree.getRoot().refresh();
 		siblingNode.parent.refresh();
 		amalto.core.ready();
+		
+		//add by ymli. set the values of the siblingNodes. fix the bug:0010576
+		for(t=0;t<values.length;t++){
+			var value = values[t];
+			var idValue = value.split("--");
+			if(idValue!=null && $(idValue[0]+"Value")!=null)
+				$(idValue[0]+"Value").value = idValue[1];
+		}
+		
 	}
+	
 	function showEditWindow(nodeIndex, treeIndex, nodeType){
 		var tree=itemTreeList[treeIndex];
 		var node=tree.getNodeByIndex(nodeIndex);
@@ -2002,6 +2030,48 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			Ext.MessageBox.alert("Status",DELETE_ALERT[language]);
 			return;
 		}
+		
+		//add by ymli. move the node which is deleted from map[treeIndex]
+		var array = map[treeIndex];
+		for (var i = 0; i < array.length; i++) {
+	  		var nodenew = array[i];
+	  		if(nodenew!=null && nodenew.index==node.index)
+	  			array.splice(i,1);
+		}
+		
+		//add by ymli. remember the values of Nodes avoid them to be null 
+		//map[treeIndex]=array;
+		var values = [];
+		//var array = map[treeIndex];
+		var j = 0;
+		for (var i = 0; i < array.length;i++) {
+			if(!(typeof(array[i]) == "undefined")){
+			var valueNode = array[i];
+	  		if(!(typeof(valueNode) == "undefined") && $(valueNode.index+"Value")){// && nodenew.itemData.nodeId==node.itemData.nodeId)
+				var value = valueNode.index+"--"+$(valueNode.index+"Value").value;//nodenew.itemData.nodeId
+				values[j] = value;
+				 j++;
+	  		}
+			}
+		}
+
+		//add by ymli. remember the siblingNodeValues
+		var siblingNodeValues = [];
+		var siblingNodeArray = node.parent.children;
+		var siblingNodeValuesIndex = 0;
+		for (var i = 0; i < siblingNodeArray.length;i++) {
+			var siblingNodenew = siblingNodeArray[i];
+	  		if(!(typeof(siblingNodenew) == "undefined")&& $(siblingNodenew.index+"Value")!=null){// && nodenew.itemData.nodeId==node.itemData.nodeId)
+				var value2 = siblingNodenew.index+"--"+$(siblingNodenew.index+"Value").value;//DWRUtil.getValue(nodenew.index+"Value");
+				siblingNodeValues[siblingNodeValuesIndex] = value2;
+				 siblingNodeValuesIndex++;
+	  		}
+		}
+		
+		
+		
+		
+		
 		itemNodes.remove(itemTree.getNodeByIndex(id));
 		itemTree.removeNode(itemTree.getNodeByIndex(id), true);
 		ItemsBrowserInterface.removeNode(id, treeIndex, value,
@@ -2009,16 +2079,30 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					amalto.core.ready(result);
 				});
 		
-		var array = map[treeIndex];
 		
-		for (var i = 0; i < array.length; i++) {
-	  		var nodenew = array[i];
-	  		if(nodenew!=null && nodenew.itemData.nodeId==node.itemData.nodeId)
-	  			array.splice(i,1);
+		itemTree.getRoot().refresh();
+
+		
+		//add by ymli. set the values of nodes
+		for(var t=0;t<values.length;t++){
+			var value = values[t];
+			var idValue = value.split("--");
+			if(idValue!=null&&$(idValue[0]+"Value")!=null)
+				$(idValue[0]+"Value").value = idValue[1];
+		}
+
+		
+		//add by ymli. set the values of siblingNodes
+		for(var t=0;t<siblingNodeValues.length;t++){
+			var siblingNodeValue = siblingNodeValues[t];
+			var idValue = siblingNodeValue.split("--");
+			if(idValue!=null&&$(idValue[0]+"Value")!=null)
+				$(idValue[0]+"Value").Value = idValue[1];
 		}
 		
 		
-		itemTree.getRoot().refresh();
+		
+		
 		amalto.core.ready();
 	}
 	
@@ -2062,9 +2146,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	  var error = false;
 	  for (var i = 0; i < nodes.length; i++) {
 	  	var node = nodes[i];
-	  	if (node!=null && node instanceof amalto.itemsbrowser.ItemNode)
+	  	if (node && node instanceof amalto.itemsbrowser.ItemNode)
 	  	{
-	  		if (node.itemData.choice == false && node.update() == false)
+	  		if (node.itemData.choice == false &&  node.update() == false)
 	  		  error = true;
 	  		else if(node.itemData.choice == true)
 	  		{

@@ -442,6 +442,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				}
 			}
 		}
+		//add by ymli.fix the bug:0010576		
+		this.itemData.nodeId = this.index
 				
 		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon);
 		return true;
@@ -519,8 +521,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
     	var itemNode = this.itemData.value;
     	if (this.itemData.type == "complex")
     	    return true;
+    	if($(this.itemData.nodeId + "Value")){   
 		itemNode = DWRUtil.getValue(this.itemData.nodeId + "Value");
     	return this.updateValue(itemNode);
+    	} 
     },
     
     // overrides YAHOO.widget.Node
