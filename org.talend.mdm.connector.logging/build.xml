@@ -61,7 +61,7 @@
 			</zipfileset>
 			<zipfileset dir="bin/com/amalto/connector/logging/mdb" prefix="com/amalto/connector/logging/mdb" />
 		</jar>
-		<eclipse.refreshLocal resource="${basedir}"/>
+		<!--eclipse.refreshLocal resource="${basedir}"/-->
 	</target>
 	
 	
