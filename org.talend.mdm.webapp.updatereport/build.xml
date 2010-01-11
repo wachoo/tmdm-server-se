@@ -15,7 +15,7 @@
           target: all              
          ================================= -->
 	<target name="all" depends="version,package,undeploy,deploy" description="--> Update Report WebApp">
-		<eclipse.refreshLocal resource="/talend.webapp.v3.updatereport"/>
+		<!--eclipse.refreshLocal resource="/talend.webapp.v3.updatereport"/-->
 	</target>
 	
    	<target name="version"  description="Maintain build.date property">
