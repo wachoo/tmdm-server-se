@@ -16,7 +16,7 @@
           target: all
          ================================= -->
 	<target name="all" depends="package,undeploy,deploy" description="-->webapp core">
-		<eclipse.refreshLocal resource="${basedir}"/>
+		<!--eclipse.refreshLocal resource="${basedir}"/-->
 	</target>
 
 	<target name="package">
