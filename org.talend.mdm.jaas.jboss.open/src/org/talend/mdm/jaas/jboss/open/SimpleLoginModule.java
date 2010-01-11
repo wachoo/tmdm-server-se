@@ -20,6 +20,8 @@ import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.jaas.jboss.open.util.Util;
+import org.w3c.dom.Element;
 
 import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
@@ -79,7 +81,9 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
     private String username;
     private char[] password;
 
-
+	/** The User object */
+	private Element user;
+	
     private Map<String,String> availableUsers=new HashMap<String, String>();
     /**
      * Initialize this <code>LoginModule</code>.
@@ -307,12 +311,43 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 			return new Group[]{usernameGroup,passwordGroup, universeGroup, rolesGroup};
 		}
 		//add an 'openTest' role 
-		rolesGroup.addMember(new SimplePrincipal("Order_Administrator"));
-		rolesGroup.addMember(new SimplePrincipal(adminPermission));
-		return new Group[]{usernameGroup,passwordGroup, universeGroup, rolesGroup};
+		rolesGroup.addMember(new SimplePrincipal("Order_User"));
+		//Fetch the xtentis based saved User Details
+		Element user = getSavedUserDetails(getUsername());
+
+		//The Xtentis User Group maintains the user in xml serialized form and the universePOJO in serialized form
+		Group xtentisUserGroup = new SimpleGroup("XtentisUser");
+		try {
+			if (user != null) xtentisUserGroup.addMember(new SimplePrincipal(Util.nodeToString(user)));
+		} catch (Exception e) {
+			throw new LoginException("Unable to parse the user XML: "+e.getMessage());
+		}
+
+		return new Group[]{usernameGroup,passwordGroup, universeGroup, rolesGroup,xtentisUserGroup};
 	}
 
+	protected Element getSavedUserDetails(String username) throws LoginException{
+		org.apache.log4j.Logger.getLogger(this.getClass()).trace("getSavedUserDetails() "+username);
 
+		try {
+
+			if (username.equals("admin")) {
+				throw new LoginException("Administrator information should not be fetched");
+			}
+
+			if (user == null) {
+				String userString = server.getDocumentAsString(
+					null, //head
+					"PROVISIONING",
+					"PROVISIONING"+"."+"User"+"."+username
+				);
+				user  = (Element)Util.getNodeList(Util.parse(userString), "//"+"User").item(0);
+			}
+			return user;
+		} catch (Exception e) {
+			throw new LoginException("Failed to fetch user \"" +username+"\": "+e.getLocalizedMessage());
+		}
+	}
 	/**
 	 * Called by login() to acquire the username and password strings for
 	 * authentication. This method does no validation of any of this data.<br/>

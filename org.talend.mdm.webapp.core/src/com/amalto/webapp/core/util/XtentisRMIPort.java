@@ -2201,8 +2201,7 @@ public class XtentisRMIPort implements XtentisPort {
 		}
 	}
     
-	public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
-		if(!Util.isEnterprise())return new WSRole("Order_Admin", "",new WSRoleSpecification[0]);
+	public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {		
 		try {
 			RoleCtrlLocal ctrl = Util.getRoleCtrlLocal();
 			RolePOJO pojo =

@@ -62,6 +62,9 @@ public class LayoutDWR {
 	}
 	
 	public String getUsername() throws Exception{
+		if(!com.amalto.core.util.Util.isEnterprise()) {
+			return Util.getLoginUserName();
+		}
 		try {
 			String xml = Util.getAjaxSubject().getXml();
 			Document d = Util.parse(xml);
@@ -78,6 +81,10 @@ public class LayoutDWR {
 	}
 	
 	public String getUsernameAndUniverse() throws Exception{
+		if(!com.amalto.core.util.Util.isEnterprise()) {
+			String name =Util.getLoginUserName() +",HEAD";
+			return name;
+		}
 		try {
 			String givenname = null;
 			String familyname = null;
