@@ -952,12 +952,16 @@ public class ItemCtrl2Bean implements SessionBean {
         	//2.13.1 - Add Filters from the Roles
         	ILocalUser user = LocalUser.getLocalUser();
         	HashSet<String> roleNames = user.getRoles();
-        	if (!roleNames.contains("administration")) {
+        	for (Iterator iterator = roleNames.iterator(); iterator.hasNext();) {
+				String roleName = (String) iterator.next();
+				
+			}
+        	//if (!roleNames.contains("administration")) {
         		ArrayList<IWhereItem> roleWhereConditions = new ArrayList<IWhereItem>();
 	           	String objectType = "View";
 	        	for (Iterator<String> iter = roleNames.iterator(); iter.hasNext(); ) {
 	    			String roleName = iter.next();
-	    			if ("authenticated".equals(roleName)) continue;
+	    			if ("administration".equals(roleName)||"authenticated".equals(roleName)) continue;
 	    			//load Role
 	    			RolePOJO role = ObjectPOJO.load(RolePOJO.class, new RolePOJOPK(roleName));
 	    			//get Specifications for the View Object
@@ -990,7 +994,7 @@ public class ItemCtrl2Bean implements SessionBean {
 	        			fullWhere = wAnd;
 	        		}
 	        	}
-        	}
+        	//}
 
             String query = server.getPivotIndexQuery(
             		                clusterName, 
