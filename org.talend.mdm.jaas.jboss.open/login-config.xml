@@ -162,8 +162,8 @@ $Revision: 64598 $
         <login-module code="org.talend.mdm.jaas.jboss.open.SimpleLoginModule"
           flag="required">
           <module-option name="unauthenticatedIdentity">anonymous</module-option>
-          <module-option name="logins">admin,administrator,user,UnauthorizedLoginForTest</module-option>
-          <module-option name="passwords">talend,administrator,user,UnauthorizedPasswordForTest</module-option>
+          <module-option name="logins">admin,administrator,user</module-option>
+          <module-option name="passwords">talend,administrator,user</module-option>
         </login-module>
 
     <!-- Add this line to your login-config.xml to include the ClientLoginModule propogation -->      
