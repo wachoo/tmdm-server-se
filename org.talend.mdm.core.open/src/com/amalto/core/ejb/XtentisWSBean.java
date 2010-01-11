@@ -1710,8 +1710,10 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 				}		
 			}
 		}else{
-			//update the item according to datamodel 
-			projection=Util.updateItem(concept, dataModel.getSchema(), root);
+			if(!"UpdateReport".equals(dataModel.getName())){
+				//update the item according to datamodel 
+				projection=Util.updateItem(concept, dataModel.getSchema(), root);
+			}
 		}
 		//end
 		ItemPOJOPK itemPOJOPK =  
