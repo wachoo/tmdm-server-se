@@ -14,7 +14,7 @@
           targets           
          ================================= -->
 	<target name="all" depends="version,package,undeploy,deploy" description="--> JDBC Service">
-		<eclipse.refreshLocal resource="../"/>
+		<!--eclipse.refreshLocal resource="../"/-->
 	</target>
 	
    	<target name="version"  description="Maintain build.date property">
