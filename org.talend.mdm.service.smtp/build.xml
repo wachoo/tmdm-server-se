@@ -14,7 +14,7 @@
           target: all              
          ================================= -->
 	<target name="all" depends="version,package,undeploy,deploy" >
-		<eclipse.refreshLocal resource="${basedir}"/>
+		<!--eclipse.refreshLocal resource="${basedir}"/-->
 	</target>
 	
    	<target name="version"  description="Maintain build.date property">
