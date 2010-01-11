@@ -33,6 +33,14 @@
         </method-attributes>
       </session>
       <session>
+         <ejb-name>RoleCtrl</ejb-name>
+         <jndi-name>amalto/remote/core/rolectrl</jndi-name>
+         <local-jndi-name>amalto/local/core/rolectrl</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
          <ejb-name>ViewCtrl</ejb-name>
          <jndi-name>amalto/remote/core/viewctrl</jndi-name>
          <local-jndi-name>amalto/local/core/viewctrl</local-jndi-name>

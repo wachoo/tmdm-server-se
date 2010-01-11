@@ -25,6 +25,22 @@
       </session>
 
       <session >
+         <description><![CDATA[Description for RoleCtrl]]></description>
+         <display-name>Name for RoleCtrl</display-name>
+
+         <ejb-name>RoleCtrl</ejb-name>
+
+         <home>com.amalto.core.objects.role.ejb.remote.RoleCtrlHome</home>
+         <remote>com.amalto.core.objects.role.ejb.remote.RoleCtrl</remote>
+         <local-home>com.amalto.core.objects.role.ejb.local.RoleCtrlLocalHome</local-home>
+         <local>com.amalto.core.objects.role.ejb.local.RoleCtrlLocal</local>
+         <ejb-class>com.amalto.core.objects.role.ejb.local.RoleCtrlSession</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
+      <session >
          <description><![CDATA[Description for ViewCtrl]]></description>
          <display-name>Name for ViewCtrl</display-name>
 
@@ -383,6 +399,47 @@
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
          <ejb-name>Service</ejb-name>
+         <method-intf>LocalHome</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoleCtrl</ejb-name>
+         <method-intf>Remote</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoleCtrl</ejb-name>
+         <method-intf>Home</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoleCtrl</ejb-name>
+         <method-intf>Local</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoleCtrl</ejb-name>
          <method-intf>LocalHome</method-intf>
          <method-name>*</method-name>
       </method>
