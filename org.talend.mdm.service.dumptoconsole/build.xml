@@ -22,7 +22,7 @@
           target: all              
          ================================= -->
     <target name="all" depends="version,package,undeploy,deploy">
-    	<eclipse.refreshLocal resource="org.talend.mdm.core"/>
+    	<!--eclipse.refreshLocal resource="org.talend.mdm.core"/-->
     </target>
 
     <target name="version"  description="Maintain build.date property">
@@ -36,7 +36,7 @@
 		<property file="${version.props}" />
    	   	<property name="version.build.new" value="${major}-${minor}-${rev}_${build.number}"  />
 		<ant antfile="packaging-build.xml"/>
-   		<eclipse.refreshLocal resource="org.talend.mdm.core"/>
+   		<!--eclipse.refreshLocal resource="org.talend.mdm.core"/-->
     </target>
 		
     <target name="undeploy" description="--> remove packages">		
