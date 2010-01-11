@@ -15,7 +15,7 @@
           target: all              
          ================================= -->
 	<target name="all" depends="version,package,undeploy,deploy" description="--> Browse Items WebApp">
-		<eclipse.refreshLocal resource="../"/>
+		<!--eclipse.refreshLocal resource="../"/-->
 	</target>
 	
    	<target name="version"  description="Maintain build.date property">
