@@ -15,7 +15,7 @@
           target: all              
          ================================= -->
 	<target name="all" depends="version,package,undeploy,deploy" description="--> B2BOX WebApp">
-		<eclipse.refreshLocal resource="../"/>
+		<!--eclipse.refreshLocal resource="../"/-->
 	</target>
 	
    	<target name="version"  description="Maintain build.date property">
