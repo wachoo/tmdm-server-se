@@ -111,14 +111,7 @@ public abstract class ServiceBean implements EntityBean {
 	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(ServiceBean.class));
 	    	
             //get the xml server wrapper
-            XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Error Creating Service '"+vo.getServiceName()+"': unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-				throw new XtentisException(err);
-			}
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
             
            	setServiceName(vo.getServiceName());
             setConfiguration(vo.getConfiguration());
@@ -171,14 +164,7 @@ public abstract class ServiceBean implements EntityBean {
 	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(ServiceBean.class));
 	    	
             //get the xml server wrapper
-            XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Error Loading Service '"+pk.getServiceName()+"': unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-				throw new XtentisException(err);
-			}
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 
             //retrieve the Service
             String Service = server.getDocumentAsString(revisionID, CLUSTER, pk.getServiceName());
@@ -229,14 +215,7 @@ public abstract class ServiceBean implements EntityBean {
 	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(ServiceBean.class));
 	    	
             //get the xml server wrapper
-            XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Error Deleting Service '"+pk.getServiceName()+"': unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-				throw new XtentisException(err);
-			}
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
  
             //remove the doc
             long res = server.deleteDocument(revisionID, CLUSTER,pk.getServiceName());
@@ -269,14 +248,7 @@ public abstract class ServiceBean implements EntityBean {
 	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(ServiceBean.class));
 	    	
 	        //get the xml server wrapper
-	        XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Error Storing Service '"+getServiceName()+"': unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-				throw new XtentisException(err);
-			}
+	        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 			
             //store
             if ( -1 == server.putDocumentFromString(
@@ -311,15 +283,8 @@ public abstract class ServiceBean implements EntityBean {
 	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(ServiceBean.class));
 	    	
 	        //get the xml server wrapper
-	        XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Error Finding Service '"+primaryKey.getServiceName()+"': unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-				throw new XtentisException(err);
-			}
-	
+	        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+	        server.createCluster(revisionID, CLUSTER);
 	        //attempt to retrieve the Service
 	        String document = server.getDocumentAsString(
 	        		revisionID,
@@ -357,16 +322,9 @@ public abstract class ServiceBean implements EntityBean {
 	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(ServiceBean.class));
 	    	
 	        //get the xml server wrapper
-	        XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Error Finding Service '"+primaryKey.getServiceName()+"': unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-				throw new XtentisException(err);
-			}
-	
-	        //attempt to retrieve the Service
+	        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+	        server.createCluster(revisionID, CLUSTER);
+	        //attempt to retrieve the Service	        
 	        String document = server.getDocumentAsString(revisionID, CLUSTER, primaryKey.getServiceName());
 	       		        
 	        return document==null ? null : primaryKey;
@@ -397,15 +355,8 @@ public abstract class ServiceBean implements EntityBean {
  	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(ServiceBean.class));
  	    	
  	        //get the xml server wrapper
- 	        XmlServerSLWrapperLocal server = null;
- 			try {
- 				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
- 			} catch (Exception e) {
- 				String err = "Error Finding Services: unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-				throw new XtentisException(err);
- 			}
-             
+ 	        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+	        server.createCluster(revisionID, CLUSTER);
              //retrieve all the docuents
              String[] uris = server.getAllDocumentsUniqueID(revisionID, CLUSTER);
              
