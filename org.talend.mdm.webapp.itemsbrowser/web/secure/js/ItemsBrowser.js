@@ -1356,7 +1356,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:SAVE_TOOLTIP[language],text: BUTTON_SAVE[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemHandler});
+			toolbar.addButton( {id:'saveBTN', tooltip:SAVE_TOOLTIP[language],text: BUTTON_SAVE[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemHandler});
 			nbButtons++;
 		}
 	
@@ -1369,7 +1369,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:SAVEANDCLOSE_TOOLTIP[language],text: BUTTON_SAVE_AND_QUIT[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemAndQuitHandler});
+			toolbar.addButton( {id:'saveAndQBTN', tooltip:SAVEANDCLOSE_TOOLTIP[language],text: BUTTON_SAVE_AND_QUIT[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemAndQuitHandler});
 			nbButtons++;
 		}
 		
@@ -2190,6 +2190,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	function saveItem(ids,dataObject,treeIndex,callbackOnSuccess){
+		amalto.core.working("Saving...");
+		var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
+		tbDetail.items.get('saveBTN').disable();
+		tbDetail.items.get('saveAndQBTN').disable();
+		
 		if(navigator.appName=="Microsoft Internet Explorer" && lastUpdatedInputFlag[treeIndex]!=null) 
 
 		{
@@ -2221,6 +2226,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					
 					amalto.core.ready();
 				});
+				
+		amalto.core.ready();
+		tbDetail.items.get('saveBTN').enable();
+		tbDetail.items.get('saveAndQBTN').enable();
     }
 	
 	function saveItem0(ids,dataObject,treeIndex,callbackOnSuccess) {
