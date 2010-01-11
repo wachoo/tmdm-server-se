@@ -1625,8 +1625,14 @@ public class ItemsBrowserDWR {
 		try{
 			WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();
 			for (int i = 0; i < wst.length; i++) {
-				if(wst[i].getPk().equals("Smart_view_"+concept+"_"+language.toUpperCase())){
-					return true;
+				if(language!=null) {
+					if(wst[i].getPk().equals("Smart_view_"+concept+"_"+language.toUpperCase())){
+						return true;
+					}
+				}else {
+					if(wst[i].getPk().equals("Smart_view_"+concept)){
+						return true;
+					}					
 				}
 			}
 			return false;
