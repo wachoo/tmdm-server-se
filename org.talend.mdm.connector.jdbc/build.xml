@@ -27,7 +27,7 @@
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib" />
 	
 	<target name="all" depends="version,package,undeploy,deploy">
-		<eclipse.refreshLocal resource="../" />
+		<!--eclipse.refreshLocal resource="../" /-->
 	</target>
 
 	<target name="version" description="Maintain build.date property">
