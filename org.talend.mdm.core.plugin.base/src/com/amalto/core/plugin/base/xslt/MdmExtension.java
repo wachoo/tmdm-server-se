@@ -20,7 +20,7 @@ public class MdmExtension {
 	   if(clusterName==null||clusterName.length()==0)return itemProjection;
 	   if(conceptName==null||conceptName.length()==0)return itemProjection;
 	   if(ids==null)return itemProjection;
-	   if(revision!=null&&revision.trim().equals(""))revision=null;
+	   if(revision!=null&&(revision.trim().equals("")||revision.trim().equals("null")))revision=null;
 	   
 	   try {
 		
