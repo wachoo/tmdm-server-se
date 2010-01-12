@@ -344,6 +344,9 @@ public class CodecPluginBean extends TransformerPluginV2CtrlBean  implements Ses
 				}
 			}
 			
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug("Before codec:"+lawText);
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug("After codec:"+codecText);
+			
 			if(parameters.isWrap()){
 				codecText="<Codec_Output>"+codecText+"</Codec_Output>";
 			}
