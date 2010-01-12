@@ -55,7 +55,7 @@ public class RoleWhereCondition {
 		else if (this.getOperator().equals(">=")) operator = WhereCondition.GREATER_THAN_OR_EQUAL;
 		else if (this.getOperator().equals("Contains Text Of")) operator = WhereCondition.JOINS;
 		else if (this.getOperator().equals("<")) operator = WhereCondition.LOWER_THAN;
-		else if (this.getOperator().equals("<=")) operator = WhereCondition.GREATER_THAN_OR_EQUAL;
+		else if (this.getOperator().equals("<=")) operator = WhereCondition.LOWER_THAN_OR_EQUAL;
 		else if (this.getOperator().equals("!=")) operator = WhereCondition.NOT_EQUALS;
 		else if (this.getOperator().equals("Starts With")) operator = WhereCondition.STARTSWITH;
 		else if (this.getOperator().equals("Strict Contains")) operator = WhereCondition.STRICTCONTAINS;
