@@ -11,6 +11,10 @@ amalto.actions = function () {
 		'fr':'Sauvegarder',
 		'en':'Save'
 	}
+	var STATUS =  {
+       'fr' : 'Statut',
+       'en' : 'Status'
+    } 
 	
 	/********************************************************************
 	 * 
@@ -80,7 +84,7 @@ amalto.actions = function () {
 		var cluster = DWRUtil.getValue('datacluster-select');
 		var model = DWRUtil.getValue('datamodel-select');
 		ActionsInterface.setClusterAndModel(cluster,model,function(result){
-			alert(result);
+			Ext.Msg.alert(STATUS[language],"  "+result);
 			var tabPanel = amalto.core.getTabPanel();
 			tabPanel.items.each(function(item){
                         if(item.closable){
