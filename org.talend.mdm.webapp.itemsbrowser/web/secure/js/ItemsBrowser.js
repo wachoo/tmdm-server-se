@@ -1904,7 +1904,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		//itemTree.getRoot().refresh();
 		siblingNode.parent.refresh();
 		amalto.core.ready();
-		
+		$(nodeCount+"Value").value = "";
 		//add by ymli. set the values of the siblingNodes. fix the bug:0010576
 		for(t=0;t<values.length;t++){
 			var value = values[t];
@@ -2229,7 +2229,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		tbDetail.items.get('saveBTN').disable();
 		tbDetail.items.get('saveAndQBTN').disable();
 		
-		ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
+		ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,false,{
 			callback:function(result){ 
 				amalto.core.ready(result);
 				if(result=="ERROR_2"){
