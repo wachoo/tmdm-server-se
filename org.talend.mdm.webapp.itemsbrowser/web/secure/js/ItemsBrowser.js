@@ -859,6 +859,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			$(itemsSearchValuex).value = "*";
 			$(itemsSearchValuex).style.display = 'inline';
 		}
+		else
+		{
+			DWRUtil.addOptions('itemsSearchOperator' + id ,OPERATORS[language]);
+			$(itemsSearchValuex).value = "*";
+			$(itemsSearchValuex).style.display = 'inline';
+		}
 	}
 	
 
