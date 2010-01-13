@@ -87,4 +87,7 @@ public class BeanDelegatorContainer {
 	public IItemCtrlDelegator getItemCtrlDelegator() {
 		return (IItemCtrlDelegator) delegatorInstancePool.get("ItemCtrl");
 	}
+	public IXtentisWSDelegator getXtentisWSDelegator() {
+		return (IXtentisWSDelegator) delegatorInstancePool.get("XtentisWS");
+	}
 }

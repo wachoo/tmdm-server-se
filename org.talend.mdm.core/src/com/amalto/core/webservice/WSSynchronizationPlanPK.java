@@ -6,13 +6,13 @@
 package com.amalto.core.webservice;
 
 
-public class WSUniversePK {
+public class WSSynchronizationPlanPK {
     protected java.lang.String pk;
     
-    public WSUniversePK() {
+    public WSSynchronizationPlanPK() {
     }
     
-    public WSUniversePK(java.lang.String pk) {
+    public WSSynchronizationPlanPK(java.lang.String pk) {
         this.pk = pk;
     }
     

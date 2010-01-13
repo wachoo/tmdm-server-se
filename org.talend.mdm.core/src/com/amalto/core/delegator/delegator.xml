@@ -5,12 +5,14 @@
       <name>LocalUser#com.amalto.core.delegator.DefaultLocalUserDelegator</name>
       <name>Validation#com.amalto.core.delegator.DefaultValidationDelegator</name>
       <name>ItemCtrl#com.amalto.core.delegator.DefaultItemCtrlDelegator</name>
+      <name>XtentisWS#com.amalto.core.delegator.DefaultXtentisWSDelegator</name>
     </OPEN>
     
     <ENTERPRISE>
        <name>LocalUser#com.amalto.core.delegator.enterprise.EnterpriseLocalUserDelegator</name>
        <name>Validation#com.amalto.core.delegator.enterprise.EnterpriseValidationDelegator</name>
        <name>ItemCtrl#com.amalto.core.delegator.enterprise.EnterpriseItemCtrlDelegator</name>
+       <name>XtentisWS#com.amalto.core.delegator.enterprise.EnterpriseXtentisWSDelegator</name>
     </ENTERPRISE>
     
   </delegator>

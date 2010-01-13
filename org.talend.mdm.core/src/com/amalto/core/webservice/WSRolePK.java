@@ -6,21 +6,21 @@
 package com.amalto.core.webservice;
 
 
-public class WSByteArray {
-    protected byte[] bytes;
+public class WSRolePK {
+    protected java.lang.String pk;
     
-    public WSByteArray() {
+    public WSRolePK() {
     }
     
-    public WSByteArray(byte[] bytes) {
-        this.bytes = bytes;
+    public WSRolePK(java.lang.String pk) {
+        this.pk = pk;
     }
     
-    public byte[] getBytes() {
-        return bytes;
+    public java.lang.String getPk() {
+        return pk;
     }
     
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
+    public void setPk(java.lang.String pk) {
+        this.pk = pk;
     }
 }
