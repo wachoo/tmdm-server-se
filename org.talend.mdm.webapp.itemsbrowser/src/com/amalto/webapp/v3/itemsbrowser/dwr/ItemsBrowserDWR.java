@@ -80,6 +80,7 @@ import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSFacet;
 import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSRestrictionSimpleType;
 
 /**cluster
  * 
@@ -439,17 +440,21 @@ public class ItemsBrowserDWR {
 			// restriction support
 			ArrayList<Restriction> restrictions = new ArrayList<Restriction>();
 			ArrayList<String> enumeration = new ArrayList<String>();
-			 Iterator<XSFacet> it = xsp.getTerm().asElementDecl().getType()
-				.asSimpleType().asRestriction().iterateDeclaredFacets();
-			 while (it.hasNext()) {
-				XSFacet xsf = it.next();
-				if("enumeration".equals(xsf.getName())) {
-					enumeration.add(xsf.getValue().toString());
+			XSRestrictionSimpleType restirctionType = xsp.getTerm().asElementDecl().getType()
+				.asSimpleType().asRestriction();
+			if(restirctionType != null)
+			{
+				 Iterator<XSFacet> it = restirctionType.iterateDeclaredFacets();
+				 while (it.hasNext()) {
+					XSFacet xsf = it.next();
+					if("enumeration".equals(xsf.getName())) {
+						enumeration.add(xsf.getValue().toString());
+					}
+					else{
+						Restriction r = new Restriction(xsf.getName(),xsf.getValue().toString());
+						restrictions.add(r);
+					}					
 				}
-				else{
-					Restriction r = new Restriction(xsf.getName(),xsf.getValue().toString());
-					restrictions.add(r);
-				}					
 			}
 			treeNode.setEnumeration(enumeration);
 			treeNode.setRestrictions(restrictions);

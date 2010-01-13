@@ -563,7 +563,15 @@ public  class Util {
 			{
 				Node node = list.item(i);
 				String ns = node.getAttributes().getNamedItem("namespace").getNodeValue();
+				if(node.getAttributes().getNamedItem("schemaLocation") == null)
+				{
+					continue;
+				}
 				String location = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+				if(location == null || location.equals(""))
+				{
+					continue;
+				}
 				Document subDoc = parseImportedFile(location);
 				if(type)
 				   parseTypeFromImport(subDoc.getDocumentElement(), nsMap, ns);
@@ -583,6 +591,10 @@ public  class Util {
 			{
 				Node node = list.item(i);
 				String ns = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+				if(ns == null)
+				{
+					continue;
+				}
 				Document subDoc = parseImportedFile(ns);
 				if(type)
 				    parseTypeFromImport(subDoc.getDocumentElement(), nsMap, ns);
@@ -842,7 +854,12 @@ public  class Util {
 		        for (int elemNum = 0; elemNum < l.getLength(); elemNum++)
 		        {
 		        	Node importNode = l.item(elemNum);
-		        	String xsdLocation = importNode.getAttributes().getNamedItem("schemaLocation").getNodeValue();
+		        	Node schemaLocaton = importNode.getAttributes().getNamedItem("schemaLocation");
+		        	if(schemaLocaton == null)
+		        	{
+		        		continue;
+		        	}
+		        	String xsdLocation = schemaLocaton.getNodeValue();
 		    		Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
 		    		Matcher match = httpUrl.matcher(xsdLocation);
 		    		Document d = null;
@@ -905,6 +922,10 @@ public  class Util {
 	    	for (int id = 0; id < list.getLength() && prefix != null; id++)
 	    	{
 	    		Node node = list.item(id);
+	    		if(node.getAttributes().getNamedItem("schemaLocation") == null)
+	    		{
+	    			continue;
+	    		}
 	    		String schemalocation = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
 	    		String namespace = node.getAttributes().getNamedItem("namespace").getNodeValue();
             	NodeList l = Util.getNodeList(doc, "//*[@type='" + typeName + "']", 
@@ -1225,6 +1246,10 @@ public  class Util {
 			        for (int elemNum = 0; elemNum < list.getLength(); elemNum++)
 			        {
 			        	Node importNode = list.item(elemNum);
+			        	if(importNode.getAttributes().getNamedItem("schemaLocation") == null)
+			        	{
+			        		continue;
+			        	}
 			        	String xsdLocation = importNode.getAttributes().getNamedItem("schemaLocation").getNodeValue();
 			    		Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
 			    		Matcher match = httpUrl.matcher(xsdLocation);
