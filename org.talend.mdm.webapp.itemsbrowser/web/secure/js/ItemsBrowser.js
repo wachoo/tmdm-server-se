@@ -2054,8 +2054,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			if(!(typeof(array[i]) == "undefined")){
 			var valueNode = array[i];
 	  		if(!(typeof(valueNode) == "undefined") && $(valueNode.index+"Value")){// && nodenew.itemData.nodeId==node.itemData.nodeId)
-				var value = valueNode.index+"--"+$(valueNode.index+"Value").value;//nodenew.itemData.nodeId
-				values[j] = value;
+				var valueR = valueNode.index+"--"+$(valueNode.index+"Value").value;//nodenew.itemData.nodeId
+				values[j] = valueR;
 				 j++;
 	  		}
 			}
