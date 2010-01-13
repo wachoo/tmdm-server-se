@@ -2152,7 +2152,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	  var error = false;
 	  for (var i = 0; i < nodes.length; i++) {
 	  	var node = nodes[i];
-	  	if (node && node instanceof amalto.itemsbrowser.ItemNode && node.itemData.minOccurs>=1)
+	  	if (node && node instanceof amalto.itemsbrowser.ItemNode && (node.itemData.minOccurs>=1 || (node.itemData.minOccurs ==0 && node.itemData.value != null)))
 	  	{
 	  		if (node.itemData.choice == false &&  node.update() == false)
 	  		  error = true;
