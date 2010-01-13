@@ -139,6 +139,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
      * @throws XmlServerException
      */
 	protected org.xmldb.api.base.Collection getCollection(String revisionID, String clusterName, boolean create) throws XmlServerException{
+		if(revisionID!=null&&revisionID.equals("null"))revisionID=null;
 		if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
 		String key =
 			((revisionID == null) || "".equals(revisionID) ? "__HEAD__" : revisionID)
