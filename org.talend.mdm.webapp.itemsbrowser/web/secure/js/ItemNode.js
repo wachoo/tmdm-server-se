@@ -348,72 +348,74 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 							+ ":"
 							+ this.itemData.restrictions[i].value;
 					
-							
-				if(this.itemData.restrictions[i].name=="minLength" 
-				&& value.length<parseInt(this.itemData.restrictions[i].value)){
-					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-					return false;
-				}
-				if(this.itemData.restrictions[i].name=="maxLength" 
-				&& value.length>parseInt(this.itemData.restrictions[i].value)){
-					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-					return false;
-				}
-				if(this.itemData.restrictions[i].name=="minExclusive" )
+				if(this.itemData.minOccurs >=1 || (this.itemData.minOccurs == 0 && value != ""))
 				{
-					if (isNaN(value))
-					{
-						errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+					if(this.itemData.restrictions[i].name=="minLength" 
+					&& value.length<parseInt(this.itemData.restrictions[i].value)){
 						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 						return false;
 					}
-					else if (parseFloat(value)<=parseFloat(this.itemData.restrictions[i].value))
-					{
-					    this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-					    return false;
-					}
-				}
-				if(this.itemData.restrictions[i].name=="maxExclusive")
-				{
-					if (isNaN(value))
-					{
-						errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+					if(this.itemData.restrictions[i].name=="maxLength" 
+					&& value.length>parseInt(this.itemData.restrictions[i].value)){
 						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 						return false;
 					}
-					else if (parseFloat(value) >=parseFloat(this.itemData.restrictions[i].value))
+					if(this.itemData.restrictions[i].name=="minExclusive" )
 					{
-						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-						return false;
+						if (isNaN(value))
+						{
+							errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+							return false;
+						}
+						else if (parseFloat(value)<=parseFloat(this.itemData.restrictions[i].value))
+						{
+						    this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+						    return false;
+						}
 					}
-
-				}
-				if(this.itemData.restrictions[i].name=="minInclusive" ){
-					if (isNaN(value))
+					if(this.itemData.restrictions[i].name=="maxExclusive")
 					{
-						errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-						return false;
+						if (isNaN(value))
+						{
+							errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+							return false;
+						}
+						else if (parseFloat(value) >=parseFloat(this.itemData.restrictions[i].value))
+						{
+							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+							return false;
+						}
+	
 					}
-					else if (parseFloat(value) < parseFloat(this.itemData.restrictions[i].value))
-					{
-						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-						return false;
+					if(this.itemData.restrictions[i].name=="minInclusive" ){
+						if (isNaN(value))
+						{
+							errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+							return false;
+						}
+						else if (parseFloat(value) < parseFloat(this.itemData.restrictions[i].value))
+						{
+							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+							return false;
+						}
 					}
-				}
-				if(this.itemData.restrictions[i].name=="maxInclusive"){
-					if (isNaN(value))
-					{
-						errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-						return false;
+					if(this.itemData.restrictions[i].name=="maxInclusive"){
+						if (isNaN(value))
+						{
+							errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+							return false;
+						}
+						else if (parseFloat(value) > parseFloat(this.itemData.restrictions[i].value))
+						{
+							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+							return false;
+						}
+	
 					}
-					else if (parseFloat(value) > parseFloat(this.itemData.restrictions[i].value))
-					{
-						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-						return false;
-					}
-
 				}
 				
 				// var checkParentminOIsReturn = null;
@@ -424,20 +426,23 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 					return false;
 				}
-				if(this.itemData.restrictions[i].name=="pattern"){
-					var patrn=new RegExp(this.itemData.restrictions[i].value);
-					if(!patrn.exec(value)){
-						var msg="\""+this.itemData.name+"\" de pattern est \""+this.itemData.restrictions[i].value+"\".";
-						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-						return false;
+				if(this.itemData.minOccurs >=1 || (this.itemData.minOccurs == 0 && value != ""))
+				{
+					if(this.itemData.restrictions[i].name=="pattern"){
+						var patrn=new RegExp(this.itemData.restrictions[i].value);
+						if(!patrn.exec(value)){
+							var msg="\""+this.itemData.name+"\" de pattern est \""+this.itemData.restrictions[i].value+"\".";
+							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+							return false;
+						}
 					}
-				}
-				if(this.itemData.restrictions[i].name=="fractionDigits"){
-					if (isNaN(value))
-					{
-						errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-						return false;
+					if(this.itemData.restrictions[i].name=="fractionDigits"){
+						if (isNaN(value))
+						{
+							errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
+							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+							return false;
+						}
 					}
 				}
 			}

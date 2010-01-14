@@ -464,6 +464,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var isUp = true;
 	var _criterias = new Array();
 	var _searchCriteriaResult = "";
+	var _exception = true;
 	
 	function browseItems(){
 		showItemsPanel();
@@ -1732,6 +1733,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function updateNode(id, treeIndex){
 		updateFlag[treeIndex] = 1;
 		var allUpdate = false;
+		_exception = false;
 		var itemTree = itemTreeList[treeIndex];
 		//var data = itemTree.getNodeByIndex(id).data;	
 		var node = itemTree.getNodeByIndex(id);
@@ -1803,7 +1805,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				  }
 			   }
 			   var flag=false;
-			   var defualtErrorMsg="";
+			   var defualtErrorMsg=errorString;
 			   for(var i=0;i<errorsArray.length;i++){
 				   if(language==errorsArray[i].split(":")[0].toLowerCase()&&errorsArray[i].split(":")[1]!=null&&errorsArray[i].split(":")[0].trim()!=""){
 					   errorString=errorsArray[i].substr(errorsArray[i].indexOf(":")+1);
@@ -1835,6 +1837,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			 innerHml += errorString +'<br/>'
 			$('errorDetail' + treeIndex).style.display = "block";
 			$('errorDetail' + treeIndex).innerHTML = innerHml;
+			_exception = true;
 	}
 	
 	function setlastUpdatedInputFlag(id, treeIndex){
@@ -2150,9 +2153,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	{
 	  var nodes = map[treeIndex];
 	  var error = false;
+	  _exception = false;
 	  for (var i = 0; i < nodes.length; i++) {
 	  	var node = nodes[i];
-	  	if (node && node instanceof amalto.itemsbrowser.ItemNode && (node.itemData.minOccurs>=1 || (node.itemData.minOccurs ==0 && node.itemData.value != null)))
+	  	if (node && node instanceof amalto.itemsbrowser.ItemNode)
 	  	{
 	  		if (node.itemData.choice == false &&  node.update() == false)
 	  		  error = true;
@@ -2208,6 +2212,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					return;
 				}
 				
+			    if(_exception == true)return;
 			    $('errorDesc'+ treeIndex).style.display = "none";
 			    $('errorDetail'+ treeIndex).style.display = "none";
 				ItemsBrowserInterface.checkIfDocumentExists(keys[treeIndex], dataObject, function(result){
