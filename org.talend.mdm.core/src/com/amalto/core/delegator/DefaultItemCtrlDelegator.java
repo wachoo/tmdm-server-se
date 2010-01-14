@@ -26,7 +26,7 @@ import com.amalto.xmlserver.interfaces.WhereAnd;
 
 public class DefaultItemCtrlDelegator implements IItemCtrlDelegator,IBeanDelegator {
 
-	@Override
+
 	public ArrayList<String> getItemsPivotIndex(String clusterName,
 			String mainPivotName,
 			LinkedHashMap<String, String[]> pivotWithKeys, String[] indexPaths,
@@ -122,7 +122,7 @@ public class DefaultItemCtrlDelegator implements IItemCtrlDelegator,IBeanDelegat
 
 	}
 
-	@Override
+
 	public ArrayList<String> viewSearch(DataClusterPOJOPK dataClusterPOJOPK,
 			ViewPOJOPK viewPOJOPK, IWhereItem whereItem, int spellThreshold,
 			String orderBy, String direction, int start, int limit)
@@ -203,7 +203,7 @@ public class DefaultItemCtrlDelegator implements IItemCtrlDelegator,IBeanDelegat
 	    }
 	}
 
-	@Override
+	
 	public ItemPOJOPK putItem(ItemPOJO item, String schema, String dataModelName)
 			throws XtentisException {
     	org.apache.log4j.Logger.getLogger(this.getClass()).trace("putItem() "+item.getItemPOJOPK().getUniqueID());
