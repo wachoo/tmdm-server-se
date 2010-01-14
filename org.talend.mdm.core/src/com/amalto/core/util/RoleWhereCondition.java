@@ -62,11 +62,11 @@ public class RoleWhereCondition {
 		else if (this.getOperator().equals("No Operator")) operator = WhereCondition.NO_OPERATOR;
 		
 		String predicate = WhereCondition.PRE_NONE;
-		if (this.getPredicate().equals("and")) predicate = WhereCondition.PRE_AND;
+		if (this.getPredicate().equalsIgnoreCase("and")) predicate = WhereCondition.PRE_AND;
 		else if (this.getPredicate().equals("exactly")) predicate = WhereCondition.PRE_EXACTLY;
 		else if (this.getPredicate().equals("")) predicate = WhereCondition.PRE_NONE;
-		else if (this.getPredicate().equals("not")) predicate = WhereCondition.PRE_NOT;
-		else if (this.getPredicate().equals("or")) predicate = WhereCondition.PRE_OR;
+		else if (this.getPredicate().equalsIgnoreCase("not")) predicate = WhereCondition.PRE_NOT;
+		else if (this.getPredicate().equalsIgnoreCase("or")) predicate = WhereCondition.PRE_OR;
 		else if (this.getPredicate().equals("strict and")) predicate = WhereCondition.PRE_STRICTAND;;
 
 		return new WhereCondition(
