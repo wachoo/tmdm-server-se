@@ -9,7 +9,7 @@ import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 
-public class LocalUser implements ILocalUser{
+public class LocalUser{
 	/*
 	 * A very special user that is triggered by scheduled, timeout or startup processes
 	 */

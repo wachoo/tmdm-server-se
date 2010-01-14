@@ -15,10 +15,6 @@ import com.amalto.core.util.Util;
 
 public class BeanDelegatorConfigReader {
 	
-	public static final String OPEN_RELEASE_TYPE="OPEN";
-	
-	public static final String ENTERPRISE_RELEASE_TYPE="ENTERPRISE";
-	
 	private static Map<String,String> beanImplNamesMap=new HashMap<String,String>();
 	
 	public static void init(){
@@ -29,13 +25,8 @@ public class BeanDelegatorConfigReader {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = builder.parse(in);	
 			
-			String usingReleaseType=OPEN_RELEASE_TYPE;
-			//if(releaseType!=null&&releaseType.length()>0)usingReleaseType=releaseType;
-			if(Util.isEnterprise()){
-				usingReleaseType=ENTERPRISE_RELEASE_TYPE;
-			}
-			
-			NodeList nodelist = Util.getNodeList(doc.getDocumentElement(), "/bean/delegator/"+usingReleaseType+"/name");
+
+			NodeList nodelist = Util.getNodeList(doc.getDocumentElement(), "/bean/delegator/name");
 			for(int i=0; i<nodelist.getLength(); i++){
 				Node node=nodelist.item(i);
 				String textContent=node.getTextContent();

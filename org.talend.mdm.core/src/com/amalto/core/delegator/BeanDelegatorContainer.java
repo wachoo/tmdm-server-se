@@ -40,12 +40,6 @@ public class BeanDelegatorContainer {
 	
 	private void init() {
 		
-		//get release type from config
-//		String releaseType=MDMConfiguration.getConfiguration().getProperty(
-//				"system.release.type", 
-//				BeanDelegatorConfigReader.OPEN_RELEASE_TYPE
-//			);
-		
 		BeanDelegatorConfigReader.init();
 		Map<String, String> beanImplNamesMap=BeanDelegatorConfigReader.getBeanImplNamesMap();
 		for (Iterator<String> iterator = beanImplNamesMap.keySet().iterator(); iterator.hasNext();) {
