@@ -186,18 +186,23 @@ public class QueryBuilder {
 				);
 				int i=0;
 				for (Iterator<IWhereItem> iter = subItems.iterator(); iter.hasNext(); ) {
-					IWhereItem item = iter.next();
+					IWhereItem item = iter.next();	
 					if (++i>1)
-						if (((WhereLogicOperator)whereItem).getType() == WhereLogicOperator.AND){
-							where=where.length()==0?where:where+" and ";					
-						}
-						else{
-							where=where.length()==0?where:where+" or ";							
-						}
-					else
-						where+="";
-					String strwhere=buildWhere(where, pivots, item);
-					where=strwhere.trim().length()==0?"":strwhere;
+					   if(item instanceof WhereCondition) {
+                         if(WhereCondition.PRE_OR.equals(((WhereCondition)item).getStringPredicate())) {
+                            where = where + " or ("; 
+                         }
+                         else {
+                            where = where + " and (";
+                         }
+                      }else					   
+                          if (((WhereLogicOperator)whereItem).getType() == WhereLogicOperator.AND)
+                              where+=" and (";
+                          else
+                              where+=" or (";
+                   else
+                       where+="(";
+                   where = buildWhere(where, pivots, item)+")";					
 				}//for
 				return where;
 
@@ -433,7 +438,7 @@ public class QueryBuilder {
 
     	try {
 
-	    	String xqWhere="";
+	    	String xqWhere = "";
 	    	String xqOrderBy = "";
     		//build Pivots Map
     		LinkedHashMap<String,String> pivotsMap = new LinkedHashMap<String,String>();
@@ -444,10 +449,10 @@ public class QueryBuilder {
 
 	    	// 	build from  WhereItem
 	    	if (whereItem == null)
-	    		xqWhere="";
-	    	else
-	    		xqWhere = buildWhere("", pivotsMap, whereItem);
-
+	    		xqWhere = "";
+	    	else {
+	    	   xqWhere = buildWhere("", pivotsMap, whereItem);
+	    	}
 	    	//build order by
 	    	if (orderBy == null) {
 	    		xqOrderBy = "";
@@ -493,6 +498,8 @@ public class QueryBuilder {
 	    			query = rawQuery;
 	    		}
 	    	}
+	    	//replace () to (1=1)
+	    	query=query.replaceAll("\\(\\)","(1=1)");
 	    	System.out.println("query:\n");
 	    	System.out.println(query);
 	    	return query;
@@ -505,7 +512,6 @@ public class QueryBuilder {
      	    throw new XmlServerException(err);
 	    }
     }
-
 
 	/***********************************************************************
 	 *

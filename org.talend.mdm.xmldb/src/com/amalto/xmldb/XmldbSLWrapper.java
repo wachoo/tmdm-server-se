@@ -1106,7 +1106,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         	if (whereItem != null){
         			// ctoum 20100110
         			if (xqWhere.length() > 0) {
-        				xqWhere.append(" and");
+        				xqWhere.append(" and ");
         			}
         			HashMap<String,String> pivots=new HashMap<String,String>();
         			pivots.put(mainPivotName, mainPivotName);
@@ -1169,6 +1169,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         			+"\n return subsequence($list,"+(start+1)+","+limit+")";
         	}
         	
+        	query=query.replaceAll("\\(\\)","(1=1)");
     		return query;
     		    	
     	} catch (Exception e) {
@@ -1318,15 +1319,22 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				int i=0;
 				for (Iterator<IWhereItem> iter = subItems.iterator(); iter.hasNext(); ) {
 					IWhereItem item = iter.next();
-					if (++i>1) 
-						if (((WhereLogicOperator)whereItem).getType() == WhereLogicOperator.AND)
-							where=where.length()==0?where:where+" and ";
-						else
-							where=where.length()==0?where:where+" or ";
-					else
-						where+="";
-					String strwhere=buildWhere(where, pivots, item, useValueComparisons);
-					where = strwhere.trim().length()==0?"":strwhere;
+					if (++i>1)
+                       if(item instanceof WhereCondition) {
+                         if(WhereCondition.PRE_OR.equals(((WhereCondition)item).getStringPredicate())) {
+                            where = where + " or ("; 
+                         }
+                         else {
+                            where = where + " and (";
+                         }
+                      }else                    
+                          if (((WhereLogicOperator)whereItem).getType() == WhereLogicOperator.AND)
+                              where+=" and (";
+                          else
+                              where+=" or (";
+                   else
+                       where+="(";
+					where = buildWhere(where, pivots, item, useValueComparisons)+")";
 				}//for
 				return where;
 					
