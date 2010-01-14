@@ -9,12 +9,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.util.Util;
 import com.sun.xml.xsom.XSAnnotation;
 
 public class TreeNode implements Cloneable {
 
 	public TreeNode() {
 		super();
+		if(!Util.isEnterprise()){
+			readOnly = false;
+		}
 	}
 
 	private String name;
