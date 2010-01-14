@@ -3,7 +3,7 @@
 	
 	<property name="version.props" value="version.properties"/>
 		
-	<property name="jboss.dir" value="c:/opt/jboss"/>
+	<property name="jboss.dir" value="c:/opt/jboss_tem"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
@@ -38,7 +38,7 @@
 			<zipfileset dir="src/WEB-INF" prefix="WEB-INF">
 				<include name="dwr.xml" />
 			</zipfileset>
-			<zipfileset file="${webapp.core.lib}" prefix="WEB-INF/lib"/>
+			<!--<zipfileset file="${webapp.core.lib}" prefix="WEB-INF/lib"/>-->
 			<zipfileset dir=".">
 				<include name="version.properties" />
 			</zipfileset>

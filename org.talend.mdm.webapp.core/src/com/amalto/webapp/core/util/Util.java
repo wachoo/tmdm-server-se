@@ -155,12 +155,17 @@ public class Util {
 		}
 	}
 	
-	
+
 	private static XtentisPort getRMIEndPoint() throws XtentisWebappException{
 		
-		return new XtentisRMIPort();
+		//return new XtentisRMIPort();
 
-        
+			try {
+				return (IXtentisRMIPort)Class.forName("com.amalto.webapp.core.util.XtentisRMIPort").newInstance();
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+			return null;
 	}
 	
 	/*********************************************************************
