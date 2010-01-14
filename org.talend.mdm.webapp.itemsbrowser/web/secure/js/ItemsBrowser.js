@@ -2193,6 +2193,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	  				}
 	  			}
 	  		}
+	  		
+	  		var thisValue =  DWRUtil.getValue(node.itemData.nodeId + "Value");
+			ItemsBrowserInterface.updateNode(node.itemData.nodeId,thisValue,treeIndex,function(result){
+				amalto.core.ready(result);
+			});
 	  	}
 	  	   
 	  }
