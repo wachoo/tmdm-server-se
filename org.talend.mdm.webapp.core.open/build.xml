@@ -8,7 +8,7 @@
     <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
     <property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
     
-    <property name="jar" value="z.webapp.core.open.jar"/>
+    <property name="jar" value="z.mdm.webapp.core.open.jar"/>
 
     <!-- ================================= 
           target: all              
