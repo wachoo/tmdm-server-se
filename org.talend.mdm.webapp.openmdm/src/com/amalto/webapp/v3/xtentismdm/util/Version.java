@@ -33,7 +33,17 @@ public class Version {
 	public static String getVersionAsString(Class clazz) {
 		if (props == null) loadProps(clazz);
 		return 
-			props.getProperty("major")+"."+props.getProperty("minor")+"."+props.getProperty("rev")+"."+props.getProperty("build.number");
+			"v"
+			+props.getProperty("major")+"."+props.getProperty("minor")+"."+props.getProperty("rev")+"_"+props.getProperty("build.number")
+			+" "+props.getProperty("build.date")
+			+" : "+props.getProperty("description");
+	}
+	
+	public static String getSimpleVersionAsString(Class clazz) {
+		if (props == null) loadProps(clazz);
+		return 
+			"v"
+			+props.getProperty("major")+"."+props.getProperty("minor")+"."+props.getProperty("rev")+"_"+props.getProperty("build.number");
 	}
 
 	// load props as resource on classpath

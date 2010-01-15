@@ -1,7 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page import="java.util.Locale"%>
 <%@page import="com.amalto.core.util.Util"%>
-<%@page import="com.amalto.webapp.v3.xtentismdm.util.Version"%>
+<%@page import="com.amalto.core.util.Version"%>
+<%@page import="com.amalto.webapp.core.util.DefaultCommonUtil"%>
+
 <%
     String contextPath = request.getContextPath();
     Locale locale = request.getLocale();
@@ -23,11 +25,8 @@
          _PASSWORD_ = "Mot&nbsp;de&nbsp;passe";
          _ERROR = "Mauvais identifiant ou mot de passe";
     }
-    boolean flag=false;
-    if(Util.isEnterprise()){
-            flag = !flag;
-    }
-    String version=Version.getVersionAsString(this.getClass());
+    String editionTitle=DefaultCommonUtil.getEditionTitle();
+    String version=Version.getSimpleVersionAsString(this.getClass());
     
 %>
 
@@ -55,8 +54,7 @@
     margin: 0;
 }
 </style>
-<link rel="stylesheet" type="text/css" href="<%= contextPath %>/auth/header.css"/>
-<link rel="stylesheet" type="text/css" href="<%= contextPath %>/auth/main.css"/>
+
 <link rel="stylesheet" type="text/css" href="<%= contextPath %>/auth/loginPage.css"/>
 
 <!--  DWR -->
@@ -110,23 +108,21 @@ getUniverseList();
 
  <table width="100%" class="header1" border="0">
       <tr><td height="128" width="50%" class="logo"><img src="<%= contextPath %>/auth/logo.png"></td><td class="version" id="loginVersion"><%=version%></td></tr>
-      <tr><td height="56"></td><td class="suiteName" id="suiteName"></td></tr>
+      <tr><td class="suiteName" id="suiteName" colspan="2" height="56">Talend MDM</td></tr>
     </table>
 
     <table width="100%"  class="header2" border="0">
       <tr><td class="appName" id="appName">
-      <%if(flag){%>
-        Enterprise Edition
-      <%}else{%>
-        Community Edition
-      <%}%>
+      <%=editionTitle%>
       </td></tr>
     </table>
     <table width="100%" height="65%" cellpadding="0" cellspacing="1">
         <tr>
+            <!--
             <td valign="middle" align="center">
                 <img src="<%= contextPath %>/auth/logo-big-talend.jpg"/>
             </td>
+            -->
             <td valign="middle" align="center">
                 <form method="POST" action="j_security_check" name="loginform">
                     <br>

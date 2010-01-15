@@ -1,11 +1,11 @@
 .header1 {
-    background-color: #222222;
-    background-image: url(<%= contextPath %>/auth/fond_gris.png);
+    background-color: black;
+    background-image: url(./fond_gris.png);
 }
 
 .header2 {
-    background-color: #00CCFF;
-    background-image: url(<%= contextPath %>/auth/fond_bleu.png);
+    background-color: blue;
+    background-image: url(./fond_bleu.png);
     background-repeat: repeat-x;
     height: 31px;
 }
@@ -29,7 +29,7 @@
 
 .suiteName {
     font-size: 26px;
-    text-align: left;
+    text-align: center;
     color: #BBBBBB;
     vertical-align: middle;
 }
