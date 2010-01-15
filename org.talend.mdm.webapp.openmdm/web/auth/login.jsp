@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page import="java.util.Locale"%>
 <%@page import="com.amalto.core.util.Util"%>
-<%@page import="com.amalto.core.util.Version"%>
+<%@page import="com.amalto.webapp.v3.xtentismdm.util.Version"%>
 <%@page import="com.amalto.webapp.core.util.DefaultCommonUtil"%>
 
 <%
