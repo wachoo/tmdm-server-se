@@ -1,0 +1,32 @@
+.header-wrapper {
+    height: 36px;
+
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+
+	background-color: black;
+    background-image: url( ../images/header/header-back.png ) !important;
+    background-repeat: repeat-x;
+}
+
+.header-title {
+    color: white;
+    font-size: 24px;
+    font-family: verdana;
+    text-transform: uppercase;
+    height: 36px;
+    min-width: 200px;
+    padding-left: 50px;
+    padding-top: 1px;
+    background-image: url( ../images/header/header-back-title.png ) !important;
+    background-repeat: no-repeat;
+}
+
+.header {
+    height: 36px;
+    background-image: url( ../images/header/header-back-large.png ) !important;
+    background-repeat: no-repeat;
+    background-position: right;
+}
+
