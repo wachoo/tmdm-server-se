@@ -1,12 +1,12 @@
 <menu-pOJO>
     <menu-entries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:com.amalto.core.objects.menu.ejb.MenuEntryPOJO">
         <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
-            <key xsi:type="java:java.lang.String">en</key>
-            <value xsi:type="java:java.lang.String">Synchronization Action</value>
+            <key xsi:type="java:java.lang.String">fr</key>
+            <value xsi:type="java:java.lang.String">Action de Synchronisation</value>
         </descriptions>
         <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
-            <key xsi:type="java:java.lang.String">fr</key>
-            <value xsi:type="java:java.lang.String">Action de Synchronization</value>
+            <key xsi:type="java:java.lang.String">en</key>
+            <value xsi:type="java:java.lang.String">Synchronization Action</value>
         </descriptions>
         <application>SynchronizationAction</application>
         <context>SynchronizationAction</context>
@@ -18,6 +18,5 @@
         <ids>SynchronizationAction</ids>
         <unique-id>SynchronizationAction</unique-id>
     </PK>
-    <last-synch>test</last-synch>
     <last-error/>
 </menu-pOJO>
