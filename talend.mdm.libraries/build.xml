@@ -35,7 +35,9 @@
     </target>
 	
 	<target name="deploy">
-		
+        <copy todir="${jboss.dir}" overwrite="true">
+            <fileset dir="deploy" includes="run.bat,run.sh" />
+        </copy>		
 		<copy todir="${jboss.instance.lib}" overwrite="true">
 			<fileset dir="deploy/lib"/>
 		</copy>
