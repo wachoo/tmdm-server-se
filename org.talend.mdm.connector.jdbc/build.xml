@@ -102,7 +102,7 @@
 		<copy file="${rar}" tofile="${jboss.deploy.dir}/${rar}" />
 		<copy file="${mdb}" tofile="${jboss.deploy.dir}/${mdb}" />
 		<copy file="src/META-INF/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />
-		<copy todir="${jboss.deploy.dir}" overwrite="true">
+		<copy todir="${jboss.instance.lib}" overwrite="true">
 			<fileset dir="lib-drivers">
 				<include name="z.jtds-1.2.2.jar"/>
 				<include name="z.mysql-connector-java-5.1.5-bin.jar"/>
