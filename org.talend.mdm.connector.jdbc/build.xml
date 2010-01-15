@@ -9,7 +9,7 @@
 
 	<property name="version.props" value="version.properties" />
 
-	<property name="jboss.dir" value="c:/opt/jboss" />
+	<property name="jboss.dir" value="c:/opt/jboss-4.2.2.GA" />
 
 	<property name="jar" value="jdbc.jar" />
 	<property name="rar" value="zz.20.mdm.connector.jdbc.rar" />
@@ -102,6 +102,13 @@
 		<copy file="${rar}" tofile="${jboss.deploy.dir}/${rar}" />
 		<copy file="${mdb}" tofile="${jboss.deploy.dir}/${mdb}" />
 		<copy file="src/META-INF/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />
+		<copy todir="${jboss.deploy.dir}" overwrite="true">
+			<fileset dir="lib-drivers">
+				<include name="z.jtds-1.2.2.jar"/>
+				<include name="z.mysql-connector-java-5.1.5-bin.jar"/>
+				<include name="z.oracle.ojdbc14-10.2.0.3.0.jar"/>
+			</fileset>
+		</copy>
 	</target>
 
 </project>
