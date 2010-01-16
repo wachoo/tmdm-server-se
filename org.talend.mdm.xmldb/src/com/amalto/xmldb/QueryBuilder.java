@@ -500,6 +500,8 @@ public class QueryBuilder {
 	    	}
 	    	//replace () to (1=1)
 	    	query=query.replaceAll("\\(\\)","(1=1)");
+	    	//replace (1=1) and to ""
+	    	query=query.replaceAll("\\(1=1\\) and","");
 	    	System.out.println("query:\n");
 	    	System.out.println(query);
 	    	return query;

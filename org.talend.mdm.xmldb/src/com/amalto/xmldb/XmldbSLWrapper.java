@@ -1081,7 +1081,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         	
         	//where
         	if(pivotPaths.length>0){
-        		xqWhere.append("where 1=1 "); // ctoum 20100110
+        		xqWhere.append("where (1=1) "); // ctoum 20100110
         		if(pivotPaths.length>1){
             		for (int k = 0; k < pivotPaths.length-1 ; k++) {
             			String[] k1keys=pivotWithKeys.get(pivotPaths[k+1]);
@@ -1169,7 +1169,10 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         			+"\n return subsequence($list,"+(start+1)+","+limit+")";
         	}
         	
-        	query=query.replaceAll("\\(\\)","(1=1)");
+	    	//replace () to (1=1)
+	    	query=query.replaceAll("\\(\\)","(1=1)");
+	    	//replace (1=1) and to ""
+	    	query=query.replaceAll("\\(1=1\\) and","");        	
     		return query;
     		    	
     	} catch (Exception e) {
