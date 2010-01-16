@@ -1,11 +1,12 @@
 package com.amalto.core.util;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public class RoleInstance {
 	private boolean isWriteable = false;
 	private boolean isReadOnly;
-	private HashSet<String> parameters = new HashSet<String>();
+	private HashSet<String> parameters = new LinkedHashSet<String>();
 	public boolean isWriteable() {
 		return isWriteable;
 	}
