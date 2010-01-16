@@ -576,7 +576,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 //				return (encoding == null ? "" : "<?xml version=\"1.0\" encoding=\""+encoding+"\"?>\n")+subString;//itemsCache.get(key1);
 //			}
 //			
-			org.xmldb.api.base.Collection col = getCollection(revisionID, clusterName, false); //change it to false 
+			org.xmldb.api.base.Collection col = getCollection(revisionID, clusterName, true); //change it to false 
 //			col.setProperty(OutputKeys.INDENT, "yes");
 			col.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 //			encode uniqueID
