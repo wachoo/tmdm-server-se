@@ -2,6 +2,7 @@ package com.amalto.webapp.v3.itemsbrowser.bean;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.amalto.webapp.core.bean.Configuration;
@@ -53,7 +54,7 @@ public class View {
 			Configuration config = Configuration.getInstance();
 			String[] searchables =Util.getPort().getView(new WSGetView(new WSViewPK(viewPK)))
 				.getSearchableBusinessElements();
-			HashMap<String,String> labelSearchables = new HashMap<String,String>();
+			Map<String,String> labelSearchables = new LinkedHashMap<String,String>();
 			HashMap<String,String> xpathToLabel = new HashMap<String,String>();
 			if(viewPK.contains("Browse_items_")){
 				String concept = CommonDWR.getConceptFromBrowseItemView(viewPK);
@@ -70,13 +71,8 @@ public class View {
 				String label=xpathToLabel.get(searchables[i]);
 				if(label!=null)labelSearchables.put(searchables[i],label);
 			}
-			try{
-				return CommonDWR.getMapSortedByValue(labelSearchables);
-			}
-			catch(Exception e){
-				return labelSearchables;
-			}
-
+			
+			return labelSearchables;
 		}
 		catch(Exception e){
 			e.printStackTrace();
