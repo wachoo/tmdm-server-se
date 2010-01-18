@@ -16,8 +16,16 @@ import com.amalto.core.util.XtentisException;
 
 public abstract class ILocalUser implements IBeanDelegator{
 	public Subject getICurrentSubject() throws XtentisException {
-		// TODO Auto-generated method stub
-		return null;
+		String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container";       		
+		Subject subject;
+		try {
+			subject = (Subject) PolicyContext.getContext(SUBJECT_CONTEXT_KEY);
+		} catch (PolicyContextException e1) {
+			String err = "Unable find the local user: the JACC Policy Context cannot be accessed: "+e1.getMessage();
+			org.apache.log4j.Logger.getLogger(LocalUser.class).error(err,e1);
+			throw new XtentisException(err);
+		}
+		return subject;
 	}
 	
 	public ILocalUser getILocalUser() throws XtentisException {
