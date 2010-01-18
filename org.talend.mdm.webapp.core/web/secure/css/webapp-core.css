@@ -32,18 +32,27 @@
 	}
 	
 	.username{
+	    
 		width:auto;
 		position: absolute;
+		font: bold  13px tahoma,verdana,helvetica;
 		top: 1px;
-		right:200px;
-		color:black;
-		font-weight:normal;
+		left:60px;
+		color:  #ADADAD;
+		
 	}
-	
+
+
+.generic-header-background{
+	background-color: #3C3C3C;
+    background-image: url(/talendmdm/secure/img/header-back.png);
+    background-repeat: repeat-x;
+    height:38px;
+}	
 
 
 .generic-header{
-	background-image: url(/xtentismdm/secure/img/genericUI/header.gif);
+	background-image: url(/talendmdm/secure/img/genericUI/header.gif);
 	background-repeat: repeat-y;
 	background-position:right;
 	font:bold 12px verdana, helvetica;
@@ -52,6 +61,8 @@
 	border:0px none;
 	border-bottom:2px solid #c3daf9;
 }
+
+
 /***************************************************************************************
   ACTIONS
 ****************************************************************************************/

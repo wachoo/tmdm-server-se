@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amalto.core.util.Util;
+
 
 
 public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericControllerServlet{
@@ -76,7 +78,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 			String html = 
 					"<html>\n" +
 					"<head>\n" +
-					"<title>Talend Open MDM</title>\n" +
+					"<title>Talend MDM</title>\n" +
 					super.getCommonImport();
 			html += super.getJavascriptImportsHtml();
 			html +="<script type=\"text/javascript\" src=\"/talendmdm/secure/js/conf.js\"></script>\n";
@@ -128,20 +130,36 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 				"		<option value=\"en\" >English</option>\n"+
 				"		<option value=\"fr\" selected>Francais</option>\n";
 		}
-		
+		String enterprise = Util.isEnterprise()?"Community<br/>Edition":"Enterprise<br/>Edition";
 		return
-			"<body id=\"genericUI\" style=\"font:13px tahoma,verdana,helvetica\">\n"+
+		
+			/*"<body id=\"genericUI\" style=\"font:13px tahoma,verdana,helvetica\">\n"+
 				"<div id=\"header\" class=\"generic-header\">\n"+
 				"	<img src=\""+ request.getContextPath() +"/secure/img/top-banner-talend.gif\"/>\n" +
-				"<table style=\"position: absolute;top: 1px;right:1px;\">"+
-				"	<tr><td><div id=\"logout-btn\" ></div></td></tr>\n"+
-			    "	<tr><td><div ><select style=\"align: right; font: normal  11px tahoma,verdana,helvetica; right: 5px\" id=\"languageSelect\" onchange=\"amalto.core.switchLanguage();\">\n"+
+				"<table style=\"position: absolute;top: 1px;right:1px;\">"+*/
+		
+		
+				"<body id=\"genericUI\" style=\"font:13px tahoma,verdana,helvetica\">\n"+
+				"<div id=\"header\" class=\"generic-header-background\">\n"+
+				//"	<img src=\""+ request.getContextPath() +"/secure/img/top-banner-talend.gif\"/>\n" +
+				
+				"<img src=\""+ request.getContextPath() +"/secure/img/header-back-title.png\"/>\n" +
+				"<div id=\"username-div\"  class=\"username\"></div>\n" +
+				"<div><table style=\"position: absolute;top: 0px;right:1px;\">"+
+			    "<td><div><img src=\""+ request.getContextPath() +"/secure/img/logo-mdm.png\"/></div></td>\n" +
+			    "<td><div style=\"font: bold 13px tahoma,verdana,helvetica;color:#ADADAD;\">"+enterprise+"</div></td>\n"+
+			    "<td><div><select style=\" font: normal  11px tahoma,verdana,helvetica; right: 5px\" id=\"languageSelect\" onchange=\"amalto.core.switchLanguage();\">\n"+
 			    html+
-			    "	</select></div></td></tr>\n" +
-			    "</table>"+	   
-			    "	<div id=\"username-div\" class=\"username\"></div>\n" +
-			    //"<a href='"+ request.getContextPath() +"/secure/?action=logout' id='logout-btn' class='logout-btn'>"+(language.equals("fr")?"d&eacute;connexion":"logout")+"</a>\n"+
+			    "	</select></div></td>" +
+			    "<td><div id=\"logout-btn\" ></div></td>\n"+
+			    
+			    "<td><div style=\"float position:relative;top: 1px;\" ><a href='"+ request.getContextPath() +"/secure/?action=logout' id='logout-btn' class='logout-btn'></a></div></td>\n"+
+			    
+			    "</tr>\n" +
+			    "</table></div>"+	   
+			    
 			    "</div>\n"+
+			    
 			    "<div id=\"menus\" class=\"menus-list\"></div>\n" +
 			   "<div id=\"centerdiv\"></div>\n"+		    
 			   //"<div id=\"actions\"></div>\n"+		    
