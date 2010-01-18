@@ -6,7 +6,7 @@
         </descriptions>
         <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
             <key xsi:type="java:java.lang.String">fr</key>
-            <value xsi:type="java:java.lang.String">Hierarchical View</value>
+            <value xsi:type="java:java.lang.String">Vue hiérarchique</value>
         </descriptions>
         <application>HierarchicalView</application>
         <context>hierarchical</context>

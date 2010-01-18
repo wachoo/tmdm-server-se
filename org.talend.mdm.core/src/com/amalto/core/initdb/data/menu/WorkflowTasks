@@ -2,7 +2,7 @@
     <menu-entries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:com.amalto.core.objects.menu.ejb.MenuEntryPOJO">
         <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
             <key xsi:type="java:java.lang.String">fr</key>
-            <value xsi:type="java:java.lang.String">TÃ¢ches de Workflow</value>
+            <value xsi:type="java:java.lang.String">Tâches de Workflow</value>
         </descriptions>
         <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
             <key xsi:type="java:java.lang.String">en</key>

@@ -6,7 +6,7 @@
         </descriptions>
         <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
             <key xsi:type="java:java.lang.String">fr</key>
-            <value xsi:type="java:java.lang.String">Cross Referencing</value>
+            <value xsi:type="java:java.lang.String">Références croisées</value>
         </descriptions>
         <application>CrossReferencing</application>
         <context>crossreferencing</context>
