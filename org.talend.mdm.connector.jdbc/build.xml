@@ -58,7 +58,7 @@
 				<include name="${version.props}" />
 			</zipfileset>
 			<zipfileset dir="src/META-INF" prefix="META-INF">
-				<include name="${ds}" />
+				<include name="ds.xml" />
 			</zipfileset>
 		</jar>
 		
