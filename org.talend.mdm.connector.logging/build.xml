@@ -45,9 +45,11 @@
 			<zipfileset dir=".">
 				<include name="version.properties" />
 			</zipfileset>
+			<!--
             <zipfileset dir="src/META-INF" prefix="META-INF">
                 <include name="ds.xml" />
-            </zipfileset>			
+            </zipfileset>	
+            -->		
 		</jar>
 		<jar destfile="zz.20.mdm.connector.logging-mdb.ejb.jar">
 			<zipfileset dir="src/META-INF" prefix="META-INF">
