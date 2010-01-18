@@ -130,7 +130,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 				"		<option value=\"en\" >English</option>\n"+
 				"		<option value=\"fr\" selected>Francais</option>\n";
 		}
-		String enterprise = Util.isEnterprise()?"Community<br/>Edition":"Enterprise<br/>Edition";
+		String enterprise = Util.isEnterprise()?"Enterprise<br/>Edition":"Community<br/>Edition";
 		return
 		
 			/*"<body id=\"genericUI\" style=\"font:13px tahoma,verdana,helvetica\">\n"+
