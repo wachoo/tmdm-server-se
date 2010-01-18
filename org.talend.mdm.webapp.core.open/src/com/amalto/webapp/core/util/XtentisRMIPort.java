@@ -2,10 +2,11 @@ package com.amalto.webapp.core.util;
 
 import java.rmi.RemoteException;
 
+import com.amalto.core.objects.role.ejb.RolePOJO;
+import com.amalto.core.objects.role.ejb.RolePOJOPK;
+import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
 import com.amalto.webapp.util.webservices.WSBackgroundJobPK;
 import com.amalto.webapp.util.webservices.WSBoolean;
-import com.amalto.webapp.util.webservices.WSCheckServiceConfigRequest;
-import com.amalto.webapp.util.webservices.WSCheckServiceConfigResponse;
 import com.amalto.webapp.util.webservices.WSConceptRevisionMap;
 import com.amalto.webapp.util.webservices.WSDeleteRole;
 import com.amalto.webapp.util.webservices.WSDeleteSynchronizationItem;
@@ -34,8 +35,6 @@ import com.amalto.webapp.util.webservices.WSGetUniversePKs;
 import com.amalto.webapp.util.webservices.WSGetVersioningSystemConfiguration;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSItemPKArray;
-import com.amalto.webapp.util.webservices.WSPutItemArray;
-import com.amalto.webapp.util.webservices.WSPutItemWithReportArray;
 import com.amalto.webapp.util.webservices.WSPutRole;
 import com.amalto.webapp.util.webservices.WSPutSynchronizationItem;
 import com.amalto.webapp.util.webservices.WSPutSynchronizationPlan;
@@ -186,8 +185,20 @@ public class XtentisRMIPort extends IXtentisRMIPort {
 	}
 
 	public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			RoleCtrlLocal ctrl = com.amalto.core.util.Util.getRoleCtrlLocal();
+			RolePOJO pojo =
+				ctrl.getRole(
+					new RolePOJOPK(
+							wsGetRole.getWsRolePK().getPk()
+					)
+				);
+			return XConverter.POJO2WS(pojo);
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
 	}
 
 	public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {

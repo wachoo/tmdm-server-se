@@ -630,7 +630,6 @@ public class Util {
     	return getFirstTextNode(contextNode,xPath,contextNode);
     }
     
-    static Subject subjectOne;
 	/*********************************************************************
 	 *      JACC - JAAS
 	 *********************************************************************/	
@@ -638,10 +637,8 @@ public class Util {
 //    	Retrieve the subject
 		String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container";
 		Subject sub=(Subject) PolicyContext.getContext(SUBJECT_CONTEXT_KEY);
-		if(sub!=null) {
-			subjectOne=sub;
-		}
-		return new AjaxSubject(subjectOne);
+		
+		return new AjaxSubject(sub);
 		
     }
     
@@ -650,9 +647,7 @@ public class Util {
     	// Get the Authenticated Subject
 
         Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
-        if(subject==null) {
-        	subject=subjectOne;
-        }
+
         // Now look for a Group 
 
         Set principals = subject.getPrincipals(Principal.class);
