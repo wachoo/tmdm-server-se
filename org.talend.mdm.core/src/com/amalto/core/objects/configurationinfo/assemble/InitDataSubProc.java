@@ -21,6 +21,7 @@ public class InitDataSubProc extends AssembleSubProc{
 				InitDBUtil.initDB();
 			} catch (Exception e) {
 				org.apache.log4j.Logger.getLogger(this.getClass()).error("Init db error! ");
+				e.printStackTrace();
 			}
 		}
 		

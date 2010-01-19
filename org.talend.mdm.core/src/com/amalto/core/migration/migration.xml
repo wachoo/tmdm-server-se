@@ -4,6 +4,6 @@
 <com.amalto.core.migration.tasks.RemoveOldMigrationClusterTask/>
 <com.amalto.core.migration.tasks.ReplaceEmptyInfoInTransformersTask/>
 <com.amalto.core.migration.tasks.TiscallRenameToCallJobTask/>
-<com.amalto.core.migration.tasks.CreateClustersForCrossreferencingTask/>
+
 
 </Root>
