@@ -567,7 +567,36 @@ amalto.core = function () {
 			    		var showmenudesc=(menu.desc==null||menu.desc==undefined)?"":menu.desc;
 			    		menuitem.setAttribute("href",showmenuurl);
                         menuitem.setAttribute("id","menu-"+menuid);
-                        menuitem.innerHTML="<span class=\"body\">"+showmenuname+"<br><span class=\"desc\">"+showmenudesc+"</span></span>";                        
+                        
+                        //alert(menu.context+"."+menu.application);
+                        //switch image
+                        var imageIconPart='';
+                        var toCheckMenuID=menu.context+"."+menu.application;
+                        if(toCheckMenuID=='itemsbrowser.ItemsBrowser'||toCheckMenuID=='viewbrowser.ViewBrowser'){
+                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/>";
+                        }else if(toCheckMenuID=='crossreferencing.CrossReferencing'){
+                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/crossref.png\"/>";
+                        }else if(toCheckMenuID=='hierarchical.HierarchicalView'){
+                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/hier_view.gif\"/>";
+                        }else if(toCheckMenuID=='usersandroles.Users'){
+                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/manage_users.png\"/>";
+                        }else if(toCheckMenuID=='reporting.Reporting'){
+                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/reporting.png\"/>";
+                        }else if(toCheckMenuID=='SynchronizationItem.SynchronizationItem'){
+                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/synchro_item.png\"/>";
+                        }else if(toCheckMenuID=='SynchronizationAction.SynchronizationAction'){
+                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/synchronize.png\"/>";
+                        }else if(toCheckMenuID=='ItemsTrash.ItemsTrash'){
+                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/trash.png\"/>";
+                        }else if(toCheckMenuID=='updatereport.UpdateReport'){
+                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/>";
+                        }else if(toCheckMenuID=='workflowtasks.WorkflowTasks'){
+                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/workflowtasks.png\"/>";
+                        }else{
+                        	//more menus icon
+                        }	
+                        
+                        menuitem.innerHTML="<span class=\"body\">"+imageIconPart+showmenuname+"<br><span class=\"desc\">"+showmenudesc+"</span></span>";                        
                         doms[menu.level-1].appendChild(menuitem);
 
 			    		//var menuId = 'menu-'+menu.id;
