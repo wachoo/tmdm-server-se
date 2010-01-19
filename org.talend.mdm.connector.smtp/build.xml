@@ -64,24 +64,77 @@
 			</zipfileset>
 			-->
 		</jar>
-		
-		<jar destfile="${mdb}">
-			<zipfileset dir="src/META-INF" prefix="META-INF">
-				<include name="ejb-jar.xml" />
-			</zipfileset>
-			<zipfileset dir="src/META-INF" prefix="META-INF">
-				<include name="jboss.xml" />
-			</zipfileset>
-			<zipfileset dir="bin" includes="**/mdb/**/*.class" />
-			<zipfileset dir=".">
-				<include name="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
-				<include name="${version.props}" />
-			</zipfileset>
-		</jar>
-
+		<antcall target="package.mdb.jar"></antcall>
 		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
 	</target>
 	
+    <!-- ================================= 
+          target: name              
+         ================================= -->
+    <target name="package.mdb.jar"  description="--> package.mdb.jar">
+          <if>
+             <equals arg1="${buildtype}" arg2="tom" />
+             <then>
+                <antcall target="package.tom.jar"></antcall>
+             </then>
+             <elseif>
+              <equals arg1="${buildtype}" arg2="tem" />
+              <then>
+                <antcall target="package.tem.jar"></antcall>
+              </then>
+             </elseif>
+             <else>
+                <antcall target="package.jar"></antcall>      
+             </else>
+         </if>               
+    </target>
+
+    <target name="package.tom.jar" description="--> package.tom.jar">
+        <jar destfile="${mdb}">
+            <zipfileset dir="src/META-INF" prefix="META-INF">
+                <include name="ejb-jar.xml" />
+            </zipfileset>   
+            <zipfileset dir="src/META-INF/tom" prefix="META-INF">
+                <include name="jboss.xml" />
+            </zipfileset>               
+            <zipfileset dir="bin" includes="**/mdb/**/*.class" />
+            <zipfileset dir=".">
+                <include name="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+                <include name="${version.props}" />
+            </zipfileset>
+        </jar>       
+    </target>
+    
+    <target name="package.tem.jar" description="--> package.tem.jar">
+        <jar destfile="${mdb}">
+            <zipfileset dir="src/META-INF" prefix="META-INF">
+                <include name="ejb-jar.xml" />
+            </zipfileset>   
+            <zipfileset dir="src/META-INF/tem" prefix="META-INF">
+                <include name="jboss.xml" />
+            </zipfileset>               
+            <zipfileset dir="bin" includes="**/mdb/**/*.class" />
+            <zipfileset dir=".">
+                <include name="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+                <include name="${version.props}" />
+            </zipfileset>
+        </jar>       
+    </target>
+    <target name="package.jar" description="--> package.jar">
+        <jar destfile="${mdb}">
+            <zipfileset dir="src/META-INF" prefix="META-INF">
+                <include name="ejb-jar.xml" />
+            </zipfileset>   
+            <zipfileset dir="src/META-INF" prefix="META-INF">
+                <include name="jboss.xml" />
+            </zipfileset>               
+            <zipfileset dir="bin" includes="**/mdb/**/*.class" />
+            <zipfileset dir=".">
+                <include name="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+                <include name="${version.props}" />
+            </zipfileset>
+        </jar>       
+    </target>   
 	
 
 	<target name="undeploy" description="--> remove packages">
@@ -104,7 +157,21 @@
 		<echo>Deploying build: ${major}.${minor}.${rev}-${build.number}</echo>
 		<copy file="${rar}" tofile="${jboss.deploy.dir}/${rar}" />
 		<copy file="${mdb}" tofile="${jboss.deploy.dir}/${mdb}" />
-		<copy file="src/META-INF/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />
+        <if>
+           <equals arg1="${buildtype}" arg2="tom" />
+           <then>
+            <copy file="src/META-INF/tom/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />
+           </then>
+           <elseif>
+            <equals arg1="${buildtype}" arg2="tem" />
+            <then>
+                <copy file="src/META-INF/tem/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />
+            </then>
+           </elseif>
+           <else>
+            <copy file="src/META-INF/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />      
+           </else>
+       </if> 
 	</target>
 
 </project>
