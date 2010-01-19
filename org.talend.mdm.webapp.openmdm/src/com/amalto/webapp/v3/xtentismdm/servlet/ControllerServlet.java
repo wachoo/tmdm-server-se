@@ -130,7 +130,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 				"		<option value=\"en\" >English</option>\n"+
 				"		<option value=\"fr\" selected>Francais</option>\n";
 		}
-		String enterprise = Util.isEnterprise()?"Enterprise<br/>Edition":"Community<br/>Edition";
+		String enterprise = Util.isEnterprise()?"color:#EE0000;\"> Enterprise<br/>Edition":"color:#B4DC10;\">Community <br/> Edition";
 		return
 		
 			/*"<body id=\"genericUI\" style=\"font:13px tahoma,verdana,helvetica\">\n"+
@@ -145,9 +145,10 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 				
 				"<img src=\""+ request.getContextPath() +"/secure/img/header-back-title.png\"/>\n" +
 				"<div id=\"username-div\"  class=\"username\"></div>\n" +
-				"<div><table style=\"position: absolute;top: 0px;right:1px;\">"+
+				"<div><table style=\"position: absolute;top: -2px;right:1px;\">"+
 			    "<td><div><img src=\""+ request.getContextPath() +"/secure/img/logo-mdm.png\"/></div></td>\n" +
-			    "<td><div style=\"font: bold 13px tahoma,verdana,helvetica;color:#ADADAD;\">"+enterprise+"</div></td>\n"+
+			    "<td><div style=\"font: bold 13px tahoma,verdana,helvetica;"+enterprise+"</div></td>\n"+
+			    "<td><div>"+"&nbsp;&nbsp;"+"</div></td>\n"+
 			    "<td><div><select style=\" font: normal  11px tahoma,verdana,helvetica; right: 5px\" id=\"languageSelect\" onchange=\"amalto.core.switchLanguage();\">\n"+
 			    html+
 			    "	</select></div></td>" +
