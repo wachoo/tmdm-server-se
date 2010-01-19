@@ -2035,6 +2035,11 @@ public class ItemsBrowserDWR {
 						contents.add("complex type");
 						metaDataTypes.put((hierarchy == null ? "" : hierarchy ) + name, contents);
 					}
+					else if(Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction").getLength() > 0)
+					{
+						Node baseNode = Util.getNodeList(elem,  ".//xsd:simpleType/xsd:restriction").item(0);
+						type = baseNode.getAttributes().getNamedItem("base").getNodeValue();
+					}
 				}
 				
 				if(Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").getLength() > 0)
@@ -2058,7 +2063,22 @@ public class ItemsBrowserDWR {
 				if(type.startsWith("xsd:"))
 				{
 					ArrayList<String> contents = new ArrayList<String>();
-					contents.add(type);
+					if(Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration").getLength() > 0)
+					{
+						//enumeration type
+						type = "enumeration";
+						contents.add(type);
+						NodeList enums = Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration");
+						for (int enm = 0; enm < enums.getLength(); enm++)
+						{
+							Node enumNode = enums.item(enm);
+							contents.add(enumNode.getAttributes().getNamedItem("value").getNodeValue());
+						}
+					}
+					else
+					{
+						contents.add(type);
+					}
 					metaDataTypes.put((hierarchy == null ? "" : hierarchy ) + name, contents);
 				}
 				else if(!type.equals(""))
