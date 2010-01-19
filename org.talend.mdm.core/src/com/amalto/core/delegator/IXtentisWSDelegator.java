@@ -2903,7 +2903,15 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 * 	view-type = "service-endpoint"
      */	
 	public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
-		return null;
+		try {
+			//Fetch the user
+			ILocalUser user = LocalUser.getLocalUser();
+			return POJO2WS(user.getUniverse());
+		} catch (Exception e) {
+			String err = "ERROR SYSTRACE: "+e.getMessage();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
+			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+		}
 	}
 	
 	protected WSUniverse POJO2WS(UniversePOJO universePOJO) throws Exception{
