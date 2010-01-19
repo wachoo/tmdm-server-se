@@ -75,7 +75,7 @@ public class ReportingDWR {
 		WSWhereCondition wc2 = new WSWhereCondition(
 				"Reporting/Shared",
 				WSWhereOperator.EQUALS,"true",
-				WSStringPredicate.NONE,false
+				WSStringPredicate.OR,false
 				);
 		/*ArrayList<WSWhereItem> conditions=new ArrayList<WSWhereItem>();
 		conditions.add(new WSWhereItem(wc,null,null));
