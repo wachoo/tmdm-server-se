@@ -64,12 +64,12 @@
          ================================= -->
     <target name="package.mdb.jar"  description="--> package.mdb.jar">
           <if>
-             <equals arg1="${buildtype}" arg2="tom" />
+             <equals arg1="${ear.name}" arg2="tom.ear" />
              <then>
                 <antcall target="package.tom.jar"></antcall>
              </then>
              <elseif>
-              <equals arg1="${buildtype}" arg2="tem" />
+              <equals arg1="${ear.name}" arg2="tem.ear" />
               <then>
                 <antcall target="package.tem.jar"></antcall>
               </then>
@@ -145,12 +145,12 @@
 		<copy file="zz.20.mdm.connector.logging.rar" tofile="${jboss.deploy.dir}/zz.20.mdm.connector.logging.rar"/>
 		<copy file="zz.20.mdm.connector.logging-mdb.ejb.jar" tofile="${jboss.deploy.dir}/zz.20.mdm.connector.logging-mdb.ejb.jar"/>		
         <if>
-           <equals arg1="${buildtype}" arg2="tom" />
+           <equals arg1="${ear.name}" arg2="tom.ear" />
            <then>
             <copy file="src/META-INF/tom/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />
            </then>
            <elseif>
-            <equals arg1="${buildtype}" arg2="tem" />
+            <equals arg1="${ear.name}" arg2="tem.ear" />
             <then>
                 <copy file="src/META-INF/tem/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />
             </then>
