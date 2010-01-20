@@ -55,12 +55,16 @@
         <param name="LocationInfo" value="true"/>
     </appender>
 	-->
-   <appender name="LoggingEvents" class="org.apache.log4j.net.SocketAppender">
+	
+	<!-- Use Talend MDM Logging service                                 -->
+    <!-- NOTE: update RemoteHost to your MDM host -->
+    <!--
+   <appender name="TalendMDMLogging" class="org.apache.log4j.net.SocketAppender">
 	    <param name="Port" value="4561"/>
 	    <param name="RemoteHost" value="localhost"/>
 	    <param name="LocationInfo" value="true"/>
     </appender>
-
+	-->
 
    <!-- A size based file rolling appender
    <appender name="FILE" class="org.jboss.logging.appender.RollingFileAppender">
@@ -360,11 +364,12 @@
    <root>
       <appender-ref ref="CONSOLE"/>
       <appender-ref ref="FILE"/>
-      <!-- remove chainsaw
-           <appender-ref ref="ChainSawPDS"/>
+      <!-- uncomment for chainsaw
+      <appender-ref ref="ChainSawPDS"/>
 	   -->
-       <appender-ref ref="LoggingEvents"/>
-
+	  <!--  uncomment for Talend MDM logging
+       <appender-ref ref="TalendMDMLogging"/>
+		-->
    </root>
 
 </log4j:configuration>
