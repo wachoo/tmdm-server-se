@@ -573,25 +573,25 @@ amalto.core = function () {
                         var imageIconPart='';
                         var toCheckMenuID=menu.context+"."+menu.application;
                         if(toCheckMenuID=='itemsbrowser.ItemsBrowser'||toCheckMenuID=='viewbrowser.ViewBrowser'){
-                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/>";
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/></span>";
                         }else if(toCheckMenuID=='crossreferencing.CrossReferencing'){
-                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/crossref.png\"/>";
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/crossref.png\"/></span>";
                         }else if(toCheckMenuID=='hierarchical.HierarchicalView'){
-                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/hier_view.gif\"/>";
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/hier_view.gif\"/></span>";
                         }else if(toCheckMenuID=='usersandroles.Users'){
-                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/manage_users.png\"/>";
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/manage_users.png\"/></span>";
                         }else if(toCheckMenuID=='reporting.Reporting'){
-                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/reporting.png\"/>";
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/reporting.png\"/></span>";
                         }else if(toCheckMenuID=='SynchronizationItem.SynchronizationItem'){
-                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/synchro_item.png\"/>";
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/synchro_item.png\"/></span>";
                         }else if(toCheckMenuID=='SynchronizationAction.SynchronizationAction'){
-                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/synchronize.png\"/>";
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/synchronize.png\"/></span>";
                         }else if(toCheckMenuID=='ItemsTrash.ItemsTrash'){
-                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/trash.png\"/>";
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/trash.png\"/></span>";
                         }else if(toCheckMenuID=='updatereport.UpdateReport'){
-                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/>";
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/></span>";
                         }else if(toCheckMenuID=='workflowtasks.WorkflowTasks'){
-                        	imageIconPart="<IMG SRC=\"/talendmdm/secure/img/menu/workflowtasks.png\"/>";
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/workflowtasks.png\"/></span>";
                         }else{
                         	//more menus icon
                         }	
