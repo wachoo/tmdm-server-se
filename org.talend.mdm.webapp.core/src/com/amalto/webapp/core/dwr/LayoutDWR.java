@@ -82,7 +82,7 @@ public class LayoutDWR {
 	
 	public String getUsernameAndUniverse() throws Exception{
 		if(!com.amalto.core.util.Util.isEnterprise()) {
-			String name =Util.getLoginUserName() +",HEAD";
+			String name =Util.getLoginUserName() +",UNKNOWN";
 			return name;
 		}
 		try {

@@ -66,7 +66,8 @@ function f_submit(){
     
     var username=document.loginform.j_username.value;
     var password=document.loginform.j_password.value;
-    var universe=document.loginform.j_universe.value;
+    var universe='';
+    if(document.loginform.j_universe!=undefined && document.loginform.j_universe!=null)universe=document.loginform.j_universe.value;
     if(universe!=''&&universe=='HEAD')universe='';
     
     LoginInterface.isTimeOut(function(result) {
@@ -88,23 +89,23 @@ function f_submit(){
 
 function getUniverseList()
 {
-    //retrieve data
-    LoginInterface.getUniverseNames({
-        callback:function(data) { 
-          DWRUtil.removeAllOptions("j_universe");
-          DWRUtil.addOptions("j_universe",data);
-        },
-        errorHandler:function(message) { alert(message); },
-        timeout:10000
-    });
+    if(document.loginform.j_universe!=undefined && document.loginform.j_universe!=null){
+       //retrieve data
+        LoginInterface.getUniverseNames({
+            callback:function(data) { 
+              DWRUtil.removeAllOptions("j_universe");
+              DWRUtil.addOptions("j_universe",data);
+            },
+            errorHandler:function(message) { alert(message); },
+            timeout:10000
+        });
+    }
 }
-
-getUniverseList();
 
 </script>
 
 </head>
-<body onload="document.loginform.j_username.focus();">
+<body onload="document.loginform.j_username.focus();getUniverseList();">
 
  <table width="100%" class="header1" border="0">
       <tr><td height="128" width="50%" class="logo"><img src="<%= contextPath %>/auth/logo.png"></td><td class="version" id="loginVersion"><%=version%></td></tr>
@@ -144,13 +145,15 @@ getUniverseList();
                             <td align="left"><input type="password" name="j_password" value="" onKeyDown="if(event.keyCode==13){document.all.login.click()}"/>
                             </td>
                         </tr>
+                        <%if(com.amalto.core.util.Util.isEnterprise()){%>
                         <tr>
                             <td align="right" width="120"><%= _UNIVERSE_ %>:&nbsp;</td>
                             <td align="left">
                             <!--<input type="text" name="j_universe" value="" />-->
                             <select id="j_universe" name="j_universe"/>
                             </td>
-                        </tr>                       
+                        </tr>
+                        <%}%>                       
                         <tr>
                             <td colspan="2" align="center"><input type="button" name="login" value="Login" onclick="f_submit()"/></td>
                         </tr>
