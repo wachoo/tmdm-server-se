@@ -66,8 +66,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
      */
     initContent: function(itemData, newItem,treeIndex, hasIcon) {	
     	var KEY_DEFAULT_vALUE = {
-			'en':'Generated upon save',
-			'fr':'Généré lors de la sauvegarde'
+			'en':'(Auto)',
+			'fr':'(Auto)'
 		}
 		var html = [];		
 		
