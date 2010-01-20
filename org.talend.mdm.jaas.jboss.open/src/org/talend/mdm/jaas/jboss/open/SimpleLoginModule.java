@@ -311,7 +311,7 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 			return new Group[]{usernameGroup,passwordGroup, universeGroup, rolesGroup};
 		}
 		//add an 'openTest' role 
-		rolesGroup.addMember(new SimplePrincipal("Order_User"));
+		rolesGroup.addMember(new SimplePrincipal("Default_User"));
 		//Fetch the xtentis based saved User Details
 		Element user = getSavedUserDetails(getUsername());
 

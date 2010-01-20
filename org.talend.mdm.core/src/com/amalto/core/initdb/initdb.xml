@@ -62,7 +62,7 @@
 		</item>	
 		<item>
 			<name>amaltoOBJECTSRole</name>
-			<list>role/Order_Admin;role/Order_User</list>			
+			<list>role/Default_Admin;role/Default_User</list>			
 		</item>		
 		<item>
 			<name>amaltoOBJECTSRoutingEngineV2</name>
