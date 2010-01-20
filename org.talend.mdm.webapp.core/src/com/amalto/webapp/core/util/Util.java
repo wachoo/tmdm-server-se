@@ -57,6 +57,7 @@ import org.xml.sax.InputSource;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
@@ -907,4 +908,16 @@ public class Util {
 //    	getConditionFromPath("Country[Country/isoCode!=CN]");
 //    	
 //	}
+	
+	/**
+	 * store the datacluster and datamodel to PROVISIONING as TOM.
+	 */
+	public static void storeProvisioning(String username,String xmlString)
+	   throws Exception
+	{
+	   XmlServerSLWrapperLocal server = 
+	      com.amalto.core.util.Util.getXmlServerCtrlLocal();
+	   server.putDocumentFromString(xmlString, 
+	      "PROVISIONING"+"."+"User"+"."+username, "PROVISIONING", null);
+	}
 }

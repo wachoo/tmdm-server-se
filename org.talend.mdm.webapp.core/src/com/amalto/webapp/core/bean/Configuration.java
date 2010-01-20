@@ -70,9 +70,12 @@ public class Configuration {
 		ctx.getSession().setAttribute("configuration",null);
 		store(cluster, model);
 	}
-	
+	 
 	private static void store(String cluster, String model) throws Exception{
+	   
 		WebContext ctx = WebContextFactory.get();
+		ctx.getSession().setAttribute("configuration",new Configuration(cluster,model));
+		
 		String xml = Util.getAjaxSubject().getXml();
 		Document d = Util.parse(xml);
 		NodeList nodeList = Util.getNodeList(d,"//property");
@@ -103,14 +106,19 @@ public class Configuration {
 					Util.getNodeList(node, "value").item(0).getFirstChild().setNodeValue(model);				
 			}
 		}		
-		WSItemPK wsi = Util.getPort().putItem(
-				new WSPutItem(
-						new WSDataClusterPK("PROVISIONING"), 
-						CommonDWR.getXMLStringFromDocument(d).replaceAll("<\\?xml.*?\\?>",""),
-						new WSDataModelPK("PROVISIONING"),false
-				)
-		);		
-		ctx.getSession().setAttribute("configuration",new Configuration(cluster,model));
+		if(com.amalto.core.util.Util.isEnterprise()) {
+      		WSItemPK wsi = Util.getPort().putItem(
+      				new WSPutItem(
+      						new WSDataClusterPK("PROVISIONING"), 
+      						CommonDWR.getXMLStringFromDocument(d).replaceAll("<\\?xml.*?\\?>",""),
+      						new WSDataModelPK("PROVISIONING"),false
+      				)
+      		);				
+		}
+		else {
+		   Util.storeProvisioning(Util.getLoginUserName(), 
+		      CommonDWR.getXMLStringFromDocument(d).replaceAll("<\\?xml.*?\\?>",""));
+		}
 	}
 	
 	private static Configuration load() throws Exception {
@@ -118,7 +126,16 @@ public class Configuration {
 		Configuration configuration = new Configuration();
 		
 		//String xml = Util.getAjaxSubject().getXml();
-		Element user=Util.getLoginProvisioningFromDB();
+		Element user=null;
+		
+		if(com.amalto.core.util.Util.isEnterprise()) {
+		   user = Util.getLoginProvisioningFromDB();
+		}
+		else {
+		   if(Util.getAjaxSubject().getXml() != null) {
+		      user = Util.parse(Util.getAjaxSubject().getXml()).getDocumentElement();
+		   }
+		}
 		
 		//Document d = Util.parse(userString);
 		NodeList nodeList = Util.getNodeList(user,"//property");
