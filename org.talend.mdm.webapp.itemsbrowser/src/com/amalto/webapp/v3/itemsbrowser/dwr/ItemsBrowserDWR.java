@@ -1034,6 +1034,7 @@ public class ItemsBrowserDWR {
 			String xml = CommonDWR.getXMLStringFromDocument(d);
 			xml = xml.replaceAll("<\\?xml.*?\\?>","");
 			xml=xml.replaceAll("Generated upon save", "");
+			xml=xml.replaceAll("Généré lors de la sauvegarde", "");			
 			//<?xml version="1.0" encoding="UTF-8"?>
 			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).debug("saveItem() "+xml);
 			
