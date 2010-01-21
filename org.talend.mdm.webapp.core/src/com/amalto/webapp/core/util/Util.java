@@ -910,9 +910,9 @@ public class Util {
 //	}
 	
 	/**
-	 * store the datacluster and datamodel to PROVISIONING as TOM.
+	 * store the info of datacluster and datamodel to PROVISIONING.
 	 */
-	public static void storeProvisioning(String username,String xmlString)
+	public static void storeProvisioning(String username, String xmlString)
 	   throws Exception
 	{
 	   XmlServerSLWrapperLocal server = 
