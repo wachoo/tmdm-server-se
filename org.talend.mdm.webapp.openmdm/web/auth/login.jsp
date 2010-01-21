@@ -17,7 +17,7 @@
     //default en
     String _USERNAME_ = "Login";
     String _PASSWORD_ = "Password";
-    String _UNIVERSE_ ="Universe";
+    String _UNIVERSE_ ="Version";
     String _ERROR = "Login failed. Please check your login and password";
     
     if ("fr".equals(language)) {
