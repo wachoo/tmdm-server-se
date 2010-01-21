@@ -466,15 +466,19 @@ public abstract class ConnectorMDB implements MessageDrivenBean, MessageListener
 	 */
 	public void ejbTimeout(Timer timer) {
 		String JNDIName = (String) timer.getInfo();
-		org.apache.log4j.Logger.getLogger(this.getClass()).trace("ejbTimeout() "+JNDIName);
+		org.apache.log4j.Logger.getLogger(this.getClass()).debug("ejbTimeout() "+JNDIName);
 		
-		//cancel all existing timers
+		//cancel all other existing timers
 		TimerService timerService =  ctx.getTimerService();
+
 		Collection<Timer> timers = timerService.getTimers();
 		for (Iterator<Timer> iterator = timers.iterator(); iterator.hasNext(); ) {
 			Timer timer2 = iterator.next();
-			org.apache.log4j.Logger.getLogger(this.getClass()).trace("ejbTimeout() Cancelling Timer "+timer2.getHandle());
-			timer2.cancel();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug("timer info---> "+timer2.getInfo());
+			//org.apache.log4j.Logger.getLogger(this.getClass()).trace("ejbTimeout() Cancelling Timer "+timer2.getHandle());
+			if(!timer.getInfo().toString().equals(JNDIName)) {
+				timer2.cancel();
+			}
 		}
 		
 		//check if XML server is up an running now
@@ -508,5 +512,6 @@ public abstract class ConnectorMDB implements MessageDrivenBean, MessageListener
 		
 	}
    
+	
 }
 
