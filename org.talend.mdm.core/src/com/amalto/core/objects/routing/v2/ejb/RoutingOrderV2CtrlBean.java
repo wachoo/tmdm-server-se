@@ -962,12 +962,14 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 
 	}
     
-	
-    @SuppressWarnings("serial")
 
     class AsynchronousOrderData implements Serializable{
+       /**
+		 * 
+		 */
+	private static final long serialVersionUID = 7795390018723403569L;
 
-       private UniversePOJO currentUniversePOJO;
+	private UniversePOJO currentUniversePOJO;
 
        private AbstractRoutingOrderV2POJO routingOrderV2POJO;
 
