@@ -597,7 +597,8 @@ amalto.core = function () {
                         }else if(toCheckMenuID=='workflowtasks.WorkflowTasks'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/workflowtasks.png\"/></span>";
                         }else{
-                        	//more menus icon
+                        	//default menus icon
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/default.gif\"/></span>";
                         }	
                         
                         menuitem.innerHTML="<span class=\"body\">"+imageIconPart+showmenuname+"<br><span class=\"desc\">"+showmenudesc+"</span></span>";                        
