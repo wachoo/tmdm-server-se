@@ -72,7 +72,8 @@ public class RoutingEngineV2POJO extends ObjectPOJO{
 	
 //    private String name;
     //Routing Engines run by default
-    private int status = RUNNING;
+    //private int status = RUNNING;
+	private int status = STOPPED;
     //private int maxNumberOfExecutors = 1;
 //    private long maxExecutionTimeMillis = _MAX_EXECUTION_TIME_MILLIS_; 
     

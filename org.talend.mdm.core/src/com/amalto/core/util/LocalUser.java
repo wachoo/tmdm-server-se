@@ -15,25 +15,33 @@ public class LocalUser{
 	 */
 	public final static String UNAUTHENTICATED_USER = "anonymous"; 
 	
-	static ILocalUser localUser=BeanDelegatorContainer.getUniqueInstance().getLocalUserDelegator();
+	static ILocalUser localUser=null;
+	
+	private static ILocalUser findLocalUser() {
+		if(localUser==null){
+			localUser=BeanDelegatorContainer.getUniqueInstance().getLocalUserDelegator();
+		}
+		return localUser;
+	}
 	
 	public HashSet<String> getRoles() {
-		return localUser.getRoles();
+		return findLocalUser().getRoles();
 	}
+	
 	public void setRoles(HashSet<String> roles) {
-		localUser.setRoles(roles);
+		findLocalUser().setRoles(roles);
 	}
 	public String getUsername() {
-		return localUser.getUsername();
+		return findLocalUser().getUsername();
 	}
 	public void setUsername(String username) {
-		localUser.setUsername(username);
+		findLocalUser().setUsername(username);
 	}
 	public UniversePOJO getUniverse() {
-    	return localUser.getUniverse();
+    	return findLocalUser().getUniverse();
     }
 	public void setUniverse(UniversePOJO universe) {
-    	localUser.setUniverse(universe);
+    	findLocalUser().setUniverse(universe);
     }
 	/**
 	 * The User in XML form as stored in the DB
@@ -41,10 +49,10 @@ public class LocalUser{
 	 * 		The user in the DB XML form
 	 */
 	public String getUserXML() {
-    	return localUser.getUserXML();
+    	return findLocalUser().getUserXML();
     }
 	public void setUserXML(String userXML) {
-    	localUser.setUserXML(userXML);
+    	findLocalUser().setUserXML(userXML);
     }
 
 	
@@ -54,15 +62,15 @@ public class LocalUser{
      */
     public static ILocalUser getLocalUser() throws XtentisException{
     	
-		return localUser.getILocalUser();			
+		return findLocalUser().getILocalUser();			
 
     }
     public static Subject getCurrentSubject() throws XtentisException {
-		return localUser.getICurrentSubject();
+		return findLocalUser().getICurrentSubject();
 	}
     
     public static void resetLocalUsers() throws XtentisException{
-    	localUser.resetILocalUsers();
+    	findLocalUser().resetILocalUsers();
 	}
     
 
@@ -71,7 +79,7 @@ public class LocalUser{
      * @throws XtentisException
      */
     public void logout() throws XtentisException{
-    	localUser.logout();    	
+    	findLocalUser().logout();    	
     }
     
     
@@ -88,7 +96,7 @@ public class LocalUser{
      * @throws XtentisException
      */
     public boolean isAdmin(Class<?> objectTypeClass) throws XtentisException{
-    	return localUser.isAdmin(objectTypeClass);
+    	return findLocalUser().isAdmin(objectTypeClass);
     }
     /**
      * 
@@ -97,7 +105,7 @@ public class LocalUser{
      * @throws XtentisException
      */
     public boolean userItemCanWrite(ItemPOJO item,String datacluster, String concept)throws XtentisException{
-		return localUser.userItemCanWrite(item, datacluster, concept);
+		return findLocalUser().userItemCanWrite(item, datacluster, concept);
     }
     
      /**
@@ -107,7 +115,7 @@ public class LocalUser{
      * @throws XtentisException
      */
     public boolean userItemCanRead(ItemPOJO item)throws XtentisException{
-    	return localUser.userItemCanRead(item);
+    	return findLocalUser().userItemCanRead(item);
     }
     /**
      * Checks if the user can change the instance of the object specified
@@ -118,7 +126,7 @@ public class LocalUser{
      * @throws XtentisException
      */
     public boolean userCanWrite(Class<?> objectTypeClass, String instanceId) throws XtentisException{
-    	return localUser.userCanWrite(objectTypeClass, instanceId);
+    	return findLocalUser().userCanWrite(objectTypeClass, instanceId);
     }
 
 
@@ -130,7 +138,7 @@ public class LocalUser{
      * @throws XtentisException
      */
     public boolean userCanRead(Class<?> objectTypeClass, String instanceId) throws XtentisException{
-    	return localUser.userCanRead(objectTypeClass, instanceId);
+    	return findLocalUser().userCanRead(objectTypeClass, instanceId);
     	
     }
     
