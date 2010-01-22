@@ -57,7 +57,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory{
      */
     public Connection getConnection() throws ResourceException {
         Connection conx = (Connection) cxManager.allocateConnection(mcf, null);
-        org.apache.log4j.Logger.getLogger(this.getClass()).debug("getConnection() : Connection established by user "
+        org.apache.log4j.Logger.getLogger(this.getClass()).info("getConnection() : Connection established by user "
         		+conx.getMetaData().getUserName()+" to "
         		+conx.getMetaData().getEISProductName());
         return conx;
@@ -78,7 +78,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory{
         crinfo.setPassword(cons.getPassword());
         
         Connection conx = (Connection) cxManager.allocateConnection(mcf, crinfo);
-        org.apache.log4j.Logger.getLogger(this.getClass()).debug("getConnection(): Connection established by user "
+        org.apache.log4j.Logger.getLogger(this.getClass()).info("getConnection(): Connection established by user "
         		+conx.getMetaData().getUserName()+" to "
         		+conx.getMetaData().getEISProductName());
         return conx;
