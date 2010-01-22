@@ -927,7 +927,11 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 	/* (non-Javadoc)
 	 * @see javax.ejb.TimedObject#ejbTimeout(javax.ejb.Timer)
 	 */
-	public void ejbTimeout(Timer timer) {		
+	public void ejbTimeout(Timer timer) {
+		
+        RoutingEngineV2POJO routingEngine = RoutingEngineV2POJO.getInstance();
+		//if routing engine is not running stop here
+		if (routingEngine.getStatus() != RoutingEngineV2POJO.RUNNING) return;
 		
 		//recover routing order data
         AsynchronousOrderData routingOrderData = (AsynchronousOrderData) timer.getInfo();
