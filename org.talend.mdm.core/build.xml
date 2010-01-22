@@ -50,8 +50,7 @@
 				<include name="version.properties" />
 			</zipfileset>
 			<zipfileset dir="bin" includes="**/*.class" />
-			<zipfileset dir="bin" includes="**/*.xml" />
-			<zipfileset dir="src/META-INF/" prefix="META-INF" includes="**/*" />
+			<zipfileset dir="src" excludes="**/*.java"/>
 		</jar>
    		
    		<!-- used by transformer plugins -->

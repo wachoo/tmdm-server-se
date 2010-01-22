@@ -47,8 +47,8 @@
    		            <zipfileset dir=".">
    		                <include name="version.properties" />
    		            </zipfileset>
-   			        <zipfileset dir="bin" includes="**/*.class" />
-   			        <zipfileset dir="src/META-INF/" prefix="META-INF" includes="**/*" />
+                <zipfileset dir="bin" includes="**/*.class" />
+                 <zipfileset dir="src" excludes="**/*.java"/>
    		</jar>  		  		
     </target>
 
