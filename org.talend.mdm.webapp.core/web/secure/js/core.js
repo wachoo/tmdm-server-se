@@ -469,8 +469,12 @@ amalto.core = function () {
 			if(language=='fr') html = "Bonjour"+","+" "+name+","+" "+"vous êtes connecté à l'Univers ["+universe+"]";*/
 			var html = name+ "<br/>";
 			if(universe!='UNKNOWN'){
-				html += "connected to: ["+universe+"]";
-				if(language=='fr') html += "connecté à:["+universe+"]";
+				if(language=='fr') {
+					html += "connecté à:["+universe+"]";
+				}
+				else {
+					html += "connected to: ["+universe+"]";
+				}
 			}
 			
 			DWRUtil.setValue('username-div',html);
