@@ -49,7 +49,8 @@
 			<zipfileset dir=".">
 				<include name="version.properties" />
 			</zipfileset>
-			<zipfileset dir="bin" />
+			<zipfileset dir="bin" includes="**/*.class" />
+			<zipfileset dir="src/META-INF/*" prefix="META-INF" includes="**/*" />
 		</jar>
    		
    		<!-- used by transformer plugins -->
