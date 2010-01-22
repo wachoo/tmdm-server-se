@@ -89,8 +89,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	
 	var LABEL_SELECT_DATAOBJECT={
-		'fr':'Sélectionnez un objet de données',
-		'en':'Select a data object'
+		'fr':'Sélectionnez un Entité',
+		'en':'Select an Entity'
 	};
 	
 	var LABEL_SELECT = {
@@ -206,12 +206,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	
 	var  MSG_CONFIRM_DELETE_ITEM =    {
-	    'fr' : 'Voulez vous réellement effacer cet item : ',
-	    'en' : 'Do you really want to delete this item : '
+	    'fr' : 'Voulez vous réellement effacer cet record : ',
+	    'en' : 'Do you really want to delete this record : '
 	};
 	var  MSG_CONFIRM_DELETE_ITEMS =    {
-	    'fr' : 'Do you really want to delete the selected items ',
-	    'en' : 'Do you really want to delete the selected items '
+	    'fr' : 'Do you really want to delete the selected records ',
+	    'en' : 'Do you really want to delete the selected records '
 	};	
 	var  MSG_CONFIRM_LOGICAL_DELETE_ITEM =    {
 	    'fr' : 'Please input the path to delete element(s): ',
@@ -292,8 +292,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	
 	var LABEL_DATAOBJECT = {
-		'fr':'Objet de données',
-		'en':'Data object'
+		'fr':'Entité',
+		'en':'Entity'
 	};
 	
 	
@@ -360,12 +360,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Tips: The field with * is required.'
 	};
 	var PHYSICALLY_DELETE_TOOLTIP={
-		'fr':'delete the item physically',
-		'en':'delete the item physically'
+		'fr':'delete the record physically',
+		'en':'delete the record physically'
 	};
 	var LOGICALLY_DELETE_TOOLTIP={
-		'fr':'delete the item logically',
-		'en':'delete the item logically'
+		'fr':'delete the record logically',
+		'en':'delete the record logically'
 	};
 	var SAVE_TOOLTIP={
 		'fr':'Save this object',
@@ -376,12 +376,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Save this object and close the tab'
 	};
 	var DUPLICATE_TOOLTIP={
-		'fr':'clone the selected item',
-		'en':'clone the selected item'
+		'fr':'clone the selected record',
+		'en':'clone the selected record'
 	};
 	var JOURNAL_TOOLTIP={
-		'fr':'browse a journal for this item',
-		'en':'browse a journal for this item'
+		'fr':'browse a journal for this record',
+		'en':'browse a journal for this record'
 	};
 	
 	var UPLOAD_FILE={
@@ -405,18 +405,18 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'The item can not be saved, it contains error(s).'
 	}
 	var DELETE_ALERT={
-		'fr':'The last item can not be removed!',
-		'en':'The last item can not be removed!'
+		'fr':'The last record can not be removed!',
+		'en':'The last record can not be removed!'
 	}
 	
 	var CHOICE_ALLTOGETHER_ALERT={
-			'fr': 'Only one choice item can be set value ',
-			'en': 'Only one choice item can be set value '
+			'fr': 'Only one choice record can be set value ',
+			'en': 'Only one choice record can be set value '
 	}
 
 	var CHOICE_NONE_ALERT={
-			'fr': 'No choice item is set value',
-			'en': 'No choice item is set value'
+			'fr': 'No choice record is set value',
+			'en': 'No choice record is set value'
 	}
 	
 

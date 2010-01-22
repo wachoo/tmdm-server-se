@@ -18,9 +18,9 @@ amalto.ItemsTrash.ItemsTrashLocal=function(){
 			 ********************************************************************/
 			 
 	    	locale_en= {
-	    		  'dataClusterName':'Data Cluster',   
+	    		  'dataClusterName':'Data Container',   
 	              'revisionID':'RevisionID',
-                  'conceptName':'Concept',
+                  'conceptName':'Entity',
                   'Ids':'Ids',
                   'partPath':'Part path',
                   'UserName':'User Name',
@@ -30,15 +30,15 @@ amalto.ItemsTrash.ItemsTrashLocal=function(){
                   'title':'Recycle bin',
                   'search':'search',
                   'serarch_tooltip':'First four fields can be input as search text',
-                  'delete_conform':'Are you sure to delete the item physically?',
-                  'restore_conform':'Are you sure to restore the item?',
+                  'delete_conform':'Are you sure to delete the Record physically?',
+                  'restore_conform':'Are you sure to restore the Record?',
                   'lines_per_page':'Number of lines per page'
                  };
                  
             locale_fr= {     
-      			  'dataClusterName':'Data Cluster',   
+      			  'dataClusterName':'Data Container',   
 	              'revisionID':'ID de révision',
-                  'conceptName':'Concept',
+                  'conceptName':'Entité',
                   'Ids':'Identifiants',
                   'partPath':'Chemin partiel',
                   'UserName':'Utilisateur',
@@ -48,8 +48,8 @@ amalto.ItemsTrash.ItemsTrashLocal=function(){
                   'title':'Corbeille',
                   'search':'Recherche',
                   'serarch_tooltip':'Les quatre premiers champs sont des champs de recherche texte',
-                  'delete_conform':'Are you sure to delete the item physically?',
-                  'restore_conform':'Are you sure to restore the item?',
+                  'delete_conform':'Are you sure to delete the Enregistrement physically?',
+                  'restore_conform':'Are you sure to restore the Enregistrement?',
                   'lines_per_page':'Number of lines per page'
                  };
                  

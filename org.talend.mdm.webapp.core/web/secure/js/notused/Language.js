@@ -264,7 +264,7 @@ var LABEL_SHARE_REPORTING = {
 
 var LABEL_DATAOBJECT = {
 	'fr':'Objet de données',
-	'en':'Data object'
+	'en':'Entity'
 }
 
 var LABEL_FIELDS = {

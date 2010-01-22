@@ -39,7 +39,7 @@ amalto.actions = function () {
 						}),
 						displayField: 'key',
 						valueField: 'key',
-						fieldLabel:'Data Cluster',
+						fieldLabel:'Data Container',
 					  	loadingText:'Loading...',
 			         	mode:'remote',
 			          	triggerAction:'all',

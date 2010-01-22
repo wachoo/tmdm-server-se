@@ -18,9 +18,9 @@ amalto.updatereport.UpdateReportLocal=function(){
 			 ********************************************************************/
 			 
 	    	locale_en = {
-				'dataCluster' : 'Data Cluster',
+				'dataCluster' : 'Data Container',
 				'dataModel' : 'Data model',
-				'concept' : 'Concept',
+				'concept' : 'Entity',
 				'key' : 'Key',
 				'revisionID' : 'Revision ID',
 				'operationType' : 'OperationType',
@@ -39,9 +39,9 @@ amalto.updatereport.UpdateReportLocal=function(){
 			};
 
 			locale_fr = {
-				'dataCluster' : 'Data Cluster',
+				'dataCluster' : 'Data Container',
 				'dataModel' : 'Modèle de données',
-				'concept' : 'Concept',
+				'concept' : 'Entité',
 				'key' : 'Clé',
 				'revisionID' : 'ID de révision',
 				'operationType' : 'Type opération',

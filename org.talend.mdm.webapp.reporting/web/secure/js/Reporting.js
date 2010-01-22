@@ -126,7 +126,7 @@ amalto.reporting.Reporting = function () {
 	
 	var LABEL_DATAOBJECT = {
 		'fr':'Objet de données',
-		'en':'Data object'
+		'en':'Entity'
 	}
 	
 	var LABEL_FIELDS = {
@@ -1003,7 +1003,7 @@ amalto.reporting.Reporting = function () {
 		     xtype : "form",
 		     items : [{
 		     	name : "editConceptCombo",
-				fieldLabel : "Data Object",
+				fieldLabel : "Entity",
 				xtype : "combo",
 				store: new Ext.data.Store({
 					proxy: new Ext.data.SimpleDWRProxy(ReportingInterface.getBusinessConcepts),
