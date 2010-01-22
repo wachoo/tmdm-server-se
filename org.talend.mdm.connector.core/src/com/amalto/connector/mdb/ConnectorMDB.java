@@ -9,8 +9,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.ejb.EJBException;
 import javax.ejb.MessageDrivenBean;
 import javax.ejb.MessageDrivenContext;
+import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
@@ -465,20 +467,26 @@ public abstract class ConnectorMDB implements MessageDrivenBean, MessageListener
 	 * @see javax.ejb.TimedObject#ejbTimeout(javax.ejb.Timer)
 	 */
 	public void ejbTimeout(Timer timer) {
-		String JNDIName = (String) timer.getInfo();
-		org.apache.log4j.Logger.getLogger(this.getClass()).debug("ejbTimeout() "+JNDIName);
-		
-		//cancel all other existing timers
-		TimerService timerService =  ctx.getTimerService();
+		String JNDIName = null;
+		try {
+			
+			JNDIName = (String) timer.getInfo();
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug("ejbTimeout() "+JNDIName);
+			
+			//cancel all other existing timers
+			TimerService timerService =  ctx.getTimerService();
 
-		Collection<Timer> timers = timerService.getTimers();
-		for (Iterator<Timer> iterator = timers.iterator(); iterator.hasNext(); ) {
-			Timer timer2 = iterator.next();
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug("timer info---> "+timer2.getInfo());
-			//org.apache.log4j.Logger.getLogger(this.getClass()).trace("ejbTimeout() Cancelling Timer "+timer2.getHandle());
-			if(!timer.getInfo().toString().equals(JNDIName)) {
+			Collection<Timer> timers = timerService.getTimers();
+			for (Iterator<Timer> iterator = timers.iterator(); iterator.hasNext(); ) {
+				Timer timer2 = iterator.next();
+				org.apache.log4j.Logger.getLogger(this.getClass()).trace("ejbTimeout() Cancelling Timer "+timer2.getHandle());
 				timer2.cancel();
+				
 			}
+			
+		} catch (NoSuchObjectLocalException e1) {
+			org.apache.log4j.Logger.getLogger(this.getClass()).warn("This timer already has been cancelled! ");
+			return;
 		}
 		
 		//check if XML server is up an running now
