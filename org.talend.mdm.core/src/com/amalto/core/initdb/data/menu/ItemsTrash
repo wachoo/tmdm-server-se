@@ -13,7 +13,7 @@
         <id>ItemsTrash</id>
     </menu-entries>
     <name>ItemsTrash</name>
-    <description>Browse logical deleted items</description>
+    <description>Browse records in the recycle bin</description>
     <PK>
         <ids>ItemsTrash</ids>
         <unique-id>ItemsTrash</unique-id>
