@@ -23,14 +23,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Ready.'
 	};
 	var BROWSE_ITEMS = {
-		'en':'Browse items',
-		'fr': 'Accès aux données'
+		'en':'Browse Records',
+		'fr':'Accès aux données'
 	};
 
 	
 	var LABEL_DISPLAYING = {
-		'fr':'Items affichés : ',
-		'en':'Displaying items'
+		'fr':'Enregistrements affichés : ',
+		'en':'Displaying records: '
 	};
 	var LABEL_OF = {
 		'fr':'sur',
@@ -38,8 +38,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	 
 	var ITEM_DETAILS = {
-		'fr':'Détail de l\'item',
-		'en':'Item details'
+		'fr':'Détail de l\'enregistrement',
+		'en':'Record details'
 	};
 	
 	var  TITLE_SEARCH_RESULT =    {
@@ -89,7 +89,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	
 	var LABEL_SELECT_DATAOBJECT={
-		'fr':'Sélectionnez un Entité',
+		'fr':'Sélectionnez une entité',
 		'en':'Select an Entity'
 	};
 	
@@ -206,26 +206,26 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	
 	var  MSG_CONFIRM_DELETE_ITEM =    {
-	    'fr' : 'Voulez vous réellement effacer cet record : ',
-	    'en' : 'Do you really want to delete this record : '
+	    'fr' : 'Voulez vous réellement effacer cet enregistrement : ',
+	    'en' : 'Do you really want to delete this record: '
 	};
 	var  MSG_CONFIRM_DELETE_ITEMS =    {
-	    'fr' : 'Do you really want to delete the selected records ',
+	    'fr' : 'Voulez vous réellement effacer les enregistrements sélectionnés ',
 	    'en' : 'Do you really want to delete the selected records '
 	};	
 	var  MSG_CONFIRM_LOGICAL_DELETE_ITEM =    {
-	    'fr' : 'Please input the path to delete element(s): ',
-	    'en' : 'Please input the path to delete element(s): '
+	    'fr' : 'Veuillez renseigner le path pour supprimer le(s) enregistrement(s) : ',
+	    'en' : 'Please input the path to delete the record(s): '
 	};
 	
 	var  MSG_CONFIRM_TITLE_LOGICAL_DELETE_ITEM =    {
-	    'fr' : 'path name: ',
-	    'en' : 'path name: '
+	    'fr' : 'path : ',
+	    'en' : 'path: '
 	};
 	
 	var MSG_CONFIRM_SAVE_ITEM = {
-		'fr' : 'Cet item existe déjà. Souhaitez-vous l\'écraser ?',
-		'en' : 'This item exists. Do you want to overwrite it ?'
+		'fr' : 'Cet enregistrement existe déjà. Souhaitez-vous l\'écraser ?',
+		'en' : 'This record exists. Do you want to overwrite it?'
 	};
 	
 	
@@ -235,8 +235,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	
 	var BUTTON_NEW_ITEM = {
-		'fr':'Créer un item',
-		'en':'New item'
+		'fr':'Créer un enregistrement',
+		'en':'New Record'
 	};
 	
 	var BUTTON_SAVE = {
@@ -255,8 +255,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	
 	var BUTTON_TREE_VIEW = {
-		'fr':'Vue arbre',
-		'en':'Tree view'
+		'fr':'Vue en arbre',
+		'en':'Tree View'
 	};
 	
 	var BUTTON_EXPORT = {
@@ -280,8 +280,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	
 	var BUTTON_LOGICAL_DEL = {
-		'fr':'Logical delete',
-		'en':'Logical delete'
+		'fr':'Suppression logique',
+		'en':'Logical Delete'
 	};
 	
 	var BUTTON_CREATE_USER = {
@@ -315,7 +315,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'selected field'
 	}
 	var SELECTED_FIELDS = {
-		'fr':'champs séléctionnés',
+		'fr':'champs sélectionnés',
 		'en':'selected fields'
 	};
 	
@@ -325,8 +325,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	
 	var TOO_MANY_RESULTS = {
-		'fr' : 'items ont été trouvés.<br><br> Lancer tout de même la recherche? <br>Cette opération peut être très longue.',
-		'en' : 'items found. <br><br>Do you still want to launch the search? <br>This could take a long time.'
+		'fr' : 'enregistrements ont été trouvés.<br><br>Lancer tout de même la recherche? <br>Cette opération peut être très longue.',
+		'en' : 'records found. <br><br>Do you still want to launch the search? <br>This could take a long time.'
 	};
 	
 	var SEARCH_RESULT = {
@@ -356,48 +356,48 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Search'
 	};
 	var EDIT_ITEM_TOOLTIP={
-		'fr':'Tips: The field with * is required.',
-		'en':'Tips: The field with * is required.'
+		'fr':'Tips: Les champs indiqués par * sont obligatoires.',
+		'en':'Tips: Fields with * are required.'
 	};
 	var PHYSICALLY_DELETE_TOOLTIP={
-		'fr':'delete the record physically',
-		'en':'delete the record physically'
+		'fr':'Suppression physique de l\'enregistrement',
+		'en':'Delete the record physically'
 	};
 	var LOGICALLY_DELETE_TOOLTIP={
-		'fr':'delete the record logically',
-		'en':'delete the record logically'
+		'fr':'Suppression logique de l\'enregistrement',
+		'en':'Delete the record logically'
 	};
 	var SAVE_TOOLTIP={
-		'fr':'Save this object',
+		'fr':'Sauve cet objet',
 		'en':'Save this object'
 	}; 		
 	var SAVEANDCLOSE_TOOLTIP={
-		'fr':'Save this object and close the tab',
+		'fr':'Sauve cet objet et ferme l\onglet',
 		'en':'Save this object and close the tab'
 	};
 	var DUPLICATE_TOOLTIP={
-		'fr':'clone the selected record',
-		'en':'clone the selected record'
+		'fr':'Duplique l\'enregistrement sélectionné',
+		'en':'Clone the selected record'
 	};
 	var JOURNAL_TOOLTIP={
-		'fr':'browse a journal for this record',
-		'en':'browse a journal for this record'
+		'fr':'Ouvre le journal d\'audit de cet enregistrement',
+		'en':'Browse the audit trail for this record'
 	};
 	
 	var UPLOAD_FILE={
-		'fr':'Upload Picture',
+		'fr':'Transférer une image',
 		'en':'Upload Picture'
 	};
 	var UPLOAD={
-		'fr':'Upload',
+		'fr':'Transfer',
 		'en':'Upload'
 	};
 	var RESET={
-		'fr':'Reset',
+		'fr':'Réinitialiser',
 		'en':'Reset'
 	};
 	var FILE_NAME={
-		'fr':'File Name',
+		'fr':'Nom de fichier',
 		'en':'File Name'
 	}
 	var errorDesc={
@@ -405,18 +405,18 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'The item can not be saved, it contains error(s).'
 	}
 	var DELETE_ALERT={
-		'fr':'The last record can not be removed!',
-		'en':'The last record can not be removed!'
+		'fr':'Le dernier élément ne peut pas être supprimé',
+		'en':'The last element can not be removed'
 	}
 	
 	var CHOICE_ALLTOGETHER_ALERT={
-			'fr': 'Only one choice record can be set value ',
-			'en': 'Only one choice record can be set value '
+			'fr': 'Vous ne pouvez choisir plus d\'une valeur ',
+			'en': 'You may only choose one value '
 	}
 
 	var CHOICE_NONE_ALERT={
-			'fr': 'No choice record is set value',
-			'en': 'No choice record is set value'
+			'fr': 'Vous devez choisir au moins une valeur',
+			'en': 'You must choose at least one value'
 	}
 	
 

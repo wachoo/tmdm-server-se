@@ -19,20 +19,20 @@ amalto.updatereport.UpdateReportLocal=function(){
 			 
 	    	locale_en = {
 				'dataCluster' : 'Data Container',
-				'dataModel' : 'Data model',
+				'dataModel' : 'Data Model',
 				'concept' : 'Entity',
 				'key' : 'Key',
 				'revisionID' : 'Revision ID',
-				'operationType' : 'OperationType',
-				'timeInMillis' : 'Operation time',
+				'operationType' : 'Operation Type',
+				'timeInMillis' : 'Operation Time',
 				'source' : 'Source',
-				'userName' : 'User name',
+				'userName' : 'User Name',
 				'title':'Journal',
 				'start_date':'Start Date',
 				'end_date': 'End Date',
 				'searchPanel_tile':'Search Panel',
 				'reset':'Reset',
-				'search':'search',
+				'search':'Search',
 				'emptyMsg':'No data to display',
 				'lines_per_page':'Number of lines per page',
 				'displayMsg':'Displaying items {0} - {1} of {2}'
@@ -40,23 +40,23 @@ amalto.updatereport.UpdateReportLocal=function(){
 
 			locale_fr = {
 				'dataCluster' : 'Data Container',
-				'dataModel' : 'Modèle de données',
+				'dataModel' : 'Data Model',
 				'concept' : 'Entité',
 				'key' : 'Clé',
 				'revisionID' : 'ID de révision',
-				'operationType' : 'Type opération',
-				'timeInMillis' : 'Date opération',
+				'operationType' : 'Type d\'opération',
+				'timeInMillis' : 'Date d\'opération',
 				'source' : 'Source',
 				'userName' : 'Utilisateur',
 				'title':'Journal',
 				'start_date':'Date de début',
 				'end_date': 'Date de fin',
-				'searchPanel_tile':'Onglet de recherche',
-				'reset':'Reset',
+				'searchPanel_tile':'Panneau de recherche',
+				'reset':'Réinitialise',
 				'search':'Recherche',
-				'emptyMsg':'No data to display',
-				'lines_per_page':'Number of lines per page',
-				'displayMsg':'Displaying items {0} - {1} of {2}'
+				'emptyMsg':'Aucun donnée',
+				'lines_per_page':'Nombre de lignes par page',
+				'displayMsg':'Affichage enregistrements {0} - {1} sur {2}'
 			};
                  
             /*******************************************************************

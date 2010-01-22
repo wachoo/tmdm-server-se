@@ -15,8 +15,8 @@ var MSG_READY={
  * MENU AND TABS TITLE
  ********************************************************************/
 var ROUTINGRULES = {
-	'en':'RoutingRules',
-	'fr':'RoutingRules'
+	'en':'Triggers',
+	'fr':'Triggers'
 }
 
 /*var SUBSCRIPTIONENGINE = {
@@ -31,8 +31,8 @@ var REPORTING = {
 }
 
 var TRANSFORMER = {
-	'en':'Transformer',
-	'fr':'Transformer'
+	'en':'Process',
+	'fr':'Process'
 }
 var MANAGE_ALERTS = {
 	'en':'Manage alerts',
@@ -80,8 +80,8 @@ var SETTINGS={
  * VIEW AND ITEMS 
  ********************************************************************/
 var ITEM_DETAILS = {
-	'fr':'Détail de l\'item',
-	'en':'Item details'
+	'fr':'Détail du Record',
+	'en':'Record details'
 }
 
 var  TITLE_SEARCH_RESULT =    {
@@ -126,13 +126,13 @@ var LABEL_LINE={
 }
 
 var LABEL_SELECT_VIEW = {
-	'fr':'Sélectionnez une vue',
-	'en':'Select a view'
+	'fr':'Sélectionnez une Vue',
+	'en':'Select a View'
 }
 
 var LABEL_SELECT_DATAOBJECT={
-	'fr':'Sélectionnez un objet de données',
-	'en':'Select a data object'
+	'fr':'Sélectionnez une Entité',
+	'en':'Select an Entity'
 }
 
 var LABEL_SELECT = {
@@ -176,8 +176,8 @@ var  MSG_CONFIRM_DELETE_REPORTING =    {
 }
 
 var  MSG_CONFIRM_DELETE_ITEM =    {
-    'fr' : 'Voulez vous réellement effacer cet item : ',
-    'en' : 'Do you really want to delete this item : '
+    'fr' : 'Voulez vous réellement effacer ce Record : ',
+    'en' : 'Do you really want to delete this Record: '
 }
 
 var SAVE_WITHOUT_NAME ={
@@ -195,8 +195,8 @@ var BUTTON_DISPLAY = {
 }
 
 var BUTTON_NEW_ITEM = {
-	'fr':'Créer un item',
-	'en':'New item'
+	'fr':'Créer un Record',
+	'en':'New Record'
 }
 
 var BUTTON_SAVE = {
@@ -263,7 +263,7 @@ var LABEL_SHARE_REPORTING = {
 }
 
 var LABEL_DATAOBJECT = {
-	'fr':'Objet de données',
+	'fr':'Entité',
 	'en':'Entity'
 }
 
@@ -303,7 +303,7 @@ var SELECTED_FIELD = {
 	'en':'selected field'
 }
 var SELECTED_FIELDS = {
-	'fr':'champs séléctionnés',
+	'fr':'champs sélectionnés',
 	'en':'selected fields'
 }
 /********************************************************************

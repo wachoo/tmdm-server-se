@@ -19,7 +19,7 @@ amalto.ItemsTrash.ItemsTrashLocal=function(){
 			 
 	    	locale_en= {
 	    		  'dataClusterName':'Data Container',   
-	              'revisionID':'RevisionID',
+	              'revisionID':'Revision ID',
                   'conceptName':'Entity',
                   'Ids':'Ids',
                   'partPath':'Part path',
@@ -29,9 +29,9 @@ amalto.ItemsTrash.ItemsTrashLocal=function(){
                   'restore':'Restore',
                   'title':'Recycle bin',
                   'search':'search',
-                  'serarch_tooltip':'First four fields can be input as search text',
-                  'delete_conform':'Are you sure to delete the Record physically?',
-                  'restore_conform':'Are you sure to restore the Record?',
+                  'serarch_tooltip':'The first four fields can be input as search text',
+                  'delete_conform':'Are you sure you want to delete the record physically?',
+                  'restore_conform':'Are you sure you want to restore the record?',
                   'lines_per_page':'Number of lines per page'
                  };
                  
@@ -48,9 +48,9 @@ amalto.ItemsTrash.ItemsTrashLocal=function(){
                   'title':'Corbeille',
                   'search':'Recherche',
                   'serarch_tooltip':'Les quatre premiers champs sont des champs de recherche texte',
-                  'delete_conform':'Are you sure to delete the Enregistrement physically?',
-                  'restore_conform':'Are you sure to restore the Enregistrement?',
-                  'lines_per_page':'Number of lines per page'
+                  'delete_conform':'Êtes-vous sûr de vouloir supprimer cet enregistrement définitivement ?',
+                  'restore_conform':'Êtes-vous sûr de vouloir restaurer cet enregistrement ?',
+                  'lines_per_page':'Nombre de lignes par page'
                  };
                  
             /********************************************************************

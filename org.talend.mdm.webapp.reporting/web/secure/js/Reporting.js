@@ -22,7 +22,7 @@ amalto.reporting.Reporting = function () {
 	
 	var LABEL_DISPLAYING = {
 		'fr':'Résultats affichés : ',
-		'en':'Displaying items'
+		'en':'Displaying records: '
 	}
 	var LABEL_OF = {
 		'fr':'sur',
@@ -31,13 +31,13 @@ amalto.reporting.Reporting = function () {
 	 
 	 
 	var FIELD_REQUIRED = {
-		'fr' : 'Ce champ est obligatoire',
+		'fr' :'Ce champ est obligatoire',
 		'en' :'This field is required'
 	}
 
 	var  MSG_CONFIRM_DELETE_REPORTING =    {
 	    'fr' : 'Voulez vous réellement effacer ce rapport : ',
-	    'en' : 'Do you really want to delete this report : '
+	    'en' : 'Do you really want to delete this report: '
 	}
 	
 	var OPERATOR_UNDEFINED = {
@@ -51,12 +51,12 @@ amalto.reporting.Reporting = function () {
 	}
 
 	var BUTTON_DISPLAY = {
-	'fr':'Visualiser',
-	'en':'Display'
+		'fr':'Visualiser',
+		'en':'Display'
 	}
 	var BUTTON_EXPORT = {
-	'fr':'Exporter vers Excel',
-	'en':'Export to Excel'
+		'fr':'Exporter vers Excel',
+		'en':'Export to Excel'
 	}	
 	var BUTTON_DELETE = {
 		'fr':'Supprimer',
@@ -68,27 +68,27 @@ amalto.reporting.Reporting = function () {
 	}
 	var NEW_REPORTING = {
 	'fr':'Nouveau rapport',
-	'en':'New report'
+	'en':'New Report'
 	}
 
     var DUPLICATE_REPORTING = {
-    	'fr':'Duplicate report',
-    	'en':'Duplicate report'
+    	'fr':'Dupliquer le rapport',
+    	'en':'Duplicate Report'
     }
     
 	var REPORTING = {
-		'en':'Reports',
-		'fr':'Rapports'
+		'fr':'Rapports',
+		'en':'Reports'
 	}
 
 	var NEW_REPORTING = {
 		'fr':'Nouveau rapport',
-		'en':'New report'
+		'en':'New Report'
 	}
 
 	var ALERT_EXISTING_REPORTING={
 		'fr':'Il existe déjà un rapport avec ce nom. \nVeuillez choisir un autre nom',
-		'en':'A report with this name exists. \nPlease choose another name.'
+		'en':'A report with this name already exists. \nPlease choose another name.'
 	}
 	
 	var HEAD_FIELD = {
@@ -105,8 +105,8 @@ amalto.reporting.Reporting = function () {
 	}
 	
 	var REPORTING_EXISTANT = {
-		'fr':"Rapports existants",
-		'en':"Reports"
+		'fr':'Rapports existants',
+		'en':'Existing reports'
 	}
 	
 	var LABEL_SELECT = {
@@ -125,7 +125,7 @@ amalto.reporting.Reporting = function () {
 	}
 	
 	var LABEL_DATAOBJECT = {
-		'fr':'Objet de données',
+		'fr':'Entité',
 		'en':'Entity'
 	}
 	
@@ -159,7 +159,7 @@ amalto.reporting.Reporting = function () {
 	}
 	
 	var BUTTON_ADD_FIELD = {
-		'fr':'Ajouter un fieldre',
+		'fr':'Ajouter un champ',
 		'en':'Add a field'
 	}
 	
