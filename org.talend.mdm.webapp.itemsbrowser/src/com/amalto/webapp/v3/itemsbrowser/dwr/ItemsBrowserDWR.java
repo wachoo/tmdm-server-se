@@ -1935,7 +1935,11 @@ public class ItemsBrowserDWR {
 					}
 		    		for (int i = 0; i < importList.getLength(); i++)
 		    		{
-		    			String location = importList.item(i).getAttributes().getNamedItem("schemaLocation").getNodeValue();
+		    			Node schemaLocation = importList.item(i).getAttributes().getNamedItem("schemaLocation");
+			        	if(schemaLocation == null) {
+			        		continue;
+			        	}
+		    			String location = schemaLocation.getNodeValue();
 		    			Document subDoc = Util.parseImportedFile(location);
 		    			result =  lookUpForeignInfos(subDoc.getDocumentElement(), null, name);
 		    			if(result != null)
@@ -2011,9 +2015,12 @@ public class ItemsBrowserDWR {
 						if(importList.getLength() > 0)
 						{
 							Node imp = importList.item(0);
-							String schemaLocation = imp.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-							Document impDoc = Util.parseImportedFile(schemaLocation);
-							parseMetaDataTypes(impDoc, refName, metaDataTypes, (hierarchy == null ? "" : hierarchy ) + refName);
+							Node nodeLocation = imp.getAttributes().getNamedItem("schemaLocation");
+							if (nodeLocation != null) {
+								String schemaLocation = nodeLocation.getNodeValue();
+								Document impDoc = Util.parseImportedFile(schemaLocation);
+								parseMetaDataTypes(impDoc, refName, metaDataTypes, (hierarchy == null ? "" : hierarchy ) + refName);
+							}
 						}
 						else if(includeList.getLength() > 0)
 						{
@@ -2109,7 +2116,11 @@ public class ItemsBrowserDWR {
 			}
     		for (int i = 0; i < importList.getLength(); i++)
     		{
-    			String location = importList.item(i).getAttributes().getNamedItem("schemaLocation").getNodeValue();
+    			Node schemaLocation = importList.item(i).getAttributes().getNamedItem("schemaLocation");
+    			if (schemaLocation == null) {
+    				continue;
+    			}
+    			String location = schemaLocation.getNodeValue();
     			Document subDoc = Util.parseImportedFile(location);
     			parseMetaDataTypes(subDoc, concept, metaDataTypes, hierarchy);
     		}

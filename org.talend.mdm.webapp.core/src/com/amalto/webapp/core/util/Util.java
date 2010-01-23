@@ -335,7 +335,11 @@ public class Util {
 
 	    		for (int i = 0; i < importList.getLength(); i++)
 	    		{
-	    			String location = importList.item(i).getAttributes().getNamedItem("schemaLocation").getNodeValue();
+	    			Node schemaLocation = importList.item(i).getAttributes().getNamedItem("schemaLocation");
+		        	if(schemaLocation == null) {
+		        		continue;
+		        	}
+	    			String location = schemaLocation.getNodeValue();
 	    			Document subDoc = parseImportedFile(location);
 	    			return findXSDSimpleTypeInDocument(subDoc, importList.item(i), type, typeInfo);
 	    		}
