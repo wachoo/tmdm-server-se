@@ -93,10 +93,7 @@ public class ActionsDWR {
 			Configuration.initialize(cluster,model);
 			return "Done";
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println(cluster+" "+model);
-		return "ERROR";
+			return e.getLocalizedMessage();
+		}				
 	}
 }

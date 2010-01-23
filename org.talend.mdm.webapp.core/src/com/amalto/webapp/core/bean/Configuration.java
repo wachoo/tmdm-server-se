@@ -68,7 +68,8 @@ public class Configuration {
 	}
 	 
 	private static void store(String cluster, String model) throws Exception{
-	   
+	   if(cluster==null || cluster.trim().length()==0)throw new Exception("Data Container can't be empty!");
+	   if(model==null || model.trim().length()==0)throw new Exception("Data Model can't be empty!");
 		WebContext ctx = WebContextFactory.get();
 		ctx.getSession().setAttribute("configuration",new Configuration(cluster,model));
 		
