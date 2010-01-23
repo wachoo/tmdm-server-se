@@ -135,7 +135,7 @@ public class ViewRemotePaging  extends HttpServlet{
 				if(conditions.size()==0) {
 					wi=null;
 				} else {
-					WSWhereAnd and=new WSWhereAnd((WSWhereItem[])conditions.toArray(new WSWhereItem[conditions.size()]));
+					WSWhereAnd and=new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
 					wi=new WSWhereItem(null,and,null);
 				}
 //					results = Util.getPort().singleSearch(
@@ -168,20 +168,29 @@ public class ViewRemotePaging  extends HttpServlet{
 				
 				String[] viewables = new View(viewName).getViewablesXpath();
 				for (int i = 0; i < results.length; i++) {
-					results[i] = results[i].replaceAll("<result>","");
-					results[i] = results[i].replaceAll("</result>","");	
-					results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
-					results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
-					results[i] =openingTags.matcher(results[i]).replaceAll("");
-					results[i] =closingTags.matcher(results[i]).replaceAll("#");	
-					results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
-					String[] elements = results[i].split("#");
-					String[] fields = new String[viewables.length+1];
-					fields[0]=""+i;
-					for (int j = 0; j < elements.length; j++) {
-						fields[j+1]=elements[j];
-					}
-					viewBrowserContent.add(fields);
+				   //yin guo fix bug 0010867. the totalCountOnfirstRow is true.
+	               if(i == 0) {
+	                  totalCount = Integer.parseInt(Util.parse(results[i]).
+	                     getDocumentElement().getTextContent());
+	                  continue;
+	               }
+	               
+	               results[i] = results[i].replaceAll("<result>","");
+	               results[i] = results[i].replaceAll("</result>","");	
+	               results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
+	               results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
+	               results[i] =openingTags.matcher(results[i]).replaceAll("");
+	               results[i] =closingTags.matcher(results[i]).replaceAll("#");	
+	               results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
+	               String[] elements = results[i].split("#");
+	               String[] fields = new String[viewables.length+1];
+	               fields[0]=""+i;
+	               
+	               for (int j = 0; j < elements.length; j++) {
+	                  fields[j+1]=elements[j];
+	               }
+	               
+	               viewBrowserContent.add(fields);
 				}				
 
 				
@@ -199,7 +208,6 @@ public class ViewRemotePaging  extends HttpServlet{
 					//results[i] = StringEscapeUtils.unescapeXml(results[i]);
 				}	
 				request.getSession().setAttribute("results",results);*/
-				totalCount = results.length;
 				org.apache.log4j.Logger.getLogger(this.getClass()).debug(
 						"doPost() Total result = "+totalCount);
 				request.getSession().setAttribute("totalCount",totalCount);
