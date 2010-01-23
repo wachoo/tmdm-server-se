@@ -14,7 +14,7 @@
 
 	<property name="version.props" value="version.properties"/>
 		
-	<property name="jboss.dir" value="c:/opt/jboss_tom"/>
+	<property name="jboss.dir" value="c:/opt/jboss_tem"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.lib.dir" value="${jboss.instance.dir}/lib"/>
@@ -24,7 +24,7 @@
 	<property name="ejbs" value="zz.20.core.jar"/>
 	<property name="lib" value="z.mdm.core.jar"/>
 	<property name="conf" value="mdm.conf"/>
-
+	<property name="Revision" value="36233"/>
     <!-- ================================= 
           target: all              
          ================================= -->
