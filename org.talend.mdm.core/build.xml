@@ -34,8 +34,10 @@
 	
    	<target name="version"  description="Maintain build.date property">
    		<buildnumber file="${version.props}" />
+   		<echo>Revision Number :${Revision}</echo>
        	<propertyfile file="${version.props}">
        		<entry key="build.date" type="date" value="now" />
+       		<entry key="build.number" value="${Revision}" />
        	</propertyfile>   	
      </target>
 
