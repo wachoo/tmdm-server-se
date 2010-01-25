@@ -12,7 +12,7 @@
             Xtentis Core
     </description>
 
-	<property name="version.props" value="version.properties"/>
+	<property name="version.props" value="product_version.properties"/>
 		
 	<property name="jboss.dir" value="c:/opt/jboss_tem"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
@@ -49,7 +49,7 @@
 				<include name="RELEASE.NOTES" />
 			</zipfileset>
 			<zipfileset dir=".">
-				<include name="version.properties" />
+				<include name="${version.props}" />
 			</zipfileset>
 			<zipfileset dir="bin" includes="**/*.class" />
 			<zipfileset dir="src" excludes="**/*.java"/>
@@ -58,7 +58,7 @@
    		<!-- used by transformer plugins -->
 		<jar destfile="${lib}" manifest="src/META-INF/MANIFEST.MF">
 			<zipfileset dir=".">
-				<include name="version.properties" />
+				<include name="${version.props}" />
 			</zipfileset>
 			<zipfileset dir=".">
 				<include name="RELEASE.NOTES" />
@@ -75,7 +75,7 @@
 				<include name="jboss-web.xml" />
 			</zipfileset>
 			<zipfileset dir=".">
-				<include name="version.properties" />
+				<include name="${version.props}" />
 			</zipfileset>
 			<zipfileset dir=".">
 				<include name="RELEASE.NOTES" />

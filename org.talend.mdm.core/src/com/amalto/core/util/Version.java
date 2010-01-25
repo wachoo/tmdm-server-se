@@ -7,7 +7,7 @@ import java.util.Properties;
 public class Version {
 	static Properties props;
 
-	private static final String PROP_FILE = "/version.properties";
+	private static final String PROP_FILE = "/product_version.properties";
 	
 	
 	/**
