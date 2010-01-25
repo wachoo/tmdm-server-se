@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Ant-Version: Apache Ant 1.7.1
-Created-By: 11.0-b16 (Sun Microsystems Inc.)
-Built-By: achen
-Project-Name: eXist
-Project-Version: 1.4.0
-Project-Build: 20091203
-SVN-Revision: 10440
-
