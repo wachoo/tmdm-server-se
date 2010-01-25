@@ -152,13 +152,13 @@ amalto.viewbrowser.ViewBrowser = function () {
 	function addCriteria(criteriaParent){
 		criteriaCount ++;
 		
-		var tpl = new YAHOO.ext.DomHelper.Template(
+		var tpl = new Ext.DomHelper.Template(
 						'<span id="criteria{id}">' +
 						'<select id="field{id}"></select>' +
 						'<select id="operator{id}"></select>' +
 						'<input id="value{id}" type="text"  onkeypress="DWRUtil.onReturn(event, amalto.viewbrowser.ViewBrowser.displayView);"/>  ' +
-						'<span onClick="addCriteria(\'criteria{id}\');"><img src="img/genericUI/add-element.gif"/></span> ' +
-						'<span onClick="removeCriteria(\'{id}\');"><img src="img/genericUI/remove-element.gif"/></span> ' +
+						'<span onClick="amalto.viewbrowser.ViewBrowser.addCriteria(\'criteria{id}\');"><img src="img/genericUI/add-element.gif"/></span> ' +
+						'<span onClick="amalto.viewbrowser.ViewBrowser.removeCriteria(\'{id}\');"><img src="img/genericUI/remove-element.gif"/></span> ' +
 						'<br/></span>');
 		//criteria[criteriaCount]=criteriaCount;
 		var id2 = parseInt(criteriaCount+1);
@@ -247,13 +247,13 @@ amalto.viewbrowser.ViewBrowser = function () {
 	
 	function displayViewEnter(e){
 		e.preventDefault();
-		displayView(50);
+		displayView(20);
 	}
 	
 	function displayView2(pageSize){
 		var viewName = DWRUtil.getValue('viewSelect');
 		ViewBrowserInterface.getViewables(viewName, language, function(columnsHeader){		
-			displayView2(columnsHeader,50);
+			displayView2(columnsHeader,20);
 		});
 	}
 	
@@ -361,7 +361,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 								            if(e.getKey() == e.ENTER) {
 						                		var pageSize = DWRUtil.getValue('lineMaxView');
 												if(pageSize==null || pageSize=="") 
-													pageSize=50;
+													pageSize=20;
 												displayView(pageSize);
 								            } 
 										}
@@ -527,7 +527,8 @@ amalto.viewbrowser.ViewBrowser = function () {
 		init: function() {browseViews(); },
 		getView: function() {getView();},
 		addCriteria: function(a) {addCriteria(a)},
-		displayView: function() {displayView(50);}
+		removeCriteria: function(a) {removeCriteria(a)},
+		displayView: function() {displayView(20);}
 	}
 	
 	
