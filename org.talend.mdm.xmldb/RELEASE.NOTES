@@ -1,0 +1,119 @@
+RELEASE NOTES
+3.2.1
+Using xpathUtil, following is the changed methods:   
+deleteItems
+deleteXtentisObjects
+getItemsQuery
+countItems
+getXtentisObjectsQuery
+countXtentisObjects
+
+The wrapper needed to run XML DB type databases, eXist in particular.
+
+2.3.0 NOT RELEASED
+For core 2.20.0: universes
+
+2.2.2
+Fixed issue with Java interpreting 123D or 123d as a numeric double
+
+2.2.1
+Fixed issue with eXist-1.2.4 and eXist 1.2.4 on Where clauses containing paths referencing grand parents e.g. x/../../z
+
+2.2.0
+Removed highlight matching functionality and xml indent
+
+2.1.3
+Removed cases to numeric detection: ends with dot, starts with plus and starts with minus
+
+2.1.2
+Fixed a bug in the numeric detection: a value starting with 0 (e.g.0123) is now considered a String
+Fixed a bug in the determination of the last element name in the return clause when the concept 
+contains a condition e.g. a/b[c='d'] now correctly returns b
+
+2.1.1
+Fixed bug in determination of default values for the xmldb server
+Added eXist 1.2.4 libs and configuration and README.txt explaining how to set-up exist
+
+2.1.0
+Fixed the wrong detection of Numeric values in Where Operations.
+Use XtentisConfiguration - Requires core 2-19+ and jaas.xtentis.jboss 2.1+
+Better logging
+
+2.0.3 NOT RELEASED
+Fixed improper default values when mdm.conf not present.
+
+2.0.2
+Better Detection of is Up and Running
+Logging of errors at INFO level
+Requires JBoss-4.2
+
+2.0.1
+Fix issue with highlight-matching incorrectly leaving carriage returns
+
+2.0.0 
+Stores URL encoded filenames rather than Base64
+Fixed bug preventing registration of the driver when there is no conf file.
+Improved pattern matching
+
+1.4.7
+Cleaned-up Build Path
+
+1.4.6
+Fixed getDocumentAsString to return null on non existent document
+
+1.4.5 
+Fixed NPE on non existent collection using directQuery 
+
+1.4.4
+Added the possibility to search the content of attributes with the CONTAINS operator
+
+1.4.3
+Fixed issue with getQuery on returning values in attributes
+
+1.4.2
+Fixed pb with empty elements not returning in results
+
+1.4.1
+Fix STARTSWITH operator bug
+
+1.4.0
+Added Stored Procedures - core-2.11.0
+
+1.3.2
+Tailored for eXist-1.1.1 (previous versions seem to work OK though)
+
+1.3.1
+Better implementation of document store
+
+1.3.0
+Implementation of directQuery in line with core 2.10.0
+
+1.2.1
+Added the NO_OPERATOR operator
+
+1.2.0
+New naming system of docs. Requires core 2.9.0
+
+1.1.7
+Fixed NPE on putDocument when collection does not exist
+
+1.1.6
+Fixed build.xml: name of deployed library
+
+1.1.5
+Ticket 40: Fixed name of ROOT Collection 
+
+1.1.4
+Ticket 27 - further cleaned up librairies
+
+1.1.3
+Ticket 27 - cleaned up librairies
+
+1.1.2
+Fixed get all collections
+
+1.1.1
+Added delete documents; fixed the getConnection and connection close
+
+1.0.0
+Initial release

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="WSDL2JAVA-SERVER" default="wsdl2java">
+	<property name="axis.home" location="../org.talend.mdm.test" />
+	<property name="axis.src" location="${axis.home}/src" />
+	<property name="axis.lib" location="${axis.home}/lib" />
+	<property name="axis.classes" location="${axis.home}/bin" />
+	<property name="local.wsdl" location="../org.talend.mdm.core/src/META-INF/wsdl/webservices.wsdl" />
+	
+	<path id="axis.classpath">
+		<fileset dir="${axis.lib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<pathelement location="${axis.classes}" />
+	</path>
+	
+	<taskdef resource="axis-tasks.properties" classpathref="axis.classpath" />
+	
+	<target name="wsdl2java">
+		<axis-wsdl2java 
+		    output="${axis.src}" 
+		    testcase="true"
+			verbose="true" 
+			serverside="true" 
+			skeletondeploy="true" 
+			url="${local.wsdl}">
+		</axis-wsdl2java>
+		<eclipse.refreshLocal resource="org.talend.mdm.test/src"/>
+	</target>
+
+</project>

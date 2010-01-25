@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="B2BOX" default="all">
+	
+	<property name="version.props" value="version.properties"/>
+		
+	<property name="jboss.dir" value="/opt/jboss"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+
+	<property name="jar" value="zz.30.service.calltransformer.jar"/>
+
+    <!-- ================================= 
+          targets           
+         ================================= -->
+	<target name="all" depends="version,package,undeploy,deploy">
+	</target>
+	
+   	<target name="version"  description="Maintain build.date property">
+   		<buildnumber file="${version.props}" />
+       	<propertyfile file="${version.props}">
+       		<entry key="build.date" type="date" value="now" />
+       		<entry key="built.by" type="string" value="${user.name}" />
+       		<entry key="java.version" type="string" value="${java.vm.version}" />
+       	</propertyfile>   	
+     </target>
+
+   	<target name="package">
+		<jar destfile="${jar}">
+			<zipfileset dir="src/META-INF" prefix="META-INF">
+				<include name="ejb-jar.xml"/>
+			</zipfileset>
+			<zipfileset dir="src/META-INF" prefix="META-INF">
+				<include name="jboss.xml"/>
+			</zipfileset>
+			<zipfileset dir=".">
+				<include name="RELEASE.NOTES"/>
+			</zipfileset>
+			<zipfileset dir=".">
+				<include name="version.properties"/>
+			</zipfileset>
+			<zipfileset dir="bin" includes="**/ejb/**/*.class"/>
+			<zipfileset dir="bin" includes="**/handler/**/*.class"/>
+			<zipfileset dir="bin" includes="**/bean/**/*.class"/>			
+		</jar>
+
+    </target>
+		
+    <target name="undeploy" description="remove packages">		
+		<delete>
+			<fileset dir="${jboss.deploy.dir}" includes="${jar}"/>
+		</delete>
+    </target>
+	
+	<target name="deploy">
+		<property file="${version.props}" />
+		<echo>Deploying ${jar}-${major}.${minor}.${rev}-${build.number}</echo>
+     	<copy file="${jar}" tofile="${jboss.deploy.dir}/${jar}"/>        
+    </target>
+
+
+</project>
+

@@ -1,0 +1,2508 @@
+<data-model-pOJO>
+    <name>XMLSCHEMA---</name>
+    <schema>&lt;xs:schema xmlns:hfp="http://www.w3.org/2001/XMLSchema-hasFacetAndProperty" xmlns:xs="http://www.w3.org/2001/XMLSchema" blockDefault="#all" elementFormDefault="qualified" targetNamespace="http://www.w3.org/2001/XMLSchema" version="1.0" xml:lang="EN" xmlns:xml="http://www.w3.org/XML/1998/namespace"&gt;
+ &lt;xs:annotation&gt;
+	&lt;xs:documentation&gt; Part 1 version: Id: structures.xsd,v 1.2 2004/01/15 11:34:25 ht Exp Part 2 version: Id: datatypes.xsd,v 1.3 2004/01/23 18:11:13 ht Exp &lt;/xs:documentation&gt;
+ &lt;/xs:annotation&gt;
+
+ &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/2004/PER-xmlschema-1-20040318/structures.html"&gt;
+   The schema corresponding to this document is normative,
+   with respect to the syntactic constraints it expresses in the
+   XML Schema language.  The documentation (within &amp;lt;documentation&amp;gt; elements)
+   below, is not normative, but rather highlights important aspects of
+   the W3C Recommendation of which this is a part&lt;/xs:documentation&gt;
+ &lt;/xs:annotation&gt;
+
+ &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   The simpleType element and all of its members are defined
+      towards the end of this schema document&lt;/xs:documentation&gt;
+ &lt;/xs:annotation&gt;
+
+&lt;!-- deactivate import because no network 
+ &lt;xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"&gt;
+   &lt;xs:annotation&gt;
+     &lt;xs:documentation&gt;
+       Get access to the xml: attribute groups for xml:lang
+       as declared on 'schema' and 'documentation' below
+     &lt;/xs:documentation&gt;
+   &lt;/xs:annotation&gt;
+ &lt;/xs:import&gt;
+ --&gt;
+ 
+ &lt;!-- imported below --&gt;
+  &lt;xs:annotation&gt;
+  &lt;xs:documentation&gt;
+   See http://www.w3.org/XML/1998/namespace.html and
+   http://www.w3.org/TR/REC-xml for information about this namespace.
+
+    This schema document describes the XML namespace, in a form
+    suitable for import by other schema documents.  
+
+    Note that local names in this namespace are intended to be defined
+    only by the World Wide Web Consortium or its subgroups.  The
+    following names are currently defined in this namespace and should
+    not be used with conflicting semantics by any Working Group,
+    specification, or document instance:
+
+    base (as an attribute name): denotes an attribute whose value
+         provides a URI to be used as the base for interpreting any
+         relative URIs in the scope of the element on which it
+         appears; its value is inherited.  This name is reserved
+         by virtue of its definition in the XML Base specification.
+
+    id   (as an attribute name): denotes an attribute whose value
+         should be interpreted as if declared to be of type ID.
+         The xml:id specification is not yet a W3C Recommendation,
+         but this attribute is included here to facilitate experimentation
+         with the mechanisms it proposes.  Note that it is _not_ included
+         in the specialAttrs attribute group.
+
+    lang (as an attribute name): denotes an attribute whose value
+         is a language code for the natural language of the content of
+         any element; its value is inherited.  This name is reserved
+         by virtue of its definition in the XML specification.
+  
+    space (as an attribute name): denotes an attribute whose
+         value is a keyword indicating what whitespace processing
+         discipline is intended for the content of the element; its
+         value is inherited.  This name is reserved by virtue of its
+         definition in the XML specification.
+
+    Father (in any context at all): denotes Jon Bosak, the chair of 
+         the original XML Working Group.  This name is reserved by 
+         the following decision of the W3C XML Plenary and 
+         XML Coordination groups:
+
+             In appreciation for his vision, leadership and dedication
+             the W3C XML Plenary on this 10th day of February, 2000
+             reserves for Jon Bosak in perpetuity the XML name
+             xml:Father
+  &lt;/xs:documentation&gt;
+ &lt;/xs:annotation&gt;
+
+ &lt;xs:annotation&gt;
+  &lt;xs:documentation&gt;This schema defines attributes and an attribute group
+        suitable for use by
+        schemas wishing to allow xml:base, xml:lang or xml:space attributes
+        on elements they define.
+
+        To enable this, such a schema must import this schema
+        for the XML namespace, e.g. as follows:
+        &amp;lt;schema . . .&amp;gt;
+         . . .
+         &amp;lt;import namespace="http://www.w3.org/XML/1998/namespace"
+                    schemaLocation="http://www.w3.org/2001/03/xml.xsd"/&amp;gt;
+
+        Subsequently, qualified reference to any of the attributes
+        or the group defined below will have the desired effect, e.g.
+
+        &amp;lt;type . . .&amp;gt;
+         . . .
+         &amp;lt;attributeGroup ref="xml:specialAttrs"/&amp;gt;
+ 
+         will define a type which will schema-validate an instance
+         element with any of those attributes&lt;/xs:documentation&gt;
+
+ &lt;/xs:annotation&gt;
+
+ &lt;xs:annotation&gt;
+  &lt;xs:documentation&gt;In keeping with the XML Schema WG's standard versioning
+   policy, this schema document will persist at
+   http://www.w3.org/2004/10/xml.xsd.
+   At the date of issue it can also be found at
+   http://www.w3.org/2001/xml.xsd.
+   The schema document at that URI may however change in the future,
+   in order to remain compatible with the latest version of XML Schema
+   itself, or with the XML namespace itself.  In other words, if the XML
+   Schema or XML namespaces change, the version of this document at
+   http://www.w3.org/2001/xml.xsd will change
+   accordingly; the version at
+   http://www.w3.org/2004/10/xml.xsd will not change.
+  &lt;/xs:documentation&gt;
+ &lt;/xs:annotation&gt;
+
+ &lt;xs:attribute name="lang" type="xs:language"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;Attempting to install the relevant ISO 2- and 3-letter
+         codes as the enumerated possible values is probably never
+         going to be a realistic possibility.  See
+         RFC 3066 at http://www.ietf.org/rfc/rfc3066.txt and the IANA registry
+         at http://www.iana.org/assignments/lang-tag-apps.htm for
+         further information.&lt;/xs:documentation&gt;
+
+  &lt;/xs:annotation&gt;
+ &lt;/xs:attribute&gt;
+
+ &lt;xs:attribute name="space"&gt;
+  &lt;xs:simpleType&gt;
+   &lt;xs:restriction base="xs:NCName"&gt;
+    &lt;xs:enumeration value="default"/&gt;
+    &lt;xs:enumeration value="preserve"/&gt;
+   &lt;/xs:restriction&gt;
+
+  &lt;/xs:simpleType&gt;
+ &lt;/xs:attribute&gt;
+
+ &lt;xs:attribute name="base" type="xs:anyURI"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;See http://www.w3.org/TR/xmlbase/ for
+                     information about this attribute.&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:attribute&gt;
+ 
+ &lt;xs:attribute name="id" type="xs:ID"&gt;
+
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;See http://www.w3.org/TR/xml-id/ for
+                     information about this attribute.&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:attribute&gt;
+
+ &lt;xs:attributeGroup name="specialAttrs"&gt;
+  &lt;xs:attribute ref="xs:base"/&gt;
+  &lt;xs:attribute ref="xs:lang"/&gt;
+  &lt;xs:attribute ref="xs:space"/&gt;
+
+ &lt;/xs:attributeGroup&gt;
+ 
+ &lt;!-- en replace import --&gt;
+ 
+ 
+ 
+
+ &lt;xs:complexType name="openAttrs"&gt;
+   &lt;xs:annotation&gt;
+     &lt;xs:documentation&gt;
+       This type is extended by almost all schema types
+       to allow attributes from other namespaces to be
+       added to user schemas.
+     &lt;/xs:documentation&gt;
+   &lt;/xs:annotation&gt;
+   &lt;xs:complexContent&gt;
+     &lt;xs:restriction base="xs:anyType"&gt;
+       &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+     &lt;/xs:restriction&gt;
+   &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:complexType name="annotated"&gt;
+   &lt;xs:annotation&gt;
+     &lt;xs:documentation&gt;
+       This type is extended by all types which allow annotation
+       other than &amp;lt;schema&amp;gt; itself
+     &lt;/xs:documentation&gt;
+   &lt;/xs:annotation&gt;
+   &lt;xs:complexContent&gt;
+     &lt;xs:extension base="xs:openAttrs"&gt;
+       &lt;xs:sequence&gt;
+         &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+       &lt;/xs:sequence&gt;
+       &lt;xs:attribute name="id" type="xs:ID"/&gt;
+     &lt;/xs:extension&gt;
+   &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:group name="schemaTop"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   This group is for the
+   elements which occur freely at the top level of schemas.
+   All of their types are based on the "annotated" type by extension.&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:choice&gt;
+   &lt;xs:group ref="xs:redefinable"/&gt;
+   &lt;xs:element ref="xs:element"/&gt;
+   &lt;xs:element ref="xs:attribute"/&gt;
+   &lt;xs:element ref="xs:notation"/&gt;
+  &lt;/xs:choice&gt;
+ &lt;/xs:group&gt;
+ 
+ &lt;xs:group name="redefinable"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   This group is for the
+   elements which can self-redefine (see &amp;lt;redefine&amp;gt; below).&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:choice&gt;
+   &lt;xs:element ref="xs:simpleType"/&gt;
+   &lt;xs:element ref="xs:complexType"/&gt;
+   &lt;xs:element ref="xs:group"/&gt;
+   &lt;xs:element ref="xs:attributeGroup"/&gt;
+  &lt;/xs:choice&gt;
+ &lt;/xs:group&gt;
+
+ &lt;xs:simpleType name="formChoice"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   A utility type, not for public use&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:restriction base="xs:NMTOKEN"&gt;
+   &lt;xs:enumeration value="qualified"/&gt;
+   &lt;xs:enumeration value="unqualified"/&gt;
+  &lt;/xs:restriction&gt;
+ &lt;/xs:simpleType&gt;
+
+ &lt;xs:simpleType name="reducedDerivationControl"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   A utility type, not for public use&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:restriction base="xs:derivationControl"&gt;
+   &lt;xs:enumeration value="extension"/&gt;
+   &lt;xs:enumeration value="restriction"/&gt;
+  &lt;/xs:restriction&gt;
+ &lt;/xs:simpleType&gt;
+
+ &lt;xs:simpleType name="derivationSet"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   A utility type, not for public use&lt;/xs:documentation&gt;
+   &lt;xs:documentation&gt;
+   #all or (possibly empty) subset of {extension, restriction}&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:union&gt;
+   &lt;xs:simpleType&gt;    
+    &lt;xs:restriction base="xs:token"&gt;
+     &lt;xs:enumeration value="#all"/&gt;
+    &lt;/xs:restriction&gt;
+   &lt;/xs:simpleType&gt;
+   &lt;xs:simpleType&gt;
+    &lt;xs:list itemType="xs:reducedDerivationControl"/&gt;
+   &lt;/xs:simpleType&gt;
+  &lt;/xs:union&gt;
+ &lt;/xs:simpleType&gt;
+
+ &lt;xs:simpleType name="typeDerivationControl"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   A utility type, not for public use&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:restriction base="xs:derivationControl"&gt;
+   &lt;xs:enumeration value="extension"/&gt;
+   &lt;xs:enumeration value="restriction"/&gt;
+   &lt;xs:enumeration value="list"/&gt;
+   &lt;xs:enumeration value="union"/&gt;
+  &lt;/xs:restriction&gt;
+ &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType name="fullDerivationSet"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   A utility type, not for public use&lt;/xs:documentation&gt;
+   &lt;xs:documentation&gt;
+   #all or (possibly empty) subset of {extension, restriction, list, union}&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:union&gt;
+   &lt;xs:simpleType&gt;    
+    &lt;xs:restriction base="xs:token"&gt;
+     &lt;xs:enumeration value="#all"/&gt;
+    &lt;/xs:restriction&gt;
+   &lt;/xs:simpleType&gt;
+   &lt;xs:simpleType&gt;
+    &lt;xs:list itemType="xs:typeDerivationControl"/&gt;
+   &lt;/xs:simpleType&gt;
+  &lt;/xs:union&gt;
+ &lt;/xs:simpleType&gt;
+
+ &lt;xs:element id="schema" name="schema"&gt;
+  &lt;xs:annotation&gt;
+    &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-schema"/&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexType&gt;
+   &lt;xs:complexContent&gt;
+    &lt;xs:extension base="xs:openAttrs"&gt;
+     &lt;xs:sequence&gt;
+      &lt;xs:choice maxOccurs="unbounded" minOccurs="0"&gt;
+       &lt;xs:element ref="xs:include"/&gt;
+       &lt;xs:element ref="xs:import"/&gt;
+       &lt;xs:element ref="xs:redefine"/&gt;
+       &lt;xs:element ref="xs:annotation"/&gt;
+      &lt;/xs:choice&gt;
+      &lt;xs:sequence maxOccurs="unbounded" minOccurs="0"&gt;
+       &lt;xs:group ref="xs:schemaTop"/&gt;
+       &lt;xs:element maxOccurs="unbounded" minOccurs="0" ref="xs:annotation"/&gt;
+      &lt;/xs:sequence&gt;
+     &lt;/xs:sequence&gt;
+     &lt;xs:attribute name="targetNamespace" type="xs:anyURI"/&gt;
+     &lt;xs:attribute name="version" type="xs:token"/&gt;
+     &lt;xs:attribute default="" name="finalDefault" type="xs:fullDerivationSet" use="optional"/&gt;
+     &lt;xs:attribute default="" name="blockDefault" type="xs:blockSet" use="optional"/&gt;
+     &lt;xs:attribute default="unqualified" name="attributeFormDefault" type="xs:formChoice" use="optional"/&gt;
+     &lt;xs:attribute default="unqualified" name="elementFormDefault" type="xs:formChoice" use="optional"/&gt;
+     &lt;xs:attribute name="id" type="xs:ID"/&gt;
+     &lt;xs:attribute ref="xs:lang"/&gt;
+    &lt;/xs:extension&gt;
+   &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+
+  &lt;xs:key name="element"&gt;
+   &lt;xs:selector xpath="xs:element"/&gt;
+   &lt;xs:field xpath="@name"/&gt;
+  &lt;/xs:key&gt;
+
+  &lt;xs:key name="attribute"&gt;
+   &lt;xs:selector xpath="xs:attribute"/&gt;
+   &lt;xs:field xpath="@name"/&gt;
+  &lt;/xs:key&gt;
+
+  &lt;xs:key name="type"&gt;
+   &lt;xs:selector xpath="xs:complexType|xs:simpleType"/&gt;
+   &lt;xs:field xpath="@name"/&gt;
+  &lt;/xs:key&gt;
+ 
+  &lt;xs:key name="group"&gt;
+   &lt;xs:selector xpath="xs:group"/&gt;
+   &lt;xs:field xpath="@name"/&gt;
+  &lt;/xs:key&gt;
+ 
+  &lt;xs:key name="attributeGroup"&gt;
+   &lt;xs:selector xpath="xs:attributeGroup"/&gt;
+   &lt;xs:field xpath="@name"/&gt;
+  &lt;/xs:key&gt;
+ 
+  &lt;xs:key name="notation"&gt;
+   &lt;xs:selector xpath="xs:notation"/&gt;
+   &lt;xs:field xpath="@name"/&gt;
+  &lt;/xs:key&gt;
+
+  &lt;xs:key name="identityConstraint"&gt;
+   &lt;xs:selector xpath=".//xs:key|.//xs:unique|.//xs:keyref"/&gt;
+   &lt;xs:field xpath="@name"/&gt;
+  &lt;/xs:key&gt;
+
+ &lt;/xs:element&gt;
+
+ &lt;xs:simpleType name="allNNI"&gt;
+  &lt;xs:annotation&gt;
+&lt;xs:documentation&gt;
+   for maxOccurs&lt;/xs:documentation&gt;
+&lt;/xs:annotation&gt;
+  &lt;xs:union memberTypes="xs:nonNegativeInteger"&gt;
+   &lt;xs:simpleType&gt;
+    &lt;xs:restriction base="xs:NMTOKEN"&gt;
+     &lt;xs:enumeration value="unbounded"/&gt;
+    &lt;/xs:restriction&gt;
+   &lt;/xs:simpleType&gt;
+  &lt;/xs:union&gt;
+ &lt;/xs:simpleType&gt;
+
+ &lt;xs:attributeGroup name="occurs"&gt;
+  &lt;xs:annotation&gt;
+&lt;xs:documentation&gt;
+   for all particles&lt;/xs:documentation&gt;
+&lt;/xs:annotation&gt;
+  &lt;xs:attribute default="1" name="minOccurs" type="xs:nonNegativeInteger" use="optional"/&gt;
+  &lt;xs:attribute default="1" name="maxOccurs" type="xs:allNNI" use="optional"/&gt;
+ &lt;/xs:attributeGroup&gt;
+
+ &lt;xs:attributeGroup name="defRef"&gt;
+  &lt;xs:annotation&gt;
+&lt;xs:documentation&gt;
+   for element, group and attributeGroup,
+   which both define and reference&lt;/xs:documentation&gt;
+&lt;/xs:annotation&gt;
+  &lt;xs:attribute name="name" type="xs:NCName"/&gt;
+  &lt;xs:attribute name="ref" type="xs:QName"/&gt;
+ &lt;/xs:attributeGroup&gt;
+
+ &lt;xs:group name="typeDefParticle"&gt;
+  &lt;xs:annotation&gt;
+    &lt;xs:documentation&gt;
+   'complexType' uses this&lt;/xs:documentation&gt;
+&lt;/xs:annotation&gt;
+  &lt;xs:choice&gt;
+   &lt;xs:element name="group" type="xs:groupRef"/&gt;
+   &lt;xs:element ref="xs:all"/&gt;
+   &lt;xs:element ref="xs:choice"/&gt;
+   &lt;xs:element ref="xs:sequence"/&gt;
+  &lt;/xs:choice&gt;
+ &lt;/xs:group&gt;
+ 
+ 
+
+ &lt;xs:group name="nestedParticle"&gt;
+  &lt;xs:choice&gt;
+   &lt;xs:element name="element" type="xs:localElement"/&gt;
+   &lt;xs:element name="group" type="xs:groupRef"/&gt;
+   &lt;xs:element ref="xs:choice"/&gt;
+   &lt;xs:element ref="xs:sequence"/&gt;
+   &lt;xs:element ref="xs:any"/&gt;
+  &lt;/xs:choice&gt;
+ &lt;/xs:group&gt;
+ 
+ &lt;xs:group name="particle"&gt;
+  &lt;xs:choice&gt;
+   &lt;xs:element name="element" type="xs:localElement"/&gt;
+   &lt;xs:element name="group" type="xs:groupRef"/&gt;
+   &lt;xs:element ref="xs:all"/&gt;
+   &lt;xs:element ref="xs:choice"/&gt;
+   &lt;xs:element ref="xs:sequence"/&gt;
+   &lt;xs:element ref="xs:any"/&gt;
+  &lt;/xs:choice&gt;
+ &lt;/xs:group&gt;
+ 
+ &lt;xs:complexType name="attribute"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:extension base="xs:annotated"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" name="simpleType" type="xs:localSimpleType"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attributeGroup ref="xs:defRef"/&gt;
+    &lt;xs:attribute name="type" type="xs:QName"/&gt;
+    &lt;xs:attribute default="optional" name="use" use="optional"&gt;
+     &lt;xs:simpleType&gt;
+      &lt;xs:restriction base="xs:NMTOKEN"&gt;
+       &lt;xs:enumeration value="prohibited"/&gt;
+       &lt;xs:enumeration value="optional"/&gt;
+       &lt;xs:enumeration value="required"/&gt;
+      &lt;/xs:restriction&gt;
+     &lt;/xs:simpleType&gt;
+    &lt;/xs:attribute&gt;
+    &lt;xs:attribute name="default" type="xs:string"/&gt;
+    &lt;xs:attribute name="fixed" type="xs:string"/&gt;
+    &lt;xs:attribute name="form" type="xs:formChoice"/&gt;
+   &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ 
+ &lt;xs:complexType name="topLevelAttribute"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:attribute"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:element minOccurs="0" name="simpleType" type="xs:localSimpleType"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="ref" use="prohibited"/&gt;
+    &lt;xs:attribute name="form" use="prohibited"/&gt;
+    &lt;xs:attribute name="use" use="prohibited"/&gt;
+    &lt;xs:attribute name="name" type="xs:NCName" use="required"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:group name="attrDecls"&gt;
+  &lt;xs:sequence&gt;
+   &lt;xs:choice maxOccurs="unbounded" minOccurs="0"&gt;
+    &lt;xs:element name="attribute" type="xs:attribute"/&gt;
+    &lt;xs:element name="attributeGroup" type="xs:attributeGroupRef"/&gt;
+   &lt;/xs:choice&gt;
+   &lt;xs:element minOccurs="0" ref="xs:anyAttribute"/&gt;
+  &lt;/xs:sequence&gt;
+ &lt;/xs:group&gt;
+
+ &lt;xs:element id="anyAttribute" name="anyAttribute" type="xs:wildcard"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-anyAttribute"/&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:group name="complexTypeModel"&gt;
+  &lt;xs:choice&gt;
+      &lt;xs:element ref="xs:simpleContent"/&gt;
+      &lt;xs:element ref="xs:complexContent"/&gt;
+      &lt;xs:sequence&gt;
+       &lt;xs:annotation&gt;
+        &lt;xs:documentation&gt;
+   This branch is short for
+   &amp;lt;complexContent&amp;gt;
+   &amp;lt;restriction base="xs:anyType"&amp;gt;
+   ...
+   &amp;lt;/restriction&amp;gt;
+   &amp;lt;/complexContent&amp;gt;&lt;/xs:documentation&gt;
+       &lt;/xs:annotation&gt;
+       &lt;xs:group minOccurs="0" ref="xs:typeDefParticle"/&gt;
+       &lt;xs:group ref="xs:attrDecls"/&gt;
+      &lt;/xs:sequence&gt;
+  &lt;/xs:choice&gt;
+ &lt;/xs:group&gt;
+
+ &lt;xs:complexType abstract="true" name="complexType"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:extension base="xs:annotated"&gt;
+    &lt;xs:group ref="xs:complexTypeModel"/&gt;
+    &lt;xs:attribute name="name" type="xs:NCName"&gt;
+     &lt;xs:annotation&gt;
+      &lt;xs:documentation&gt;
+      Will be restricted to required or forbidden&lt;/xs:documentation&gt;
+     &lt;/xs:annotation&gt;
+    &lt;/xs:attribute&gt;
+    &lt;xs:attribute default="false" name="mixed" type="xs:boolean" use="optional"&gt;
+     &lt;xs:annotation&gt;
+      &lt;xs:documentation&gt;
+      Not allowed if simpleContent child is chosen.
+      May be overriden by setting on complexContent child.&lt;/xs:documentation&gt;
+    &lt;/xs:annotation&gt;
+    &lt;/xs:attribute&gt;
+    &lt;xs:attribute default="false" name="abstract" type="xs:boolean" use="optional"/&gt;
+    &lt;xs:attribute name="final" type="xs:derivationSet"/&gt;
+    &lt;xs:attribute name="block" type="xs:derivationSet"/&gt;
+   &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ 
+ &lt;xs:complexType name="topLevelComplexType"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:complexType"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:group ref="xs:complexTypeModel"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="name" type="xs:NCName" use="required"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ 
+ &lt;xs:complexType name="localComplexType"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:complexType"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:group ref="xs:complexTypeModel"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="name" use="prohibited"/&gt;
+    &lt;xs:attribute name="abstract" use="prohibited"/&gt;
+    &lt;xs:attribute name="final" use="prohibited"/&gt;
+    &lt;xs:attribute name="block" use="prohibited"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ 
+ &lt;xs:complexType name="restrictionType"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:extension base="xs:annotated"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:choice minOccurs="0"&gt;
+      &lt;xs:group ref="xs:typeDefParticle"/&gt;
+      &lt;xs:group ref="xs:simpleRestrictionModel"/&gt;
+     &lt;/xs:choice&gt;
+     &lt;xs:group ref="xs:attrDecls"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="base" type="xs:QName" use="required"/&gt;
+   &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;       
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:complexType name="complexRestrictionType"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:restrictionType"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:choice minOccurs="0"&gt;
+      &lt;xs:annotation&gt;
+       &lt;xs:documentation&gt;This choice is added simply to
+                   make this a valid restriction per the REC&lt;/xs:documentation&gt;
+      &lt;/xs:annotation&gt;
+      &lt;xs:group ref="xs:typeDefParticle"/&gt;
+     &lt;/xs:choice&gt;
+     &lt;xs:group ref="xs:attrDecls"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;       
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:complexType name="extensionType"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:extension base="xs:annotated"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:group minOccurs="0" ref="xs:typeDefParticle"/&gt;
+     &lt;xs:group ref="xs:attrDecls"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="base" type="xs:QName" use="required"/&gt;
+   &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;       
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:element id="complexContent" name="complexContent"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-complexContent"/&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexType&gt;
+   &lt;xs:complexContent&gt;
+    &lt;xs:extension base="xs:annotated"&gt;
+     &lt;xs:choice&gt;
+      &lt;xs:element name="restriction" type="xs:complexRestrictionType"/&gt;
+      &lt;xs:element name="extension" type="xs:extensionType"/&gt;
+     &lt;/xs:choice&gt;     
+     &lt;xs:attribute name="mixed" type="xs:boolean"&gt;
+      &lt;xs:annotation&gt;
+       &lt;xs:documentation&gt;
+       Overrides any setting on complexType parent.&lt;/xs:documentation&gt;
+      &lt;/xs:annotation&gt;
+    &lt;/xs:attribute&gt;
+    &lt;/xs:extension&gt;
+   &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:complexType name="simpleRestrictionType"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:restrictionType"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:choice minOccurs="0"&gt;
+      &lt;xs:annotation&gt;
+       &lt;xs:documentation&gt;This choice is added simply to
+                   make this a valid restriction per the REC&lt;/xs:documentation&gt;
+      &lt;/xs:annotation&gt;
+      &lt;xs:group ref="xs:simpleRestrictionModel"/&gt;
+     &lt;/xs:choice&gt;
+     &lt;xs:group ref="xs:attrDecls"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:complexType name="simpleExtensionType"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:extensionType"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:annotation&gt;
+      &lt;xs:documentation&gt;
+      No typeDefParticle group reference&lt;/xs:documentation&gt;
+     &lt;/xs:annotation&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:group ref="xs:attrDecls"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:element id="simpleContent" name="simpleContent"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-simpleContent"/&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexType&gt;
+   &lt;xs:complexContent&gt;
+    &lt;xs:extension base="xs:annotated"&gt;
+     &lt;xs:choice&gt;
+      &lt;xs:element name="restriction" type="xs:simpleRestrictionType"/&gt;
+      &lt;xs:element name="extension" type="xs:simpleExtensionType"/&gt;
+     &lt;/xs:choice&gt;
+    &lt;/xs:extension&gt;
+   &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+ 
+ &lt;xs:element id="complexType" name="complexType" type="xs:topLevelComplexType"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-complexType"/&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:element&gt;
+
+
+  &lt;xs:simpleType name="blockSet"&gt;
+   &lt;xs:annotation&gt;
+    &lt;xs:documentation&gt;
+    A utility type, not for public use&lt;/xs:documentation&gt;
+    &lt;xs:documentation&gt;
+    #all or (possibly empty) subset of {substitution, extension,
+    restriction}&lt;/xs:documentation&gt;
+   &lt;/xs:annotation&gt;
+   &lt;xs:union&gt;
+    &lt;xs:simpleType&gt;    
+     &lt;xs:restriction base="xs:token"&gt;
+      &lt;xs:enumeration value="#all"/&gt;
+     &lt;/xs:restriction&gt;
+    &lt;/xs:simpleType&gt;
+    &lt;xs:simpleType&gt;
+     &lt;xs:list&gt;
+      &lt;xs:simpleType&gt;
+       &lt;xs:restriction base="xs:derivationControl"&gt;
+        &lt;xs:enumeration value="extension"/&gt;
+        &lt;xs:enumeration value="restriction"/&gt;
+        &lt;xs:enumeration value="substitution"/&gt;
+       &lt;/xs:restriction&gt;
+      &lt;/xs:simpleType&gt;
+     &lt;/xs:list&gt;
+    &lt;/xs:simpleType&gt;
+   &lt;/xs:union&gt;  
+  &lt;/xs:simpleType&gt;
+
+ &lt;xs:complexType abstract="true" name="element"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   The element element can be used either
+   at the top level to define an element-type binding globally,
+   or within a content model to either reference a globally-defined
+   element or type or declare an element-type binding locally.
+   The ref form is not allowed at the top level.&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+
+  &lt;xs:complexContent&gt;
+   &lt;xs:extension base="xs:annotated"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:choice minOccurs="0"&gt;
+      &lt;xs:element name="simpleType" type="xs:localSimpleType"/&gt;
+      &lt;xs:element name="complexType" type="xs:localComplexType"/&gt;
+     &lt;/xs:choice&gt;
+     &lt;xs:group maxOccurs="unbounded" minOccurs="0" ref="xs:identityConstraint"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attributeGroup ref="xs:defRef"/&gt;
+    &lt;xs:attribute name="type" type="xs:QName"/&gt;
+    &lt;xs:attribute name="substitutionGroup" type="xs:QName"/&gt;
+    &lt;xs:attributeGroup ref="xs:occurs"/&gt;
+    &lt;xs:attribute name="default" type="xs:string"/&gt;
+    &lt;xs:attribute name="fixed" type="xs:string"/&gt;
+    &lt;xs:attribute default="false" name="nillable" type="xs:boolean" use="optional"/&gt;
+    &lt;xs:attribute default="false" name="abstract" type="xs:boolean" use="optional"/&gt;
+    &lt;xs:attribute name="final" type="xs:derivationSet"/&gt;
+    &lt;xs:attribute name="block" type="xs:blockSet"/&gt;
+    &lt;xs:attribute name="form" type="xs:formChoice"/&gt;
+   &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ 
+ &lt;xs:complexType name="topLevelElement"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:element"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:choice minOccurs="0"&gt;
+      &lt;xs:element name="simpleType" type="xs:localSimpleType"/&gt;
+      &lt;xs:element name="complexType" type="xs:localComplexType"/&gt;
+     &lt;/xs:choice&gt;
+     &lt;xs:group maxOccurs="unbounded" minOccurs="0" ref="xs:identityConstraint"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="ref" use="prohibited"/&gt;
+    &lt;xs:attribute name="form" use="prohibited"/&gt;
+    &lt;xs:attribute name="minOccurs" use="prohibited"/&gt;
+    &lt;xs:attribute name="maxOccurs" use="prohibited"/&gt;
+    &lt;xs:attribute name="name" type="xs:NCName" use="required"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ 
+ &lt;xs:complexType name="localElement"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:element"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:choice minOccurs="0"&gt;
+      &lt;xs:element name="simpleType" type="xs:localSimpleType"/&gt;
+      &lt;xs:element name="complexType" type="xs:localComplexType"/&gt;
+     &lt;/xs:choice&gt;
+     &lt;xs:group maxOccurs="unbounded" minOccurs="0" ref="xs:identityConstraint"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="substitutionGroup" use="prohibited"/&gt;
+    &lt;xs:attribute name="final" use="prohibited"/&gt;
+    &lt;xs:attribute name="abstract" use="prohibited"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:element id="element" name="element" type="xs:topLevelElement"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-element"/&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:complexType abstract="true" name="group"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   group type for explicit groups, named top-level groups and
+   group references&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:extension base="xs:annotated"&gt;
+    &lt;xs:group maxOccurs="unbounded" minOccurs="0" ref="xs:particle"/&gt;
+    &lt;xs:attributeGroup ref="xs:defRef"/&gt;
+    &lt;xs:attributeGroup ref="xs:occurs"/&gt;
+   &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ 
+ &lt;xs:complexType name="realGroup"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:group"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:choice maxOccurs="1" minOccurs="0"&gt;
+      &lt;xs:element ref="xs:all"/&gt;
+      &lt;xs:element ref="xs:choice"/&gt;
+      &lt;xs:element ref="xs:sequence"/&gt;
+     &lt;/xs:choice&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:complexType name="namedGroup"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:realGroup"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:choice maxOccurs="1" minOccurs="1"&gt;
+      &lt;xs:element name="all"&gt;
+       &lt;xs:complexType&gt;
+        &lt;xs:complexContent&gt;
+         &lt;xs:restriction base="xs:all"&gt;
+          &lt;xs:group ref="xs:allModel"/&gt;
+          &lt;xs:attribute name="minOccurs" use="prohibited"/&gt;
+          &lt;xs:attribute name="maxOccurs" use="prohibited"/&gt;
+          &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+         &lt;/xs:restriction&gt;
+        &lt;/xs:complexContent&gt;
+       &lt;/xs:complexType&gt;
+      &lt;/xs:element&gt;
+      &lt;xs:element name="choice" type="xs:simpleExplicitGroup"/&gt;
+      &lt;xs:element name="sequence" type="xs:simpleExplicitGroup"/&gt;
+     &lt;/xs:choice&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="name" type="xs:NCName" use="required"/&gt;
+    &lt;xs:attribute name="ref" use="prohibited"/&gt;
+    &lt;xs:attribute name="minOccurs" use="prohibited"/&gt;
+    &lt;xs:attribute name="maxOccurs" use="prohibited"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:complexType name="groupRef"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:realGroup"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="ref" type="xs:QName" use="required"/&gt;
+    &lt;xs:attribute name="name" use="prohibited"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:complexType name="explicitGroup"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   group type for the three kinds of group&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:group"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:group maxOccurs="unbounded" minOccurs="0" ref="xs:nestedParticle"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="name" type="xs:NCName" use="prohibited"/&gt;
+    &lt;xs:attribute name="ref" type="xs:QName" use="prohibited"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ 
+ &lt;xs:complexType name="simpleExplicitGroup"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:explicitGroup"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:group maxOccurs="unbounded" minOccurs="0" ref="xs:nestedParticle"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="minOccurs" use="prohibited"/&gt;
+    &lt;xs:attribute name="maxOccurs" use="prohibited"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ 
+ &lt;xs:group name="allModel"&gt;
+  &lt;xs:sequence&gt;
+      &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+      &lt;xs:choice maxOccurs="unbounded" minOccurs="0"&gt;
+       &lt;xs:annotation&gt;
+        &lt;xs:documentation&gt;This choice with min/max is here to
+                          avoid a pblm with the Elt:All/Choice/Seq
+                          Particle derivation constraint&lt;/xs:documentation&gt;
+       &lt;/xs:annotation&gt;
+       &lt;xs:element name="element" type="xs:narrowMaxMin"/&gt;
+      &lt;/xs:choice&gt;
+     &lt;/xs:sequence&gt;
+ &lt;/xs:group&gt;
+ 
+ 
+ &lt;xs:complexType name="narrowMaxMin"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;restricted max/min&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:localElement"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:choice minOccurs="0"&gt;
+      &lt;xs:element name="simpleType" type="xs:localSimpleType"/&gt;
+      &lt;xs:element name="complexType" type="xs:localComplexType"/&gt;
+     &lt;/xs:choice&gt;
+     &lt;xs:group maxOccurs="unbounded" minOccurs="0" ref="xs:identityConstraint"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute default="1" name="minOccurs" use="optional"&gt;
+     &lt;xs:simpleType&gt;
+      &lt;xs:restriction base="xs:nonNegativeInteger"&gt;
+       &lt;xs:enumeration value="0"/&gt;
+       &lt;xs:enumeration value="1"/&gt;
+      &lt;/xs:restriction&gt;
+     &lt;/xs:simpleType&gt;
+    &lt;/xs:attribute&gt;
+    &lt;xs:attribute default="1" name="maxOccurs" use="optional"&gt;
+     &lt;xs:simpleType&gt;
+      &lt;xs:restriction base="xs:allNNI"&gt;
+       &lt;xs:enumeration value="0"/&gt;
+       &lt;xs:enumeration value="1"/&gt;
+      &lt;/xs:restriction&gt;
+     &lt;/xs:simpleType&gt;
+    &lt;/xs:attribute&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+  &lt;xs:complexType name="all"&gt;
+   &lt;xs:annotation&gt;
+    &lt;xs:documentation&gt;
+   Only elements allowed inside&lt;/xs:documentation&gt;
+   &lt;/xs:annotation&gt;
+   &lt;xs:complexContent&gt;
+    &lt;xs:restriction base="xs:explicitGroup"&gt;
+     &lt;xs:group ref="xs:allModel"/&gt;
+     &lt;xs:attribute default="1" name="minOccurs" use="optional"&gt;
+      &lt;xs:simpleType&gt;
+       &lt;xs:restriction base="xs:nonNegativeInteger"&gt;
+        &lt;xs:enumeration value="0"/&gt;
+        &lt;xs:enumeration value="1"/&gt;
+       &lt;/xs:restriction&gt;
+      &lt;/xs:simpleType&gt;
+     &lt;/xs:attribute&gt;
+     &lt;xs:attribute default="1" name="maxOccurs" use="optional"&gt;
+      &lt;xs:simpleType&gt;
+       &lt;xs:restriction base="xs:allNNI"&gt;
+        &lt;xs:enumeration value="1"/&gt;
+       &lt;/xs:restriction&gt;
+      &lt;/xs:simpleType&gt;
+     &lt;/xs:attribute&gt;
+     &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+    &lt;/xs:restriction&gt;
+   &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+
+ &lt;xs:element id="all" name="all" type="xs:all"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-all"/&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:element id="choice" name="choice" type="xs:explicitGroup"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-choice"/&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:element id="sequence" name="sequence" type="xs:explicitGroup"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-sequence"/&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:element id="group" name="group" type="xs:namedGroup"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-group"/&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:complexType name="wildcard"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:extension base="xs:annotated"&gt;
+    &lt;xs:attribute default="##any" name="namespace" type="xs:namespaceList" use="optional"/&gt;
+    &lt;xs:attribute default="strict" name="processContents" use="optional"&gt;
+     &lt;xs:simpleType&gt;
+      &lt;xs:restriction base="xs:NMTOKEN"&gt;
+       &lt;xs:enumeration value="skip"/&gt;
+       &lt;xs:enumeration value="lax"/&gt;
+       &lt;xs:enumeration value="strict"/&gt;
+      &lt;/xs:restriction&gt;
+     &lt;/xs:simpleType&gt;
+    &lt;/xs:attribute&gt;
+   &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:element id="any" name="any"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-any"/&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexType&gt;
+   &lt;xs:complexContent&gt;
+    &lt;xs:extension base="xs:wildcard"&gt;
+     &lt;xs:attributeGroup ref="xs:occurs"/&gt;
+    &lt;/xs:extension&gt;
+   &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   simple type for the value of the 'namespace' attr of
+   'any' and 'anyAttribute'&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   Value is
+              ##any      - - any non-conflicting WFXML/attribute at all
+
+              ##other    - - any non-conflicting WFXML/attribute from
+                              namespace other than targetNS
+
+              ##local    - - any unqualified non-conflicting WFXML/attribute 
+
+              one or     - - any non-conflicting WFXML/attribute from
+              more URI        the listed namespaces
+              references
+              (space separated)
+
+    ##targetNamespace or ##local may appear in the above list, to
+        refer to the targetNamespace of the enclosing
+        schema or an absent targetNamespace respectively&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+
+ &lt;xs:simpleType name="namespaceList"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   A utility type, not for public use&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:union&gt;
+   &lt;xs:simpleType&gt;
+    &lt;xs:restriction base="xs:token"&gt;
+     &lt;xs:enumeration value="##any"/&gt;
+     &lt;xs:enumeration value="##other"/&gt;
+    &lt;/xs:restriction&gt;
+   &lt;/xs:simpleType&gt;
+   &lt;xs:simpleType&gt;
+    &lt;xs:list&gt;
+     &lt;xs:simpleType&gt;
+      &lt;xs:union memberTypes="xs:anyURI"&gt;
+       &lt;xs:simpleType&gt;
+        &lt;xs:restriction base="xs:token"&gt;
+         &lt;xs:enumeration value="##targetNamespace"/&gt;
+         &lt;xs:enumeration value="##local"/&gt;
+        &lt;/xs:restriction&gt;
+       &lt;/xs:simpleType&gt;
+      &lt;/xs:union&gt;
+     &lt;/xs:simpleType&gt;
+    &lt;/xs:list&gt;
+   &lt;/xs:simpleType&gt;
+  &lt;/xs:union&gt;
+ &lt;/xs:simpleType&gt;
+
+ &lt;xs:element id="attribute" name="attribute" type="xs:topLevelAttribute"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-attribute"/&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:complexType abstract="true" name="attributeGroup"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:extension base="xs:annotated"&gt;
+    &lt;xs:group ref="xs:attrDecls"/&gt;
+    &lt;xs:attributeGroup ref="xs:defRef"/&gt;
+   &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ 
+ &lt;xs:complexType name="namedAttributeGroup"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:attributeGroup"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+     &lt;xs:group ref="xs:attrDecls"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="name" type="xs:NCName" use="required"/&gt;
+    &lt;xs:attribute name="ref" use="prohibited"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:complexType name="attributeGroupRef"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:attributeGroup"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="ref" type="xs:QName" use="required"/&gt;
+    &lt;xs:attribute name="name" use="prohibited"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:element id="attributeGroup" name="attributeGroup" type="xs:namedAttributeGroup"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-attributeGroup"/&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:element id="include" name="include"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-include"/&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexType&gt;
+   &lt;xs:complexContent&gt;
+    &lt;xs:extension base="xs:annotated"&gt;
+     &lt;xs:attribute name="schemaLocation" type="xs:anyURI" use="required"/&gt;
+    &lt;/xs:extension&gt;
+   &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:element id="redefine" name="redefine"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-redefine"/&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexType&gt;
+   &lt;xs:complexContent&gt;
+    &lt;xs:extension base="xs:openAttrs"&gt;
+     &lt;xs:choice maxOccurs="unbounded" minOccurs="0"&gt;
+      &lt;xs:element ref="xs:annotation"/&gt;
+      &lt;xs:group ref="xs:redefinable"/&gt;
+     &lt;/xs:choice&gt;
+     &lt;xs:attribute name="schemaLocation" type="xs:anyURI" use="required"/&gt;
+     &lt;xs:attribute name="id" type="xs:ID"/&gt;
+    &lt;/xs:extension&gt;
+   &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:element id="import" name="import"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-import"/&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexType&gt;
+   &lt;xs:complexContent&gt;
+    &lt;xs:extension base="xs:annotated"&gt;
+     &lt;xs:attribute name="namespace" type="xs:anyURI"/&gt;
+     &lt;xs:attribute name="schemaLocation" type="xs:anyURI"/&gt;
+    &lt;/xs:extension&gt;
+   &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:element id="selector" name="selector"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-selector"/&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexType&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:extension base="xs:annotated"&gt;
+     &lt;xs:attribute name="xpath" use="required"&gt;
+      &lt;xs:simpleType&gt;
+       &lt;xs:annotation&gt;
+        &lt;xs:documentation&gt;A subset of XPath expressions for use
+in selectors&lt;/xs:documentation&gt;
+        &lt;xs:documentation&gt;A utility type, not for public
+use&lt;/xs:documentation&gt;
+       &lt;/xs:annotation&gt;
+       &lt;xs:restriction base="xs:token"&gt;
+        &lt;xs:annotation&gt;
+         &lt;xs:documentation&gt;The following pattern is intended to allow XPath
+                           expressions per the following EBNF:
+          Selector    ::=    Path ( '|' Path )*  
+          Path    ::=    ('.//')? Step ( '/' Step )*  
+          Step    ::=    '.' | NameTest  
+          NameTest    ::=    QName | '*' | NCName ':' '*'  
+                           child:: is also allowed
+         &lt;/xs:documentation&gt;
+        &lt;/xs:annotation&gt;
+        &lt;xs:pattern value="(\.//)?(((child::)?((\i\c*:)?(\i\c*|\*)))|\.)(/(((child::)?((\i\c*:)?(\i\c*|\*)))|\.))*(\|(\.//)?(((child::)?((\i\c*:)?(\i\c*|\*)))|\.)(/(((child::)?((\i\c*:)?(\i\c*|\*)))|\.))*)*"&gt;
+        &lt;/xs:pattern&gt;
+       &lt;/xs:restriction&gt;
+      &lt;/xs:simpleType&gt;
+     &lt;/xs:attribute&gt;
+   &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:element id="field" name="field"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-field"/&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexType&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:extension base="xs:annotated"&gt;
+     &lt;xs:attribute name="xpath" use="required"&gt;
+      &lt;xs:simpleType&gt;
+       &lt;xs:annotation&gt;
+        &lt;xs:documentation&gt;A subset of XPath expressions for use
+in fields&lt;/xs:documentation&gt;
+        &lt;xs:documentation&gt;A utility type, not for public
+use&lt;/xs:documentation&gt;
+       &lt;/xs:annotation&gt;
+       &lt;xs:restriction base="xs:token"&gt;
+        &lt;xs:annotation&gt;
+         &lt;xs:documentation&gt;The following pattern is intended to allow XPath
+                           expressions per the same EBNF as for selector,
+                           with the following change:
+          Path    ::=    ('.//')? ( Step '/' )* ( Step | '@' NameTest ) 
+         &lt;/xs:documentation&gt;
+        &lt;/xs:annotation&gt;
+        &lt;xs:pattern value="(\.//)?((((child::)?((\i\c*:)?(\i\c*|\*)))|\.)/)*((((child::)?((\i\c*:)?(\i\c*|\*)))|\.)|((attribute::|@)((\i\c*:)?(\i\c*|\*))))(\|(\.//)?((((child::)?((\i\c*:)?(\i\c*|\*)))|\.)/)*((((child::)?((\i\c*:)?(\i\c*|\*)))|\.)|((attribute::|@)((\i\c*:)?(\i\c*|\*)))))*"&gt;
+        &lt;/xs:pattern&gt;
+       &lt;/xs:restriction&gt;
+      &lt;/xs:simpleType&gt;
+     &lt;/xs:attribute&gt;
+   &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:complexType name="keybase"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:extension base="xs:annotated"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element ref="xs:selector"/&gt;
+     &lt;xs:element maxOccurs="unbounded" minOccurs="1" ref="xs:field"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="name" type="xs:NCName" use="required"/&gt;
+   &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+ &lt;xs:group name="identityConstraint"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;The three kinds of identity constraints, all with
+                     type of or derived from 'keybase'.
+   &lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:choice&gt;
+   &lt;xs:element ref="xs:unique"/&gt;
+   &lt;xs:element ref="xs:key"/&gt;
+   &lt;xs:element ref="xs:keyref"/&gt;
+  &lt;/xs:choice&gt;
+ &lt;/xs:group&gt;
+
+ &lt;xs:element id="unique" name="unique" type="xs:keybase"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-unique"/&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:element&gt;
+ &lt;xs:element id="key" name="key" type="xs:keybase"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-key"/&gt;
+  &lt;/xs:annotation&gt;
+ &lt;/xs:element&gt;
+ &lt;xs:element id="keyref" name="keyref"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-keyref"/&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexType&gt;
+   &lt;xs:complexContent&gt;
+    &lt;xs:extension base="xs:keybase"&gt;
+     &lt;xs:attribute name="refer" type="xs:QName" use="required"/&gt;
+    &lt;/xs:extension&gt;
+   &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:element id="notation" name="notation"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-notation"/&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexType&gt;
+   &lt;xs:complexContent&gt;
+    &lt;xs:extension base="xs:annotated"&gt;
+     &lt;xs:attribute name="name" type="xs:NCName" use="required"/&gt;
+     &lt;xs:attribute name="public" type="xs:public"/&gt;
+     &lt;xs:attribute name="system" type="xs:anyURI"/&gt;
+    &lt;/xs:extension&gt;
+   &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:simpleType name="public"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   A utility type, not for public use&lt;/xs:documentation&gt;
+   &lt;xs:documentation&gt;
+   A public identifier, per ISO 8879&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:restriction base="xs:token"/&gt;
+ &lt;/xs:simpleType&gt;
+
+ &lt;xs:element id="appinfo" name="appinfo"&gt;
+   &lt;xs:annotation&gt;
+     &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-appinfo"/&gt;
+   &lt;/xs:annotation&gt;
+   &lt;xs:complexType mixed="true"&gt;
+    &lt;xs:sequence maxOccurs="unbounded" minOccurs="0"&gt;
+     &lt;xs:any processContents="lax"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="source" type="xs:anyURI"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:element id="documentation" name="documentation"&gt;
+   &lt;xs:annotation&gt;
+     &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-documentation"/&gt;
+   &lt;/xs:annotation&gt;
+   &lt;xs:complexType mixed="true"&gt;
+    &lt;xs:sequence maxOccurs="unbounded" minOccurs="0"&gt;
+     &lt;xs:any processContents="lax"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="source" type="xs:anyURI"/&gt;
+    &lt;xs:attribute ref="xs:lang"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:element id="annotation" name="annotation"&gt;
+   &lt;xs:annotation&gt;
+     &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-annotation"/&gt;
+   &lt;/xs:annotation&gt;
+   &lt;xs:complexType&gt;
+    &lt;xs:complexContent&gt;
+     &lt;xs:extension base="xs:openAttrs"&gt;
+      &lt;xs:choice maxOccurs="unbounded" minOccurs="0"&gt;
+       &lt;xs:element ref="xs:appinfo"/&gt;
+       &lt;xs:element ref="xs:documentation"/&gt;
+      &lt;/xs:choice&gt;
+      &lt;xs:attribute name="id" type="xs:ID"/&gt;
+     &lt;/xs:extension&gt;
+    &lt;/xs:complexContent&gt;
+   &lt;/xs:complexType&gt;
+ &lt;/xs:element&gt;
+
+ &lt;xs:annotation&gt;
+  &lt;xs:documentation&gt;
+   notations for use within XML Schema schemas&lt;/xs:documentation&gt;
+ &lt;/xs:annotation&gt;
+
+ &lt;xs:notation name="XMLSchemaStructures" public="structures" system="http://www.w3.org/2000/08/XMLSchema.xsd"/&gt;
+ &lt;xs:notation name="XML" public="REC-xml-19980210" system="http://www.w3.org/TR/1998/REC-xml-19980210"/&gt;
+  
+ &lt;xs:complexType mixed="true" name="anyType"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   Not the real urType, but as close an approximation as we can
+   get in the XML representation&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:sequence&gt;
+   &lt;xs:any maxOccurs="unbounded" minOccurs="0" processContents="lax"/&gt;
+  &lt;/xs:sequence&gt;
+  &lt;xs:anyAttribute processContents="lax"/&gt;
+ &lt;/xs:complexType&gt;
+
+  &lt;xs:annotation&gt;
+    &lt;xs:documentation&gt;
+      First the built-in primitive datatypes.  These definitions are for
+      information only, the real built-in definitions are magic.
+    &lt;/xs:documentation&gt;
+
+    &lt;xs:documentation&gt;
+      For each built-in datatype in this schema (both primitive and
+      derived) can be uniquely addressed via a URI constructed
+      as follows:
+        1) the base URI is the URI of the XML Schema namespace
+        2) the fragment identifier is the name of the datatype
+
+      For example, to address the int datatype, the URI is:
+
+        http://www.w3.org/2001/XMLSchema#int
+
+      Additionally, each facet definition element can be uniquely
+      addressed via a URI constructed as follows:
+        1) the base URI is the URI of the XML Schema namespace
+        2) the fragment identifier is the name of the facet
+
+      For example, to address the maxInclusive facet, the URI is:
+
+        http://www.w3.org/2001/XMLSchema#maxInclusive
+
+      Additionally, each facet usage in a built-in datatype definition
+      can be uniquely addressed via a URI constructed as follows:
+        1) the base URI is the URI of the XML Schema namespace
+        2) the fragment identifier is the name of the datatype, followed
+           by a period (".") followed by the name of the facet
+
+      For example, to address the usage of the maxInclusive facet in
+      the definition of int, the URI is:
+
+        http://www.w3.org/2001/XMLSchema#int.maxInclusive
+
+    &lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+
+  &lt;xs:simpleType id="string" name="string"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="length"/&gt;
+        &lt;hfp:hasFacet name="minLength"/&gt;
+        &lt;hfp:hasFacet name="maxLength"/&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="false"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#string"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace id="string.preserve" value="preserve"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="boolean" name="boolean"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="false"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="finite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#boolean"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="boolean.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="float" name="float"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="total"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="true"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="finite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="true"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#float"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="float.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="double" name="double"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="total"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="true"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="finite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="true"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#double"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="double.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="decimal" name="decimal"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="totalDigits"/&gt;
+        &lt;hfp:hasFacet name="fractionDigits"/&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="total"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="true"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#decimal"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="decimal.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+   &lt;/xs:simpleType&gt;
+
+   &lt;xs:simpleType id="duration" name="duration"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="partial"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#duration"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="duration.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+   &lt;/xs:simpleType&gt;
+
+ &lt;xs:simpleType id="dateTime" name="dateTime"&gt;
+    &lt;xs:annotation&gt;
+    &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="partial"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#dateTime"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="dateTime.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="time" name="time"&gt;
+    &lt;xs:annotation&gt;
+    &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="partial"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#time"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="time.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="date" name="date"&gt;
+   &lt;xs:annotation&gt;
+    &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="partial"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#date"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="date.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="gYearMonth" name="gYearMonth"&gt;
+   &lt;xs:annotation&gt;
+    &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="partial"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#gYearMonth"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="gYearMonth.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="gYear" name="gYear"&gt;
+    &lt;xs:annotation&gt;
+    &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="partial"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#gYear"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="gYear.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+ &lt;xs:simpleType id="gMonthDay" name="gMonthDay"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="partial"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+       &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#gMonthDay"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+         &lt;xs:whiteSpace fixed="true" id="gMonthDay.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="gDay" name="gDay"&gt;
+    &lt;xs:annotation&gt;
+  &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="partial"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#gDay"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+         &lt;xs:whiteSpace fixed="true" id="gDay.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+ &lt;xs:simpleType id="gMonth" name="gMonth"&gt;
+    &lt;xs:annotation&gt;
+  &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="maxInclusive"/&gt;
+        &lt;hfp:hasFacet name="maxExclusive"/&gt;
+        &lt;hfp:hasFacet name="minInclusive"/&gt;
+        &lt;hfp:hasFacet name="minExclusive"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="partial"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#gMonth"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+         &lt;xs:whiteSpace fixed="true" id="gMonth.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+   &lt;xs:simpleType id="hexBinary" name="hexBinary"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="length"/&gt;
+        &lt;hfp:hasFacet name="minLength"/&gt;
+        &lt;hfp:hasFacet name="maxLength"/&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="false"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#binary"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="hexBinary.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+   &lt;/xs:simpleType&gt;
+
+ &lt;xs:simpleType id="base64Binary" name="base64Binary"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="length"/&gt;
+        &lt;hfp:hasFacet name="minLength"/&gt;
+        &lt;hfp:hasFacet name="maxLength"/&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="false"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#base64Binary"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="base64Binary.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+   &lt;/xs:simpleType&gt;
+
+   &lt;xs:simpleType id="anyURI" name="anyURI"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="length"/&gt;
+        &lt;hfp:hasFacet name="minLength"/&gt;
+        &lt;hfp:hasFacet name="maxLength"/&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="false"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#anyURI"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="anyURI.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+   &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="QName" name="QName"&gt;
+    &lt;xs:annotation&gt;
+        &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="length"/&gt;
+        &lt;hfp:hasFacet name="minLength"/&gt;
+        &lt;hfp:hasFacet name="maxLength"/&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="false"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#QName"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="QName.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+   &lt;xs:simpleType id="NOTATION" name="NOTATION"&gt;
+    &lt;xs:annotation&gt;
+        &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="length"/&gt;
+        &lt;hfp:hasFacet name="minLength"/&gt;
+        &lt;hfp:hasFacet name="maxLength"/&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="false"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#NOTATION"/&gt;
+      &lt;xs:documentation&gt;
+        NOTATION cannot be used directly in a schema; rather a type
+        must be derived from it by specifying at least one enumeration
+        facet whose value is the name of a NOTATION declared in the
+        schema.
+      &lt;/xs:documentation&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:anySimpleType"&gt;
+      &lt;xs:whiteSpace fixed="true" id="NOTATION.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:annotation&gt;
+    &lt;xs:documentation&gt;
+      Now the derived primitive types
+    &lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+
+  &lt;xs:simpleType id="normalizedString" name="normalizedString"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#normalizedString"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:string"&gt;
+      &lt;xs:whiteSpace id="normalizedString.whiteSpace" value="replace"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="token" name="token"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#token"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:normalizedString"&gt;
+      &lt;xs:whiteSpace id="token.whiteSpace" value="collapse"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="language" name="language"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#language"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:token"&gt;
+      &lt;xs:pattern id="language.pattern" value="[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*"&gt;
+        &lt;xs:annotation&gt;
+          &lt;xs:documentation source="http://www.ietf.org/rfc/rfc3066.txt"&gt;
+            pattern specifies the content of section 2.12 of XML 1.0e2
+            and RFC 3066 (Revised version of RFC 1766).
+          &lt;/xs:documentation&gt;
+        &lt;/xs:annotation&gt;
+      &lt;/xs:pattern&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="IDREFS" name="IDREFS"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="length"/&gt;
+        &lt;hfp:hasFacet name="minLength"/&gt;
+        &lt;hfp:hasFacet name="maxLength"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="false"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#IDREFS"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction&gt;
+      &lt;xs:simpleType&gt;
+        &lt;xs:list itemType="xs:IDREF"/&gt;
+      &lt;/xs:simpleType&gt;
+        &lt;xs:minLength id="IDREFS.minLength" value="1"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="ENTITIES" name="ENTITIES"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="length"/&gt;
+        &lt;hfp:hasFacet name="minLength"/&gt;
+        &lt;hfp:hasFacet name="maxLength"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="false"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#ENTITIES"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction&gt;
+      &lt;xs:simpleType&gt;
+        &lt;xs:list itemType="xs:ENTITY"/&gt;
+      &lt;/xs:simpleType&gt;
+        &lt;xs:minLength id="ENTITIES.minLength" value="1"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="NMTOKEN" name="NMTOKEN"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#NMTOKEN"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:token"&gt;
+      &lt;xs:pattern id="NMTOKEN.pattern" value="\c+"&gt;
+        &lt;xs:annotation&gt;
+          &lt;xs:documentation source="http://www.w3.org/TR/REC-xml#NT-Nmtoken"&gt;
+            pattern matches production 7 from the XML spec
+          &lt;/xs:documentation&gt;
+        &lt;/xs:annotation&gt;
+      &lt;/xs:pattern&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="NMTOKENS" name="NMTOKENS"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasFacet name="length"/&gt;
+        &lt;hfp:hasFacet name="minLength"/&gt;
+        &lt;hfp:hasFacet name="maxLength"/&gt;
+        &lt;hfp:hasFacet name="enumeration"/&gt;
+        &lt;hfp:hasFacet name="whiteSpace"/&gt;
+        &lt;hfp:hasFacet name="pattern"/&gt;
+        &lt;hfp:hasProperty name="ordered" value="false"/&gt;
+        &lt;hfp:hasProperty name="bounded" value="false"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="countably infinite"/&gt;
+        &lt;hfp:hasProperty name="numeric" value="false"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#NMTOKENS"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction&gt;
+      &lt;xs:simpleType&gt;
+        &lt;xs:list itemType="xs:NMTOKEN"/&gt;
+      &lt;/xs:simpleType&gt;
+        &lt;xs:minLength id="NMTOKENS.minLength" value="1"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="Name" name="Name"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#Name"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:token"&gt;
+      &lt;xs:pattern id="Name.pattern" value="\i\c*"&gt;
+        &lt;xs:annotation&gt;
+          &lt;xs:documentation source="http://www.w3.org/TR/REC-xml#NT-Name"&gt;
+            pattern matches production 5 from the XML spec
+          &lt;/xs:documentation&gt;
+        &lt;/xs:annotation&gt;
+      &lt;/xs:pattern&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="NCName" name="NCName"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#NCName"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:Name"&gt;
+      &lt;xs:pattern id="NCName.pattern" value="[\i-[:]][\c-[:]]*"&gt;
+        &lt;xs:annotation&gt;
+          &lt;xs:documentation source="http://www.w3.org/TR/REC-xml-names/#NT-NCName"&gt;
+            pattern matches production 4 from the Namespaces in XML spec
+          &lt;/xs:documentation&gt;
+        &lt;/xs:annotation&gt;
+      &lt;/xs:pattern&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+   &lt;xs:simpleType id="ID" name="ID"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#ID"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:NCName"/&gt;
+   &lt;/xs:simpleType&gt;
+
+   &lt;xs:simpleType id="IDREF" name="IDREF"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#IDREF"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:NCName"/&gt;
+   &lt;/xs:simpleType&gt;
+
+   &lt;xs:simpleType id="ENTITY" name="ENTITY"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#ENTITY"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:NCName"/&gt;
+   &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="integer" name="integer"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#integer"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:decimal"&gt;
+      &lt;xs:fractionDigits fixed="true" id="integer.fractionDigits" value="0"/&gt;
+      &lt;xs:pattern value="[\-+]?[0-9]+"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="nonPositiveInteger" name="nonPositiveInteger"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#nonPositiveInteger"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:integer"&gt;
+      &lt;xs:maxInclusive id="nonPositiveInteger.maxInclusive" value="0"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="negativeInteger" name="negativeInteger"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#negativeInteger"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:nonPositiveInteger"&gt;
+      &lt;xs:maxInclusive id="negativeInteger.maxInclusive" value="-1"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="long" name="long"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasProperty name="bounded" value="true"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="finite"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#long"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:integer"&gt;
+      &lt;xs:minInclusive id="long.minInclusive" value="-9223372036854775808"/&gt;
+      &lt;xs:maxInclusive id="long.maxInclusive" value="9223372036854775807"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="int" name="int"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#int"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:long"&gt;
+      &lt;xs:minInclusive id="int.minInclusive" value="-2147483648"/&gt;
+      &lt;xs:maxInclusive id="int.maxInclusive" value="2147483647"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="short" name="short"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#short"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:int"&gt;
+      &lt;xs:minInclusive id="short.minInclusive" value="-32768"/&gt;
+      &lt;xs:maxInclusive id="short.maxInclusive" value="32767"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="byte" name="byte"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#byte"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:short"&gt;
+      &lt;xs:minInclusive id="byte.minInclusive" value="-128"/&gt;
+      &lt;xs:maxInclusive id="byte.maxInclusive" value="127"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="nonNegativeInteger" name="nonNegativeInteger"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#nonNegativeInteger"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:integer"&gt;
+      &lt;xs:minInclusive id="nonNegativeInteger.minInclusive" value="0"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="unsignedLong" name="unsignedLong"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:appinfo&gt;
+        &lt;hfp:hasProperty name="bounded" value="true"/&gt;
+        &lt;hfp:hasProperty name="cardinality" value="finite"/&gt;
+      &lt;/xs:appinfo&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#unsignedLong"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:nonNegativeInteger"&gt;
+      &lt;xs:maxInclusive id="unsignedLong.maxInclusive" value="18446744073709551615"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="unsignedInt" name="unsignedInt"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#unsignedInt"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:unsignedLong"&gt;
+      &lt;xs:maxInclusive id="unsignedInt.maxInclusive" value="4294967295"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="unsignedShort" name="unsignedShort"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#unsignedShort"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:unsignedInt"&gt;
+      &lt;xs:maxInclusive id="unsignedShort.maxInclusive" value="65535"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="unsignedByte" name="unsignedByte"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#unsignedByte"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:unsignedShort"&gt;
+      &lt;xs:maxInclusive id="unsignedByte.maxInclusive" value="255"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType id="positiveInteger" name="positiveInteger"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#positiveInteger"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:restriction base="xs:nonNegativeInteger"&gt;
+      &lt;xs:minInclusive id="positiveInteger.minInclusive" value="1"/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+ &lt;xs:simpleType name="derivationControl"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   A utility type, not for public use&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:restriction base="xs:NMTOKEN"&gt;
+   &lt;xs:enumeration value="substitution"/&gt;
+   &lt;xs:enumeration value="extension"/&gt;
+   &lt;xs:enumeration value="restriction"/&gt;
+   &lt;xs:enumeration value="list"/&gt;
+   &lt;xs:enumeration value="union"/&gt;
+  &lt;/xs:restriction&gt;
+ &lt;/xs:simpleType&gt;
+
+ &lt;xs:group name="simpleDerivation"&gt;
+  &lt;xs:choice&gt;
+    &lt;xs:element ref="xs:restriction"/&gt;
+    &lt;xs:element ref="xs:list"/&gt;
+    &lt;xs:element ref="xs:union"/&gt;
+  &lt;/xs:choice&gt;
+ &lt;/xs:group&gt;
+
+ &lt;xs:simpleType name="simpleDerivationSet"&gt;
+  &lt;xs:annotation&gt;
+   &lt;xs:documentation&gt;
+   #all or (possibly empty) subset of {restriction, union, list}
+   &lt;/xs:documentation&gt;
+   &lt;xs:documentation&gt;
+   A utility type, not for public use&lt;/xs:documentation&gt;
+  &lt;/xs:annotation&gt;
+  &lt;xs:union&gt;
+   &lt;xs:simpleType&gt;
+    &lt;xs:restriction base="xs:token"&gt;
+     &lt;xs:enumeration value="#all"/&gt;
+    &lt;/xs:restriction&gt;
+   &lt;/xs:simpleType&gt;
+   &lt;xs:simpleType&gt;
+    &lt;xs:list&gt;
+     &lt;xs:simpleType&gt;
+      &lt;xs:restriction base="xs:derivationControl"&gt;
+       &lt;xs:enumeration value="list"/&gt;
+       &lt;xs:enumeration value="union"/&gt;
+       &lt;xs:enumeration value="restriction"/&gt;
+      &lt;/xs:restriction&gt;
+     &lt;/xs:simpleType&gt;
+    &lt;/xs:list&gt;
+   &lt;/xs:simpleType&gt;
+  &lt;/xs:union&gt;
+ &lt;/xs:simpleType&gt;
+
+  &lt;xs:complexType abstract="true" name="simpleType"&gt;
+    &lt;xs:complexContent&gt;
+      &lt;xs:extension base="xs:annotated"&gt;
+        &lt;xs:group ref="xs:simpleDerivation"/&gt;
+        &lt;xs:attribute name="final" type="xs:simpleDerivationSet"/&gt;
+        &lt;xs:attribute name="name" type="xs:NCName"&gt;
+          &lt;xs:annotation&gt;
+            &lt;xs:documentation&gt;
+              Can be restricted to required or forbidden
+            &lt;/xs:documentation&gt;
+          &lt;/xs:annotation&gt;
+        &lt;/xs:attribute&gt;
+      &lt;/xs:extension&gt;
+    &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+
+  &lt;xs:complexType name="topLevelSimpleType"&gt;
+    &lt;xs:complexContent&gt;
+      &lt;xs:restriction base="xs:simpleType"&gt;
+        &lt;xs:sequence&gt;
+          &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+          &lt;xs:group ref="xs:simpleDerivation"/&gt;
+        &lt;/xs:sequence&gt;
+        &lt;xs:attribute name="name" type="xs:NCName" use="required"&gt;
+          &lt;xs:annotation&gt;
+            &lt;xs:documentation&gt;
+              Required at the top level
+            &lt;/xs:documentation&gt;
+          &lt;/xs:annotation&gt;
+        &lt;/xs:attribute&gt;
+       &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+      &lt;/xs:restriction&gt;
+    &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+
+  &lt;xs:complexType name="localSimpleType"&gt;
+    &lt;xs:complexContent&gt;
+      &lt;xs:restriction base="xs:simpleType"&gt;
+        &lt;xs:sequence&gt;
+          &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+          &lt;xs:group ref="xs:simpleDerivation"/&gt;
+        &lt;/xs:sequence&gt;
+        &lt;xs:attribute name="name" use="prohibited"&gt;
+          &lt;xs:annotation&gt;
+            &lt;xs:documentation&gt;
+              Forbidden when nested
+            &lt;/xs:documentation&gt;
+          &lt;/xs:annotation&gt;
+        &lt;/xs:attribute&gt;
+        &lt;xs:attribute name="final" use="prohibited"/&gt;
+       &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+      &lt;/xs:restriction&gt;
+    &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+
+  &lt;xs:element id="simpleType" name="simpleType" type="xs:topLevelSimpleType"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-simpleType"/&gt;
+    &lt;/xs:annotation&gt;
+  &lt;/xs:element&gt;
+
+  &lt;xs:group name="facets"&gt;
+   &lt;xs:annotation&gt;
+    &lt;xs:documentation&gt;
+       We should use a substitution group for facets, but
+       that's ruled out because it would allow users to
+       add their own, which we're not ready for yet.
+    &lt;/xs:documentation&gt;
+   &lt;/xs:annotation&gt;
+   &lt;xs:choice&gt;
+    &lt;xs:element ref="xs:minExclusive"/&gt;
+    &lt;xs:element ref="xs:minInclusive"/&gt;
+    &lt;xs:element ref="xs:maxExclusive"/&gt;
+    &lt;xs:element ref="xs:maxInclusive"/&gt;
+    &lt;xs:element ref="xs:totalDigits"/&gt;
+    &lt;xs:element ref="xs:fractionDigits"/&gt;
+    &lt;xs:element ref="xs:length"/&gt;
+    &lt;xs:element ref="xs:minLength"/&gt;
+    &lt;xs:element ref="xs:maxLength"/&gt;
+    &lt;xs:element ref="xs:enumeration"/&gt;
+    &lt;xs:element ref="xs:whiteSpace"/&gt;
+    &lt;xs:element ref="xs:pattern"/&gt;
+   &lt;/xs:choice&gt;
+  &lt;/xs:group&gt;
+
+  &lt;xs:group name="simpleRestrictionModel"&gt;
+   &lt;xs:sequence&gt;
+    &lt;xs:element minOccurs="0" name="simpleType" type="xs:localSimpleType"/&gt;
+    &lt;xs:group maxOccurs="unbounded" minOccurs="0" ref="xs:facets"/&gt;
+   &lt;/xs:sequence&gt;
+  &lt;/xs:group&gt;
+
+  &lt;xs:element id="restriction" name="restriction"&gt;
+   &lt;xs:complexType&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-restriction"&gt;
+          base attribute and simpleType child are mutually
+          exclusive, but one or other is required
+        &lt;/xs:documentation&gt;
+      &lt;/xs:annotation&gt;
+      &lt;xs:complexContent&gt;
+        &lt;xs:extension base="xs:annotated"&gt;
+         &lt;xs:group ref="xs:simpleRestrictionModel"/&gt;
+         &lt;xs:attribute name="base" type="xs:QName" use="optional"/&gt;
+        &lt;/xs:extension&gt;
+      &lt;/xs:complexContent&gt;
+    &lt;/xs:complexType&gt;
+  &lt;/xs:element&gt;
+
+  &lt;xs:element id="list" name="list"&gt;
+   &lt;xs:complexType&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-list"&gt;
+          itemType attribute and simpleType child are mutually
+          exclusive, but one or other is required
+        &lt;/xs:documentation&gt;
+      &lt;/xs:annotation&gt;
+      &lt;xs:complexContent&gt;
+        &lt;xs:extension base="xs:annotated"&gt;
+          &lt;xs:sequence&gt;
+            &lt;xs:element minOccurs="0" name="simpleType" type="xs:localSimpleType"/&gt;
+          &lt;/xs:sequence&gt;
+          &lt;xs:attribute name="itemType" type="xs:QName" use="optional"/&gt;
+        &lt;/xs:extension&gt;
+      &lt;/xs:complexContent&gt;
+    &lt;/xs:complexType&gt;
+  &lt;/xs:element&gt;
+
+  &lt;xs:element id="union" name="union"&gt;
+   &lt;xs:complexType&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-union"&gt;
+          memberTypes attribute must be non-empty or there must be
+          at least one simpleType child
+        &lt;/xs:documentation&gt;
+      &lt;/xs:annotation&gt;
+      &lt;xs:complexContent&gt;
+        &lt;xs:extension base="xs:annotated"&gt;
+          &lt;xs:sequence&gt;
+            &lt;xs:element maxOccurs="unbounded" minOccurs="0" name="simpleType" type="xs:localSimpleType"/&gt;
+          &lt;/xs:sequence&gt;
+          &lt;xs:attribute name="memberTypes" use="optional"&gt;
+            &lt;xs:simpleType&gt;
+              &lt;xs:list itemType="xs:QName"/&gt;
+            &lt;/xs:simpleType&gt;
+          &lt;/xs:attribute&gt;
+        &lt;/xs:extension&gt;
+      &lt;/xs:complexContent&gt;
+    &lt;/xs:complexType&gt;
+  &lt;/xs:element&gt;
+
+  &lt;xs:complexType name="facet"&gt;
+    &lt;xs:complexContent&gt;
+      &lt;xs:extension base="xs:annotated"&gt;
+        &lt;xs:attribute name="value" use="required"/&gt;
+        &lt;xs:attribute default="false" name="fixed" type="xs:boolean" use="optional"/&gt;
+      &lt;/xs:extension&gt;
+    &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+
+ &lt;xs:complexType name="noFixedFacet"&gt;
+  &lt;xs:complexContent&gt;
+   &lt;xs:restriction base="xs:facet"&gt;
+    &lt;xs:sequence&gt;
+     &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+    &lt;/xs:sequence&gt;
+    &lt;xs:attribute name="fixed" use="prohibited"/&gt;
+    &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+   &lt;/xs:restriction&gt;
+  &lt;/xs:complexContent&gt;
+ &lt;/xs:complexType&gt;
+
+  &lt;xs:element id="minExclusive" name="minExclusive" type="xs:facet"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-minExclusive"/&gt;
+    &lt;/xs:annotation&gt;
+  &lt;/xs:element&gt;
+  &lt;xs:element id="minInclusive" name="minInclusive" type="xs:facet"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-minInclusive"/&gt;
+    &lt;/xs:annotation&gt;
+  &lt;/xs:element&gt;
+
+  &lt;xs:element id="maxExclusive" name="maxExclusive" type="xs:facet"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-maxExclusive"/&gt;
+    &lt;/xs:annotation&gt;
+  &lt;/xs:element&gt;
+  &lt;xs:element id="maxInclusive" name="maxInclusive" type="xs:facet"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-maxInclusive"/&gt;
+    &lt;/xs:annotation&gt;
+  &lt;/xs:element&gt;
+
+  &lt;xs:complexType name="numFacet"&gt;
+    &lt;xs:complexContent&gt;
+      &lt;xs:restriction base="xs:facet"&gt;
+       &lt;xs:sequence&gt;
+         &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+       &lt;/xs:sequence&gt;
+       &lt;xs:attribute name="value" type="xs:nonNegativeInteger" use="required"/&gt;
+       &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+      &lt;/xs:restriction&gt;
+    &lt;/xs:complexContent&gt;
+  &lt;/xs:complexType&gt;
+
+  &lt;xs:element id="totalDigits" name="totalDigits"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-totalDigits"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:complexType&gt;
+      &lt;xs:complexContent&gt;
+        &lt;xs:restriction base="xs:numFacet"&gt;
+          &lt;xs:sequence&gt;
+            &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+          &lt;/xs:sequence&gt;
+          &lt;xs:attribute name="value" type="xs:positiveInteger" use="required"/&gt;
+         &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+        &lt;/xs:restriction&gt;
+      &lt;/xs:complexContent&gt;
+    &lt;/xs:complexType&gt;
+  &lt;/xs:element&gt;
+  &lt;xs:element id="fractionDigits" name="fractionDigits" type="xs:numFacet"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-fractionDigits"/&gt;
+    &lt;/xs:annotation&gt;
+  &lt;/xs:element&gt;
+
+  &lt;xs:element id="length" name="length" type="xs:numFacet"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-length"/&gt;
+    &lt;/xs:annotation&gt;
+  &lt;/xs:element&gt;
+  &lt;xs:element id="minLength" name="minLength" type="xs:numFacet"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-minLength"/&gt;
+    &lt;/xs:annotation&gt;
+  &lt;/xs:element&gt;
+  &lt;xs:element id="maxLength" name="maxLength" type="xs:numFacet"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-maxLength"/&gt;
+    &lt;/xs:annotation&gt;
+  &lt;/xs:element&gt;
+
+  &lt;xs:element id="enumeration" name="enumeration" type="xs:noFixedFacet"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-enumeration"/&gt;
+    &lt;/xs:annotation&gt;
+  &lt;/xs:element&gt;
+
+  &lt;xs:element id="whiteSpace" name="whiteSpace"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-whiteSpace"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:complexType&gt;
+      &lt;xs:complexContent&gt;
+        &lt;xs:restriction base="xs:facet"&gt;
+          &lt;xs:sequence&gt;
+            &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+          &lt;/xs:sequence&gt;
+          &lt;xs:attribute name="value" use="required"&gt;
+            &lt;xs:simpleType&gt;
+              &lt;xs:restriction base="xs:NMTOKEN"&gt;
+                &lt;xs:enumeration value="preserve"/&gt;
+                &lt;xs:enumeration value="replace"/&gt;
+                &lt;xs:enumeration value="collapse"/&gt;
+              &lt;/xs:restriction&gt;
+            &lt;/xs:simpleType&gt;
+          &lt;/xs:attribute&gt;
+         &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+        &lt;/xs:restriction&gt;
+      &lt;/xs:complexContent&gt;
+    &lt;/xs:complexType&gt;
+  &lt;/xs:element&gt;
+
+  &lt;xs:element id="pattern" name="pattern"&gt;
+    &lt;xs:annotation&gt;
+      &lt;xs:documentation source="http://www.w3.org/TR/xmlschema-2/#element-pattern"/&gt;
+    &lt;/xs:annotation&gt;
+    &lt;xs:complexType&gt;
+      &lt;xs:complexContent&gt;
+        &lt;xs:restriction base="xs:noFixedFacet"&gt;
+          &lt;xs:sequence&gt;
+            &lt;xs:element minOccurs="0" ref="xs:annotation"/&gt;
+          &lt;/xs:sequence&gt;
+          &lt;xs:attribute name="value" type="xs:string" use="required"/&gt;
+         &lt;xs:anyAttribute namespace="##other" processContents="lax"/&gt;
+        &lt;/xs:restriction&gt;
+      &lt;/xs:complexContent&gt;
+    &lt;/xs:complexType&gt;
+  &lt;/xs:element&gt;
+
+&lt;/xs:schema&gt;</schema>
+    <description>XML Schema xsd</description>
+</data-model-pOJO>

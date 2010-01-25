@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+
+<com.amalto.core.migration.tasks.RemoveOldMigrationClusterTask/>
+<com.amalto.core.migration.tasks.ReplaceEmptyInfoInTransformersTask/>
+<com.amalto.core.migration.tasks.TiscallRenameToCallJobTask/>
+
+
+</Root>

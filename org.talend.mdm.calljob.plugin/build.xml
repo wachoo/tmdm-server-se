@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     20 déc. 2005 09:21:22                                                        
+
+     Plugin Modules for core Transformers
+                   
+     bgrieder                                                                
+     ====================================================================== -->
+<project name="Talend Transformer Plugins" default="all">
+	<property name="version.props" value="version.properties"/>
+		
+	<property name="jboss.dir" value="c:/opt/jboss"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+	<property name="jboss.lib.dir" value="${jboss.instance.dir}/lib"/>
+	
+	<property name="ejbs" value="zz.40.talend.transformer.plugins.ejb.jar"/>
+	<property name="wsdl.file" value="src/wsdl/tis.wsdl"/>
+
+    <!-- ================================= 
+          target: all              
+         ================================= -->
+	<target name="all" depends="version,package,undeploy,deploy">
+	</target>
+	
+   	<target name="version"  description="Maintain build.date property">
+   		<buildnumber file="${version.props}" />
+       	<propertyfile file="${version.props}">
+       		<entry key="build.date" type="date" value="now" />
+       	</propertyfile>   	
+     </target>
+
+   	<target name="package">
+   		
+		<jar destfile="${ejbs}" manifest="src/META-INF/MANIFEST.MF">
+			<zipfileset dir="src/META-INF" prefix="META-INF">
+				<include name="ejb-jar.xml" />
+			</zipfileset>
+			<zipfileset dir="src/META-INF" prefix="META-INF">
+				<include name="jboss.xml" />
+			</zipfileset>
+			<zipfileset dir="lib" prefix="META-INF/lib" includes="*.jar"/>
+			<zipfileset file="${wsdl.file}" prefix="META-INF/wsdl"/>
+			<zipfileset dir=".">
+				<include name="RELEASE.NOTES" />
+			</zipfileset>
+			<zipfileset dir="src/META-INF" prefix="META-INF">
+				<include name="jboss.xml" />
+			</zipfileset>
+			<zipfileset dir=".">
+				<include name="version.properties" />
+			</zipfileset>
+			<zipfileset dir="bin" includes="**/*.class" />
+		</jar>
+   		
+
+    </target>
+		
+    <target name="undeploy" description="remove packages">		
+		<delete>
+			<fileset dir="${jboss.deploy.dir}" includes="${ejbs}"/>
+		</delete>
+    </target>
+	
+	<target name="deploy">
+		<copy file="${ejbs}" tofile="${jboss.deploy.dir}/${ejbs}"/>
+    </target>
+
+
+
+</project>
