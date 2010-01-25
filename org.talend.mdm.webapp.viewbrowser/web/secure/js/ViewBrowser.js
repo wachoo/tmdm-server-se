@@ -156,7 +156,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 						'<span id="criteria{id}">' +
 						'<select id="field{id}"></select>' +
 						'<select id="operator{id}"></select>' +
-						'<input id="value{id}" type="text"  onkeypress="DWRUtil.onReturn(event, amalto.viewbrowser.ViewBrowser.displayView);"/>  ' +
+						'<input id="value{id}" type="text"  value="*" onkeypress="DWRUtil.onReturn(event, amalto.viewbrowser.ViewBrowser.displayView);"/>  ' +
 						'<span onClick="amalto.viewbrowser.ViewBrowser.addCriteria(\'criteria{id}\');"><img src="img/genericUI/add-element.gif"/></span> ' +
 						'<span onClick="amalto.viewbrowser.ViewBrowser.removeCriteria(\'{id}\');"><img src="img/genericUI/remove-element.gif"/></span> ' +
 						'<br/></span>');
