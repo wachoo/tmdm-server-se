@@ -96,48 +96,44 @@ public class ViewRemotePaging  extends HttpServlet{
 			int max = Integer.parseInt(limit);
 			int skip = Integer.parseInt(start);		
 		
-			if(request.getSession().getAttribute("totalCount")==null 
-					|| !viewName.equals(request.getSession().getAttribute("viewName"))
-					|| !criteria.equals(request.getSession().getAttribute("criteria"))
-				){
-				org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-				"doPost() case : new remote items call");
-				ArrayList<WSWhereItem> conditions=new ArrayList<WSWhereItem>();
-				WSWhereItem wi;
-				String[] filters = criteria.split(",");
-				String[] filterXpaths = new String[filters.length];
-				String[] filterOperators = new String[filters.length];
-				String[] filterValues = new String[filters.length];
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+			"doPost() case : new remote items call");
+			ArrayList<WSWhereItem> conditions=new ArrayList<WSWhereItem>();
+			WSWhereItem wi;
+			String[] filters = criteria.split(",");
+			String[] filterXpaths = new String[filters.length];
+			String[] filterOperators = new String[filters.length];
+			String[] filterValues = new String[filters.length];
 
-				
-				for (int i = 0; i < filters.length; i++) {
-					System.out.println(filters[i]);
-					filterXpaths[i] = filters[i].split("#")[0];
-					filterOperators[i] = filters[i].split("#")[1];
-					filterValues[i] = filters[i].split("#")[2];
-				}
-				for(int i=0;i<filterValues.length;i++){
-					if (filterValues[i]==null || "*".equals(filterValues[i]) || "".equals(filterValues[i])) continue;
-					//if("CONTAINS".equals(filterOperators[i])) filterValues[i] = filterValues[i];
-					if("Any field".equals(filterXpaths[i])) filterXpaths[i] = "";
-					WSWhereCondition wc=new WSWhereCondition(
-							filterXpaths[i],
-							getOperator(filterOperators[i]),
-							filterValues[i],
-							WSStringPredicate.NONE,
-							false
-							);
-					//System.out.println("iterator :"+i+"field - getErrors- : " + fields[i] + " " + operator[i]);
-					//System.out.println("Xpath field - getErrors- : " + giveXpath(fields[i]) + " - values : "+ regexs[i]);
-					WSWhereItem item=new WSWhereItem(wc,null,null);
-					conditions.add(item);
-				}				
-				if(conditions.size()==0) {
-					wi=null;
-				} else {
-					WSWhereAnd and=new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
-					wi=new WSWhereItem(null,and,null);
-				}
+			
+			for (int i = 0; i < filters.length; i++) {
+				System.out.println(filters[i]);
+				filterXpaths[i] = filters[i].split("#")[0];
+				filterOperators[i] = filters[i].split("#")[1];
+				filterValues[i] = filters[i].split("#")[2];
+			}
+			for(int i=0;i<filterValues.length;i++){
+				if (filterValues[i]==null || "*".equals(filterValues[i]) || "".equals(filterValues[i])) continue;
+				//if("CONTAINS".equals(filterOperators[i])) filterValues[i] = filterValues[i];
+				if("Any field".equals(filterXpaths[i])) filterXpaths[i] = "";
+				WSWhereCondition wc=new WSWhereCondition(
+						filterXpaths[i],
+						getOperator(filterOperators[i]),
+						filterValues[i],
+						WSStringPredicate.NONE,
+						false
+						);
+				//System.out.println("iterator :"+i+"field - getErrors- : " + fields[i] + " " + operator[i]);
+				//System.out.println("Xpath field - getErrors- : " + giveXpath(fields[i]) + " - values : "+ regexs[i]);
+				WSWhereItem item=new WSWhereItem(wc,null,null);
+				conditions.add(item);
+			}				
+			if(conditions.size()==0) {
+				wi=null;
+			} else {
+				WSWhereAnd and=new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
+				wi=new WSWhereItem(null,and,null);
+			}
 //					results = Util.getPort().singleSearch(
 //			    			new WSSingleSearch(
 //		    					new WSDataClusterPK(config.getCluster()),
@@ -148,80 +144,68 @@ public class ViewRemotePaging  extends HttpServlet{
 //								Integer.MAX_VALUE //max items
 //								)
 //							).getStrings();
-					results = Util.getPort().viewSearch(
-						new WSViewSearch(
-							new WSDataClusterPK(config.getCluster()),
-							new WSViewPK(viewName),
-							wi,
-							-1,
-							0,
-							-1,
-							null,
-							null
-						)
-					).getStrings();
-					
+				results = Util.getPort().viewSearch(
+					new WSViewSearch(
+						new WSDataClusterPK(config.getCluster()),
+						new WSViewPK(viewName),
+						wi,
+						-1,
+						0,
+						-1,
+						null,
+						null
+					)
+				).getStrings();
+				
 
-				String[] results2 = new String[results.length];
-				System.arraycopy(results, 0, results2, 0, results.length);
-				request.getSession().setAttribute("resultsXML",results2);
-				
-				String[] viewables = new View(viewName).getViewablesXpath();
-				for (int i = 0; i < results.length; i++) {
-				   //yin guo fix bug 0010867. the totalCountOnfirstRow is true.
-	               if(i == 0) {
-	                  totalCount = Integer.parseInt(Util.parse(results[i]).
-	                     getDocumentElement().getTextContent());
-	                  continue;
-	               }
-	               
-	               results[i] = results[i].replaceAll("<result>","");
-	               results[i] = results[i].replaceAll("</result>","");	
-	               results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
-	               results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
-	               results[i] =openingTags.matcher(results[i]).replaceAll("");
-	               results[i] =closingTags.matcher(results[i]).replaceAll("#");	
-	               results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
-	               String[] elements = results[i].split("#");
-	               String[] fields = new String[viewables.length+1];
-	               fields[0]=""+i;
-	               
-	               for (int j = 0; j < elements.length; j++) {
-	                  fields[j+1]=elements[j];
-	               }
-	               
-	               viewBrowserContent.add(fields);
-				}				
-
-				
-				request.getSession().setAttribute("viewBrowserContent",viewBrowserContent);
-				
-				/*
-				for(int i=0;i<results.length;i++){
-					results[i] = firstTag.matcher(results[i]).replaceAll("");
-					results[i] = lastTag.matcher(results[i]).replaceAll("");
-					results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
-					results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
-					results[i] =emptyTags.matcher(results[i]).replaceAll("[$1]");
-					results[i] =openingTags.matcher(results[i]).replaceAll("$1: ");
-					results[i] =closingTags.matcher(results[i]).replaceAll(" - ");
-					//results[i] = StringEscapeUtils.unescapeXml(results[i]);
-				}	
-				request.getSession().setAttribute("results",results);*/
-				org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-						"doPost() Total result = "+totalCount);
-				request.getSession().setAttribute("totalCount",totalCount);
-				request.getSession().setAttribute("viewName",viewName);
-				request.getSession().setAttribute("criteria",criteria);
-			}
-			else{
-				results = (String[])request.getSession().getAttribute("results");
-				totalCount=(Integer)request.getSession().getAttribute("totalCount");
-				viewBrowserContent = (ArrayList<String[]>) request.getSession().getAttribute("viewBrowserContent");
-			}
+			String[] results2 = new String[results.length];
+			System.arraycopy(results, 0, results2, 0, results.length);
+			request.getSession().setAttribute("resultsXML",results2);
 			
-			
+			String[] viewables = new View(viewName).getViewablesXpath();
+			for (int i = 0; i < results.length; i++) {
+			   //yin guo fix bug 0010867. the totalCountOnfirstRow is true.
+               if(i == 0) {
+                  totalCount = Integer.parseInt(Util.parse(results[i]).
+                     getDocumentElement().getTextContent());
+                  continue;
+               }
+               
+               results[i] = results[i].replaceAll("<result>","");
+               results[i] = results[i].replaceAll("</result>","");	
+               results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
+               results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
+               results[i] =openingTags.matcher(results[i]).replaceAll("");
+               results[i] =closingTags.matcher(results[i]).replaceAll("#");	
+               results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
+               String[] elements = results[i].split("#");
+               String[] fields = new String[viewables.length+1];
+               fields[0]=""+i;
+               
+               for (int j = 0; j < elements.length; j++) {
+                  fields[j+1]=elements[j];
+               }
+               
+               viewBrowserContent.add(fields);
+			}				
 
+			
+			request.getSession().setAttribute("viewBrowserContent",viewBrowserContent);
+			
+			/*
+			for(int i=0;i<results.length;i++){
+				results[i] = firstTag.matcher(results[i]).replaceAll("");
+				results[i] = lastTag.matcher(results[i]).replaceAll("");
+				results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
+				results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
+				results[i] =emptyTags.matcher(results[i]).replaceAll("[$1]");
+				results[i] =openingTags.matcher(results[i]).replaceAll("$1: ");
+				results[i] =closingTags.matcher(results[i]).replaceAll(" - ");
+				//results[i] = StringEscapeUtils.unescapeXml(results[i]);
+			}	
+			request.getSession().setAttribute("results",results);*/
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+					"doPost() Total result = "+totalCount);
 			
 			//sort arraylist
 			int tmp = 0;
