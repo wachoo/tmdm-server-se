@@ -298,6 +298,8 @@ public  class Util {
 				{
 					return getNodeListFromXPath(subDoc, path);
 				}
+				else
+					return list;
 			}
 			list = Util.getNodeList(xsdDoc, "//xsd:include");
 			for(int i = 0; i < list.getLength(); i++)
@@ -314,6 +316,8 @@ public  class Util {
 				{
 					return getNodeListFromXPath(subDoc, path);
 				}
+				else
+					return list;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
