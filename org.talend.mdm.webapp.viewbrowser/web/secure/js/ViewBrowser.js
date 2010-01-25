@@ -177,7 +177,8 @@ amalto.viewbrowser.ViewBrowser = function () {
 	
 	function showViewsPanel() {
 			var tabPanel = amalto.core.getTabPanel();
-			if(tabPanel.getItem('viewBrowser') == undefined){
+			var viewBrowsePanel=tabPanel.getItem('viewBrowser');
+			if(viewBrowsePanel == undefined){
 			
 			var html = 
 					'<div id="fieldset" class="ylayout-inactive-content">' +
@@ -207,7 +208,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 				bodyborder: true
 			});
 				
-			var panel = new Ext.Panel({
+			viewBrowsePanel = new Ext.Panel({
 				id: 'viewBrowser',
 				title: BROWSE_VIEWS[language],
 				deferredRender: false,
@@ -236,12 +237,11 @@ amalto.viewbrowser.ViewBrowser = function () {
 					}),
 				    gridContainerPanel
 				]
-			});			
-	
+			});				
+			tabPanel.add(viewBrowsePanel); 
 			}		
-			tabPanel.add(panel); 
-			panel.show();
-			panel.doLayout();
+			viewBrowsePanel.show();
+			viewBrowsePanel.doLayout();
 			amalto.core.doLayout();
 	}
 	
