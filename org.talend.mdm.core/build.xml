@@ -24,7 +24,7 @@
 	<property name="ejbs" value="zz.20.core.jar"/>
 	<property name="lib" value="z.mdm.core.jar"/>
 	<property name="conf" value="mdm.conf"/>
-	<property name="Revision" value="36233"/>
+	<property name="svn.revision" value="36233"/>
     <!-- ================================= 
           target: all              
          ================================= -->
@@ -34,10 +34,10 @@
 	
    	<target name="version"  description="Maintain build.date property">
    		<buildnumber file="${version.props}" />
-   		<echo>Revision Number :${Revision}</echo>
+   		<echo>Revision Number :${svn.revision}</echo>
        	<propertyfile file="${version.props}">
        		<entry key="build.date" type="date" value="now" />
-       		<entry key="build.number" value="${Revision}" />
+       		<entry key="build.number" value="${svn.revision}" />
        	</propertyfile>   	
      </target>
 
