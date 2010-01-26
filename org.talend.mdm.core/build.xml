@@ -35,9 +35,13 @@
    	<target name="version"  description="Maintain build.date property">
    		<buildnumber file="${version.props}" />
    		<echo>Revision Number :${svn.revision}</echo>
+   		<loadproperties srcfile="${version.props}"></loadproperties>
        	<propertyfile file="${version.props}">
        		<entry key="build.date" type="date" value="now" />
        		<entry key="build.number" value="${svn.revision}" />
+       		<entry key="major" value="${major}" />
+       		<entry key="minor" value="${minor}" />
+       		<entry key="rev" value="${rev}" />
        	</propertyfile>   	
      </target>
 
