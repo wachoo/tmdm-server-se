@@ -1732,6 +1732,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 
 
 	public boolean existCluster(String revisionID,String clusterName) throws XmlServerException {
+		if(clusterName==null|| clusterName.trim().length()==0)return false;
 		org.xmldb.api.base.Collection col=getCollection(revisionID, clusterName, false);
 		if(col==null) return false;
 		return true;
