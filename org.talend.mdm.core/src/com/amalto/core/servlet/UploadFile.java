@@ -39,9 +39,7 @@ public class UploadFile extends HttpServlet {
     }
     String jobdeployPath="";
     public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-        //start JCA Adapters
-        jobdeployPath=config.getServletContext().getRealPath("/");
+        super.init(config);       
     }
 
     protected void doPost(
@@ -62,12 +60,18 @@ public class UploadFile extends HttpServlet {
         PrintWriter writer = resp.getWriter();
         //delete file
         String deleteFilename= req.getParameter("deletefile");
-        
+        jobdeployPath=getServletConfig().getServletContext().getRealPath("/");
+        System.out.println("context path-->" + jobdeployPath);
         //String path = jobdeployPath.substring(0,jobdeployPath.length()-1);
-        
-        String  path = new File(jobdeployPath).getParentFile().getParentFile().getParentFile().getAbsolutePath();
+        int pos=jobdeployPath.indexOf("tmp");
+        jobdeployPath=jobdeployPath.substring(0,pos-1);
+        //String  path = new File(jobdeployPath).getParentFile().getParentFile().getParentFile().getAbsolutePath();
+        String path= new File(jobdeployPath).getAbsolutePath();
         
         path = path+File.separator+"deploy"+File.separator;
+        
+        System.out.println("deploy path-->" + path);
+        
         //delete file
         if(deleteFilename!=null){
         	  File f=new File(path+File.separator+deleteFilename+".war");
