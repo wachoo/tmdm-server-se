@@ -357,63 +357,39 @@ public class QueryBuilder {
 				//where = XPathUtils.factor(wc.getRightValueOrPath(),pivots)+" = "+factorPivots; //Join error aiming added
 				where = "matches("+factorPivots+", \""+encoded+"\",\"i\") ";
 			} else	 if(operator.equals(WhereCondition.EQUALS)) {
-				if(isNum) {
+				if (isNum) {
 					where = "number("+factorPivots+") eq "+encoded;
-				} 
-				else if(wc.getRightValueOrPath().endsWith("()")) {
-					where = factorPivots + "= " + encoded.replaceAll("\\(\\)","(function)");
-				}
-				else{
+				} else  {
 					where = factorPivots+" eq \""+encoded+"\"";
 				}
 			} else if(operator.equals(WhereCondition.NOT_EQUALS)) {
 				if (isNum) {
 					where = "number("+factorPivots+") ne "+encoded;
-				}
-				else if(wc.getRightValueOrPath().endsWith("()")) {
-					where = factorPivots + " != " + encoded.replaceAll("\\(\\)","(function)");
-				}
-				else {
+				} else {
 					where = factorPivots+" ne \""+encoded+"\"";
 				}
 			} else	 if(operator.equals(WhereCondition.GREATER_THAN)) {
 				if (isNum) {
 					where = "number("+factorPivots+") gt "+encoded;
-				}
-				else if(wc.getRightValueOrPath().endsWith("()")) {
-					where = factorPivots + "> " + encoded.replaceAll("\\(\\)","(function)");
-				}
-				else {
+				} else {
 					where = factorPivots+" gt \""+encoded+"\"";
 				}
 			} else	if(operator.equals(WhereCondition.GREATER_THAN_OR_EQUAL)) {
 				if (isNum) {
 					where = "number("+factorPivots+") ge "+encoded;
-				}
-				else if(wc.getRightValueOrPath().endsWith("()")) {
-					where = factorPivots + " >= " + encoded.replaceAll("\\(\\)","(function)");
-				}
-				else {
+				} else {
 					where = factorPivots+" ge \""+encoded+"\"";
 				}
 			} else if(operator.equals(WhereCondition.LOWER_THAN)) {
 				if (isNum) {
 					where = "number("+factorPivots+") lt "+encoded;
-				} 
-				else if(wc.getRightValueOrPath().endsWith("()")) {
-					where = factorPivots + " < " + encoded.replaceAll("\\(\\)","(function)");
-				}
-				else {
+				} else {
 					where = factorPivots+" lt \""+encoded+"\"";
 				}
 			} else	if(operator.equals(WhereCondition.LOWER_THAN_OR_EQUAL)) {
 				if (isNum) {
 					where = "number("+factorPivots+") le "+encoded;
-				} 
-				else if(wc.getRightValueOrPath().endsWith("()")) {
-					where = factorPivots + " <= " + encoded.replaceAll("\\(\\)","(function)");
-				}
-				else {
+				} else {
 					where = factorPivots+" le \""+encoded+"\"";
 				}
 			} else	if(operator.equals(WhereCondition.NO_OPERATOR)) {
@@ -526,7 +502,6 @@ public class QueryBuilder {
 	    	query=query.replaceAll("\\(\\)","(1=1)");
 	    	//replace (1=1) and to ""
 	    	query=query.replaceAll("\\(1=1\\) and","");
-	    	query=query.replaceAll("(function)","");
 	    	System.out.println("query:\n");
 	    	System.out.println(query);
 	    	return query;
