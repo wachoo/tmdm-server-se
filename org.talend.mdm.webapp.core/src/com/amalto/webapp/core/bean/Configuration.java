@@ -9,6 +9,9 @@ import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSPutItem;
 
 
 public class Configuration {
@@ -103,9 +106,14 @@ public class Configuration {
 					Util.getNodeList(node, "value").item(0).getFirstChild().setNodeValue(model);				
 			}
 		}		
-		
+		if(com.amalto.core.util.Util.isEnterprise()) {
+			Util.getPort().putItem(new WSPutItem(new WSDataClusterPK("PROVISIONING"),
+					CommonDWR.getXMLStringFromDocument(d).replaceAll("<\\?xml.*?\\?>",""),
+					new WSDataModelPK("PROVISIONING"),false));
+		}else {
 		Util.storeProvisioning(Util.getLoginUserName(), 
 		   CommonDWR.getXMLStringFromDocument(d).replaceAll("<\\?xml.*?\\?>",""));
+		}
 	}
 	
 	private static Configuration load() throws Exception {
