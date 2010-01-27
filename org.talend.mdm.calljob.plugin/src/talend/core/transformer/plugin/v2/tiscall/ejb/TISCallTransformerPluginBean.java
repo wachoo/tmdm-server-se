@@ -253,6 +253,9 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 					//if piplevariablename ,get from globalcontext
 					if(kv.isPipleVariableName()){
 						 textTC=getGlobalContext().getFromPipeline(kv.getValue());
+						 
+						 if(textTC==null)throw new XtentisException("The variable '"+kv.getName()+"' was not found in the plug-in inputs. It is either not specified or it may be mispelled.");
+						 
 						 charset = Util.extractCharset(textTC.getContentType());
 						 if(textTC!=null)
 							 value = new String(textTC.getContentBytes(),charset);
