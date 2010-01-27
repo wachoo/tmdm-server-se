@@ -1030,6 +1030,8 @@ public class ItemsBrowserDWR {
 			Configuration config = Configuration.getInstance();
 			String dataModelPK = config.getModel();
 			String dataClusterPK = config.getCluster();
+			if(dataModelPK==null||dataModelPK.trim().length()==0)throw new Exception("Data Model can't be empty!");
+			if(dataClusterPK==null||dataClusterPK.trim().length()==0)throw new Exception("Data Container can't be empty!");
 			Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
 			String xml = CommonDWR.getXMLStringFromDocument(d);
 			xml = xml.replaceAll("<\\?xml.*?\\?>","");
