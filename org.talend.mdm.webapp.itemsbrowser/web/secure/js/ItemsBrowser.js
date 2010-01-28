@@ -1064,6 +1064,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		        reader: new Ext.data.JsonReader(schema),
 		        remoteSort: true
 		    });
+		
+		store.on("loadexception",function(obj, options, response, e) {
+	        alert('Exception occurred while loading item list! ');
+	    });
 		    
 		var grid = new Ext.grid.GridPanel({
 			id:'items-grid',
