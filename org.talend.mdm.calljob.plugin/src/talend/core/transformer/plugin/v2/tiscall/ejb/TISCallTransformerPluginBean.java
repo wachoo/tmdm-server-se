@@ -548,7 +548,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 					if(isPipleVariableName!=null){
 						ispiple=Boolean.valueOf(isPipleVariableName).booleanValue();
 					}
-					Pattern pipeParamPattern = Pattern.compile("\\{([^\\}]+)\\}");
+					Pattern pipeParamPattern = Pattern.compile("\\{([^\\}]*)\\}");
 					Matcher match = pipeParamPattern.matcher(paramValue);
 					if (match.matches()) {
 						paramValue = match.group(1);
