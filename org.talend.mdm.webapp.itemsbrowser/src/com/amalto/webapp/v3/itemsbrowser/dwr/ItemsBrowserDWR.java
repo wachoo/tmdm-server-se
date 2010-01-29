@@ -18,6 +18,8 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.xerces.dom.ElementNSImpl;
+import org.apache.xerces.dom.TextImpl;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 import org.jboss.dom4j.DocumentException;
@@ -77,10 +79,14 @@ import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
 import com.amalto.webapp.v3.itemsbrowser.bean.View;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
+import com.sun.xml.xsom.XSContentType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSFacet;
 import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSRestrictionSimpleType;
+import com.sun.xml.xsom.XSSimpleType;
+import com.sun.xml.xsom.XSType;
+import com.sun.xml.xsom.impl.AnnotationImpl;
 
 /**cluster
  * 
@@ -155,6 +161,7 @@ public class ItemsBrowserDWR {
 			}
 			view.setKeys(key.getFields());
 			ctx.getSession().setAttribute("foreignKeys",key.getFields());
+			view.setMetaDataTypes(getMetaDataTypes(view));
 			return view;
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -1825,346 +1832,157 @@ public class ItemsBrowserDWR {
     	return true;
 
 	}
-	
-    private void setForeignKeyValueInfoToTreeNode(String xpath, TreeNode treeNode, Document doc, String realKey) throws Exception
-    {
-		Element elem = getForeignKeyInfoFromXSD(xpath);
-		if(elem != null)
-		{
-			if(Util.getNodeList(elem, "./xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").getLength() > 0)
-			{
-				String forgKey = Util.getNodeList(elem, "./xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").item(0).getTextContent();
-				String infos = "";
-				NodeList infoList = Util.getNodeList(elem, "./xsd:annotation/xsd:appinfo[@source='X_ForeignKeyInfo']");
-				for (int infoID = 0; infoID < infoList.getLength(); infoID++)
-				{
-					infos +=infoList.item(infoID).getTextContent() + ",";
-				}
-				if(infos.endsWith(","))
-				{
-					infos = infos.substring(0, infos.length() -1);
-				}
-				String valueInfo = "";
-				String jasonInfo = getForeignKeyList(0, 100, ".*",  forgKey, infos);
-				JSONObject jason = new JSONObject(jasonInfo);
-				JSONArray rows = (JSONArray)jason.get("rows");
-				if(realKey != null)
-				{
-					for(int n = 0; n < rows.length(); n++)
-					{
-						JSONObject row = (JSONObject)rows.get(n);
-						if(realKey.equals(row.get("keys")))
-						{
-							valueInfo +=row.get("keys")+ "--" + row.get("infos");
-							break;
-						}
-
-					}
-					treeNode.setValueInfo(valueInfo);
-				}
-			}
-
-		}
-    }
     
-    private Element getForeignKeyInfoFromXSD(String xpath)
-    {
-    	Element findOne = null;
-    	try {
-    		Configuration config = Configuration.getInstance(true);
-    		String xsd = Util.getPort().getDataModel(
-            		new WSGetDataModel(new WSDataModelPK(config.getModel()))).getXsdSchema();
-    		Document doc = Util.parse(xsd);
-    		if(xpath.charAt(0) == '/')
-    			xpath = xpath.substring(1);
-    		String[] elems = xpath.split("/");
-    		if(elems.length > 0)
-    		{
-    			findOne = lookUpForeignInfos(doc.getDocumentElement(), null,  elems[0]);
-    			int current = 1;
-    			while(findOne != null && current < elems.length)
-    			{
-    				findOne = lookUpForeignInfos(doc.getDocumentElement(), findOne, elems[current]);
-    				current++;
-    			}
-    		}
-    		
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		
-    	return findOne;
-    }
-    
-    private Element lookUpForeignInfos(Element content, Element parent, String name)
-    {
-    	Element result = null;
-    	try {
-			NodeList list = Util.getNodeList(content, "./xsd:element[@name='" + name + "']");
-			if(list.getLength() == 0 || parent != null)
-			{
-				if(parent != null)
-				{
-					String typeAttr = null;
-					Node typeNode = parent.getAttributes().getNamedItem("type");
-					if(typeNode != null)
-					{
-						list = Util.getNodeList(content, "./xsd:complexType[@name='" + typeNode.getNodeValue() + "']//xsd:element[@name='" + name + "']");
-						if(list.getLength() > 0)
-						{
-							return (Element)list.item(0);
-						}
-						
-					}
-					else
-					{
-						list = Util.getNodeList(parent, "./xsd:complexType//xsd:element[@name='" + name + "']");
-						if(list.getLength() > 0)
-						{
-							return (Element)list.item(0);
-						}
-					}
-				}
-				
-				NodeList importList = null;
-				for (int nm = 0; nm < 2; nm++)
-				{
-					if (nm == 0) {
-						importList = Util.getNodeList(content, "//xsd:import");
-					} else {
-						importList = Util.getNodeList(content, "//xsd:include");
-					}
-		    		for (int i = 0; i < importList.getLength(); i++)
-		    		{
-		    			Node schemaLocation = importList.item(i).getAttributes().getNamedItem("schemaLocation");
-			        	if(schemaLocation == null) {
-			        		continue;
-			        	}
-		    			String location = schemaLocation.getNodeValue();
-		    			Document subDoc = Util.parseImportedFile(location);
-		    			result =  lookUpForeignInfos(subDoc.getDocumentElement(), null, name);
-		    			if(result != null)
-		    			{
-		    				break;
-		    			}
-		    		}
-				}
-			}
-			else if(parent == null)
-			{
-				return (Element)list.item(0);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		
-		return result;
-    }
-    
-    
-    private void parseMetaDataTypes(Document doc, String concept, HashMap<String, ArrayList<String>> metaDataTypes, String hierarchicalName) throws Exception
-    {
-    	String hierarchy = hierarchicalName != null && !hierarchicalName.equals("")? hierarchicalName + "/" : hierarchicalName;
-		NodeList nodeList = Util.getNodeList(doc, "//xsd:element[@name='" + concept + "']");
-		for(int i = 0; i < nodeList.getLength(); i++)
-		{
-			String foreignKey = null;
-			NodeList elemList = null;
-			Node node = nodeList.item(i);
-			String typeName = null;
-			if(node.getAttributes().getNamedItem("type") != null)
-			{
-				typeName = node.getAttributes().getNamedItem("type").getNodeValue();
-			}
-			if(typeName != null)
-			{
-				elemList = Util.getNodeList(doc, "//xsd:complexType[@name='" + typeName + "']//xsd:element");
-			}
-			else
-			{
-				elemList = Util.getNodeList(doc, "//xsd:element[@name='" + concept + "']/xsd:complexType//xsd:element");
-			}
-			
-
-			for(int c = 0; c < elemList.getLength() ;c++)
-			{
-				Node elem = elemList.item(c);
-				String type = "";
-				if(elem.getAttributes().getNamedItem("type") != null)
-				{
-					type = elem.getAttributes().getNamedItem("type").getNodeValue();
-				}
-				String name = "";
-				if(elem.getAttributes().getNamedItem("name") != null)
-				{
-					name = elem.getAttributes().getNamedItem("name").getNodeValue();
-				}
-				
-				if(name.equals("") && type.equals("") )
-				{
-					String ref = elem.getAttributes().getNamedItem("ref").getNodeValue();
-					Pattern refDoc = Pattern.compile("(.*?):(.*?)");
-					Matcher match = refDoc.matcher(ref);
-					if(match.matches())
-					{
-						String prefix = match.group(1);
-						String refName = match.group(2);
-						String refUrl = doc.getDocumentElement().getAttributes().getNamedItem("xmlns:" + prefix).getNodeValue();
-						NodeList importList = Util.getNodeList(doc, "./xsd:import[@namespace='" + refUrl + "']");
-						NodeList includeList = Util.getNodeList(doc, "./xsd:include");
-						if(importList.getLength() > 0)
-						{
-							Node imp = importList.item(0);
-							Node nodeLocation = imp.getAttributes().getNamedItem("schemaLocation");
-							if (nodeLocation != null) {
-								String schemaLocation = nodeLocation.getNodeValue();
-								Document impDoc = Util.parseImportedFile(schemaLocation);
-								parseMetaDataTypes(impDoc, refName, metaDataTypes, (hierarchy == null ? "" : hierarchy ) + refName);
-							}
-						}
-						else if(includeList.getLength() > 0)
-						{
-							for (int includeIdx = 0; includeIdx < includeList.getLength(); includeIdx++)
-							{
-								Node incud = includeList.item(0);
-								String schemaLocation = incud.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-								Document incudDoc = Util.parseImportedFile(schemaLocation);
-								parseMetaDataTypes(incudDoc, refName, metaDataTypes, (hierarchy == null ? "" : hierarchy ) + refName);
-							}
-						}
-					}
-				}
-				else if(!name.equals("") && type.equals(""))
-				{
-					if(Util.getNodeList(elem, ".//xsd:complexType//xsd:element").getLength() > 0)
-					{
-						ArrayList<String> contents = new ArrayList<String>();
-						contents.add("complex type");
-						metaDataTypes.put((hierarchy == null ? "" : hierarchy ) + name, contents);
-					}
-					else if(Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction").getLength() > 0)
-					{
-						Node baseNode = Util.getNodeList(elem,  ".//xsd:simpleType/xsd:restriction").item(0);
-						type = baseNode.getAttributes().getNamedItem("base").getNodeValue();
-					}
-				}
-				
-				if(Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").getLength() > 0)
-				{
-					foreignKey = Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKey']").item(0).getTextContent();
-					NodeList foreignKeyInfos = Util.getNodeList(elem, "//xsd:element[@name='" + name + "']" + "/xsd:annotation/xsd:appinfo[@source='X_ForeignKeyInfo']");
-					String keyInfo = "";
-					for (int x = 0; x < foreignKeyInfos.getLength(); x++)
-					{
-						keyInfo += foreignKeyInfos.item(x).getTextContent() + (x == foreignKeyInfos.getLength()-1 ? "" : ",");
-					}
-					if(foreignKey != null)
-					{
-						String jasonData = getForeignKeyList(0, 100, ".*",  foreignKey, keyInfo);
-						getForeignKeyInfo(metaDataTypes, elem.getAttributes().getNamedItem("name").getNodeValue(), jasonData);
-						continue;
-					}
-
-				}
-				
-				if(type.startsWith("xsd:"))
-				{
-					ArrayList<String> contents = new ArrayList<String>();
-					if(Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration").getLength() > 0)
-					{
-						//enumeration type
-						type = "enumeration";
-						contents.add(type);
-						NodeList enums = Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration");
-						for (int enm = 0; enm < enums.getLength(); enm++)
-						{
-							Node enumNode = enums.item(enm);
-							contents.add(enumNode.getAttributes().getNamedItem("value").getNodeValue());
-						}
-					}
-					else
-					{
-						contents.add(type);
-					}
-					metaDataTypes.put((hierarchy == null ? "" : hierarchy ) + name, contents);
-				}
-				else if(!type.equals(""))
-				{
-					ArrayList<String> typeInfo = new ArrayList<String>();
-					if(Util.findXSDSimpleTypeInDocument(doc, elem, type, typeInfo))
-					{
-						metaDataTypes.put((hierarchy == null ? "" : hierarchy )  + name, typeInfo);
-					}
-					else
-					{
-						// meet a complex type
-						typeInfo.add(0, "complex type");
-						metaDataTypes.put((hierarchy == null ? "" : hierarchy ) + name, typeInfo);
-					}
-				}
-			}
-		
-		}
-		
-		NodeList importList = null;
-		for (int nm = 0; nm < 2 && nodeList.getLength() == 0; nm++)
-		{
-			if (nm == 0) {
-				importList = Util.getNodeList(doc, "//xsd:import");
-			} else {
-				importList = Util.getNodeList(doc, "//xsd:include");
-			}
-    		for (int i = 0; i < importList.getLength(); i++)
-    		{
-    			Node schemaLocation = importList.item(i).getAttributes().getNamedItem("schemaLocation");
-    			if (schemaLocation == null) {
-    				continue;
-    			}
-    			String location = schemaLocation.getNodeValue();
-    			Document subDoc = Util.parseImportedFile(location);
-    			parseMetaDataTypes(subDoc, concept, metaDataTypes, hierarchy);
-    		}
-		}
-    }
-    
-	public Map<String, ArrayList<String>> getMetaDataTypes(String viewPK) throws Exception
+	private Map<String, ArrayList<String>> getMetaDataTypes(View view) throws Exception
 	{
 		HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
-		String concept = viewPK;
+		Configuration config = Configuration.getInstance(true);
+		Map<String,XSElementDecl> xsdMap = CommonDWR.getConceptMap(config.getModel());
+		
+		String concept = view.getViewPK();
 		if(concept.contains("Browse_items_"))
-			 concept = CommonDWR.getConceptFromBrowseItemView(viewPK);
-	    Map<String, List<String>> map = new HashMap<String, List<String>>();
-		Configuration config = Configuration.getInstance();
-		String xsd = Util.getPort().getDataModel(
-        		new WSGetDataModel(new WSDataModelPK(config.getModel()))).getXsdSchema();
-		Document doc = Util.parse(xsd);
-		NodeList nodeList = Util.getNodeList(doc, "//xsd:element[@name='" + concept + "']");
+			 concept = CommonDWR.getConceptFromBrowseItemView(view.getViewPK());
+		
+		XSElementDecl el = (XSElementDecl)xsdMap.get(concept);
 
-		parseMetaDataTypes(doc, concept, metaDataTypes, null);
+        for (String viewItem: view.getViewables())
+        {
+    		ArrayList<String> dataTypesHolder = new ArrayList<String>();
+        	String[] pathSlices = viewItem.split("/");
+        	XSElementDecl node = parseMetaDataTypes(el, pathSlices[0], dataTypesHolder);
+        	if(pathSlices.length > 1)
+        	{
+            	for (int i = 1; i < pathSlices.length; i++)
+            	{
+            		node = parseMetaDataTypes(node, pathSlices[i], dataTypesHolder);
+            	}
+        	}
+        	metaDataTypes.put(viewItem, dataTypesHolder);
+        }
 
 		return metaDataTypes;
 	}
 	
-    private void getForeignKeyInfo(HashMap<String, ArrayList<String>> metaDataTypes, String elemName, String jasonData) throws Exception
-    {
+	
+	private XSElementDecl parseMetaDataTypes(XSElementDecl elem, String pathSlice, ArrayList<String> valuesHolder)
+	{
+		valuesHolder.clear();
+		XSContentType conType;
+		XSType type = elem.getType();
+		if(elem.getName().equals(pathSlice))
+		{
+			if(elem.getType() instanceof XSComplexType)
+			{
+				valuesHolder.add("complex type");
+			}
+			else
+			{
+				XSSimpleType simpType = (XSSimpleType)elem.getType();
+				valuesHolder.add(simpType.getName());
+			}
+			return elem;
+		}
+		if(type instanceof XSComplexType)
+		{
+			XSComplexType cmpxType = (XSComplexType)type;
+			conType = cmpxType.getContentType();
+			XSParticle[] children = conType.asParticle().getTerm().asModelGroup().getChildren();
+			for (XSParticle child : children)
+			{
+				if (child.getTerm() instanceof XSElementDecl)
+				{
+					XSElementDecl childElem = (XSElementDecl)child.getTerm();
+					if(childElem.getName().equals(pathSlice))
+					{
+						ArrayList<String> fkContents = getForeignKeyInfoForXSDElem(childElem);
+						if(fkContents != null)
+						{
+							valuesHolder.addAll(fkContents);
+							return childElem;
+						}
+						
+						if(childElem.getType() instanceof XSSimpleType)
+						{
+							XSSimpleType simpType = (XSSimpleType)childElem.getType();
+							simpType.getForeignAttributes();
+							if(simpType.getName() != null)
+							{
+								valuesHolder.add("xsd:" +simpType.getName());
+							}
+							else if(simpType.asRestriction() != null && !simpType.asRestriction().getDeclaredFacets().isEmpty())
+							{
+								valuesHolder.add("enumeration");
+								Iterator<XSFacet> facetIter = simpType.asRestriction().iterateDeclaredFacets();
+								while(facetIter.hasNext())
+								{
+									XSFacet facet = (XSFacet)facetIter.next();
+									valuesHolder.add(facet.getValue().value);
+								}	
+							}
+						}
+						else
+						{
+							XSComplexType cmpType = (XSComplexType)childElem.getType();
+							valuesHolder.add("complex type");
+						}
+						return childElem;
+					}
+				}
+			}
+		}
+		else 
+		{
+			XSSimpleType simpType = (XSSimpleType)type;
+		}
+		
+		return null;
+		
+	}
+	
+	private ArrayList<String> getForeignKeyInfoForXSDElem(XSElementDecl elemDecl)
+	{
+		if(elemDecl.getAnnotation() instanceof AnnotationImpl)
+		{
+			AnnotationImpl antnImp = (AnnotationImpl)elemDecl.getAnnotation();
 
-		ArrayList<String> contents = metaDataTypes.get(elemName);
-		if(contents == null)
-		{
-			contents = new ArrayList<String>();
-			contents.add("foreign key");
-			metaDataTypes.put(elemName, contents);
+			ElementNSImpl ensImpl = (ElementNSImpl)antnImp.getAnnotation();
+			NodeList list = ensImpl.getChildNodes();
+			for (int i = 0; i < list.getLength(); i++)
+			{
+				Node node = list.item(i);
+				if(node instanceof TextImpl)
+				{
+					TextImpl txtImpl = (TextImpl)node;
+					if (txtImpl.getNextSibling() instanceof ElementNSImpl)
+					{
+						ElementNSImpl ens = (ElementNSImpl)txtImpl.getNextSibling();
+						if(ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKey"))
+						{
+							ArrayList<String> foreignKeyContents = new ArrayList<String>();
+							foreignKeyContents.add("foreign key");
+							String foreignKeyPath = ens.getFirstChild().getNodeValue();
+							try {
+								String jasonData = getForeignKeyList(0, 100, ".*",  foreignKeyPath, "");
+								JSONObject jason = new JSONObject(jasonData);
+								JSONArray rows = (JSONArray)jason.get("rows");
+								for(int n = 0; n < rows.length(); n++)
+								{
+									JSONObject row = (JSONObject)rows.get(n);
+									foreignKeyContents.add(row.get("keys")+"");
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+							return foreignKeyContents; 
+						}
+					}
+				}
+			}
+			
 		}
-		JSONObject jason = new JSONObject(jasonData);
-		JSONArray rows = (JSONArray)jason.get("rows");
-		for(int n = 0; n < rows.length(); n++)
-		{
-			JSONObject row = (JSONObject)rows.get(n);
-			contents.add(row.get("keys")+"");
-		}
-    }
+		
+		return null;
+	}
     
 	private WSWhereOperator getOperator(String option){
 		WSWhereOperator res = null;

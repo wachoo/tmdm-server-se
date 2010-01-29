@@ -1,6 +1,7 @@
 package com.amalto.webapp.v3.itemsbrowser.bean;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class View {
 	private String descriptionLocalized;
 	private String[] viewables;
 	private Map<String,String> searchables;
-	
+	private Map<String, ArrayList<String>> metaDataTypes;
 	private String[] keys;
 
 	
@@ -106,7 +107,15 @@ public class View {
 	public void setSearchables(Map<String, String> searchables) {
 		this.searchables = searchables;
 	}
-
+    
+	public Map<String, ArrayList<String>> getMetaDataTypes(){
+		return metaDataTypes;
+	}
+	public void setMetaDataTypes(Map<String, ArrayList<String>> metaDataTypes)
+	{
+		this.metaDataTypes = metaDataTypes;
+	}
+	
 	public String[] getViewables() {
 		return viewables;
 	}

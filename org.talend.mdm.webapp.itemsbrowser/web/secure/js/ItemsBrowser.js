@@ -557,7 +557,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		amalto.core.working();
 		if(viewName!=LABEL_SELECT_DATAOBJECT[language]){	
 			ItemsBrowserInterface.getView(getViewItemsCB,viewName, language);
-			ItemsBrowserInterface.getMetaDataTypes(getItemsPredicateList, viewName);
 		}
 		else{
 			$('item-search-btn').disabled = true;
@@ -609,7 +608,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		//getElements();
 	    newCriteriaItemSet(0, 'AND');
 	    outPutCriteriaResult();
-		updateOperatorList(1)
+//		updateOperatorList(1)
+		
+	    itemsPredicates = result.metaDataTypes;
+		updateOperatorList(1);
+		currentPredicate = [];
+		
 		amalto.core.ready();
 	}
 	
@@ -737,12 +741,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		outPutCriteriaResult();
 	}
 	
-	function getItemsPredicateList(result)
-	{
-		itemsPredicates = result;
-		updateOperatorList(1);
-		currentPredicate = [];
-	}
 	
 	function updateCurrentPredicate(id)
 	{
@@ -785,7 +783,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			 	return;
 			 }
 		}else{
-			search = search.substring(delimeter + 1);
+//			search = search.substring(delimeter + 1);
 		}
 		
         if(itemsPredicates[search] == null) return;
