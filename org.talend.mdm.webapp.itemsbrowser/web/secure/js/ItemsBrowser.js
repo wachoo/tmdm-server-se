@@ -575,7 +575,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		$('labelItemsCriteria').style.display = "block";
 		DWRUtil.setValue('itemsCriterias','<span id="itemsCriteria1"><select id="itemsSearchField1" onChange="amalto.itemsbrowser.ItemsBrowser.updateOperatorList(\'1\');amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<select id="itemsSearchOperator1" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
-						'<input id="itemsSearchValue1" type="text" value="*"  style="display:none;" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/> ' +
+						'<input id="itemsSearchValue1" type="text" value="*" onkeyup="amalto.itemsbrowser.ItemsBrowser.checkInputSearchValue(this.id,this.value)" style="display:none;" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/> ' +
 						'<span id="itemSearchCalendar1" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue1\' , \'-1\', \'date\')"><img src="img/genericUI/date-picker.gif"/></span>' +
 						'<input id="itemSearchCriteriaForAnd1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'AND\');"> AND '+
 						'<input id="itemSearchCriteriaForOR1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'OR\');"> OR '+
@@ -613,7 +613,18 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		amalto.core.ready();
 	}
 	
-	
+	function checkInputSearchValue(id,value){
+	   var actualId=id.substring(id.length-1);
+	   var operatorName=$('itemsSearchOperator' + actualId).value;
+	   if(operatorName=='FULLTEXTSEARCH'){
+    	   	var result=value.match('^(\\*|\\?).+');
+            if(result!=null){
+              Ext.Msg.alert("Warning","'*' or '?' not allowed as first character in WildcardQuery");
+              return;
+            }
+	   }
+    }
+    
 	function getElements(){
 		var viewName = DWRUtil.getValue('viewItemsSelect');
 		ItemsBrowserInterface.getSearchables(viewName,language,function(result) {
@@ -630,7 +641,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						'<span id="itemsCriteria{id}">' +
 						'<select id="itemsSearchField{id}" onChange="amalto.itemsbrowser.ItemsBrowser.updateOperatorList(\'{id}\');amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<select id="itemsSearchOperator{id}" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
-						'<input id="itemsSearchValue{id}" type="text"  onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/>  ' +
+						'<input id="itemsSearchValue{id}" type="text" onkeyup="amalto.itemsbrowser.ItemsBrowser.checkInputSearchValue(this.id,this.value)" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/>  ' +
 						'<span id="itemSearchCalendar{id}" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue{id}\' , \'-1\', \'date\')"><img src="img/genericUI/date-picker.gif"/></span>' +
 						'<input id="itemSearchCriteriaForAnd{id}" type="radio" name="itemSearchCriteria{id}" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria{id}\', \'{id}\', \'AND\');"> AND '+
 						'<input id="itemSearchCriteriaForOR{id}" type="radio" name="itemSearchCriteria{id}" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria{id}\', \'{id}\', \'OR\');"> OR '+
@@ -2908,6 +2919,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		editItemDetails:function(itemPK,dataObject,refreshCB){displayItemDetails4Reference(itemPK,dataObject,refreshCB);},
 		filterForeignKey:function(string0, string1, id){filterForeignKey(string0, string1, id);},
 		getSiblingsLength:function(node){getSiblingsLength(node);},
-		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);}
+		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);},
+		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);}
  	}
 }();
