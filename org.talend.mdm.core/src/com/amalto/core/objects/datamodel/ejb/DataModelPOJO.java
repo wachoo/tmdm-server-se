@@ -3,6 +3,7 @@ package com.amalto.core.objects.datamodel.ejb;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.schema.manage.SchemaManager;
+import com.amalto.core.util.SchemaUtil;
 import com.amalto.core.util.XtentisException;
 
 
@@ -68,7 +69,7 @@ public class DataModelPOJO extends ObjectPOJO{
 	 * @return the xsd Schema
 	 */
 	public String getSchema() {
-		return schema;
+		return SchemaUtil.formatXsdSource(schema);
 	}
 	
 	public void setSchema(String schema) {
