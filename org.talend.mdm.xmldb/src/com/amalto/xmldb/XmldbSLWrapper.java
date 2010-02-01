@@ -1081,7 +1081,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         	
         	//where
         	if(pivotPaths.length>0){
-        		xqWhere.append("where (1=1) "); // ctoum 20100110
+        		xqWhere.append("where (1=1)"); // ctoum 20100110
         		if(pivotPaths.length>1){
             		for (int k = 0; k < pivotPaths.length-1 ; k++) {
             			String[] k1keys=pivotWithKeys.get(pivotPaths[k+1]);
@@ -1169,10 +1169,10 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         			+"\n return subsequence($list,"+(start+1)+","+limit+")";
         	}
         	
-	    	//replace () to (1=1)
-	    	query=query.replaceAll("\\(\\)","(1=1)");
-	    	//replace (1=1) and to ""
-	    	query=query.replaceAll("\\(1=1\\) and","");        	
+         //replace (1=1) and to ""
+         query=query.replaceAll("\\(1=1\\) and","");       
+	    	//replace () and to ""
+	    	query=query.replaceAll("\\(\\) and","");        	
     		return query;
     		    	
     	} catch (Exception e) {
@@ -1369,6 +1369,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 
 			//numeric detection
 			boolean isNum = false;
+			boolean isXpathFunction = QueryBuilder.isValidatedFunction(wc.getRightValueOrPath());
 			//handle case of String starting with a zero e.g. 00441065 or ending with . e.g. 12345.
 			if (!(
 					wc.getRightValueOrPath().matches(".*\\D")
@@ -1384,7 +1385,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			}
 			
 			//String encoded = wc.getRightValueOrPath().replaceAll("\\&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-			String encoded = StringEscapeUtils.escapeXml(wc.getRightValueOrPath());
+			String encoded = isXpathFunction ? wc.getRightValueOrPath().trim() : StringEscapeUtils.escapeXml(wc.getRightValueOrPath());
 			//aiming modify convert "" & " " to *
 			if(encoded!=null && encoded.trim().length()==0){
 				encoded="*";
@@ -1405,7 +1406,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 						where =
 							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";//factorPivots+" &= \""+encoded+"\" ";
 					} else {
-						where =QueryBuilder.buildContains(factorPivots, encoded);
+						where =QueryBuilder.buildContains(factorPivots, encoded, isXpathFunction);
 //							"("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+						
 //							"or ("+factorPivots+"/descendant-or-self::*/attribute() &= \""+encoded+"\") ";
 					}
@@ -1414,7 +1415,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 						where =
 							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";//factorPivots+" &= \""+encoded+"\" ";
 					} else {
-						where =QueryBuilder.buildContains(factorPivots, encoded);
+						where =QueryBuilder.buildContains(factorPivots, encoded, isXpathFunction);
 //							"("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+
 //							"or ("+factorPivots+"/descendant-or-self::*/attribute() &= \""+encoded+"\") ";
 					}
@@ -1428,20 +1429,28 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 						where =
 							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";
 					} else {
-						where =
-							" matches("+factorPivots+" , \""+encoded+"\",\"i\") ";
-							//"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") ";
+					   if(isXpathFunction) {
+					      where = " matches(" + factorPivots + " , " + encoded + ",\"i\") ";
+					   }
+					   else {
+					      where =
+					         " matches("+factorPivots+" , \""+encoded+"\",\"i\") ";
+					         //"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") ";
+					   }
 					}
 				} else	if (predicate.equals(WhereCondition.PRE_NOT)) {
 					if (isAttribute) {
 						where =
 							"not matches("+factorPivots+" , \""+encoded+"\",\"i\") ";
 					} else {
-						where =
-							"not("+
-								" matches("+factorPivots+" , \""+encoded+"\",\"i\") "+
+					   if(isXpathFunction) {
+					      where = "not(" + " matches(" + factorPivots + " , " + encoded + ",\"i\") "+")";
+                  }
+					   else {
+					      where = "not("+ " matches("+factorPivots+" , \""+encoded+"\",\"i\") "+
 								//"or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") "+
-							")";
+								")";
+					   }
 					}
 				}
 				/* WAITING FOR FIX FROM EXIST
@@ -1463,17 +1472,26 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				//where = "near("+factorPivots+", \""+encoded+"\",1)"; 
 				where = "matches("+factorPivots+", \""+encoded+"\",\"i\") ";
 			} else if(operator.equals(WhereCondition.STARTSWITH)) { 
-				//where = "near("+factorPivots+", \""+encoded+"*\",1)";
-				where = "matches("+factorPivots+", \""+encoded+".*\",\"i\") ";
+			   if(isXpathFunction) {
+               where = "matches("+factorPivots+", "+ "concat(" + encoded+",\".*\") ,\"i\") ";
+            }
+            else {
+               //where = "near("+factorPivots+", \""+encoded+"*\",1)";
+               where = "matches("+factorPivots+", \""+encoded+".*\",\"i\") ";
+            }
 			} else if(operator.equals(WhereCondition.JOINS)) { 
 				//where = getPathFromPivots(wc.getRightValueOrPath(),pivots)+" = "+factorPivots; //JOIN error
 				where = "matches("+factorPivots+", \""+encoded+"\",\"i\") ";
-			} else	 if(operator.equals(WhereCondition.EQUALS)) {
+			} else if(operator.equals(WhereCondition.EQUALS)) {
 				String useOpe="eq";
 				if(!useValueComparisons)useOpe=WhereCondition.EQUALS;
 				if (isNum) {
 					where = "number("+factorPivots+") "+useOpe+" "+encoded;
-				} else  {
+				} 
+				else if(isXpathFunction) {
+				   where = factorPivots + " " + useOpe + " " + encoded;
+				}
+				else  {
 					where = factorPivots+" "+useOpe+" \""+encoded+"\"";
 				}
 			} else if(operator.equals(WhereCondition.NOT_EQUALS)) {
@@ -1481,7 +1499,11 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				if(!useValueComparisons)useOpe=WhereCondition.NOT_EQUALS;
 				if (isNum) {
 					where = "number("+factorPivots+") "+useOpe+" "+encoded;
-				} else {
+				} 
+				else if(isXpathFunction) {
+               where = factorPivots + " " + useOpe + " " + encoded;
+            }
+				else {
 					where = factorPivots+" "+useOpe+" \""+encoded+"\"";
 				}
 			} else	 if(operator.equals(WhereCondition.GREATER_THAN)) {
@@ -1489,7 +1511,11 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				if(!useValueComparisons)useOpe=WhereCondition.GREATER_THAN;
 				if (isNum) {
 					where = "number("+factorPivots+") "+useOpe+" "+encoded;
-				} else {
+				} 
+				else if(isXpathFunction) {
+               where = factorPivots + " " + useOpe + " " + encoded;
+            }
+				else {
 					where = factorPivots+" "+useOpe+" \""+encoded+"\"";
 				}
 			} else	if(operator.equals(WhereCondition.GREATER_THAN_OR_EQUAL)) {
@@ -1497,7 +1523,11 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				if(!useValueComparisons)useOpe=WhereCondition.GREATER_THAN_OR_EQUAL;
 				if (isNum) {
 					where = "number("+factorPivots+") "+useOpe+" "+encoded;
-				} else {
+				} 
+				else if(isXpathFunction) {
+               where = factorPivots + " " + useOpe + " " + encoded;
+            }
+				else {
 					where = factorPivots+" "+useOpe+" \""+encoded+"\"";
 				}
 			} else if(operator.equals(WhereCondition.LOWER_THAN)) {
@@ -1505,7 +1535,11 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				if(!useValueComparisons)useOpe=WhereCondition.LOWER_THAN;
 				if (isNum) {
 					where = "number("+factorPivots+") "+useOpe+" "+encoded;
-				} else {
+				} 
+				else if(isXpathFunction) {
+               where = factorPivots + " " + useOpe + " " + encoded;
+            }
+				else {
 					where = factorPivots+" "+useOpe+" \""+encoded+"\"";
 				}
 			} else	if(operator.equals(WhereCondition.LOWER_THAN_OR_EQUAL)) {
@@ -1513,7 +1547,11 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				if(!useValueComparisons)useOpe=WhereCondition.LOWER_THAN_OR_EQUAL;
 				if (isNum) {
 					where = "number("+factorPivots+") "+useOpe+" "+encoded;
-				} else {
+				} 
+				else if(isXpathFunction) {
+               where = factorPivots + " " + useOpe + " " + encoded;
+            }
+				else {
 					where = factorPivots+" "+useOpe+" \""+encoded+"\"";
 				}
 			} else	if(operator.equals(WhereCondition.NO_OPERATOR)) {
