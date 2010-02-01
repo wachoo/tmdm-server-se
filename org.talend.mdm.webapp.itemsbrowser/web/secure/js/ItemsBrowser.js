@@ -465,12 +465,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var _criterias = new Array();
 	var _searchCriteriaResult = "";
 	var _exception = true;
+	var lineMax = 20;
 	
 	function browseItems(){
 		showItemsPanel();
 		//populate list
+        
 		amalto.core.working('');
 		ItemsBrowserInterface.getViewsList(getViewsItemsListCB,language);
+		//displayItems();
 	}
 	
 	function showItemsPanel() {	
@@ -613,7 +616,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    itemsPredicates = result.metaDataTypes;
 		updateOperatorList(1);
 		currentPredicate = [];
-		
+		displayItems();
 		amalto.core.ready();
 	}
 	
@@ -993,7 +996,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var columnsHeader = [];
 			ItemsBrowserInterface.getViewables(viewName, language, function(result){		
 				columnsHeader = result;
-				displayItems2(columnsHeader,20);
+				displayItems2(columnsHeader,lineMax);
 				
 				//delete/logicaldelete should be the same as new buttton
 				$('btn-logicaldelete').disabled=$('item-new-btn').disabled;
@@ -1231,7 +1234,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     					listeners: {
 		                	'specialkey': function(a, e) {
 					            if(e.getKey() == e.ENTER) {
-			                		var lineMax = DWRUtil.getValue('itemslineMaxItems');
+			                		lineMax = DWRUtil.getValue('itemslineMaxItems');
 									if(lineMax==null || lineMax=="") 
 										lineMax=20;
 									displayItems2(columnsHeader,lineMax);
