@@ -162,8 +162,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					GREATER_THAN:"est supérieur à",
 					GREATER_THAN_OR_EQUAL:"est supérieur ou égal à",
 					LOWER_THAN:"est inférieur à",
-					LOWER_THAN_OR_EQUAL:"est inférieur ou égal à",
-					STRICTCONTAINS:"contient la phrase"
+					LOWER_THAN_OR_EQUAL:"est inférieur ou égal à"
 		         },
 			'en':{
 					EQUALS:"is equal to",
@@ -171,8 +170,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					GREATER_THAN:"is greater than",
 					GREATER_THAN_OR_EQUAL:"is greater or equals",
 					LOWER_THAN:"is lower than",
-					LOWER_THAN_OR_EQUAL:"is lower or equals",
-					STRICTCONTAINS:"contains the sentence"
+					LOWER_THAN_OR_EQUAL:"is lower or equals"
 				  }	
 	};
 	
@@ -578,6 +576,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		DWRUtil.setValue('itemsCriterias','<span id="itemsCriteria1"><select id="itemsSearchField1" onChange="amalto.itemsbrowser.ItemsBrowser.updateOperatorList(\'1\');amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<select id="itemsSearchOperator1" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<input id="itemsSearchValue1" type="text" value="*" onkeyup="amalto.itemsbrowser.ItemsBrowser.checkInputSearchValue(this.id,this.value)" style="display:none;" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/> ' +
+						'<select id="itemsForeignKeyValues1" style="display:none" onChange=""></select>' +
 						'<span id="itemSearchCalendar1" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue1\' , \'-1\', \'date\')"><img src="img/genericUI/date-picker.gif"/></span>' +
 						'<input id="itemSearchCriteriaForAnd1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'AND\');"> AND '+
 						'<input id="itemSearchCriteriaForOR1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'OR\');"> OR '+
@@ -649,6 +648,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						'<select id="itemsSearchField{id}" onChange="amalto.itemsbrowser.ItemsBrowser.updateOperatorList(\'{id}\');amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<select id="itemsSearchOperator{id}" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<input id="itemsSearchValue{id}" type="text" onkeyup="amalto.itemsbrowser.ItemsBrowser.checkInputSearchValue(this.id,this.value)" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/>  ' +
+						'<select id="itemsForeignKeyValues{id}" style="display:none" onChange=""></select>' +
 						'<span id="itemSearchCalendar{id}" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue{id}\' , \'-1\', \'date\')"><img src="img/genericUI/date-picker.gif"/></span>' +
 						'<input id="itemSearchCriteriaForAnd{id}" type="radio" name="itemSearchCriteria{id}" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria{id}\', \'{id}\', \'AND\');"> AND '+
 						'<input id="itemSearchCriteriaForOR{id}" type="radio" name="itemSearchCriteria{id}" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria{id}\', \'{id}\', \'OR\');"> OR '+
@@ -749,11 +749,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	{
 		currentPredicate[id] = "";
 		var search = $('itemsSearchField' + id).value;
-		var delimeter = search.indexOf("/");
-		if(delimeter != -1)
-		{
-			search = search.substring(delimeter + 1);
-		}
+//		var delimeter = search.indexOf("/");
+//		if(delimeter != -1)
+//		{
+//			search = search.substring(delimeter + 1);
+//		}
 		if(itemsPredicates[search] == null)return;
 		var predicateValues =  itemsPredicates[search][0];
 		if(predicateValues == 'xsd:boolean')
@@ -792,8 +792,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         if(itemsPredicates[search] == null) return;
 		var predicateValues =  itemsPredicates[search][0];
 		var itemsSearchValuex = "itemsSearchValue" + id;
+		var itemsForeignKeyValues = "itemsForeignKeyValues" +id;
 		DWRUtil.removeAllOptions('itemsSearchOperator' + id);
 		$('itemSearchCalendar' + id).style.display = 'none';
+		$('itemsForeignKeyValues' + id).style.display = 'none';
 		currentPredicate[id] = "";
 		
 		if(predicateValues == 'xsd:string' || predicateValues == 'xsd:normalizedString' || predicateValues == 'xsd:token')
@@ -847,10 +849,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var prefix = EQUAL_OPERS[language];
 			for(var i = 1; i < foreignValues.length; i++)
 			{
-				foreignPredicates[i -1] = prefix + " " + foreignValues[i];
+				foreignPredicates[i -1] = foreignValues[i]; //prefix + " " + foreignValues[i];
 			}
-			DWRUtil.addOptions('itemsSearchOperator' + id ,foreignPredicates);
+			DWRUtil.addOptions('itemsSearchOperator' + id ,OPERATORS[language]);
 			$(itemsSearchValuex).style.display = "none";
+			$(itemsForeignKeyValues).style.display='inline';
+			DWRUtil.addOptions(itemsForeignKeyValues, foreignPredicates);
+
 			currentPredicate[id] = 'foreign key';
 		}
 		else if(predicateValues == 'enumeration')
@@ -860,7 +865,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var prefix = EQUAL_OPERS[language];
 			for(var i = 1; i < enumValues.length; i++)
 			{
-				enumPredicates[i -1] = prefix + " " + enumValues[i];
+				enumPredicates[i -1] = enumValues[i]; //prefix + " " + enumValues[i];
 			}
 			DWRUtil.addOptions('itemsSearchOperator' + id ,enumPredicates);
 			$(itemsSearchValuex).style.display = "none";
@@ -891,7 +896,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var actulID = idx+1;
 			var criteria = DWRUtil.getValue('itemsSearchField' + actulID) + ' '
 					+ convertSearchValueInEnglish(actulID) + ' ';
-			var searchValue = $('itemsSearchValue' + actulID).style.display == "inline" ?  DWRUtil.getValue('itemsSearchValue' + actulID) : "";
+			var searchValue = "";
+			if($('itemsSearchValue' + actulID).style.display == "inline")
+			{
+				searchValue = DWRUtil.getValue('itemsSearchValue' + actulID);
+			}
+			else if($('itemsForeignKeyValues' + actulID).style.display == "inline")
+			{
+				searchValue = DWRUtil.getValue('itemsForeignKeyValues' + actulID);
+			}
 			_criterias[idx][0] = criteria + searchValue;
 		}
 		
@@ -960,7 +973,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		{
 			searchValue = BOOLEAN_MAP[operValue];
 		}
-		else if((currentPredicate[id] == 'foreign key') || (currentPredicate[id] == 'enumeration'))
+		else if(currentPredicate[id] == 'foreign key')
 		{
 			var cpyOper = operValue;
 			var equalInFr = 'est égal à';
@@ -977,6 +990,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             }
 
 			
+		}
+		else if(currentPredicate[id] == 'enumeration')
+		{
+			searchValue = "equals " + operValue;
 		}
 		else
 		{

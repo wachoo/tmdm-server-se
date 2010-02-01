@@ -1907,7 +1907,16 @@ public class ItemsBrowserDWR {
 							simpType.getForeignAttributes();
 							if(simpType.getName() != null)
 							{
-								valuesHolder.add("xsd:" +simpType.getName());
+								WebContext ctx = WebContextFactory.get();
+								String basicName = simpType.getBaseType().getName();
+								String simpTypeName = simpType.getName();
+								if(simpType.getTargetNamespace().equals("http://www.w3.org/2001/XMLSchema"))
+								{
+									simpTypeName = "xsd:" + simpTypeName;
+								}
+								else
+									simpTypeName = "xsd:" + basicName;
+								valuesHolder.add(simpTypeName);
 							}
 							else if(simpType.asRestriction() != null && !simpType.asRestriction().getDeclaredFacets().isEmpty())
 							{
