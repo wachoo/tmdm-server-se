@@ -57,11 +57,13 @@ public class ItemsRemotePaging  extends HttpServlet{
 		// TODO Auto-generated constructor stub
 	}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doPost(request, response);
 	}
 	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		org.apache.log4j.Logger.getLogger(this.getClass()).trace("Remote paging for items");
 		
 		request.setCharacterEncoding("UTF-8");		
@@ -243,11 +245,8 @@ public class ItemsRemotePaging  extends HttpServlet{
 			ArrayList<WSWhereItem> condition=new ArrayList<WSWhereItem>(); 
 			String[] subCriterias = cria.split("[\\s]+AND[\\s]+");
 			for (String subCria : subCriterias) {
-				if (subCria.startsWith("(")) {
-					subCria = subCria.substring(1);
-				}
-				if (subCria.endsWith(")")) {
-					subCria = subCria.substring(0, subCria.length() - 1);
+				if (subCria.startsWith("(") && subCria.endsWith(")")) {
+					subCria = subCria.substring(1, subCria.length() - 1);
 				}
 
 				WSWhereItem whereItem = buildWhereItem(subCria);
