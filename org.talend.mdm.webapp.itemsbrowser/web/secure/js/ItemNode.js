@@ -175,7 +175,22 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						'<select onchange="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');" id="'+itemData.nodeId+'Value">' +
 						options+
 						'</select>';
-				}
+			}else if(itemData.readOnly==true && itemData.enumeration.length>0){
+                    var options = '<option value=""></option>';
+                    var initIndex=0;
+                    for(var k=0; k<itemData.enumeration.length; k++) {
+                        if(itemData.enumeration[k]==itemData.value){
+                          var selected = "selected";
+                          initIndex=k+1;
+                        }
+                        else var selected = "";
+                        options +='<option value="'+itemData.enumeration[k]+'" '+selected+'>'+itemData.enumeration[k]+'</option>';
+                    }
+                    var input = ' ' +
+                        '<select onchange="selectedIndex='+initIndex+'" id="'+itemData.nodeId+'Value" style="background-color:#F4F4F4;border:#787878 1px solid;">' +
+                        options+
+                        '</select>';
+			}
 			//input text
 			else if(typeStatus) {					
 					var input=' ' +
