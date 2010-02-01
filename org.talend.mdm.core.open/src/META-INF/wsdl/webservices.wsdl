@@ -321,6 +321,13 @@
 		<part name="wsItemPKsByCriteriaResponse" element="tns:WSItemPKsByCriteriaResponse"/>
 	</message>
 	
+	<message name="getItemPKsByFullCriteriaRequest">
+        <part name="wsGetItemPKsByFullCriteria" element="tns:WSGetItemPKsByFullCriteria"/>
+    </message>
+    <message name="getItemPKsByFullCriteriaResponse">
+        <part name="wsItemPKsByFullCriteriaResponse" element="tns:WSItemPKsByCriteriaResponse"/>
+    </message>
+	
 	<message name="viewSearchRequest">
 		<part name="wsViewSearch" element="tns:WSViewSearch"/>
 	</message>
@@ -1049,7 +1056,11 @@
 		<operation name="getItemPKsByCriteria">
 			<input message="tns:getItemPKsByCriteriaRequest"/>
 			<output message="tns:getItemPKsByCriteriaResponse"/>
-		</operation>				
+		</operation>
+		<operation name="getItemPKsByFullCriteria">
+            <input message="tns:getItemPKsByFullCriteriaRequest"/>
+            <output message="tns:getItemPKsByFullCriteriaResponse"/>
+        </operation>				
 		<operation name="viewSearch">
 			<input message="tns:viewSearchRequest"/>
 			<output message="tns:viewSearchResponse"/>
@@ -1637,6 +1648,11 @@
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
 		</operation>
+		<operation name="getItemPKsByFullCriteria">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
 		<operation name="viewSearch">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>

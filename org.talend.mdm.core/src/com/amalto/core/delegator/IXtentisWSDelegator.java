@@ -1246,6 +1246,24 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 */	
 	public WSItemPKsByCriteriaResponse getItemPKsByCriteria(WSGetItemPKsByCriteria wsGetItemPKsByCriteria) throws RemoteException {
 		
+		return doGetItemPKsByCriteria(wsGetItemPKsByCriteria,false);
+	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+    public WSItemPKsByCriteriaResponse getItemPKsByFullCriteria(WSGetItemPKsByFullCriteria wsGetItemPKsByFullCriteria) throws RemoteException {
+		
+		return doGetItemPKsByCriteria(wsGetItemPKsByFullCriteria.getWsGetItemPKsByCriteria(),wsGetItemPKsByFullCriteria.isUseFTSearch());
+	}
+
+
+	private WSItemPKsByCriteriaResponse doGetItemPKsByCriteria(
+			WSGetItemPKsByCriteria wsGetItemPKsByCriteria,boolean useFTSearch)
+			throws RemoteException {
 		//With Universe, this method must be reviewed since various concepts
 		//may be store in various revisions
 		
@@ -1290,8 +1308,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[matches(./i , '"+wsGetItemPKsByCriteria.getKeysKeywords()+"')]")+
-					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[matches(./n , '"+wsGetItemPKsByCriteria.getConceptName()+"')]")+
-					" return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>";
+					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[matches(./n , '"+wsGetItemPKsByCriteria.getConceptName()+"')]");
+	 		
+	 		if(useFTSearch)query+=" where ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")";
+	 		       
+	 		query+=" return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>";
 			
 			DataClusterPOJOPK dcpk =	new DataClusterPOJOPK(dataClusterName);
 			Collection<String> results = 

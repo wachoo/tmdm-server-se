@@ -632,6 +632,16 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	public WSItemPKsByCriteriaResponse getItemPKsByCriteria(WSGetItemPKsByCriteria wsGetItemPKsByCriteria) throws RemoteException {
 		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().getItemPKsByCriteria(wsGetItemPKsByCriteria);
 	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */	
+	public WSItemPKsByCriteriaResponse getItemPKsByFullCriteria(WSGetItemPKsByFullCriteria wsGetItemPKsByFullCriteria) throws RemoteException {
+		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().getItemPKsByFullCriteria(wsGetItemPKsByFullCriteria);
+	}
 
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
