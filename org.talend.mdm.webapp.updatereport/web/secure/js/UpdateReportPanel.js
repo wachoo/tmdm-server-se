@@ -163,7 +163,18 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 									Ext.getCmp("updateReportPagingToolbar").pageSize=parseInt(lineMax);
 									Ext.getCmp("updateReportGridPanel").store.reload({params:{start:0, limit:lineMax}});
 					            } 
-							}
+							},
+							'change':function(field,newValue,oldValue){
+                                
+                                if(newValue != oldValue){
+                                    lineMax = newValue;
+                                    if(lineMax==null || lineMax=="") 
+                                        lineMax=20;
+                                    Ext.getCmp("updateReportPagingToolbar").pageSize=parseInt(lineMax);
+                                    Ext.getCmp("updateReportGridPanel").store.reload({params:{start:0, limit:lineMax}});
+                                }
+                            
+                            }
 		                }
 		            })
 		        ]

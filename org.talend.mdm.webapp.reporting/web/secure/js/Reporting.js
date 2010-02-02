@@ -222,6 +222,7 @@ amalto.reporting.Reporting = function () {
 	var fields  = new Array();
 	var EDIT = false;
 	var DUPLICATE = false;
+	var lineMax = 50;
 	/********************************************************************
 	 * Action show reporting
 	 ********************************************************************/
@@ -444,7 +445,7 @@ amalto.reporting.Reporting = function () {
 	function getReportingContent(){
 		var reportingName = DWRUtil.getValue('reportingSelect');
 		if(reportingName!=LABEL_SELECT[language]){	    
-			displayReportingGrid(reportingName,50);
+			displayReportingGrid(reportingName,lineMax);
 		}
 	}
 	
@@ -527,12 +528,22 @@ amalto.reporting.Reporting = function () {
 						listeners: {
 				                	'specialkey': function(a, e) {
 							            if(e.getKey() == e.ENTER) {
-					                		var lineMax = DWRUtil.getValue('lineMaxReporting');
+					                		lineMax = DWRUtil.getValue('lineMaxReporting');
 											if(lineMax==null || lineMax=="") 
 												lineMax=50;
 											displayReportingGrid(reportingName, lineMax);
 							            } 
-									}
+									},
+								'change':function(field,newValue,oldValue){
+                                
+                                if(newValue != oldValue){
+                                    lineMax = newValue;
+                                    if(lineMax==null || lineMax=="") 
+                                        lineMax=20;
+                                    displayReportingGrid(reportingName, lineMax);
+                                }
+                            
+                            }
 				                }
 		        })/*,
 		        	new Ext.Toolbar.Spacer(),

@@ -88,6 +88,8 @@ amalto.viewbrowser.ViewBrowser = function () {
 	
 	var gridContainerPanel;
 	
+	var pageSize = 20;
+	
 	function browseViews(){
 		showViewsPanel();
 		//populate list
@@ -359,11 +361,21 @@ amalto.viewbrowser.ViewBrowser = function () {
 						listeners: {
 					                	'specialkey': function(a, e) {
 								            if(e.getKey() == e.ENTER) {
-						                		var pageSize = DWRUtil.getValue('lineMaxView');
+						                		pageSize = DWRUtil.getValue('lineMaxView');
 												if(pageSize==null || pageSize=="") 
 													pageSize=20;
 												displayView(pageSize);
 								            } 
+										},
+										'change':function(field,newValue,oldValue){
+											
+											if(newValue != oldValue){
+												var pageSize = newValue;
+											    if(pageSize==null || pageSize=="") 
+											    	pageSize=20;
+											    displayView(pageSize);
+											}
+										
 										}
 					                }
 		        })/*,

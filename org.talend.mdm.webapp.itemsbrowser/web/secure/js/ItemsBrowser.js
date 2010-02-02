@@ -1258,6 +1258,16 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 										lineMax=20;
 									displayItems2(columnsHeader,lineMax);
 					            } 
+							},
+							'change':function(field,newValue,oldValue){
+								
+								if(newValue != oldValue){
+								    lineMax = newValue;
+								    if(lineMax==null || lineMax=="") 
+                                        lineMax=20;
+								    displayItems2(columnsHeader,lineMax);
+								}
+							
 							}
 		                }
 		            })
