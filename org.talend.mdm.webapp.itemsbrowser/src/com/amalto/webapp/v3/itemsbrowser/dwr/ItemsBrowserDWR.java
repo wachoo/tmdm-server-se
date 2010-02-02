@@ -87,6 +87,7 @@ import com.sun.xml.xsom.XSRestrictionSimpleType;
 import com.sun.xml.xsom.XSSimpleType;
 import com.sun.xml.xsom.XSType;
 import com.sun.xml.xsom.impl.AnnotationImpl;
+import com.sun.xml.xsom.impl.FacetImpl;
 
 /**cluster
  * 
@@ -1904,8 +1905,16 @@ public class ItemsBrowserDWR {
 						if(childElem.getType() instanceof XSSimpleType)
 						{
 							XSSimpleType simpType = (XSSimpleType)childElem.getType();
-							simpType.getForeignAttributes();
-							if(simpType.getName() != null)
+							Collection<FacetImpl> facets = (Collection<FacetImpl>)simpType.asRestriction().getDeclaredFacets();
+							for (XSFacet facet : facets)
+							{
+								if(facet.getName().equals("enumeration"))
+								{
+									valuesHolder.add("enumeration");
+									break;
+								}
+							}
+							if(simpType.getName() != null && !valuesHolder.contains("enumeration"))
 							{
 								WebContext ctx = WebContextFactory.get();
 								String basicName = simpType.getBaseType().getName();
@@ -1918,9 +1927,8 @@ public class ItemsBrowserDWR {
 									simpTypeName = "xsd:" + basicName;
 								valuesHolder.add(simpTypeName);
 							}
-							else if(simpType.asRestriction() != null && !simpType.asRestriction().getDeclaredFacets().isEmpty())
+							else if(simpType.asRestriction() != null && valuesHolder.contains("enumeration"))
 							{
-								valuesHolder.add("enumeration");
 								Iterator<XSFacet> facetIter = simpType.asRestriction().iterateDeclaredFacets();
 								while(facetIter.hasNext())
 								{

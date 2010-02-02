@@ -854,6 +854,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			DWRUtil.addOptions('itemsSearchOperator' + id ,OPERATORS[language]);
 			$(itemsSearchValuex).style.display = "none";
 			$(itemsForeignKeyValues).style.display='inline';
+			$(itemsForeignKeyValues).readOnly = false;
+			DWRUtil.removeAllOptions('itemsForeignKeyValues' + id);
 			DWRUtil.addOptions(itemsForeignKeyValues, foreignPredicates);
 
 			currentPredicate[id] = 'foreign key';
