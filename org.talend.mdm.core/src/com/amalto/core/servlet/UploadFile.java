@@ -74,7 +74,7 @@ public class UploadFile extends HttpServlet {
         
         //delete file
         if(deleteFilename!=null){
-        	  File f=new File(path+File.separator+deleteFilename+".war");
+        	  File f=new File(path+File.separator+deleteFilename);
         	  f.delete();
         	  writer.write("Delete sucessfully");
               writer.close();
