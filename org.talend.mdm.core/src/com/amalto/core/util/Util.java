@@ -1478,7 +1478,7 @@ public  class Util {
 		JXPathContext newcontext = JXPathContext.newContext(newNode);		
 		for(Map.Entry<String,String> entry:map.entrySet()){
 			String xpath= entry.getKey();
-			xpath=xpath.replaceAll("/"+concept, "");
+			xpath=xpath.replaceAll("/"+concept+"/", "");
 			newcontext.setValue(xpath, entry.getValue());
 		}
 		String xml=getXMLStringFromNode((Node)newcontext.getContextBean());
