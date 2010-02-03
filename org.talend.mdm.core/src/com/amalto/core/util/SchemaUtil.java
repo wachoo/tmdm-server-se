@@ -22,7 +22,7 @@ public class SchemaUtil {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return null;
+		return xsdSource;
 
 	}
 
