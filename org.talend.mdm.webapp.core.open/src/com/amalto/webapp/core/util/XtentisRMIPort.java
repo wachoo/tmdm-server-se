@@ -8,6 +8,7 @@ import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
 import com.amalto.webapp.util.webservices.WSBackgroundJobPK;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSConceptRevisionMap;
+import com.amalto.webapp.util.webservices.WSDELMDMJob;
 import com.amalto.webapp.util.webservices.WSDeleteRole;
 import com.amalto.webapp.util.webservices.WSDeleteSynchronizationItem;
 import com.amalto.webapp.util.webservices.WSDeleteSynchronizationPlan;
@@ -35,6 +36,12 @@ import com.amalto.webapp.util.webservices.WSGetUniversePKs;
 import com.amalto.webapp.util.webservices.WSGetVersioningSystemConfiguration;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSItemPKArray;
+import com.amalto.webapp.util.webservices.WSMDMJobArray;
+import com.amalto.webapp.util.webservices.WSMDMNULL;
+import com.amalto.webapp.util.webservices.WSPUTMDMJob;
+import com.amalto.webapp.util.webservices.WSProcessInstanceArray;
+import com.amalto.webapp.util.webservices.WSProcessTaskInstanceArray;
+import com.amalto.webapp.util.webservices.WSPutItemWithCustomReport;
 import com.amalto.webapp.util.webservices.WSPutRole;
 import com.amalto.webapp.util.webservices.WSPutSynchronizationItem;
 import com.amalto.webapp.util.webservices.WSPutSynchronizationPlan;
@@ -65,6 +72,7 @@ import com.amalto.webapp.util.webservices.WSUniversePK;
 import com.amalto.webapp.util.webservices.WSUniversePKArray;
 import com.amalto.webapp.util.webservices.WSVersioningCommitItems;
 import com.amalto.webapp.util.webservices.WSVersioningGetInfo;
+import com.amalto.webapp.util.webservices.WSVersioningGetItemContent;
 import com.amalto.webapp.util.webservices.WSVersioningGetItemHistory;
 import com.amalto.webapp.util.webservices.WSVersioningGetItemsVersions;
 import com.amalto.webapp.util.webservices.WSVersioningGetObjectsVersions;
@@ -76,11 +84,20 @@ import com.amalto.webapp.util.webservices.WSVersioningObjectsVersions;
 import com.amalto.webapp.util.webservices.WSVersioningRestoreItemByRevision;
 import com.amalto.webapp.util.webservices.WSVersioningRestoreItems;
 import com.amalto.webapp.util.webservices.WSVersioningRestoreObjects;
+import com.amalto.webapp.util.webservices.WSVersioningRestoreUniverse;
 import com.amalto.webapp.util.webservices.WSVersioningSystemConfiguration;
 import com.amalto.webapp.util.webservices.WSVersioningTagItems;
 import com.amalto.webapp.util.webservices.WSVersioningTagObjects;
 import com.amalto.webapp.util.webservices.WSVersioningTagUniverse;
 import com.amalto.webapp.util.webservices.WSVersioningUniverseVersions;
+import com.amalto.webapp.util.webservices.WSWorkflowDeleteProcessInstancesRequest;
+import com.amalto.webapp.util.webservices.WSWorkflowDeploy;
+import com.amalto.webapp.util.webservices.WSWorkflowGetProcessDefinitions;
+import com.amalto.webapp.util.webservices.WSWorkflowGetProcessInstances;
+import com.amalto.webapp.util.webservices.WSWorkflowGetTaskList;
+import com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUID;
+import com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUIDArray;
+import com.amalto.webapp.util.webservices.WSWorkflowUnDeploy;
 
 
 /**
@@ -439,6 +456,83 @@ public class XtentisRMIPort extends IXtentisRMIPort {
 
 	public WSBackgroundJobPK versioningTagUniverse(
 			WSVersioningTagUniverse wsVersioningTagUniverse)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSBoolean deleteMDMJob(WSDELMDMJob deleteMDMJobRequest)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSMDMJobArray getMDMJob(WSMDMNULL mdmJobRequest)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSItemPK putItemWithCustomReport(
+			WSPutItemWithCustomReport wsPutItemWithCustomReport)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSBoolean putMDMJob(WSPUTMDMJob putMDMJobRequest)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSString versioningGetItemContent(
+			WSVersioningGetItemContent wsVersioningGetItemContent)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSBackgroundJobPK versioningRestoreUniverse(
+			WSVersioningRestoreUniverse wsVersioningRestoreUniverse)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSBoolean workflowDeleteProcessInstances(
+			WSWorkflowDeleteProcessInstancesRequest deleteWolkflowRequest)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSWorkflowProcessDefinitionUUID workflowDeploy(
+			WSWorkflowDeploy wsWorkflowDeploy) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSWorkflowProcessDefinitionUUIDArray workflowGetProcessDefinitions(
+			WSWorkflowGetProcessDefinitions wsworkflowProcessDefinitions)
+			throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSProcessInstanceArray workflowGetProcessInstances(
+			WSWorkflowGetProcessInstances uuid) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSProcessTaskInstanceArray workflowGetTaskList(
+			WSWorkflowGetTaskList uuid) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public WSBoolean workflowUnDeploy(WSWorkflowUnDeploy wsWorkflowUnDeploy)
 			throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
