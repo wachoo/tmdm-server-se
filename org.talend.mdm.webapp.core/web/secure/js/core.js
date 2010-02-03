@@ -556,7 +556,7 @@ amalto.core = function () {
 			    		//update doms
 			    		var divId = 'menu-'+menu.id+'-div';
 			    		doms[menu.level] =Ext.get(divId).dom;
-			    		//make IE display the image centered by loading the image now (rather than on initialisation)
+			    		//make IE display the image centered by loading the image now (rather than on initialization)
 			    		$("menu-"+menu.id+"-span").style.backgroundImage="url(/core/secure/img/tree-closed.gif)";
 			    		$("menu-"+menu.id+"-span").style.backgroundRepeat="no-repeat";
 			    		$("menu-"+menu.id+"-span").style.backgroundPositionX="0px";
@@ -580,7 +580,9 @@ amalto.core = function () {
                         //switch image
                         var imageIconPart='';
                         var toCheckMenuID=menu.context+"."+menu.application;
-                        if(toCheckMenuID=='itemsbrowser.ItemsBrowser'||toCheckMenuID=='viewbrowser.ViewBrowser'){
+                        if(menu.icon!=null){
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/imageserver/"+menu.icon+"?width=16&height=16\"/></span>";
+			    		}else if(toCheckMenuID=='itemsbrowser.ItemsBrowser'||toCheckMenuID=='viewbrowser.ViewBrowser'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/></span>";
                         }else if(toCheckMenuID=='crossreferencing.CrossReferencing'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/crossref.png\"/></span>";

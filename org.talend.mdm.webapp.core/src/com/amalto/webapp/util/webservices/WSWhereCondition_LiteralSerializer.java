@@ -61,65 +61,33 @@ public class WSWhereCondition_LiteralSerializer extends LiteralObjectSerializerB
         if (reader.getState() == XMLReader.START) {
             if (elementName.equals(ns1_leftPath_QNAME)) {
                 member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_leftPath_QNAME, reader, context);
-                if (member == null) {
-                    throw new DeserializationException("literal.unexpectedNull");
-                }
                 instance.setLeftPath((java.lang.String)member);
                 reader.nextElementContent();
-            } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_leftPath_QNAME, reader.getName() });
             }
-        }
-        else {
-            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
             if (elementName.equals(ns1_operator_QNAME)) {
                 member = ns2myns2_WSWhereOperator__WSWhereOperator_LiteralSerializer.deserialize(ns1_operator_QNAME, reader, context);
-                if (member == null) {
-                    throw new DeserializationException("literal.unexpectedNull");
-                }
                 instance.setOperator((com.amalto.webapp.util.webservices.WSWhereOperator)member);
                 reader.nextElementContent();
-            } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_operator_QNAME, reader.getName() });
             }
-        }
-        else {
-            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
             if (elementName.equals(ns1_rightValueOrPath_QNAME)) {
                 member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_rightValueOrPath_QNAME, reader, context);
-                if (member == null) {
-                    throw new DeserializationException("literal.unexpectedNull");
-                }
                 instance.setRightValueOrPath((java.lang.String)member);
                 reader.nextElementContent();
-            } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_rightValueOrPath_QNAME, reader.getName() });
             }
-        }
-        else {
-            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
             if (elementName.equals(ns1_stringPredicate_QNAME)) {
                 member = ns2myns2_WSStringPredicate__WSStringPredicate_LiteralSerializer.deserialize(ns1_stringPredicate_QNAME, reader, context);
-                if (member == null) {
-                    throw new DeserializationException("literal.unexpectedNull");
-                }
                 instance.setStringPredicate((com.amalto.webapp.util.webservices.WSStringPredicate)member);
                 reader.nextElementContent();
-            } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_stringPredicate_QNAME, reader.getName() });
             }
-        }
-        else {
-            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
@@ -149,21 +117,9 @@ public class WSWhereCondition_LiteralSerializer extends LiteralObjectSerializerB
     public void doSerialize(Object obj, XMLWriter writer, SOAPSerializationContext context) throws Exception {
         com.amalto.webapp.util.webservices.WSWhereCondition instance = (com.amalto.webapp.util.webservices.WSWhereCondition)obj;
         
-        if (instance.getLeftPath() == null) {
-            throw new SerializationException("literal.unexpectedNull");
-        }
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getLeftPath(), ns1_leftPath_QNAME, null, writer, context);
-        if (instance.getOperator() == null) {
-            throw new SerializationException("literal.unexpectedNull");
-        }
         ns2myns2_WSWhereOperator__WSWhereOperator_LiteralSerializer.serialize(instance.getOperator(), ns1_operator_QNAME, null, writer, context);
-        if (instance.getRightValueOrPath() == null) {
-            throw new SerializationException("literal.unexpectedNull");
-        }
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getRightValueOrPath(), ns1_rightValueOrPath_QNAME, null, writer, context);
-        if (instance.getStringPredicate() == null) {
-            throw new SerializationException("literal.unexpectedNull");
-        }
         ns2myns2_WSStringPredicate__WSStringPredicate_LiteralSerializer.serialize(instance.getStringPredicate(), ns1_stringPredicate_QNAME, null, writer, context);
         if (new Boolean(instance.isSpellCheck()) == null) {
             throw new SerializationException("literal.unexpectedNull");

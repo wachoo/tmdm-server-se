@@ -27,6 +27,7 @@ public class WSMenuEntry_LiteralSerializer extends LiteralObjectSerializerBase i
     private CombinedSerializer ns2_myWSMenuMenuEntriesDescriptions_LiteralSerializer;
     private static final QName ns1_context_QNAME = new QName("", "context");
     private static final QName ns1_application_QNAME = new QName("", "application");
+    private static final QName ns1_icon_QNAME = new QName("", "icon");
     private static final QName ns1_subMenus_QNAME = new QName("", "subMenus");
     private static final QName ns2_WSMenuEntry_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSMenuEntry");
     private CombinedSerializer ns2_myWSMenuEntry_LiteralSerializer;
@@ -120,6 +121,14 @@ public class WSMenuEntry_LiteralSerializer extends LiteralObjectSerializerBase i
             throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         elementName = reader.getName();
+        if (reader.getState() == XMLReader.START) {
+            if (elementName.equals(ns1_icon_QNAME)) {
+                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_icon_QNAME, reader, context);
+                instance.setIcon((java.lang.String)member);
+                reader.nextElementContent();
+            }
+        }
+        elementName = reader.getName();
         if ((reader.getState() == XMLReader.START) && (elementName.equals(ns1_subMenus_QNAME))) {
             values = new ArrayList();
             for(;;) {
@@ -165,6 +174,7 @@ public class WSMenuEntry_LiteralSerializer extends LiteralObjectSerializerBase i
         }
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getContext(), ns1_context_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getApplication(), ns1_application_QNAME, null, writer, context);
+        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getIcon(), ns1_icon_QNAME, null, writer, context);
         if (instance.getSubMenus() != null) {
             for (int i = 0; i < instance.getSubMenus().length; ++i) {
                 ns2_myWSMenuEntry_LiteralSerializer.serialize(instance.getSubMenus()[i], ns1_subMenus_QNAME, null, writer, context);

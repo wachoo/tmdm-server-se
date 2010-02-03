@@ -918,6 +918,7 @@ public class XConverter {
 		ws.setDescriptions(wsDescriptions);
 		ws.setContext(pojo.getContext());
 		ws.setApplication(pojo.getApplication());
+		ws.setIcon(pojo.getIcon());
 		if (pojo.getSubMenus()!=null) {
 			WSMenuEntry[] wsSubMenus = new WSMenuEntry[pojo.getSubMenus().size()];
 			i=0;
@@ -945,6 +946,7 @@ public class XConverter {
 		pojo.setDescriptions(descriptions);
 		pojo.setContext(ws.getContext());
 		pojo.setApplication(ws.getApplication());
+		pojo.setIcon(ws.getIcon());
 		ArrayList<MenuEntryPOJO> subMenus = new ArrayList<MenuEntryPOJO>();
 		if (ws.getSubMenus()!=null) {
 			for (int i = 0; i < ws.getSubMenus().length; i++) {

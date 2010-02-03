@@ -11,16 +11,18 @@ public class WSMenuEntry {
     protected com.amalto.webapp.util.webservices.WSMenuMenuEntriesDescriptions[] descriptions;
     protected java.lang.String context;
     protected java.lang.String application;
+    protected java.lang.String icon;
     protected com.amalto.webapp.util.webservices.WSMenuEntry[] subMenus;
     
     public WSMenuEntry() {
     }
     
-    public WSMenuEntry(java.lang.String id, com.amalto.webapp.util.webservices.WSMenuMenuEntriesDescriptions[] descriptions, java.lang.String context, java.lang.String application, com.amalto.webapp.util.webservices.WSMenuEntry[] subMenus) {
+    public WSMenuEntry(java.lang.String id, com.amalto.webapp.util.webservices.WSMenuMenuEntriesDescriptions[] descriptions, java.lang.String context, java.lang.String application, java.lang.String icon, com.amalto.webapp.util.webservices.WSMenuEntry[] subMenus) {
         this.id = id;
         this.descriptions = descriptions;
         this.context = context;
         this.application = application;
+        this.icon = icon;
         this.subMenus = subMenus;
     }
     
@@ -54,6 +56,14 @@ public class WSMenuEntry {
     
     public void setApplication(java.lang.String application) {
         this.application = application;
+    }
+    
+    public java.lang.String getIcon() {
+        return icon;
+    }
+    
+    public void setIcon(java.lang.String icon) {
+        this.icon = icon;
     }
     
     public com.amalto.webapp.util.webservices.WSMenuEntry[] getSubMenus() {

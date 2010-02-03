@@ -56,44 +56,23 @@ public class WSRoutingRuleExpression_LiteralSerializer extends LiteralObjectSeri
                 member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_name_QNAME, reader, context);
                 instance.setName((java.lang.String)member);
                 reader.nextElementContent();
-            } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_name_QNAME, reader.getName() });
             }
-        }
-        else {
-            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
             if (elementName.equals(ns1_xpath_QNAME)) {
                 member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_xpath_QNAME, reader, context);
-                if (member == null) {
-                    throw new DeserializationException("literal.unexpectedNull");
-                }
                 instance.setXpath((java.lang.String)member);
                 reader.nextElementContent();
-            } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_xpath_QNAME, reader.getName() });
             }
-        }
-        else {
-            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
             if (elementName.equals(ns1_wsOperator_QNAME)) {
                 member = ns2myns2_WSRoutingRuleOperator__WSRoutingRuleOperator_LiteralSerializer.deserialize(ns1_wsOperator_QNAME, reader, context);
-                if (member == null) {
-                    throw new DeserializationException("literal.unexpectedNull");
-                }
                 instance.setWsOperator((com.amalto.webapp.util.webservices.WSRoutingRuleOperator)member);
                 reader.nextElementContent();
-            } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_wsOperator_QNAME, reader.getName() });
             }
-        }
-        else {
-            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
@@ -101,12 +80,7 @@ public class WSRoutingRuleExpression_LiteralSerializer extends LiteralObjectSeri
                 member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_value_QNAME, reader, context);
                 instance.setValue((java.lang.String)member);
                 reader.nextElementContent();
-            } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_value_QNAME, reader.getName() });
             }
-        }
-        else {
-            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         
         XMLReaderUtil.verifyReaderState(reader, XMLReader.END);
@@ -121,13 +95,7 @@ public class WSRoutingRuleExpression_LiteralSerializer extends LiteralObjectSeri
         com.amalto.webapp.util.webservices.WSRoutingRuleExpression instance = (com.amalto.webapp.util.webservices.WSRoutingRuleExpression)obj;
         
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getName(), ns1_name_QNAME, null, writer, context);
-        if (instance.getXpath() == null) {
-            throw new SerializationException("literal.unexpectedNull");
-        }
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getXpath(), ns1_xpath_QNAME, null, writer, context);
-        if (instance.getWsOperator() == null) {
-            throw new SerializationException("literal.unexpectedNull");
-        }
         ns2myns2_WSRoutingRuleOperator__WSRoutingRuleOperator_LiteralSerializer.serialize(instance.getWsOperator(), ns1_wsOperator_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getValue(), ns1_value_QNAME, null, writer, context);
     }

@@ -31,6 +31,16 @@ public class Menu {
 	private int position;
 	private String context;
 	private String application;
+	private String icon;
+	public String getIcon() {
+		return icon;
+	}
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
+
+
 	private TreeMap<String, Menu> subMenus = new TreeMap<String, Menu>();
 	
 	
@@ -258,6 +268,7 @@ public class Menu {
 			menu.setApplication(entry.getApplication());
 			menu.setContext(entry.getContext());
 			menu.setId(entry.getId());
+			menu.setIcon(entry.getIcon());
 			WSMenuMenuEntriesDescriptions[] descriptions = entry.getDescriptions();
 			HashMap<String, String> labels = new HashMap<String, String>();
 			if (descriptions!=null) {

@@ -94,6 +94,8 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSItemPK putItemWithReport(com.amalto.webapp.util.webservices.WSPutItemWithReport wsPutItemWithReport) throws 
          java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSItemPK putItemWithCustomReport(com.amalto.webapp.util.webservices.WSPutItemWithCustomReport wsPutItemWithCustomReport) throws 
+         java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSPipeline extractUsingTransformer(com.amalto.webapp.util.webservices.WSExtractUsingTransformer wsExtractUsingTransformer) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSPipeline extractUsingTransformerThruView(com.amalto.webapp.util.webservices.WSExtractUsingTransformerThruView wsExtractUsingTransformerThruView) throws 
@@ -214,6 +216,8 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSVersioningItemsVersions versioningGetItemsVersions(com.amalto.webapp.util.webservices.WSVersioningGetItemsVersions wsVersioningGetItemsVersions) throws 
          java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSString versioningGetItemContent(com.amalto.webapp.util.webservices.WSVersioningGetItemContent wsVersioningGetItemContent) throws 
+         java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSVersioningObjectsVersions versioningGetObjectsVersions(com.amalto.webapp.util.webservices.WSVersioningGetObjectsVersions wsVersioningGetObjectsVersions) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSVersioningUniverseVersions versioningGetUniverseVersions(com.amalto.webapp.util.webservices.WSVersioningGetUniverseVersions wsVersioningGetUniverseVersions) throws 
@@ -231,6 +235,8 @@ public interface XtentisPort extends java.rmi.Remote {
     public com.amalto.webapp.util.webservices.WSBackgroundJobPK versioningTagItems(com.amalto.webapp.util.webservices.WSVersioningTagItems wsVersioningTagItems) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSBackgroundJobPK versioningRestoreObjects(com.amalto.webapp.util.webservices.WSVersioningRestoreObjects wsVersioningRestoreObjects) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSBackgroundJobPK versioningRestoreUniverse(com.amalto.webapp.util.webservices.WSVersioningRestoreUniverse wsVersioningRestoreUniverse) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSBackgroundJobPK versioningRestoreItems(com.amalto.webapp.util.webservices.WSVersioningRestoreItems wsVersioningRestoreItems) throws 
          java.rmi.RemoteException;
@@ -327,5 +333,23 @@ public interface XtentisPort extends java.rmi.Remote {
     public com.amalto.webapp.util.webservices.WSMDMConfig getMDMConfiguration() throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSCheckServiceConfigResponse checkServiceConfiguration(com.amalto.webapp.util.webservices.WSCheckServiceConfigRequest serviceName) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUIDArray workflowGetProcessDefinitions(com.amalto.webapp.util.webservices.WSWorkflowGetProcessDefinitions wsworkflowProcessDefinitions) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUID workflowDeploy(com.amalto.webapp.util.webservices.WSWorkflowDeploy wsWorkflowDeploy) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSBoolean workflowUnDeploy(com.amalto.webapp.util.webservices.WSWorkflowUnDeploy wsWorkflowUnDeploy) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSProcessTaskInstanceArray workflowGetTaskList(com.amalto.webapp.util.webservices.WSWorkflowGetTaskList uuid) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSProcessInstanceArray workflowGetProcessInstances(com.amalto.webapp.util.webservices.WSWorkflowGetProcessInstances uuid) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSBoolean workflowDeleteProcessInstances(com.amalto.webapp.util.webservices.WSWorkflowDeleteProcessInstancesRequest deleteWolkflowRequest) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSMDMJobArray getMDMJob(com.amalto.webapp.util.webservices.WSMDMNULL mdmJobRequest) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSBoolean putMDMJob(com.amalto.webapp.util.webservices.WSPUTMDMJob putMDMJobRequest) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSBoolean deleteMDMJob(com.amalto.webapp.util.webservices.WSDELMDMJob deleteMDMJobRequest) throws 
          java.rmi.RemoteException;
 }

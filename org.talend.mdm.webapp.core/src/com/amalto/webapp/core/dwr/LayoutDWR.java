@@ -50,6 +50,7 @@ public class LayoutDWR {
 			entry.put("id", i);
 			entry.put("level", level);
 			entry.put("context", subMenu.getContext());
+			entry.put("icon", subMenu.getIcon());
 			entry.put("name", subMenu.getLabels().get(language));
 			entry.put("desc", "");
 			entry.put("application", subMenu.getApplication() == null ? "" : subMenu.getApplication());

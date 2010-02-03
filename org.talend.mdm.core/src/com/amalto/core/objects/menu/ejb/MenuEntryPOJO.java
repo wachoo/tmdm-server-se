@@ -17,6 +17,7 @@ public class MenuEntryPOJO {
     private HashMap<String,String> descriptions = new HashMap<String, String>();
     private String context;
     private String application;
+    private String icon;
     private ArrayList<MenuEntryPOJO> subMenus = new ArrayList<MenuEntryPOJO>();
     
 
@@ -37,7 +38,15 @@ public class MenuEntryPOJO {
 		this.subMenus = subMenus;
 	}
 	
-	
+	public MenuEntryPOJO(String id, HashMap<String, String> descriptions, String context, String application, ArrayList<MenuEntryPOJO> subMenus,String icon) {
+		super();
+		this.id = id;
+		this.descriptions = descriptions;
+		this.context = context;
+		this.application = application;
+		this.subMenus = subMenus;
+		this.icon=icon;
+	}	
 
 
 	public String getApplication() {
@@ -78,6 +87,14 @@ public class MenuEntryPOJO {
 
 	public void setSubMenus(ArrayList<MenuEntryPOJO> subMenus) {
 		this.subMenus = subMenus;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 
 	
