@@ -2,6 +2,7 @@ package com.amalto.core.jobox.component;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -94,7 +95,7 @@ public class JobAware {
 			findFirstFile(entity, "Default.properties", checkList);
 			if (checkList.size() > 0) {
 				Properties paramProperties = new Properties();
-				FileReader fileReader = new FileReader(checkList.get(0));
+				FileInputStream fileReader = new FileInputStream(checkList.get(0));
 				paramProperties.load(fileReader);
 				if (fileReader != null)
 					fileReader.close();
