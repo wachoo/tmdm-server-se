@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,6 +30,8 @@ import talend.core.transformer.plugin.v2.tiscall.webservices.ArrayOfXsdString;
 import talend.core.transformer.plugin.v2.tiscall.webservices.WSxml;
 import talend.core.transformer.plugin.v2.tiscall.webservices.WSxmlService;
 
+import com.amalto.core.jobox.JobContainer;
+import com.amalto.core.jobox.JobInvokeConfig;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
@@ -65,7 +68,11 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
   
 	private static final String CONTENT_TYPE = "com.amalto.core.plugin.TISCall.content.type";
 	private static final String PORT = "com.amalto.core.plugin.TISCall.port";
+	private static final String INVOKE_CONFIG = "com.amalto.core.plugin.TISCall.invoke.config";
 	private static final String TIS_VARIABLE_NAME = "com.amalto.core.plugin.TISCall.tis.variable.name";
+	
+	private static final String LTJ_PROTOCOL = "ltj";
+	private static final Pattern ltjUrlPattern =Pattern.compile("^(ltj)://([^/]+)/([^/]+)/?(.*)$");
 	
 	private static final String INPUT_TEXT = "text";
 
@@ -198,6 +205,26 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 			WSxml port = service.getWSxml();
 			
 			//set the parameters
+			context.put(INVOKE_CONFIG, null);
+			Matcher m = ltjUrlPattern.matcher(parameters.getUrl());
+			String protocol="";
+			String jobName="";
+			String jobVersion="";
+			String jobMainClass="";
+			while (m.find()) {
+				protocol=m.group(1);
+				jobName=m.group(2);
+				jobVersion=m.group(3);
+				jobMainClass=m.group(4);
+			}
+			if(protocol.equals(LTJ_PROTOCOL)) {
+				JobInvokeConfig jobInvokeConfig=new JobInvokeConfig();
+				jobInvokeConfig.setJobName(jobName);
+				jobInvokeConfig.setJobVersion(jobVersion);
+				if(jobMainClass.length()>0)jobInvokeConfig.setJobMainClass(jobMainClass);
+				context.put(INVOKE_CONFIG, jobInvokeConfig);
+			}
+			
 			BindingProvider bp = (BindingProvider)port;
 			bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, parameters.getUrl());
 			bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, parameters.getUsername());
@@ -267,12 +294,15 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 			}
 			
 			Args args = new Args();	
+			Map<String,String> argsMap=new HashMap<String, String>();
 			Iterator it=p.keySet().iterator();
 			while(it.hasNext()){
 				String key=(String)it.next();
 				String value=p.getProperty(key);
 				String param = "--context_param "+key+"="+value;
 				args.getItem().add(param);
+				
+				argsMap.put(key, value);
 			}
 			
 			//parse concept parameters
@@ -295,7 +325,23 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 			
 //			Args args = new Args();			
 //			args.getItem().add(param);
-			List<ArrayOfXsdString> list=port.runJob(args).getItem();
+			List<ArrayOfXsdString> list=new ArrayList<ArrayOfXsdString>();
+			
+			if(context.get(INVOKE_CONFIG)!=null) {
+				String[][] result=JobContainer.getUniqueInstance().getJobInvoke().call((JobInvokeConfig) context.get(INVOKE_CONFIG), argsMap);
+				
+				for (int i = 0; i < result.length; i++) {
+					ArrayOfXsdString arrayOfXsdString=new ArrayOfXsdString();
+					for (int j = 0; j < result[i].length; j++) {
+						arrayOfXsdString.getItem().add(result[i][j]);
+					}
+					list.add(arrayOfXsdString);
+				}
+				
+			}else {
+				list=port.runJob(args).getItem();
+			}
+			
 			String result="";
 			StringBuffer sb=new StringBuffer();
 			if(list.size()>0){
@@ -405,6 +451,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 		"\n" +
 		"Parameters\n" +
 		"	url [mandatory]: the webservice port URL to the TIS Server"+"\n"+
+		"		or the local talend job URL: ltj://<jobName>/<jobVersion>/[jobMainClass]"+"\n"+
 		"	contextParam   : the contextParam of the tis job"+"\n"+
 		"		name: the name of the context param"+"\n"+
 		"		value: the value of context param, the value will be viewed as a priple" + "\n" + 
@@ -420,7 +467,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 		"		fields: mapping rule with json format"+"\n"+
 		"\n"+
 		"\n"+
-		"Example" +"\n"+
+		"Example1" +"\n"+
 		"	<configuration>" +"\n"+
 		"		<url>http://server:port/TISService/TISPort</url>" +"\n"+
 		"		<contextParam>" +"\n"+	
@@ -448,6 +495,14 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 		"		</conceptMapping>" +"\n"+
 		"	</configuration>"+"\n"+
 		"\n"+
+		"Example2" +"\n"+
+		"	<configuration>" +"\n"+
+		"		<url>ltj://tiscall_multi_return/0.1</url>" +"\n"+
+		"		<contextParam>" +"\n"+	
+		"			<name>nb_line</name>" +"\n"+
+		"			<value>5</value>" +"\n"+
+		"		</contextParam>" +"\n"+
+		"	</configuration>"+"\n"+
 		"\n";
 	}
 

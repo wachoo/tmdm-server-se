@@ -13,6 +13,7 @@ import java.util.Map;
 
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.JobInfo;
+import com.amalto.core.jobox.JobInvokeConfig;
 import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.jobox.util.JoboxConfig;
 import com.amalto.core.jobox.util.JoboxException;
@@ -26,6 +27,9 @@ public class JobInvoke {
 		this.workDir=joboxConfig.getWorkPath();
 	}
 	
+	public String[][] call(JobInvokeConfig config,Map<String,String> inputMap) {
+		return call(config.getJobName(),config.getJobVersion(),config.getJobMainClass(),inputMap);
+	}
 	
 	/**
 	 * @param jobName
