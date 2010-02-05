@@ -475,8 +475,9 @@ public  class Util {
  * remove the null element to match the shema
  * @param element
  */
-	private static void setNullNode(Element element) {
+	private static boolean setNullNode(Element element) {
 			//String xml = Util.nodeToString(element);
+			boolean removed = false;
 			NodeList nodelist = element.getChildNodes();
 			for (int i = 0; i < nodelist.getLength(); i++) {
 				Node node = nodelist.item(i);
@@ -485,12 +486,14 @@ public  class Util {
 					element.removeChild(node);
 					//xml = Util.nodeToString(element);
 					setNullNode(element);
+					removed = true;
 				}
-				else if(length>1){
-					setNullNode((Element) node);
-					setNullNode(element);
+				else if(length>1 && node!=null){
+					if(setNullNode((Element) node))
+						setNullNode((Element) node.getParentNode());
 				}
 			}
+			return removed;
 	}
     
     public static Document defaultValidate(Element element, String schema)throws Exception{
