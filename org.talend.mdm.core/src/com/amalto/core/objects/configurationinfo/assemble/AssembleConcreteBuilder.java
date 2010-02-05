@@ -61,6 +61,9 @@ public class AssembleConcreteBuilder implements AssembleBuilder {
 		
 	}
 
+	public void buildInitJobox() {
+		assembleProc.add(new InitJoboxSubProc());
+	}
 
 
 }
