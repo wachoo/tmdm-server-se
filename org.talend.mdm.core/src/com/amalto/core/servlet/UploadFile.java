@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase;
+
+import com.amalto.core.jobox.JobContainer;
 
 
 /**
@@ -74,8 +75,13 @@ public class UploadFile extends HttpServlet {
         
         //delete file
         if(deleteFilename!=null){
-        	  File f=new File(path+File.separator+deleteFilename);
-        	  f.delete();
+        	 if(deleteFilename.endsWith(".zip")) {
+        		 File f=new File(JobContainer.getUniqueInstance().getDeployDir()+File.separator+deleteFilename);
+        		 f.delete();        		 
+        	 }else {        		 
+        		 File f=new File(path+File.separator+deleteFilename);
+        		 f.delete();
+        	 }
         	  writer.write("Delete sucessfully");
               writer.close();
         	  return ;
@@ -117,7 +123,11 @@ public class UploadFile extends HttpServlet {
                 try {
                 	if(req.getParameter("deployjob")!=null){//deploy job
                 		//tempFile=new File(path+"/"+item.getName());
-                		tempFile=new File(path+File.separator+item.getFieldName());
+                		if(item.getFieldName().endsWith(".zip")) {//zip file
+                			tempFile=new File(JobContainer.getUniqueInstance().getDeployDir()+File.separator+item.getFieldName());
+                		}else {//war file
+                			tempFile=new File(path+File.separator+item.getFieldName());
+                		}
                 	}
                     item.write(tempFile);
                     files.add(tempFile.getAbsolutePath());
