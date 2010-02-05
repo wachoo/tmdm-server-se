@@ -23,8 +23,7 @@ public class Test {
 //			e.printStackTrace();
 //		}
 		//invoke
-		JobContainer.getUniqueInstance().getJobInvoke().call("hello", "0.1", "mdmtest.hello_0_1.hello");
-		
+		JobContainer.getUniqueInstance().getJobInvoke().call("hello", "0.1");
 		
 		
 //		// Avoid program exit

@@ -62,13 +62,14 @@ public class JobAware {
 
 				JobInfo jobInfo = new JobInfo(jobName, jobVersion);
 				setClassPath4TISJob(entity,jobInfo);
-				analyzeJobParams(entity, jobInfo);
+				String propFilePath=analyzeJobParams(entity, jobInfo);
+				guessMainClass(entity,propFilePath,jobInfo);
 				jobList.add(jobInfo);
 			}
 		}
 		return jobList;
 	}
-	
+
 	public JobInfo loadJobInfo(String entityName) {
 		JobInfo jobInfo = null;
 		File entity=new File(workDir+File.separator+entityName);
@@ -84,16 +85,49 @@ public class JobAware {
 			
 			jobInfo = new JobInfo(jobName, jobVersion);
 			setClassPath4TISJob(entity,jobInfo);
-			analyzeJobParams(entity, jobInfo);
+			String propFilePath=analyzeJobParams(entity, jobInfo);
+			guessMainClass(entity,propFilePath,jobInfo);
 		}
 		return jobInfo;
 	}
+	
+	private void guessMainClass(File entity,String propFilePath,JobInfo jobInfo) {
+		//FIXME:THIS WAY IS NOT GOOD
+		if(propFilePath!=null) {
+			String jobName=jobInfo.getName();
+			String className="";
+			String packagename="";
+			String splitTag="/";
+			if(File.separator.equals("\\"))splitTag="\\\\";
+			String[] parts=propFilePath.split(splitTag);
+			boolean startRecord=false;
+			for (int i = 0; i < parts.length; i++) {
+				if(parts[i].equals("contexts")) {
+					startRecord=false;
+					break;
+				}
+				if(parts[i].equals(jobName)) {
+					startRecord=true;
+					continue;
+				}
+				if(startRecord) {
+					if(packagename.length()==0)packagename+=parts[i];
+					else if(packagename.length()>0)packagename+="."+parts[i];
+				}
+			}
+			if(packagename.length()>0)className=packagename+"."+jobName;
+			
+			if(className.length()>0)jobInfo.setMainclass(className);
+		}
+	}
 
-	private void analyzeJobParams(File entity, JobInfo jobInfo) {
+	private String analyzeJobParams(File entity, JobInfo jobInfo) {
+		String propFilePath=null;
 		try {
 			List<File> checkList = new ArrayList<File>();
 			findFirstFile(entity, "Default.properties", checkList);
 			if (checkList.size() > 0) {
+				propFilePath=checkList.get(0).getAbsolutePath();
 				Properties paramProperties = new Properties();
 				FileInputStream fileReader = new FileInputStream(checkList.get(0));
 				paramProperties.load(fileReader);
@@ -113,6 +147,7 @@ public class JobAware {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return propFilePath;
 	}
 
 	private  boolean recognizeTISJob(File entity) {

@@ -16,6 +16,7 @@ import com.amalto.core.jobox.JobInfo;
 import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.jobox.util.JoboxConfig;
 import com.amalto.core.jobox.util.JoboxException;
+import com.amalto.core.jobox.util.MissingMainClassException;
 
 public class JobInvoke {
 
@@ -23,6 +24,16 @@ public class JobInvoke {
 	
 	public JobInvoke(JoboxConfig joboxConfig) {
 		this.workDir=joboxConfig.getWorkPath();
+	}
+	
+	
+	/**
+	 * @param jobName
+	 * @param jobVersion
+	 * @return
+	 */
+	public String[][] call(String jobName,String jobVersion) {
+		return call(jobName,jobVersion,null,null);
 	}
 	
 	/**
@@ -33,6 +44,19 @@ public class JobInvoke {
 	 */
 	public String[][] call(String jobName,String jobVersion,String mainClass) {
 		return call(jobName,jobVersion,mainClass,null);
+	}
+	
+	
+	
+	/**
+	 * @param jobName
+	 * @param jobVersion
+	 * @param inputMap
+	 * @return
+	 * @throws JoboxException
+	 */
+	public String[][] call(String jobName,String jobVersion,Map<String,String> inputMap)throws JoboxException {
+		return call(jobName,jobVersion,null,inputMap);
 	}
 
 	/**
@@ -49,7 +73,11 @@ public class JobInvoke {
 		try {
 			JobInfo jobInfo=JobContainer.getUniqueInstance().getJobInfo(jobName, jobVersion);
 			if(jobInfo==null)throw new JobNotFoundException();
-			jobInfo.setMainclass(mainClass);
+			if(mainClass==null) {
+				if(jobInfo.getMainclass()==null)throw new MissingMainClassException();
+			}else {
+				jobInfo.setMainclass(mainClass);
+			}
 			
 			Class jobclass=JobContainer.getUniqueInstance().getJobClass(jobInfo);
 			Method runJobMethod = jobclass.getMethod("runJob",String[].class);
