@@ -36,7 +36,7 @@
 	
 	<target name="deploy">
         <copy todir="${jboss.dir}" overwrite="true">
-            <fileset dir="deploy" includes="run.bat,run.sh" />
+            <fileset dir="deploy" includes="run.bat,run.sh,Talend_license.txt" />
         </copy>		
 		<copy todir="${jboss.instance.lib}" overwrite="true">
 			<fileset dir="deploy/lib"/>
