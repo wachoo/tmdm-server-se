@@ -1,7 +1,7 @@
 package com.amalto.core.objects.configurationinfo.assemble;
 
 import java.io.File;
-import java.net.URL;
+import java.io.FileNotFoundException;
 import java.util.Properties;
 
 import com.amalto.core.jobox.JobContainer;
@@ -16,9 +16,10 @@ public class InitJoboxSubProc extends AssembleSubProc{
 	@Override
 	public void run() throws Exception {
 		
-		//FIXME: THIS WAY TO GET DEFAULT JOBOX HOME MAYBE NOT GOOD
-		URL url=this.getClass().getResource("/");
-		String jbossHome=new File(url.toURI()).getParentFile().getParentFile().getParentFile().getAbsolutePath();
+		
+		String jbossHomePath=com.amalto.core.util.Util.getAppServerDeployDir();
+		if(!new File(jbossHomePath).exists())throw new FileNotFoundException();
+		String jbossHome=new File(jbossHomePath).getAbsolutePath();
 		//init
 		JobContainer jobContainer=JobContainer.getUniqueInstance();
 		Properties props=new Properties();

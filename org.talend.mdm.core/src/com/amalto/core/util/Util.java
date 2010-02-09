@@ -3127,6 +3127,11 @@ public  class Util {
 		 }
 		 return false;
 	 }
+	 
+	 public static String getAppServerDeployDir() {
+			String jbossHomePath=System.getenv("JBOSS_HOME");
+			return jbossHomePath;
+	 }
 	/*********************************************************************
 	 *MAIN
 	 *********************************************************************/	
