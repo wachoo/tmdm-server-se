@@ -6,7 +6,7 @@
         </descriptions>
         <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
             <key xsi:type="java:java.lang.String">fr</key>
-            <value xsi:type="java:java.lang.String">Paramétrage du Logging Service</value>
+            <value xsi:type="java:java.lang.String">ParamÃ©trage du Logging Service</value>
         </descriptions>
         <application>LoggingAdapter</application>
         <context>loggingadapter</context>
