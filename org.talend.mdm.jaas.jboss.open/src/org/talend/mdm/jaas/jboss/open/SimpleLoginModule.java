@@ -313,7 +313,7 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 		//add an 'openTest' role 
 		rolesGroup.addMember(new SimplePrincipal("Default_User"));
 		//Fetch the xtentis based saved User Details
-		Element user = getSavedUserDetails(getUsername());
+		Element user = getSavedUserDetails(getUsername(),getPassword());
 
 		//The Xtentis User Group maintains the user in xml serialized form and the universePOJO in serialized form
 		Group xtentisUserGroup = new SimpleGroup("XtentisUser");
@@ -326,7 +326,7 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 		return new Group[]{usernameGroup,passwordGroup, universeGroup, rolesGroup,xtentisUserGroup};
 	}
 
-	protected Element getSavedUserDetails(String username) throws LoginException{
+	protected Element getSavedUserDetails(String username,String password) throws LoginException{
 		org.apache.log4j.Logger.getLogger(this.getClass()).trace("getSavedUserDetails() "+username);
 
 		try {
@@ -341,12 +341,57 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 					"PROVISIONING",
 					"PROVISIONING"+"."+"User"+"."+username
 				);
+				if(userString==null) {
+					String md5pwd=Util.md5AsHexString(password,"utf-8");
+					userString = generateNewUser(username, md5pwd).toString();
+				}
 				user  = (Element)Util.getNodeList(Util.parse(userString), "//"+"User").item(0);
 			}
 			return user;
 		} catch (Exception e) {
 			throw new LoginException("Failed to fetch user \"" +username+"\": "+e.getLocalizedMessage());
 		}
+	}
+
+	private StringBuffer generateNewUser(String username, String md5pwd) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-16\"?> "); 
+		sb.append("<ii> "); 
+		sb.append("    <c>PROVISIONING</c> "); 
+		sb.append("    <n>User</n> "); 
+		sb.append("    <dmn>PROVISIONING</dmn> "); 
+		sb.append("    <dmr/> "); 
+		sb.append("    <sp/> "); 
+		sb.append("    <i>").append(username).append("</i> "); 
+		sb.append("    <t>").append(System.currentTimeMillis()).append("</t> "); 
+		sb.append("    <p> "); 
+		sb.append("        <User> "); 
+		sb.append("            <username>").append(username).append("</username> "); 
+		sb.append("            <password>").append(md5pwd).append("</password> "); 
+		sb.append("            <givenname></givenname> "); 
+		sb.append("            <familyname></familyname> "); 
+		sb.append("            <phonenumber/> "); 
+		sb.append("            <company></company> "); 
+		sb.append("            <id></id> "); 
+		sb.append("            <signature/> "); 
+		sb.append("            <realemail></realemail> "); 
+		sb.append("            <fakeemail/> "); 
+		sb.append("            <viewrealemail>no</viewrealemail> "); 
+		sb.append("            <registrationdate></registrationdate> "); 
+		sb.append("            <lastvisitdate>0</lastvisitdate> "); 
+		sb.append("            <enabled>yes</enabled> "); 
+		sb.append("            <homepage></homepage> "); 
+		sb.append("            <universe/> "); 
+		sb.append("            <roles> "); 
+		sb.append("                <role>administration</role> "); 
+		sb.append("                <role>Default_User</role> "); 
+		sb.append("            </roles> "); 
+		sb.append("            <properties></properties> "); 
+		sb.append("            <applications></applications> "); 
+		sb.append("        </User> "); 
+		sb.append("    </p> "); 
+		sb.append("</ii> ");
+		return sb;
 	}
 	/**
 	 * Called by login() to acquire the username and password strings for

@@ -120,8 +120,13 @@ public class Configuration {
 		WebContext ctx = WebContextFactory.get();
 		Configuration configuration = new Configuration();
 		
-		//String xml = Util.getAjaxSubject().getXml();
-		Element user = Util.getLoginProvisioningFromDB();
+		Element user=null;
+		String userxml = Util.getAjaxSubject().getXml();
+		if(userxml==null||userxml.length()==0) {
+			user  = Util.getLoginProvisioningFromDB();
+		}else {
+			user  = (Element)Util.getNodeList(Util.parse(userxml), "//"+"User").item(0);
+		}
 		
 		//Document d = Util.parse(userString);
 		NodeList nodeList = Util.getNodeList(user,"//property");
