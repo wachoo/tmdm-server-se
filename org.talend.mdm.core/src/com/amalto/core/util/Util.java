@@ -27,6 +27,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
@@ -1464,9 +1465,13 @@ public  class Util {
     }
     
     public static UUIDItemContent processUUID(Element root, String schema, String dataCluster, String concept,XSDKey conceptKey, String[] itemKeyValues) throws Exception{
+    	return processUUID(root,schema,dataCluster,concept,conceptKey,itemKeyValues,false);
+    }
+    
+    public static UUIDItemContent processUUID(Element root, String schema, String dataCluster, String concept,XSDKey conceptKey, String[] itemKeyValues,boolean pseudoAutoIncrement) throws Exception{
 		//generate uuid 
 		Element conceptRoot = (Element)root.cloneNode(true);			
-		Util.generateUUIDForElement(schema, dataCluster,concept, conceptRoot);			
+		Util.generateUUIDForElement(schema, dataCluster,concept, conceptRoot, pseudoAutoIncrement);			
 		//get concept key values
 		for(int j=0; j<conceptKey.getFields().length; j++){
 			for(int i=0; i<conceptRoot.getChildNodes().getLength(); i++){
@@ -1631,11 +1636,11 @@ public  class Util {
      * @param schema
      * @param dataCluster
      * @param concept
-     * @param elementname null:锟斤拷示锟斤拷拥锟�
+     * @param elementname null:
      * @param conceptRoot
      * @throws Exception
      */
-    private static void generateUUIDForElement(String schema,String dataCluster,String concept, Element conceptRoot) throws Exception{
+    private static void generateUUIDForElement(String schema,String dataCluster,String concept, Element conceptRoot,boolean pseudoAutoIncrement) throws Exception{
     	List<XSParticle> uuidLists=getUUIDNodes(schema, concept);
 		//Element conceptRoot = (Element)root.cloneNode(true);	
 		for(int i=0; i<uuidLists.size(); i++){
@@ -1645,21 +1650,27 @@ public  class Util {
 			
 			for(int j=0; j<conceptRoot.getChildNodes().getLength(); j++){
 				Node node= conceptRoot.getChildNodes().item(j);
-				setUUIDNodeText(node, name,type,dataCluster,concept);
+				setUUIDNodeText(node, name,type,dataCluster,concept,pseudoAutoIncrement);
 			}	
 		}		
     }
 
- 	private static void setUUIDNodeText(Node node, String name,String type,String dataCluster,String concept)throws Exception{
+ 	private static void setUUIDNodeText(Node node, String name,String type,String dataCluster,String concept,boolean pseudoAutoIncrement)throws Exception{
  		if(node.getNodeType() != Node.ELEMENT_NODE) return ;
  		if(node.getChildNodes().getLength()>1){
  			for(int i=0; i<node.getChildNodes().getLength(); i++){
- 				setUUIDNodeText(node.getChildNodes().item(i),name,type,dataCluster,concept);
+ 				setUUIDNodeText(node.getChildNodes().item(i),name,type,dataCluster,concept,pseudoAutoIncrement);
  			}
  		}else{
 			if(node.getNodeName().equalsIgnoreCase(name)){
 				if(node.getTextContent()==null ||node.getTextContent().length()==0 ){							
-					if(EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type)){								
+					if(EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type)){
+						if(pseudoAutoIncrement) {
+							Random rand =new Random();
+							node.setTextContent(rand.nextInt(10000)+"");
+							return;
+						}
+						
 						//value=String.valueOf(new UID().getID());								
 						String id=String.valueOf(AutoIncrementGenerator.generateNum(LocalUser.getLocalUser().getUniverse().getName(), dataCluster,concept+"."+name));
 						//check id exists								

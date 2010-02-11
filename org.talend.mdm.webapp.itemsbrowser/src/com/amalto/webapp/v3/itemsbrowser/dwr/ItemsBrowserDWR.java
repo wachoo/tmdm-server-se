@@ -707,7 +707,7 @@ public class ItemsBrowserDWR {
     	   			root,
     			    conceptKey
     			);			
-    			UUIDItemContent content=com.amalto.core.util.Util.processUUID(root, schema, dataCluster, concept, conceptKey, itemKeyValues);
+    			UUIDItemContent content=com.amalto.core.util.Util.processUUID(root, schema, dataCluster, concept, conceptKey, itemKeyValues,true);
     			d = Util.parse(content.getItemContent());
         	}
     		com.amalto.core.util.Util.validate(d.getDocumentElement(), schema);
