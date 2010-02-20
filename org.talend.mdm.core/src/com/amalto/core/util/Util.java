@@ -1552,16 +1552,13 @@ public  class Util {
 		}   
 		return mapForAll;
 	}
+
 	public static String updateItem(String concept, String xsd, Node updateNode)throws Exception{
-		Element newNode=createItem(concept, xsd);
-		Map<String,String> map=getElementValueMap("/"+concept, updateNode);
-		JXPathContext newcontext = JXPathContext.newContext(newNode);		
-		for(Map.Entry<String,String> entry:map.entrySet()){
-			String xpath= entry.getKey();
-			xpath=xpath.replaceAll("/"+concept+"/", "");
-			newcontext.setValue(xpath, entry.getValue());
-		}
-		String xml=getXMLStringFromNode((Node)newcontext.getContextBean());
+		Element oldNode=createItem(concept, xsd);
+		//see 0011615: Complex type sequences are truncated when saving a record in both web app & studio
+		HashMap<String, UpdateReportItem> updatedPath=compareElement("/"+concept,updateNode,oldNode);		
+		Node newNode=updateElement("/"+concept, oldNode, updatedPath);	
+		String xml=getXMLStringFromNode(newNode);
 		return xml.replaceAll("<\\?xml.*?\\?>","");
 	}
 	
@@ -2802,27 +2799,7 @@ public  class Util {
 			jxpContext.createPathAndSetValue(xpath, entry.getValue().newValue);
 		}		
 		return (Node)jxpContext.getContextBean();
-	}
-	
-	//key is the xpath, value is the xpath value
-	public static HashMap<String, String> getElementValueMap(String parentPath,Node n)throws Exception{
-		HashMap<String, String> map =new HashMap<String, String>();
-		NodeList list=n.getChildNodes();
-		for(int i=0; i<list.getLength(); i++){
-			Node node=list.item(i);
-			if(node.getNodeType() == Node.ELEMENT_NODE){
-				String nName=node.getNodeName();
-				String xPath=parentPath+"/"+nName;
-				String nValue=getFirstTextNode(node, ".");
-				if( !hasChildren(node)){
-					map.put(xPath, nValue);
-				}else{					
-					map.putAll(getElementValueMap(xPath, node));
-				}
-			}
-		}
-		return map;
-	}
+	}	
 	private static UpdateReportItem getUpdatedItem(HashMap<String, UpdateReportItem> updatedpath, String xpath){
 		for( Map.Entry<String, UpdateReportItem> entry:updatedpath.entrySet()){
 			if(entry.getKey().startsWith(xpath)){
