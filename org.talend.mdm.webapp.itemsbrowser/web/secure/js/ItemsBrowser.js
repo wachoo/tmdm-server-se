@@ -776,7 +776,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var delimeter = search.indexOf("/");
 		if(delimeter==-1){
 			 var viewName = DWRUtil.getValue('viewItemsSelect');
-			 var conceptName = viewName.replace("Browse_items_","");
+			 //see 0011618: The web app does not recognize a FT search when the browse view has a suffix (Browse_item_<entity>#suffix) 
+			 var conceptName = viewName.replace("Browse_items_","").replace(/#.*/,"");
 			 if(search==conceptName){
 			 	DWRUtil.removeAllOptions('itemsSearchOperator' + id);
 			 	DWRUtil.addOptions('itemsSearchOperator' + id ,FULL_TEXT_OPERS[language]);
