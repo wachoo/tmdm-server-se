@@ -122,9 +122,10 @@ public class Configuration {
 		
 		Element user=null;
 		String userxml = Util.getAjaxSubject().getXml();
-		if(userxml==null||userxml.length()==0) {
+		try {
 			user  = Util.getLoginProvisioningFromDB();
-		}else {
+		}catch(Exception e) {}
+		if(user==null) {
 			user  = (Element)Util.getNodeList(Util.parse(userxml), "//"+"User").item(0);
 		}
 		
