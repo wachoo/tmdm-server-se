@@ -1901,23 +1901,33 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		return siblingLength;
 	}
-	
+	//see 0011614: The Web App resets the form when clicking on '+' to add a complex element. 
+	function getChildrenValues(parent){
+		var array=parent.children;
+		var values = [];		
+		for (var i = 0; i < array.length;i++) {
+			var nodenew = array[i];
+			if(nodenew.children.length==0){
+		  		if(!(typeof(nodenew) == "undefined")&& $(nodenew.index+"Value")!=null){// && nodenew.itemData.nodeId==node.itemData.nodeId)
+					var value1 = nodenew.index+"--"+$(nodenew.index+"Value").value;//DWRUtil.getValue(nodenew.index+"Value");
+					values.push(value1);					 
+		  		}				
+			}else{
+				var var1=getChildrenValues(nodenew);				
+				for(var ii=0; ii<var1.length; ii++){
+					if(var1[ii])values.push(var1[ii]);
+				}
+			}
+		}
+		return values;
+	}
 	function cloneNode2(siblingId, hasIcon, treeIndex){
 		var itemTree = itemTreeList[treeIndex];
 		var siblingNode = itemTree.getNodeByIndex(siblingId);
 		
 		//add by ymli. remember the values of the siblingNodes.fix the bug:0010576
 		var values = [];
-		var array = siblingNode.parent.children;
-		var j = 0;
-		for (var i = 0; i < array.length;i++) {
-			var nodenew = array[i];
-	  		if(!(typeof(nodenew) == "undefined")&& $(nodenew.index+"Value")!=null){// && nodenew.itemData.nodeId==node.itemData.nodeId)
-				var value1 = nodenew.index+"--"+$(nodenew.index+"Value").value;//DWRUtil.getValue(nodenew.index+"Value");
-				values[j] = value1;
-				 j++;
-	  		}
-		}
+		values=getChildrenValues(siblingNode.parent);
 		//var value = DWRUtil.getValue(siblingId+"Value");
 		//modified by ymli. If the Items is more than maxOccurs, alert and return
 		if(siblingNode.itemData.maxOccurs>=0&&siblingNode.parent!=null && getSiblingsLength(siblingNode)>=siblingNode.itemData.maxOccurs){
@@ -1953,21 +1963,20 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			});
 		};
 		var length = map[treeIndex].length;
-    	map[treeIndex][length + i] = newNode;
+    	map[treeIndex][length] = newNode;
     	
 		newNode.setDynamicLoad(fnLoadData);
 		//itemTree.getRoot().refresh();
 		siblingNode.parent.refresh();
 		amalto.core.ready();
-		$(nodeCount+"Value").value = "";
+		if($(nodeCount+"Value"))$(nodeCount+"Value").value = "";
 		//add by ymli. set the values of the siblingNodes. fix the bug:0010576
-		for(t=0;t<values.length;t++){
+		for(var t=0;t<values.length;t++){
 			var value = values[t];
 			var idValue = value.split("--");
 			if(idValue!=null && $(idValue[0]+"Value")!=null)
 				$(idValue[0]+"Value").value = idValue[1];
-		}
-		
+		}		
 	}
 	
 	function showEditWindow(nodeIndex, treeIndex, nodeType){
