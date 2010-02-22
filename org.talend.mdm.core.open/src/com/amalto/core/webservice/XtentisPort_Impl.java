@@ -691,4 +691,10 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSRoutingEngineV2Status _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSCategoryData getMDMCategory(com.amalto.core.webservice.WSCategoryData wsCategoryDataRequest) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSCategoryData _retVal = null;
+        return _retVal;
+    }
 }

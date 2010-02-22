@@ -1,7 +1,6 @@
 package com.amalto.core.delegator;
 
 import java.io.ByteArrayInputStream;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -4706,5 +4705,42 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 		
 		
 	}
-		
+
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	
+	 public WSCategoryData getMDMCategory(WSCategoryData request) throws RemoteException {
+
+		 try {
+			  if(request == null)
+			  {
+				 // create and retrieve an empty treeObject Category from xdb in the case of request being null
+
+				  String category = Util.getXmlServerCtrlLocal().getDocumentAsString(null, "CONF", "CONF.TREEOBJECT.CATEGORY");
+				  if(category == null)
+				  {
+					  String empty = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+					  empty +="<root/>";
+					  Util.getXmlServerCtrlLocal().putDocumentFromString(empty, "CONF", "CONF.TREEOBJECT.CATEGORY", "");
+					  category = empty;
+				  }
+
+				  return new WSCategoryData(category);
+			  }
+			  else
+			  {
+				  Util.getXmlServerCtrlLocal().putDocumentFromString(request.getCategorySchema(), "CONF.TREEOBJECT.CATEGORY", "CONF", null);
+				  return request; 
+			  }
+
+		} catch (XtentisException e) {
+			e.printStackTrace();
+			return null;
+		}
+		 
+	 }
 }

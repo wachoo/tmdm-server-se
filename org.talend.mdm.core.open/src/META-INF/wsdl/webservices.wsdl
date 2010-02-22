@@ -883,6 +883,12 @@
         <part name="wsRoutingEngineStatus" element="tns:WSRoutingEngineV2Status"/>
     </message>
 
+    <message name="getMDMCategoryRequest">
+       <part name="wsCategoryDataRequest" element="tns:WSCategoryData"/>
+    </message>
+    <message name="getMDMCategoryResponse">
+       <part name="wsCategoryDataResponse" element="tns:WSCategoryData"/>
+    </message>
 	<!-- *****************************************************
 		              P O R T		
 		              
@@ -1429,7 +1435,12 @@
         <operation name="routingEngineV2Action">
             <input message="tns:routingEngineV2ActionRequest"/>
             <output message="tns:routingEngineV2ActionResponse"/>
-        </operation>    
+        </operation>
+        
+         <operation name="getMDMCategory">
+            <input message="tns:getMDMCategoryRequest"/>
+            <output message="tns:getMDMCategoryResponse"></output>
+        </operation>
 	</portType>
 	
 
@@ -2115,7 +2126,13 @@
             <input><soap:body use="literal"/></input>
             <output><soap:body use="literal"/></output>
         </operation>
-
+       
+        <operation name="getMDMCategory">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+       
 	</binding>
 		
 	

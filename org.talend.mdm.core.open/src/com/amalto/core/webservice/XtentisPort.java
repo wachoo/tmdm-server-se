@@ -236,4 +236,6 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSRoutingEngineV2Status routingEngineV2Action(com.amalto.core.webservice.WSRoutingEngineV2Action wsRoutingEngineAction) throws 
          java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSCategoryData getMDMCategory(com.amalto.core.webservice.WSCategoryData wsCategoryDataRequest) throws 
+         java.rmi.RemoteException;
 }

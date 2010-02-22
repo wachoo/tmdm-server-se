@@ -1676,4 +1676,14 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().routingEngineV2Action(wsRoutingEngineAction);
 
 	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+    public WSCategoryData getMDMCategory(WSCategoryData request) throws RemoteException {
+    	return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().getMDMCategory(request);
+    }
 }

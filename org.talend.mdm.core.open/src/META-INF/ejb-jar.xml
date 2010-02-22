@@ -1583,6 +1583,19 @@
          </method-params>
       </method>
    </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>getMDMCategory</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSCategoryData</method-param>
+         </method-params>
+      </method>
+   </method-permission>
 
    <!-- transactions -->
      <!--

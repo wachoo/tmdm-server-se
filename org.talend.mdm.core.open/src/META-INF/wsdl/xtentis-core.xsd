@@ -1685,4 +1685,11 @@
     </xsd:complexType>
     <xsd:element name="WSGetRoutingRulePKs" type="tns:WSGetRoutingRulePKs"/>    
 
+    <xsd:complexType name="WSCategoryData">
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="categorySchema" nillable="false" type="xsd:string"/>
+        </xsd:sequence>     
+    </xsd:complexType>
+    <xsd:element name="WSCategoryData" type="tns:WSCategoryData"/>
+   
 </xsd:schema>
