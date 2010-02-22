@@ -1093,7 +1093,6 @@ public class ItemsBrowserDWR {
 					String outputErrorMessage = "";
 					//Scan the entries - in priority, taka the content of the 'output_error_message' entry, 
 					for (int i = 0; i < entries.length; i++) {
-
 						if ("output_error_message".equals(entries[i]
 								.getVariable())) {
 							outputErrorMessage = new String(entries[i]
@@ -1101,7 +1100,6 @@ public class ItemsBrowserDWR {
 									.getBytes(), "UTF-8");
 							break;
 						}
-
 					}
 					//handle error message
 					if (outputErrorMessage.length() > 0) {
@@ -1119,7 +1117,7 @@ public class ItemsBrowserDWR {
 
 						}
 						if (!errorCode.equals("") && !errorCode.equals("0")) {
-							errorMessage = "ERROR_3:" + errorMessage;
+							errorMessage = "ERROR_3:" + errorMessage;							
 							return errorMessage;
 						}
 
@@ -1141,20 +1139,23 @@ public class ItemsBrowserDWR {
 							xml,
 							new WSDataModelPK(dataModelPK),isUpdateThisItem));
 			System.out.println(System.currentTimeMillis()-startt);
-			//update update report key
-			resultUpdateReport=resultUpdateReport.replaceFirst("<Key>.*</Key>", "<Key>"+Util.joinStrings(wsi.getIds(),".")+"</Key>"); 
 			//put update report
 			synchronizeUpdateState(ctx);
-					
-
-			return persistentUpdateReport(resultUpdateReport,true);
+			//update update report key
+			if(resultUpdateReport!=null) {
+				resultUpdateReport=resultUpdateReport.replaceFirst("<Key>.*</Key>", "<Key>"+Util.joinStrings(wsi.getIds(),".")+"</Key>"); 					
+				return persistentUpdateReport(resultUpdateReport,true);
+			}
+			return "OK";
 		}
 		catch(Exception e){			
 			String err= "Unable to save item '"+concept+"."+Util.joinStrings(ids, ".")+"'";
 			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).error(err,e);
 			throw e;
-		}		
-
+		}finally {
+			//clear ctx see 0011689: problem with beforeSaving Process 
+			synchronizeUpdateState(ctx);			
+		}
 	}
 
 
@@ -1594,6 +1595,7 @@ public class ItemsBrowserDWR {
 
 
 	private static String persistentUpdateReport(String xml2,boolean routeAfterSaving) {
+		if(xml2==null) return "OK";
 		try {
 			WSItemPK itemPK = Util.getPort().putItem(
 					new WSPutItem(
@@ -1668,15 +1670,19 @@ public class ItemsBrowserDWR {
             "<Key>"+StringEscapeUtils.escapeXml(key)+"</Key>";
 		if("UPDATE".equals(operationType)){
 			Collection<UpdateReportItem> list = updatedPath.values();
-			for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {
+			boolean isUpdate=false;
+			for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {				
 				UpdateReportItem item = iter.next();
+				if(item.getOldValue().equals(item.getNewValue())) continue; 
 		            xml2 += 
 		            "<Item>"+
 		            "   <path>"+StringEscapeUtils.escapeXml(item.getPath())+"</path>"+
 		            "   <oldValue>"+StringEscapeUtils.escapeXml(item.getOldValue())+"</oldValue>"+
 		            "   <newValue>"+StringEscapeUtils.escapeXml(item.getNewValue())+"</newValue>"+
 		           "</Item>"; 		
-				}     
+		            isUpdate=true;
+			}     
+			if(!isUpdate) return null;
 		}
         xml2 += "</Update>";
 		return xml2;
