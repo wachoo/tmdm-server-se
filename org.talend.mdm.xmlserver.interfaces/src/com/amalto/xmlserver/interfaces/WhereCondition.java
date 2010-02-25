@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 import org.w3c.dom.Document;
 
 
+
+
 /**
  * @author Bruno Grieder
  * 
@@ -84,7 +86,11 @@ public class WhereCondition  implements IWhereItem, Serializable {
 		super();
 		this.leftPath = leftPath;
 		this.operator = operator;
-		this.rightValueOrPath = rightValueOrPath;
+		if(!rightValueOrPath.startsWith("^") && (null!=this.operator && this.operator.equals(WhereCondition.STARTSWITH))){
+			this.rightValueOrPath = "^"+rightValueOrPath;
+		}else{
+			this.rightValueOrPath = rightValueOrPath;
+		}
 		this.stringPredicate = stringPredicate;
 		this.spellCheck = spellCheck;
 	}
@@ -106,7 +112,11 @@ public class WhereCondition  implements IWhereItem, Serializable {
 		return rightValueOrPath;
 	}
 	public void setRightValueOrPath(String rightValueOrPath) {
-		this.rightValueOrPath = rightValueOrPath;
+		if(!rightValueOrPath.startsWith("^") && (null!=this.operator && this.operator.equals(WhereCondition.STARTSWITH))){
+			this.rightValueOrPath = "^"+rightValueOrPath;
+		}else{
+			this.rightValueOrPath = rightValueOrPath;
+		}
 	}
 	public String getStringPredicate() {
 		return stringPredicate;
