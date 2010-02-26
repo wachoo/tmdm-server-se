@@ -1971,7 +1971,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     	
 		newNode.setDynamicLoad(fnLoadData);
 		//itemTree.getRoot().refresh();
-		siblingNode.parent.refresh();
+		//siblingNode.parent.refresh();
+		itemTree.getRoot().refresh();
 		amalto.core.ready();
 		if($(nodeCount+"Value"))$(nodeCount+"Value").value = "";
 		//add by ymli. set the values of the siblingNodes. fix the bug:0010576
@@ -2112,7 +2113,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var values = [];
 		//var array = map[treeIndex];
 		var j = 0;
-		for (var i = 0; i < array.length;i++) {
+		
+		values = getChildrenValues(node.parent);
+		/*for (var i = 0; i < array.length;i++) {
 			if(!(typeof(array[i]) == "undefined")){
 			var valueNode = array[i];
 	  		if(!(typeof(valueNode) == "undefined") && $(valueNode.index+"Value")){// && nodenew.itemData.nodeId==node.itemData.nodeId)
@@ -2121,7 +2124,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				 j++;
 	  		}
 			}
-		}
+		}*/
 
 		//add by ymli. remember the siblingNodeValues
 		var siblingNodeValues = [];
