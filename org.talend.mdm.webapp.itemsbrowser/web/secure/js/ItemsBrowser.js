@@ -1784,6 +1784,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		//var data = itemTree.getNodeByIndex(id).data;	
 		var node = itemTree.getNodeByIndex(id);
 		var value  = DWRUtil.getValue(id+"Value");
+		if(node.itemData.valueInfo != null)
+		{
+			value = node.itemData.value;
+		}
 		if(node.itemData.key==true){
 			keys[treeIndex][node.itemData.keyIndex] = value;
 		}
@@ -2696,9 +2700,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		        itemSelector: 'div.search-item',
 		        onSelect: function(record){
                     this.collapse();
-                	DWRUtil.setValue(nodeId+'Value', record.get("keys"));//+"--"+record.get("infos"));
-                	updateNode(nodeId,treeIndex);
+                	DWRUtil.setValue(nodeId+'Value', record.get("infos"));//+"--"+record.get("infos"));
 		        	foreignKeyWindow.hide();
+            		var itemTree = itemTreeList[treeIndex];
+            		var node = itemTree.getNodeByIndex(nodeId);
+            		node.itemData.value = record.get("keys");
+            		node.itemData.valueInfo = record.get("infos");
+                	updateNode(nodeId,treeIndex);
 		        }
 		    });
 

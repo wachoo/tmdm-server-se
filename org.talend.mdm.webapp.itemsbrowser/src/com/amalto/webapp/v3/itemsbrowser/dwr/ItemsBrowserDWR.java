@@ -393,7 +393,31 @@ public class ItemsBrowserDWR {
 		treeNode.setMaxOccurs(maxOccurs);
 		treeNode.setMinOccurs(xsp.getMinOccurs());
 		treeNode.setNillable(xsp.getTerm().asElementDecl().isNillable());
-		
+		ArrayList<String> infos = treeNode.getForeignKeyInfo();
+
+		if(infos != null)
+		{
+			String keyInfos = "";
+			for(String keyInfo : infos)
+			{
+				keyInfos += keyInfo + ",";
+			}
+			if(keyInfos.endsWith(","))
+			{
+				keyInfos = keyInfos.substring(0, keyInfos.length()-1);
+//				if(treeNode.getValue() != null)
+				{
+					try {
+						String jasonData = getForeignKeyList(0, 100, ".*",  treeNode.getForeignKey(), keyInfos);
+						treeNode.setValueInfo(jasonData);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	
+				}
+			}
+		}
+
 		// this child is a complex type
 		if(xsp.getTerm().asElementDecl().getType().isComplexType()==true) {    			
 			XSParticle particle = xsp.getTerm().asElementDecl()
@@ -493,7 +517,18 @@ public class ItemsBrowserDWR {
 						if(nodeList.item(i).getFirstChild()!=null)
 						{
 							treeNodeTmp.setValue(nodeList.item(i).getFirstChild().getNodeValue());
-//							setForeignKeyValueInfoToTreeNode(xpath, treeNodeTmp, d, nodeList.item(i).getFirstChild().getNodeValue());
+							JSONObject jason = new JSONObject(treeNode.getValueInfo());
+							JSONArray rows = (JSONArray)jason.get("rows");
+							for(int n = 0; n < rows.length(); n++)
+							{
+								JSONObject row = (JSONObject)rows.get(n);
+								String keyValue = (String)row.get("keys");
+								if(keyValue.equals(treeNode.getValue()))
+								{
+									treeNodeTmp.setValueInfo(row.getString("infos"));
+									break;
+								}
+							}
 						}
 						treeNodeTmp.setNodeId(nodeCount);
 						// TODO check addThisNode
@@ -515,7 +550,27 @@ public class ItemsBrowserDWR {
 						nodeAutorization.add(xpath);
 					idToXpath.put(nodeCount,xpath);
 					treeNode.setValue(StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath)));
-//					setForeignKeyValueInfoToTreeNode(xpath, treeNode, d, Util.getFirstTextNode(d,xpath));	
+					if(treeNode.getValueInfo() != null)
+					{
+						JSONObject jason = new JSONObject(treeNode.getValueInfo());
+						JSONArray rows = (JSONArray)jason.get("rows");
+						for(int n = 0; n < rows.length(); n++)
+						{
+							JSONObject row = (JSONObject)rows.get(n);
+							String keyValue = (String)row.get("keys");
+							if(keyValue.equals(treeNode.getValue()))
+							{
+								treeNode.setValueInfo(row.getString("infos"));
+								break;
+							}
+							else if(treeNode.getValue() == null)
+							{
+								treeNode.setValueInfo(null);
+								break;
+							}
+						}
+					}
+
 		    		if(treeNode.isVisible()==true){
 		    			list.add(treeNode);    			
 		    			nodeCount++; 
