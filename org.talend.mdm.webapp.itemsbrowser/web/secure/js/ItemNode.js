@@ -372,6 +372,11 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 						return false;
 					}
+					if(this.itemData.restrictions[i].name=="length" && value.length!=parseInt(this.itemData.restrictions[i].value)){
+						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+						return false;
+                        }
+					
 					if(this.itemData.restrictions[i].name=="minExclusive" )
 					{
 						if (isNaN(value))
@@ -428,6 +433,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						}
 	
 					}
+					
+					
 				}
 				
 				// var checkParentminOIsReturn = null;
@@ -443,6 +450,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					if(this.itemData.restrictions[i].name=="pattern"){
 						var patrn=new RegExp(this.itemData.restrictions[i].value);
 						if(!patrn.exec(value)){
+						//if(value.match(this.itemData.restrictions[i].value)==null){
 							var msg="\""+this.itemData.name+"\" de pattern est \""+this.itemData.restrictions[i].value+"\".";
 							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 							return false;
