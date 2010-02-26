@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -58,7 +60,8 @@ import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 public abstract class ObjectPOJO implements Serializable{
    
 	/* cached the Object pojos to improve performance*/
-	//private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();	
+	private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();
+	private static final int MAX_CACHE_SIZE=5000;
 	public static String getCluster(Class<? extends ObjectPOJO> objectClass) {
 		return getCluster(objectClass.getName());
 	}
@@ -298,11 +301,11 @@ public abstract class ObjectPOJO implements Serializable{
             //retrieve the item
             String urlid =  objectPOJOPK.getUniqueId();
             String item=null;
-//            ItemCacheKey key =new ItemCacheKey(revisionID,urlid, getCluster(objectClass));
-//            if(cachedPojo.size()==5000)cachedPojo.clear();
-//            if(cachedPojo.containsKey(key)){
-//            	item=cachedPojo.get(key);            	
-//            }else{
+            ItemCacheKey key =new ItemCacheKey(revisionID,urlid, getCluster(objectClass));
+            if(cachedPojo.size()==MAX_CACHE_SIZE)cachedPojo.clear();
+            if(cachedPojo.containsKey(key)){
+            	item=cachedPojo.get(key);            	
+            }else{
             	item = server.getDocumentAsString(revisionID, getCluster(objectClass), urlid, null);
             	//aiming add see 9603 if System Object load faild try to load it from HEAD universe
             	if(!(revisionID==null || revisionID.length()==0) && item == null){
@@ -311,9 +314,9 @@ public abstract class ObjectPOJO implements Serializable{
             		}
             	}
             	//end
-//            	if(item!=null)
-//            	cachedPojo.put(key, item);
-//            }
+            	if(item!=null)
+            	cachedPojo.put(key, item);
+            }
                                     
             if (item==null) {
                 return null;
@@ -403,8 +406,8 @@ public abstract class ObjectPOJO implements Serializable{
             if (res==-1) return null;
             
             //remove the cache
-            //ItemCacheKey key =new ItemCacheKey(revisionID,objectPOJOPK.getUniqueId(), getCluster(objectClass));
-            //cachedPojo.remove(key);
+            ItemCacheKey key =new ItemCacheKey(revisionID,objectPOJOPK.getUniqueId(), getCluster(objectClass));
+            cachedPojo.remove(key);
             return objectPOJOPK;
             
     	} catch (XtentisException e) {
@@ -510,8 +513,8 @@ public abstract class ObjectPOJO implements Serializable{
             	
             setLastError("");
             //update the cache
-            //ItemCacheKey key =new ItemCacheKey(revisionID,getPK().getUniqueId(), getCluster(this.getClass()));            
-            //cachedPojo.put(key, sw.toString());
+            ItemCacheKey key =new ItemCacheKey(revisionID,getPK().getUniqueId(), getCluster(this.getClass()));            
+            cachedPojo.put(key, sw.toString());
             return getPK();
     	} catch (XtentisException e) {
     		throw(e);
@@ -944,7 +947,7 @@ public abstract class ObjectPOJO implements Serializable{
         } 
     }
     
-//    public static void clearCache(){
-//    	//cachedPojo.clear();
-//    }
+    public static void clearCache(){
+    	cachedPojo.clear();
+    }
 }
