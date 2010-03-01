@@ -19,6 +19,7 @@
 						&lt;xsd:enumeration value="CREATE"/&gt;
 						&lt;xsd:enumeration value="UPDATE"/&gt;
 						&lt;xsd:enumeration value="DELETE"/&gt;
+						&lt;xsd:enumeration value="ACTION"/&gt;
 					&lt;/xsd:restriction&gt;
 				&lt;/xsd:simpleType&gt;
 			&lt;/xsd:element&gt;

@@ -277,6 +277,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Journal'
 	};
 	
+	var BUTTON_ACTION = {
+        'fr':'Lancement du processus',
+        'en':'Launch Process'
+    };
+	
 	var BUTTON_LOGICAL_DEL = {
 		'fr':'Suppression logique',
 		'en':'Logical Delete'
@@ -381,6 +386,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'fr':'Ouvre le journal d\'audit de cet enregistrement',
 		'en':'Browse the audit trail for this record'
 	};
+	var ACTION_TOOLTIP={
+        'fr':'Lancement du processus pour cette entité',
+        'en':'Launch Process for this entity'
+    };
 	
 	var UPLOAD_FILE={
 		'fr':'Transférer une image',
@@ -1311,6 +1320,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var O_LOGICAL_DEL   = 64;
 	var O_DUPLICATE     = 128;
 	var O_JOURNAL       = 256;
+	var O_ACTION        = 512;
 	
 	// modes
 	var M_TREE_VIEW		= 1;
@@ -1332,7 +1342,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	
-	function initToolBar(toolbar, mode)
+	function initToolBar(/*Ext.Toolbar*/toolbar, mode)
 	{
 		
 		clearToolBar(toolbar);
@@ -1350,6 +1360,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				options |= (toolbar.baseOptions & O_LOGICAL_DEL);
 				options |= (toolbar.baseOptions & O_DUPLICATE);
 				options |= (toolbar.baseOptions & O_JOURNAL);
+				options |= (toolbar.baseOptions & O_ACTION);
 				
 			break;
 			case M_PERSO_VIEW:
@@ -1477,6 +1488,60 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			toolbar.addButton( {tooltip:JOURNAL_TOOLTIP[language],text: BUTTON_JOURNAL[language], className: 'tb-button tb-button-nude', handler: toolbar.journalItemHandler});
 			nbButtons++;
 		}
+		
+		// action
+        if ( (options&O_ACTION)==O_ACTION )
+        {
+            if (nbButtons>0)
+            {
+                toolbar.addSeparator();
+                nbButtons++;
+            }
+            
+            // add a combobox to the toolbar           
+            var processStore = new Ext.data.Store({
+                 proxy: new Ext.data.DWRProxy(ItemsBrowserInterface.getRunnableProcessList , true),
+                 reader:new Ext.data.ListRangeReader({
+                      totalProperty: 'totalSize',
+                      id: 'value',
+                      root: 'data'
+                  }, Ext.data.Record.create([
+                            {name: 'value',mapping:'value',type:'string'},
+                            {name: 'text',mapping:'text',type:'string'}
+                           ])
+                   )
+                });
+                
+            processStore.on('beforeload', 
+                    function(button, event) {
+                      var dataObjectValue=toolbar.dataObject;
+                      var input=dataObjectValue+"&"+language;
+                      Ext.apply(processStore.baseParams,{
+                                  start: 0, 
+                                  limit: 0,
+                                  regex: input
+                                });
+                                
+                    }
+             );
+               
+            var combo = new Ext.form.ComboBox({
+            	id :  "processCombo"+toolbar.treeIndex,
+            	name : "processCombo"+toolbar.treeIndex,
+            	editable : false,
+                store: processStore,
+                displayField:'text',
+                valueField:'value',
+                typeAhead: true,
+                triggerAction: 'all',
+                forceSelection:true
+                //width:135
+            });
+            
+            toolbar.addField(combo);
+            toolbar.addButton( {tooltip:ACTION_TOOLTIP[language],text: BUTTON_ACTION[language], className: 'tb-button tb-button-nude', handler: toolbar.processItemHandler});
+            nbButtons++;
+        }
 	}
 	
 	
@@ -1691,6 +1756,51 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         		tbDetail.journalItemHandler = function() {
         			journalItem(ids, dataObject);
         		};
+        		tbDetail.processItemHandler = function() {
+                    
+                    var selectedProcess = Ext.getCmp('processCombo'+tbDetail.treeIndex).value;
+                    if(selectedProcess==null||selectedProcess==''){
+                       Ext.MessageBox.alert("Warnning", "Please select a process first! ");
+                       return;
+                    }
+                    
+                    //TODO:add a confirm here( do save)
+                    
+                    Ext.MessageBox.show({
+                           msg: 'Processing, please wait...',
+                           progressText: 'Processing...',
+                           width:300,
+                           wait:true,
+                           waitConfig: {interval:200}
+                        });
+                    ItemsBrowserInterface.processItem(tbDetail.dataObject, tbDetail.ids, selectedProcess, function(result){
+                       Ext.MessageBox.hide();
+                       if(result){
+                           Ext.MessageBox.alert('Status', "Process done! ");
+                           //FIXME mock refresh
+                           itemTree.removeNode(node1);
+                           var node2 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
+                           ItemsBrowserInterface.setTree(dataObject, itemPK2, node2.index, false, treeIndex, function(result){
+                                node2.setDynamicLoad(fnLoadData,1);
+                                node2.expand();
+                                itemTree.draw();
+                           });
+
+                           //amalto.core.getTabPanel().remove('itemDetailsdiv'+ treeIndex);
+                           //displayItemDetails(itemPK2,dataObject);
+                                                      
+                           var itempanel = amalto.core.getTabPanel().activeTab;
+                           if (itempanel) {
+                                itempanel.isdirty = true;
+                           }
+                           
+                           displayItems.call(); 
+                            
+                       }else{
+                       Ext.MessageBox.alert('Status', "Process failed! ");	
+                       }
+                    });
+                };
         		
         		ItemsBrowserInterface.checkIfTransformerExists(dataObject, language, function(result){
         			
@@ -1729,7 +1839,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     		
     			//case edit and no editable
     			if(rootNode.readOnly==false && newItem[treeIndex]==false) {
-    				tbDetail.baseOptions |= O_DELETE|O_LOGICAL_DEL|O_DUPLICATE|O_JOURNAL;	
+    				tbDetail.baseOptions |= O_DELETE|O_LOGICAL_DEL|O_DUPLICATE|O_JOURNAL|O_ACTION;	
     			}		
     	
     			//add for duplicate case

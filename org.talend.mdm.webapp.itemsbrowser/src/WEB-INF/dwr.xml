@@ -13,6 +13,9 @@
         <convert converter="bean" match="java.lang.Exception"/>
         <convert converter="bean" match="java.lang.StackTraceElement"/>
         
+        <convert converter="bean" match="com.amalto.webapp.core.bean.ComboItemBean"/>
+        <convert converter="bean" match="com.amalto.webapp.core.bean.ListRange"/>
+        
     </allow>
 
 </dwr>

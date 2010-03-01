@@ -31,7 +31,9 @@ import org.w3c.dom.NodeList;
 
 import com.amalto.core.util.UUIDItemContent;
 import com.amalto.core.util.XSDKey;
+import com.amalto.webapp.core.bean.ComboItemBean;
 import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.json.JSONArray;
@@ -2102,5 +2104,95 @@ public class ItemsBrowserDWR {
         }
 		return document;
 		
+	}
+	
+	public ListRange getRunnableProcessList(int start, int limit, String sort,String dir, String regex) throws Exception {
+		ListRange listRange = new ListRange();
+		try {
+			
+			if(regex==null||regex.length()==0)return listRange;
+			String[] inputParams=regex.split("&");
+			String businessConcept=inputParams[0];
+			String language=inputParams[1];
+			
+			//get Runnable process
+			List<ComboItemBean> comboItem = new ArrayList<ComboItemBean>();
+			
+			WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();
+			for (int i = 0; i < wst.length; i++) {
+				if(wst[i].getPk().startsWith("Runnable_"+businessConcept)){
+					String pk=wst[i].getPk();
+					String text=pk;
+					if(pk.lastIndexOf("#")==-1) {
+						if(language.equalsIgnoreCase("fr"))text="Action par défaut";
+						else text="Default Action";
+					}else {
+						text=pk.substring(pk.lastIndexOf("#")+1);
+					}
+					comboItem.add(new ComboItemBean(wst[i].getPk(), text));
+				}
+			}
+			
+			listRange.setData(comboItem.toArray());
+			listRange.setTotalSize(comboItem.size());
+			
+		} catch (Exception e) {
+			String err = "Unable to get Runnable Process List! ";
+			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).error(err,e);
+			throw new Exception(e.getLocalizedMessage());
+		}
+		return listRange;
+	}
+	
+	public boolean processItem(String concept, String[] ids,String transformerPK) throws Exception {
+		try {
+			String itemAlias = concept + "." + Util.joinStrings(ids, ".");
+			//create updateReport
+			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).info(
+					"Creating update-report for " + itemAlias + "'s action. ");
+			String updateReport = createUpdateReport(ids, concept, "ACTION",
+					null);
+			//System.out.println(updateReport);
+			WSTransformerContext wsTransformerContext = new WSTransformerContext(
+					new WSTransformerV2PK(transformerPK), null, null);
+			WSTypedContent wsTypedContent = new WSTypedContent(null,
+					new WSByteArray(updateReport.getBytes("UTF-8")),
+					"text/xml; charset=utf-8");
+			WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(
+					wsTransformerContext, wsTypedContent);
+			//check runnable transformer 
+			//we can leverage the exception mechanism also
+			boolean isRunnableTransformerExist = false;
+			WSTransformerPK[] wst = Util.getPort().getTransformerPKs(
+					new WSGetTransformerPKs("*")).getWsTransformerPK();
+			for (int i = 0; i < wst.length; i++) {
+				if (wst[i].getPk().equals(transformerPK)) {
+					isRunnableTransformerExist = true;
+					break;
+				}
+			}
+			//execute
+			if (isRunnableTransformerExist) {
+				org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).info(
+						"Executing transformer for " + itemAlias
+								+ "'s action. ");
+				WSTransformerContextPipelinePipelineItem[] entries = Util
+						.getPort().executeTransformerV2(wsExecuteTransformerV2)
+						.getPipeline().getPipelineItem();
+			} else {
+				return false;
+			}
+			//store
+			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).info(
+					"Saving update-report for " + itemAlias + "'s action. ");
+			if (!persistentUpdateReport(updateReport, false).equals("OK"))
+				return false;
+		} catch (Exception e) {
+			String err = "Unable to launch Runnable Process! ";
+			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).error(err,e);
+			throw new Exception(e.getLocalizedMessage());
+		}
+		return true;
+
 	}
 }
