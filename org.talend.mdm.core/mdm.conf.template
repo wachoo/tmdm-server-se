@@ -46,3 +46,6 @@ routing.engine.max.execution.time.millis=300000
 #	2- Reclaiming tokens of Routing Orders that timed out (see setting above)
 #	3- Allocating tokens to Routing Orders waiting for execution and scheduling their execution
 routing.engine.run.period.millis=2500
+
+#max cache size of objects
+max_cache_size=5000

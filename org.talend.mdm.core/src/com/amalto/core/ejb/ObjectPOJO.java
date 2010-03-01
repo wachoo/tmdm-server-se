@@ -20,6 +20,7 @@ import javax.xml.xpath.XPathFactory;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -61,7 +62,14 @@ public abstract class ObjectPOJO implements Serializable{
    
 	/* cached the Object pojos to improve performance*/
 	private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();
-	private static final int MAX_CACHE_SIZE=5000;
+	private static  int MAX_CACHE_SIZE=5000;
+	static{
+		String max_cache_size=(String)MDMConfiguration.getConfiguration().get("max_cache_size");
+		if(max_cache_size!=null){
+			MAX_CACHE_SIZE=Integer.valueOf(max_cache_size).intValue();
+		}
+	}
+	
 	public static String getCluster(Class<? extends ObjectPOJO> objectClass) {
 		return getCluster(objectClass.getName());
 	}
