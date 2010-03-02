@@ -43,7 +43,7 @@ public class TreeNode implements Cloneable {
 	private int minOccurs;
 	private boolean nillable = true;
 	private boolean choice;
-	private ArrayList<Restriction> restrictions;
+	private ArrayList<Restriction> restrictions = new ArrayList<Restriction>();
 	private ArrayList<String> enumeration;
 	private String foreignKey;
 	private boolean visible;
