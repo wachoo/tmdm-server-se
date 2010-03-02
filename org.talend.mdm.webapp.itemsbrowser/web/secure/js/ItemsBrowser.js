@@ -2890,11 +2890,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var fnLoadData2;
 	
 		
-	function browseForeignKey(nodeId, foreignKeyXpath){
+	function browseForeignKey(nodeId, foreignKeyXpath, foreignKeyInfo){
 		//Check if have a Primary key made of multiple Item Ids or a single one
 		var keys = DWRUtil.getValue(nodeId+'Value');
 		var keyValue = keys;
-		
+		if(keyValue != foreignKeyInfo && foreignKeyInfo != null)
+		{
+			keyValue = foreignKeyInfo;
+		}
 		//edit by ymli.fix bug 0009625: Made the foreign key like "{key} - {info}" 
 		//revert it
 	/*	if(DWRUtil.getValue(nodeId+'Value').match(/(.*?)--(.*?)/)){
@@ -3066,7 +3069,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		updateOperatorList:function(id){updateOperatorList(id);},
 		updateNode:function(id,treeIndex){updateNode(id,treeIndex);},
 		setlastUpdatedInputFlagPublic:function(id,treeIndex){setlastUpdatedInputFlag(id,treeIndex);},
-		browseForeignKey:function(nodeId, foreignKeyXpath){browseForeignKey(nodeId, foreignKeyXpath);},
+		browseForeignKey:function(nodeId, foreignKeyXpath, foreignKeyInfo){browseForeignKey(nodeId, foreignKeyXpath, foreignKeyInfo);},
 		showDatePicker:function(nodeId,treeIndex,nodeType){showDatePicker(nodeId,treeIndex,nodeType);},
 		showUploadFile: function (nodeId, treeIndex, nodeType){showUploadFile(nodeId, treeIndex, nodeType)},
 		removePicture: function (nodeId, treeIndex){removePicture(nodeId, treeIndex)},

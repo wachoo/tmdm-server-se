@@ -519,18 +519,22 @@ public class ItemsBrowserDWR {
 						if(nodeList.item(i).getFirstChild()!=null)
 						{
 							treeNodeTmp.setValue(nodeList.item(i).getFirstChild().getNodeValue());
-							JSONObject jason = new JSONObject(treeNode.getValueInfo());
-							JSONArray rows = (JSONArray)jason.get("rows");
-							for(int n = 0; n < rows.length(); n++)
+							if(treeNode.getValueInfo() != null)
 							{
-								JSONObject row = (JSONObject)rows.get(n);
-								String keyValue = (String)row.get("keys");
-								if(keyValue.equals(treeNode.getValue()))
+								JSONObject jason = new JSONObject(treeNode.getValueInfo());
+								JSONArray rows = (JSONArray)jason.get("rows");
+								for(int n = 0; n < rows.length(); n++)
 								{
-									treeNodeTmp.setValueInfo(row.getString("infos"));
-									break;
+									JSONObject row = (JSONObject)rows.get(n);
+									String keyValue = (String)row.get("keys");
+									if(keyValue.equals(treeNode.getValue()))
+									{
+										treeNodeTmp.setValueInfo(row.getString("infos"));
+										break;
+									}
 								}
 							}
+
 						}
 						treeNodeTmp.setNodeId(nodeCount);
 						// TODO check addThisNode
@@ -556,6 +560,7 @@ public class ItemsBrowserDWR {
 					{
 						JSONObject jason = new JSONObject(treeNode.getValueInfo());
 						JSONArray rows = (JSONArray)jason.get("rows");
+						treeNode.setValueInfo(null);
 						for(int n = 0; n < rows.length(); n++)
 						{
 							JSONObject row = (JSONObject)rows.get(n);
