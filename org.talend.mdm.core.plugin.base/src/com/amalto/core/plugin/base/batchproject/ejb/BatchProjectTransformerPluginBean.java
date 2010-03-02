@@ -1,5 +1,6 @@
 package com.amalto.core.plugin.base.batchproject.ejb;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.regex.Pattern;
 
 import javax.ejb.SessionBean;
 
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -60,6 +62,7 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
 	public static final String PARAMETERS ="com.amalto.core.plugin.batchproject.parameters";
 	//various
 	private static final String INPUT_XML ="xml_instance";
+	private static final String INPUT_PATH ="file_path";
 	private static final String OUTPUT_XML ="unavailable_content";
 
 	private static final Pattern declarationPattern = Pattern.compile("<\\?.*?\\?>",Pattern.DOTALL);
@@ -156,9 +159,26 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
 		 HashMap<String, String> descriptions = new HashMap<String, String>();
 		 descriptions.put("en", "The items instances to project");
 		 descriptor.setDescriptions(descriptions);
-		 descriptor.setMandatory(true);
+		 descriptor.setMandatory(false);
 		 descriptor.setPossibleValuesRegex(null);
 		 inputDescriptors.add(descriptor);
+		 
+		 TransformerPluginVariableDescriptor descriptor2 = new TransformerPluginVariableDescriptor();
+		 descriptor2.setVariableName(INPUT_PATH);
+		 descriptor2.setContentTypesRegex(
+				 new ArrayList<Pattern>(
+						 Arrays.asList(new Pattern[]{
+								 Pattern.compile("text/.*")
+						})
+				)
+		 );
+		 HashMap<String, String> descriptions2 = new HashMap<String, String>();
+		 descriptions2.put("en", "An xml file path to pass to the batch project");
+		 descriptor2.setDescriptions(descriptions2);
+		 descriptor2.setMandatory(false);
+		 descriptor2.setPossibleValuesRegex(null);
+		 inputDescriptors.add(descriptor2);
+		 
 		 return inputDescriptors;
 		
 	}
@@ -327,10 +347,21 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
 		try {
 			CompiledParameters parameters= (CompiledParameters)context.get(PARAMETERS);
 			TypedContent xmlTC = (TypedContent)context.get(INPUT_XML);
-			
+			TypedContent pathTC = (TypedContent)context.get(INPUT_PATH);
 			//attempt to read charset
-			String charset =  Util.extractCharset(xmlTC.getContentType());
-			String xml = new String(xmlTC.getContentBytes(),charset);
+			String xml="";
+			if (pathTC!=null&&pathTC.getContentBytes()!=null) {
+				String charset = Util.extractCharset(pathTC.getContentType());
+				String pathText = new String(pathTC.getContentBytes(),charset);
+				 // Read the entire contents of sample.txt
+	            xml = FileUtils.readFileToString(new File(pathText));
+	            org.apache.log4j.Logger.getLogger(this.getClass()).info("Using xml file...");
+			}else {
+				String charset =  Util.extractCharset(xmlTC.getContentType());
+				xml= new String(xmlTC.getContentBytes(),charset);
+				org.apache.log4j.Logger.getLogger(this.getClass()).info("Using xml string...");
+			}
+			
 			//cleanup declaration
 			xml = declarationPattern.matcher(xml).replaceAll("");
 			
@@ -347,7 +378,10 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
 			String resultContent="<no-insert-items>"+br+br;
 			Document doc=Util.parse(xml);
 			NodeList nlist=Util.getNodeList(doc, "//"+conceptName);
+			
+			
 			if(nlist.getLength()>0){
+				long beginTime=System.currentTimeMillis();
 				for (int i = 0; i < nlist.getLength(); i++) {
 					Node selectedConceptNode=nlist.item(i);
 					String selectedConceptXml=Util.nodeToString(selectedConceptNode);
@@ -392,9 +426,14 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
 					    //org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);//error message stack be printed by ItemCtrl2Bean
 					    resultContent+=(selectedConceptXml+br);
 					}
+					
+					org.apache.log4j.Logger.getLogger(this.getClass()).info("Item "+(i+1)+" have been inserted. ");
 					if(puttedItemPOJOPK!=null)context.setProjectedPKToGlobalContext(puttedItemPOJOPK);
+					
 				}
+				org.apache.log4j.Logger.getLogger(this.getClass()).info("Totally "+nlist.getLength()+" items, used "+(System.currentTimeMillis()-beginTime)+" ms! ");
 			}
+			
 			
 			resultContent+="</no-insert-items>";
 		    context.put(OUTPUT_XML, new TypedContent(resultContent.getBytes(),"text/xml; charset=utf-8"));
