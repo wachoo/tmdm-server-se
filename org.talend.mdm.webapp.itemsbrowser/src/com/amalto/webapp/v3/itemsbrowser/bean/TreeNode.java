@@ -43,7 +43,7 @@ public class TreeNode implements Cloneable {
 	private int minOccurs;
 	private boolean nillable = true;
 	private boolean choice;
-	private ArrayList<Restriction> restrictions = new ArrayList<Restriction>();
+	private ArrayList<Restriction> restrictions;
 	private ArrayList<String> enumeration;
 	private String foreignKey;
 	private boolean visible;
@@ -237,23 +237,27 @@ public class TreeNode implements Cloneable {
 
 
 	public ArrayList<Restriction> getRestrictions() {
-		//edit by ymli; fix the bug:0011733
-		//if there are more than one pattern, connect them to be one( and "|" between them)
-		ArrayList<Restriction> newRestrictions = new ArrayList<Restriction> ();
+		// edit by ymli; fix the bug:0011733
+		// if there are more than one pattern, connect them to be one( and "|"
+		// between them)
+		ArrayList<Restriction> newRestrictions = new ArrayList<Restriction>();
 		String value = "";
-		for(int i = 0; i<restrictions.size();i++){
-			
-			Restriction re = restrictions.get(i);
-			if(re.getName().equals("pattern"))
-				value += re.getValue()+"|";
-			else
-				newRestrictions.add(re);
+		if (restrictions != null) {
+			for (int i = 0; i < restrictions.size(); i++) {
+				Restriction re = restrictions.get(i);
+				if (re.getName().equals("pattern"))
+					value += re.getValue() + "|";
+				else
+					newRestrictions.add(re);
+			}
+			if (value.length() > 0) {
+				Restriction re1 = new Restriction("pattern", value.substring(0,value.length() - 1));
+				newRestrictions.add(re1);
+			}
+
+			return newRestrictions;
 		}
-		if(value.length()>0){
-			Restriction re1 = new Restriction("pattern",value.substring(0, value.length()-1));
-			newRestrictions.add(re1);
-		}
-		return newRestrictions;
+		return restrictions;
 	}
 
 
