@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,6 +15,8 @@ import javax.ejb.EJBException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.exolab.castor.xml.Marshaller;
+import org.talend.mdm.commmon.util.bean.ItemCacheKey;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -56,8 +59,14 @@ public class ItemPOJO implements Serializable{
     private Element projection;
     
 	/* cached the Object pojos to improve performance*/
-	//private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();	
-
+	private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();	
+	private static  int MAX_CACHE_SIZE=5000;
+	static{
+		String max_cache_size=(String)MDMConfiguration.getConfiguration().get("max_cache_size");
+		if(max_cache_size!=null){
+			MAX_CACHE_SIZE=Integer.valueOf(max_cache_size).intValue();
+		}
+	}
     /**
      * 
      */
@@ -365,18 +374,18 @@ public class ItemPOJO implements Serializable{
         try {
               //retrieve the item
             String urlid =getFilename(itemPOJOPK); 
-//            ItemCacheKey key =new ItemCacheKey(revisionID,urlid, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
             String item=null;
+            ItemCacheKey key =new ItemCacheKey(revisionID,urlid, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
             //the cache max size is 5000                        
-//            if(cachedPojo.size()==5000){
-//            	cachedPojo.clear();
-//            }
-//            if(cachedPojo.containsKey(key)){
-//            	item=cachedPojo.get(key);
-//            }else{
+            if(cachedPojo.size()==MAX_CACHE_SIZE){
+            	cachedPojo.clear();
+            }
+            if(cachedPojo.containsKey(key)){
+            	item=cachedPojo.get(key);
+            }else{
             	item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), urlid);
-//            	if(item!=null)cachedPojo.put(key, item);
-//            }
+            	if(item!=null)cachedPojo.put(key, item);
+            }
                                     
             if (item==null) {
                 return null;
@@ -504,8 +513,8 @@ public class ItemPOJO implements Serializable{
             		getFilename(itemPOJOPK)
             );
             if (res==-1) return null;
-//            ItemCacheKey key =new ItemCacheKey(revisionID,getFilename(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
-            //cachedPojo.remove(key);
+            ItemCacheKey key =new ItemCacheKey(revisionID,getFilename(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+            cachedPojo.remove(key);
             return itemPOJOPK;
             
 	    } catch (Exception e) {
@@ -592,10 +601,9 @@ public class ItemPOJO implements Serializable{
         	String xml = server.getDocumentAsString(revisionID, dataClusterName, uniqueID,null);
         	if (xml==null) return null;
         	//get to delete item content
-        	if(partPath.equals("/")){
-        		
+        	if(partPath.equals("/")){        		
             	xmlDocument.append(xml);
-            	
+           	
         	}else{
         		
         		String xPath ="/ii/p"+partPath;
@@ -672,10 +680,15 @@ public class ItemPOJO implements Serializable{
 				if (partPath.equals("/")) {
 
 					server.deleteDocument(revisionID, dataClusterName,uniqueID);
-
+		            //update the cache
+		    		ItemCacheKey key =new ItemCacheKey(revisionID,uniqueID, dataClusterName);
+		    		cachedPojo.remove(key); 
 				} else {
-			
-					server.putDocumentFromString(Util.nodeToString(sourceDoc),uniqueID, dataClusterName, revisionID);
+					String xmlstring=Util.nodeToString(sourceDoc);
+					server.putDocumentFromString(xmlstring,uniqueID, dataClusterName, revisionID);
+		            //update the cache
+		    		ItemCacheKey key =new ItemCacheKey(revisionID,uniqueID, dataClusterName);
+		    		cachedPojo.put(key, xmlstring);  					
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -761,14 +774,14 @@ public class ItemPOJO implements Serializable{
     	
     	XmlServerSLWrapperLocal server=Util.getXmlServerCtrlLocal();
     	
-
-        try {
-        	
+        try {        	
         	String xml = serialize();
     		org.apache.log4j.Logger.getLogger(this.getClass()).trace("store() "+getItemPOJOPK().getUniqueID()+"\n"+xml);
     		//check cluster exist or not
-    		if(!server.existCluster(revisionID, getDataClusterPOJOPK().getUniqueId())){
-    			throw new XtentisException("DataCluster R-"+revisionID+"/"+getDataClusterPOJOPK().getUniqueId() +" don't exists!");
+    		if(!XSystemObjects.isExist(XObjectType.DATA_CLUSTER, getDataClusterPOJOPK().getUniqueId())) {
+	    		if(!server.existCluster(revisionID, getDataClusterPOJOPK().getUniqueId())){
+	    			throw new XtentisException("DataCluster R-"+revisionID+"/"+getDataClusterPOJOPK().getUniqueId() +" don't exists!");
+	    		}
     		}
             //store
             if ( -1 == server.putDocumentFromString(
@@ -779,8 +792,8 @@ public class ItemPOJO implements Serializable{
             	))
             	return null;
             //update the cache
-//    		ItemCacheKey key =new ItemCacheKey(revisionID,getFilename(getItemPOJOPK()), getDataClusterPOJOPK().getUniqueId());
-    		//cachedPojo.put(key, xml);                       
+    		ItemCacheKey key =new ItemCacheKey(revisionID,getFilename(getItemPOJOPK()), getDataClusterPOJOPK().getUniqueId());
+    		cachedPojo.put(key, xml);                       
             return getItemPOJOPK();
 	    } catch (Exception e) {
     	    String err = "Unable to store the item "+getItemPOJOPK().getUniqueID()
@@ -989,7 +1002,7 @@ public class ItemPOJO implements Serializable{
 		return schema;
 	}
     
-//    public static void clearCache(){
-//    	//cachedPojo.clear();
-//    }
+    public static void clearCache(){
+    	cachedPojo.clear();
+    }
 }
