@@ -1660,7 +1660,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			}else{
 				//if(!"UpdateReport".equals(dataModel.getName())){
 					//update the item according to datamodel 
-					projection=Util.updateItem(concept, dataModel.getSchema(), root);
+					//see 0011846: putItem always update 
+					//projection=Util.updateItem(concept, dataModel.getSchema(), root);
 				//}
 			}
 		}
