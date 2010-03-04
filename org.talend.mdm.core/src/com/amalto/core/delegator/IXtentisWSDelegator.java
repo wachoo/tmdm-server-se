@@ -4725,7 +4725,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 				  if(category == null)
 				  {
 					  String empty = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-					  empty +="<root/>";
+					  empty +="<category/>";
 					  Util.getXmlServerCtrlLocal().putDocumentFromString(empty, "CONF.TREEOBJECT.CATEGORY", "CONF","");
 					  category = empty;
 				  }
