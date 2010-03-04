@@ -2419,7 +2419,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		tbDetail.items.get('saveBTN').disable();
 		tbDetail.items.get('saveAndQBTN').disable();
 		
-		ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,false,{
+		ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
 			callback:function(result){ 
 				amalto.core.ready(result);
 				if(result=="ERROR_2"){

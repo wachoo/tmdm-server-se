@@ -1094,7 +1094,7 @@ public class ItemsBrowserDWR {
 //
 //	}
 	
-	public static String saveItem(String[] ids, String concept, boolean newItem, int docIndex, boolean saveItem ) throws Exception{
+	public static String saveItem(String[] ids, String concept, boolean newItem, int docIndex) throws Exception{
 		WebContext ctx = WebContextFactory.get();		
 		try {		
 			Configuration config = Configuration.getInstance();
@@ -1192,7 +1192,7 @@ public class ItemsBrowserDWR {
 			
 			//put item
 			boolean isUpdateThisItem=true;
-			if(newItem==true||saveItem==false) isUpdateThisItem = false;
+			if(newItem==true) isUpdateThisItem = false;
 			long startt=System.currentTimeMillis();
 			System.out.println(startt);
 			WSItemPK wsi = Util.getPort().putItem(
