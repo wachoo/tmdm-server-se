@@ -1658,11 +1658,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 					}		
 				}
 			}else{
-				//if(!"UpdateReport".equals(dataModel.getName())){
-					//update the item according to datamodel 
-					//see 0011846: putItem always update 
-					//projection=Util.updateItem(concept, dataModel.getSchema(), root);
-				//}
+				if(Util.containsUUIDType(concept, dataModel.getSchema(),root)){
+					//update the item according to datamodel if there is UUID/AUTO_INCREMENT field and it's empty
+					//we need to regenerate an empty field like '<uuid_field/>'
+					projection=Util.updateNodeBySchema(concept, dataModel.getSchema(), root);
+				}
 			}
 		}
 		//end

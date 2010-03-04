@@ -1552,8 +1552,16 @@ public  class Util {
 		}   
 		return mapForAll;
 	}
-
-	public static String updateItem(String concept, String xsd, Node updateNode)throws Exception{
+	
+	/**
+	 * update the node according to the schema
+	 * @param concept
+	 * @param xsd
+	 * @param updateNode
+	 * @return
+	 * @throws Exception
+	 */
+	public static String updateNodeBySchema(String concept, String xsd, Node updateNode)throws Exception{
 		Element oldNode=createItem(concept, xsd);
 		//see 0011615: Complex type sequences are truncated when saving a record in both web app & studio
 		HashMap<String, UpdateReportItem> updatedPath=compareElement("/"+concept,updateNode,oldNode);		
@@ -1561,7 +1569,50 @@ public  class Util {
 		String xml=getXMLStringFromNode(newNode);
 		return xml.replaceAll("<\\?xml.*?\\?>","");
 	}
+	/**
+	 * check concept's datamodel contains UUID or Auto_increment type fields and it's empty
+	 * @param concept
+	 * @param xsd
+	 * @return
+	 * @throws Exception
+	 */
+	public static boolean containsUUIDType(String concept, String xsd, Element root)throws Exception {
+		Map<String,XSElementDecl> map = getConceptMap(xsd);
+    	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
+    	XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+    	for (int j = 0; j < xsp.length; j++) {  
+    		if(containsUUIDType(xsp[j],"/"+concept,root.getOwnerDocument())) {
+    			return true;
+    		}
+    	}
+    	return false;
+	}
 	
+	private static boolean containsUUIDType(XSParticle xsp, String xpathParent, Document d)throws Exception {
+		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
+			XSParticle[] xsps=xsp.getTerm().asModelGroup().getChildren();			
+			for (int i = 0; i < xsps.length; i++) {
+				containsUUIDType(xsps[i],xpathParent,d);
+			}
+		}
+		if(xsp.getTerm().asElementDecl()==null) return false;
+		String type=xsp.getTerm().asElementDecl().getType().getName();
+		String xpath = xpathParent+"/"+xsp.getTerm().asElementDecl().getName();
+		if( (EUUIDCustomType.UUID.getName().equals(type) || EUUIDCustomType.AUTO_INCREMENT.getName().equals(type)) && getNodeList(d,xpath).getLength()==0) 
+			return true;			
+		if(xsp.getTerm().asElementDecl().getType().isComplexType()==true ){
+			XSParticle particle = xsp.getTerm().asElementDecl()
+			.getType().asComplexType().getContentType().asParticle();
+			if(particle!=null){
+				XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
+				String xpathParent1 = xpathParent+"/"+xsp.getTerm().asElementDecl().getName();				
+				for (int i = 0; i < xsps.length; i++) {
+					containsUUIDType(xsps[i],xpathParent1,d);
+				}
+			}
+		}		
+		return false;
+	}
 	/**
 	 * create an "empty" item from scratch, set every text node to empty
 	 * @param concept
@@ -2784,7 +2835,14 @@ public  class Util {
 		 public boolean declareVariable(JXPathContext context, String name) {return false; }
 	};
 
-	//TODO check
+	/**
+	 * update the element according to updatedpath
+	 * @param parentPath
+	 * @param old
+	 * @param updatedpath
+	 * @return
+	 * @throws Exception
+	 */
 	public static Node updateElement(String parentPath,Node old, HashMap<String, UpdateReportItem> updatedpath)throws Exception{
 
 		//use JXPathContext to update the old element
