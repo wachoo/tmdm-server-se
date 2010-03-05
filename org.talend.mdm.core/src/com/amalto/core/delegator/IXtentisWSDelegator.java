@@ -1189,6 +1189,32 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
 		}
 	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSStringArray getChildrenItems(WSGetChildrenItems wsGetChildrenItems) throws RemoteException {
+		try {
+			Collection res = Util.getItemCtrl2Local().getChildrenItems(
+					wsGetChildrenItems.getClusterName(), 
+					wsGetChildrenItems.getConceptName(),
+					wsGetChildrenItems.getPKName(), 
+					wsGetChildrenItems.getPKXpath(),
+					wsGetChildrenItems.getFKXpath(), 
+					wsGetChildrenItems.getLabelName(),
+					wsGetChildrenItems.getLabelXpath(), 
+					wsGetChildrenItems.getFatherPK()
+			);
+			return new WSStringArray((String[])res.toArray(new String[res.size()]));
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));			
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
 
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"

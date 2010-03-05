@@ -169,6 +169,9 @@ public interface ItemCtrl2
    public java.util.ArrayList getItemsPivotIndex( java.lang.String clusterName,java.lang.String mainPivotName,java.util.LinkedHashMap pivotWithKeys,java.lang.String[] indexPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String[] pivotDirections,java.lang.String[] indexDirections,int start,int limit )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
+   public java.util.ArrayList getChildrenItems( java.lang.String clusterName,java.lang.String conceptName,java.lang.String PKName,java.lang.String PKXpath,java.lang.String FKXpath,java.lang.String labelName,java.lang.String labelXpath,java.lang.String fatherPK )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
    /**
     * Count the items denoted by concept name meeting the optional condition whereItem
     * @param dataClusterPOJOPK

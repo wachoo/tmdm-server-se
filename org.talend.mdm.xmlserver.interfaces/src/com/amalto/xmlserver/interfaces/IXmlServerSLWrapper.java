@@ -534,6 +534,33 @@ public interface IXmlServerSLWrapper {
 	) throws XmlServerException;
 	
 	/**
+	 * @param clusterName
+	 * @param conceptName
+	 * @param PKName
+	 * @param PKXpath
+	 * @param FKXpath
+	 * @param labelName
+	 * @param labelXpath
+	 * @param fatherPK
+	 * @param itemsRevisionIDs
+	 * @param defaultRevisionID
+	 * @return
+	 * @throws XmlServerException
+	 */
+	public String getChildrenItemsQuery(
+			String clusterName, 
+			String conceptName,
+			String PKName,
+			String PKXpath,
+			String FKXpath,
+			String labelName,
+			String labelXpath,
+			String fatherPK,
+			LinkedHashMap<String, String> itemsRevisionIDs,
+			String defaultRevisionID
+	) throws XmlServerException;
+	
+	/**
 	 * Performs a query on the db with optional parameters<br>
 	 * The parameters are specified as %n in the query where n is the parameter number starting with 0
 	 * @param revisionID

@@ -954,6 +954,53 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	}
 	
 	/**
+	 * @param clusterName
+	 * @param conceptName
+	 * @param PKName
+	 * @param PKXpath
+	 * @param FKXpath
+	 * @param labelName
+	 * @param labelXpath
+	 * @param fatherPK
+	 * @param itemsRevisionIDs
+	 * @param defaultRevisionID
+	 * @return
+	 * @throws XmlServerException
+	 * 
+	 * @ejb.interface-method view-type = "both"
+	 * @ejb.facade-method
+	 */
+	public String getChildrenItemsQuery(
+			String clusterName, 
+			String conceptName,
+			String PKName,
+			String PKXpath,
+			String FKXpath,
+			String labelName,
+			String labelXpath,
+			String fatherPK,
+			LinkedHashMap<String, String> itemsRevisionIDs,
+			String defaultRevisionID
+	) throws XtentisException{
+		try {
+	        return server.getChildrenItemsQuery(
+	        		clusterName, 
+	        		conceptName, 
+	        		PKName, 
+	        		PKXpath, 
+	        		FKXpath, 
+	        		labelName, 
+	        		labelXpath, 
+	        		fatherPK, 
+	        		itemsRevisionIDs, 
+	        		defaultRevisionID);
+	        	
+        } catch (XmlServerException e) {
+	        throw new XtentisException("Unable to get the Xtentis Items Query "+e.getMessage());
+        }
+	}
+	
+	/**
 	 * 
 	 * Spell check is implemented by replacing any word that has matches in the dictionary
 	 * by an or clause with all the matches

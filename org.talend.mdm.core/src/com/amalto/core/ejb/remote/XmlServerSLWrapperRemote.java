@@ -325,6 +325,16 @@ public class XmlServerSLWrapperRemote extends Observable
 
    }
 
+   public java.lang.String getChildrenItemsQuery ( java.lang.String clusterName,java.lang.String conceptName,java.lang.String PKName,java.lang.String PKXpath,java.lang.String FKXpath,java.lang.String labelName,java.lang.String labelXpath,java.lang.String fatherPK,java.util.LinkedHashMap itemsRevisionIDs,java.lang.String defaultRevisionID )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        java.lang.String retval;
+       retval =  getSession().getChildrenItemsQuery( clusterName,conceptName,PKName,PKXpath,FKXpath,labelName,labelXpath,fatherPK,itemsRevisionIDs,defaultRevisionID );
+
+      return retval;
+
+   }
+
   /**
    * override this method to provide feedback to interested objects
    * in case collections were changed.

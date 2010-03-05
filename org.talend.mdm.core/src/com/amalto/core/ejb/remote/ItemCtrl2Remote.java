@@ -188,6 +188,16 @@ public class ItemCtrl2Remote extends Observable
 
    }
 
+   public java.util.ArrayList getChildrenItems ( java.lang.String clusterName,java.lang.String conceptName,java.lang.String PKName,java.lang.String PKXpath,java.lang.String FKXpath,java.lang.String labelName,java.lang.String labelXpath,java.lang.String fatherPK )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        java.util.ArrayList retval;
+       retval =  getSession().getChildrenItems( clusterName,conceptName,PKName,PKXpath,FKXpath,labelName,labelXpath,fatherPK );
+
+      return retval;
+
+   }
+
    public long count ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem whereItem,int spellThreshold )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {

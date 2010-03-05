@@ -684,6 +684,34 @@ public class ItemCtrl2Bean implements SessionBean {
 		) throws XtentisException{
     	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().getItemsPivotIndex(clusterName, mainPivotName, pivotWithKeys, indexPaths, whereItem, pivotDirections, indexDirections, start, limit);
     }
+    
+    /**
+     * @param clusterName
+     * @param conceptName
+     * @param PKName
+     * @param PKXpath
+     * @param FKXpath
+     * @param labelName
+     * @param labelXpath
+     * @param fatherPK
+     * @return
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */
+    public ArrayList<String> getChildrenItems(
+			String clusterName, 
+			String conceptName,
+			String PKName,
+			String PKXpath,
+			String FKXpath,
+			String labelName,
+			String labelXpath,
+			String fatherPK
+	) throws XtentisException{
+    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().getChildrenItems(clusterName, conceptName, PKName, PKXpath, FKXpath, labelName, labelXpath, fatherPK);
+    }
 
     
     /**

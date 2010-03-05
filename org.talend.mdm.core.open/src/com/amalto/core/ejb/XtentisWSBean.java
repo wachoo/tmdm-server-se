@@ -600,6 +600,16 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	public WSStringArray getItemsPivotIndex(WSGetItemsPivotIndex wsGetItemsPivotIndex) throws RemoteException {
 		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().getItemsPivotIndex(wsGetItemsPivotIndex);
 	}
+	
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */
+	public WSStringArray getChildrenItems(WSGetChildrenItems wsGetChildrenItems) throws RemoteException {
+		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().getChildrenItems(wsGetChildrenItems);
+	}
 
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"

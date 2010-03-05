@@ -346,6 +346,12 @@
 	<message name="getItemsPivotIndexResponse">
 		<part name="results" element="tns:WSStringArray"/>
 	</message>
+	<message name="getChildrenItemsRequest">
+        <part name="wsGetChildrenItems" element="tns:WSGetChildrenItems"/>
+    </message>
+    <message name="getChildrenItemsResponse">
+        <part name="results" element="tns:WSStringArray"/>
+    </message>
 	<message name="countRequest">
 		<part name="wsCount" element="tns:WSCount"/>
 	</message>
@@ -1079,6 +1085,10 @@
 			<input message="tns:getItemsPivotIndexRequest"/>
 			<output message="tns:getItemsPivotIndexResponse"/>
 		</operation>
+		<operation name="getChildrenItems">
+            <input message="tns:getChildrenItemsRequest"/>
+            <output message="tns:getChildrenItemsResponse"/>
+        </operation>
 		<operation name="count">
 			<input message="tns:countRequest"/>
 			<output message="tns:countResponse"/>
@@ -1679,6 +1689,11 @@
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
 		</operation>
+		<operation name="getChildrenItems">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
 		<operation name="count">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>

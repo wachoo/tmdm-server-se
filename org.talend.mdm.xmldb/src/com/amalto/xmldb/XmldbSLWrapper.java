@@ -1183,6 +1183,74 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     	
     }
     
+    public String getChildrenItemsQuery(
+			String clusterName, 
+			String conceptName,
+			String PKName,
+			String PKXpath,
+			String FKXpath,
+			String labelName,
+			String labelXpath,
+			String fatherPK,
+			LinkedHashMap<String, String> itemsRevisionIDs,
+			String defaultRevisionID
+	) throws XmlServerException{
+    	
+    	try {
+    		
+    		String query = "";
+        	StringBuffer xq = new StringBuffer();
+        	StringBuffer xqFor=new StringBuffer();
+        	StringBuffer xqWhere=new StringBuffer();
+        	StringBuffer xqOrderby=new StringBuffer();
+        	StringBuffer xqReturn=new StringBuffer();
+        	
+        	//for
+            xqFor.append("for ");
+            String revisionID=CommonUtil.getConceptRevisionID(itemsRevisionIDs, defaultRevisionID, conceptName);//revision issue
+			if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
+			String collectionPath = (revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")+(clusterName == null ? "" : clusterName);//TODO ENCODE
+        	xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/").append(conceptName).append(" ");
+        	
+        	//where
+        	if(FKXpath!=null){
+        		xqWhere.append("where (1=1)"); 
+        		xqWhere.append(" and ($").append(conceptName).append(FKXpath).append(" = '").append(fatherPK).append("'")
+        		       .append(" or $").append(conceptName).append(FKXpath).append("=concat('[','").append(fatherPK).append("',']')) ");
+        	}
+        	
+        	//order by
+        	
+        	
+        	//return
+        	xqReturn.append("return ");
+    		xqReturn.append("<result>");
+    		    		
+    		xqReturn.append("<result-key>");
+    		xqReturn.append("{if ($").append(conceptName).append(PKXpath).append(") then $").append(conceptName).append(PKXpath).append(" else <").append(PKName).append("/>}");
+    		xqReturn.append("</result-key>");
+    		
+    		xqReturn.append("<result-lable>");
+    		xqReturn.append("{if ($").append(conceptName).append(labelXpath).append(") then $").append(conceptName).append(labelXpath).append(" else <").append(labelName).append("/>}");
+    		xqReturn.append("</result-lable>");
+    		
+    		xqReturn.append("</result>  ");
+        	
+
+        	xq.append(xqFor).append(xqWhere).append(xqOrderby).append(xqReturn);
+        	query=xq.toString();
+        		
+    		return query;
+    		    	
+    	} catch (Exception e) {
+     	    String err = "Unable to build the getChildrenItems XQuery";
+     	    org.apache.log4j.Logger.getLogger("INFO SYSTRACE "+this.getClass()).info(err,e);
+     	    throw new XmlServerException(err);
+	    }
+    	
+    }
+    
+    
     private String parseNodeNameFromXpath(String input) {
     	if(input==null)return "";
     	

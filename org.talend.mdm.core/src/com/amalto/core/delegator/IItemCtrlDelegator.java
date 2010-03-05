@@ -23,6 +23,7 @@ import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator{
 	//methods from ItemCtrl2Bean
@@ -114,6 +115,53 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
     	    throw new XtentisException(err);
 	    }
 
+	}
+	
+	public ArrayList<String> getChildrenItems(
+			String clusterName, 
+			String conceptName,
+			String PKName,
+			String PKXpath,
+			String FKXpath,
+			String labelName,
+			String labelXpath,
+			String fatherPK
+	) throws XtentisException{
+		
+		//get the universe and revision ID
+    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+    	if (universe == null) {
+    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+    		throw new XtentisException(err);
+    	}
+    	
+    	XmlServerSLWrapperLocal server = null;
+		try {
+			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+		} catch (Exception e) {
+			String err = "Unable to search items in data cluster '"+clusterName+"': unable to access the XML Server wrapper";
+			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+			throw new XtentisException(err);
+		}
+		
+		String query = server.getChildrenItemsQuery
+		        (clusterName, 
+		         conceptName, 
+		         PKName, 
+		         PKXpath, 
+		         FKXpath, 
+		         labelName, 
+		         labelXpath, 
+		         fatherPK, 
+		         universe.getItemsRevisionIDs(),
+	             universe.getDefaultItemRevisionID());
+                
+
+       org.apache.log4j.Logger.getLogger(this.getClass()).debug(query);
+	
+	   return server.runQuery(null, null, query, null);
+		
 	}
 
 	public void resendFailtSvnMessage()throws Exception {
