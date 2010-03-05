@@ -76,17 +76,23 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSItemPKsByCriteriaResponse getItemPKsByCriteria(com.amalto.webapp.util.webservices.WSGetItemPKsByCriteria wsGetItemPKsByCriteria) throws 
          java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSItemPKsByCriteriaResponse getItemPKsByFullCriteria(com.amalto.webapp.util.webservices.WSGetItemPKsByFullCriteria wsGetItemPKsByFullCriteria) throws 
+         java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSStringArray viewSearch(com.amalto.webapp.util.webservices.WSViewSearch wsViewSearch) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSStringArray xPathsSearch(com.amalto.webapp.util.webservices.WSXPathsSearch wsXPathsSearch) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSStringArray getItemsPivotIndex(com.amalto.webapp.util.webservices.WSGetItemsPivotIndex wsGetItemsPivotIndex) throws 
          java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSStringArray getChildrenItems(com.amalto.webapp.util.webservices.WSGetChildrenItems wsGetChildrenItems) throws 
+         java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSString count(com.amalto.webapp.util.webservices.WSCount wsCount) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSStringArray quickSearch(com.amalto.webapp.util.webservices.WSQuickSearch wsQuickSearch) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSItemPK putItem(com.amalto.webapp.util.webservices.WSPutItem wsPutItem) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSItemPK putItemByOperatorType(com.amalto.webapp.util.webservices.WSPutItemByOperatorType putItemByOperatorType) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSItemPKArray putItemArray(com.amalto.webapp.util.webservices.WSPutItemArray wsPutItemArray) throws 
          java.rmi.RemoteException;
@@ -351,5 +357,7 @@ public interface XtentisPort extends java.rmi.Remote {
     public com.amalto.webapp.util.webservices.WSBoolean putMDMJob(com.amalto.webapp.util.webservices.WSPUTMDMJob putMDMJobRequest) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSBoolean deleteMDMJob(com.amalto.webapp.util.webservices.WSDELMDMJob deleteMDMJobRequest) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSCategoryData getMDMCategory(com.amalto.webapp.util.webservices.WSCategoryData wsCategoryDataRequest) throws 
          java.rmi.RemoteException;
 }

@@ -23,6 +23,7 @@ public class WSMDMJob_LiteralSerializer extends LiteralObjectSerializerBase impl
     private static final QName ns3_string_TYPE_QNAME = SchemaConstants.QNAME_TYPE_STRING;
     private CombinedSerializer ns3_myns3_string__java_lang_String_String_Serializer;
     private static final QName ns1_jobVersion_QNAME = new QName("", "jobVersion");
+    private static final QName ns1_suffix_QNAME = new QName("", "suffix");
     
     public WSMDMJob_LiteralSerializer(QName type, String encodingStyle) {
         this(type, encodingStyle, false);
@@ -71,6 +72,19 @@ public class WSMDMJob_LiteralSerializer extends LiteralObjectSerializerBase impl
         else {
             throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
+        elementName = reader.getName();
+        if (reader.getState() == XMLReader.START) {
+            if (elementName.equals(ns1_suffix_QNAME)) {
+                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_suffix_QNAME, reader, context);
+                instance.setSuffix((java.lang.String)member);
+                reader.nextElementContent();
+            } else {
+                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_suffix_QNAME, reader.getName() });
+            }
+        }
+        else {
+            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
+        }
         
         XMLReaderUtil.verifyReaderState(reader, XMLReader.END);
         return (Object)instance;
@@ -85,5 +99,6 @@ public class WSMDMJob_LiteralSerializer extends LiteralObjectSerializerBase impl
         
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getJobName(), ns1_jobName_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getJobVersion(), ns1_jobVersion_QNAME, null, writer, context);
+        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getSuffix(), ns1_suffix_QNAME, null, writer, context);
     }
 }

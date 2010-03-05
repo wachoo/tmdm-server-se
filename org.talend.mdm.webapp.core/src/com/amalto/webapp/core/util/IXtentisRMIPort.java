@@ -2841,4 +2841,44 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 		return null;
 	}
 	
+	public WSStringArray getChildrenItems(WSGetChildrenItems wsGetChildrenItems) throws RemoteException {
+		try {
+			Collection res = Util.getItemCtrl2Local().getChildrenItems(
+					wsGetChildrenItems.getClusterName(), 
+					wsGetChildrenItems.getConceptName(),
+					wsGetChildrenItems.getPKName(), 
+					wsGetChildrenItems.getPKXpath(),
+					wsGetChildrenItems.getFKXpath(), 
+					wsGetChildrenItems.getLabelName(),
+					wsGetChildrenItems.getLabelXpath(), 
+					wsGetChildrenItems.getFatherPK()
+			);
+			return new WSStringArray((String[])res.toArray(new String[res.size()]));
+		} catch (XtentisException e) {
+			throw(new RemoteException(e.getLocalizedMessage()));			
+		} catch (Exception e) {
+			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+		}
+	}
+	
+	public WSItemPKsByCriteriaResponse getItemPKsByFullCriteria(
+		WSGetItemPKsByFullCriteria wsGetItemPKsByFullCriteria)
+		throws RemoteException {
+	// TODO Auto-generated method stub
+	return null;
+	}
+	
+	public WSCategoryData getMDMCategory(WSCategoryData wsCategoryDataRequest)
+		throws RemoteException {
+	// TODO Auto-generated method stub
+	return null;
+	}
+	
+	public WSItemPK putItemByOperatorType(
+		WSPutItemByOperatorType putItemByOperatorType)
+		throws RemoteException {
+	// TODO Auto-generated method stub
+	return null;
+	}
+	
 }
