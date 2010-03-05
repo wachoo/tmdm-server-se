@@ -36,6 +36,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.jboss.security.Base64Encoder;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -4725,7 +4726,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 				  if(category == null)
 				  {
 					  String empty = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-					  empty +="<category/>";
+					  empty +="<" + ICoreConstants.DEFAULT_CATEGORY_ROOT + "/>";
 					  Util.getXmlServerCtrlLocal().putDocumentFromString(empty, "CONF.TREEOBJECT.CATEGORY", "CONF","");
 					  category = empty;
 				  }
