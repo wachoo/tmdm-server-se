@@ -1,10 +1,20 @@
 ######################################################
 #
-# Configuration file for Xtentis MDM
+# Configuration file for Talend MDM
 # this file should be called mdm.conf
-# and located at the root of the jboss/MDM directory
+# and located at the root of the jboss/bin directory
 #
 ######################################################
+
+######################################################
+# System Setting
+######################################################
+
+system.data.auto.init=true
+system.data.auto.upgrade=true
+#Means even though new Version Number is equal or less than your current system Version Number,
+#migration tasks will still be executed 
+system.data.force.upgrade=false
 
 ######################################################
 # DB Setting
@@ -17,7 +27,6 @@ xmldb.driver=org.exist.xmldb.DatabaseImpl
 xmldb.dbid=exist
 xmldb.dburl=exist/xmlrpc/db
 xmldb.isupurl=exist/
-
 
 ######################################################
 # Subscription Engine
