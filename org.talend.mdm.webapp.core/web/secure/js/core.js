@@ -420,6 +420,8 @@ amalto.core = function () {
 						bodyborder : true,
 						layoutOnTabChange : true,
 						resizeTabs : false,
+						enableTabScroll:true,
+						defaults: {autoScroll:true},
 						plugins : new Ext.ux.TabCloseMenu(),
 						listeners : {
 
