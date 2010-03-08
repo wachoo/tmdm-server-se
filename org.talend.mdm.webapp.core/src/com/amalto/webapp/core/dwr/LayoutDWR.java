@@ -1,5 +1,6 @@
 package com.amalto.webapp.core.dwr;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -11,6 +12,7 @@ import org.w3c.dom.Document;
 
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
+import com.amalto.webapp.core.util.LicenseUtil;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSLogout;
@@ -119,5 +121,18 @@ public class LayoutDWR {
 //		WebContext ctx = WebContextFactory.get();
 //		ctx.getSession().invalidate();
 	}
-
+	
+	/**
+	 * license is expried.
+	 * @return
+	 */
+	public boolean isExpired() throws RemoteException {
+	   LicenseUtil instance = LicenseUtil.getInstance();
+	   
+	   if(instance.getLicenseDate() == null) {
+	      throw new RemoteException("No license setted!");
+	   }
+	   
+	   return !instance.isLicenseDateValid();
+	}
 }

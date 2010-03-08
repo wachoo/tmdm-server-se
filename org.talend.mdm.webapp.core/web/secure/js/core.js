@@ -652,16 +652,34 @@ amalto.core = function () {
 					$("menu-"+menu.id+"-div").style.display="none";
 					$("menu-"+menu.id+"-span").style.background="url(/core/secure/img/tree-closed.gif) no-repeat 0px 9px;";				
 				}
-			}else {
+			}
+			else if(menu.application == 'License') {
 				//load the script if necessary
 				amalto.core.loadMainScript(
-					menu.context,
-					menu.application,
-					function() {
-						var initFunction = "amalto."+menu.context+"."+menu.application.replace(/\s/g,'')+".init()";
-						setTimeout(initFunction,'50');
+				menu.context,
+				menu.application,
+				function() {
+					var initFunction = "amalto."+menu.context+"."+menu.application.replace(/\s/g,'')+".init()";
+					setTimeout(initFunction,'50');
+				}
+			);
+			}else {
+				LayoutInterface.isExpired(function(isExpired) {
+					if(isExpired) {
+						alert("license invalid or license is expired, please registry a new license!");
 					}
-				);			
+					else {
+						//load the script if necessary
+						amalto.core.loadMainScript(
+								menu.context,
+								menu.application,
+								function() {
+									var initFunction = "amalto."+menu.context+"."+menu.application.replace(/\s/g,'')+".init()";
+									setTimeout(initFunction,'50');
+								}
+							);
+					}
+				});
 			}//else   
 		}//findTarget
 	}
