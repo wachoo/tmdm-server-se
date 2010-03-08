@@ -2845,11 +2845,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 		try {
 			Collection res = Util.getItemCtrl2Local().getChildrenItems(
 					wsGetChildrenItems.getClusterName(), 
-					wsGetChildrenItems.getConceptName(),
-					wsGetChildrenItems.getPKName(), 
-					wsGetChildrenItems.getPKXpath(),
+					wsGetChildrenItems.getConceptName(), 
+					wsGetChildrenItems.getPKXpaths().getStrings(),
 					wsGetChildrenItems.getFKXpath(), 
-					wsGetChildrenItems.getLabelName(),
 					wsGetChildrenItems.getLabelXpath(), 
 					wsGetChildrenItems.getFatherPK()
 			);

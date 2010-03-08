@@ -1004,20 +1004,12 @@
       <xml-element-name>conceptName</xml-element-name>
     </variable-mapping>
     <variable-mapping>
-      <java-variable-name>PKName</java-variable-name>
-      <xml-element-name>PKName</xml-element-name>
-    </variable-mapping>
-    <variable-mapping>
-      <java-variable-name>PKXpath</java-variable-name>
-      <xml-element-name>PKXpath</xml-element-name>
+      <java-variable-name>PKXpaths</java-variable-name>
+      <xml-element-name>PKXpaths</xml-element-name>
     </variable-mapping>
     <variable-mapping>
       <java-variable-name>FKXpath</java-variable-name>
       <xml-element-name>FKXpath</xml-element-name>
-    </variable-mapping>
-    <variable-mapping>
-      <java-variable-name>labelName</java-variable-name>
-      <xml-element-name>labelName</xml-element-name>
     </variable-mapping>
     <variable-mapping>
       <java-variable-name>labelXpath</java-variable-name>

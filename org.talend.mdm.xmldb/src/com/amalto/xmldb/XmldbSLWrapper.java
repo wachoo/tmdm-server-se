@@ -1186,10 +1186,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     public String getChildrenItemsQuery(
 			String clusterName, 
 			String conceptName,
-			String PKName,
-			String PKXpath,
+			String[] PKXpaths,
 			String FKXpath,
-			String labelName,
 			String labelXpath,
 			String fatherPK,
 			LinkedHashMap<String, String> itemsRevisionIDs,
@@ -1208,6 +1206,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         	//for
             xqFor.append("for ");
             String revisionID=CommonUtil.getConceptRevisionID(itemsRevisionIDs, defaultRevisionID, conceptName);//revision issue
+            //String revisionID=null;
 			if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
 			String collectionPath = (revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")+(clusterName == null ? "" : clusterName);//TODO ENCODE
         	xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/").append(conceptName).append(" ");
@@ -1215,8 +1214,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         	//where
         	if(FKXpath!=null){
         		xqWhere.append("where (1=1)"); 
-        		xqWhere.append(" and ($").append(conceptName).append(FKXpath).append(" = '").append(fatherPK).append("'")
-        		       .append(" or $").append(conceptName).append(FKXpath).append("=concat('[','").append(fatherPK).append("',']')) ");
+        		xqWhere.append(" and ($").append(FKXpath).append(" = '").append(fatherPK).append("'")
+        		       .append(" or $").append(FKXpath).append("=concat('[','").append(fatherPK).append("',']')) ");
         	}
         	
         	//order by
@@ -1225,13 +1224,28 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         	//return
         	xqReturn.append("return ");
     		xqReturn.append("<result>");
+    		
+    		
     		    		
     		xqReturn.append("<result-key>");
-    		xqReturn.append("{if ($").append(conceptName).append(PKXpath).append(") then $").append(conceptName).append(PKXpath).append(" else <").append(PKName).append("/>}");
+    		
+    		if(PKXpaths.length==1){
+    			xqReturn.append("{$").append(PKXpaths[0]).append("/text()}");
+			}else if(PKXpaths.length>1){
+				xqReturn.append("{concat(");
+				for (int l = 0; l < PKXpaths.length; l++) {
+					if(l>0)xqReturn.append(",");
+					xqReturn.append("'['")
+					       .append(",$")
+					       .append(PKXpaths[l]).append("/text()")
+					       .append(",']'");
+				}
+				xqReturn.append(")}");
+			}
     		xqReturn.append("</result-key>");
     		
     		xqReturn.append("<result-lable>");
-    		xqReturn.append("{if ($").append(conceptName).append(labelXpath).append(") then $").append(conceptName).append(labelXpath).append(" else <").append(labelName).append("/>}");
+    		xqReturn.append("{$").append(labelXpath).append("/text()}");
     		xqReturn.append("</result-lable>");
     		
     		xqReturn.append("</result>  ");
@@ -1249,7 +1263,6 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	    }
     	
     }
-    
     
     private String parseNodeNameFromXpath(String input) {
     	if(input==null)return "";

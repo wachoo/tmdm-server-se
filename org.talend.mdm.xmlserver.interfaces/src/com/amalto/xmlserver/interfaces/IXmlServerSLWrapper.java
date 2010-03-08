@@ -533,13 +533,13 @@ public interface IXmlServerSLWrapper {
 			int limit
 	) throws XmlServerException;
 	
+	
+	
 	/**
 	 * @param clusterName
 	 * @param conceptName
-	 * @param PKName
-	 * @param PKXpath
+	 * @param PKXpaths
 	 * @param FKXpath
-	 * @param labelName
 	 * @param labelXpath
 	 * @param fatherPK
 	 * @param itemsRevisionIDs
@@ -550,10 +550,8 @@ public interface IXmlServerSLWrapper {
 	public String getChildrenItemsQuery(
 			String clusterName, 
 			String conceptName,
-			String PKName,
-			String PKXpath,
+			String[] PKXpaths,
 			String FKXpath,
-			String labelName,
 			String labelXpath,
 			String fatherPK,
 			LinkedHashMap<String, String> itemsRevisionIDs,

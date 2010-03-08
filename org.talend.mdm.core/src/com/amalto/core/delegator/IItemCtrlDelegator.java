@@ -120,10 +120,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
 	public ArrayList<String> getChildrenItems(
 			String clusterName, 
 			String conceptName,
-			String PKName,
-			String PKXpath,
+			String[] PKXpaths,
 			String FKXpath,
-			String labelName,
 			String labelXpath,
 			String fatherPK
 	) throws XtentisException{
@@ -147,11 +145,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
 		
 		String query = server.getChildrenItemsQuery
 		        (clusterName, 
-		         conceptName, 
-		         PKName, 
-		         PKXpath, 
+		         conceptName,  
+		         PKXpaths, 
 		         FKXpath, 
-		         labelName, 
 		         labelXpath, 
 		         fatherPK, 
 		         universe.getItemsRevisionIDs(),

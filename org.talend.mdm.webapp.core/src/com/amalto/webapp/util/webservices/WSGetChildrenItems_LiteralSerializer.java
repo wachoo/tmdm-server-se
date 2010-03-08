@@ -23,10 +23,10 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
     private static final QName ns3_string_TYPE_QNAME = SchemaConstants.QNAME_TYPE_STRING;
     private CombinedSerializer ns3_myns3_string__java_lang_String_String_Serializer;
     private static final QName ns1_conceptName_QNAME = new QName("", "conceptName");
-    private static final QName ns1_PKName_QNAME = new QName("", "PKName");
-    private static final QName ns1_PKXpath_QNAME = new QName("", "PKXpath");
+    private static final QName ns1_PKXpaths_QNAME = new QName("", "PKXpaths");
+    private static final QName ns2_WSStringArray_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSStringArray");
+    private CombinedSerializer ns2_myWSStringArray_LiteralSerializer;
     private static final QName ns1_FKXpath_QNAME = new QName("", "FKXpath");
-    private static final QName ns1_labelName_QNAME = new QName("", "labelName");
     private static final QName ns1_labelXpath_QNAME = new QName("", "labelXpath");
     private static final QName ns1_fatherPK_QNAME = new QName("", "fatherPK");
     
@@ -40,6 +40,7 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
     
     public void initialize(InternalTypeMappingRegistry registry) throws Exception {
         ns3_myns3_string__java_lang_String_String_Serializer = (CombinedSerializer)registry.getSerializer("", java.lang.String.class, ns3_string_TYPE_QNAME);
+        ns2_myWSStringArray_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSStringArray.class, ns2_WSStringArray_TYPE_QNAME);
     }
     
     public Object doDeserialize(XMLReader reader,
@@ -85,31 +86,15 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
         }
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
-            if (elementName.equals(ns1_PKName_QNAME)) {
-                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_PKName_QNAME, reader, context);
+            if (elementName.equals(ns1_PKXpaths_QNAME)) {
+                member = ns2_myWSStringArray_LiteralSerializer.deserialize(ns1_PKXpaths_QNAME, reader, context);
                 if (member == null) {
                     throw new DeserializationException("literal.unexpectedNull");
                 }
-                instance.setPKName((java.lang.String)member);
+                instance.setPKXpaths((com.amalto.webapp.util.webservices.WSStringArray)member);
                 reader.nextElementContent();
             } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_PKName_QNAME, reader.getName() });
-            }
-        }
-        else {
-            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
-        }
-        elementName = reader.getName();
-        if (reader.getState() == XMLReader.START) {
-            if (elementName.equals(ns1_PKXpath_QNAME)) {
-                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_PKXpath_QNAME, reader, context);
-                if (member == null) {
-                    throw new DeserializationException("literal.unexpectedNull");
-                }
-                instance.setPKXpath((java.lang.String)member);
-                reader.nextElementContent();
-            } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_PKXpath_QNAME, reader.getName() });
+                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_PKXpaths_QNAME, reader.getName() });
             }
         }
         else {
@@ -122,22 +107,6 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
                 instance.setFKXpath((java.lang.String)member);
                 reader.nextElementContent();
             }
-        }
-        elementName = reader.getName();
-        if (reader.getState() == XMLReader.START) {
-            if (elementName.equals(ns1_labelName_QNAME)) {
-                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_labelName_QNAME, reader, context);
-                if (member == null) {
-                    throw new DeserializationException("literal.unexpectedNull");
-                }
-                instance.setLabelName((java.lang.String)member);
-                reader.nextElementContent();
-            } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_labelName_QNAME, reader.getName() });
-            }
-        }
-        else {
-            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
@@ -183,19 +152,11 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
             throw new SerializationException("literal.unexpectedNull");
         }
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getConceptName(), ns1_conceptName_QNAME, null, writer, context);
-        if (instance.getPKName() == null) {
+        if (instance.getPKXpaths() == null) {
             throw new SerializationException("literal.unexpectedNull");
         }
-        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getPKName(), ns1_PKName_QNAME, null, writer, context);
-        if (instance.getPKXpath() == null) {
-            throw new SerializationException("literal.unexpectedNull");
-        }
-        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getPKXpath(), ns1_PKXpath_QNAME, null, writer, context);
+        ns2_myWSStringArray_LiteralSerializer.serialize(instance.getPKXpaths(), ns1_PKXpaths_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getFKXpath(), ns1_FKXpath_QNAME, null, writer, context);
-        if (instance.getLabelName() == null) {
-            throw new SerializationException("literal.unexpectedNull");
-        }
-        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getLabelName(), ns1_labelName_QNAME, null, writer, context);
         if (instance.getLabelXpath() == null) {
             throw new SerializationException("literal.unexpectedNull");
         }

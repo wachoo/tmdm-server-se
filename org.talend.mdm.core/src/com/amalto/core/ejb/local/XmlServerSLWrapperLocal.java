@@ -275,6 +275,6 @@ public interface XmlServerSLWrapperLocal
 
    public java.lang.String getPivotIndexQuery( java.lang.String clusterName,java.lang.String mainPivotName,java.util.LinkedHashMap pivotWithKeys,java.util.LinkedHashMap itemsRevisionIDs,java.lang.String defaultRevisionID,java.lang.String[] indexPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String[] pivotDirections,java.lang.String[] indexDirections,int start,int limit ) throws com.amalto.core.util.XtentisException;
 
-   public java.lang.String getChildrenItemsQuery( java.lang.String clusterName,java.lang.String conceptName,java.lang.String PKName,java.lang.String PKXpath,java.lang.String FKXpath,java.lang.String labelName,java.lang.String labelXpath,java.lang.String fatherPK,java.util.LinkedHashMap itemsRevisionIDs,java.lang.String defaultRevisionID ) throws com.amalto.core.util.XtentisException;
+   public java.lang.String getChildrenItemsQuery( java.lang.String clusterName,java.lang.String conceptName,java.lang.String[] PKXpaths,java.lang.String FKXpath,java.lang.String labelXpath,java.lang.String fatherPK,java.util.LinkedHashMap itemsRevisionIDs,java.lang.String defaultRevisionID ) throws com.amalto.core.util.XtentisException;
 
 }

@@ -688,10 +688,8 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * @param clusterName
      * @param conceptName
-     * @param PKName
-     * @param PKXpath
+     * @param PKXpaths
      * @param FKXpath
-     * @param labelName
      * @param labelXpath
      * @param fatherPK
      * @return
@@ -703,14 +701,12 @@ public class ItemCtrl2Bean implements SessionBean {
     public ArrayList<String> getChildrenItems(
 			String clusterName, 
 			String conceptName,
-			String PKName,
-			String PKXpath,
+			String PKXpaths[],
 			String FKXpath,
-			String labelName,
 			String labelXpath,
 			String fatherPK
 	) throws XtentisException{
-    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().getChildrenItems(clusterName, conceptName, PKName, PKXpath, FKXpath, labelName, labelXpath, fatherPK);
+    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().getChildrenItems(clusterName, conceptName, PKXpaths, FKXpath, labelXpath, fatherPK);
     }
 
     

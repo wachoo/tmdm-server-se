@@ -9,23 +9,19 @@ package com.amalto.core.webservice;
 public class WSGetChildrenItems {
     protected java.lang.String clusterName;
     protected java.lang.String conceptName;
-    protected java.lang.String PKName;
-    protected java.lang.String PKXpath;
+    protected com.amalto.core.webservice.WSStringArray PKXpaths;
     protected java.lang.String FKXpath;
-    protected java.lang.String labelName;
     protected java.lang.String labelXpath;
     protected java.lang.String fatherPK;
     
     public WSGetChildrenItems() {
     }
     
-    public WSGetChildrenItems(java.lang.String clusterName, java.lang.String conceptName, java.lang.String PKName, java.lang.String PKXpath, java.lang.String FKXpath, java.lang.String labelName, java.lang.String labelXpath, java.lang.String fatherPK) {
+    public WSGetChildrenItems(java.lang.String clusterName, java.lang.String conceptName, com.amalto.core.webservice.WSStringArray PKXpaths, java.lang.String FKXpath, java.lang.String labelXpath, java.lang.String fatherPK) {
         this.clusterName = clusterName;
         this.conceptName = conceptName;
-        this.PKName = PKName;
-        this.PKXpath = PKXpath;
+        this.PKXpaths = PKXpaths;
         this.FKXpath = FKXpath;
-        this.labelName = labelName;
         this.labelXpath = labelXpath;
         this.fatherPK = fatherPK;
     }
@@ -46,20 +42,12 @@ public class WSGetChildrenItems {
         this.conceptName = conceptName;
     }
     
-    public java.lang.String getPKName() {
-        return PKName;
+    public com.amalto.core.webservice.WSStringArray getPKXpaths() {
+        return PKXpaths;
     }
     
-    public void setPKName(java.lang.String PKName) {
-        this.PKName = PKName;
-    }
-    
-    public java.lang.String getPKXpath() {
-        return PKXpath;
-    }
-    
-    public void setPKXpath(java.lang.String PKXpath) {
-        this.PKXpath = PKXpath;
+    public void setPKXpaths(com.amalto.core.webservice.WSStringArray PKXpaths) {
+        this.PKXpaths = PKXpaths;
     }
     
     public java.lang.String getFKXpath() {
@@ -68,14 +56,6 @@ public class WSGetChildrenItems {
     
     public void setFKXpath(java.lang.String FKXpath) {
         this.FKXpath = FKXpath;
-    }
-    
-    public java.lang.String getLabelName() {
-        return labelName;
-    }
-    
-    public void setLabelName(java.lang.String labelName) {
-        this.labelName = labelName;
     }
     
     public java.lang.String getLabelXpath() {

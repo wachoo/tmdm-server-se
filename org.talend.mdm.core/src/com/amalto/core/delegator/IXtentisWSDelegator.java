@@ -1201,10 +1201,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			Collection res = Util.getItemCtrl2Local().getChildrenItems(
 					wsGetChildrenItems.getClusterName(), 
 					wsGetChildrenItems.getConceptName(),
-					wsGetChildrenItems.getPKName(), 
-					wsGetChildrenItems.getPKXpath(),
+					wsGetChildrenItems.getPKXpaths().getStrings(),
 					wsGetChildrenItems.getFKXpath(), 
-					wsGetChildrenItems.getLabelName(),
 					wsGetChildrenItems.getLabelXpath(), 
 					wsGetChildrenItems.getFatherPK()
 			);

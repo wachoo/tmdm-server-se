@@ -956,10 +956,8 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	/**
 	 * @param clusterName
 	 * @param conceptName
-	 * @param PKName
-	 * @param PKXpath
+	 * @param PKXpaths
 	 * @param FKXpath
-	 * @param labelName
 	 * @param labelXpath
 	 * @param fatherPK
 	 * @param itemsRevisionIDs
@@ -970,13 +968,12 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	 * @ejb.interface-method view-type = "both"
 	 * @ejb.facade-method
 	 */
+	
 	public String getChildrenItemsQuery(
 			String clusterName, 
 			String conceptName,
-			String PKName,
-			String PKXpath,
+			String[] PKXpaths,
 			String FKXpath,
-			String labelName,
 			String labelXpath,
 			String fatherPK,
 			LinkedHashMap<String, String> itemsRevisionIDs,
@@ -986,10 +983,8 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	        return server.getChildrenItemsQuery(
 	        		clusterName, 
 	        		conceptName, 
-	        		PKName, 
-	        		PKXpath, 
-	        		FKXpath, 
-	        		labelName, 
+	        		PKXpaths, 
+	        		FKXpath,
 	        		labelXpath, 
 	        		fatherPK, 
 	        		itemsRevisionIDs, 

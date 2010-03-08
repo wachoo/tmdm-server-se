@@ -188,11 +188,11 @@ public class ItemCtrl2Remote extends Observable
 
    }
 
-   public java.util.ArrayList getChildrenItems ( java.lang.String clusterName,java.lang.String conceptName,java.lang.String PKName,java.lang.String PKXpath,java.lang.String FKXpath,java.lang.String labelName,java.lang.String labelXpath,java.lang.String fatherPK )
+   public java.util.ArrayList getChildrenItems ( java.lang.String clusterName,java.lang.String conceptName,java.lang.String[] PKXpaths,java.lang.String FKXpath,java.lang.String labelXpath,java.lang.String fatherPK )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
         java.util.ArrayList retval;
-       retval =  getSession().getChildrenItems( clusterName,conceptName,PKName,PKXpath,FKXpath,labelName,labelXpath,fatherPK );
+       retval =  getSession().getChildrenItems( clusterName,conceptName,PKXpaths,FKXpath,labelXpath,fatherPK );
 
       return retval;
 

@@ -20,6 +20,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.io.FileUtils;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
@@ -424,8 +425,8 @@ public class CommonDWR {
 
 	public static Map<String,XSElementDecl> getConceptMap(String dataModelPK) 
 		throws RemoteException, Exception{
-		String xsd = Util.getPort().getDataModel(
-        		new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
+		//String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
+		String xsd = FileUtils.readFileToString(new java.io.File("E:/IDE/eclipse_3.5_talend/tem/org.talend.mdm.webapp.hierarchical/src/com/amalto/webapp/v3/hierarchical/schema/Order.xsd"));
 		XSOMParser reader = new XSOMParser();
 		reader.setAnnotationParser(new DomAnnotationParserFactory());
 		SAXErrorHandler errorHandler = new SAXErrorHandler(); 
