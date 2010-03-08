@@ -36,12 +36,15 @@ import com.amalto.webapp.util.webservices.WSGetUniversePKs;
 import com.amalto.webapp.util.webservices.WSGetVersioningSystemConfiguration;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSItemPKArray;
+import com.amalto.webapp.util.webservices.WSLicense;
+import com.amalto.webapp.util.webservices.WSLicensePK;
 import com.amalto.webapp.util.webservices.WSMDMJobArray;
 import com.amalto.webapp.util.webservices.WSMDMNULL;
 import com.amalto.webapp.util.webservices.WSPUTMDMJob;
 import com.amalto.webapp.util.webservices.WSProcessInstanceArray;
 import com.amalto.webapp.util.webservices.WSProcessTaskInstanceArray;
 import com.amalto.webapp.util.webservices.WSPutItemWithCustomReport;
+import com.amalto.webapp.util.webservices.WSPutLicense;
 import com.amalto.webapp.util.webservices.WSPutRole;
 import com.amalto.webapp.util.webservices.WSPutSynchronizationItem;
 import com.amalto.webapp.util.webservices.WSPutSynchronizationPlan;
@@ -537,6 +540,17 @@ public class XtentisRMIPort extends IXtentisRMIPort {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+   public WSLicense getLicense() throws RemoteException {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   public WSLicensePK putLicense(WSPutLicense putLicense)
+         throws RemoteException {
+      // TODO Auto-generated method stub
+      return null;
+   }
 
 
 
