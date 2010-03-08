@@ -425,8 +425,8 @@ public class CommonDWR {
 
 	public static Map<String,XSElementDecl> getConceptMap(String dataModelPK) 
 		throws RemoteException, Exception{
-		//String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
-		String xsd = FileUtils.readFileToString(new java.io.File("E:/IDE/eclipse_3.5_talend/tem/org.talend.mdm.webapp.hierarchical/src/com/amalto/webapp/v3/hierarchical/schema/Order.xsd"));
+		String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
+		//String xsd = FileUtils.readFileToString(new java.io.File("E:/IDE/eclipse_3.5_talend/tem/org.talend.mdm.webapp.hierarchical/src/com/amalto/webapp/v3/hierarchical/schema/Order.xsd"));
 		XSOMParser reader = new XSOMParser();
 		reader.setAnnotationParser(new DomAnnotationParserFactory());
 		SAXErrorHandler errorHandler = new SAXErrorHandler(); 
