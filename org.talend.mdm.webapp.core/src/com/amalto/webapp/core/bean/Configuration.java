@@ -1,5 +1,7 @@
 package com.amalto.webapp.core.bean;
 
+import javax.security.jacc.PolicyContextException;
+
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 import org.w3c.dom.Document;
@@ -9,6 +11,7 @@ import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
@@ -118,6 +121,21 @@ public class Configuration {
 	
 	private static Configuration load() throws Exception {
 		WebContext ctx = WebContextFactory.get();
+		Configuration configuration = loadConfigurationFromDB();
+		ctx.getSession().setAttribute("configuration",configuration);
+		org.apache.log4j.Logger.getLogger(Configuration.class).info(
+				"MDM set up with "+configuration.getCluster()+" and "+configuration.getModel());
+
+		return configuration;
+	}
+	
+	public static Configuration loadConfigurationFromDBDirectly() throws Exception{
+		return loadConfigurationFromDB();
+	}
+	
+	
+	private static Configuration loadConfigurationFromDB()
+			throws PolicyContextException, Exception, XtentisWebappException {
 		Configuration configuration = new Configuration();
 		
 		Element user=null;
@@ -155,10 +173,6 @@ public class Configuration {
 		if(configuration.getModel()==null && CommonDWR.getModels().length>0){
 			configuration.setModel(CommonDWR.getModels()[0]);
 		}
-		ctx.getSession().setAttribute("configuration",configuration);
-		org.apache.log4j.Logger.getLogger(Configuration.class).info(
-				"MDM set up with "+configuration.getCluster()+" and "+configuration.getModel());
-
 		return configuration;
 	}
 	
