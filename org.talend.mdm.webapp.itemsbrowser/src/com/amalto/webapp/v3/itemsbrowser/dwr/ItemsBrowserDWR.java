@@ -1735,12 +1735,14 @@ public class ItemsBrowserDWR {
 			boolean isUpdate=false;
 			for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {				
 				UpdateReportItem item = iter.next();
-				if(item.getOldValue().equals(item.getNewValue())) continue; 
+				String oldValue=item.getOldValue()==null?"":item.getOldValue();
+				String newValue=item.getNewValue()==null?"":item.getNewValue();
+				if(newValue.equals(oldValue)) continue; 
 		            xml2 += 
 		            "<Item>"+
 		            "   <path>"+StringEscapeUtils.escapeXml(item.getPath())+"</path>"+
-		            "   <oldValue>"+StringEscapeUtils.escapeXml(item.getOldValue())+"</oldValue>"+
-		            "   <newValue>"+StringEscapeUtils.escapeXml(item.getNewValue())+"</newValue>"+
+		            "   <oldValue>"+StringEscapeUtils.escapeXml(oldValue)+"</oldValue>"+
+		            "   <newValue>"+StringEscapeUtils.escapeXml(newValue)+"</newValue>"+
 		           "</Item>"; 		
 		            isUpdate=true;
 			}     
@@ -1780,9 +1782,10 @@ public class ItemsBrowserDWR {
 	
 	public boolean checkIfDocumentExists(String[] ids, String concept) throws Exception{
 		Configuration config = Configuration.getInstance();
-		 return  Util.getPort().existsItem(
+		boolean flag=Util.getPort().existsItem(
 				 new WSExistsItem(new WSItemPK(new WSDataClusterPK(config.getCluster()),concept, ids))
 				 ).is_true();
+		return flag;
 	}
 	
 	public int countItems(String criteria, String dataObjet) throws Exception{
