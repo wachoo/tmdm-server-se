@@ -57,7 +57,7 @@ import com.amalto.core.util.XtentisException;
  * @ejb.bean name="CallTransformer"
  *           display-name="Call Transformer Service"
  *           description="Service d'intégration Call Transformer"
- * 		  local-jndi-name = "amalto/local/service/calltransformer"
+ * 		     local-jndi-name = "amalto/local/service/callprocess"
  *           type="Stateless"
  *           view-type="local"
  *
@@ -106,7 +106,7 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
      * @ejb.facade-method
      */
 	public String getJNDIName() throws XtentisException {
-		return "amalto/local/service/calltransformer";
+		return "amalto/local/service/callprocess";
 	}
 
 

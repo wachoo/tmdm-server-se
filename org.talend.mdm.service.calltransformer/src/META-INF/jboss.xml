@@ -17,7 +17,7 @@
 
       <session>
          <ejb-name>CallTransformer</ejb-name>
-         <local-jndi-name>amalto/local/service/calltransformer</local-jndi-name>
+         <local-jndi-name>amalto/local/service/callprocess</local-jndi-name>
 
         <method-attributes>
         </method-attributes>

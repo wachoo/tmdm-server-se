@@ -5,7 +5,7 @@ package com.amalto.service.calltransformer.ejb.local;
 
 /**
  * Local interface for CallTransformer.
- * @xdoclet-generated at 3-08-09
+ * @xdoclet-generated at 9-03-10
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
@@ -29,6 +29,8 @@ public interface CallTransformerLocal
    public java.io.Serializable receiveFromOutbound( java.util.HashMap map ) throws com.amalto.core.util.XtentisException;
 
    public java.lang.String receiveFromInbound( com.amalto.core.ejb.ItemPOJOPK itemPK,java.lang.String routingOrderID,java.lang.String parameters ) throws com.amalto.core.util.XtentisException;
+
+   public java.lang.String getDefaultConfiguration(  ) ;
 
    public java.lang.String getConfiguration( java.lang.String optionalParameters ) throws com.amalto.core.util.XtentisException;
 

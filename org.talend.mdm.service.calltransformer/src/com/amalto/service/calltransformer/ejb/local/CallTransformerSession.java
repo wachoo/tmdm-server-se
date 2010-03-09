@@ -5,7 +5,7 @@ package com.amalto.service.calltransformer.ejb.local;
 
 /**
  * Session layer for CallTransformer.
- * @xdoclet-generated at 3-08-09
+ * @xdoclet-generated at 9-03-10
  * @copyright The XDoclet Team
  * @author XDoclet
  * @version ${version}
