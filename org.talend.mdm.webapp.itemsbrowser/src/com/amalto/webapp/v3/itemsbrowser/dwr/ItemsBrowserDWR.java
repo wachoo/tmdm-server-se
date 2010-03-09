@@ -1551,8 +1551,9 @@ public class ItemsBrowserDWR {
 						rows.put(row);
 					}
 				}
-				
-				json.put("count", rows.length());
+				//edit by ymli; fix the bug:0011918: set the pageSize correctly.
+				//json.put("count", rows.length());
+				json.put("count", countForeignKey_filter(xpathForeignKey));
 				//update the map
 //				map.put(StringEscapeUtils.escapeXml(keys), infos);
 			}
