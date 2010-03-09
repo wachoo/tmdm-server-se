@@ -18,6 +18,10 @@ import javax.ejb.TimerHandle;
 import javax.ejb.TimerService;
 import javax.naming.InitialContext;
 
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
@@ -506,18 +510,17 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     	);
     	
     	//get the DB
-    	XmlServerSLWrapperLocal server = null;
-		try {
-			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-		} catch (Exception e) {
-			String err = "Unable to access the XML Server wrapper";
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-			throw new RuntimeException(err);
+    	XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+		String query="/*[number(@time-scheduled) lt "+lastScheduledTime+"][number(@time-last-run-started) eq -1]/name/text()";
+		String clusterName=ObjectPOJO.getCluster(ActiveRoutingOrderV2POJO.class.getName());
+		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {				
+			String collectionpath= CommonUtil.getPath(revisionID, clusterName);
+			query=" for $pivot0 in collection(\""+collectionpath+ "\")/*[number(@time-scheduled) lt "+lastScheduledTime+"][number(@time-last-run-started) eq -1]/name/text() return <result>{$pivot0}</result> ";								
 		}
 		Collection<String> names = server.runQuery(
 			revisionID,
-			ObjectPOJO.getCluster(ActiveRoutingOrderV2POJO.class.getName()), 
-			"/*[number(@time-scheduled) lt "+lastScheduledTime+"][number(@time-last-run-started) eq -1]/name/text()",   
+			clusterName, 
+			query,   
 			null
 		);
 		
@@ -571,10 +574,16 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
 			throw new RuntimeException(err);
 		}
+		String query="/*[number(@time-last-run-started) lt "+maxLastRunStartedTime+"][number(@time-last-run-started) gt 0]/name/text()";
+		String clusterName=ObjectPOJO.getCluster(ActiveRoutingOrderV2POJO.class.getName());
+		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {				
+			String collectionpath= CommonUtil.getPath(revisionID, clusterName);
+			query=" for $pivot0 in collection(\""+collectionpath+ "\")/*[number(@time-last-run-started) lt "+maxLastRunStartedTime+"][number(@time-last-run-started) gt 0]/name/text() return <result>{$pivot0}</result> ";								
+		}		
 		Collection<String> names = server.runQuery(
 			revisionID,
-			ObjectPOJO.getCluster(ActiveRoutingOrderV2POJO.class.getName()), 
-			"/*[number(@time-last-run-started) lt "+maxLastRunStartedTime+"][number(@time-last-run-started) gt 0]/name/text()",
+			clusterName, 
+			query,
 			null
 		);
 		

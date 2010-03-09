@@ -16,7 +16,10 @@ import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -1255,7 +1258,7 @@ public class ItemCtrl2Bean implements SessionBean {
 			//FIXME: getConceptsInDataCluster works with xQuery only
 			//This should be moved to ItemCtrl
 	 		String query = "distinct-values(/ii/n/text())";
-			
+
 	 		//get the concepts
 	 		TreeMap<String, String> concepts = new TreeMap<String, String>();
 
@@ -1273,6 +1276,10 @@ public class ItemCtrl2Bean implements SessionBean {
 				String revisionKey = (revisionID == null) || "".equals(revisionID) ? "__$DEFAULT$__" : revisionID;
 				if (revisionsChecked.contains(revisionKey)) continue;
 				//fetch all the concepts
+				if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+					String collectionpath= CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
+					query = "for $pivot0 in collection(\""+collectionpath+ "\")/ii/n/text()return <result>{$pivot0}</result>";
+				}
 				ArrayList<String> conceptsFound = runQuery(
 					revisionID,
 					dataClusterPOJOPK,
@@ -1293,6 +1300,10 @@ public class ItemCtrl2Bean implements SessionBean {
 			
 			if (! revisionsChecked.contains(revisionKey)) {
 				//fetch all the concepts
+				if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+					String collectionpath= CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
+					query = "for $pivot0 in collection(\""+collectionpath+ "\")/ii/n/text()return <result>{$pivot0}</result>";
+				}				
 				ArrayList<String> conceptsFound = runQuery(
 					revisionID,
 					dataClusterPOJOPK,

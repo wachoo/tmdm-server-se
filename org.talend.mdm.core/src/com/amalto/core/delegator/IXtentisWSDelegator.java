@@ -36,6 +36,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.jboss.security.Base64Encoder;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
@@ -1337,7 +1339,20 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+=" where ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")";
 	 		       
 	 		query+=" return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>";
+	 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+				String collectionpath= CommonUtil.getPath(revisionID, dataClusterName);
+				query = 
+					"for $ii in collection(\""+collectionpath+"\")/ii"+
+					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "[ora:matches(./p , \""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]")+
+					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
+					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
+					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[ora:matches(./i , \""+wsGetItemPKsByCriteria.getKeysKeywords()+"\")]")+
+					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[ora:matches(./n , \""+wsGetItemPKsByCriteria.getConceptName()+"\")]");
 	 		
+		 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+=" where ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")";
+		 		       
+		 		query+=" return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>";
+	 		}	 		
 	 		org.apache.log4j.Logger.getLogger(this.getClass()).debug(query);
 			
 			DataClusterPOJOPK dcpk =	new DataClusterPOJOPK(dataClusterName);

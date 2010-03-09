@@ -11,6 +11,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.commons.core.utils.XPathUtils;
 import com.amalto.commons.core.utils.xpath.ri.Compiler;
@@ -31,7 +34,6 @@ import com.amalto.xmlserver.interfaces.XmlServerException;
  */
 public class QueryBuilder {
 
-
 	/**
 	 * Builds the xQuery Return statement
 	 * @param viewableFullPaths
@@ -39,7 +41,7 @@ public class QueryBuilder {
 	 * @return
 	 * @throws XmlServerException
 	 */
-	private static String getXQueryReturn(
+	protected static String getXQueryReturn(
 		ArrayList<String> viewableFullPaths,
 		LinkedHashMap<String,String> pivotsMap,
 		boolean totalCountOnfirstRow
@@ -99,7 +101,6 @@ public class QueryBuilder {
 
     	return xqReturn;
 	}
-
 
 	/**
 	 * Builds the xQuery Return statement for an Items Query
@@ -582,16 +583,31 @@ public class QueryBuilder {
 	 * Helper Methods
 	 *
 	 ***********************************************************************/
-
+    
+    /**
+     * get the DB repository root path
+     */
+    public static String getDBRootPath(){
+    	return CommonUtil.getDBRootPath();
+    }
+    /**
+     * 
+     * @param revisionID
+     * @param clusterName
+     * @return
+     */
+    public static String getPath(String revisionID, String clusterName){
+    	return CommonUtil.getPath(revisionID, clusterName);
+    }
+    public static boolean isHead(String revisionID) {
+    	if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
+    	return (revisionID == null || "".equals(revisionID));
+    }
 	/**
 	 * Determine the collection name based on the revision ID and Cluster Name
 	 */
 	public static String getXQueryCollectionName(String revisionID, String clusterName) throws XmlServerException {
-		if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
-		String collectionPath =
-       		(revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")
-       		+(clusterName == null ? "" : clusterName);
-
+		String collectionPath=getPath(revisionID, clusterName);
        	if ("".equals(collectionPath)) return "";
 
        	String encoded = null;

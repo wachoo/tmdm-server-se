@@ -20,6 +20,8 @@ import javax.xml.xpath.XPathFactory;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -310,7 +312,7 @@ public abstract class ObjectPOJO implements Serializable{
             String urlid =  objectPOJOPK.getUniqueId();
             String item=null;
             ItemCacheKey key =new ItemCacheKey(revisionID,urlid, getCluster(objectClass));
-            if(cachedPojo.size()==MAX_CACHE_SIZE)cachedPojo.clear();
+            if(cachedPojo.size()==MAX_CACHE_SIZE)cachedPojo.clear();            
             if(cachedPojo.containsKey(key)){
             	item=cachedPojo.get(key);            	
             }else{
@@ -632,16 +634,21 @@ public abstract class ObjectPOJO implements Serializable{
 	    		    	
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-
-           
+            
+            String clusterName=getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));
 			String patternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[matches(./text(),'"+instancePattern+"')]";
 			String synchronizationCondition = synchronizationPlanName == null ? "" : "[not (./last-synch/text() eq '"+synchronizationPlanName+"')]";
 			String query = "/*"+synchronizationCondition+"/PK/unique-id"+patternCondition+"/text()";
-			
+			if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+				patternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[ora:matches(./text(),\""+instancePattern+"\")]";
+				synchronizationCondition = synchronizationPlanName == null ? "" : "[not (./last-synch/text() eq \""+synchronizationPlanName+"\")]";
+				String collectionpath= CommonUtil.getPath(revisionID, clusterName);
+				query=" for $pivot0 in collection(\""+collectionpath+ "\")/*"+synchronizationCondition+"/PK/unique-id"+patternCondition+"/text() return <result>{$pivot0}</result> ";								
+			}
             //retrieve the objects
 			return server.runQuery(
 				revisionID, 
-				getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName)), 
+				clusterName, 
 				query, 
 				null
 			);
@@ -680,20 +687,16 @@ public abstract class ObjectPOJO implements Serializable{
 	    	}
 	    		    	
             //get the xml server wrapper
-            XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Error Finding All Unsynchronized PKs: unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
-				throw new XtentisException(err);
-			}
-			
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+			String clusterName=getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));
 			String query = "/*[PK/unique-id/text() eq '"+uniqueID+"']";
-           
+			if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {				
+				String collectionpath= CommonUtil.getPath(revisionID, clusterName);
+				query=" for $pivot0 in collection(\""+collectionpath+ "\")/*[PK/unique-id/text() eq \""+uniqueID+"\"] return $pivot0 ";								
+			}
 			ArrayList<String> res= server.runQuery(
 				revisionID, 
-				getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName)), 
+				clusterName, 
 				query, 
 				null
 			);
@@ -735,16 +738,8 @@ public abstract class ObjectPOJO implements Serializable{
 	    	}
 	    		    	
             //get the xml server wrapper
-            XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Error Finding All Unsynchronized PKs: unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
-				throw new XtentisException(err);
-			}
-			
-           
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+			           
 			server.putDocumentFromString(
 				xml, 
 				uniqueID, 
@@ -825,14 +820,7 @@ public abstract class ObjectPOJO implements Serializable{
 			}
 	    	
             //get the xml server wrapper
-            XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Error Finding All Instances of "+getObjectName(objectClass)+": unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
-				throw new XtentisException(err);
-			}
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 			
 			//get the query
 			String query = server.getXtentisObjectsQuery(

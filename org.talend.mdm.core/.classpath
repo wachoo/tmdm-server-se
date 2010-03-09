@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commmon"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.xmldb"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

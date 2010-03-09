@@ -21,7 +21,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.amalto.core.objects.configurationinfo.localutil.ConfigurationHelper;
-import com.amalto.core.util.XtentisException;
 
 /**
  * Create system init datacluster/datamodel. etc
@@ -87,18 +86,21 @@ public class InitDBUtil {
 	 * init db
 	 * @throws Exception
 	 */
-	public static void initDB()throws Exception{
+	public static void initDB(){
+
 		updateDB("/com/amalto/core/initdb/data", initDB);
 		if(useExtension)updateDB("/com/amalto/core/initdb/extensiondata", initExtensionDB);
 	}
-
+		
 	private static void updateDB(String resourcePath,
-			HashMap<String, List<String>> initdb) throws XtentisException {
+			HashMap<String, List<String>> initdb)  {
 		for(Entry<String, List<String>> entry: initdb.entrySet()){
 			String datacluster=entry.getKey();
 			//create datacluster
 			//Util.getXmlServerCtrlLocal().createCluster(null, datacluster);
-			ConfigurationHelper.createCluster(null, datacluster);//slow but more reliable 
+			try {
+			ConfigurationHelper.createCluster(null, datacluster);//slow but more reliable
+			}catch(Exception e) {}
 			
 			List<String> list=entry.getValue();
 			
@@ -114,7 +116,9 @@ public class InitDBUtil {
 				uniqueID=uniqueID.replaceAll("\\+", " ");
 //				System.out.println("===================================");
 //				System.out.println(xmlString);
+				try {
 				ConfigurationHelper.putDomcument(datacluster, xmlString, uniqueID);
+				}catch(Exception e) {}
 			}
 		}
 	}

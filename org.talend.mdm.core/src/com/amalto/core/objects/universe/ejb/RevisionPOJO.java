@@ -15,6 +15,8 @@ import javax.naming.InitialContext;
 
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -115,15 +117,8 @@ public class RevisionPOJO implements Serializable{
     	
     	String invokerObjName = "Universe";
     	String clusterName = "amaltoOBJECTSUniverse";
-        XmlServerSLWrapperLocal server = null;
-		try {
-			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-		} catch (Exception e) {
-			String err = "Error Finding All Instances of revision"+": unable to access the XML Server wrapper";
-			org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
-			throw new XtentisException(err);
-		}
-		
+        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+				
 		if (pojo != null && universeXMLMap.get(universePk) == null && !del)
 			universeXMLMap.put(universePk, pojo);
 		else if (pojo == null && del) {
@@ -196,7 +191,14 @@ public class RevisionPOJO implements Serializable{
             	}
             }
             removeUnlessRevisionFromRecordList(revisionsAvailable);
+            
             // store the RevisionPOJO info into xdb
+            if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+            	server.createCluster(revisionID, "Revision");
+            	for(String id: revisionsAvailable) {
+            		server.createCluster(id, null);
+            	}
+            }
             server.putDocumentFromString(this.toString(), REVISION_ENTRY, "Revision", revisionID);
             if (server.getDocumentAsString(revisionID, clusterName,
 					REVISION_ENTRY) != null) {

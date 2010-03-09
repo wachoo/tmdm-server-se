@@ -67,7 +67,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	
 	//be pessimistic
 	protected static boolean SERVER_STATE_OK = false;
-//	private final static String CONFIG_FILE = "amaltoConfig.xml"; 
+//	protected final static String CONFIG_FILE = "amaltoConfig.xml"; 
 	
 	
 	
@@ -75,7 +75,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 		registerDataBase();
 	}
 	
-	private static void registerDataBase() {
+	protected static void registerDataBase() {
 		
 		//Make sure the DB is not already registered
 		Database[] databases = DatabaseManager.getDatabases();
@@ -108,12 +108,12 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	}
 	
 	/** A cache of collections to speed up search */
-	private HashMap<String,org.xmldb.api.base.Collection> clusters = new HashMap<String,org.xmldb.api.base.Collection>();
+	protected HashMap<String,org.xmldb.api.base.Collection> clusters = new HashMap<String,org.xmldb.api.base.Collection>();
 	
 	/** A cache of items, the key is the item id*/
-	//private Hashtable<ItemCacheKey, String> itemsCache=new Hashtable<ItemCacheKey, String>();
+	//protected Hashtable<ItemCacheKey, String> itemsCache=new Hashtable<ItemCacheKey, String>();
 	/**Max size of the cache*/
-	private static int CACHE_ITEM_MAX_SIZE=20000;
+	protected static int CACHE_ITEM_MAX_SIZE=20000;
 	
     /**
      * Build the XML DB URL from the  revisionID and clusterName
@@ -121,7 +121,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
      * @param cluster
      * @return
      */
-    private String getFullURL(String revisionID, String cluster) {
+    protected String getFullURL(String revisionID, String cluster) {
     	if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
    	 	return "xmldb:"+DBID+"://"+SERVERNAME+":"+SERVERPORT+"/"+DBURL
    	 			+((revisionID == null) || "".equals(revisionID) ? "": "/"+"R-"+revisionID)
@@ -1264,7 +1264,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     	
     }
     
-    private String parseNodeNameFromXpath(String input) {
+    protected String parseNodeNameFromXpath(String input) {
     	if(input==null)return "";
     	
 		String output=input;
@@ -1335,7 +1335,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	 * will become <code>$pivot0/EN</code> 
 	 * 
 	 */
-	private String getPathFromPivots(String bename, HashMap<String,String> pivots)  throws XmlServerException{
+	protected String getPathFromPivots(String bename, HashMap<String,String> pivots)  throws XmlServerException{
 		try {
 			org.apache.log4j.Logger.getLogger(this.getClass()).trace("getPathFromPivots() "+bename+" - "+pivots.keySet());
 			if (bename.startsWith("/")) bename = bename.substring(1);
@@ -1383,7 +1383,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	}	
 	
 
-	private String buildWhere(
+	protected String buildWhere(
 			String where,
 			HashMap<String,String> pivots,
 			IWhereItem whereItem,
@@ -1657,7 +1657,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	 * will become <code>$pivot0/EN</code> 
 	 * 
 	 */
-	private String getPathFromPivot(String pivot, String path) throws XmlServerException {
+	protected String getPathFromPivot(String pivot, String path) throws XmlServerException {
 		try {
 			
 			//org.apache.log4j.Logger.getLogger(this.getClass()).debug("getPathFromPivot() "+path+" from "+pivot);
@@ -1780,7 +1780,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	 * 
 	 ***********************************************************************/
 
-	private static Pattern pathWithoutConditions = Pattern.compile("(.*?)[\\[|/].*");
+	protected static Pattern pathWithoutConditions = Pattern.compile("(.*?)[\\[|/].*");
 	/**
 	 * Returns the first part - eg. the concept - from the path
 	 * @param path
@@ -1795,36 +1795,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     		return null;
     	}
     }
-	
-	
-    private static String getXQueryCollectionName(String revisionID, String clusterName) throws XmlServerException {
-    	if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
-    	String collectionPath = 
-    		(revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")
-    		+(clusterName == null ? "" : clusterName);
-    	
-    	if ("".equals(collectionPath)) return "";
-    	
-    	String encoded = null;
-        try {
-	        encoded = URLEncoder.encode(collectionPath,"utf-8");
-        } catch (UnsupportedEncodingException unlikely) {
-	        String err = "Unable to encode the collection path '"+collectionPath+"'. UTF-8 is not suported ?!?!";
-	        throw new XmlServerException(err);
-        }
-    	// java.net.URLEncoder encodes space (' ') as a plus sign ('+'),
-    	// instead of %20 thus it will not be decoded properly by eXist when the
-    	// request is parsed. Therefore replace all '+' by '%20'.
-    	// If there would have been any plus signs in the original string, they would
-    	// have been encoded by URLEncoder.encode()
-    	// control = control.replace("+", "%20");//only works with JDK 1.5
-    	encoded = encoded.replaceAll("\\+", "%20");
-    	//%2F seems to be useless
-    	encoded = encoded.replaceAll("%2F", "/");
-   	
-    	return "collection(\""+encoded+"\")";
-    }
-    
+	    
 	protected static boolean PROCESSING_UPGRADE = false; 
 	
 	/**
@@ -1832,7 +1803,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	 * Upgrade has been removed since we are starting from a clean state
 	 * @throws XmlServerException
 	 */
-	private void checkMe() throws XmlServerException {
+	protected void checkMe() throws XmlServerException {
 		org.apache.log4j.Logger.getLogger(this.getClass()).debug("checkMe() ");
 		
 		//processing upgrade code

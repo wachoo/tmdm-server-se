@@ -13,6 +13,9 @@ import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.ValidationException;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -205,8 +208,7 @@ public class DroppedItemPOJO implements Serializable{
     public static ItemPOJOPK recover(DroppedItemPOJOPK droppedItemPOJOPK) throws XtentisException {
     	
         //validate input
-    	if (droppedItemPOJOPK==null) return null;
-    	
+    	if (droppedItemPOJOPK==null) return null;    	
     	ItemPOJOPK refItemPOJOPK=droppedItemPOJOPK.getRefItemPOJOPK();
     	String actionName="recover";
     	//for recover we need to be admin, or have a role of admin , or role of write on instance 
@@ -228,6 +230,11 @@ public class DroppedItemPOJO implements Serializable{
         		getXmlDocument.append(doc);
         	}else{
             	String query ="document('"+droppedItemPOJOPK.getUniquePK()+"')/dropped-item-pOJO/projection";
+            	if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+            		String collectionpath= CommonUtil.getPath(null, "MDMItemsTrash");
+            		collectionpath=collectionpath+"/"+droppedItemPOJOPK.getUniquePK()+".xml";
+            		query ="for $pivot0 in doc(\""+collectionpath+"\")/dropped-item-pOJO/projection return $pivot0";
+            	}
             	ArrayList<String> results=server.runQuery(null, "MDMItemsTrash", query,null);
         		if (results==null||results.size()==0) return null; 
         		for (int i = 0; i < results.size(); i++) {

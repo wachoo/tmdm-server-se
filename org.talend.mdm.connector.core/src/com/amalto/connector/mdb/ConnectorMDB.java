@@ -24,6 +24,8 @@ import javax.resource.cci.MappedRecord;
 import javax.resource.cci.MessageListener;
 import javax.resource.cci.Record;
 
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
 
 import sun.misc.BASE64Decoder;
@@ -255,7 +257,9 @@ public abstract class ConnectorMDB implements MessageDrivenBean, MessageListener
 					System.currentTimeMillis(),			//insertion time
 					xml												//actual data
 			);
-					
+			if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+				Util.getXmlServerCtrlLocal().createCluster(null, "JCAAdapters");
+			}		
 			ictrl.putItem(
 					pojo, 
 					null	//no datamodel
