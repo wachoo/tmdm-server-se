@@ -127,6 +127,10 @@ public class LayoutDWR {
 	 * @return
 	 */
 	public boolean isExpired() throws RemoteException {
+	   if(!com.amalto.core.util.Util.isEnterprise()) { 
+	      return false;
+	   }
+	   
 	   LicenseUtil instance = LicenseUtil.getInstance();
 	   
 	   if(instance.getLicenseDate() == null) {
