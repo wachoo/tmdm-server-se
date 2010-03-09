@@ -50,6 +50,8 @@ import org.xml.sax.InputSource;
 
 import sun.misc.BASE64Decoder;
 
+import com.amalto.core.delegator.IBeanDelegator;
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.DroppedItemPOJOPK;
 import com.amalto.core.ejb.ItemPOJO;
@@ -1792,12 +1794,42 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 * 	view-type = "service-endpoint"
 	 */
 	public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray) throws RemoteException {
-		WSPutItem[] items=wsPutItemArray.getWsPutItem();	
-		List<WSItemPK> pks=new ArrayList<WSItemPK>();
-		for(WSPutItem item: items){
-			WSItemPK pk=putItem(item);
-			pks.add(pk);
-		}
+	   WSPutItem[] items = wsPutItemArray.getWsPutItem();
+	   List<WSItemPK> pks = new ArrayList<WSItemPK>();
+	   
+	   try {
+   	   if(items.length > 0) {
+   	      WSPutItem wsPutItem = items[0];
+      	   String projection = wsPutItem.getXmlString();
+            Element root = Util.parse(projection).getDocumentElement();
+            String concept = root.getLocalName();
+      
+            DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(
+                  new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk()));
+            Document schema = Util.parse(dataModel.getSchema());
+            XSDKey conceptKey = com.amalto.core.util.Util.
+               getBusinessConceptKey(schema, concept);
+              
+            //get key values
+            String[] itemKeyValues = com.amalto.core.util.Util.
+               getKeyValuesFromItem(root, conceptKey);                   
+      		
+      		for(WSPutItem item: items) {
+      			WSItemPK pk = putItem(item, dataModel, schema, itemKeyValues);
+      			pks.add(pk);
+      		}
+   	   }
+	   }
+	   catch(XtentisException e) {
+         String err = "ERROR SYSTRACE: " + e.getMessage();
+         org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+         throw(new RemoteException(e.getLocalizedMessage()));
+      } catch (Exception e) {
+         String err = "ERROR SYSTRACE: " + e.getMessage();
+         org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+         throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+      }
+      
 		return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
 	}
 	
