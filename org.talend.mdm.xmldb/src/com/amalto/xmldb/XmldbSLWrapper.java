@@ -72,7 +72,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	
 	
 	static {
-		registerDataBase();
+		if(MDMConfiguration.isExistDb()) {
+			registerDataBase();
+		}
 	}
 	
 	protected static void registerDataBase() {
