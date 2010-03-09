@@ -329,7 +329,7 @@ public class CodecPluginBean extends TransformerPluginV2CtrlBean  implements Ses
 			String algorithm=parameters.getAlgorithm();
 			
 			String codecText="";
-			//TODO Please add more algorithms
+			//TODO Please add more algorithms (we still need URL/MD5)
 			if(algorithm.equals(ALGORITHM_TYPE_BASE64)){
 				if(method.equals(METHOD_TYPE_ENCODE)){
 					codecText=(new BASE64Encoder()).encode(lawText.getBytes(charset));
