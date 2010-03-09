@@ -1244,9 +1244,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			}
     		xqReturn.append("</result-key>");
     		
-    		xqReturn.append("<result-lable>");
+    		xqReturn.append("<result-label>");
     		xqReturn.append("{$").append(labelXpath).append("/text()}");
-    		xqReturn.append("</result-lable>");
+    		xqReturn.append("</result-label>");
     		
     		xqReturn.append("</result>  ");
         	
