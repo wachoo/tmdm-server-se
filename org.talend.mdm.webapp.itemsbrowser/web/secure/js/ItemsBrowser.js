@@ -1791,7 +1791,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                                                       
                            var itempanel = amalto.core.getTabPanel().activeTab;
                            if (itempanel) {
-                                itempanel.isdirty = true;
+                           	    //It is already up to date
+                                itempanel.isdirty = false;
                            }
                            
                            displayItems.call(); 
