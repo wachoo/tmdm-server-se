@@ -19,8 +19,14 @@ import org.apache.commons.codec.binary.Base64;
 import org.talend.commons.model.ProductsMapping;
 import org.talend.commons.model.TalendObject;
 
+import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSGetItems;
 import com.amalto.webapp.util.webservices.WSLicense;
 import com.amalto.webapp.util.webservices.WSPutLicense;
+import com.amalto.webapp.util.webservices.WSStringPredicate;
+import com.amalto.webapp.util.webservices.WSWhereCondition;
+import com.amalto.webapp.util.webservices.WSWhereItem;
+import com.amalto.webapp.util.webservices.WSWhereOperator;
 
 
 /**
@@ -242,5 +248,36 @@ public final class LicenseUtil {
 
     public String getLicenseType() {
         return licenseType;
+    }
+    
+    public int getAvailableUsers() {
+       final int countActiveUsers = getActiveUsers();
+       final int nbUser2 = getNbUser();
+       if (getLicenseMode() == LicenseMode.NAMED) {
+           return nbUser2 - countActiveUsers;
+       } else {
+           return 1;
+       }
+   }
+    
+   /**
+    * Get the active users.
+    */
+    public static int getActiveUsers() {
+       String dataclusterPK = "PROVISIONING";
+       String[] results = new String[0];
+       WSWhereCondition condition = new WSWhereCondition("User/enabled", 
+             WSWhereOperator.EQUALS, "yes", WSStringPredicate.NONE, false);
+       WSWhereItem whereItem = new WSWhereItem(condition, null, null);
+       
+       try {
+          results = Util.getPort().getItems(new WSGetItems(
+             new WSDataClusterPK(dataclusterPK), "User", whereItem, 0, 0, Integer.MAX_VALUE)).getStrings();
+       }
+       catch(Exception e) {
+          e.printStackTrace();
+       }
+       
+       return results.length;
     }
 }
