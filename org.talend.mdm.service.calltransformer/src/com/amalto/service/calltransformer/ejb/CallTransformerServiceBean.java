@@ -76,6 +76,7 @@ import com.amalto.core.util.XtentisException;
 public class CallTransformerServiceBean extends ServiceCtrlBean  implements SessionBean{
 
 	private static final long serialVersionUID = 1L;
+	private static final String Param_Transformer_Name = "process";
 
 //	private boolean configurationLoaded = false;
 
@@ -121,9 +122,9 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
      */
 	public String getDescription(String twoLetterLanguageCode) throws XtentisException {
 		if ("fr".matches(twoLetterLanguageCode.toLowerCase()))
-			return "Service qui appelle des transformateurs";
+			return "Service qui appelle des processus";
 		
-		return "The service call transformers";
+		return "The service call process";
 	}
 
 
@@ -135,10 +136,10 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
      */
     public  String getDocumentation(String twoLettersLanguageCode) throws XtentisException{
     	return "This service takes a single parameter: \n"+
-    	"transformer: the name of the transformer. \n\n" +
-    	"The transformer should expect to receive the content of the Item sent to the transformer in the DEFAULT variable \n"+
+    	"process: the name of the process. \n\n" +
+    	"The process should expect to receive the content of the Item sent to the process in the DEFAULT variable \n"+
     	"with a content-type of text/xml. \n\n"+
-    	"Example: transformer=tiscall_test";
+    	"Example: "+Param_Transformer_Name+"=tiscall_test";
     }
 	/* (non-Javadoc)
 	 * @see com.amalto.core.ejb.ServiceCtrlBean#getStatus()
@@ -217,7 +218,7 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
 						String[] kv = kvs[i].split("=");
 						String key = kv[0].trim().toLowerCase();
 
-						if (("transformer".equals(key)) && (kv.length == 2)) {
+						if ((Param_Transformer_Name.equals(key)) && (kv.length == 2)) {
 							transformer = kv[1];
 						}
 					}
@@ -348,7 +349,7 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
 			//parse input parameter
 			if(parameters==null||parameters.length()==0)throw new XtentisException("Parameters can not be empty! ");
 			Document paramDoc=Util.parse(parameters);
-			String transformerName=Util.getFirstTextNode(paramDoc, "//transformer");
+			String transformerName=Util.getFirstTextNode(paramDoc, "//"+Param_Transformer_Name);
 			
 			String  typedContentType=Util.getFirstTextNode(paramDoc, "//typedContent/type");
 			String	typedContentValue=Util.getFirstTextNode(paramDoc, "//typedContent/value");

@@ -14,11 +14,19 @@ public class RenameCallTransformerTask extends AbstractMigrationTask {
 	
 	protected Boolean execute() {
 		if(MDMConfiguration.isExistDb()){
-		String xquery = "update replace /routing-rule-pOJO//service-jNDI[text()='amalto/local/service/calltransformer'] with <service-jNDI>amalto/local/service/callprocess</service-jNDI>";
+		
+		StringBuffer sb= new StringBuffer();	
+			sb.append("update replace /routing-rule-pOJO//service-jNDI[text()='amalto/local/service/calltransformer'] with <service-jNDI>amalto/local/service/callprocess</service-jNDI>, "); 
+			sb.append("for $routingRule in /routing-rule-pOJO "); 
+			sb.append("let $param:=$routingRule//parameters "); 
+			sb.append("let $newparam:=(replace($param, \"transformer\\s*=\", \"process=\")) "); 
+			sb.append("return update replace $routingRule//parameters with "); 
+			sb.append("<parameters>{$newparam}</parameters> ");
+			
+		String xquery = sb.toString();
 			try {
 				Util.getXmlServerCtrlLocal().runQuery(null, "", xquery, null);
 			} catch (XtentisException e) {
-				// TODO Auto-generated catch block
 				org.apache.log4j.Logger.getLogger(this.getClass()).error(
 						e.getMessage());
 				return false;
