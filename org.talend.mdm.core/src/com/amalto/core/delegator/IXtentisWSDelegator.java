@@ -50,8 +50,6 @@ import org.xml.sax.InputSource;
 
 import sun.misc.BASE64Decoder;
 
-import com.amalto.core.delegator.IBeanDelegator;
-import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.DroppedItemPOJOPK;
 import com.amalto.core.ejb.ItemPOJO;
@@ -1336,7 +1334,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[matches(./i , '"+wsGetItemPKsByCriteria.getKeysKeywords()+"')]")+
-					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[matches(./n , '"+wsGetItemPKsByCriteria.getConceptName()+"')]");
+					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq '"+wsGetItemPKsByCriteria.getConceptName()+"']");
 	 		
 	 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+=" where ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")";
 	 		       
