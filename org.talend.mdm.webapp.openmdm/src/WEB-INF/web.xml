@@ -20,13 +20,23 @@
             </init-param>
         </servlet>
     
-
         
         <servlet>
         <servlet-name>dispatch</servlet-name>
         <display-name>Dispatch</display-name>
         <servlet-class>com.amalto.webapp.v3.xtentismdm.servlet.ControllerServlet</servlet-class>
         </servlet>
+        
+        <servlet>
+            <servlet-name>ItemTreeServlet</servlet-name>
+            <display-name>ItemTreeServlet</display-name>
+            <servlet-class>com.amalto.webapp.widget.ItemTreeServlet</servlet-class>
+        </servlet>
+        
+        <servlet-mapping>
+            <servlet-name>ItemTreeServlet</servlet-name>
+            <url-pattern>/secure/widget/ItemTreeServlet</url-pattern>
+        </servlet-mapping>
         
         <servlet-mapping>
         <servlet-name>dispatch</servlet-name>
