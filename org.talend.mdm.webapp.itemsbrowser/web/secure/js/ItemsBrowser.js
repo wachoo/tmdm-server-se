@@ -242,6 +242,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Save'
 	};
 	
+	var BUTTON_REFRESH = {
+		'fr':'Sauvegarder',
+		'en':'Refresh'
+	};
+	
 	var BUTTON_SAVE_AND_QUIT = {
 		'fr':'Sauvegarder et fermer',
 		'en':'Save and close'
@@ -381,6 +386,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var DUPLICATE_TOOLTIP={
 		'fr':'Duplique l\'enregistrement sélectionné',
 		'en':'Clone the selected record'
+	};
+	var REFRESH_TOOLTIP={
+		'fr':'Ouvre le journal d\'audit de cet enregistrement',
+		'en':'Refresh this record'
 	};
 	var JOURNAL_TOOLTIP={
 		'fr':'Ouvre le journal d\'audit de cet enregistrement',
@@ -1321,6 +1330,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var O_DUPLICATE     = 128;
 	var O_JOURNAL       = 256;
 	var O_ACTION        = 512;
+	var O_REFRESH       = 1024;
 	
 	// modes
 	var M_TREE_VIEW		= 1;
@@ -1361,6 +1371,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				options |= (toolbar.baseOptions & O_DUPLICATE);
 				options |= (toolbar.baseOptions & O_JOURNAL);
 				options |= (toolbar.baseOptions & O_ACTION);
+				options |= (toolbar.baseOptions & O_REFRESH);
 				
 			break;
 			case M_PERSO_VIEW:
@@ -1486,6 +1497,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			}
 	
 			toolbar.addButton( {tooltip:JOURNAL_TOOLTIP[language],text: BUTTON_JOURNAL[language], className: 'tb-button tb-button-nude', handler: toolbar.journalItemHandler});
+			nbButtons++;
+		}
+		
+		// refresh
+		if((options&O_REFRESH)==O_REFRESH)
+		{
+			if (nbButtons>0)
+			{
+				toolbar.addSeparator();
+				nbButtons++;
+			}
+	
+			toolbar.addButton( {tooltip:REFRESH_TOOLTIP[language],text: BUTTON_REFRESH[language], className: 'tb-button tb-button-nude', handler: toolbar.refreshItemHandler});
 			nbButtons++;
 		}
 		
@@ -1834,13 +1858,26 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     				saveItemWithoutQuit(ids,dataObject,treeIndex,refreshCB);
     			};
     			
+    			tbDetail.refreshItemHandler = function() {
+    			    var node2 = new YAHOO.widget.HTMLNode(nameTmp, root, false, true);
+    				var rootnode = root.children[0];
+    				itemTree.removeNode(rootnode);
+    				ItemsBrowserInterface.setTree(dataObject, itemPK2, node2.index, false, treeIndex, function(result){
+                        node2.setDynamicLoad(fnLoadData, 1);
+                        node2.expand();
+                        itemTree.draw();
+                    });
+    		        
+    		        displayItems.call(); 
+    			};
+    			
     			tbDetail.saveItemAndQuitHandler = function(){			
     				saveItemAndQuit(ids,dataObject,treeIndex,refreshCB);
     			};
     		
     			//case edit and no editable
     			if(rootNode.readOnly==false && newItem[treeIndex]==false) {
-    				tbDetail.baseOptions |= O_DELETE|O_LOGICAL_DEL|O_DUPLICATE|O_JOURNAL|O_ACTION;	
+    				tbDetail.baseOptions |= O_DELETE|O_LOGICAL_DEL|O_DUPLICATE|O_JOURNAL|O_ACTION|O_REFRESH;	
     			}		
     	
     			//add for duplicate case
@@ -2292,7 +2329,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 	  	
 	}
-
+	
 	function saveItemAndQuit(ids, dataObject, treeIndex, refreshCB) {
 		// alert(DWRUtil.toDescriptiveString(itemPK2,2)+" "+dataObject+"
 		// "+treeIndex);
@@ -2321,7 +2358,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					}				      
 				 });
 	}
-	
+
 	function updateItemNodesBeforeSaving(treeIndex)
 	{
 	  var nodes = map[treeIndex];
