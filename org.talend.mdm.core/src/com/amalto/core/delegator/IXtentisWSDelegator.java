@@ -1800,10 +1800,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	   try {
    	   if(items.length > 0) {
    	        WSPutItem wsPutItem = items[0];
-      	    String projection = wsPutItem.getXmlString();
-            Element root = Util.parse(projection).getDocumentElement();
-            String concept = root.getLocalName();
       
+   	        String projection = wsPutItem.getXmlString();
+   	        Element root = Util.parse(projection).getDocumentElement();
+   	        String concept = root.getLocalName();
             DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(
                   new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk()));
             Document schema = Util.parse(dataModel.getSchema());
@@ -1812,6 +1812,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
               
       		
       		for(WSPutItem item: items) {
+      			projection = item.getXmlString();
+       	        root = Util.parse(projection).getDocumentElement();
       			//get key values
       			String[] itemKeyValues = com.amalto.core.util.Util.
       			getKeyValuesFromItem(root, conceptKey);                   
