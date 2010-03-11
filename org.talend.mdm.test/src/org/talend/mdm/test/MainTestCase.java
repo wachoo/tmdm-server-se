@@ -20,7 +20,7 @@ public class MainTestCase extends MDMTestCase {
 		testSuite.addTestSuite(UniverseWebserviceTestCase.class);
 		testSuite.addTestSuite(ViewWebserviceTestCase.class);
 		testSuite.addTestSuite(XtentisJCAConnectorSupportWebserviceTestCase.class);
-		
+		testSuite.addTestSuite(ExtendsWebserviceTestCase.class);
 		junit.textui.TestRunner.run(testSuite);
 	}
 
