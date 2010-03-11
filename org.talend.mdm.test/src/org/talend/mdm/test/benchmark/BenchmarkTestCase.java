@@ -21,44 +21,64 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 
 	}
 	public void testPutItemArray100k() {
-		PutItemArray(100000);
+		PutItemArray(100000,10);
+		PutItemArray(100000,50);
+		PutItemArray(100000,100);
+		PutItemArray(100000,200);
+		PutItemArray(100000,500);
+	}
+	public void testPutItemArray500k() {
+		PutItemArray(500000,10);
+		PutItemArray(500000,50);
+		PutItemArray(500000,100);
+		PutItemArray(500000,200);
+		PutItemArray(500000,500);
+	}
+	public void testPutItemArray1M() {
+		PutItemArray(1000000,10);
+		PutItemArray(1000000,50);
+		PutItemArray(1000000,100);
+		PutItemArray(1000000,200);
+		PutItemArray(1000000,500);
+	}
+	public void testPutItemArray3M() {
+		PutItemArray(3000000,10);
+		PutItemArray(3000000,50);
+		PutItemArray(3000000,100);
+		PutItemArray(3000000,200);
+		PutItemArray(3000000,500);
+	}
+	public void testPutItemArray10M() {
+		PutItemArray(10000000,10);
+		PutItemArray(10000000,50);
+		PutItemArray(10000000,100);
+		PutItemArray(10000000,200);
+		PutItemArray(10000000,500);
 	}
 	public void testPutItem100k() {
 		PutItem(100000);
 	}
-	public void testPutItemArray500k() {
-		PutItemArray(500000);
-	}
 	public void testPutItem500k() {
 		PutItem(500000);
 	}	
-	public void testPutItemArray1M() {
-		PutItemArray(1000000);
-	}
 	public void testPutItem1M() {
 		PutItem(1000000);
 	}	
-	public void testPutItemArray3M() {
-		PutItemArray(3000000);
-	}
 	public void testPutItem3M() {
 		PutItem(3000000);
 	}	
-	public void testPutItemArray10M() {
-		PutItemArray(10000000);
-	}
 	public void testPutItem10M() {
 		PutItem(10000000);
 	}	
-	private void PutItemArray(long total) {
+	private void PutItemArray(long total, int arraysize) {
 		try {
 			//create datacluster Order100k
 			String tk=total/1000+"k";
 			String dcpk="Order"+tk;
 			defaultPort.putDataCluster(new WSPutDataCluster(new WSDataCluster(dcpk, "", "")));
-			TimeMeasure.begin("PutItemArray"+tk);
+			TimeMeasure.begin("PutItemArray"+tk+"arraysize"+arraysize);
 
-			long count=(total/200);
+			long count=(total/arraysize);
 			long itotal=0;
 			for(int j=0; j<count; j++) {
 				WSPutItem[] items=new WSPutItem[200];
@@ -70,7 +90,7 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 				defaultPort.putItemArray(items);
 			}
 			
-			TimeMeasure.end("PutItemArray"+tk);
+			TimeMeasure.end("PutItemArray"+tk+"arraysize"+arraysize);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
