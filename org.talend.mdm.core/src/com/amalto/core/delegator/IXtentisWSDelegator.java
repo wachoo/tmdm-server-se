@@ -1799,8 +1799,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	   
 	   try {
    	   if(items.length > 0) {
-   	      WSPutItem wsPutItem = items[0];
-      	   String projection = wsPutItem.getXmlString();
+   	        WSPutItem wsPutItem = items[0];
+      	    String projection = wsPutItem.getXmlString();
             Element root = Util.parse(projection).getDocumentElement();
             String concept = root.getLocalName();
       
@@ -1810,11 +1810,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
             XSDKey conceptKey = com.amalto.core.util.Util.
                getBusinessConceptKey(schema, concept);
               
-            //get key values
-            String[] itemKeyValues = com.amalto.core.util.Util.
-               getKeyValuesFromItem(root, conceptKey);                   
       		
       		for(WSPutItem item: items) {
+      			//get key values
+      			String[] itemKeyValues = com.amalto.core.util.Util.
+      			getKeyValuesFromItem(root, conceptKey);                   
       			WSItemPK pk = putItem(item, dataModel, schema, itemKeyValues);
       			pks.add(pk);
       		}
