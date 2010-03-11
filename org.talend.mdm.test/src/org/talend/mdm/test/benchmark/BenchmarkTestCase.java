@@ -17,9 +17,12 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+	
 
 	}
+//	public void testputitem(){
+//		//PutItemArray(1000,10);
+//	}
 	public void testPutItemArray100k() {
 		PutItemArray(100000,10);
 		PutItemArray(100000,50);
@@ -81,8 +84,8 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 			long count=(total/arraysize);
 			long itotal=0;
 			for(int j=0; j<count; j++) {
-				WSPutItem[] items=new WSPutItem[200];
-				for(int i=0; i<200; i++) {				
+				WSPutItem[] items=new WSPutItem[arraysize];
+				for(int i=0; i<arraysize; i++) {				
 					String xmlString="<Country><isoCode>"+itotal+"</isoCode><label>label</label><Continent>Continent</Continent></Country>";
 					items[i]=new WSPutItem(new WSDataClusterPK(dcpk), xmlString, dmpk, false);
 					itotal++;
