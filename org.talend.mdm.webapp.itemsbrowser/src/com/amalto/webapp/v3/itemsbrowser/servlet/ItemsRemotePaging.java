@@ -244,7 +244,7 @@ public class ItemsRemotePaging  extends HttpServlet{
 		{
 			ArrayList<WSWhereItem> condition=new ArrayList<WSWhereItem>(); 
 			String[] subCriterias = cria.split("[\\s]+AND[\\s]+");
-			//add by ymli; fix the bug:0011974. remove "(" at the left and ")" at the right
+			//add by ymli; fix the bug: 0011974. remove "(" at the left and ")" at the right
 			for (String subCria : subCriterias) {
 				if (subCria.startsWith("(")) {
 					subCria = subCria.substring(1);
