@@ -134,7 +134,7 @@ public class LayoutDWR {
 	   LicenseUtil instance = LicenseUtil.getInstance();
 	   
 	   if(instance.getLicenseDate() == null) {
-	      throw new RemoteException("No license setted!");
+	      throw new RemoteException("No license found.");
 	   }
 	   
 	   return !instance.isLicenseDateValid();
