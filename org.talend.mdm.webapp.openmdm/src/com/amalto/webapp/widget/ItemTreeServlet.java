@@ -62,12 +62,12 @@ public class ItemTreeServlet extends HttpServlet {
 						new WSGetItem(new WSItemPK(new WSDataClusterPK(clusterName), conceptName, keysArray)));
 
 				Document doc = parse(new ByteArrayInputStream(wsItem.getContent().getBytes()));
-				JSONObject json = new JSONObject();
+				//JSONObject json = new JSONObject();
 				JSONArray jsonChildren = new JSONArray();
 				visitElementList(doc.getRootElement(), jsonChildren);
-				json.put("text", conceptName);
-				json.put("leaf", false);
-				json.put("children", jsonChildren);
+				//json.put("text", conceptName);
+				//json.put("leaf", false);
+				//json.put("children", jsonChildren);
 
 				// jsonTree=json.toString();
 				jsonTree = jsonChildren.toString();
@@ -107,8 +107,12 @@ public class ItemTreeServlet extends HttpServlet {
 			String value = element.getTextTrim();
 
 			JSONObject jsonObj = new JSONObject();
-			jsonObj.put("text", name + ":" + value);
+			jsonObj.put("elemText", name);
+			jsonObj.put("elemValue", value);
+			jsonObj.put("uiProvider", "col");
 			jsonObj.put("leaf", true);
+			jsonObj.put("draggable", true);
+			jsonObj.put("allowDrop", true);
 
 			jsonChildren.put(jsonObj);
 		} else {
@@ -122,9 +126,12 @@ public class ItemTreeServlet extends HttpServlet {
 
 					JSONObject jsonObj = new JSONObject();
 					JSONArray subJsonChildren = new JSONArray();
-					jsonObj.put("text", name + ":" + value);
+					jsonObj.put("elemText", name);
+					jsonObj.put("uiProvider", "col");
 					jsonObj.put("leaf", false);
 					jsonObj.put("children", subJsonChildren);
+					jsonObj.put("draggable", true);
+					jsonObj.put("allowDrop", true);
 
 					jsonChildren.put(jsonObj);
 					visitElementList(elem, subJsonChildren);
