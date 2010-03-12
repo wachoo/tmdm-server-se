@@ -20,43 +20,27 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 	
 
 	}
-//	public void testputitem(){
-//		//PutItemArray(1000,10);
-//	}
+	public void testPutItemArray1k(){
+		PutItemArray(1000,10);
+		PutItemArray(1000,50);
+		PutItemArray(1000,100);
+		PutItemArray(1000,200);
+		PutItemArray(1000,500);
+	}
 	public void testPutItemArray100k() {
-		PutItemArray(100000,10);
-		PutItemArray(100000,50);
-		PutItemArray(100000,100);
 		PutItemArray(100000,200);
-		PutItemArray(100000,500);
 	}
 	public void testPutItemArray500k() {
-		PutItemArray(500000,10);
-		PutItemArray(500000,50);
-		PutItemArray(500000,100);
 		PutItemArray(500000,200);
-		PutItemArray(500000,500);
 	}
 	public void testPutItemArray1M() {
-		PutItemArray(1000000,10);
-		PutItemArray(1000000,50);
-		PutItemArray(1000000,100);
 		PutItemArray(1000000,200);
-		PutItemArray(1000000,500);
 	}
 	public void testPutItemArray3M() {
-		PutItemArray(3000000,10);
-		PutItemArray(3000000,50);
-		PutItemArray(3000000,100);
 		PutItemArray(3000000,200);
-		PutItemArray(3000000,500);
 	}
 	public void testPutItemArray10M() {
-		PutItemArray(10000000,10);
-		PutItemArray(10000000,50);
-		PutItemArray(10000000,100);
 		PutItemArray(10000000,200);
-		PutItemArray(10000000,500);
 	}
 	public void testPutItem100k() {
 		PutItem(100000);
