@@ -1347,7 +1347,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[ora:matches(./i , \""+wsGetItemPKsByCriteria.getKeysKeywords()+"\")]")+
-					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[ora:matches(./n , \""+wsGetItemPKsByCriteria.getConceptName()+"\")]");
+					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq \""+wsGetItemPKsByCriteria.getConceptName()+"\"]");
 	 		
 		 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+=" where ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")";
 		 		       
