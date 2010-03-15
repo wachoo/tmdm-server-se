@@ -7,11 +7,14 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.jboss.injection.PojoInjector;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.util.Util;
 
 public class MigrationRepository{
@@ -30,9 +33,9 @@ public class MigrationRepository{
 		return repository;
 	}
   
-  public void execute()
+  public void execute( boolean force)
   {
-	  if(!isExeuted){
+	  if(!isExeuted || force){
 	      List<String> list = new ArrayList<String>();
 	  
 		  // look over the handlers dir, call up each handler to execute if it can
@@ -52,7 +55,8 @@ public class MigrationRepository{
 			// get the class definition and invoke the trigger function
 			for(String clazz: list){
 				try {
-					AbstractMigrationTask task=(AbstractMigrationTask)Class.forName(clazz).newInstance();					
+					AbstractMigrationTask task=(AbstractMigrationTask)Class.forName(clazz).newInstance();
+					task.setForceExe(force);
 					task.start();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -61,6 +65,8 @@ public class MigrationRepository{
 			
 			//clear the cache objects, is this still need?
 			Util.getXmlServerCtrlLocal().clearCache();
+			ObjectPOJO.clearCache();
+			ItemPOJO.clearCache();
 		} catch (Exception e) {
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(e.getCause());
 			return;
@@ -72,7 +78,7 @@ public class MigrationRepository{
    
    public void connect()
    {	   
-	   execute();
+	   execute(false);
    }
 
 }

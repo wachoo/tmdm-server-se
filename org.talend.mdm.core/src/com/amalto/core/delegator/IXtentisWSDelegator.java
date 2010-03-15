@@ -61,6 +61,7 @@ import com.amalto.core.ejb.TransformerPOJOPK;
 import com.amalto.core.ejb.UpdateReportItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
+import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
 import com.amalto.core.objects.configurationinfo.assemble.MigrateVersionSubProc;
@@ -207,12 +208,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 */
 	public WSInt initMDM(WSInitData initData) throws RemoteException {
 		//run migration tasks
-		try {
-			new MigrateVersionSubProc().run();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		MigrationRepository.getInstance().execute(true);
 		return new WSInt(0);
 	}
 	

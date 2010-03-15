@@ -15,11 +15,21 @@ public abstract class AbstractMigrationTask {
 	private Map<String, Boolean> handlerMap = null;
     public static final String CLUSTER_MIGRATION = "MDMMigration";
     private static final String UNIQUE_MIGRATION = "MIGRATION.completed.record";
-    
+    boolean forceExe=false;
 	public AbstractMigrationTask() {
 	}
 	
 	 
+	public boolean isForceExe() {
+		return forceExe;
+	}
+
+
+	public void setForceExe(boolean forceExe) {
+		this.forceExe = forceExe;
+	}
+
+
 	protected  boolean isDone(){
 		Boolean res = false;
 		
@@ -50,7 +60,7 @@ public abstract class AbstractMigrationTask {
 	
 	public void start()
 	{	
-		if (isDone())
+		if (isDone() && !forceExe)
 		{
 			return;
 		}
