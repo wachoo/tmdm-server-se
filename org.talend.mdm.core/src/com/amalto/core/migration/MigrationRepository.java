@@ -1,5 +1,6 @@
 package com.amalto.core.migration;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -41,17 +43,13 @@ public class MigrationRepository{
 		  // look over the handlers dir, call up each handler to execute if it can
 		  try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			InputStream in= MigrationRepository.class.getResourceAsStream("/com/amalto/core/migration/migration.xml");
-			Document doc = builder.parse(in);	
 			
-			NodeList nodelist = doc.getElementsByTagName("Root");
-			Node root = nodelist.item(0);		
-			for (int id = 0; id < root.getChildNodes().getLength(); id++)
-			{
-				Node node = root.getChildNodes().item(id);
-				if (node instanceof Element)
-				   list.add(node.getNodeName());
-			}
+			InputStream in= MigrationRepository.class.getResourceAsStream("/com/amalto/core/migration/migration.xml");
+			InputStream extIn=MigrationRepository.class.getResourceAsStream("/com/amalto/core/migration/migration-extension.xml");
+			
+			parseConfigList(list, builder, in);
+			if(extIn!=null)parseConfigList(list, builder, extIn);
+			
 			// get the class definition and invoke the trigger function
 			for(String clazz: list){
 				try {
@@ -74,6 +72,20 @@ public class MigrationRepository{
 	  }
 	  isExeuted=true;
   }
+
+	private void parseConfigList(List<String> list, DocumentBuilder builder,
+			InputStream in) throws SAXException, IOException {
+		Document doc = builder.parse(in);	
+		
+		NodeList nodelist = doc.getElementsByTagName("Root");
+		Node root = nodelist.item(0);		
+		for (int id = 0; id < root.getChildNodes().getLength(); id++)
+		{
+			Node node = root.getChildNodes().item(id);
+			if (node instanceof Element)
+			   list.add(node.getNodeName());
+		}
+	}
   
    
    public void connect()

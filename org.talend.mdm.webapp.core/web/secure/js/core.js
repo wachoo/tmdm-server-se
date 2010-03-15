@@ -82,6 +82,26 @@ String.prototype.trim = function () {
 	return this.replace(/^\s*(\S*(\s+\S+)*)\s*$/, "$1");
 };
 
+String.prototype.endWith=function(str){
+    if(str==null||str==""||this.length==0||str.length>this.length)
+      return false;
+    if(this.substring(this.length-str.length)==str)
+      return true;
+    else
+      return false;
+    return true;
+};
+
+String.prototype.startWith=function(str){
+    if(str==null||str==""||this.length==0||str.length>this.length)
+      return false;
+    if(this.substr(0,str.length)==str)
+      return true;
+    else
+      return false;
+    return true;
+};
+
 Ext.namespace("Ext.ux");
 Ext.ux.comboBoxRenderer = function(combo) {
   return function(value) {
@@ -588,7 +608,7 @@ amalto.core = function () {
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/></span>";
                         }else if(toCheckMenuID=='crossreferencing.CrossReferencing'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/crossref.png\"/></span>";
-                        }else if(toCheckMenuID=='hierarchical.HierarchicalView'){
+                        }else if(toCheckMenuID.startWith('hierarchical.')){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/hier_view.gif\"/></span>";
                         }else if(toCheckMenuID=='usersandroles.Users'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/manage_users.png\"/></span>";
