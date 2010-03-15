@@ -93,10 +93,12 @@ public final class LicenseUtil {
        try {
           WSLicense licensep = Util.getPort().getLicense();
           String license = licensep.getLicense();
-          String customerName = licensep.getCustomerCompany();
-          byte[] licenseb = Base64.decodeBase64(license.getBytes());
-          
-          this.init(licenseb, customerName);
+          if(license!=null) {
+	          String customerName = licensep.getCustomerCompany();
+	          byte[] licenseb = Base64.decodeBase64(license.getBytes());
+	          
+	          this.init(licenseb, customerName);
+          }
        }
        catch(Exception e) {
           e.printStackTrace();
