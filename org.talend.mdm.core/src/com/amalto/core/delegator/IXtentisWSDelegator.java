@@ -63,6 +63,7 @@ import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
+import com.amalto.core.objects.configurationinfo.assemble.MigrateVersionSubProc;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
@@ -205,14 +206,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 * 	view-type = "service-endpoint"
 	 */
 	public WSInt initMDM(WSInitData initData) throws RemoteException {
-//		try {
-//			DoInitializeObjectsLocal initialize =DoInitializeObjectsUtil.getLocalHome().create(); 
-//			if (initData.isZap()) initialize.zapXmlServer();
-//			initialize.initializeObjects(initData.getXmlSchema());
-//			return new WSInt(initData.getXmlSchema().length());
-//		} catch (Exception e) {
-//			throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
-//		}
+		//run migration tasks
+		try {
+			new MigrateVersionSubProc().run();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return new WSInt(0);
 	}
 	
