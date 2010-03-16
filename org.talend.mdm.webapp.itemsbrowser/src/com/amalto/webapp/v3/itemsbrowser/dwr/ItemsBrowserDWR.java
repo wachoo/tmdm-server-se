@@ -56,6 +56,7 @@ import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSGetTransformer;
 import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
@@ -65,6 +66,7 @@ import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
+import com.amalto.webapp.util.webservices.WSTransformer;
 import com.amalto.webapp.util.webservices.WSTransformerContext;
 import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
 import com.amalto.webapp.util.webservices.WSTransformerPK;
@@ -2084,16 +2086,31 @@ public class ItemsBrowserDWR {
 			
 			WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();
 			for (int i = 0; i < wst.length; i++) {
-				if(wst[i].getPk().startsWith("Runnable_"+businessConcept)){
-					String pk=wst[i].getPk();
-					String text=pk;
-					if(pk.lastIndexOf("#")==-1) {
-						if(language.equalsIgnoreCase("fr"))text="Action par défaut";
-						else text="Default Action";
-					}else {
-						text=pk.substring(pk.lastIndexOf("#")+1);
-					}
-					comboItem.add(new ComboItemBean(wst[i].getPk(), text));
+				if (wst[i].getPk().startsWith("Runnable_" + businessConcept)) {
+					/*
+					 * String pk=wst[i].getPk(); String text=pk;
+					 * if(pk.lastIndexOf("#")==-1) {
+					 * if(language.equalsIgnoreCase
+					 * ("fr"))text="Action par défaut"; else
+					 * text="Default Action"; }else {
+					 * text=pk.substring(pk.lastIndexOf("#")+1); }
+					 */
+
+					// edit by ymli;fix the bug:0012025
+					// Use the Process description instead of the '#' suffix in the run process drop-down list.
+					// and if the description is null, use the default value.
+					WSTransformer trans = Util.getPort().getTransformer(new WSGetTransformer(wst[i]));
+					String description = trans.getDescription();
+					Pattern p = Pattern.compile(".*\\["+ language.toUpperCase() + ":(.*?)\\].*",Pattern.DOTALL);
+					String name = p.matcher(description).replaceAll("$1");
+					if (name.equals(""))
+						if (language.equalsIgnoreCase("fr"))
+							name = "Action par défaut";
+						else if (language.equalsIgnoreCase("en"))
+							name = "Default Action";
+						else 
+							name = description;
+					comboItem.add(new ComboItemBean(wst[i].getPk(), name));
 				}
 			}
 			
