@@ -15,9 +15,16 @@
             <param name="class" value="com.amalto.webapp.v3.xtentismdm.dwr.LoginDWR"/>
         </create>
         
+        <create creator="new" javascript="WidgetInterface">
+            <param name="class" value="com.amalto.webapp.widget.WidgetDWR"/>
+        </create>
+        
         <convert converter="bean" match="com.amalto.webapp.core.util.XtentisWebappException"/>
         <convert converter="bean" match="java.rmi.RemoteException"/>
         <convert converter="bean" match="java.lang.StackTraceElement"/>
+        
+        <convert converter="bean" match="com.amalto.webapp.core.bean.ComboItemBean"/>
+        <convert converter="bean" match="com.amalto.webapp.core.bean.ListRange"/>
         
     </allow>
 

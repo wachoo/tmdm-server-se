@@ -2849,7 +2849,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 					wsGetChildrenItems.getPKXpaths().getStrings(),
 					wsGetChildrenItems.getFKXpath(), 
 					wsGetChildrenItems.getLabelXpath(), 
-					wsGetChildrenItems.getFatherPK()
+					wsGetChildrenItems.getFatherPK(),
+					XConverter.WS2VO(wsGetChildrenItems.getWhereItem())
 			);
 			return new WSStringArray((String[])res.toArray(new String[res.size()]));
 		} catch (XtentisException e) {

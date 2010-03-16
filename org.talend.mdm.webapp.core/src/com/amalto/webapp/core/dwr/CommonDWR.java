@@ -249,19 +249,35 @@ public class CommonDWR {
 	public static HashMap<String,String> getFieldsByDataModel(
 			String dataModelPK, String concept, String language, boolean includeComplex,boolean includeFKReference) 
 			throws RemoteException, Exception{
+		return getFieldsByDataModel(dataModelPK,null,concept,language,includeComplex,includeFKReference);
+	}
+	
+	public static HashMap<String,String> getFieldsByDataModel(
+			String dataModelPK,Map<String,XSElementDecl> inputConceptMap, String concept, String language, boolean includeComplex,boolean includeFKReference) 
+			throws RemoteException, Exception{
 		
 		WebContext ctx = WebContextFactory.get();
-		String x_Label = "X_Label_"+language.toUpperCase();    	
-		Map<String,XSElementDecl> map = getConceptMap(dataModelPK);
-    	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
+		String x_Label = "X_Label_"+language.toUpperCase();
+		
+		Map<String,XSElementDecl> conceptMap=null;
+		if(inputConceptMap==null||inputConceptMap.size()==0) {
+			conceptMap = getConceptMap(dataModelPK);
+		}else {
+			conceptMap= inputConceptMap;
+		}
+		
+    	XSComplexType xsct = (XSComplexType)(conceptMap.get(concept).getType());
     	
     	HashMap<String,String> xpathToLabel = new HashMap<String,String>();
-    	xpathToLabel.put(concept,getLabel(map.get(concept),x_Label).equals("")?map.get(concept).getName():getLabel(map.get(concept),x_Label));
+    	xpathToLabel.put(concept,getLabel(conceptMap.get(concept),x_Label).equals("")?conceptMap.get(concept).getName():getLabel(conceptMap.get(concept),x_Label));
     	//xpathToLabel.put(concept,CommonDWR.getConceptLabel(dataModelPK,concept,language));
     	XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
     	for (int j = 0; j < xsp.length; j++) {  
    			getChildren(xsp[j],""+concept,x_Label,includeComplex,includeFKReference,xpathToLabel);
     	}
+    	//FIXME
+    	//Why we need to update session attribute in this place?
+    	//decouple please
     	ctx.getSession().setAttribute("xpathToLabel",xpathToLabel);
     	return xpathToLabel; 
 	}

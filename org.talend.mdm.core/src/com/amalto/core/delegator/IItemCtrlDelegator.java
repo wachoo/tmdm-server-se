@@ -123,40 +123,74 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
 			String[] PKXpaths,
 			String FKXpath,
 			String labelXpath,
-			String fatherPK
+			String fatherPK,
+			IWhereItem whereItem
 	) throws XtentisException{
 		
-		//get the universe and revision ID
-    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-    	if (universe == null) {
-    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
-    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    		throw new XtentisException(err);
-    	}
-    	
-    	XmlServerSLWrapperLocal server = null;
 		try {
-			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-		} catch (Exception e) {
-			String err = "Unable to search items in data cluster '"+clusterName+"': unable to access the XML Server wrapper";
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-			throw new XtentisException(err);
-		}
+				//get the universe and revision ID
+		    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+		    	if (universe == null) {
+		    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+		    		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+		    		throw new XtentisException(err);
+		    	}
+		    	
+		    	XmlServerSLWrapperLocal server = null;
+				try {
+					server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+				} catch (Exception e) {
+					String err = "Unable to search items in data cluster '"+clusterName+"': unable to access the XML Server wrapper";
+					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+					throw new XtentisException(err);
+				}
+				
+				ViewPOJOPK viewPOJOPK=new ViewPOJOPK("Browse_items_" + conceptName);
+		    	ViewPOJO view = Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
 		
-		String query = server.getChildrenItemsQuery
-		        (clusterName, 
-		         conceptName,  
-		         PKXpaths, 
-		         FKXpath, 
-		         labelXpath, 
-		         fatherPK, 
-		         universe.getItemsRevisionIDs(),
-	             universe.getDefaultItemRevisionID());
-                
-
-       org.apache.log4j.Logger.getLogger(this.getClass()).debug(query);
-	
-	   return server.runQuery(null, null, query, null);
+		    	//Create an ItemWhere which combines the search and and view wheres 
+		    	IWhereItem fullWhere;
+		    	if((view.getWhereConditions()==null) || (view.getWhereConditions().getList().size()==0)
+		    	) {
+		    		if (whereItem==null)
+		    			fullWhere = null;
+		    		else
+		    			fullWhere = whereItem;
+		    	} else {
+		    		if (whereItem==null){
+		    			fullWhere = new WhereAnd(view.getWhereConditions().getList());
+		    		} else {
+		    			WhereAnd viewWhere = new WhereAnd(view.getWhereConditions().getList());
+		                WhereAnd wAnd = new WhereAnd();
+		    			wAnd.add(whereItem);
+		    			wAnd.add(viewWhere);
+		    			fullWhere = wAnd;
+		    		}
+		    	}
+				
+				String query = server.getChildrenItemsQuery
+				        (clusterName, 
+				         conceptName,  
+				         PKXpaths, 
+				         FKXpath, 
+				         labelXpath, 
+				         fatherPK, 
+				         universe.getItemsRevisionIDs(),
+			             universe.getDefaultItemRevisionID(),
+			             fullWhere);
+		                
+		
+		       org.apache.log4j.Logger.getLogger(this.getClass()).debug(query);
+			
+			   return server.runQuery(null, null, query, null);
+	   
+		} catch (XtentisException e) {
+	    	throw(e);
+	    } catch (Exception e) {
+    	    String err = "Unable to search: " + ": " + e.getClass().getName()+ ": " + e.getLocalizedMessage();
+    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+    	    throw new XtentisException(err);
+	    }
 		
 	}
 

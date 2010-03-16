@@ -29,6 +29,9 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
     private static final QName ns1_FKXpath_QNAME = new QName("", "FKXpath");
     private static final QName ns1_labelXpath_QNAME = new QName("", "labelXpath");
     private static final QName ns1_fatherPK_QNAME = new QName("", "fatherPK");
+    private static final QName ns1_whereItem_QNAME = new QName("", "whereItem");
+    private static final QName ns2_WSWhereItem_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSWhereItem");
+    private CombinedSerializer ns2_myWSWhereItem_LiteralSerializer;
     
     public WSGetChildrenItems_LiteralSerializer(QName type, String encodingStyle) {
         this(type, encodingStyle, false);
@@ -41,6 +44,7 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
     public void initialize(InternalTypeMappingRegistry registry) throws Exception {
         ns3_myns3_string__java_lang_String_String_Serializer = (CombinedSerializer)registry.getSerializer("", java.lang.String.class, ns3_string_TYPE_QNAME);
         ns2_myWSStringArray_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSStringArray.class, ns2_WSStringArray_TYPE_QNAME);
+        ns2_myWSWhereItem_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSWhereItem.class, ns2_WSWhereItem_TYPE_QNAME);
     }
     
     public Object doDeserialize(XMLReader reader,
@@ -132,6 +136,14 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
                 reader.nextElementContent();
             }
         }
+        elementName = reader.getName();
+        if (reader.getState() == XMLReader.START) {
+            if (elementName.equals(ns1_whereItem_QNAME)) {
+                member = ns2_myWSWhereItem_LiteralSerializer.deserialize(ns1_whereItem_QNAME, reader, context);
+                instance.setWhereItem((com.amalto.webapp.util.webservices.WSWhereItem)member);
+                reader.nextElementContent();
+            }
+        }
         
         XMLReaderUtil.verifyReaderState(reader, XMLReader.END);
         return (Object)instance;
@@ -162,5 +174,6 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
         }
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getLabelXpath(), ns1_labelXpath_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getFatherPK(), ns1_fatherPK_QNAME, null, writer, context);
+        ns2_myWSWhereItem_LiteralSerializer.serialize(instance.getWhereItem(), ns1_whereItem_QNAME, null, writer, context);
     }
 }

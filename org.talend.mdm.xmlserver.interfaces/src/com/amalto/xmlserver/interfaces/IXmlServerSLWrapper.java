@@ -544,6 +544,7 @@ public interface IXmlServerSLWrapper {
 	 * @param fatherPK
 	 * @param itemsRevisionIDs
 	 * @param defaultRevisionID
+	 * @param whereItem
 	 * @return
 	 * @throws XmlServerException
 	 */
@@ -555,7 +556,8 @@ public interface IXmlServerSLWrapper {
 			String labelXpath,
 			String fatherPK,
 			LinkedHashMap<String, String> itemsRevisionIDs,
-			String defaultRevisionID
+			String defaultRevisionID,
+			IWhereItem whereItem
 	) throws XmlServerException;
 	
 	/**

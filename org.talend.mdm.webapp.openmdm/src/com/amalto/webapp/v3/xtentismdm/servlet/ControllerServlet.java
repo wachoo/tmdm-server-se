@@ -84,6 +84,8 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 			html +="<script type=\"text/javascript\" src=\"/talendmdm/secure/js/conf.js\"></script>\n";
 			html +="<script type=\"text/javascript\" src=\"/talendmdm/secure/js/actions.js\"></script>\n";
 			html +="<script type=\"text/javascript\" src=\"/talendmdm/secure/dwr/interface/ActionsInterface.js\"></script>\n";
+			html +="<script type=\"text/javascript\" src=\"/talendmdm/secure/dwr/interface/WidgetInterface.js\"></script>\n";
+			
 
 			//TODO specific YUI import
 			//LOGGER

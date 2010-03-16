@@ -990,6 +990,7 @@
             <xsd:element maxOccurs="1" minOccurs="0" name="FKXpath" nillable="true" type="xsd:string"/>
             <xsd:element maxOccurs="1" minOccurs="1" name="labelXpath" nillable="false" type="xsd:string"/>
             <xsd:element maxOccurs="1" minOccurs="0" name="fatherPK" nillable="true" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="whereItem" nillable="true" type="tns:WSWhereItem"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:element name="WSGetChildrenItems" type="tns:WSGetChildrenItems"/>

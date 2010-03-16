@@ -695,6 +695,8 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param FKXpath
      * @param labelXpath
      * @param fatherPK
+     * @param whereItem
+     * 
      * @return
      * @throws XtentisException
      * 
@@ -707,9 +709,10 @@ public class ItemCtrl2Bean implements SessionBean {
 			String PKXpaths[],
 			String FKXpath,
 			String labelXpath,
-			String fatherPK
+			String fatherPK,
+			IWhereItem whereItem
 	) throws XtentisException{
-    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().getChildrenItems(clusterName, conceptName, PKXpaths, FKXpath, labelXpath, fatherPK);
+    	return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().getChildrenItems(clusterName, conceptName, PKXpaths, FKXpath, labelXpath, fatherPK, whereItem);
     }
 
     

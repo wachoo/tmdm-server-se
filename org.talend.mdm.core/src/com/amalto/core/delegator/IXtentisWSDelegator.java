@@ -1202,7 +1202,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 					wsGetChildrenItems.getPKXpaths().getStrings(),
 					wsGetChildrenItems.getFKXpath(), 
 					wsGetChildrenItems.getLabelXpath(), 
-					wsGetChildrenItems.getFatherPK()
+					wsGetChildrenItems.getFatherPK(),
+					WS2VO(wsGetChildrenItems.getWhereItem())
 			);
 			return new WSStringArray((String[])res.toArray(new String[res.size()]));
 		} catch (XtentisException e) {

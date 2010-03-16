@@ -1193,7 +1193,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			String labelXpath,
 			String fatherPK,
 			LinkedHashMap<String, String> itemsRevisionIDs,
-			String defaultRevisionID
+			String defaultRevisionID,
+			IWhereItem whereItem
 	) throws XmlServerException{
     	
     	try {
@@ -1214,10 +1215,27 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         	xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/").append(conceptName).append(" ");
         	
         	//where
+        	xqWhere.append("where (1=1)");
+        	
         	if(FKXpath!=null){
-        		xqWhere.append("where (1=1)"); 
         		xqWhere.append(" and ($").append(FKXpath).append(" = '").append(fatherPK).append("'")
         		       .append(" or $").append(FKXpath).append("=concat('[','").append(fatherPK).append("',']')) ");
+        	}
+        	
+        	//build from WhereItem
+        	if (whereItem != null){
+        			
+        			HashMap<String,String> pivots=new HashMap<String,String>();
+        			pivots.put(conceptName, conceptName);
+        			
+        			String appendWhere=buildWhere(" ",pivots ,whereItem,false);
+        			if(appendWhere!=null&&appendWhere.length()>0&&!appendWhere.trim().equals("")) {
+        				xqWhere.append(" and ");
+        				xqWhere.append(appendWhere);
+        			}
+    				
+    				xqWhere.append(" ");
+    			
         	}
         	
         	//order by

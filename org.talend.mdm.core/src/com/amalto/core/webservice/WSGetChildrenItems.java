@@ -13,17 +13,19 @@ public class WSGetChildrenItems {
     protected java.lang.String FKXpath;
     protected java.lang.String labelXpath;
     protected java.lang.String fatherPK;
+    protected com.amalto.core.webservice.WSWhereItem whereItem;
     
     public WSGetChildrenItems() {
     }
     
-    public WSGetChildrenItems(java.lang.String clusterName, java.lang.String conceptName, com.amalto.core.webservice.WSStringArray PKXpaths, java.lang.String FKXpath, java.lang.String labelXpath, java.lang.String fatherPK) {
+    public WSGetChildrenItems(java.lang.String clusterName, java.lang.String conceptName, com.amalto.core.webservice.WSStringArray PKXpaths, java.lang.String FKXpath, java.lang.String labelXpath, java.lang.String fatherPK, com.amalto.core.webservice.WSWhereItem whereItem) {
         this.clusterName = clusterName;
         this.conceptName = conceptName;
         this.PKXpaths = PKXpaths;
         this.FKXpath = FKXpath;
         this.labelXpath = labelXpath;
         this.fatherPK = fatherPK;
+        this.whereItem = whereItem;
     }
     
     public java.lang.String getClusterName() {
@@ -72,5 +74,13 @@ public class WSGetChildrenItems {
     
     public void setFatherPK(java.lang.String fatherPK) {
         this.fatherPK = fatherPK;
+    }
+    
+    public com.amalto.core.webservice.WSWhereItem getWhereItem() {
+        return whereItem;
+    }
+    
+    public void setWhereItem(com.amalto.core.webservice.WSWhereItem whereItem) {
+        this.whereItem = whereItem;
     }
 }
