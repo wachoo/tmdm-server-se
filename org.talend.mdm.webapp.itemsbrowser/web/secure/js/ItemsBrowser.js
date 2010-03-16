@@ -1758,7 +1758,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         		var root = itemTree.getRoot();	
         		var nameTmp = dataObject;
         		var descInfo = "";
-        		
+        		var selectedProcess=null;
         		if(rootNode.name!=null) nameTmp = '<div style="width:180;float:left;font-size:22px;font-weight:bold">'+rootNode.name+'</div>';
         		if(rootNode.description!=null&&rootNode.description!="")descInfo=' <img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'+rootNode.description+'"/>';
         		nameTmp=nameTmp+descInfo;
@@ -1782,7 +1782,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         		};
         		tbDetail.processItemHandler = function() {
                     
-                    var selectedProcess = Ext.getCmp('processCombo'+tbDetail.treeIndex).value;
+                    selectedProcess = Ext.getCmp('processCombo'+tbDetail.treeIndex).value;
                     if(selectedProcess==null||selectedProcess==''){
                        Ext.MessageBox.alert("Warnning", "Please select a process first! ");
                        return;
@@ -1803,10 +1803,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                            Ext.MessageBox.alert('Status', "Process done! ");
                            //FIXME mock refresh
                            itemTree.removeNode(node1);
-                           var node2 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
-                           ItemsBrowserInterface.setTree(dataObject, itemPK2, node2.index, false, treeIndex, function(result){
-                                node2.setDynamicLoad(fnLoadData,1);
-                                node2.expand();
+                           node1 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
+                           ItemsBrowserInterface.setTree(dataObject, itemPK2, node1.index, false, treeIndex, function(result){
+                                node1.setDynamicLoad(fnLoadData,1);
+                                node1.expand();
                                 itemTree.draw();
                            });
 
