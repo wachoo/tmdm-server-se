@@ -398,9 +398,8 @@ public class ItemsBrowserDWR {
 		treeNode.setMinOccurs(xsp.getMinOccurs());
 		treeNode.setNillable(xsp.getTerm().asElementDecl().isNillable());
 		ArrayList<String> infos = treeNode.getForeignKeyInfo();
-
-		if(infos != null)
-		{
+		
+		if(infos != null && treeNode.isRetrieveFKinfos()) {
 			String keyInfos = "";
 			for(String keyInfo : infos)
 			{
@@ -412,7 +411,8 @@ public class ItemsBrowserDWR {
 //				if(treeNode.getValue() != null)
 				{
 					try {
-						String jasonData = getForeignKeyList(0, 100, ".*",  treeNode.getForeignKey(), keyInfos);
+					   String value = StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath));
+						String jasonData = getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos, false);
 						treeNode.setValueInfo(jasonData);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -558,6 +558,12 @@ public class ItemsBrowserDWR {
 						nodeAutorization.add(xpath);
 					idToXpath.put(nodeCount,xpath);
 					treeNode.setValue(StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath)));
+					
+					//key is readonly for editing record.
+					if(treeNode.isKey() && treeNode.getValue() != null) {
+					   treeNode.setReadOnly(true);
+					}
+					
 					if(treeNode.getValueInfo() != null)
 					{
 						JSONObject jason = new JSONObject(treeNode.getValueInfo());
@@ -1434,10 +1440,14 @@ public class ItemsBrowserDWR {
 		).getValue();
 	}
 	
-
+	public String getForeignKeyListWithCount(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey) 
+	   throws RemoteException, Exception 
+	{
+	   return getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, true);
+	}
 //	public TreeMap<String,String> getForeignKeyList(String xpathForeignKey, String xpathInfoForeignKey, String value) throws RemoteException, Exception{
 		
-	public String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey) throws RemoteException, Exception{
+	public String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, boolean isCount) throws RemoteException, Exception{
 		String initxpathForeignKey="";
 		initxpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
 		
@@ -1448,8 +1458,7 @@ public class ItemsBrowserDWR {
 		if(whereCondition!=null){
 			whereItem= new WSWhereItem (whereCondition,null,null);
 		}
-		
-		
+				
 		Configuration config = Configuration.getInstance();
 		//aiming modify there is bug when initxpathForeignKey when it's like 'conceptname/key'
 		//so we convert initxpathForeignKey to 'conceptname'
@@ -1467,17 +1476,33 @@ public class ItemsBrowserDWR {
 			else
 				xpathInfos[0] = conceptName;
 			//aiming add .* to value
-			value=value==null?"":value;
-			value=value+".*";
+			value=value==null?"":value;			
 			//end
 			// build query - add a content condition on the pivot if we search for a particular value
 			String filteredConcept = conceptName;
-			if(value!=null && !"".equals(value.trim())){				
-				//Value is unlikely to be in attributes
-				filteredConcept+="[matches(descendant-or-self::* , \""+value+"\", \"i\")]";
-				if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-					filteredConcept+="[ora:matches(descendant-or-self::* , \""+value+"\", \"i\")]";
-				}
+			boolean isKey = false;
+			StringBuffer sb = new StringBuffer();   			    
+			
+			if(value!=null && !"".equals(value.trim())){	
+			   Pattern p = Pattern.compile("\\[(.*?)\\]");
+			   Matcher m = p.matcher(value);
+			   
+			   while(m.find()){//key
+		         sb = sb.append("[matches(. , \""+m.group(1)+"\", \"i\")]");
+		         if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName()))
+		            sb = sb.append("[ora:matches(. , \""+m.group(1)+"\", \"i\")]");
+		         isKey = true;
+			   }
+			   if(isKey)
+			      filteredConcept += sb.toString();
+			   else{
+			      value=value.equals(".*")? "":value+".*";
+   				//Value is unlikely to be in attributes
+   				filteredConcept+="[matches(. , \""+value+"\", \"i\")]";
+   				if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+   					filteredConcept+="[ora:matches(. , \""+value+"\", \"i\")]";
+   				}
+			   }
 			}
 			
 			//add the xPath Infos Path
@@ -1549,19 +1574,18 @@ public class ItemsBrowserDWR {
 				}else{
 					JSONObject row = new JSONObject();		
 					//add by ymli. retrieve the correct results according value. fig bug:0010481					
-					if(keys.matches("(?i)"+value)||infos.matches("(?i)"+value)||keys.indexOf("["+value)!=-1||infos.indexOf(value)!=-1){
+					if(keys.matches(value)||infos.matches(value)||keys.indexOf(value)!=-1||infos.indexOf(value)!=-1){
 						row.put("keys", keys);
 						row.put("infos", infos);
 						rows.put(row);
 					}
 				}
-				//edit by ymli; fix the bug:0011918: set the pageSize correctly.
-				//json.put("count", rows.length());
-				json.put("count", countForeignKey_filter(xpathForeignKey));
-				//update the map
-//				map.put(StringEscapeUtils.escapeXml(keys), infos);
 			}
-//			return map;
+			//edit by ymli; fix the bug:0011918: set the pageSize correctly.
+			if(isCount) {
+			   json.put("count", countForeignKey_filter(xpathForeignKey));
+			}
+
 			return json.toString();
 		}
 		
@@ -1847,7 +1871,7 @@ public class ItemsBrowserDWR {
 		if(concept.contains("Browse_items_"))
 			 concept = CommonDWR.getConceptFromBrowseItemView(view.getViewPK());
 		
-		XSElementDecl el = (XSElementDecl)xsdMap.get(concept);
+		XSElementDecl el = xsdMap.get(concept);
 
         for (String viewItem: view.getViewables())
         {
@@ -1935,7 +1959,7 @@ public class ItemsBrowserDWR {
 								Iterator<XSFacet> facetIter = simpType.asRestriction().iterateDeclaredFacets();
 								while(facetIter.hasNext())
 								{
-									XSFacet facet = (XSFacet)facetIter.next();
+									XSFacet facet = facetIter.next();
 									valuesHolder.add(facet.getValue().value);
 								}	
 							}
@@ -1982,7 +2006,7 @@ public class ItemsBrowserDWR {
 							foreignKeyContents.add("foreign key");
 							String foreignKeyPath = ens.getFirstChild().getNodeValue();
 							try {
-								String jasonData = getForeignKeyList(0, 100, ".*",  foreignKeyPath, "");
+								String jasonData = getForeignKeyListWithCount(0, 100, ".*",  foreignKeyPath, "");
 								JSONObject jason = new JSONObject(jasonData);
 								JSONArray rows = (JSONArray)jason.get("rows");
 								for(int n = 0; n < rows.length(); n++)
