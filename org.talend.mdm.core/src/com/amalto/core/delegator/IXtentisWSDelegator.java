@@ -64,7 +64,6 @@ import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
-import com.amalto.core.objects.configurationinfo.assemble.MigrateVersionSubProc;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
@@ -1689,9 +1688,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 						Node old=pj.getProjection();
 						Node newNode=root;					
 						HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
-						old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
-						String newProjection=Util.getXMLStringFromNode(old);
-						projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
+						if(updatedPath.size()>0){//no updated
+   						old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
+   						String newProjection=Util.getXMLStringFromNode(old);
+   						projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
+						}
 					}		
 				}
 			}else{

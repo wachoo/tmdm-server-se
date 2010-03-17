@@ -928,9 +928,11 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 							Node old=pj.getProjection();
 							Node newNode=root;					
 							HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
-							old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
-							String newProjection=Util.getXMLStringFromNode(old);
-							projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
+							if(updatedPath.size()>0){//no updated
+   							old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
+   							String newProjection=Util.getXMLStringFromNode(old);
+   							projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
+							}
 						}		
 					}
 				}
