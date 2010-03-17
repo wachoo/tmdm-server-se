@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -2747,7 +2748,7 @@ public  class Util {
       return itemPKXmlString.toString();
 	}
 	public static HashMap<String, UpdateReportItem> compareElement(String parentPath,Node newElement, Node oldElement )throws Exception{
-		HashMap<String, UpdateReportItem> map =new HashMap<String, UpdateReportItem>();
+		HashMap<String, UpdateReportItem> map =new LinkedHashMap<String, UpdateReportItem>();
 		Set<String> xpaths=getXpaths(parentPath, newElement);
 	    JXPathContext jxpContextOld = JXPathContext.newContext ( oldElement );
 	    jxpContextOld.setLenient(true);
