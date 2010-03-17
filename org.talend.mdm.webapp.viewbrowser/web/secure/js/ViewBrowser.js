@@ -326,6 +326,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 			enableColumnMove:true,
 			border:false,
 			closable:true,
+			loadMask:true, 
 			//forceFit:true,
 		    viewConfig: {
 		    	autoFill:true,
