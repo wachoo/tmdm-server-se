@@ -1128,6 +1128,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			enableColumnMove:true,
 			closable:true,
 			border:false,
+			loadMask:true, 
 		    viewConfig: {
 		    	autoFill:true,
 		        forceFit: false
