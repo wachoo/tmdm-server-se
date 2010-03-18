@@ -151,8 +151,8 @@ public class ViewRemotePaging  extends HttpServlet{
 				).getStrings();
 				
 
-			String[] results2 = new String[results.length];
-			System.arraycopy(results, 0, results2, 0, results.length);
+			String[] results2 = new String[results.length-1];
+			System.arraycopy(results, 1, results2, 0, results.length-1);
 			request.getSession().setAttribute("resultsXML",results2);
 			
 			String[] viewables = new View(viewName).getViewablesXpath();
@@ -185,14 +185,7 @@ public class ViewRemotePaging  extends HttpServlet{
 				}				
 
                viewBrowserContent.add(fields);
-			}				
-			/**
-			 * sort the collections		
-			 */
-			int col = Util.getSortCol(viewables,sortCol);
-			if(Util.checkDigist(viewBrowserContent,col)){
-				Util.sortCollections(viewBrowserContent,col, sortDir);
-			}			
+			}						
 			request.getSession().setAttribute("viewBrowserContent",viewBrowserContent);
 
 			//get part we are interested
@@ -206,7 +199,7 @@ public class ViewRemotePaging  extends HttpServlet{
 				int index= i-skip;
 				if(index > viewBrowserContent.size()-1 ) break;
 				JSONObject fields = new JSONObject();
-				fields.put("id",viewBrowserContent.get(index)[0]);
+				fields.put("id",index);
 				for (int j = 0; j < viewBrowserContent.get(index).length; j++) {
 					fields.put("/"+viewables[j],viewBrowserContent.get(index)[j]);
 				}
