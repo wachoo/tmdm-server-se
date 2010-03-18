@@ -67,7 +67,11 @@ import com.amalto.webapp.util.webservices.WSGetUniverse;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSUniverse;
 import com.amalto.webapp.util.webservices.WSUniversePK;
+import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
+import com.amalto.webapp.util.webservices.WSWhereItem;
+import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.XtentisPort;
 import com.amalto.webapp.util.webservices.XtentisService_Impl;
 import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
@@ -924,4 +928,194 @@ public class Util {
 	   server.putDocumentFromString(xmlString, 
 	      "PROVISIONING"+"."+"User"+"."+username, "PROVISIONING", null);
 	}
+	
+	/**
+	 * gives the operator associated to the string 'option'
+	 * @param option
+	 * @return
+	 */
+	public static WSWhereOperator getOperator(String option){
+		WSWhereOperator res = null;
+		if (option.equalsIgnoreCase("CONTAINS"))
+			res = WSWhereOperator.CONTAINS;
+		else if (option.equalsIgnoreCase("EQUALS"))
+			res = WSWhereOperator.EQUALS;
+		else if (option.equalsIgnoreCase("GREATER_THAN"))
+			res = WSWhereOperator.GREATER_THAN;
+		else if (option.equalsIgnoreCase("GREATER_THAN_OR_EQUAL"))
+			res = WSWhereOperator.GREATER_THAN_OR_EQUAL;
+		else if (option.equalsIgnoreCase("JOIN"))
+			res = WSWhereOperator.JOIN;
+		else if (option.equalsIgnoreCase("LOWER_THAN"))
+			res = WSWhereOperator.LOWER_THAN;
+		else if (option.equalsIgnoreCase("LOWER_THAN_OR_EQUAL"))
+			res = WSWhereOperator.LOWER_THAN_OR_EQUAL;
+		else if (option.equalsIgnoreCase("NOT_EQUALS"))
+			res = WSWhereOperator.NOT_EQUALS;
+		else if (option.equalsIgnoreCase("STARTSWITH"))
+			res = WSWhereOperator.STARTSWITH;
+		else if (option.equalsIgnoreCase("STRICTCONTAINS"))
+			res = WSWhereOperator.STRICTCONTAINS;
+		else if (option.equalsIgnoreCase("FULLTEXTSEARCH"))
+			res = WSWhereOperator.FULLTEXTSEARCH;
+		return res;											
+	}
+	
+		/**
+		 * check the certain column is digit
+		 * @author ymli
+		 * @param itemsBrowserContent
+		 * @param col
+		 * @return
+		 */
+	public static boolean checkDigist(ArrayList<String[]> itemsBrowserContent,int col){
+		if(col==-1)return false;
+		for(String[] temp:itemsBrowserContent){
+			if(!temp[col].matches("^(-|)[0-9]*(.?)[0-9]*$"))
+				return false;
+		}
+		return true;
+	}
+	/**
+	 * sort the ArrayList by col in direction of dir 
+	 * @author ymli
+	 * @param itemsBrowserContent
+	 * @param col
+	 * @param dir
+	 */
+	 public static void sortCollections(ArrayList<String[]> itemsBrowserContent,int col, String dir) {
+			System.out.println(dir);
+			if (col < 0)
+				return;
+			if ("descending".equals(dir)) {
+				for (int j = 1; j < itemsBrowserContent.size(); j++) {
+					String temp[] = itemsBrowserContent.get(j);
+					int i = j;
+					while (i > 0 
+							&& (itemsBrowserContent.get(i-1)[col].length()==0 
+									||(itemsBrowserContent.get(i-1)[col].length()>0 &&temp[col].length()>0 
+											&& Double.parseDouble(itemsBrowserContent.get(i-1)[col]) < Double.parseDouble(temp[col])))) {
+						itemsBrowserContent.set(i, itemsBrowserContent.get(i-1));
+						i--;
+					}
+					itemsBrowserContent.set(i, temp);
+				}
+			} else {
+				for (int j = 1; j < itemsBrowserContent.size(); j++) {
+					String temp[] = itemsBrowserContent.get(j);
+					int i = j;
+						while ((i > 0 && itemsBrowserContent.get(i-1)[col].length()>0&&temp[col].length()>0&&Double.parseDouble(itemsBrowserContent.get(i-1)[col]) > Double.parseDouble(temp[col]))
+								||i>0&&temp[col].length()==0) {
+							itemsBrowserContent.set(i, itemsBrowserContent.get(i-1));
+							i--;
+						}
+						itemsBrowserContent.set(i, temp);
+					
+				}
+			}
+		}
+		/**
+		 * get the column number of the certain title in Array columns
+		 * @author ymli
+		 * @param columns
+		 * @param title
+		 * @return
+		 */
+	 public static int getSortCol(String[] columns, String title) {
+			int col = -1;
+			for (int i = 0; i < columns.length; i++)
+				if (("/"+columns[i]).equals(title))
+					return i;
+			return col;
+		}
+		public static   List<String> getElementValues(String parentPath,Node n)throws Exception{
+			List<String> l=new ArrayList<String>();
+			NodeList list=n.getChildNodes();
+			for(int i=0; i<list.getLength(); i++){
+				Node node=list.item(i);
+				if(node.getNodeType() == Node.ELEMENT_NODE){
+					//String nName=node.getNodeName();
+					//String xPath=parentPath+"/"+nName;
+					String nValue=com.amalto.core.util.Util.getFirstTextNode(node, ".");
+					if( !hasChildren(node)){
+						l.add(nValue);
+					}
+				}
+			}		
+			return l;
+		}
+		public static boolean hasChildren(Node node){
+			NodeList list=node.getChildNodes();
+			for(int i=0; i<list.getLength(); i++){
+				if(list.item(i).getNodeType() == Node.ELEMENT_NODE){
+					return true;
+				}
+			}
+			return false;
+		}	 
+		public static WSWhereItem buildWhereItems(String criteria) throws Exception{
+			String[] criterias = criteria.split("[\\s]+OR[\\s]+");
+			ArrayList<WSWhereItem> conditions=new ArrayList<WSWhereItem>(); 
+			
+			for (String cria: criterias)
+			{
+				ArrayList<WSWhereItem> condition=new ArrayList<WSWhereItem>(); 
+				String[] subCriterias = cria.split("[\\s]+AND[\\s]+");
+				//add by ymli; fix the bug: 0011974. remove "(" at the left and ")" at the right
+				for (String subCria : subCriterias) {
+					if (subCria.startsWith("(")) {
+						subCria = subCria.substring(1);
+					}
+					if(subCria.endsWith(")"))
+						subCria = subCria.substring(0, subCria.length() - 1);
+					WSWhereItem whereItem = buildWhereItem(subCria);
+					condition.add(whereItem);
+				}
+				if (condition.size() > 0) {
+					WSWhereAnd and = new WSWhereAnd(condition
+							.toArray(new WSWhereItem[condition.size()]));
+					WSWhereItem whand = new WSWhereItem(null,and,null);
+					conditions.add(whand);
+				}
+			}
+			WSWhereOr or = new WSWhereOr(conditions.toArray(new WSWhereItem[conditions.size()]));
+			WSWhereItem wi = new WSWhereItem(null,null,or);
+			
+			return wi;
+		}
+		
+		public static WSWhereItem buildWhereItem(String criteria) throws Exception{
+			WSWhereItem wi;
+			String[] filters = criteria.split(" ");
+			String filterXpaths, filterOperators ,filterValues ;
+
+			filterXpaths = filters[0];
+			filterOperators = filters[1];
+			if (filters.length <= 2)
+			    filterValues = " ";
+			else
+				filterValues = filters[2];
+
+			WSWhereCondition wc=new WSWhereCondition(
+					filterXpaths,
+					Util.getOperator(filterOperators),
+					filterValues,
+					WSStringPredicate.NONE,
+					false
+					);
+			ArrayList<WSWhereItem> conditions=new ArrayList<WSWhereItem>();
+			WSWhereItem item=new WSWhereItem(wc,null,null);
+			conditions.add(item);
+							
+			if(conditions.size()==0) { 
+				wi=null;
+			} else {
+				WSWhereAnd and=new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
+				wi=new WSWhereItem(null,and,null);
+			}
+			
+			return wi;
+			
+		}
+		
 }

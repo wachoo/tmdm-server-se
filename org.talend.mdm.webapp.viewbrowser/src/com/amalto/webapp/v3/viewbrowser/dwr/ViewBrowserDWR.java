@@ -37,29 +37,20 @@ public class ViewBrowserDWR {
 		if(language==null) {
 			language = "EN";
 		}
-		WSViewPK[] wsViewsPK = Util.getPort().getViewPKs(new WSGetViewPKs("[^Browse_items].*")).getWsViewPK();
+		WSViewPK[] wsViewsPK = Util.getPort().getViewPKs(new WSGetViewPKs(".*")).getWsViewPK();
 		String[] names = new String[wsViewsPK.length];
 		TreeMap<String,String> views = new TreeMap<String,String>();
 		Pattern p = Pattern.compile(".*\\["+language.toUpperCase()+":(.*?)\\].*",Pattern.DOTALL);
 		for (int i = 0; i < wsViewsPK.length; i++) {
 			WSView wsview = Util.getPort().getView(new WSGetView(wsViewsPK[i]));
 			names[i] = wsViewsPK[i].getPk();
+			if(!names[i].startsWith("Browse_items")) {
 			if(!"MDM Reporting View".equals( wsViewsPK[i].getPk()) 
 					&& !"XTENTIS PORTAL USER VIEW".equals( wsViewsPK[i].getPk()))
 				views.put(wsview.getName(),p.matcher(wsview.getDescription()).replaceAll("$1"));
-		}
-
-/*		class NameComparator implements Comparator {
-			
-			public int compare(Object item1, Object item2) {
-				String var1 = (String)item1;
-				String var2 = (String)item2;
-				return var1.compareTo(var2);
 			}
 		}
 
-		Arrays.sort(names, new NameComparator());;
-		*/
 		return views;
 	}
 
@@ -109,31 +100,8 @@ public class ViewBrowserDWR {
 			//Node root = d.getDocumentElement();
 			HashMap<String,Element> idToNode = new HashMap<String,Element>();
 			idToNode.put(nodeElId,root);
-			//System.out.println("HASHMAP 1 "+idToNode);
+
 			ctx.getSession().setAttribute("idToNode",idToNode);
-			/*NodeList list = root.getChildNodes();
-			for (int i = 0; i < list.getLength(); i++) {
-				if(list.item(i).getNodeType()==Node.TEXT_NODE)
-					System.out.println("Node value list1 "+i+" "+ list.item(i).getNodeValue());
-				if(list.item(i).getNodeType()==Node.ELEMENT_NODE)
-					System.out.println("Node name list1 "+i+" "+ list.item(i).getNodeName());
-				NodeList list2 = list.item(i).getChildNodes();
-				for (int j = 0; j < list2.getLength(); j++) {
-					if(list2.item(j).getNodeType()==Node.TEXT_NODE)
-						System.out.println("Node value list2 "+j+" "+ list2.item(j).getNodeValue());
-					if(list2.item(j).getNodeType()==Node.ELEMENT_NODE)
-						System.out.println("Node name list2 "+j+" "+ list2.item(j).getNodeName());
-					if(list2.item(j).getNodeType()==Node.ELEMENT_NODE){
-						if(list2.item(j).getChildNodes().getLength()>0){
-							System.out.println("any sons");
-						}
-						else{
-							System.out.println("no son");
-						}
-					}
-				}				
-			}
-			*/
 			
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -5,12 +5,16 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.w3c.dom.Element;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.json.JSONObject;
@@ -72,19 +76,24 @@ public class ViewRemotePaging  extends HttpServlet{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-		/*Enumeration param = request.getParameterNames();
-		while(param.hasMoreElements()){
-			System.out.println(param.nextElement().toString());
-		}*/
 		String start = request.getParameter("start");
 		String limit = request.getParameter("limit");
-		String sortCol= (request.getParameter("sort")!=null?request.getParameter("sort"):"0");
-		String sortDir= (request.getParameter("dir")!=null?request.getParameter("dir"):"ASC");
 		
 		String viewName= request.getParameter("viewName");				
 		String criteria = request.getParameter("criteria");
-		
+		int max = 50;
+		if (limit != null && limit.length() > 0)
+			max = Integer.parseInt(limit);
+		int skip = 0;
+		if (limit != null && limit.length() > 0)
+			skip = Integer.parseInt(start);	
+		String sortDir= null;
+		String sortCol= null;
+		if(request.getParameter("sort")!=null&&request.getParameter("sort").length()>0)sortCol=request.getParameter("sort");
+		if(sortCol!=null&&request.getParameter("dir")!=null&&request.getParameter("dir").length()>0){
+			if(request.getParameter("dir").toUpperCase().equals("ASC"))sortDir="ascending";
+			if(request.getParameter("dir").toUpperCase().equals("DESC"))sortDir="descending";
+		}
 		
 		JSONObject json = new JSONObject();
 		int totalCount=0;
@@ -92,10 +101,6 @@ public class ViewRemotePaging  extends HttpServlet{
 		ArrayList<String[]> viewBrowserContent = new ArrayList<String[]>();
 		
 		try {
-			View view = new View(viewName);
-			int max = Integer.parseInt(limit);
-			int skip = Integer.parseInt(start);		
-		
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
 			"doPost() case : new remote items call");
 			ArrayList<WSWhereItem> conditions=new ArrayList<WSWhereItem>();
@@ -118,13 +123,11 @@ public class ViewRemotePaging  extends HttpServlet{
 				if("Any field".equals(filterXpaths[i])) filterXpaths[i] = "";
 				WSWhereCondition wc=new WSWhereCondition(
 						filterXpaths[i],
-						getOperator(filterOperators[i]),
+						Util.getOperator(filterOperators[i]),
 						filterValues[i],
 						WSStringPredicate.NONE,
 						false
 						);
-				//System.out.println("iterator :"+i+"field - getErrors- : " + fields[i] + " " + operator[i]);
-				//System.out.println("Xpath field - getErrors- : " + giveXpath(fields[i]) + " - values : "+ regexs[i]);
 				WSWhereItem item=new WSWhereItem(wc,null,null);
 				conditions.add(item);
 			}				
@@ -134,26 +137,16 @@ public class ViewRemotePaging  extends HttpServlet{
 				WSWhereAnd and=new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
 				wi=new WSWhereItem(null,and,null);
 			}
-//					results = Util.getPort().singleSearch(
-//			    			new WSSingleSearch(
-//		    					new WSDataClusterPK(config.getCluster()),
-//								new WSViewPK(viewName),
-//								wi,  //where
-//								0, //treshold
-//								0, //skip
-//								Integer.MAX_VALUE //max items
-//								)
-//							).getStrings();
 				results = Util.getPort().viewSearch(
 					new WSViewSearch(
 						new WSDataClusterPK(config.getCluster()),
 						new WSViewPK(viewName),
 						wi,
 						-1,
-						0,
-						-1,
-						null,
-						null
+						skip,
+						max,
+						sortCol,
+						sortDir
 					)
 				).getStrings();
 				
@@ -169,128 +162,60 @@ public class ViewRemotePaging  extends HttpServlet{
                   totalCount = Integer.parseInt(Util.parse(results[i]).
                      getDocumentElement().getTextContent());
                   continue;
-               }
-               
-               results[i] = results[i].replaceAll("<result>","");
-               results[i] = results[i].replaceAll("</result>","");	
-               results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
-               results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
-               results[i] =openingTags.matcher(results[i]).replaceAll("");
-               results[i] =closingTags.matcher(results[i]).replaceAll("#");	
-               results[i] =emptyTags.matcher(results[i]).replaceAll(" #");
-               String[] elements = results[i].split("#");
-               String[] fields = new String[viewables.length+1];
-               fields[0]=""+i;
-               
-               for (int j = 0; j < elements.length; j++) {
-                  fields[j+1]=elements[j];
-               }
-               
+               }              
+				List<String> list=null;
+				if(list==null){
+					//aiming modify when there is null value in fields, the viewable fields sequence is the same as the childlist of result
+					if(!results[i].startsWith("<result>")){
+						results[i]="<result>" + results[i] + "</result>";
+					}
+					Element root = Util.parse(results[i]).getDocumentElement();
+					list=Util.getElementValues("/result",root);
+				}
+				String[] elements =list.toArray(new String[list.size()]);
+				//end
+				String[] fields = new String[viewables.length];
+				//aiming modify
+				int count=Math.min(elements.length, fields.length);
+				for (int j = 0; j < count; j++) {
+					if(elements[j]!=null)
+						fields[j]=StringEscapeUtils.unescapeXml(elements[j]);
+					else
+						fields[j]="";
+				}				
+
                viewBrowserContent.add(fields);
 			}				
-
-			
+			/**
+			 * sort the collections		
+			 */
+			int col = Util.getSortCol(viewables,sortCol);
+			if(Util.checkDigist(viewBrowserContent,col)){
+				Util.sortCollections(viewBrowserContent,col, sortDir);
+			}			
 			request.getSession().setAttribute("viewBrowserContent",viewBrowserContent);
-			
-			/*
-			for(int i=0;i<results.length;i++){
-				results[i] = firstTag.matcher(results[i]).replaceAll("");
-				results[i] = lastTag.matcher(results[i]).replaceAll("");
-				results[i] =highlightLeft.matcher(results[i]).replaceAll(" ");
-				results[i] =highlightRight.matcher(results[i]).replaceAll(" ");
-				results[i] =emptyTags.matcher(results[i]).replaceAll("[$1]");
-				results[i] =openingTags.matcher(results[i]).replaceAll("$1: ");
-				results[i] =closingTags.matcher(results[i]).replaceAll(" - ");
-				//results[i] = StringEscapeUtils.unescapeXml(results[i]);
-			}	
-			request.getSession().setAttribute("results",results);*/
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-					"doPost() Total result = "+totalCount);
-			
-			//sort arraylist
-			int tmp = 0;
-			for (int i = 0; i < view.getViewablesXpath().length; i++) {
-				org.apache.log4j.Logger.getLogger(this.getClass())
-				.debug("doPost() sortCol "+sortCol+" "+view.getViewablesXpath()[i]+" "+i);
-				if(sortCol.equals("/"+view.getViewablesXpath()[i])){
-					tmp = i+1;
-					break;
-				}
 
-			}
-
-			final int column = tmp;
-			final String direction = sortDir;
-			Comparator sort;
-			if(direction.equals("ASC")){
-				sort = new Comparator() {
-					  public int compare(Object o1, Object o2) {
-						  try{
-							  Double test= ( Double.parseDouble(((String[]) o1)[column])-
-									  			Double.parseDouble(((String[]) o2)[column]));
-							  return test.intValue();
-						  }
-						  catch(Exception e){}
-						  try{
-							  return (((String[]) o1)[column]).compareTo(((String[]) o2)[column]);
-						  }						  
-						  catch(Exception e){return 0;}
-					  }
-					};
-			}
-			else{
-				sort = new Comparator() {
-					  public int compare(Object o1, Object o2) {
-						try{
-							Double test= ( Double.parseDouble(((String[]) o2)[column])-
-						  			Double.parseDouble(((String[]) o1)[column]));
-							return test.intValue();
-						}
-						catch(Exception e){}
-						try{
-							return (((String[]) o2)[column]).compareTo(((String[]) o1)[column]);
-						}
-						
-						catch(Exception e){return 0;}
-					  }
-					};			
-			}
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-					"doPost() sorting the result...");
-			request.getSession().setAttribute("sortColItems",sortCol);
-			request.getSession().setAttribute("sortDirItems",sortDir);
-			Collections.sort(viewBrowserContent, sort);
-		
-			
-			
 			//get part we are interested
 			if(max>totalCount) max=totalCount;
-			if(max>(totalCount-skip)) {max=totalCount-skip;}
-	
-			
+			if(max>(totalCount-skip)) {max=totalCount-skip;}	
+			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+					"doPost() starting to build json object");
 			json.put("TotalCount",totalCount);
-			
 			ArrayList<JSONObject> rows = new ArrayList<JSONObject>();
 			for(int i=skip;i<(max+skip);i++){
+				int index= i-skip;
+				if(index > viewBrowserContent.size()-1 ) break;
 				JSONObject fields = new JSONObject();
-				fields.put("id",viewBrowserContent.get(i)[0]);
-				for (int j = 0; j < view.getViewablesXpath().length; j++) {
-					fields.put("/"+view.getViewablesXpath()[j],viewBrowserContent.get(i)[j+1]);
+				fields.put("id",viewBrowserContent.get(index)[0]);
+				for (int j = 0; j < viewBrowserContent.get(index).length; j++) {
+					fields.put("/"+viewables[j],viewBrowserContent.get(index)[j]);
 				}
 				rows.add(fields);
 			}	
-			/*
-			ArrayList<JSONObject> rows = new ArrayList<JSONObject>();
-			for(int i=skip;i<(max+skip);i++){
-				JSONObject fields = new JSONObject();
-				fields.put(""+0,results[i]);
-				rows.add(fields);
-			}			*/
-			json.put("view",rows);
-			
 
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-					json);
+			json.put("view",rows);
+			//aiming add 'success' to let the search result can display after get the results
+			json.put("success", true);
 			
 		} catch (XtentisWebappException e) {
 			e.printStackTrace();
@@ -303,35 +228,5 @@ public class ViewRemotePaging  extends HttpServlet{
         writer.close();
         
 	}
-	
-	
-	/**
-	 * gives the operator associated to the string 'option'
-	 * @param option
-	 * @return
-	 */
-	private WSWhereOperator getOperator(String option){
-		WSWhereOperator res = null;
-		if (option.equalsIgnoreCase("CONTAINS"))
-			res = WSWhereOperator.CONTAINS;
-		else if (option.equalsIgnoreCase("EQUALS"))
-			res = WSWhereOperator.EQUALS;
-		else if (option.equalsIgnoreCase("GREATER_THAN"))
-			res = WSWhereOperator.GREATER_THAN;
-		else if (option.equalsIgnoreCase("GREATER_THAN_OR_EQUAL"))
-			res = WSWhereOperator.GREATER_THAN_OR_EQUAL;
-		else if (option.equalsIgnoreCase("JOIN"))
-			res = WSWhereOperator.JOIN;
-		else if (option.equalsIgnoreCase("LOWER_THAN"))
-			res = WSWhereOperator.LOWER_THAN;
-		else if (option.equalsIgnoreCase("LOWER_THAN_OR_EQUAL"))
-			res = WSWhereOperator.LOWER_THAN_OR_EQUAL;
-		else if (option.equalsIgnoreCase("NOT_EQUALS"))
-			res = WSWhereOperator.NOT_EQUALS;
-		else if (option.equalsIgnoreCase("STARTSWITH"))
-			res = WSWhereOperator.STARTSWITH;
-		else if (option.equalsIgnoreCase("STRICTCONTAINS"))
-			res = WSWhereOperator.STRICTCONTAINS;
-		return res;											
-	}
+
 }
