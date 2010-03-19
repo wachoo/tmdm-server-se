@@ -72,12 +72,16 @@ public class SAXErrorHandler extends DefaultHandler {
 	    msg = bracketsP.matcher(msg).replaceAll("");
 	    msg = commaP.matcher(msg).replaceAll("");
 	    error = error + ":" + ex.getLineNumber() + ":" + ex.getColumnNumber() + ": " + msg;
+	    //ignore sequence of elements error
+	    if(msg.startsWith("cvc-complex-type.2.4.a: Invalid content was found starting with element")){
+	    	return "";
+	    }
 	    return error;
 	}
 	
 	public String getErrors()
 	{
-	    return (errors==null)?"":errors;
+	    return (errors==null|| errors.trim().length()==0)?"":errors;
 	}
 	
 	public void setErrors(String error)
