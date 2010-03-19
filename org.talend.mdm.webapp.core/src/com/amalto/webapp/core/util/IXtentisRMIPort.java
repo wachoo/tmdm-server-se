@@ -907,39 +907,40 @@ public abstract class IXtentisRMIPort implements XtentisPort {
    				conceptKey
 			);										
 			DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
-			
+			//aiming modify webapp should always replace item in db.
 			// update the item using new field values 
 			// load the item first if itemkey provided
 			//this only operate non system items
-			if(!XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER,wsPutItem.getWsDataClusterPK().getPk())) {		
-				if(wsPutItem.getIsUpdate()){
-					if(itemKeyValues.length>0){
-						//check if only update the key ,do nothing see 0012169
-						if(Util.isOnlyUpdateKey(root, concept, conceptKey, itemKeyValues)) 
-							return null;						
-						ItemPOJO pj=new ItemPOJO(
-								dcpk,
-								concept,
-								itemKeyValues,
-								System.currentTimeMillis(),
-								projection
-						);
-						String revisionId=LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
-						pj=ItemPOJO.load(revisionId, pj.getItemPOJOPK(),false);				
-						if(pj!=null){// get the new projection
-							// get updated path			
-							Node old=pj.getProjection();
-							Node newNode=root;					
-							HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
-							if(updatedPath.size()>0){//no updated
-   							old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
-   							String newProjection=Util.getXMLStringFromNode(old);
-   							projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
-							}
-						}		
-					}
-				}
-			}
+//			if(!XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER,wsPutItem.getWsDataClusterPK().getPk())) {		
+//				if(wsPutItem.getIsUpdate()){
+//					if(itemKeyValues.length>0){
+//						//check if only update the key ,do nothing see 0012169
+//						if(Util.isOnlyUpdateKey(root, concept, conceptKey, itemKeyValues)) 
+//							return null;						
+//						ItemPOJO pj=new ItemPOJO(
+//								dcpk,
+//								concept,
+//								itemKeyValues,
+//								System.currentTimeMillis(),
+//								projection
+//						);
+//						String revisionId=LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
+//						pj=ItemPOJO.load(revisionId, pj.getItemPOJOPK(),false);				
+//						if(pj!=null){// get the new projection
+//							// get updated path			
+//							Node old=pj.getProjection();
+//							Node newNode=root;					
+//							HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
+//							if(updatedPath.size()>0){//no updated
+//   							old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
+//   							String newProjection=Util.getXMLStringFromNode(old);
+//   							projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
+//							}
+//						}		
+//					}
+//				}
+//			}
+			
 			ItemPOJOPK itemPOJOPK =  
 				com.amalto.core.util.Util.getItemCtrl2Local().putItem(
 						new ItemPOJO(
