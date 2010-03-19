@@ -1659,7 +1659,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	/***************************************************************************
 	 *Put Item
 	 * **************************************************************************/
-    protected WSItemPK putItem(WSPutItem wsPutItem,DataModelPOJO dataModel,Document schema,String[] itemKeyValues ) throws RemoteException {
+    protected WSItemPK putItem(WSPutItem wsPutItem,DataModelPOJO dataModel,Document schema,String[] itemKeyValues ,XSDKey conceptKey) throws RemoteException {
     	
     	try{
 		String projection = wsPutItem.getXmlString();
@@ -1674,6 +1674,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 		if(!XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER,wsPutItem.getWsDataClusterPK().getPk())) {		
 			if(wsPutItem.getIsUpdate()){
 				if(itemKeyValues.length>0){
+					//check if only update the key ,do nothing see 0012169
+					if(Util.isOnlyUpdateKey(root, concept, conceptKey, itemKeyValues)) 
+						return null;
 					ItemPOJO pj=new ItemPOJO(
 							dcpk,
 							concept,
@@ -1771,7 +1774,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			);							
 			//update the item using new field values see feature 0008854: Update an item instead of replace it 
 			// load the item first if itemkey provided
-			return putItem(wsPutItem, dataModel, schema, itemKeyValues);
+			return putItem(wsPutItem, dataModel, schema, itemKeyValues,conceptKey);
 
 		} catch (XtentisException e) {
 			String err = "ERROR SYSTRACE: "+e.getMessage();
@@ -1813,7 +1816,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
       			//get key values
       			String[] itemKeyValues = com.amalto.core.util.Util.
       			getKeyValuesFromItem(root, conceptKey);                   
-      			WSItemPK pk = putItem(item, dataModel, schema, itemKeyValues);
+      			WSItemPK pk = putItem(item, dataModel, schema, itemKeyValues,conceptKey);
       			pks.add(pk);
       		}
    	   }
@@ -1928,7 +1931,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
 	
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[putItem-of-putItemWithReport] in dataCluster:"+dataClusterPK);
-			WSItemPK wsi = putItem(wsPutItem, dataModel,schema, ids);	
+			WSItemPK wsi = putItem(wsPutItem, dataModel,schema, ids,conceptKey);	
 
 			//create resultUpdateReport			
 			String resultUpdateReport= Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem.getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());

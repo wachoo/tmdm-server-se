@@ -1614,6 +1614,25 @@ public  class Util {
 		}		
 		return false;
 	}
+	public static boolean isOnlyUpdateKey(Node oldNode, String concept, XSDKey xsdKey,String[] keyvalues){
+		try {
+			String xml1 = "<"+concept+"></"+concept+">";
+			Node node = Util.parse(xml1).getDocumentElement();
+		    JXPathContext jxpContext = JXPathContext.newContext ( node );
+		    jxpContext.setLenient(true);
+		    jxpContext.setFactory(factory);
+		    for (int i = 0; i < xsdKey.getFields().length && i<keyvalues.length; i++) {
+		    	String xpath= xsdKey.getFields()[i];
+		    	jxpContext.createPathAndSetValue(xpath, keyvalues[i]);
+		    }
+		    node=(Node)jxpContext.getContextBean();
+		    String xmlstring=getXMLStringFromNode(oldNode);
+		    String keystring=getXMLStringFromNode(node);
+		    return xmlstring.equals(keystring);
+		}catch(Exception e) {
+			return false;
+		}
+	}
 	/**
 	 * create an "empty" item from scratch, set every text node to empty
 	 * @param concept
@@ -1753,7 +1772,7 @@ public  class Util {
 		TransformerFactory.newInstance().newTransformer()
 		.transform(new DOMSource(d), new StreamResult(writer));
 		
-		return writer.toString();
+		return writer.toString().replaceAll("<\\?xml.*?\\?>","");
 	}
      
     /**
@@ -1787,28 +1806,29 @@ public  class Util {
      * @return the key ids
      * @throws XtentisException
      */
-    public static String[] getKeyValuesFromItem(Element item, XSDKey key) throws XtentisException{
-    	try {
-    		String[] vals = new String[key.getFields().length];
-    		
-      		Node root = Util.getNodeList(
-        			item,
-        			key.getSelector()
-    				).item(0);
-    		
-    		String[] fields=key.getFields();
-    		for (int i = 0; i < fields.length; i++) {    			
-    			vals[i] = Util.getFirstTextNode(root,fields[i]);
-			}
-        	return vals;
-    	} catch (XtentisException e) {
-    		throw(e);
-    	} catch (Exception e) {
-    	    String err = "Unable to get the key value for the item "+item.getLocalName()
-    			+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Category.getInstance(Util.class).error(err);
-    		throw new XtentisException(err);
-    	}    	    	
+    public static String[] getKeyValuesFromItem(Element item, XSDKey key) throws TransformerException{
+//    	try {
+//    		String[] vals = new String[key.getFields().length];
+//    		
+//      		Node root = Util.getNodeList(
+//        			item,
+//        			key.getSelector()
+//    				).item(0);
+//    		
+//    		String[] fields=key.getFields();
+//    		for (int i = 0; i < fields.length; i++) {    			
+//    			vals[i] = Util.getFirstTextNode(root,fields[i]);
+//			}
+//        	return vals;
+//    	} catch (XtentisException e) {
+//    		throw(e);
+//    	} catch (Exception e) {
+//    	    String err = "Unable to get the key value for the item "+item.getLocalName()
+//    			+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+//    	    org.apache.log4j.Category.getInstance(Util.class).error(err);
+//    		throw new XtentisException(err);
+//    	}    	    
+    	return getItemKeyValues(item,key);
     }
     
     /**

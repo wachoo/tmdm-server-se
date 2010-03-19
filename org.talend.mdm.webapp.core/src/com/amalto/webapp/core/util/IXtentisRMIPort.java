@@ -902,7 +902,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 					concept					
 			);           
 			//get key values            
-			String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem(
+			String[] itemKeyValues = Util.getKeyValuesFromItem(
        			root,
    				conceptKey
 			);										
@@ -914,6 +914,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 			if(!XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER,wsPutItem.getWsDataClusterPK().getPk())) {		
 				if(wsPutItem.getIsUpdate()){
 					if(itemKeyValues.length>0){
+						//check if only update the key ,do nothing see 0012169
+						if(Util.isOnlyUpdateKey(root, concept, conceptKey, itemKeyValues)) 
+							return null;						
 						ItemPOJO pj=new ItemPOJO(
 								dcpk,
 								concept,
