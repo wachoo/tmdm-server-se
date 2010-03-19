@@ -1486,7 +1486,7 @@ public class ItemsBrowserDWR {
 			boolean isKey = false;
 			StringBuffer sb = new StringBuffer();   			    
 			
-			if(value!=null && !"".equals(value.trim())){	
+			if(value!=null && !"".equals(value.trim())) {	
 			   Pattern p = Pattern.compile("\\[(.*?)\\]");
 			   Matcher m = p.matcher(value);
 			   
