@@ -2958,15 +2958,21 @@ public  class Util {
             "<Key>"+StringEscapeUtils.escapeXml(key)+"</Key>";
 		if("UPDATE".equals(operationType)){
 			Collection<UpdateReportItem> list = updatedPath.values();
-			for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {
+			boolean isUpdate=false;
+			for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {				
 				UpdateReportItem item = iter.next();
+				String oldValue=item.getOldValue()==null?"":item.getOldValue();
+				String newValue=item.getNewValue()==null?"":item.getNewValue();
+				if(newValue.equals(oldValue)) continue; 
 		            xml2 += 
 		            "<Item>"+
 		            "   <path>"+StringEscapeUtils.escapeXml(item.getPath())+"</path>"+
-		            "   <oldValue>"+StringEscapeUtils.escapeXml(item.getOldValue())+"</oldValue>"+
-		            "   <newValue>"+StringEscapeUtils.escapeXml(item.getNewValue())+"</newValue>"+
+		            "   <oldValue>"+StringEscapeUtils.escapeXml(oldValue)+"</oldValue>"+
+		            "   <newValue>"+StringEscapeUtils.escapeXml(newValue)+"</newValue>"+
 		           "</Item>"; 		
-				}     
+		            isUpdate=true;
+			}     
+			if(!isUpdate) return null;  
 		}
         xml2 += "</Update>";
 		return xml2;
