@@ -2759,7 +2759,9 @@ public  class Util {
 			NodeList listnew=getNodeList(newElement, xpath);
 			NodeList listold=getNodeList(oldElement, xpath);
 			int num=Math.max(listnew.getLength(), listold.getLength());
-			xpath=xpath.replaceFirst("/"+concept, "");
+			if(xpath.startsWith("/"+concept+"/")) {
+				xpath=xpath.replaceFirst("/"+concept, "");
+			}
 			if(num>1){//list
 				for(int i=1; i<=num; i++){
 					String xpath1=xpath+"["+i+"]";
@@ -2854,7 +2856,9 @@ public  class Util {
 		String concept=old.getLocalName();
 		for( Map.Entry<String, UpdateReportItem> entry:updatedpath.entrySet()){
 			String xpath= entry.getValue().getPath();
-			xpath=xpath.replaceFirst("/"+concept, "");
+			if(xpath.startsWith("/"+concept+"/")) {
+				xpath=xpath.replaceFirst("/"+concept, "");
+			}
 			jxpContext.createPathAndSetValue(xpath, entry.getValue().newValue);
 		}		
 		return (Node)jxpContext.getContextBean();
