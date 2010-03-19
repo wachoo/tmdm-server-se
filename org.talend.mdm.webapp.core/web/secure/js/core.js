@@ -675,8 +675,7 @@ amalto.core = function () {
 					$("menu-"+menu.id+"-span").style.background="url(/core/secure/img/tree-closed.gif) no-repeat 0px 9px;";				
 				}
 			}
-			//else if(menu.application.toLowerCase() == 'license') {
-		    else if(true) {
+			else if(menu.application.toLowerCase() == 'license') {
 				//load the script if necessary
 				amalto.core.loadMainScript(
 				menu.context,
