@@ -288,8 +288,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     };
 	
 	var BUTTON_LOGICAL_DEL = {
-		'fr':'Suppression logique',
-		'en':'Logical Delete'
+		'fr':'Envoyer à la corbeille',
+		'en':'Send to Trash'
 	};
 	
 	var BUTTON_CREATE_USER = {
@@ -389,15 +389,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	var REFRESH_TOOLTIP={
 		'fr':'Ouvre le journal d\'audit de cet enregistrement',
-		'en':'Refresh this record'
+		'en':'Refresh'
 	};
 	var JOURNAL_TOOLTIP={
 		'fr':'Ouvre le journal d\'audit de cet enregistrement',
 		'en':'Browse the audit trail for this record'
 	};
 	var ACTION_TOOLTIP={
-        'fr':'Lancement du processus pour cette entité',
-        'en':'Launch Process for this entity'
+        'fr':'Lancer le process',
+        'en':'Launch Process'
     };
 	
 	var UPLOAD_FILE={
@@ -1432,7 +1432,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {id:'saveBTN', tooltip:SAVE_TOOLTIP[language],text: BUTTON_SAVE[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemHandler});
+			toolbar.addButton( {id:'saveBTN', iconCls:'save',tooltip:SAVE_TOOLTIP[language],text: BUTTON_SAVE[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemHandler});
 			nbButtons++;
 		}
 	
@@ -1445,10 +1445,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {id:'saveAndQBTN', tooltip:SAVEANDCLOSE_TOOLTIP[language],text: BUTTON_SAVE_AND_QUIT[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemAndQuitHandler});
+			toolbar.addButton( {id:'saveAndQBTN', iconCls:'saveAndQ',tooltip:SAVEANDCLOSE_TOOLTIP[language],text: BUTTON_SAVE_AND_QUIT[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemAndQuitHandler});
 			nbButtons++;
 		}
 		
+		var deleteBTN;
+		var logicalDelBTN;
 		// delete
 		if ( (options&O_DELETE)==O_DELETE )
 		{
@@ -1458,7 +1460,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:PHYSICALLY_DELETE_TOOLTIP[language],text: BUTTON_DELETE[language], className: 'tb-button tb-button-nude', handler: toolbar.deleteItemHandler});
+			deleteBTN = {text: BUTTON_DELETE[language], iconCls : 'delete', handler: toolbar.deleteItemHandler};
 			nbButtons++;
 		}
 		
@@ -1471,8 +1473,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:LOGICALLY_DELETE_TOOLTIP[language],text: BUTTON_LOGICAL_DEL[language], className: 'tb-button tb-button-nude', handler: toolbar.logicalDelItemHandler});
+			logicalDelBTN = {text: BUTTON_LOGICAL_DEL[language], iconCls : 'sendTrash', handler: toolbar.logicalDelItemHandler};
 			nbButtons++;
+		}
+		
+		if(( (options&O_DELETE)==O_DELETE ) || ( (options&O_LOGICAL_DEL)==O_LOGICAL_DEL )) {
+			toolbar.add({
+				xtype : 'tbsplit',
+				text: BUTTON_LOGICAL_DEL[language],
+				iconCls : 'sendTrash',
+				menu : {
+					items : [logicalDelBTN, deleteBTN]
+				}
+			});
 		}
 		
 		// duplicate
@@ -1484,7 +1497,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:DUPLICATE_TOOLTIP[language],text: BUTTON_DUPLICATE[language], className: 'tb-button tb-button-nude', handler: toolbar.duplicateItemHandler});
+			toolbar.addButton( {tooltip:DUPLICATE_TOOLTIP[language],iconCls : 'duplicate', text: BUTTON_DUPLICATE[language], className: 'tb-button tb-button-nude', handler: toolbar.duplicateItemHandler});
 			nbButtons++;
 		}
 		
@@ -1497,7 +1510,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:JOURNAL_TOOLTIP[language],text: BUTTON_JOURNAL[language], className: 'tb-button tb-button-nude', handler: toolbar.journalItemHandler});
+			toolbar.addButton( {tooltip:JOURNAL_TOOLTIP[language], iconCls : 'journal', text: BUTTON_JOURNAL[language], className: 'tb-button tb-button-nude', handler: toolbar.journalItemHandler});
 			nbButtons++;
 		}
 		
@@ -1510,7 +1523,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:REFRESH_TOOLTIP[language],text: BUTTON_REFRESH[language], className: 'tb-button tb-button-nude', handler: toolbar.refreshItemHandler});
+			toolbar.addButton( {tooltip:REFRESH_TOOLTIP[language],iconCls: 'refresh', className: 'tb-button tb-button-nude', handler: toolbar.refreshItemHandler});
 			nbButtons++;
 		}
 		
@@ -1564,7 +1577,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             });
             
             toolbar.addField(combo);
-            toolbar.addButton( {tooltip:ACTION_TOOLTIP[language],text: BUTTON_ACTION[language], className: 'tb-button tb-button-nude', handler: toolbar.processItemHandler});
+            toolbar.addButton( {tooltip:ACTION_TOOLTIP[language], iconCls : 'process', className: 'tb-button tb-button-nude', handler: toolbar.processItemHandler});
             nbButtons++;
         }
 	}
@@ -1933,6 +1946,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		//var data = itemTree.getNodeByIndex(id).data;	
 		var node = itemTree.getNodeByIndex(id);
 		var value  = DWRUtil.getValue(id+"Value");
+		
 		if(node.itemData.valueInfo != null)
 		{
 			value = node.itemData.value;
@@ -2804,12 +2818,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		        itemSelector: 'div.search-item',
 		        onSelect: function(record){
                     this.collapse();
-                	DWRUtil.setValue(nodeId+'Value', record.get("infos"));//+"--"+record.get("infos"));
 		        	foreignKeyWindow.hide();
             		var itemTree = itemTreeList[treeIndex];
             		var node = itemTree.getNodeByIndex(nodeId);
             		node.itemData.value = record.get("keys");
             		node.itemData.valueInfo = record.get("infos");
+            		
+            		if(node.itemData.retrieveFKinfos) {
+            			DWRUtil.setValue(nodeId+'Value', record.get("infos"));//+"--"+record.get("infos"));
+            		}
+            		else {
+            			DWRUtil.setValue(nodeId+'Value', record.get("keys"));//+"--"+record.get("fk"));
+            		}
+            		
                 	updateNode(nodeId,treeIndex);
 		        }
 		    });
@@ -2875,6 +2896,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 		var url=$(nodeId+"Value").value;
 		DWRUtil.setValue(nodeId+'Value','');
+		var itemTree = itemTreeList[treeIndex];
+		var node = itemTree.getNodeByIndex(nodeId);
+		node.itemData.value = '';
+		node.itemData.valueInfo = '';
 		updateNode(nodeId,treeIndex);
 	}
 	

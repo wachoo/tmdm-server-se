@@ -378,7 +378,6 @@ public class XPathUtils {
 	 * 		The compiled xPath
 	 */
 	public static Expression compileXPath(String xPath) {
-		xPath = xPath.replaceAll("\\[.*?\\]", "");//aiming in case xpath[condition];maybe need modify
 		return ((JXPathCompiledExpression)JXPathContext.compile(xPath)).getExpression();
 	}
 
