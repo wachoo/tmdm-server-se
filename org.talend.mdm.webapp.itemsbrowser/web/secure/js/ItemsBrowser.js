@@ -2120,8 +2120,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     	
 		newNode.setDynamicLoad(fnLoadData);
 		//itemTree.getRoot().refresh();
-		//siblingNode.parent.refresh();
-		itemTree.getRoot().refresh();
+		siblingNode.parent.refresh();
+		//itemTree.getRoot().refresh();
 		amalto.core.ready();
 		if($(nodeCount+"Value"))$(nodeCount+"Value").value = "";
 		//add by ymli. set the values of the siblingNodes. fix the bug:0010576
@@ -2263,35 +2263,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		//var array = map[treeIndex];
 		var j = 0;
 		
-		values = getChildrenValues(node.parent);
-		/*for (var i = 0; i < array.length;i++) {
-			if(!(typeof(array[i]) == "undefined")){
-			var valueNode = array[i];
-	  		if(!(typeof(valueNode) == "undefined") && $(valueNode.index+"Value")){// && nodenew.itemData.nodeId==node.itemData.nodeId)
-				var valueR = valueNode.index+"--"+$(valueNode.index+"Value").value;//nodenew.itemData.nodeId
-				values[j] = valueR;
-				 j++;
-	  		}
-			}
-		}*/
-
-		//add by ymli. remember the siblingNodeValues
-		var siblingNodeValues = [];
-		var siblingNodeArray = node.parent.children;
-		var siblingNodeValuesIndex = 0;
-		for (var i = 0; i < siblingNodeArray.length;i++) {
-			var siblingNodenew = siblingNodeArray[i];
-	  		if(!(typeof(siblingNodenew) == "undefined")&& $(siblingNodenew.index+"Value")!=null){// && nodenew.itemData.nodeId==node.itemData.nodeId)
-				var value2 = siblingNodenew.index+"--"+$(siblingNodenew.index+"Value").value;//DWRUtil.getValue(nodenew.index+"Value");
-				siblingNodeValues[siblingNodeValuesIndex] = value2;
-				 siblingNodeValuesIndex++;
-	  		}
-		}
-		
-		
-		
-		
-		
+		values = getChildrenValues(itemTree.getRoot());
 		itemNodes.remove(itemTree.getNodeByIndex(id));
 		itemTree.removeNode(itemTree.getNodeByIndex(id), true);
 		ItemsBrowserInterface.removeNode(id, treeIndex, value,
@@ -2299,10 +2271,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					amalto.core.ready(result);
 				});
 		
-		
-		itemTree.getRoot().refresh();
-
-		
+		//itemTree.getRoot().refresh();
 		//add by ymli. set the values of nodes
 		for(var t=0;t<values.length;t++){
 			var value = values[t];
@@ -2310,19 +2279,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			if(idValue!=null&&$(idValue[0]+"Value")!=null)
 				$(idValue[0]+"Value").value = idValue[1];
 		}
-
-		
-		//add by ymli. set the values of siblingNodes
-		for(var t=0;t<siblingNodeValues.length;t++){
-			var siblingNodeValue = siblingNodeValues[t];
-			var idValue = siblingNodeValue.split("--");
-			if(idValue!=null&&$(idValue[0]+"Value")!=null)
-				$(idValue[0]+"Value").Value = idValue[1];
-		}
-		
-		
-		
-		
 		amalto.core.ready();
 	}
 	
@@ -2332,10 +2288,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	function saveItemAndQuit(ids, dataObject, treeIndex, refreshCB) {
-		// alert(DWRUtil.toDescriptiveString(itemPK2,2)+" "+dataObject+"
-		// "+treeIndex);
-
-		// saveItem(ids,dataObject,treeIndex);
 		saveItem(ids, dataObject, treeIndex, function() {
 					var itempanel = amalto.core.getTabPanel().activeTab;
 					if (itempanel) {

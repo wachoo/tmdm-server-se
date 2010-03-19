@@ -798,6 +798,7 @@ public class ItemsBrowserDWR {
 		HashMap<Integer,String> idToXpath = 
 			(HashMap<Integer,String>) ctx.getSession().getAttribute("idToXpath");
 		String xpath = idToXpath.get(id);
+		if(xpath==null) return "Nothing to update";
 		return updateNode2(xpath,StringEscapeUtils.unescapeHtml(content),docIndex);
 	}
 	
