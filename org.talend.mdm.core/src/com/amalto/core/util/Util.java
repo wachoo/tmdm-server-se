@@ -1616,23 +1616,21 @@ public  class Util {
 	}
 	public static boolean isOnlyUpdateKey(Node oldNode, String concept, XSDKey xsdKey,String[] keyvalues){
 		try {
-		    JXPathContext jxpContext = JXPathContext.newContext ( oldNode );
+			String xml1 = "<"+concept+"></"+concept+">";
+			Node node = Util.parse(xml1).getDocumentElement();
+		    JXPathContext jxpContext = JXPathContext.newContext ( node );
 		    jxpContext.setLenient(true);
-		    List<String> values=new ArrayList<String>();
+		    jxpContext.setFactory(factory);
 		    for (int i = 0; i < xsdKey.getFields().length && i<keyvalues.length; i++) {
 		    	String xpath= xsdKey.getFields()[i];
-		    	Object v=jxpContext.getValue(xpath);
-		    	if(v!=null){
-		    		values.add(v.toString());
-		    	}
+		    	jxpContext.createPathAndSetValue(xpath, keyvalues[i]);
 		    }
-		    
-		    for(int i=0; i< keyvalues.length; i++){
-		    	if( !keyvalues[i].equals(values.get(i))){
-		    		return false;
-		    	}
-		    }
-		    return true;
+		    node=(Node)jxpContext.getContextBean();
+		    String xmlstring=getXMLStringFromNode(oldNode);
+		    xmlstring=xmlstring.replaceAll(">\\s+<", "><");
+		    String keystring=getXMLStringFromNode(node);
+		    keystring=keystring.replaceAll(">\\s+<", "><");
+		    return xmlstring.equals(keystring);
 		}catch(Exception e) {
 			return false;
 		}
