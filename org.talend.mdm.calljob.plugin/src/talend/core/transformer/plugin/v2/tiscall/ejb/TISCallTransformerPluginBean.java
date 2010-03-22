@@ -469,7 +469,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 		"\n"+
 		"Example1" +"\n"+
 		"	<configuration>" +"\n"+
-		"		<url>http://server:port/TISService/TISPort</url>" +"\n"+
+		"		<url>http://localhost:8080/talend/TalendPort</url>" +"\n"+
 		"		<contextParam>" +"\n"+	
 		"			<name>firstname</name>" +"\n"+
 		"			<value>jack</value>" +"\n"+
