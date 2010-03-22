@@ -400,9 +400,9 @@ public class ItemsBrowserDWR {
 		treeNode.setMinOccurs(xsp.getMinOccurs());
 		treeNode.setNillable(xsp.getTerm().asElementDecl().isNillable());
 		ArrayList<String> infos = treeNode.getForeignKeyInfo();
+		String keyInfos = "";
 		
 		if(infos != null && treeNode.isRetrieveFKinfos()) {
-			String keyInfos = "";
 			for(String keyInfo : infos)
 			{
 				keyInfos += keyInfo + ",";
@@ -515,35 +515,41 @@ public class ItemsBrowserDWR {
 			try { 
 				if(maxOccurs<0 || maxOccurs>1){
 					NodeList nodeList = Util.getNodeList(d,xpath);
-					for (int i = 0; i < nodeList.getLength(); i++) {
-						if(!treeNode.isReadOnly())
-							nodeAutorization.add(xpath+"["+(i+1)+"]");
-						idToXpath.put(nodeCount,xpath+"["+(i+1)+"]");
-						TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
-						if(nodeList.item(i).getFirstChild()!=null)
-						{
-							treeNodeTmp.setValue(nodeList.item(i).getFirstChild().getNodeValue());
-							if(treeNode.getValueInfo() != null)
-							{
-								JSONObject jason = new JSONObject(treeNode.getValueInfo());
-								JSONArray rows = (JSONArray)jason.get("rows");
-								for(int n = 0; n < rows.length(); n++)
-								{
-									JSONObject row = (JSONObject)rows.get(n);
-									String keyValue = (String)row.get("keys");
-									if(keyValue.equals(treeNode.getValue()))
-									{
-										treeNodeTmp.setValueInfo(row.getString("infos"));
-										break;
-									}
-								}
-							}
-
-						}
-						treeNodeTmp.setNodeId(nodeCount);
-						// TODO check addThisNode
-		    			list.add(treeNodeTmp);  
-						nodeCount++;
+               
+					if(infos != null && treeNode.isRetrieveFKinfos()) {
+   					for (int i = 0; i < nodeList.getLength(); i++) {
+   						if(!treeNode.isReadOnly())
+   							nodeAutorization.add(xpath+"["+(i+1)+"]");
+   						idToXpath.put(nodeCount,xpath+"["+(i+1)+"]");
+   						TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
+   						String value = StringEscapeUtils.escapeHtml(nodeList.item(i).getTextContent());
+   						String jasonData = getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos, false);
+   						treeNode.setValueInfo(jasonData);
+   						if(nodeList.item(i).getFirstChild()!=null)
+   						{
+   							treeNodeTmp.setValue(nodeList.item(i).getFirstChild().getNodeValue());
+   							if(treeNode.getValueInfo() != null)
+   							{
+   								JSONObject jason = new JSONObject(treeNode.getValueInfo());
+   								JSONArray rows = (JSONArray)jason.get("rows");
+   								for(int n = 0; n < rows.length(); n++)
+   								{
+   									JSONObject row = (JSONObject)rows.get(n);
+   									String keyValue = (String)row.get("keys");
+   									if(keyValue.equals(treeNodeTmp.getValue()))
+   									{
+   										treeNodeTmp.setValueInfo(row.getString("infos"));
+   										break;
+   									}
+   								}
+   							}
+   
+   						}
+   						treeNodeTmp.setNodeId(nodeCount);
+   						// TODO check addThisNode
+   		    			list.add(treeNodeTmp);  
+   						nodeCount++;
+   					}
 					}
 					if(nodeList.getLength() == 0){
 						if(!treeNode.isReadOnly())
