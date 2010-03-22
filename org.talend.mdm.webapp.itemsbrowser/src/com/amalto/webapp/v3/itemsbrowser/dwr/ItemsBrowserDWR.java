@@ -414,8 +414,10 @@ public class ItemsBrowserDWR {
 				{
 					try {
 					   String value = StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath));
-						String jasonData = getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos, false);
-						treeNode.setValueInfo(jasonData);
+					   if(value != null && !"".equals(value)) {
+					      String jasonData = getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos, false);
+						   treeNode.setValueInfo(jasonData);
+					   }
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
