@@ -462,14 +462,14 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 		"	username [optional]: the username to use for the call"+"\n"+
 		"	password [optional]: the password to  use for the call" +"\n"+
 		"	contentType [optional]: the contentType of the returned data. Defaults to 'text/xml'" +"\n"+
-		"	conceptMapping [optional]: Directly map the result of a TIS call to a TOM concept"+"\n"+
+		"	conceptMapping [optional]: Directly map the result of a TIS call to a MDM Entity"+"\n"+
 		"		concept: the name of the concept"+"\n"+
 		"		fields: mapping rule with json format"+"\n"+
 		"\n"+
 		"\n"+
 		"Example1" +"\n"+
 		"	<configuration>" +"\n"+
-		"		<url>http://localhost:8080/talend/TalendPort</url>" +"\n"+
+		"		<url>http://server:port/TISService/TISPort</url>" +"\n"+
 		"		<contextParam>" +"\n"+	
 		"			<name>firstname</name>" +"\n"+
 		"			<value>jack</value>" +"\n"+
