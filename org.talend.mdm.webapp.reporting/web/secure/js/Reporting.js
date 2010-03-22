@@ -504,6 +504,7 @@ amalto.reporting.Reporting = function () {
 		    //height:200,
 		    //autoHeight:true,
 		    autoScroll:true,
+		    loadMask:true,
 		    columns: myColumns,
 		    border:false,
 			enableColumnMove:true,
@@ -1208,6 +1209,7 @@ amalto.reporting.Reporting = function () {
 	        },
 	        autoScroll :true,	
 	        width:250,
+	        loadMask:true, 
 	        height:225,
 	        border:false,
 	        // enable drag and Drop
@@ -1252,6 +1254,7 @@ amalto.reporting.Reporting = function () {
 			width:250,
 			height:225,
 			border:false,
+			loadMask:true, 
 	        enableDragDrop: true,
 	        dropConfig: {
 	            appendOnly:true
@@ -1497,6 +1500,7 @@ amalto.reporting.Reporting = function () {
 	        applyTo: 'ddfilterGrid2',
 	        title:LABEL_FILTER[language],
 	       	store: dsFilter,
+	       	loadMask:true,
 	        columns: myColumnsFilter,
 	        stripeRows: true,
 	        width:508,
@@ -1584,6 +1588,7 @@ amalto.reporting.Reporting = function () {
 	        columns: myColumnsParam,
 	        stripeRows: true,
 	        width:508,
+	        loadMask:true,
 	        height:100,
 	        border:false,
 	        viewConfig: {

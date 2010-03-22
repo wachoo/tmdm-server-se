@@ -322,6 +322,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 		    //height:200,
 		    //autoHeight:true,
 		    autoScroll:true,
+		    loadMask:true, 
 		    columns: myColumns,
 			enableColumnMove:true,
 			border:false,

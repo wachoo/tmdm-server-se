@@ -113,6 +113,7 @@ amalto.ItemsTrash.ItemsTrash=function(){
    	   	        id:'trashDataGrid',
    	   	        closable:true,
    	   	        stripeRows: true,
+   	   	        loadMask:true, 
    	   	        height:350,
    	   	        width:600,				   	   	      
    	   	        title: amalto.ItemsTrash.ItemsTrashLocal.get('title'),

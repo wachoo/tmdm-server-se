@@ -69,6 +69,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 		this.gridPanel1 = new Ext.grid.GridPanel({
 			id:"updateReportGridPanel",
 			store : this.store1,
+			loadMask:true, 
 			layout : "fit",
 			region : "center",
 			selModel : new Ext.grid.RowSelectionModel({}),

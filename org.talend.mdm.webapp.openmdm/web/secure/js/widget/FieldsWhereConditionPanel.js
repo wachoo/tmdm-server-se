@@ -143,6 +143,7 @@ Ext.extend(amalto.widget.FieldsWhereConditionPanel, Ext.Panel, {
             width : 500,
             height : 100,
             title : "",
+            loadMask:true,
             selModel : new Ext.grid.RowSelectionModel({}),
             border : true,
             clicksToEdit:1,
