@@ -1945,7 +1945,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 					throw new XtentisException(err);
 				}
 			}
-			
+			//if don't put the item ,return see 0012169
+			if(wsi==null) return null;
 			concept=wsi.getConceptName();
 			ids=wsi.getIds();			
 			//additional attributes for data changes log
