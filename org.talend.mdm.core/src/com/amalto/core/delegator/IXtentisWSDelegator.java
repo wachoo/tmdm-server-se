@@ -1686,15 +1686,20 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 					);
 					String revisionId=LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
 					pj=ItemPOJO.load(revisionId, pj.getItemPOJOPK(),false);				
-					if(pj!=null){// get the new projection
+					if(pj!=null){
 						// get updated path			
 						Node old=pj.getProjection();
+						if("sequence".equals(Util.getConceptModelType(concept, dataModel.getSchema()))) { //if the concept is sequence
+							//update the  Node according to schema to keep the sequence as the same with the schema
+							old=Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
+						}
 						Node newNode=root;					
 						HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
-						if(updatedPath.size()>0){//no updated
-   						old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
-   						String newProjection=Util.getXMLStringFromNode(old);
-   						projection = newProjection.replaceAll("<\\?xml.*?\\?>","");	
+						if(updatedPath.size()>0){
+	   						old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
+	   						projection=Util.getXMLStringFromNode(old);
+						}else {//if no update, return see 0012116
+							return null;
 						}
 					}		
 				}
@@ -1702,7 +1707,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 				if(Util.containsUUIDType(concept, dataModel.getSchema(),root)){
 					//update the item according to datamodel if there is UUID/AUTO_INCREMENT field and it's empty
 					//we need to regenerate an empty field like '<uuid_field/>'
-					projection=Util.updateNodeBySchema(concept, dataModel.getSchema(), root);
+					Node newNode=Util.updateNodeBySchema(concept, dataModel.getSchema(), root);
+					projection=Util.getXMLStringFromNode(newNode);
 				}
 			}
 		}

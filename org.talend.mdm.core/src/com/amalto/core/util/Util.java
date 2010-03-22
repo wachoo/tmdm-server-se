@@ -125,6 +125,7 @@ import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSSchema;
 import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.XSModelGroup.Compositor;
 import com.sun.xml.xsom.parser.XSOMParser;
 import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
@@ -1562,13 +1563,15 @@ public  class Util {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String updateNodeBySchema(String concept, String xsd, Node updateNode)throws Exception{
-		Element oldNode=createItem(concept, xsd);
-		//see 0011615: Complex type sequences are truncated when saving a record in both web app & studio
-		HashMap<String, UpdateReportItem> updatedPath=compareElement("/"+concept,updateNode,oldNode);		
-		Node newNode=updateElement("/"+concept, oldNode, updatedPath);	
-		String xml=getXMLStringFromNode(newNode);
-		return xml.replaceAll("<\\?xml.*?\\?>","");
+	public static Node updateNodeBySchema(String concept, String xsd, Node updateNode){
+		try {
+			Element oldNode=createItem(concept, xsd);
+			//see 0011615: Complex type sequences are truncated when saving a record in both web app & studio
+			HashMap<String, UpdateReportItem> updatedPath=compareElement("/"+concept,updateNode,oldNode);		
+			return updateElement("/"+concept, oldNode, updatedPath);	
+		}catch(Exception e) {
+			return updateNode;
+		}		
 	}
 	/**
 	 * check concept's datamodel contains UUID or Auto_increment type fields and it's empty
@@ -1577,7 +1580,8 @@ public  class Util {
 	 * @return
 	 * @throws Exception
 	 */
-	public static boolean containsUUIDType(String concept, String xsd, Element root)throws Exception {
+	public static boolean containsUUIDType(String concept, String xsd, Element root) {
+		try {
 		Map<String,XSElementDecl> map = getConceptMap(xsd);
     	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
     	XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
@@ -1586,10 +1590,14 @@ public  class Util {
     			return true;
     		}
     	}
-    	return false;
+		}catch(Exception e) {
+			return false;
+		}
+		return false;
 	}
 	
-	private static boolean containsUUIDType(XSParticle xsp, String xpathParent, Document d)throws Exception {
+	private static boolean containsUUIDType(XSParticle xsp, String xpathParent, Document d) {
+		try {
 		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
 			XSParticle[] xsps=xsp.getTerm().asModelGroup().getChildren();			
 			for (int i = 0; i < xsps.length; i++) {
@@ -1612,6 +1620,9 @@ public  class Util {
 				}
 			}
 		}		
+		}catch(Exception e) {
+			return false;
+		}
 		return false;
 	}
 	public static boolean isOnlyUpdateKey(Node oldNode, String concept, XSDKey xsdKey,String[] keyvalues){
@@ -1654,6 +1665,22 @@ public  class Util {
     		setChilden(xsp[j], "/"+concept,d);
     	}
     	return d.getDocumentElement();
+	}
+	/**
+	 * the return type maybe all/sequence/choice
+	 * @param concept
+	 * @param xsd
+	 * @return
+	 * @throws Exception
+	 */
+	public static String getConceptModelType(String concept, String xsd) {
+		try{
+			Map<String,XSElementDecl> map = getConceptMap(xsd);
+	    	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
+	    	return xsct.getContentType().asParticle().getTerm().asModelGroup().getCompositor().toString();
+		}catch(Exception e){
+			return "all";
+		}			
 	}
 	
 	private static void setChilden(XSParticle xsp, String xpathParent, Document d) throws Exception{
@@ -2880,7 +2907,7 @@ public  class Util {
 			String xpath= entry.getValue().getPath();
 			if(xpath.startsWith("/"+concept+"/")) {
 				xpath=xpath.replaceFirst("/"+concept, "");
-			}
+			}			
 			jxpContext.createPathAndSetValue(xpath, entry.getValue().newValue);
 		}		
 		return (Node)jxpContext.getContextBean();
