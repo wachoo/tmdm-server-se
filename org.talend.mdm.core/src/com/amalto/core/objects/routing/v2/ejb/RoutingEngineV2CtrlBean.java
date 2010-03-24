@@ -269,10 +269,10 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 				if (! matches) continue;
 			}else{
 				String condition=routingRule.getCondition();
-				
-				condition=condition.replaceAll("And|and", "&&");
-				condition=condition.replaceAll("Or|or", "||");
-				condition=condition.replaceAll("Not|not", "!");
+				//TODO
+				condition=condition.replaceAll("\\sAnd\\s|\\sand\\s|\\sAND\\s", " && ");
+				condition=condition.replaceAll("\\sOr\\s|\\sor\\s|\\sOR\\s", " || ");
+				condition=condition.replaceAll("\\sNot\\s|\\snot\\s|\\sNOT\\s|Not\\s|not\\s|NOT\\s", " !");
 				String compileCondition=new String (condition);
 //				Pattern p=Pattern.compile("C([0-9]+)", Pattern.CASE_INSENSITIVE);
 //				Matcher m=p.matcher(condition);
