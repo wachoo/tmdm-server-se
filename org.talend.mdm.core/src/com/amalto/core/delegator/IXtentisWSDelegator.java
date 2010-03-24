@@ -1958,7 +1958,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			//additional attributes for data changes log
 
             String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
-			if(updateReportItemsMap.size()>0){
+			if(resultUpdateReport !=null){ //see0012280: In jobs, Update Reports are no longer created for the CREATE action
 				org.apache.log4j.Logger.getLogger(this.getClass()).debug("[pushUpdateReport-of-putItemWithReport] with concept:"+concept+" operation:"+operationType);
 				UpdateReportPOJO updateReportPOJO=new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, source, System.currentTimeMillis(),dataClusterPK,dataModelPK,userName,revisionID,updateReportItemsMap);
 				
