@@ -125,7 +125,6 @@ import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSSchema;
 import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.XSModelGroup.Compositor;
 import com.sun.xml.xsom.parser.XSOMParser;
 import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
@@ -478,7 +477,7 @@ public  class Util {
  * remove the null element to match the shema
  * @param element
  */
-	private static boolean setNullNode(Element element) {
+	private static boolean setNullNode(Node element) {
 			//String xml = Util.nodeToString(element);
 			boolean removed = false;
 			NodeList nodelist = element.getChildNodes();
@@ -492,8 +491,8 @@ public  class Util {
 					removed = true;
 				}
 				else if(length>1 && node!=null){
-					if(setNullNode((Element) node))
-						setNullNode((Element) node.getParentNode());
+					if(setNullNode(node))
+						setNullNode(node.getParentNode());
 				}
 			}
 			return removed;
@@ -501,6 +500,7 @@ public  class Util {
     
     public static Document defaultValidate(Element element, String schema)throws Exception{
     	org.apache.log4j.Logger.getLogger(Util.class).trace("validate() "+element.getLocalName());
+    	Node cloneNode = element.cloneNode(true);
     	
 		//parse
 		Document d=null;
@@ -539,9 +539,9 @@ public  class Util {
 
 		
 		//add by ymli; fix the bug:0009642:remove the null element to match the shema
-		setNullNode(element);
+		setNullNode(cloneNode);
 		
-		String xmlstr=Util.nodeToString(element);
+		String xmlstr=Util.nodeToString(cloneNode);
        	//if element is null, remove it aiming added 
        	//see 7828
 		
@@ -567,8 +567,8 @@ public  class Util {
 		if (schema != null) {
 			String errors = seh.getErrors();
 			if (!errors.equals("")) {
-				String xmlString = Util.nodeToString(element); 
-				String err = "The item "+element.getLocalName()+" did not validate against the model: \n" + errors+"\n"
+				String xmlString = Util.nodeToString(cloneNode); 
+				String err = "The item "+cloneNode.getLocalName()+" did not validate against the model: \n" + errors+"\n"
 					+xmlString;	//.substring(0, Math.min(100, xmlString.length()));
 				//Document xsdDoc = Util.parse(schema);
 				Map<String, String> nsMap = Util.getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), true);
@@ -576,7 +576,7 @@ public  class Util {
 				boolean error = true;
 				while(iter.hasNext())
 				{
-					Map.Entry<String, String> entry = (Map.Entry<String, String>)iter.next();
+					Map.Entry<String, String> entry = iter.next();
 					String type = entry.getKey().substring(0, entry.getKey().indexOf(" : "));
 					String location = entry.getValue();
 					factory.setNamespaceAware(true);
@@ -624,7 +624,7 @@ public  class Util {
     	LOOP:
     	while(iter.hasNext())
     	{
-    		Map.Entry<String, String> entry = (Map.Entry<String, String>)iter.next();
+    		Map.Entry<String, String> entry = iter.next();
     		if(entry.getValue() != null && !entry.getValue().equals(""))
     		{
     			String elem = entry.getKey();
