@@ -96,7 +96,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		var mandatory = "";
 		this.result = null;
 		var check = this.checkMinOccurs(itemData,null);
-		if(itemData.readOnly==false && itemData.minOccurs==1 && check) mandatory='<span style="color:red">*</span>';
+		if(itemData.readOnly==false && (itemData.minOccurs==1||itemData.key) && check) mandatory='<span style="color:red">*</span>';
 		// (itemData.parent==null || (itemData.parent!=null && itemData.parent.minOccurs>=1))
 		var descInfo = "";
 		if(itemData.description!=null)descInfo='<img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'+itemData.description+'"/>';
@@ -342,6 +342,16 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				var errorMessage = this.itemData.facetErrorMsg[language];
 				//var checkParentminOIsReturn = null
 				this.result = null
+				//add by ymli; The item should not be empty if it is key.
+				if(value.length == 0 && this.itemData.key){
+					if (errorMessage == null){
+                   errorMessage = "The value does not comply with the facet defined in the model: "
+                            + "Key should not be empty";
+                    this.displayErrorMessage(this.itemData.nodeId,errorMessage);
+                    return false;
+                }
+				}
+				
 				var check = this.checkMinOccurs(this.itemData,null);
 				if(value.length==0&& this.itemData.minOccurs>=1&& check){//(this.itemData.parent==null || (this.itemData.parent!=null && this.itemData.parent.minOccurs>=1))){
 				if (errorMessage == null){
