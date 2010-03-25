@@ -1484,7 +1484,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				iconCls : 'sendTrash',
 				menu : {
 					items : [logicalDelBTN, deleteBTN]
-				}
+				},
+				handler : toolbar.logicalDelItemHandler
 			});
 		}
 		
