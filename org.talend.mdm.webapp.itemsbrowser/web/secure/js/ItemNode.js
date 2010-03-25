@@ -188,7 +188,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
                         options +='<option value="'+itemData.enumeration[k]+'" '+selected+'>'+itemData.enumeration[k]+'</option>';
                     }
                     var input = ' ' +
-                        '<select onchange="selectedIndex='+initIndex+'" id="'+itemData.nodeId+'Value" style="background-color:#F4F4F4;border:#787878 1px solid;">' +
+                        '<select onchange="selectedIndex='+initIndex+'" id="'+itemData.nodeId+'Value" '+' class="inputTree'+readOnlyStyle+'" '+readOnly+' >' +
                         options+
                         '</select>';
 			}
