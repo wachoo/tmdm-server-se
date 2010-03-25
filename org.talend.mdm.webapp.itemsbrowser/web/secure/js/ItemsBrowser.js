@@ -1140,6 +1140,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	        		id:'btn-delete',
 	        		//hidden :true,
 	        		xtype:'button',
+	        		iconCls : 'delete',
 	        		disabled:$('item-new-btn').disabled,
 	        		tooltip:PHYSICALLY_DELETE_TOOLTIP[language],
 		        	listeners:{
@@ -1199,6 +1200,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	        	{text:BUTTON_LOGICAL_DEL[language],
 	        		id:'btn-logicaldelete',
 	        		xtype:'button',
+	        		iconCls : 'sendTrash',
 	        		disabled:$('item-new-btn').disabled,
 	        		tooltip:LOGICALLY_DELETE_TOOLTIP[language],
 	        		listeners:{
