@@ -414,7 +414,8 @@ public class ItemsBrowserDWR {
 				{
 					try {
 					   String value = StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath));
-					   if(value != null && !"".equals(value)) {
+					   //max occurs > 1 support and do not get foreignkeylist by here.
+					   if(value != null && !"".equals(value) && !(maxOccurs<0 || maxOccurs>1)) {
 					      String jasonData = getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos, false);
 						   treeNode.setValueInfo(jasonData);
 					   }
@@ -524,18 +525,18 @@ public class ItemsBrowserDWR {
 						idToXpath.put(nodeCount,xpath+"["+(i+1)+"]");
 						TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
 						
-						if(infos != null && treeNode.isRetrieveFKinfos() && treeNode.getForeignKey() != null) {
+						if(nodeList.item(i).getFirstChild() != null && infos != null && treeNode.isRetrieveFKinfos() && treeNode.getForeignKey() != null) {
 						   String value = StringEscapeUtils.escapeHtml(nodeList.item(i).getTextContent());
 						   String jasonData = getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos, false);
-						   treeNode.setValueInfo(jasonData);
+						   treeNodeTmp.setValueInfo(jasonData);
 						}
-						
+												
 						if(nodeList.item(i).getFirstChild()!=null)
 						{
 							treeNodeTmp.setValue(nodeList.item(i).getFirstChild().getNodeValue());
-							if(treeNode.getValueInfo() != null)
+							if(treeNodeTmp.getValueInfo() != null)
 							{
-								JSONObject jason = new JSONObject(treeNode.getValueInfo());
+								JSONObject jason = new JSONObject(treeNodeTmp.getValueInfo());
 								JSONArray rows = (JSONArray)jason.get("rows");
 								for(int n = 0; n < rows.length(); n++)
 								{

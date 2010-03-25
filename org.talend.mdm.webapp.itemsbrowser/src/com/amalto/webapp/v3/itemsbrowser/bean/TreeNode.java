@@ -45,7 +45,7 @@ public class TreeNode implements Cloneable {
 	private boolean choice;
 	private ArrayList<Restriction> restrictions;
 	private ArrayList<String> enumeration;
-	private boolean retrieveFKinfos;
+	private boolean retrieveFKinfos = true;
    private String foreignKey;
 	private boolean visible;
 	private boolean key = false;
