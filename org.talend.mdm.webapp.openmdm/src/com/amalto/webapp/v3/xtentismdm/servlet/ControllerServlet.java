@@ -1,8 +1,8 @@
 package com.amalto.webapp.v3.xtentismdm.servlet;
 
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -182,12 +182,11 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 	}
 	private HashMap<String, String> getLanguageMap(){
 		HashMap<String, String> map=new HashMap<String, String>();
-		
-		String path = ControllerServlet.class.getResource("").getPath().substring(1)+"languageSelection.xml";
-		SAXReader reader = new SAXReader();
-		File file = new File(path);
+		InputStream io=null;
 		try {
-			Document document = reader.read(file);
+			io= ControllerServlet.class.getResourceAsStream("languageSelection.xml");
+			SAXReader reader = new SAXReader();
+			Document document = reader.read(io);
 			for (Iterator<Element> iterator=document.getRootElement().elementIterator(); iterator.hasNext();) {
 				Element element = iterator.next();
 				String key=element.attributeValue("value");
@@ -196,6 +195,14 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
+		}finally{
+			if(io!=null)
+				try {
+					io.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 		return map;
 	}
