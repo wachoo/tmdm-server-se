@@ -1671,6 +1671,21 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 		//update the item using new field values see feature 0008854: Update an item instead of replace it 
 		// load the item first if itemkey provided
 		//this only operate non system items
+		
+		//check cluster exist or not
+		if(!XSystemObjects.isExist(XObjectType.DATA_CLUSTER, dcpk.getUniqueId())) {
+	    	//get the universe and revision ID
+	    	UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+	    	if (universe == null) {
+	    		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+	    		org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err);
+	    		throw new XtentisException(err);
+	    	}
+	    	String revisionID = universe.getConceptRevisionID(concept);			
+    		if(!Util.getXmlServerCtrlLocal().existCluster(revisionID, dcpk.getUniqueId())){
+    			throw new XtentisException("DataCluster R-"+revisionID+"/"+dcpk.getUniqueId() +" don't exists!");
+    		}
+		}		
 		if(!XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER,wsPutItem.getWsDataClusterPK().getPk())) {		
 			if(wsPutItem.getIsUpdate()){
 				if(itemKeyValues.length>0){
@@ -1689,12 +1704,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 					if(pj!=null){
 						// get updated path			
 						Node old=pj.getProjection();
+						Node newNode=root;					
+						HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
 						if("sequence".equals(Util.getConceptModelType(concept, dataModel.getSchema()))) { //if the concept is sequence
 							//update the  Node according to schema to keep the sequence as the same with the schema
 							old=Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
 						}
-						Node newNode=root;					
-						HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
 						if(updatedPath.size()>0){
 	   						old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
 	   						projection=Util.getXMLStringFromNode(old);
