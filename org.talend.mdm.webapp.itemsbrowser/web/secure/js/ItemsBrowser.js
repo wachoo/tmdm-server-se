@@ -2955,11 +2955,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function browseForeignKey(nodeId, foreignKeyXpath, foreignKeyInfo){
 		//Check if have a Primary key made of multiple Item Ids or a single one
 		var keys = DWRUtil.getValue(nodeId+'Value');
-		var keyValue = keys;
-		if(keyValue != foreignKeyInfo && foreignKeyInfo != null)
-		{
-			keyValue = foreignKeyInfo;
-		}
+		var keyValue = foreignKeyInfo;
+		
 		//edit by ymli.fix bug 0009625: Made the foreign key like "{key} - {info}" 
 		//revert it
 	/*	if(DWRUtil.getValue(nodeId+'Value').match(/(.*?)--(.*?)/)){
