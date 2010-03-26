@@ -1901,12 +1901,12 @@ public class ItemsBrowserDWR {
         {
     		ArrayList<String> dataTypesHolder = new ArrayList<String>();
         	String[] pathSlices = viewItem.split("/");
-        	XSElementDecl node = parseMetaDataTypes(el, pathSlices[0], dataTypesHolder);
+        	XSElementDecl node = parseMetaDataTypes(el, pathSlices[0], dataTypesHolder, true);
         	if(pathSlices.length > 1)
         	{
             	for (int i = 1; i < pathSlices.length; i++)
             	{
-            		node = parseMetaDataTypes(node, pathSlices[i], dataTypesHolder);
+            		node = parseMetaDataTypes(node, pathSlices[i], dataTypesHolder, true);
             	}
         	}
         	metaDataTypes.put(viewItem, dataTypesHolder);
@@ -1915,8 +1915,32 @@ public class ItemsBrowserDWR {
 		return metaDataTypes;
 	}
 	
+	public ArrayList<String> getFKvalueInfoFromXSDElem(String concept, String path)
+	{
+		ArrayList<String> fkInfos = new ArrayList<String>();
+		try {
+			Configuration config = Configuration.getInstance();
+			String dataModelPK = config.getModel();
+			Map<String,XSElementDecl> map = CommonDWR.getConceptMap(dataModelPK);
+			XSElementDecl decl = map.get(concept);
+			String[] pathSlices = path.split("/");
+			XSElementDecl node = parseMetaDataTypes(decl, pathSlices[0], fkInfos, false);
+			if(pathSlices.length > 1)
+			{
+            	for (int i = 1; i < pathSlices.length; i++)
+            	{
+            		node = parseMetaDataTypes(node, pathSlices[i], fkInfos, false);
+            	}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return fkInfos;
+		}
+
+		return fkInfos;
+	}
 	
-	private XSElementDecl parseMetaDataTypes(XSElementDecl elem, String pathSlice, ArrayList<String> valuesHolder)
+	private XSElementDecl parseMetaDataTypes(XSElementDecl elem, String pathSlice, ArrayList<String> valuesHolder, boolean forFkValue)
 	{
 		valuesHolder.clear();
 		XSContentType conType;
@@ -1946,8 +1970,8 @@ public class ItemsBrowserDWR {
 					XSElementDecl childElem = (XSElementDecl)child.getTerm();
 					if(childElem.getName().equals(pathSlice))
 					{
-						ArrayList<String> fkContents = getForeignKeyInfoForXSDElem(childElem);
-						if(fkContents != null)
+						ArrayList<String> fkContents = getForeignKeyInfoForXSDElem(childElem, forFkValue);
+						if(fkContents.size() > 0)
 						{
 							valuesHolder.addAll(fkContents);
 							return childElem;
@@ -2007,8 +2031,9 @@ public class ItemsBrowserDWR {
 		
 	}
 	
-	private ArrayList<String> getForeignKeyInfoForXSDElem(XSElementDecl elemDecl)
+	private ArrayList<String> getForeignKeyInfoForXSDElem(XSElementDecl elemDecl, boolean forFkValue)
 	{
+		ArrayList<String> foreignKeyContents = new ArrayList<String>();
 		if(elemDecl.getAnnotation() instanceof AnnotationImpl)
 		{
 			AnnotationImpl antnImp = (AnnotationImpl)elemDecl.getAnnotation();
@@ -2026,30 +2051,62 @@ public class ItemsBrowserDWR {
 						ElementNSImpl ens = (ElementNSImpl)txtImpl.getNextSibling();
 						if(ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKey"))
 						{
-							ArrayList<String> foreignKeyContents = new ArrayList<String>();
-							foreignKeyContents.add("foreign key");
-							String foreignKeyPath = ens.getFirstChild().getNodeValue();
-							try {
-								String jasonData = getForeignKeyListWithCount(0, 100, ".*",  foreignKeyPath, "");
-								JSONObject jason = new JSONObject(jasonData);
-								JSONArray rows = (JSONArray)jason.get("rows");
-								for(int n = 0; n < rows.length(); n++)
-								{
-									JSONObject row = (JSONObject)rows.get(n);
-									foreignKeyContents.add(row.get("keys")+"");
+							if(forFkValue)
+							{
+								foreignKeyContents.add("foreign key");
+								String foreignKeyPath = ens.getFirstChild().getNodeValue();
+								try {
+									String jasonData = getForeignKeyListWithCount(0, 100, ".*",  foreignKeyPath, "");
+									JSONObject jason = new JSONObject(jasonData);
+									JSONArray rows = (JSONArray)jason.get("rows");
+									for(int n = 0; n < rows.length(); n++)
+									{
+										JSONObject row = (JSONObject)rows.get(n);
+										foreignKeyContents.add(row.get("keys")+"");
+									}
+								} catch (Exception e) {
+									e.printStackTrace();
 								}
-							} catch (Exception e) {
-								e.printStackTrace();
+								return foreignKeyContents; 
 							}
-							return foreignKeyContents; 
+							else
+							{
+								String value = ens.getTextContent();
+								Pattern ptn = Pattern.compile("(.*?)\\[(.*?)\\]");
+								Matcher match = ptn.matcher(value);
+								if (match.matches()) {
+									value = match.group(1);
+								}
+								foreignKeyContents.add(0, value);
+							}
+						}
+						else if(ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKeyInfo"))
+						{
+							String fkInfo = null;
+							if(foreignKeyContents.size() > 1)
+							{
+								fkInfo = foreignKeyContents.get(1);
+							}
+							if(fkInfo == null)
+							{
+								fkInfo = ens.getFirstChild().getNodeValue();
+							}
+							else
+							{
+								fkInfo += "," + ens.getFirstChild().getNodeValue();
+							}
+							foreignKeyContents.add(1, fkInfo);
 						}
 					}
 				}
 			}
 			
 		}
-		
-		return null;
+		if(foreignKeyContents.size() == 1 && !forFkValue)
+		{
+			foreignKeyContents.add(1, "");
+		}
+		return foreignKeyContents;
 	}
     
 	private WSWhereOperator getOperator(String option){

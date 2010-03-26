@@ -56,7 +56,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 			'fr':'clé possible trouvée',
 			'en':'possible key is found'
 		};
-    	
+    	var  pos = this.el.getXY();
 	    var dwrpasm = [this.xpathForeignKey, this.xpathForeignKeyInfo];
 	    WidgetInterface.countForeignKey_filter(this.xpathForeignKey, function(count) {
 	    	if(this.taskForeignKeyWindow) {
@@ -107,7 +107,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		    this.foreignKeyCombo.on('select', function(combo, record, index) {
 		    	this.taskForeignKeyWindow.hide();
 		    	this.taskForeignKeyWindow.destroy();
-		    	var value = record.get("infos");
+		    	var value = record.get("keys");
 		    	this.setValue(value);
 		    }.createDelegate(this));
 		    
@@ -147,10 +147,34 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 			}.createDelegate(this));
 
 			this.taskForeignKeyWindow.show();
+			this.taskForeignKeyWindow.el.setXY([pos[0], pos[1]+23]);
 		}.createDelegate(this)
 		);
 	},
-	
+
+	 onRender : function(ct, position){
+		   Ext.form.TriggerField.superclass.onRender.call(this, ct, position);
+		 this.wrap = this.wrap({cls: "x-form-field-wrap"});
+		 this.trigger = this.wrap.createChild(this.triggerConfig ||
+		 {tag: "img", src: Ext.BLANK_IMAGE_URL, cls: "x-form-trigger " + this.triggerClass});
+		 if(this.hideTrigger){
+		 this.trigger.setDisplayed(false);
+		 }
+		 this.initTrigger();
+		 if(!this.width){
+		 this.wrap.setWidth(this.el.getWidth()+this.trigger.getWidth());
+		 }
+	}, 
+
+	 wrap: function(config, returnDom){
+	     
+	     config = {tag: "span",cls: "x-form-field-wrap"};
+	     
+	     var newEl = Ext.DomHelper.insertBefore(this.el.dom, config, !returnDom);
+	     newEl.dom ? newEl.dom.appendChild(this.el.dom) : newEl.appendChild(this.el.dom);
+	     return newEl;
+	 },
+	 
 	setValue : function(value) {
 		this.el.dom.value = value;
 	}

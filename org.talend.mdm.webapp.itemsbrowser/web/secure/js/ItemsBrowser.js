@@ -10,6 +10,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	loadResource("/itemsbrowser/secure/js/ImprovedDWRProxy.js", "");
 	
+	loadResource("/talendmdm/secure/js/widget/ForeignKeyField.js", "" );
 	/********************************************************************
 	 * Localization
 	 ********************************************************************/
@@ -486,12 +487,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var conceptNameSelect = "";
 	var isReadOnlyinItem = false;
 	
+	var foreignKeyFields = [];
+	
 	function browseItems(){
 		showItemsPanel();
 		//populate list
         
 		amalto.core.working('');
 		ItemsBrowserInterface.getViewsList(getViewsItemsListCB,language);
+		foreignKeyFields.length = 0;
 		//displayItems();
 	}
 	
@@ -597,14 +601,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function getViewItemsCB(result){
 		_viewItems = []; 
 		_criterias = [];
+		foreignKeyFields = [];
 		_viewItems = result;
 		$('labelItemsCriteria').style.display = "block";
 		DWRUtil.setValue('itemsCriterias','<span id="itemsCriteria1"><select id="itemsSearchField1" onChange="amalto.itemsbrowser.ItemsBrowser.updateOperatorList(\'1\');amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<select id="itemsSearchOperator1" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
-						'<input id="itemsSearchValue1" type="text" value="*" onkeyup="amalto.itemsbrowser.ItemsBrowser.checkInputSearchValue(this.id,this.value)" style="display:none;" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/> ' +
-						'<select id="itemsForeignKeyValues1" style="display:none" onChange=""></select>' +
+						'<input id="itemsSearchValue1" type="text" value="*" onkeyup="amalto.itemsbrowser.ItemsBrowser.checkInputSearchValue(this.id,this.value)" style="display:none;" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/>' +
+						'<span id="itemsForeignKeyValues1" style="display:none" onChange=""></span>' +
 						'<span id="itemSearchCalendar1" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue1\' , \'-1\', \'date\')"><img src="img/genericUI/date-picker.gif"/></span>' +
-						'<input id="itemSearchCriteriaForAnd1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'AND\');"> AND '+
+						' <input id="itemSearchCriteriaForAnd1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'AND\');"> AND '+
 						'<input id="itemSearchCriteriaForOR1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'OR\');"> OR '+
 						'<br/></span>'
 						);	
@@ -673,10 +678,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						'<span id="itemsCriteria{id}">' +
 						'<select id="itemsSearchField{id}" onChange="amalto.itemsbrowser.ItemsBrowser.updateOperatorList(\'{id}\');amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<select id="itemsSearchOperator{id}" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
-						'<input id="itemsSearchValue{id}" type="text" onkeyup="amalto.itemsbrowser.ItemsBrowser.checkInputSearchValue(this.id,this.value)" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/>  ' +
-						'<select id="itemsForeignKeyValues{id}" style="display:none" onChange=""></select>' +
+						'<input id="itemsSearchValue{id}" type="text" onkeyup="amalto.itemsbrowser.ItemsBrowser.checkInputSearchValue(this.id,this.value)" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/>' +
+						'<span id="itemsForeignKeyValues{id}" style="display:none" onChange=""></span>' +
 						'<span id="itemSearchCalendar{id}" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue{id}\' , \'-1\', \'date\')"><img src="img/genericUI/date-picker.gif"/></span>' +
-						'<input id="itemSearchCriteriaForAnd{id}" type="radio" name="itemSearchCriteria{id}" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria{id}\', \'{id}\', \'AND\');"> AND '+
+						' <input id="itemSearchCriteriaForAnd{id}" type="radio" name="itemSearchCriteria{id}" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria{id}\', \'{id}\', \'AND\');"> AND '+
 						'<input id="itemSearchCriteriaForOR{id}" type="radio" name="itemSearchCriteria{id}" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria{id}\', \'{id}\', \'OR\');"> OR '+
 						'<span onClick="amalto.itemsbrowser.ItemsBrowser.removeItemsCriteria(\'{id}\');"><img src="img/genericUI/remove-element.gif"/></span> '  +
 						'<br/></span>'
@@ -732,6 +737,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		//criteria.splice(parseInt(id),1);
 		var criteriaId = "itemsCriteria"+id;
 		$('itemsCriterias').removeChild($(criteriaId));
+		foreignKeyFields[id] = null;
 		
 		id = parseInt(id);
 		_criterias[id-1] = null;
@@ -881,10 +887,36 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			DWRUtil.addOptions('itemsSearchOperator' + id ,OPERATORS[language]);
 			$(itemsSearchValuex).style.display = "none";
 			$(itemsForeignKeyValues).style.display='inline';
-			$(itemsForeignKeyValues).readOnly = false;
-			DWRUtil.removeAllOptions('itemsForeignKeyValues' + id);
-			DWRUtil.addOptions(itemsForeignKeyValues, foreignPredicates);
+//			$(itemsForeignKeyValues).readOnly = false;
+//			DWRUtil.removeAllOptions('itemsForeignKeyValues' + id);
+//			DWRUtil.addOptions(itemsForeignKeyValues, foreignPredicates);
 
+			var fkField = foreignKeyFields[id];
+			if(fkField == null)
+			{
+				var fks = [];
+				var path = $('itemsSearchField' + id).value;
+				ItemsBrowserInterface.getFKvalueInfoFromXSDElem(_dataObject,path, function(fkInfos){
+					fks = fkInfos;
+					
+					fkField = new amalto.widget.ForeignKeyField({
+				    	id:itemsForeignKeyValues,
+				    	name:itemsForeignKeyValues,
+				    	autoHeight : true,
+			            width: 160,
+			            defaultAutoCreate : {tag: "input", type: "text", style :"height:21px;" ,autocomplete: "off"},
+						xpathForeignKey : fks[0],
+						xpathForeignKeyInfo: fks[1],
+						renderTo : itemsForeignKeyValues
+					 });
+					foreignKeyFields[id] = fkField;
+				});
+				
+
+			}
+			if(fkField != null)
+			   fkField.show(this);
+			
 			currentPredicate[id] = 'foreign key';
 		}
 		else if(predicateValues == 'enumeration')
@@ -932,7 +964,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			}
 			else if($('itemsForeignKeyValues' + actulID).style.display == "inline")
 			{
-				searchValue = DWRUtil.getValue('itemsForeignKeyValues' + actulID);
+				var fkField = foreignKeyFields[actulID];
+//				searchValue = DWRUtil.getValue('itemsForeignKeyValues' + actulID);
+				if(fkField != undefined || fkField != null)
+				  searchValue = fkField.el.dom.value;
 			}
 			_criterias[idx][0] = criteria + searchValue;
 		}
