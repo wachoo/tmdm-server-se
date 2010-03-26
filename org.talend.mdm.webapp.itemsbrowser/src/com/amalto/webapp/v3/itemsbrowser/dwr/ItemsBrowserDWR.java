@@ -735,6 +735,16 @@ public class ItemsBrowserDWR {
 			//String exist = idToXpath.get(newId);
 			idToXpath.put(newId,siblingXpath+"["+id+"]");
 			//System.out.println("clone:"+newId+" "+siblingXpath+"["+id+"]");
+			UpdateReportItem ri = new UpdateReportItem(idToXpath.get(newId), "", "");
+			HashMap<String, UpdateReportItem> updatedPath;
+         if (ctx.getSession().getAttribute("updatedPath") != null) {
+            updatedPath = (HashMap<String, UpdateReportItem>) ctx
+                  .getSession().getAttribute("updatedPath");
+         } else {
+            updatedPath = new HashMap<String, UpdateReportItem>();
+         }
+         updatedPath.put(siblingXpath+"["+id+"]", ri);
+			ctx.getSession().setAttribute("updatedPath", updatedPath);
 			nodeAutorization.add(siblingXpath+"["+id+"]");
 			return "Cloned";
 			
