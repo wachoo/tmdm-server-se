@@ -1,18 +1,22 @@
 package com.amalto.webapp.v3.xtentismdm.servlet;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 
 import com.amalto.core.util.Util;
 
@@ -124,13 +128,18 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 	
 	protected String getBody(String language, HttpServletRequest request){ 
 		String timestamp = "2007/07/04";
-		String html = 		    
-			"		<option value=\"en\" selected>English</option>\n"+
-			"		<option value=\"fr\">Francais</option>\n";
-		if(language.equals("fr")){
-			html = 		    
-				"		<option value=\"en\" >English</option>\n"+
-				"		<option value=\"fr\" selected>Francais</option>\n";
+		HashMap<String,String> map=this.getLanguageMap();
+		Set<String> set=map.keySet();
+		String html="";
+		for (Iterator iterator = set.iterator(); iterator.hasNext();) {
+			String key = (String) iterator.next();
+			String value=map.get(key);
+			if(key.equals(language)){
+				 html += "		<option value=\""+key+"\" selected>"+value+"</option>\n";
+			}else{
+				 html += "		<option value=\""+key+"\">"+value+"</option>\n";
+			}
+			
 		}
 		String enterprise = Util.isEnterprise()?"color:#EE0000;\"> Enterprise<br/>Edition":"color:#B4DC10;\">Community <br/> Edition";
 		return
@@ -171,6 +180,24 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 				"<input type=\"hidden\" id=\"serverPath\" value="+ request.getScheme()+"://"+request.getLocalAddr() +":"+request.getLocalPort() +"/>\n"+
 			"</body>";
 	}
-	
+	private HashMap<String, String> getLanguageMap(){
+		HashMap<String, String> map=new HashMap<String, String>();
+		
+		String path = ControllerServlet.class.getResource("").getPath().substring(1)+"languageSelection.xml";
+		SAXReader reader = new SAXReader();
+		File file = new File(path);
+		try {
+			Document document = reader.read(file);
+			for (Iterator<Element> iterator=document.getRootElement().elementIterator(); iterator.hasNext();) {
+				Element element = iterator.next();
+				String key=element.attributeValue("value");
+				String value=element.getText();
+				map.put(key, value);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return map;
+	}
 }
 

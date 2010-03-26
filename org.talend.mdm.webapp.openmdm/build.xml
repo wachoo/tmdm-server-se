@@ -3,7 +3,7 @@
 	
 	<property name="version.props" value="version.properties"/>
 		
-	<property name="jboss.dir" value="c:/opt/jboss_tem"/>
+	<property name="jboss.dir" value="c:/opt/jboss"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
@@ -48,6 +48,7 @@
 			<zipfileset dir="bin" prefix="WEB-INF/classes" includes="**/*.class" />
 			<zipfileset dir="web" includes="**/*" />
 			<zipfileset dir="src" prefix="WEB-INF/classes" includes="**/*.xsl" />
+			<zipfileset dir="src" prefix="WEB-INF/classes" includes="**/*.xml" />
 			<zipfileset dir="libs" prefix="WEB-INF/lib" includes="*.jar" />
 		</jar>
    		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
