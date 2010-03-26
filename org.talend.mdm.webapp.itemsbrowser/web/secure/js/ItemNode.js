@@ -14,15 +14,16 @@
  
 //amalto.namespace("amalto.itemsbrowser");
 
-amalto.itemsbrowser.ItemNode = function(itemData, newItem, treeIndex, oParent, expanded, hasIcon) {
+amalto.itemsbrowser.ItemNode = function(itemData, newItem, treeIndex, oParent, expanded, hasIcon,isReadOnlyinItem) {
     //if (oData) 
     {
         this.init(null, oParent, expanded);
-        this.initContent(itemData, newItem,treeIndex, hasIcon);
+        this.initContent(itemData, newItem,treeIndex, hasIcon,isReadOnlyinItem);
         this.itemData = itemData;
         this.newItem = newItem;
         this.treeIndex = treeIndex;
         this.hasIcon = hasIcon;
+        this.isReadOnlyinItem = isReadOnlyinItem;
     }
 };
 
@@ -54,7 +55,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	newItem: null,
 	treeIndex: null,	
 	hasIcon: null,
-	
+	isReadOnlyinItem:null,
 	result : null,
 	
     /**
@@ -64,7 +65,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
      * @param {boolean} hasIcon determines if the node will be rendered with an
      * icon or not
      */
-    initContent: function(itemData, newItem,treeIndex, hasIcon) {	
+    initContent: function(itemData, newItem,treeIndex, hasIcon,isReadOnlyinItem) {	
     	var KEY_DEFAULT_vALUE = {
 			'en':'(Auto)',
 			'fr':'(Auto)'
@@ -110,12 +111,12 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == true && itemData.readOnly==true) ;
 			//alert("before: "+tmpStatus);
-			if(tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"){
+			if(isReadOnlyinItem||tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"){
 				//alert("after: "+tmpStatus);
 				readOnlyStyle = readOnly = "READONLY";
 			}
 			var nullParentStatus = true;
-			nullParentStatus = (itemData.parent==null&&(itemData.readOnly==true) || (itemData.key==true&&(itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT")));
+			nullParentStatus = (isReadOnlyinItem||itemData.parent==null&&(itemData.readOnly==true) || (itemData.key==true&&(itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT")));
 			if(nullParentStatus){
 				readOnlyStyle = readOnly = "READONLY";
 			}
@@ -124,7 +125,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				//modify by ymli, if the parent or itself is writable, the foreign key can be set
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
-				if(itemData.readOnly==false||tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"){
+				if(!isReadOnlyinItem &&(itemData.readOnly==false||tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT")){
 					//for a foreign key, direct edit is disabled.
 					readOnly = "READONLY";
 					readOnlyStyle = "ForeignKey";
@@ -480,7 +481,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		//add by ymli.fix the bug:0010576		
 		this.itemData.nodeId = this.index
 				
-		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon);
+		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem);
 		return true;
 
 	},
@@ -546,7 +547,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	
 	updateNodeId: function(nodeId){
 		this.itemData.nodeId = nodeId;
-		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon);
+		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem);
 	},
 
     /*

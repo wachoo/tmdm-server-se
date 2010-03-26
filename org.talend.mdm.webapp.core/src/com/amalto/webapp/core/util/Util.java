@@ -63,7 +63,11 @@ import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.util.webservices.WSBase64KeyValue;
 import com.amalto.webapp.util.webservices.WSConnectorResponseCode;
+import com.amalto.webapp.util.webservices.WSGetRole;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
+import com.amalto.webapp.util.webservices.WSRolePK;
+import com.amalto.webapp.util.webservices.WSRoleSpecification;
+import com.amalto.webapp.util.webservices.WSRoleSpecificationInstance;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSUniverse;
 import com.amalto.webapp.util.webservices.WSUniversePK;
@@ -1118,4 +1122,72 @@ public class Util {
 			
 		}
 		
+		
+	/**
+	 * get the intances of the objectType of the role
+	 * @author ymli	
+	 * @param role:the role's name,e.g. Default_Admin
+	 * @param objectTypename: e.g. Item,Data Model, Menu etc.
+	 * @return the Array of the instances.
+	 * @throws RemoteException
+	 * @throws XtentisWebappException
+	 */
+		public static WSRoleSpecificationInstance[] getRoleSpecifications(String role,String objectTypename) throws RemoteException, XtentisWebappException{
+			WSRoleSpecificationInstance[] wsRSFIs = null;
+			WSRoleSpecification[] wsRSFs =Util.getPort().getRole(new WSGetRole(new WSRolePK(role))).getSpecification();
+			for(int i=0;i<wsRSFs.length;i++){
+				WSRoleSpecification wsRSF = wsRSFs[i];
+				if(wsRSF.getObjectType().equals(objectTypename)){
+					wsRSFIs = wsRSF.getInstance();
+					break;
+				}
+					
+			}
+			return wsRSFIs;
+		}
+		/**
+		 * check if the item is Admin
+		 * @author ymli
+		 * @param role
+		 * @param objectTypename
+		 * @return
+		 * @throws RemoteException
+		 * @throws XtentisWebappException
+		 */
+		public static boolean isAdmin(String role,String objectTypename) throws RemoteException, XtentisWebappException{
+			WSRoleSpecification[] wsRSFs =Util.getPort().getRole(new WSGetRole(new WSRolePK(role))).getSpecification();
+			for(int i=0;i<wsRSFs.length;i++){
+				WSRoleSpecification wsRSF = wsRSFs[i];
+				if(wsRSF.getObjectType().equals(objectTypename) && wsRSF.isAdmin())
+					return true;
+			}
+			System.out.println("Util.isAdmin()");
+			return false;
+		}
+		/**
+		 * check if the conceptName is readOnly or not.
+		 * @author ymli
+		 * @param conceptName
+		 * @param role
+		 * @return
+		 * @throws RemoteException
+		 * @throws XtentisWebappException
+		 */
+		public static boolean isReadOnlyinItem(String conceptName,String role) throws RemoteException, XtentisWebappException{
+			
+			boolean isReadOnly = false;
+			if(isAdmin(role, "Item")) return false;
+			
+			WSRoleSpecificationInstance[] wsRSFIs = getRoleSpecifications(role, "Item");
+			if(wsRSFIs==null)
+				return false;
+			for(int i = 0;i<wsRSFIs.length;i++){
+				WSRoleSpecificationInstance instance = wsRSFIs[i];
+				if(instance.getInstanceName().equalsIgnoreCase(conceptName) && !instance.isWritable()){
+					isReadOnly = true;
+					break;
+				}
+			}
+			return isReadOnly;
+		}
 }

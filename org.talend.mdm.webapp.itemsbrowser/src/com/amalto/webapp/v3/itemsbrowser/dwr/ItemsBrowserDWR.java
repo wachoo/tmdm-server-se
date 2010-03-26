@@ -2198,4 +2198,16 @@ public class ItemsBrowserDWR {
 		return true;
 
 	}
+	/**
+	 * @author ymli
+	 * @param concept
+	 * @return
+	 * @throws RemoteException
+	 * @throws XtentisWebappException
+	 * @throws Exception
+	 */
+	public boolean isReadOnlyinItem(String concept) throws RemoteException, XtentisWebappException, Exception{
+		return Util.isReadOnlyinItem(concept, Util.getLoginRoles().split(",")[0]);
+	}
+	
 }
