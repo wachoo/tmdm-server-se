@@ -1598,16 +1598,16 @@ public class ItemsBrowserDWR {
 				}else{
 					JSONObject row = new JSONObject();		
 					//add by ymli. retrieve the correct results according value. fig bug:0010481					
-					if(keys.matches(value)||infos.matches(value)||keys.indexOf(value)!=-1||infos.indexOf(value)!=-1){
+					//if(keys.matches(value)||infos.matches(value)||keys.indexOf(value)!=-1||infos.indexOf(value)!=-1){
 						row.put("keys", keys);
 						row.put("infos", infos);
 						rows.put(row);
-					}
+					//}
 				}
 			}
 			//edit by ymli; fix the bug:0011918: set the pageSize correctly.
 			if(isCount) {
-			   json.put("count", countForeignKey_filter(xpathForeignKey));
+			   json.put("count", countForeignKey_filter(xpathForeignKey));				
 			}
 
 			return json.toString();
