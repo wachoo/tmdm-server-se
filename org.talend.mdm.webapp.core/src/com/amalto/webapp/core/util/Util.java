@@ -1183,7 +1183,7 @@ public class Util {
 				return false;
 			for(int i = 0;i<wsRSFIs.length;i++){
 				WSRoleSpecificationInstance instance = wsRSFIs[i];
-				if(instance.getInstanceName().equalsIgnoreCase(conceptName) && !instance.isWritable()){
+				if(instance.getInstanceName().indexOf(conceptName)>0&& !instance.isWritable()){
 					isReadOnly = true;
 					break;
 				}
