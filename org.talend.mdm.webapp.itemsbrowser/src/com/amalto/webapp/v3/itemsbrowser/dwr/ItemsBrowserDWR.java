@@ -2264,7 +2264,22 @@ public class ItemsBrowserDWR {
 	 * @throws Exception
 	 */
 	public boolean isReadOnlyinItem(String concept) throws RemoteException, XtentisWebappException, Exception{
-		return Util.isReadOnlyinItem(concept, Util.getLoginRoles().split(",")[0]);
+		
+		/*String[] roles = Util.getLoginRoles().split(",");
+		Util.getAuthorizationInfo();
+		
+		int i = 0;
+		for(;i<roles.length;i++){
+			if(!roles[i].equals("authenticated"));
+				break;
+		}*/
+		String role  = Util.getLoginRoles();
+		String role1 = role.replaceAll("authenticated","" );
+		String role2 = role1.replace("administration","");
+		String role3 = role2.replace(",","");
+		if(role3.length()>0)
+			return Util.isReadOnlyinItem(concept, role3);
+		return false;
 	}
 	
 }

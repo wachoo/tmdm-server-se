@@ -1174,7 +1174,9 @@ public class Util {
 		 * @throws XtentisWebappException
 		 */
 		public static boolean isReadOnlyinItem(String conceptName,String role) throws RemoteException, XtentisWebappException{
-			
+			if(!com.amalto.core.util.Util.isEnterprise()){
+				return false;
+			}
 			boolean isReadOnly = false;
 			if(isAdmin(role, "Item")) return false;
 			
