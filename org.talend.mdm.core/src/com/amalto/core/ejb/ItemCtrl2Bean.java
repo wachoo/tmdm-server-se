@@ -406,14 +406,7 @@ public class ItemCtrl2Bean implements SessionBean {
     	LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
     	conceptPatternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
     	
-    	XmlServerSLWrapperLocal server = null;
-		try {
-			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-		} catch (Exception e) {
-			String err = "Unable to get items of concept '"+conceptName+"': unable to access the XML Server wrapper";
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-			throw new XtentisException(err);
-		}
+    	XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 		
 		try {            
             ArrayList<String> elements = new ArrayList<String>();

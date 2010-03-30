@@ -10,6 +10,7 @@ import javax.security.jacc.PolicyContextException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
@@ -118,10 +119,18 @@ public abstract class ILocalUser implements IBeanDelegator{
 		return true;
 	}
 
+	public boolean userItemCanRead(ItemPOJOPK item) throws XtentisException {
+		// TODO Auto-generated method stub
+		return true;
+	}
 	public boolean userItemCanWrite(ItemPOJO item, String datacluster,
 			String concept) throws XtentisException {
 		// TODO Auto-generated method stub
 		return true;
 	}
-	
+	public boolean userItemCanWrite(ItemPOJOPK item, String datacluster,
+			String concept) throws XtentisException {
+		// TODO Auto-generated method stub
+		return true;
+	}	
 }

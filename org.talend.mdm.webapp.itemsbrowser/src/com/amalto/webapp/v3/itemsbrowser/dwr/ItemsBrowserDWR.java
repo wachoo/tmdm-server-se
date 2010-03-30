@@ -31,6 +31,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.UUIDItemContent;
 import com.amalto.core.util.XSDKey;
 import com.amalto.webapp.core.bean.ComboItemBean;
@@ -2263,23 +2266,17 @@ public class ItemsBrowserDWR {
 	 * @throws XtentisWebappException
 	 * @throws Exception
 	 */
-	public boolean isReadOnlyinItem(String concept) throws RemoteException, XtentisWebappException, Exception{
+	public boolean isReadOnlyinItem(String concept, String[] ids) throws RemoteException, XtentisWebappException, Exception{
 		
-		/*String[] roles = Util.getLoginRoles().split(",");
-		Util.getAuthorizationInfo();
-		
-		int i = 0;
-		for(;i<roles.length;i++){
-			if(!roles[i].equals("authenticated"));
-				break;
-		}*/
-		String role  = Util.getLoginRoles();
-		String role1 = role.replaceAll("authenticated","" );
-		String role2 = role1.replace("administration","");
-		String role3 = role2.replace(",","");
-		if(role3.length()>0)
-			return Util.isReadOnlyinItem(concept, role3);
-		return false;
+		Configuration config = Configuration.getInstance();
+		String dataClusterPK = config.getCluster();	
+		boolean ret=false;
+		if(ids!=null) {		
+			ret=LocalUser.getLocalUser().userItemCanWrite(new ItemPOJOPK(new DataClusterPOJOPK(dataClusterPK), concept, ids),dataClusterPK, concept);
+			if(ret) return false;
+			ret=LocalUser.getLocalUser().userItemCanRead(new ItemPOJOPK(new DataClusterPOJOPK(dataClusterPK), concept, ids));			
+		}
+		return ret;
 	}
 	
 }
