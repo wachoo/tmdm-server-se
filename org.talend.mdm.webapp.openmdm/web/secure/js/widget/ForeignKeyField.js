@@ -189,6 +189,11 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     	 }
     },
     
+    setForeignKey : function(fk, fkinfo){
+    	this.xpathForeignKey = fk;
+    	this.xpathForeignKeyInfo = fkinfo;
+    },
+    
 	setValue : function(value) {
 		this.el.dom.value = value;
 	}

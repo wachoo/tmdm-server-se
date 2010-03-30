@@ -888,13 +888,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 //			DWRUtil.addOptions(itemsForeignKeyValues, foreignPredicates);
 
 			var fkField = foreignKeyFields[id];
-			if(fkField == null)
-			{
-				var fks = [];
-				var path = $('itemsSearchField' + id).value;
-				ItemsBrowserInterface.getFKvalueInfoFromXSDElem(_dataObject,path, function(fkInfos){
-					fks = fkInfos;
-					
+			var fks = [];
+			var path = $('itemsSearchField' + id).value;
+			ItemsBrowserInterface.getFKvalueInfoFromXSDElem(_dataObject,path, function(fkInfos){
+				fks = fkInfos;
+				if(fkField == null)
+				{
 					fkField = new amalto.widget.ForeignKeyField({
 				    	id:itemsForeignKeyValues,
 				    	name:itemsForeignKeyValues,
@@ -907,10 +906,16 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						renderTo : itemsForeignKeyValues
 					 });
 					foreignKeyFields[id] = fkField;
-				});
+				}
+				else
+				{
+					fkField.setForeignKey(fks[0], fks[1])
+				}
+			});
 				
 
-			}
+			
+			
 			if(fkField != null)
 			   fkField.show(this);
 			
