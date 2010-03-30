@@ -2245,7 +2245,7 @@ public class ItemsBrowserDWR {
 			//store
 			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).info(
 					"Saving update-report for " + itemAlias + "'s action. ");
-			if (!persistentUpdateReport(updateReport, false).equals("OK"))
+			if (!persistentUpdateReport(updateReport, true).equals("OK"))
 				return false;
 		} catch (Exception e) {
 			String err = "Unable to launch Runnable Process! ";
