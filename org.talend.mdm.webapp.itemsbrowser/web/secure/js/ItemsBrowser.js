@@ -907,6 +907,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			            defaultAutoCreate : {tag: "input", type: "text", style :"height:21px;" ,autocomplete: "off"},
 						xpathForeignKey : fks[0],
 						xpathForeignKeyInfo: fks[1],
+						showDeleteButton : false,
 						renderTo : itemsForeignKeyValues
 					 });
 					foreignKeyFields[id] = fkField;

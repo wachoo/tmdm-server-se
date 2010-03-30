@@ -32,6 +32,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     taskForeignKeyWindow : "",
     foreignKeyCombo : "",
     taskForeignKeytore : "",
+    showDeleteButton:true,
     
     onTrigger1Click : function() {
         this.el.dom.value = '';
@@ -161,6 +162,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		 this.trigger.setDisplayed(false);
 		 }
 		 this.initTrigger();
+		 this.initTriggerAppearance();
 		 if(!this.width){
 		 this.wrap.setWidth(this.el.getWidth()+this.trigger.getWidth());
 		 }
@@ -175,6 +177,18 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 	     return newEl;
 	 },
 	 
+	    initTriggerAppearance : function(){ 
+    	 var ts = this.trigger.select('.x-form-trigger', true);
+    	 ts.elements[0].setStyle("height", "20px");
+    	 ts.elements[1].setStyle("height", "20px");
+    	 ts.elements[0].dom.setAttribute("align","absmiddle");
+    	 ts.elements[1].dom.setAttribute("align","absmiddle");
+    	 if(this.showDeleteButton == false)
+    	 {
+        	ts.elements[0].setStyle("display","none");
+    	 }
+    },
+    
 	setValue : function(value) {
 		this.el.dom.value = value;
 	}

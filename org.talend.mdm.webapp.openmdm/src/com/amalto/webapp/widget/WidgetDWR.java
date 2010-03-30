@@ -225,10 +225,9 @@ public class WidgetDWR {
                    rows.put(row);
                 }
              }
-             
-             json.put("count", rows.length());
+           
           }
-
+          json.put("count", countForeignKey_filter(xpathForeignKey));
           return json.toString();
        }
        
