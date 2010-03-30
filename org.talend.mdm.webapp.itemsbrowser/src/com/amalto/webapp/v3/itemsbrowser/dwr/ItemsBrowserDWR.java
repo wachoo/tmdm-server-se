@@ -808,7 +808,7 @@ public class ItemsBrowserDWR {
 	    	String prefix = "Unable to create/update the item " + ": ";
             String err = prefix +e.getClass().getName()+": "+e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-            throw new TransformerException(err);
+            throw new TransformerException(e.getLocalizedMessage());
 		}
 		
 		return true;
