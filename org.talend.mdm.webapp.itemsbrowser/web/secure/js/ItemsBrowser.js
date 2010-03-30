@@ -2149,7 +2149,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			return;
 		}
 		var nodeCount = YAHOO.widget.TreeView.nodeCount;
-	
+		//add by yguo. fix bug clone node then browseForeignKey. the value of node equals siblingNode's value.
+		siblingNode.itemData.value = "";
 		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,false,true,isReadOnlyinItem);
 		
 		newNode.updateNodeId(nodeCount);
