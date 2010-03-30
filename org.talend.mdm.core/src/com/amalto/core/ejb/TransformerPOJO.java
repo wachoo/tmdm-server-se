@@ -192,16 +192,18 @@ public class TransformerPOJO extends ObjectPOJO{
 	    	transformerV1.setDescription(transformerV2.getDescription());
 	    	transformerV1.setName(transformerV2.getName());
 	    	ArrayList<TransformerPluginSpec> specs = new ArrayList<TransformerPluginSpec>();
-	    	for (Iterator<TransformerProcessStep> iter = transformerV2.getProcessSteps().iterator(); iter.hasNext(); ) {
-				TransformerProcessStep processStep = iter.next();
-				TransformerPluginSpec spec = new TransformerPluginSpec();
-				spec.setDescription(processStep.getDescription());
-				spec.setParameters(processStep.getParameters());
-				spec.setPluginJNDI(processStep.getPluginJNDI());
-				spec.setInput(processStep.getInputMappings().get(0).getPipelineVariable());
-				spec.setOutput(processStep.getOutputMappings().get(0).getPipelineVariable());
-				specs.add(spec);
-			}
+	    	if(transformerV2.getProcessSteps()!=null) {
+	    		for (Iterator<TransformerProcessStep> iter = transformerV2.getProcessSteps().iterator(); iter.hasNext(); ) {
+					TransformerProcessStep processStep = iter.next();
+					TransformerPluginSpec spec = new TransformerPluginSpec();
+					spec.setDescription(processStep.getDescription());
+					spec.setParameters(processStep.getParameters());
+					spec.setPluginJNDI(processStep.getPluginJNDI());
+					spec.setInput(processStep.getInputMappings().get(0).getPipelineVariable());
+					spec.setOutput(processStep.getOutputMappings().get(0).getPipelineVariable());
+					specs.add(spec);
+				}
+	    	}
 	    	transformerV1.setPluginSpecs(specs);
 	    	return transformerV1;
 	    }
