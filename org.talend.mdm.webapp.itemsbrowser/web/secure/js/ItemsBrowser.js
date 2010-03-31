@@ -2964,7 +2964,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var node = itemTree.getNodeByIndex(nodeId);
 		var keyValue = node.itemData.value;
 		
-		if(keyValue.match(/\[(.*?)\]/g)!=null){
+		if(keyValue != null && keyValue.match(/\[(.*?)\]/g)!=null){
 		     var result = new Array();
 			 var aggregate = 0;
 			 var cordon = 0;
