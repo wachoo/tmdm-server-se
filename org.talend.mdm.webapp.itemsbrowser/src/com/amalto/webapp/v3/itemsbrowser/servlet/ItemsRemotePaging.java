@@ -12,23 +12,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.directwebremoting.WebContext;
+import org.directwebremoting.WebContextFactory;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSViewSearch;
-import com.amalto.webapp.util.webservices.WSWhereAnd;
-import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
-import com.amalto.webapp.util.webservices.WSWhereOperator;
-import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.v3.itemsbrowser.bean.View;
 
 /**
@@ -195,6 +192,7 @@ public class ItemsRemotePaging  extends HttpServlet{
 					"doPost() starting to build json object");
 			json.put("TotalCount",totalCount);
 			ArrayList<JSONObject> rows = new ArrayList<JSONObject>();
+			boolean isEnterprise=com.amalto.core.util.Util.isEnterprise();
 			for(int i=skip;i<(max+skip);i++){
 				int index= i-skip;
 				if(index > itemsBrowserContent.size()-1 ) break;
@@ -202,7 +200,20 @@ public class ItemsRemotePaging  extends HttpServlet{
 				for (int j = 0; j < itemsBrowserContent.get(index).length; j++) {
 					fields.put("/"+view.getViewables()[j],itemsBrowserContent.get(index)[j]);
 				}
-				rows.add(fields);
+				//filter according to item security
+				boolean isvisible=true;
+				if(isEnterprise) {
+					WebContext ctx = WebContextFactory.get();
+					String[] keyfields=(String[])ctx.getSession().getAttribute("foreignKeys");
+					String[] key=new String[keyfields.length];
+					for(int j=0; j<keyfields.length; j++) {
+						key[j]=fields.get(keyfields[j])!=null?fields.get(keyfields[j]).toString():"";
+					}
+					ItemPOJOPK itempk=new ItemPOJOPK(new DataClusterPOJOPK(config.getCluster()),concept,key);
+					isvisible=com.amalto.core.util.Util.isItemCanVisible(itempk);
+				}
+				if(isvisible)
+					rows.add(fields);
 			}			
 			json.put("items",rows);
 			//aiming add 'success' to let the search result can display after get the results

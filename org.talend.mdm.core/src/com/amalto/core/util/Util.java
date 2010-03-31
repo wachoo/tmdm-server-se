@@ -3008,7 +3008,6 @@ public  class Util {
 	}
 
 	public static boolean isItemCanVisible(ItemPOJOPK itempk)throws XtentisException {
-		if(!isEnterprise()) return true;
 		return LocalUser.getLocalUser().userItemCanRead(itempk)||LocalUser.getLocalUser().userItemCanWrite(itempk, itempk.getDataClusterPOJOPK().getUniqueId(), itempk.getConceptName());
 	}
 	/*********************************************************************
