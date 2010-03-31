@@ -203,8 +203,7 @@ public class ItemsRemotePaging  extends HttpServlet{
 				//filter according to item security
 				boolean isvisible=true;
 				if(isEnterprise) {
-					WebContext ctx = WebContextFactory.get();
-					String[] keyfields=(String[])ctx.getSession().getAttribute("foreignKeys");
+					String[] keyfields=(String[])request.getSession().getAttribute("foreignKeys");
 					String[] key=new String[keyfields.length];
 					for(int j=0; j<keyfields.length; j++) {
 						key[j]=fields.get(keyfields[j])!=null?fields.get(keyfields[j]).toString():"";
