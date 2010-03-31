@@ -1690,8 +1690,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			if(wsPutItem.getIsUpdate()){
 				if(itemKeyValues.length>0){
 					//check if only update the key ,do nothing see 0012169
-					if(Util.isOnlyUpdateKey(root, concept, conceptKey, itemKeyValues)) 
-						return null;
+//					if(Util.isOnlyUpdateKey(root, concept, conceptKey, itemKeyValues)) 
+//						return null;
 					ItemPOJO pj=new ItemPOJO(
 							dcpk,
 							concept,
@@ -1706,11 +1706,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 						Node old=pj.getProjection();
 						Node newNode=root;					
 						HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
-						if("sequence".equals(Util.getConceptModelType(concept, dataModel.getSchema()))) { //if the concept is sequence
-							//update the  Node according to schema to keep the sequence as the same with the schema
-							old=Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
-						}
 						if(updatedPath.size()>0){
+							if("sequence".equals(Util.getConceptModelType(concept, dataModel.getSchema()))) { //if the concept is sequence
+								//update the  Node according to schema to keep the sequence as the same with the schema
+								old=Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
+							}
 	   						old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
 	   						projection=Util.getXMLStringFromNode(old);
 						}else {//if no update, return see 0012116
