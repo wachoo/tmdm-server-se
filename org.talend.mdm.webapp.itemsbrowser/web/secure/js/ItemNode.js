@@ -140,7 +140,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				
 				foreignKeyImg += ''+
 						'<span style="cursor: pointer;" ' +
-						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.value+'\')" >' +
+						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+treeIndex+'\')" >' +
 						' <img src="img/genericUI/magnifier.gif"/></span>';
 				var fkDataObject =  itemData.foreignKey.split("/")[0];
 				foreignKeyImg += '' +
