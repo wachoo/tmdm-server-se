@@ -780,7 +780,7 @@ public class ItemsBrowserDWR {
 		}
 	}
 	
-    public boolean validateItem(int docIndex) throws TransformerException
+    public String validateItem(int docIndex) throws TransformerException
     {
 		WebContext ctx = WebContextFactory.get();
 		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
@@ -810,11 +810,12 @@ public class ItemsBrowserDWR {
 		} catch (Exception e) {
 	    	String prefix = "Unable to create/update the item " + ": ";
             String err = prefix +e.getClass().getName()+": "+e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-            throw new TransformerException(e.getLocalizedMessage());
+            //org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+            //throw new TransformerException(e.getLocalizedMessage());
+            return err;
 		}
 		
-		return true;
+		return "";
     }
     
 	public String updateNode(int id, String content, int docIndex) throws TransformerException{
@@ -1246,9 +1247,10 @@ public class ItemsBrowserDWR {
 			return "OK";
 		}
 		catch(Exception e){			
-			String err= "Unable to save item '"+concept+"."+Util.joinStrings(ids, ".")+"'";
-			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).error(err,e);
-			throw e;
+			String err= "Unable to save item '"+concept+"."+Util.joinStrings(ids, ".")+"'"+e.getLocalizedMessage();
+			//org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).error(err,e);
+			//throw e;
+			return err;
 		}finally {
 			//clear ctx see 0011689: problem with beforeSaving Process 
 			synchronizeUpdateState(ctx);			

@@ -2038,11 +2038,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			ItemsBrowserInterface.validateItem(treeIndex, {
 				
 				callback:function(result){ 
-				
-			    },
-				errorHandler:function(errorString, exception) {//on exception
-			    	showExceptionMsg(errorString, exception, treeIndex);
-	            }
+					if(result!=""){
+						showExceptionMsg(result, null, treeIndex);
+					}
+			    }
 			});
 		}
 		
@@ -2486,20 +2485,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				}else if(result.indexOf('ERROR_3:')==0){
 					//add for before saving transformer check
                     amalto.core.ready(result.substring(8));
-                   Ext.MessageBox.alert("Status",result.substring(8));
+                    Ext.MessageBox.alert("Status",result.substring(8));
+                }else if(result.indexOf('Unable to save item')==0){
+                	amalto.core.ready();
+    				tbDetail.items.get('saveBTN').enable();
+    				tbDetail.items.get('saveAndQBTN').enable();
+    				showExceptionMsg(result, null, treeIndex);
                 }else{
 			       if(callbackOnSuccess)callbackOnSuccess();   
 				}
 				amalto.core.ready();
 				tbDetail.items.get('saveBTN').enable();
 				tbDetail.items.get('saveAndQBTN').enable();
-			},
-			errorHandler:function(errorString, exception) {//on exception
-				amalto.core.ready();
-				tbDetail.items.get('saveBTN').enable();
-				tbDetail.items.get('saveAndQBTN').enable();
-				showExceptionMsg(errorString, exception, treeIndex);
-            }
+			}
         });
 	}
 	
