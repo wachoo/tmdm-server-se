@@ -192,7 +192,7 @@ public class ItemsRemotePaging  extends HttpServlet{
 					"doPost() starting to build json object");
 			json.put("TotalCount",totalCount);
 			ArrayList<JSONObject> rows = new ArrayList<JSONObject>();
-			boolean isEnterprise=com.amalto.core.util.Util.isEnterprise();
+
 			for(int i=skip;i<(max+skip);i++){
 				int index= i-skip;
 				if(index > itemsBrowserContent.size()-1 ) break;
@@ -200,19 +200,7 @@ public class ItemsRemotePaging  extends HttpServlet{
 				for (int j = 0; j < itemsBrowserContent.get(index).length; j++) {
 					fields.put("/"+view.getViewables()[j],itemsBrowserContent.get(index)[j]);
 				}
-				//filter according to item security
-				boolean isvisible=true;
-				if(isEnterprise) {
-					String[] keyfields=(String[])request.getSession().getAttribute("foreignKeys");
-					String[] key=new String[keyfields.length];
-					for(int j=0; j<keyfields.length; j++) {
-						key[j]=fields.get(keyfields[j])!=null?fields.get(keyfields[j]).toString():"";
-					}
-					ItemPOJOPK itempk=new ItemPOJOPK(new DataClusterPOJOPK(config.getCluster()),concept,key);
-					isvisible=com.amalto.core.util.Util.isItemCanVisible(itempk);
-				}
-				if(isvisible)
-					rows.add(fields);
+				rows.add(fields);
 			}			
 			json.put("items",rows);
 			//aiming add 'success' to let the search result can display after get the results

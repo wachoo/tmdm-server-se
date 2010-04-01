@@ -1566,7 +1566,6 @@ public class ItemsBrowserDWR {
 			//add (?i) to incasesensitive
 			//parse the results - each result contains the xPathInfo values, followed by the keys
 			//the first row is totalCount
-			boolean isEnterprise=com.amalto.core.util.Util.isEnterprise();
 			for (int i = 0; i < results.length; i++) {
 				//process no infos case
 				if(!results[i].startsWith("<result>")){
@@ -1601,29 +1600,11 @@ public class ItemsBrowserDWR {
 				
 				if((keys.equals("[]")||keys.equals(""))&&(infos.equals("")||infos.equals("[]"))){
 					//empty row
-				}else{
-					//filter according to item security see 0012062
-					boolean isvisible=true;
-					if(isEnterprise){
-						Matcher m=Pattern.compile("\\[(.*?)\\]").matcher(keys);
-						List<String> key=new ArrayList<String>();
-						while(m.find()){
-							key.add(m.group(1));
-						}
-						ItemPOJOPK itempk=new ItemPOJOPK(new DataClusterPOJOPK(config.getCluster()),conceptName,key.toArray(new String[key.size()]));
-						try{
-							isvisible=LocalUser.getLocalUser().userItemCanRead(itempk)||LocalUser.getLocalUser().userItemCanWrite(itempk, itempk.getDataClusterPOJOPK().getUniqueId(), itempk.getConceptName());;
-						}catch(Exception e){
-							isvisible=false;
-						}
-					}
-					if(isvisible){
-						JSONObject row = new JSONObject();		
-						row.put("keys", keys);
-						row.put("infos", infos);
-						rows.put(row);
-					}
-
+				}else{				
+					JSONObject row = new JSONObject();		
+					row.put("keys", keys);
+					row.put("infos", infos);
+					rows.put(row);
 				}
 			}
 			//edit by ymli; fix the bug:0011918: set the pageSize correctly.
