@@ -1162,8 +1162,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 		store.on("loadexception",function(obj, options, response, e) {
 	        //alert('Exception occurred while loading item list! ');
-			Ext.MessageBox.alert("Warning", response.responseText);
-			//alert(response.responseText);
+			if(response.responseText.indexOf("Data Container can't be empty!") >-1)
+				Ext.MessageBox.alert("Warning", response.responseText);
+			else
+				Ext.MessageBox.alert("Error",'Exception occurred while loading item list! ');
+
 	    });
 		    
 		var grid = new Ext.grid.GridPanel({
