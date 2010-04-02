@@ -74,7 +74,12 @@ public class ItemsRemotePaging  extends HttpServlet{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
+		if(config.getCluster()==null || config.getCluster().trim().length()==0){
+			PrintWriter writer = response.getWriter();
+	        writer.write("Data Container can't be empty!");
+	        writer.close();			
+			throw new ServletException("Data Container can't be empty!");
+		}
 		String start = request.getParameter("start");
 		String limit = request.getParameter("limit");
 		String sortCol= null;

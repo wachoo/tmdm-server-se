@@ -1161,7 +1161,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		    });
 		
 		store.on("loadexception",function(obj, options, response, e) {
-	        alert('Exception occurred while loading item list! ');
+	        //alert('Exception occurred while loading item list! ');
+			Ext.MessageBox.alert("Warning", response.responseText);
+			//alert(response.responseText);
 	    });
 		    
 		var grid = new Ext.grid.GridPanel({
