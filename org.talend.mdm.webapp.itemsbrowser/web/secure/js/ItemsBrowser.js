@@ -484,7 +484,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var _exception = true;
 	var lineMax = 20;
 	
-	var conceptNameSelect = "";
+	//var conceptNameSelect = "";
 	var isReadOnlyinItem = false;
 	
 	var foreignKeyFields = [];
@@ -580,7 +580,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	function getViewItems(){
 		var viewName = DWRUtil.getValue('viewItemsSelect');
-		conceptNameSelect =  viewName.replace("Browse_items_","");
+		//conceptNameSelect =  viewName.replace("Browse_items_","");
 		amalto.core.working();
 		if(viewName!=LABEL_SELECT_DATAOBJECT[language]){	
 			ItemsBrowserInterface.getView(getViewItemsCB,viewName, language);
@@ -1742,7 +1742,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				if(isDuplicate){
 					itempk=null;
 				}
-				ItemsBrowserInterface.isReadOnlyinItem(conceptNameSelect,itempk, function(result){
+				
+				/*if(conceptNameSelect =="")
+				    conceptNameSelect = dataObject;*/
+				ItemsBrowserInterface.isReadOnlyinItem(dataObject,itempk, function(result){
 					isReadOnlyinItem=result;
 				});
     			if(dataObject==null) dataObject=_dataObject;	
