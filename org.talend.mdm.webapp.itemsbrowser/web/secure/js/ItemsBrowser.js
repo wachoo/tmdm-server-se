@@ -1484,7 +1484,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {id:'saveBTN', iconCls:'save',tooltip:SAVE_TOOLTIP[language],text: BUTTON_SAVE[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemHandler});
+			toolbar.addButton( {id:'saveBTN', disabled : isReadOnlyinItem, iconCls:'save',tooltip:SAVE_TOOLTIP[language],text: BUTTON_SAVE[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemHandler});
 			nbButtons++;
 		}
 	
@@ -1497,7 +1497,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {id:'saveAndQBTN', iconCls:'saveAndQ',tooltip:SAVEANDCLOSE_TOOLTIP[language],text: BUTTON_SAVE_AND_QUIT[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemAndQuitHandler});
+			toolbar.addButton( {id:'saveAndQBTN', disabled : isReadOnlyinItem, iconCls:'saveAndQ',tooltip:SAVEANDCLOSE_TOOLTIP[language],text: BUTTON_SAVE_AND_QUIT[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemAndQuitHandler});
 			nbButtons++;
 		}
 		
@@ -1534,6 +1534,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				xtype : 'tbsplit',
 				text: BUTTON_LOGICAL_DEL[language],
 				iconCls : 'sendTrash',
+				disabled : isReadOnlyinItem,
 				menu : {
 					items : [logicalDelBTN, deleteBTN]
 				},

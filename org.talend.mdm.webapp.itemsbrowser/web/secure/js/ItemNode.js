@@ -166,7 +166,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			typeStatus = value.length<70 ||(itemData.typeName=="PICTURE")||(itemData.typeName=="URL")
 
 			// select list
-			if(itemData.readOnly==false && itemData.enumeration.length!=0) {
+			if((itemData.readOnly == false && !isReadOnlyinItem) && itemData.enumeration.length!=0) {
 					var options = '<option value=""></option>';
 					for(var k=0; k<itemData.enumeration.length; k++) {
 						if(itemData.enumeration[k]==itemData.value) var selected = "selected";
@@ -177,7 +177,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						'<select onchange="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');" id="'+itemData.nodeId+'Value">' +
 						options+
 						'</select>';
-			}else if(itemData.readOnly==true && itemData.enumeration.length>0){
+			}else if((itemData.readOnly == true || isReadOnlyinItem) && itemData.enumeration.length>0){
                     var options = '<option value=""></option>';
                     var initIndex=0;
                     for(var k=0; k<itemData.enumeration.length; k++) {
@@ -220,7 +220,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				html[html.length] = input;
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
-				if(itemData.readOnly==false||tmpStatus)
+				if((itemData.readOnly == false && !isReadOnlyinItem) || tmpStatus)
 			   			html[html.length]  = '<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\')"><img src="img/genericUI/date-picker.gif"/></span>'+'</div>';
 			}else if(itemData.typeName!=null&&(itemData.typeName=="PICTURE")){//PICTURE
 				   html[html.length] = input;
@@ -233,7 +233,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					//remove picture
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
-				if(itemData.readOnly==false||tmpStatus){
+				if((itemData.readOnly == false && !isReadOnlyinItem) ||tmpStatus){
 					html[html.length]='<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removePicture(\''+itemData.nodeId+'\','+treeIndex+')">' +
 					'<img alt="Remove the picture" src="img/genericUI/clear-icon.gif"/></span>';									
 				    html[html.length] ='<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showUploadFile(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\')"><img alt="Select a picture" src="img/genericUI/image_add.png"/></span>'+'</div>';
