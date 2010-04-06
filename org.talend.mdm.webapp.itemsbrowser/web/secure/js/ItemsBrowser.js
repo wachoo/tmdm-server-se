@@ -2785,7 +2785,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 
     uploadFileWindow = new Ext.Window({
         title: UPLOAD_FILE[language],
-        width: 320,
+        width: 340,
         height:120,
         layout: 'fit',
         plain:true,
@@ -2820,7 +2820,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             }
         }]    
     });
-
+    
     uploadFileWindow.show();
 	}
 	var panel;
