@@ -369,7 +369,12 @@ public class ItemsBrowserDWR {
 		TreeNode treeNode = new TreeNode();    		
 		treeNode.setChoice(choice);
 		String xpath = idToXpath.get(id)+"/"+xsp.getTerm().asElementDecl().getName();
-		
+		//aiming modify see 9642 some node's parent is null
+		String parentxpath=idToXpath.get(id).replaceAll("\\[.*?\\]", ""); //parent xpath maybe A.fileds[1]
+		if(xpathToTreeNode.containsKey(parentxpath)) {
+			treeNode.setParent(xpathToTreeNode.get(parentxpath));
+		}
+		//end
 		if(xpathToTreeNode.containsKey(idToXpath.get(id)))
 			treeNode.setParent(xpathToTreeNode.get(idToXpath.get(id)));
 		
