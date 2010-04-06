@@ -2346,7 +2346,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					amalto.core.ready(result);
 				});
 		
-		//itemTree.getRoot().refresh();
+		itemTree.getRoot().refresh();
 		//add by ymli. set the values of nodes
 		for(var t=0;t<values.length;t++){
 			var value = values[t];
