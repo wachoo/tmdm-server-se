@@ -1953,8 +1953,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			//case edit and no editable
     			if(rootNode.readOnly==false && newItem[treeIndex]==false) {
     				tbDetail.baseOptions |= O_DELETE|O_LOGICAL_DEL|O_DUPLICATE|O_JOURNAL|O_ACTION|O_REFRESH;	
-    			}		
-    	
+    				
+    			}
+    			//add by ymli; fix the bug:0012534
+    			else
+    	           tbDetail.baseOptions |=O_ACTION;
+    			
     			//add for duplicate case
 				if(isDuplicate){
 					ItemsBrowserInterface.setTree(dataObject, itemPK2, node1.index, false, treeIndex, function(result){
