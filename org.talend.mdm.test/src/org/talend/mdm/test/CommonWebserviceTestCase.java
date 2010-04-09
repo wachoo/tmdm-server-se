@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import urn_com_amalto_xtentis_webservice.WSComponent;
 import urn_com_amalto_xtentis_webservice.WSDataClusterPK;
 import urn_com_amalto_xtentis_webservice.WSDataModelPK;
+import urn_com_amalto_xtentis_webservice.WSDropItem;
 import urn_com_amalto_xtentis_webservice.WSDroppedItem;
 import urn_com_amalto_xtentis_webservice.WSDroppedItemPK;
 import urn_com_amalto_xtentis_webservice.WSFindAllDroppedItemsPKs;
@@ -78,7 +79,7 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 		WSRunQuery wsRunQuery = new WSRunQuery();
 		wsRunQuery.setWsDataClusterPK(new WSDataClusterPK("Order"));
 		wsRunQuery
-				.setQuery("for $pivot0 in collection('Order')/ii/p/Student/id order by $pivot0/../age ascending return $pivot0");
+				.setQuery("for $pivot0 in collection('Order')/ii/p/Country/id order by $pivot0/../age ascending return $pivot0");
 		try {
 			String[] returnValues = defaultPort.runQuery(wsRunQuery);
 			for (int i = 0; i < returnValues.length; i++) {
@@ -122,14 +123,26 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 
 	public void testLoadDroppedItem() {
 		try {
-			WSFindAllDroppedItemsPKs regex = new WSFindAllDroppedItemsPKs();
-			regex.setRegex("*");
-
-			WSDroppedItemPK[] wsDroppedItemPKArray = defaultPort
-					.findAllDroppedItemsPKs(regex);
-
+			String xmlString="<Country><isoCode>62</isoCode><label>label</label><Continent>Continent</Continent></Country>";
+			WSPutItem item=new WSPutItem(new WSDataClusterPK("Order"), xmlString, new WSDataModelPK("Order"), true);
+			defaultPort.putItem(item);
+			WSDropItem wsDropItem=new WSDropItem();
+			wsDropItem.setPartPath("/");
+			WSDroppedItemPK wsDroppedItemPK=new WSDroppedItemPK();
+			wsDroppedItemPK.setPartPath("/");
+			wsDroppedItemPK.setRevisionId("");
+			WSItemPK wsItemPK=new WSItemPK();
+			wsItemPK.setConceptName("Country");
+			String[] ids={"label.62"};
+			wsItemPK.setWsDataClusterPK(new WSDataClusterPK("Order"));
+			wsItemPK.setIds(ids);
+		
+			wsDroppedItemPK.setWsItemPK(wsItemPK);
+			wsDropItem.setWsItemPK(wsItemPK);
+			defaultPort.dropItem(wsDropItem);
+			
 			WSLoadDroppedItem wsLoadDroppedItem = new WSLoadDroppedItem();
-			wsLoadDroppedItem.setWsDroppedItemPK(wsDroppedItemPKArray[0]);
+			wsLoadDroppedItem.setWsDroppedItemPK(wsDroppedItemPK);
 			WSDroppedItem wsDroppedItem = defaultPort
 					.loadDroppedItem(wsLoadDroppedItem);
 			assertNotNull(wsDroppedItem);
@@ -160,14 +173,20 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 	public void testRemoveDroppedItem() {
 		try {
 			WSRemoveDroppedItem wsRemoveDroppedItem = new WSRemoveDroppedItem();
-			WSFindAllDroppedItemsPKs regex = new WSFindAllDroppedItemsPKs();
-			regex.setRegex(".*");
-			WSDroppedItemPK[] wsDroppedItemPKArray = defaultPort
-					.findAllDroppedItemsPKs(regex);
-			wsRemoveDroppedItem.setWsDroppedItemPK(wsDroppedItemPKArray[0]);
-			WSDroppedItemPK wsDroppedItemPK = defaultPort
+			
+			WSDroppedItemPK wsDroppedItemPK=new WSDroppedItemPK(); 
+			wsDroppedItemPK.setPartPath("/");
+			wsDroppedItemPK.setRevisionId("");
+			WSItemPK wsItemPK=new WSItemPK();
+			wsItemPK.setConceptName("Country");
+			String[] ids={"label.62"};
+			wsItemPK.setWsDataClusterPK(new WSDataClusterPK("Order"));
+			wsItemPK.setIds(ids);
+			wsDroppedItemPK.setWsItemPK(wsItemPK);
+			wsRemoveDroppedItem.setWsDroppedItemPK(wsDroppedItemPK);
+			WSDroppedItemPK wsDroppedItemPKReturn = defaultPort
 					.removeDroppedItem(wsRemoveDroppedItem);
-			System.out.println(wsDroppedItemPK.getPartPath());
+			System.out.println(wsDroppedItemPKReturn.getPartPath());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -176,7 +195,7 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 
 	public void testBatchInsert() {
 
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < 10; i++) {
 
 			String xmlString = "<User><id>" + i + "</id><name>Newton" + i
 					+ "</name><country>UK</country><state>new</state></User>";

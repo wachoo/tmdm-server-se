@@ -33,8 +33,10 @@ import urn_com_amalto_xtentis_webservice.WSTransformerPluginV2Details;
 import urn_com_amalto_xtentis_webservice.WSTransformerPluginV2GetConfiguration;
 import urn_com_amalto_xtentis_webservice.WSTransformerPluginV2PutConfiguration;
 import urn_com_amalto_xtentis_webservice.WSTransformerPluginV2SListItem;
+import urn_com_amalto_xtentis_webservice.WSTransformerProcessStep;
 import urn_com_amalto_xtentis_webservice.WSTransformerV2;
 import urn_com_amalto_xtentis_webservice.WSTransformerV2PK;
+import urn_com_amalto_xtentis_webservice.WSTransformerVariablesMapping;
 import urn_com_amalto_xtentis_webservice.WSTypedContent;
 
 public class TransformerWebserviceTestCase extends WebserviceTestCase {
@@ -178,13 +180,52 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 		}
 
 	}
+	public void testPutTransformerV2() {
+		try {
+			WSPutTransformerV2 wsPutTransformerV2 = new WSPutTransformerV2();
+			WSTransformerV2 wsTransformerV2=new WSTransformerV2(); 
+			wsTransformerV2.setDescription("description");
+			wsTransformerV2.setName("name");
+			WSTransformerProcessStep[] processSteps=new WSTransformerProcessStep[1];
+			WSTransformerProcessStep wsTransformerProcessStep0=new WSTransformerProcessStep();
+			wsTransformerProcessStep0.setDescription("description");
+			WSTransformerVariablesMapping[] outputMappings=new WSTransformerVariablesMapping[1];
+			WSTransformerVariablesMapping wsTransformerVariablesMapping=new WSTransformerVariablesMapping();
+			wsTransformerVariablesMapping.setPipelineVariable("pipelineVariable");
+			wsTransformerVariablesMapping.setPluginVariable("pluginVariable");
+			outputMappings[0]=wsTransformerVariablesMapping;
+			wsTransformerProcessStep0.setOutputMappings(outputMappings);
+			WSTransformerVariablesMapping[] inputMappings=new WSTransformerVariablesMapping[1];
+			//WSTransformerVariablesMapping wsTransformerVariablesMapping=new WSTransformerVariablesMapping();
+			wsTransformerVariablesMapping.setPipelineVariable("pipelineVariable");
+			wsTransformerVariablesMapping.setPluginVariable("pluginVariable");
+			WSTypedContent hardCoding = new WSTypedContent();
+			hardCoding.setContentType("contentType");
+			hardCoding.setUrl("url");
+			
+			wsTransformerVariablesMapping.setHardCoding(hardCoding);
+			inputMappings[0]=wsTransformerVariablesMapping;
+			wsTransformerProcessStep0.setInputMappings(inputMappings);
+			wsTransformerProcessStep0.setDisabled(false);
+			wsTransformerProcessStep0.setPluginJNDI("partialupdate");
 
+			processSteps[0]=wsTransformerProcessStep0;
+			wsTransformerV2.setProcessSteps(processSteps);
+			
+			wsPutTransformerV2.setWsTransformerV2(wsTransformerV2);
+			WSTransformerV2PK wsTransformerV2PKReturn = defaultPort
+					.putTransformerV2(wsPutTransformerV2);
+			System.out.println(wsTransformerV2PKReturn);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+
+	}
 	public void testGetTransformerV2() {
 		try {
-			WSGetTransformerV2PKs regex = new WSGetTransformerV2PKs("*");
-			WSTransformerV2PK[] wsTransformerV2PKArray = defaultPort
-					.getTransformerV2PKs(regex);
-			WSTransformerV2PK wsTransformerV2PK = wsTransformerV2PKArray[0];
+			
+			WSTransformerV2PK wsTransformerV2PK = new WSTransformerV2PK(); 
+			wsTransformerV2PK.setPk("name");
 			WSGetTransformerV2 wsGetTransformerV2 = new WSGetTransformerV2(
 					wsTransformerV2PK);
 
@@ -200,10 +241,9 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 	public void testExistsTransformerV2() {
 		try {
 			WSExistsTransformerV2 wsExistsTransformerV2 = new WSExistsTransformerV2();
-			WSGetTransformerV2PKs regex = new WSGetTransformerV2PKs("*");
-			WSTransformerV2PK[] wsTransformerV2PKArray = defaultPort
-					.getTransformerV2PKs(regex);
-			WSTransformerV2PK wsTransformerV2PK = wsTransformerV2PKArray[0];
+			
+			WSTransformerV2PK wsTransformerV2PK = new WSTransformerV2PK(); 
+			wsTransformerV2PK.setPk("name");
 			wsExistsTransformerV2.setWsTransformerV2PK(wsTransformerV2PK);
 			WSBoolean wsBoolean = defaultPort
 					.existsTransformerV2(wsExistsTransformerV2);
@@ -213,27 +253,7 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 		}
 	}
 
-	public void testPutTransformerV2() {
-		try {
-			WSPutTransformerV2 wsPutTransformerV2 = new WSPutTransformerV2();
-			WSGetTransformerV2PKs regex = new WSGetTransformerV2PKs("*");
-			WSTransformerV2PK[] wsTransformerV2PKArray = defaultPort
-					.getTransformerV2PKs(regex);
-			WSTransformerV2PK wsTransformerV2PK = wsTransformerV2PKArray[0];
-			WSGetTransformerV2 wsGetTransformerV2 = new WSGetTransformerV2(
-					wsTransformerV2PK);
 
-			WSTransformerV2 wsTransformerV2 = defaultPort
-					.getTransformerV2(wsGetTransformerV2);
-			wsPutTransformerV2.setWsTransformerV2(wsTransformerV2);
-			WSTransformerV2PK wsTransformerV2PKReturn = defaultPort
-					.putTransformerV2(wsPutTransformerV2);
-			System.out.println(wsTransformerV2PKReturn);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-
-	}
 
 //	// leo 2010年1月29日17:43:44
 //	public void testExecuteTransformerV2(){
