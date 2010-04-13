@@ -2,5 +2,6 @@
 <Root>
 
 <com.amalto.core.migration.tasks.RenameCallTransformerTask/>
+<com.amalto.core.migration.tasks.AddActionInUpdateReportTask/>
 
 </Root>
