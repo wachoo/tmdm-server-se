@@ -1766,7 +1766,13 @@ public class ItemsBrowserDWR {
 			return false;
 		}
 	}
-	
+	public static boolean checkSmartViewExists(String concept, String language) {
+		boolean ret=checkIfTransformerExists(concept, language);
+		if(!ret) {
+			ret=checkIfTransformerExists(concept,null);
+		}
+		return ret;
+	}
 	public boolean checkIfDocumentExists(String[] ids, String concept) throws Exception{
 		Configuration config = Configuration.getInstance();
 		boolean flag=Util.getPort().existsItem(

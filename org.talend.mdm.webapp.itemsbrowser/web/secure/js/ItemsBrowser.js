@@ -1430,7 +1430,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			case M_PERSO_VIEW:
 				options |= O_TREE_VIEW;
 				options |= (toolbar.baseOptions & O_PRINT);
-				options |= (toolbar.baseOptions & O_DELETE);
+				//options |= (toolbar.baseOptions & O_DELETE);
 			break;
 		}
 		
@@ -1903,7 +1903,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     });
                 };
         		
-        		ItemsBrowserInterface.checkIfTransformerExists(dataObject, language, function(result){
+        		ItemsBrowserInterface.checkSmartViewExists(dataObject, language, function(result){
         			
         			var mode = M_TREE_VIEW;
         			//var tb = tabPanel.getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
