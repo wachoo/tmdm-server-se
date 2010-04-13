@@ -158,4 +158,69 @@ public final class UserHelper {
        
        return users;
     }
+    
+    /**
+     * Check if exist the specify user.
+     * @param user
+     * @return
+     */
+    public boolean isExistUser(User user) {
+        boolean result = false;
+        
+        for(User existUser : listUsers()) {
+            if(user.getUserName().equals(existUser.getUserName())) {
+                return true;
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Check if update cluster or model of specify user. 
+     * @param user
+     * @param cluster
+     * @param model
+     * @return
+     */
+    public boolean isUpdateDCDM(User user) {
+        boolean result = false;
+        
+        for(User existUser : listUsers()) {
+            if(user.getUserName().equals(existUser.getUserName())) {
+                String cluster = user.getDynamic().get("cluster");
+                String model = user.getDynamic().get("model");
+                
+                if(cluster == null && model == null) {
+                    return false;
+                }
+                else if(cluster != null && cluster.equals(existUser.getDynamic().get("cluster")) ||
+                   model != null && model.equals(existUser.getDynamic().get("model"))) {
+                   return true;
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Check if update active attribute of specify user.
+     * @param user
+     * @return
+     */
+    public boolean isActiveUser(User user) {
+        boolean result = false;
+        
+        if(!user.isEnabled()) {
+            return false;
+        }
+        
+        for(User existUser : listUsers()) {
+            if(existUser.getUserName().equals(user.getUserName())) {
+                return existUser.isEnabled() != user.isEnabled();
+            }
+        }
+        return result;
+    }
 }
