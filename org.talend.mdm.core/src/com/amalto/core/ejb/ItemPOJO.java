@@ -221,7 +221,7 @@ public class ItemPOJO implements Serializable{
 				throw new XtentisException(err);
 			}
 		}
-		return projectionString;
+		return projectionString.replaceAll("<\\?xml.*?\\?>","");
 	}
 
 	/**
