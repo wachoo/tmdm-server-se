@@ -9,13 +9,15 @@ package com.amalto.core.webservice;
 public class WSLicense {
     protected java.lang.String license;
     protected java.lang.String customerCompany;
+    protected java.lang.String token;
     
     public WSLicense() {
     }
     
-    public WSLicense(java.lang.String license, java.lang.String customerCompany) {
+    public WSLicense(java.lang.String license, java.lang.String customerCompany, java.lang.String token) {
         this.license = license;
         this.customerCompany = customerCompany;
+        this.token = token;
     }
     
     public java.lang.String getLicense() {
@@ -32,5 +34,13 @@ public class WSLicense {
     
     public void setCustomerCompany(java.lang.String customerCompany) {
         this.customerCompany = customerCompany;
+    }
+    
+    public java.lang.String getToken() {
+        return token;
+    }
+    
+    public void setToken(java.lang.String token) {
+        this.token = token;
     }
 }
