@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2009 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package com.amalto.webapp.core.util;
+package com.amalto.webapp.core.util.license;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -19,14 +19,10 @@ import org.apache.commons.codec.binary.Base64;
 import org.talend.commons.model.ProductsMapping;
 import org.talend.commons.model.TalendObject;
 
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSGetItems;
+import com.amalto.core.util.UserHelper;
+import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSLicense;
 import com.amalto.webapp.util.webservices.WSPutLicense;
-import com.amalto.webapp.util.webservices.WSStringPredicate;
-import com.amalto.webapp.util.webservices.WSWhereCondition;
-import com.amalto.webapp.util.webservices.WSWhereItem;
-import com.amalto.webapp.util.webservices.WSWhereOperator;
 
 
 /**
@@ -96,6 +92,7 @@ public final class LicenseUtil {
           if(license!=null) {
 	          String customerName = licensep.getCustomerCompany();
 	          byte[] licenseb = Base64.decodeBase64(license.getBytes());
+	          token = licensep.getToken();
 	          
 	          this.init(licenseb, customerName);
           }
@@ -118,16 +115,58 @@ public final class LicenseUtil {
     private LicenseZone licenseZone;
 
     private LicenseMode licenseMode;
+    
+    private String token;
+    
+    private int adminUsers;
+    
+    public int getAdminUsers() {
+      return adminUsers;
+   }
 
-    public boolean init(byte[] licenseb, String newCompanyName) {
+   public void setAdminUsers(int adminUsers) {
+      this.adminUsers = adminUsers;
+   }
+
+   public int getInteractiveUsers() {
+      return interactiveUsers;
+   }
+
+   public void setInteractiveUsers(int interactiveUsers) {
+      this.interactiveUsers = interactiveUsers;
+   }
+
+   public int getViewers() {
+      return viewers;
+   }
+
+   public void setViewers(int viewers) {
+      this.viewers = viewers;
+   }
+
+   private int interactiveUsers;
+    
+    private int viewers;
+    
+    public String getToken() {
+      return token;
+   }
+
+   public void setToken(String token) {
+      this.token = token;
+   }
+
+   public boolean init(byte[] licenseb, String newCompanyName) {
         if (licenseb == null) {
             return false;
         }
+        
         String license = new String(Base64.encodeBase64(licenseb));
         boolean result = false;
+        
         try {
             TalendObject t = new TalendObject(license, newCompanyName);
-
+            t.isAvailable("mdm");
             companyName = t.companyName;
             nbUser = t.nbUser;
             licenseDate = t.licenseDate;
@@ -135,10 +174,16 @@ public final class LicenseUtil {
             licenseZone = LicenseZone.getZone(t.licenseZone);
             licenseMode = LicenseMode.getMode(t.licenseMode);
             licenseType = t.licenseType.toString();
+            adminUsers = t.adminUsers;
+            interactiveUsers = t.interactiveUsers;
+            viewers = t.viewers;
+            
             result = true;
-        } catch (Throwable e) {
+        } 
+        catch (Throwable e) {
             resetFields();
         }
+        
         return result;
     }
 
@@ -150,8 +195,16 @@ public final class LicenseUtil {
         licenseZone = null;
         licenseMode = null;
         licenseType = null;
+        adminUsers = 0;
+        interactiveUsers = 0;
+        viewers = 0;
     }
-
+    
+    /**
+     * Set new license.
+     * @param licenseKey
+     * @throws Exception
+     */
     public void setNewLicense(String licenseKey) throws Exception {
         if (licenseKey == null || licenseKey.length() == 0) {
             throw new Exception("license.error.invalid");
@@ -179,7 +232,11 @@ public final class LicenseUtil {
         putLicense.setWsLicense(wsLicense);
         Util.getPort().putLicense(putLicense);
     }
-
+    
+    /**
+     * the date is validated.
+     * @return
+     */
     public boolean isLicenseDateValid() {
         if (licenseDate == null)
             return false;
@@ -252,34 +309,102 @@ public final class LicenseUtil {
         return licenseType;
     }
     
+    /**
+     * Get the number of all available users.
+     * @return
+     */
     public int getAvailableUsers() {
        final int countActiveUsers = getActiveUsers();
        final int nbUser2 = getNbUser();
+       
        if (getLicenseMode() == LicenseMode.NAMED) {
            return nbUser2 - countActiveUsers;
        } else {
            return 1;
        }
+    }
+    
+    /**
+     * get viewer users.
+     * @return
+     */
+    public int getViewerUsers() {
+       return UserHelper.getInstance().getViewerUsers();
+    }
+    
+    /**
+     * get the number of normal users.
+     * @return
+     */
+    public int getNormalUsers() {
+       return UserHelper.getInstance().getNormalUsers();
+    }
+    
+    /**
+     * Get the number of admin users.
+     * @return
+     */
+    public int getNBAdminUsers() {
+       return UserHelper.getInstance().getNBAdminUsers();
+    }
+    
+    /**
+     * Get the number of active users.
+     * @return
+     */
+    public int getActiveUsers() {
+       return UserHelper.getInstance().getActiveUsers();
+    }
+    
+    /**
+     * DOC stephane Comment method "setNewToken".
+     * 
+     * @param token
+     * @throws Exception
+     */
+    public void setNewToken(String token) throws Exception {
+        if (token == null || token.length() == 0) {
+            throw new Exception("license.tokeninvalid");
+        }
+
+        try {
+            new TokenReader().readToken(token.getBytes());
+        } catch (Exception e) {
+            throw e;
+        }
+        
+        WSPutLicense putLicense = new WSPutLicense();
+        WSLicense licensep = Util.getPort().getLicense();
+        licensep.setToken(token);
+        putLicense.setWsLicense(licensep);
+        Util.getPort().putLicense(putLicense);
+    }
+    
+    /**
+     * check the license.
+     * @throws Exception
+     */
+    public void checkLicense() throws Exception {
+       initLicenseUtil();
+
+       if (companyName == null || companyName.length() < 1) {
+           throw new Exception("license.noLicenseSetted");
+       }
+       
+       if (!LicenseUtil.getInstance().isLicenseDateValid()) {
+           throw new Exception("license.invalidLicenseDate");
+       }
+       
+       isLicenseNumberUserValid();
    }
     
    /**
-    * Get the active users.
+    * number of users validate for license.
+    * @throws Exception
     */
-    public static int getActiveUsers() {
-       String dataclusterPK = "PROVISIONING";
-       String[] results = new String[0];
-       WSWhereCondition condition = new WSWhereCondition("User/enabled", 
-             WSWhereOperator.EQUALS, "yes", WSStringPredicate.NONE, false);
-       WSWhereItem whereItem = new WSWhereItem(condition, null, null);
-       
-       try {
-          results = Util.getPort().getItems(new WSGetItems(
-             new WSDataClusterPK(dataclusterPK), "User", whereItem, 0, 0, Integer.MAX_VALUE)).getStrings();
-       }
-       catch(Exception e) {
-          e.printStackTrace();
-       }
-       
-       return results.length;
-    }
+   public void isLicenseNumberUserValid() throws Exception {
+      if (getAvailableUsers() < 0) {
+          throw new Exception();
+      }
+   } 
 }

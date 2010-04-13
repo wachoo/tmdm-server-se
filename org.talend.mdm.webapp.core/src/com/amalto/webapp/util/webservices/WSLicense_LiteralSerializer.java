@@ -23,6 +23,7 @@ public class WSLicense_LiteralSerializer extends LiteralObjectSerializerBase imp
     private static final QName ns3_string_TYPE_QNAME = SchemaConstants.QNAME_TYPE_STRING;
     private CombinedSerializer ns3_myns3_string__java_lang_String_String_Serializer;
     private static final QName ns1_customerCompany_QNAME = new QName("", "customerCompany");
+    private static final QName ns1_token_QNAME = new QName("", "token");
     
     public WSLicense_LiteralSerializer(QName type, String encodingStyle) {
         this(type, encodingStyle, false);
@@ -63,6 +64,14 @@ public class WSLicense_LiteralSerializer extends LiteralObjectSerializerBase imp
                 instance.setCustomerCompany((java.lang.String)member);
                 reader.nextElementContent();
             }
+            else if (elementName.equals(ns1_token_QNAME)) {
+                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_token_QNAME, reader, context);
+                if (member == null) {
+                    throw new DeserializationException("literal.unexpectedNull");
+                }
+                instance.setToken((java.lang.String)member);
+                reader.nextElementContent();
+            }
             else {
                 throw new DeserializationException("literal.unexpectedElementName", new Object[] { elementName, reader.getName()});
             }
@@ -87,5 +96,9 @@ public class WSLicense_LiteralSerializer extends LiteralObjectSerializerBase imp
             throw new SerializationException("literal.unexpectedNull");
         }
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getCustomerCompany(), ns1_customerCompany_QNAME, null, writer, context);
+        if (instance.getToken() == null) {
+            throw new SerializationException("literal.unexpectedNull");
+        }
+        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getToken(), ns1_token_QNAME, null, writer, context);
     }
 }

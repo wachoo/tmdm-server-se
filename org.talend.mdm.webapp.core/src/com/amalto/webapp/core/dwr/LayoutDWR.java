@@ -12,9 +12,9 @@ import org.w3c.dom.Document;
 
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
-import com.amalto.webapp.core.util.LicenseUtil;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.license.LicenseUtil;
 import com.amalto.webapp.util.webservices.WSLogout;
 
 

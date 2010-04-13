@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2009 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package com.amalto.webapp.core.util;
+package com.amalto.webapp.core.util.license;
 
 import java.util.Calendar;
 import java.util.Date;
