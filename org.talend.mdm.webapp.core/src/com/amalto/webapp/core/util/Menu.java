@@ -194,8 +194,11 @@ public class Menu {
 									 for (int j = 0; j < instances.length; j++) {
 										WSRoleSpecificationInstance instance = instances[j];
 										org.apache.log4j.Logger.getLogger(Menu.class).debug("getMenuIndex() INSTANCE NAME "+instance.getInstanceName());
-										//if (instance.getInstanceName().equals(role)) {
+										try {
 										addMenuEntries(menuIndex, instance);
+										}catch(Exception e) {
+											e.printStackTrace();
+										}
 									}//for instances
 								}//instances=null
 								break;
