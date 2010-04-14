@@ -2383,6 +2383,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		saveItem(ids,dataObject,treeIndex,function(){
 				  //amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 			      refreshCB.call();
+			      amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar().refreshItemHandler();
 					//set isdirty=true
 					var itempanel = amalto.core.getTabPanel().activeTab;
 					if(itempanel){
