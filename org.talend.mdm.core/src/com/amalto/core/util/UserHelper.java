@@ -179,8 +179,6 @@ public final class UserHelper {
     /**
      * Check if update cluster or model of specify user. 
      * @param user
-     * @param cluster
-     * @param model
      * @return
      */
     public boolean isUpdateDCDM(User user) {
@@ -219,6 +217,22 @@ public final class UserHelper {
         for(User existUser : listUsers()) {
             if(existUser.getUserName().equals(user.getUserName())) {
                 return existUser.isEnabled() != user.isEnabled();
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * check is update role of specify user.
+     * @param user
+     * @return
+     */
+    public boolean isUpdateRole(User user) {
+        boolean result = false;
+        
+        for(User existUser : listUsers()) {
+            if(existUser.getUserName().equals(user.getUserName())) {
+                return !existUser.getRoleNames().equals(user.getRoleNames());
             }
         }
         return result;
