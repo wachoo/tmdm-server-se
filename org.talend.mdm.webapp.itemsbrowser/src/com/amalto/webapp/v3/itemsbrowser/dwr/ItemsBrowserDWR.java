@@ -240,7 +240,7 @@ public class ItemsBrowserDWR {
 	
 	
 	public TreeNode getRootNode(String concept, String language) throws RemoteException, Exception{
-		Configuration config = Configuration.getInstance();
+		Configuration config = Configuration.getInstance(true);
 		String dataModelPK = config.getModel();
 		Map<String,XSElementDecl> map = CommonDWR.getConceptMap(dataModelPK);
 		XSElementDecl decl = map.get(concept);
