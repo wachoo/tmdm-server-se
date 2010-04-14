@@ -668,6 +668,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
     	if(titleLabel=='')invalidFields+="'"+amalto.hierarchical.HierarchicalViewLocal.get("Search_Field_Title")+"' ";
     	if(invalidFields!=""){
     		Ext.MessageBox.alert(amalto.hierarchical.HierarchicalViewLocal.get("Messagebox_Error"), amalto.hierarchical.HierarchicalViewLocal.get("Messagebox_Prompt_Begin")+invalidFields+amalto.hierarchical.HierarchicalViewLocal.get("Messagebox_Prompt_End"));
+    		this.hierarchicalTree.getEl().unmask();
 		    return false;
     	}
     	//parse
