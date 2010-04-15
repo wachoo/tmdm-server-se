@@ -120,20 +120,30 @@ public final class LicenseUtil {
     
     private int adminUsers;
     
+    private int installations;
+    
+    public int getInstallations() {
+        return installations;
+    }
+
+    public void setInstallations(int installations) {
+        this.installations = installations;
+    }
+
     public int getAdminUsers() {
-      return adminUsers;
-   }
+        return adminUsers;
+    }
 
-   public void setAdminUsers(int adminUsers) {
-      this.adminUsers = adminUsers;
-   }
+    public void setAdminUsers(int adminUsers) {
+        this.adminUsers = adminUsers;
+    }
 
-   public int getInteractiveUsers() {
-      return interactiveUsers;
-   }
+    public int getInteractiveUsers() {
+        return interactiveUsers;
+    }
 
-   public void setInteractiveUsers(int interactiveUsers) {
-      this.interactiveUsers = interactiveUsers;
+    public void setInteractiveUsers(int interactiveUsers) {
+       this.interactiveUsers = interactiveUsers;
    }
 
    public int getViewers() {
@@ -146,9 +156,9 @@ public final class LicenseUtil {
 
    private int interactiveUsers;
     
-    private int viewers;
+   private int viewers;
     
-    public String getToken() {
+   public String getToken() {
       return token;
    }
 
@@ -177,6 +187,7 @@ public final class LicenseUtil {
             adminUsers = t.adminUsers;
             interactiveUsers = t.interactiveUsers;
             viewers = t.viewers;
+            installations = t.installations;
             
             result = true;
         } 
