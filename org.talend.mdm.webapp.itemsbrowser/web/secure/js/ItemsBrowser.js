@@ -1873,33 +1873,39 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                            wait:true,
                            waitConfig: {interval:200}
                         });
-                    ItemsBrowserInterface.processItem(tbDetail.dataObject, tbDetail.ids, selectedProcess, function(result){
-                       Ext.MessageBox.hide();
-                       if(result){
-                           Ext.MessageBox.alert('Status', "Process done! ");
-                           //FIXME mock refresh
-                           itemTree.removeNode(node1);
-                           node1 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
-                           ItemsBrowserInterface.setTree(dataObject, itemPK2, node1.index, false, treeIndex, function(result){                        	   
-                                node1.setDynamicLoad(fnLoadData,1);
-                                node1.expand();
-                                itemTree.draw();
-                           });
-
-                           //amalto.core.getTabPanel().remove('itemDetailsdiv'+ treeIndex);
-                           //displayItemDetails(itemPK2,dataObject);
-                                                      
-                           var itempanel = amalto.core.getTabPanel().activeTab;
-                           if (itempanel) {
-                           	    //It is already up to date
-                                itempanel.isdirty = false;
+                    ItemsBrowserInterface.processItem(tbDetail.dataObject, tbDetail.ids, selectedProcess, {
+                    	callback:function(result){
+                           Ext.MessageBox.hide();
+                           if(result){
+                               Ext.MessageBox.alert('Status', "Process done! ");
+                               //FIXME mock refresh
+                               itemTree.removeNode(node1);
+                               node1 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
+                               ItemsBrowserInterface.setTree(dataObject, itemPK2, node1.index, false, treeIndex, function(result){                             
+                                    node1.setDynamicLoad(fnLoadData,1);
+                                    node1.expand();
+                                    itemTree.draw();
+                               });
+    
+                               //amalto.core.getTabPanel().remove('itemDetailsdiv'+ treeIndex);
+                               //displayItemDetails(itemPK2,dataObject);
+                                                          
+                               var itempanel = amalto.core.getTabPanel().activeTab;
+                               if (itempanel) {
+                                    //It is already up to date
+                                    itempanel.isdirty = false;
+                               }
+                               
+                               displayItems.call(); 
+                                
+                           }else{
+                           Ext.MessageBox.alert('Status', "Process failed! ");  
                            }
-                           
-                           displayItems.call(); 
-                            
-                       }else{
-                       Ext.MessageBox.alert('Status', "Process failed! ");	
-                       }
+                        },
+                        errorHandler:function(errorString, exception) {  
+                              alert('Error:'+ errorString);
+                              Ext.MessageBox.hide();
+                        }  
                     });
                 };
         		

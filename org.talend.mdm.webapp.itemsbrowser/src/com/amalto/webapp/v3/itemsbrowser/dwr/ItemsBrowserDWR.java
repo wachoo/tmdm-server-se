@@ -2245,6 +2245,11 @@ public class ItemsBrowserDWR {
 				}
 			}
 			//execute
+
+			WSTransformer wsTransformer=
+			Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
+			if (wsTransformer.getPluginSpecs()==null||wsTransformer.getPluginSpecs().length==0)throw new Exception("The Plugin Specs of this process is undefined! ");
+				
 			if (isRunnableTransformerExist) {
 				org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).info(
 						"Executing transformer for " + itemAlias
@@ -2253,17 +2258,24 @@ public class ItemsBrowserDWR {
 						.getPort().executeTransformerV2(wsExecuteTransformerV2)
 						.getPipeline().getPipelineItem();
 			} else {
-				return false;
+				//return false;
+				throw new Exception("The target process is not existed! ");
 			}
 			//store
 			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).info(
 					"Saving update-report for " + itemAlias + "'s action. ");
-			if (!persistentUpdateReport(updateReport, true).equals("OK"))
-				return false;
+			
+			if (!persistentUpdateReport(updateReport, true).equals("OK")) {
+				//return false;
+				throw new Exception("Store Update-Report failed! ");
+			}
+				
 		} catch (Exception e) {
 			String err = "Unable to launch Runnable Process! ";
 			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).error(err,e);
-			throw new Exception(e.getLocalizedMessage());
+			String output=e.getLocalizedMessage();
+			if(e.getLocalizedMessage()==null||e.getLocalizedMessage().equals(""))output=err;
+			throw new Exception(output);
 		}
 		return true;
 
