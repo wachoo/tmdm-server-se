@@ -266,7 +266,7 @@ public class ItemsBrowserDWR {
 	 * @param nodeId the id of the root node in yui tree
 	 * @return an error or succes message
 	 */
-	public String setTree(String concept, String[] ids, int nodeId, boolean foreignKey, int docIndex){
+	public String setTree(String concept, String[] ids, int nodeId, boolean foreignKey, int docIndex, boolean refresh){
         WebContext ctx = WebContextFactory.get();	
 		try {
 
@@ -287,7 +287,7 @@ public class ItemsBrowserDWR {
 				if(foreignKey) ctx.getSession().setAttribute("itemDocumentFK",document);
 				else ctx.getSession().setAttribute("itemDocument"+docIndex,document);
 	        }
-	        else{
+	        else if(!refresh) {
 	        	createItem(concept, docIndex);
 	        }
 			
