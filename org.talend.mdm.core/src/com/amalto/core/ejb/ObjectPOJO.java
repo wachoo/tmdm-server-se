@@ -49,6 +49,7 @@ import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.util.BAMLogger;
+import com.amalto.core.util.LRUCache;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -63,13 +64,14 @@ import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 public abstract class ObjectPOJO implements Serializable{
    
 	/* cached the Object pojos to improve performance*/
-	private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();
+	private static LRUCache<ItemCacheKey, String> cachedPojo;
 	private static  int MAX_CACHE_SIZE=5000;
 	static{
 		String max_cache_size=(String)MDMConfiguration.getConfiguration().get("max_cache_size");
 		if(max_cache_size!=null){
 			MAX_CACHE_SIZE=Integer.valueOf(max_cache_size).intValue();
 		}
+		cachedPojo = new LRUCache<ItemCacheKey, String>(MAX_CACHE_SIZE);
 	}
 	
 	public static String getCluster(Class<? extends ObjectPOJO> objectClass) {
@@ -312,10 +314,8 @@ public abstract class ObjectPOJO implements Serializable{
             String urlid =  objectPOJOPK.getUniqueId();
             String item=null;
             ItemCacheKey key =new ItemCacheKey(revisionID,urlid, getCluster(objectClass));
-            if(cachedPojo.size()==MAX_CACHE_SIZE)cachedPojo.clear();            
-            if(cachedPojo.containsKey(key)){
-            	item=cachedPojo.get(key);            	
-            }else{
+            item=cachedPojo.get(key);       
+            if (item == null) {
             	item = server.getDocumentAsString(revisionID, getCluster(objectClass), urlid, null);
             	//aiming add see 9603 if System Object load faild try to load it from HEAD universe
             	if(!(revisionID==null || revisionID.length()==0) && item == null){
