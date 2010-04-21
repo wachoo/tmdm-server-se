@@ -342,16 +342,17 @@ public abstract class AbstractXtentisResourceAdapter implements ResourceAdapter,
 				((MessageListener) endpoint).onMessage(request);
 			} catch (Exception e) {
 				endpoint.afterDelivery();
-				throw new XtentisConnectorException(
-						"Unable to push a message to save the configuration "+e.getClass().getName()+": "+e.getLocalizedMessage()
-				);
+				//throw new XtentisConnectorException(
+					//	"Unable to push a message to save the configuration "+e.getClass().getName()+": "+e.getLocalizedMessage()
+				//);
 			}
 			endpoint.afterDelivery();
-		}
-		catch (XtentisConnectorException e) { throw e; }
+		}//catch (XtentisConnectorException e) {
+			//throw e; 
+		//}
 		catch (Exception e) {
-			org.apache.log4j.Logger.getLogger(this.getClass()).info("ERROR SYSTRACE: "+e.getClass().getName()+": "+e.getLocalizedMessage(),e);
-			throw new XtentisConnectorException(e.getClass().getName()+": "+e.getLocalizedMessage()); 
+			//org.apache.log4j.Logger.getLogger(this.getClass()).info("ERROR SYSTRACE: "+e.getClass().getName()+": "+e.getLocalizedMessage(),e);
+			//throw new XtentisConnectorException(e.getClass().getName()+": "+e.getLocalizedMessage()); 
 		}
 	}
 
@@ -408,10 +409,10 @@ public abstract class AbstractXtentisResourceAdapter implements ResourceAdapter,
 		}		
 	}
 
-	public MappedRecord stopConnector(MappedRecord recordIn) throws XtentisConnectorException {
+	public MappedRecord stopConnector(MappedRecord recordIn){
 		org.apache.log4j.Logger.getLogger(this.getClass()).trace("stopConnector() ");
-		if (! this.isInSyncWithSavedConfiguration) saveConfiguration();
 		try {
+			if (! this.isInSyncWithSavedConfiguration) saveConfiguration();
 			HashMap<Serializable,Serializable> params = (recordIn == null ? null : (HashMap<Serializable,Serializable>)recordIn.get(RecordFactoryImpl.PARAMS_HASHMAP_IN));
 			MappedRecord response = (new RecordFactoryImpl()).createMappedRecord(RecordFactoryImpl.RECORD_OUT);
 			HashMap<Serializable,Serializable> result = new HashMap<Serializable, Serializable>();
@@ -419,15 +420,16 @@ public abstract class AbstractXtentisResourceAdapter implements ResourceAdapter,
 				result = stopNow(params);
 				response.put(RecordFactoryImpl.STATUS_CODE_OUT, STATUS_OK);
 			} catch (XtentisConnectorException e) {
-				response.put(RecordFactoryImpl.STATUS_CODE_OUT, STATUS_ERROR);
-				result.put("message", e.getLocalizedMessage());
+				//response.put(RecordFactoryImpl.STATUS_CODE_OUT, STATUS_ERROR);
+				//result.put("message", e.getLocalizedMessage());
 			}
 			response.put(RecordFactoryImpl.PARAMS_HASHMAP_OUT, result);
 			return response;			
 		}	catch (Exception e) { 
-			org.apache.log4j.Logger.getLogger(this.getClass()).info("ERROR SYSTRACE: "+e.getClass().getName()+": "+e.getLocalizedMessage(),e);
-			throw new XtentisConnectorException(e.getClass().getName()+": "+e.getLocalizedMessage()); 
+			//org.apache.log4j.Logger.getLogger(this.getClass()).info("ERROR SYSTRACE: "+e.getClass().getName()+": "+e.getLocalizedMessage(),e);
+			//throw new XtentisConnectorException(e.getClass().getName()+": "+e.getLocalizedMessage()); 
 		}
+		return null;
 	}
 	
 	public MappedRecord push(MappedRecord recordIn) throws XtentisConnectorException {
@@ -585,7 +587,7 @@ public abstract class AbstractXtentisResourceAdapter implements ResourceAdapter,
 				stopConnector(null);
 			}
 		} catch (Exception e) {
-			Logger.getLogger(this.getClass()).error("Unable to stop listeners: "+e.getClass().getName()+": "+e.getLocalizedMessage());
+			//Logger.getLogger(this.getClass()).error("Unable to stop listeners: "+e.getClass().getName()+": "+e.getLocalizedMessage());
 		}
 	}
 	
