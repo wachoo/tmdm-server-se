@@ -3241,6 +3241,14 @@ public  class Util {
 			String jbossHomePath=System.getenv("JBOSS_HOME");
 			return jbossHomePath;
 	 }
+	 public static String getJbossDeployDir() {
+			String jbossHomePath=com.amalto.core.util.Util.getAppServerDeployDir();			
+			String jbossHome=new File(jbossHomePath).getAbsolutePath();
+			return jbossHome+File.separator+"server"+File.separator+"default"+File.separator+"deploy";
+	 }
+	 public static String getBarHomeDir() {
+		 return Util.getJbossDeployDir()+File.separator+"barfiles";
+	 }
 	/*********************************************************************
 	 *MAIN
 	 *********************************************************************/	

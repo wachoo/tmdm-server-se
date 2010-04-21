@@ -18,6 +18,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase;
 
 import com.amalto.core.jobox.JobContainer;
+import com.amalto.core.util.Util;
 
 
 /**
@@ -123,11 +124,18 @@ public class UploadFile extends HttpServlet {
                 try {
                 	if(req.getParameter("deployjob")!=null){//deploy job
                 		//tempFile=new File(path+"/"+item.getName());
-                		if(item.getFieldName().endsWith(".zip")) {//zip file
-                			tempFile=new File(JobContainer.getUniqueInstance().getDeployDir()+File.separator+item.getFieldName());
+                		if(item.getName().endsWith(".zip")) {//zip file
+                			tempFile=new File(JobContainer.getUniqueInstance().getDeployDir()+File.separator+item.getName());
                 		}else {//war file
-                			tempFile=new File(path+File.separator+item.getFieldName());
+                			tempFile=new File(path+File.separator+item.getName());
                 		}
+                	}
+                	//bar files
+                	if(item.getName().endsWith(".bar")) {
+                		String barpath=Util.getBarHomeDir();
+                		if(!new File(barpath).exists())
+                		new File(barpath).mkdir();
+                		tempFile=new File(barpath+File.separator+item.getName());
                 	}
                     item.write(tempFile);
                     files.add(tempFile.getAbsolutePath());
