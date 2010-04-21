@@ -6,7 +6,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +37,7 @@ import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.schema.manage.AppinfoSourceHolder;
 import com.amalto.core.schema.manage.AppinfoSourceHolderPK;
 import com.amalto.core.schema.manage.SchemaManager;
+import com.amalto.core.util.LRUCache;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -61,13 +61,14 @@ public class ItemPOJO implements Serializable{
     private Element projection;
     
 	/* cached the Object pojos to improve performance*/
-	private static Hashtable<ItemCacheKey, String> cachedPojo=new Hashtable<ItemCacheKey, String>();	
+	private static LRUCache<ItemCacheKey, String> cachedPojo;
 	private static  int MAX_CACHE_SIZE=5000;
 	static{
 		String max_cache_size=(String)MDMConfiguration.getConfiguration().get("max_cache_size");
 		if(max_cache_size!=null){
 			MAX_CACHE_SIZE=Integer.valueOf(max_cache_size).intValue();
 		}
+		cachedPojo = new LRUCache<ItemCacheKey, String>(MAX_CACHE_SIZE);
 	}
     /**
      * 
@@ -378,13 +379,9 @@ public class ItemPOJO implements Serializable{
             String urlid =getFilename(itemPOJOPK); 
             String item=null;
             ItemCacheKey key =new ItemCacheKey(revisionID,urlid, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
-            //the cache max size is 5000                        
-            if(cachedPojo.size()==MAX_CACHE_SIZE){
-            	cachedPojo.clear();
-            }
-            if(cachedPojo.containsKey(key)){
-            	item=cachedPojo.get(key);
-            }else{
+            
+            item=cachedPojo.get(key);
+            if(item==null) {
             	item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), urlid);
             	if(item!=null)cachedPojo.put(key, item);
             }
