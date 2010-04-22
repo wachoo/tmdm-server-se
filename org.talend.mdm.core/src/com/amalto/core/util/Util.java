@@ -3241,13 +3241,13 @@ public  class Util {
 			String jbossHomePath=System.getenv("JBOSS_HOME");
 			return jbossHomePath;
 	 }
-	 public static String getJbossDeployDir() {
+	 public static String getJbossHomeDir() {
 			String jbossHomePath=com.amalto.core.util.Util.getAppServerDeployDir();			
 			String jbossHome=new File(jbossHomePath).getAbsolutePath();
-			return jbossHome+File.separator+"server"+File.separator+"default"+File.separator+"deploy";
+			return jbossHome;
 	 }
 	 public static String getBarHomeDir() {
-		 return Util.getJbossDeployDir()+File.separator+"barfiles";
+		 return Util.getJbossHomeDir()+File.separator+"barfiles";
 	 }
 	/*********************************************************************
 	 *MAIN

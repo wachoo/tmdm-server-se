@@ -9,20 +9,22 @@ import org.dom4j.io.XMLWriter;
 
 public class SchemaUtil {
 
-	public static String formatXsdSource(String xsdSource) {
+	public static String formatXsdSource(String xmlSource) {
 		try {
 			SAXReader reader = new SAXReader();
-			Document document = reader.read(new StringReader(xsdSource));
+			Document document = reader.read(new StringReader(xmlSource));
 			StringWriter writer = new StringWriter();
 			OutputFormat format = OutputFormat.createPrettyPrint();
 			format.setEncoding("UTF-8");
+			format.setIndentSize(4);
+			format.setSuppressDeclaration(true);
 			XMLWriter xmlwriter = new XMLWriter(writer, format);
 			xmlwriter.write(document);
 			return writer.toString();
 		} catch (Exception e) {
-			e.printStackTrace();
+			
 		}
-		return xsdSource;
+		return xmlSource;
 
 	}
 
