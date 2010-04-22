@@ -50,17 +50,8 @@ public final class UserHelper {
        List<User> viewers = new ArrayList<User>();
        
        for(User user : listUsers()) {
-          boolean isContain = false;
-          
-          for(String role : user.getRoleNames()) {
-             if(XSystemObjects.ROLE_DEFAULT_VIEWER.getName().equals(role)) {
-                isContain = true;
-                break;
-             }
-          }
-          
-          if(isContain) {
-             viewers.add(user);
+          if(user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_VIEWER.getName())) {
+              viewers.add(user); 
           }
        }
        
@@ -75,18 +66,9 @@ public final class UserHelper {
        List<User> normalUsers = new ArrayList<User>();
        
        for(User user : listUsers()) {
-          boolean isContain = false;
-          
-          for(String role : user.getRoleNames()) {
-             if(!XSystemObjects.ROLE_DEFAULT_ADMIN.getName().equals(role) && 
-                     !XSystemObjects.ROLE_DEFAULT_VIEWER.getName().equals(role)) {
-                isContain = true;
-                break;
-             }
-          }
-          
-          if(isContain) {
-             normalUsers.add(user);
+          if(!user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_ADMIN.getName()) && 
+                  !user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_VIEWER.getName())) {
+              normalUsers.add(user);
           }
        }
        
@@ -101,17 +83,8 @@ public final class UserHelper {
        List<User> admins = new ArrayList<User>();
        
        for(User user : listUsers()) {
-          boolean isContain = false;
-
-          for(String role : user.getRoleNames()) {
-             if(XSystemObjects.ROLE_DEFAULT_ADMIN.getName().equals(role)) {
-                isContain = true;
-                break;
-             }
-          }
-                 
-          if(isContain) {
-             admins.add(user);
+          if(user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_ADMIN.getName())) {
+              admins.add(user); 
           }
        }
        
