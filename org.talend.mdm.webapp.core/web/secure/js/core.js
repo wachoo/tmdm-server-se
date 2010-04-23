@@ -608,8 +608,10 @@ amalto.core = function () {
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/></span>";
                         }else if(toCheckMenuID=='crossreferencing.CrossReferencing'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/crossref.png\"/></span>";
-                        }else if(toCheckMenuID.startWith('hierarchical.')){
-                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/hier_view.gif\"/></span>";
+                        }else if(toCheckMenuID=='hierarchical.GroupingHierarchy'){
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/grouping_hier.png\"/></span>";
+                        }else if(toCheckMenuID=='ehierarchical.DerivedHierarchy'){
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/derived_hier.png\"/></span>";
                         }else if(toCheckMenuID=='usersandroles.Users'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/manage_users.png\"/></span>";
                         }else if(toCheckMenuID=='reporting.Reporting'){
@@ -624,6 +626,8 @@ amalto.core = function () {
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/></span>";
                         }else if(toCheckMenuID=='workflowtasks.WorkflowTasks'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/workflowtasks.png\"/></span>";
+                        }else if(toCheckMenuID=='license.License'){
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/license.png\"/></span>";
                         }else{
                         	//default menus icon
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/default.gif\"/></span>";
