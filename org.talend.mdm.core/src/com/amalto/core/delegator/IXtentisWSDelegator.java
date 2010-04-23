@@ -1349,14 +1349,29 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 		 		       
 		 		query+=" return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>";
 	 		}	 		
-	 		org.apache.log4j.Logger.getLogger(this.getClass()).debug(query);
+	    	//Determine Query based on number of results an counts
+	    	String rquery = null;
+	    	int start=wsGetItemPKsByCriteria.getSkip();
+	    	int limit=wsGetItemPKsByCriteria.getMaxItems();
+	    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
+	    	if (subsequence) {	    		
+	    		rquery =
+		    			"let $_leres_ := \n"+query
+		    			+"\n return insert-before(subsequence($_leres_,"+(start+1)+","+limit+"),0,<totalCount>{count($_leres_)}</totalCount>)";
+	    	} else {
+	    		
+	    		rquery =
+		    			"let $_leres_ := \n"+query
+		    			+"\n return insert-before($_leres_,0,<totalCount>{count($_leres_)}</totalCount>)";	    		
+	    	}	 		
+	 		org.apache.log4j.Logger.getLogger(this.getClass()).debug(rquery);
 			
 			DataClusterPOJOPK dcpk =	new DataClusterPOJOPK(dataClusterName);
 			Collection<String> results = 
 				Util.getItemCtrl2Local().runQuery(
 					revisionID,
 					dcpk,
-					query,
+					rquery,
 					null
 				);
 			
@@ -1369,6 +1384,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 		int i=0;
 	 		for (Iterator iter = results.iterator(); iter.hasNext(); ) {
 				String result = (String) iter.next();
+				if(i==0) {
+					res[i++]=new WSItemPKsByCriteriaResponseResults(System.currentTimeMillis(),new WSItemPK(wsGetItemPKsByCriteria.getWsDataClusterPK(),result,null));
+					continue;
+				}
 //				result = _highlightLeft.matcher(result).replaceAll("");
 //				result = _highlightRight.matcher(result).replaceAll("");
 	 			Element r = documentBuilder.parse(new InputSource(new StringReader(result))).getDocumentElement();
