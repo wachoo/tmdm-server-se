@@ -368,6 +368,30 @@ public final class LicenseUtil {
     }
     
     /**
+     * Get the number of active users.
+     * @return
+     */
+    public int getActiveAdmins() {
+       return UserHelper.getInstance().getNBAdminUsers();
+    }
+    
+    /**
+     * Get the number of active users.
+     * @return
+     */
+    public int getActiveNormals() {
+       return UserHelper.getInstance().getNormalUsers();
+    }
+    
+    /**
+     * Get the number of active users.
+     * @return
+     */
+    public int getActiveViewers() {
+       return UserHelper.getInstance().getViewerUsers();
+    }
+    
+    /**
      * DOC stephane Comment method "setNewToken".
      * 
      * @param token
