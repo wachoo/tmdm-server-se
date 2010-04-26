@@ -1,5 +1,6 @@
 package org.talend.mdm.test.benchmark;
 
+import java.io.InputStream;
 import java.rmi.RemoteException;
 
 import org.talend.mdm.commmon.util.time.TimeMeasure;
@@ -7,16 +8,35 @@ import org.talend.mdm.test.WebserviceTestCase;
 
 import urn_com_amalto_xtentis_webservice.WSDataCluster;
 import urn_com_amalto_xtentis_webservice.WSDataClusterPK;
+import urn_com_amalto_xtentis_webservice.WSDataModel;
 import urn_com_amalto_xtentis_webservice.WSDataModelPK;
 import urn_com_amalto_xtentis_webservice.WSDeleteItems;
 import urn_com_amalto_xtentis_webservice.WSGetItems;
 import urn_com_amalto_xtentis_webservice.WSInt;
 import urn_com_amalto_xtentis_webservice.WSPutDataCluster;
+import urn_com_amalto_xtentis_webservice.WSPutDataModel;
 import urn_com_amalto_xtentis_webservice.WSPutItem;
 import urn_com_amalto_xtentis_webservice.WSXPathsSearch;
 
 public class BenchmarkTestCase extends WebserviceTestCase {
 	WSDataModelPK dmpk=new WSDataModelPK("Order");
+	static void init()throws Exception{
+		//create data model
+		InputStream in=ConcurrencyTestCase.class.getResourceAsStream("Order.xsd");
+		byte[] buf=new byte[in.available()];
+		in.read(buf);		
+		String str=new String(buf);		
+		defaultPort.putDataModel(new WSPutDataModel(new WSDataModel("Order", "", str)));
+		in.close();		
+	}
+	static{
+		try {
+			init();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * @param args
 	 */
@@ -89,7 +109,7 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 		}
 	}	
 	public void testPerformance(){
-		int total=5000;//1000,5000,10000
+		int total=1000;//1000,5000,10000
 		PutItemArray(total,200);
 		testSearch(total);
 		testDelete(total);

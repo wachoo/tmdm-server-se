@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" blockDefault="" elementFormDefault="unqualified" finalDefault="">  
+  <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>  
+  <xsd:element abstract="false" name="PurchaseOrder" nillable="false"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+      <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+      <xsd:appinfo source="X_Label_EN">PurchaseOrder</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType mixed="false"> 
+      <xsd:all maxOccurs="1" minOccurs="1"> 
+        <xsd:element maxOccurs="1" minOccurs="0" name="PurchaseOrderId" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">PurchaseOrderId</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="Customer" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Customer</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfo">Customer/Name</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Customer</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="Date" nillable="false" type="xsd:dateTime"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Date</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="ListItems" nillable="false"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">ListItems</xsd:appinfo> 
+          </xsd:annotation>  
+          <xsd:complexType mixed="false"> 
+            <xsd:sequence maxOccurs="1" minOccurs="1"> 
+              <xsd:element maxOccurs="unbounded" minOccurs="0" name="POItem" nillable="false" type="xsd:string"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_ForeignKey">POItem</xsd:appinfo>  
+                  <xsd:appinfo source="X_ForeignKeyInfo">POItem/Title</xsd:appinfo>  
+                  <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                  <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                </xsd:annotation> 
+              </xsd:element> 
+            </xsd:sequence> 
+          </xsd:complexType> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="Shipper" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Shipper</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfo">Shipper/Name</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Shipper</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="PurchaseOrder"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="PurchaseOrderId"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element abstract="false" name="Customer" nillable="false"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Description_EN">Customer</xsd:appinfo>  
+      <xsd:appinfo source="X_Description_FR">Customerrrrr</xsd:appinfo>  
+      <xsd:appinfo source="X_TargetSystem">java:jca/xtentis/connector/jdbc?driverClassName=org.hsqldb.jdbcDriver&amp;url=jdbc:hsqldb:hsql://localhost:1701&amp;username=sa&amp;password=null&amp;actionContent={this}</xsd:appinfo>  
+      <xsd:appinfo source="X_TargetSystem">amalto/local/service/smtp?from=support@talend.com&amp;to=customer@talend.com&amp;subjectprefix=MDM Logging Event</xsd:appinfo>  
+      <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+      <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+      <xsd:appinfo source="X_Label_EN">Customer</xsd:appinfo>  
+      <xsd:appinfo source="X_Workflow">Default_Admin#MyCustomerProcess_2.3#Read-only</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType mixed="false"> 
+      <xsd:all maxOccurs="1" minOccurs="1"> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="id" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">id</xsd:appinfo>  
+            <xsd:appinfo source="X_Workflow">Default_Admin#MyCustomerProcess_2.3#Read-only</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="name" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Description_EN">this is a description test</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">name</xsd:appinfo>  
+            <xsd:appinfo source="X_Workflow">Default_Admin#MyCustomerProcess_2.3#Read-only</xsd:appinfo>  
+            <xsd:appinfo source="X_Facet_EN">Name can not be empty.</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="type" nillable="false"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">type</xsd:appinfo>  
+            <xsd:appinfo source="X_Workflow">Default_Admin#MyCustomerProcess_2.3#Read-only</xsd:appinfo> 
+          </xsd:annotation>  
+          <xsd:simpleType> 
+            <xsd:restriction base="xsd:string"> 
+              <xsd:enumeration value="Type1"/>  
+              <xsd:enumeration value="Type2"/>  
+              <xsd:enumeration value="Type3"/> 
+            </xsd:restriction> 
+          </xsd:simpleType> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="logo" nillable="false" type="PICTURE"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">logo</xsd:appinfo>  
+            <xsd:appinfo source="X_Workflow">Default_Admin#MyCustomerProcess_2.3#Read-only</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="date" nillable="false" type="xsd:date"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">date</xsd:appinfo>  
+            <xsd:appinfo source="X_Workflow">Default_Admin#MyCustomerProcess_2.3#Read-only</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="countryCode" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Country/isoCode</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfo">Country/label</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">countryCode</xsd:appinfo>  
+            <xsd:appinfo source="X_Workflow">Default_Admin#MyCustomerProcess_2.3#Hidden</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="state" nillable="false" type="stateType"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Label_EN">state</xsd:appinfo>  
+            <xsd:appinfo source="X_Workflow">Default_Admin#MyCustomerProcess_2.3#Writable</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="Customer"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="id"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element abstract="false" name="Shipper" nillable="false"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+      <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+      <xsd:appinfo source="X_Label_EN">Shipper</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType mixed="false"> 
+      <xsd:all maxOccurs="1" minOccurs="1"> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="ShipperId" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">ShipperId</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="Name" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Name</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="PerOunceRate" nillable="false"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">PerOunceRate</xsd:appinfo> 
+          </xsd:annotation>  
+          <xsd:simpleType> 
+            <xsd:restriction base="xsd:double"> 
+              <xsd:minInclusive fixed="false" value="0.1"/>  
+              <xsd:maxInclusive fixed="false" value="0.9"/> 
+            </xsd:restriction> 
+          </xsd:simpleType> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="Shipper"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="ShipperId"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element abstract="false" name="POItem" nillable="false"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+      <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+      <xsd:appinfo source="X_Label_EN">POItem</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType mixed="false"> 
+      <xsd:all maxOccurs="1" minOccurs="1"> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="ItemId" nillable="false" type="UUID"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">ItemId</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="Title" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Title</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="Description" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Description</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="PerUnitOunces" nillable="false"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Description_EN">PerUnitOunces is 0 - 20</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">PerUnitOunces</xsd:appinfo> 
+          </xsd:annotation>  
+          <xsd:simpleType> 
+            <xsd:restriction base="xsd:integer"> 
+              <xsd:pattern value="[\-+]?[0-9]+"/>  
+              <xsd:maxInclusive fixed="false" value="20"/> 
+            </xsd:restriction> 
+          </xsd:simpleType> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="Price" nillable="false"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Description_EN">Price is 1 - 10</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Price</xsd:appinfo> 
+          </xsd:annotation>  
+          <xsd:simpleType> 
+            <xsd:restriction base="xsd:integer"> 
+              <xsd:pattern value="[\-+]?[0-9]+"/>  
+              <xsd:minInclusive fixed="false" value="1"/>  
+              <xsd:maxInclusive fixed="false" value="10"/> 
+            </xsd:restriction> 
+          </xsd:simpleType> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="Quantity" nillable="false"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Description_EN">Quantity is 1 - 100</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Quantity</xsd:appinfo> 
+          </xsd:annotation>  
+          <xsd:simpleType> 
+            <xsd:restriction base="xsd:integer"> 
+              <xsd:pattern value="[\-+]?[0-9]+"/>  
+              <xsd:maxInclusive fixed="false" value="100"/>  
+              <xsd:minInclusive fixed="false" value="1"/> 
+            </xsd:restriction> 
+          </xsd:simpleType> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="POItem"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="ItemId"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:simpleType name="AUTO_INCREMENT"> 
+    <xsd:restriction base="xsd:string"/> 
+  </xsd:simpleType>  
+  <xsd:element abstract="false" name="Country" nillable="false"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+      <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+      <xsd:appinfo source="X_Label_EN">Country</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType mixed="false"> 
+      <xsd:all maxOccurs="1" minOccurs="1"> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="isoCode" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">isoCode</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="label" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">label</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="Continent" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Continent</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="Country"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="label"/>  
+      <xsd:field xpath="isoCode"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element abstract="false" name="Organization" nillable="false"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+      <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+      <xsd:appinfo source="X_Label_EN">Organization</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType mixed="false"> 
+      <xsd:sequence maxOccurs="1" minOccurs="1"> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="TypeOrganisation" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">TypeOrganisation</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="DateValidite" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">DateValidite</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="unbounded" minOccurs="1" name="Level1" nillable="false"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Level1</xsd:appinfo> 
+          </xsd:annotation>  
+          <xsd:complexType mixed="false"> 
+            <xsd:sequence maxOccurs="1" minOccurs="1"> 
+              <xsd:element maxOccurs="1" minOccurs="1" name="Nom" nillable="false" type="xsd:string"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                  <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                </xsd:annotation> 
+              </xsd:element>  
+              <xsd:element maxOccurs="1" minOccurs="1" name="Responsable" nillable="false" type="xsd:string"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                  <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                </xsd:annotation> 
+              </xsd:element>  
+              <xsd:element maxOccurs="1" minOccurs="0" name="TypeEntite" nillable="false" type="xsd:string"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                  <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                </xsd:annotation> 
+              </xsd:element>  
+              <xsd:element maxOccurs="unbounded" minOccurs="0" name="Level2" nillable="false"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                  <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                </xsd:annotation>  
+                <xsd:complexType mixed="false"> 
+                  <xsd:sequence maxOccurs="1" minOccurs="1"> 
+                    <xsd:element maxOccurs="1" minOccurs="1" name="Nom" nillable="false" type="xsd:string"> 
+                      <xsd:annotation> 
+                        <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                        <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                      </xsd:annotation> 
+                    </xsd:element>  
+                    <xsd:element maxOccurs="1" minOccurs="1" name="Responsable" nillable="false" type="xsd:string"> 
+                      <xsd:annotation> 
+                        <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                        <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                      </xsd:annotation> 
+                    </xsd:element>  
+                    <xsd:element maxOccurs="1" minOccurs="0" name="TypeEntite" nillable="false" type="xsd:string"> 
+                      <xsd:annotation> 
+                        <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                        <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                      </xsd:annotation> 
+                    </xsd:element>  
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="Level3" nillable="false"> 
+                      <xsd:annotation> 
+                        <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                        <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                      </xsd:annotation>  
+                      <xsd:complexType mixed="false"> 
+                        <xsd:sequence maxOccurs="1" minOccurs="1"> 
+                          <xsd:element maxOccurs="1" minOccurs="1" name="Nom" nillable="false" type="xsd:string"> 
+                            <xsd:annotation> 
+                              <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                              <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                            </xsd:annotation> 
+                          </xsd:element>  
+                          <xsd:element maxOccurs="1" minOccurs="1" name="Responsable" nillable="false" type="xsd:string"> 
+                            <xsd:annotation> 
+                              <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                              <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                            </xsd:annotation> 
+                          </xsd:element>  
+                          <xsd:element maxOccurs="1" minOccurs="0" name="TypeEntite" nillable="false" type="xsd:string"> 
+                            <xsd:annotation> 
+                              <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                              <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                            </xsd:annotation> 
+                          </xsd:element>  
+                          <xsd:element maxOccurs="unbounded" minOccurs="0" name="Level4" nillable="false"> 
+                            <xsd:annotation> 
+                              <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                              <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                            </xsd:annotation>  
+                            <xsd:complexType mixed="false"> 
+                              <xsd:sequence maxOccurs="1" minOccurs="1"> 
+                                <xsd:element maxOccurs="1" minOccurs="1" name="Nom" nillable="false" type="xsd:string"> 
+                                  <xsd:annotation> 
+                                    <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                                    <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                                  </xsd:annotation> 
+                                </xsd:element>  
+                                <xsd:element maxOccurs="1" minOccurs="1" name="Responsable" nillable="false" type="xsd:string"> 
+                                  <xsd:annotation> 
+                                    <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                                    <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                                  </xsd:annotation> 
+                                </xsd:element>  
+                                <xsd:element maxOccurs="1" minOccurs="0" name="TypeEntite" nillable="false" type="xsd:string"> 
+                                  <xsd:annotation> 
+                                    <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+                                    <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo> 
+                                  </xsd:annotation> 
+                                </xsd:element> 
+                              </xsd:sequence> 
+                            </xsd:complexType> 
+                          </xsd:element> 
+                        </xsd:sequence> 
+                      </xsd:complexType> 
+                    </xsd:element> 
+                  </xsd:sequence> 
+                </xsd:complexType> 
+              </xsd:element> 
+            </xsd:sequence> 
+          </xsd:complexType> 
+        </xsd:element> 
+      </xsd:sequence> 
+    </xsd:complexType>  
+    <xsd:unique name="Organization"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="DateValidite"/>  
+      <xsd:field xpath="TypeOrganisation"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:simpleType name="UUID"> 
+    <xsd:restriction base="xsd:string"/> 
+  </xsd:simpleType>  
+  <xsd:simpleType name="PICTURE"> 
+    <xsd:restriction base="xsd:string"/> 
+  </xsd:simpleType>  
+  <xsd:element abstract="false" name="Person" nillable="false"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+      <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+      <xsd:appinfo source="X_Label_EN">Person</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType mixed="false"> 
+      <xsd:all maxOccurs="1" minOccurs="1"> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="id" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">id</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="Name" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Name</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="BusinessUnit" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">BusinessUnit</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfo">BusinessUnit/Name</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">BusinessUnit</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="Country" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Country</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfo">Country/label</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Country</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="Person"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="id"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element abstract="false" name="BusinessUnit" nillable="false"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+      <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+      <xsd:appinfo source="X_Label_EN">BusinessUnit</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType mixed="false"> 
+      <xsd:all maxOccurs="1" minOccurs="1"> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="ID" nillable="false" type="AUTO_INCREMENT"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">ID</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="Name" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Name</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="BusinessUnit"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="ID"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element abstract="false" name="Schematron" nillable="false"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Schematron">&lt;pattern name="A must be greater than B" &gt; &lt;rule context="/"&gt;&lt;assert test="A&gt;B"&gt;&lt;![CDATA[[EN:A must be greater than B]]]&gt;&lt;/assert&gt;&lt;/rule&gt; &lt;rule context="A"&gt;&lt;assert test=".&gt;1000"&gt;&lt;![CDATA[A must be greater than 1000]]&gt;&lt;/assert&gt;&lt;/rule&gt; &lt;rule context="B"&gt;&lt;assert test=".&gt;100"&gt;&lt;![CDATA[B must be greater than 100]]&gt;&lt;/assert&gt;&lt;/rule&gt; &lt;/pattern&gt;</xsd:appinfo>  
+      <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+      <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+      <xsd:appinfo source="X_Label_EN">Schematron</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType mixed="false"> 
+      <xsd:all maxOccurs="1" minOccurs="1"> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="Id" nillable="false" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">Id</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="A" nillable="false" type="xsd:integer"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Facet_EN">A should be a number</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">A</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="B" nillable="false" type="xsd:integer"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Default_User</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Default_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_Label_EN">B</xsd:appinfo>  
+            <xsd:appinfo source="X_Facet_EN">B should be a number</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="Schematron"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="Id"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:simpleType name="CType"> 
+    <xsd:restriction base="xsd:string"> 
+      <xsd:minLength fixed="false" value="5"/>  
+      <xsd:maxLength fixed="false" value="10"/> 
+    </xsd:restriction> 
+  </xsd:simpleType>  
+  <xsd:simpleType name="stateType"> 
+    <xsd:restriction base="xsd:string"> 
+      <xsd:enumeration value="approved"/>  
+      <xsd:enumeration value="unapproved"/> 
+    </xsd:restriction> 
+  </xsd:simpleType> 
+</xsd:schema>
