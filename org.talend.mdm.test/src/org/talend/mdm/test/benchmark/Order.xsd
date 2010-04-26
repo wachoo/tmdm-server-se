@@ -311,7 +311,6 @@
     </xsd:complexType>  
     <xsd:unique name="Country"> 
       <xsd:selector xpath="."/>  
-      <xsd:field xpath="label"/>  
       <xsd:field xpath="isoCode"/> 
     </xsd:unique> 
   </xsd:element>  

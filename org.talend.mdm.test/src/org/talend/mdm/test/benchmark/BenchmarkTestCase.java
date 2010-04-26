@@ -109,7 +109,7 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 		}
 	}	
 	public void testPerformance(){
-		int total=1000;//1000,5000,10000
+		int total=200;//1000,5000,10000
 		PutItemArray(total,200);
 		testSearch(total);
 		testDelete(total);
