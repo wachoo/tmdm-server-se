@@ -109,7 +109,7 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 		}
 	}	
 	public void testPerformance(){
-		int total=200;//1000,5000,10000
+		int total=500000;//1000,5000,10000
 		PutItemArray(total,200);
 		testSearch(total);
 		testDelete(total);
@@ -138,14 +138,8 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 			e.printStackTrace();
 		}
 	}
-	private void PutItemArray(long total, int arraysize) {
+	private void put(long total, int arraysize,String dcpk) {
 		try {
-			//create datacluster Order100k
-			String tk=total/1000+"k";
-			String dcpk="Order"+tk;
-			defaultPort.putDataCluster(new WSPutDataCluster(new WSDataCluster(dcpk, "", "")));
-			TimeMeasure.begin("PutItemArray"+tk+"arraysize"+arraysize);
-
 			long count=(total/arraysize);
 			long itotal=0;
 			for(int j=0; j<count; j++) {
@@ -157,9 +151,34 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 				}
 				defaultPort.putItemArray(items);
 			}
-			
-			TimeMeasure.end("PutItemArray"+tk+"arraysize"+arraysize);
-		} catch (RemoteException e) {
+		}catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}			
+		
+	}
+	private void PutItemArray(long total, int arraysize) {
+		try {
+			//create datacluster Order100k
+			String tk=total/1000+"k";
+			String dcpk="Order"+tk;
+			defaultPort.putDataCluster(new WSPutDataCluster(new WSDataCluster(dcpk, "", "")));
+						
+			TimeMeasure.begin("PutItemArray"+tk+"arraysize"+arraysize);
+			//total >20000
+			if(total>20000) {
+				int gap=(int)total/20000;
+				long m=total%20000;
+				for(int i=0; i<gap;i++) {
+					put(20000,arraysize,dcpk);
+					Thread.sleep(1000);
+				}
+				if(m>0)put(m,arraysize,dcpk);
+			}else {
+				put(total,arraysize,dcpk);			
+			}
+			TimeMeasure.end("PutItemArray"+tk+"arraysize"+arraysize);				
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
