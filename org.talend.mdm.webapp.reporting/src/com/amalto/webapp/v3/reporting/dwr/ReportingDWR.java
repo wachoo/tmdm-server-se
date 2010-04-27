@@ -127,12 +127,12 @@ public class ReportingDWR {
 	
 	public ArrayList<ReportingContent> getReportingContent(String reportingName,String []parameters)  throws XtentisWebappException, Exception{
 		
-		return (ArrayList<ReportingContent>) getReportingContent(reportingName,parameters,0,0).get(0);
+		return (ArrayList<ReportingContent>) getReportingContent(reportingName,parameters,0,Integer.MAX_VALUE,"0","ASC").get(0);
 		
 	}
 	
 	//TODO configuration 
-	public ArrayList getReportingContent(String reportingName,String []parameters,int skip,int max)  throws XtentisWebappException, Exception{
+	public ArrayList getReportingContent(String reportingName,String []parameters,int skip,int max,String sortCol,String sortDir)  throws XtentisWebappException, Exception{
 		
 		Reporting reporting = getReporting(reportingName);
 		
@@ -242,6 +242,17 @@ public class ReportingDWR {
 				fields[i]=reporting.getFields()[i].getField();
 			}
 			
+			String sortColumn=null;
+			if(sortCol!=null)sortColumn=reporting.getFields()[Integer.parseInt(sortCol)].getXpath();
+			String sortDirection=null;
+			if(sortDir!=null) {
+				if(sortDir.equals("ASC")) {
+					sortDirection="ascending";
+				}else if(sortDir.equals("DESC")) {
+					sortDirection="descending";
+				}
+			}
+			
 			//Configuration config = Configuration.getInstance();
 			String[] results = Util.getPort().xPathsSearch(
 					new WSXPathsSearch(
@@ -252,8 +263,8 @@ public class ReportingDWR {
 						0,
 						skip,
 						max,
-						null, //order by
-						null //direction
+						sortColumn, //order by
+						sortDirection //direction
 					)
 				).getStrings();
 			

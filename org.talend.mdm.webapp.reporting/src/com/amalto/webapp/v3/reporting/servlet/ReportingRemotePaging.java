@@ -136,7 +136,7 @@ public class ReportingRemotePaging  extends HttpServlet{
 //				){
 				org.apache.log4j.Logger.getLogger(this.getClass()).debug(
 						"case : new reporting");
-				ArrayList rsList=reportingDWR.getReportingContent(reportingName, parameters,skip,max);
+				ArrayList rsList=reportingDWR.getReportingContent(reportingName, parameters,skip,max,sortCol,sortDir);
 				reportingContentList = (ArrayList<ReportingContent>) rsList.get(0);
 				request.getSession().setAttribute("reportingContentList",reportingContentList);
 				totalCount = Integer.parseInt((String) rsList.get(1));
@@ -151,8 +151,10 @@ public class ReportingRemotePaging  extends HttpServlet{
 //			}			
 
 			//System.out.println("sort col de session "+request.getSession().getAttribute("sortCol"));
-			if(!sortCol.equals(request.getSession().getAttribute("sortCol")) 
-					|| !sortDir.equals(request.getSession().getAttribute("sortDir"))){
+			if(((Boolean)rsList.get(2)).booleanValue()&&
+					(!sortCol.equals(request.getSession().getAttribute("sortCol")) 
+					|| !sortDir.equals(request.getSession().getAttribute("sortDir")))
+				){
 				
 				//sort arraylist
 				final int column =Integer.parseInt(sortCol);
