@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -22,6 +23,7 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
@@ -34,6 +36,7 @@ import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSRegexStoredProcedure;
 import com.amalto.webapp.util.webservices.WSStoredProcedurePK;
+import com.amalto.webapp.util.webservices.WSString;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSWhereAnd;
@@ -122,8 +125,14 @@ public class ReportingDWR {
 		}		
 	}
 	
-	//TODO configuration 
 	public ArrayList<ReportingContent> getReportingContent(String reportingName,String []parameters)  throws XtentisWebappException, Exception{
+		
+		return (ArrayList<ReportingContent>) getReportingContent(reportingName,parameters,0,0).get(0);
+		
+	}
+	
+	//TODO configuration 
+	public ArrayList getReportingContent(String reportingName,String []parameters,int skip,int max)  throws XtentisWebappException, Exception{
 		
 		Reporting reporting = getReporting(reportingName);
 		
@@ -131,8 +140,12 @@ public class ReportingDWR {
 		Pattern p = Pattern.compile("<(.*?)>(.*?)<\\/\\1>",Pattern.DOTALL);
 		Pattern p2 = Pattern.compile("<[^\\/].*?\\/>",Pattern.DOTALL);
 		
+		String totalCount="-1";
+		Boolean usingSP=new Boolean(false);
 		
 		if (reporting.getStoredProcedure()!=null && !reporting.getStoredProcedure().equals("")) {
+			
+			usingSP=new Boolean(true);
 			//TODO
 			//String []parameters = {"/BuyerOrderNumber","8110000202"};
 			
@@ -237,12 +250,15 @@ public class ReportingDWR {
 						new WSStringArray(xpaths),
 						wi,
 						0,
-						0,
-						Integer.MAX_VALUE,
+						skip,
+						max,
 						null, //order by
 						null //direction
 					)
 				).getStrings();
+			
+			WSString wsString=Util.getPort().count(new WSCount(new WSDataClusterPK(reporting.getCluster()),reporting.getPivotXpath(),wi,-1));
+			totalCount=wsString.getValue();
 
 //			<result>
 //		    <Name>IMERYS CANADA - Nanaimo</Name>
@@ -283,9 +299,12 @@ public class ReportingDWR {
 			}			
 		}
 		
-
-	
-		return reportingContentList;
+		ArrayList resultList=new ArrayList();
+        resultList.add(reportingContentList);
+        resultList.add((totalCount!=null&&totalCount.equals("-1"))?reportingContentList.size():totalCount);
+        resultList.add(usingSP);
+	     
+		return resultList;
 	}
 	
 	public Map<String,String> getBusinessConcepts(String language){

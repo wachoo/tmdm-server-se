@@ -136,9 +136,10 @@ public class ReportingRemotePaging  extends HttpServlet{
 //				){
 				org.apache.log4j.Logger.getLogger(this.getClass()).debug(
 						"case : new reporting");
-				reportingContentList = reportingDWR.getReportingContent(reportingName, parameters);
+				ArrayList rsList=reportingDWR.getReportingContent(reportingName, parameters,skip,max);
+				reportingContentList = (ArrayList<ReportingContent>) rsList.get(0);
 				request.getSession().setAttribute("reportingContentList",reportingContentList);
-				totalCount = reportingContentList.size();
+				totalCount = Integer.parseInt((String) rsList.get(1));
 				request.getSession().setAttribute("totalCount",totalCount);
 				request.getSession().setAttribute("reportingName",reportingName);
 				request.getSession().setAttribute("sortCol",sortCol);
@@ -199,6 +200,10 @@ public class ReportingRemotePaging  extends HttpServlet{
 				request.getSession().setAttribute("sortCol",sortCol);
 				request.getSession().setAttribute("sortDir",sortDir);
 				Collections.sort(reportingContentList, sort);
+			}
+			
+			if(!((Boolean)rsList.get(2)).booleanValue()) {
+				skip=0;
 			}
 			
 			//get part we are interested
