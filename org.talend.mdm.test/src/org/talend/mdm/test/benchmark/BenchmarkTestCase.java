@@ -74,10 +74,7 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 //	}	
 //	public void testPutItem1M() {
 //		PutItem(1000000);
-//	}	
-	private void testPutItem3M() {
-		PutItem(3000000);
-	}	
+//	}		
 //	public void testPutItem10M() {
 //		PutItem(10000000);
 //	}	
@@ -96,10 +93,11 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 	private void testDelete(long total){
 		WSDeleteItems wsDeleteItems=new WSDeleteItems(); 
 		wsDeleteItems.setConceptName("Country");
-		wsDeleteItems.setWsDataClusterPK(new WSDataClusterPK("Order"));
+		String tk=total/1000+"k";
+		String dcpk="Order"+tk;	
+		wsDeleteItems.setWsDataClusterPK(new WSDataClusterPK(dcpk));		
 		try {
 			
-			String tk=total/1000+"k";
 			TimeMeasure.begin("deleteItems"+tk);
 			WSInt wsint=defaultPort.deleteItems(wsDeleteItems);
 			TimeMeasure.end("deleteItems"+tk);
@@ -110,7 +108,7 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 	}	
 	public void testPerformance(){
 		int total=1000;//1000,5000,10000
-		PutItemArray(total,200);
+		//PutItemArray(total,200);
 		testSearch(total);
 		testDelete(total);
 	}
@@ -121,6 +119,8 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 		wsXPathsSearch.setWsDataClusterPK(new WSDataClusterPK(dcpk));
 		wsXPathsSearch.setPivotPath("Country/isoCode");
 		wsXPathsSearch.setViewablePaths(new String[]{"Country/isoCode"});
+		wsXPathsSearch.setSkip(0);
+		wsXPathsSearch.setMaxItems(20);
 		try {
 			String[] itemArray=defaultPort.xPathsSearch(wsXPathsSearch);
 			System.out.println(itemArray.length);
@@ -135,6 +135,8 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 		String tk=total/1000+"k";
 		String dcpk="Order"+tk;
 		wsGetItems.setWsDataClusterPK(new WSDataClusterPK(dcpk));
+		wsGetItems.setSkip(0);
+		wsGetItems.setMaxItems(20);
 		try {
 			String[] itemArray=defaultPort.getItems(wsGetItems);
 			System.out.println(itemArray.length);
@@ -170,17 +172,7 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 						
 			TimeMeasure.begin("PutItemArray"+tk+"arraysize"+arraysize);
 			//total >20000
-			if(total>20000) {
-				int gap=(int)total/20000;
-				long m=total%20000;
-				for(int i=0; i<gap;i++) {
-					put(20000,arraysize,dcpk);
-					Thread.sleep(1000);
-				}
-				if(m>0)put(m,arraysize,dcpk);
-			}else {
-				put(total,arraysize,dcpk);			
-			}
+			put(total,arraysize,dcpk);						
 			TimeMeasure.end("PutItemArray"+tk+"arraysize"+arraysize);				
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
