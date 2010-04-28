@@ -698,6 +698,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			
 			//Replace for QueryBuilder
 			//String xquery ="for $pivot in " + getXQueryCollectionName(revisionID, clusterName)+"/ii/p"+conceptName+(whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem,true)+"\n" : "") + "\nreturn base-uri($pivot)";
+			conceptName=conceptName.startsWith("/")?conceptName:"/"+conceptName;
 			String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p" + conceptName + (whereItem != null ? "\nwhere " + QueryBuilder.buildWhere("", pivots, whereItem) + "\n" : "")+ "\nreturn base-uri($pivot)";
 			
 			Collection<String> res = runQuery(null, null, xquery, null);
