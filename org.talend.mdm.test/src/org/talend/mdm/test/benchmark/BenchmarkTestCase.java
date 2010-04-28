@@ -86,11 +86,11 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 		String tk=total/1000+"k";
 		TimeMeasure.begin("getItems"+tk);
 		//getItems
-		this.getItems();
+		this.getItems(total);
 		TimeMeasure.end("getItems"+tk);
 		TimeMeasure.begin("xPathSearch"+tk);
 		//xPathSearch()
-		this.xPathSearch();
+		this.xPathSearch(total);
 		TimeMeasure.end("xPathSearch"+tk);
 	}
 	private void testDelete(long total){
@@ -109,14 +109,16 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 		}
 	}	
 	public void testPerformance(){
-		int total=500000;//1000,5000,10000
+		int total=1000;//1000,5000,10000
 		PutItemArray(total,200);
 		testSearch(total);
 		testDelete(total);
 	}
-	private void xPathSearch(){
-		WSXPathsSearch wsXPathsSearch=new WSXPathsSearch(); 
-		wsXPathsSearch.setWsDataClusterPK(new WSDataClusterPK("Order"));
+	private void xPathSearch(long total){
+		WSXPathsSearch wsXPathsSearch=new WSXPathsSearch();
+		String tk=total/1000+"k";
+		String dcpk="Order"+tk;		
+		wsXPathsSearch.setWsDataClusterPK(new WSDataClusterPK(dcpk));
 		wsXPathsSearch.setPivotPath("Country/isoCode");
 		wsXPathsSearch.setViewablePaths(new String[]{"Country/isoCode"});
 		try {
@@ -127,10 +129,12 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 			e.printStackTrace();
 		}
 	}
-	private void getItems(){
+	private void getItems(long total ){
 		WSGetItems wsGetItems=new WSGetItems();
 		wsGetItems.setConceptName("Country");
-		wsGetItems.setWsDataClusterPK(new WSDataClusterPK("Order"));
+		String tk=total/1000+"k";
+		String dcpk="Order"+tk;
+		wsGetItems.setWsDataClusterPK(new WSDataClusterPK(dcpk));
 		try {
 			String[] itemArray=defaultPort.getItems(wsGetItems);
 			System.out.println(itemArray.length);
