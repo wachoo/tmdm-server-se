@@ -312,7 +312,7 @@ public class ReportingDWR {
 		
 		ArrayList resultList=new ArrayList();
         resultList.add(reportingContentList);
-        resultList.add((totalCount!=null&&totalCount.equals("-1"))?reportingContentList.size():totalCount);
+        resultList.add((totalCount!=null&&totalCount.equals("-1"))?reportingContentList.size()+"":totalCount);
         resultList.add(usingSP);
 	     
 		return resultList;
