@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -699,12 +700,12 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 			//Replace for QueryBuilder
 			//String xquery ="for $pivot in " + getXQueryCollectionName(revisionID, clusterName)+"/ii/p"+conceptName+(whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem,true)+"\n" : "") + "\nreturn base-uri($pivot)";
 			conceptName=conceptName.startsWith("/")?conceptName:"/"+conceptName;
-			String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p" + conceptName + (whereItem != null ? "\nwhere " + QueryBuilder.buildWhere("", pivots, whereItem) + "\n" : "")+ "\nreturn base-uri($pivot)";
+			String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p" + conceptName + (whereItem != null ? "\nwhere " + QueryBuilder.buildWhere("", pivots, whereItem,null) + "\n" : "")+ "\nreturn base-uri($pivot)";
 			
 			Collection<String> res = runQuery(null, null, xquery, null);
 			
 			//set at head of db
-			col = getCollection(null, null, true);
+			col = getCollection(revisionID, clusterName, true);
 						
 			for (Iterator<String> iter = res.iterator(); iter.hasNext(); ) {
 				String uri = iter.next();
@@ -758,13 +759,13 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 //				getXQueryCollectionName(revisionID, clusterName)+"/"+objectRootElementName+
 //				(whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem,true)+"\n" : "") +
 //				"\nreturn base-uri($pivot)";
-			String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/" + objectRootElementName + (whereItem != null ? "\nwhere " + QueryBuilder.buildWhere("", pivots, whereItem) + "\n" : "")
+			String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/" + objectRootElementName + (whereItem != null ? "\nwhere " + QueryBuilder.buildWhere("", pivots, whereItem,null) + "\n" : "")
 		    + "\nreturn base-uri($pivot)";
 			
 			Collection<String> res = runQuery(null, null, xquery, null);
 			
 			//set at head of db
-			col = getCollection(null, null, true);
+			col = getCollection(revisionID, clusterName, true);
 						
 			for (Iterator<String> iter = res.iterator(); iter.hasNext(); ) {
 				String uri = iter.next();
@@ -857,7 +858,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     			direction,
     			start,
     			limit,
-    			false
+    			false,
+    			null
     		);
     }
 
@@ -872,7 +874,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     	String direction, 
     	int start, 
     	long limit,
-    	boolean totalCountOnfirstRow
+    	boolean totalCountOnfirstRow,
+    	Map<String, ArrayList<String>> metaDataTypes
     ) throws XmlServerException {
     	//Replace for QueryBuilder
     	return QueryBuilder.getQuery(
@@ -886,11 +889,10 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     			direction,
     			start,
     			limit,
-    			totalCountOnfirstRow
+    			totalCountOnfirstRow,
+    			metaDataTypes
     		);
     }
-    
-    
     
     public long countItems(
     	LinkedHashMap<String, String> conceptPatternsToRevisionID, 
@@ -1025,7 +1027,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
     			direction,
     			start,
     			limit,
-    			totalCountOnfirstRow
+    			totalCountOnfirstRow,
+    			null
     		);
     }
     
@@ -1848,6 +1851,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 		if(col==null) return false;
 		return true;
 	}
+
+
+
 	
 	
 	
