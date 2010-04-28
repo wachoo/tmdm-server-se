@@ -295,9 +295,10 @@ public interface XmlServerSLWrapper
     * @param start The index of the first element to return (start at 0)
     * @param limit The index of the last element to search. A negative value or {@value Integer#MAX_VALUE} means no limit
     * @param spellThreshold Spell check the whereItem if threshold is greater than zero. The setting is ignored is this not an item query.
+    * @param metaDataTypes
     * @return the xquery in the native language of the db
     */
-   public java.lang.String getItemsQuery( java.util.LinkedHashMap conceptPatternsToRevisionID,java.util.LinkedHashMap conceptPatternsToClusterName,java.lang.String forceMainPivot,java.util.ArrayList viewableFullPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit,int spellThreshold,boolean firstTotalCount )
+   public java.lang.String getItemsQuery( java.util.LinkedHashMap conceptPatternsToRevisionID,java.util.LinkedHashMap conceptPatternsToClusterName,java.lang.String forceMainPivot,java.util.ArrayList viewableFullPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit,int spellThreshold,boolean firstTotalCount,java.util.Map metaDataTypes )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    public java.lang.String getPivotIndexQuery( java.lang.String clusterName,java.lang.String mainPivotName,java.util.LinkedHashMap pivotWithKeys,java.util.LinkedHashMap itemsRevisionIDs,java.lang.String defaultRevisionID,java.lang.String[] indexPaths,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String[] pivotDirections,java.lang.String[] indexDirections,int start,int limit )

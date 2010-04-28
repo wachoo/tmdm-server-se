@@ -60,6 +60,8 @@ import org.apache.commons.jxpath.AbstractFactory;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.directwebremoting.WebContext;
+import org.directwebremoting.WebContextFactory;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -70,6 +72,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import sun.misc.BASE64Encoder;
+
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.IXtentisWSDelegator;
@@ -119,14 +122,27 @@ import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
 import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocalHome;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
+
+import com.amalto.xmldb.QueryBuilder;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereLogicOperator;
+import com.amalto.xmlserver.interfaces.XmlServerException;
+
 import com.amalto.core.webservice.WSVersion;
+
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSComplexType;
+import com.sun.xml.xsom.XSContentType;
 import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSFacet;
 import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSSchema;
 import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.XSSimpleType;
+import com.sun.xml.xsom.XSType;
+import com.sun.xml.xsom.impl.FacetImpl;
 import com.sun.xml.xsom.parser.XSOMParser;
 import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
@@ -3269,5 +3285,228 @@ public  class Util {
 	 public static void main(String args[]) throws Exception {
 	 	//testSpellCheck();	
 	 }
+
+	public static void getView(ArrayList<String> views, IWhereItem whereItem) {
+		if (whereItem instanceof WhereLogicOperator) {
+			Collection<IWhereItem> subItems = ((WhereLogicOperator) whereItem)
+					.getItems();
+			if (subItems.size() == 1) {
+				getView(views, subItems.iterator().next());
+			}
+			int i = 0;
+			for (Iterator<IWhereItem> iter = subItems.iterator(); iter
+					.hasNext();) {
+				IWhereItem item = iter.next();
+				getView(views, item);
+			}
+		}
+		if (whereItem instanceof WhereCondition) {
+			WhereCondition whereCondition = (WhereCondition) whereItem;
+			views.add(whereCondition.getLeftPath());
+
+		}
+
+	}
+
+	public static Map<String, XSElementDecl> getConceptMap(DataModelPOJO dataModelPOJO)
+			throws Exception {
+
+		String xsd = dataModelPOJO.getSchema();
+		XSOMParser reader = new XSOMParser();
+		reader.setAnnotationParser(new DomAnnotationParserFactory());
+		reader.setEntityResolver(new SecurityEntityResolver());
+		reader.parse(new StringReader(xsd));
+		XSSchemaSet xss = reader.getResult();
+		Collection xssList = xss.getSchemas();
+		Map<String, XSElementDecl> map = new HashMap<String, XSElementDecl>();
+		for (Iterator iter = xssList.iterator(); iter.hasNext();) {
+			XSSchema schema = (XSSchema) iter.next();
+			Map<String, XSElementDecl> submap = schema.getElementDecls();
+			map.putAll(submap);
+		}
+		return map;
+	}
+
+	private static XSElementDecl parseMetaDataTypes(XSElementDecl elem,
+			String pathSlice, ArrayList<String> valuesHolder,
+			boolean forFkValue) {
+		valuesHolder.clear();
+		XSContentType conType;
+		XSType type = elem.getType();
+		if (elem.getName().equals(pathSlice)) {
+			if (elem.getType() instanceof XSComplexType) {
+				valuesHolder.add("complex type");
+			} else {
+				XSSimpleType simpType = (XSSimpleType) elem.getType();
+				valuesHolder.add(simpType.getName());
+			}
+			return elem;
+		}
+		if (type instanceof XSComplexType) {
+			XSComplexType cmpxType = (XSComplexType) type;
+			conType = cmpxType.getContentType();
+			XSParticle[] children = conType.asParticle().getTerm()
+					.asModelGroup().getChildren();
+			for (XSParticle child : children) {
+				if (child.getTerm() instanceof XSElementDecl) {
+					XSElementDecl childElem = (XSElementDecl) child.getTerm();
+					if (childElem.getName().equals(pathSlice)) {
+
+						if (childElem.getType() instanceof XSSimpleType) {
+							XSSimpleType simpType = (XSSimpleType) childElem
+									.getType();
+							Collection<FacetImpl> facets = (Collection<FacetImpl>) simpType
+									.asRestriction().getDeclaredFacets();
+							for (XSFacet facet : facets) {
+								if (facet.getName().equals("enumeration")) {
+									valuesHolder.add("enumeration");
+									break;
+								}
+							}
+							if (simpType.getName() != null
+									&& !valuesHolder.contains("enumeration")) {
+								WebContext ctx = WebContextFactory.get();
+								String basicName = simpType.getBaseType()
+										.getName();
+								String simpTypeName = simpType.getName();
+								if (simpType.getTargetNamespace().equals(
+										"http://www.w3.org/2001/XMLSchema")) {
+									simpTypeName = "xsd:" + simpTypeName;
+								} else
+									simpTypeName = "xsd:" + basicName;
+								valuesHolder.add(simpTypeName);
+							} else if (simpType.asRestriction() != null
+									&& valuesHolder.contains("enumeration")) {
+								Iterator<XSFacet> facetIter = simpType
+										.asRestriction()
+										.iterateDeclaredFacets();
+								while (facetIter.hasNext()) {
+									XSFacet facet = facetIter.next();
+									valuesHolder.add(facet.getValue().value);
+								}
+							}
+						} else {
+							XSComplexType cmpType = (XSComplexType) childElem
+									.getType();
+							valuesHolder.add("complex type");
+						}
+						return childElem;
+					}
+				}
+			}
+		} else {
+			XSSimpleType simpType = (XSSimpleType) type;
+		}
+
+		return null;
+
+	}
+	private static DataModelPOJO getDataModel(String concept)throws Exception {
+		Collection collection=Util.getDataModelCtrlLocal().getDataModelPKs("");
+		for (Iterator iterator = collection.iterator(); iterator.hasNext();) {
+			DataModelPOJOPK dataModelPOJOPK = (DataModelPOJOPK) iterator.next();
+			DataModelPOJO dataModelPOJO=Util.getDataModelCtrlLocal().getDataModel(dataModelPOJOPK);
+			String[] businessConceptsNames=Util.getDataModelCtrlLocal().getAllBusinessConceptsNames(dataModelPOJOPK);
+			for (int i = 0; i < businessConceptsNames.length; i++) {
+				if(businessConceptsNames[i].equals(concept)) return dataModelPOJO;
+			}
+		}
+		return null;
+	}
+
 	
+	public static Map<String, ArrayList<String>> getMetaDataTypes(
+			IWhereItem whereItem) throws Exception {
+		if (null != whereItem) {
+			ArrayList<String> views = new ArrayList<String>();
+			Util.getView(views, whereItem);
+			String concept = views.get(0).split("/")[0];
+
+			HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
+			Map<String, XSElementDecl> xsdMap = getConceptMap(getDataModel(concept));
+
+			XSElementDecl el = xsdMap.get(concept);
+
+			for (String view : views) {
+				ArrayList<String> dataTypesHolder = new ArrayList<String>();
+				String[] pathSlices = view.split("/");
+				XSElementDecl node = parseMetaDataTypes(el, pathSlices[0],
+						dataTypesHolder, true);
+				if (pathSlices.length > 1) {
+					for (int i = 1; i < pathSlices.length; i++) {
+						node = parseMetaDataTypes(node, pathSlices[i],
+								dataTypesHolder, true);
+					}
+				}
+				metaDataTypes.put(view, dataTypesHolder);
+			}
+
+			return metaDataTypes;
+		}
+		return null;
+	}
+
+	/**
+	 * fix the web conditions.
+	 * 
+	 * @param conditions
+	 *            in web ui.
+	 */
+	 public static IWhereItem fixWebCondtions(IWhereItem whereItem) throws XmlServerException
+	   {
+		  if(whereItem==null) return null;
+	      if(whereItem instanceof WhereLogicOperator) {
+	         ArrayList<IWhereItem> subItems = ((WhereLogicOperator)whereItem).getItems();
+	         
+	         for(int i = subItems.size() - 1; i >= 0; i-- ) {
+	            IWhereItem item = subItems.get(i);   
+	            item = fixWebCondtions(item);
+	            
+	            if(item instanceof WhereLogicOperator) {
+	               if(((WhereLogicOperator)item).getItems().size() == 0) {
+	                  subItems.remove(i);
+	               }
+	            }
+	            else if(item == null) {
+	               subItems.remove(i);
+	            }
+	         }
+	      }
+	      else if(whereItem instanceof WhereCondition) {
+	         WhereCondition condition = (WhereCondition) whereItem;
+	         whereItem = "*".equals(condition.getRightValueOrPath()) || 
+	            condition.getRightValueOrPath().length() == 0  || 
+	            ".*".equals(condition.getRightValueOrPath()) ? null : whereItem;
+	      }
+	      else {
+	         throw new XmlServerException("Unknown Where Type : " + whereItem.getClass().getName());
+	      }
+	      
+	      if(whereItem instanceof WhereLogicOperator) {
+	         return ((WhereLogicOperator)whereItem).getItems().size() == 0 ? null : whereItem; 
+	      }
+	      
+	      return whereItem;
+	   }
+		
+	/**
+	 * fix the conditions.
+	 * 
+	 * @param conditions
+	 *            in workbench.
+	 */
+	
+	public static void fixCondtions(ArrayList conditions) {
+		for (int i = conditions.size() - 1; i >= 0; i--) {
+			if (conditions.get(i) instanceof WhereCondition) {
+				WhereCondition condition = (WhereCondition) conditions.get(i);
+
+				if (condition.getRightValueOrPath() == null
+						|| condition.getRightValueOrPath().length() == 0) {
+					conditions.remove(i);
+				}
+			}
+		}
+	}
+	 
 } 

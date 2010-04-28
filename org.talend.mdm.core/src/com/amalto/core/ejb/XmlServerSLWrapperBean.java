@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ejb.CreateException;
@@ -855,6 +856,8 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	 * 			The index of the last element to search. A negative value or {@value Integer#MAX_VALUE} means no limit
 	 * @param spellThreshold
 	 * 			Spell check the whereItem if threshold is greater than zero. The setting is ignored is this not an item query.
+	 * @param metaDataTypes
+	 *          
 	 * @return the xquery in the native language of the db
 	 * 
 	 * @ejb.interface-method view-type = "both"
@@ -871,7 +874,8 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		int start,
 		int limit,
 		int spellThreshold,
-		boolean firstTotalCount
+		boolean firstTotalCount,
+		Map<String, ArrayList<String>> metaDataTypes
 	)throws XtentisException {
 
 		try {
@@ -891,7 +895,8 @@ public class XmlServerSLWrapperBean implements SessionBean {
 				direction, 
 				start, 
 				limit,
-				firstTotalCount
+				firstTotalCount,
+				metaDataTypes
 			);
 			
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug("getQuery():\n "+q);

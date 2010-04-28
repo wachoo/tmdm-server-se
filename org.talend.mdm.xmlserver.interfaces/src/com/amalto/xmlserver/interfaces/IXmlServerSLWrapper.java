@@ -3,6 +3,7 @@ package com.amalto.xmlserver.interfaces;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 
@@ -425,6 +426,7 @@ public interface IXmlServerSLWrapper {
 	 * @param start
 	 * @param limit
 	 * @param totalCountOnfirstRow
+	 * @param metaDataTypes
 	 * @return the XQuery in the native language of the database
 	 * @throws XmlServerException
 	 */
@@ -438,9 +440,9 @@ public interface IXmlServerSLWrapper {
 			String direction,
 			int start,
 			long limit,
-			boolean totalCountOnfirstRow
+			boolean totalCountOnfirstRow,
+			Map<String, ArrayList<String>> metaDataTypes
 	) throws XmlServerException;
-	
 	
 	/**
 	 * Builds a query in the native language of the DB (for instance XQuery) based on conditions

@@ -2,6 +2,7 @@ package com.amalto.core.delegator;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.naming.InitialContext;
 
@@ -23,6 +24,8 @@ import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereLogicOperator;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator{
@@ -198,8 +201,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
 		// TODO Auto-generated method stub
 
 	}
-
-
 	public ArrayList<String> viewSearch(DataClusterPOJOPK dataClusterPOJOPK,
 			ViewPOJOPK viewPOJOPK, IWhereItem whereItem, int spellThreshold,
 			String orderBy, String direction, int start, int limit)
@@ -234,26 +235,27 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
         	//ViewLocal view = ViewUtil.getLocalHome().findByPrimaryKey(viewPK);
 
         	//Create an ItemWhere which combines the search and and view wheres 
-        	IWhereItem fullWhere;
-        	if(		(view.getWhereConditions()==null) 
-        			|| (view.getWhereConditions().getList().size()==0)
-        	) {
+        	whereItem = Util.fixWebCondtions(whereItem);
+			IWhereItem fullWhere;
+			ArrayList conditions = view.getWhereConditions().getList();
+			Util.fixCondtions(conditions);
+			if(conditions == null || conditions.size() == 0) {
         		if (whereItem==null)
         			fullWhere = null;
         		else
         			fullWhere = whereItem;
         	} else {
         		if (whereItem==null){
-        			fullWhere = new WhereAnd(view.getWhereConditions().getList());
+        			fullWhere = new WhereAnd(conditions);
         		} else {
-        			WhereAnd viewWhere = new WhereAnd(view.getWhereConditions().getList());
+        			WhereAnd viewWhere = new WhereAnd(conditions);
                     WhereAnd wAnd = new WhereAnd();
         			wAnd.add(whereItem);
         			wAnd.add(viewWhere);
         			fullWhere = wAnd;
         		}
         	}
-        	
+        	Map<String, ArrayList<String>> metaDataTypes=Util.getMetaDataTypes(fullWhere);
             String query = server.getItemsQuery(
             	conceptPatternsToRevisionID, 
             	conceptPatternsToClusterName, 
@@ -265,7 +267,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
             	start, 
             	limit, 
             	spellThreshold,
-            	true
+            	true,
+            	metaDataTypes
             );
             
             return server.runQuery(null, null, query, null);
