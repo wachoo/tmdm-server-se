@@ -72,6 +72,7 @@ import org.xml.sax.SAXException;
 import sun.misc.BASE64Encoder;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
+import com.amalto.core.delegator.IXtentisWSDelegator;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -118,6 +119,7 @@ import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
 import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocalHome;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
+import com.amalto.core.webservice.WSVersion;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSComplexType;
@@ -3010,6 +3012,17 @@ public  class Util {
 	public static boolean isItemCanVisible(ItemPOJOPK itempk)throws XtentisException {
 		return LocalUser.getLocalUser().userItemCanRead(itempk)||LocalUser.getLocalUser().userItemCanWrite(itempk, itempk.getDataClusterPOJOPK().getUniqueId(), itempk.getConceptName());
 	}
+	
+	public static String checkOnVersionCompatibility(WSVersion old) {
+		Version version = Version.getVersion(IXtentisWSDelegator.class);
+		String oldv=old.getMajor()+"."+old.getMinor()+"."+old.getRevision();
+		String newv=version.getMajor()+"."+version.getMinor()+"."+version.getRevision();
+		String str="The two MDM Servers is not compatible, one is "+ oldv + ", another is "+newv;
+		if(version.getMajor()!=old.getMajor()|| version.getMinor()!=old.getMinor()) {
+			return str;
+		}
+		return null;
+	}	
 	/*********************************************************************
 	 *  TESTS
 	 *********************************************************************/
