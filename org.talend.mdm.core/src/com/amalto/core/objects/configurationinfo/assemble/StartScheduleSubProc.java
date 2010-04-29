@@ -18,12 +18,12 @@ public class StartScheduleSubProc extends AssembleSubProc {
 		if (Util.isEnterprise()) {
 			
 			String ip="127.0.0.1";
-			try {
-				InetAddress addr = InetAddress.getLocalHost();
-				ip =addr.getHostAddress().toString();
-			} catch (UnknownHostException e2) {
-				e2.printStackTrace();
-			}
+//			try {
+//				InetAddress addr = InetAddress.getLocalHost();
+//				ip =addr.getHostAddress().toString();
+//			} catch (UnknownHostException e2) {
+//				e2.printStackTrace();
+//			}
 			//FIXME:port maybe change
 			String port="8080";
 			String uri="http://"+ip+":"+port+"/SrvSchedule/SrvScheduleServlet?action=startup";
