@@ -66,4 +66,10 @@ public class AssembleConcreteBuilder implements AssembleBuilder {
 	}
 
 
+	public void buildStartSchedule() {
+		assembleProc.add(new StartScheduleSubProc());
+		
+	}
+
+
 }
