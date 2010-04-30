@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package com.amalto.webapp.core.util.license;
+package com.amalto.core.util.license;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

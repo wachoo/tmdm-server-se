@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package com.amalto.webapp.core.util.license;
+package com.amalto.core.util.license;
 
 /**
  * DOC stephane class global comment. Detailled comment

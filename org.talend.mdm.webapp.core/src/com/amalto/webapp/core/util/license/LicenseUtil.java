@@ -20,6 +20,8 @@ import org.talend.commons.model.ProductsMapping;
 import org.talend.commons.model.TalendObject;
 
 import com.amalto.core.util.UserHelper;
+import com.amalto.core.util.license.ElapsedTime;
+import com.amalto.core.util.license.TokenReader;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSLicense;
 import com.amalto.webapp.util.webservices.WSPutLicense;
@@ -88,7 +90,8 @@ public final class LicenseUtil {
     private void initLicenseUtil() {
        try {
           WSLicense licensep = Util.getPort().getLicense();
-          String license = licensep.getLicense();
+          license = licensep.getLicense();
+          
           if(license!=null) {
 	          String customerName = licensep.getCustomerCompany();
 	          byte[] licenseb = Base64.decodeBase64(license.getBytes());
@@ -103,8 +106,6 @@ public final class LicenseUtil {
     }
 
     private String companyName = "";
-
-    private int nbUser = 1;
 
     private Date licenseDate;
 
@@ -122,6 +123,16 @@ public final class LicenseUtil {
     
     private int installations;
     
+    private String license;
+    
+    public String getLicense() {
+		return license;
+	}
+
+	public void setLicense(String license) {
+		this.license = license;
+	}
+	
     public int getInstallations() {
         return installations;
     }
@@ -178,7 +189,6 @@ public final class LicenseUtil {
             TalendObject t = new TalendObject(license, newCompanyName);
             t.isAvailable("mdm");
             companyName = t.companyName;
-            nbUser = t.nbUser;
             licenseDate = t.licenseDate;
             productMapping = t.productMapping;
             licenseZone = LicenseZone.getZone(t.licenseZone);
@@ -200,7 +210,6 @@ public final class LicenseUtil {
 
     private void resetFields() {
         companyName = "";
-        nbUser = 1;
         licenseDate = null;
         productMapping = null;
         licenseZone = null;
@@ -291,15 +300,6 @@ public final class LicenseUtil {
     }
 
     /**
-     * Getter for nbUser.
-     * 
-     * @return the nbUser
-     */
-    public int getNbUser() {
-        return nbUser;
-    }
-
-    /**
      * Getter for companyName.
      * 
      * @return the companyName
@@ -325,14 +325,7 @@ public final class LicenseUtil {
      * @return
      */
     public int getAvailableUsers() {
-       final int countActiveUsers = getActiveUsers();
-       final int nbUser2 = getNbUser();
-       
-       if (getLicenseMode() == LicenseMode.NAMED) {
-           return nbUser2 - countActiveUsers;
-       } else {
-           return 1;
-       }
+       return 1;
     }
     
     /**
@@ -438,8 +431,21 @@ public final class LicenseUtil {
     * @throws Exception
     */
    public void isLicenseNumberUserValid() throws Exception {
-      if (getAvailableUsers() < 0) {
-          throw new Exception();
-      }
+	   //@temp check three field of license 
+	   final int activeAdminUsers = getActiveAdmins();
+       final int activeNormalUsers = getActiveNormals();
+       final int activeViewerUsers = getActiveViewers();
+       final int nbAdminUsers = getAdminUsers();
+       final int nbNormalUsers = getInteractiveUsers();
+       final int nbViewers = getViewers();
+       
+       if (getLicenseMode() == LicenseMode.NAMED) {
+    	   if(activeAdminUsers - nbAdminUsers < 0)
+    		   throw new Exception("invalid license admin number");
+    	   if(activeNormalUsers - nbNormalUsers < 0)
+    		   throw new Exception("invalid license interactive number");
+    	   if(activeViewerUsers - nbViewers < 0)
+    		   throw new Exception("invalid license viewer number");
+       }
    } 
 }

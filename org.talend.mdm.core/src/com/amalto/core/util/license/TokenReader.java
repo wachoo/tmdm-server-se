@@ -10,12 +10,15 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package com.amalto.webapp.core.util.license;
+package com.amalto.core.util.license;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.amalto.webapp.core.json.JSONObject;
+import com.amalto.core.util.json.JSONObject;
+
+
+
 
 /**
  * DOC stephane class global comment. Detailled comment

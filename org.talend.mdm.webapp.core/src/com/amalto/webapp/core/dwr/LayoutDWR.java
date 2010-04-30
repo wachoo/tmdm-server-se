@@ -136,6 +136,9 @@ public class LayoutDWR {
 	   if(instance.getLicenseDate() == null) {
 	      throw new RemoteException("No license found.");
 	   }
+	   else if(instance.getToken() == null) {
+		   throw new RemoteException("No set validation token.");
+	   }
 	   
 	   return !instance.isLicenseDateValid();
 	}
