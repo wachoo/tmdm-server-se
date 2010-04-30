@@ -8,6 +8,7 @@ import javax.naming.InitialContext;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
@@ -18,15 +19,11 @@ import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.UUIDItemContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.WhereLogicOperator;
-import com.amalto.xmlserver.interfaces.XmlServerException;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator{
 	//methods from ItemCtrl2Bean
@@ -289,31 +286,27 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
     	org.apache.log4j.Logger.getLogger(this.getClass()).trace("putItem() "+item.getItemPOJOPK().getUniqueID());
     	
         try {
-        	//parse the item against the datamodel - no parsing for cache items
-        	
         	if (schema!=null) {            	
         		Document schema1=Util.parse(schema);
     	    	String concept=item.getConceptName();
     	    	if(Util.getUUIDNodes(schema, concept).size()>0){ //check uuid key exists
     		    	String dataCluster=item.getDataClusterPOJOPK().getIds()[0];
-    		    	Element root=(Element)item.getProjection().cloneNode(true);
-    		        XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
-    		        		schema1,
+    				Node n=Util.processUUID(item.getProjection(), schema, dataCluster, concept);
+    				XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
+    						schema1,
     						concept					
     				);	       
     				//get key values
     				String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem(
-    		   			root,
+    						(Element)n,
     						conceptKey
     				);			
-    				UUIDItemContent content=Util.processUUID(root, schema, dataCluster, concept, conceptKey, itemKeyValues);
     				//reset item projection & itemids
-    				item.setProjectionAsString(content.getItemContent());    				
-    				item.setItemIds(content.getItemKeyValues());
+    				item.setProjectionAsString(Util.nodeToString(n));
+    				item.setItemIds(itemKeyValues);
     	    	}
     	    	
         		Util.validate(item.getProjection(),schema);
-        		//schematron validate
         	}
         	
             //FIXME: update the vocabulary . Universe dependent?

@@ -252,8 +252,13 @@ public  class Util {
 
     
     
+    static LRUCache<String, Document> xmlCache=new LRUCache<String, Document>(4000);
     public static Document parse(String xmlString) throws ParserConfigurationException,IOException, SAXException{
-    	return parse(xmlString,null);
+    	Document doc=xmlCache.get(xmlString);
+    	if(doc!=null) return doc;
+    	doc=parse(xmlString,null);
+    	xmlCache.put(xmlString, doc);
+    	return doc;
     }
     	
     public static Document parse(String xmlString, String schema) throws ParserConfigurationException,IOException, SAXException{
@@ -295,200 +300,7 @@ public  class Util {
 		return d;
     }
     
- /*   private static NodeList getNodeListFromXPath(Document xsdDoc, String path)
-    {
-		NodeList outList = null;
-		NodeList inList = null;
-		try {
-			inList = Util.getNodeList(xsdDoc, "//xsd:import");
-			for(int i=0; i < inList.getLength(); i++)
-			{
-				Node node = inList.item(i);
-				if(node.getAttributes().getNamedItem("schemaLocation") == null)
-				{
-					continue;
-				}
-				String location = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-				Document subDoc = parseImportedFile(location);
-				outList = Util.getNodeList(subDoc.getDocumentElement(), path);
-				if(outList.getLength() ==0)
-				{
-					outList = getNodeListFromXPath(subDoc, path);
-				}
-				if(outList != null && outList.getLength() > 0)
-					return outList;
-			}
-			inList = Util.getNodeList(xsdDoc, "//xsd:include");
-			for(int i = 0; i < inList.getLength(); i++)
-			{
-				Node node = inList.item(i);
-				String ns = node.getAttributes().getNamedItem("schemaLocation").getNodeValue();
-				if(ns == null)
-				{
-					continue;
-				}
-				Document subDoc = parseImportedFile(ns);
-				outList = Util.getNodeList(subDoc.getDocumentElement(), path);
-				if(outList.getLength() ==0)
-				{
-					outList = getNodeListFromXPath(subDoc, path);
-				}
-				if(outList != null && outList.getLength() > 0)
-					return outList;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return outList;
-		}
-		
-		return outList;
-    }
-    
-    *//**
-     * @author ymli  fix bug 0009642
-     * if the node's minOccurs is 0, set its chirldren's minOccurs 0 to match the w3c roles
-     * @param xsdDoc
-     * @param conceptName
-     *//*
-	private static void setMinOccurs(Document xsdDoc, String conceptName) {
-
-		try {
-			//if the node's type is complex, get the type and setMinOccurs for the type
-			String rootPath = "//xsd:element[@name='" + conceptName + "']";
-			NodeList root = Util.getNodeList(xsdDoc.getDocumentElement(),rootPath);
-			if(root.getLength() == 0)
-			{
-				root = getNodeListFromXPath(xsdDoc, rootPath);
-			}
-			Node rootnode = root.item(0);
-			Node type = rootnode.getAttributes().getNamedItem("type");
-			Node minOccursNode1 = rootnode.getAttributes().getNamedItem("minOccurs");
-			if(minOccursNode1!=null && minOccursNode1.getNodeValue().equals("0"))
-				setMinOccursDeepForType(xsdDoc,type.getNodeValue());
-			if (type != null) {
-				String typePath = "//xsd:complexType[@name='"
-						+ type.getNodeValue() + "']//xsd:element";
-				NodeList typeNodeList = Util.getNodeList(xsdDoc
-						.getDocumentElement(), typePath);
-				if(typeNodeList.getLength() == 0)
-				{
-					typeNodeList = getNodeListFromXPath(xsdDoc, typePath);
-				}
-				for (int i = 0; i < typeNodeList.getLength(); i++) {
-					Node node = typeNodeList.item(i);
-					node.getBaseURI();
-					Node nameNode = node.getAttributes().getNamedItem("name");
-					Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
-                    if(minOccursNode == null || nameNode == null)continue;
-					if (minOccursNode.getNodeValue().equals("0")) {
-						
-						Node complexType = node.getAttributes().getNamedItem("type");
-						setMinOccursDeepForType(xsdDoc,complexType.getNodeValue());
-						
-						setMinOccursDeep(xsdDoc, "//xsd:element[@name='"
-								+ nameNode.getNodeValue()
-								+ "']/xsd:complexType//xsd:element");
-					}
-				}
-			}
-
-			String xpath = "//xsd:element[@name='" + conceptName
-					+ "']//xsd:complexType//xsd:element";
-			NodeList nodeList = Util.getNodeList(xsdDoc.getDocumentElement(),
-					xpath);
-            if(nodeList.getLength() == 0)
-            {
-            	nodeList = getNodeListFromXPath(xsdDoc, xpath);
-            }
-            if(nodeList != null)
-            {
-				for (int i = 0; i < nodeList.getLength(); i++) {
-					Node node = nodeList.item(i);
-					Node nameNode = node.getAttributes().getNamedItem("name");
-					Node minOccursNode = node.getAttributes().getNamedItem(
-							"minOccurs");
-					if(minOccursNode == null)continue;
-					if (minOccursNode.getNodeValue().equals("0")) {
-						setMinOccursDeep(xsdDoc, "//xsd:element[@name='"
-								+ nameNode.getNodeValue()
-								+ "']/xsd:complexType//xsd:element");
-					}
-				}
-            }
-
-		} catch (XtentisException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-    *//**
-     * @author ymli fix bug 0009642
-     * set Parentnode's chirldren's minOccurs 0 to match the w3c roles
-     * @param Parentnode
-     * @param xPath
-     *//*
-    private static void setMinOccursDeep(Node Parentnode,String xPath){
-    	try {
-    		//String xPathLocal = "//xsd:element[@name='" + conceptName + "']/xsd:complexType//xsd:element";
-    		NodeList nodeList = Util.getNodeList(Parentnode,xPath );
-    		if(nodeList.getLength()==0)
-    			return;
-    		for(int i=0;i<nodeList.getLength();i++){
-				Node node = nodeList.item(i);
-				Node nodename = node.getAttributes().getNamedItem("name");
-				String name1 = nodename.getNodeValue();
-				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
-				minOccursNode.setNodeValue("0");
-				//setMinOccursDeep(node,xPathLocal+"[@name='"+name1+"']");
-    		}
-		} catch (XtentisException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
-    *//**
-     * @author ymli fix bug 0009642
-     * set Parentnode's which type is CompexType chirldren's minOccurs 0 to match the w3c roles 
-     * @param Parentnode
-     * @param complexTypeName
-     *//*
-    private static void setMinOccursDeepForType(Document xsdDoc,String complexTypeName){
-    	
-		try {
-			String typePath = "//xsd:complexType[@name='"+ complexTypeName + "']//xsd:element";
-	    	NodeList typeNodeList;
-			typeNodeList = Util.getNodeList(xsdDoc.getDocumentElement(), typePath);
-			if(typeNodeList.getLength() == 0)
-	    	{
-	    		typeNodeList = getNodeListFromXPath(xsdDoc, typePath);
-	    	}
-			if(typeNodeList == null)
-				return;
-			
-			for (int i = 0; i < typeNodeList.getLength(); i++) {
-				Node node = typeNodeList.item(i);
-				Node nameNode = node.getAttributes().getNamedItem("name");
-				Node minOccursNode = node.getAttributes().getNamedItem("minOccurs");
-                if(minOccursNode == null || nameNode == null)continue;
-				if (minOccursNode.getNodeValue().equals("0")) {
-					
-					Node complexType = node.getAttributes().getNamedItem("type");
-					setMinOccursDeepForType(xsdDoc,complexType.getNodeValue());
-					
-					setMinOccursDeep(xsdDoc, "//xsd:element[@name='"
-							+ nameNode.getNodeValue()
-							+ "']");
-				}
-			//}
-			
-		} catch (XtentisException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
-    	
-    }*/
+ 
 /**
  * @author ymli
  * fix the bug:0009642:
@@ -844,8 +656,13 @@ public  class Util {
 		}
 
     }
+    static LRUCache<String, Document> xsdCache=new LRUCache<String, Document>(30);
+    
     private static Document parseImportedFile(String xsdLocation)
     {
+    	Document doc= xsdCache.get(xsdLocation);
+    	if(doc!=null) return doc;
+    	
 	    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);
 		documentBuilderFactory.setValidating(false);
@@ -872,8 +689,10 @@ public  class Util {
 			ex.printStackTrace();
 			return null;
 		}
+		xsdCache.put(xsdLocation, d);
 		return d;
     }
+
     
     public static void removeXpathFromDocument(Document document, String xpath,boolean reservedRoot)throws Exception {
     	Element root=document.getDocumentElement();
@@ -1377,8 +1196,13 @@ public  class Util {
     	
     }
     
+    static LRUCache<String, XSDKey> xsdkeyCache=new LRUCache<String, XSDKey>(40);    
+
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException{
     	try {
+    		String schema=nodeToString(xsd);
+    		XSDKey key1=xsdkeyCache.get(schema+"#"+businessConceptName);
+    		if(key1!=null)return key1;    		
         	String[] selectors = null;
         	String[] fields = null;
         	selectors = Util.getTextNodes(
@@ -1433,10 +1257,10 @@ public  class Util {
 
 			        	key = getBusinessConceptKey(d, businessConceptName);
 			        	if(key != null)
-			        		return key;
+			        		break;
 			        }
 	        	}
-	        	
+	        	xsdkeyCache.put(schema+"#"+businessConceptName, key);
                 return key;
     		}
     		else return new XSDKey(selectors[0],fields);
@@ -1446,6 +1270,7 @@ public  class Util {
     	}
     
     }
+
     
     public static List<String> getAuthorizationInfo()
     {
@@ -1483,56 +1308,35 @@ public  class Util {
     	return EUUIDCustomType.allTypes().contains(type);
     	
     }
-    
-    public static UUIDItemContent processUUID(Element root, String schema, String dataCluster, String concept,XSDKey conceptKey, String[] itemKeyValues) throws Exception{
-    	return processUUID(root,schema,dataCluster,concept,conceptKey,itemKeyValues,false);
+    public static Node processUUID(Element root, String schema, String dataCluster, String concept) throws Exception{
+    	return Util.generateUUIDForElement(schema, dataCluster,concept, root, false);			
     }
     
-    public static UUIDItemContent processUUID(Element root, String schema, String dataCluster, String concept,XSDKey conceptKey, String[] itemKeyValues,boolean pseudoAutoIncrement) throws Exception{
-		//generate uuid 
-		Element conceptRoot = (Element)root.cloneNode(true);			
-		Util.generateUUIDForElement(schema, dataCluster,concept, conceptRoot, pseudoAutoIncrement);			
-		//get concept key values
-		for(int j=0; j<conceptKey.getFields().length; j++){
-			for(int i=0; i<conceptRoot.getChildNodes().getLength(); i++){
-				Node node= conceptRoot.getChildNodes().item(i);
-				String name=node.getLocalName();
-				if(node.getNodeType() != Node.ELEMENT_NODE) continue;
-				String key=conceptKey.getFields()[j];
-				if(name.equals(key) && itemKeyValues[j]==null){
-					itemKeyValues[j]=node.getTextContent();
-					break;
-				}
-			}										
-		}			
-		if(itemKeyValues[0]==null){
-			throw(new RemoteException("putItem()  itemKeyValues is null"));
-		}
-		String projection=Util.getXMLStringFromNode(conceptRoot);
-		projection = projection.replaceAll("<\\?xml.*?\\?>","");			
-		UUIDItemContent  content =new UUIDItemContent();
-		content.setItemContent(projection);
-		content.setItemKeyValues(itemKeyValues);
-		return content;
+    public static Node processUUID(Element root, String schema, String dataCluster, String concept,boolean pseudoAutoIncrement) throws Exception{
+		
+		return Util.generateUUIDForElement(schema, dataCluster,concept, root, pseudoAutoIncrement);			
+
     }
     
 
-    public static List<XSParticle> getUUIDNodes(String schema, String concept)throws Exception{
+    public static List<UUIDPath> getUUIDNodes(String schema, String concept)throws Exception{
+   
     	XSComplexType xsct = (XSComplexType)(getConceptMap(schema).get(concept).getType()); 
     	XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-    	List<XSParticle> list=new ArrayList<XSParticle>();
+    	List<UUIDPath> list=new ArrayList<UUIDPath>();
     	for(int i=0; i<xsp.length; i++){
-    		getChildren(xsp[i],list);
+    		getChildren("/"+concept,xsp[i],list);
     	}
     	return list;
     }
    
-    private static void getChildren(XSParticle xsp, List<XSParticle> list){
+    private static void getChildren(String parentPath,XSParticle xsp, List<UUIDPath> list){
 		//aiming added see 0009563
 		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
 			XSParticle[] xsps=xsp.getTerm().asModelGroup().getChildren();
+			String path=parentPath+"/"+xsp.getTerm().asElementDecl().getName();
 			for (int i = 0; i < xsps.length; i++) {
-				getChildren(xsps[i],list);
+				getChildren(path,xsps[i],list);
 			}
 		}
 		if(xsp.getTerm().asElementDecl()==null) return;
@@ -1540,7 +1344,11 @@ public  class Util {
 		if(xsp.getTerm().asElementDecl().getType().isComplexType()==false ){
 			String type=xsp.getTerm().asElementDecl().getType().getName();
 			if(EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type) || EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)){
-				list.add(xsp);
+				String path=parentPath+"/"+xsp.getTerm().asElementDecl().getName();
+				UUIDPath uuid=new UUIDPath();
+				uuid.setXpath(path);
+				uuid.setType(type);
+				list.add(uuid);
 			}
 		}		
 		if(xsp.getTerm().asElementDecl().getType().isComplexType()==true ){
@@ -1548,15 +1356,19 @@ public  class Util {
 			.getType().asComplexType().getContentType().asParticle();
 			if(particle!=null){
 				XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
+				String path=parentPath+"/"+xsp.getTerm().asElementDecl().getName();
 				for (int i = 0; i < xsps.length; i++) {
-					getChildren(xsps[i],list);
+					getChildren(path,xsps[i],list);
 				}
 			}
 		}		    	
     }
+    //conceptmap Cache
+    static LRUCache<String,  Map<String,XSElementDecl>> conceptMapCache=new LRUCache<String, Map<String,XSElementDecl>>(10);
+    
 	public static Map<String,XSElementDecl> getConceptMap(String xsd) 
 	throws Exception{
-
+		if(conceptMapCache.get(xsd)!=null) return conceptMapCache.get(xsd);
 		XSOMParser reader = new XSOMParser();
 		reader.setAnnotationParser(new DomAnnotationParserFactory());
 		reader.setEntityResolver(new SecurityEntityResolver());
@@ -1570,6 +1382,7 @@ public  class Util {
 			map = schema.getElementDecls();
 			mapForAll.putAll(map);
 		}   
+		conceptMapCache.put(xsd, mapForAll);
 		return mapForAll;
 	}
 	
@@ -1755,71 +1568,42 @@ public  class Util {
      * @param conceptRoot
      * @throws Exception
      */
-    private static void generateUUIDForElement(String schema,String dataCluster,String concept, Element conceptRoot,boolean pseudoAutoIncrement) throws Exception{
-    	List<XSParticle> uuidLists=getUUIDNodes(schema, concept);
-		//Element conceptRoot = (Element)root.cloneNode(true);	
+    private static Node generateUUIDForElement(String schema,String dataCluster,String concept, Element conceptRoot,boolean pseudoAutoIncrement) throws Exception{
+    	List<UUIDPath> uuidLists=getUUIDNodes(schema, concept);
+    	JXPathContext jxpContext = JXPathContext.newContext ( conceptRoot );
+    	jxpContext.setLenient(true);
+    	
+    	jxpContext.setFactory(factory);
 		for(int i=0; i<uuidLists.size(); i++){
-			XSParticle xsp=uuidLists.get(i);
-			String name= xsp.getTerm().asElementDecl().getName();
-			String type=xsp.getTerm().asElementDecl().getType().getName();
-			
-			for(int j=0; j<conceptRoot.getChildNodes().getLength(); j++){
-				Node node= conceptRoot.getChildNodes().item(j);
-				setUUIDNodeText(node, name,type,dataCluster,concept,pseudoAutoIncrement);
-			}	
+			UUIDPath uuid=uuidLists.get(i);
+			String xpath= uuid.getXpath();
+			String type=uuid.getType();
+			xpath=xpath.replaceFirst("/"+concept+"/", "");
+			String value="";
+			if(EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type)){
+				if(pseudoAutoIncrement) {
+					Random rand =new Random();
+					value=rand.nextInt(10000)+"";
+				}else{
+					String universe=LocalUser.getLocalUser().getUniverse().getName();
+					Object o=jxpContext.getValue(xpath);
+					if(o==null || o.toString().trim().length()==0)
+						value=String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster,concept+"."+xpath.replaceAll("/", ".")));
+					else
+						value=o.toString();
+				}				
+			}
+			if(EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)){
+				value=UUID.randomUUID().toString();					
+			}						
+			jxpContext.createPathAndSetValue(xpath, value);
+						
 		}		
+		return (Node)jxpContext.getContextBean();
     }
 
- 	private static void setUUIDNodeText(Node node, String name,String type,String dataCluster,String concept,boolean pseudoAutoIncrement)throws Exception{
- 		if(node.getNodeType() != Node.ELEMENT_NODE) return ;
- 		if(node.getChildNodes().getLength()>1){
- 			for(int i=0; i<node.getChildNodes().getLength(); i++){
- 				setUUIDNodeText(node.getChildNodes().item(i),name,type,dataCluster,concept,pseudoAutoIncrement);
- 			}
- 		}else{
-			if(node.getNodeName().equalsIgnoreCase(name)){
-				if(node.getTextContent()==null ||node.getTextContent().length()==0 ){							
-					if(EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type)){
-						if(pseudoAutoIncrement) {
-							Random rand =new Random();
-							node.setTextContent(rand.nextInt(10000)+"");
-							return;
-						}
-						
-						//value=String.valueOf(new UID().getID());								
-						String id=String.valueOf(AutoIncrementGenerator.generateNum(LocalUser.getLocalUser().getUniverse().getName(), dataCluster,concept+"."+name));
-						//check id exists								
-						ItemPOJOPK pk=new ItemPOJOPK(new DataClusterPOJOPK(dataCluster),concept,new String[]{id});
-						ItemPOJO pojo=ItemPOJO.load(pk);
-						while(pojo!=null){
-							id=String.valueOf(AutoIncrementGenerator.generateNum(LocalUser.getLocalUser().getUniverse().getName(), dataCluster,concept+"."+name));
-							pk=new ItemPOJOPK(new DataClusterPOJOPK(dataCluster),concept,new String[]{id});
-							pojo=ItemPOJO.load(pk);
-							if(pojo==null){ //if don't exist, select the id 
-								node.setTextContent(id);
-								return;
-							}
-						}
-						if(pojo==null){
-							node.setTextContent(id);
-							return;
-						}
-						
-					}
-					if(EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)){
-						node.setTextContent(String.valueOf(UUID.randomUUID().toString()));	
-						return;
-					}											
-				}
-			} 		
- 		}
- 	}
 	public static String getXMLStringFromNode(Node d) throws TransformerException{
-		StringWriter writer = new StringWriter();
-		TransformerFactory.newInstance().newTransformer()
-		.transform(new DOMSource(d), new StreamResult(writer));
-		
-		return writer.toString().replaceAll("<\\?xml.*?\\?>","");
+		return nodeToString(d);
 	}
      
     /**

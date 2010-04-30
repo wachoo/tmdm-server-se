@@ -34,8 +34,6 @@ import org.w3c.dom.NodeList;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.UUIDItemContent;
-import com.amalto.core.util.XSDKey;
 import com.amalto.webapp.core.bean.ComboItemBean;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
@@ -787,40 +785,31 @@ public class ItemsBrowserDWR {
 	
     public String validateItem(int docIndex) throws TransformerException
     {
-		WebContext ctx = WebContextFactory.get();
-		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
-		String concept = d.getDocumentElement().getLocalName();
+    	try {
+    		WebContext ctx = WebContextFactory.get();
+    		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
+    		String concept = d.getDocumentElement().getLocalName();
+    		String xmlCont = Util.nodeToString(d);
+    		Element root=(Element)Util.parse(xmlCont).getDocumentElement();			
+    		Node node=root;
+        		Configuration config = Configuration.getInstance(true);
+        		String schema = Util.getPort().getDataModel(
+                		new WSGetDataModel(new WSDataModelPK(config.getModel()))).getXsdSchema();
+            	if(com.amalto.core.util.Util.getUUIDNodes(schema, concept).size()>0){ //check uuid key exists
+        	    	String dataCluster=config.getCluster();
+        			node=com.amalto.core.util.Util.processUUID(root, schema, dataCluster, concept,true);
+            	}
+        		com.amalto.core.util.Util.validate((Element)node, schema);
+    		} catch (Exception e) {
+    	    	String prefix = "Unable to create/update the item " + ": ";
+                String err = prefix +e.getClass().getName()+": "+e.getLocalizedMessage();
+                //org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+                //throw new TransformerException(e.getLocalizedMessage());
+                return err;
+    		}
+    		
+    		return "";
 
-		try {
-    		Configuration config = Configuration.getInstance(true);
-    		String schema = Util.getPort().getDataModel(
-            		new WSGetDataModel(new WSDataModelPK(config.getModel()))).getXsdSchema();
-        	if(com.amalto.core.util.Util.getUUIDNodes(schema, concept).size()>0){ //check uuid key exists
-    	    	String dataCluster=config.getCluster();
-    	        XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
-    	        		Util.parse(schema),
-    					concept					
-    			);	       
-    			//get key values
-    	        String xmlCont = Util.nodeToString(d);
-    	        Element root=(Element)Util.parse(xmlCont).getDocumentElement().cloneNode(true);
-    			String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem(
-    	   			root,
-    			    conceptKey
-    			);			
-    			UUIDItemContent content=com.amalto.core.util.Util.processUUID(root, schema, dataCluster, concept, conceptKey, itemKeyValues,true);
-    			d = Util.parse(content.getItemContent());
-        	}
-    		com.amalto.core.util.Util.validate(d.getDocumentElement(), schema);
-		} catch (Exception e) {
-	    	String prefix = "Unable to create/update the item " + ": ";
-            String err = prefix +e.getClass().getName()+": "+e.getLocalizedMessage();
-            //org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-            //throw new TransformerException(e.getLocalizedMessage());
-            return err;
-		}
-		
-		return "";
     }
     
 	public String updateNode(int id, String content, int docIndex) throws TransformerException{
