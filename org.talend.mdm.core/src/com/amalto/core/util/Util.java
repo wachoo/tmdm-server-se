@@ -13,7 +13,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLConnection;
-import java.rmi.RemoteException;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.text.SimpleDateFormat;
@@ -73,7 +72,6 @@ import org.xml.sax.SAXException;
 
 import sun.misc.BASE64Encoder;
 
-
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.IXtentisWSDelegator;
 import com.amalto.core.ejb.ItemPOJO;
@@ -122,15 +120,11 @@ import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
 import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocalHome;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
-
-import com.amalto.xmldb.QueryBuilder;
+import com.amalto.core.webservice.WSVersion;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
 import com.amalto.xmlserver.interfaces.XmlServerException;
-
-import com.amalto.core.webservice.WSVersion;
-
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSComplexType;
@@ -397,10 +391,6 @@ public  class Util {
 		if (schema != null) {
 			String errors = seh.getErrors();
 			if (!errors.equals("")) {
-				String xmlString = Util.nodeToString(cloneNode); 
-				String err = "The item "+cloneNode.getLocalName()+" did not validate against the model: \n" + errors+"\n"
-					+xmlString;	//.substring(0, Math.min(100, xmlString.length()));
-				//Document xsdDoc = Util.parse(schema);
 				Map<String, String> nsMap = Util.getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), true);
 				Iterator<Map.Entry<String, String>> iter = nsMap.entrySet().iterator();
 				boolean error = true;
@@ -1753,7 +1743,6 @@ public  class Util {
     */
     
     
-    static Hashtable<String, Element> rootCache=new Hashtable<String, Element>();
     /**
 	 * Returns a namespaced root element of a document
 	 * Useful to create a namespace holder element
@@ -1763,19 +1752,15 @@ public  class Util {
 	public static Element getRootElement(String elementName, String namespace, String prefix) throws TransformerException{
 	 	Element rootNS=null;
     	try {
-    		String key=elementName+namespace+prefix;
-    		if(rootCache.containsKey(key)){
-    			return rootCache.get(key);
-    		}else{
-		    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		        factory.setNamespaceAware(true);   
-		        DocumentBuilder builder = factory.newDocumentBuilder();
-		    	DOMImplementation impl = builder.getDOMImplementation();
-		    	Document namespaceHolder = impl.createDocument(namespace,(prefix==null?"":prefix+":")+elementName, null);    
-		    	rootNS = namespaceHolder.getDocumentElement();
-		    	rootNS.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:"+prefix, namespace);
-		    	rootCache.put(key, rootNS);
-    		}
+
+	    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	        factory.setNamespaceAware(true);   
+	        DocumentBuilder builder = factory.newDocumentBuilder();
+	    	DOMImplementation impl = builder.getDOMImplementation();
+	    	Document namespaceHolder = impl.createDocument(namespace,(prefix==null?"":prefix+":")+elementName, null);    
+	    	rootNS = namespaceHolder.getDocumentElement();
+	    	rootNS.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:"+prefix, namespace);
+
     	} catch (Exception e) {
     	    String err="Error creating a namespace holder document: "+e.getLocalizedMessage();
     	    throw new TransformerException(err);    
