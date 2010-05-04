@@ -440,11 +440,11 @@ public final class LicenseUtil {
        final int nbViewers = getViewers();
        
        if (getLicenseMode() == LicenseMode.NAMED) {
-    	   if(activeAdminUsers - nbAdminUsers < 0)
+    	   if(nbAdminUsers - activeAdminUsers < 0)
     		   throw new Exception("invalid license admin number");
-    	   if(activeNormalUsers - nbNormalUsers < 0)
+    	   if(nbNormalUsers - activeNormalUsers < 0)
     		   throw new Exception("invalid license interactive number");
-    	   if(activeViewerUsers - nbViewers < 0)
+    	   if(nbViewers - activeViewerUsers < 0)
     		   throw new Exception("invalid license viewer number");
        }
    } 
