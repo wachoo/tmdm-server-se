@@ -287,10 +287,10 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
     	
         try {
         	if (schema!=null) {            	
-        		Document schema1=Util.parse(schema);
     	    	String concept=item.getConceptName();
     	    	if(Util.getUUIDNodes(schema, concept).size()>0){ //check uuid key exists
     		    	String dataCluster=item.getDataClusterPOJOPK().getIds()[0];
+    		    	Document schema1=Util.parse(schema);
     				Node n=Util.processUUID(item.getProjection(), schema, dataCluster, concept);
     				XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
     						schema1,
