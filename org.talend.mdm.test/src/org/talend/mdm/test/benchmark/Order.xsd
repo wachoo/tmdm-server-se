@@ -589,5 +589,68 @@
       <xsd:enumeration value="approved"/>  
       <xsd:enumeration value="unapproved"/> 
     </xsd:restriction> 
-  </xsd:simpleType> 
+  </xsd:simpleType>  
+  <xsd:element abstract="false" name="Test3Elements" nillable="false" type="Test3ElementsType"> 
+    <xsd:unique name="Test3Elements"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="subelement0"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType abstract="false" mixed="false" name="Test3ElementsType"> 
+    <xsd:all maxOccurs="1" minOccurs="1"> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="subelement0" nillable="false" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement1" nillable="false" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement2" nillable="false" type="xsd:string"/> 
+    </xsd:all> 
+  </xsd:complexType>  
+  <xsd:element name="Test10Elements" type="Test10ElementsType"> 
+    <xsd:unique name="Test10Elements"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="subelement0"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="Test10ElementsType"> 
+    <xsd:all maxOccurs="1" minOccurs="1"> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="subelement0" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement1" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement2" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement3" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement4" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement5" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement6" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement7" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement8" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement9" type="xsd:string"/> 
+    </xsd:all> 
+  </xsd:complexType>  
+  <xsd:element name="Test20Elements" type="Test20ElementsType"> 
+    <xsd:unique name="Test20Elements"> 
+      <xsd:selector xpath="."/> 
+      <xsd:field xpath="subelement0"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="Test20ElementsType"> 
+    <xsd:all maxOccurs="1" minOccurs="1"> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="subelement0" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement1" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement2" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement3" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement4" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement5" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement6" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement7" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement8" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement9" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement10" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement11" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement12" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement13" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement14" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement15" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement16" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement17" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement18" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="subelement19" type="xsd:string"/> 
+    </xsd:all> 
+  </xsd:complexType> 
 </xsd:schema>
