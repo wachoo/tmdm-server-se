@@ -371,19 +371,7 @@ public  class Util {
 		
 		xmlstr=xmlstr.replaceAll("<\\w+?/>", "");
 		//xmlstr=xmlstr.replaceAll("<\\w+?>\\s+?</\\w+?>", "");
-		
-		
-		
-		if (Util.getNodeList(xsdDoc.getDocumentElement(),
-				"//xsd:import").getLength() > 0
-				|| Util.getNodeList(xsdDoc.getDocumentElement(),
-						"//xsd:include").getLength() > 0)
-		{
-			Map<String, String> outerMap = getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), false);
-			xmlstr = addNMSpaceForImportedElement(outerMap, xmlstr);
-		}
-		
-		
+				
 		
 		d = builder.parse(new InputSource(new StringReader(xmlstr)));
 		
@@ -391,40 +379,10 @@ public  class Util {
 		if (schema != null) {
 			String errors = seh.getErrors();
 			if (!errors.equals("")) {
-				Map<String, String> nsMap = Util.getNamespaceFromImportXSD(xsdDoc.getDocumentElement(), true);
-				Iterator<Map.Entry<String, String>> iter = nsMap.entrySet().iterator();
-				boolean error = true;
-				while(iter.hasNext())
-				{
-					Map.Entry<String, String> entry = iter.next();
-					String type = entry.getKey().substring(0, entry.getKey().indexOf(" : "));
-					String location = entry.getValue();
-					factory.setNamespaceAware(true);
-					factory.setValidating((schema!=null));
-					factory.setAttribute(
-							"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-							"http://www.w3.org/2001/XMLSchema");
-				    factory.setAttribute(
-							"http://java.sun.com/xml/jaxp/properties/schemaSource",
-							new InputSource(new StringReader(schema))
-							);
-					javax.xml.namespace.QName weather = new javax.xml.namespace.QName(location,
-						    type, location);
-				    factory.setAttribute("http://apache.org/xml/properties/validation/schema/root-type-definition",
-				    		weather);
-					builder = factory.newDocumentBuilder();
-					seh = new SAXErrorHandler();
-					builder.setErrorHandler(seh);
-					builder.setEntityResolver(new SecurityEntityResolver());
-					builder.parse(new InputSource(new StringReader(xmlstr)));
-				    if(seh.getErrors().equals(""))
-				    {
-				    	error = false;
-				    	break;
-				    }
-				}
-				if(error)
-				 throw new SAXException(errors);
+				String xmlString = Util.nodeToString(element); 
+				String err = "The item "+element.getLocalName()+" did not validate against the model: \n" + errors+"\n"
+					+xmlString;	//.substring(0, Math.min(100, xmlString.length()));
+				throw new SAXException(err);
 			}
 		}
 		
@@ -434,88 +392,6 @@ public  class Util {
     public static Document validate(Element element, String schema) 
     	throws Exception{
     	return BeanDelegatorContainer.getUniqueInstance().getValidationDelegator().validation(element, schema);    	
-    }
-    
-
-    public static String addNMSpaceForImportedElement(Map<String, String> elemMap, String xmlData)
-    {
-    	Document docElem = null;
-    	Iterator<Map.Entry<String, String>> iter = elemMap.entrySet().iterator();
-    	LOOP:
-    	while(iter.hasNext())
-    	{
-    		Map.Entry<String, String> entry = iter.next();
-    		if(entry.getValue() != null && !entry.getValue().equals(""))
-    		{
-    			String elem = entry.getKey();
-    			String ns = elem.substring(elem.indexOf(" : ") + 3, elem.length());
-    			elem = elem.substring(0, elem.indexOf(" : "));
-    			String[] rawData = entry.getValue().split(" ");
-    			String xpath = "//" + elem ;
-    			try
-    			{
-    				if(docElem == null)
-	    			   docElem = Util.parse(xmlData);
-	    			for(String slice: rawData)
-	    			{
-	    				if(Util.getNodeList(docElem, xpath + "/" + slice).getLength() == 0)
-	    				{
-	    					continue LOOP;
-	    				}
-	    			}
-	    			File visualFile = new File(ns);
-	    			if(visualFile.exists())
-	    			{
-	    				continue LOOP;
-	    			}
-    		    	// replace the orgnial elem with one prefixed with namespace
-    		    	Element targetElem = (Element)Util.getNodeList(docElem, xpath).item(0);
-    		    	Element parentElem = null;
-    		    	if(targetElem.getParentNode() instanceof Document)
-    		    	{
-    		    		parentElem = ((Document)targetElem.getParentNode()).getDocumentElement();
-    		    	}
-    		    	else
-    		    		parentElem = (Element)targetElem.getParentNode();
-    		    	String prefix = ns.substring((ns.lastIndexOf("/") != -1 ? ns.lastIndexOf("/")+1 : 0));
-    		    	Element newElem = docElem.createElement(prefix + ":" + targetElem.getTagName());
-    		    	newElem.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:"+prefix, ns);
-    		    	for(int idx = 0; idx < targetElem.getChildNodes().getLength(); idx++)
-    		    	{
-    		    		Node child = targetElem.getChildNodes().item(idx);
-    		    		Node newChild = child.cloneNode(true);
-    		    		newElem.appendChild(newChild);
-    		    	}
-    		    	if(parentElem != targetElem)
-    		    	{
-    		    	parentElem.removeChild(targetElem);
-    		    	parentElem.appendChild(newElem);
-    		    	}
-    		    	else
-    		    	{
-    		    		String newXML = Util.nodeToString(newElem);
-    		    		docElem = Util.parse(newXML);
-    		    	}
-    			}
-    			catch(Exception ex)
-    			{
-    				ex.printStackTrace();
-    				return "";
-    			}
-    		}
-    	}
-    	
-    	String newDoc = "";
-    	try {
-    		 if(docElem != null)
-			   newDoc =  Util.nodeToString(docElem.getDocumentElement());
-    		 else
-    			 newDoc = xmlData;
-		} catch (TransformerException e) {
-			e.printStackTrace();
-		}
-		
-		return newDoc;
     }
     
     
@@ -821,10 +697,17 @@ public  class Util {
         {
         	for(int xsdType = 0; xsdType < 2; xsdType++)
         	{
-        		if(xsdType == 0)
-	               l = Util.getNodeList(doc, "./xsd:import");
-        		else
-        			l = Util.getNodeList(doc, "./xsd:include");
+        		try
+        		{
+	        		if(xsdType == 0)
+		               l = Util.getNodeList(doc, "./xsd:import");
+	        		else
+	        			l = Util.getNodeList(doc, "./xsd:include");
+	        		}
+        		catch(XtentisException e)
+        		{
+        			continue;
+        		}
 		        for (int elemNum = 0; elemNum < l.getLength(); elemNum++)
 		        {
 		        	Node importNode = l.item(elemNum);
@@ -1247,10 +1130,13 @@ public  class Util {
 
 			        	key = getBusinessConceptKey(d, businessConceptName);
 			        	if(key != null)
-			        		break;
+			        	{
+				        	xsdkeyCache.put(nodeToString(d)+"#"+businessConceptName, key);
+				        	break;
+			        	}
+			        		
 			        }
 	        	}
-	        	xsdkeyCache.put(schema+"#"+businessConceptName, key);
                 return key;
     		}
     		else return new XSDKey(selectors[0],fields);
@@ -1664,7 +1550,9 @@ public  class Util {
     	try {
     		String[] vals = new String[xsdKey.getFields().length];
     		for (int i = 0; i < xsdKey.getFields().length; i++) {    			
-    			vals[i] = Util.getFirstTextNode(item,xsdKey.getSelector()+"/"+xsdKey.getFields()[i]);
+    			String xpath=xsdKey.getFields()[i];
+    			xpath= xpath.replaceFirst("/"+item.getLocalName(), "");
+    			vals[i] = Util.getFirstTextNode(item,xsdKey.getSelector()+"/"+xpath);
     			if (vals[i]!=null) vals[i] = vals[i].trim(); //FIXME: Due to eXist trimming values @see ItemPOJO
 			}
         	return vals;
