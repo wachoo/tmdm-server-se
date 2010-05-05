@@ -1,0 +1,21 @@
+<project default="all" basedir=".">
+    
+  <!-- Xerces Java directories -->
+  <property name="build.dir" value="./build"/>
+  <property name="src.dir" value="./src"/>
+  <property name="lib.dir" value="./lib"/>
+	
+    <target name="all" depends="jar" description="building bulkloadclient">
+        <eclipse.refreshLocal resource="${basedir}"/>
+    </target>	
+
+	  <target name="jar" depends="">	    
+
+        <jar destfile="${build.dir}/bulkloadclient.jar">
+
+             <zipfileset dir="bin">
+                 <include name="**/*.class" />
+             </zipfileset>
+         </jar>
+	  </target>	
+</project>
