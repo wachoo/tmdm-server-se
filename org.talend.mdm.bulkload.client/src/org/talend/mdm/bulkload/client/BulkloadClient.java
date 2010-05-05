@@ -1,187 +1,182 @@
 package org.talend.mdm.bulkload.client;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.io.Reader;
+import java.net.URL;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.params.HttpClientParams;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-/**
- * Bulkload amount items client
- * @author achen
- *
- */
 public class BulkloadClient {
+	String url;
+	String username;
+	String password;
+	String universe;
+	String cluster;
+	String concept;
+	String datamodel;
+	BulkloadOptions options;
+	
+	public BulkloadClient(String url, String username,String password,String universe,String cluster,String concept,String datamodel) {
+		this.url=url;
+		this.username=username;
+		this.password=password;
+		this.universe=universe;
+		this.cluster=cluster;
+		this.concept=concept;
+		this.datamodel=datamodel;
+	}
 
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getUniverse() {
+		return universe;
+	}
+
+	public void setUniverse(String universe) {
+		this.universe = universe;
+	}
+
+	public String getCluster() {
+		return cluster;
+	}
+
+	public void setCluster(String cluster) {
+		this.cluster = cluster;
+	}
+
+	public String getConcept() {
+		return concept;
+	}
+
+	public void setConcept(String concept) {
+		this.concept = concept;
+	}
+
+	public String getDatamodel() {
+		return datamodel;
+	}
+
+	public void setDatamodel(String datamodel) {
+		this.datamodel = datamodel;
+	}
+
+	public BulkloadOptions getOptions() {
+		return options;
+	}
+
+	public void setOptions(BulkloadOptions options) {
+		this.options = options;
+	}
+	public void load(List<String > items) {
+		doLoad(items);
+	}
 	/**
-	 * @param args
+	 * load from a huge xml string
+	 * @param xmlString
 	 */
-	public static void main(String[] args)throws Exception {
-		if((!args[0].startsWith("http://") && args.length>0) && (args.length != 9 || args.length!=7)) {
-			usage();
-			return;
+	public void load(String xmlString)throws Exception {
+		List<String > items=BulkloadClientUtil.getItemXmls(xmlString);			
+		doLoad(items);
+	}
+	
+	private void doLoad(List<String> items) {
+		if(items.size()>options.getArraySize()) {
+			int loop=items.size()/options.getArraySize();
+			int left=items.size()-options.getArraySize()*loop;
+			for(int i=0; i<loop; i++) {
+				List<String> subItems=items.subList(i*options.getArraySize(), (i+1)*options.getArraySize());
+				try {
+					BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), subItems, username, password,universe);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			if(left>0) {
+				List<String> subItems=items.subList(loop*options.getArraySize(), loop*options.getArraySize()+left);
+				try {
+					BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), subItems, username, password,universe);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}else {
+			try {
+				BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), items, username, password,universe);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		String url= args[0];
-		String username=args[1];
-		String password=args[2];
-		String cluster= args[3];
-		String concept= args[4];
-		String datamodel= args[5];
-		boolean validate= false;
-		boolean smartpk= false;
-		List<String> itemdata= new ArrayList<String>();
-		if(args.length==9) {
-			 validate= Boolean.valueOf(args[6]);
-			 smartpk= Boolean.valueOf(args[7]);	
-			 itemdata=getItemXmls(args[8]);
-		}
-		if(args.length==7) {
-			itemdata=getItemXmls(args[6]);
-		}
+	}
+	
+	/**
+	 * load from File
+	 * @param inputXmlFile
+	 */
+	public void load(Reader inputXmlFile) {
+		BufferedReader reader=null;
 		try {
-			bulkload(url,cluster, concept,datamodel, validate, smartpk, itemdata,username,password);
+			reader=new BufferedReader(inputXmlFile);
+			StringBuffer sb=new StringBuffer();
+			String line=reader.readLine();
+			while(line!=null) {
+				sb=sb.append(line);
+				line=reader.readLine();
+			}
+			List<String > items=BulkloadClientUtil.getItemXmls(sb.toString());			
+			doLoad(items);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			if(reader!=null)
+				try {
+					reader.close();
+				} catch (IOException e) {
+					
+				}
+		}
+	}
+	
+	public static void main(String[] args) {
+		//test
+		//FileReader reader=new FileReader(file)
+		URL url=BulkloadClient.class.getResource("test.xml");
+		try {
+			BufferedInputStream in=((BufferedInputStream)url.getContent());
+			byte[] buf=new byte[in.available()];
+			in.read(buf);
+			String xml=new String(buf);
+			BulkloadClient client=new BulkloadClient("http://localhost:8080/datamanager/loadServlet","admin","talend",null,"Order","Country","Order");
+			client.setOptions(new BulkloadOptions(55));
+			client.load(xml);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	private static List<String> getItemXmls(String itemdata)throws Exception {
-		Element root=parse(itemdata).getDocumentElement();
-		List<String> items=new ArrayList<String>();
-		for(int i=0; i<root.getChildNodes().getLength(); i++) {
-			Node node=root.getChildNodes().item(i);
-			if(node.getNodeType() == Node.ELEMENT_NODE) {
-				items.add(nodeToString(node, true));
-			}
-		}
-		return items;
-	}
-	
-	private static String nodeToString(Node n, boolean omitXMLDeclaration) throws TransformerException{
-       	StringWriter sw = new StringWriter();
-       	Transformer transformer = TransformerFactory.newInstance().newTransformer();       	
-       	if (omitXMLDeclaration)
-       		transformer.setOutputProperty("omit-xml-declaration","yes");
-       	else
-       		transformer.setOutputProperty("omit-xml-declaration","no");
-       	transformer.setOutputProperty("indent","yes");
-       	transformer.transform(
-				new DOMSource(n),
-				new StreamResult(sw)
-				);
-       	if (sw==null) return null;       	
-		return sw.toString().replaceAll("\r\n", "\n");
-	}
-	
-	private static Document parse(String xmlString) throws ParserConfigurationException,IOException, SAXException{
-		//parse
-		Document d=null;
-
-//        //initialize the sax parser which uses Xerces
-//		System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-//				"org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		//Schema validation based on schemaURL
-		factory.setNamespaceAware(true);
-		factory.setAttribute(
-				"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-				"http://www.w3.org/2001/XMLSchema");
-		DocumentBuilder builder;
-		builder = factory.newDocumentBuilder();
-
-		d = builder.parse(new InputSource(new StringReader(xmlString)));
-
-		return d;
-    }	
-	private static void usage() {
-		String usage="Usage:\n"+
-		"\t java -jar bulkloadclient.jar <url> <username> <password> <datacontainer> <concept> <datamodel> [validate] [smartpk] <itemdata> \n"+
-		"\t example: java -jar bulkloadclient.jar http://localhost:8080/datamanager/loadServlet admin talend Order Country Order <itemdata><Country><isoCode>zh</isoCode><label>china</label><Continent>Asia</Continent></Country></itemdata>";
-		
-		System.out.println(usage);
-	}
-	
-	public static boolean bulkload(String URL, String cluster,String concept,String datamodel, boolean validate, boolean smartpk, String itemdata,
-			String username, String password) throws Exception {
-		List<String> items=getItemXmls(itemdata);
-		return bulkload(URL,cluster,concept,datamodel,validate,smartpk,items,username,password);
-	}
-	
-	public static boolean bulkload(String URL, String cluster,String concept,String datamodel, boolean validate, boolean smartpk, List<String> itemdata,
-			String username, String password) throws Exception {
-		HttpClient client = new HttpClient();
-		HttpClientParams params = new HttpClientParams();
-		// params.setSoTimeout(1000);
-		// params.setConnectionManagerTimeout(200);
-		client.setParams(params);
-		client.getState().setCredentials(AuthScope.ANY,
-				new UsernamePasswordCredentials(username, password));
-
-		URI uri = new URI(URL, false, "utf-8");
-		HostConfiguration config = new HostConfiguration();
-		config.setHost(uri);
-
-		PostMethod postMethod = new PostMethod(URL);
-		List<NameValuePair> list=new ArrayList<NameValuePair>();
-		NameValuePair[] data = { new NameValuePair("cluster", cluster),
-				new NameValuePair("concept", concept),
-				new NameValuePair("datamodel", datamodel),
-				new NameValuePair("validate", String.valueOf(validate)),
-				new NameValuePair("smartpk", String.valueOf(smartpk))};
-		list.addAll(Arrays.asList(data));
-		for(int i=0; i<itemdata.size(); i++) {
-			list.add(new NameValuePair("itemdata"+i, itemdata.get(i)));
-		}
-		postMethod.setRequestBody((NameValuePair[])list.toArray(new NameValuePair[list.size()]));
-		// post method
-		int statusCode = 0;
-		try {
-			statusCode = client.executeMethod(config,postMethod);
-		} catch (HttpException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		if (statusCode >= 400)
-			return false;
-		String str = "";
-		try {
-			str = postMethod.getResponseBodyAsString();
-		} catch (IOException e) {
-
-		}
-		System.out.println(str);
-
-		postMethod.releaseConnection();
-		return true;
-	}
-
 }
