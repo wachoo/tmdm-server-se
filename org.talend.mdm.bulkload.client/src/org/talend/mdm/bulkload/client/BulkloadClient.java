@@ -172,7 +172,7 @@ public class BulkloadClient {
 			in.read(buf);
 			String xml=new String(buf);
 			BulkloadClient client=new BulkloadClient("http://localhost:8080/datamanager/loadServlet","admin","talend",null,"Order","Country","Order");
-			client.setOptions(new BulkloadOptions(55));
+			client.setOptions(new BulkloadOptions());
 			client.load(xml);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

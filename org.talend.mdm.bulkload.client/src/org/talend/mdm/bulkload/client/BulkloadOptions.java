@@ -3,7 +3,7 @@ package org.talend.mdm.bulkload.client;
 public class BulkloadOptions {
 	boolean smartpk;
 	boolean validate;	
-	int arraySize=200; //the performance become better when the arraySize is bigger
+	int arraySize=500; //the performance become better when the arraySize is bigger
 	public BulkloadOptions(boolean smartpk,boolean validate, int arraySize) {
 		this.smartpk=smartpk;
 		this.validate=validate;
