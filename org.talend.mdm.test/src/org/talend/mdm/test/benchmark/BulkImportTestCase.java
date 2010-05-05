@@ -1,6 +1,10 @@
 package org.talend.mdm.test.benchmark;
 
+import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.talend.mdm.bulkload.client.BulkloadClient;
@@ -9,8 +13,10 @@ import org.talend.mdm.commmon.util.time.TimeMeasure;
 import org.talend.mdm.test.WebserviceTestCase;
 
 import urn_com_amalto_xtentis_webservice.WSDataCluster;
+import urn_com_amalto_xtentis_webservice.WSDataModel;
 import urn_com_amalto_xtentis_webservice.WSDataModelPK;
 import urn_com_amalto_xtentis_webservice.WSPutDataCluster;
+import urn_com_amalto_xtentis_webservice.WSPutDataModel;
 
 public class BulkImportTestCase extends WebserviceTestCase {
 	
@@ -28,6 +34,15 @@ public class BulkImportTestCase extends WebserviceTestCase {
 		boolean validate= false;
 		boolean smartpk= false;
 		
+		//create data model
+		InputStream in=ConcurrencyTestCase.class.getResourceAsStream("Order.xsd");
+		byte[] buf=new byte[in.available()];
+		in.read(buf);		
+		String str=new String(buf);		
+		defaultPort.putDataModel(new WSPutDataModel(new WSDataModel("Order", "", str)));
+		in.close();	
+		
+		// create data container
 		defaultPort.putDataCluster(new WSPutDataCluster(new WSDataCluster(dcpkn, "", "")));
 		
 		BulkloadClient bulkloadClient=new BulkloadClient(url,username,password,null,cluster,concept,datamodel);
@@ -60,18 +75,27 @@ public class BulkImportTestCase extends WebserviceTestCase {
 		
 	}
 
+	//2010-05-05T00:00:00
+	final static SimpleDateFormat xsdDateTime = new SimpleDateFormat("yyyy.MM.dd'T'HH:mm:ss");
+	
 	private String genData(long itotal) {
 		
 		StringBuffer sb=new StringBuffer();
+		
+		String now = xsdDateTime.format(new Date());
+
 		sb.append("<PurchaseOrder>")
-		  .append("<id>").append(itotal).append("</id>")
-		  .append("<customer>Hannaford Bros. Co.</customer>")
-		  .append("<product>Cranberries</product>")
-		  .append("<price>0.0075984869072116545</price>")
-		  .append("<amount>49955</amount>")
-		  .append("<time>1267583681953</time>")
-		  .append("<shipper>UK Mail, Express</shipper>")
-		  .append("</PurchaseOrder>");
+			.append("<PurchaseOrderId>").append(itotal).append("</PurchaseOrderId>")
+			.append("<Customer>Hannaford Bros. Co.</Customer>")
+			.append("<Date>").append(now).append("</Date>")
+			.append("<ListItems>")
+			.append("<POItem>poitem1</POItem>")
+			.append("<POItem>poitem2</POItem>")
+			.append("<POItem>poitem3</POItem>")
+			.append("<POItem>poitem4</POItem>")
+			.append("</ListItems>")
+			.append("<Shipper>UK Mail, Express</Shipper>")
+			.append("</PurchaseOrder>");
 
 		return sb.toString();
 	}
