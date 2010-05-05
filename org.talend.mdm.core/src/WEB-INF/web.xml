@@ -48,7 +48,15 @@
       <load-on-startup>999</load-on-startup>
    </servlet>
 
-
+   <servlet>
+      <servlet-name>loadServlet</servlet-name>
+      <display-name>load Servlet</display-name>
+      <servlet-class>com.amalto.core.servlet.LoadServlet</servlet-class>
+      <init-param>
+         <param-name>action</param-name>
+         <param-value>load</param-value>
+      </init-param>
+   </servlet>
    
   
   
@@ -63,6 +71,10 @@
    <servlet-mapping>
       <servlet-name>startupServlet</servlet-name>
       <url-pattern>/startupServlet</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>loadServlet</servlet-name>
+      <url-pattern>/loadServlet</url-pattern>
    </servlet-mapping>
 
 
@@ -98,6 +110,17 @@
             <url-pattern>/uploadFile</url-pattern>
         </web-resource-collection>
         <auth-constraint>
+            <role-name>authenticated</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>LoadServlet</web-resource-name>
+            <url-pattern>/loadServlet</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>administration</role-name>
             <role-name>authenticated</role-name>
         </auth-constraint>
     </security-constraint>
