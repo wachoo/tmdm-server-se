@@ -111,7 +111,7 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 	}	
 	public void testPerformance(){
 		int total=1000;//1000,5000,10000
-		//PutItemArray(total,200);
+		PutItemArray(total,200);
 		testSearch(total);
 		testDelete(total);
 	}
@@ -174,15 +174,21 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 		try {
 			//Put
 			TimeMeasure.begin("testPut3Elements1000");
-			for(int i=0; i<1000; i++) {				
-				String xmlString="<Test3Elements>"+
-									"<subelement0>Test3Elements"+i+"</subelement0>"+
-									"<subelement1>Test3Elements"+i+"</subelement1>"+
-									"<subelement2>Test3Elements"+i+"</subelement2>"+
-								  "</Test3Elements>";
-					
-				WSPutItem item=new WSPutItem(new WSDataClusterPK("Order"), xmlString, new WSDataModelPK("Order"), false);
-				defaultPort.putItem(item);
+			int itotal=1;
+			for(int i=0; i<5; i++) {
+				WSPutItem[] items=new WSPutItem[200];
+				for(int j=0; j<200; j++){
+					String xmlString="<Test3Elements>"+
+										"<subelement0>Test3Elements"+itotal+"</subelement0>"+
+										"<subelement1>Test3Elements"+itotal+"</subelement1>"+
+										"<subelement2>Test3Elements"+itotal+"</subelement2>"+
+									  "</Test3Elements>";
+						
+					WSPutItem item=new WSPutItem(new WSDataClusterPK("Order"), xmlString, new WSDataModelPK("Order"), false);
+					items[j]=item;
+					itotal++;
+				}
+				defaultPort.putItemArray(items);
 			}
 			TimeMeasure.end("testPut3Elements1000");
 			
@@ -211,22 +217,28 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 		try {
 			//Put
 			TimeMeasure.begin("testPut10Elements1000");
-			for(int i=0; i<1000; i++) {				
-				String xmlString="<Test10Elements>"+
-									"<subelement0>Test10Elements"+i+"</subelement0>"+
-									"<subelement1>Test10Elements"+i+"</subelement1>"+
-									"<subelement2>Test10Elements"+i+"</subelement2>"+
-									"<subelement3>Test10Elements"+i+"</subelement3>"+
-									"<subelement4>Test10Elements"+i+"</subelement4>"+
-									"<subelement5>Test10Elements"+i+"</subelement5>"+
-									"<subelement6>Test10Elements"+i+"</subelement6>"+
-									"<subelement7>Test10Elements"+i+"</subelement7>"+
-									"<subelement8>Test10Elements"+i+"</subelement8>"+
-									"<subelement9>Test10Elements"+i+"</subelement9>"+
-								  "</Test10Elements>";
-					
-				WSPutItem item=new WSPutItem(new WSDataClusterPK("Order"), xmlString, new WSDataModelPK("Order"), false);
-				defaultPort.putItem(item);
+			int itotal=1;
+			for(int i=0; i<5; i++) {
+				WSPutItem[] items=new WSPutItem[200];
+				for(int j=0; j<200; j++){		
+					String xmlString="<Test10Elements>"+
+										"<subelement0>Test10Elements"+itotal+"</subelement0>"+
+										"<subelement1>Test10Elements"+itotal+"</subelement1>"+
+										"<subelement2>Test10Elements"+itotal+"</subelement2>"+
+										"<subelement3>Test10Elements"+itotal+"</subelement3>"+
+										"<subelement4>Test10Elements"+itotal+"</subelement4>"+
+										"<subelement5>Test10Elements"+itotal+"</subelement5>"+
+										"<subelement6>Test10Elements"+itotal+"</subelement6>"+
+										"<subelement7>Test10Elements"+itotal+"</subelement7>"+
+										"<subelement8>Test10Elements"+itotal+"</subelement8>"+
+										"<subelement9>Test10Elements"+itotal+"</subelement9>"+
+									  "</Test10Elements>";
+						
+					WSPutItem item=new WSPutItem(new WSDataClusterPK("Order"), xmlString, new WSDataModelPK("Order"), false);
+					items[j]=item;
+					itotal++;
+				}
+				defaultPort.putItemArray(items);
 			}
 			TimeMeasure.end("testPut10Elements1000");
 			
@@ -255,32 +267,38 @@ public class BenchmarkTestCase extends WebserviceTestCase {
 		try {
 			//Put
 			TimeMeasure.begin("testPut20Elements1000");
-			for(int i=0; i<1000; i++) {				
-				String xmlString="<Test20Elements>"+
-									"<subelement0>Test20Elements"+i+"</subelement0>"+
-									"<subelement1>Test20Elements"+i+"</subelement1>"+
-									"<subelement2>Test20Elements"+i+"</subelement2>"+
-									"<subelement3>Test20Elements"+i+"</subelement3>"+
-									"<subelement4>Test20Elements"+i+"</subelement4>"+
-									"<subelement5>Test20Elements"+i+"</subelement5>"+
-									"<subelement6>Test20Elements"+i+"</subelement6>"+
-									"<subelement7>Test20Elements"+i+"</subelement7>"+
-									"<subelement8>Test20Elements"+i+"</subelement8>"+
-									"<subelement9>Test20Elements"+i+"</subelement9>"+
-									"<subelement10>Test20Elements"+i+"</subelement10>"+
-									"<subelement11>Test20Elements"+i+"</subelement11>"+
-									"<subelement12>Test20Elements"+i+"</subelement12>"+
-									"<subelement13>Test20Elements"+i+"</subelement13>"+
-									"<subelement14>Test20Elements"+i+"</subelement14>"+
-									"<subelement15>Test20Elements"+i+"</subelement15>"+
-									"<subelement16>Test20Elements"+i+"</subelement16>"+
-									"<subelement17>Test20Elements"+i+"</subelement17>"+
-									"<subelement18>Test20Elements"+i+"</subelement18>"+
-									"<subelement19>Test20Elements"+i+"</subelement19>"+
-								  "</Test20Elements>";
-					
-				WSPutItem item=new WSPutItem(new WSDataClusterPK("Order"), xmlString, new WSDataModelPK("Order"), false);
-				defaultPort.putItem(item);
+			int itotal=1;
+			for(int i=0; i<5; i++) {
+				WSPutItem[] items=new WSPutItem[200];
+				for(int j=0; j<200; j++){		
+					String xmlString="<Test20Elements>"+
+										"<subelement0>Test20Elements"+itotal+"</subelement0>"+
+										"<subelement1>Test20Elements"+itotal+"</subelement1>"+
+										"<subelement2>Test20Elements"+itotal+"</subelement2>"+
+										"<subelement3>Test20Elements"+itotal+"</subelement3>"+
+										"<subelement4>Test20Elements"+itotal+"</subelement4>"+
+										"<subelement5>Test20Elements"+itotal+"</subelement5>"+
+										"<subelement6>Test20Elements"+itotal+"</subelement6>"+
+										"<subelement7>Test20Elements"+itotal+"</subelement7>"+
+										"<subelement8>Test20Elements"+itotal+"</subelement8>"+
+										"<subelement9>Test20Elements"+itotal+"</subelement9>"+
+										"<subelement10>Test20Elements"+itotal+"</subelement10>"+
+										"<subelement11>Test20Elements"+itotal+"</subelement11>"+
+										"<subelement12>Test20Elements"+itotal+"</subelement12>"+
+										"<subelement13>Test20Elements"+itotal+"</subelement13>"+
+										"<subelement14>Test20Elements"+itotal+"</subelement14>"+
+										"<subelement15>Test20Elements"+itotal+"</subelement15>"+
+										"<subelement16>Test20Elements"+itotal+"</subelement16>"+
+										"<subelement17>Test20Elements"+itotal+"</subelement17>"+
+										"<subelement18>Test20Elements"+itotal+"</subelement18>"+
+										"<subelement19>Test20Elements"+itotal+"</subelement19>"+
+									  "</Test20Elements>";
+						
+					WSPutItem item=new WSPutItem(new WSDataClusterPK("Order"), xmlString, new WSDataModelPK("Order"), false);
+					items[j]=item;
+					itotal++;
+				}
+				defaultPort.putItemArray(items);
 			}
 			TimeMeasure.end("testPut20Elements1000");
 			
