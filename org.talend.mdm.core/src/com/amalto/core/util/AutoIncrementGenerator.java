@@ -1,9 +1,13 @@
 package com.amalto.core.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
+
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 /**
  * 
@@ -16,24 +20,32 @@ public class AutoIncrementGenerator {
 	//static volatile long  num=-1;	
 
 	static File file = new File("auto_increment.conf");
-	
+	public static String AUTO_INCREMENT="Auto_Increment";
 	private static Properties CONFIGURATION = null;
 	static{
 		//first try Current path
 		CONFIGURATION = new Properties();
-		if (file.exists()) {
-			try {
-				CONFIGURATION.load(new FileInputStream(file));				
-			} catch (Exception e) {
-				e.printStackTrace();
+		//load from db
+		try {
+			String xml=Util.getXmlServerCtrlLocal().getDocumentAsString(null, XSystemObjects.DC_CONF.getName(), AUTO_INCREMENT);
+			if(xml!=null && xml.trim().length()>0) {
+				xml=xml.replaceFirst("(<\\?xml.*\\?>)", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">");
+				byte[] buf= xml.getBytes();	
+				ByteArrayInputStream bio=new ByteArrayInputStream(buf);
+
+				CONFIGURATION.loadFromXML(bio);
+				bio.close();
 			}
-		} 	
+		} catch (Exception e) {
+			org.apache.log4j.Logger.getLogger(AutoIncrementGenerator.class).error(e.getLocalizedMessage(),e);
+		}	
 	}
 	/**
-	 * this is not a good alogrithm, need to find a better way
+	 * this is not a good algrithom, need to find a better way
 	 * @return
 	 */
 	public synchronized static long  generateNum(String universe,String dataCluster,String conceptName){
+		
 		String key=universe+"."+dataCluster+"."+conceptName;
 		long num=0;		
 		String n=CONFIGURATION.getProperty(key);
@@ -47,17 +59,19 @@ public class AutoIncrementGenerator {
 		CONFIGURATION.setProperty(key, String.valueOf(num));				
 		return num;
 	}
-	/**
-	 * save configure file
-	 */
-	public static void saveToFile(){
-		FileOutputStream out;
+	
+	
+	public static  void saveToDB() {
+
 		try {
-			out = new FileOutputStream(file);
-			CONFIGURATION.store(out, "AUTO GENERATED FILE DON'T DELETE auto_increment configure file");
-		} catch (Exception e) {
-			String err = "AUTOINCREMENT Configuration: unable to save the configuration in '"+file.getAbsolutePath()+"' :"+e.getMessage(); 
-			org.apache.log4j.Logger.getLogger(AutoIncrementGenerator.class).error(err,e);
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			CONFIGURATION.storeToXML(bos, "","UTF-8");
+			String xmlString=bos.toString("UTF-8");
+			Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, AUTO_INCREMENT, XSystemObjects.DC_CONF.getName(), null);
+			//read from xml file
+			bos.close();
+		}catch(Exception e) {
+			
 		}		
-	}	
+	}
 }

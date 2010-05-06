@@ -90,7 +90,8 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 		    	org.apache.log4j.Logger.getLogger(this.getClass()).info("Shutdown detected. Stopping the Routing Engine");
 		    	RoutingEngineV2POJO.getInstance().setStatus(RoutingEngineV2POJO.STOPPED);
 				//save the configure file when jboss shutdown				
-				AutoIncrementGenerator.saveToFile();		    	
+				//AutoIncrementGenerator.saveToFile();	
+		    	AutoIncrementGenerator.saveToDB();
 			}
 		});
     }

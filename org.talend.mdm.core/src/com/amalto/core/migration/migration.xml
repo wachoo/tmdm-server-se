@@ -3,5 +3,5 @@
 
 <com.amalto.core.migration.tasks.RenameCallTransformerTask/>
 <com.amalto.core.migration.tasks.AddActionInUpdateReportTask/>
-
+<com.amalto.core.migration.tasks.AutoIncrementTask/>
 </Root>
