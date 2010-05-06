@@ -1,7 +1,6 @@
 <project default="all" basedir=".">
     
   <!-- Xerces Java directories -->
-  <property name="build.dir" value="./build"/>
   <property name="src.dir" value="./src"/>
   <property name="lib.dir" value="./lib"/>
 	
@@ -11,11 +10,18 @@
 
 	  <target name="jar" depends="">	    
 
-        <jar destfile="${build.dir}/bulkloadclient.jar">
+	  	 <delete file="./bulkloadclient.jar"/>
+	  	     <delete file="MANIFEST.MF"/>
+	  	     <manifest file="MANIFEST.MF">
+	  	        <attribute name="Built-By" value="${user.name}"/>
+	  	        <attribute name="Main-Class" value="org.talend.mdm.bulkload.client.BulkloadClientUtil"/>
+	  	    </manifest>
+	  	  
+	  	      <jar destfile="./bulkloadclient.jar"
+	  	           basedir="bin"
+	  	           includes="**/*.class"
+	  	           manifest="MANIFEST.MF"
+	  	           />
 
-             <zipfileset dir="bin">
-                 <include name="**/*.class" />
-             </zipfileset>
-         </jar>
 	  </target>	
 </project>

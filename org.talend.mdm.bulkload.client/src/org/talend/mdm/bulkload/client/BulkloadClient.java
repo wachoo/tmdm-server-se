@@ -15,7 +15,7 @@ public class BulkloadClient {
 	String cluster;
 	String concept;
 	String datamodel;
-	BulkloadOptions options;
+	BulkloadOptions options=new BulkloadOptions();
 	
 	public BulkloadClient(String url, String username,String password,String universe,String cluster,String concept,String datamodel) {
 		this.url=url;
