@@ -91,7 +91,7 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 		    	RoutingEngineV2POJO.getInstance().setStatus(RoutingEngineV2POJO.STOPPED);
 				//save the configure file when jboss shutdown				
 				//AutoIncrementGenerator.saveToFile();	
-		    	AutoIncrementGenerator.saveToDB();
+		    	//AutoIncrementGenerator.saveToDB();
 			}
 		});
     }
