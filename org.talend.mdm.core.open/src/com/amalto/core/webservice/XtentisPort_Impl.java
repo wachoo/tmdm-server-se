@@ -697,6 +697,24 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSRoutingEngineV2Status _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSMDMJobArray getMDMJob(com.amalto.core.webservice.WSMDMNULL mdmJobRequest) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSMDMJobArray _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSBoolean putMDMJob(com.amalto.core.webservice.WSPUTMDMJob putMDMJobRequest) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSBoolean _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSBoolean deleteMDMJob(com.amalto.core.webservice.WSDELMDMJob deleteMDMJobRequest) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSBoolean _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSCategoryData getMDMCategory(com.amalto.core.webservice.WSCategoryData wsCategoryDataRequest) throws 
          java.rmi.RemoteException {
         

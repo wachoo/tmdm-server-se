@@ -59,15 +59,15 @@
      -->
       <security-role>
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name> DataManagerAdministration</role-name>
+      </security-role>
+      <security-role>
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
          <role-name>authenticated</role-name>
       </security-role>
       <security-role>
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
          <role-name>administration</role-name>
-      </security-role>
-      <security-role>
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name> DataManagerAdministration</role-name>
       </security-role>
 
    <!-- method permissions -->
@@ -1606,6 +1606,45 @@
          <method-name>getMDMCategory</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSCategoryData</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>putMDMJob</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSPUTMDMJob</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>deleteMDMJob</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSDELMDMJob</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>getMDMJob</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSMDMNULL</method-param>
          </method-params>
       </method>
    </method-permission>

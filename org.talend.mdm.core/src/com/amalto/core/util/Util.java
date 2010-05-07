@@ -3,7 +3,9 @@ package com.amalto.core.util;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,6 +35,8 @@ import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
@@ -86,6 +90,7 @@ import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.ejb.local.TransformerCtrlLocalHome;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
+import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocal;
 import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocalHome;
 import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
@@ -120,6 +125,7 @@ import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
 import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocalHome;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
+import com.amalto.core.webservice.WSMDMJob;
 import com.amalto.core.webservice.WSVersion;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
@@ -3168,5 +3174,129 @@ public  class Util {
 			}
 		}
 	}
-	 
+    public static WSMDMJob[] getMDMJobs() {
+    	List<WSMDMJob> jobs = new ArrayList<WSMDMJob>();
+		try {
+			String jbossHomePath = Util.getAppServerDeployDir();
+			
+			String deploydir="";
+			try {
+				deploydir = new File(jbossHomePath).getAbsolutePath();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			deploydir=deploydir+File.separator+"server"+File.separator+"default"+File.separator+"deploy";
+			System.out.println("deploy url:"+deploydir);
+			if(!new File(deploydir).exists())throw new FileNotFoundException();
+			
+			File[] warFiles=new File(deploydir).listFiles(new FileFilter() {			
+				public boolean accept(File pathname) {
+					if(pathname.isFile() && pathname.getName().toLowerCase().endsWith(".war")) {
+						return true;
+					}
+					return false;
+				}
+			});
+			File[] zipFiles=new File(JobContainer.getUniqueInstance().getDeployDir()).listFiles(new FileFilter() {
+				public boolean accept(File pathname) {
+					if(pathname.isFile() ||pathname.getName().toLowerCase().endsWith(".zip")) {
+						return true;
+					}
+					return false;
+				}
+			});
+			for(File war: warFiles) {
+				WSMDMJob job= getJobInfo(war.getAbsolutePath());
+				if(job!=null)
+					jobs.add(job);
+			}
+			for(File zip: zipFiles) {
+				WSMDMJob job= getJobInfo(zip.getAbsolutePath());
+				if(job!=null)
+					jobs.add(job);
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return jobs.toArray(new WSMDMJob[jobs.size()]);
+    }
+	/**
+	 * get the JobInfo:jobName and version & suffix
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	private static WSMDMJob getJobInfo(String fileName) {
+		WSMDMJob jobInfo =null;
+		try {
+			ZipInputStream in = new ZipInputStream(
+					new FileInputStream(fileName));
+			ZipEntry z = null;
+			try {
+				String jobName = "";
+				String jobVersion = "";
+				//war
+				if(fileName.endsWith(".war")) {
+					while ((z = in.getNextEntry()) != null) {
+						String dirName = z.getName();
+						// get job version
+						if (dirName.endsWith("undeploy.wsdd")) {						
+							Pattern p = Pattern.compile(".*?_(\\d_\\d)/undeploy.wsdd");
+							Matcher m = p.matcher(dirName);	
+							m.groupCount();
+							if (m.matches()) {
+								jobVersion = m.group(1);
+							}						
+						}
+						// get job name
+						Pattern p = Pattern.compile(".*?/(.*?)\\.wsdl");
+						Matcher m= p.matcher(dirName);
+						if (m.matches()) {						
+							jobName = m.group(1);
+						}
+					}
+					if(jobName.length()>0) {
+						jobInfo=new WSMDMJob(null,null,null);
+						jobInfo.setJobName(jobName);
+						jobInfo.setJobVersion(jobVersion.replaceAll("_", "."));
+						jobInfo.setSuffix(".war");
+						return jobInfo;
+					}else {
+						return null;
+					}
+				}//war
+				if(fileName.endsWith(".zip")) {
+					while ((z = in.getNextEntry()) != null) {
+						String dirName = z.getName();
+						int pos= dirName.indexOf('/');
+			
+						String dir=dirName.substring(0,pos);
+						pos=dir.lastIndexOf('_');
+						jobName = dir.substring(0,pos);
+						jobVersion=dir.substring(pos+1);
+						break;
+
+					}
+					if(jobName.length()>0) {
+						jobInfo=new WSMDMJob(null,null,null);
+						jobInfo.setJobName(jobName);
+						jobInfo.setJobVersion(jobVersion);
+						jobInfo.setSuffix(".zip");
+						return jobInfo;
+					}else {
+						return null;
+					}
+				}
+			} catch (FileNotFoundException e) {				
+			} finally {
+				in.close();
+			}
+		} catch (Exception e) {
+			
+		}
+
+		return jobInfo;
+	}	 
 } 

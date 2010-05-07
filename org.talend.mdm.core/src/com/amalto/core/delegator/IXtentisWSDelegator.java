@@ -4859,4 +4859,130 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 		}
 		 
 	 }
+		/**
+		 * **********************JOB***************************************
+		 */
+		
+		public static final String 	MDMTISJOB="MDMTISJOB";
+		public static final String 	JOB="JOB";
+		/**
+		 * @ejb.interface-method view-type = "service-endpoint"
+		 * @ejb.permission 
+		 * 	role-name = "authenticated"
+		 * 	view-type = "service-endpoint"
+		 */	
+	    public WSBoolean putMDMJob(WSPUTMDMJob job)throws RemoteException {
+	    	DocumentBuilder documentBuilder;
+			try 
+			{
+				documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				Document doc = null;
+				Element jobElem = null, newOne = null;
+			    String xmlData = null;
+			    try{
+			    	xmlData=Util.getXmlServerCtrlLocal().getDocumentAsString(null, MDMTISJOB, JOB);
+			    }catch(Exception e){}
+			    if(xmlData == null || xmlData.equals(""))
+			    {
+				   doc = documentBuilder.newDocument();
+				   jobElem = doc.createElement("jobs");
+				   doc.appendChild(jobElem);
+			    }
+			    else
+			    {
+				   doc = Util.parse(xmlData);
+				   jobElem = doc.getDocumentElement();
+			    }
+			   
+			   
+			   newOne = doc.createElement("job");
+			   newOne.setAttribute("name", job.getJobName());
+			   newOne.setAttribute("version", job.getJobVersion());
+			   jobElem.appendChild(newOne);
+
+			   Util.getXmlServerCtrlLocal().putDocumentFromString(Util.nodeToString(doc.getDocumentElement()), JOB, MDMTISJOB, null);
+			   return new WSBoolean(true);
+			} catch (Exception e) {
+				e.printStackTrace();			
+			}
+			return new WSBoolean(false);
+	    }
+		   
+		/**
+		 * @ejb.interface-method view-type = "service-endpoint"
+		 * @ejb.permission 
+		 * 	role-name = "authenticated"
+		 * 	view-type = "service-endpoint"
+		 */	
+	    public WSBoolean deleteMDMJob(WSDELMDMJob job)throws RemoteException {
+	    	Document doc = null;
+	    	try {
+			    String xmlData = null;
+			    try{
+			    	xmlData=Util.getXmlServerCtrlLocal().getDocumentAsString(null, MDMTISJOB, JOB);
+			    }catch(Exception e){}
+			    if(xmlData==null)return new WSBoolean(false);
+				doc = Util.parse(xmlData);
+				NodeList list = Util.getNodeList(doc, "/jobs/job[@name='" + job.getJobName() + "']");
+				if(list.getLength() > 0)
+				{
+					doc.getDocumentElement().removeChild(list.item(0));
+					xmlData = Util.nodeToString(doc);
+					Util.getXmlServerCtrlLocal().putDocumentFromString(xmlData, JOB, MDMTISJOB, null);
+					return new WSBoolean(true);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			return new WSBoolean(false);
+	    }
+	    
+	    
+		/**
+		 * get job info from jboss deploy dir
+		 * @ejb.interface-method view-type = "service-endpoint"
+		 * @ejb.permission 
+		 * 	role-name = "authenticated"
+		 * 	view-type = "service-endpoint"
+		 */	
+	    
+	    public WSMDMJobArray getMDMJob(WSMDMNULL job)
+	    {
+			WSMDMJobArray jobSet = new WSMDMJobArray();
+			WSMDMJob[] jobs=Util.getMDMJobs();
+			jobSet.setWsMDMJob(jobs);
+//			Document doc = null;
+//			String xmlData;
+//			URL url=DefaultXtentisWSDelegator.class.getResource("/");
+//			
+//			String deploydir="";
+//			try {
+//				deploydir = new File(url.toURI()).getParentFile().getAbsolutePath();
+//			} catch (URISyntaxException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
+//			deploydir=deploydir+File.separator+"deploy";
+//			System.out.println("deploy url"+deploydir);
+//			try {
+//				Util.getXmlServerCtrlLocal().createCluster(null, MDMTISJOB);
+//				xmlData = EnterpriseUtil.getXmlServerCtrlLocal().getDocumentAsString(null, MDMTISJOB, JOB);
+//				if(xmlData==null) return jobSet;
+//				doc = EnterpriseUtil.parse(xmlData);
+//				NodeList list = EnterpriseUtil.getNodeList(doc, "/jobs/child::*");
+//				WSMDMJob[] jobs = new WSMDMJob[list.getLength()];
+//				for(int i = 0; i < list.getLength(); i++)
+//				{
+//				   Node node = list.item(i);
+//				   jobs[i] = new WSMDMJob(node.getAttributes().getNamedItem("name").getNodeValue(), 
+//						                  node.getAttributes().getNamedItem("version").getNodeValue());
+//				}
+//				jobSet.setWsMDMJob(jobs);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+			
+			return jobSet;
+	    }	 
 }

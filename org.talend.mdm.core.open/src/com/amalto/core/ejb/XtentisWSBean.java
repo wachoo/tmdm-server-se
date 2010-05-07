@@ -58,6 +58,7 @@ import com.amalto.connector.jca.RecordFactoryImpl;
 import com.amalto.core.delegator.BeanDelegatorConfigReader;
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.delegator.impl.DefaultXtentisWSDelegator;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
@@ -1696,4 +1697,44 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
     public WSCategoryData getMDMCategory(WSCategoryData request) throws RemoteException {
     	return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().getMDMCategory(request);
     }
+
+	/**
+	 * **********************JOB***************************************
+	 */
+	
+	public static final String 	MDMTISJOB="MDMTISJOB";
+	public static final String 	JOB="JOB";
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */	
+    public WSBoolean putMDMJob(WSPUTMDMJob job)throws RemoteException {
+    	return ((DefaultXtentisWSDelegator)BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator()).putMDMJob(job);
+    }
+	   
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */	
+    public WSBoolean deleteMDMJob(WSDELMDMJob job)throws RemoteException {
+    	return ((DefaultXtentisWSDelegator)BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator()).deleteMDMJob(job);
+    }
+    
+    
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */	
+    
+    public WSMDMJobArray getMDMJob(WSMDMNULL job)
+    {
+    	return ((DefaultXtentisWSDelegator)BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator()).getMDMJob(job);
+    }
+
 }

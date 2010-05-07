@@ -889,6 +889,26 @@
         <part name="wsRoutingEngineStatus" element="tns:WSRoutingEngineV2Status"/>
     </message>
 
+    <message name="getMDMJobRequest">
+      <part name="mdmJobRequest" element="tns:WSMDMNULL"></part>
+    </message>
+    <message name="getMDMJobResponse">
+        <part name="mdmJobResponse" element="tns:WSMDMJobArray"></part>
+    </message>
+    
+    <message name="putMDMJobRequest">
+        <part name="putMDMJobRequest" element="tns:WSPUTMDMJob"></part>
+    </message>
+    <message name="putMDMJobResponse">
+        <part name="putMDMJobResponse" element="tns:WSBoolean"></part>
+    </message>
+    
+    <message name="deleteMDMJobRequest">
+           <part name="deleteMDMJobRequest" element="tns:WSDELMDMJob"></part>
+    </message>
+    <message name="deleteMDMJobResponse">
+        <part name="deleteMDMJobResponse" element="tns:WSBoolean"></part>
+    </message>
     <message name="getMDMCategoryRequest">
        <part name="wsCategoryDataRequest" element="tns:WSCategoryData"/>
     </message>
@@ -1446,7 +1466,22 @@
             <input message="tns:routingEngineV2ActionRequest"/>
             <output message="tns:routingEngineV2ActionResponse"/>
         </operation>
-        
+  
+        <operation name="getMDMJob">
+            <input message="tns:getMDMJobRequest"/>
+            <output message="tns:getMDMJobResponse"/>
+        </operation>
+        <operation name="putMDMJob">
+           <input message="tns:putMDMJobRequest"/>
+           <output message="tns:putMDMJobResponse"/>
+        </operation>
+        <operation name="deleteMDMJob">
+           <input message="tns:deleteMDMJobRequest"/>
+           <output message="tns:deleteMDMJobResponse"/>
+        </operation>
+
+
+                  
          <operation name="getMDMCategory">
             <input message="tns:getMDMCategoryRequest"/>
             <output message="tns:getMDMCategoryResponse"></output>
@@ -2141,7 +2176,25 @@
             <input><soap:body use="literal"/></input>
             <output><soap:body use="literal"/></output>
         </operation>
-       
+  
+        <operation name="getMDMJob">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        
+        <operation name="putMDMJob">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        
+        <operation name="deleteMDMJob">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+             
         <operation name="getMDMCategory">
             <soap:operation/>
             <input><soap:body use="literal"/></input>
