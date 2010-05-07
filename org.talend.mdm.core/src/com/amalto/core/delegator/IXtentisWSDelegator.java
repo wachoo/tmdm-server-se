@@ -1325,46 +1325,47 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			
 			//FIXME: xQuery only
 	 		String query = 
-					"for $ii in /ii"+
+					"let $allres := /ii"+
 					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "[matches(./p , '"+wsGetItemPKsByCriteria.getContentKeywords()+"')]")+
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[matches(./i , '"+wsGetItemPKsByCriteria.getKeysKeywords()+"')]")+
 					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq '"+wsGetItemPKsByCriteria.getConceptName()+"']");
 	 		
-	 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+=" where ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")";
-	 		       
-	 		query+=" return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>";
+	 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+=" [ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";
+	 		
 	 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
 				String collectionpath= CommonUtil.getPath(revisionID, dataClusterName);
 				query = 
-					"for $ii in collection(\""+collectionpath+"\")/ii"+
+					"let $allres := collection(\""+collectionpath+"\")/ii"+
 					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "[ora:matches(./p , \""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]")+
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[ora:matches(./i , \""+wsGetItemPKsByCriteria.getKeysKeywords()+"\")]")+
 					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq \""+wsGetItemPKsByCriteria.getConceptName()+"\"]");
 	 		
-		 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+=" where ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")";
-		 		       
-		 		query+=" return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>";
-	 		}	 		
-	    	//Determine Query based on number of results an counts
-	    	String rquery = null;
+		 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+=" [ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";		 		       
+	 		}	 	
 	    	int start=wsGetItemPKsByCriteria.getSkip();
 	    	int limit=wsGetItemPKsByCriteria.getMaxItems();
+	 		String sub="\nlet $res := for $ii in subsequence($allres, "+(start+1)+","+limit+")\n";   
+	 		String ret="return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>\n";
+	 		query+=sub+ret;
+	 		
+	    	//Determine Query based on number of results an counts
+	    	String rquery = null;
 	    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
 	    	if (subsequence) {	    		
 	    		rquery =
-		    			"let $_leres_ := \n"+query
-		    			+"\n return insert-before(subsequence($_leres_,"+(start+1)+","+limit+"),0,<totalCount>{count($_leres_)}</totalCount>)";
+		    			query
+		    			+"return insert-before($res,0,<totalCount>{count($allres)}</totalCount>) ";
 	    	} else {
 	    		
 	    		rquery =
-		    			"let $_leres_ := \n"+query
-		    			+"\n return insert-before($_leres_,0,<totalCount>{count($_leres_)}</totalCount>)";	    		
+		    			query
+		    			+"return insert-before($allres,0,<totalCount>{count($allres)}</totalCount>)";	    		
 	    	}	 		
-	 		org.apache.log4j.Logger.getLogger(this.getClass()).debug(rquery);
+	    	System.out.println(rquery);
 			
 			DataClusterPOJOPK dcpk =	new DataClusterPOJOPK(dataClusterName);
 			Collection<String> results = 
