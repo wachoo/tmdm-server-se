@@ -31,6 +31,7 @@ amalto.updatereport.UpdateReport = function () {
         
         updateReportPanel.show();
 		updateReportPanel.doLayout();
+		updateReportPanel.afterLayOut();
 		amalto.core.doLayout();
 		return isFirstTime;
     };

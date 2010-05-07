@@ -200,6 +200,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
           autoLoad:true
        });
        
+       
 		Ext.apply(this, {
 			layout : "border",
 			title : amalto.updatereport.UpdateReportLocal.get("title"),
@@ -234,7 +235,6 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 					        valueField:'value',   
 					        typeAhead: true,
 					        triggerAction: 'all',
-					        forceSelection:true,
 					        listeners : {
                                'specialkey' : function(field, event) {
                                	                  this.onSearchKeyClick(field, event);
@@ -279,7 +279,6 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 					        valueField:'value',   
 					        typeAhead: true,
 					        triggerAction: 'all',
-					        forceSelection:true,
 					        listeners : {
                                'specialkey' : function(field, event) {
                                	                  this.onSearchKeyClick(field, event);
@@ -321,8 +320,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 			}],
 			id : "UpdateReportPanel",
 			closable:true
-		});
-		
+		});	
 	},
     
 	initListData : function(itemsBroswer){
@@ -407,6 +405,11 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
             Ext.apply(this.store1.baseParams,{
               regex: criteria
             });
+    },
+    
+    afterLayOut : function(){
+    	DWRUtil.setValue('source','workflow');
+    	DWRUtil.setValue('operationType','ACTION');
     }
 
 });
