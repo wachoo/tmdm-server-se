@@ -3034,13 +3034,16 @@ public  class Util {
 								valuesHolder.add(simpTypeName);
 							} else if (simpType.asRestriction() != null
 									&& valuesHolder.contains("enumeration")) {
-								Iterator<XSFacet> facetIter = simpType
-										.asRestriction()
-										.iterateDeclaredFacets();
-								while (facetIter.hasNext()) {
-									XSFacet facet = facetIter.next();
-									valuesHolder.add(facet.getValue().value);
-								}
+								XSType xsType=simpType.asRestriction().getBaseType();
+								String simpTypeName="xsd:" +xsType.getName();
+								valuesHolder.set(valuesHolder.indexOf("enumeration"), simpTypeName);
+//								Iterator<XSFacet> facetIter = simpType
+//										.asRestriction()
+//										.iterateDeclaredFacets();
+//								while (facetIter.hasNext()) {
+//									XSFacet facet = facetIter.next();
+//									valuesHolder.add(facet.getValue().value);
+								//}
 							}
 						} else {
 							XSComplexType cmpType = (XSComplexType) childElem
