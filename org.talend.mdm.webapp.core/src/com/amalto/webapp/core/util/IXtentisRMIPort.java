@@ -29,6 +29,8 @@ import javax.resource.cci.Interaction;
 import javax.resource.cci.MappedRecord;
 
 import org.jboss.security.Base64Encoder;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -700,20 +702,51 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 			
 			//FIXME: xQuery only
 	 		String query = 
-					"for $ii in /ii"+
-					(wsGetItemPKsByCriteria.getContentKeywords() == null ? "": "[matches(./p , '"+wsGetItemPKsByCriteria.getContentKeywords()+"')]")+
+					"let $allres := /ii"+
+					((wsGetItemPKsByCriteria.getContentKeywords() == null) ? "": "[matches(./p , '"+wsGetItemPKsByCriteria.getContentKeywords()+"')]")+
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[matches(./i , '"+wsGetItemPKsByCriteria.getKeysKeywords()+"')]")+
-					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[matches(./n , '"+wsGetItemPKsByCriteria.getConceptName()+"')]")+
-					" return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>";
+					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq '"+wsGetItemPKsByCriteria.getConceptName()+"']");
+	 		
+	 		
+	 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+				String collectionpath= CommonUtil.getPath(revisionID, dataClusterName);
+				query = 
+					"let $allres := collection(\""+collectionpath+"\")/ii"+
+					((wsGetItemPKsByCriteria.getContentKeywords() == null) ? "": "[ora:matches(./p , \""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]")+
+					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
+					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
+					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[ora:matches(./i , \""+wsGetItemPKsByCriteria.getKeysKeywords()+"\")]")+
+					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq \""+wsGetItemPKsByCriteria.getConceptName()+"\"]");
+	 		}	 	
+	    	int start=wsGetItemPKsByCriteria.getSkip();
+	    	int limit=wsGetItemPKsByCriteria.getMaxItems();
+	 		String sub="\nlet $res := for $ii in subsequence($allres, "+(start+1)+","+limit+")\n";   
+	 		String ret="return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>\n";
+	 		query+=sub+ret;
+	 		
+	    	//Determine Query based on number of results an counts
+	    	String rquery = null;
+	    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
+	    	if (subsequence) {	    		
+	    		rquery =
+		    			query
+		    			+"return insert-before($res,0,<totalCount>{count($allres)}</totalCount>) ";
+	    	} else {
+	    		
+	    		rquery =
+		    			query
+		    			+"return insert-before($allres,0,<totalCount>{count($allres)}</totalCount>)";	    		
+	    	}	 		
+	    	System.out.println(rquery);
 			
 			DataClusterPOJOPK dcpk =	new DataClusterPOJOPK(wsGetItemPKsByCriteria.getWsDataClusterPK().getPk());
 			Collection<String> results = 
 				com.amalto.core.util.Util.getItemCtrl2Local().runQuery(
 					revisionID,
 					dcpk,
-					query,
+					rquery,
 					null
 				);
 			
