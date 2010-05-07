@@ -3,8 +3,6 @@ package com.amalto.core.util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Properties;
 
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -23,6 +21,9 @@ public class AutoIncrementGenerator {
 	public static String AUTO_INCREMENT="Auto_Increment";
 	private static Properties CONFIGURATION = null;
 	static{
+		init();
+	}
+	public static void init(){
 		//first try Current path
 		CONFIGURATION = new Properties();
 		//load from db

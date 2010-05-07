@@ -25,7 +25,7 @@ public class AutoIncrementTask extends AbstractMigrationTask {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			p.storeToXML(bos, "","UTF-8");
 			String xmlString=bos.toString("UTF-8");
-			Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, AutoIncrementGenerator.AUTO_INCREMENT, XSystemObjects.DC_CONF.getName(), null);
+			Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, "Auto_Increment", XSystemObjects.DC_CONF.getName(), null);
 			//read from xml file
 			bos.close();
 			//delete the auto_increment.conf
