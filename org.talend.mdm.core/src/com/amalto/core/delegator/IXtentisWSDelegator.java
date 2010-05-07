@@ -1353,18 +1353,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 		query+=sub+ret;
 	 		
 	    	//Determine Query based on number of results an counts
-	    	String rquery = null;
-	    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
-	    	if (subsequence) {	    		
-	    		rquery =
-		    			query
-		    			+"return insert-before($res,0,<totalCount>{count($allres)}</totalCount>) ";
-	    	} else {
-	    		
-	    		rquery =
-		    			query
-		    			+"return insert-before($allres,0,<totalCount>{count($allres)}</totalCount>)";	    		
-	    	}	 		
+	    	String rquery = null;	    	    		
+    		rquery =
+	    			query
+	    			+"return insert-before($res,0,<totalCount>{count($allres)}</totalCount>) ";
+	    	
 	    	System.out.println(rquery);
 			
 			DataClusterPOJOPK dcpk =	new DataClusterPOJOPK(dataClusterName);
