@@ -22,6 +22,7 @@ import com.amalto.commons.core.utils.xpath.ri.compiler.Expression;
 import com.amalto.commons.core.utils.xpath.ri.compiler.NodeNameTest;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Path;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Step;
+import com.amalto.xmldb.opt.QueryOptimizer;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
@@ -157,7 +158,7 @@ public class QueryBuilder {
 			}
 
 			xqFor+="".equals(xqFor)?"for ": ", ";
-			xqFor+=pivotName+" in "+getXQueryCollectionName(revisionID, clusterName)+"/"+(isItemQuery ? "ii/p/" : "")+path;
+			xqFor+=pivotName+" in "+getXQueryCollectionName(revisionID, clusterName)+"/"+(isItemQuery ? "/p/" : "")+path;
     	}
 
     	return xqFor;
@@ -606,6 +607,11 @@ public class QueryBuilder {
 	    	query=query.replaceAll("\\(\\(\\) and","( ");
 	    	System.out.println("query:\n");
 	    	System.out.println(query);
+	    	
+	    	if(isItemQuery&&subsequence&&pivotsMap.size()==1) {
+	    		query=QueryOptimizer.optimizeAllInOne(query, withTotalCountOnFirstRow);
+    		}
+	    	
 	    	return query;
 
     	} catch (XmlServerException e) {
