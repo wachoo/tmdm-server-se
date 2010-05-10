@@ -192,7 +192,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		            LOWER_THAN:"est inférieur à",
 		            GREATER_THAN:"est supérieur à",
 		            LOWER_THAN_OR_EQUAL:"est inférieur ou égal à",
-		            GREATER_THAN_OR_EQUAL:"is greater or equals"
+		            GREATER_THAN_OR_EQUAL:"est supérieur ou égal à"
 	             },
 	       'en' :{
 	            	 EQUALS:"is equal to",
