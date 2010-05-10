@@ -1946,6 +1946,7 @@ public class ItemsBrowserDWR {
 	{
 		valuesHolder.clear();
 		XSContentType conType;
+		if(elem == null)return null;
 		XSType type = elem.getType();
 		if(elem.getName().equals(pathSlice))
 		{
