@@ -13,8 +13,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.commons.core.utils.XPathUtils;
 import com.amalto.commons.core.utils.xpath.ri.Compiler;
@@ -22,7 +20,6 @@ import com.amalto.commons.core.utils.xpath.ri.compiler.Expression;
 import com.amalto.commons.core.utils.xpath.ri.compiler.NodeNameTest;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Path;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Step;
-import com.amalto.xmldb.opt.QueryOptimizer;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
@@ -158,7 +155,7 @@ public class QueryBuilder {
 			}
 
 			xqFor+="".equals(xqFor)?"for ": ", ";
-			xqFor+=pivotName+" in "+getXQueryCollectionName(revisionID, clusterName)+"/"+(isItemQuery ? "/p/" : "")+path;
+			xqFor+=pivotName+" in "+getXQueryCollectionName(revisionID, clusterName)+"/"+(isItemQuery ? "ii/p/" : "")+path;
     	}
 
     	return xqFor;
@@ -607,10 +604,6 @@ public class QueryBuilder {
 	    	query=query.replaceAll("\\(\\(\\) and","( ");
 	    	System.out.println("query:\n");
 	    	System.out.println(query);
-	    	
-	    	if(isItemQuery&&subsequence&&pivotsMap.size()==1) {
-	    		query=QueryOptimizer.optimizeAllInOne(query, withTotalCountOnFirstRow);
-    		}
 	    	
 	    	return query;
 
