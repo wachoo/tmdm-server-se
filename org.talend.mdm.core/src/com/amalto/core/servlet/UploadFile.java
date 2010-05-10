@@ -79,9 +79,13 @@ public class UploadFile extends HttpServlet {
         	 if(deleteFilename.endsWith(".zip")) {
         		 File f=new File(JobContainer.getUniqueInstance().getDeployDir()+File.separator+deleteFilename);
         		 f.delete();        		 
-        	 }else {        		 
+        	 }else  if(deleteFilename.endsWith(".war")) {        		 
         		 File f=new File(path+File.separator+deleteFilename);
         		 f.delete();
+        	 }else if(deleteFilename.endsWith(".bar")) {
+        		 String barpath=Util.getBarHomeDir();         		
+         		 File f=new File(barpath+File.separator+deleteFilename);
+         		 f.delete();
         	 }
         	  writer.write("Delete sucessfully");
               writer.close();
