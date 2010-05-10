@@ -3298,5 +3298,41 @@ public  class Util {
 		}
 
 		return jobInfo;
-	}	 
+	}
+	
+    public static String stripeOuterBracket(String rowData)
+    {
+	     ArrayList<String> result = new ArrayList<String>();
+		 int aggregate = 0;
+		 int cordon = 0;
+	     for(int i = 0; i < rowData.length(); i++)
+		 {
+	        char ch = rowData.charAt(i);
+			if(ch == '[')
+			{
+			 aggregate++;
+			 if(aggregate == 1)
+			 {
+			   cordon = i;
+			 }
+			}
+			else if(ch == ']')
+			{
+	          aggregate--;
+			  if(aggregate == 0)
+			  {
+				 result.add(rowData.substring(cordon+1, i));
+			  }
+			}
+			else if(aggregate == 0)
+				result.add(ch + "");
+		 }
+	     
+	     String out = "";
+	     for (String slip: result)
+	     {
+	    	 out +=slip;
+	     }
+	     return out;
+    }
 } 
