@@ -468,6 +468,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				document = col.createResource(encodedID, "BinaryResource");
 			else
 				document = col.createResource(encodedID, "XMLResource");
+			//remove xml declaration
+			xmlString=xmlString.replaceFirst("<\\?xml.*\\?>", "");
 			document.setContent(xmlString);
 			col.storeResource(document);
 	        //update item cache
