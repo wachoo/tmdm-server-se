@@ -18,7 +18,7 @@ public class ViewWebserviceTestCase extends WebserviceTestCase {
 
 	public void testGetView() {
 		WSGetView wsViewGet = new WSGetView();
-		wsViewGet.setWsViewPK(new WSViewPK("Browse_items_Student"));
+		wsViewGet.setWsViewPK(new WSViewPK("Browse_items_Country"));
 		try {
 			WSView wsView = defaultPort.getView(wsViewGet);
 			assertNotNull(wsView);
@@ -30,10 +30,10 @@ public class ViewWebserviceTestCase extends WebserviceTestCase {
 
 	public void testExistsView() {
 		WSExistsView wsExistsView = new WSExistsView();
-		wsExistsView.setWsViewPK(new WSViewPK("Browse_items_Student"));
+		wsExistsView.setWsViewPK(new WSViewPK("Browse_items_Country"));
 		try {
 			WSBoolean flag = defaultPort.existsView(wsExistsView);
-			System.out.println(flag.toString());
+			assertTrue(flag.is_true());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -45,9 +45,9 @@ public class ViewWebserviceTestCase extends WebserviceTestCase {
 		regexp.setRegex("*");
 		try {
 			WSViewPK[] wsViewPKArray = defaultPort.getViewPKs(regexp);
-			for (int i = 0; i < wsViewPKArray.length; i++) {
-				System.out.println(wsViewPKArray[i]);
-			}
+
+			assertNotNull(wsViewPKArray);
+
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -56,10 +56,10 @@ public class ViewWebserviceTestCase extends WebserviceTestCase {
 
 	public void testDeleteView() {
 		WSDeleteView wsDeleteView = new WSDeleteView();
-		wsDeleteView.setWsViewPK(new WSViewPK("Browse_items_Student"));
+		wsDeleteView.setWsViewPK(new WSViewPK("Browse_items_Country"));
 		try {
 			WSViewPK wsViewPK = defaultPort.deleteView(wsDeleteView);
-			System.out.println(wsViewPK);
+			assertNotNull(wsViewPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -70,11 +70,11 @@ public class ViewWebserviceTestCase extends WebserviceTestCase {
 		WSView wsView;
 		try {
 			wsView = defaultPort.getView(new WSGetView(new WSViewPK(
-					"Browse_items_Student")));
+					"Browse_items_Country")));
 			WSPutView wsPutView = new WSPutView();
 			wsPutView.setWsView(wsView);
 			WSViewPK wsViewPK = defaultPort.putView(wsPutView);
-			System.out.println(wsViewPK.getPk());
+			assertNotNull(wsViewPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

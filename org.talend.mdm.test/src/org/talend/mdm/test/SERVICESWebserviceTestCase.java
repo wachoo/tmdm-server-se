@@ -39,7 +39,7 @@ public class SERVICESWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSString wsString = defaultPort
 					.getServiceConfiguration(wsGetConfiguration);
-			System.out.println(wsString.getValue());
+			assertNotNull(wsString);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -55,7 +55,7 @@ public class SERVICESWebserviceTestCase extends WebserviceTestCase {
 			WSCheckServiceConfigResponse wsCheckServiceConfigResponse = defaultPort
 					.checkServiceConfiguration(serviceName);
 			boolean flag = wsCheckServiceConfigResponse.getCheckResult();
-			System.out.println(flag);
+			assertTrue(flag);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -70,7 +70,7 @@ public class SERVICESWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSString wsString = defaultPort
 					.putServiceConfiguration(wsPutConfiguration);
-			System.out.println(wsString);
+			assertNotNull(wsString);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -85,7 +85,7 @@ public class SERVICESWebserviceTestCase extends WebserviceTestCase {
 		wsServiceAction.setWsAction(wsServiceActionCode);
 		try {
 			WSString wsString = defaultPort.serviceAction(wsServiceAction);
-			System.out.println(wsString.getValue());
+			assertNotNull(wsString);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -98,9 +98,9 @@ public class SERVICESWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSServicesListItem[] wsServicesListItemArray = defaultPort
 					.getServicesList(wsGetServicesList);
-			for (int i = 0; i < wsServicesListItemArray.length; i++) {
-				System.out.println(wsServicesListItemArray[i].getJndiName());
-			}
+			
+			assertNotNull(wsServicesListItemArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

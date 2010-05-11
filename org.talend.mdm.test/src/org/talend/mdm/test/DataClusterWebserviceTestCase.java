@@ -38,7 +38,7 @@ public class DataClusterWebserviceTestCase extends WebserviceTestCase {
 		wsExistsDataCluster.setWsDataClusterPK(new WSDataClusterPK("Order"));
 		try {
 			WSBoolean flag = defaultPort.existsDataCluster(wsExistsDataCluster);
-			System.out.println(flag);
+			assertTrue(flag.is_true());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -50,7 +50,7 @@ public class DataClusterWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSBoolean flag = defaultPort
 					.existsDBDataCluster(wsExistsDataCluster);
-			System.out.println(flag);
+			assertTrue(flag.is_true());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -63,9 +63,7 @@ public class DataClusterWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSDataClusterPK[] wsDataClusterPKs = defaultPort
 					.getDataClusterPKs(regexp);
-			for (int i = 0; i < wsDataClusterPKs.length; i++) {
-				System.out.println(wsDataClusterPKs[i]);
-			}
+			assertNotNull(wsDataClusterPKs);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -80,7 +78,7 @@ public class DataClusterWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSDataClusterPK wsDataClusterPK = defaultPort
 					.putDataCluster(wsPutDataCluster);
-			System.out.println(wsDataClusterPK.getPk());
+			assertNotNull(wsDataClusterPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -92,7 +90,7 @@ public class DataClusterWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSDataClusterPK wsDataClusterPK = defaultPort
 					.deleteDataCluster(wsDeleteDataCluster);
-			System.out.println(wsDataClusterPK.getPk());
+			assertNotNull(wsDataClusterPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -103,7 +101,7 @@ public class DataClusterWebserviceTestCase extends WebserviceTestCase {
 		wsDataCluster.setName("Order");
 		try {
 			WSBoolean flag = defaultPort.putDBDataCluster(wsDataCluster);
-			System.out.println(flag);
+			assertTrue(flag.is_true());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -117,9 +115,7 @@ public class DataClusterWebserviceTestCase extends WebserviceTestCase {
 		try {
 			String[] concepts = defaultPort
 					.getConceptsInDataCluster(wsGetConceptsInDataCluster);
-			for (int i = 0; i < concepts.length; i++) {
-				System.out.println(concepts[i]);
-			}
+			assertNotNull(concepts);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -133,10 +129,7 @@ public class DataClusterWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSConceptRevisionMapMapEntry[] wsConceptRevisionMapMapEntrys = defaultPort
 					.getConceptsInDataClusterWithRevisions(wsGetConceptsInDataClusterWithRevisions);
-			for (int i = 0; i < wsConceptRevisionMapMapEntrys.length; i++) {
-				System.out.println(wsConceptRevisionMapMapEntrys[i]
-						.getConcept());
-			}
+			assertNotNull(wsConceptRevisionMapMapEntrys);
 		} catch (RemoteException e) {
 
 			e.printStackTrace();

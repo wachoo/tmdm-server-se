@@ -28,9 +28,9 @@ public class StoredProcedureWebserviceTestCase extends WebserviceTestCase {
 		try {
 			String[] wsStringArray = defaultPort
 					.executeStoredProcedure(wsExecuteStoredProcedure);
-			for (int i = 0; i < wsStringArray.length; i++) {
-				System.out.println(wsStringArray[i]);
-			}
+			
+			assertNotNull(wsStringArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -44,7 +44,7 @@ public class StoredProcedureWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSStoredProcedure wsStoredProcedure = defaultPort
 					.getStoredProcedure(wsGetStoredProcedure);
-			System.out.println(wsStoredProcedure.getName());
+			assertNotNull(wsStoredProcedure);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -59,7 +59,7 @@ public class StoredProcedureWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSBoolean flag = defaultPort
 					.existsStoredProcedure(wsExistsStoredProcedure);
-			System.out.println(flag);
+			assertTrue(flag.is_true());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -71,9 +71,9 @@ public class StoredProcedureWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSStoredProcedurePK[] wsStoredProcedurePKArray = defaultPort
 					.getStoredProcedurePKs(regex);
-			for (int i = 0; i < wsStoredProcedurePKArray.length; i++) {
-				System.out.println(wsStoredProcedurePKArray[i].getPk());
-			}
+			
+			assertNotNull(wsStoredProcedurePKArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -89,7 +89,7 @@ public class StoredProcedureWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSStoredProcedurePK wsStoredProcedurePK = defaultPort
 					.putStoredProcedure(wsPutStoredProcedure);
-			System.out.println(wsStoredProcedurePK.getPk());
+			assertNotNull(wsStoredProcedurePK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -104,7 +104,7 @@ public class StoredProcedureWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSStoredProcedurePK wsStoredProcedurePKReturn = defaultPort
 					.deleteStoredProcedure(wsStoredProcedureDelete);
-			System.out.println(wsStoredProcedurePK.getPk());
+			assertNotNull(wsStoredProcedurePKReturn);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

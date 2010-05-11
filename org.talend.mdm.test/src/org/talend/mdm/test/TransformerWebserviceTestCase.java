@@ -2,32 +2,21 @@ package org.talend.mdm.test;
 
 import java.rmi.RemoteException;
 
-import urn_com_amalto_xtentis_webservice.WSBackgroundJobPK;
 import urn_com_amalto_xtentis_webservice.WSBoolean;
 import urn_com_amalto_xtentis_webservice.WSDeleteTransformer;
-import urn_com_amalto_xtentis_webservice.WSDeleteTransformerV2;
-import urn_com_amalto_xtentis_webservice.WSExecuteTransformerV2;
-import urn_com_amalto_xtentis_webservice.WSExecuteTransformerV2AsJob;
 import urn_com_amalto_xtentis_webservice.WSExistsTransformer;
 import urn_com_amalto_xtentis_webservice.WSExistsTransformerPluginV2;
 import urn_com_amalto_xtentis_webservice.WSExistsTransformerV2;
-import urn_com_amalto_xtentis_webservice.WSExtractThroughTransformerV2;
 import urn_com_amalto_xtentis_webservice.WSGetTransformer;
 import urn_com_amalto_xtentis_webservice.WSGetTransformerPKs;
 import urn_com_amalto_xtentis_webservice.WSGetTransformerPluginV2Details;
 import urn_com_amalto_xtentis_webservice.WSGetTransformerPluginV2SList;
 import urn_com_amalto_xtentis_webservice.WSGetTransformerV2;
 import urn_com_amalto_xtentis_webservice.WSGetTransformerV2PKs;
-import urn_com_amalto_xtentis_webservice.WSProcessBytesUsingTransformer;
-import urn_com_amalto_xtentis_webservice.WSProcessBytesUsingTransformerAsBackgroundJob;
-import urn_com_amalto_xtentis_webservice.WSProcessFileUsingTransformer;
-import urn_com_amalto_xtentis_webservice.WSProcessFileUsingTransformerAsBackgroundJob;
 import urn_com_amalto_xtentis_webservice.WSPutTransformer;
 import urn_com_amalto_xtentis_webservice.WSPutTransformerV2;
 import urn_com_amalto_xtentis_webservice.WSString;
 import urn_com_amalto_xtentis_webservice.WSTransformer;
-import urn_com_amalto_xtentis_webservice.WSTransformerContext;
-import urn_com_amalto_xtentis_webservice.WSTransformerContextPipelinePipelineItem;
 import urn_com_amalto_xtentis_webservice.WSTransformerPK;
 import urn_com_amalto_xtentis_webservice.WSTransformerPluginV2Details;
 import urn_com_amalto_xtentis_webservice.WSTransformerPluginV2GetConfiguration;
@@ -47,7 +36,7 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSTransformerPK wsTransformerPK = defaultPort
 					.deleteTransformer(wsTransformerDelete);
-			System.out.println(wsTransformerPK.getPk());
+			assertNotNull(wsTransformerPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -60,7 +49,7 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSTransformer wsTransformer = defaultPort
 					.getTransformer(wsGetTransformer);
-			System.out.println(wsTransformer.getName());
+			assertNotNull(wsTransformer);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -86,9 +75,9 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSTransformerPK[] wsTransformerPKArray = defaultPort
 					.getTransformerPKs(regex);
-			for (int i = 0; i < wsTransformerPKArray.length; i++) {
-				System.out.println(wsTransformerPKArray[i].getPk());
-			}
+			
+			assertNotNull(wsTransformerPKArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -105,7 +94,7 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 			wsPutTransformer.setWsTransformer(wsTransformer);
 			WSTransformerPK wsTransformerPK = defaultPort
 					.putTransformer(wsPutTransformer);
-			System.out.println(wsTransformerPK.getPk());
+			assertNotNull(wsTransformerPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -172,9 +161,9 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSTransformerV2PK[] wsTransformerV2PKArray = defaultPort
 					.getTransformerV2PKs(regex);
-			for (int i = 0; i < wsTransformerV2PKArray.length; i++) {
-				System.out.println(wsTransformerV2PKArray[i]);
-			}
+			
+			assertNotNull(wsTransformerV2PKArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -215,7 +204,7 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 			wsPutTransformerV2.setWsTransformerV2(wsTransformerV2);
 			WSTransformerV2PK wsTransformerV2PKReturn = defaultPort
 					.putTransformerV2(wsPutTransformerV2);
-			System.out.println(wsTransformerV2PKReturn);
+			assertNotNull(wsTransformerV2PKReturn);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -231,7 +220,7 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 
 			WSTransformerV2 wsTransformerV2 = defaultPort
 					.getTransformerV2(wsGetTransformerV2);
-			System.out.println(wsTransformerV2.getName());
+			assertNotNull(wsTransformerV2);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -247,7 +236,7 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 			wsExistsTransformerV2.setWsTransformerV2PK(wsTransformerV2PK);
 			WSBoolean wsBoolean = defaultPort
 					.existsTransformerV2(wsExistsTransformerV2);
-			System.out.println(wsBoolean.is_true());
+			assertTrue(wsBoolean.is_true());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -312,9 +301,9 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSTransformerPluginV2SListItem[] wsTransformerPluginV2SArray = defaultPort
 					.getTransformerPluginV2SList(wsGetTransformerPluginsList);
-			for (int i = 0; i < wsTransformerPluginV2SArray.length; i++) {
-				wsTransformerPluginV2SArray[i].getJndiName();
-			}
+			
+			assertNotNull(wsTransformerPluginV2SArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -332,7 +321,7 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 					.getJndiName());
 			WSString wsString = defaultPort
 					.getTransformerPluginV2Configuration(wsGetConfiguration);
-			System.out.println(wsString);
+			assertNotNull(wsString);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -350,7 +339,7 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 					.setJndiName(wsTransformerPluginV2SArray[0].getJndiName());
 			WSBoolean flag = defaultPort
 					.existsTransformerPluginV2(wsExistsTransformerPlugin);
-			System.out.println(flag.is_true());
+			assertTrue(flag.is_true());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -369,7 +358,7 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 					.getJndiName());
 			WSString wsString = defaultPort
 					.putTransformerPluginV2Configuration(wsPutConfiguration);
-			System.out.println(wsString);
+			assertNotNull(wsString);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -387,7 +376,7 @@ public class TransformerWebserviceTestCase extends WebserviceTestCase {
 			wsGetTransformerPluginDetails.setLanguage("en");
 			WSTransformerPluginV2Details wsTransformerPluginV2Details = defaultPort
 					.getTransformerPluginV2Details(wsGetTransformerPluginDetails);
-			System.out.println(wsTransformerPluginV2Details.getDescription());
+			assertNotNull(wsTransformerPluginV2Details);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

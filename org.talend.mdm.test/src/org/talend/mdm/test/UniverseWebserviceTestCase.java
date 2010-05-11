@@ -12,7 +12,7 @@ public class UniverseWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSUniverse wsUniverse = defaultPort
 					.getCurrentUniverse(wsGetCurrentUniverse);
-			System.out.println(wsUniverse.getName());
+			assertNotNull(wsUniverse);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

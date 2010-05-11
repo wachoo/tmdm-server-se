@@ -46,7 +46,7 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
-		System.out.println(Boolean.valueOf(flag.getValue()));
+		assertEquals(Boolean.valueOf(flag.getValue()).booleanValue(),true);
 
 	}
 
@@ -61,7 +61,7 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
-		System.out.println(wsInt.getValue());
+		assertNotNull(wsInt);
 
 	}
 
@@ -82,9 +82,7 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 				.setQuery("for $pivot0 in collection('Order')/ii/p/Country/id order by $pivot0/../age ascending return $pivot0");
 		try {
 			String[] returnValues = defaultPort.runQuery(wsRunQuery);
-			for (int i = 0; i < returnValues.length; i++) {
-				System.out.println(returnValues[i]);
-			}
+			assertNotNull(returnValues);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -112,9 +110,7 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSDroppedItemPK[] wsDroppedItemPKArray = defaultPort
 					.findAllDroppedItemsPKs(regex);
-			for (int i = 0; i < wsDroppedItemPKArray.length; i++) {
-				System.out.println(wsDroppedItemPKArray[i].getPartPath());
-			}
+			assertNotNull(wsDroppedItemPKArray);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -124,19 +120,13 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 	public void testLoadDroppedItem() {
 		try {
 			String xmlString="<Country><isoCode>62</isoCode><label>label</label><Continent>Continent</Continent></Country>";
-			WSPutItem item=new WSPutItem(new WSDataClusterPK("Order"), xmlString, new WSDataModelPK("Order"), true);
-			defaultPort.putItem(item);
+			WSPutItem item=new WSPutItem(new WSDataClusterPK("Order"), xmlString, new WSDataModelPK("Order"), false);
+			WSItemPK wsItemPK=defaultPort.putItem(item);
 			WSDropItem wsDropItem=new WSDropItem();
 			wsDropItem.setPartPath("/");
 			WSDroppedItemPK wsDroppedItemPK=new WSDroppedItemPK();
 			wsDroppedItemPK.setPartPath("/");
 			wsDroppedItemPK.setRevisionId("");
-			WSItemPK wsItemPK=new WSItemPK();
-			wsItemPK.setConceptName("Country");
-			String[] ids={"label.62"};
-			wsItemPK.setWsDataClusterPK(new WSDataClusterPK("Order"));
-			wsItemPK.setIds(ids);
-		
 			wsDroppedItemPK.setWsItemPK(wsItemPK);
 			wsDropItem.setWsItemPK(wsItemPK);
 			defaultPort.dropItem(wsDropItem);
@@ -163,7 +153,7 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 			wsRecoverDroppedItem.setWsDroppedItemPK(wsDroppedItemPKArray[0]);
 			WSItemPK wsItemPK = defaultPort
 					.recoverDroppedItem(wsRecoverDroppedItem);
-			System.out.println(wsItemPK.getConceptName());
+			assertNotNull(wsItemPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -172,21 +162,20 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 
 	public void testRemoveDroppedItem() {
 		try {
+			String xmlString="<Country><isoCode>63</isoCode><label>label</label><Continent>Continent</Continent></Country>";
+			WSPutItem item=new WSPutItem(new WSDataClusterPK("Order"), xmlString, new WSDataModelPK("Order"), false);
+			WSItemPK wsItemPK=defaultPort.putItem(item);
 			WSRemoveDroppedItem wsRemoveDroppedItem = new WSRemoveDroppedItem();
 			
 			WSDroppedItemPK wsDroppedItemPK=new WSDroppedItemPK(); 
 			wsDroppedItemPK.setPartPath("/");
 			wsDroppedItemPK.setRevisionId("");
-			WSItemPK wsItemPK=new WSItemPK();
-			wsItemPK.setConceptName("Country");
-			String[] ids={"label.62"};
-			wsItemPK.setWsDataClusterPK(new WSDataClusterPK("Order"));
-			wsItemPK.setIds(ids);
+		
 			wsDroppedItemPK.setWsItemPK(wsItemPK);
 			wsRemoveDroppedItem.setWsDroppedItemPK(wsDroppedItemPK);
 			WSDroppedItemPK wsDroppedItemPKReturn = defaultPort
 					.removeDroppedItem(wsRemoveDroppedItem);
-			System.out.println(wsDroppedItemPKReturn.getPartPath());
+			assertNotNull(wsDroppedItemPKReturn);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -199,8 +188,8 @@ public class CommonWebserviceTestCase extends WebserviceTestCase {
 
 			String xmlString = "<User><id>" + i + "</id><name>Newton" + i
 					+ "</name><country>UK</country><state>new</state></User>";
-			WSPutItem wsPutItem = new WSPutItem(new WSDataClusterPK("User"),
-					xmlString, new WSDataModelPK("User"), new Boolean(false));
+			WSPutItem wsPutItem = new WSPutItem(new WSDataClusterPK("Order"),
+					xmlString, new WSDataModelPK("Order"), new Boolean(false));
 
 			try {
 				defaultPort.putItem(wsPutItem);

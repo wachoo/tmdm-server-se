@@ -39,9 +39,9 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSRoutingRulePK[] wsRoutingRulePKArray = defaultPort
 					.getRoutingRulePKs(regex);
-			for (int i = 0; i < wsRoutingRulePKArray.length; i++) {
-				System.out.println(wsRoutingRulePKArray[i].getPk());
-			}
+			
+			assertNotNull(wsRoutingRulePKArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -57,7 +57,7 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 			wsRoutingRuleGet.setWsRoutingRulePK(wsRoutingRulePKArray[0]);
 			WSRoutingRule wsRoutingRule = defaultPort
 					.getRoutingRule(wsRoutingRuleGet);
-			System.out.println(wsRoutingRule.getName());
+			assertNotNull(wsRoutingRule);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -73,7 +73,7 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 			wsExistsRoutingRule.setWsRoutingRulePK(wsRoutingRulePKArray[0]);
 			WSBoolean wsBoolean = defaultPort
 					.existsRoutingRule(wsExistsRoutingRule);
-			System.out.println(wsBoolean.is_true());
+			assertTrue(wsBoolean.is_true());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -94,7 +94,7 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 			wsRoutingPutRule.setWsRoutingRule(wsRoutingRule);
 			WSRoutingRulePK wsRoutingRulePK = defaultPort
 					.putRoutingRule(wsRoutingPutRule);
-			System.out.println(wsRoutingRulePK);
+			assertNotNull(wsRoutingRulePK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -112,7 +112,7 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 			wsDeleteRoutingRule.setWsRoutingRulePK(wsRoutingRulePKArray[0]);
 			WSRoutingRulePK wsRoutingRulePK = defaultPort
 					.deleteRoutingRule(wsDeleteRoutingRule);
-			System.out.println(wsRoutingRulePK.getPk());
+			assertNotNull(wsRoutingRulePK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -128,7 +128,7 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSRoutingOrderV2 wsRoutingOrderV2 = defaultPort
 					.getRoutingOrderV2(wsGetRoutingOrder);
-			System.out.println(wsRoutingOrderV2.getName());
+			assertNotNull(wsRoutingOrderV2);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -154,9 +154,9 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 					.setWsSearchCriteria(wsSearchCriteria);
 			WSRoutingOrderV2PK[] wsRoutingOrderV2PKArray = defaultPort
 					.getRoutingOrderV2PKsByCriteria(wsGetRoutingOrderV2PKsByCriteria);
-			for (int i = 0; i < wsRoutingOrderV2PKArray.length; i++) {
-				System.out.println(wsRoutingOrderV2PKArray[i].getName());
-			}
+			
+			assertNotNull(wsRoutingOrderV2PKArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -172,9 +172,9 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSRoutingOrderV2[] wsRoutingOrderV2Array = defaultPort
 					.getRoutingOrderV2SByCriteria(wsGetRoutingOrderV2SByCriteria);
-			for (int i = 0; i < wsRoutingOrderV2Array.length; i++) {
-				System.out.println(wsRoutingOrderV2Array[i].getName());
-			}
+		
+			assertNotNull(wsRoutingOrderV2Array);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -197,7 +197,7 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 
 			WSRoutingOrderV2 wsRoutingOrderV2Return = defaultPort
 					.existsRoutingOrderV2(wsExistsRoutingOrder);
-			System.out.println(wsRoutingOrderV2Return.getName());
+			assertNotNull(wsRoutingOrderV2Return);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -213,7 +213,7 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSRoutingOrderV2PK wsRoutingOrderV2PKReturn = defaultPort
 					.executeRoutingOrderV2Asynchronously(wsExecuteRoutingOrderAsynchronously);
-			System.out.println(wsRoutingOrderV2PKReturn);
+			assertNotNull(wsRoutingOrderV2PKReturn);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -230,7 +230,7 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSString wsString = defaultPort
 					.executeRoutingOrderV2Synchronously(wsExecuteRoutingOrderSynchronously);
-			System.out.print(wsString.getValue());
+			assertNotNull(wsString);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -246,7 +246,7 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSRoutingOrderV2PK wsRoutingOrderV2PKReturn = defaultPort
 					.deleteRoutingOrderV2(wsDeleteRoutingOrder);
-			System.out.println(wsRoutingOrderV2PKReturn.getName());
+			assertNotNull(wsRoutingOrderV2PKReturn);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -265,9 +265,9 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSRoutingRulePK[] wsRoutingRulePKArray = defaultPort
 					.routeItemV2(wsRouteItem);
-			for (int i = 0; i < wsRoutingRulePKArray.length; i++) {
-				System.out.println(wsRoutingRulePKArray[i].getPk());
-			}
+			
+			assertNotNull(wsRoutingRulePKArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -279,6 +279,7 @@ public class RoutingWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSRoutingEngineV2Status wsRoutingEngineV2Status = defaultPort
 					.routingEngineV2Action(wsRoutingEngineAction);
+			assertNotNull(wsRoutingEngineV2Status);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

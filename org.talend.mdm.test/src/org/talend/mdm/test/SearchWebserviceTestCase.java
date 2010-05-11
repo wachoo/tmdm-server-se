@@ -38,9 +38,9 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		String[] wsStringArray;
 		try {
 			wsStringArray = defaultPort.viewSearch(wsViewSearch);
-			for (int i = 0; i < wsStringArray.length; i++) {
-				System.out.println(wsStringArray[i]);
-			}
+			
+			assertNotNull(wsStringArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -55,9 +55,9 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		String[] wsStringArray;
 		try {
 			wsStringArray = defaultPort.xPathsSearch(wsXPathsSearch);
-			for (int i = 0; i < wsStringArray.length; i++) {
-				System.out.println(wsStringArray[i]);
-			}
+			
+			assertNotNull(wsStringArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -71,9 +71,9 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 			wsGetItemsPivotIndex.setMainPivotName("Student");
 			String[] wsStringArray = defaultPort
 					.getItemsPivotIndex(wsGetItemsPivotIndex);
-			for (int i = 0; i < wsStringArray.length; i++) {
-				System.out.println(wsStringArray[i]);
-			}
+			
+			assertNotNull(wsStringArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -86,7 +86,7 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		wsCount.setCountPath("Student/id");
 		try {
 			WSString count = defaultPort.count(wsCount);
-			System.out.println(count);
+			assertNotNull(count);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -99,9 +99,9 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		wsGetItems.setConceptName("Student");
 		try {
 			String[] items = defaultPort.getItems(wsGetItems);
-			for (int i = 0; i < items.length; i++) {
-				System.out.println(items[i]);
-			}
+			
+			assertNotNull(items);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -114,10 +114,9 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSItemPKsByCriteriaResponseResults[] wsItemPKsByCriteriaResponseResults = defaultPort
 					.getItemPKsByCriteria(wsGetItemPKsByCriteria);
-			for (int i = 0; i < wsItemPKsByCriteriaResponseResults.length; i++) {
-				System.out.println(wsItemPKsByCriteriaResponseResults[i]
-						.getWsItemPK().getConceptName());
-			}
+			
+			assertNotNull(wsItemPKsByCriteriaResponseResults);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -131,8 +130,7 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		wsGetItem.setWsItemPK(wsItemPK);
 		try {
 			WSItem wsItem = defaultPort.getItem(wsGetItem);
-			System.out.println(wsItem.getDataModelName() + "/"
-					+ wsItem.getConceptName());
+			assertNotNull(wsItem);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -148,7 +146,7 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSBoolean flag;
 			flag = defaultPort.existsItem(wsExistsItem);
-			System.out.println(flag);
+			assertTrue(flag.is_true());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -160,9 +158,9 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		wsQuickSearch.setWsViewPK(new WSViewPK("Browse_items_Student"));
 		try {
 			String[] stringArray = defaultPort.quickSearch(wsQuickSearch);
-			for (int i = 0; i < stringArray.length; i++) {
-				System.out.println(stringArray[i]);
-			}
+			
+			assertNotNull(stringArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -178,7 +176,7 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSString value = defaultPort
 					.getBusinessConceptValue(wsGetBusinessConceptValue);
-			System.out.println(value);
+			assertNotNull(value);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -192,9 +190,9 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		try {
 			String[] stringArray = defaultPort
 					.getFullPathValues(wsGetFullPathValues);
-			for (int i = 0; i < stringArray.length; i++) {
-				System.out.println(stringArray[i]);
-			}
+			
+			assertNotNull(stringArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -209,8 +207,7 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		wsPutItem.setXmlString(BUSINESSCONCEPTSCHEMA);
 		try {
 			WSItemPK wsItemPK = defaultPort.putItem(wsPutItem);
-			System.out.println(wsItemPK.getWsDataClusterPK().getPk() + "/"
-					+ wsItemPK.getConceptName());
+			assertNotNull(wsItemPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -225,9 +222,9 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		wsPutItemArray[0] = wsPutItem;
 		try {
 			WSItemPK[] wsItemPKArray = defaultPort.putItemArray(wsPutItemArray);
-			for (int i = 0; i < wsItemPKArray.length; i++) {
-				System.out.println(wsItemPKArray[i].getConceptName());
-			}
+			
+			assertNotNull(wsItemPKArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -241,15 +238,19 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		WSPutItem wsPutItem = new WSPutItem();
 		wsPutItem.setWsDataClusterPK(new WSDataClusterPK("Order"));
 		wsPutItem.setWsDataModelPK(new WSDataModelPK("Order"));
+		
 		wsPutItem.setIsUpdate(false);
+		String xmlString="<Country><isoCode>2</isoCode><label>label</label><Continent>Continent</Continent></Country>";
+		wsPutItem.setXmlString(xmlString);
 		wsPutItemWithReport.setWsPutItem(wsPutItem);
+		wsPutItemWithReport.setSource("source");
 		wsPutItemWithReportArray[0] = wsPutItemWithReport;
 		try {
 			WSItemPK[] wsItemPKArray = defaultPort
 					.putItemWithReportArray(wsPutItemWithReportArray);
-			for (int i = 0; i < wsItemPKArray.length; i++) {
-				System.out.println(wsItemPKArray[i].getConceptName());
-			}
+			
+			assertNotNull(wsItemPKArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -263,7 +264,11 @@ public class SearchWebserviceTestCase extends WebserviceTestCase {
 		wsPutItem.setWsDataClusterPK(new WSDataClusterPK("Order"));
 		wsPutItem.setWsDataModelPK(new WSDataModelPK("Order"));
 		wsPutItem.setIsUpdate(false);
+		
+		String xmlString="<Country><isoCode>1</isoCode><label>label</label><Continent>Continent</Continent></Country>";
+		wsPutItem.setXmlString(xmlString);
 		wsPutItemWithReport.setWsPutItem(wsPutItem);
+		wsPutItemWithReport.setSource("source");
 		try {
 			WSItemPK wsItemPK = defaultPort
 					.putItemWithReport(wsPutItemWithReport);

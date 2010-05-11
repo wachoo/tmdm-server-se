@@ -17,9 +17,7 @@ public class BackgroundJobWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSBackgroundJobPK[] findBackgroundJobPKs = defaultPort
 					.findBackgroundJobPKs(wsFindBackgroundJobPKs);
-			for (int i = 0; i < findBackgroundJobPKs.length; i++) {
-				System.out.println(findBackgroundJobPKs[0].getPk());
-			}
+			assertNotNull(findBackgroundJobPKs);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -36,7 +34,7 @@ public class BackgroundJobWebserviceTestCase extends WebserviceTestCase {
 			wsBackgroundJobGet.setPk(findBackgroundJobPKs[0].getPk());
 			WSBackgroundJob wsBackgroundJob = defaultPort
 					.getBackgroundJob(wsBackgroundJobGet);
-			System.out.println(wsBackgroundJob.getId());
+			assertNotNull(wsBackgroundJob);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -57,7 +55,7 @@ public class BackgroundJobWebserviceTestCase extends WebserviceTestCase {
 			wsPutBackgroundJob.setWsBackgroundJob(wsBackgroundJob);
 			WSBackgroundJobPK wsBackgroundJobPK = defaultPort
 					.putBackgroundJob(wsPutBackgroundJob);
-			System.out.println(wsBackgroundJobPK.getPk());
+			assertNotNull(wsBackgroundJobPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

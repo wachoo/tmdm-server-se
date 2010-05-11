@@ -18,7 +18,7 @@ public class MenuWebserviceTestCase extends WebserviceTestCase {
 		wsGetMenu.setWsMenuPK(new WSMenuPK("Browse items"));
 		try {
 			WSMenu wsMenu = defaultPort.getMenu(wsGetMenu);
-			System.out.println(wsMenu.getName());
+			assertNotNull(wsMenu);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -40,9 +40,7 @@ public class MenuWebserviceTestCase extends WebserviceTestCase {
 		WSGetMenuPKs regex = new WSGetMenuPKs("*");
 		try {
 			WSMenuPK[] wsMenuPKArray = defaultPort.getMenuPKs(regex);
-			for (int i = 0; i < wsMenuPKArray.length; i++) {
-				System.out.println(wsMenuPKArray[i].getPk());
-			}
+			assertNotNull(wsMenuPKArray);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -58,7 +56,7 @@ public class MenuWebserviceTestCase extends WebserviceTestCase {
 			wsMenu.setName("Browse items test");
 			wsPutMenu.setWsMenu(wsMenu);
 			WSMenuPK wsMenuPk = defaultPort.putMenu(wsPutMenu);
-			System.out.println(wsMenuPk);
+			assertNotNull(wsMenuPk);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -70,7 +68,7 @@ public class MenuWebserviceTestCase extends WebserviceTestCase {
 		wsMenuDelete.setWsMenuPK(new WSMenuPK("Browse items test"));
 		try {
 			WSMenuPK wsMenuPK = defaultPort.deleteMenu(wsMenuDelete);
-			System.out.println(wsMenuPK.getPk());
+			assertNotNull(wsMenuPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

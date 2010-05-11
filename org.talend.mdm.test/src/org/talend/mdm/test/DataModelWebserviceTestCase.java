@@ -1,6 +1,7 @@
 package org.talend.mdm.test;
 
 import java.rmi.RemoteException;
+
 import urn_com_amalto_xtentis_webservice.WSBoolean;
 import urn_com_amalto_xtentis_webservice.WSBusinessConcept;
 import urn_com_amalto_xtentis_webservice.WSCheckSchema;
@@ -42,7 +43,7 @@ public class DataModelWebserviceTestCase extends WebserviceTestCase {
 		wsExistsDataModel.setWsDataModelPK(wsDataModelPK);
 		try {
 			WSBoolean flag = defaultPort.existsDataModel(wsExistsDataModel);
-			System.out.println(flag);
+			assertTrue(flag.is_true());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -55,9 +56,7 @@ public class DataModelWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSDataModelPK[] wsDataModelPKArray = defaultPort
 					.getDataModelPKs(regexp);
-			for (int i = 0; i < wsDataModelPKArray.length; i++) {
-				System.out.println(wsDataModelPKArray[i]);
-			}
+			assertNotNull(wsDataModelPKArray);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -72,7 +71,7 @@ public class DataModelWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSDataModelPK wsDataModelPK = defaultPort
 					.putDataModel(wsPutDataModel);
-			System.out.println(wsDataModelPK.getPk());
+			assertNotNull(wsDataModelPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -84,7 +83,7 @@ public class DataModelWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSDataModelPK wsDataModelPK = defaultPort
 					.deleteDataModel(wsDeleteDataModel);
-			System.out.println(wsDataModelPK.getPk());
+			assertNotNull(wsDataModelPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -96,7 +95,7 @@ public class DataModelWebserviceTestCase extends WebserviceTestCase {
 		wsSchema.setSchema(SCHEMA);
 		try {
 			WSString wsString = defaultPort.checkSchema(wsSchema);
-			System.out.println(wsString);
+			assertNotNull(wsString);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -106,27 +105,28 @@ public class DataModelWebserviceTestCase extends WebserviceTestCase {
 	public void testPutBusinessConcept() {
 		WSPutBusinessConcept wsPutBusinessConcept = new WSPutBusinessConcept();
 		WSBusinessConcept wsBusinessConcept = new WSBusinessConcept();
-		wsBusinessConcept.setName("Student2");
-		wsBusinessConcept.setBusinessTemplate("Student2Type");
-		WSI18NString[] wsLabelArray = new WSI18NString[2];
+		wsBusinessConcept.setName("Country_testPutBusinessConcept");
+		wsBusinessConcept.setBusinessTemplate("Country_testPutBusinessConcept");
+		WSI18NString[] wsLabelArray = new WSI18NString[1];
 		WSI18NString wsI18NString = new WSI18NString();
 		wsI18NString.setLanguage(WSLanguage.EN);
-		wsI18NString.setLabel("Student2");
+		wsI18NString.setLabel("Country_testPutBusinessConcept");
 		wsLabelArray[0] = wsI18NString;
 		wsBusinessConcept.setWsLabel(wsLabelArray);
+		wsBusinessConcept.setWsDescription(0, wsI18NString);
 		WSKey wsKey = new WSKey();
 		wsKey.setSelectorpath(".");
 		wsKey.setFieldpath(new String[3]);
-		wsKey.setFieldpath(0, "id");
-		wsKey.setFieldpath(0, "name");
-		wsKey.setFieldpath(0, "age");
+		wsKey.setFieldpath(0, "isoCode");
+		wsKey.setFieldpath(1, "label");
+		wsKey.setFieldpath(2, "Continent");
 		wsBusinessConcept.setWsUniqueKey(wsKey);
 		wsPutBusinessConcept.setBusinessConcept(wsBusinessConcept);
 		wsPutBusinessConcept.setWsDataModelPK(new WSDataModelPK("Order"));
 		try {
 			WSString wsString = defaultPort
 					.putBusinessConcept(wsPutBusinessConcept);
-			System.out.println(wsString);
+			assertNotNull(wsString);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -134,23 +134,53 @@ public class DataModelWebserviceTestCase extends WebserviceTestCase {
 
 	public void testPutBusinessConceptSchema() {
 		try {
-			String s = "<xsd:element name=\"" + "Car\"" + " type="
-					+ "\"CarType\"" + ">" + "	<xsd:annotation>";
-			s += "<xsd:appinfo source=\"" + "X_Description_EN" + "\">" + "Car"
-					+ "</xsd:appinfo>";
-			s += "	</xsd:annotation>" + "	<xsd:unique name=\"" + "Car" + "\">"
-					+ "		<xsd:selector xpath=\"" + "." + "\"/>";
-			s += "<xsd:field xpath=\"" + "id" + "\"/>";
-			s += "	</xsd:unique>" + "</xsd:element>";
+			String xml=//"<xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" attributeFormDefault=\"unqualified\" blockDefault=\"\" elementFormDefault=\"unqualified\" finalDefault=\"\">"+
+						"  <xsd:element  name=\"Country_testPutBusinessConceptSchema\" nillable=\"false\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">"+
+							    "<xsd:annotation>"+ 
+							      "<xsd:appinfo source=\"X_Write\">Default_User</xsd:appinfo>  "+
+							      "<xsd:appinfo source=\"X_Write\">Default_Admin</xsd:appinfo> "+ 
+							      "<xsd:appinfo source=\"X_Label_EN\">Country</xsd:appinfo> "+
+							    "</xsd:annotation>  "+
+							    "<xsd:complexType mixed=\"false\"> "+
+							      "<xsd:all maxOccurs=\"1\" minOccurs=\"1\"> "+
+							        "<xsd:element maxOccurs=\"1\" minOccurs=\"1\" name=\"isoCode\" nillable=\"false\" type=\"xsd:string\"> "+
+							          "<xsd:annotation> "+
+							            "<xsd:appinfo source=\"X_Write\">Default_User</xsd:appinfo>  "+
+							            "<xsd:appinfo source=\"X_Write\">Default_Admin</xsd:appinfo>  "+
+							            "<xsd:appinfo source=\"X_Label_EN\">isoCode</xsd:appinfo> "+
+							          "</xsd:annotation>"+ 
+							        "</xsd:element>  "+
+							        "<xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"label\" nillable=\"false\" type=\"xsd:string\"> "+
+							          "<xsd:annotation> "+
+							            "<xsd:appinfo source=\"X_Write\">Default_User</xsd:appinfo>  "+
+							            "<xsd:appinfo source=\"X_Write\">Default_Admin</xsd:appinfo> "+ 
+							            "<xsd:appinfo source=\"X_Label_EN\">label</xsd:appinfo> "+
+							            "</xsd:annotation> "+
+							        "</xsd:element>"+  
+							        "<xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"Continent\" nillable=\"false\" type=\"xsd:string\"> "+
+							          "<xsd:annotation> "+
+							            "<xsd:appinfo source=\"X_Write\">Default_User</xsd:appinfo>  "+
+							            "<xsd:appinfo source=\"X_Write\">Default_Admin</xsd:appinfo>  "+
+							            "<xsd:appinfo source=\"X_Label_EN\">Continent</xsd:appinfo> "+
+							          "</xsd:annotation>"+ 
+							        "</xsd:element> "+
+							      "</xsd:all> "+
+							    "</xsd:complexType>  "+
+							    "<xsd:unique name=\"Country\"> "+
+							      "<xsd:selector xpath=\".\"/>  "+
+							      "<xsd:field xpath=\"isoCode\"/> "+
+							    "</xsd:unique> "+
+							  "</xsd:element> ";//+
+							  //"</xsd:schema>";
 
 			WSPutBusinessConceptSchema wsPutBusinessConceptSchema = new WSPutBusinessConceptSchema();
-			wsPutBusinessConceptSchema.setBusinessConceptSchema(s);
+			wsPutBusinessConceptSchema.setBusinessConceptSchema(xml);
 			wsPutBusinessConceptSchema.setWsDataModelPK(new WSDataModelPK(
 					"Order"));
-			
+
 			WSString wsString = defaultPort
 					.putBusinessConceptSchema(wsPutBusinessConceptSchema);
-			System.out.println(wsString);
+			assertNotNull(wsString);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -164,7 +194,7 @@ public class DataModelWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSString wsString = defaultPort
 					.deleteBusinessConcept(wsDeleteBusinessConcept);
-			System.out.println(wsString);
+			assertNotNull(wsString);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -176,9 +206,7 @@ public class DataModelWebserviceTestCase extends WebserviceTestCase {
 		try {
 			String[] stringArray = defaultPort
 					.getBusinessConcepts(wsGetBusinessConcepts);
-			for (int i = 0; i < stringArray.length; i++) {
-				System.out.println(stringArray[i]);
-			}
+			assertNotNull(stringArray);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -187,7 +215,7 @@ public class DataModelWebserviceTestCase extends WebserviceTestCase {
 
 	public void testGetBusinessConceptKey() {
 		WSGetBusinessConceptKey wsGetBusinessConceptKey = new WSGetBusinessConceptKey();
-		wsGetBusinessConceptKey.setConcept("Student");
+		wsGetBusinessConceptKey.setConcept("Country");
 		wsGetBusinessConceptKey.setWsDataModelPK(new WSDataModelPK("Order"));
 		try {
 			WSConceptKey wsConceptKey = defaultPort

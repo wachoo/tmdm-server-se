@@ -34,10 +34,9 @@ public class ItemsWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSPipelineTypedContentEntry[] wsPipelineTypedContentEntryArray = defaultPort
 					.extractUsingTransformer(wsExtractUsingTransformer);
-			for (int i = 0; i < wsPipelineTypedContentEntryArray.length; i++) {
-				System.out.println(wsPipelineTypedContentEntryArray[i]
-						.getOutput());
-			}
+			
+			assertNotNull(wsPipelineTypedContentEntryArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -56,10 +55,9 @@ public class ItemsWebserviceTestCase extends WebserviceTestCase {
 		try {
 			WSPipelineTypedContentEntry[] wsPipelineTypedContentEntryArray = defaultPort
 					.extractUsingTransformerThruView(wsExtractUsingTransformerThruView);
-			for (int i = 0; i < wsPipelineTypedContentEntryArray.length; i++) {
-				System.out.println(wsPipelineTypedContentEntryArray[i]
-						.getOutput());
-			}
+			
+			assertNotNull(wsPipelineTypedContentEntryArray);
+			
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -92,7 +90,7 @@ public class ItemsWebserviceTestCase extends WebserviceTestCase {
 		wsDeleteItems.setWsDataClusterPK(new WSDataClusterPK("Order"));
 		try {
 			WSInt wsInt = defaultPort.deleteItems(wsDeleteItems);
-			System.out.println(wsInt.getValue());
+			assertNotNull(wsInt);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -110,7 +108,7 @@ public class ItemsWebserviceTestCase extends WebserviceTestCase {
 		wsDropItem.setWsItemPK(wsItemPK);
 		try {
 			WSDroppedItemPK wsDroppedItemPK = defaultPort.dropItem(wsDropItem);
-			System.out.println(wsDroppedItemPK.getPartPath());
+			assertNotNull(wsDroppedItemPK);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
