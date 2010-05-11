@@ -12,15 +12,27 @@
 // ============================================================================
 package com.amalto.webapp.core.util.license;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Serializable;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.talend.commons.model.ProductsMapping;
 import org.talend.commons.model.TalendObject;
 
 import com.amalto.core.util.UserHelper;
 import com.amalto.core.util.license.ElapsedTime;
+import com.amalto.core.util.license.Token;
+import com.amalto.core.util.license.TokenGetter;
 import com.amalto.core.util.license.TokenReader;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSLicense;
@@ -92,12 +104,19 @@ public final class LicenseUtil {
           WSLicense licensep = Util.getPort().getLicense();
           license = licensep.getLicense();
           
-          if(license!=null) {
+          if(license != null) {
 	          String customerName = licensep.getCustomerCompany();
 	          byte[] licenseb = Base64.decodeBase64(license.getBytes());
-	          token = licensep.getToken();
+	          tokenStr = licensep.getToken();
+	          
+	          if(tokenStr != null) {
+	              token = new TokenReader().readToken(tokenStr.getBytes());
+	          }
 	          
 	          this.init(licenseb, customerName);
+          }
+          else {
+              resetFields();
           }
        }
        catch(Exception e) {
@@ -117,7 +136,7 @@ public final class LicenseUtil {
 
     private LicenseMode licenseMode;
     
-    private String token;
+    private String tokenStr;
     
     private int adminUsers;
     
@@ -125,7 +144,17 @@ public final class LicenseUtil {
     
     private String license;
     
-    public String getLicense() {
+    private Token token;
+    
+    public Token getToken() {
+		return token;
+	}
+
+	public void setToken(Token token) {
+		this.token = token;
+	}
+
+	public String getLicense() {
 		return license;
 	}
 
@@ -169,12 +198,12 @@ public final class LicenseUtil {
     
    private int viewers;
     
-   public String getToken() {
-      return token;
+   public String getTokenStr() {
+      return tokenStr;
    }
 
-   public void setToken(String token) {
-      this.token = token;
+   public void setTokenStr(String tokenStr) {
+      this.tokenStr = tokenStr;
    }
 
    public boolean init(byte[] licenseb, String newCompanyName) {
@@ -218,6 +247,8 @@ public final class LicenseUtil {
         adminUsers = 0;
         interactiveUsers = 0;
         viewers = 0;
+        token = null;
+        installations = 0;
     }
     
     /**
@@ -251,6 +282,8 @@ public final class LicenseUtil {
         wsLicense.setCustomerCompany(customerName);
         putLicense.setWsLicense(wsLicense);
         Util.getPort().putLicense(putLicense);
+        //auto get new token
+        setNewToken(getNewTokenStr(license));
     }
     
     /**
@@ -262,6 +295,17 @@ public final class LicenseUtil {
             return false;
         else
             return (Calendar.getInstance().getTime().compareTo(licenseDate) < 0);
+    }
+    
+    /**
+     * the token is validated.
+     * @return
+     */
+    public boolean isTokenDateValid() {
+        if (token == null)
+            return false;
+        else
+            return (Calendar.getInstance().getTime().compareTo(token.getEnd()) < 0);
     }
     
     /**
@@ -285,6 +329,20 @@ public final class LicenseUtil {
     public long getSoonExpired() {
         // License date:
         final long diff = ElapsedTime.getNbDays(new Date(), getLicenseDate());
+       
+        return diff;
+    }
+    
+    /**
+     * get token expired days.
+     * @return
+     */
+    public long getTokenSoonExpired() {
+        // License date:
+        if(getToken() == null)
+            return 0;
+        
+        final long diff = ElapsedTime.getNbDays(new Date(), getToken().getEnd());
        
         return diff;
     }
@@ -390,22 +448,35 @@ public final class LicenseUtil {
      * @param token
      * @throws Exception
      */
-    public void setNewToken(String token) throws Exception {
-        if (token == null || token.length() == 0) {
+    public void setNewToken(String tokenStr) throws Exception {
+        if (tokenStr == null || tokenStr.length() == 0) {
             throw new Exception("license.tokeninvalid");
         }
 
         try {
-            new TokenReader().readToken(token.getBytes());
+            token = new TokenReader().readToken(tokenStr.getBytes());
         } catch (Exception e) {
             throw e;
         }
         
         WSPutLicense putLicense = new WSPutLicense();
         WSLicense licensep = Util.getPort().getLicense();
-        licensep.setToken(token);
+        licensep.setToken(tokenStr);
         putLicense.setWsLicense(licensep);
         Util.getPort().putLicense(putLicense);
+        
+        if(token != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(token.getEnd());
+            int sec = cal.get(Calendar.SECOND);
+            int min = cal.get(Calendar.MINUTE);
+            int hour = cal.get(Calendar.HOUR);
+            int day = cal.get(Calendar.DAY_OF_MONTH);
+            int month = cal.get(Calendar.MONTH) + 1;
+            int year = cal.get(Calendar.YEAR);
+            
+            resetService(sec + " " + min + " " + hour + " " + day + " " + month + " " + year + " *");
+        }
     }
     
     /**
@@ -448,4 +519,57 @@ public final class LicenseUtil {
     		   throw new Exception("invalid license viewer number");
        }
    } 
+   
+   /**
+    * reset the schedule of service.
+    * @param time new time.
+    * @throws Exception
+    */
+   public void resetService(String time) throws Exception {
+       String ip = "127.0.0.1";
+       String port = "8080";
+       String uri = "http://" + ip + ":" + port + "/SrvSchedule/SrvScheduleServlet?" +
+           "action=reschedule&planId=Job.autovalidation.fetchFromOutbound.1272441219265&mode=" + 
+           URLEncoder.encode(time);
+
+       HttpClient client = new HttpClient();
+       GetMethod get = new GetMethod(uri);
+       client.setConnectionTimeout(30000);
+       int status = client.executeMethod(get);
+       
+       if(status != 200)
+           org.apache.log4j.Logger.getLogger(this.getClass()).warn("Start up service schedule engine failed! ");
+   }
+   
+   /**
+    * get new token string.
+    * @return
+    */
+   public String getNewTokenStr(String licenseStr) {
+       try {
+           final URL url = new URL("http://www.talend.com/api/get_tis_validation_token.php?msg=");
+           
+           String newCompany = LicenseUtil.getInstance().getCompanyName();
+           URLConnection httpURLConnection = url.openConnection();
+           httpURLConnection.setDoOutput(true);
+           OutputStreamWriter writer = new OutputStreamWriter(httpURLConnection.getOutputStream());
+      
+           final String x = URLEncoder.encode(new TokenGetter().getValidationRequest(licenseStr, newCompany), "UTF8");
+           writer.write("msg=" + x);
+           writer.flush();
+           InputStream in = httpURLConnection.getInputStream();
+           BufferedReader r = new BufferedReader(new InputStreamReader(in));
+           
+           return r.readLine();
+       }
+       catch(Exception e) {
+           org.apache.log4j.Logger.getLogger(this.getClass()).warn(e.getLocalizedMessage());
+           return null;
+       }
+   }
+   
+   public String getNewTokenStr() {
+       String licenseStr = LicenseUtil.getInstance().getLicense();
+       return getNewTokenStr(licenseStr);
+   }
 }

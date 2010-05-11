@@ -692,7 +692,7 @@ amalto.core = function () {
 			}else {
 				LayoutInterface.isExpired(function(isExpired) {
 					if(isExpired) {
-						alert("license invalid or license is expired, please registry a new license!");
+						alert("license or token is expired, please registry a new license or token!");
 					}
 					else {
 						//load the script if necessary
