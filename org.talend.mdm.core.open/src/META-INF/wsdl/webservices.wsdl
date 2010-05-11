@@ -915,6 +915,12 @@
     <message name="getMDMCategoryResponse">
        <part name="wsCategoryDataResponse" element="tns:WSCategoryData"/>
     </message>
+    <message name="getAutoIncrementRequest">
+       <part name="wsAutoIncrementRequest" element="tns:WSAutoIncrement"/>
+    </message>
+    <message name="getAutoIncrementResponse">
+       <part name="wsAutoIncrementResponse" element="tns:WSAutoIncrement"/>
+    </message>    
 	<!-- *****************************************************
 		              P O R T		
 		              
@@ -1486,6 +1492,10 @@
             <input message="tns:getMDMCategoryRequest"/>
             <output message="tns:getMDMCategoryResponse"></output>
         </operation>
+         <operation name="getAutoIncrement">
+            <input message="tns:getAutoIncrementRequest"/>
+            <output message="tns:getAutoIncrementResponse"></output>
+        </operation>        
 	</portType>
 	
 
@@ -2200,7 +2210,11 @@
             <input><soap:body use="literal"/></input>
             <output><soap:body use="literal"/></output>
         </operation>
-       
+         <operation name="getAutoIncrement">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>      
 	</binding>
 		
 	

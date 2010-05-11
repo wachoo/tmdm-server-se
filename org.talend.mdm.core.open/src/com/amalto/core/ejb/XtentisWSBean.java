@@ -1737,4 +1737,16 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
     	return ((DefaultXtentisWSDelegator)BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator()).getMDMJob(job);
     }
 
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */   
+	public WSAutoIncrement getAutoIncrement(
+			WSAutoIncrement wsAutoIncrementRequest) throws RemoteException {
+		// TODO Auto-generated method stub
+    	return ((DefaultXtentisWSDelegator)BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator()).getAutoIncrement(wsAutoIncrementRequest);
+	}
+
 }

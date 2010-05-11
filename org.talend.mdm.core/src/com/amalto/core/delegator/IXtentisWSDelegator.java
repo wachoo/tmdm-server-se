@@ -4814,7 +4814,28 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 		
 		
 	}
-
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */   
+	public WSAutoIncrement getAutoIncrement(
+			WSAutoIncrement request) throws RemoteException {
+		try {
+			if(request==null) {
+				String xml=Util.getXmlServerCtrlLocal().getDocumentAsString(null, XSystemObjects.DC_CONF.getName(), "Auto_Increment");
+				if(xml!=null) {
+					return new WSAutoIncrement(xml);
+				}
+			}else {
+				Util.getXmlServerCtrlLocal().putDocumentFromString(request.getAutoincrement(), "Auto_Increment", XSystemObjects.DC_CONF.getName(), null);
+				return request;
+			}
+		} catch (XtentisException e) {
+		}		
+		return null;
+	}
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
 	 * @ejb.permission 
@@ -4945,36 +4966,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			WSMDMJobArray jobSet = new WSMDMJobArray();
 			WSMDMJob[] jobs=Util.getMDMJobs();
 			jobSet.setWsMDMJob(jobs);
-//			Document doc = null;
-//			String xmlData;
-//			URL url=DefaultXtentisWSDelegator.class.getResource("/");
-//			
-//			String deploydir="";
-//			try {
-//				deploydir = new File(url.toURI()).getParentFile().getAbsolutePath();
-//			} catch (URISyntaxException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			}
-//			deploydir=deploydir+File.separator+"deploy";
-//			System.out.println("deploy url"+deploydir);
-//			try {
-//				Util.getXmlServerCtrlLocal().createCluster(null, MDMTISJOB);
-//				xmlData = EnterpriseUtil.getXmlServerCtrlLocal().getDocumentAsString(null, MDMTISJOB, JOB);
-//				if(xmlData==null) return jobSet;
-//				doc = EnterpriseUtil.parse(xmlData);
-//				NodeList list = EnterpriseUtil.getNodeList(doc, "/jobs/child::*");
-//				WSMDMJob[] jobs = new WSMDMJob[list.getLength()];
-//				for(int i = 0; i < list.getLength(); i++)
-//				{
-//				   Node node = list.item(i);
-//				   jobs[i] = new WSMDMJob(node.getAttributes().getNamedItem("name").getNodeValue(), 
-//						                  node.getAttributes().getNamedItem("version").getNodeValue());
-//				}
-//				jobSet.setWsMDMJob(jobs);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
 			
 			return jobSet;
 	    }	 

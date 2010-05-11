@@ -8,7 +8,6 @@ import java.util.Properties;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.migration.AbstractMigrationTask;
-import com.amalto.core.util.AutoIncrementGenerator;
 import com.amalto.core.util.Util;
 
 public class AutoIncrementTask extends AbstractMigrationTask {

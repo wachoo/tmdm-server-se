@@ -419,7 +419,8 @@ public class ItemPOJO implements Serializable{
             	}
             	
             }else {
-            	throw new XtentisException("Cannot parse item read from XML Server");
+            	newItem.setProjectionAsString(item);
+            	//throw new XtentisException("Cannot parse item read from XML Server");
             }
             
              //check user rights
