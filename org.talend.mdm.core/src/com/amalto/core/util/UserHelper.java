@@ -13,7 +13,9 @@
 package com.amalto.core.util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
@@ -196,18 +198,19 @@ public final class UserHelper {
     }
     
     /**
-     * check is update role of specify user.
+     * get the rolenames of specify user.
      * @param user
      * @return
      */
-    public boolean isUpdateRole(User user) {
-        boolean result = false;
+    public Set<String> getOriginalRole(User user) {
+        Set<String> result = new HashSet<String>();
         
         for(User existUser : listUsers()) {
             if(existUser.getUserName().equals(user.getUserName())) {
-                return !existUser.getRoleNames().equals(user.getRoleNames());
+                return existUser.getRoleNames();
             }
         }
+        
         return result;
     }
 }

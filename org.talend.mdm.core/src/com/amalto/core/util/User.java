@@ -13,7 +13,7 @@ import org.w3c.dom.NodeList;
 
 
 
-public class User {
+public class User implements Cloneable{
 
 	Integer ID;
 
@@ -545,6 +545,13 @@ public class User {
     	this.universe = universe;
     }
 
-
+	public Object clone() {
+        try {
+            return (User)super.clone();
+        }
+        catch(CloneNotSupportedException e) {
+            throw new InternalError(e.getMessage());
+        }
+    }
 
 }
