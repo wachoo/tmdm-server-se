@@ -140,6 +140,6 @@ public class LayoutDWR {
 		   throw new RemoteException("No set validation token.");
 	   }
 	   
-	   return !instance.isLicenseDateValid() && !instance.isTokenDateValid();
+	   return !instance.isLicenseDateValid() || !instance.isTokenDateValid();
 	}
 }
