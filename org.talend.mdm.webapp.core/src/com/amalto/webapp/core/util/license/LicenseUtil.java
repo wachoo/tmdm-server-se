@@ -283,6 +283,7 @@ public final class LicenseUtil {
         putLicense.setWsLicense(wsLicense);
         Util.getPort().putLicense(putLicense);
         //auto get new token
+        checkLicense();
         setNewToken(getNewTokenStr(license));
     }
     
