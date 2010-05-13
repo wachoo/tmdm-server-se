@@ -569,8 +569,29 @@ public final class LicenseUtil {
        }
    }
    
+   /**
+    * get token string.
+    * @return
+    */
    public String getNewTokenStr() {
        String licenseStr = LicenseUtil.getInstance().getLicense();
        return getNewTokenStr(licenseStr);
+   }
+   
+   /**
+    * get token data.
+    * @return
+    * @throws Exception
+    */
+   public String getTokenData() throws Exception {
+       return new TokenGetter().getValidationRequest(license, companyName);
+   }
+   
+   /**
+    * check if is set token.
+    * @return
+    */
+   public boolean isSetToken() {
+       return getToken() != null;
    }
 }
