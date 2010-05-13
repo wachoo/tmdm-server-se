@@ -9,11 +9,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.webapp.util.webservices.WSExistsDataCluster;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSExistsDataModel;
 import com.amalto.webapp.util.webservices.WSPutItem;
 
 
@@ -154,8 +157,16 @@ public class Configuration {
 			if("cluster".equals(Util.getFirstTextNode(node,"name"))){		
 				//configuration.setCluster(Util.getNodeList(node, "value").item(0).getTextContent());
 				Node fchild=Util.getNodeList(node, "value").item(0).getFirstChild();
-				if(fchild!=null)
-				configuration.setCluster(fchild.getNodeValue());
+				if(fchild!=null){
+					WSExistsDataCluster wsExistsDataCluster=new WSExistsDataCluster();
+					wsExistsDataCluster.setWsDataClusterPK(new WSDataClusterPK(fchild.getNodeValue()));
+					WSBoolean wsBoolean=Util.getPort().existsDataCluster(wsExistsDataCluster);
+					if(wsBoolean.is_true()){
+						configuration.setCluster(fchild.getNodeValue());
+					}
+					
+				}
+					
 			}
 		}
 		for (int i = 0; i < nodeList.getLength(); i++) { 
@@ -163,8 +174,15 @@ public class Configuration {
 			if("model".equals(Util.getFirstTextNode(node,"name"))){	
 				//configuration.setModel(Util.getNodeList(node, "value").item(0).getTextContent());
 				Node fchild=Util.getNodeList(node, "value").item(0).getFirstChild();
-				if(fchild!=null)
-				configuration.setModel(fchild.getNodeValue());
+				if(fchild!=null){
+					WSExistsDataModel wsExistsDataModel=new WSExistsDataModel();
+					wsExistsDataModel.setWsDataModelPK(new WSDataModelPK(fchild.getNodeValue()));
+					WSBoolean wsBoolean=Util.getPort().existsDataModel(wsExistsDataModel);
+					if(wsBoolean.is_true()){
+						configuration.setModel(fchild.getNodeValue());
+					}
+				}
+				
 			}
 		}		
 		if(configuration.getCluster()==null && CommonDWR.getClusters().length>0){
