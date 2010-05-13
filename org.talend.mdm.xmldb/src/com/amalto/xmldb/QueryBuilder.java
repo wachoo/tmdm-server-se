@@ -163,7 +163,7 @@ public class QueryBuilder {
 			String xQueryCollectionName=getXQueryCollectionName(revisionID, clusterName)+"/"+(isItemQuery ? "/p/" : "");
 			//xqFor+=pivotName+" in "+xQueryCollectionName+path;
 			//FIXME:assume pivot names are in sequence
-			xqFor+=pivotName+" in "+"subsequence($_leres"+i+"_,"+queryBuilderContext.getStart()+","+queryBuilderContext.getLimit()+")";
+			xqFor+=pivotName+" in "+"subsequence($_leres"+i+"_,"+(queryBuilderContext.getStart()+1)+","+queryBuilderContext.getLimit()+")";
 			partialXQLPackage.addForInCollection(pivotName, xQueryCollectionName+rootElementName);
     	}
 
@@ -599,26 +599,35 @@ public class QueryBuilder {
 	    	//Determine Query based on number of results an counts
 	    	String query = null;
 	    	
-	    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
-	    	if (subsequence) {
-	    		if (withTotalCountOnFirstRow) {
-		    		query =
-		    			"let $_page_ := \n"+rawQuery
-		    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{count($_page_)}</totalCount>)";
-	    		} else {
-    	    		query =
-    	    			"let $_page_ := \n"+rawQuery
-    	    			+"\n return subsequence($_page_,"+(start+1)+","+limit+")";
-	    		}
-	    	} else {
-	    		if (withTotalCountOnFirstRow) {
-		    		query =
-		    			"let $_page_ := \n"+rawQuery
-		    			+"\n return insert-before($_page_,0,<totalCount>{count($_page_)}</totalCount>)";
-	    		} else {
-	    			query = rawQuery;
-	    		}
-	    	}
+//	    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
+//	    	if (subsequence) {
+//	    		if (withTotalCountOnFirstRow) {
+//		    		query =
+//		    			"let $_page_ := \n"+rawQuery
+//		    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{"
+//		    			+getCountExpr(partialXQLPackage)
+//		    			+"}</totalCount>)";
+//	    		} else {
+//    	    		query =
+//    	    			"let $_page_ := \n"+rawQuery
+//    	    			+"\n return subsequence($_page_,"+(start+1)+","+limit+")";
+//	    		}
+//	    	} else {
+//	    		if (withTotalCountOnFirstRow) {
+//		    		query =
+//		    			"let $_page_ := \n"+rawQuery
+//		    			+"\n return insert-before($_page_,0,<totalCount>{"+getCountExpr(partialXQLPackage)+"}</totalCount>)";
+//	    		} else {
+//	    			query = rawQuery;
+//	    		}
+//	    	}
+	    	if (withTotalCountOnFirstRow) {
+	    		query =
+	    			"let $_page_ := \n"+rawQuery
+	    			+"\n return insert-before($_page_,0,<totalCount>{"+getCountExpr(partialXQLPackage)+"}</totalCount>)";
+    		} else {
+    			query = rawQuery;
+    		}
 	    	
 	    	//create a intermediate line for subsequence
 	    	
@@ -653,6 +662,18 @@ public class QueryBuilder {
      	    throw new XmlServerException(err);
 	    }
     }
+
+	private static String getCountExpr(PartialXQLPackage partialXQLPackage) {
+		StringBuffer countExpr=new StringBuffer();
+		countExpr.append("count($_leres0_)");
+		int size=partialXQLPackage.getForInCollectionMap().size();
+		if(size>1) {
+			for (int i = 1; i < size; i++) {
+				countExpr.append("*").append("count($_leres").append(i).append("_)");
+			}	
+		}
+		return countExpr.toString();
+	}
 
 	/***********************************************************************
 	 *
