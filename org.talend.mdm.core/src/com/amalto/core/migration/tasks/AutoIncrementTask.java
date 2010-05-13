@@ -2,7 +2,7 @@ package com.amalto.core.migration.tasks;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.util.Properties;
 
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -17,7 +17,7 @@ public class AutoIncrementTask extends AbstractMigrationTask {
 		File file = new File("auto_increment.conf");
 		if(file.exists()) {
 		try {
-			FileReader reader=new FileReader(file);
+			FileInputStream reader=new FileInputStream(file);
 			Properties p=new Properties();
 			p.load(reader);
 			//save to
@@ -27,6 +27,7 @@ public class AutoIncrementTask extends AbstractMigrationTask {
 			Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, "Auto_Increment", XSystemObjects.DC_CONF.getName(), null);
 			//read from xml file
 			bos.close();
+			reader.close();
 			//delete the auto_increment.conf
 			file.delete();
 		} catch (Exception e) {
