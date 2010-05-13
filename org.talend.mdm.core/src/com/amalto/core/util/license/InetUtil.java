@@ -38,33 +38,16 @@ public class InetUtil {
      * 
      * @param args
      */
-
-    public final static void main(String[] args)
-
-    {
-
-        try
-
-        {
-
+    public final static void main(String[] args) {
+        try {
             System.out.println("Information Réseau Local");
-
             System.out.println("  Système d'exploitation : " + System.getProperty("os.name"));
-
             System.out.println("  IP/Localhost: " + InetAddress.getLocalHost().getHostAddress());
-
             System.out.println("  Adresse MAC : " + getMacAddress());
-
         }
-
-        catch (Throwable t)
-
-        {
-
+        catch (Throwable t) {
             t.printStackTrace();
-
         }
-
     }
 
     /**
@@ -83,13 +66,14 @@ public class InetUtil {
      * 
      * @throws IOException
      */
-
     public final static List<String> getMacAddress() throws IOException {
         try {
             return getMacAddressJava6();
-        } catch (NoSuchMethodError e) {
+        } 
+        catch (NoSuchMethodError e) {
             List<String> toReturn = new ArrayList<String>();
             toReturn.add(getMacAddressJava5());
+            
             return toReturn;
         }
     }
@@ -103,6 +87,7 @@ public class InetUtil {
             final NetworkInterface nextElement = networkInterfaces.nextElement();
             byte[] mac = nextElement.getHardwareAddress();
             StringBuffer sb = new StringBuffer();
+            
             if (mac != null) {
                 for (int i = 0; i < mac.length; i++) {
                     sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
@@ -117,53 +102,24 @@ public class InetUtil {
 
     private final static String getMacAddressJava5() throws IOException {
         String os = System.getProperty("os.name");
-
-        try
-
-        {
-
-            if (os.startsWith("Windows"))
-
-            {
-
+        
+        try {
+            if (os.startsWith("Windows")) {
                 return windowsParseMacAddress(windowsRunIpConfigCommand());
-
             }
-
-            else if (os.startsWith("Linux"))
-
-            {
-
+            else if (os.startsWith("Linux")) {
                 return linuxParseMacAddress(linuxRunIfConfigCommand());
-
             }
-
-            else if (os.startsWith("Mac OS X"))
-
-            {
-
+            else if (os.startsWith("Mac OS X")) {
                 return osxParseMacAddress(osxRunIfConfigCommand());
-
             }
-
-            else
-
-            {
-
+            else {
                 throw new IOException("Système d'exploitation non supporté : " + os);
-
             }
-
         }
-
-        catch (ParseException ex)
-
-        {
-
+        catch (ParseException ex) {
             throw new IOException(ex.getMessage());
-
         }
-
     }
 
     // *************** Commande de récupération des informations réseau ***************//
@@ -180,37 +136,22 @@ public class InetUtil {
      * 
      * @throws IOException
      */
-
-    private final static String windowsRunIpConfigCommand() throws IOException
-
-    {
-
+    private final static String windowsRunIpConfigCommand() throws IOException {
         Process p = Runtime.getRuntime().exec("ipconfig /all");
-
         InputStream stdoutStream = new BufferedInputStream(p.getInputStream());
-
         StringBuffer buffer = new StringBuffer();
 
-        for (;;)
-
-        {
-
+        for (;;) {
             int c = stdoutStream.read();
 
             if (c == -1)
-
                 break;
-
             buffer.append((char) c);
-
         }
 
         String outputText = buffer.toString();
-
         stdoutStream.close();
-
         return outputText;
-
     }
 
     /**
@@ -225,37 +166,23 @@ public class InetUtil {
      * 
      * @throws IOException
      */
-
-    private final static String linuxRunIfConfigCommand() throws IOException
-
-    {
-
+    private final static String linuxRunIfConfigCommand() throws IOException {
         Process p = Runtime.getRuntime().exec("ifconfig");
-
         InputStream stdoutStream = new BufferedInputStream(p.getInputStream());
-
         StringBuffer buffer = new StringBuffer();
 
         for (;;)
-
         {
-
             int c = stdoutStream.read();
-
             if (c == -1)
-
                 break;
-
             buffer.append((char) c);
-
         }
 
         String outputText = buffer.toString();
-
         stdoutStream.close();
 
         return outputText;
-
     }
 
     /**
@@ -270,33 +197,20 @@ public class InetUtil {
      * 
      * @throws IOException
      */
-
-    private final static String osxRunIfConfigCommand() throws IOException
-
-    {
-
+    private final static String osxRunIfConfigCommand() throws IOException {
         Process p = Runtime.getRuntime().exec("ifconfig");
-
         InputStream stdoutStream = new BufferedInputStream(p.getInputStream());
-
         StringBuffer buffer = new StringBuffer();
 
-        for (;;)
-
-        {
-
+        for (;;) {
             int c = stdoutStream.read();
 
             if (c == -1)
-
                 break;
-
             buffer.append((char) c);
-
         }
 
         String outputText = buffer.toString();
-
         stdoutStream.close();
 
         return outputText;
@@ -319,79 +233,48 @@ public class InetUtil {
      * 
      * @throws IOException
      */
-
-    private final static String windowsParseMacAddress(String ipConfigResponse) throws ParseException
-
+    private final static String windowsParseMacAddress(String ipConfigResponse) 
+        throws ParseException 
     {
-
         String localHost = null;
 
-        try
-
-        {
-
+        try {
             localHost = InetAddress.getLocalHost().getHostAddress();
-
         }
-
-        catch (java.net.UnknownHostException ex)
-
-        {
-
+        catch (java.net.UnknownHostException ex) {
             ex.printStackTrace();
-
             throw new ParseException(ex.getMessage(), 0);
-
         }
 
         StringTokenizer tokenizer = new StringTokenizer(ipConfigResponse, "\n");
-
         String lastMacAddress = null;
 
-        while (tokenizer.hasMoreTokens())
-
-        {
-
+        while (tokenizer.hasMoreTokens()) {
             String line = tokenizer.nextToken().trim();
-
             // see if line contains IP address
 
-            if (line.endsWith(localHost) && lastMacAddress != null)
-
-            {
-
+            if (line.endsWith(localHost) && lastMacAddress != null) {
                 return lastMacAddress;
-
             }
 
             // see if line contains MAC address
-
             int macAddressPosition = line.indexOf(":");
 
             if (macAddressPosition <= 0)
-
                 continue;
-
+            
             String macAddressCandidate = line.substring(macAddressPosition + 1).trim();
 
             if (windowsIsMacAddress(macAddressCandidate))
-
             {
-
                 lastMacAddress = macAddressCandidate;
-
                 continue;
-
             }
-
         }
 
         ParseException ex = new ParseException("cannot read MAC address from [" + ipConfigResponse + "]", 0);
-
         ex.printStackTrace();
-
         throw ex;
-
     }
 
     /**
@@ -410,81 +293,47 @@ public class InetUtil {
      */
 
     private final static String linuxParseMacAddress(String ipConfigResponse) throws ParseException
-
     {
-
         String localHost = null;
 
-        try
-
-        {
-
+        try {
             localHost = InetAddress.getLocalHost().getHostAddress();
-
         }
-
-        catch (java.net.UnknownHostException ex)
-
-        {
-
+        catch (java.net.UnknownHostException ex) {
             ex.printStackTrace();
-
             throw new ParseException(ex.getMessage(), 0);
-
         }
 
         StringTokenizer tokenizer = new StringTokenizer(ipConfigResponse, "\n");
-
         String lastMacAddress = null;
 
-        while (tokenizer.hasMoreTokens())
-
-        {
-
+        while (tokenizer.hasMoreTokens()) {
             String line = tokenizer.nextToken().trim();
-
             boolean containsLocalHost = line.indexOf(localHost) >= 0;
 
             // see if line contains IP address
-
-            if (containsLocalHost && lastMacAddress != null)
-
-            {
-
+            if (containsLocalHost && lastMacAddress != null) {
                 return lastMacAddress;
-
             }
 
             // see if line contains MAC address
-
             int macAddressPosition = line.indexOf("HWaddr");
 
             if (macAddressPosition <= 0)
-
                 continue;
 
             String macAddressCandidate = line.substring(macAddressPosition + 6).trim();
 
-            if (linuxIsMacAddress(macAddressCandidate))
-
-            {
-
+            if (linuxIsMacAddress(macAddressCandidate)) {
                 lastMacAddress = macAddressCandidate;
-
                 continue;
-
             }
-
         }
 
         ParseException ex = new ParseException("cannot read MAC address for " + localHost + " from ["
-
         + ipConfigResponse + "]", 0);
-
         // ex.printStackTrace();
-
         throw ex;
-
     }
 
     /**
@@ -501,69 +350,40 @@ public class InetUtil {
      * 
      * @throws IOException
      */
-
     private final static String osxParseMacAddress(String ipConfigResponse) throws ParseException
-
     {
-
         String localHost = null;
 
-        try
-
-        {
-
+        try {
             localHost = InetAddress.getLocalHost().getHostAddress();
-
         }
-
-        catch (java.net.UnknownHostException ex)
-
-        {
-
+        catch (java.net.UnknownHostException ex) {
             ex.printStackTrace();
-
             throw new ParseException(ex.getMessage(), 0);
-
         }
 
         StringTokenizer tokenizer = new StringTokenizer(ipConfigResponse, "\n");
 
-        while (tokenizer.hasMoreTokens())
-
-        {
-
+        while (tokenizer.hasMoreTokens()) {
             String line = tokenizer.nextToken().trim();
-
             boolean containsLocalHost = line.indexOf(localHost) >= 0;
-
             // see if line contains MAC address
-
             int macAddressPosition = line.indexOf("ether");
 
             if (macAddressPosition != 0)
-
                 continue;
 
             String macAddressCandidate = line.substring(macAddressPosition + 6).trim();
 
-            if (osxIsMacAddress(macAddressCandidate))
-
-            {
-
+            if (osxIsMacAddress(macAddressCandidate)) {
                 return macAddressCandidate;
-
             }
-
         }
 
         ParseException ex = new ParseException("cannot read MAC address for " + localHost + " from ["
-
         + ipConfigResponse + "]", 0);
-
         ex.printStackTrace();
-
         throw ex;
-
     }
 
     // *************** Validation de l'adresse MAC ***************//
@@ -580,19 +400,12 @@ public class InetUtil {
      * 
      * @return true si l'adresse MAC récupérer sous windows est correcte
      */
-
-    private final static boolean windowsIsMacAddress(String macAddressCandidate)
-
-    {
-
+    private final static boolean windowsIsMacAddress(String macAddressCandidate) {
         Pattern macPattern = Pattern
-
         .compile("[0-9a-fA-F]{2}-[0-9a-fA-F]{2}-[0-9a-fA-F]{2}-[0-9a-fA-F]{2}-[0-9a-fA-F]{2}-[0-9a-fA-F]{2}");
-
         Matcher m = macPattern.matcher(macAddressCandidate);
 
         return m.matches();
-
     }
 
     /**
@@ -607,19 +420,12 @@ public class InetUtil {
      * 
      * @return true si l'adresse MAC récupérer sous Linux est correcte
      */
-
-    private final static boolean linuxIsMacAddress(String macAddressCandidate)
-
-    {
-
+    private final static boolean linuxIsMacAddress(String macAddressCandidate) {
         // TODO: use a smart regular expression
-
         if (macAddressCandidate.length() != 17)
-
             return false;
 
         return true;
-
     }
 
     /**
@@ -634,18 +440,11 @@ public class InetUtil {
      * 
      * @return true si l'adresse MAC récupérer sous OS X (Apple) est correcte
      */
-
-    private final static boolean osxIsMacAddress(String macAddressCandidate)
-
-    {
-
+    private final static boolean osxIsMacAddress(String macAddressCandidate) {
         // TODO: use a smart regular expression
-
         if (macAddressCandidate.length() != 17)
-
             return false;
 
         return true;
-
     }
 }
