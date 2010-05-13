@@ -205,13 +205,28 @@ public class XPathUtils {
 				);
 
 				//build a path from the new pivot
-				Step step = new Step(
+				//modified by Starkey
+				Step step0 = new Step(
 					Compiler.AXIS_CHILD,
 		    		new NodeNameTest(new QName(name)),
 		    		new Expression[0]
 		    	);
-
-				return new LocationPath(false, new Step[]{step});
+				
+				Step step1 = new Step(
+	        			Compiler.AXIS_PARENT,
+	        			new NodeTypeTest(Compiler.NODE_TYPE_NODE),
+	        			null
+	        		);
+				Step[] steps= {step0,step1};
+				
+				LocationPath myNewPivotPath=new LocationPath(false,steps);
+				
+				Step[] newPivotPathSteps=newPivotPath.getSteps();
+				for (int i = 1; i < newPivotPathSteps.length; i++) {
+					myNewPivotPath.addStep(newPivotPathSteps[i].clone(true));
+				}
+				
+				return myNewPivotPath;
 			}
 			return newPath;
 
@@ -364,6 +379,20 @@ public class XPathUtils {
     	for (int j = i; j < steps.length; j++) {
     		newPath.addStep(steps[j]);
         }
+    	
+    	//modified by Starkey
+    	if(targetPath.toString().equals(pivotPath.toString())) {
+    		Step predecessor = new Step(
+        			Compiler.AXIS_PARENT,
+        			new NodeTypeTest(Compiler.NODE_TYPE_NODE),
+        			null
+        		);
+            newPath.addStep(predecessor);
+            for (int j = 1; j < steps.length; j++) {
+        		newPath.addStep(steps[j]);
+            }
+            
+    	}
 
     	return newPath;
 

@@ -20,6 +20,8 @@ import com.amalto.commons.core.utils.xpath.ri.compiler.Expression;
 import com.amalto.commons.core.utils.xpath.ri.compiler.NodeNameTest;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Path;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Step;
+import com.amalto.xmldb.util.PartialXQLPackage;
+import com.amalto.xmldb.util.QueryBuilderContext;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
@@ -112,12 +114,15 @@ public class QueryBuilder {
 		boolean isItemQuery,
     	LinkedHashMap<String, String> rootElementNamesToRevisionID,
     	LinkedHashMap<String, String> rootElementNamesToClusterName,
-		LinkedHashMap<String,String> pivotsMap
+		LinkedHashMap<String,String> pivotsMap,
+		PartialXQLPackage partialXQLPackage,
+		QueryBuilderContext queryBuilderContext
 	)throws XmlServerException {
 
 		String xqFor = "" ;
 		//build for
-    	for (Iterator<String> iter = pivotsMap.keySet().iterator(); iter.hasNext(); ) {
+		int i=0;
+    	for (Iterator<String> iter = pivotsMap.keySet().iterator(); iter.hasNext();i++ ) {
 			String pivotName = iter.next();
 			//get the path for this pivot
 			String path = pivotsMap.get(pivotName);
@@ -155,7 +160,11 @@ public class QueryBuilder {
 			}
 
 			xqFor+="".equals(xqFor)?"for ": ", ";
-			xqFor+=pivotName+" in "+getXQueryCollectionName(revisionID, clusterName)+"/"+(isItemQuery ? "ii/p/" : "")+path;
+			String xQueryCollectionName=getXQueryCollectionName(revisionID, clusterName)+"/"+(isItemQuery ? "/p/" : "");
+			//xqFor+=pivotName+" in "+xQueryCollectionName+path;
+			//FIXME:assume pivot names are in sequence
+			xqFor+=pivotName+" in "+"subsequence($_leres"+i+"_,"+queryBuilderContext.getStart()+","+queryBuilderContext.getLimit()+")";
+			partialXQLPackage.addForInCollection(pivotName, xQueryCollectionName+rootElementName);
     	}
 
     	return xqFor;
@@ -544,6 +553,14 @@ public class QueryBuilder {
     		LinkedHashMap<String,String> pivotsMap = new LinkedHashMap<String,String>();
 			if (forceMainPivot != null) pivotsMap.put("$pivot0", forceMainPivot);
 
+			if(start<0||limit<0||limit==Integer.MAX_VALUE) {
+	    		start=0;
+	    		limit=Integer.MAX_VALUE;	
+	    	}
+			PartialXQLPackage partialXQLPackage=new PartialXQLPackage();
+			QueryBuilderContext queryBuilderContext=new QueryBuilderContext();
+			queryBuilderContext.setStart(start);
+			queryBuilderContext.setLimit(limit);
 			//build return statement
 			String xqReturn = getXQueryReturn(viewableFullPaths, pivotsMap, withTotalCountOnFirstRow);
 
@@ -553,6 +570,7 @@ public class QueryBuilder {
 	    	else {
 	    	   xqWhere = buildWhere("", pivotsMap, whereItem,metaDataTypes);
 	    	}
+	    	partialXQLPackage.setXqWhere(xqWhere);
 	    	//build order by
 	    	if (orderBy == null) {
 	    		xqOrderBy = "";
@@ -567,41 +585,61 @@ public class QueryBuilder {
 	    		isItemQuery,
 	    		objectRootElementNamesToRevisionID,
 	    		objectRootElementNamesToClusterName,
-	    		pivotsMap
+	    		pivotsMap,
+	    		partialXQLPackage,
+	    		queryBuilderContext
 	    	);
 
 	    	String rawQuery =
 	    		xqFor
-	    		+("".equals(xqWhere)? "" : "\nwhere "+xqWhere)
+	    		//+("".equals(xqWhere)? "" : "\nwhere "+xqWhere)
 	    		+("".equals(xqOrderBy) ? "" : "\n"+xqOrderBy)
 	    		+"\nreturn "+xqReturn;
 
 	    	//Determine Query based on number of results an counts
 	    	String query = null;
+	    	
 	    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
 	    	if (subsequence) {
 	    		if (withTotalCountOnFirstRow) {
 		    		query =
-		    			"let $_leres_ := \n"+rawQuery
-		    			+"\n return insert-before(subsequence($_leres_,"+(start+1)+","+limit+"),0,<totalCount>{count($_leres_)}</totalCount>)";
+		    			"let $_page_ := \n"+rawQuery
+		    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{count($_page_)}</totalCount>)";
 	    		} else {
     	    		query =
-    	    			"let $_leres_ := \n"+rawQuery
-    	    			+"\n return subsequence($_leres_,"+(start+1)+","+limit+")";
+    	    			"let $_page_ := \n"+rawQuery
+    	    			+"\n return subsequence($_page_,"+(start+1)+","+limit+")";
 	    		}
 	    	} else {
 	    		if (withTotalCountOnFirstRow) {
 		    		query =
-		    			"let $_leres_ := \n"+rawQuery
-		    			+"\n return insert-before($_leres_,0,<totalCount>{count($_leres_)}</totalCount>)";
+		    			"let $_page_ := \n"+rawQuery
+		    			+"\n return insert-before($_page_,0,<totalCount>{count($_page_)}</totalCount>)";
 	    		} else {
 	    			query = rawQuery;
 	    		}
 	    	}
+	    	
+	    	//create a intermediate line for subsequence
+	    	
+	    	StringBuffer firstLets=new StringBuffer();
+    		LinkedHashMap<String, String> forInCollectionMap = partialXQLPackage.getForInCollectionMap();
+    		partialXQLPackage.genPivotWhereMap();
+    		Map<String,String> pivotWhereMap=partialXQLPackage.getPivotWhereMap();
+	    	int i=0;
+    		for (Iterator<String> iterator = forInCollectionMap.keySet().iterator(); iterator.hasNext();i++) {
+				String root =  iterator.next();
+				String expr =  forInCollectionMap.get(root);
+				if(pivotWhereMap.get(root)!=null&&pivotWhereMap.get(root).length()>0)expr=expr+" [ "+pivotWhereMap.get(root)+" ] ";
+				firstLets.append("let $_leres").append(i).append("_ := ").append(expr).append(" \n");
+			}
+    		query=(firstLets.toString()+query);
 
 	    	//replace () and to ""
 	    	query=query.replaceAll(" \\(\\) and"," ");
 	    	query=query.replaceAll("\\(\\(\\) and","( ");
+	    	//replace ../ and to ""
+	    	query=query.replace("../", "");
 	    	System.out.println("query:\n");
 	    	System.out.println(query);
 	    	
@@ -683,6 +721,5 @@ public class QueryBuilder {
     		return null;
     	}
     }
-
 
 }
