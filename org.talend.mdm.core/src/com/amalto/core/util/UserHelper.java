@@ -28,10 +28,12 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
  */
 public final class UserHelper {
     private UserHelper() {
+        listUsers();
     }
-
+    
     private static UserHelper instance;
-
+    static List<User> users;
+    
     public static UserHelper getInstance() {
         if (instance == null) {
             instance = new UserHelper();
@@ -51,7 +53,7 @@ public final class UserHelper {
     public int getViewerUsers() {
        List<User> viewers = new ArrayList<User>();
        
-       for(User user : listUsers()) {
+       for(User user : users) {
           if(user.enabled && user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_VIEWER.getName())) {
               viewers.add(user); 
           }
@@ -67,7 +69,7 @@ public final class UserHelper {
     public int getNormalUsers() {
        List<User> normalUsers = new ArrayList<User>();
        
-       for(User user : listUsers()) {
+       for(User user : users) {
           if(user.enabled && !user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_ADMIN.getName()) && 
                   !user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_VIEWER.getName())) {
               normalUsers.add(user);
@@ -84,7 +86,7 @@ public final class UserHelper {
     public int getNBAdminUsers() {
        List<User> admins = new ArrayList<User>();
        
-       for(User user : listUsers()) {
+       for(User user : users) {
           if(user.enabled && user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_ADMIN.getName())) {
               admins.add(user); 
           }
@@ -99,9 +101,8 @@ public final class UserHelper {
      */
     public int getActiveUsers() {
        List<User> activeUsers = new ArrayList<User>();
-       List<User> allUsers = listUsers();
        
-       for(User user : allUsers) {
+       for(User user : users) {
           if(user.enabled) {
              activeUsers.add(user);
           }
@@ -116,7 +117,7 @@ public final class UserHelper {
     public List<User> listUsers() {
        String dataclusterPK = XSystemObjects.DC_PROVISIONING.getName();
        List<String> results = new ArrayList<String>();
-       List<User> users = new ArrayList<User>();
+       users = new ArrayList<User>();
        
        try {
           results = Util.getItemCtrl2Local().getItems(
@@ -142,7 +143,7 @@ public final class UserHelper {
     public boolean isExistUser(User user) {
         boolean result = false;
         
-        for(User existUser : listUsers()) {
+        for(User existUser : users) {
             if(user.getUserName().equals(existUser.getUserName())) {
                 return true;
             }
@@ -159,7 +160,7 @@ public final class UserHelper {
     public boolean isUpdateDCDM(User user) {
         boolean result = false;
         
-        for(User existUser : listUsers()) {
+        for(User existUser : users) {
             if(user.getUserName().equals(existUser.getUserName())) {
                 String cluster = user.getDynamic().get("cluster");
                 String model = user.getDynamic().get("model");
@@ -189,7 +190,7 @@ public final class UserHelper {
             return false;
         }
         
-        for(User existUser : listUsers()) {
+        for(User existUser : users) {
             if(existUser.getUserName().equals(user.getUserName())) {
                 return existUser.isEnabled() != user.isEnabled();
             }
@@ -205,7 +206,7 @@ public final class UserHelper {
     public Set<String> getOriginalRole(User user) {
         Set<String> result = new HashSet<String>();
         
-        for(User existUser : listUsers()) {
+        for(User existUser : users) {
             if(existUser.getUserName().equals(user.getUserName())) {
                 return existUser.getRoleNames();
             }
