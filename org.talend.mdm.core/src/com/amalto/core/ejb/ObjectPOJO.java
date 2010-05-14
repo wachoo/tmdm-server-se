@@ -739,14 +739,15 @@ public abstract class ObjectPOJO implements Serializable{
 	    		    	
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-			           
+			String cluster= getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));          
 			server.putDocumentFromString(
 				xml, 
 				uniqueID, 
-				getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName)), 
+				cluster, 
 				revisionID
 			);
-	    	
+            ItemCacheKey key =new ItemCacheKey(revisionID,uniqueID, cluster);            
+            cachedPojo.put(key, xml);
     	} catch (XtentisException e) {
     		throw(e);
 	    } catch (Exception e) {
