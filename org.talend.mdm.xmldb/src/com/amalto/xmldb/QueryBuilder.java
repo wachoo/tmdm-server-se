@@ -162,10 +162,15 @@ public class QueryBuilder {
 			xqFor+="".equals(xqFor)?"for ": ", ";
 			String xQueryCollectionName=getXQueryCollectionName(revisionID, clusterName)+"/"+(isItemQuery ? "/p/" : "");
 			//xqFor+=pivotName+" in "+xQueryCollectionName+path;
-			//FIXME:assume pivot names are in sequence
-			xqFor+=pivotName+" in "+"subsequence($_leres"+i+"_,"+(queryBuilderContext.getStart()+1)+","+queryBuilderContext.getLimit()+")";
+			//FIXME:subsequence is not support for multi-pivots
+			if(pivotsMap.size()==1)
+			    xqFor+=pivotName+" in "+"subsequence($_leres"+i+"_,"+(queryBuilderContext.getStart()+1)+","+queryBuilderContext.getLimit()+")";
+			else 
+				xqFor+=pivotName+" in "+"$_leres"+i+"_";	
 			partialXQLPackage.addForInCollection(pivotName, xQueryCollectionName+rootElementName);
     	}
+    	
+    	if(pivotsMap.size()==1)partialXQLPackage.setUseSubsequenceFirst(true);
 
     	return xqFor;
 	}
@@ -599,35 +604,29 @@ public class QueryBuilder {
 	    	//Determine Query based on number of results an counts
 	    	String query = null;
 	    	
-//	    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
-//	    	if (subsequence) {
-//	    		if (withTotalCountOnFirstRow) {
-//		    		query =
-//		    			"let $_page_ := \n"+rawQuery
-//		    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{"
-//		    			+getCountExpr(partialXQLPackage)
-//		    			+"}</totalCount>)";
-//	    		} else {
-//    	    		query =
-//    	    			"let $_page_ := \n"+rawQuery
-//    	    			+"\n return subsequence($_page_,"+(start+1)+","+limit+")";
-//	    		}
-//	    	} else {
-//	    		if (withTotalCountOnFirstRow) {
-//		    		query =
-//		    			"let $_page_ := \n"+rawQuery
-//		    			+"\n return insert-before($_page_,0,<totalCount>{"+getCountExpr(partialXQLPackage)+"}</totalCount>)";
-//	    		} else {
-//	    			query = rawQuery;
-//	    		}
-//	    	}
-	    	if (withTotalCountOnFirstRow) {
-	    		query =
-	    			"let $_page_ := \n"+rawQuery
-	    			+"\n return insert-before($_page_,0,<totalCount>{"+getCountExpr(partialXQLPackage)+"}</totalCount>)";
-    		} else {
-    			query = rawQuery;
-    		}
+	    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
+	    	if (subsequence) {
+	    		if (partialXQLPackage.isUseSubsequenceFirst())start=0;
+	    		if (withTotalCountOnFirstRow) {
+		    		query =
+		    			"let $_page_ := \n"+rawQuery
+		    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{"
+		    			+getCountExpr(partialXQLPackage)
+		    			+"}</totalCount>)";
+	    		} else {
+    	    		query =
+    	    			"let $_page_ := \n"+rawQuery
+    	    			+"\n return subsequence($_page_,"+(start+1)+","+limit+")";
+	    		}
+	    	} else {
+	    		if (withTotalCountOnFirstRow) {
+		    		query =
+		    			"let $_page_ := \n"+rawQuery
+		    			+"\n return insert-before($_page_,0,<totalCount>{"+getCountExpr(partialXQLPackage)+"}</totalCount>)";
+	    		} else {
+	    			query = rawQuery;
+	    		}
+	    	}
 	    	
 	    	//create a intermediate line for subsequence
 	    	

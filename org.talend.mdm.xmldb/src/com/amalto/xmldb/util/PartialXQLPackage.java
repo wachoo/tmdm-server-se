@@ -16,8 +16,11 @@ public class PartialXQLPackage {
     	
     	private String xqWhere;
     	
+    	private boolean useSubsequenceFirst;
+    	
     	public PartialXQLPackage() {
     		forInCollectionMap=new LinkedHashMap<String, String>();
+    		useSubsequenceFirst=false;
 		}
     	
     	public void addForInCollection(String pivotName,String collectionXpathExpr) {
@@ -86,5 +89,14 @@ public class PartialXQLPackage {
 			}
 			return pivotName;
 		}
+
+		public boolean isUseSubsequenceFirst() {
+			return useSubsequenceFirst;
+		}
+
+		public void setUseSubsequenceFirst(boolean useSubsequenceFirst) {
+			this.useSubsequenceFirst = useSubsequenceFirst;
+		}
+		
     	
 }
