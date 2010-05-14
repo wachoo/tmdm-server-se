@@ -67,18 +67,18 @@ public class InetUtil {
      * @throws IOException
      */
     public final static List<String> getMacAddress() throws IOException {
-        try {
-            return getMacAddressJava6();
-        } 
-        catch (NoSuchMethodError e) {
+//        try {
+//            return getMacAddressJava6();
+//        } 
+//        catch (NoSuchMethodError e) {
             List<String> toReturn = new ArrayList<String>();
             toReturn.add(getMacAddressJava5());
             
             return toReturn;
-        }
+//        }
     }
 
-    private final static List<String> getMacAddressJava6() throws IOException {
+    /*private final static List<String> getMacAddressJava6() throws IOException {
         List<String> toReturn = new ArrayList<String>();
 
         Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -98,7 +98,7 @@ public class InetUtil {
         }
 
         return toReturn;
-    }
+    }*/
 
     private final static String getMacAddressJava5() throws IOException {
         String os = System.getProperty("os.name");
