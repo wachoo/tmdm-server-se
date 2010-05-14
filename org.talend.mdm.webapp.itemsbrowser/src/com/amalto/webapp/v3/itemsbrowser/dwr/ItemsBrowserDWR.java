@@ -1903,12 +1903,12 @@ public class ItemsBrowserDWR {
         {
     		ArrayList<String> dataTypesHolder = new ArrayList<String>();
         	String[] pathSlices = viewItem.split("/");
-        	XSElementDecl node = parseMetaDataTypes(el, pathSlices[0], dataTypesHolder, true);
+        	XSElementDecl node = parseMetaDataTypes(el, pathSlices[0], dataTypesHolder, false);
         	if(pathSlices.length > 1)
         	{
             	for (int i = 1; i < pathSlices.length; i++)
             	{
-            		node = parseMetaDataTypes(node, pathSlices[i], dataTypesHolder, true);
+            		node = parseMetaDataTypes(node, pathSlices[i], dataTypesHolder, false);
             	}
         	}
         	metaDataTypes.put(viewItem, dataTypesHolder);
