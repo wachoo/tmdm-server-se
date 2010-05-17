@@ -1279,6 +1279,7 @@ public  class Util {
 	public static Node updateNodeBySchema(String concept, String xsd, Node updateNode){
 		try {
 			Element oldNode=createItem(concept, xsd);
+			
 			//see 0011615: Complex type sequences are truncated when saving a record in both web app & studio
 			HashMap<String, UpdateReportItem> updatedPath=compareElement("/"+concept,updateNode,oldNode);		
 			return updateElement("/"+concept, oldNode, updatedPath);	
@@ -1369,7 +1370,7 @@ public  class Util {
 	public static Element createItem(String concept, String xsd) throws Exception{
 		
 		String xml1 = "<"+concept+"></"+concept+">";
-		Document d = Util.parse(xml1);						
+		Document d = parse(xml1,null);						
 		Map<String,XSElementDecl> map = getConceptMap(xsd);
     	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
     	XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
@@ -2497,7 +2498,7 @@ public  class Util {
 					String xpath1=xpath+"["+i+"]";
 					String oldvalue=(String)jxpContextOld.getValue(xpath1,String.class);
 					String newvalue=(String)jxpContextNew.getValue(xpath1,String.class);
-					if(newvalue!=null && !newvalue.equals(oldvalue)|| oldvalue!=null && !oldvalue.equals(newvalue)){
+					if(newvalue!=null && newvalue.length()>0 && !newvalue.equals(oldvalue)|| oldvalue!=null && oldvalue.length()>0 && !oldvalue.equals(newvalue)){
 						UpdateReportItem item =new UpdateReportItem(xpath1, oldvalue, newvalue);
 						map.put(xpath1, item);
 					}				
@@ -2577,7 +2578,7 @@ public  class Util {
 	 * @throws Exception
 	 */
 	public static Node updateElement(String parentPath,Node old, HashMap<String, UpdateReportItem> updatedpath)throws Exception{
-
+		if( updatedpath.size()==0) return old;
 		//use JXPathContext to update the old element
 	    JXPathContext jxpContext = JXPathContext.newContext ( old );
 	    jxpContext.setLenient(true);
