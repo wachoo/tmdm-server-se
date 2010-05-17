@@ -477,7 +477,7 @@ public final class LicenseUtil {
             int year = cal.get(Calendar.YEAR);
             
             //don't care day of week
-            resetService(sec + " " + min + " " + hour + " " + day + " " + month + " "  + " ? " + year);
+            resetService(sec + " " + min + " " + hour + " " + day + " " + month + " ? " + year);
         }
     }
     
