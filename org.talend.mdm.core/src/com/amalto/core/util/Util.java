@@ -2506,7 +2506,7 @@ public  class Util {
 			}else{
 				String oldvalue=(String)jxpContextOld.getValue(xpath,String.class);
 				String newvalue=(String)jxpContextNew.getValue(xpath,String.class);
-				if(newvalue!=null && !newvalue.equals(oldvalue)|| oldvalue!=null && !oldvalue.equals(newvalue)){
+				if(newvalue!=null && newvalue.length()>0 && !newvalue.equals(oldvalue)|| oldvalue!=null && oldvalue.length()>0 && !oldvalue.equals(newvalue)){
 					UpdateReportItem item =new UpdateReportItem(xpath, oldvalue, newvalue);
 					map.put(xpath, item);
 				}
