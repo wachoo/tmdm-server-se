@@ -2168,7 +2168,7 @@ public class ItemsBrowserDWR {
 							{
 								fkInfo += "," + ens.getFirstChild().getNodeValue();
 							}
-							foreignKeyContents.add(1, fkInfo);
+							foreignKeyContents.add(0, fkInfo);
 						}
 					}
 				}
