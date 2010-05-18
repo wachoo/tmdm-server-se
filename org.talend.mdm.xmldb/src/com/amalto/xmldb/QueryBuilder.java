@@ -58,6 +58,8 @@ public class QueryBuilder {
 			if (bename.startsWith("/")) bename = bename.substring(1);
 			//compile the path
 			Expression viewablePath = XPathUtils.compileXPath(bename);
+			//factor the root path
+			factorFirstPivotInMap(pivotsMap, viewablePath.toString());
 			//factor the path
 			Expression factoredPath = XPathUtils.factorExpression(viewablePath, pivotsMap, true, true);
 
@@ -101,6 +103,14 @@ public class QueryBuilder {
     	xqReturn += moreThanOneViewable || totalCountOnfirstRow ? "</result>" : "";
 
     	return xqReturn;
+	}
+
+	private static void factorFirstPivotInMap(LinkedHashMap<String, String> pivotsMap, String viewablePath) {
+		if(viewablePath!=null&&viewablePath.trim().length()>0) {
+			if (viewablePath.startsWith("/")) viewablePath = viewablePath.substring(1);
+			String thisRootElementName = getRootElementNameFromPath(viewablePath.toString());
+			if(!thisRootElementName.equals("")&&!pivotsMap.containsValue(thisRootElementName))XPathUtils.factorExpression(XPathUtils.compileXPath(thisRootElementName), pivotsMap, true, true);
+		}
 	}
 
 	/**
@@ -330,6 +340,7 @@ public class QueryBuilder {
 			}
 			if (".*".equals(encoded))
 				return "";
+			factorFirstPivotInMap(pivots, wc.getLeftPath());
 			String factorPivots = XPathUtils.factor(wc.getLeftPath(), pivots)
 					+ "";
 			// case insensitive aiming added
@@ -580,6 +591,7 @@ public class QueryBuilder {
 	    	if (orderBy == null) {
 	    		xqOrderBy = "";
 	    	} else {
+	    		factorFirstPivotInMap(pivotsMap, orderBy);
 	    		xqOrderBy = "order by "
 	    					+XPathUtils.factor(orderBy, pivotsMap)
 	    					+(direction == null ? "" : " "+direction);
@@ -646,8 +658,7 @@ public class QueryBuilder {
 	    	//replace () and to ""
 	    	query=query.replaceAll(" \\(\\) and"," ");
 	    	query=query.replaceAll("\\(\\(\\) and","( ");
-	    	//replace ../ and to ""
-	    	query=query.replace("../", "");
+
 	    	System.out.println("query:\n");
 	    	System.out.println(query);
 	    	
