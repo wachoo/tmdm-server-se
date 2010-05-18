@@ -1609,7 +1609,7 @@ public class ItemsBrowserDWR {
 			//Run the query
 			String [] results = Util.getPort().xPathsSearch(new WSXPathsSearch(
 				new WSDataClusterPK(config.getCluster()),
-				filteredConcept,
+				null,
 				new WSStringArray(xPaths.toArray(new String[xPaths.size()])),
 				whereItem,
 				-1,
