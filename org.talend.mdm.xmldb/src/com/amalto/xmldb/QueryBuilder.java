@@ -177,7 +177,7 @@ public class QueryBuilder {
 			    xqFor+=pivotName+" in "+"subsequence($_leres"+i+"_,"+(queryBuilderContext.getStart()+1)+","+queryBuilderContext.getLimit()+")";
 			else 
 				xqFor+=pivotName+" in "+"$_leres"+i+"_";	
-			partialXQLPackage.addForInCollection(pivotName, xQueryCollectionName+rootElementName);
+			partialXQLPackage.addForInCollection(pivotName, xQueryCollectionName+path);
     	}
     	
     	if(pivotsMap.size()==1)partialXQLPackage.setUseSubsequenceFirst(true);
