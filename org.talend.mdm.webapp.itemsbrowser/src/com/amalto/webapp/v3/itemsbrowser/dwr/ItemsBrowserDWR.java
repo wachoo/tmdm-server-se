@@ -737,9 +737,17 @@ public class ItemsBrowserDWR {
 				node.getParentNode().appendChild(nodeClone);
 */			
 			String siblingXpath = idToXpath.get(siblingId).replaceAll("\\[\\d+\\]$","");
+			
 			int id = Util.getNodeList(d,siblingXpath).getLength();
 			//String exist = idToXpath.get(newId);
-			idToXpath.put(newId,siblingXpath+"["+id+"]");
+			
+			int siblingIndex = getXpathIndex(idToXpath.get(siblingId));
+			
+			//idToXpath.put(newId,siblingXpath+"["+id+"]");
+			
+			
+			editXpathInidToXpathAdd(siblingIndex, idToXpath);
+			idToXpath.put(newId,siblingXpath+"["+(siblingIndex+1)+"]");
 			//System.out.println("clone:"+newId+" "+siblingXpath+"["+id+"]");
 			UpdateReportItem ri = new UpdateReportItem(idToXpath.get(newId), "", "");
 			HashMap<String, UpdateReportItem> updatedPath;
@@ -971,6 +979,47 @@ public class ItemsBrowserDWR {
 		}//	while(keys.
 	}
 	
+	
+	/**
+	 * add by ymli
+	 * if ListItem with xpath like '/PurchaseOrder/ListItems/POItem[i] is add, the xpath in idToXpath will be edited , 
+	 * eg.
+	 *  '/PurchaseOrder/ListItems/POItem[j]'(j>i), j++
+	 * 
+	 */
+	public void editXpathInidToXpathAdd(int id ,HashMap<Integer,String> idToXpath){
+		String nodeXpath = idToXpath.get(id).replaceAll("\\[\\d+\\]$","");
+		String patternXpath = nodeXpath.replaceAll("\\[", "\\\\[");
+		patternXpath = patternXpath.replaceAll("\\]", "\\\\]");;
+		Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\]$)");
+		Matcher m = p.matcher(idToXpath.get(id));
+		int nodeIndex = -1;
+		if (m.matches()) 
+			nodeIndex =  Integer.parseInt(m.group(3));
+		Iterator<Integer> keys = idToXpath.keySet().iterator();
+		while(keys.hasNext()){
+			int key = keys.next();
+			String xpath = idToXpath.get(key);
+			
+			if(xpath.matches(patternXpath+"\\[\\d+\\]$")){
+				int pathIndex = -1;
+				Matcher m1 = p.matcher(xpath);
+				if (m1.matches()) 
+					pathIndex =  Integer.parseInt(m1.group(3));
+				if(nodeIndex<pathIndex){
+					pathIndex++;
+					xpath = nodeXpath+"["+pathIndex+"]";
+//					keys.remove();
+//					idToXpath.remove(key);
+					idToXpath.put(key, xpath);
+					
+				}//if(nodeIndex
+				
+			}//if(xpath
+		}//	while(keys.
+	}
+	
+	
 	/**
 	 * add by ymli
 	 * if ListItem with xpath like '/PurchaseOrder/ListItems/POItem[i] is deleted, the xpath in idToXpath will be edited , 
@@ -1025,6 +1074,19 @@ public class ItemsBrowserDWR {
 		}
 		}
 		return count;
+	}
+	
+	private int getXpathIndex(String xpath){
+		int pathIndex = -1;
+			Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\]$)");
+			Matcher m = p.matcher(xpath);
+			if(m.matches()){
+				String nodeXpath = m.group(1);
+				
+				pathIndex =  Integer.parseInt(m.group(3));
+				return pathIndex;
+			}
+			return pathIndex;
 	}
 
 	public String removeNode(int id, int docIndex, String oldValue) {
