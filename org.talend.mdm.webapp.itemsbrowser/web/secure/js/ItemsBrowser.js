@@ -199,7 +199,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	            	 LOWER_THAN:"is lower than",
 	            	 GREATER_THAN:"is greater than",
 	            	 LOWER_THAN_OR_EQUAL:"is lower or equals",
-	            	 GREATER_THAN_OR_EQUAL:"is greater or equals",
+	            	 GREATER_THAN_OR_EQUAL:"is greater or equals"
 	             }
 	};
 	
@@ -255,6 +255,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'New Record'
 	};
 	
+	var SAVE = {
+			'fr':'Sauvegarder',
+			'en':'Save'
+	};
 	var BUTTON_SAVE = {
 		'fr':'Sauvegarder',
 		'en':'Save'
@@ -430,28 +434,36 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'fr':'Réinitialiser',
 		'en':'Reset'
 	};
+	var STATUS= {
+		'fr' : 'Statut',
+		'en' : 'Status'
+	}; 
 	var FILE_NAME={
 		'fr':'Nom de fichier',
 		'en':'File Name'
-	}
+	};
 	var errorDesc={
 		'fr':'L\'item ne peut pas être sauvegardé, il y a une (des) erreur(s).',
 		'en':'The item can not be saved, it contains error(s).'
-	}
+	};
 	var DELETE_ALERT={
 		'fr':'Le dernier élément ne peut pas être supprimé',
 		'en':'The last element can not be removed'
-	}
+	};
 	
 	var CHOICE_ALLTOGETHER_ALERT={
 			'fr': 'Vous ne pouvez choisir plus d\'une valeur ',
 			'en': 'You may only choose one value '
-	}
+	};
 
 	var CHOICE_NONE_ALERT={
 			'fr': 'Vous devez choisir au moins une valeur',
 			'en': 'You must choose at least one value'
-	}
+	};
+	var CONFIRM_DATACLUSTER_CHANGE={
+			'fr': '',
+			'en': 'Data Cluster has been changed,please select it again'
+	};
 	
 
 	/*****************
@@ -2477,7 +2489,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	  }
 	  return error;
 	}
-	
+
 	function saveItem(ids,dataObject,treeIndex,callbackOnSuccess){
 		if(navigator.appName=="Microsoft Internet Explorer" && lastUpdatedInputFlag[treeIndex]!=null) 
 
@@ -2494,23 +2506,37 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			    if(_exception == true)return;
 			    $('errorDesc'+ treeIndex).style.display = "none";
 			    $('errorDetail'+ treeIndex).style.display = "none";
-				ItemsBrowserInterface.checkIfDocumentExists(keys[treeIndex], dataObject, function(result){
-					if(result==true) {
-//						if(!Ext.MessageBox.confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
-						Ext.Msg.confirm("confirm",MSG_CONFIRM_SAVE_ITEM[language],function re(en){
-							if(en=="no") {
-								return;
+
+
+			    var cluster = DWRUtil.getValue('datacluster-select');
+			    ItemsBrowserInterface.isDataClusterExists(cluster,{callback:function(result){
+			    	if(!result){
+			    		Ext.Msg.confirm("confirm",CONFIRM_DATACLUSTER_CHANGE[language],function re(en){
+			    			var dataClusterCmb=Ext.getCmp("datacluster-select");
+				    		dataClusterCmb.store.reload();
+			    		});
+			    		
+			    		
+			    	}else{
+						ItemsBrowserInterface.checkIfDocumentExists(keys[treeIndex], dataObject, function(result){
+							if(result==true) {
+		//						if(!Ext.MessageBox.confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
+								Ext.Msg.confirm("confirm",MSG_CONFIRM_SAVE_ITEM[language],function re(en){
+									if(en=="no") {
+										return;
+									}else {
+										saveItem0(ids, dataObject, treeIndex, callbackOnSuccess);
+									}
+								});
 							}
 							else {
 								saveItem0(ids, dataObject, treeIndex, callbackOnSuccess);
 							}
-						});
-					}
-					else {
-						saveItem0(ids, dataObject, treeIndex, callbackOnSuccess);
-					}
 				});
+		
+		}}});
     }
+	
 	
 	function saveItem0(ids,dataObject,treeIndex,callbackOnSuccess) {
 		var itemPK = ids.split('@');
@@ -2518,32 +2544,31 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
 		tbDetail.items.get('saveBTN').disable();
 		tbDetail.items.get('saveAndQBTN').disable();
-		
-		ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
-			callback:function(result){ 
-				amalto.core.ready(result);
-				if(result=="ERROR_2"){
-					amalto.core.ready(ALERT_NO_CHANGE[language]);
-					//alert(ALERT_NO_CHANGE[language]);
-				}else if(result.indexOf('ERROR_3:')==0){
-					//add for before saving transformer check
-                    amalto.core.ready(result.substring(8));
-                    Ext.MessageBox.alert("Status",result.substring(8));
-                }else if(result.indexOf('Unable to save item')==0){
-                	amalto.core.ready();
-    				tbDetail.items.get('saveBTN').enable();
-    				tbDetail.items.get('saveAndQBTN').enable();
-    				showExceptionMsg(result, null, treeIndex);
-                }else{
-			       if(callbackOnSuccess)callbackOnSuccess();   
+			ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
+				callback:function(result){ 
+					amalto.core.ready(result);
+					if(result=="ERROR_2"){
+						amalto.core.ready(ALERT_NO_CHANGE[language]);
+						// alert(ALERT_NO_CHANGE[language]);
+					}else if(result.indexOf('ERROR_3:')==0){
+						// add for before saving transformer check
+	                    amalto.core.ready(result.substring(8));
+	                    Ext.MessageBox.alert("Status",result.substring(8));
+	                }else if(result.indexOf('Unable to save item')==0){
+	                	amalto.core.ready();
+	    				tbDetail.items.get('saveBTN').enable();
+	    				tbDetail.items.get('saveAndQBTN').enable();
+	    				showExceptionMsg(result, null, treeIndex);
+	                }else{
+				       if(callbackOnSuccess)callbackOnSuccess();   
+					}
+					amalto.core.ready();
+					tbDetail.items.get('saveBTN').enable();
+					tbDetail.items.get('saveAndQBTN').enable();
 				}
-				amalto.core.ready();
-				tbDetail.items.get('saveBTN').enable();
-				tbDetail.items.get('saveAndQBTN').enable();
-			}
-        });
+	        });
 	}
-	
+
 	function deleteItem(ids, dataObject, treeIndex) {
 		//var viewName = DWRUtil.getValue('viewItemsSelect');
 		//var dataObject = viewName.replace("Browse_items_",""); 
@@ -3149,6 +3174,31 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		window.open('/itemsbrowser/secure/SmartViewServlet?ids='+ids+'&concept='+dataObject+'&language='+language,'Print','toolbar=no,location=no,directories=no,menubar=yes,scrollbars=yes,resizable=yes');
 	}
 	
+	function saveConfig(ids, dataObject, treeIndex, callbackOnSuccess){
+		var cluster = DWRUtil.getValue('datacluster-select2');
+		
+		ItemsBrowserInterface.setClusterAndModel(cluster,function(result){
+		Ext.Msg.alert(STATUS[language],"  "+result);
+		if(result=="Done"){
+			ItemsBrowserInterface.checkIfDocumentExists(keys[treeIndex], dataObject, function(result){
+				if(result==true) {
+//					if(!Ext.MessageBox.confirm(MSG_CONFIRM_SAVE_ITEM[language])) return;
+					Ext.Msg.confirm("confirm",MSG_CONFIRM_SAVE_ITEM[language],function re(en){
+						if(en=="no") {
+							return;
+						}
+						else {
+							saveItem0(ids, dataObject, treeIndex, callbackOnSuccess);
+						}
+					});
+				}
+				else {
+					saveItem0(ids, dataObject, treeIndex, callbackOnSuccess);
+				}
+			});
+			}
+		});
+	}
 
 
  	return {

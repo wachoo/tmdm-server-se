@@ -43,6 +43,7 @@ import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSByteArray;
 import com.amalto.webapp.util.webservices.WSConceptKey;
 import com.amalto.webapp.util.webservices.WSCount;
@@ -52,6 +53,7 @@ import com.amalto.webapp.util.webservices.WSDeleteItem;
 import com.amalto.webapp.util.webservices.WSDropItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
+import com.amalto.webapp.util.webservices.WSExistsDataCluster;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
@@ -1152,7 +1154,13 @@ public class ItemsBrowserDWR {
 		}
 	}
 	
-	
+
+	public static boolean isDataClusterExists(String dataClusterPK)throws Exception{
+		WSExistsDataCluster wsExistsDataCluster=new WSExistsDataCluster();
+		wsExistsDataCluster.setWsDataClusterPK(new WSDataClusterPK(dataClusterPK));
+		WSBoolean wsBoolean=Util.getPort().existsDataCluster(wsExistsDataCluster);
+		return wsBoolean.is_true();
+	}
 	
 	//back up for old revision of save item
 //	public static String saveItem(String[] ids, String concept, boolean newItem, int docIndex) throws Exception{
