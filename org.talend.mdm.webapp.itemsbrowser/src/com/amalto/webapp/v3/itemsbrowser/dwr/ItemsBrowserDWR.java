@@ -740,7 +740,7 @@ public class ItemsBrowserDWR {
 */			
 			String siblingXpath = idToXpath.get(siblingId).replaceAll("\\[\\d+\\]$","");
 			
-			int id = Util.getNodeList(d,siblingXpath).getLength();
+			//int id = Util.getNodeList(d,siblingXpath).getLength();
 			//String exist = idToXpath.get(newId);
 			
 			int siblingIndex = getXpathIndex(idToXpath.get(siblingId));
@@ -748,8 +748,13 @@ public class ItemsBrowserDWR {
 			//idToXpath.put(newId,siblingXpath+"["+id+"]");
 			
 			
-			editXpathInidToXpathAdd(siblingIndex, idToXpath);
+			editXpathInidToXpathAdd(siblingId, idToXpath);
+			
 			idToXpath.put(newId,siblingXpath+"["+(siblingIndex+1)+"]");
+			ctx.getSession().setAttribute("idToXpath", idToXpath);
+			
+			//updateNode(siblingIndex+1, "", siblingIndex+1);
+			
 			//System.out.println("clone:"+newId+" "+siblingXpath+"["+id+"]");
 			UpdateReportItem ri = new UpdateReportItem(idToXpath.get(newId), "", "");
 			HashMap<String, UpdateReportItem> updatedPath;
@@ -759,9 +764,11 @@ public class ItemsBrowserDWR {
          } else {
             updatedPath = new HashMap<String, UpdateReportItem>();
          }
-         updatedPath.put(siblingXpath+"["+id+"]", ri);
+         	updatedPath.put(siblingXpath+"["+(siblingIndex+1)+"]", ri);
 			ctx.getSession().setAttribute("updatedPath", updatedPath);
-			nodeAutorization.add(siblingXpath+"["+id+"]");
+			
+			nodeAutorization.add(siblingXpath+"["+(siblingIndex+1)+"]");
+			ctx.getSession().setAttribute("nodeAutorization",nodeAutorization);
 			return "Cloned";
 			
 		} catch (Exception e) {
@@ -989,7 +996,7 @@ public class ItemsBrowserDWR {
 	 *  '/PurchaseOrder/ListItems/POItem[j]'(j>i), j++
 	 * 
 	 */
-	public void editXpathInidToXpathAdd(int id ,HashMap<Integer,String> idToXpath){
+	public void  editXpathInidToXpathAdd(int id ,HashMap<Integer,String> idToXpath){
 		String nodeXpath = idToXpath.get(id).replaceAll("\\[\\d+\\]$","");
 		String patternXpath = nodeXpath.replaceAll("\\[", "\\\\[");
 		patternXpath = patternXpath.replaceAll("\\]", "\\\\]");;
