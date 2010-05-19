@@ -63,11 +63,7 @@ import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.util.webservices.WSBase64KeyValue;
 import com.amalto.webapp.util.webservices.WSConnectorResponseCode;
-import com.amalto.webapp.util.webservices.WSGetRole;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
-import com.amalto.webapp.util.webservices.WSRolePK;
-import com.amalto.webapp.util.webservices.WSRoleSpecification;
-import com.amalto.webapp.util.webservices.WSRoleSpecificationInstance;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSUniverse;
 import com.amalto.webapp.util.webservices.WSUniversePK;
@@ -78,6 +74,7 @@ import com.amalto.webapp.util.webservices.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.XtentisPort;
 import com.amalto.webapp.util.webservices.XtentisService_Impl;
+import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.XmlServerException;
@@ -261,7 +258,37 @@ public class Util {
     	}
    		return null;
     }
-    
+    public static WSWhereItem getConditionFromFKFilter(String fkFilter) {
+    	if(fkFilter==null || fkFilter.length()==0) return null;
+		String[] criterias = fkFilter.split("#");
+		
+		ArrayList<WSWhereItem> condition=new ArrayList<WSWhereItem>();
+		for (String cria: criterias)
+		{
+			String[] values = cria.split("\\s");
+			if(values.length==3 || values.length==4) {
+	    		WSWhereCondition wc=new WSWhereCondition();
+	    		wc.setLeftPath(values[0]);
+	    		wc.setOperator(WSWhereOperator.fromString(values[1].toUpperCase()));
+	    		wc.setRightValueOrPath(values[2]);
+				if(values.length==4) {
+					wc.setStringPredicate(WSStringPredicate.fromString(values[3].toUpperCase()));
+				}
+				if(values.length==3) {
+					wc.setStringPredicate(WSStringPredicate.NONE);
+				}
+				condition.add(new WSWhereItem(wc,null,null));
+			}
+		}
+		if(condition.size()>0) {
+			WSWhereAnd and = new WSWhereAnd(condition
+					.toArray(new WSWhereItem[condition.size()]));
+			WSWhereItem whand = new WSWhereItem(null,and,null);
+			return whand;
+		}else {
+			return null;
+		}
+    }
     /**
      * 
      * @param doc

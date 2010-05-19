@@ -134,7 +134,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					   '<img alt="Remove the Foreign Key" src="img/genericUI/clear-icon.gif"/></span>';
 					foreignKeyImg += '' +
 						'<span style="cursor: pointer;" ' +
-						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\','+treeIndex+')" >' +
+						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+')" >' +
 						' <img src="img/genericUI/magnifier_plus.gif"/></span>';
 				}
 				

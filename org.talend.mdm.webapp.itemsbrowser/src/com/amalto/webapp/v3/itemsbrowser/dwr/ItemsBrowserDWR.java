@@ -424,7 +424,7 @@ public class ItemsBrowserDWR {
 					   String value = StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath));
 					   //max occurs > 1 support and do not get foreignkeylist by here.
 					   if(value != null && !"".equals(value) && !(maxOccurs<0 || maxOccurs>1)) {
-					      String jasonData = getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos, false);
+					      String jasonData = getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos,null, false);
 						   treeNode.setValueInfo(jasonData);
 					   }
 					} catch (Exception e) {
@@ -535,7 +535,7 @@ public class ItemsBrowserDWR {
 						
 						if(nodeList.item(i).getFirstChild() != null && infos != null && treeNode.isRetrieveFKinfos() && treeNode.getForeignKey() != null) {
 						   String value = StringEscapeUtils.escapeHtml(nodeList.item(i).getTextContent());
-						   String jasonData = getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos, false);
+						   String jasonData = getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos,null, false);
 						   treeNodeTmp.setValueInfo(jasonData);
 						}
 												
@@ -1533,14 +1533,14 @@ public class ItemsBrowserDWR {
 		).getValue();
 	}
 	
-	public String getForeignKeyListWithCount(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey) 
+	public String getForeignKeyListWithCount(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter) 
 	   throws RemoteException, Exception 
 	{
-	   return getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, true);
+	   return getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey,fkFilter, true);
 	}
 //	public TreeMap<String,String> getForeignKeyList(String xpathForeignKey, String xpathInfoForeignKey, String value) throws RemoteException, Exception{
 		
-	public String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, boolean isCount) throws RemoteException, Exception{
+	public String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter, boolean isCount) throws RemoteException, Exception{
 		String initxpathForeignKey="";
 		initxpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
 		
@@ -1551,7 +1551,9 @@ public class ItemsBrowserDWR {
 		if(whereCondition!=null){
 			whereItem= new WSWhereItem (whereCondition,null,null);
 		}
-				
+		//get FK filter
+		WSWhereItem fkFilterWi=Util.getConditionFromFKFilter(fkFilter);
+		if(fkFilterWi!=null) whereItem=fkFilterWi;
 		Configuration config = Configuration.getInstance();
 		//aiming modify there is bug when initxpathForeignKey when it's like 'conceptname/key'
 		//so we convert initxpathForeignKey to 'conceptname'
@@ -2129,7 +2131,7 @@ public class ItemsBrowserDWR {
 								foreignKeyContents.add("foreign key");
 								String foreignKeyPath = ens.getFirstChild().getNodeValue();
 								try {
-									String jasonData = getForeignKeyListWithCount(0, 100, ".*",  foreignKeyPath, "");
+									String jasonData = getForeignKeyListWithCount(0, 100, ".*",  foreignKeyPath, "",null);
 									JSONObject jason = new JSONObject(jasonData);
 									JSONArray rows = (JSONArray)jason.get("rows");
 									for(int n = 0; n < rows.length(); n++)

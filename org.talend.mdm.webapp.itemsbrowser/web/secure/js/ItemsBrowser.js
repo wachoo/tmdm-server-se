@@ -2883,7 +2883,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     uploadFileWindow.show();
 	}
 	var panel;
-	function chooseForeignKey(nodeId, xpathForeignKey, xpathInfoForeignKey, treeIndex) {
+	function chooseForeignKey(nodeId, xpathForeignKey, xpathInfoForeignKey, fkFilter, treeIndex) {
 		amalto.core.working('Running...');
 	    amalto.core.ready();
 	    
@@ -2898,7 +2898,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var store = new Ext.data.Store({
 				proxy: new Ext.ux.data.ImprovedDWRProxy({
 			        dwrFunction: ItemsBrowserInterface.getForeignKeyListWithCount,
-			        dwrAdditional: [xpathForeignKey, xpathInfoForeignKey ] //, Ext.getCmp('foreign-key-filter').getValue()]}
+			        dwrAdditional: [xpathForeignKey, xpathInfoForeignKey,fkFilter ] //, Ext.getCmp('foreign-key-filter').getValue()]}
 				}),
 		        reader: new Ext.data.JsonReader({
 		            root: 'rows',
@@ -3217,7 +3217,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		showDatePicker:function(nodeId,treeIndex,nodeType){showDatePicker(nodeId,treeIndex,nodeType);},
 		showUploadFile: function (nodeId, treeIndex, nodeType){showUploadFile(nodeId, treeIndex, nodeType)},
 		removePicture: function (nodeId, treeIndex){removePicture(nodeId, treeIndex)},
-		chooseForeignKey:function(nodeId,xpath,xpathInfo,treeIndex){chooseForeignKey(nodeId,xpath,xpathInfo,treeIndex);},
+		chooseForeignKey:function(nodeId,xpath,xpathInfo,fkFilter,treeIndex){chooseForeignKey(nodeId,xpath,xpathInfo,fkFilter,treeIndex);},
 		cloneNode2:function(siblingId,hasIcon,treeIndex){cloneNode2(siblingId,hasIcon,treeIndex)},
 		removeNode2:function(id,treeIndex){removeNode2(id,treeIndex)},
 		displayXsdDetails:function(id){displayXsdDetails(id)},

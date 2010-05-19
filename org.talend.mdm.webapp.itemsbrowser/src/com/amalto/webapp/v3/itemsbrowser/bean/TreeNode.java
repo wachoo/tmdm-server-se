@@ -46,6 +46,7 @@ public class TreeNode implements Cloneable {
 	private ArrayList<Restriction> restrictions;
 	private ArrayList<String> enumeration;
 	private boolean retrieveFKinfos = false;
+	private String fkFilter;
    private String foreignKey;
 	private boolean visible;
 	private boolean key = false;
@@ -94,7 +95,10 @@ public class TreeNode implements Cloneable {
     					}
     					else if("X_ForeignKey".equals(appinfoSource)){
     						setForeignKey(annotList.item(k).getFirstChild().getNodeValue());
-    					}		
+    					}
+    					else if("X_ForeignKey_Filter".equals(appinfoSource)){
+    						setFkFilter(annotList.item(k).getFirstChild().getNodeValue());
+    					}
     					else if("X_ForeignKeyInfo".equals(appinfoSource)){							
     						fkInfoList.add(annotList.item(k).getFirstChild().getNodeValue());
     					}else if("X_Retrieve_FKinfos".equals(appinfoSource)) {
@@ -245,6 +249,16 @@ public class TreeNode implements Cloneable {
    public void setRetrieveFKinfos(boolean retrieveFKinfos) {
       this.retrieveFKinfos = retrieveFKinfos;
    }
+
+	public String getFkFilter() {
+	return fkFilter;
+}
+
+
+public void setFkFilter(String fkFilter) {
+	this.fkFilter = fkFilter;
+}
+
 
 	public ArrayList<Restriction> getRestrictions() {
 		// edit by ymli; fix the bug:0011733
