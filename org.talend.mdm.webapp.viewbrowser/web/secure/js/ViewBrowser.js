@@ -315,7 +315,14 @@ amalto.viewbrowser.ViewBrowser = function () {
 	        reader: new Ext.data.JsonReader(schema),
 	        remoteSort: true
 	    });
-		    
+		store.on("loadexception",function(obj, options, response, e) {
+			if (response.responseText != null)
+				Ext.MessageBox.alert("Error", response.responseText);	
+			else
+				Ext.MessageBox.alert("Error",'Exception occurred while loading item list! ');
+
+	    });
+		
 		var grid = new Ext.grid.GridPanel({
 			id:'view-grid',
 		    store: store,

@@ -210,10 +210,11 @@ public class ViewRemotePaging  extends HttpServlet{
 			//aiming add 'success' to let the search result can display after get the results
 			json.put("success", true);
 			
-		} catch (XtentisWebappException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
+		}  catch (Exception e) {
+			PrintWriter writer = response.getWriter();
+	        writer.write(e.getLocalizedMessage());
+	        writer.close();				
+			throw new ServletException(e.getLocalizedMessage());
 		}
 
 		PrintWriter writer = response.getWriter();

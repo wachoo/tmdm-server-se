@@ -213,12 +213,11 @@ public class ItemsRemotePaging  extends HttpServlet{
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug(json);
 			
 			
-		} catch (XtentisWebappException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			PrintWriter writer = response.getWriter();
+	        writer.write(e.getLocalizedMessage());
+	        writer.close();				
+			throw new ServletException(e.getLocalizedMessage());
 		}	
 		PrintWriter writer = response.getWriter();
         writer.write(json.toString());
