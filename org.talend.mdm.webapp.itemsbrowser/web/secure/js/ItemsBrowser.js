@@ -461,8 +461,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			'en': 'You must choose at least one value'
 	};
 	var CONFIRM_DATACLUSTER_CHANGE={
-			'fr': '',
-			'en': 'Data Cluster has been changed,please select it again'
+			'fr': 'Le data-container a été changé, veuillez le sélectionner à nouveau',
+			'en': 'Data-container has been changed,please select it again'
 	};
 	
 
