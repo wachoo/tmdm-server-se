@@ -28,7 +28,6 @@ public class AssembleDirector {
 		fBuilder.buildFaildMessage();
 		fBuilder.buildStartService();
 		fBuilder.buildInitJobox();
-		fBuilder.buildStartSchedule();
 		
 	}
 	
