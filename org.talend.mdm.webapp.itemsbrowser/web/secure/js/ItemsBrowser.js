@@ -1816,7 +1816,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     							}
     						}    						
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
-    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+    									itemTree.getNodeByIndex(oNode.index),true,true,isReadOnlyinItem);
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
@@ -1852,7 +1852,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						}
     	
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
-    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+    									itemTree.getNodeByIndex(oNode.index),true,true,isReadOnlyinItem);
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
@@ -2211,7 +2211,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var nodeCount = YAHOO.widget.TreeView.nodeCount;
 		//add by yguo. fix bug clone node then browseForeignKey. the value of node equals siblingNode's value.
 		siblingNode.itemData.value = "";
-		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,false,true,isReadOnlyinItem);
+		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,true,true,isReadOnlyinItem);
 		
 		newNode.updateNodeId(nodeCount);
 		newNode.updateValue(" ");
@@ -2230,7 +2230,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					return;
 				}
 				for(var i=0; i<result.length; i++) {					
-					var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+					var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,itemTree.getNodeByIndex(oNode.index),true,true,isReadOnlyinItem);
 				if(result[i].type=="simple") tmp.setDynamicLoad();
 				   else tmp.setDynamicLoad(fnLoadData,1);
 			}
@@ -2321,7 +2321,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		var nodeCount = YAHOO.widget.TreeView.nodeCount;
 	
-		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,false,true,isReadOnlyinItem);
+		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,true,true,isReadOnlyinItem);
 		newNode.updateNodeId(nodeCount);
 		newNode.updateValue(" ");
 	
@@ -2337,7 +2337,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					return;
 				}
 				for(var i=0; i<result.length; i++) {					
-					var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+					var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,itemTree.getNodeByIndex(oNode.index),true,true,isReadOnlyinItem);
 				if(result[i].type=="simple") tmp.setDynamicLoad();
 				else tmp.setDynamicLoad(fnLoadData,1);
 			}
