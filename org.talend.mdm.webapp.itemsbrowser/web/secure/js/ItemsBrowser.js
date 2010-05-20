@@ -465,6 +465,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			'en': 'Data-container has been changed,please select it again'
 	};
 	
+	var MONTH_NAME={
+	   'fr':["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Aout","Septembre","Octobre","Novembre","Decembre"],
+	   'en':["January","February","March","April","May","June","July","August","September","October","November","December"]
+	};
 
 	/*****************
 	 * EXT 2.0
@@ -2721,6 +2725,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 								name : 'datePicker',
 								layout : 'fit',
 								inputType : 'textfield',
+								monthNames:MONTH_NAME[language],
 								listeners : {
 
 									select : function(src, date) {
