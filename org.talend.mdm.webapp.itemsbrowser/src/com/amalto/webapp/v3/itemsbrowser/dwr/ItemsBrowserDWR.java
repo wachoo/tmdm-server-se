@@ -1849,7 +1849,11 @@ public class ItemsBrowserDWR {
 			e.printStackTrace();
 			return fkInfos;
 		}
-
+		if(fkInfos.size() > 1)
+		{
+			Collection subCollcn = fkInfos.subList(1, fkInfos.size());
+			fkInfos = new ArrayList<String>(subCollcn);
+		}
 		return fkInfos;
 	}
 	
@@ -1887,6 +1891,10 @@ public class ItemsBrowserDWR {
 						ArrayList<String> fkContents = getForeignKeyInfoForXSDElem(childElem, forFkValue);
 						if(fkContents.size() > 0)
 						{
+							if(!forFkValue)
+							{
+								valuesHolder.add("foreign key");	
+							}
 							valuesHolder.addAll(fkContents);
 							return childElem;
 						}
