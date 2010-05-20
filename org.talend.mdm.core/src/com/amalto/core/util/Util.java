@@ -3090,6 +3090,7 @@ public  class Util {
 			String concept = views.get(0).split("/")[0];
 
 			HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
+			if(concept==null||concept.equals(""))return metaDataTypes;
 			Map<String, XSElementDecl> xsdMap = getConceptMap(getDataModel(concept));
 
 			XSElementDecl el = xsdMap.get(concept);

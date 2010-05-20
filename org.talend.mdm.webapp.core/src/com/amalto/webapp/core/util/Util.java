@@ -1108,6 +1108,7 @@ public class Util {
 					if(subCria.endsWith(")"))
 						subCria = subCria.substring(0, subCria.length() - 1);
 					WSWhereItem whereItem = buildWhereItem(subCria);
+					if(whereItem!=null)
 					condition.add(whereItem);
 				}
 				if (condition.size() > 0) {
@@ -1134,6 +1135,8 @@ public class Util {
 			    filterValues = " ";
 			else
 				filterValues = filters[2];
+			
+			if(filterXpaths==null||filterXpaths.trim().equals(""))return null;
 
 			WSWhereCondition wc=new WSWhereCondition(
 					filterXpaths,
