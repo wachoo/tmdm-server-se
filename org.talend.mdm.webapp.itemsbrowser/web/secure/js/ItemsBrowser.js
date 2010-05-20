@@ -2890,7 +2890,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    amalto.core.ready();
 	    
 		//ItemsBrowserInterface.countForeignKey(xpathForeignKey, function(count){
-		ItemsBrowserInterface.countForeignKey_filter(xpathForeignKey, function(count){
+		ItemsBrowserInterface.countForeignKey(xpathForeignKey, function(count){
 			//Display a pop-up window to search for foreign keys
 			if(foreignKeyWindow){
 			    foreignKeyWindow.hide();
