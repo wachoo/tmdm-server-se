@@ -424,7 +424,7 @@ public class ItemsBrowserDWR {
 					   String value = StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath));
 					   //max occurs > 1 support and do not get foreignkeylist by here.
 					   if(value != null && !"".equals(value) && !(maxOccurs<0 || maxOccurs>1)) {
-					      String jasonData = Util.getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos,null, false);
+					      String jasonData = Util.getForeignKeyList(0, Integer.MAX_VALUE, value,  treeNode.getForeignKey(), keyInfos,null, false);
 						   treeNode.setValueInfo(jasonData);
 					   }
 					} catch (Exception e) {
@@ -535,7 +535,7 @@ public class ItemsBrowserDWR {
 						
 						if(nodeList.item(i).getFirstChild() != null && infos != null && treeNode.isRetrieveFKinfos() && treeNode.getForeignKey() != null) {
 						   String value = StringEscapeUtils.escapeHtml(nodeList.item(i).getTextContent());
-						   String jasonData = Util.getForeignKeyList(0, 10, value,  treeNode.getForeignKey(), keyInfos,null, false);
+						   String jasonData = Util.getForeignKeyList(0, Integer.MAX_VALUE, value,  treeNode.getForeignKey(), keyInfos,null, false);
 						   treeNodeTmp.setValueInfo(jasonData);
 						}
 												
