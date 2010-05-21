@@ -556,6 +556,10 @@ public class ItemsBrowserDWR {
 										break;
 									}
 								}
+								if(rows.length() == 0)
+								{
+									treeNodeTmp.setValueInfo("");
+								}
 							}
 
 						}
@@ -605,6 +609,12 @@ public class ItemsBrowserDWR {
 								break;
 							}
 						}
+						
+						if(rows.length() == 0)
+						{
+							treeNode.setValueInfo("");
+						}
+						
 					}
 
 		    		if(treeNode.isVisible()==true){
