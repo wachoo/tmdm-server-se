@@ -558,7 +558,7 @@ public class ItemsBrowserDWR {
 								}
 								if(rows.length() == 0)
 								{
-									treeNodeTmp.setValueInfo("");
+									treeNodeTmp.setValueInfo(null);
 								}
 							}
 
@@ -612,7 +612,7 @@ public class ItemsBrowserDWR {
 						
 						if(rows.length() == 0)
 						{
-							treeNode.setValueInfo("");
+							treeNode.setValueInfo(null);
 						}
 						
 					}
