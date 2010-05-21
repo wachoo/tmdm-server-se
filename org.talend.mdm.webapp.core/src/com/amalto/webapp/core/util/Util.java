@@ -1161,6 +1161,7 @@ public class Util {
 		}
 		
 		public static String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter, boolean isCount) throws RemoteException, Exception{
+			if(xpathForeignKey == null) return null;
 	        String initxpathForeignKey = "";
 	        initxpathForeignKey = getForeignPathFromPath(xpathForeignKey);
 	                
