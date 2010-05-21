@@ -1007,10 +1007,14 @@ public class ItemsBrowserDWR {
 	 * 
 	 */
 	public void  editXpathInidToXpathAdd(int id ,HashMap<Integer,String> idToXpath){
-		String nodeXpath = idToXpath.get(id).replaceAll("\\[\\d+\\]$","");
+		/*String nodeXpath = idToXpath.get(id).replace("\\[\\d+\\]$","");
 		String patternXpath = nodeXpath.replaceAll("\\[", "\\\\[");
-		patternXpath = patternXpath.replaceAll("\\]", "\\\\]");;
-		Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\]$)");
+		patternXpath = patternXpath.replaceAll("\\]", "\\\\]");*/
+		int endIndex = idToXpath.get(id).lastIndexOf("[");
+		String patternXpath = idToXpath.get(id).substring(0, endIndex);
+		
+		Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\])");
+		Pattern p1 = Pattern.compile("(.*?)(\\[)(\\d+)(\\])(.*?)");
 		Matcher m = p.matcher(idToXpath.get(id));
 		int nodeIndex = -1;
 		if (m.matches()) 
@@ -1019,17 +1023,19 @@ public class ItemsBrowserDWR {
 		while(keys.hasNext()){
 			int key = keys.next();
 			String xpath = idToXpath.get(key);
-			
-			if(xpath.matches(patternXpath+"\\[\\d+\\]$")){
+			String lastString = "";
+			if(xpath.matches(patternXpath+"\\[\\d+\\](.*?)")){
 				int pathIndex = -1;
-				Matcher m1 = p.matcher(xpath);
-				if (m1.matches()) 
-					pathIndex =  Integer.parseInt(m1.group(3));
+					Matcher m2 = p1.matcher(xpath);
+					if(m2.matches()){
+					pathIndex =  Integer.parseInt(m2.group(3));
+					lastString = m2.group(5);
+				//}
+				}
+					
 				if(nodeIndex<pathIndex){
 					pathIndex++;
-					xpath = nodeXpath+"["+pathIndex+"]";
-//					keys.remove();
-//					idToXpath.remove(key);
+					xpath = patternXpath+"["+pathIndex+"]"+lastString;
 					idToXpath.put(key, xpath);
 					
 				}//if(nodeIndex
