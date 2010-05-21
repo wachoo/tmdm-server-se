@@ -133,12 +133,8 @@
         <key xsi:type="java:java.lang.String">View</key>
         <value admin="false" xsi:type="java:com.amalto.core.util.RoleSpecification">
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
-                <key xsi:type="java:java.lang.String">MDM Reporting View</key>
+                <key xsi:type="java:java.lang.String">.*</key>
                 <value writeable="true" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
-            </instances>
-            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
-                <key xsi:type="java:java.lang.String">Xtentis MDM Reporting</key>
-                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
             </instances>
         </value>
     </role-specifications>
