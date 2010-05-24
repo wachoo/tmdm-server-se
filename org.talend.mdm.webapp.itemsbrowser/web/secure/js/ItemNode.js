@@ -97,7 +97,9 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		var mandatory = "";
 		this.result = null;
 		var check = this.checkMinOccurs(itemData,null);
-		if(itemData.readOnly==false && (itemData.minOccurs==1||itemData.key) && check) mandatory='<span style="color:red">*</span>';
+		var ancestor = this.checkAncestorMinOCcurs(itemData);
+		if(ancestor) check = true;
+		if((itemData.readOnly==false && (itemData.minOccurs>=1||itemData.key||ancestor) && check)) mandatory='<span style="color:red">*</span>';
 		// (itemData.parent==null || (itemData.parent!=null && itemData.parent.minOccurs>=1))
 		var descInfo = "";
 		if(itemData.description!=null)descInfo='<img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'+itemData.description+'"/>';
@@ -354,12 +356,18 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				}
 				
 				var check = this.checkMinOccurs(this.itemData,null);
-				if(value.length==0&& this.itemData.minOccurs>=1&& check){//(this.itemData.parent==null || (this.itemData.parent!=null && this.itemData.parent.minOccurs>=1))){
+				var ancestor = this.checkAncestorMinOCcurs(this.itemData);
+				if(ancestor) check = true;
+				if(value.length==0 && (this.itemData.minOccurs>=1||ancestor) && check){//(this.itemData.parent==null || (this.itemData.parent!=null && this.itemData.parent.minOccurs>=1))){
 				if (errorMessage == null){
-				   errorMessage = "The value does not comply with the facet defined in the model: "
+					if(this.itemData.minOccurs>=1)
+				         errorMessage = "The value does not comply with the facet defined in the model: "
 							+ "minOccurs"
 							+": "
 							+this.itemData.minOccurs;
+				   else if(ancestor){
+				    	errorMessage = "This item is mandatory!";
+				    }			
 					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 					return false;
 				}
@@ -451,7 +459,9 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				// var checkParentminOIsReturn = null;
 				this.result = null;
 				var check = this.checkMinOccurs(this.itemData,null);
-				if (this.itemData.readOnly==false && this.itemData.minOccurs>=1 && (value == null || value == "") && check && this.itemData.choice == false)
+				var ancestor = this.checkAncestorMinOCcurs(this.itemData);
+				if(ancestor) check = true;
+				if (this.itemData.readOnly==false && (this.itemData.minOccurs>=1||ancestor) && (value == null || value == ""||value.length==0) &&  check && this.itemData.choice == false)
 				{
 					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
 					return false;
@@ -510,9 +520,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	 	if(checkParentminOIsReturn==null && this.result == null ){
 	 		var itemNode = node.parent;
     		if(itemNode==null){
-    			checkParentminOIsReturn = true;
+    			/*checkParentminOIsReturn = true;
     			this.result=true;
-    			return true;
+    			return true;*/
+    			return false;
     		}
     		else if(itemNode!=null && itemNode.minOccurs==0){
     			checkParentminOIsReturn = false;
@@ -524,7 +535,23 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	 	}
 	 	return this.result;
     },
-	
+	/**
+	 * add by ymli. check if the ancestor  node is mandatory.
+	 * @param {} itemNode
+	 * @return {Boolean}
+	 */
+    checkAncestorMinOCcurs:function(itemNode){
+    	if(itemNode.parent==null && itemNode.minOccurs>=1){
+    	   return true;
+    	}
+    	else if(itemNode.parent==null && itemNode.minOccurs==0){
+    		return false;
+    	}
+    	else{
+    	   return this.checkAncestorMinOCcurs(itemNode.parent);
+    	}
+    },
+    
 	displayErrorMessage: function(nodeId,msg){
         //var errorMessageDivId = nodeId+"ErrorMessage";
         //$(errorMessageDivId).style.display = "block";
