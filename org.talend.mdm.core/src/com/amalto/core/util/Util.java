@@ -3173,12 +3173,6 @@ public  class Util {
 						|| condition.getRightValueOrPath().length() == 0) {
 					conditions.remove(i);
 				}
-				
-				if(condition.getLeftPath()!=null) {
-					String replacedPath=condition.getLeftPath().replace("\r", "");
-					replacedPath=replacedPath.replace("\n", "");
-					condition.setLeftPath(replacedPath);
-				}
 			}
 		}
 	}
