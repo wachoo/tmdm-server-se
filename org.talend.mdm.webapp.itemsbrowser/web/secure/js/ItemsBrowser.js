@@ -1820,7 +1820,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     							}
     						}    						
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
-    									itemTree.getNodeByIndex(oNode.index),true,true,isReadOnlyinItem);
+    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
@@ -1856,7 +1856,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						}
     	
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
-    									itemTree.getNodeByIndex(oNode.index),true,true,isReadOnlyinItem);
+    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
@@ -2234,7 +2234,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					return;
 				}
 				for(var i=0; i<result.length; i++) {					
-					var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,itemTree.getNodeByIndex(oNode.index),true,true,isReadOnlyinItem);
+					var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
 				if(result[i].type=="simple") tmp.setDynamicLoad();
 				   else tmp.setDynamicLoad(fnLoadData,1);
 			}
@@ -2341,7 +2341,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					return;
 				}
 				for(var i=0; i<result.length; i++) {					
-					var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,itemTree.getNodeByIndex(oNode.index),true,true,isReadOnlyinItem);
+					var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
 				if(result[i].type=="simple") tmp.setDynamicLoad();
 				else tmp.setDynamicLoad(fnLoadData,1);
 			}
@@ -2894,8 +2894,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		amalto.core.working('Running...');
 	    amalto.core.ready();
 	    
-		//ItemsBrowserInterface.countForeignKey(xpathForeignKey, function(count){
-		ItemsBrowserInterface.countForeignKey(xpathForeignKey, function(count){
+		ItemsBrowserInterface.countForeignKey_filter(xpathForeignKey, function(count){
 			//Display a pop-up window to search for foreign keys
 			if(foreignKeyWindow){
 			    foreignKeyWindow.hide();
