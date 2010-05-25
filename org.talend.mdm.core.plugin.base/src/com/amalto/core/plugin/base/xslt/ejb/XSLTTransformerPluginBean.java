@@ -583,6 +583,7 @@ public class XSLTTransformerPluginBean extends TransformerPluginV2CtrlBean  impl
 								"Value for business element "+xrefElement.getNodeName()+"/"+docpath+
 								" cannot be found!");
 				}
+				if(itemval == null)itemval = "";
 				itemvals.put(xrefpath,Util.stripeOuterBracket(itemval));
 			}
 
