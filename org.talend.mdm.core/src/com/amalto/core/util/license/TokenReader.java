@@ -42,7 +42,7 @@ public final class TokenReader {
     public Token readToken(byte[] bytes) throws Exception {
         byte[] hash = B64.decode(bytes);
         try {
-            byte[] decrypted = Hsifwolb.decrypt(hash, YekEht.dk);
+            byte[] decrypted = Hsifwolb.decrypt(hash, YekEht.DK);
             return readToken(new JSONObject(new String(decrypted)));
         } catch (Exception e) {
             throw new Exception("Cannot instantiate token", e);

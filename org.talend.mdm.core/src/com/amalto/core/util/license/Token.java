@@ -12,13 +12,16 @@
 // ============================================================================
 package com.amalto.core.util.license;
 
+import java.text.MessageFormat;
 import java.util.Date;
 
-
-
+import com.amalto.core.util.Util;
+/**
+ * DOC Administrator class global comment. Detailled comment
+ */
 public final class Token {
 
-    private static final int daysOfWarning = 10;
+    private static final int DAYSOFWARNING = 10;
 
     private Date start;
 
@@ -28,8 +31,8 @@ public final class Token {
         isValid(new Date());
     }
 
-    public String getWarning() {
-        return getWarning(new Date());
+    public String getWarning(String language) {
+        return getWarning(new Date(), language);
     }
 
     protected void isValid(Date now) throws Exception {
@@ -37,7 +40,7 @@ public final class Token {
         if (fullValid)
             return;
         else
-            throw new Exception("license.invalidToken");
+            throw new Exception("license invalid validation Token");
     }
 
     protected boolean isAlreadyExpired() {
@@ -62,9 +65,20 @@ public final class Token {
         return daysBeforeExpire >= 0 && daysBeforeExpire <= 10;
     }
 
-    protected String getWarning(Date now) {
-        if (isNearToExpire(now))
-            return "License token will expire in " + (getDaysBeforeExpire(now)) + " days.";
+    protected String getWarning(Date now, String language) {
+        if (isNearToExpire(now)) {
+            String msg;
+        
+            if("fr".equals(language)) {
+                msg = "Le jeton expirera dans {0} jours.";
+            }
+            else {
+                msg = "The token will expire in {0} days";
+            }
+            
+            return Util.getMessage(msg, getDaysBeforeExpire(now));
+//            return PropertiesLoaderProvider.getMessages().getString("license.error.expire", getDaysBeforeExpire(now));
+        }
         else
             return null;
     }

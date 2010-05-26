@@ -10,11 +10,11 @@ import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 import org.w3c.dom.Document;
 
+import com.amalto.core.util.license.LicenseUtil;
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.license.LicenseUtil;
 import com.amalto.webapp.util.webservices.WSLogout;
 
 
@@ -126,20 +126,12 @@ public class LayoutDWR {
 	 * license is expried.
 	 * @return
 	 */
-	public boolean isExpired() throws RemoteException {
+	public boolean isExpired() throws Exception {
 	   if(!com.amalto.core.util.Util.isEnterprise()) { 
 	      return false;
 	   }
 	   
-	   LicenseUtil instance = LicenseUtil.getInstance();
-	   
-	   if(instance.getLicenseDate() == null) {
-	      throw new RemoteException("No license found.");
-	   }
-	   else if(instance.getToken() == null) {
-		   throw new RemoteException("No set validation token.");
-	   }
-	   
-	   return !instance.isLicenseDateValid() || !instance.isTokenDateValid();
+	   LicenseUtil.getInstance().checkLicense(false);
+       return false;
 	}
 }

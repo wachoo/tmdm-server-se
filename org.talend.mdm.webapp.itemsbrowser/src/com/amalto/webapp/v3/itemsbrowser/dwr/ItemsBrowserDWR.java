@@ -1550,24 +1550,8 @@ public class ItemsBrowserDWR {
 	/**
 	 * lym
 	 */
-	public String countForeignKey_filter(String xpathForeignKey) throws Exception{
-		Configuration config = Configuration.getInstance();
-		String conceptName = Util.getConceptFromPath(xpathForeignKey);
-		
-		WSWhereCondition whereCondition=Util.getConditionFromPath(xpathForeignKey);
-		WSWhereItem whereItem=null;
-		if(whereCondition!=null){
-			whereItem= new WSWhereItem (whereCondition,null,null);
-		}
-		
-		return Util.getPort().count(
-			new WSCount(
-				new WSDataClusterPK(config.getCluster()),
-				conceptName,
-				whereItem,//null,
-				-1
-			)
-		).getValue();
+	public String countForeignKey_filter(String xpathForeignKey, String fkFilter) throws Exception{
+		return Util.countForeignKey_filter(xpathForeignKey, fkFilter);
 	}	
 	public String getForeignKeyListWithCount(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter) 
 	   throws RemoteException, Exception 

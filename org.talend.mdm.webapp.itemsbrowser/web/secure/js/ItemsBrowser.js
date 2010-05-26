@@ -2894,7 +2894,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		amalto.core.working('Running...');
 	    amalto.core.ready();
 	    
-		ItemsBrowserInterface.countForeignKey_filter(xpathForeignKey, function(count){
+		ItemsBrowserInterface.countForeignKey_filter(xpathForeignKey,fkFilter, function(count){
 			//Display a pop-up window to search for foreign keys
 			if(foreignKeyWindow){
 			    foreignKeyWindow.hide();

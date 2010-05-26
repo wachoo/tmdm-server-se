@@ -680,6 +680,14 @@ amalto.core = function () {
 				}
 			}
 			else if(menu.application.toLowerCase() == 'license') {
+				Ext.MessageBox.show({
+			           msg: 'parsing information of license, please wait...',
+			           progressText: 'Loading',
+			           width:300,
+			           wait:false,
+			           waitConfig: {interval:200}
+			        });
+				DWREngine.setAsync(false);
 				//load the script if necessary
 				amalto.core.loadMainScript(
 				menu.context,
@@ -687,14 +695,24 @@ amalto.core = function () {
 				function() {
 					var initFunction = "amalto."+menu.context+"."+menu.application.replace(/\s/g,'')+".init()";
 					setTimeout(initFunction,'50');
-				}
-			);
-			}else {
-				LayoutInterface.isExpired(function(isExpired) {
-					if(isExpired) {
-						alert("license or token is expired, please registry a new license or token!");
 					}
-					else {
+				);
+				DWREngine.setAsync(true);
+				Ext.MessageBox.hide();
+			}else {
+				Ext.MessageBox.show({
+			           msg: 'parsing information of license, please wait...',
+			           progressText: 'Loading',
+			           width:300,
+			           wait:false,
+			           waitConfig: {interval:200}
+			        });
+				DWREngine.setAsync(false);
+				
+				LayoutInterface.isExpired({
+					callback:function(isExpired){
+					Ext.MessageBox.hide();
+					if(!isExpired) {
 						//load the script if necessary
 						amalto.core.loadMainScript(
 								menu.context,
@@ -703,9 +721,16 @@ amalto.core = function () {
 									var initFunction = "amalto."+menu.context+"."+menu.application.replace(/\s/g,'')+".init()";
 									setTimeout(initFunction,'50');
 								}
-							);
+						);
 					}
+				},
+				errorHandler:function(errorString, exception) { 
+					Ext.MessageBox.hide();
+					alert('Error:'+ errorString);
+				}  
 				});
+				
+				DWREngine.setAsync(true);
 			}//else   
 		}//findTarget
 	}

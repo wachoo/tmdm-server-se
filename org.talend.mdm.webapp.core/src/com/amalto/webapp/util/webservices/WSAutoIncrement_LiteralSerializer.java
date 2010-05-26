@@ -18,26 +18,26 @@ import javax.xml.namespace.QName;
 import java.util.List;
 import java.util.ArrayList;
 
-public class WSPutLicense_LiteralSerializer extends LiteralObjectSerializerBase implements Initializable  {
-    private static final QName ns1_wsLicense_QNAME = new QName("", "wsLicense");
-    private static final QName ns2_WSLicense_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSLicense");
-    private CombinedSerializer ns2_myWSLicense_LiteralSerializer;
+public class WSAutoIncrement_LiteralSerializer extends LiteralObjectSerializerBase implements Initializable  {
+    private static final QName ns1_autoincrement_QNAME = new QName("", "autoincrement");
+    private static final QName ns3_string_TYPE_QNAME = SchemaConstants.QNAME_TYPE_STRING;
+    private CombinedSerializer ns3_myns3_string__java_lang_String_String_Serializer;
     
-    public WSPutLicense_LiteralSerializer(QName type, String encodingStyle) {
+    public WSAutoIncrement_LiteralSerializer(QName type, String encodingStyle) {
         this(type, encodingStyle, false);
     }
     
-    public WSPutLicense_LiteralSerializer(QName type, String encodingStyle, boolean encodeType) {
+    public WSAutoIncrement_LiteralSerializer(QName type, String encodingStyle, boolean encodeType) {
         super(type, true, encodingStyle, encodeType);
     }
     
     public void initialize(InternalTypeMappingRegistry registry) throws Exception {
-        ns2_myWSLicense_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSLicense.class, ns2_WSLicense_TYPE_QNAME);
+        ns3_myns3_string__java_lang_String_String_Serializer = (CombinedSerializer)registry.getSerializer("", java.lang.String.class, ns3_string_TYPE_QNAME);
     }
     
     public Object doDeserialize(XMLReader reader,
         SOAPDeserializationContext context) throws Exception {
-        com.amalto.webapp.util.webservices.WSPutLicense instance = new com.amalto.webapp.util.webservices.WSPutLicense();
+        com.amalto.webapp.util.webservices.WSAutoIncrement instance = new com.amalto.webapp.util.webservices.WSAutoIncrement();
         Object member=null;
         QName elementName;
         List values;
@@ -46,15 +46,15 @@ public class WSPutLicense_LiteralSerializer extends LiteralObjectSerializerBase 
         reader.nextElementContent();
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
-            if (elementName.equals(ns1_wsLicense_QNAME)) {
-                member = ns2_myWSLicense_LiteralSerializer.deserialize(ns1_wsLicense_QNAME, reader, context);
+            if (elementName.equals(ns1_autoincrement_QNAME)) {
+                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_autoincrement_QNAME, reader, context);
                 if (member == null) {
                     throw new DeserializationException("literal.unexpectedNull");
                 }
-                instance.setWsLicense((com.amalto.webapp.util.webservices.WSLicense)member);
+                instance.setAutoincrement((java.lang.String)member);
                 reader.nextElementContent();
             } else {
-                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_wsLicense_QNAME, reader.getName() });
+                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_autoincrement_QNAME, reader.getName() });
             }
         }
         else {
@@ -66,15 +66,15 @@ public class WSPutLicense_LiteralSerializer extends LiteralObjectSerializerBase 
     }
     
     public void doSerializeAttributes(Object obj, XMLWriter writer, SOAPSerializationContext context) throws Exception {
-        com.amalto.webapp.util.webservices.WSPutLicense instance = (com.amalto.webapp.util.webservices.WSPutLicense)obj;
+        com.amalto.webapp.util.webservices.WSAutoIncrement instance = (com.amalto.webapp.util.webservices.WSAutoIncrement)obj;
         
     }
     public void doSerialize(Object obj, XMLWriter writer, SOAPSerializationContext context) throws Exception {
-        com.amalto.webapp.util.webservices.WSPutLicense instance = (com.amalto.webapp.util.webservices.WSPutLicense)obj;
+        com.amalto.webapp.util.webservices.WSAutoIncrement instance = (com.amalto.webapp.util.webservices.WSAutoIncrement)obj;
         
-        if (instance.getWsLicense() == null) {
+        if (instance.getAutoincrement() == null) {
             throw new SerializationException("literal.unexpectedNull");
         }
-        ns2_myWSLicense_LiteralSerializer.serialize(instance.getWsLicense(), ns1_wsLicense_QNAME, null, writer, context);
+        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getAutoincrement(), ns1_autoincrement_QNAME, null, writer, context);
     }
 }

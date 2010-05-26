@@ -17,5 +17,5 @@ package com.amalto.core.util.license;
  */
 public class YekEht {
 
-    public static final byte[] dk = "TIgtpQPw9ERQJmPh".getBytes();
+    public static final byte[] DK = "TIgtpQPw9ERQJmPh".getBytes();
 }

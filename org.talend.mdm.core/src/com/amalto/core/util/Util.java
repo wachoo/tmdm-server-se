@@ -17,6 +17,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.Principal;
 import java.security.acl.Group;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -3324,5 +3326,44 @@ public  class Util {
 	    	 out +=slip;
 	     }
 	     return out;
+    }
+    
+    /**
+     * Escape any single quote characters that are included in the specified message string.
+     * 
+     * @param string The string to be escaped
+     */
+    protected static String escape(String string) {
+
+        if ((string == null) || (string.indexOf('\'') < 0)) {
+            return string;
+        }
+
+        int n = string.length();
+        StringBuffer sb = new StringBuffer(n);
+
+        for (int i = 0; i < n; i++) {
+            char ch = string.charAt(i);
+
+            if (ch == '\'') {
+                sb.append('\'');
+            }
+
+            sb.append(ch);
+        }
+
+        return sb.toString();
+
+    }
+    
+    public static String getMessage(String value, Object... args) {
+        try {
+            MessageFormat format = new MessageFormat(escape(value));
+
+            value = format.format(args);
+            return value;
+        } catch (MissingResourceException e) {
+            return "???" + value + "???";
+        } 
     }
 } 
