@@ -247,7 +247,8 @@ public class ItemsBrowserDWR {
 		if (decl == null) {
 			String err = "Concept '"+concept+"' is not found in model '"+dataModelPK+"'";
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-			throw new RemoteException(err);
+			return null;
+			//throw new RemoteException(err);
 		}
     	XSAnnotation xsa = decl.getAnnotation();    	
     	TreeNode rootNode = new TreeNode();
