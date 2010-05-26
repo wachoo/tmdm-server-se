@@ -19,6 +19,7 @@ import org.w3c.dom.NodeList;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.util.SchemaUtil;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
@@ -121,7 +122,12 @@ public class DataModelCtrlBean implements SessionBean{
         	} else {
         		//FIXME: implement xsom
         		// validate the schema against a schema for schema
-        		dataModel.setSchema(checkSchema(dataModel.getSchema()));
+        		//do schema validate in workbench
+        		//String schema=checkSchema(dataModel.getSchema());
+        		String schema=dataModel.getSchema();
+        		//convert xsd base type
+        		schema=SchemaUtil.convertBaseType(schema);
+        		dataModel.setSchema(schema);
         	}
         	
         	
