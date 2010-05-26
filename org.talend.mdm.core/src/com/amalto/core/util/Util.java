@@ -2976,19 +2976,7 @@ public  class Util {
 			throws Exception {
 
 		String xsd = dataModelPOJO.getSchema();
-		XSOMParser reader = new XSOMParser();
-		reader.setAnnotationParser(new DomAnnotationParserFactory());
-		reader.setEntityResolver(new SecurityEntityResolver());
-		reader.parse(new StringReader(xsd));
-		XSSchemaSet xss = reader.getResult();
-		Collection xssList = xss.getSchemas();
-		Map<String, XSElementDecl> map = new HashMap<String, XSElementDecl>();
-		for (Iterator iter = xssList.iterator(); iter.hasNext();) {
-			XSSchema schema = (XSSchema) iter.next();
-			Map<String, XSElementDecl> submap = schema.getElementDecls();
-			map.putAll(submap);
-		}
-		return map;
+		return getConceptMap(xsd);
 	}
 
 	private static XSElementDecl parseMetaDataTypes(XSElementDecl elem,
