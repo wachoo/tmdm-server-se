@@ -1010,29 +1010,41 @@ public class ItemsBrowserDWR {
 		/*String nodeXpath = idToXpath.get(id).replace("\\[\\d+\\]$","");
 		String patternXpath = nodeXpath.replaceAll("\\[", "\\\\[");
 		patternXpath = patternXpath.replaceAll("\\]", "\\\\]");*/
-		int endIndex = idToXpath.get(id).lastIndexOf("[");
-		String patternXpath = idToXpath.get(id).substring(0, endIndex);
+		int beginIndex = idToXpath.get(id).lastIndexOf("[");
+		int endIndex = idToXpath.get(id).lastIndexOf("]");
 		
-		Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\])");
-		Pattern p1 = Pattern.compile("(.*?)(\\[)(\\d+)(\\])(.*?)");
-		Matcher m = p.matcher(idToXpath.get(id));
+		String patternXpath = idToXpath.get(id).substring(0, beginIndex);
+		
+		//Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\])");
+		//Pattern p1 = Pattern.compile("(.*?)(\\[)(\\d+)(\\])(.*?)(\\[)(\\d+)(\\])");
+		Pattern p1 = Pattern.compile(patternXpath+"(\\[)(\\d+)(\\])(.*?)");
+		/*Matcher m = p1.matcher(idToXpath.get(id));
 		int nodeIndex = -1;
 		if (m.matches()) 
-			nodeIndex =  Integer.parseInt(m.group(3));
+			for(int i=0;i<m.groupCount();i++){
+				System.out.println(m.group(i));
+			}*/
+			//nodeIndex =  Integer.parseInt(m.group(7));
+		int nodeIndex =  Integer.parseInt(idToXpath.get(id).substring(beginIndex+1, endIndex)) ;
+		
+		
+		
 		Iterator<Integer> keys = idToXpath.keySet().iterator();
 		while(keys.hasNext()){
 			int key = keys.next();
 			String xpath = idToXpath.get(key);
 			String lastString = "";
-			if(xpath.matches(patternXpath+"\\[\\d+\\](.*?)")){
+			//if(xpath.matches(patternXpath+"\\[\\d+\\](.*?)")){
+			int xpathIndex = xpath.indexOf(patternXpath);
+			if(xpathIndex>=0){
 				int pathIndex = -1;
-					Matcher m2 = p1.matcher(xpath);
-					if(m2.matches()){
-					pathIndex =  Integer.parseInt(m2.group(3));
-					lastString = m2.group(5);
-				//}
-				}
-					
+				//Matcher m2 = p1.matcher(xpath);
+				//if(m2.matches()){
+				String lastSubString = xpath.substring(xpathIndex+patternXpath.length());
+				int beginIndex1= lastSubString.indexOf("[");
+				int endIndex1= lastSubString.indexOf("]");
+				pathIndex = Integer.parseInt(lastSubString.substring(beginIndex1+1, endIndex1));
+				lastString = lastSubString.substring(endIndex1+1);
 				if(nodeIndex<pathIndex){
 					pathIndex++;
 					xpath = patternXpath+"["+pathIndex+"]"+lastString;
@@ -2093,7 +2105,18 @@ public class ItemsBrowserDWR {
 		return res;											
 	}
 	public static void main(String[] args) {
-		new ItemsBrowserDWR().deleteItem("Custom", new String[]{"28"});
+		//new ItemsBrowserDWR().deleteItem("Custom", new String[]{"28"});\
+		String patternXpath = "/xpath1/xpath2\\[1\\]/xpaht3";
+		String xpath = "/xpath1/xpath2[1]/xpaht3[3]";
+		Pattern p1 = Pattern.compile(patternXpath+"\\[(\\d+)\\](.*?)");
+		Matcher m = p1.matcher(xpath);
+		if(m.matches()){
+			for(int i= 0 ;i<m.groupCount();i++){
+				System.out.println(m.group(i));
+			}
+		}
+		
+		
 	}
 	private org.jboss.dom4j.Document parsXMLString(String xmlString) {
         SAXReader saxReader = new SAXReader();   
@@ -2246,5 +2269,6 @@ public class ItemsBrowserDWR {
 		}
 		return ret;
 	}
+	
 	
 }
