@@ -268,6 +268,8 @@ public class Util {
     }
     public static WSWhereItem getConditionFromFKFilter(String fkFilter) {
     	if(fkFilter==null || fkFilter.length()==0) return null;
+    	if(fkFilter.equals("null")) return null;
+    	
 		String[] criterias = fkFilter.split("#");
 		
 		ArrayList<WSWhereItem> condition=new ArrayList<WSWhereItem>();
