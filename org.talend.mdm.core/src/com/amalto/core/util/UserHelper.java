@@ -214,4 +214,11 @@ public final class UserHelper {
         
         return result;
     }
+    
+    /**
+     * check the users.
+     */
+    public void checkUsers() {
+        listUsers();
+    }
 }
