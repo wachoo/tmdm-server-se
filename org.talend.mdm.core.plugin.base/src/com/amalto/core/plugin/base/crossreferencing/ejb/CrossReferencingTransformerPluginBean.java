@@ -459,7 +459,7 @@ public class CrossReferencingTransformerPluginBean extends TransformerPluginV2Ct
 							throw new XtentisException("Invalid xrefIn path "+xrefElement+" - xref path should correspond to attributes or text nodes only.");
 					}
 					
-					itemvals.put(xrefPath,Util.stripeOuterBracket(itemval));
+					itemvals.put(xrefPath,Util.stripeOuterBracket(itemval).split(",")[0]);
 				}
 
 				if (itemvals.size() == 0)

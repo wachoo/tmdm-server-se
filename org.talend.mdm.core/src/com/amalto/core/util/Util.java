@@ -65,6 +65,7 @@ import org.apache.commons.jxpath.AbstractFactory;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
@@ -3315,12 +3316,7 @@ public  class Util {
 				result.add(ch + "");
 		 }
 	     
-	     String out = "";
-	     for (String slip: result)
-	     {
-	    	 out +=slip;
-	     }
-	     return out;
+	     return StringUtils.join(result.toArray(), ",");
     }
     
     /**

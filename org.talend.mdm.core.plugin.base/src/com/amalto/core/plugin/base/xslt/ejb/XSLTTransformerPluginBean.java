@@ -584,7 +584,11 @@ public class XSLTTransformerPluginBean extends TransformerPluginV2CtrlBean  impl
 								" cannot be found!");
 				}
 				if(itemval == null)itemval = "";
-				itemvals.put(xrefpath,Util.stripeOuterBracket(itemval));
+				String content = Util.stripeOuterBracket(itemval);
+				if(content.split(",").length >= mappings.length)
+				    itemvals.put(xrefpath,content.split(",")[j]);
+				else
+					itemvals.put(xrefpath, "");
 			}
 
 
