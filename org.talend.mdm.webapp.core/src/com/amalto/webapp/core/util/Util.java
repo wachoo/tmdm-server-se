@@ -273,20 +273,9 @@ public class Util {
 		ArrayList<WSWhereItem> condition=new ArrayList<WSWhereItem>();
 		for (String cria: criterias)
 		{
-			String[] values = cria.split("\\s");
-			if(values.length==3 || values.length==4) {
-	    		WSWhereCondition wc=new WSWhereCondition();
-	    		wc.setLeftPath(values[0]);
-	    		wc.setOperator(WSWhereOperator.fromString(values[1].toUpperCase()));
-	    		wc.setRightValueOrPath(values[2]);
-				if(values.length==4) {
-					wc.setStringPredicate(WSStringPredicate.fromString(values[3].toUpperCase()));
-				}
-				if(values.length==3) {
-					wc.setStringPredicate(WSStringPredicate.NONE);
-				}
-				condition.add(new WSWhereItem(wc,null,null));
-			}
+			String[] values = cria.split("\\$\\$");
+			WSWhereCondition wc = Util.convertLine(values);
+			condition.add(new WSWhereItem(wc,null,null));
 		}
 		if(condition.size()>0) {
 			WSWhereAnd and = new WSWhereAnd(condition
@@ -297,6 +286,67 @@ public class Util {
 			return null;
 		}
     }
+    
+    public static WSWhereCondition convertLine(String[] values){
+    	WSWhereCondition wc=new WSWhereCondition();
+
+		wc.setLeftPath(values[0]);
+
+		if(values.length >= 3)
+		{
+			WSWhereOperator operator = null;
+			if (values[1].equals("Contains"))
+				operator = WSWhereOperator.CONTAINS;
+			else if (values[1].equals(
+					"Contains Text Of"))
+				operator = WSWhereOperator.JOIN;
+			else if (values[1].equals("="))
+				operator = WSWhereOperator.EQUALS;
+			else if (values[1].equals(">"))
+				operator = WSWhereOperator.GREATER_THAN;
+			else if (values[1].equals(">="))
+				operator = WSWhereOperator.GREATER_THAN_OR_EQUAL;
+			else if (values[1].equals("<"))
+				operator = WSWhereOperator.LOWER_THAN;
+			else if (values[1].equals("<="))
+				operator = WSWhereOperator.LOWER_THAN_OR_EQUAL;
+			else if (values[1].equals("!="))
+				operator = WSWhereOperator.NOT_EQUALS;
+			else if (values[1].equals(
+					"Starts With"))
+				operator = WSWhereOperator.STARTSWITH;
+			else if (values[1].equals(
+					"Strict Contains"))
+				operator = WSWhereOperator.STRICTCONTAINS;
+			wc.setOperator(operator);
+			wc.setRightValueOrPath(values[2]);
+		}
+		
+		if(values.length >= 4)
+		{
+			WSStringPredicate predicate = null;
+			if (values[3].equals(""))
+				predicate = WSStringPredicate.NONE;
+			else if (values[3].equals("Or"))
+				predicate = WSStringPredicate.OR;
+			if (values[3].equals("And"))
+				predicate = WSStringPredicate.AND;
+			if (values[3].equals("Strict And"))
+				predicate = WSStringPredicate.STRICTAND;
+			if (values[3].equals("Exactly"))
+				predicate = WSStringPredicate.EXACTLY;
+			if (values[3].equals("Not"))
+				predicate = WSStringPredicate.NOT;
+			wc.setStringPredicate(predicate);
+		}
+		else
+		{
+			wc.setStringPredicate(WSStringPredicate.NONE);
+		}
+
+    	return wc;
+    }
+    
     /**
      * 
      * @param doc
