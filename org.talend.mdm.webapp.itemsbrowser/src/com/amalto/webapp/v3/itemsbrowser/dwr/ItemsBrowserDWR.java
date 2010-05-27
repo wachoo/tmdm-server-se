@@ -1329,18 +1329,17 @@ public class ItemsBrowserDWR {
 			//put item
 			boolean isUpdateThisItem=true;
 			if(newItem==true) isUpdateThisItem = false;
-			long startt=System.currentTimeMillis();
-			System.out.println(startt);
+
 			WSItemPK wsi = Util.getPort().putItem(
 					new WSPutItem(
 							new WSDataClusterPK(dataClusterPK), 
 							xml,
 							new WSDataModelPK(dataModelPK),isUpdateThisItem));
-			System.out.println(System.currentTimeMillis()-startt);
+
 			//put update report
 			synchronizeUpdateState(ctx);
 			//update update report key
-			if(resultUpdateReport!=null) {
+			if(resultUpdateReport!=null && wsi!=null) {
 				resultUpdateReport=resultUpdateReport.replaceFirst("<Key>.*</Key>", "<Key>"+Util.joinStrings(wsi.getIds(),".")+"</Key>"); 					
 				return persistentUpdateReport(resultUpdateReport,true);
 			}

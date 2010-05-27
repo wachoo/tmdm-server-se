@@ -232,7 +232,7 @@ public class ItemPOJO implements Serializable{
 		this.projectionString = str;
 		try {
 			if(str!=null && str.length()>0)
-				projection = Util.parse(this.projectionString).getDocumentElement();
+				projection = Util.parse(this.projectionString,null).getDocumentElement();
 			else
 				return;
 		} catch (Exception e) {
@@ -250,7 +250,7 @@ public class ItemPOJO implements Serializable{
 	public Element getProjection() throws XtentisException{
 		if (projection==null) {
 			try {
-				projection = Util.parse(this.projectionString).getDocumentElement();
+				projection = Util.parse(this.projectionString,null).getDocumentElement();
 			} catch (Exception e) {
 				String err = "Unable to parse the Item "+this.getItemPOJOPK().getUniqueID()+". "
 				+e.getClass().getName()+": "+e.getLocalizedMessage();

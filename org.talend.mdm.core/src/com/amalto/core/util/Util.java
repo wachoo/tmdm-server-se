@@ -346,13 +346,8 @@ public  class Util {
 		factory.setNamespaceAware(true);
 		factory.setValidating((schema!=null));
 		
-		
-		Document xsdDoc = Util.parse(schema);
-		
-		//setMinOccurs(xsdDoc, element.getLocalName());
-		
-		schema = Util.nodeToString(xsdDoc);
-		
+		schema=schema.replaceFirst("<\\?xml.*\\?>", "");	
+		schema=schema.replace("\r\n", "\n");
 		
 		factory.setAttribute(
 				"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
@@ -1560,7 +1555,7 @@ public  class Util {
     		String[] vals = new String[xsdKey.getFields().length];
     		for (int i = 0; i < xsdKey.getFields().length; i++) {    			
     			String xpath=xsdKey.getFields()[i];
-    			xpath= xpath.replaceFirst("/"+item.getLocalName(), "");
+    			xpath= xpath.replaceFirst("/"+item.getLocalName()+"/", "");
     			vals[i] = Util.getFirstTextNode(item,xsdKey.getSelector()+"/"+xpath);
     			if (vals[i]!=null) vals[i] = vals[i].trim(); //FIXME: Due to eXist trimming values @see ItemPOJO
 			}
