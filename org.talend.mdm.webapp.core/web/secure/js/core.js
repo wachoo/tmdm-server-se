@@ -681,7 +681,7 @@ amalto.core = function () {
 			}
 			else if(menu.application.toLowerCase() == 'license') {
 				Ext.MessageBox.show({
-			           msg: 'parsing information of license, please wait...',
+			           msg: 'Parsing informations of license, please wait...',
 			           progressText: 'Loading',
 			           width:300,
 			           wait:false,
