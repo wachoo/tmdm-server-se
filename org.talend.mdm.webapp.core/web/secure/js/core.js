@@ -700,14 +700,24 @@ amalto.core = function () {
 				DWREngine.setAsync(true);
 				Ext.MessageBox.hide();
 			}else {
-				Ext.MessageBox.show({
-			           msg: 'parsing information of license, please wait...',
-			           progressText: 'Loading',
-			           width:300,
-			           wait:false,
-			           waitConfig: {interval:200}
-			        });
 				DWREngine.setAsync(false);
+				LayoutInterface.isShowMsg({
+					callback:function(show) {
+						if(show) {
+							Ext.MessageBox.show({
+						           msg: 'Parsing informations of license, please wait...',
+						           progressText: 'Loading',
+						           width:300,
+						           wait:false,
+						           waitConfig: {interval:200}
+						        });
+						}
+					},
+					errorHandler:function(errorString, exception) { 
+						Ext.MessageBox.hide();
+						alert('Error:'+ errorString);
+					}
+				});
 				
 				LayoutInterface.isExpired({
 					callback:function(isExpired){

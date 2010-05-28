@@ -134,4 +134,13 @@ public class LayoutDWR {
 	   LicenseUtil.getInstance().checkLicense(false);
        return false;
 	}
+	
+	/**
+	 * check if showing msg.
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean isShowMsg() throws Exception {
+	    return !LicenseUtil.isAlreadyParsed();
+	}
 }

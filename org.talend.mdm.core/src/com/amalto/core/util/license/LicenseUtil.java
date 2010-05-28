@@ -336,11 +336,7 @@ public final class LicenseUtil {
     }
     
     public void checkLicense(boolean reGet) throws Exception {
-        if(reGet) {
-            initLicenseUtil();
-        }
-        
-        if(instance == null) {
+        if(instance == null || reGet) {
             initLicenseUtil();
         }
         
@@ -510,5 +506,40 @@ public final class LicenseUtil {
             throw new Exception("failed to retreive the token, please set token  on manual.");
         }
     }
-
+    
+    /**
+     * check if is license parsed.
+     * @return
+     * @throws Exception 
+     */
+    public static boolean isAlreadyParsed() throws Exception {
+        //two party are most waste time.
+        //1. init license. get data from database.
+        //2. get new token. get token from www.talend.com
+        
+        if(instance != null) {
+            if(instance.getLicenseDate() == null) {
+                return true;
+            }
+            
+            Token token = instance.getToken(false);
+            
+            if(token == null) {
+                return false;
+            }
+            else if(token != null) {
+                if(token.isNearToExpire() || token.isAlreadyExpired()) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+        }
+        else {
+            return false;
+        }
+        
+        return true;
+    }
 }
