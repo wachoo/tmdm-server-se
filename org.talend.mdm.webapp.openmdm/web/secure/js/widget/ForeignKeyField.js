@@ -33,6 +33,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     foreignKeyCombo : "",
     taskForeignKeytore : "",
     showDeleteButton:true,
+    fkFilter : "",
     
     onTrigger1Click : function() {
         this.el.dom.value = '';
@@ -58,8 +59,8 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 			'en':'possible key is found'
 		};
     	var  pos = this.el.getXY();
-	    var dwrpasm = [this.xpathForeignKey, this.xpathForeignKeyInfo];
-	    WidgetInterface.countForeignKey_filter(this.xpathForeignKey, function(count) {
+	    var dwrpasm = [this.xpathForeignKey, this.xpathForeignKeyInfo, this.fkFilter];
+	    WidgetInterface.countForeignKey_filter(this.xpathForeignKey, this.fkFilter, function(count) {
 	    	if(this.taskForeignKeyWindow) {
 	    		this.taskForeignKeyWindow.hide();
 	    		this.taskForeignKeyWindow.destroy();

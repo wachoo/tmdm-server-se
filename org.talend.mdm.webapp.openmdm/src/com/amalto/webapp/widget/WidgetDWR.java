@@ -92,8 +92,8 @@ public class WidgetDWR {
     /**
      * Get the list of foreign key.
      */
-    public String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey) throws RemoteException, Exception{
-		return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, null, true);
+    public String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter) throws RemoteException, Exception{
+		return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, fkFilter, true);
     }
 
 }
