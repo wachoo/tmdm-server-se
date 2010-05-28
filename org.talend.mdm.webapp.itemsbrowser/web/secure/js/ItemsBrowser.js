@@ -847,6 +847,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			 	var itemsSearchValuex = "itemsSearchValue" + id;
 			 	$(itemsSearchValuex).value = "*";
 			    $(itemsSearchValuex).style.display = 'inline';
+			    $('enumSearchValue' + id).style.display = 'none';
 			 	return;
 			 }
 		}else{
