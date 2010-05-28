@@ -4,8 +4,8 @@ package com.amalto.webapp.v3.xtentismdm.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Set;
 
@@ -128,7 +128,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 	
 	protected String getBody(String language, HttpServletRequest request){ 
 		String timestamp = "2007/07/04";
-		HashMap<String,String> map=this.getLanguageMap();
+		LinkedHashMap<String,String> map=this.getLanguageMap();
 		Set<String> set=map.keySet();
 		String html="";
 		for (Iterator iterator = set.iterator(); iterator.hasNext();) {
@@ -180,8 +180,8 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 				"<input type=\"hidden\" id=\"serverPath\" value="+ request.getScheme()+"://"+request.getLocalAddr() +":"+request.getLocalPort() +"/>\n"+
 			"</body>";
 	}
-	private HashMap<String, String> getLanguageMap(){
-		HashMap<String, String> map=new HashMap<String, String>();
+	private LinkedHashMap<String, String> getLanguageMap(){
+		LinkedHashMap<String, String> map=new LinkedHashMap<String, String>();
 		InputStream io=null;
 		try {
 			io= ControllerServlet.class.getResourceAsStream("languageSelection.xml");
