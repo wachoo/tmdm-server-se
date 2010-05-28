@@ -218,7 +218,14 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			
 
 			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;font-size:13px">'+itemData.name+' '+mandatory+' '+descInfo+'</div>';
-			if(itemData.typeName!=null&&(itemData.typeName=="date"||itemData.typeName=="dateTime")){//DATE		
+			if(itemData.typeName!=null&&itemData.typeName=="boolean"){
+				value=String(value=='true');
+				html[html.length] = '<input type="checkbox" id="'+itemData.nodeId+'Value" value="'+value+'" '
+				                    +  (value=='true'?' checked':' ')
+				                    +' onchange="this.value=String(this.checked);amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');"'
+				                    +' />';
+				//FIXME:empty also means false
+			}else if(itemData.typeName!=null&&(itemData.typeName=="date"||itemData.typeName=="dateTime")){//DATE		
 				html[html.length] = input;
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
