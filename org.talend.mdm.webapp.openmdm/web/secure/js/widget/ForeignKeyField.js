@@ -27,7 +27,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     xpathForeignKeyInfo : "",
     trigger1Class : 'x-form-clear-trigger',
     trigger2Class : 'x-form-search-trigger',
-    hideTrigger1:false,
+    hideTrigger : false,
     hasAdd : true,
     taskForeignKeyWindow : "",
     foreignKeyCombo : "",
