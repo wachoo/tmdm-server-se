@@ -948,7 +948,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				}
 				else
 				{
-					fkField.setForeignKey(fks[0], fks[1])
+					fkField.setForeignKey(fks["foreignKey"] + "", fks["foreignKeyInfo"] + "", fks["foreignKeyFilter"] + "");
 				}
 			});
 				
