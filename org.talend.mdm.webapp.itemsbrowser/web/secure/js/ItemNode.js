@@ -151,7 +151,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					' <img src="img/genericUI/add-element.gif"/></span>';
 				
 				ItemsBrowserInterface.getRootNode(fkDataObject, language, function(fkNode) {
-					if(fkNode!=null && fkNode.readOnly != false) {
+					if(fkNode!=null && fkNode.readOnly != false && fkDataObject!=null) {
 						$(fkDataObject).style.display = 'none';
 					}
 				}); 

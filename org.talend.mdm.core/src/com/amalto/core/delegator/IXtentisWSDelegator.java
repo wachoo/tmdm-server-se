@@ -1741,6 +1741,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			}
 		}
 		//end
+		//remove null element
+		projection=projection.replaceAll("<\\w+?/>", "");		
 		ItemPOJOPK itemPOJOPK =  
 			Util.getItemCtrl2Local().putItem(
 					new ItemPOJO(

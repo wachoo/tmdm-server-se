@@ -977,7 +977,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 					}
 				}
 			}
-			
+			//remove null element
+			projection=projection.replaceAll("<\\w+?/>", "");			
 			ItemPOJOPK itemPOJOPK =  
 				com.amalto.core.util.Util.getItemCtrl2Local().putItem(
 						new ItemPOJO(
