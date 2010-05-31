@@ -930,16 +930,17 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var path = $('itemsSearchField' + id).value;
 			ItemsBrowserInterface.getFKvalueInfoFromXSDElem(_dataObject,path, function(fkInfos){
 				fks = fkInfos;
-				if(fkField == null)
-				{
+				
+				if(fkField == null) {
 					fkField = new amalto.widget.ForeignKeyField({
 				    	id:itemsForeignKeyValues,
 				    	name:itemsForeignKeyValues,
 				    	autoHeight : true,
 			            width: 160,
 			            defaultAutoCreate : {tag: "input", type: "text", style :"height:21px;" ,autocomplete: "off"},
-						xpathForeignKey : fks[0],
-						xpathForeignKeyInfo: fks[1],
+						xpathForeignKey : fks["foreignKey"] + "",
+						xpathForeignKeyInfo: fks["foreignKeyInfo"] + "",
+						fkFilter : fks["foreignKeyFilter"] + "",
 						showDeleteButton : false,
 						renderTo : itemsForeignKeyValues
 					 });

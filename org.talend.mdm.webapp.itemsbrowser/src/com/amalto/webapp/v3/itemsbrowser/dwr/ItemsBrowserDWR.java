@@ -94,6 +94,7 @@ import com.sun.xml.xsom.XSFacet;
 import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSRestrictionSimpleType;
 import com.sun.xml.xsom.XSSimpleType;
+import com.sun.xml.xsom.XSTerm;
 import com.sun.xml.xsom.XSType;
 import com.sun.xml.xsom.impl.AnnotationImpl;
 import com.sun.xml.xsom.impl.FacetImpl;
@@ -1847,12 +1848,12 @@ public class ItemsBrowserDWR {
         {
     		ArrayList<String> dataTypesHolder = new ArrayList<String>();
         	String[] pathSlices = viewItem.split("/");
-        	XSElementDecl node = parseMetaDataTypes(el, pathSlices[0], dataTypesHolder, false);
+        	XSElementDecl node = parseMetaDataTypes(el, pathSlices[0], dataTypesHolder);
         	if(pathSlices.length > 1)
         	{
             	for (int i = 1; i < pathSlices.length; i++)
             	{
-            		node = parseMetaDataTypes(node, pathSlices[i], dataTypesHolder, false);
+            		node = parseMetaDataTypes(node, pathSlices[i], dataTypesHolder);
             	}
         	}
         	metaDataTypes.put(viewItem, dataTypesHolder);
@@ -1861,36 +1862,102 @@ public class ItemsBrowserDWR {
 		return metaDataTypes;
 	}
 	
-	public ArrayList<String> getFKvalueInfoFromXSDElem(String concept, String path)
-	{
-		ArrayList<String> fkInfos = new ArrayList<String>();
+	public Map<String, List<String>> getFKvalueInfoFromXSDElem(String concept, String path) {
+		Map<String, List<String>> fkHandler = new HashMap<String, List<String>>();
+		
 		try {
 			Configuration config = Configuration.getInstance();
 			String dataModelPK = config.getModel();
 			Map<String,XSElementDecl> map = CommonDWR.getConceptMap(dataModelPK);
 			XSElementDecl decl = map.get(concept);
 			String[] pathSlices = path.split("/");
-			XSElementDecl node = parseMetaDataTypes(decl, pathSlices[0], fkInfos, false);
-			if(pathSlices.length > 1)
-			{
-            	for (int i = 1; i < pathSlices.length; i++)
-            	{
-            		node = parseMetaDataTypes(node, pathSlices[i], fkInfos, false);
+			
+			if(pathSlices.length > 1) {
+            	for (int i = 1; i < pathSlices.length; i++) {
+            	    fkHandler = getForeignKeyInfoForXSDElem1(decl, pathSlices[i]);
             	}
 			}
-		} catch (Exception e) {
+		} 
+		catch(Exception e) {
 			e.printStackTrace();
-			return fkInfos;
+			return fkHandler;
 		}
-		if(fkInfos.size() > 1)
-		{
-			Collection subCollcn = fkInfos.subList(1, fkInfos.size());
-			fkInfos = new ArrayList<String>(subCollcn);
-		}
-		return fkInfos;
+		
+		return fkHandler;
 	}
 	
-	private XSElementDecl parseMetaDataTypes(XSElementDecl elem, String pathSlice, ArrayList<String> valuesHolder, boolean forFkValue)
+	/**
+	 * get foreignKey, foreignKeyInfo, foreignKeyFilter from specify node by path.
+	 * @param elemDecl
+	 * @param path
+	 * @return
+	 */
+	private Map<String, List<String>> getForeignKeyInfoForXSDElem1(XSElementDecl elemDecl, String path) {
+        Map<String, List<String>> foreignKeyContents = new HashMap<String, List<String>>();
+        XSType type = elemDecl.getType();
+        
+        if(type instanceof XSComplexType) {
+            XSComplexType cmpxType = (XSComplexType)type;
+            XSContentType conType = cmpxType.getContentType();
+            XSParticle[] children = conType.asParticle().getTerm().asModelGroup().getChildren();
+            
+            for(XSParticle child : children) {
+                XSTerm term = child.getTerm();
+                
+                if(term instanceof XSElementDecl && ((XSElementDecl)term).getName().equals(path)) {
+                    XSElementDecl childElem = (XSElementDecl)child.getTerm();
+                    
+                    if(childElem.getAnnotation() instanceof AnnotationImpl) {
+                        AnnotationImpl antnImp = (AnnotationImpl) childElem.getAnnotation();
+                        ElementNSImpl ensImpl = (ElementNSImpl)antnImp.getAnnotation();
+                        NodeList list = ensImpl.getChildNodes();
+                        List<String> fkInfoHandler = new ArrayList<String>();
+                        List<String> fkHandler = new ArrayList<String>();
+                        List<String> fkFilterHandler = new ArrayList<String>();
+                        
+                        for(int i = 0; i < list.getLength(); i++) {
+                            Node node = list.item(i);
+                            
+                            if(node instanceof TextImpl) {
+                                TextImpl txtImpl = (TextImpl)node;
+                                
+                                if (txtImpl.getNextSibling() instanceof ElementNSImpl) {
+                                    ElementNSImpl ens = (ElementNSImpl)txtImpl.getNextSibling();
+                                    
+                                    if(ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKey")) {
+                                        String value = ens.getTextContent();
+                                        Pattern ptn = Pattern.compile("(.*?)\\[(.*?)\\]");
+                                        Matcher match = ptn.matcher(value);
+                                        
+                                        if(match.matches()) {
+                                            value = match.group(1);
+                                        }
+                                        
+                                        fkHandler.add(value);
+                                    }
+                                    else if(ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKeyInfo")) {
+                                        //@temp multiply fkinfo
+                                        fkInfoHandler.add(ens.getFirstChild().getNodeValue());
+                                    }
+                                    else if(ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKey_Filter")) {
+                                        fkFilterHandler.add(ens.getFirstChild().getNodeValue());
+                                    }
+                                }
+                            }
+                        }
+                        
+                        foreignKeyContents.put("foreignKey", fkHandler);
+                        foreignKeyContents.put("foreignKeyInfo", fkInfoHandler);
+                        foreignKeyContents.put("foreignKeyFilter", fkFilterHandler);
+                    }
+                }
+            }
+        }
+        
+        return foreignKeyContents;
+    }
+	
+	private XSElementDecl parseMetaDataTypes(XSElementDecl elem, String pathSlice, ArrayList<String> valuesHolder)
 	{
 		valuesHolder.clear();
 		XSContentType conType;
@@ -1921,13 +1988,11 @@ public class ItemsBrowserDWR {
 					XSElementDecl childElem = (XSElementDecl)child.getTerm();
 					if(childElem.getName().equals(pathSlice))
 					{
-						ArrayList<String> fkContents = getForeignKeyInfoForXSDElem(childElem, forFkValue);
+						ArrayList<String> fkContents = getForeignKeyInfoForXSDElem(childElem);
 						if(fkContents.size() > 0)
 						{
-							if(!forFkValue)
-							{
-								valuesHolder.add("foreign key");	
-							}
+
+							valuesHolder.add("foreign key");	
 							valuesHolder.addAll(fkContents);
 							return childElem;
 						}
@@ -1986,7 +2051,7 @@ public class ItemsBrowserDWR {
 		
 	}
 	
-	private ArrayList<String> getForeignKeyInfoForXSDElem(XSElementDecl elemDecl, boolean forFkValue)
+	private ArrayList<String> getForeignKeyInfoForXSDElem(XSElementDecl elemDecl)
 	{
 		ArrayList<String> foreignKeyContents = new ArrayList<String>();
 		if(elemDecl.getAnnotation() instanceof AnnotationImpl)
@@ -2006,34 +2071,13 @@ public class ItemsBrowserDWR {
 						ElementNSImpl ens = (ElementNSImpl)txtImpl.getNextSibling();
 						if(ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKey"))
 						{
-							if(forFkValue)
-							{
-								foreignKeyContents.add("foreign key");
-								String foreignKeyPath = ens.getFirstChild().getNodeValue();
-								try {
-									String jasonData = getForeignKeyListWithCount(0, 100, ".*",  foreignKeyPath, "",null);
-									JSONObject jason = new JSONObject(jasonData);
-									JSONArray rows = (JSONArray)jason.get("rows");
-									for(int n = 0; n < rows.length(); n++)
-									{
-										JSONObject row = (JSONObject)rows.get(n);
-										foreignKeyContents.add(row.get("keys")+"");
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-								return foreignKeyContents; 
+							String value = ens.getTextContent();
+							Pattern ptn = Pattern.compile("(.*?)\\[(.*?)\\]");
+							Matcher match = ptn.matcher(value);
+							if (match.matches()) {
+								value = match.group(1);
 							}
-							else
-							{
-								String value = ens.getTextContent();
-								Pattern ptn = Pattern.compile("(.*?)\\[(.*?)\\]");
-								Matcher match = ptn.matcher(value);
-								if (match.matches()) {
-									value = match.group(1);
-								}
-								foreignKeyContents.add(0, value);
-							}
+							foreignKeyContents.add(0, value);
 						}
 						else if(ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKeyInfo"))
 						{
@@ -2054,10 +2098,9 @@ public class ItemsBrowserDWR {
 						}
 					}
 				}
-			}
-			
+			}			
 		}
-		if(foreignKeyContents.size() == 1 && !forFkValue)
+		if(foreignKeyContents.size() == 1)
 		{
 			foreignKeyContents.add(1, "");
 		}
