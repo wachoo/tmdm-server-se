@@ -410,7 +410,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 		//grid.render();
 		amalto.core.doLayout();
 		grid.setHeight(gridContainerPanel.getInnerHeight());
-
+		store.setDefaultSort(view.viewablesXpath[0],"ASC");
 		store.load({params:{start:0, limit:pageSize}});
 
 	
