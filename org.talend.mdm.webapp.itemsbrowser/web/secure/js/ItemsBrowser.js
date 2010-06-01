@@ -1714,6 +1714,23 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		itemNodes = [];
 		treeCount++;	
 		var treeIndex = treeCount;
+		var tabPanel = amalto.core.getTabPanel();
+		var contentPanel=tabPanel.getItem('itemDetailsdiv'+treeIndex);
+		//see  	 0013478 prevent 2 tabs from being opened on the same record. 
+		var itemContentPanel;
+		tabPanel.items.each(function(item){
+			if(item.itemid==itemPK2+"."+dataObject){
+				itemContentPanel=item;
+				return;
+			}
+		});
+		if(itemContentPanel && isDuplicate==false) {
+			if(itemContentPanel.itemid==itemPK2+"."+dataObject){
+				itemContentPanel.show();
+				return;
+			}
+		};
+		//end
 		
 		var ids = "";
 		
@@ -1743,8 +1760,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		if(dataObject==null) dataObject=_dataObject;
 		ItemsBrowserInterface.getRootNode(dataObject, language, function(rootNode){
 			
-			var tabPanel = amalto.core.getTabPanel();
-			var contentPanel=tabPanel.getItem('itemDetailsdiv'+treeIndex);
 			if(contentPanel == undefined){
 					
 				var smartView = '';
@@ -2043,6 +2058,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			});
 			}
 			tabPanel.add(contentPanel); 
+
+			//record the item id
+			contentPanel.itemid=itemPK2+"."+dataObject;
+			
 			contentPanel.show();
 			contentPanel.doLayout();
 		    amalto.core.doLayout();	    
