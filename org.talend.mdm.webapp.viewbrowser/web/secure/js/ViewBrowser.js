@@ -85,7 +85,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 	var criteriaCount=1;
 	var SEARCHABLES = new Array();
 	var CRITERIAS = new Array();
-	
+    
 	var gridContainerPanel;
 	
 	var pageSize = 20;
@@ -410,9 +410,9 @@ amalto.viewbrowser.ViewBrowser = function () {
 		//grid.render();
 		amalto.core.doLayout();
 		grid.setHeight(gridContainerPanel.getInnerHeight());
-		
+		store.setDefaultSort(view.viewablesXpath[0],"ASC");
 		store.load({params:{start:0, limit:pageSize}});
-		
+
 	
 	  amalto.core.ready(''); 
 	}   
