@@ -2257,8 +2257,16 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		for(var t=0;t<values.length;t++){
 			var value = values[t];
 			var idValue = value.split("--");
-			if(idValue!=null && $(idValue[0]+"Value")!=null)
+			if(idValue!=null&&$(idValue[0]+"Value")!=null){
 				$(idValue[0]+"Value").value = idValue[1];
+				//reset URL & PICTURE type fields
+				if($(idValue[0]+'showPicture') && idValue[1].length>0)$(idValue[0]+'showPicture').src=idValue[1];
+				if($("showUrl" + idValue[0])){
+					var urlvalues=idValue[1].split('@@');
+					if(urlvalues && urlvalues.length==2)
+					DWRUtil.setValue("showUrl" + idValue[0], "<a target='_blank' href='"+ urlvalues[1]+ "'>"+urlvalues[0]+"</a>");
+				}				
+			}
 		}		
 	}
 	
@@ -2405,8 +2413,16 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		for(var t=0;t<values.length;t++){
 			var value = values[t];
 			var idValue = value.split("--");
-			if(idValue!=null&&$(idValue[0]+"Value")!=null)
+			if(idValue!=null&&$(idValue[0]+"Value")!=null){
 				$(idValue[0]+"Value").value = idValue[1];
+				//reset URL & PICTURE type fields
+				if($(idValue[0]+'showPicture') && idValue[1].length>0)$(idValue[0]+'showPicture').src=idValue[1];
+				if($("showUrl" + idValue[0])){
+					var urlvalues=idValue[1].split('@@');
+					if(urlvalues && urlvalues.length==2)
+					DWRUtil.setValue("showUrl" + idValue[0], "<a target='_blank' href='"+ urlvalues[1]+ "'>"+urlvalues[0]+"</a>");
+				}				
+			}
 		}
 		amalto.core.ready();
 	}
