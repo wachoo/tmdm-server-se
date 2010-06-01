@@ -34,6 +34,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     taskForeignKeytore : "",
     showDeleteButton:true,
     fkFilter : "",
+    retrieveFKinfos : false,
     
     onTrigger1Click : function() {
         this.el.dom.value = '';
@@ -60,6 +61,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		};
     	var  pos = this.el.getXY();
 	    var dwrpasm = [this.xpathForeignKey, this.xpathForeignKeyInfo, this.fkFilter];
+	    var retrieve = "true" == this.retrieveFKinfos + "";
 	    WidgetInterface.countForeignKey_filter(this.xpathForeignKey, this.fkFilter, function(count) {
 	    	if(this.taskForeignKeyWindow) {
 	    		this.taskForeignKeyWindow.hide();
@@ -109,7 +111,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		    this.foreignKeyCombo.on('select', function(combo, record, index) {
 		    	this.taskForeignKeyWindow.hide();
 		    	this.taskForeignKeyWindow.destroy();
-		    	var value = record.get("keys");
+		    	var value = retrieve ? record.get("infos") : record.get("keys");
 		    	this.setValue(value);
 		    }.createDelegate(this));
 		    
@@ -190,9 +192,10 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     	 }
     },
     
-    setForeignKey : function(fk, fkinfo){
+    setForeignKey : function(fk, fkinfo, fkFilter){
     	this.xpathForeignKey = fk;
     	this.xpathForeignKeyInfo = fkinfo;
+    	this.fkFilter = fkFilter;
     },
     
 	setValue : function(value) {

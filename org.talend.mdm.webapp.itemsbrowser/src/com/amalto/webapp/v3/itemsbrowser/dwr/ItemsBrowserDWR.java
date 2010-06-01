@@ -1914,6 +1914,7 @@ public class ItemsBrowserDWR {
                         List<String> fkInfoHandler = new ArrayList<String>();
                         List<String> fkHandler = new ArrayList<String>();
                         List<String> fkFilterHandler = new ArrayList<String>();
+                        List<String> fkRetrieveHandler = new ArrayList<String>();
                         
                         for(int i = 0; i < list.getLength(); i++) {
                             Node node = list.item(i);
@@ -1942,6 +1943,9 @@ public class ItemsBrowserDWR {
                                     else if(ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKey_Filter")) {
                                         fkFilterHandler.add(ens.getFirstChild().getNodeValue());
                                     }
+                                    else if(ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_Retrieve_FKinfos")) {
+                                        fkRetrieveHandler.add(ens.getFirstChild().getNodeValue());
+                                    }
                                 }
                             }
                         }
@@ -1949,6 +1953,7 @@ public class ItemsBrowserDWR {
                         foreignKeyContents.put("foreignKey", fkHandler);
                         foreignKeyContents.put("foreignKeyInfo", fkInfoHandler);
                         foreignKeyContents.put("foreignKeyFilter", fkFilterHandler);
+                        foreignKeyContents.put("foreignKeyRetrieve", fkRetrieveHandler);
                     }
                 }
             }

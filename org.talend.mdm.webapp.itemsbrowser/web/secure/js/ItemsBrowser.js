@@ -941,6 +941,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						xpathForeignKey : fks["foreignKey"] + "",
 						xpathForeignKeyInfo: fks["foreignKeyInfo"] + "",
 						fkFilter : fks["foreignKeyFilter"] + "",
+						retrieveFKinfos : fks["foreignKeyRetrieve"] + "",
 						showDeleteButton : false,
 						renderTo : itemsForeignKeyValues
 					 });
