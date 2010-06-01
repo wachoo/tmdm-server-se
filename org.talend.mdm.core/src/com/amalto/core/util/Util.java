@@ -24,10 +24,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -2489,7 +2489,7 @@ public  class Util {
 			NodeList listold=getNodeList(oldElement, xpath);
 			int num=Math.max(listnew.getLength(), listold.getLength());
 			if(xpath.startsWith("/"+concept+"/")) {
-				xpath=xpath.replaceFirst("/"+concept, "");
+				xpath=xpath.replaceFirst("/"+concept+"/", "");
 			}
 			if(num>1){//list
 				for(int i=1; i<=num; i++){
@@ -2514,7 +2514,7 @@ public  class Util {
 	}
 	
 	private static Set<String > getXpaths(String parentPath,Node node)throws Exception{
-		Set<String> set=new HashSet<String>();
+		Set<String> set=new LinkedHashSet<String>();
 		NodeList list=node.getChildNodes();
 		for(int i=0; i<list.getLength(); i++){
 			Node n=list.item(i);
@@ -2552,11 +2552,16 @@ public  class Util {
 		public boolean createObject(JXPathContext context, Pointer pointer, Object parent, String name, int index)
 		 {
 			 if (parent instanceof Node){
-					 try{
-					 Node node = (Node) parent;
+				 try{
+					 Node node = (Node) parent;					 
 					 Document doc1 = node.getOwnerDocument();
 					 Element e = doc1.createElement(name);
-					 node.appendChild(e);
+					 if(index>0){ //list 
+						 Node preNode= getElementChild(node, index+1);
+						 node.insertBefore(e, preNode);
+					 }else{
+						 node.appendChild(e);
+					 }
 					 return true;}
 					 catch(Exception e){
 					 return false;
@@ -2586,7 +2591,7 @@ public  class Util {
 		for( Map.Entry<String, UpdateReportItem> entry:updatedpath.entrySet()){
 			String xpath= entry.getValue().getPath();
 			if(xpath.startsWith("/"+concept+"/")) {
-				xpath=xpath.replaceFirst("/"+concept, "");
+				xpath=xpath.replaceFirst("/"+concept+"/", "");
 			}			
 			jxpContext.createPathAndSetValue(xpath, entry.getValue().newValue);
 		}		
@@ -2609,6 +2614,17 @@ public  class Util {
 		}
 		return false;
 	}
+	private static Node getElementChild(Node parent, int index){
+		NodeList list =parent.getChildNodes();
+		int j=0;
+		for(int i=0; i<list.getLength(); i++){
+			if(list.item(i).getNodeType() == Node.ELEMENT_NODE){
+				if(j== index) return list.item(i);
+				j++;
+			}
+		}
+		return null;
+	}	
 	private static int getElementNum(NodeList list){
 		int j=0;
 		for(int i=0; i<list.getLength(); i++){

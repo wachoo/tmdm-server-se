@@ -776,13 +776,15 @@ public class ItemPOJO implements Serializable{
     	
         try {        	
         	String xml = serialize();
+    		//remove null element
+        	xml=xml.replaceAll("<\\w+?/>", "");
     		org.apache.log4j.Logger.getLogger(this.getClass()).trace("store() "+getItemPOJOPK().getUniqueID()+"\n"+xml);
     		//check cluster exist or not
-    		if(!XSystemObjects.isExist(XObjectType.DATA_CLUSTER, getDataClusterPOJOPK().getUniqueId())) {
-	    		if(!server.existCluster(revisionID, getDataClusterPOJOPK().getUniqueId())){
-	    			throw new XtentisException("DataCluster R-"+revisionID+"/"+getDataClusterPOJOPK().getUniqueId() +" don't exists!");
-	    		}
-    		}
+//    		if(!XSystemObjects.isExist(XObjectType.DATA_CLUSTER, getDataClusterPOJOPK().getUniqueId())) {
+//	    		if(!server.existCluster(revisionID, getDataClusterPOJOPK().getUniqueId())){
+//	    			throw new XtentisException("DataCluster R-"+revisionID+"/"+getDataClusterPOJOPK().getUniqueId() +" don't exists!");
+//	    		}
+//    		}
             //store
             if ( -1 == server.putDocumentFromString(
             		xml, 

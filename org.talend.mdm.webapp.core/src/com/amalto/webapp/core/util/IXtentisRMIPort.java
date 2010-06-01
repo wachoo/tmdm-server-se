@@ -915,7 +915,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 	public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
 		try {
 			String projection = wsPutItem.getXmlString();
-			Element root = Util.parse(projection).getDocumentElement();
+			Element root = Util.parse(projection,null).getDocumentElement();
 		
 			String concept = root.getLocalName();
 
@@ -957,10 +957,10 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 							Node newNode=root;					
 							HashMap<String, UpdateReportItem> updatedPath=Util.compareElement("/"+old.getLocalName(), newNode, old);
 							if(updatedPath.size()>0){
-								if("sequence".equals(Util.getConceptModelType(concept, dataModel.getSchema()))) { //if the concept is sequence
-									//update the  Node according to schema to keep the sequence as the same with the schema
-									old=Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
-								}
+//								if("sequence".equals(Util.getConceptModelType(concept, dataModel.getSchema()))) { //if the concept is sequence
+//									//update the  Node according to schema to keep the sequence as the same with the schema
+//									old=Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
+//								}
 		   						old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
 		   						projection=Util.getXMLStringFromNode(old);
 							}else {//if no update, return see 0012116
@@ -977,8 +977,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 					}
 				}
 			}
-			//remove null element
-			projection=projection.replaceAll("<\\w+?/>", "");			
+		
 			ItemPOJOPK itemPOJOPK =  
 				com.amalto.core.util.Util.getItemCtrl2Local().putItem(
 						new ItemPOJO(
