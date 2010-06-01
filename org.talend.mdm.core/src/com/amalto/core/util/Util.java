@@ -2557,8 +2557,11 @@ public  class Util {
 					 Document doc1 = node.getOwnerDocument();
 					 Element e = doc1.createElement(name);
 					 if(index>0){ //list 
-						 Node preNode= getElementChild(node, index+1);
-						 node.insertBefore(e, preNode);
+						 Pointer p=context.getRelativeContext(pointer).getPointer(name+"["+(index+1)+"]");//getElementChild(node, index+1);
+						 if(p!=null){
+							 Node preNode=(Node)p.getNode();
+							 node.insertBefore(e, preNode);
+						 }		
 					 }else{
 						 node.appendChild(e);
 					 }
