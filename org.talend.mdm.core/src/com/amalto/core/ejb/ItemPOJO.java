@@ -774,8 +774,11 @@ public class ItemPOJO implements Serializable{
     	
     	XmlServerSLWrapperLocal server=Util.getXmlServerCtrlLocal();
     	
-        try {        	
-        	String xml = serialize();
+        try {        
+        	//remove null element
+        	Util.setNullNode(projection);
+        	projectionString=Util.nodeToString(projection);
+        	String xml = serialize();        	
     		//remove null element
         	xml=xml.replaceAll("<\\w+?/>", "");
     		org.apache.log4j.Logger.getLogger(this.getClass()).trace("store() "+getItemPOJOPK().getUniqueID()+"\n"+xml);

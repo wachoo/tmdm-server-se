@@ -310,7 +310,7 @@ public  class Util {
  * remove the null element to match the shema
  * @param element
  */
-	private static boolean setNullNode(Node element) {
+	public static boolean setNullNode(Node element) {
 			//String xml = Util.nodeToString(element);
 			boolean removed = false;
 			NodeList nodelist = element.getChildNodes();
@@ -2494,6 +2494,10 @@ public  class Util {
 			if(num>1){//list
 				for(int i=1; i<=num; i++){
 					String xpath1=xpath+"["+i+"]";
+					if(i>1){
+						String fixPath=getFixedListXpath(xpath,newElement,oldElement,i);
+						if(fixPath!=null)xpath1=fixPath; 
+					}
 					String oldvalue=(String)jxpContextOld.getValue(xpath1,String.class);
 					String newvalue=(String)jxpContextNew.getValue(xpath1,String.class);
 					if(newvalue!=null && newvalue.length()>0 && !newvalue.equals(oldvalue)|| oldvalue!=null && oldvalue.length()>0 && !oldvalue.equals(newvalue)){
@@ -2512,7 +2516,32 @@ public  class Util {
 		}
 		return map;
 	}
-	
+	/**
+	 * this method only used in a list like a/b/c/d/e, e.g index=2, the right xpath should be a[2]/b[2]/c[2]/d[2]/e
+	 * @param xpath
+	 * @param jxpContextOld
+	 * @param jxpContextNew
+	 * @param index
+	 * @return
+	 */
+	private static String getFixedListXpath(String xpath, Node newElement, Node oldElement,int index)throws Exception{
+		int pos=xpath.lastIndexOf('/');
+		String parentPath=xpath.substring(0,pos);
+		String lastPath=xpath.substring(pos+1);
+		NodeList listnew=getNodeList(newElement, parentPath);
+		NodeList listold=getNodeList(oldElement, parentPath);
+		int num=Math.max(listnew.getLength(), listold.getLength());
+		if(num>1){//list
+			String[] paths=parentPath.split("/");
+			StringBuffer sb=new StringBuffer();
+			for(String str:paths){
+				sb.append(str+"["+index+"]"+"/");
+			}
+			sb.append(lastPath);
+			return sb.toString();
+		}
+		return null;
+	}	
 	private static Set<String > getXpaths(String parentPath,Node node)throws Exception{
 		Set<String> set=new LinkedHashSet<String>();
 		NodeList list=node.getChildNodes();
@@ -2555,13 +2584,19 @@ public  class Util {
 				 try{
 					 Node node = (Node) parent;					 
 					 Document doc1 = node.getOwnerDocument();
-					 Element e = doc1.createElement(name);
-					 if(index>0){ //list 
-						 Pointer p=context.getRelativeContext(pointer).getPointer(name+"["+(index+1)+"]");//getElementChild(node, index+1);
-						 if(p!=null){
-							 Node preNode=(Node)p.getNode();
-							 node.insertBefore(e, preNode);
-						 }		
+					 Element e = doc1.createElement(name);					 
+					 if(index>0 ){ //list 
+						 Pointer p=context.getRelativeContext(pointer).getPointer(name+"["+(index)+"]");
+						 Node curNode=(Node)p.getNode();
+						 if(curNode!=null){
+							 if(curNode.getNextSibling()!=null){								 
+								 node.insertBefore(e, curNode.getNextSibling());
+							 }else{								
+								 node.appendChild(e);
+							 }
+						 }else{
+							 node.appendChild(e);
+						 }		 
 					 }else{
 						 node.appendChild(e);
 					 }
