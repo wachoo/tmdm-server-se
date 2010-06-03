@@ -2525,20 +2525,23 @@ public  class Util {
 	 * @return
 	 */
 	private static String getFixedListXpath(String xpath, Node newElement, Node oldElement,int index)throws Exception{
+		if(xpath.endsWith("/"))xpath=xpath.substring(0,xpath.length()-1);
 		int pos=xpath.lastIndexOf('/');
-		String parentPath=xpath.substring(0,pos);
-		String lastPath=xpath.substring(pos+1);
-		NodeList listnew=getNodeList(newElement, parentPath);
-		NodeList listold=getNodeList(oldElement, parentPath);
-		int num=Math.max(listnew.getLength(), listold.getLength());
-		if(num>1){//list
-			String[] paths=parentPath.split("/");
-			StringBuffer sb=new StringBuffer();
-			for(String str:paths){
-				sb.append(str+"["+index+"]"+"/");
+		if(pos>0){
+			String parentPath=xpath.substring(0,pos);
+			String lastPath=xpath.substring(pos+1);
+			NodeList listnew=getNodeList(newElement, parentPath);
+			NodeList listold=getNodeList(oldElement, parentPath);
+			int num=Math.max(listnew.getLength(), listold.getLength());
+			if(num>1){//list
+				String[] paths=parentPath.split("/");
+				StringBuffer sb=new StringBuffer();
+				for(String str:paths){
+					sb.append(str+"["+index+"]"+"/");
+				}
+				sb.append(lastPath);
+				return sb.toString();
 			}
-			sb.append(lastPath);
-			return sb.toString();
 		}
 		return null;
 	}	
