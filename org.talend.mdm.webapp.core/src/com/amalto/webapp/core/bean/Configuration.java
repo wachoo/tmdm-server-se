@@ -86,6 +86,8 @@ public class Configuration {
 		Document d = Util.parse(xml);
 		NodeList nodeList = Util.getNodeList(d,"//property");
 		if(nodeList.getLength()==0){
+			if(Util.getNodeList(d,"//properties").item(0)==null)
+				d.getDocumentElement().appendChild( d.createElement("properties"));			
 			Node node = Util.getNodeList(d,"//properties").item(0).appendChild(d.createElement("property"));
 			node.appendChild(d.createElement("name")).appendChild(d.createTextNode("cluster"));;
 			node.appendChild(d.createElement("value")).appendChild(d.createTextNode(cluster));;
