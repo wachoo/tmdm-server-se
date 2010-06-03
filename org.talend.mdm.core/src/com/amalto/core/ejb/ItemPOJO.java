@@ -776,8 +776,10 @@ public class ItemPOJO implements Serializable{
     	
         try {        
         	//remove null element
-        	Util.setNullNode(projection);
-        	projectionString=Util.nodeToString(projection);
+        	if(projection!=null) {
+	        	Util.setNullNode(projection);
+	        	projectionString=Util.nodeToString(projection);
+        	}
         	String xml = serialize();        	
     		//remove null element
         	xml=xml.replaceAll("<\\w+?/>", "");
