@@ -255,12 +255,12 @@ public  class Util {
 
     
     
-    static LRUCache<String, Document> xmlCache=new LRUCache<String, Document>(4000);
+    //static LRUCache<String, Document> xmlCache=new LRUCache<String, Document>(4000);
     public static Document parse(String xmlString) throws ParserConfigurationException,IOException, SAXException{
-    	Document doc=xmlCache.get(xmlString);
-    	if(doc!=null) return doc;
-    	doc=parse(xmlString,null);
-    	xmlCache.put(xmlString, doc);
+    	//Document doc=xmlCache.get(xmlString);
+    	//if(doc!=null) return doc;
+    	Document doc=parse(xmlString,null);
+    	//xmlCache.put(xmlString, doc);
     	return doc;
     }
     	
