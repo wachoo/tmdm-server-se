@@ -34,7 +34,7 @@ public final class UserHelper {
     private static UserHelper instance;
     static List<User> users;
     
-    public static UserHelper getInstance() {
+    public static synchronized UserHelper getInstance() {
         if (instance == null) {
             instance = new UserHelper();
         }

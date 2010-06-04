@@ -258,10 +258,13 @@ public final class LicenseUtil {
     }
 
     public void isLicenseNumberUserValid() throws Exception {
-      //@temp check three field of license 
-        final int activeAdminUsers = UserHelper.getInstance().getNBAdminUsers();
-        final int activeNormalUsers = UserHelper.getInstance().getNormalUsers();
-        final int activeViewerUsers = UserHelper.getInstance().getViewerUsers();
+        //check three field of license
+        UserHelper instance = UserHelper.getInstance();
+        instance.checkUsers();
+        
+        final int activeAdminUsers = instance.getNBAdminUsers();
+        final int activeNormalUsers = instance.getNormalUsers();
+        final int activeViewerUsers = instance.getViewerUsers();
         final int nbAdminUsers = getAdminUsers();
         final int nbNormalUsers = getInteractiveUsers();
         final int nbViewers = getViewers();
