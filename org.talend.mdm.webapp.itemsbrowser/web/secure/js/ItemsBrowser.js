@@ -2113,21 +2113,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 
 		ItemsBrowserInterface.updateNode(id,value,treeIndex,function(result){
 			amalto.core.ready(result);
+			if(allUpdate == false)
+			{			
+				ItemsBrowserInterface.validateItem(treeIndex, {
+					
+					callback:function(result){ 
+						if(result!=""){
+							showExceptionMsg(result, null, treeIndex);
+						}
+				    }
+				});
+			}			
 		});
-
-		if(allUpdate == false)
-		{			
-			ItemsBrowserInterface.validateItem(treeIndex, {
-				
-				callback:function(result){ 
-					if(result!=""){
-						showExceptionMsg(result, null, treeIndex);
-					}
-			    }
-			});
-		}
 		
-
 		amalto.core.ready();
 		
 		//set isdirty=true
