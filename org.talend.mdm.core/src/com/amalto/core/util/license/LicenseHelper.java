@@ -63,6 +63,12 @@ public class LicenseHelper {
      */
     public boolean saveOrUpdate(LicensePOJO license) {
         try {
+            LicensePOJO licensePOJO = getLicense();
+            
+            if(licensePOJO != null && licensePOJO.getLicense() != null){
+                licensePOJO.remove(LicensePOJO.class, new LicensePOJOPK(licensePOJO.getLicense()));
+            }
+            
             license.store();
             return true;
         } catch (Exception e) {
