@@ -35,6 +35,7 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     showDeleteButton:true,
     fkFilter : "",
     retrieveFKinfos : false,
+    value : "",
     
     onTrigger1Click : function() {
         this.el.dom.value = '';
@@ -111,8 +112,10 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		    this.foreignKeyCombo.on('select', function(combo, record, index) {
 		    	this.taskForeignKeyWindow.hide();
 		    	this.taskForeignKeyWindow.destroy();
-		    	var value = retrieve ? record.get("infos") : record.get("keys");
+		    	var value = record.get("keys");
+		    	var text = "true" == retrieve + "" ? record.get("infos") : value; 
 		    	this.setValue(value);
+		    	this.setText(text);
 		    }.createDelegate(this));
 		    
 		    
@@ -198,8 +201,17 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     	this.fkFilter = fkFilter;
     },
     
-	setValue : function(value) {
-		this.el.dom.value = value;
+    setValue : function(value) {
+		this.value = value;
+	},
+    
+	setText : function(text) {
+		this.el.dom.value = text;
+	},
+	
+	getValue : function() {
+		return this.value;
 	}
+    
 });
 Ext.reg('foreignfeyfield', amalto.widget.ForeignKeyField);
