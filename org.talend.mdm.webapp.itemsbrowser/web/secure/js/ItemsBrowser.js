@@ -1194,7 +1194,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 
 		var store = new Ext.data.Store({
 			    proxy: new Ext.data.HttpProxy({
-		        	url: '/itemsbrowser/secure/ItemsRemotePaging'
+		        	url: '/itemsbrowser/secure/ItemsRemotePaging',
+		        	timeout : 60000
 		        }),
 		        //sortInfo:{field: _viewItems2.keys[sortIndex], direction: sortUporDown},
 		        baseParams:{viewName: viewName,criteria:criteria},
