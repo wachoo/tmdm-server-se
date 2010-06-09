@@ -1205,13 +1205,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 		store.on("loadexception",function(obj, options, response, e) {
 	        //alert('Exception occurred while loading item list! ');
-			if(response.responseText.indexOf("Data Container can't be empty!") >-1)
-				Ext.MessageBox.alert("Warning", response.responseText);
-			else if (response.responseText != null)
-				Ext.MessageBox.alert("Error", response.responseText);	
-			else
+			if(response != undefined && response.responseText != undefined) {
+				if(response.responseText.indexOf("Data Container can't be empty!") >-1)
+					Ext.MessageBox.alert("Warning", response.responseText);
+				else if(response.responseText != null)
+					Ext.MessageBox.alert("Error", response.responseText);	
+			}
+			else {
 				Ext.MessageBox.alert("Error",'Exception occurred while loading item list! ');
-
+			}
 	    });
 		    
 		var grid = new Ext.grid.GridPanel({
