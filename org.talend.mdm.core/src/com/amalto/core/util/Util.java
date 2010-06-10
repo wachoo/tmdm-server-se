@@ -1475,7 +1475,11 @@ public  class Util {
 				}				
 			}
 			if(EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)){
-				value=UUID.randomUUID().toString();					
+				Object o = jxpContext.getValue(xpath);
+				if(o == null || o.toString().trim().length()==0)
+				   value=UUID.randomUUID().toString();
+				else
+					value = o.toString();
 			}						
 			jxpContext.createPathAndSetValue(xpath, value);
 						
