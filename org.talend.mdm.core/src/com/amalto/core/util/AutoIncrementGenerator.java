@@ -61,6 +61,29 @@ public class AutoIncrementGenerator {
 		saveToDB();
 		return num;
 	}
+	/**
+	 * set the number-- in case save unsuccessfully
+	 * @author ymli fix the bug:0013718
+	 * @param universe
+	 * @param dataCluster
+	 * @param conceptName
+	 * @return
+	 */
+	public synchronized static long resetNum(String universe,String dataCluster,String conceptName){
+		String key=universe+"."+dataCluster+"."+conceptName;
+		long num=0;		
+		String n=CONFIGURATION.getProperty(key);
+		if(n==null){
+			num=0;				
+		}else{
+			num=Long.valueOf(n).longValue();
+		}
+		num--;
+			
+		CONFIGURATION.setProperty(key, String.valueOf(num));
+		saveToDB();
+		return num;
+	}
 	
 	
 	public static  void saveToDB() {

@@ -284,12 +284,13 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
 	public ItemPOJOPK putItem(ItemPOJO item, String schema, String dataModelName)
 			throws XtentisException {
     	org.apache.log4j.Logger.getLogger(this.getClass()).trace("putItem() "+item.getItemPOJOPK().getUniqueID());
-    	
+    	String concept=item.getConceptName();
+    	String dataCluster=item.getDataClusterPOJOPK().getIds()[0];
         try {
         	if (schema!=null) {            	
-    	    	String concept=item.getConceptName();
+    	    	
     	    	if(Util.getUUIDNodes(schema, concept).size()>0){ //check uuid key exists
-    		    	String dataCluster=item.getDataClusterPOJOPK().getIds()[0];
+    		    	
     		    	Document schema1=Util.parse(schema);
     				Node n=Util.processUUID(item.getProjection(), schema, dataCluster, concept);
     				XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
@@ -344,6 +345,14 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
     	    		err = prefix + "At least one filter must be defined";
     	    	}
     	    }
+    	    //add by ymli fix the bug:0013718
+    	    try {
+				Util.resetUUID(item.getProjection(), schema, dataCluster, concept);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
     	    throw new XtentisException(err);
 	    }
 	}
