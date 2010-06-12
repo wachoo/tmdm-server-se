@@ -1324,8 +1324,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			}
 			
 			//FIXME: xQuery only
-	 		String query = 
-					"let $allres := /ii"+
+			String collectionpath= CommonUtil.getPath(revisionID, dataClusterName);
+	 		String query = 	 			
+	 				"let $allres := collection(\""+collectionpath+"\")/ii"+	 			
 					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "[matches(./p , '"+wsGetItemPKsByCriteria.getContentKeywords()+"')]")+
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
@@ -1335,7 +1336,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+=" [ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";
 	 		
 	 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-				String collectionpath= CommonUtil.getPath(revisionID, dataClusterName);
+				
 				query = 
 					"let $allres := collection(\""+collectionpath+"\")/ii"+
 					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "[ora:matches(./p , \""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]")+

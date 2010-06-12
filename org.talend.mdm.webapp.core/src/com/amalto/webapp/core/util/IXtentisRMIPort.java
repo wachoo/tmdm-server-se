@@ -701,8 +701,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 			}
 			
 			//FIXME: xQuery only
+			String collectionpath= CommonUtil.getPath(revisionID, dataClusterName);
 	 		String query = 
-					"let $allres := /ii"+
+	 			"let $allres := collection(\""+collectionpath+"\")/ii"+
 					((wsGetItemPKsByCriteria.getContentKeywords() == null) ? "": "[matches(./p , '"+wsGetItemPKsByCriteria.getContentKeywords()+"')]")+
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
@@ -711,7 +712,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 	 		
 	 		
 	 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-				String collectionpath= CommonUtil.getPath(revisionID, dataClusterName);
+				
 				query = 
 					"let $allres := collection(\""+collectionpath+"\")/ii"+
 					((wsGetItemPKsByCriteria.getContentKeywords() == null) ? "": "[ora:matches(./p , \""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]")+

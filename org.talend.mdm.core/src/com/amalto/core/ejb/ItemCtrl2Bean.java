@@ -1267,8 +1267,9 @@ public class ItemCtrl2Bean implements SessionBean {
 				String revisionKey = (revisionID == null) || "".equals(revisionID) ? "__$DEFAULT$__" : revisionID;
 				if (revisionsChecked.contains(revisionKey)) continue;
 				//fetch all the concepts
+				String collectionpath= CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
+				query="distinct-values(collection(\""+collectionpath+ "\")/ii/n/text())";
 				if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-					String collectionpath= CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
 					query = "for $pivot0 in collection(\""+collectionpath+ "\")/ii/n/text()return <result>{$pivot0}</result>";
 				}
 				ArrayList<String> conceptsFound = runQuery(
@@ -1291,10 +1292,12 @@ public class ItemCtrl2Bean implements SessionBean {
 			
 			if (! revisionsChecked.contains(revisionKey)) {
 				//fetch all the concepts
+				String collectionpath= CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
+				query="distinct-values(collection(\""+collectionpath+ "\")/ii/n/text())";
 				if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-					String collectionpath= CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
 					query = "for $pivot0 in collection(\""+collectionpath+ "\")/ii/n/text()return <result>{$pivot0}</result>";
 				}				
+				
 				ArrayList<String> conceptsFound = runQuery(
 					revisionID,
 					dataClusterPOJOPK,

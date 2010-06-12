@@ -636,13 +636,13 @@ public abstract class ObjectPOJO implements Serializable{
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
             
             String clusterName=getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));
+            String collectionpath= CommonUtil.getPath(revisionID, clusterName);
 			String patternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[matches(./text(),'"+instancePattern+"')]";
 			String synchronizationCondition = synchronizationPlanName == null ? "" : "[not (./last-synch/text() eq '"+synchronizationPlanName+"')]";
-			String query = "/*"+synchronizationCondition+"/PK/unique-id"+patternCondition+"/text()";
+			String query = "collection(\""+collectionpath+ "\")/*"+synchronizationCondition+"/PK/unique-id"+patternCondition+"/text()";
 			if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
 				patternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[ora:matches(./text(),\""+instancePattern+"\")]";
 				synchronizationCondition = synchronizationPlanName == null ? "" : "[not (./last-synch/text() eq \""+synchronizationPlanName+"\")]";
-				String collectionpath= CommonUtil.getPath(revisionID, clusterName);
 				query=" for $pivot0 in collection(\""+collectionpath+ "\")/*"+synchronizationCondition+"/PK/unique-id"+patternCondition+"/text() return <result>{$pivot0}</result> ";								
 			}
             //retrieve the objects
@@ -689,9 +689,9 @@ public abstract class ObjectPOJO implements Serializable{
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 			String clusterName=getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));
-			String query = "/*[PK/unique-id/text() eq '"+uniqueID+"']";
+			String collectionpath= CommonUtil.getPath(revisionID, clusterName);
+			String query = "collection(\""+collectionpath+ "\")/*[PK/unique-id/text() eq '"+uniqueID+"']";
 			if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {				
-				String collectionpath= CommonUtil.getPath(revisionID, clusterName);
 				query=" for $pivot0 in collection(\""+collectionpath+ "\")/*[PK/unique-id/text() eq \""+uniqueID+"\"] return $pivot0 ";								
 			}
 			ArrayList<String> res= server.runQuery(

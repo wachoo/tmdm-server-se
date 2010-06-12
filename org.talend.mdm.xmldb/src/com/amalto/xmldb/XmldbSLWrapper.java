@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -125,10 +124,14 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
      * @return
      */
     protected String getFullURL(String revisionID, String cluster) {
-    	if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
-   	 	return "xmldb:"+DBID+"://"+SERVERNAME+":"+SERVERPORT+"/"+DBURL
-   	 			+((revisionID == null) || "".equals(revisionID) ? "": "/"+"R-"+revisionID)
-   	 			+((cluster== null) || "".equals(cluster) ? "": "/"+cluster);
+    	if(!MDMConfiguration.isExistDb()) {
+    		return CommonUtil.getPath(revisionID, cluster);
+    	}else {
+    		if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
+       	 	return "xmldb:"+DBID+"://"+SERVERNAME+":"+SERVERPORT+"/"+DBURL
+       	 			+((revisionID == null) || "".equals(revisionID) ? "": "/"+"R-"+revisionID)
+       	 			+((cluster== null) || "".equals(cluster) ? "": "/"+cluster); 
+    	}
     }
     
     
@@ -570,17 +573,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 		org.apache.log4j.Logger.getLogger(this.getClass()).trace("getDocumentAsString() "+revisionID+"/"+clusterName+"/"+uniqueID+"  encoding="+encoding);
 
 		XMLResource res=null;
-		try {
-			//aiming add item cache 
-//			if(itemsCache.size()==CACHE_ITEM_MAX_SIZE)itemsCache.clear();
-//			ItemCacheKey key1=new ItemCacheKey(revisionID,uniqueID,clusterName);
-//			if(itemsCache.get(key1)!=null){
-//				//modified by ymli, 0009760 if the is '<?xml version="1.0" encoding="UTF-8"?>', it will be wrong, so replace it.
-//				String projection = itemsCache.get(key1);
-//				String subString = projection.replaceAll("<\\?xml.*?\\?>","");
-//				return (encoding == null ? "" : "<?xml version=\"1.0\" encoding=\""+encoding+"\"?>\n")+subString;//itemsCache.get(key1);
-//			}
-//			
+		try {		
 			org.xmldb.api.base.Collection col = getCollection(revisionID, clusterName, true); //change it to false 
 //			col.setProperty(OutputKeys.INDENT, "yes");
 			col.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
@@ -1075,8 +1068,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
             	for (Iterator iterator = conceptMap.iterator(); iterator.hasNext();j++) {
         			String conceptName = (String) iterator.next();
         			String revisionID=CommonUtil.getConceptRevisionID(itemsRevisionIDs, defaultRevisionID, conceptName);
-        			if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
-        			String collectionPath = (revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")+(clusterName == null ? "" : clusterName);//TODO ENCODE
+        			
+        			String collectionPath = CommonUtil.getPath(revisionID, clusterName);
         			xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/").append(conceptName);
         			
         			if(j<conceptMap.size()-1){
@@ -1216,8 +1209,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
             xqFor.append("for ");
             String revisionID=CommonUtil.getConceptRevisionID(itemsRevisionIDs, defaultRevisionID, conceptName);//revision issue
             //String revisionID=null;
-			if(revisionID!=null) revisionID=revisionID.replaceAll("\\[HEAD\\]|HEAD", "");
-			String collectionPath = (revisionID == null || "".equals(revisionID) ? "" : "R-"+revisionID+"/")+(clusterName == null ? "" : clusterName);//TODO ENCODE
+			String collectionPath = CommonUtil.getPath(revisionID, clusterName);
         	xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/").append(conceptName).append(" ");
         	
         	//where
@@ -1793,6 +1785,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 				org.xmldb.api.base.Collection collection = clusters.get(clusterName);
 				try {collection.close();} catch (Exception x) {}
 			}
+			this.clusters = new HashMap<String, org.xmldb.api.base.Collection>();
 		} catch (Exception e) {
 			throw new XmlServerException(e);
 		}
@@ -1853,11 +1846,5 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 		if(col==null) return false;
 		return true;
 	}
-
-
-
-	
-	
-	
 
 }

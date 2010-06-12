@@ -511,10 +511,10 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
     	
     	//get the DB
     	XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-		String query="/*[number(@time-scheduled) lt "+lastScheduledTime+"][number(@time-last-run-started) eq -1]/name/text()";
 		String clusterName=ObjectPOJO.getCluster(ActiveRoutingOrderV2POJO.class.getName());
+		String collectionpath= CommonUtil.getPath(revisionID, clusterName);
+		String query="collection(\""+collectionpath+ "\")/*[number(@time-scheduled) lt "+lastScheduledTime+"][number(@time-last-run-started) eq -1]/name/text()";
 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {				
-			String collectionpath= CommonUtil.getPath(revisionID, clusterName);
 			query=" for $pivot0 in collection(\""+collectionpath+ "\")/*[number(@time-scheduled) lt "+lastScheduledTime+"][number(@time-last-run-started) eq -1]/name/text() return <result>{$pivot0}</result> ";								
 		}
 		Collection<String> names = server.runQuery(
@@ -574,10 +574,10 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
 			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
 			throw new RuntimeException(err);
 		}
-		String query="/*[number(@time-last-run-started) lt "+maxLastRunStartedTime+"][number(@time-last-run-started) gt 0]/name/text()";
 		String clusterName=ObjectPOJO.getCluster(ActiveRoutingOrderV2POJO.class.getName());
+		String collectionpath= CommonUtil.getPath(revisionID, clusterName);
+		String query="collection(\""+collectionpath+ "\")/*[number(@time-last-run-started) lt "+maxLastRunStartedTime+"][number(@time-last-run-started) gt 0]/name/text()";
 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {				
-			String collectionpath= CommonUtil.getPath(revisionID, clusterName);
 			query=" for $pivot0 in collection(\""+collectionpath+ "\")/*[number(@time-last-run-started) lt "+maxLastRunStartedTime+"][number(@time-last-run-started) gt 0]/name/text() return <result>{$pivot0}</result> ";								
 		}		
 		Collection<String> names = server.runQuery(

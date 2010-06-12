@@ -315,7 +315,7 @@ public abstract class ConnectorMDB implements MessageDrivenBean, MessageListener
 				ItemPOJOPK oldPK = new ItemPOJOPK(
 					getJCAAdaptersCluster(),
 					"JCAAdapter",
-					new String[]{jndiName}
+					new String[]{jndiName.replaceAll("\\/", "_").replaceAll(":", "_")}
 				);
 				pojo = ictrl.existsItem(oldPK);
 				if (pojo == null) throw new ResourceException("The configuration for connector '"+jndiName+"' cannot be found.");

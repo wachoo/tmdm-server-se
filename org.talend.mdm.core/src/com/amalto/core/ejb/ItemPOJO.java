@@ -919,15 +919,15 @@ public class ItemPOJO implements Serializable{
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
            
+            String collectionpath= CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
 			String conceptPatternCondition = (conceptName == null || "".equals(conceptName)) ? "" : "[n/text() eq \""+conceptName+"\"]";
 			String instancePatternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[matches(i/text(),\""+instancePattern+"\")]";
 			String synchronizationCondition = planPK == null || planPK.getIds()==null? "" : "[not (./sp/text() eq \""+planPK.getUniqueId()+"\")]";
 			String query =
-				"let $a := /ii"+conceptPatternCondition+instancePatternCondition+synchronizationCondition+"\n"
+				"let $a := collection(\""+collectionpath+ "\")/ii"+conceptPatternCondition+instancePatternCondition+synchronizationCondition+"\n"
 				+"return subsequence($a,"+(start+1)+","+limit+")";
 			if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
 				instancePatternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[ora:matches(i/text(),\""+instancePattern+"\")]";				
-				String collectionpath= CommonUtil.getPath(revisionID, dataClusterPOJOPK.getUniqueId());
 				query =
 					"let $a :="+" for $pivot0 in collection(\""+collectionpath+ "\")/ii"+conceptPatternCondition+instancePatternCondition+synchronizationCondition+" return $pivot0 \n"
 					+"return subsequence($a,"+(start+1)+","+limit+")";				
