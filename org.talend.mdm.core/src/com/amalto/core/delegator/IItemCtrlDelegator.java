@@ -345,14 +345,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
     	    		err = prefix + "At least one filter must be defined";
     	    	}
     	    }
-    	    //add by ymli fix the bug:0013718
-    	    try {
-				Util.resetUUID(item.getProjection(), schema, dataCluster, concept);
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
+
     	    throw new XtentisException(err);
 	    }
 	}

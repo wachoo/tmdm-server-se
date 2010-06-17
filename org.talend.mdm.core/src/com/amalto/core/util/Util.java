@@ -1197,20 +1197,7 @@ public  class Util {
 		return Util.generateUUIDForElement(schema, dataCluster,concept, root, pseudoAutoIncrement);			
 
     }
-  /**
-   * reset the UUID in case save unsuccessfully
-   * fix the bug:0013718
-   * @author ymli
-   * @param root
-   * @param schema
-   * @param dataCluster
-   * @param concept
-   * @throws Exception
-   */
-    public static void resetUUID(Element root, String schema, String dataCluster, String concept)throws Exception{
-    	Util.resetUUIDForElement(schema, dataCluster,concept, root, false);
-    }
-
+ 
     public static List<UUIDPath> getUUIDNodes(String schema, String concept)throws Exception{
    
     	XSComplexType xsct = (XSComplexType)(getConceptMap(schema).get(concept).getType()); 
@@ -1499,51 +1486,7 @@ public  class Util {
 		return (Node)jxpContext.getContextBean();
     }
 
-    /**
-     * reset the UUID in case save unsuccessfully
-     * fix the bug:0013718
-     * @author ymli
-     * @param d
-     * @return
-     * @throws TransformerException
-     */
-    public static void resetUUIDForElement(String schema,String dataCluster,String concept, Element conceptRoot,boolean pseudoAutoIncrement)throws Exception{
-    	List<UUIDPath> uuidLists=getUUIDNodes(schema, concept);
-    	JXPathContext jxpContext = JXPathContext.newContext ( conceptRoot );
-    	jxpContext.setLenient(true);
-    	
-    	jxpContext.setFactory(factory);
-		for(int i=0; i<uuidLists.size(); i++){
-			UUIDPath uuid=uuidLists.get(i);
-			String xpath= uuid.getXpath();
-			String type=uuid.getType();
-			xpath=xpath.replaceFirst("/"+concept+"/", "");
-			String value="";
-			if(EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type)){
-				if(pseudoAutoIncrement) {
-					Random rand =new Random();
-					value=rand.nextInt(10000)+"";
-				}else{
-					String universe=LocalUser.getLocalUser().getUniverse().getName();
-					Object o=jxpContext.getValue(xpath);
-					if(o!=null && o.toString().trim().length()!=0)
-						value=String.valueOf(AutoIncrementGenerator.resetNum(universe, dataCluster,concept+"."+xpath.replaceAll("/", ".")));
-					else
-						value=o.toString();
-				}				
-			}
-			if(EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)){
-				Object o = jxpContext.getValue(xpath);
-				if(o == null || o.toString().trim().length()==0)
-				   value=UUID.randomUUID().toString();
-				else
-					value = o.toString();
-			}						
-			jxpContext.createPathAndSetValue(xpath, value);
-						
-		}		
-    }
-    
+     
 	public static String getXMLStringFromNode(Node d) throws TransformerException{
 		return nodeToString(d);
 	}
