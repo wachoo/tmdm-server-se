@@ -33,7 +33,7 @@ public class LicenseHelper {
 
         try {
            server = ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-           return server.runQuery(null, null, query, null);
+           return server.runQuery(null, "amaltoOBJECTSLicense", query, null);
         } 
         catch(Exception e) {
            e.printStackTrace();
