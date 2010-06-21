@@ -1246,30 +1246,40 @@ public class Util {
 	            //end
 	            // build query - add a content condition on the pivot if we search for a particular value
 	            String filteredConcept = conceptName;
-	            boolean isKey = false;
-	            StringBuffer sb = new StringBuffer();                   
-	            
-	            if(value!=null && !"".equals(value.trim())) {   
-	               Pattern p = Pattern.compile("\\[(.*?)\\]");
-	               Matcher m = p.matcher(value);
-	               
-	               while(m.find()){//key
-	                 sb = sb.append("[matches(. , \""+m.group(1)+"\", \"i\")]");
-	                 if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName()))
-	                    sb = sb.append("[ora:matches(. , \""+m.group(1)+"\", \"i\")]");
-	                 isKey = true;
-	               }
-	               if(isKey)
-	                  filteredConcept += sb.toString();
-	               else{
-	                  value=value.equals(".*")? "":value+".*";
-	                //Value is unlikely to be in attributes
-	                filteredConcept+="[matches(. , \""+value+"\", \"i\")]";
-	                if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-	                    filteredConcept+="[ora:matches(. , \""+value+"\", \"i\")]";
-	                }
-	               }
+	            //hshu fix bug 0013849: Lazy loading of FK picker always get records from the first 20 records of all records
+	            if(value!=null && !"".equals(value.trim())) { 
+	            	List<WSWhereItem> condition=new ArrayList<WSWhereItem>();
+	            	if(whereItem!=null)condition.add(whereItem);
+	            	WSWhereItem wc=buildWhereItem(conceptName+"/. CONTAINS "+value);
+	            	condition.add(wc);
+	            	WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
+	    			WSWhereItem whand = new WSWhereItem(null,and,null);
+	    			if(whand != null) whereItem = whand;
 	            }
+//	            boolean isKey = false;
+//	            StringBuffer sb = new StringBuffer();                   
+//	            
+//	            if(value!=null && !"".equals(value.trim())) {   
+//	               Pattern p = Pattern.compile("\\[(.*?)\\]");
+//	               Matcher m = p.matcher(value);
+//	               
+//	               while(m.find()){//key
+//	                 sb = sb.append("[matches(. , \""+m.group(1)+"\", \"i\")]");
+//	                 if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName()))
+//	                    sb = sb.append("[ora:matches(. , \""+m.group(1)+"\", \"i\")]");
+//	                 isKey = true;
+//	               }
+//	               if(isKey)
+//	                  filteredConcept += sb.toString();
+//	               else{
+//	                  value=value.equals(".*")? "":value+".*";
+//	                //Value is unlikely to be in attributes
+//	                filteredConcept+="[matches(. , \""+value+"\", \"i\")]";
+//	                if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+//	                    filteredConcept+="[ora:matches(. , \""+value+"\", \"i\")]";
+//	                }
+//	               }
+//	            }
 	            
 	            //add the xPath Infos Path
 	            ArrayList<String> xPaths = new ArrayList<String>();
