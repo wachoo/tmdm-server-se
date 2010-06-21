@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -23,6 +24,7 @@ import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -480,7 +482,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    } 
     }
     
-    
+
     /**
      * Performs the actual marshaling and storage of the object<br/>
      * User rights are NOT checked when using this method
@@ -537,8 +539,13 @@ public abstract class ObjectPOJO implements Serializable{
 
     }
     
-    
-    
+    private static Set<String> getSystemObjectIDs(String cluster) {
+    	if("amaltoOBJECTSDataCluster".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER).keySet();
+    	if("amaltoOBJECTSMenu".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.MENU).keySet();
+    	if("amaltoOBJECTSRole".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.ROLE).keySet();
+    	if("amaltoOBJECTSDataModel".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL).keySet();
+    	return new HashSet<String>();
+    }    
 
 
 	/**
@@ -570,13 +577,16 @@ public abstract class ObjectPOJO implements Serializable{
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 
-           
+            String cluster=getCluster(objectClass);
             //retrieve the item
-            String[] ids = server.getAllDocumentsUniqueID(revisionID, getCluster(objectClass));
-            
-            
-            if (ids==null) return new ArrayList<ObjectPOJOPK>();
-            
+            String[] ids = server.getAllDocumentsUniqueID(revisionID, cluster);
+            //see 0013859            
+            if (ids==null||ids.length==0) ids= new String[0];
+            //add system default object ids
+            Set<String> allId=new HashSet<String>();
+            allId.addAll(Arrays.asList(ids));
+            allId.addAll(getSystemObjectIDs(cluster));
+            ids=allId.toArray(new String[0]);
             //build PKs collection
             ArrayList<ObjectPOJOPK> list = new ArrayList<ObjectPOJOPK>();
             for (int i = 0; i < ids.length; i++) {
