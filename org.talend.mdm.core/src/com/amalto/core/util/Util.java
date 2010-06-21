@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
@@ -29,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Random;
@@ -3418,4 +3420,26 @@ public  class Util {
             return "???" + value + "???";
         } 
     }
+    
+    public static String printWithFormat(Locale locale,String format,Object value) {
+		
+    	String formattedContent="";
+    	
+    	try {
+    		
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PrintStream ps = new PrintStream(baos);
+
+			ps.format(locale,format, value);
+			formattedContent=baos.toString();
+			
+			baos.close();
+			
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		
+		return formattedContent;
+
+	}
 } 
