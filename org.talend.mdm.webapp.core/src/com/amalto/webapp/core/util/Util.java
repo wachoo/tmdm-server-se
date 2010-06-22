@@ -1356,7 +1356,7 @@ public class Util {
 	            }
 	            //edit by ymli; fix the bug:0011918: set the pageSize correctly.
 	            if(isCount) {
-	               json.put("count", countForeignKey_filter(xpathForeignKey,fkFilter));              
+	               json.put("count", countForeignKey_filter(xpathForeignKey,whereItem));              
 	            }
 
 	            return json.toString();
@@ -1364,6 +1364,20 @@ public class Util {
 	        
 	        throw new Exception("this should not happen");
 
+	    }
+		
+		private static String countForeignKey_filter(String xpathForeignKey,WSWhereItem whereItem) throws Exception{
+	        Configuration config = Configuration.getInstance();
+	        String conceptName = getConceptFromPath(xpathForeignKey);
+	                    
+	        return getPort().count(
+	            new WSCount(
+	                new WSDataClusterPK(config.getCluster()),
+	                conceptName,
+	                whereItem,//null,
+	                -1
+	            )
+	        ).getValue();
 	    }
 		
 		/**
