@@ -7,6 +7,10 @@ import java.util.Properties;
 
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+
 /**
  * 
  * AutoIncrement to generate a num
@@ -20,6 +24,9 @@ public class AutoIncrementGenerator {
 	static File file = new File("auto_increment.conf");
 	public static String AUTO_INCREMENT="Auto_Increment";
 	private static Properties CONFIGURATION = null;
+	static DataClusterPOJOPK DC=new DataClusterPOJOPK(XSystemObjects.DC_CONF.getName());
+	static String[] IDS=new String[] {"AutoIncrement"};
+	static String CONCEPT="AutoIncrement";
 	static{
 		init();
 	}
@@ -28,9 +35,16 @@ public class AutoIncrementGenerator {
 		CONFIGURATION = new Properties();
 		//load from db
 		try {
-			String xml=Util.getXmlServerCtrlLocal().getDocumentAsString(null, XSystemObjects.DC_CONF.getName(), AUTO_INCREMENT);
+//			String xml=Util.getXmlServerCtrlLocal().getDocumentAsString(null, XSystemObjects.DC_CONF.getName(), AUTO_INCREMENT);
+			ItemPOJOPK pk=new ItemPOJOPK(DC, CONCEPT, IDS);
+			ItemPOJO itempojo=ItemPOJO.load(pk);
+			String xml=itempojo.getProjectionAsString();
 			if(xml!=null && xml.trim().length()>0) {
-				xml=xml.replaceFirst("(<\\?xml.*\\?>)", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">");
+				String doctype="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">";
+				xml=xml.replaceFirst("(<\\?xml.*\\?>)", doctype);
+				if(!xml.startsWith(doctype)){
+					xml=doctype+xml;
+				}
 				byte[] buf= xml.getBytes();	
 				ByteArrayInputStream bio=new ByteArrayInputStream(buf);
 
@@ -68,7 +82,16 @@ public class AutoIncrementGenerator {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			CONFIGURATION.storeToXML(bos, "","UTF-8");
 			String xmlString=bos.toString("UTF-8");
-			Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, AUTO_INCREMENT, XSystemObjects.DC_CONF.getName(), null);
+			xmlString=xmlString.replace("<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">", "");
+			//Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, AUTO_INCREMENT, XSystemObjects.DC_CONF.getName(), null);
+			ItemPOJO pojo = new ItemPOJO(					
+					DC,	//cluster
+					CONCEPT,								//concept name
+					IDS,
+					System.currentTimeMillis(),			//insertion time
+					xmlString												//actual data
+			);
+			pojo.store(null);
 			//read from xml file
 			bos.close();
 		}catch(Exception e) {
