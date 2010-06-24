@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -184,8 +185,12 @@ public class JobAware {
 				Manifest jarFileManifest = jarFile.getManifest();
 				String classPaths = jarFileManifest.getMainAttributes().getValue("Class-Path");
 				String[] classPathsArray=classPaths.split("\\s+",0);
-				for (int i = 0; i < classPathsArray.length; i++) {
-					String classPath=classPathsArray[i];
+				List<String> classPathsArrayList=new ArrayList<String>(Arrays.asList(classPathsArray));
+				List<String> classPathsExtArray=new ArrayList<String>();
+				if(!classPathsArrayList.contains("."))classPathsExtArray.add(".");
+				if(classPathsArrayList.size()>0)classPathsExtArray.addAll(classPathsArrayList);
+				for (int i = 0; i < classPathsExtArray.size(); i++) {
+					String classPath=classPathsExtArray.get(i);
 					File libFile=new File(basePath+File.separator+classPath);;
 					if(libFile.exists()) {
 						if(newClassPath.length()==0)newClassPath+=libFile.getAbsolutePath();
