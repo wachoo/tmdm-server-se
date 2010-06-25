@@ -618,18 +618,29 @@ public class QueryBuilder {
 	    	
 	    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
 	    	if (subsequence) {
-	    		if (partialXQLPackage.isUseSubsequenceFirst())start=0;
-	    		if (withTotalCountOnFirstRow) {
-		    		query =
-		    			"let $_page_ := \n"+rawQuery
-		    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{"
-		    			+getCountExpr(partialXQLPackage)
-		    			+"}</totalCount>)";
-	    		} else {
-    	    		query =
-    	    			"let $_page_ := \n"+rawQuery
-    	    			+"\n return subsequence($_page_,"+(start+1)+","+limit+")";
+	    		
+	    		if (!partialXQLPackage.isUseSubsequenceFirst()) {
+	    			if (withTotalCountOnFirstRow) {
+			    		query =
+			    			"let $_page_ := \n"+rawQuery
+			    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{"
+			    			+getCountExpr(partialXQLPackage)
+			    			+"}</totalCount>)";
+		    		} else {
+	    	    		query =
+	    	    			"let $_page_ := \n"+rawQuery
+	    	    			+"\n return subsequence($_page_,"+(start+1)+","+limit+")";
+		    		}
+	    		}else {
+	    			if (withTotalCountOnFirstRow) {
+			    		query =
+			    			"let $_page_ := \n"+rawQuery
+			    			+"\n return insert-before($_page_,0,<totalCount>{"+getCountExpr(partialXQLPackage)+"}</totalCount>)";
+		    		} else {
+		    			query = rawQuery;
+		    		}
 	    		}
+	    		
 	    	} else {
 	    		if (withTotalCountOnFirstRow) {
 		    		query =
