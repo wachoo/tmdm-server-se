@@ -2313,8 +2313,8 @@ public class ItemsBrowserDWR {
 	 * @throws ParseException 
 	 */
 	public String printFormat(String lang,String format,String value,String typeName) throws ParseException{
-		//if(format.equals("null") || Util.getTypeValue(typeName, value)==null)
-		if(Util.getTypeValue(typeName, value)==null)
+		if(format.equals("null") || Util.getTypeValue(typeName, value)==null)
+		//if(Util.getTypeValue(typeName, value)==null)
 			return value;
 		return com.amalto.core.util.Util.printWithFormat(new Locale(lang), format, Util.getTypeValue(typeName, value));
 	}
