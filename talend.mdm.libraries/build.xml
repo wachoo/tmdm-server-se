@@ -11,6 +11,7 @@
 	<property name="jboss.bin.dir" value="${jboss.dir}/bin"/>
 	<property name="jboss.conf.dir" value="${jboss.instance.dir}/conf"/>
 	<property name="jboss.web.deployer" value="${jboss.deploy.dir}/jboss-web.deployer"/>
+	<property name="exist.version" value="exist-1.4.0-rev11706-TalendPatch"/>
 	
     <!-- ================================= 
           target: all              
@@ -31,7 +32,7 @@
 			<fileset dir="${jboss.endorsed.dir}" includes="xercesImpl.jar"/>			
 		</delete>
     	
-    	<delete dir="${jboss.deploy.dir}/exist-1.4.0-rev10440.war"/>
+    	<delete dir="${jboss.deploy.dir}/${exist.version}.war"/>
     </target>
 	
 	<target name="deploy">
@@ -59,7 +60,7 @@
         </copy>
 		
 	    <copy todir="${jboss.deploy.dir}">
-	            <fileset dir="eXist"/>
+	            <fileset dir="eXist" includes="${exist.version}.war/**"/>
 	        </copy>
 		
     </target>
