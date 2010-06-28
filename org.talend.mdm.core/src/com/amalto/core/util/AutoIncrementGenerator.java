@@ -33,23 +33,12 @@ public class AutoIncrementGenerator {
 	public static void init(){
 		//first try Current path
 		CONFIGURATION = new Properties();
-		//load from db
 		try {
-//			String xml=Util.getXmlServerCtrlLocal().getDocumentAsString(null, XSystemObjects.DC_CONF.getName(), AUTO_INCREMENT);
 			ItemPOJOPK pk=new ItemPOJOPK(DC, CONCEPT, IDS);
 			ItemPOJO itempojo=ItemPOJO.load(pk);
 			String xml=itempojo.getProjectionAsString();
 			if(xml!=null && xml.trim().length()>0) {
-				String doctype="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">";
-				xml=xml.replaceFirst("(<\\?xml.*\\?>)", doctype);
-				if(!xml.startsWith(doctype)){
-					xml=doctype+xml;
-				}
-				byte[] buf= xml.getBytes();	
-				ByteArrayInputStream bio=new ByteArrayInputStream(buf);
-
-				CONFIGURATION.loadFromXML(bio);
-				bio.close();
+				CONFIGURATION=Util.convertAutoIncrement(xml);
 			}
 		} catch (Exception e) {
 			org.apache.log4j.Logger.getLogger(AutoIncrementGenerator.class).error(e.getLocalizedMessage(),e);
@@ -79,11 +68,7 @@ public class AutoIncrementGenerator {
 	public static  void saveToDB() {
 
 		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			CONFIGURATION.storeToXML(bos, "","UTF-8");
-			String xmlString=bos.toString("UTF-8");
-			xmlString=xmlString.replace("<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">", "");
-			//Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, AUTO_INCREMENT, XSystemObjects.DC_CONF.getName(), null);
+			String xmlString=Util.convertAutoIncrement(CONFIGURATION);
 			ItemPOJO pojo = new ItemPOJO(					
 					DC,	//cluster
 					CONCEPT,								//concept name
@@ -91,9 +76,9 @@ public class AutoIncrementGenerator {
 					System.currentTimeMillis(),			//insertion time
 					xmlString												//actual data
 			);
+			pojo.setDataModelName(XSystemObjects.DM_CONF.getName());
 			pojo.store(null);
-			//read from xml file
-			bos.close();
+			
 		}catch(Exception e) {
 			
 		}		

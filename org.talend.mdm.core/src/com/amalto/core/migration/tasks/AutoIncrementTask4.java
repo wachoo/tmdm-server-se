@@ -1,5 +1,8 @@
 package com.amalto.core.migration.tasks;
 
+import java.io.ByteArrayInputStream;
+import java.util.Properties;
+
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.ejb.ItemPOJO;
@@ -7,18 +10,32 @@ import com.amalto.core.migration.AbstractMigrationTask;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.Util;
 
+/**
+ * convert old Item to concept Item
+ * @author achen
+ *
+ */
 public class AutoIncrementTask4 extends AbstractMigrationTask {
 
 	@Override
 	protected Boolean execute() {
 		try{
-			String xmlString=Util.getXmlServerCtrlLocal().getDocumentAsString(null, XSystemObjects.DC_CONF.getName(), "Auto_Increment");
-			if(xmlString==null) return true;
+			String xml=Util.getXmlServerCtrlLocal().getDocumentAsString(null, XSystemObjects.DC_CONF.getName(), "Auto_Increment");
+			if(xml==null) return true;
 			DataClusterPOJOPK DC=new DataClusterPOJOPK(XSystemObjects.DC_CONF.getName());
 			String[] IDS=new String[] {"AutoIncrement"};
 			String CONCEPT="AutoIncrement";			
-			xmlString=xmlString.replace("<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">", "");
-			//Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, AUTO_INCREMENT, XSystemObjects.DC_CONF.getName(), null);
+			String doctype="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">";
+			xml=xml.replaceFirst("(<\\?xml.*\\?>)", doctype);
+			if(!xml.startsWith(doctype)){
+				xml=doctype+xml;
+			}
+			byte[] buf= xml.getBytes();	
+			ByteArrayInputStream bio=new ByteArrayInputStream(buf);
+			Properties p=new Properties();
+			p.loadFromXML(bio);
+			bio.close();
+			String xmlString=Util.convertAutoIncrement(p);
 			ItemPOJO pojo = new ItemPOJO(					
 					DC,	//cluster
 					CONCEPT,								//concept name
@@ -26,6 +43,7 @@ public class AutoIncrementTask4 extends AbstractMigrationTask {
 					System.currentTimeMillis(),			//insertion time
 					xmlString												//actual data
 			);
+			pojo.setDataModelName(XSystemObjects.DM_CONF.getName());
 			pojo.store(null);
 			
 			//delete the original file

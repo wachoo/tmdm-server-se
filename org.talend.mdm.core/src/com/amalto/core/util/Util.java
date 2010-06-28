@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -1202,11 +1203,14 @@ public  class Util {
  
     public static List<UUIDPath> getUUIDNodes(String schema, String concept)throws Exception{
    
-    	XSComplexType xsct = (XSComplexType)(getConceptMap(schema).get(concept).getType()); 
-    	XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
     	List<UUIDPath> list=new ArrayList<UUIDPath>();
-    	for(int i=0; i<xsp.length; i++){
-    		getChildren("/"+concept,xsp[i],list);
+    	Map<String,XSElementDecl> map=getConceptMap(schema);
+    	if(map.get(concept)!=null) {
+	    	XSComplexType xsct = (XSComplexType)(map.get(concept).getType()); 
+	    	XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+	    	for(int i=0; i<xsp.length; i++){
+	    		getChildren("/"+concept,xsp[i],list);
+	    	}
     	}
     	return list;
     }
@@ -1518,34 +1522,13 @@ public  class Util {
     }
     
     /**
-     * @deprecated use {@link #getItemKeyValues(Element, XSDKey)}
+     *
      * @param item
      * @param key
      * @return the key ids
      * @throws XtentisException
      */
-    public static String[] getKeyValuesFromItem(Element item, XSDKey key) throws TransformerException{
-//    	try {
-//    		String[] vals = new String[key.getFields().length];
-//    		
-//      		Node root = Util.getNodeList(
-//        			item,
-//        			key.getSelector()
-//    				).item(0);
-//    		
-//    		String[] fields=key.getFields();
-//    		for (int i = 0; i < fields.length; i++) {    			
-//    			vals[i] = Util.getFirstTextNode(root,fields[i]);
-//			}
-//        	return vals;
-//    	} catch (XtentisException e) {
-//    		throw(e);
-//    	} catch (Exception e) {
-//    	    String err = "Unable to get the key value for the item "+item.getLocalName()
-//    			+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-//    	    org.apache.log4j.Category.getInstance(Util.class).error(err);
-//    		throw new XtentisException(err);
-//    	}    	    
+    public static String[] getKeyValuesFromItem(Element item, XSDKey key) throws TransformerException{   	    
     	return getItemKeyValues(item,key);
     }
     
@@ -1558,20 +1541,23 @@ public  class Util {
      * @see #getBusinessConceptKey(Document, String)
      */
     public static String[] getItemKeyValues(Element item, XSDKey xsdKey) throws TransformerException{
-    	try {
-    		String[] vals = new String[xsdKey.getFields().length];
-    		for (int i = 0; i < xsdKey.getFields().length; i++) {    			
-    			String xpath=xsdKey.getFields()[i];
-    			xpath= xpath.replaceFirst("/"+item.getLocalName()+"/", "");
-    			vals[i] = Util.getFirstTextNode(item,xsdKey.getSelector()+"/"+xpath);
-    			if (vals[i]!=null) vals[i] = vals[i].trim(); //FIXME: Due to eXist trimming values @see ItemPOJO
-			}
-        	return vals;
+    	try {    		
+    		if(xsdKey!=null) {
+	    		String[] vals = new String[xsdKey.getFields().length];
+	    		for (int i = 0; i < xsdKey.getFields().length; i++) {    			
+	    			String xpath=xsdKey.getFields()[i];
+	    			xpath= xpath.replaceFirst("/"+item.getLocalName()+"/", "");
+	    			vals[i] = Util.getFirstTextNode(item,xsdKey.getSelector()+"/"+xpath);
+	    			if (vals[i]!=null) vals[i] = vals[i].trim(); //FIXME: Due to eXist trimming values @see ItemPOJO
+				}
+	        	return vals;
+    		}
     	} catch (TransformerException e) {
     	    String err = "Unable to get the key value for the item "+item.getLocalName()
     			+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     		throw new TransformerException(err);
     	}    	    	
+    	return null;
     }
     
     
@@ -3351,6 +3337,34 @@ public  class Util {
 		return jobInfo;
 	}
 	
+	public static String convertAutoIncrement(Properties p) {
+		StringBuffer sb=new StringBuffer();
+		sb.append("<AutoIncrement>");
+		sb.append("<id>AutoIncrement</id>");
+		for(Entry entry:p.entrySet()) {
+			sb.append("<entry>");
+			sb.append("<key>").append(entry.getKey()).append("</key>");
+			sb.append("<value>").append(entry.getValue()).append("</value>");
+			sb.append("</entry>");
+		}
+		sb.append("</AutoIncrement>");
+		String xmlString= sb.toString();
+		return xmlString;
+	}
+	public static Properties convertAutoIncrement(String xml)throws Exception {
+		Properties p=new Properties();
+		Node n=parse(xml).getDocumentElement();
+		NodeList list=getNodeList(n, "entry");
+		for(int i=0; i<list.getLength(); i++) {
+			Node item=list.item(i);
+			if(item.getNodeType() == Node.ELEMENT_NODE) {
+				String key=getFirstTextNode(item, "key");
+				String value=getFirstTextNode(item, "value");
+				p.setProperty(key, value);
+			}
+		}		
+		return p;
+	}
     public static String stripeOuterBracket(String rowData)
     {
 	     ArrayList<String> result = new ArrayList<String>();

@@ -103,6 +103,7 @@ import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.util.ArrayListHolder;
+import com.amalto.core.util.AutoIncrementGenerator;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.TransformerPluginContext;
 import com.amalto.core.util.TransformerPluginSpec;
@@ -1798,20 +1799,29 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 						new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk())
 				);
 			Document schema=Util.parse(dataModel.getSchema());
-            XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
-            		schema,
-					concept					
-			);
            
 			//get key values
-			String[] itemKeyValues = com.amalto.core.util.Util.getKeyValuesFromItem(
-       			root,
-   				conceptKey
-			);							
+			String[] itemKeyValues = null;
+			 XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
+	            		schema,
+						concept					
+				);
+			if(("AutoIncrement".equals(concept) && wsPutItem.getWsDataModelPK().getPk().equals(XSystemObjects.DC_CONF.getName()))) {
+				itemKeyValues=new String[] {"AutoIncrement"};
+			}else {
+				itemKeyValues=com.amalto.core.util.Util.getKeyValuesFromItem(
+		       			root,
+		   				conceptKey
+					);					
+			}
 			//update the item using new field values see feature 0008854: Update an item instead of replace it 
 			// load the item first if itemkey provided
-			return putItem(wsPutItem, dataModel, schema, itemKeyValues,conceptKey);
-
+			WSItemPK itempk=putItem(wsPutItem, dataModel, schema, itemKeyValues,conceptKey);
+	    	//reset the AutoIncrement
+	    	if(("AutoIncrement".equals(concept) && wsPutItem.getWsDataModelPK().getPk().equals(XSystemObjects.DC_CONF.getName()))) {
+	    		AutoIncrementGenerator.init();
+	    	}
+	    	return itempk;
 		} catch (XtentisException e) {
 			String err = "ERROR SYSTRACE: "+e.getMessage();
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug(err,e);
