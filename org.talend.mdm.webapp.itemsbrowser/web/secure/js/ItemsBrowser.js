@@ -517,6 +517,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var _exception = true;
 	var lineMax = 20;
 	
+	var realValues = [];
+	
 	//var conceptNameSelect = "";
 	var isReadOnlyinItem = false;
 	
@@ -638,7 +640,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						'<select id="enumSearchValue1" onChange="amalto.itemsbrowser.ItemsBrowser.outPutCriteriaResult();"></select>' +
 						'<input id="itemsSearchValue1" type="text" value="*" onkeyup="amalto.itemsbrowser.ItemsBrowser.checkInputSearchValue(this.id,this.value)" style="display:none;" onkeypress="DWRUtil.onReturn(event, amalto.itemsbrowser.ItemsBrowser.displayItems);"/>' +
 						'<span id="itemsForeignKeyValues1" style="display:none" onChange=""></span>' +
-						'<span id="itemSearchCalendar1" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue1\' , \'-1\', \'date\')"><img src="img/genericUI/date-picker.gif"/></span>' +
+						'<span id="itemSearchCalendar1" style="display:none;cursor:pointer;padding-left:4px;padding-right:4px" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\'itemsSearchValue1\' , \'-1\', \'date\',\'null\')"><img src="img/genericUI/date-picker.gif"/></span>' +
 						' <input id="itemSearchCriteriaForAnd1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'AND\');"> AND '+
 						'<input id="itemSearchCriteriaForOR1" type="radio" name="itemSearchCriteria1" onclick="amalto.itemsbrowser.ItemsBrowser.itemsCriteriaWithConstraints(\'itemsCriteria1\', \'1\', \'OR\');"> OR '+
 						'<br/></span>'
@@ -2084,10 +2086,16 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var node = itemTree.getNodeByIndex(id);
 		var value  = DWRUtil.getValue(id+"Value");
 		
+		
+		
 		if(node.itemData.valueInfo != null)
 		{
 			value = node.itemData.value;
 		}
+		//add by ymli
+        if(realValues !=undefined && realValues[treeIndex]!=undefined && realValues[treeIndex][id]!=undefined)
+          value = realValues[treeIndex][id];
+		
 		if(node.itemData.key==true){
 			keys[treeIndex][node.itemData.keyIndex] = value;
 		}
@@ -2095,12 +2103,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    $('errorDetail' + treeIndex).style.display = "none";
 	    
 	    //node.itemData.nodeId = id;
+	    
 		if(node.updateValue(value)==false){
-			ItemsBrowserInterface.updateNode(id, value, treeIndex, function() {
-						// amalto.core.ready();
-			
-			$('errorDesc' + treeIndex).style.display = "block";
-					});
+			 ItemsBrowserInterface.updateNode(id, value, treeIndex, function() {
+                        // amalto.core.ready();
+            
+             $('errorDesc' + treeIndex).style.display = "block";
+                       });
 			allUpdate = true;
 		} 
 		else
@@ -2113,21 +2122,22 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			 $('errorDesc' + treeIndex).style.display = "none";
 		}
 				
-
-		ItemsBrowserInterface.updateNode(id,value,treeIndex,function(result){
-			amalto.core.ready(result);
-			if(allUpdate == false)
-			{			
-				ItemsBrowserInterface.validateItem(treeIndex, {
-					
-					callback:function(result){ 
-						if(result!=""){
-							showExceptionMsg(result, null, treeIndex);
-						}
-				    }
-				});
-			}			
-		});
+ 
+        ItemsBrowserInterface.updateNode(id,value,treeIndex,function(result){
+            amalto.core.ready(result);
+            if(allUpdate == false)
+            {           
+                ItemsBrowserInterface.validateItem(treeIndex, {
+                    
+                    callback:function(result){ 
+                        if(result!=""){
+                            showExceptionMsg(result, null, treeIndex);
+                        }
+                    }
+                });
+            }           
+        });
+		
 		
 		amalto.core.ready();
 		
@@ -2740,7 +2750,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		});
 	}
 	
-	function showDatePicker(nodeId, treeIndex, nodeType) {
+	function showDatePicker(nodeId, treeIndex, nodeType,displayFormats) {
 		if (nodeDatePickerWindow) {
 			nodeDatePickerWindow.hide();
 			nodeDatePickerWindow.destroy();
@@ -2772,13 +2782,35 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 										if (nodeType == "dateTime") {
 											setValue += "T00:00:00"
 										};
-										DWRUtil.setValue(inputText, setValue);
-										if(treeIndex != -1)
-										{
-										  updateNode(nodeId, treeIndex);	
+										if(displayFormats!="null")
+										ItemsBrowserInterface.printFormat(language,displayFormats,setValue,"date",function(resultValue){
+										  //setValue = resultValue;
+										  if(resultValue!="null")
+                                             DWRUtil.setValue(inputText,resultValue);
+                                             if(realValues[treeIndex] == undefined)
+                                                realValues[treeIndex] = [];
+                                             realValues[treeIndex][nodeId] = setValue;
+										  
+										  //DWRUtil.setValue(inputText, resultValue);
+										  if(treeIndex != -1)
+										  {
+										   updateNode(nodeId, treeIndex);	
+										  }
+										  nodeDatePickerWindow.hide();
+										  nodeDatePickerWindow.destroy();										
+										});
+										else{
+										  DWRUtil.setValue(inputText, setValue);
+                                          if(treeIndex != -1)
+                                          {
+                                          	 if(realValues[treeIndex] == undefined)
+                                                realValues[treeIndex] = [];
+                                           realValues[treeIndex][nodeId] = setValue;
+                                           updateNode(nodeId, treeIndex);   
+                                          }
+                                          nodeDatePickerWindow.hide();
+                                          nodeDatePickerWindow.destroy();   
 										}
-										nodeDatePickerWindow.hide();
-										nodeDatePickerWindow.destroy();										
 									}
 								}
 							}]
@@ -3244,8 +3276,41 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			}
 		});
 	}
-
-
+	/**
+	 * @author ymli fix the bug:0013463
+	 * get the realValue of the node
+	 */
+    function getRealValue(id,treeIndex){
+    	var itemTree = itemTreeList[treeIndex];
+        var node = itemTree.getNodeByIndex(id);
+        var value = node.itemData.realValue;
+        if(realValues[treeIndex] != undefined && realValues[treeIndex][id]!= undefined)
+            value = realValues[treeIndex][id];
+        var inputText=id+"Value";  
+        DWRUtil.setValue(inputText,value);
+       
+    }
+        /**
+     * @author ymli fix the bug:0013463
+     * get the realValue of the node
+     */
+    function setFormatValue(id,treeIndex,displayFormats){
+        var itemTree = itemTreeList[treeIndex];
+        var node = itemTree.getNodeByIndex(id);
+        var inputText=id+"Value";  
+        var value =  DWRUtil.getValue(inputText);
+        var typeName = node.itemData.typeName;
+        if(value!="")
+         ItemsBrowserInterface.printFormat(language,displayFormats,value,typeName, function(result){
+         	if(result!="null")
+                DWRUtil.setValue(inputText,result);
+            if(realValues[treeIndex] == undefined)
+                realValues[treeIndex] = [];
+             realValues[treeIndex][id] = value;
+             updateNode(id, treeIndex); 
+         });
+    }
+    
  	return {
 		init: function() {browseItems(); },
 		getViewItems:function() {getViewItems();},
@@ -3259,7 +3324,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		updateNode:function(id,treeIndex){updateNode(id,treeIndex);},
 		setlastUpdatedInputFlagPublic:function(id,treeIndex){setlastUpdatedInputFlag(id,treeIndex);},
 		browseForeignKey:function(nodeId, foreignKeyXpath, foreignKeyInfo){browseForeignKey(nodeId, foreignKeyXpath, foreignKeyInfo);},
-		showDatePicker:function(nodeId,treeIndex,nodeType){showDatePicker(nodeId,treeIndex,nodeType);},
+		showDatePicker:function(nodeId,treeIndex,nodeType,displayFormats){showDatePicker(nodeId,treeIndex,nodeType,displayFormats);},
 		showUploadFile: function (nodeId, treeIndex, nodeType){showUploadFile(nodeId, treeIndex, nodeType)},
 		removePicture: function (nodeId, treeIndex){removePicture(nodeId, treeIndex)},
 		chooseForeignKey:function(nodeId,xpath,xpathInfo,fkFilter,treeIndex){chooseForeignKey(nodeId,xpath,xpathInfo,fkFilter,treeIndex);},
@@ -3273,6 +3338,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		filterForeignKey:function(string0, string1, id){filterForeignKey(string0, string1, id);},
 		getSiblingsLength:function(node){getSiblingsLength(node);},
 		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);},
-		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);}
+		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);},
+		getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
+		setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}
  	}
 }();

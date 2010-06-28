@@ -23,6 +23,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.acl.Group;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -44,9 +45,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.exolab.castor.types.Date;
+import org.exolab.castor.types.Time;
 import org.jboss.security.Base64Encoder;
 import org.jboss.security.SimpleGroup;
-import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -82,7 +84,6 @@ import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.amalto.webapp.util.webservices.XtentisPort;
 import com.amalto.webapp.util.webservices.XtentisService_Impl;
-import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.XmlServerException;
@@ -1405,5 +1406,38 @@ public class Util {
 	            )
 	        ).getValue();
 	    }
-		
+	    /**
+	     * @author ymli
+	     * @param type
+	     * @param value
+	     * @return
+	     * @throws ParseException
+	     * Byte, Short, Integer, and Long 
+		   Float and Double 
+		 date,time
+	     */
+	    
+		public static Object getTypeValue(String type, String value) throws ParseException{
+			//time
+			if(type.equals("date"))
+				return Date.parseDate(value).toCalendar();
+			else if(type.equals("time"))
+				return Time.parseTime(value);
+			/*else if(type.equals("dateTime"))
+				return DateTime*/
+			//numberic
+			else if(type.equals("byte"))
+				return Byte.valueOf(value);
+			else if(type.equals("short"))
+				return Short.valueOf(value);
+			else if(type.equals("int")||type.equals("integer"))
+				return Integer.valueOf(value);
+			else if(type.equals("long"))
+				return Long.valueOf(value);
+			else if(type.equals("float"))
+				return Float.valueOf(value);
+			else if(type.equals("double"))
+				return Double.valueOf(value);
+			return null;
+		}	
 }

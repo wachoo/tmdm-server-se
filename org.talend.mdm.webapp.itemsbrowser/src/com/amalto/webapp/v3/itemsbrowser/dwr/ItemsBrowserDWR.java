@@ -3,10 +3,15 @@ package com.amalto.webapp.v3.itemsbrowser.dwr;
 import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -22,10 +27,9 @@ import org.apache.xerces.dom.ElementNSImpl;
 import org.apache.xerces.dom.TextImpl;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
+import org.exolab.castor.types.Date;
 import org.jboss.dom4j.DocumentException;
 import org.jboss.dom4j.io.SAXReader;
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -67,7 +71,6 @@ import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSRouteItemV2;
-import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSTransformer;
 import com.amalto.webapp.util.webservices.WSTransformerContext;
@@ -82,7 +85,6 @@ import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSWhereOr;
-import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.amalto.webapp.v3.itemsbrowser.bean.Restriction;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
 import com.amalto.webapp.v3.itemsbrowser.bean.View;
@@ -330,7 +332,7 @@ public class ItemsBrowserDWR {
 			return "ERROR";
 		}		
 	}
-	private void setChildrenWithKeyMask(int id, String language, boolean foreignKey, int docIndex, boolean maskKey, boolean choice, XSParticle xsp,ArrayList<TreeNode> list,HashMap<String,TreeNode> xpathToTreeNode){
+	private void setChildrenWithKeyMask(int id, String language, boolean foreignKey, int docIndex, boolean maskKey, boolean choice, XSParticle xsp,ArrayList<TreeNode> list,HashMap<String,TreeNode> xpathToTreeNode) throws ParseException{
 		//aiming added see 0009563
 		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
 			XSParticle[] xsps=xsp.getTerm().asModelGroup().getChildren();
@@ -658,13 +660,14 @@ public class ItemsBrowserDWR {
 	 * @param nodeCount the internal count of nodes in yui tree
 	 * @param language
 	 * @return an array of TreeNode
+	 * @throws ParseException 
 	 */
 //	TreeNode parentNode,
-	public TreeNode[] getChildren( int id, int nodeCount, String language, boolean foreignKey, int docIndex){
+	public TreeNode[] getChildren( int id, int nodeCount, String language, boolean foreignKey, int docIndex) throws ParseException{
 		return getChildrenWithKeyMask(id, nodeCount, language, foreignKey, docIndex, false);
 	}
 		
-	public TreeNode[] getChildrenWithKeyMask(int id, int nodeCount, String language, boolean foreignKey, int docIndex, boolean maskKey){
+	public TreeNode[] getChildrenWithKeyMask(int id, int nodeCount, String language, boolean foreignKey, int docIndex, boolean maskKey) throws ParseException{
 		WebContext ctx = WebContextFactory.get();	
 		HashMap<Integer,XSParticle> idToParticle = 
 			(HashMap<Integer,XSParticle>) ctx.getSession().getAttribute("idToParticle");
@@ -2301,6 +2304,28 @@ public class ItemsBrowserDWR {
 		}
 		return ret;
 	}
+	/**
+	 * @author ymli; fix the bug:0013463
+	 * @param lang
+	 * @param format
+	 * @param value
+	 * @return
+	 * @throws ParseException 
+	 */
+	public String printFormat(String lang,String format,String value,String typeName) throws ParseException{
+		//if(format.equals("null") || Util.getTypeValue(typeName, value)==null)
+		if(Util.getTypeValue(typeName, value)==null)
+			return value;
+		return com.amalto.core.util.Util.printWithFormat(new Locale(lang), format, Util.getTypeValue(typeName, value));
+	}
 	
+	/*public String changetoLocalFormat(String value) throws ParseException{
+			//Date date = new Date(value);
+		GregorianCalendar firstFlight = new GregorianCalendar(); 
+		java.sql.Date date2= java.sql.Date.valueOf(value);
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			return sdf.format(date2);	
+			
+	}*/
 	
 }

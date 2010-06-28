@@ -1,10 +1,13 @@
 package com.amalto.webapp.v3.itemsbrowser.bean;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.exolab.castor.types.Date;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -47,13 +50,28 @@ public class TreeNode implements Cloneable {
 	private ArrayList<String> enumeration;
 	private boolean retrieveFKinfos = false;
 	private String fkFilter;
-   private String foreignKey;
+	private String foreignKey;
 	private boolean visible;
 	private boolean key = false;
 	private int keyIndex = -1;
 	//add by fliu 0009157
 	private HashMap<String, String> facetErrorMsgs  = new HashMap<String, String>();
+	private String realValue;
 
+	public void setRealValue(String realValue) {
+		this.realValue = realValue;
+	}
+
+
+	public String getRealValue() {
+		return realValue;
+	}
+
+
+	//add by ymli; fix the bug:0013463
+	//private HashMap<String, String> displayFomats  = new HashMap<String, String>();
+	private String[] displayFomats = new String[2];
+	
 	public Object clone() {
 		try {
 			return super.clone();
@@ -117,7 +135,17 @@ public class TreeNode implements Cloneable {
     							  setFacetErrorMsg(matcher.group(1).toLowerCase(), annotList.item(k).getFirstChild().getNodeValue());
     						  }
     					}
+    					else if(appinfoSource.indexOf("X_Display_Format_")!=-1){
+    						 Pattern p = Pattern.compile("X_Display_Format_(.*?)");  
+   						  Matcher matcher = p.matcher(appinfoSource); 
+   						  if (matcher.matches() && matcher.group(1).toLowerCase().equals(language))
+   						  {
+   							  setDisplayFomats(matcher.group(1).toLowerCase(), annotList.item(k).getFirstChild().getNodeValue());
+   						  }
+    					}
     				}
+    				
+    				
     				if("documentation".equals(annotList.item(k).getLocalName())) {
     					setDocumentation(annotList.item(k).getFirstChild().getNodeValue());
     				}
@@ -310,9 +338,26 @@ public void setFkFilter(String fkFilter) {
 		return value;
 	}
 
-	public void setValue(String value) {
+	public void setValue(String value) throws ParseException {
+		//System.out.println("type: "+type);
+		//System.out.println("type Name: "+typeName);
+		//edit by ymli; fix the bug:0013463
+		this.realValue = value;
+		
+		if(displayFomats!=null&&displayFomats.length>0){
+			String format = displayFomats[1];
+			String lang = displayFomats[0];
+			if(format!=null && lang!=null && value!=null){
+				Locale locale = new Locale(lang);
+				if( com.amalto.webapp.core.util.Util.getTypeValue(typeName, value)!=null)
+					value = Util.printWithFormat(locale, format, com.amalto.webapp.core.util.Util.getTypeValue(typeName,value));
+		}
+		}
 		this.value = value;
 	}
+	
+	
+
 
 	public String getValueInfo(){
 		return valueInfo;
@@ -399,5 +444,25 @@ public void setFkFilter(String fkFilter) {
 	public HashMap getFacetErrorMsg()
 	{
 		return facetErrorMsgs;
+	}
+	/**
+	 * @author ymli fix the bug:0013463
+	 * @param lang
+	 * @param fomat
+	 */
+	public void setDisplayFomats(String lang, String format){
+		/*if(displayFomats.containsKey(lang))
+			displayFomats.remove(lang);
+		displayFomats.put(lang, fomat);*/
+		displayFomats[0] = lang;
+		displayFomats[1] = format;
+	}
+	/**
+	 * @author ymli fix the bug:0013463
+	 * @param lang
+	 * @param fomat
+	 */
+	public String[] getDisplayFomats(){
+		return displayFomats;
 	}
 }
