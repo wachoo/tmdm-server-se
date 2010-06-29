@@ -1943,7 +1943,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                            if(result){
                                Ext.MessageBox.alert('Status', "Process done! ");
                                //FIXME mock refresh
-                               itemTree.removeNode(node1);
+                               itemTree.removeNode(itemTree.getRoot().children[0]);
                                node1 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
                                ItemsBrowserInterface.setTree(dataObject, itemPK2, node1.index, false, treeIndex, false, function(result){                             
                                     node1.setDynamicLoad(fnLoadData,1);
