@@ -124,17 +124,17 @@ amalto.viewbrowser.ViewBrowser = function () {
 		view = result;
 		//DWRUtil.setValue('viewInfos',view.description);
 		$('labelCriteria').style.display = "block";
-		DWRUtil.setValue('criterias','<span id="criteria1"><select id="field1"><option value="">Any field</option></select>' +
-						'<select id="operator1"></select>' +
+		DWRUtil.setValue('criterias','<span id="criteria1"><select id="viewfield1"><option value="">Any field</option></select>' +
+						'<select id="viewoperator1"></select>' +
 						'<input id="value1" type="text" value="*" onkeypress="DWRUtil.onReturn(event, amalto.viewbrowser.ViewBrowser.displayView);" /> ' +
 						'<span onClick="amalto.viewbrowser.ViewBrowser.addCriteria(\'criteria1\');"><img src="img/genericUI/add-element.gif"/></span>'+
 						'<br/></span>');	
 	
-		DWRUtil.addOptions('operator1',OPERATORS[language]);
-		DWRUtil.removeAllOptions('field1');
+		DWRUtil.addOptions('viewoperator1',OPERATORS[language]);
+		DWRUtil.removeAllOptions('viewfield1');
 		//var tmp = ["Any field"];
 		//DWRUtil.addOptions('field1',tmp);
-		DWRUtil.addOptions('field1',view.searchables);
+		DWRUtil.addOptions('viewfield1',view.searchables);
 		/*for(var i=2; i<criteriaCount+1; i++) {
 			try{
 				//DWRUtil.removeAllOptions('field'+i);
@@ -156,7 +156,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 		
 		var tpl = new Ext.DomHelper.Template(
 						'<span id="criteria{id}">' +
-						'<select id="field{id}"></select>' +
+						'<select id="viewfield{id}"></select>' +
 						'<select id="operator{id}"></select>' +
 						'<input id="value{id}" type="text"  value="*" onkeypress="DWRUtil.onReturn(event, amalto.viewbrowser.ViewBrowser.displayView);"/>  ' +
 						'<span onClick="amalto.viewbrowser.ViewBrowser.addCriteria(\'criteria{id}\');"><img src="img/genericUI/add-element.gif"/></span> ' +
@@ -165,8 +165,8 @@ amalto.viewbrowser.ViewBrowser = function () {
 		//criteria[criteriaCount]=criteriaCount;
 		var id2 = parseInt(criteriaCount+1);
 		tpl.insertAfter(criteriaParent,{id:criteriaCount});
-		DWRUtil.addOptions('operator'+criteriaCount,OPERATORS[language]);
-		DWRUtil.addOptions('field'+criteriaCount,SEARCHABLES);
+		DWRUtil.addOptions('viewoperator'+criteriaCount,OPERATORS[language]);
+		DWRUtil.addOptions('viewfield'+criteriaCount,SEARCHABLES);
 		
 	}
 	
@@ -284,7 +284,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 	    var nodeList = $('criterias').childNodes;
 		for(var i=0; i<nodeList.length; i++) {
 			var id = nodeList[i].id.substring(8);
-			criteria += DWRUtil.getValue('field'+id)+"#"+DWRUtil.getValue('operator'+id)+"#"+(DWRUtil.getValue('value'+id)!=''?DWRUtil.getValue('value'+id):'*')+"#,";
+			criteria += DWRUtil.getValue('viewfield'+id)+"#"+DWRUtil.getValue('viewoperator'+id)+"#"+(DWRUtil.getValue('value'+id)!=''?DWRUtil.getValue('value'+id):'*')+"#,";
 	
 		}
 	  	var myColumns = new Array();
