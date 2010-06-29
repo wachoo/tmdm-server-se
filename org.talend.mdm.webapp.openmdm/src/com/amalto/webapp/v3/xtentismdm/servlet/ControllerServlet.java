@@ -57,6 +57,11 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 		res.setContentType("text/html; charset=UTF-8");
 		res.setHeader("Content-Type","text/html; charset=UTF-8");
 		
+		//see  	 0013864
+		String username=com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
+		if("admin".equals(username)) {
+			throw new Exception("admin can't login WebUI");
+		}
 		// Dispacth call
 		String jsp = req.getParameter("action");	
 		if ("logout".equals(jsp)) {
