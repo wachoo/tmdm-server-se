@@ -1326,6 +1326,8 @@ public class ItemsBrowserDWR {
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
+					String err = "Unable to save item '" + concept + "." + Util.joinStrings(ids, ".") + "'" + e.getLocalizedMessage();
+                    return err;
 				}
 			}
 			
