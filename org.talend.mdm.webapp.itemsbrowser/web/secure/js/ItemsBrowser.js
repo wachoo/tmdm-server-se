@@ -2604,6 +2604,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					amalto.core.ready(result);
 					if(result=="ERROR_2"){
 						amalto.core.ready(ALERT_NO_CHANGE[language]);
+						if(callbackOnSuccess)callbackOnSuccess(); 
 						// alert(ALERT_NO_CHANGE[language]);
 					}else if(result.indexOf('ERROR_3:')==0){
 						// add for before saving transformer check
