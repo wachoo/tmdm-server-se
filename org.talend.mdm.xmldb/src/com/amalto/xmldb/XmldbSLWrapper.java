@@ -822,6 +822,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 //	    		content = HIGHLIGHT_END_PATTERN.matcher(content).replaceAll("h__");
         		result.add(content);
         	}
+	    	//Release resources
+	    	resourceSet.clear();
+	    	
         	return result;
 
 		} catch (Exception e) {
