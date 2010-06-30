@@ -1331,10 +1331,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "[matches(./p , '"+wsGetItemPKsByCriteria.getContentKeywords()+"')]")+
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
-					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[matches(./i , '"+wsGetItemPKsByCriteria.getKeysKeywords()+"')]")+
-					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq '"+wsGetItemPKsByCriteria.getConceptName()+"']");
-	 		
-	 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+=" [ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";
+					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[matches(./i , '"+wsGetItemPKsByCriteria.getKeysKeywords()+"')]");
+			String concept=	wsGetItemPKsByCriteria.getConceptName() != null?"p/"+wsGetItemPKsByCriteria.getConceptName():".";		 		
+	 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+="[ft:query("+concept+",\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";
+	 		query+=(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq '"+wsGetItemPKsByCriteria.getConceptName()+"']");
 	 		
 	 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
 				
@@ -1343,10 +1343,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "[ora:matches(./p , \""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]")+
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
-					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[ora:matches(./i , \""+wsGetItemPKsByCriteria.getKeysKeywords()+"\")]")+
-					(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq \""+wsGetItemPKsByCriteria.getConceptName()+"\"]");
-	 		
-		 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+=" [ft:query(.,\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";		 		       
+					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[ora:matches(./i , \""+wsGetItemPKsByCriteria.getKeysKeywords()+"\")]");
+				
+					concept=	wsGetItemPKsByCriteria.getConceptName() != null?"p/"+wsGetItemPKsByCriteria.getConceptName():".";		 		
+			 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+="[ft:query("+concept+",\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";
+			 		query+=(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq '"+wsGetItemPKsByCriteria.getConceptName()+"']");
 	 		}	 	
 	    	int start=wsGetItemPKsByCriteria.getSkip();
 	    	int limit=wsGetItemPKsByCriteria.getMaxItems();
