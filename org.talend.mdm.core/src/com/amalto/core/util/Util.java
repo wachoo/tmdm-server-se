@@ -2979,6 +2979,8 @@ public  class Util {
 	 
 	 public static String getAppServerDeployDir() {
 			String jbossHomePath=System.getenv("JBOSS_HOME");
+			if(jbossHomePath==null)
+			    jbossHomePath = System.getProperty("jboss.home.dir");
 			return jbossHomePath;
 	 }
 	 public static String getJbossHomeDir() {
