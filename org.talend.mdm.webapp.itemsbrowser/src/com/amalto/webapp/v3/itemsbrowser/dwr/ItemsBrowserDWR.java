@@ -1356,9 +1356,6 @@ public class ItemsBrowserDWR {
 			//org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).error(err,e);
 			//throw e;
 			return err;
-		}finally {
-			//clear ctx see 0011689: problem with beforeSaving Process 
-			synchronizeUpdateState(ctx);			
 		}
 	}
 
@@ -1608,7 +1605,11 @@ public class ItemsBrowserDWR {
 		}
 	}
 
-
+	public static void  synchronizeUpdateState() {
+        WebContext ctx = WebContextFactory.get();   
+        synchronizeUpdateState(ctx);
+    }
+	
 	private static void synchronizeUpdateState(WebContext ctx) {
 		ctx.getSession().setAttribute("updatedPath",null);
 		ctx.getSession().setAttribute("viewNameItems",null);

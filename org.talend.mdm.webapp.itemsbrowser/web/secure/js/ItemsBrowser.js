@@ -2061,6 +2061,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						xtype : "tbtext"
 					}])					
     			});
+    			
+    			//clear ctx see 0011689: problem with beforeSaving Process 
+    			contentPanel.on('destroy', function() {
+    				ItemsBrowserInterface.synchronizeUpdateState();
+    			});
 			}
 			tabPanel.add(contentPanel); 
 
