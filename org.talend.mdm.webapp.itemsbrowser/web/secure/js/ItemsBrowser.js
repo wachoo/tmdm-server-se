@@ -2756,7 +2756,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		});
 	}
 	
-	function showDatePicker(nodeId, treeIndex, nodeType,displayFormats) {
+	function showDatePicker(nodeId, treeIndex, nodeType) {
 		if (nodeDatePickerWindow) {
 			nodeDatePickerWindow.hide();
 			nodeDatePickerWindow.destroy();
@@ -2788,24 +2788,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 										if (nodeType == "dateTime") {
 											setValue += "T00:00:00"
 										};
-										if(displayFormats!="null")
-										ItemsBrowserInterface.printFormat(language,displayFormats,setValue,"date",function(resultValue){
-										  //setValue = resultValue;
-										  if(resultValue!="null")
-                                             DWRUtil.setValue(inputText,resultValue);
-                                             if(realValues[treeIndex] == undefined)
-                                                realValues[treeIndex] = [];
-                                             realValues[treeIndex][nodeId] = setValue;
-										  
-										  //DWRUtil.setValue(inputText, resultValue);
-										  if(treeIndex != -1)
-										  {
-										   updateNode(nodeId, treeIndex);	
-										  }
-										  nodeDatePickerWindow.hide();
-										  nodeDatePickerWindow.destroy();										
-										});
-										else{
+									
 										  DWRUtil.setValue(inputText, setValue);
                                           if(treeIndex != -1)
                                           {
@@ -2816,7 +2799,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                                           }
                                           nodeDatePickerWindow.hide();
                                           nodeDatePickerWindow.destroy();   
-										}
 									}
 								}
 							}]
@@ -3344,8 +3326,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		filterForeignKey:function(string0, string1, id){filterForeignKey(string0, string1, id);},
 		getSiblingsLength:function(node){getSiblingsLength(node);},
 		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);},
-		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);},
-		getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
-		setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}
+		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);}
+		//getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
+		//setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}
  	}
 }();

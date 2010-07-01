@@ -56,7 +56,7 @@ public class TreeNode implements Cloneable {
 	private int keyIndex = -1;
 	//add by fliu 0009157
 	private HashMap<String, String> facetErrorMsgs  = new HashMap<String, String>();
-	private String realValue;
+	/*private String realValue;
 
 	public void setRealValue(String realValue) {
 		this.realValue = realValue;
@@ -65,7 +65,7 @@ public class TreeNode implements Cloneable {
 
 	public String getRealValue() {
 		return realValue;
-	}
+	}*/
 
 
 	//add by ymli; fix the bug:0013463
@@ -342,7 +342,7 @@ public void setFkFilter(String fkFilter) {
 		//System.out.println("type: "+type);
 		//System.out.println("type Name: "+typeName);
 		//edit by ymli; fix the bug:0013463
-		this.realValue = value;
+		/*this.realValue = value;
 		
 		if(displayFomats!=null&&displayFomats.length>0){
 			String format = displayFomats[1];
@@ -352,7 +352,7 @@ public void setFkFilter(String fkFilter) {
 				if( com.amalto.webapp.core.util.Util.getTypeValue(typeName, value)!=null)
 					value = Util.printWithFormat(locale, format, com.amalto.webapp.core.util.Util.getTypeValue(typeName,value));
 		}
-		}
+		}*/
 		this.value = value;
 	}
 	
