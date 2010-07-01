@@ -273,7 +273,14 @@ public class ItemsBrowserDWR {
 	public String setTree(String concept, String[] ids, int nodeId, boolean foreignKey, int docIndex, boolean refresh){
         WebContext ctx = WebContextFactory.get();	
 		try {
-
+			if(ids == null)
+			{
+				String[] idsExist = (String[])ctx.getSession().getAttribute("treeIdxToIDS" + docIndex);
+				if(idsExist != null && idsExist.length > 0)
+				{
+					ids = idsExist;
+				}
+			}
 			Configuration config = Configuration.getInstance();
 			String dataModelPK = config.getModel();
 			String dataClusterPK = config.getCluster();
@@ -1344,6 +1351,7 @@ public class ItemsBrowserDWR {
 
 			//put update report
 			synchronizeUpdateState(ctx);
+			ctx.getSession().setAttribute("treeIdxToIDS" + docIndex, wsi.getIds());
 			//update update report key
 			if(resultUpdateReport!=null && wsi!=null) {
 				resultUpdateReport=resultUpdateReport.replaceFirst("<Key>.*</Key>", "<Key>"+Util.joinStrings(wsi.getIds(),".")+"</Key>"); 					
@@ -2224,8 +2232,13 @@ public class ItemsBrowserDWR {
 		return listRange;
 	}
 	
-	public boolean processItem(String concept, String[] ids,String transformerPK) throws Exception {
+	public boolean processItem(String concept, String[] ids,int docIndex, String transformerPK) throws Exception {
 		try {
+			if(ids.length == 0)
+			{
+				WebContext ctx = WebContextFactory.get();
+				ids = (String[])ctx.getSession().getAttribute("treeIdxToIDS" + docIndex);
+			}
 			String itemAlias = concept + "." + Util.joinStrings(ids, ".");
 			//create updateReport
 			org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).info(
