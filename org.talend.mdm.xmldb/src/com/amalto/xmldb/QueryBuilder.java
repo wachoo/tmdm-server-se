@@ -457,8 +457,11 @@ public class QueryBuilder {
 				// where =
 				// XPathUtils.factor(wc.getRightValueOrPath(),pivots)+" = "+factorPivots;
 				// //Join error aiming added
-				where = "matches(" + factorPivots + ", \"" + encoded
-						+ "\",\"i\") ";
+				
+				//FIXME:ASSUME the pivots are the same?
+				String factorRightPivot = XPathUtils.factor(encoded, pivots)+ ""; 
+				where = "contains(" + factorPivots + ", " + factorRightPivot + "/text()) ";
+	
 			} else if (operator.equals(WhereCondition.EQUALS)) {
 				if (isNum) {
 					where = "number(" + factorPivots + ") eq " + encoded;
