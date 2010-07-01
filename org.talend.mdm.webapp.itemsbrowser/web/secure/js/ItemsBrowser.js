@@ -2127,7 +2127,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			 $('errorDesc' + treeIndex).style.display = "none";
 		}
 				
- 
+        DWREngine.setAsync(false); 
         ItemsBrowserInterface.updateNode(id,value,treeIndex,function(result){
             amalto.core.ready(result);
             if(allUpdate == false)
@@ -2142,7 +2142,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 });
             }           
         });
-		
+        DWREngine.setAsync(true); 
 		
 		amalto.core.ready();
 		
