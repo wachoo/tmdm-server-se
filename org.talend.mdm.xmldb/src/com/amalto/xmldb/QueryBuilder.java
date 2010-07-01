@@ -437,7 +437,7 @@ public class QueryBuilder {
 
 			} else if (operator.equals(WhereCondition.FULLTEXTSEARCH)) {
 				// where = "near("+factorPivots+", \""+encoded+"\",1)";
-				where = "ft:query(..,\""
+				where = "ft:query(.,\""
 						+ StringEscapeUtils.escapeXml(wc.getRightValueOrPath()
 								.trim()) + "\")";
 			} else if (operator.equals(WhereCondition.STRICTCONTAINS)) {

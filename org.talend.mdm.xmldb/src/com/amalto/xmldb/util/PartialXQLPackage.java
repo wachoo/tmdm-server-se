@@ -36,7 +36,14 @@ public class PartialXQLPackage {
 		public void genPivotWhereMap() {
 			
 			pivotWhereMap = getPivotWhereMap(xqWhere);
-			if(pivotWhereMap.size()==1) {
+			
+			if(pivotWhereMap.size()==0) {
+				boolean usingFTSearch=false;
+				if(xqWhere!=null&&xqWhere.trim().toLowerCase().startsWith("ft:"))usingFTSearch=true;
+				if(usingFTSearch) {
+					pivotWhereMap.put("$pivot0", xqWhere.trim());
+				}
+			}else if(pivotWhereMap.size()==1) {
 				String replacedXQWhere=xqWhere.replaceAll("\\$pivot\\d+/", "");
 				String pivotName=getPivotName(xqWhere);
 				pivotWhereMap.put(pivotName, replacedXQWhere);
