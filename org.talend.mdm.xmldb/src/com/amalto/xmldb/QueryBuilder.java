@@ -596,7 +596,7 @@ public class QueryBuilder {
 	    					+XPathUtils.factor(orderBy, pivotsMap)
 	    					+(direction == null ? "" : " "+direction);
 	    	}
-
+	    	partialXQLPackage.setXqOrderBy(xqOrderBy);
 	    	//Get For
 	    	String xqFor = getXQueryFor(
 	    		isItemQuery,
@@ -607,11 +607,13 @@ public class QueryBuilder {
 	    		queryBuilderContext
 	    	);
 
-	    	String rawQuery =
-	    		xqFor
-	    		//+("".equals(xqWhere)? "" : "\nwhere "+xqWhere)
-	    		+("".equals(xqOrderBy) ? "" : "\n"+xqOrderBy)
-	    		+"\nreturn "+xqReturn;
+	    	StringBuffer rawQueryStringBuffer = new StringBuffer();
+	    	rawQueryStringBuffer.append(xqFor);
+	    	//rawQueryStringBuffer.append("".equals(xqWhere)? "" : "\nwhere "+xqWhere);
+	    	if(!partialXQLPackage.isUseGlobalOrderBy())rawQueryStringBuffer.append("".equals(xqOrderBy) ? "" : "\n"+xqOrderBy);
+	    	rawQueryStringBuffer.append("\nreturn "+xqReturn);
+	    	String rawQuery = rawQueryStringBuffer.toString();
+	    		
 
 	    	//Determine Query based on number of results an counts
 	    	String query = null;
@@ -662,6 +664,7 @@ public class QueryBuilder {
 				String root =  iterator.next();
 				String expr =  forInCollectionMap.get(root);
 				if(pivotWhereMap.get(root)!=null&&pivotWhereMap.get(root).length()>0)expr=expr+" [ "+pivotWhereMap.get(root)+" ] ";
+				if(partialXQLPackage.isUseGlobalOrderBy())expr=partialXQLPackage.genOrderByWithFirstExpr(expr);
 				firstLets.append("let $_leres").append(i).append("_ := ").append(expr).append(" \n");
 			}
     		query=(firstLets.toString()+query);

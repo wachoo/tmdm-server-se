@@ -18,6 +18,8 @@ public class PartialXQLPackage {
     	
     	private boolean useSubsequenceFirst;
     	
+    	private String xqOrderBy;   	
+    	
     	public PartialXQLPackage() {
     		forInCollectionMap=new LinkedHashMap<String, String>();
     		useSubsequenceFirst=false;
@@ -104,6 +106,31 @@ public class PartialXQLPackage {
 		public void setUseSubsequenceFirst(boolean useSubsequenceFirst) {
 			this.useSubsequenceFirst = useSubsequenceFirst;
 		}
+
+		public String getXqOrderBy() {
+			return xqOrderBy;
+		}
+
+		public void setXqOrderBy(String xqOrderBy) {
+			this.xqOrderBy = xqOrderBy;
+		}
+
+		public boolean isUseGlobalOrderBy() {
+			if(forInCollectionMap.size()==1&&xqOrderBy!=null&&xqOrderBy.length()>0)return true;
+			else return false;
+		}
 		
+		public String genOrderByWithFirstExpr(String expr) {
+			
+			xqOrderBy=xqOrderBy.replace("$pivot0", "$r");
+			
+			StringBuffer sb=new StringBuffer();
+			sb.append(" for $r in ")
+			  .append(expr).append(" ")
+			  .append(xqOrderBy)
+			  .append(" return $r ");
+			
+			return sb.toString();
+		}
     	
 }
