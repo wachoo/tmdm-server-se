@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -3033,6 +3034,7 @@ public  class Util {
 			boolean forFkValue) {
 		valuesHolder.clear();
 		XSContentType conType;
+		if(elem==null) return null;
 		XSType type = elem.getType();
 		if (elem.getName().equals(pathSlice)) {
 			if (elem.getType() instanceof XSComplexType) {
@@ -3081,13 +3083,6 @@ public  class Util {
 								XSType xsType=simpType.asRestriction().getBaseType();
 								String simpTypeName="xsd:" +xsType.getName();
 								valuesHolder.set(valuesHolder.indexOf("enumeration"), simpTypeName);
-//								Iterator<XSFacet> facetIter = simpType
-//										.asRestriction()
-//										.iterateDeclaredFacets();
-//								while (facetIter.hasNext()) {
-//									XSFacet facet = facetIter.next();
-//									valuesHolder.add(facet.getValue().value);
-								//}
 							}
 						} else {
 							XSComplexType cmpType = (XSComplexType) childElem
@@ -3098,9 +3093,7 @@ public  class Util {
 					}
 				}
 			}
-		} else {
-			XSSimpleType simpType = (XSSimpleType) type;
-		}
+		} 
 
 		return null;
 
@@ -3124,28 +3117,37 @@ public  class Util {
 		if (null != whereItem) {
 			ArrayList<String> views = new ArrayList<String>();
 			Util.getView(views, whereItem);
-			String concept = views.get(0).split("/")[0];
-
-			HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
-			if(concept==null||concept.equals(""))return metaDataTypes;
-			Map<String, XSElementDecl> xsdMap = getConceptMap(getDataModel(concept));
-
-			XSElementDecl el = xsdMap.get(concept);
-
-			for (String view : views) {
-				ArrayList<String> dataTypesHolder = new ArrayList<String>();
-				String[] pathSlices = view.split("/");
-				XSElementDecl node = parseMetaDataTypes(el, pathSlices[0],
-						dataTypesHolder, true);
-				if (pathSlices.length > 1) {
-					for (int i = 1; i < pathSlices.length; i++) {
-						node = parseMetaDataTypes(node, pathSlices[i],
-								dataTypesHolder, true);
-					}
-				}
-				metaDataTypes.put(view, dataTypesHolder);
+			Set<String> concepts=new HashSet<String>();
+			for(String v: views) {
+				concepts.add(v.split("/")[0]);
 			}
-
+			HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
+			for(String concept: concepts) {
+				if(concept!=null && concept.length()>0) {
+					HashMap<String, ArrayList<String>> types = new HashMap<String, ArrayList<String>>();
+		
+					Map<String, XSElementDecl> xsdMap = getConceptMap(getDataModel(concept));
+		
+					XSElementDecl el = xsdMap.get(concept);
+		
+					for (String view : views) {
+						ArrayList<String> dataTypesHolder = new ArrayList<String>();
+						String[] pathSlices = view.split("/");
+						XSElementDecl node = parseMetaDataTypes(el, pathSlices[0],
+								dataTypesHolder, true);
+						if (pathSlices.length > 1) {
+							for (int i = 1; i < pathSlices.length; i++) {
+								node = parseMetaDataTypes(node, pathSlices[i],
+										dataTypesHolder, true);
+							}
+						}
+						if(dataTypesHolder.size()>0) {
+							types.put(view, dataTypesHolder);
+						}
+					}
+					metaDataTypes.putAll(types);
+				}
+			}
 			return metaDataTypes;
 		}
 		return null;

@@ -41,6 +41,7 @@ import org.xmldb.api.modules.CollectionManagementService;
 import org.xmldb.api.modules.XMLResource;
 import org.xmldb.api.modules.XPathQueryService;
 
+import com.amalto.commons.core.utils.XPathUtils;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
@@ -1112,7 +1113,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         			if (xqWhere.length() > 0) {
         				xqWhere.append(" and ");
         			}
-        			HashMap<String,String> pivots=new HashMap<String,String>();
+        			LinkedHashMap<String,String> pivots=new LinkedHashMap<String,String>();
         			pivots.put(mainPivotName, mainPivotName);
     				xqWhere.append(buildWhere(" ",pivots ,whereItem,false));
     				xqWhere.append(" ");
@@ -1226,7 +1227,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
         	//build from WhereItem
         	if (whereItem != null){
         			
-        			HashMap<String,String> pivots=new HashMap<String,String>();
+        			LinkedHashMap<String,String> pivots=new LinkedHashMap<String,String>();
         			pivots.put(conceptName, conceptName);
         			
         			String appendWhere=buildWhere(" ",pivots ,whereItem,false);
@@ -1406,7 +1407,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 
 	protected String buildWhere(
 			String where,
-			HashMap<String,String> pivots,
+			LinkedHashMap<String,String> pivots,
 			IWhereItem whereItem,
 			boolean useValueComparisons
 		) throws XmlServerException{
@@ -1461,7 +1462,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	/**
 	 * Build a where condition in XQuery using paths relative to the provided list of pivots
 	 */
-	public String buildWhereCondition(WhereCondition wc, HashMap<String,String> pivots, boolean useValueComparisons) throws XmlServerException{
+	public String buildWhereCondition(WhereCondition wc, LinkedHashMap<String,String> pivots, boolean useValueComparisons) throws XmlServerException{
 		try {
 			
 			//all this is EXIST specific
@@ -1583,7 +1584,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
             }
 			} else if(operator.equals(WhereCondition.JOINS)) { 
 				//where = getPathFromPivots(wc.getRightValueOrPath(),pivots)+" = "+factorPivots; //JOIN error
-				where = "matches("+factorPivots+", \""+encoded+"\",\"i\") ";
+				String factorRightPivot = XPathUtils.factor(encoded, pivots)+ ""; 
+				where = "contains(" + factorPivots + ", " + factorRightPivot + "/text()) ";
+	
 			} else if(operator.equals(WhereCondition.EQUALS)) {
 				String useOpe="eq";
 				if(!useValueComparisons)useOpe=WhereCondition.EQUALS;
