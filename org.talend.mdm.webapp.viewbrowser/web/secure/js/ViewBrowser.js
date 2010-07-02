@@ -157,7 +157,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 		var tpl = new Ext.DomHelper.Template(
 						'<span id="criteria{id}">' +
 						'<select id="viewfield{id}"></select>' +
-						'<select id="operator{id}"></select>' +
+						'<select id="viewoperator{id}"></select>' +
 						'<input id="value{id}" type="text"  value="*" onkeypress="DWRUtil.onReturn(event, amalto.viewbrowser.ViewBrowser.displayView);"/>  ' +
 						'<span onClick="amalto.viewbrowser.ViewBrowser.addCriteria(\'criteria{id}\');"><img src="img/genericUI/add-element.gif"/></span> ' +
 						'<span onClick="amalto.viewbrowser.ViewBrowser.removeCriteria(\'{id}\');"><img src="img/genericUI/remove-element.gif"/></span> ' +
