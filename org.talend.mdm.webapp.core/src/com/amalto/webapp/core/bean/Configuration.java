@@ -60,19 +60,13 @@ public class Configuration {
 	}
 	
 	public static void initialize(String cluster,String model) throws Exception{
-		WebContext ctx = WebContextFactory.get();
-		ctx.getSession().setAttribute("configuration",null);
+
 		store(cluster, model);
 	}
 	 
 	private static void store(String cluster, String model) throws Exception{
 	   if(cluster==null || cluster.trim().length()==0)throw new Exception("Data Container can't be empty!");
 	   if(model==null || model.trim().length()==0)throw new Exception("Data Model can't be empty!");
-		WebContext ctx = WebContextFactory.get();
-		Configuration config=getInstance();
-		config.setModel(model);
-		config.setCluster(cluster);
-		ctx.getSession().setAttribute("configuration",config);
 		String xml = Util.getAjaxSubject().getXml();
 		Document d = Util.parse(xml);
 		NodeList nodeList = Util.getNodeList(d,"//property");
@@ -116,9 +110,7 @@ public class Configuration {
 	}
 	
 	private static Configuration load() throws Exception {
-		WebContext ctx = WebContextFactory.get();
 		Configuration configuration = loadConfigurationFromDB();
-		ctx.getSession().setAttribute("configuration",configuration);
 		org.apache.log4j.Logger.getLogger(Configuration.class).info(
 				"MDM set up with "+configuration.getCluster()+" and "+configuration.getModel());
 
