@@ -69,11 +69,10 @@ public class ViewRemotePaging  extends HttpServlet{
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html; charset=UTF-8");
 		
-		Configuration config = null;
+		Configuration config=null;
 		try {
-			config = (Configuration)request.getSession().getAttribute("configuration");
+			config = Configuration.getInstance();
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		String start = request.getParameter("start");

@@ -40,22 +40,11 @@ public class Configuration {
 	}
 	
 	public static Configuration getInstance() throws Exception {
-		WebContext ctx = WebContextFactory.get();
-		Configuration instance;
-		if(ctx==null) {
-			org.apache.log4j.Logger.getLogger(Configuration.class).debug(
-					"getInstance() context null");
-		}
-		if (ctx.getSession().getAttribute("configuration") == null) {
-			org.apache.log4j.Logger.getLogger(Configuration.class).info(
-			"instance null, loading");
-			 instance = load();
 
-		}
-		else{
-			 instance = (Configuration) ctx.getSession().getAttribute("configuration");
-		}
-			
+		Configuration instance;
+		//there are many session ,so we should get datacluster & datamodel from db
+		instance = load();
+		
 		return instance;
 	}
 	
@@ -80,8 +69,10 @@ public class Configuration {
 	   if(cluster==null || cluster.trim().length()==0)throw new Exception("Data Container can't be empty!");
 	   if(model==null || model.trim().length()==0)throw new Exception("Data Model can't be empty!");
 		WebContext ctx = WebContextFactory.get();
-		ctx.getSession().setAttribute("configuration",new Configuration(cluster,model));
-		
+		Configuration config=getInstance();
+		config.setModel(model);
+		config.setCluster(cluster);
+		ctx.getSession().setAttribute("configuration",config);
 		String xml = Util.getAjaxSubject().getXml();
 		Document d = Util.parse(xml);
 		NodeList nodeList = Util.getNodeList(d,"//property");
