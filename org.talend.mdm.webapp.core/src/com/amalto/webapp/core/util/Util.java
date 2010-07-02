@@ -1251,7 +1251,9 @@ public class Util {
 	            if(value!=null && !"".equals(value.trim())) { 
 	            	List<WSWhereItem> condition=new ArrayList<WSWhereItem>();
 	            	if(whereItem!=null)condition.add(whereItem);
-	            	WSWhereItem wc=buildWhereItem(conceptName+"/. CONTAINS "+value);
+	            	WSWhereItem wc=null;
+	            	if(xpathForeignKey.equals(conceptName))wc=buildWhereItem(conceptName+"/. CONTAINS "+value);
+	            	else wc=buildWhereItem(xpathForeignKey+" CONTAINS "+value);
 	            	condition.add(wc);
 	            	WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
 	    			WSWhereItem whand = new WSWhereItem(null,and,null);

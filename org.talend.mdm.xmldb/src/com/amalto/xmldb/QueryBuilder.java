@@ -71,6 +71,8 @@ public class QueryBuilder {
 				Step lastStep = ((Path)viewablePath).getSteps()[((Path)viewablePath).getSteps().length-1];
 				if (lastStep.getNodeTest() instanceof NodeNameTest) {
 					String lastElementName = lastStep.getNodeTest().toString();
+					//hshu modified,because Mantis interprets the 'i' tag as a text formatting (italic)
+					if(lastElementName!=null&&lastElementName.equals("i"))lastElementName="xi";
     				if (lastStep.getAxis() == Compiler.AXIS_ATTRIBUTE) {
     					xqReturn+= "<"+lastElementName+">{string("+factoredPath+ ")}</"+lastElementName+">";
     				} else {
