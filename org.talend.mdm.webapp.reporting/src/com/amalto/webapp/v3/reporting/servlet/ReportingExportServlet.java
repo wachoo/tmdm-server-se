@@ -99,15 +99,7 @@ public class ReportingExportServlet extends HttpServlet {
 		
 		
 		org.apache.log4j.Logger.getLogger(this.getClass()).debug("doGet() reporting name"+reportingName);
-		
-		Configuration config = null;
-		try {
-			config = (Configuration)request.getSession().getAttribute("configuration");
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
+				
 		try {
 			ReportingDWR reportingDWR = new ReportingDWR();
 			Reporting reporting = reportingDWR.getReporting(reportingName);

@@ -222,7 +222,7 @@ amalto.reporting.Reporting = function () {
 	var fields  = new Array();
 	var EDIT = false;
 	var DUPLICATE = false;
-	var lineMax = 50;
+	var lineMax = 20;
 	/********************************************************************
 	 * Action show reporting
 	 ********************************************************************/
@@ -531,7 +531,7 @@ amalto.reporting.Reporting = function () {
 							            if(e.getKey() == e.ENTER) {
 					                		lineMax = DWRUtil.getValue('lineMaxReporting');
 											if(lineMax==null || lineMax=="") 
-												lineMax=50;
+												lineMax=20;
 											displayReportingGrid(reportingName, lineMax);
 							            } 
 									},

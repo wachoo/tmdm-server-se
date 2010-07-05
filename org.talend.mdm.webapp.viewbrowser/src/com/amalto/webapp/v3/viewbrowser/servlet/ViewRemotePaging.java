@@ -71,7 +71,8 @@ public class ViewRemotePaging  extends HttpServlet{
 		
 		Configuration config = null;
 		try {
-			config = (Configuration)request.getSession().getAttribute("configuration");
+			//config = (Configuration)request.getSession().getAttribute("configuration");
+			config=Configuration.getInstance(true);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

@@ -108,19 +108,7 @@ public class ReportingRemotePaging  extends HttpServlet{
 		
 		ReportingDWR reportingDWR = new ReportingDWR();		
 		JSONObject json = new JSONObject();
-		
-		Configuration config = null;
-		try {
-			config = (Configuration)request.getSession().getAttribute("configuration");
-			System.out.println("session reporting "+request.getSession().getId());
-			if(config==null) {
-				System.out.println("config null");
-			}
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
+				
 		try {
 			int totalCount=0;
 			int max = Integer.parseInt(limit);
