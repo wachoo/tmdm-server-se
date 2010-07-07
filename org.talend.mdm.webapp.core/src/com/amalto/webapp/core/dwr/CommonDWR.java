@@ -442,22 +442,7 @@ public class CommonDWR {
 	public static Map<String,XSElementDecl> getConceptMap(String dataModelPK) 
 		throws RemoteException, Exception{
 		String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
-		//String xsd = FileUtils.readFileToString(new java.io.File("E:/IDE/eclipse_3.5_talend/tem/org.talend.mdm.webapp.hierarchical/src/com/amalto/webapp/v3/hierarchical/schema/Order.xsd"));
-		XSOMParser reader = new XSOMParser();
-		reader.setAnnotationParser(new DomAnnotationParserFactory());
-		SAXErrorHandler errorHandler = new SAXErrorHandler(); 
-		reader.setErrorHandler(errorHandler);
-		reader.setEntityResolver(new SecurityEntityResolver());
-        reader.parse(new StringReader(xsd));
-        XSSchemaSet xss = reader.getResult();
-    	Collection xssList = xss.getSchemas();
-    	Map<String,XSElementDecl> map = new HashMap<String,XSElementDecl>() ;
-    	for (Iterator iter = xssList.iterator(); iter.hasNext();) {
-    		XSSchema schema = (XSSchema) iter.next();
-    		Map<String,XSElementDecl> submap = schema.getElementDecls();
-    		map.putAll(submap);
-		}   
-    	return map;
+		return com.amalto.core.util.Util.getConceptMap(xsd);
 	}
 	
 	public static String getConceptFromBrowseItemView(String viewPK){
@@ -466,11 +451,12 @@ public class CommonDWR {
         return concept;
 	}
 	
-	public static String getXMLStringFromDocument(Document d) throws TransformerException{
-		StringWriter writer = new StringWriter();
-		TransformerFactory.newInstance().newTransformer()
-		.transform(new DOMSource(d), new StreamResult(writer));
-		return writer.toString();
+	public static String getXMLStringFromDocument(Document d) throws Exception{
+//		StringWriter writer = new StringWriter();
+//		TransformerFactory.newInstance().newTransformer()
+//		.transform(new DOMSource(d), new StreamResult(writer));
+//		return writer.toString();
+		return Util.nodeToString(d.getDocumentElement());
 	}
 	
 	public static NodeList getNodeList(Node contextNode, String xPath) throws TransformerException{
