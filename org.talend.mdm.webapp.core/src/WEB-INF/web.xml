@@ -4,7 +4,7 @@
 
 <web-app >
     <!-- <distributable/> -->
-    
+ 
     
     <servlet>
         <servlet-name>dwr-invoker</servlet-name>
@@ -20,7 +20,10 @@
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/secure/dwr/*</url-pattern>
     </servlet-mapping>
-  
+       
+       <listener>
+          <listener-class>com.amalto.webapp.core.util.SessionListener</listener-class>
+     </listener>
     
 </web-app>
 

@@ -923,7 +923,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 			DataModelPOJO dataModel = com.amalto.core.util.Util.getDataModelCtrlLocal().getDataModel(
 					new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk())
 			);
-			Document schema=Util.parse(dataModel.getSchema());
+			Document schema=Util.parseXSD(dataModel.getSchema());
             XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
             		schema,
 					concept					
@@ -2769,7 +2769,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 			DataModelPOJO dataModel  = Util.getDataModelCtrlLocal().getDataModel(
 						new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk())
 				);
-			Document schema=Util.parse(dataModel.getSchema());
+			Document schema=Util.parseXSD(dataModel.getSchema());
 	        XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
 	        		schema,
 					concept					
@@ -2810,6 +2810,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 					if(err!=null){
 						err="execute beforeSaving ERROR:"+ err;
 						org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+						throw new XtentisException(err);
 					}
 				}
 			}
@@ -2817,7 +2818,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 	
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[putItem-of-putItemWithReport] in dataCluster:"+dataClusterPK);
 			WSItemPK wsi = putItem(wsPutItem);	
-			
+			if(wsi==null) return null;
 			concept=wsi.getConceptName();
 			ids=wsi.getIds();			
 			//additional attributes for data changes log

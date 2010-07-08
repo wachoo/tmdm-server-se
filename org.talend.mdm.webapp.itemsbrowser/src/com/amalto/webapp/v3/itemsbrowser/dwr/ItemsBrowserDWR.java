@@ -2,12 +2,9 @@ package com.amalto.webapp.v3.itemsbrowser.dwr;
 
 import java.io.StringReader;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +24,6 @@ import org.apache.xerces.dom.ElementNSImpl;
 import org.apache.xerces.dom.TextImpl;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
-import org.exolab.castor.types.Date;
 import org.jboss.dom4j.DocumentException;
 import org.jboss.dom4j.io.SAXReader;
 import org.w3c.dom.Document;
@@ -70,6 +66,7 @@ import com.amalto.webapp.util.webservices.WSGetViewPKs;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
+import com.amalto.webapp.util.webservices.WSPutItemWithReport;
 import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSTransformer;
@@ -284,7 +281,7 @@ public class ItemsBrowserDWR {
 			Configuration config = Configuration.getInstance();
 			String dataModelPK = config.getModel();
 			String dataClusterPK = config.getCluster();
-
+			String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
 			// get item
 	        if(ids!=null){
 				WSItem wsItem = Util.getPort().getItem(
@@ -294,7 +291,12 @@ public class ItemsBrowserDWR {
 								ids
 						))
 				);
-				Document document = Util.parse(wsItem.getContent());				
+				Document document = Util.parse(wsItem.getContent());
+				//update the node according to schema
+				if("sequence".equals(com.amalto.core.util.Util.getConceptModelType(concept, xsd))) {
+					Node newNode=com.amalto.core.util.Util.updateNodeBySchema(concept, xsd, document.getDocumentElement());
+					document=newNode.getOwnerDocument();
+				}				
 				if(foreignKey) ctx.getSession().setAttribute("itemDocumentFK",document);
 				else ctx.getSession().setAttribute("itemDocument"+docIndex,document);
 	        }
@@ -302,7 +304,7 @@ public class ItemsBrowserDWR {
 	        	createItem(concept, docIndex);
 	        }
 			
-			Map<String,XSElementDecl> map = CommonDWR.getConceptMap(dataModelPK);
+			Map<String,XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(xsd);
         	
         	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
         	
@@ -1268,94 +1270,95 @@ public class ItemsBrowserDWR {
 				return "ERROR_2";
 			}
 			//create updateReport
-			String resultUpdateReport = createUpdateReport(ids, concept, operationType, updatedPath);
+//			String resultUpdateReport = createUpdateReport(ids, concept, operationType, updatedPath);
 			
-			//check before saving transformer
-			boolean isBeforeSavingTransformerExist=false;
-			WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();
-			for (int i = 0; i < wst.length; i++) {
-				if(wst[i].getPk().equals("beforeSaving_"+concept)){
-					isBeforeSavingTransformerExist=true;
-					break;
-				}
-			}
-			//call before saving transformer
-			if(isBeforeSavingTransformerExist){
-				
-				try {
-					WSTransformerContext wsTransformerContext = new WSTransformerContext(
-							new WSTransformerV2PK("beforeSaving_" + concept),
-							null, null);
-					String exchangeData = mergeExchangeData(xml,resultUpdateReport);
-					//String exchangeData = resultUpdateReport;
-					WSTypedContent wsTypedContent = new WSTypedContent(null,
-							new WSByteArray(exchangeData
-									.getBytes("UTF-8")),
-							"text/xml; charset=utf-8");
-					WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(
-							wsTransformerContext, wsTypedContent);
-					//TODO process no plug-in issue
-					WSTransformerContextPipelinePipelineItem[] entries = Util
-							.getPort().executeTransformerV2(
-									wsExecuteTransformerV2).getPipeline()
-							.getPipelineItem();
-					String outputErrorMessage = "";
-					//Scan the entries - in priority, taka the content of the 'output_error_message' entry, 
-					for (int i = 0; i < entries.length; i++) {
-						if ("output_error_message".equals(entries[i]
-								.getVariable())) {
-							outputErrorMessage = new String(entries[i]
-									.getWsTypedContent().getWsBytes()
-									.getBytes(), "UTF-8");
-							break;
-						}
-					}
-					//handle error message
-					if (outputErrorMessage.length() > 0) {
-
-						String errorCode = "";
-						String errorMessage = "";
-						Pattern pattern = Pattern
-								.compile("<error code=['\042](.*)['\042]>(.*)</error>");
-						Matcher matcher = pattern.matcher(outputErrorMessage);
-						while (matcher.find())
-
-						{
-							errorCode = matcher.group(1);
-							errorMessage = matcher.group(2);
-
-						}
-						if (!errorCode.equals("") && !errorCode.equals("0")) {
-							errorMessage = "ERROR_3:" + errorMessage;							
-							return errorMessage;
-						}
-
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					String err = "Unable to save item '" + concept + "." + Util.joinStrings(ids, ".") + "'" + e.getLocalizedMessage();
-                    return err;
-				}
-			}
+//			//check before saving transformer
+//			boolean isBeforeSavingTransformerExist=false;
+//			WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();
+//			for (int i = 0; i < wst.length; i++) {
+//				if(wst[i].getPk().equals("beforeSaving_"+concept)){
+//					isBeforeSavingTransformerExist=true;
+//					break;
+//				}
+//			}
+//			//call before saving transformer
+//			if(isBeforeSavingTransformerExist){
+//				
+//				try {
+//					WSTransformerContext wsTransformerContext = new WSTransformerContext(
+//							new WSTransformerV2PK("beforeSaving_" + concept),
+//							null, null);
+//					String exchangeData = mergeExchangeData(xml,resultUpdateReport);
+//					//String exchangeData = resultUpdateReport;
+//					WSTypedContent wsTypedContent = new WSTypedContent(null,
+//							new WSByteArray(exchangeData
+//									.getBytes("UTF-8")),
+//							"text/xml; charset=utf-8");
+//					WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(
+//							wsTransformerContext, wsTypedContent);
+//					//TODO process no plug-in issue
+//					WSTransformerContextPipelinePipelineItem[] entries = Util
+//							.getPort().executeTransformerV2(
+//									wsExecuteTransformerV2).getPipeline()
+//							.getPipelineItem();
+//					String outputErrorMessage = "";
+//					//Scan the entries - in priority, taka the content of the 'output_error_message' entry, 
+//					for (int i = 0; i < entries.length; i++) {
+//						if ("output_error_message".equals(entries[i]
+//								.getVariable())) {
+//							outputErrorMessage = new String(entries[i]
+//									.getWsTypedContent().getWsBytes()
+//									.getBytes(), "UTF-8");
+//							break;
+//						}
+//					}
+//					//handle error message
+//					if (outputErrorMessage.length() > 0) {
+//
+//						String errorCode = "";
+//						String errorMessage = "";
+//						Pattern pattern = Pattern
+//								.compile("<error code=['\042](.*)['\042]>(.*)</error>");
+//						Matcher matcher = pattern.matcher(outputErrorMessage);
+//						while (matcher.find())
+//
+//						{
+//							errorCode = matcher.group(1);
+//							errorMessage = matcher.group(2);
+//
+//						}
+//						if (!errorCode.equals("") && !errorCode.equals("0")) {
+//							errorMessage = "ERROR_3:" + errorMessage;							
+//							return errorMessage;
+//						}
+//
+//					}
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//					String err = "Unable to save item '" + concept + "." + Util.joinStrings(ids, ".") + "'" + e.getLocalizedMessage();
+//                    return err;
+//				}
+//			}
 			
 			
 			//put item
 			boolean isUpdateThisItem=true;
 			if(newItem==true) isUpdateThisItem = false;
 
-			WSItemPK wsi = Util.getPort().putItem(
+			WSItemPK wsi = Util.getPort().putItemWithReport(new WSPutItemWithReport(
 					new WSPutItem(
 							new WSDataClusterPK(dataClusterPK), 
 							xml,
-							new WSDataModelPK(dataModelPK),isUpdateThisItem));
-
-			//put update report
+							new WSDataModelPK(dataModelPK),isUpdateThisItem),"genericUI",true));
 			synchronizeUpdateState(ctx);
-			ctx.getSession().setAttribute("treeIdxToIDS" + docIndex, wsi.getIds());
-			//update update report key
-			if(resultUpdateReport!=null && wsi!=null) {
-				resultUpdateReport=resultUpdateReport.replaceFirst("<Key>.*</Key>", "<Key>"+Util.joinStrings(wsi.getIds(),".")+"</Key>"); 					
-				return persistentUpdateReport(resultUpdateReport,true);
+			if(wsi!=null) {
+				//put update report
+				ctx.getSession().setAttribute("treeIdxToIDS" + docIndex, wsi.getIds());
+				//update update report key
+//				if(resultUpdateReport!=null && wsi!=null) {
+//					resultUpdateReport=resultUpdateReport.replaceFirst("<Key>.*</Key>", "<Key>"+Util.joinStrings(wsi.getIds(),".")+"</Key>"); 					
+//					return persistentUpdateReport(resultUpdateReport,true);
+//				}
 			}
 			return "OK";
 		}

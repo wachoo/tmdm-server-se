@@ -55,7 +55,7 @@ public class View {
 	
 	private Map<String,String> getSearchables(String viewPK,String language){
 		try{
-			Configuration config = Configuration.getInstance();
+			Configuration config = Configuration.getInstance(true);
 			String[] searchables =Util.getPort().getView(new WSGetView(new WSViewPK(viewPK)))
 				.getSearchableBusinessElements();
 			HashMap<String,String> labelSearchables = new HashMap<String,String>();
@@ -90,7 +90,7 @@ public class View {
 	
 	private Map<String,String> getViewables(String viewPK,String language){
 		try{
-			Configuration config = Configuration.getInstance();
+			Configuration config = Configuration.getInstance(true);
 			String[] viewables =Util.getPort().getView(new WSGetView(new WSViewPK(viewPK)))
 				.getViewableBusinessElements();
 			HashMap<String,String> label = new HashMap<String,String>();

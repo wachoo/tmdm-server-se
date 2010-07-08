@@ -70,7 +70,7 @@ public class ViewBrowserDWR {
 		WebContext ctx = WebContextFactory.get();
 		ctx.getSession().setAttribute("view",null);
 		try {
-			Configuration config = Configuration.getInstance();
+			Configuration config = Configuration.getInstance(true);
 			String[] viewables = new View(viewPK,language).getViewablesXpath();
 			String[] labelViewables = new String[viewables.length];
 			HashMap<String,String> xpathToLabel = CommonDWR.getFieldsByDataModel(

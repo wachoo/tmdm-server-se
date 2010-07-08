@@ -267,7 +267,15 @@ public  class Util {
     	//xmlCache.put(xmlString, doc);
     	return doc;
     }
-    	
+    static LRUCache<String, Document> xmlCache=new LRUCache<String, Document>(20);
+    public static Document parseXSD(String xsd) throws ParserConfigurationException,IOException, SAXException{
+    	Document doc=xmlCache.get(xsd);
+    	if(doc!=null) return doc;
+    	doc=parse(xsd,null);
+    	xmlCache.put(xsd, doc);
+    	return doc;
+    }
+    
     public static Document parse(String xmlString, String schema) throws ParserConfigurationException,IOException, SAXException{
 
 		//parse
@@ -684,6 +692,15 @@ public  class Util {
 		return results;
 
     }   
+    static LRUCache<String, List<String>> xsdNodesCache=new LRUCache<String, List<String>>(20);
+    public static List<String> getALLNodesFromSchema(String xsd)throws Exception{
+    	List<String> list=xsdNodesCache.get(xsd);
+    	if(list!=null)return list;
+    	Node node=Util.parseXSD(xsd).getDocumentElement();
+    	list=getALLNodesFromSchema(node);
+    	xsdNodesCache.put(xsd, list);
+    	return list;
+    }
     
     public static List<String> getALLNodesFromSchema(Node doc) throws XtentisException
     {
@@ -737,7 +754,10 @@ public  class Util {
 		    		else
 		    		{
 			        	builder = factory.newDocumentBuilder();
-			        	d = builder.parse(new FileInputStream(xsdLocation));
+			        	FileInputStream fio=new FileInputStream(xsdLocation);
+			        	try {
+			        		d = builder.parse(fio);
+			        	}finally {fio.close();}
 		    		}
 
 		        	list.addAll(getALLNodesFromSchema(d.getDocumentElement()));
@@ -2491,6 +2511,7 @@ public  class Util {
 						String fixPath=getFixedListXpath(xpath,newElement,oldElement,i);
 						if(fixPath!=null)xpath1=fixPath; 
 					}
+
 					String oldvalue=(String)jxpContextOld.getValue(xpath1,String.class);
 					String newvalue=(String)jxpContextNew.getValue(xpath1,String.class);
 					if(newvalue!=null && newvalue.length()>0 && !newvalue.equals(oldvalue)|| oldvalue!=null && oldvalue.length()>0 && !oldvalue.equals(newvalue)){
@@ -2510,7 +2531,8 @@ public  class Util {
 		return map;
 	}
 	/**
-	 * this method only used in a list like a/b/c/d/e, e.g index=2, the right xpath should be a[2]/b[2]/c[2]/d[2]/e
+	 * this method only used in a list like a/b/c/d/e, e.g index=2, the right xpath maybe one of a/b/c/d[2]/e,a/b/c[2]/d/e,a/b/c[2]/d/e,a/b[2]/c/e,a[2]/b/c/d/e
+	 *  that is null in oldElement
 	 * @param xpath
 	 * @param jxpContextOld
 	 * @param jxpContextNew
@@ -2527,13 +2549,28 @@ public  class Util {
 			NodeList listold=getNodeList(oldElement, parentPath);
 			int num=Math.max(listnew.getLength(), listold.getLength());
 			if(num>1){//list
-				String[] paths=parentPath.split("/");
-				StringBuffer sb=new StringBuffer();
-				for(String str:paths){
-					sb.append(str+"["+index+"]"+"/");
+				String[] paths=parentPath.split("/");				
+				for(int i=0; i<paths.length; i++){
+					String str=paths[i];
+					if(str.matches("\\w+\\[\\d\\]")) {
+						continue;
+					}
+					StringBuffer sb=new StringBuffer();
+					for(int j=0; j<paths.length; j++) {
+						if(i==j) {
+							sb.append(paths[j]+"["+index+"]/");
+						}else {
+							sb.append(paths[j]+"/");
+						}
+					}
+					sb.append(lastPath);
+					JXPathContext jxpContextOld = JXPathContext.newContext ( oldElement );
+				    jxpContextOld.setLenient(true);
+				    if(jxpContextOld.getValue(sb.toString())!=null) {
+				    	return sb.toString();
+				    }
 				}
-				sb.append(lastPath);
-				return sb.toString();
+
 			}
 		}
 		return null;

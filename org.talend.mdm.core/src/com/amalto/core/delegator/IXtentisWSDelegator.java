@@ -1799,7 +1799,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			DataModelPOJO dataModel  = Util.getDataModelCtrlLocal().getDataModel(
 						new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk())
 				);
-			Document schema=Util.parse(dataModel.getSchema());
+			Document schema=Util.parseXSD(dataModel.getSchema());
            
 			//get key values
 			String[] itemKeyValues = null;
@@ -1852,7 +1852,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
    	        String concept = root.getLocalName();
             DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(
                   new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk()));
-            Document schema = Util.parse(dataModel.getSchema());
+            Document schema = Util.parseXSD(dataModel.getSchema());
             XSDKey conceptKey = com.amalto.core.util.Util.
                getBusinessConceptKey(schema, concept);
               
@@ -1930,7 +1930,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			DataModelPOJO dataModel  = Util.getDataModelCtrlLocal().getDataModel(
 						new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk())
 				);
-			Document schema=Util.parse(dataModel.getSchema());
+			Document schema=Util.parseXSD(dataModel.getSchema());
 	        XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(
 	        		schema,
 					concept					

@@ -442,7 +442,7 @@ public class ReportingDWR {
 	
 	public String saveReporting(Reporting reporting,String concept, String language, boolean edit) throws XtentisWebappException, Exception{
 		if(!"".equals(reporting.getReportingName())){
-			Configuration config = Configuration.getInstance();
+			Configuration config = Configuration.getInstance(true);
 			//HashMap<String,String> fields = CommonDWR.getFieldsByDataModel(config.getModel(),concept, language, false);
 	        WebContext ctx = WebContextFactory.get();	
 	        HashMap<String,String> xpathToLabel = (HashMap<String,String>) ctx.getSession().getAttribute("xpathToLabel");

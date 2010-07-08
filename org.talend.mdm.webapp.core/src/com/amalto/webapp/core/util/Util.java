@@ -71,7 +71,10 @@ import com.amalto.webapp.util.webservices.WSBase64KeyValue;
 import com.amalto.webapp.util.webservices.WSConnectorResponseCode;
 import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
+import com.amalto.webapp.util.webservices.WSItem;
+import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSUniverse;
@@ -814,32 +817,12 @@ public class Util {
 		return revisonId;
 	}
     
-    public static Element getLoginProvisioningFromDB() throws Exception,XmlServerException {
-			IXmlServerSLWrapper server=null;
-			//get the DB implementation class
-			String serverClass = MDMConfiguration.getConfiguration().getProperty("xmlserver.class");
-			if ((serverClass==null) || "".equals(serverClass)) serverClass = "com.amalto.xmldb.XmldbSLWrapper";
+    public static Element getLoginProvisioningFromDB() throws Exception {
+
+			WSItem item= Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK("PROVISIONING"),"User",new String[] {Util.getLoginUserName()}) ));
+			String userString=item.getContent();
 			
-			//instantiate the DB implementation class
-			//we cannot user ObjectPOJO.load since it will try to check our authentication
-			try {
-			    server = (IXmlServerSLWrapper) Class.forName(serverClass).newInstance();
-			    if (server instanceof IXmlServerEBJLifeCycle) {
-			    	((IXmlServerEBJLifeCycle)server).doCreate();
-			    }
-			} catch (Throwable t) {
-				String err = "Unable to start the XMLDB driver "+serverClass+": "+t.getMessage();
-				throw new IllegalArgumentException(err);
-			}
-			String provisioningCluster  = "PROVISIONING";
-			String userConcept = "User";
-			String username = Util.getLoginUserName();
-			String userString = server.getDocumentAsString(
-					null, //head
-					provisioningCluster, 
-					provisioningCluster+"."+userConcept+"."+username
-				);
-			Element user  = (Element)Util.getNodeList(Util.parse(userString), "//"+userConcept).item(0);
+			Element user  = (Element)Util.getNodeList(Util.parse(userString), "//User").item(0);
 			return user;
     }
 

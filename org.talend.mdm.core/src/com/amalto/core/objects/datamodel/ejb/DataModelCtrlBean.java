@@ -553,10 +553,10 @@ public class DataModelCtrlBean implements SessionBean{
             DataModelPOJO datamodel = getDataModel(pk);
             
             //parse it
-            Document d = Util.parse(datamodel.getSchema());
+            //Document d = Util.parse(datamodel.getSchema());
             
             //build the results
-            List<String> resultNodes = Util.getALLNodesFromSchema(d.getDocumentElement());
+            List<String> resultNodes = Util.getALLNodesFromSchema(datamodel.getSchema());
             String[] results = resultNodes.toArray(new String[]{});
             Arrays.sort(results);
 	        return results;            
