@@ -2,8 +2,9 @@ package com.amalto.webapp.v3.itemsbrowser.dwr;
 
 import java.io.StringReader;
 import java.rmi.RemoteException;
-import java.text.ParseException;
 import java.util.ArrayList;
+import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +25,8 @@ import org.apache.xerces.dom.ElementNSImpl;
 import org.apache.xerces.dom.TextImpl;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
+import org.exolab.castor.types.Date;
+import org.exolab.castor.types.Time;
 import org.jboss.dom4j.DocumentException;
 import org.jboss.dom4j.io.SAXReader;
 import org.w3c.dom.Document;
@@ -634,6 +637,7 @@ public class ItemsBrowserDWR {
 		    			list.add(treeNode);    			
 		    			nodeCount++; 
 		    		}  
+		    		xpathToTreeNode.put(xpath, treeNode);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -2215,7 +2219,7 @@ public class ItemsBrowserDWR {
 					String name = p.matcher(description).replaceAll("$1");
 					if (name.equals(""))
 						if (language.equalsIgnoreCase("fr"))
-							name = "Action par d√©faut";
+							name = "Action par d®¶faut";
 						else if (language.equalsIgnoreCase("en"))
 							name = "Default Action";
 						else 
@@ -2330,21 +2334,171 @@ public class ItemsBrowserDWR {
 	 * @param value
 	 * @return
 	 * @throws ParseException 
+	 * 
 	 */
 	public String printFormat(String lang,String format,String value,String typeName) throws ParseException{
-		if(format.equals("null") || Util.getTypeValue(typeName, value)==null)
+		if(typeName==null || typeName.equals("null")|| format.equals("null") ) return value;
+		Object object = Util.getTypeValue(lang,typeName, value);
+		if(object instanceof Calendar || object instanceof Time ||object ==null)
 		//if(Util.getTypeValue(typeName, value)==null)
 			return value;
-		return com.amalto.core.util.Util.printWithFormat(new Locale(lang), format, Util.getTypeValue(typeName, value));
+//		return com.amalto.core.util.Util.printWithFormat(new Locale(lang), format,object);
+		return object.toString();
 	}
 	
-	/*public String changetoLocalFormat(String value) throws ParseException{
-			//Date date = new Date(value);
-		GregorianCalendar firstFlight = new GregorianCalendar(); 
-		java.sql.Date date2= java.sql.Date.valueOf(value);
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			return sdf.format(date2);	
+	/***
+	 * @author ymli
+	 * get the format value of date
+	 * @param lang
+	 * @param format
+	 * @param value
+	 * @param typeName
+	 * @return
+	 * @throws ParseException
+	 */
+	public String printFormatDate(String lang,String format,String value,String typeName) throws ParseException{
+		
+		Object object = Date.parseDate(value.trim()).toCalendar();
+		if(format.equals("null") ||object ==null)
+			return value;
+		String valueReturn = com.amalto.core.util.Util.printWithFormat(new Locale(lang), format,object).toString();
+		return valueReturn;
+	}
+	
+/**
+ * @author ymli; fix the bug:0013463. validate the value from server
+ * @param nodeId
+ * @param value
+ * @return
+ */
+	public String validateNode(int nodeId,String value){
+		String errorMessage= null;
+		WebContext ctx = WebContextFactory.get();
+		HashMap<String,TreeNode> xpathToTreeNode = 
+			(HashMap<String,TreeNode>)ctx.getSession().getAttribute("xpathToTreeNode");
+		HashMap<Integer,String> idToXpath = 
+			(HashMap<Integer,String>) ctx.getSession().getAttribute("idToXpath");
+		String xpath = idToXpath.get(nodeId);
+		TreeNode node = null;
+		ArrayList<Restriction> restrictions = null;
+		if(xpath!=null)
+			node = xpathToTreeNode.get(xpath);
+		if(node!=null){
+			restrictions = node.getRestrictions();
+		}
+		
+		boolean isValidation = true;//if true, return null,else return errorMessage
+		for(Restriction re : restrictions){
+			errorMessage = (String) node.getFacetErrorMsg().get("en");
+			if(value.length() == 0 && node.isKey()){
+				if(errorMessage == null){
+					errorMessage = "The value does not comply with the facet defined in the model: "
+                        + "Key should not be empty";
+                isValidation = false;
+                break;
+				}
+			}
 			
-	}*/
+			//boolean ancestor = true;//@TODO... check ancestor
+			//boolean ancestor = checkAncestorMinOCcurs(node);
+			if(value.length() == 0 && (node.getMinOccurs() >= 1 || checkAncestorMinOCcurs(node))){
+				if(errorMessage == null){
+					if(node.getMinOccurs() >=1)
+						 errorMessage = "The value does not comply with the facet defined in the model: "
+								+ "minOccurs"
+								+": "
+								+node.getMinOccurs();
+					else
+						errorMessage = "This item is mandatory!";
+				}
+				isValidation = false;
+				break;
+			}
+			
+			
+			if(re.getName()!="whiteSpace")
+				if (errorMessage == null)
+				   errorMessage = "The value does not comply with the facet defined in the model: "
+							+ re.getName()
+							+ ":"
+							+ re.getValue();
+				if(node.getMinOccurs()>=1 ||(node.getMinOccurs()==0 && value.trim().length()!=0)){
+					if(re.getName()=="minLength" && value.length() < Integer.parseInt(re.getValue())){
+						isValidation = false;
+						break;
+					}
+					if(re.getName()=="maxLength" && value.length() > Integer.parseInt(re.getValue())){
+						isValidation = false;
+						break;
+					}
+					if(re.getName() == "length" && value.length() != Integer.parseInt(re.getValue())){
+						isValidation = false;
+						break;
+					}
+					if(re.getName() == "minExclusive")
+						if(isNumeric(value)){
+							errorMessage =node.getName()+ " " + "is not a valid value for double";
+							isValidation =  false;
+							break;
+						}
+						else if(Float.parseFloat(value) <= Float.parseFloat(re.getValue())){
+							isValidation = false;
+							break;
+						}
+					
+					
+					if(re.getName() == "minInclusive"){
+						if(isNumeric(value)){
+							errorMessage = node.getName() + " " + "is not a valid value for double";
+							isValidation = false;
+							break;
+						}
+						else if(Float.parseFloat(value) < Float.parseFloat(re.getValue())){
+							isValidation = false;
+							break;
+						}
+							
+					}
+				
+					if(re.getName() == "maxInclusive")
+						if(isNumeric(value)){
+							errorMessage =node.getName()+ " " + "is not a valid value for double";
+							isValidation =  false;
+							break;
+						}
+						else if(Float.parseFloat(value) > Float.parseFloat(re.getValue())){
+							isValidation = false;
+							break;
+						}
+				}		
+				
+		}
+		
+		
+		
+		
+		return isValidation?"null":errorMessage;
+		//return null;
+	}
+	
+	
+	public static boolean isNumeric(String str){  
+	    Pattern pattern = Pattern.compile("[0-9]+\\.?[0-9]*");  
+	    return pattern.matcher(str).matches();     
+	}
+	/**
+	 * @author ymli;
+	 * check if this node is mandatory
+	 * @param node
+	 * @return
+	 */
+	private boolean checkAncestorMinOCcurs(TreeNode node){
+		if(node.getParent() == null && node.getMinOccurs() >= 1)
+			return true;
+		else if(node.getParent() == null  && node.getMinOccurs() == 0)
+			return false;
+		else
+			return checkAncestorMinOCcurs(node.getParent());
+	}
 	
 }

@@ -1937,7 +1937,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                            wait:true,
                            waitConfig: {interval:200}
                         });
-                    ItemsBrowserInterface.processItem(tbDetail.dataObject, tbDetail.ids, tbDetail.treeIndex, selectedProcess, {
+                    ItemsBrowserInterface.processItem(tbDetail.dataObject, tbDetail.ids, selectedProcess, {
                     	callback:function(result){
                            Ext.MessageBox.hide();
                            if(result){
@@ -2061,11 +2061,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						xtype : "tbtext"
 					}])					
     			});
-    			
-    			//clear ctx see 0011689: problem with beforeSaving Process 
-    			contentPanel.on('destroy', function() {
-    				ItemsBrowserInterface.synchronizeUpdateState();
-    			});
 			}
 			tabPanel.add(contentPanel); 
 
@@ -2081,56 +2076,48 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 	}
 	
-	
-	function updateNode(id, treeIndex){
-		updateFlag[treeIndex] = 1;
-		var allUpdate = false;
-		_exception = false;
-		var itemTree = itemTreeList[treeIndex];
-		//var data = itemTree.getNodeByIndex(id).data;	
-		var node = itemTree.getNodeByIndex(id);
-		var value  = DWRUtil.getValue(id+"Value");
-		
-		
-		
+	function updateNode2(id,node, value,treeIndex){
 		if(node.itemData.valueInfo != null)
-		{
-			value = node.itemData.value;
-		}
-		//add by ymli
-        if(realValues !=undefined && realValues[treeIndex]!=undefined && realValues[treeIndex][id]!=undefined)
-          value = realValues[treeIndex][id];
-		
-		if(node.itemData.key==true){
-			keys[treeIndex][node.itemData.keyIndex] = value;
-		}
-		
-	    $('errorDetail' + treeIndex).style.display = "none";
-	    
-	    //node.itemData.nodeId = id;
-	    
-		if(node.updateValue(value)==false){
-			 ItemsBrowserInterface.updateNode(id, value, treeIndex, function() {
+        {
+            value = node.itemData.value;
+        }
+
+        
+        if(node.itemData.key==true){
+            keys[treeIndex][node.itemData.keyIndex] = value;
+        }
+        
+        $('errorDetail' + treeIndex).style.display = "none";
+        
+        //node.itemData.nodeId = id;
+        //edit by ymli: fix the bug:0013463
+		//if(node.updateValue(value)==false){
+        if(updateValue(id,treeIndex)==false){
+             ItemsBrowserInterface.updateNode(id, value, treeIndex, function() {
                         // amalto.core.ready();
             
-             $('errorDesc' + treeIndex).style.display = "block";
+			$('errorDesc' + treeIndex).style.display = "block";
                        });
-			allUpdate = true;
-		} 
-		else
-		{
-			allUpdate = updateItemNodesBeforeSaving(treeIndex);
-			if (allUpdate == true) {
-				$('errorDesc' + treeIndex).style.display = "block";
-			}
-			else
-			 $('errorDesc' + treeIndex).style.display = "none";
-		}
-				
-        DWREngine.setAsync(false); 
+            allUpdate = true;
+            
+        } 
+       
+       else
+        {   
+        	
+            allUpdate = updateItemNodesBeforeSaving(treeIndex);
+            if (allUpdate == true) {
+                $('errorDesc' + treeIndex).style.display = "block";
+            }
+            else
+             $('errorDesc' + treeIndex).style.display = "none";
+        }
+                
+ 
         ItemsBrowserInterface.updateNode(id,value,treeIndex,function(result){
             amalto.core.ready(result);
-            if(allUpdate == false)
+        	 //remove by ymli; fix the bug:0013463
+           /* if(allUpdate == false)
             {           
                 ItemsBrowserInterface.validateItem(treeIndex, {
                     
@@ -2140,9 +2127,29 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                         }
                     }
                 });
-            }           
-        });
-        DWREngine.setAsync(true); 
+            } */  
+            });
+      	
+     
+        
+	}
+	
+	function updateNode(id, treeIndex,format,typeName){
+		updateFlag[treeIndex] = 1;
+		var allUpdate = false;
+		_exception = false;
+		var itemTree = itemTreeList[treeIndex];
+		//var data = itemTree.getNodeByIndex(id).data;	
+		var node = itemTree.getNodeByIndex(id);
+		var value  = DWRUtil.getValue(id+"Value");
+		if(format!="null")
+		 ItemsBrowserInterface.printFormat(language,format,value,typeName,function(result){
+		   value = result;
+		 
+		  updateNode2(id,node,value,treeIndex);
+		  });//interface.updatevalue( ;
+		  else
+		       updateNode2(id,node,value,treeIndex);
 		
 		amalto.core.ready();
 		
@@ -2150,7 +2157,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var itempanel = amalto.core.getTabPanel().activeTab;
 		if(itempanel){
 			itempanel.isdirty=true;
-		}		
+		}
+		
 	}
 	
 	function showExceptionMsg(errorString, exception, treeIndex)
@@ -2256,7 +2264,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,true,true,isReadOnlyinItem);
 		
 		newNode.updateNodeId(nodeCount);
-		newNode.updateValue(" ");
+		//remove by ymli; fix the bug:0013463
+		//newNode.updateValue(" ");
 		ItemsBrowserInterface.cloneNode(siblingId,newNode.index, treeIndex,function(result){
 			amalto.core.ready(result);
 		});
@@ -2373,7 +2382,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,true,true,isReadOnlyinItem);
 		newNode.updateNodeId(nodeCount);
-		newNode.updateValue(" ");
+		//remove by ymli; fix the bug:0013463
+		//newNode.updateValue(" ");
 	
 		newNode.insertAfter(siblingNode);
 		//newNode.appendTo(siblingNode.parent);
@@ -2501,8 +2511,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	  for (var i = 0; i < nodes.length; i++) {
 	  	var node = nodes[i];
 	  	if (node && node instanceof amalto.itemsbrowser.ItemNode)
-	  	{
-	  		if (node.itemData.choice == false &&  node.update() == false)
+	  	{   
+	  		//edit by ymli; fix the bug:0013463
+	  		//if (node.itemData.choice == false &&  node.update() == false)
+	  		var isUpdate = updateValue(node.itemData.nodeId,treeIndex);
+	  		if (node.itemData.choice == false &&  isUpdate == false)
 	  		  error = true;
 	  		else if(node.itemData.choice == true)
 	  		{
@@ -2510,7 +2523,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	  			var allValid = true;
 	  			for (var m = 0; m < childNodesWithinChoice.length; m++){
 	  				if (childNodesWithinChoice[m] instanceof amalto.itemsbrowser.ItemNode){
-	  					if (childNodesWithinChoice[m].update() == false){
+	  					//if (childNodesWithinChoice[m].update() == false){
+	  					if (updateValue(childNodesWithinChoice[m].itemData.nodeId,treeIndex )== false){
 	  						allValid = false;
 	  					}
 	  				}
@@ -2756,7 +2770,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		});
 	}
 	
-	function showDatePicker(nodeId, treeIndex, nodeType) {
+	function showDatePicker(nodeId, treeIndex, nodeType,displayFormats) {
 		if (nodeDatePickerWindow) {
 			nodeDatePickerWindow.hide();
 			nodeDatePickerWindow.destroy();
@@ -2788,17 +2802,37 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 										if (nodeType == "dateTime") {
 											setValue += "T00:00:00"
 										};
-									
+										if(displayFormats!="null")
+										ItemsBrowserInterface.printFormatDate(language,displayFormats,setValue,"date",function(resultValue){
+										  //setValue = resultValue;
+										  if(resultValue!="null")
+                                             
+                                             /*if(realValues[treeIndex] == undefined)
+                                                realValues[treeIndex] = [];
+                                             realValues[treeIndex][nodeId] = setValue;*/
+										  
+										  DWRUtil.setValue(inputText, setValue);
+										 if(treeIndex != -1)
+										  {
+										   updateNode(nodeId, treeIndex,displayFormats,nodeType);	
+										   
+										  }
+										  DWRUtil.setValue(inputText,resultValue);
+										  nodeDatePickerWindow.hide();
+										  nodeDatePickerWindow.destroy();										
+										});
+										else{
 										  DWRUtil.setValue(inputText, setValue);
                                           if(treeIndex != -1)
                                           {
-                                          	 if(realValues[treeIndex] == undefined)
+                                          	 /*if(realValues[treeIndex] == undefined)
                                                 realValues[treeIndex] = [];
-                                           realValues[treeIndex][nodeId] = setValue;
-                                           updateNode(nodeId, treeIndex);   
+                                           realValues[treeIndex][nodeId] = setValue;*/
+                                           updateNode(nodeId, treeIndex,displayFormats,nodeType);   
                                           }
                                           nodeDatePickerWindow.hide();
                                           nodeDatePickerWindow.destroy();   
+										}
 									}
 								}
 							}]
@@ -3264,10 +3298,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			}
 		});
 	}
-	/**
+/*	*//**
 	 * @author ymli fix the bug:0013463
 	 * get the realValue of the node
-	 */
+	 *//*
     function getRealValue(id,treeIndex){
     	var itemTree = itemTreeList[treeIndex];
         var node = itemTree.getNodeByIndex(id);
@@ -3278,10 +3312,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         DWRUtil.setValue(inputText,value);
        
     }
-        /**
+        *//**
      * @author ymli fix the bug:0013463
      * get the realValue of the node
-     */
+     *//*
     function setFormatValue(id,treeIndex,displayFormats){
         var itemTree = itemTreeList[treeIndex];
         var node = itemTree.getNodeByIndex(id);
@@ -3297,6 +3331,34 @@ amalto.itemsbrowser.ItemsBrowser = function () {
              realValues[treeIndex][id] = value;
              updateNode(id, treeIndex); 
          });
+    }*/
+    /**
+     * @author ymli; test validation from server
+     */
+    function updateValue(nodeId,treeIndex){
+    	
+    	var returnRe = true;
+        var itemTree = itemTreeList[treeIndex];
+        //var data = itemTree.getNodeByIndex(id).data;  
+        var node = itemTree.getNodeByIndex(nodeId);
+        if(node == undefined)
+            return true;
+        if(node.itemData.type == "complex")
+            return true;
+            
+        var value = DWRUtil.getValue(nodeId+'Value');
+        node.resetErrorMessage(nodeId);
+        DWREngine.setAsync(false);
+        ItemsBrowserInterface.validateNode(nodeId,value,function(result){
+            if(result=="null")
+                returnRe = true;
+            else{
+                node.displayErrorMessage(nodeId,result);
+                returnRe = false;
+            }
+        });
+        DWREngine.setAsync(true);
+        return returnRe;
     }
     
  	return {
@@ -3309,7 +3371,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		outPutCriteriaResult:function(){outPutCriteriaResult();},
 		convertSearchValueInEnglish:function(id){convertSearchValueInEnglish(id);},
 		updateOperatorList:function(id){updateOperatorList(id);},
-		updateNode:function(id,treeIndex){updateNode(id,treeIndex);},
+		updateNode:function(id,treeIndex,format,typeName){updateNode(id, treeIndex,format,typeName);},
 		setlastUpdatedInputFlagPublic:function(id,treeIndex){setlastUpdatedInputFlag(id,treeIndex);},
 		browseForeignKey:function(nodeId, foreignKeyXpath, foreignKeyInfo){browseForeignKey(nodeId, foreignKeyXpath, foreignKeyInfo);},
 		showDatePicker:function(nodeId,treeIndex,nodeType,displayFormats){showDatePicker(nodeId,treeIndex,nodeType,displayFormats);},
@@ -3327,7 +3389,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		getSiblingsLength:function(node){getSiblingsLength(node);},
 		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);},
 		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);}
-		//getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
-		//setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}
+		/*getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
+		setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}*/
  	}
 }();

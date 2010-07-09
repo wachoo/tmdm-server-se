@@ -1402,15 +1402,26 @@ public class Util {
 		 date,time
 	     */
 	    
-		public static Object getTypeValue(String type, String value) throws ParseException{
+		public static Object getTypeValue(String lang,String type, String value) throws ParseException{
+			
 			//time
 			if(type.equals("date"))
-				return Date.parseDate(value).toCalendar();
-			else if(type.equals("time"))
-				return Time.parseTime(value);
+				return Date.parseDate(value.trim()).toCalendar();
+			/*else if(type.equals("time"))
+				return BigInteger.//Time.parseTime(value.trim());
+*/			
 			/*else if(type.equals("dateTime"))
 				return DateTime*/
 			//numberic
+		/*	else if(type.equals("byte")||type.equals("short")||type.equals("int")
+					||type.equals("integer")||type.equals("long")||type.equals("float")||type.equals("double")){
+				 Locale locale = new Locale(lang);
+				 NumberFormat instance =  DecimalFormat.getNumberInstance(locale);
+				 instance.setParseIntegerOnly(false);
+				return  instance.parse(value);
+				
+			}*/
+				
 			else if(type.equals("byte"))
 				return Byte.valueOf(value);
 			else if(type.equals("short"))

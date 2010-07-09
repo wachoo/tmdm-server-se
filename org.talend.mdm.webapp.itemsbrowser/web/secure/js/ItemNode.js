@@ -113,7 +113,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == true && itemData.readOnly==true) ;
 			//alert("before: "+tmpStatus);
-			if(isReadOnlyinItem||tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"){
+			if(isReadOnlyinItem||tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"||itemData.typeName=="date"||itemData.typeName=="dateTime"){
 				//alert("after: "+tmpStatus);
 				readOnlyStyle = readOnly = "READONLY";
 			}
@@ -200,7 +200,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					var input=' ' +
 						' <input class="inputTree'+readOnlyStyle+'" '+readOnly+' ' +
 						//TODO'onFocus="amalto.itemsbrowser.ItemsBrowser.setlastUpdatedInputFlagPublic(\''+itemData.nodeId+'\','+treeIndex+');" ' +
-						'onchange="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');" size="72" type="'+ type+ '"  ' +
+						'onchange="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.displayFomats[1]+'\',\''+itemData.typeName+'\');"'+
+						/*' onfocus="amalto.itemsbrowser.ItemsBrowser.getRealValue(\''+itemData.nodeId+'\','+treeIndex+');"'+
+						' onblur="amalto.itemsbrowser.ItemsBrowser.setFormatValue(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.displayFomats[1]+'\');"'+*/
+						' size="72" type="'+ type+ '"  ' +
 						'id="'+itemData.nodeId+'Value" value="'+value+'"'+'/>';
 			}
 			//input hidden
@@ -229,8 +232,12 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				html[html.length] = input;
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
+				var clearDate = '<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removeForeignKey(\''+itemData.nodeId+'\','+treeIndex+')">' +
+                       '<img alt="Remove the Foreign Key" src="img/genericUI/clear-icon.gif"/></span>';
 				if((itemData.readOnly == false && !isReadOnlyinItem) || tmpStatus)
-			   			html[html.length]  = '<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\')"><img src="img/genericUI/date-picker.gif"/></span>'+'</div>';
+			   			html[html.length]  = clearDate +
+			   			'<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\',\''+itemData.displayFomats[1]+'\')">'+
+			   			'<img src="img/genericUI/date-picker.gif"/></span>'+'</div>';
 			}else if(itemData.typeName!=null&&(itemData.typeName=="PICTURE")){//PICTURE
 				   html[html.length] = input;
 				   //show picture
@@ -322,12 +329,31 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
     
   
     
+/*    updateValue: function(value){
+    	
+    	this.resetErrorMessage(this.itemData.nodeId); 
+    	var localResult="";
+    	var id =this.itemData.nodeId;
+    	var index = this.index;
+        ItemsBrowserInterface.validateNode(id,value,function(result){
+        	localResult = result;
+            if(!(localResult=="null")){
+                this.displayErrorMessage(this.itemData.nodeId,localResult);
+                return false;
+            }
+           this.itemData.nodeId = index;
+           this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem);
+           return true;
+        });
+     
+    },*/
+    
 	/*
 	 * Return true if the new value is valid against the restrictions
 	 * and update the inner value of the node to the new value
 	 * otherwise return false 
 	 */
-	updateValue: function(value){
+	updateValue111: function(value){
 		/*if(this.itemData.typeName=="boolean"){
 			value = Boolean(value);
 			alert(Boolean(value)+" "+!!value);
@@ -587,7 +613,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
     /*
      * retrieve the value from text field, and compare it to the restrictions
      */
-    update: function(update){
+/*    update: function(update){
     	var itemNode = this.itemData.value;
     	if (this.itemData.type == "complex")
     	    return true;
@@ -595,7 +621,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		itemNode = DWRUtil.getValue(this.itemData.nodeId + "Value");
     	return this.updateValue(itemNode);
     	} 
-    },
+    },*/
     
     // overrides YAHOO.widget.Node
     getNodeHtml: function() {
