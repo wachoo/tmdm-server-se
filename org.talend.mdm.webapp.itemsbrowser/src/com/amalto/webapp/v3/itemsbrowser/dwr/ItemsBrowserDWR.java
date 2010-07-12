@@ -614,7 +614,9 @@ public class ItemsBrowserDWR {
 						{
 							JSONObject row = (JSONObject)rows.get(n);
 							String keyValue = (String)row.get("keys");
-							if(keyValue.equals(treeNode.getValue()))
+							String compValue=treeNode.getValue();
+							if(compValue!=null&&!compValue.startsWith("["))compValue="["+compValue+"]";
+							if(keyValue.equals(compValue))
 							{
 								treeNode.setValueInfo(row.getString("infos"));
 								break;
@@ -2219,7 +2221,7 @@ public class ItemsBrowserDWR {
 					String name = p.matcher(description).replaceAll("$1");
 					if (name.equals(""))
 						if (language.equalsIgnoreCase("fr"))
-							name = "Action par d¨¦faut";
+							name = "Action par dï¿½ï¿½faut";
 						else if (language.equalsIgnoreCase("en"))
 							name = "Default Action";
 						else 
