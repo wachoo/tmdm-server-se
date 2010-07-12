@@ -2438,7 +2438,7 @@ public class ItemsBrowserDWR {
 						break;
 					}
 					if(re.getName() == "minExclusive")
-						if(isNumeric(value)){
+						if(!isNumeric(value)){
 							errorMessage =node.getName()+ " " + "is not a valid value for double";
 							isValidation =  false;
 							break;
@@ -2450,7 +2450,7 @@ public class ItemsBrowserDWR {
 					
 					
 					if(re.getName() == "minInclusive"){
-						if(isNumeric(value)){
+						if(!isNumeric(value)){
 							errorMessage = node.getName() + " " + "is not a valid value for double";
 							isValidation = false;
 							break;
@@ -2463,7 +2463,7 @@ public class ItemsBrowserDWR {
 					}
 				
 					if(re.getName() == "maxInclusive")
-						if(isNumeric(value)){
+						if(!isNumeric(value)){
 							errorMessage =node.getName()+ " " + "is not a valid value for double";
 							isValidation =  false;
 							break;
