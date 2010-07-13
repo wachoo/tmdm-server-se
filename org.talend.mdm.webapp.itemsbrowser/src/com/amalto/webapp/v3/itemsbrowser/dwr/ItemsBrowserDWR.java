@@ -2037,9 +2037,9 @@ public class ItemsBrowserDWR {
 									break;
 								}
 							}
-							if(simpType.getName() != null && !valuesHolder.contains("enumeration"))
+							if(!valuesHolder.contains("enumeration"))
 							{
-								WebContext ctx = WebContextFactory.get();
+
 								String basicName = simpType.getBaseType().getName();
 								String simpTypeName = simpType.getName();
 								if(simpType.getTargetNamespace().equals("http://www.w3.org/2001/XMLSchema"))
@@ -2061,8 +2061,7 @@ public class ItemsBrowserDWR {
 							}
 						}
 						else
-						{
-							XSComplexType cmpType = (XSComplexType)childElem.getType();
+						{							
 							valuesHolder.add("complex type");
 						}
 						return childElem;

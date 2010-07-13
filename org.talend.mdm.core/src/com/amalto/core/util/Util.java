@@ -3103,9 +3103,7 @@ public  class Util {
 									break;
 								}
 							}
-							if (simpType.getName() != null
-									&& !valuesHolder.contains("enumeration")) {
-								WebContext ctx = WebContextFactory.get();
+							if ( !valuesHolder.contains("enumeration")) {
 								String basicName = simpType.getBaseType()
 										.getName();
 								String simpTypeName = simpType.getName();
@@ -3135,19 +3133,27 @@ public  class Util {
 		return null;
 
 	}
-	private static DataModelPOJO getDataModel(String concept)throws Exception {
-		Collection collection=Util.getDataModelCtrlLocal().getDataModelPKs("");
-		for (Iterator iterator = collection.iterator(); iterator.hasNext();) {
-			DataModelPOJOPK dataModelPOJOPK = (DataModelPOJOPK) iterator.next();
-			DataModelPOJO dataModelPOJO=Util.getDataModelCtrlLocal().getDataModel(dataModelPOJOPK);
-			String[] businessConceptsNames=Util.getDataModelCtrlLocal().getAllBusinessConceptsNames(dataModelPOJOPK);
-			for (int i = 0; i < businessConceptsNames.length; i++) {
-				if(businessConceptsNames[i].equals(concept)) return dataModelPOJO;
+    public static Element getLoginProvisioningFromDB() throws Exception {
+		
+		ItemPOJOPK itempk=new ItemPOJOPK(new DataClusterPOJOPK("PROVISIONING"), "User", new String[] {LocalUser.getLocalUser().getUsername()});
+		ItemPOJO item=ItemPOJO.load(itempk);
+		
+		Element user  = (Element)Util.getNodeList(item.getProjection(), "//User").item(0);
+		return user;
+    }	
+    public static String getUserDataModel() throws Exception {
+    	Element item=getLoginProvisioningFromDB();
+    	NodeList nodeList = Util.getNodeList(item,"//property");
+		for (int i = 0; i < nodeList.getLength(); i++) { 
+			Node node = nodeList.item(i);
+			if("model".equals(Util.getFirstTextNode(node,"name"))){		
+				//configuration.setCluster(Util.getNodeList(node, "value").item(0).getTextContent());
+				Node fchild=Util.getNodeList(node, "value").item(0).getFirstChild();
+				return fchild.getNodeValue();
 			}
 		}
 		return null;
-	}
-
+    }
 	
 	public static Map<String, ArrayList<String>> getMetaDataTypes(
 			IWhereItem whereItem) throws Exception {
@@ -3158,13 +3164,13 @@ public  class Util {
 			for(String v: views) {
 				concepts.add(v.split("/")[0]);
 			}
+			DataModelPOJO datamodelPojo=Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(getUserDataModel()));
+			Map<String, XSElementDecl> xsdMap = getConceptMap(datamodelPojo.getSchema());
 			HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
 			for(String concept: concepts) {
 				if(concept!=null && concept.length()>0) {
 					HashMap<String, ArrayList<String>> types = new HashMap<String, ArrayList<String>>();
-		
-					Map<String, XSElementDecl> xsdMap = getConceptMap(getDataModel(concept));
-		
+				
 					XSElementDecl el = xsdMap.get(concept);
 		
 					for (String view : views) {

@@ -819,11 +819,12 @@ public class Util {
     
     public static Element getLoginProvisioningFromDB() throws Exception {
 
-			WSItem item= Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK("PROVISIONING"),"User",new String[] {Util.getLoginUserName()}) ));
-			String userString=item.getContent();
-			
-			Element user  = (Element)Util.getNodeList(Util.parse(userString), "//User").item(0);
-			return user;
+//			WSItem item= Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK("PROVISIONING"),"User",new String[] {Util.getLoginUserName()}) ));
+//			String userString=item.getContent();
+//			
+//			Element user  = (Element)Util.getNodeList(Util.parse(userString), "//User").item(0);
+//			return user;
+    	return com.amalto.core.util.Util.getLoginProvisioningFromDB();
     }
 
 	/*********************************************************************
