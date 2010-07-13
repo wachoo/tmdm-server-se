@@ -2106,11 +2106,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         {   
         	
             allUpdate = updateItemNodesBeforeSaving(treeIndex);
-            if (allUpdate == true) {
-                $('errorDesc' + treeIndex).style.display = "block";
+            if($('errorDesc' + treeIndex)){
+	            if (allUpdate == true) {
+	                $('errorDesc' + treeIndex).style.display = "block";
+	            }
+	            else
+	             $('errorDesc' + treeIndex).style.display = "none";
             }
-            else
-             $('errorDesc' + treeIndex).style.display = "none";
         }
                 
  
