@@ -2387,10 +2387,11 @@ public class ItemsBrowserDWR {
 		if(node!=null){
 			restrictions = node.getRestrictions();
 		}
-		
+		if(restrictions==null) return "null";
 		boolean isValidation = true;//if true, return null,else return errorMessage
 		for(Restriction re : restrictions){
-			errorMessage = (String) node.getFacetErrorMsg().get("en");
+			if(node.getFacetErrorMsg()!=null)
+				errorMessage = (String) node.getFacetErrorMsg().get("en");
 			if(value.length() == 0 && node.isKey()){
 				if(errorMessage == null){
 					errorMessage = "The value does not comply with the facet defined in the model: "
@@ -2474,9 +2475,6 @@ public class ItemsBrowserDWR {
 				}		
 				
 		}
-		
-		
-		
 		
 		return isValidation?"null":errorMessage;
 		//return null;
