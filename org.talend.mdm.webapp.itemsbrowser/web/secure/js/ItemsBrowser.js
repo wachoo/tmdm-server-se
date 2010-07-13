@@ -3347,19 +3347,20 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             return true;
         if(node.itemData.type == "complex")
             return true;
-            
-        var value = DWRUtil.getValue(nodeId+'Value');
-        node.resetErrorMessage(nodeId);
-        DWREngine.setAsync(false);
-        ItemsBrowserInterface.validateNode(nodeId,value,function(result){
-            if(result=="null")
-                returnRe = true;
-            else{
-                node.displayErrorMessage(nodeId,result);
-                returnRe = false;
-            }
-        });
-        DWREngine.setAsync(true);
+        if($(nodeId+'Value')){    
+            var value = DWRUtil.getValue(nodeId+'Value');
+            node.resetErrorMessage(nodeId);
+            DWREngine.setAsync(false);
+            ItemsBrowserInterface.validateNode(nodeId,value,function(result){
+                if(result=="null")
+                    returnRe = true;
+                else{
+                    node.displayErrorMessage(nodeId,result);
+                    returnRe = false;
+                }
+            });
+            DWREngine.setAsync(true);
+        }
         return returnRe;
     }
     

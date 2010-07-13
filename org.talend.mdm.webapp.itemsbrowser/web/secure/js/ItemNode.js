@@ -348,13 +348,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
      
     },*/
     
-	/*
+/*	
 	 * Return true if the new value is valid against the restrictions
 	 * and update the inner value of the node to the new value
 	 * otherwise return false 
-	 */
+	 
 	updateValue111: function(value){
-		/*if(this.itemData.typeName=="boolean"){
+		if(this.itemData.typeName=="boolean"){
 			value = Boolean(value);
 			alert(Boolean(value)+" "+!!value);
 		}
@@ -362,7 +362,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		&& this.itemData.typeName!="" 
 		&& typeof(value)!=this.itemData.typeName){
 			alert("mauvais type "+typeof(value));
-		}*/
+		}
 		
 		var ERROR_MESSAGE_VALIDATEDOUBLE = {
 			'en' : ' is not a valid value for double ',
@@ -527,7 +527,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem);
 		return true;
 
-	},
+	},*/
 	
 	resetErrorMessage : function(nodeId) {
 		// var errorMessageDivId =nodeId+"ErrorMessage";
