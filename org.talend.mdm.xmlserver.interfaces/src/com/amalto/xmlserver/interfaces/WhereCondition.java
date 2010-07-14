@@ -28,6 +28,7 @@ public class WhereCondition  implements IWhereItem, Serializable {
 	public static String STRICTCONTAINS ="STRICTCONTAINS";
 	public static String STARTSWITH ="STARTSWITH";
 	public static String JOINS ="JOINS";
+	public static String CONTAINS_TEXT_OF ="CONTAINS_TEXT_OF";
     public static final String EQUALS = "=";
     public static final String NOT_EQUALS = "!=";
     public static final String GREATER_THAN = ">";

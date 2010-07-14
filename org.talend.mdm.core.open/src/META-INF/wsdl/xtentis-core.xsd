@@ -591,6 +591,7 @@
 	<xsd:simpleType name="WSWhereOperator">
 		<xsd:restriction base="xsd:NMTOKEN">
 			<xsd:enumeration value="JOIN"/>
+			<xsd:enumeration value="CONTAINS_TEXT_OF"/>
 			<xsd:enumeration value="CONTAINS"/>
     		<xsd:enumeration value="STARTSWITH"/>
     		<xsd:enumeration value="STRICTCONTAINS"/>

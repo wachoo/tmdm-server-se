@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -455,7 +456,7 @@ public class QueryBuilder {
 					where = "matches(" + factorPivots + ", \"" + encoded
 							+ ".*\" ,\"i\") ";
 				}
-			} else if (operator.equals(WhereCondition.JOINS)) {
+			} else if (operator.equals(WhereCondition.CONTAINS_TEXT_OF)) {
 				// where =
 				// XPathUtils.factor(wc.getRightValueOrPath(),pivots)+" = "+factorPivots;
 				// //Join error aiming added
@@ -464,7 +465,16 @@ public class QueryBuilder {
 				String factorRightPivot = XPathUtils.factor(encoded, pivots)+ ""; 
 				where = "contains(" + factorPivots + ", " + factorRightPivot + "/text()) ";
 	
-			} else if (operator.equals(WhereCondition.EQUALS)) {
+			} else if (operator.equals(WhereCondition.JOINS)) {
+				// where =
+				// XPathUtils.factor(wc.getRightValueOrPath(),pivots)+" = "+factorPivots;
+				// //Join error aiming added
+				
+				//FIXME:ASSUME the pivots are the same?
+				String factorRightPivot = XPathUtils.factor(encoded, pivots)+ ""; 
+				where =  factorPivots + " JOINS " + factorRightPivot ;
+	
+			}else if (operator.equals(WhereCondition.EQUALS)) {
 				if (isNum) {
 					where = "number(" + factorPivots + ") eq " + encoded;
 				} else if (isXpathFunction) {
@@ -614,8 +624,12 @@ public class QueryBuilder {
 
 	    	StringBuffer rawQueryStringBuffer = new StringBuffer();
 	    	rawQueryStringBuffer.append(xqFor);
+    		//add joinkeys
+	    	partialXQLPackage.resetPivotWhereMap();
+    		String joinstring=getJoinString(partialXQLPackage.getJoinKeys());
+    		
 	    	//rawQueryStringBuffer.append("".equals(xqWhere)? "" : "\nwhere "+xqWhere);
-	    	if(!partialXQLPackage.isUseGlobalOrderBy())rawQueryStringBuffer.append("".equals(xqOrderBy) ? "" : "\n"+xqOrderBy);
+	    	if(!partialXQLPackage.isUseGlobalOrderBy())rawQueryStringBuffer.append("".equals(joinstring) ? "" : "\n"+joinstring).append("".equals(xqOrderBy) ? "" : "\n"+xqOrderBy);
 	    	rawQueryStringBuffer.append("\nreturn "+xqReturn);
 	    	String rawQuery = rawQueryStringBuffer.toString();
 	    		
@@ -662,7 +676,7 @@ public class QueryBuilder {
 	    	
 	    	StringBuffer firstLets=new StringBuffer();
     		LinkedHashMap<String, String> forInCollectionMap = partialXQLPackage.getForInCollectionMap();
-    		partialXQLPackage.genPivotWhereMap();
+    		partialXQLPackage.resetPivotWhereMap();
     		Map<String,String> pivotWhereMap=partialXQLPackage.getPivotWhereMap();
 	    	int i=0;
     		for (Iterator<String> iterator = forInCollectionMap.keySet().iterator(); iterator.hasNext();i++) {
@@ -672,10 +686,12 @@ public class QueryBuilder {
 				if(partialXQLPackage.isUseGlobalOrderBy())expr=partialXQLPackage.genOrderByWithFirstExpr(expr);
 				firstLets.append("let $_leres").append(i).append("_ := ").append(expr).append(" \n");
 			}
+
     		query=(firstLets.toString()+query);
 
 	    	//replace () and to ""
 	    	query=query.replaceAll(" \\(\\) and"," ");
+	    	query=query.replaceAll(" and \\(\\)"," ");
 	    	query=query.replaceAll("\\(\\(\\) and","( ");
 
 	    	System.out.println("query:\n");
@@ -695,15 +711,52 @@ public class QueryBuilder {
 	private static String getCountExpr(PartialXQLPackage partialXQLPackage) {
 		StringBuffer countExpr=new StringBuffer();
 		countExpr.append("count($_leres0_)");
-		int size=partialXQLPackage.getForInCollectionMap().size();
-		if(size>1) {
-			for (int i = 1; i < size; i++) {
-				countExpr.append("*").append("count($_leres").append(i).append("_)");
-			}	
-		}
+//		int size=partialXQLPackage.getForInCollectionMap().size();
+//		if(size>1) {
+//			for (int i = 1; i < size; i++) {
+//				countExpr.append("*").append("count($_leres").append(i).append("_)");
+//			}	
+//		}
 		return countExpr.toString();
 	}
-
+	/**
+	 * get the foreign key join string
+	 * @param joinKeys
+	 * @return
+	 */
+	private static String getJoinString(List<String> joinKeys) {
+		int i=0; 
+		StringBuffer sb=new StringBuffer();
+		String fk="";//FIXME only support one Foreignkey
+		String keyvalue="";
+		for(String joinkey: joinKeys) {
+			if(joinkey.matches("\\((.*?)\\)"))
+				joinkey=joinkey.replaceFirst("\\((.*?)\\)", "$1");
+			String[] splits=joinkey.split(WhereCondition.JOINS);
+			if(splits.length==2) {
+				fk=splits[0];
+				sb.append("let $joinkey").append(i).append(" := concat(\"[\",").append(splits[1]).append(",\"]\")\n");
+				i++;
+			}
+		}
+		if(joinKeys.size()==1) {
+			keyvalue="$joinkey0";
+		}else if(joinKeys.size()>1) {
+			keyvalue="concat(";
+			for(int j=joinKeys.size()-1; j>=0; j--) {
+				if(j>0) {
+					keyvalue +="$joinkey"+j+",";
+				}else {
+					keyvalue +="$joinkey"+j;
+				}
+			}
+			keyvalue+=")";
+		}
+		if(fk.length()>0 && keyvalue.length()>0)
+			return sb+"where " +fk+"=" + keyvalue;
+		else
+			return "";
+	}
 	/***********************************************************************
 	 *
 	 * Helper Methods

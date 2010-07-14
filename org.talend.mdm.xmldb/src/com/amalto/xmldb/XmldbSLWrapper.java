@@ -1582,7 +1582,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
                //where = "near("+factorPivots+", \""+encoded+"*\",1)";
                where = "matches("+factorPivots+", \""+encoded+".*\",\"i\") ";
             }
-			} else if(operator.equals(WhereCondition.JOINS)) { 
+			} else if(operator.equals(WhereCondition.CONTAINS_TEXT_OF)) { 
 				//where = getPathFromPivots(wc.getRightValueOrPath(),pivots)+" = "+factorPivots; //JOIN error
 				String factorRightPivot = XPathUtils.factor(encoded, pivots)+ ""; 
 				where = "contains(" + factorPivots + ", " + factorRightPivot + "/text()) ";

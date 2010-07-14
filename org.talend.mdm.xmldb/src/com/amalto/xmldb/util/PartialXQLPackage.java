@@ -1,10 +1,15 @@
 package com.amalto.xmldb.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereOr;
 
 public class PartialXQLPackage {
 	
@@ -20,8 +25,11 @@ public class PartialXQLPackage {
     	
     	private String xqOrderBy;   	
     	
+    	private List<String> joinKeys=null;
+    	
     	public PartialXQLPackage() {
     		forInCollectionMap=new LinkedHashMap<String, String>();
+    		joinKeys=new ArrayList<String>();
     		useSubsequenceFirst=false;
 		}
     	
@@ -35,7 +43,7 @@ public class PartialXQLPackage {
 			return forInCollectionMap;
 		}
 		
-		public void genPivotWhereMap() {
+		public void resetPivotWhereMap() {
 			
 			pivotWhereMap = getPivotWhereMap(xqWhere);
 			
@@ -51,20 +59,28 @@ public class PartialXQLPackage {
 				pivotWhereMap.put(pivotName, replacedXQWhere);
 			}else if(pivotWhereMap.size()>1) {
 				String[] whereItems=xqWhere.split("and");//FIXME:only support and under mix mode
-				for (int i = 0; i < whereItems.length; i++) {
+				for (int i = 0; i < whereItems.length; i++) {				
 					String whereItem=whereItems[i].trim();
-					String pivotName=getPivotName(whereItem);
-					String replacedWhereItem=whereItem.replaceAll("\\$pivot\\d+/", "");
-					if(pivotWhereMap.get(pivotName)==null) {
-						pivotWhereMap.put(pivotName, replacedWhereItem);
+					if(whereItem.indexOf(" "+WhereCondition.JOINS+ " ")!=-1) {
+						joinKeys.add(whereItem);
 					}else {
-						pivotWhereMap.put(pivotName, pivotWhereMap.get(pivotName)+" and "+replacedWhereItem);
+						String pivotName=getPivotName(whereItem);
+						String replacedWhereItem=whereItem.replaceAll("\\$pivot\\d+/", "");
+						if(pivotWhereMap.get(pivotName)==null) {
+							pivotWhereMap.put(pivotName, replacedWhereItem);
+						}else {
+							pivotWhereMap.put(pivotName, pivotWhereMap.get(pivotName)+" and "+replacedWhereItem);
+						}
 					}
 				}
 				
 			}
 			//System.out.println(pivotWhereMap);
 			
+		}
+
+		public List<String> getJoinKeys() {
+			return joinKeys;
 		}
 
 		public Map<String, String> getPivotWhereMap() {
