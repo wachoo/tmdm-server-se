@@ -568,7 +568,7 @@ public class ItemsBrowserDWR {
 									String keyValue = (String)row.get("keys");
 									if(keyValue.equals(treeNodeTmp.getValue()))
 									{
-										treeNodeTmp.setValueInfo(row.getString("infos"));
+										treeNodeTmp.setValueInfo(StringEscapeUtils.escapeHtml(row.getString("infos")));
 										break;
 									}
 								}
@@ -618,7 +618,7 @@ public class ItemsBrowserDWR {
 							if(compValue!=null&&!compValue.startsWith("["))compValue="["+compValue+"]";
 							if(keyValue.equals(compValue))
 							{
-								treeNode.setValueInfo(row.getString("infos"));
+								treeNode.setValueInfo(StringEscapeUtils.escapeHtml(row.getString("infos")));
 								break;
 							}
 							else if(treeNode.getValue() == null)
