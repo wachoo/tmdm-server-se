@@ -644,8 +644,7 @@ public class QueryBuilder {
 	    			if (withTotalCountOnFirstRow) {
 			    		query =
 			    			"let $_page_ := \n"+rawQuery
-			    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{"
-			    			+getCountExpr(partialXQLPackage)
+			    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{count($_page_)"
 			    			+"}</totalCount>)";
 		    		} else {
 	    	    		query =
