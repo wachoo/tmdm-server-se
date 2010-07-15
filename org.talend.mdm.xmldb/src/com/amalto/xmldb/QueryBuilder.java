@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -731,10 +732,11 @@ public class QueryBuilder {
 	 * @return
 	 */
 	private static String getJoinString(List<String> joinKeys) {
-		int i=0; 
-		StringBuffer sb=new StringBuffer();
-		String fk="";//FIXME only support one Foreignkey
-		String keyvalue="";
+		int c=0; 
+		//StringBuffer sb=new StringBuffer();
+		//String fk="";//FIXME only support one Foreignkey
+		LinkedHashMap<String,ArrayList<String>> fkMaps=new LinkedHashMap<String, ArrayList<String>>();
+		//String keyvalue="";
 		for(String joinkey: joinKeys) {
 			String[] items=joinkey.split("or|and");
 			for(String item: items) {
@@ -743,29 +745,54 @@ public class QueryBuilder {
 					key=key.replaceFirst("\\((.*?)\\)", "$1");
 				String[] splits=key.split(WhereCondition.JOINS);
 				if(splits.length==2) {
-					fk=splits[0].trim();
-					sb.append("let $joinkey").append(i).append(" := concat(\"[\",").append(splits[1].trim()).append(",\"]\")\n");
-					i++;
+					String fk=splits[0].trim();
+					ArrayList<String> value=fkMaps.get(fk);
+					if(value==null) {
+						value=new ArrayList<String>();
+						fkMaps.put(fk, value);
+					}
+					StringBuffer sb1=new StringBuffer();
+					String var="$joinkey"+c;
+					sb1.append(var+"#"+"let "+ var).append(" := concat(\"[\",").append(splits[1].trim()).append(",\"]\")\n");
+					value.add(sb1.toString());
+					c++;
 				}
 			}
 		}
-		if(i==1) {
-			keyvalue="$joinkey0";
-		}else if(i>1) {
-			keyvalue="concat(";
-			for(int j=i-1; j>=0; j--) {
-				if(j>0) {
-					keyvalue +="$joinkey"+j+",";
-				}else {
-					keyvalue +="$joinkey"+j;
-				}
+		StringBuffer let=new StringBuffer();
+		StringBuffer where=new StringBuffer();
+		if(fkMaps.size()>0) where.append(" where ");
+		int count=0;
+		for(Entry<String,ArrayList<String>> entry: fkMaps.entrySet()) {
+			String fk =entry.getKey();
+			ArrayList<String> vars=new ArrayList<String>();
+			for(String v:entry.getValue()) {
+				int pos=v.indexOf("#");
+				let.append(v.substring(pos+1));
+				vars.add(v.substring(0,pos));				
 			}
-			keyvalue+=")";
+			String keyvalue="";
+			if(vars.size()==1) {
+				keyvalue=vars.get(0);
+			}else {
+				keyvalue="concat(";
+				for(int k=vars.size()-1; k>=0; k--) {
+					if(k>0) {
+						keyvalue +=vars.get(k)+",";
+					}else {
+						keyvalue +=vars.get(k);
+					}
+				}
+				keyvalue+=")";
+			}
+			
+			where.append(fk).append("=").append(keyvalue);
+			if(count <fkMaps.size()-1) {
+				where.append(" and ");
+			}
+			count++;
 		}
-		if(fk.length()>0 && keyvalue.length()>0)
-			return sb+"where " +fk+"=" + keyvalue;
-		else
-			return "";
+		return let.toString()+where.toString();
 	}
 	/***********************************************************************
 	 *
