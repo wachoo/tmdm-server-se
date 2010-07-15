@@ -627,9 +627,10 @@ public class QueryBuilder {
     		//add joinkeys
 	    	partialXQLPackage.resetPivotWhereMap();
     		String joinstring=getJoinString(partialXQLPackage.getJoinKeys());
-    		
+    		partialXQLPackage.setUseJoin(!("".equals(joinstring)));
 	    	//rawQueryStringBuffer.append("".equals(xqWhere)? "" : "\nwhere "+xqWhere);
-	    	if(!partialXQLPackage.isUseGlobalOrderBy())rawQueryStringBuffer.append("".equals(joinstring) ? "" : "\n"+joinstring).append("".equals(xqOrderBy) ? "" : "\n"+xqOrderBy);
+    		rawQueryStringBuffer.append("".equals(joinstring) ? "" : "\n"+joinstring);
+	    	if(!partialXQLPackage.isUseGlobalOrderBy())rawQueryStringBuffer.append("".equals(xqOrderBy) ? "" : "\n"+xqOrderBy);
 	    	rawQueryStringBuffer.append("\nreturn "+xqReturn);
 	    	String rawQuery = rawQueryStringBuffer.toString();
 	    		
@@ -644,7 +645,8 @@ public class QueryBuilder {
 	    			if (withTotalCountOnFirstRow) {
 			    		query =
 			    			"let $_page_ := \n"+rawQuery
-			    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{count($_page_)"
+			    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{"
+			    			+getCountExpr(partialXQLPackage)
 			    			+"}</totalCount>)";
 		    		} else {
 	    	    		query =
@@ -708,14 +710,19 @@ public class QueryBuilder {
     }
 
 	private static String getCountExpr(PartialXQLPackage partialXQLPackage) {
+		
 		StringBuffer countExpr=new StringBuffer();
+		if(partialXQLPackage.isUseJoin()) {
+			countExpr.append("count($_page_)");
+			return countExpr.toString();
+		}
 		countExpr.append("count($_leres0_)");
-//		int size=partialXQLPackage.getForInCollectionMap().size();
-//		if(size>1) {
-//			for (int i = 1; i < size; i++) {
-//				countExpr.append("*").append("count($_leres").append(i).append("_)");
-//			}	
-//		}
+		int size=partialXQLPackage.getForInCollectionMap().size();
+		if(size>1) {
+			for (int i = 1; i < size; i++) {
+				countExpr.append("*").append("count($_leres").append(i).append("_)");
+			}	
+		}
 		return countExpr.toString();
 	}
 	/**

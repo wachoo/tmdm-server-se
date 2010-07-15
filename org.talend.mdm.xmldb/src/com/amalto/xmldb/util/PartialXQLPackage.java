@@ -27,10 +27,13 @@ public class PartialXQLPackage {
     	
     	private List<String> joinKeys=null;
     	
+    	private boolean useJoin;
+    	
     	public PartialXQLPackage() {
     		forInCollectionMap=new LinkedHashMap<String, String>();
     		joinKeys=new ArrayList<String>();
     		useSubsequenceFirst=false;
+    		useJoin=false;
 		}
     	
     	public void addForInCollection(String pivotName,String collectionXpathExpr) {
@@ -136,6 +139,15 @@ public class PartialXQLPackage {
 			else return false;
 		}
 		
+		
+		public boolean isUseJoin() {
+			return useJoin;
+		}
+
+		public void setUseJoin(boolean useJoin) {
+			this.useJoin = useJoin;
+		}
+
 		public String genOrderByWithFirstExpr(String expr) {
 			
 			xqOrderBy=xqOrderBy.replace("$pivot0", "$r");
