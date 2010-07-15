@@ -736,20 +736,24 @@ public class QueryBuilder {
 		String fk="";//FIXME only support one Foreignkey
 		String keyvalue="";
 		for(String joinkey: joinKeys) {
-			if(joinkey.matches("\\((.*?)\\)"))
-				joinkey=joinkey.replaceFirst("\\((.*?)\\)", "$1");
-			String[] splits=joinkey.split(WhereCondition.JOINS);
-			if(splits.length==2) {
-				fk=splits[0];
-				sb.append("let $joinkey").append(i).append(" := concat(\"[\",").append(splits[1]).append(",\"]\")\n");
-				i++;
+			String[] items=joinkey.split("or|and");
+			for(String item: items) {
+				String key=item.trim();
+				if(key.matches("\\((.*?)\\)"))
+					key=key.replaceFirst("\\((.*?)\\)", "$1");
+				String[] splits=key.split(WhereCondition.JOINS);
+				if(splits.length==2) {
+					fk=splits[0].trim();
+					sb.append("let $joinkey").append(i).append(" := concat(\"[\",").append(splits[1].trim()).append(",\"]\")\n");
+					i++;
+				}
 			}
 		}
-		if(joinKeys.size()==1) {
+		if(i==1) {
 			keyvalue="$joinkey0";
-		}else if(joinKeys.size()>1) {
+		}else if(i>1) {
 			keyvalue="concat(";
-			for(int j=joinKeys.size()-1; j>=0; j--) {
+			for(int j=i-1; j>=0; j--) {
 				if(j>0) {
 					keyvalue +="$joinkey"+j+",";
 				}else {
