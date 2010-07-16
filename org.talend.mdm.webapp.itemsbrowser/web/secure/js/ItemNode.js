@@ -138,7 +138,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						'<span style="cursor: pointer;" ' +
 						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+')" >' +
 						' <img src="img/genericUI/magnifier_plus.gif"/></span>';
-				}
+				
 				
 				foreignKeyImg += ''+
 						'<span style="cursor: pointer;" ' +
@@ -149,6 +149,9 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					'<span id = "' + fkDataObject +'" style="cursor: pointer;" ' +
 					'onclick="amalto.itemsbrowser.ItemsBrowser.displayItemDetails(' + null +',\'' + fkDataObject +'\')" >' +
 					' <img src="img/genericUI/add-element.gif"/></span>';
+					
+					
+				}	
 				
 				ItemsBrowserInterface.getRootNode(fkDataObject, language, function(fkNode) {
 					if(fkNode!=null && fkNode.readOnly != false && fkDataObject!=null) {
