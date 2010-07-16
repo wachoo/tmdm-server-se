@@ -513,7 +513,7 @@ public class ItemsBrowserDWR {
 				 while (it.hasNext()) {
 					XSFacet xsf = it.next();
 					if("enumeration".equals(xsf.getName())) {
-						enumeration.add(xsf.getValue().toString());
+						enumeration.add(StringEscapeUtils.escapeHtml(xsf.getValue().toString()));
 					}
 					else{
 						Restriction r = new Restriction(xsf.getName(),xsf.getValue().toString());
@@ -597,7 +597,8 @@ public class ItemsBrowserDWR {
 				else{
 					if(!treeNode.isReadOnly())
 						nodeAutorization.add(xpath);
-					idToXpath.put(nodeCount,xpath);
+					idToXpath.put(nodeCount,xpath);					
+					
 					treeNode.setValue(StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath)));
 					
 					//key is readonly for editing record.
@@ -618,7 +619,7 @@ public class ItemsBrowserDWR {
 							if(compValue!=null&&!compValue.startsWith("["))compValue="["+compValue+"]";
 							if(keyValue.equals(compValue))
 							{
-								treeNode.setValueInfo(StringEscapeUtils.escapeHtml(row.getString("infos")));
+								treeNode.setValueInfo(StringEscapeUtils.escapeHtml(row.getString("infos")));								
 								break;
 							}
 							else if(treeNode.getValue() == null)
@@ -2499,5 +2500,5 @@ public class ItemsBrowserDWR {
 		else
 			return checkAncestorMinOCcurs(node.getParent());
 	}
-	
+
 }
