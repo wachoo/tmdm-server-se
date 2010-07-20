@@ -138,6 +138,7 @@ ul.x-tab-strip li.x-tab-edge{float:left;margin:0!important;padding:0!important;b
 textarea.x-form-field{padding:2px 3px;}
 .x-form-text{height:22px;line-height:18px;vertical-align:middle;}
 .ext-ie .x-form-text{margin:-1px 0;height:22px;line-height:18px;}
+.ext-ie .x-form-text {position:static !important;}
 .ext-ie textarea.x-form-field{margin:-1px 0;}
 .ext-strict .x-form-text{height:18px;}
 .ext-safari .x-form-text{height:20px;padding:0 3px;}
