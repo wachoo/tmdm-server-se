@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.util.Util;
 
@@ -25,7 +26,8 @@ public class StartScheduleSubProc extends AssembleSubProc {
 //				e2.printStackTrace();
 //			}
 			//FIXME:port maybe change
-			String port="8080";
+			String port=MDMConfiguration.getConfiguration().getProperty("xmldb.server.port");
+			port= port==null?"8080":port;
 			String uri="http://"+ip+":"+port+"/SrvSchedule/SrvScheduleServlet?action=startup";
 
 			HttpClient client = new HttpClient();

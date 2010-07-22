@@ -100,8 +100,13 @@ import com.sun.org.apache.xpath.internal.objects.XObject;
  * @author bgrieder
  */
 public class Util {
+	private static String port=null;
+	static {
+		port=MDMConfiguration.getConfiguration().getProperty("xmldb.server.port");
+		port= port==null?"8080":port;		
+	}
 	
-	private static String endpoint_address = "http://localhost:8080/talend/TalendPort";
+	private static String endpoint_address = "http://localhost:"+port+"/talend/TalendPort";
 	
 	public static int _AUTO_ = 0;
 	public static int _FORCE_RMI_ = 1;
