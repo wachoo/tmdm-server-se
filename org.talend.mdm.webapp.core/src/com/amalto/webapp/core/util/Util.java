@@ -280,7 +280,9 @@ public class Util {
 		for (String cria: criterias)
 		{
 			String[] values = cria.split("\\$\\$");
+	
 			WSWhereCondition wc = Util.convertLine(values);
+			if(wc!=null)
 			condition.add(new WSWhereItem(wc,null,null));
 		}
 		if(condition.size()>0) {
@@ -294,6 +296,7 @@ public class Util {
     }
     
     public static WSWhereCondition convertLine(String[] values){
+    	if(values.length<3) return null;
     	WSWhereCondition wc=new WSWhereCondition();
 
 		wc.setLeftPath(values[0]);
