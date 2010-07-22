@@ -776,8 +776,8 @@ public class QueryBuilder {
 				keyvalue=vars.get(0);
 			}else {
 				keyvalue="concat(";
-				for(int k=vars.size()-1; k>=0; k--) {
-					if(k>0) {
+				for(int k=0; k<vars.size(); k++) {
+					if(k<vars.size()-1) {
 						keyvalue +=vars.get(k)+",";
 					}else {
 						keyvalue +=vars.get(k);
