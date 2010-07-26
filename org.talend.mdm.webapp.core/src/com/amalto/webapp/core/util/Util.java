@@ -1244,8 +1244,10 @@ public class Util {
 	            	List<WSWhereItem> condition=new ArrayList<WSWhereItem>();
 	            	if(whereItem!=null)condition.add(whereItem);
 	            	WSWhereItem wc=null;
-	            	if(xpathForeignKey.equals(conceptName))wc=buildWhereItem(conceptName+"/. CONTAINS "+value);
-	            	else wc=buildWhereItem(xpathForeignKey+" CONTAINS "+value);
+	            	//hshu fixed the regression: the filter works only on FK, not on FK Info.
+	            	//if(xpathForeignKey.equals(conceptName))wc=buildWhereItem(conceptName+"/. CONTAINS "+value);
+	            	//else wc=buildWhereItem(xpathForeignKey+" CONTAINS "+value);
+	            	wc=buildWhereItem(conceptName+"/. CONTAINS "+value);
 	            	condition.add(wc);
 	            	WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
 	    			WSWhereItem whand = new WSWhereItem(null,and,null);
