@@ -102,6 +102,23 @@ String.prototype.startWith=function(str){
     return true;
 };
 
+var g_oHtmlEncodeElement;
+
+function htmlEscape(text)
+{
+    g_oHtmlEncodeElement = g_oHtmlEncodeElement || document.createElement("div");
+    g_oHtmlEncodeElement.innerText = g_oHtmlEncodeElement.textContent = text;
+    return g_oHtmlEncodeElement.innerHTML;
+}
+
+function htmlUnescape(html)
+{
+    g_oHtmlEncodeElement = g_oHtmlEncodeElement || document.createElement("div");
+    g_oHtmlEncodeElement.textContent = g_oHtmlEncodeElement.innerText = "";
+    g_oHtmlEncodeElement.innerHTML = html;
+    return g_oHtmlEncodeElement.innerText || g_oHtmlEncodeElement.textContent;
+}
+
 Ext.namespace("Ext.ux");
 Ext.ux.comboBoxRenderer = function(combo) {
   return function(value) {
