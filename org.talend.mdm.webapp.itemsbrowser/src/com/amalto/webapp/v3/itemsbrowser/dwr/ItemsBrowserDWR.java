@@ -296,10 +296,10 @@ public class ItemsBrowserDWR {
 				);
 				Document document = Util.parse(wsItem.getContent());
 				//update the node according to schema
-				if("sequence".equals(com.amalto.core.util.Util.getConceptModelType(concept, xsd))) {
+				//if("sequence".equals(com.amalto.core.util.Util.getConceptModelType(concept, xsd))) {
 					Node newNode=com.amalto.core.util.Util.updateNodeBySchema(concept, xsd, document.getDocumentElement());
 					document=newNode.getOwnerDocument();
-				}				
+				//}				
 				if(foreignKey) ctx.getSession().setAttribute("itemDocumentFK",document);
 				else ctx.getSession().setAttribute("itemDocument"+docIndex,document);
 	        }
@@ -705,12 +705,12 @@ public class ItemsBrowserDWR {
 		if(foreignKey) d = (Document) ctx.getSession().getAttribute("itemDocumentFK");
 		
 		boolean choice = false;
-		ArrayList<String> roles = new ArrayList<String>();
-		try {
-			roles = Util.getAjaxSubject().getRoles();
-		} catch (PolicyContextException e1) {
-			e1.printStackTrace();
-		}
+//		ArrayList<String> roles = new ArrayList<String>();
+//		try {
+//			roles = Util.getAjaxSubject().getRoles();
+//		} catch (PolicyContextException e1) {
+//			e1.printStackTrace();
+//		}
 	
 		XSParticle[] xsp = null;
 		if(idToParticle==null) return null;
