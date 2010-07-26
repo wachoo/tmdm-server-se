@@ -168,7 +168,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				mandatory='<span style="color:red">*</span>';
 			}
 			var typeStatus = true;
-			typeStatus = value.length<70 ||(itemData.typeName=="PICTURE")||(itemData.typeName=="URL")
+			typeStatus = value.length<100 ||(itemData.typeName=="PICTURE")||(itemData.typeName=="URL")
 
 			// select list
 			if((itemData.readOnly == false && !isReadOnlyinItem) && itemData.enumeration.length!=0) {
