@@ -2194,7 +2194,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			   }
 		   }
 		   var error = itemTreeList[treeIndex];
-           $('errorDesc'+ treeIndex).style.display = "block";
+           $('errorDesc'+ treeIndex).style.display = errorString.indexOf("Save item") == 0 ? "none" : "block";
             var reCat = /\[Error\].*\n/gi;
             var innerHml ="";
          	var arrMactches = errorString.match(reCat);
@@ -2632,6 +2632,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	                    amalto.core.ready(result.substring(8));
 	                    Ext.MessageBox.alert("Status",result.substring(8));
 	                }else if(result.indexOf('Unable to save item')==0){
+	                	amalto.core.ready();
+	    				tbDetail.items.get('saveBTN').enable();
+	    				tbDetail.items.get('saveAndQBTN').enable();
+	    				showExceptionMsg(result, null, treeIndex);
+	                }
+	                else if(result.indexOf("Save item") == 0) {
 	                	amalto.core.ready();
 	    				tbDetail.items.get('saveBTN').enable();
 	    				tbDetail.items.get('saveAndQBTN').enable();

@@ -2840,8 +2840,12 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 								updateReportPOJO.serialize(),
 								new WSDataModelPK("UpdateReport"),false));
 				
-				routeItemV2(new WSRouteItemV2(itemPK));
-				
+			try {
+			    routeItemV2(new WSRouteItemV2(itemPK));
+			}
+			catch(RemoteException ex) {
+			    throw(new RemoteException("routing fail: " + ex.getLocalizedMessage()));
+			}
 			return wsi;			
 		}catch (XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));			
