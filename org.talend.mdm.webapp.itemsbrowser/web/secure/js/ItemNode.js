@@ -125,8 +125,14 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			var foreignKeyImg = '';
 			if(itemData.foreignKey != null) {
 				//modify by ymli, if the parent or itself is writable, the foreign key can be set
+				
+				
+				var fkDataObject =  itemData.foreignKey.split("/")[0];
+				
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
+				
+				
 				if(!isReadOnlyinItem &&(itemData.readOnly==false||tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT")){
 					//for a foreign key, direct edit is disabled.
 					readOnly = "READONLY";
@@ -139,19 +145,17 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+')" >' +
 						' <img src="img/genericUI/magnifier_plus.gif"/></span>';
 				
-				
-				foreignKeyImg += ''+
-						'<span style="cursor: pointer;" ' +
-						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+treeIndex+'\')" >' +
-						' <img src="img/genericUI/magnifier.gif"/></span>';
-				var fkDataObject =  itemData.foreignKey.split("/")[0];
 				foreignKeyImg += '' +
 					'<span id = "' + fkDataObject +'" style="cursor: pointer;" ' +
 					'onclick="amalto.itemsbrowser.ItemsBrowser.displayItemDetails(' + null +',\'' + fkDataObject +'\')" >' +
 					' <img src="img/genericUI/add-element.gif"/></span>';
 					
-					
-				}	
+				}   
+				foreignKeyImg += ''+
+						'<span style="cursor: pointer;" ' +
+						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+treeIndex+'\')" >' +
+						' <img src="img/genericUI/magnifier.gif"/></span>';
+						
 				
 				ItemsBrowserInterface.getRootNode(fkDataObject, language, function(fkNode) {
 					if(fkNode!=null && fkNode.readOnly != false && fkDataObject!=null) {
