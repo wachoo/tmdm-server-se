@@ -34,10 +34,11 @@ public class InitDBUtil {
 	static boolean useExtension=false;
 	
 	public static void init(){
-		
+		InputStream dbIn=null;
+		InputStream edbIn=null;
 		try{
-			InputStream dbIn=InitDBUtil.class.getResourceAsStream("/com/amalto/core/initdb/initdb.xml");
-			InputStream edbIn=InitDBUtil.class.getResourceAsStream("/com/amalto/core/initdb/initdb-extension.xml");
+			dbIn=InitDBUtil.class.getResourceAsStream("/com/amalto/core/initdb/initdb.xml");
+			edbIn=InitDBUtil.class.getResourceAsStream("/com/amalto/core/initdb/initdb-extension.xml");
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			
 			parseInitMap(dbIn, builder, initDB);
@@ -49,6 +50,9 @@ public class InitDBUtil {
 			
 		}catch(Exception e){
 			org.apache.log4j.Logger.getLogger(InitDBUtil.class).error(e.getCause());
+		}finally {
+			if(dbIn!=null) try{dbIn.close();}catch(Exception e) {};
+			if(edbIn!=null) try{edbIn.close();}catch(Exception e) {};
 		}
 	}
 
@@ -123,27 +127,25 @@ public class InitDBUtil {
 		}
 	}
 	
-	private static String getString(InputStream in){
-		StringBuffer sb=new StringBuffer();
-		BufferedReader reader=new BufferedReader(new InputStreamReader(in));
+	public static String getString(InputStream in){
+		String result="";
 		try {
+			StringBuffer sb=new StringBuffer();		
+			BufferedReader reader=new BufferedReader(new InputStreamReader(in));
+	
 			String line=reader.readLine();
 			while(line!=null){
 				sb=sb.append(line+"\n");
 				line=reader.readLine();
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		String result="";
-		try {
+					
 			result= new String(sb.toString().getBytes(),"UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
 		
+		}catch(Exception e) {
+			
+		}finally {
+			if(in!=null) try {in.close();}catch(Exception e) {}
+		}
 		return result;
 	}
 	public static void main(String[] args) {
