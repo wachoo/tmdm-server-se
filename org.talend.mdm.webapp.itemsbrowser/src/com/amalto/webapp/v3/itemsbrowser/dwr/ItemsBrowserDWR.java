@@ -1369,13 +1369,13 @@ public class ItemsBrowserDWR {
 			}
 			return "OK";
 		}
-		catch(Exception e){			
+		catch(Exception e){	
 	         String saveSUCCE = "Save item '" + concept + "." + Util.joinStrings(ids, ".") + 
-             "' is complete, but " + e.getLocalizedMessage();
+             "' successfully, But " + e.getLocalizedMessage();
 	         String err= "Unable to save item '"+concept+"."+Util.joinStrings(ids, ".")+"'"+e.getLocalizedMessage();
 	         //org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).error(err,e);
 	         //throw e;
-	         return e.getLocalizedMessage().indexOf("routing fail:") == 0 ? saveSUCCE : err;
+	         return e.getLocalizedMessage().indexOf("routing failed:") == 0 ? saveSUCCE : err;
 		}
 	}
 

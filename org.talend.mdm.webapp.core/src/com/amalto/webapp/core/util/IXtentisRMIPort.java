@@ -2844,7 +2844,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 			    routeItemV2(new WSRouteItemV2(itemPK));
 			}
 			catch(RemoteException ex) {
-			    throw(new RemoteException("routing fail: " + ex.getLocalizedMessage()));
+			    throw(new RemoteException("routing failed: " + ex.getLocalizedMessage()));
 			}
 			return wsi;			
 		}catch (XtentisException e) {
