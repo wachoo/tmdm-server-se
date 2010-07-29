@@ -127,7 +127,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				//modify by ymli, if the parent or itself is writable, the foreign key can be set
 				
 				
-				var fkDataObject =  itemData.foreignKey.split("/")[0];
+				
 				
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
@@ -145,6 +145,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+')" >' +
 						' <img src="img/genericUI/magnifier_plus.gif"/></span>';
 				
+				var fkDataObject =  itemData.foreignKey.split("/")[0];	
 				foreignKeyImg += '' +
 					'<span id = "' + fkDataObject +'" style="cursor: pointer;" ' +
 					'onclick="amalto.itemsbrowser.ItemsBrowser.displayItemDetails(' + null +',\'' + fkDataObject +'\')" >' +
