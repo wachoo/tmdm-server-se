@@ -25,6 +25,7 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -146,6 +147,8 @@ public class BulkloadClientUtil {
 		config.setHost(uri);
 
 		PostMethod postMethod = new PostMethod(URL);
+		HttpMethodParams reqParams = postMethod.getParams();  
+		reqParams.setContentCharset("UTF-8"); 
 		List<NameValuePair> list=new ArrayList<NameValuePair>();
 		NameValuePair[] data = { new NameValuePair("cluster", cluster),
 				new NameValuePair("concept", concept),
@@ -157,6 +160,8 @@ public class BulkloadClientUtil {
 			list.add(new NameValuePair("itemdata"+i, itemdata.get(i)));
 		}
 		postMethod.setRequestBody((NameValuePair[])list.toArray(new NameValuePair[list.size()]));
+	 
+		
 		// post method
 		int statusCode = 0;
 		try {
