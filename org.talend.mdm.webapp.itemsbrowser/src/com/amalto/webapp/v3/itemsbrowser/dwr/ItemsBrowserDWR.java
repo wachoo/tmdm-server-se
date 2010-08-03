@@ -230,7 +230,8 @@ public class ItemsBrowserDWR {
 					CommonDWR.getConceptFromBrowseItemView(viewPK),
 					language, true);
 			for (int i = 0; i < viewables.length; i++) {
-				labelViewables[i] = xpathToLabel.get(viewables[i]);
+				String path = xpathToLabel.get(viewables[i]);
+				labelViewables[i]=path!=null?path:viewables[i];
 				//System.out.println(labelViewables[i]);
 			}
 			return labelViewables;
