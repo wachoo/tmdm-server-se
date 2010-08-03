@@ -745,7 +745,8 @@ public class QueryBuilder {
 					key=key.replaceFirst("\\((.*?)\\)", "$1");
 				String[] splits=key.split(WhereCondition.JOINS);
 				if(splits.length==2) {
-					String fk=splits[0].trim();
+					String fk=splits[0].trim().replace("(", "").replace(")", "");
+					String rightV=splits[1].trim().replace("(", "").replace(")", "");
 					ArrayList<String> value=fkMaps.get(fk);
 					if(value==null) {
 						value=new ArrayList<String>();
@@ -753,7 +754,7 @@ public class QueryBuilder {
 					}
 					StringBuffer sb1=new StringBuffer();
 					String var="$joinkey"+c;
-					sb1.append(var+"#"+"let "+ var).append(" := concat(\"[\",").append(splits[1].trim()).append(",\"]\")\n");
+					sb1.append(var+"#"+"let "+ var).append(" := concat(\"[\",").append(rightV).append(",\"]\")\n");
 					value.add(sb1.toString());
 					c++;
 				}
