@@ -412,48 +412,57 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
     		String[] contents=Util.getTextNodes(itemPOJO.getProjection(), expXpath);
     		for(String content: contents) {
 	    		switch (exp.getOperator()) {
-		    		case RoutingRuleExpressionPOJO.CONTAINS:
-		    			if (content!=null && content.indexOf(exp.getValue())>-1)
-		    				return true;
-		    		case RoutingRuleExpressionPOJO.EQUALS:
-		    			if (content!=null && content.equals(exp.getValue()))
-		    				return true;
-		    		case RoutingRuleExpressionPOJO.GREATER_THAN:
-		    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
-		    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
-		    			if (content!=null && expInt > contentInt)
-		    				return true;
-		    		case RoutingRuleExpressionPOJO.GREATER_THAN_OR_EQUAL:
-		    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
-		    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
-		    			if (content!=null && expInt >= contentInt)
-		    				return true;
-		    		case RoutingRuleExpressionPOJO.IS_NOT_NULL:
-		    			return (content != null);
-		    		case RoutingRuleExpressionPOJO.IS_NULL:
-		    			return (content == null);
-		    		case RoutingRuleExpressionPOJO.LOWER_THAN:
-		    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
-		    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
-		    			if (content!=null && expInt < contentInt)
-		    				return true;
-		    		case RoutingRuleExpressionPOJO.LOWER_THAN_OR_EQUAL:
-		    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
-		    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
-		    			if (content!=null && expInt <= contentInt)
-		    				return true;
-		    		case RoutingRuleExpressionPOJO.MATCHES:
-		    			if (content!=null && content.matches(exp.getValue()))
-		    				return true;
-		    		case RoutingRuleExpressionPOJO.NOT_EQUALS:
-		    			if (content!=null && ! content.equals(exp.getValue()))
-		    			return true;    			
-		    		case RoutingRuleExpressionPOJO.STARTSWITH:
-		    			if (content!=null && content.startsWith(exp.getValue()))
-		    				return true;    			
-		    		default:
-		    			continue;
-	    		}
+	    		case RoutingRuleExpressionPOJO.CONTAINS:
+	    			if (content!=null && content.indexOf(exp.getValue())>-1)
+	    				return true;
+	    			break;
+	    		case RoutingRuleExpressionPOJO.EQUALS:
+	    			if (content!=null && content.equals(exp.getValue()))
+	    				return true;
+	    			break;
+	    		case RoutingRuleExpressionPOJO.GREATER_THAN:
+	    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
+	    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
+	    			if (content!=null && expInt > contentInt)
+	    				return true;
+	    			break;
+	    		case RoutingRuleExpressionPOJO.GREATER_THAN_OR_EQUAL:
+	    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
+	    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
+	    			if (content!=null && expInt >= contentInt)
+	    				return true;
+	    			break;
+	    		case RoutingRuleExpressionPOJO.IS_NOT_NULL:
+	    			return (content != null);
+	    		case RoutingRuleExpressionPOJO.IS_NULL:
+	    			return (content == null);
+	    		case RoutingRuleExpressionPOJO.LOWER_THAN:
+	    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
+	    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
+	    			if (content!=null && expInt < contentInt)
+	    				return true;
+	    			break;
+	    		case RoutingRuleExpressionPOJO.LOWER_THAN_OR_EQUAL:
+	    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
+	    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
+	    			if (content!=null && expInt <= contentInt)
+	    				return true;
+	    			break;
+	    		case RoutingRuleExpressionPOJO.MATCHES:
+	    			if (content!=null && content.matches(exp.getValue()))
+	    				return true;
+	    			break;
+	    		case RoutingRuleExpressionPOJO.NOT_EQUALS:
+	    			if (content!=null && ! content.equals(exp.getValue()))
+	    			return true;    	
+	    			break;
+	    		case RoutingRuleExpressionPOJO.STARTSWITH:
+	    			if (content!=null && content.startsWith(exp.getValue()))
+	    				return true;   
+	    			break;
+	    		default:
+	    			continue;
+    		}
     		}
     	} catch (TransformerException e) {
     		String err = "Subscription rule expression match: unable extract xpath '"+exp.getXpath()+"' from Item '"+itemPOJO.getItemPOJOPK().getUniqueID()+"': "+e.getLocalizedMessage();
