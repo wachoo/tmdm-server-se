@@ -428,13 +428,13 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 		    		case RoutingRuleExpressionPOJO.GREATER_THAN:
 		    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
 		    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
-		    			if (content!=null && expInt > contentInt)
+		    			if (content!=null && contentInt > expInt)
 		    				flag=true;
 		    			break;
 		    		case RoutingRuleExpressionPOJO.GREATER_THAN_OR_EQUAL:
 		    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
 		    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
-		    			if (content!=null && expInt >= contentInt)
+		    			if (content!=null && contentInt >= expInt)
 		    				flag=true;
 		    			break;
 		    		case RoutingRuleExpressionPOJO.IS_NOT_NULL:
@@ -447,13 +447,13 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 		    		case RoutingRuleExpressionPOJO.LOWER_THAN:
 		    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
 		    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
-		    			if (content!=null && expInt < contentInt)
+		    			if (content!=null && contentInt < expInt)
 		    				flag=true;
 		    			break;
 		    		case RoutingRuleExpressionPOJO.LOWER_THAN_OR_EQUAL:
 		    			try { expInt = Integer.parseInt(exp.getValue());} catch (Exception e) {continue;}
 		    			try { contentInt = Integer.parseInt(content);} catch (Exception e) {continue;}
-		    			if (content!=null && expInt <= contentInt)
+		    			if (content!=null && contentInt <= expInt)
 		    				flag=true;
 		    			break;
 		    		case RoutingRuleExpressionPOJO.MATCHES:
