@@ -92,7 +92,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
                 return dataObjectValue;
              }
 		    });
-				
+		
 		this.hierarchicalTree = new Ext.ux.MultiSelectTreePanel(
 		   {
 		   	    //title : "Display Panel",
@@ -388,11 +388,12 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
                                                     }
                                 }
 				}, {
-					fieldLabel : amalto.hierarchical.HierarchicalViewLocal.get("Search_Field_Filters"),
-					isFormField:true,
+					//by yguo, fix bug 0014789: Cannot close 'Grouping Hierarchy' tab. 
+					//fieldLabel : amalto.hierarchical.HierarchicalViewLocal.get("Search_Field_Filters"),
+					//isFormField : true,
 					layout : "column",
-					items : [this.editorGridPanel1],
-					border : false
+					border : false,
+					items : [this.editorGridPanel1]
 				}],
 				border : false,
 				xtype : "form",
