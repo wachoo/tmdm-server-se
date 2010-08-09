@@ -678,7 +678,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    itemsPredicates = result.metaDataTypes;
 		updateOperatorList(1);
 		currentPredicate = [];
-		displayItems();
+		//displayItems();
 		amalto.core.ready();
 	}
 	
