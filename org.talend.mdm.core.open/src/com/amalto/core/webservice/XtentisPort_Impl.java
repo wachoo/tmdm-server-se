@@ -283,6 +283,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSItemPK _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSBoolean isItemModifiedByOther(com.amalto.core.webservice.WSIsItemModifiedByOther wsItem) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSBoolean _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSPipeline extractUsingTransformer(com.amalto.core.webservice.WSExtractUsingTransformer wsExtractUsingTransformer) throws 
          java.rmi.RemoteException {
         

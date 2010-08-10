@@ -35,6 +35,13 @@ public interface ItemCtrl2
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
+    * Is Item modified by others - no exception is thrown: true|false
+    * @throws XtentisException
+    */
+   public boolean isItemModifiedByOther( com.amalto.core.ejb.ItemPOJOPK item,long time )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
     * Get an item - no exception is thrown: returns null if not found
     * @throws XtentisException
     */

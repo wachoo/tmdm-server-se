@@ -243,7 +243,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'fr' : 'Cet enregistrement existe déjà. Souhaitez-vous l\'écraser ?',
 		'en' : 'This record exists. Do you want to overwrite it?'
 	};
-	
+	var MSG_CONFIRM_OVERRIDE_ITEM = {
+			'fr' : 'This object was also modified by somebody else. If you save now, you will overwrite his or her changes. Are you sure you want to do that?',
+			'en' : 'This object was also modified by somebody else. If you save now, you will overwrite his or her changes. Are you sure you want to do that?'
+	};	
 	
 	var BUTTON_DISPLAY = {
 		'fr':'Visualiser',
@@ -2613,8 +2616,22 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}}});
     }
 	
-	
 	function saveItem0(ids,dataObject,treeIndex,callbackOnSuccess) {
+		ItemsBrowserInterface.isItemModifiedByOther(newItem[treeIndex],treeIndex,function(result){
+			if(result){
+				Ext.Msg.confirm("confirm",MSG_CONFIRM_OVERRIDE_ITEM[language],function(en){
+					if(en=="no") {
+						return;
+					}else {
+						saveItem1(ids, dataObject, treeIndex, callbackOnSuccess);
+					}
+				});
+			}else{
+				saveItem1(ids, dataObject, treeIndex, callbackOnSuccess);
+			}
+		});
+	}	
+	function saveItem1(ids,dataObject,treeIndex,callbackOnSuccess) {
 		var itemPK = ids.split('@');
 		amalto.core.working("Saving...");
 		var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();

@@ -78,6 +78,16 @@ public class ItemCtrl2Remote extends Observable
 
    }
 
+   public boolean isItemModifiedByOther ( com.amalto.core.ejb.ItemPOJOPK item,long time )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        boolean retval;
+       retval =  getSession().isItemModifiedByOther( item,time );
+
+      return retval;
+
+   }
+
    public com.amalto.core.ejb.ItemPOJO existsItem ( com.amalto.core.ejb.ItemPOJOPK pk )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {

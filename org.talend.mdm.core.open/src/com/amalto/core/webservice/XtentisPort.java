@@ -100,6 +100,8 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSItemPK putItemWithCustomReport(com.amalto.core.webservice.WSPutItemWithCustomReport wsPutItemWithCustomReport) throws 
          java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSBoolean isItemModifiedByOther(com.amalto.core.webservice.WSIsItemModifiedByOther wsItem) throws 
+         java.rmi.RemoteException;
     public com.amalto.core.webservice.WSPipeline extractUsingTransformer(com.amalto.core.webservice.WSExtractUsingTransformer wsExtractUsingTransformer) throws 
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSPipeline extractUsingTransformerThruView(com.amalto.core.webservice.WSExtractUsingTransformerThruView wsExtractUsingTransformerThruView) throws 

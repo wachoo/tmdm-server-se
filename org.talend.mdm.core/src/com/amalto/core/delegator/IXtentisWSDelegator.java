@@ -4982,4 +4982,20 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			
 			return jobSet;
 	    }	 
+	    
+		/**
+		 * is Item modified by others
+		 * @ejb.interface-method view-type = "service-endpoint"
+		 * @ejb.permission 
+		 * 	role-name = "authenticated"
+		 * 	view-type = "service-endpoint"
+		 */	    
+	    public WSBoolean isItemModifiedByOther(WSItem item)throws RemoteException{
+	    	try {
+	    	boolean ret=Util.getItemCtrl2Local().isItemModifiedByOther(new ItemPOJOPK(new DataClusterPOJOPK(item.getWsDataClusterPK().getPk()), item.getConceptName(), item.getIds()), item.getInsertionTime());
+	    	return new WSBoolean(ret);
+	    	}catch(Exception e) {
+	    		throw new RemoteException(e.getLocalizedMessage());
+	    	}
+	    }
 }

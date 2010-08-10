@@ -1110,6 +1110,14 @@
 	</xsd:complexType>
 	<xsd:element name="WSPutItemWithReportArray" type="tns:WSPutItemWithReportArray"/>
 	
+    <xsd:complexType name="WSIsItemModifiedByOther">
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="wsItem" nillable="true" type="tns:WSItem"/>
+        </xsd:sequence>     
+    </xsd:complexType>
+    <xsd:element name="WSIsItemModifiedByOther" type="tns:WSIsItemModifiedByOther"/>
+
+	
 	<!-- *****************************************************
 		             D E L E T E     I T E M S
 		*******************************************************-->	

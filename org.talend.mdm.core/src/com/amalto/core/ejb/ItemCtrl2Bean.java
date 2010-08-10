@@ -38,6 +38,7 @@ import com.amalto.core.util.JazzyConfiguration;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import com.amalto.core.webservice.WSItem;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.WhereCondition;
@@ -194,6 +195,17 @@ public class ItemCtrl2Bean implements SessionBean {
 	    }
     }
     
+    /**
+     * Is Item modified by others - no exception is thrown: true|false
+     * @throws XtentisException
+     * 
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+     */   
+   public boolean isItemModifiedByOther(ItemPOJOPK item, long time)throws XtentisException{	   	 
+	   ItemPOJO pojo= ItemPOJO.adminLoad(item);
+	   return time!=pojo.getInsertionTime();
+   }
     /**
      * Get an item - no exception is thrown: returns null if not found 
      * @throws XtentisException

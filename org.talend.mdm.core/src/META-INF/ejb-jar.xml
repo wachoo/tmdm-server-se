@@ -9,54 +9,6 @@
 
       <!-- Session Beans -->
       <session >
-         <description><![CDATA[Description for MenuCtrl]]></description>
-         <display-name>Name for MenuCtrl</display-name>
-
-         <ejb-name>MenuCtrl</ejb-name>
-
-         <home>com.amalto.core.objects.menu.ejb.remote.MenuCtrlHome</home>
-         <remote>com.amalto.core.objects.menu.ejb.remote.MenuCtrl</remote>
-         <local-home>com.amalto.core.objects.menu.ejb.local.MenuCtrlLocalHome</local-home>
-         <local>com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal</local>
-         <ejb-class>com.amalto.core.objects.menu.ejb.local.MenuCtrlSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
-
-      <session >
-         <description><![CDATA[Description for RoleCtrl]]></description>
-         <display-name>Name for RoleCtrl</display-name>
-
-         <ejb-name>RoleCtrl</ejb-name>
-
-         <home>com.amalto.core.objects.role.ejb.remote.RoleCtrlHome</home>
-         <remote>com.amalto.core.objects.role.ejb.remote.RoleCtrl</remote>
-         <local-home>com.amalto.core.objects.role.ejb.local.RoleCtrlLocalHome</local-home>
-         <local>com.amalto.core.objects.role.ejb.local.RoleCtrlLocal</local>
-         <ejb-class>com.amalto.core.objects.role.ejb.local.RoleCtrlSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
-
-      <session >
-         <description><![CDATA[Description for ViewCtrl]]></description>
-         <display-name>Name for ViewCtrl</display-name>
-
-         <ejb-name>ViewCtrl</ejb-name>
-
-         <home>com.amalto.core.objects.view.ejb.remote.ViewCtrlHome</home>
-         <remote>com.amalto.core.objects.view.ejb.remote.ViewCtrl</remote>
-         <local-home>com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome</local-home>
-         <local>com.amalto.core.objects.view.ejb.local.ViewCtrlLocal</local>
-         <ejb-class>com.amalto.core.objects.view.ejb.local.ViewCtrlSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
-
-      <session >
          <description><![CDATA[Description for DataModelCtrl]]></description>
          <display-name>Name for DataModelCtrl</display-name>
 
@@ -89,32 +41,16 @@
       </session>
 
       <session >
-         <description><![CDATA[Description for XML:DB Stateless Wrapper]]></description>
-         <display-name>XML:DB Stateless Wrapper</display-name>
+         <description><![CDATA[Description for TransformerCtrl]]></description>
+         <display-name>Name for TransformerCtrl</display-name>
 
-         <ejb-name>XmlServerSLWrapper</ejb-name>
+         <ejb-name>TransformerV2Ctrl</ejb-name>
 
-         <home>com.amalto.core.ejb.remote.XmlServerSLWrapperHome</home>
-         <remote>com.amalto.core.ejb.remote.XmlServerSLWrapper</remote>
-         <local-home>com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome</local-home>
-         <local>com.amalto.core.ejb.local.XmlServerSLWrapperLocal</local>
-         <ejb-class>com.amalto.core.ejb.local.XmlServerSLWrapperSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
-
-      <session >
-         <description><![CDATA[Routing Engine]]></description>
-         <display-name>RoutingOrderV2Ctrl</display-name>
-
-         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
-
-         <home>com.amalto.core.objects.routing.v2.ejb.remote.RoutingOrderV2CtrlHome</home>
-         <remote>com.amalto.core.objects.routing.v2.ejb.remote.RoutingOrderV2Ctrl</remote>
-         <local-home>com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocalHome</local-home>
-         <local>com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal</local>
-         <ejb-class>com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlSession</ejb-class>
+         <home>com.amalto.core.objects.transformers.v2.ejb.remote.TransformerV2CtrlHome</home>
+         <remote>com.amalto.core.objects.transformers.v2.ejb.remote.TransformerV2Ctrl</remote>
+         <local-home>com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocalHome</local-home>
+         <local>com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal</local>
+         <ejb-class>com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlSession</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
 
@@ -137,16 +73,16 @@
       </session>
 
       <session >
-         <description><![CDATA[Description for ItemCtrl2]]></description>
-         <display-name>Name for ItemCtrl2</display-name>
+         <description><![CDATA[Routing Engine]]></description>
+         <display-name>RoutingOrderV2Ctrl</display-name>
 
-         <ejb-name>ItemCtrl2</ejb-name>
+         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
 
-         <home>com.amalto.core.ejb.remote.ItemCtrl2Home</home>
-         <remote>com.amalto.core.ejb.remote.ItemCtrl2</remote>
-         <local-home>com.amalto.core.ejb.local.ItemCtrl2LocalHome</local-home>
-         <local>com.amalto.core.ejb.local.ItemCtrl2Local</local>
-         <ejb-class>com.amalto.core.ejb.local.ItemCtrl2Session</ejb-class>
+         <home>com.amalto.core.objects.routing.v2.ejb.remote.RoutingOrderV2CtrlHome</home>
+         <remote>com.amalto.core.objects.routing.v2.ejb.remote.RoutingOrderV2Ctrl</remote>
+         <local-home>com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocalHome</local-home>
+         <local>com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal</local>
+         <ejb-class>com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlSession</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
 
@@ -185,32 +121,16 @@
       </session>
 
       <session >
-         <description><![CDATA[Routing Engine]]></description>
-         <display-name>RoutingEngineV2Ctrl</display-name>
+         <description><![CDATA[Description for DroppedItemCtrl]]></description>
+         <display-name>Name for DroppedItemCtrl</display-name>
 
-         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
+         <ejb-name>DroppedItemCtrl</ejb-name>
 
-         <home>com.amalto.core.objects.routing.v2.ejb.remote.RoutingEngineV2CtrlHome</home>
-         <remote>com.amalto.core.objects.routing.v2.ejb.remote.RoutingEngineV2Ctrl</remote>
-         <local-home>com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocalHome</local-home>
-         <local>com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal</local>
-         <ejb-class>com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
-
-      <session >
-         <description><![CDATA[Description for TransformerCtrl]]></description>
-         <display-name>Name for TransformerCtrl</display-name>
-
-         <ejb-name>TransformerV2Ctrl</ejb-name>
-
-         <home>com.amalto.core.objects.transformers.v2.ejb.remote.TransformerV2CtrlHome</home>
-         <remote>com.amalto.core.objects.transformers.v2.ejb.remote.TransformerV2Ctrl</remote>
-         <local-home>com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocalHome</local-home>
-         <local>com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal</local>
-         <ejb-class>com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlSession</ejb-class>
+         <home>com.amalto.core.ejb.remote.DroppedItemCtrlHome</home>
+         <remote>com.amalto.core.ejb.remote.DroppedItemCtrl</remote>
+         <local-home>com.amalto.core.ejb.local.DroppedItemCtrlLocalHome</local-home>
+         <local>com.amalto.core.ejb.local.DroppedItemCtrlLocal</local>
+         <ejb-class>com.amalto.core.ejb.local.DroppedItemCtrlSession</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
 
@@ -233,22 +153,6 @@
       </session>
 
       <session >
-         <description><![CDATA[Description for DroppedItemCtrl]]></description>
-         <display-name>Name for DroppedItemCtrl</display-name>
-
-         <ejb-name>DroppedItemCtrl</ejb-name>
-
-         <home>com.amalto.core.ejb.remote.DroppedItemCtrlHome</home>
-         <remote>com.amalto.core.ejb.remote.DroppedItemCtrl</remote>
-         <local-home>com.amalto.core.ejb.local.DroppedItemCtrlLocalHome</local-home>
-         <local>com.amalto.core.ejb.local.DroppedItemCtrlLocal</local>
-         <ejb-class>com.amalto.core.ejb.local.DroppedItemCtrlSession</ejb-class>
-         <session-type>Stateless</session-type>
-         <transaction-type>Container</transaction-type>
-
-      </session>
-
-      <session >
          <description><![CDATA[Description for ConfigurationInfoCtrl]]></description>
          <display-name>Name for ConfigurationInfoCtrl</display-name>
 
@@ -259,6 +163,102 @@
          <local-home>com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocalHome</local-home>
          <local>com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal</local>
          <ejb-class>com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlSession</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
+      <session >
+         <description><![CDATA[Routing Engine]]></description>
+         <display-name>RoutingEngineV2Ctrl</display-name>
+
+         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
+
+         <home>com.amalto.core.objects.routing.v2.ejb.remote.RoutingEngineV2CtrlHome</home>
+         <remote>com.amalto.core.objects.routing.v2.ejb.remote.RoutingEngineV2Ctrl</remote>
+         <local-home>com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocalHome</local-home>
+         <local>com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal</local>
+         <ejb-class>com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlSession</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
+      <session >
+         <description><![CDATA[Description for RoleCtrl]]></description>
+         <display-name>Name for RoleCtrl</display-name>
+
+         <ejb-name>RoleCtrl</ejb-name>
+
+         <home>com.amalto.core.objects.role.ejb.remote.RoleCtrlHome</home>
+         <remote>com.amalto.core.objects.role.ejb.remote.RoleCtrl</remote>
+         <local-home>com.amalto.core.objects.role.ejb.local.RoleCtrlLocalHome</local-home>
+         <local>com.amalto.core.objects.role.ejb.local.RoleCtrlLocal</local>
+         <ejb-class>com.amalto.core.objects.role.ejb.local.RoleCtrlSession</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
+      <session >
+         <description><![CDATA[Description for MenuCtrl]]></description>
+         <display-name>Name for MenuCtrl</display-name>
+
+         <ejb-name>MenuCtrl</ejb-name>
+
+         <home>com.amalto.core.objects.menu.ejb.remote.MenuCtrlHome</home>
+         <remote>com.amalto.core.objects.menu.ejb.remote.MenuCtrl</remote>
+         <local-home>com.amalto.core.objects.menu.ejb.local.MenuCtrlLocalHome</local-home>
+         <local>com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal</local>
+         <ejb-class>com.amalto.core.objects.menu.ejb.local.MenuCtrlSession</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
+      <session >
+         <description><![CDATA[Description for XML:DB Stateless Wrapper]]></description>
+         <display-name>XML:DB Stateless Wrapper</display-name>
+
+         <ejb-name>XmlServerSLWrapper</ejb-name>
+
+         <home>com.amalto.core.ejb.remote.XmlServerSLWrapperHome</home>
+         <remote>com.amalto.core.ejb.remote.XmlServerSLWrapper</remote>
+         <local-home>com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome</local-home>
+         <local>com.amalto.core.ejb.local.XmlServerSLWrapperLocal</local>
+         <ejb-class>com.amalto.core.ejb.local.XmlServerSLWrapperSession</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
+      <session >
+         <description><![CDATA[Description for ItemCtrl2]]></description>
+         <display-name>Name for ItemCtrl2</display-name>
+
+         <ejb-name>ItemCtrl2</ejb-name>
+
+         <home>com.amalto.core.ejb.remote.ItemCtrl2Home</home>
+         <remote>com.amalto.core.ejb.remote.ItemCtrl2</remote>
+         <local-home>com.amalto.core.ejb.local.ItemCtrl2LocalHome</local-home>
+         <local>com.amalto.core.ejb.local.ItemCtrl2Local</local>
+         <ejb-class>com.amalto.core.ejb.local.ItemCtrl2Session</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
+      <session >
+         <description><![CDATA[Description for ViewCtrl]]></description>
+         <display-name>Name for ViewCtrl</display-name>
+
+         <ejb-name>ViewCtrl</ejb-name>
+
+         <home>com.amalto.core.objects.view.ejb.remote.ViewCtrlHome</home>
+         <remote>com.amalto.core.objects.view.ejb.remote.ViewCtrl</remote>
+         <local-home>com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome</local-home>
+         <local>com.amalto.core.objects.view.ejb.local.ViewCtrlLocal</local>
+         <ejb-class>com.amalto.core.objects.view.ejb.local.ViewCtrlSession</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
 
@@ -331,150 +331,6 @@
       <role-name>administration</role-name>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>MenuCtrl</ejb-name>
-         <method-intf>Remote</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>MenuCtrl</ejb-name>
-         <method-intf>Home</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>MenuCtrl</ejb-name>
-         <method-intf>Local</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>MenuCtrl</ejb-name>
-         <method-intf>LocalHome</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>Service</ejb-name>
-         <method-intf>Local</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>Service</ejb-name>
-         <method-intf>LocalHome</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoleCtrl</ejb-name>
-         <method-intf>Remote</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoleCtrl</ejb-name>
-         <method-intf>Home</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoleCtrl</ejb-name>
-         <method-intf>Local</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoleCtrl</ejb-name>
-         <method-intf>LocalHome</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ViewCtrl</ejb-name>
-         <method-intf>Remote</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ViewCtrl</ejb-name>
-         <method-intf>Home</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ViewCtrl</ejb-name>
-         <method-intf>Local</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ViewCtrl</ejb-name>
-         <method-intf>LocalHome</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
          <ejb-name>DataModelCtrl</ejb-name>
          <method-intf>Remote</method-intf>
          <method-name>*</method-name>
@@ -535,7 +391,7 @@
       <role-name>administration</role-name>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>XmlServerSLWrapper</ejb-name>
+         <ejb-name>TransformerV2Ctrl</ejb-name>
          <method-intf>Remote</method-intf>
          <method-name>*</method-name>
       </method>
@@ -545,7 +401,7 @@
       <role-name>administration</role-name>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>XmlServerSLWrapper</ejb-name>
+         <ejb-name>TransformerV2Ctrl</ejb-name>
          <method-intf>Home</method-intf>
          <method-name>*</method-name>
       </method>
@@ -555,7 +411,7 @@
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>XmlServerSLWrapper</ejb-name>
+         <ejb-name>TransformerV2Ctrl</ejb-name>
          <method-intf>Local</method-intf>
          <method-name>*</method-name>
       </method>
@@ -565,48 +421,7 @@
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>XmlServerSLWrapper</ejb-name>
-         <method-intf>LocalHome</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
-         <method-intf>Remote</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
-         <method-intf>Home</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
-         <method-intf>Local</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
+         <ejb-name>TransformerV2Ctrl</ejb-name>
          <method-intf>LocalHome</method-intf>
          <method-name>*</method-name>
       </method>
@@ -655,30 +470,10 @@
 
    <method-permission >
       <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ItemCtrl2</ejb-name>
-         <method-intf>Remote</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ItemCtrl2</ejb-name>
-         <method-intf>Home</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ItemCtrl2</ejb-name>
+         <ejb-name>Service</ejb-name>
          <method-intf>Local</method-intf>
          <method-name>*</method-name>
       </method>
@@ -688,7 +483,48 @@
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ItemCtrl2</ejb-name>
+         <ejb-name>Service</ejb-name>
+         <method-intf>LocalHome</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
+         <method-intf>Remote</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
+         <method-intf>Home</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
+         <method-intf>Local</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoutingOrderV2Ctrl</ejb-name>
          <method-intf>LocalHome</method-intf>
          <method-name>*</method-name>
       </method>
@@ -781,7 +617,7 @@
       <role-name>administration</role-name>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
+         <ejb-name>DroppedItemCtrl</ejb-name>
          <method-intf>Remote</method-intf>
          <method-name>*</method-name>
       </method>
@@ -791,7 +627,7 @@
       <role-name>administration</role-name>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
+         <ejb-name>DroppedItemCtrl</ejb-name>
          <method-intf>Home</method-intf>
          <method-name>*</method-name>
       </method>
@@ -801,7 +637,7 @@
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
+         <ejb-name>DroppedItemCtrl</ejb-name>
          <method-intf>Local</method-intf>
          <method-name>*</method-name>
       </method>
@@ -811,48 +647,7 @@
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
-         <method-intf>LocalHome</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>TransformerV2Ctrl</ejb-name>
-         <method-intf>Remote</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <role-name>administration</role-name>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>TransformerV2Ctrl</ejb-name>
-         <method-intf>Home</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>TransformerV2Ctrl</ejb-name>
-         <method-intf>Local</method-intf>
-         <method-name>*</method-name>
-      </method>
-   </method-permission>
-   <method-permission >
-      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-      <unchecked/>
-      <method >
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>TransformerV2Ctrl</ejb-name>
+         <ejb-name>DroppedItemCtrl</ejb-name>
          <method-intf>LocalHome</method-intf>
          <method-name>*</method-name>
       </method>
@@ -904,7 +699,7 @@
       <role-name>administration</role-name>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>DroppedItemCtrl</ejb-name>
+         <ejb-name>ConfigurationInfoCtrl</ejb-name>
          <method-intf>Remote</method-intf>
          <method-name>*</method-name>
       </method>
@@ -914,7 +709,7 @@
       <role-name>administration</role-name>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>DroppedItemCtrl</ejb-name>
+         <ejb-name>ConfigurationInfoCtrl</ejb-name>
          <method-intf>Home</method-intf>
          <method-name>*</method-name>
       </method>
@@ -924,7 +719,7 @@
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>DroppedItemCtrl</ejb-name>
+         <ejb-name>ConfigurationInfoCtrl</ejb-name>
          <method-intf>Local</method-intf>
          <method-name>*</method-name>
       </method>
@@ -934,7 +729,7 @@
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>DroppedItemCtrl</ejb-name>
+         <ejb-name>ConfigurationInfoCtrl</ejb-name>
          <method-intf>LocalHome</method-intf>
          <method-name>*</method-name>
       </method>
@@ -945,7 +740,7 @@
       <role-name>administration</role-name>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ConfigurationInfoCtrl</ejb-name>
+         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
          <method-intf>Remote</method-intf>
          <method-name>*</method-name>
       </method>
@@ -955,7 +750,7 @@
       <role-name>administration</role-name>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ConfigurationInfoCtrl</ejb-name>
+         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
          <method-intf>Home</method-intf>
          <method-name>*</method-name>
       </method>
@@ -965,7 +760,7 @@
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ConfigurationInfoCtrl</ejb-name>
+         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
          <method-intf>Local</method-intf>
          <method-name>*</method-name>
       </method>
@@ -975,7 +770,212 @@
       <unchecked/>
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <ejb-name>ConfigurationInfoCtrl</ejb-name>
+         <ejb-name>RoutingEngineV2Ctrl</ejb-name>
+         <method-intf>LocalHome</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoleCtrl</ejb-name>
+         <method-intf>Remote</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoleCtrl</ejb-name>
+         <method-intf>Home</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoleCtrl</ejb-name>
+         <method-intf>Local</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>RoleCtrl</ejb-name>
+         <method-intf>LocalHome</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>MenuCtrl</ejb-name>
+         <method-intf>Remote</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>MenuCtrl</ejb-name>
+         <method-intf>Home</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>MenuCtrl</ejb-name>
+         <method-intf>Local</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>MenuCtrl</ejb-name>
+         <method-intf>LocalHome</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>XmlServerSLWrapper</ejb-name>
+         <method-intf>Remote</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>XmlServerSLWrapper</ejb-name>
+         <method-intf>Home</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>XmlServerSLWrapper</ejb-name>
+         <method-intf>Local</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>XmlServerSLWrapper</ejb-name>
+         <method-intf>LocalHome</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>ItemCtrl2</ejb-name>
+         <method-intf>Remote</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>ItemCtrl2</ejb-name>
+         <method-intf>Home</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>ItemCtrl2</ejb-name>
+         <method-intf>Local</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>ItemCtrl2</ejb-name>
+         <method-intf>LocalHome</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>ViewCtrl</ejb-name>
+         <method-intf>Remote</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>ViewCtrl</ejb-name>
+         <method-intf>Home</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>ViewCtrl</ejb-name>
+         <method-intf>Local</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>ViewCtrl</ejb-name>
          <method-intf>LocalHome</method-intf>
          <method-name>*</method-name>
       </method>

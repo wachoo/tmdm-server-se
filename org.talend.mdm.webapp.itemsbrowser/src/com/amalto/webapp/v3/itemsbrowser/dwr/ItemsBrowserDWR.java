@@ -296,13 +296,19 @@ public class ItemsBrowserDWR {
 						))
 				);
 				Document document = Util.parse(wsItem.getContent());
+				
 				//update the node according to schema
 				//if("sequence".equals(com.amalto.core.util.Util.getConceptModelType(concept, xsd))) {
 					Node newNode=com.amalto.core.util.Util.updateNodeBySchema(concept, xsd, document.getDocumentElement());
 					document=newNode.getOwnerDocument();
 				//}				
-				if(foreignKey) ctx.getSession().setAttribute("itemDocumentFK",document);
-				else ctx.getSession().setAttribute("itemDocument"+docIndex,document);
+				if(foreignKey) 
+					ctx.getSession().setAttribute("itemDocumentFK",document);
+				else {
+					//remember the last insert time
+					ctx.getSession().setAttribute("itemDocument"+docIndex+"_wsItem",wsItem);
+					ctx.getSession().setAttribute("itemDocument"+docIndex,document);
+				}
 	        }
 	        else if(!refresh) {
 	        	createItem(concept, docIndex);
@@ -1212,7 +1218,7 @@ public class ItemsBrowserDWR {
 	}
 	
 
-	public static boolean isDataClusterExists(String dataClusterPK)throws Exception{
+	public  boolean isDataClusterExists(String dataClusterPK)throws Exception{
 		WSExistsDataCluster wsExistsDataCluster=new WSExistsDataCluster();
 		wsExistsDataCluster.setWsDataClusterPK(new WSDataClusterPK(dataClusterPK));
 		WSBoolean wsBoolean=Util.getPort().existsDataCluster(wsExistsDataCluster);
@@ -1250,6 +1256,17 @@ public class ItemsBrowserDWR {
 //		}		
 //
 //	}
+	public static boolean isItemModifiedByOther(boolean newItem, int docIndex)throws Exception{
+		WebContext ctx = WebContextFactory.get();		
+	
+		WSItem wsitem=(WSItem)ctx.getSession().getAttribute("itemDocument"+docIndex+"_wsItem");
+		if(wsitem!=null) {
+			ItemPOJOPK itempk=new ItemPOJOPK(new DataClusterPOJOPK(wsitem.getWsDataClusterPK().getPk()), wsitem.getConceptName(), wsitem.getIds());
+			boolean isModified=com.amalto.core.util.Util.getItemCtrl2Local().isItemModifiedByOther(itempk, wsitem.getInsertionTime());
+			return isModified;
+		}
+		return false;
+	}
 	
 	public static String saveItem(String[] ids, String concept, boolean newItem, int docIndex) throws Exception{
 		WebContext ctx = WebContextFactory.get();		
@@ -1352,8 +1369,9 @@ public class ItemsBrowserDWR {
 			//put item
 			boolean isUpdateThisItem=true;
 			if(newItem==true) isUpdateThisItem = false;
-
-			WSItemPK wsi = Util.getPort().putItemWithReport(new WSPutItemWithReport(
+			//if update, check the item is modified by others?
+			WSItemPK wsi=null;
+			wsi = Util.getPort().putItemWithReport(new WSPutItemWithReport(
 					new WSPutItem(
 							new WSDataClusterPK(dataClusterPK), 
 							xml,

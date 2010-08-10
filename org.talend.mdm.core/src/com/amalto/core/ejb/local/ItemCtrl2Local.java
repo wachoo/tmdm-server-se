@@ -32,6 +32,12 @@ public interface ItemCtrl2Local
    public com.amalto.core.ejb.ItemPOJO getItem( java.lang.String revisionID,com.amalto.core.ejb.ItemPOJOPK pk ) throws com.amalto.core.util.XtentisException;
 
    /**
+    * Is Item modified by others - no exception is thrown: true|false
+    * @throws XtentisException
+    */
+   public boolean isItemModifiedByOther( com.amalto.core.ejb.ItemPOJOPK item,long time ) throws com.amalto.core.util.XtentisException;
+
+   /**
     * Get an item - no exception is thrown: returns null if not found
     * @throws XtentisException
     */
