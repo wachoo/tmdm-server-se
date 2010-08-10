@@ -71,7 +71,7 @@ public class PartialXQLPackage {
 						String replacedWhereItem=whereItem.replaceAll("\\$pivot\\d+/", "");
 						//remove unecessary brakets
 						
-						replacedWhereItem=replacedWhereItem.replaceAll("(\\s*\\(+)(\\w+\\(.*?\\))(\\s*\\)+)", "$2");
+						replacedWhereItem=replacedWhereItem.replaceAll("(\\s*\\(+)(\\w+\\(.*?\\)|\\w+.*?)(\\s*\\)+)", "$2");
 						if(pivotWhereMap.get(pivotName)==null) {
 							pivotWhereMap.put(pivotName, replacedWhereItem);
 						}else {
