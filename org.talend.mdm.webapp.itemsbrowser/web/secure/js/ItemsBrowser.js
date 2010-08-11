@@ -2496,9 +2496,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	function saveItemWithoutQuit(ids,dataObject,treeIndex,refreshCB){
+		DWREngine.setAsync(false);
 		saveItem(ids,dataObject,treeIndex,function(){
 				  //amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
-			      refreshCB.call();
+			      //refreshCB.call();
 			      amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar().refreshItemHandler();
 					//set isdirty=true
 					var itempanel = amalto.core.getTabPanel().activeTab;
@@ -2506,6 +2507,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						itempanel.isdirty=false;
 					}				      
 				 });
+		DWREngine.setAsync(true);
 	}
 
 	function updateItemNodesBeforeSaving(treeIndex)
