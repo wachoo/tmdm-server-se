@@ -1392,6 +1392,10 @@ public class ItemsBrowserDWR {
 	         String saveSUCCE = "Save item '" + concept + "." + Util.joinStrings(ids, ".") + 
              "' successfully, But " + e.getLocalizedMessage();
 	         String err= "Unable to save item '"+concept+"."+Util.joinStrings(ids, ".")+"'"+e.getLocalizedMessage();
+	         //fix bug 0014896
+	         if(e.getLocalizedMessage().indexOf("ERROR_3:")==0) {
+	        	 err= e.getLocalizedMessage();
+	         }
 	         //org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).error(err,e);
 	         //throw e;
 	         return e.getLocalizedMessage().indexOf("routing failed:") == 0 ? saveSUCCE : err;

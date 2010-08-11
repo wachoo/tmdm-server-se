@@ -1987,7 +1987,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			if(wsPutItemWithReport.getInvokeBeforeSaving()){
 				String err=Util.beforeSaving(concept, projection, resultUpdateReport);
 				if(err!=null){
-					err="execute beforeSaving ERROR:"+ err;
+					//fix bug 0014896
+					//err="execute beforeSaving ERROR:"+ err;
 					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
 					throw new XtentisException(err);
 				}
