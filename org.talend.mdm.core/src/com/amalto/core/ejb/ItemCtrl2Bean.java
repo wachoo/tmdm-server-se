@@ -204,6 +204,7 @@ public class ItemCtrl2Bean implements SessionBean {
      */   
    public boolean isItemModifiedByOther(ItemPOJOPK item, long time)throws XtentisException{	   	 
 	   ItemPOJO pojo= ItemPOJO.adminLoad(item);
+	   if(pojo==null) throw new XtentisException("The record don't exists, it's already been deleted by someone!");
 	   return time!=pojo.getInsertionTime();
    }
     /**
