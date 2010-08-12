@@ -1223,14 +1223,14 @@ public class Util {
 	        //so we convert initxpathForeignKey to 'conceptname'
 	        initxpathForeignKey = initxpathForeignKey.split("/")[0];
 	        //end
-	        
+	        xpathInfoForeignKey=xpathInfoForeignKey==null?"":xpathInfoForeignKey;
 	        // foreign key set by business concept
 	        if(initxpathForeignKey.split("/").length == 1){
 	            String conceptName = initxpathForeignKey;
 
 	            //determine if we have xPath Infos: e.g. labels to display
 	            String[] xpathInfos = new String[1];
-	            if(!"".equals(xpathInfoForeignKey)) 
+	            if(!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey!=null) 
 	                xpathInfos = xpathInfoForeignKey.split(",");
 	            else
 	                xpathInfos[0] = conceptName;
@@ -1240,7 +1240,7 @@ public class Util {
 	            // build query - add a content condition on the pivot if we search for a particular value
 	            String filteredConcept = conceptName;
 	            //hshu fix bug 0013849: Lazy loading of FK picker always get records from the first 20 records of all records
-	            if(value!=null && !"".equals(value.trim())) { 
+	            if(value!=null && !"".equals(value.trim()) && !".*".equals(value.trim())) { 
 	            	List<WSWhereItem> condition=new ArrayList<WSWhereItem>();
 	            	if(whereItem!=null)condition.add(whereItem);
 	            	WSWhereItem wc=null;
@@ -1331,7 +1331,7 @@ public class Util {
 	                String infos = null;
 	                
 	                //if no xPath Infos given, use the key values
-	                if (xpathInfos.length == 0||"".equals(xpathInfoForeignKey)) {
+	                if (xpathInfos.length == 0||"".equals(xpathInfoForeignKey) || xpathInfoForeignKey==null ) {
 	                    infos = keys;
 	                } else {
 	                    //build a dash separated string of xPath Infos
