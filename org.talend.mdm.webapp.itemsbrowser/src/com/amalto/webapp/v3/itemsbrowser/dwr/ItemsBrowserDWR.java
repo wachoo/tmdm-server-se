@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -431,31 +432,23 @@ public class ItemsBrowserDWR {
 		treeNode.setMinOccurs(xsp.getMinOccurs());
 		treeNode.setNillable(xsp.getTerm().asElementDecl().isNillable());
 		ArrayList<String> infos = treeNode.getForeignKeyInfo();
-		String keyInfos = "";
+		//String keyInfos = "";
 		
 		if(infos != null && treeNode.isRetrieveFKinfos()) {
-			for(String keyInfo : infos)
-			{
-				keyInfos += keyInfo + ",";
-			}
-			if(keyInfos.endsWith(","))
-			{
-				keyInfos = keyInfos.substring(0, keyInfos.length()-1);
-//				if(treeNode.getValue() != null)
-				{
-					try {
-					   String value = StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath));
-					   //max occurs > 1 support and do not get foreignkeylist by here.
-					   if(value != null && !"".equals(value) && !(maxOccurs<0 || maxOccurs>1)) {
-					      String jasonData = Util.getForeignKeyList(0, Integer.MAX_VALUE, value,  treeNode.getForeignKey(), keyInfos, treeNode.getFkFilter(), false);
-						   treeNode.setValueInfo(jasonData);
-					   }
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}	
-				}
-			}
+
+			try {
+			   String value = StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath));
+			   
+			   //max occurs > 1 support and do not get foreignkeylist by here.
+			   if(value != null && !"".equals(value) && !(maxOccurs<0 || maxOccurs>1)) {
+			      //String jasonData = Util.getForeignKeyList(0, Integer.MAX_VALUE, value,  treeNode.getForeignKey(), keyInfos, treeNode.getFkFilter(), false);
+				  treeNode.setValueInfo(getFKInfo(value, treeNode.getForeignKey(), infos));
+			   }
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}					
+			
 		}
 
 		// this child is a complex type
@@ -558,34 +551,10 @@ public class ItemsBrowserDWR {
 						
 						if(nodeList.item(i).getFirstChild() != null && infos != null && treeNode.isRetrieveFKinfos() && treeNode.getForeignKey() != null) {
 						   String value = StringEscapeUtils.escapeHtml(nodeList.item(i).getTextContent());
-						   String jasonData = Util.getForeignKeyList(0, Integer.MAX_VALUE, value,  treeNode.getForeignKey(), keyInfos, treeNode.getFkFilter(), false);
-						   treeNodeTmp.setValueInfo(jasonData);
+						   
+						   treeNodeTmp.setValueInfo(getFKInfo(value, treeNode.getForeignKey(), infos));
 						}
-												
-						if(nodeList.item(i).getFirstChild()!=null)
-						{
-							treeNodeTmp.setValue(nodeList.item(i).getFirstChild().getNodeValue());
-							if(treeNodeTmp.getValueInfo() != null)
-							{
-								JSONObject jason = new JSONObject(treeNodeTmp.getValueInfo());
-								JSONArray rows = (JSONArray)jason.get("rows");
-								for(int n = 0; n < rows.length(); n++)
-								{
-									JSONObject row = (JSONObject)rows.get(n);
-									String keyValue = (String)row.get("keys");
-									if(keyValue.equals(treeNodeTmp.getValue()))
-									{
-										treeNodeTmp.setValueInfo(StringEscapeUtils.escapeHtml(row.getString("infos")));
-										break;
-									}
-								}
-								if(rows.length() == 0)
-								{
-									treeNodeTmp.setValueInfo(null);
-								}
-							}
 
-						}
 						treeNodeTmp.setNodeId(nodeCount);
 						// TODO check addThisNode
 		    			list.add(treeNodeTmp);  
@@ -611,36 +580,6 @@ public class ItemsBrowserDWR {
 					//key is readonly for editing record.
 					if(treeNode.isKey() && treeNode.getValue() != null) {
 					   treeNode.setReadOnly(true);
-					}
-					
-					if(treeNode.getValueInfo() != null)
-					{
-						JSONObject jason = new JSONObject(treeNode.getValueInfo());
-						JSONArray rows = (JSONArray)jason.get("rows");
-						treeNode.setValueInfo(null);
-						for(int n = 0; n < rows.length(); n++)
-						{
-							JSONObject row = (JSONObject)rows.get(n);
-							String keyValue = (String)row.get("keys");
-							String compValue=treeNode.getValue();
-							if(compValue!=null&&!compValue.startsWith("["))compValue="["+compValue+"]";
-							if(keyValue.equals(compValue))
-							{
-								treeNode.setValueInfo(StringEscapeUtils.escapeHtml(row.getString("infos")));								
-								break;
-							}
-							else if(treeNode.getValue() == null)
-							{
-								treeNode.setValueInfo(null);
-								break;
-							}
-						}
-						
-						if(rows.length() == 0)
-						{
-							treeNode.setValueInfo(null);
-						}
-						
 					}
 
 		    		if(treeNode.isVisible()==true){
@@ -676,6 +615,53 @@ public class ItemsBrowserDWR {
 		}
 		
 	}	
+	/**
+	 * get FK info according to key
+	 * @param key :like [a][b]
+	 * @param foreignkey
+	 * @param fkInfos
+	 * @return
+	 */
+	private  String getFKInfo(String key, String foreignkey, List<String> fkInfos) {
+		try {
+		Pattern p=Pattern.compile("\\[(.*?)\\]");
+		Matcher m= p.matcher(key);
+		List<String> ids=new ArrayList<String>();
+		while(m.find()) {
+			ids.add(m.group(1));
+		}
+		//Collections.reverse(ids);
+		String concept=Util.getForeignPathFromPath(foreignkey);
+		concept=concept.split("/")[0];
+		Configuration config = Configuration.getInstance();
+		String dataClusterPK = config.getCluster();
+		String content="";
+		WSItemPK wsItem=new WSItemPK(new WSDataClusterPK(dataClusterPK),concept,(String[])ids.toArray(new String[ids.size()]));
+		WSItem item= Util.getPort().getItem(new WSGetItem(wsItem));
+		if(item!=null) {
+			content=item.getContent();
+			Node node =Util.parse(content).getDocumentElement();
+			StringBuffer sb=new StringBuffer();
+			for(int i=0; i<fkInfos.size(); i++) {
+				String info=fkInfos.get(i);
+				JXPathContext jxpContext= JXPathContext.newContext(node);
+				jxpContext.setLenient(true);
+				info=info.replaceFirst(concept+"/", "");
+				Object fkinfo=jxpContext.getValue(info, String.class);
+				if(fkinfo!=null && !fkinfo.equals("")){
+					sb.append(fkinfo);
+				}
+				if(i<fkInfos.size()-1 && fkInfos.size()>1) {
+					sb.append("-");
+				}
+			}
+			return sb.toString();
+		}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	private int nodeCount; //aiming added to record the node count;
 	/**
 	 * give the children of a node
