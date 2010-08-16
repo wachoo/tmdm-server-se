@@ -1940,7 +1940,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                            wait:true,
                            waitConfig: {interval:200}
                         });
-                    ItemsBrowserInterface.processItem(tbDetail.dataObject, tbDetail.ids, selectedProcess, {
+                    ItemsBrowserInterface.processItem(tbDetail.dataObject, tbDetail.ids, tbDetail.treeIndex, selectedProcess, {
                     	callback:function(result){
                            Ext.MessageBox.hide();
                            if(result){
