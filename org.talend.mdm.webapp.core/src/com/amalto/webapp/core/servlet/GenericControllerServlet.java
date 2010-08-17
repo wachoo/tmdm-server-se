@@ -167,6 +167,8 @@ public abstract class GenericControllerServlet extends HttpServlet {
 		//"<script type=\"text/javascript\" src=\"/core/secure/ext.ux/DWRProxy.js\"></script>\n"+
 		//utility class
 		"<script type=\"text/javascript\" src=\"/core/secure/js/bgutil.js\"></script>\n"+
+		//graph class
+		"<script type=\"text/javascript\" src=\"/core/secure/js/raphael-min.js\"></script>\n"+
 		//DWR
 		"<script language=\"javascript1.2\" type='text/javascript' src='/core/secure/dwr/engine.js'></script>\n"+
 		"<script language=\"javascript1.2\" type='text/javascript' src='/core/secure/dwr/util.js'></script>\n" ;
