@@ -1138,20 +1138,31 @@ public class Util {
 			return false;
 		}	 
 		public static WSWhereItem buildWhereItems(String criteria) throws Exception{
+			Pattern p=Pattern.compile("\\((.*)\\)");
+			Matcher m=p.matcher(criteria);
+			if(m.matches()) {
+				criteria=m.group(1);
+			}
+			
 			String[] criterias = criteria.split("[\\s]+OR[\\s]+");
 			ArrayList<WSWhereItem> conditions=new ArrayList<WSWhereItem>(); 
 			
 			for (String cria: criterias)
 			{
-				ArrayList<WSWhereItem> condition=new ArrayList<WSWhereItem>(); 
+				ArrayList<WSWhereItem> condition=new ArrayList<WSWhereItem>();
+				
+				m=p.matcher(cria);
+				if(m.matches()) {
+					cria=m.group(1);
+				}
 				String[] subCriterias = cria.split("[\\s]+AND[\\s]+");
 				//add by ymli; fix the bug: 0011974. remove "(" at the left and ")" at the right
 				for (String subCria : subCriterias) {
-					if (subCria.startsWith("(")) {
-						subCria = subCria.substring(1);
-					}
-					if(subCria.endsWith(")"))
-						subCria = subCria.substring(0, subCria.length() - 1);
+//					if (subCria.startsWith("(")) {
+//						subCria = subCria.substring(1);
+//					}
+//					if(subCria.endsWith(")"))
+//						subCria = subCria.substring(0, subCria.length() - 1);
 					WSWhereItem whereItem = buildWhereItem(subCria);
 					if(whereItem!=null)
 					condition.add(whereItem);
