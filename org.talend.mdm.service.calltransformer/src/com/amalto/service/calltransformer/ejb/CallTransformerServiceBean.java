@@ -219,7 +219,7 @@ public class CallTransformerServiceBean extends ServiceCtrlBean  implements Sess
 						String key = kv[0].trim().toLowerCase();
 
 						if ((Param_Transformer_Name.equals(key)) && (kv.length == 2)) {
-							transformer = kv[1];
+							transformer = kv[1].trim();
 						}
 					}
 
