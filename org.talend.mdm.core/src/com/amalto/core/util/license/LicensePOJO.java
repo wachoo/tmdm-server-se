@@ -37,7 +37,7 @@ public class LicensePOJO extends ObjectPOJO {
    @Override
    public LicensePOJOPK getPK() {
       if (getLicense()==null) return null;
-      return new LicensePOJOPK(getLicense());
+      return new LicensePOJOPK("License");
    }
    
    /**
