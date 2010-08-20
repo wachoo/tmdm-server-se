@@ -24,7 +24,14 @@
 		<item>
 			<name>UpdateReport</name>
 			<list></list>
-		</item>		
+		</item>	
+		
+		<item>
+            <name>SearchTemplate</name>
+            <list></list>
+        </item> 
+		
+			
 		<!--amalto objects-->
 		<item>
 			<name>amaltoOBJECTSActiveRoutingOrderV2</name>
@@ -50,11 +57,11 @@
 		</item>		
 		<item>
 			<name>amaltoOBJECTSDataCluster</name>
-			<list>datacluster/CONF;datacluster/Inbox;datacluster/Reporting;datacluster/UpdateReport</list>			
+			<list>datacluster/CONF;datacluster/Inbox;datacluster/Reporting;datacluster/UpdateReport;datacluster/SearchTemplate</list>			
 		</item>			
 		<item>
 			<name>amaltoOBJECTSDataModel</name>
-			<list>datamodel/CONF;datamodel/Reporting;datamodel/UpdateReport;datamodel/XMLSCHEMA---</list>			
+			<list>datamodel/CONF;datamodel/Reporting;datamodel/UpdateReport;datamodel/SearchTemplate;datamodel/XMLSCHEMA---</list>			
 		</item>			
 		<item>
 			<name>amaltoOBJECTSMenu</name>
