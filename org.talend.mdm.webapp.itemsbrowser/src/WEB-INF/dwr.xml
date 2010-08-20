@@ -9,12 +9,19 @@
         <convert converter="bean" match="com.amalto.webapp.v3.itemsbrowser.bean.View"/>
         <convert converter="bean" match="com.amalto.webapp.v3.itemsbrowser.bean.Restriction"/>
         
+          <convert converter="bean" match="com.amalto.webapp.v3.itemsbrowser.bean.BrowseItem"/>
+         <convert converter="bean" match="com.amalto.webapp.v3.itemsbrowser.bean.Criteria"/>
+         <convert converter="bean" match="com.amalto.webapp.v3.itemsbrowser.bean.SearchTempalteName"/>
+         <convert converter="bean" match="com.amalto.webapp.v3.itemsbrowser.bean.WhereCriteria"/>
+        
         <convert converter="bean" match="java.lang.NullPointerException"/>
         <convert converter="bean" match="java.lang.Exception"/>
         <convert converter="bean" match="java.lang.StackTraceElement"/>
         
         <convert converter="bean" match="com.amalto.webapp.core.bean.ComboItemBean"/>
         <convert converter="bean" match="com.amalto.webapp.core.bean.ListRange"/>
+        
+       
         
     </allow>
 

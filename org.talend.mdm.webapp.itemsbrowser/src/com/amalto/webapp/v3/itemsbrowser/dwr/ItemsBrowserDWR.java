@@ -30,6 +30,7 @@ import org.exolab.castor.types.Date;
 import org.exolab.castor.types.Time;
 import org.jboss.dom4j.DocumentException;
 import org.jboss.dom4j.io.SAXReader;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -44,6 +45,7 @@ import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.json.JSONArray;
+import com.amalto.webapp.core.json.JSONException;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -72,6 +74,7 @@ import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
 import com.amalto.webapp.util.webservices.WSRouteItemV2;
+import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSTransformer;
 import com.amalto.webapp.util.webservices.WSTransformerContext;
@@ -86,9 +89,15 @@ import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSWhereOr;
+import com.amalto.webapp.util.webservices.WSXPathsSearch;
+import com.amalto.webapp.v3.itemsbrowser.bean.BrowseItem;
+import com.amalto.webapp.v3.itemsbrowser.bean.Criteria;
 import com.amalto.webapp.v3.itemsbrowser.bean.Restriction;
+import com.amalto.webapp.v3.itemsbrowser.bean.SearchTempalteName;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
 import com.amalto.webapp.v3.itemsbrowser.bean.View;
+import com.amalto.webapp.v3.itemsbrowser.bean.WhereCriteria;
+import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSContentType;
@@ -2372,7 +2381,7 @@ public class ItemsBrowserDWR {
 	public String printFormatDate(String lang,String format,String value,String typeName) throws ParseException{
 		
 		Object object = Date.parseDate(value.trim()).toCalendar();
-		if(format.equals("null") ||object ==null)
+		if(format==null || format.equals("null") ||object ==null)
 			return value;
 		String valueReturn = com.amalto.core.util.Util.printWithFormat(new Locale(lang), format,object).toString();
 		return valueReturn;
@@ -2510,6 +2519,307 @@ public class ItemsBrowserDWR {
 			return false;
 		else
 			return checkAncestorMinOCcurs(node.getParent());
+	}
+	/**
+	 * @author ymli
+	 * get the Conditions' name available
+	 * @return
+	 */
+	public String getviewItemsCriterias(String view,boolean isShared){
+		String viewItemsCriteria = getSearchTemplateNames(0,0,view,isShared);// "condion1##condition2##condion3##condition4";
+		return viewItemsCriteria;
+	}
+	/**
+	 * @author ymli
+	 * get the whereItems available base on Criteria
+	 * @return
+	 */
+	public String getWhereItemsByCriteria(String viewName){
+			//String whereItem = "(Agent/Id CONTAINS * AND Agent/Name CONTAINS *) OR Agent/Com CONTAINS *";
+		
+		String whereItem ="";//"Country/isoCode#EQUALS#33# ###Country/label#CONTAINS#a#OR###Country/Continent#CONTAINS#6#AND";
+
+		try {
+			String result = Util.getPort().getItem(
+					new WSGetItem(
+							new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),"BrowseItem",new String[] {viewName}))).getContent().trim();
+			if(result!=null){
+				//BrowseItem report = BrowseItem.unmarshal2POJO(result);
+				String criterias = result.substring(result.indexOf("<WhereCriteria>")+15, result.indexOf("</WhereCriteria>"));
+				String[] criteria = criterias.split("</Criteria>");
+				String Field = "";
+				String Operator = "";
+				String Value = "";
+				String Join = " ";
+				//String item="";
+				for(int i=0;i<criteria.length-1;i++){
+					//Matcher m = Field.matcher(criteria[i]);
+					Field = criteria[i].substring(criteria[i].indexOf("<Field>")+7, criteria[i].indexOf("</Field>"));
+					Operator = criteria[i].substring(criteria[i].indexOf("<Operator>")+10, criteria[i].indexOf("</Operator>"));
+					Value = criteria[i].substring(criteria[i].indexOf("<Value>")+7, criteria[i].indexOf("</Value>"));
+					
+					whereItem+=Field+"#"+Operator+"#"+Value+"#"+Join+"###";
+					if(criteria[i].indexOf("<Join>")+6 < criteria[i].indexOf("</Join>"))
+						Join = criteria[i].substring(criteria[i].indexOf("<Join>")+6, criteria[i].indexOf("</Join>"));
+					
+					
+				}
+			}
+			else{
+				return null;
+			}		
+			//System.out.println(result);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		} catch (XtentisWebappException e) {
+			e.printStackTrace();
+		}
+		whereItem = whereItem.substring(0, whereItem.length()-3);
+		return whereItem;
+	}
+/**
+ *  @author ymli
+ * save the Search Template
+ * @param viewPK
+ * @param templateName
+ * @param owner
+ * @param isShared
+ * @param criterias
+ * @return
+ * //[Country/isoCode EQUALS 33,  , OR,  ]
+	//[Country/isoCode CONTAINS *]
+ */
+	public String saveCriteria(String viewPK,String templateName,boolean isShared,String[][] criteriasString){
+		String returnString = "OK";
+		try {
+			String owner = Util.getLoginUserName();
+			WhereCriteria whereCriteria = new WhereCriteria();
+			BrowseItem searchTemplate = new BrowseItem();
+			searchTemplate.setViewPK(viewPK);
+			searchTemplate.setCriteriaName(templateName);
+			searchTemplate.setShared(isShared);
+			searchTemplate.setOwner(owner);
+			//searchTemplate.setWhereCriteria(whereCriteria);
+			
+			Criteria[] criterias = whereCriteria.getCriterias();
+			if(criterias == null || criterias.equals(null)) 
+				criterias = new Criteria[criteriasString.length];
+			setwhereCriteria(criterias,criteriasString);
+			whereCriteria.setCriterias(criterias);
+			searchTemplate.setWhereCriteria(whereCriteria);
+			
+			WSItemPK pk = Util.getPort().putItem(
+	                new WSPutItem(
+	                                new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
+	                                searchTemplate.marshal2String(),
+	                                new WSDataModelPK(XSystemObjects.DM_SEARCHTEMPLATE.getName()),false
+	                )
+	        );
+			
+			if(pk!=null)
+				returnString = "OK";
+			else
+				returnString =  null;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return returnString;
+	}
+	
+	private void setwhereCriteria(Criteria[] criterias,String[][] criteriasString){
+		
+		for(int i=0;i<criterias.length;i++){
+			Criteria criteria = new Criteria();//set to criterias
+			String[] criteriaString = criteriasString[i];// get from criteriasString
+			
+			String[] paths = criteriaString[0].split(" ");
+			criteria.setField(paths[0]);
+			criteria.setOperator(paths[1]);
+			criteria.setValue(paths[2]);
+			
+			
+			criteriaString[0] = criteriaString[0].replaceAll(" ", "#");
+			for(int j = 1;j<criteriaString.length;j++){
+				if(criteriaString[j].trim().length()>0 &&(criteriaString[j].trim().equals("AND")
+						||criteriaString[j].trim().equals("OR")))
+					criteria.setJoin(criteriaString[j].trim());
+					//whereItem+=criteria[j].trim()+"#";
+			}
+			
+			criterias[i] = criteria;
+		}
+		
+	}
+	
+	
+	public ListRange getSearchTemplates(int start, int limit, String sort,String dir, String regex) throws Exception{
+		 
+		ListRange listRange = new ListRange();
+		ArrayList<SearchTempalteName> list = new ArrayList<SearchTempalteName>();
+		String templates = getSearchTemplateNames(start,limit,regex,false);
+        String[] searchTemplates = templates.split("##"); 
+        for(int i=0;i<searchTemplates.length;i++){
+        	SearchTempalteName name = new SearchTempalteName(searchTemplates[i]);
+        	list.add(name);
+        }
+        listRange.setData(list.toArray());
+        String countItem = countSearchTemplate(regex);
+        if(countItem.length()>0){
+        	listRange.setTotalSize(Integer.parseInt(countItem));
+        }
+        else
+        	listRange.setTotalSize(searchTemplates.length);
+		return listRange;
+	}
+	
+	public String getSearchTemplateNames(int start, int limit,String view,boolean isShared) {
+		String templateNames = "";
+		try {
+			int localStart=0;
+			int localLimit=0;
+			if(start==limit && limit==0){
+				localStart = 0;
+				localLimit = Integer.MAX_VALUE;
+			}
+			else{
+				localStart = start;
+				localLimit = limit;
+				
+			}
+			WSWhereItem wi = new WSWhereItem();
+
+			//Configuration config = Configuration.getInstance();
+			WSWhereCondition wc1 = new WSWhereCondition(
+					"BrowseItem/ViewPK", WSWhereOperator.EQUALS,
+					view, WSStringPredicate.NONE, false);
+			/*WSWhereCondition wc2 = new WSWhereCondition(
+					"hierarchical-report/data-model", WSWhereOperator.EQUALS,
+					config.getModel(), WSStringPredicate.NONE, false);
+*/
+			WSWhereCondition wc3 = new WSWhereCondition(
+					"BrowseItem/Owner", WSWhereOperator.EQUALS, Util
+							.getAjaxSubject().getUsername(),
+					WSStringPredicate.NONE, false);
+			WSWhereCondition wc4;
+			WSWhereOr or =new WSWhereOr();
+			if(isShared){
+				 wc4 = new WSWhereCondition(
+						"BrowseItem/Shared", WSWhereOperator.EQUALS,
+						"true", WSStringPredicate.OR, false);
+
+				or = new WSWhereOr(new WSWhereItem[] {
+						new WSWhereItem(wc3, null, null),
+						new WSWhereItem(wc4, null, null) });
+			}
+			else{
+				or = new WSWhereOr(new WSWhereItem[] {
+						new WSWhereItem(wc3, null, null)
+						});
+			}
+
+			WSWhereAnd and = new WSWhereAnd(new WSWhereItem[] {
+					new WSWhereItem(wc1, null, null),
+					/*new WSWhereItem(wc2, null, null),*/
+					new WSWhereItem(null, null, or) });
+
+			wi = new WSWhereItem(null, and, null);
+
+			String[] results = Util.getPort().xPathsSearch(
+					new WSXPathsSearch(
+						new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
+						null,//pivot
+						new WSStringArray(new String[] {"BrowseItem/CriteriaName"}),
+						wi,
+						-1,
+						localStart,
+						localLimit,
+						null, //order by
+						null //direction
+					)
+				).getStrings();
+			
+			//Map<String, String> map = new HashMap<String, String>();
+			
+			for (int i = 0; i < results.length; i++) {
+				results[i] = results[i].replaceAll(
+						"<CriteriaName>(.*)</CriteriaName>", "$1");
+				templateNames += results[i]+"##";
+				//map.put(results[i], results[i]);
+			}
+
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (XtentisWebappException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return templateNames;
+	}
+	
+	public String deleteTemplate(String id) {
+		try {
+			String[] ids= {id};
+			String concept = "BrowseItem";
+			String dataClusterPK = XSystemObjects.DC_SEARCHTEMPLATE.getName();
+	        if(ids!=null){
+				WSItemPK wsItem = Util.getPort().deleteItem(
+						new WSDeleteItem(new WSItemPK(
+								new WSDataClusterPK(dataClusterPK),
+								concept,ids
+								)));
+				
+				if(wsItem==null)
+					return "ERROR - deleteTemplate is NULL";
+				return "OK";
+	        }
+	        else {
+	        	return "OK";
+	        }
+		}
+		catch(Exception e){
+			return "ERROR -" + e.getLocalizedMessage();
+		}       
+	}
+	public String countSearchTemplate(String view) throws Exception{
+		
+		WSWhereItem wi = new WSWhereItem();
+
+		//Configuration config = Configuration.getInstance();
+		WSWhereCondition wc1 = new WSWhereCondition(
+				"BrowseItem/ViewPK", WSWhereOperator.EQUALS,
+				view, WSStringPredicate.NONE, false);
+		/*WSWhereCondition wc2 = new WSWhereCondition(
+				"hierarchical-report/data-model", WSWhereOperator.EQUALS,
+				config.getModel(), WSStringPredicate.NONE, false);
+*/
+		WSWhereCondition wc3 = new WSWhereCondition(
+				"BrowseItem/Owner", WSWhereOperator.EQUALS, Util
+						.getAjaxSubject().getUsername(),
+				WSStringPredicate.NONE, false);
+		
+		WSWhereOr or = new WSWhereOr(new WSWhereItem[] {
+					new WSWhereItem(wc3, null, null)
+					});
+
+		WSWhereAnd and = new WSWhereAnd(new WSWhereItem[] {
+				new WSWhereItem(wc1, null, null),
+				/*new WSWhereItem(wc2, null, null),*/
+				new WSWhereItem(null, null, or) });
+
+		wi = new WSWhereItem(null, and, null);
+		return Util.getPort().count(
+			new WSCount(
+				new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
+				 "BrowseItem",
+				 wi,
+				-1
+			)
+		).getValue();
 	}
 
 }
