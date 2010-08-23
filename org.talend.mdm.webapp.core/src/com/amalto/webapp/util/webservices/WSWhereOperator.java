@@ -13,6 +13,7 @@ public class WSWhereOperator {
     private java.lang.String value;
     private static Map valueMap = new HashMap();
     public static final String _JOINString = "JOIN";
+    public static final String _CONTAINS_TEXT_OFString = "CONTAINS_TEXT_OF";
     public static final String _CONTAINSString = "CONTAINS";
     public static final String _STARTSWITHString = "STARTSWITH";
     public static final String _STRICTCONTAINSString = "STRICTCONTAINS";
@@ -26,6 +27,7 @@ public class WSWhereOperator {
     public static final String _FULLTEXTSEARCHString = "FULLTEXTSEARCH";
     
     public static final java.lang.String _JOIN = new java.lang.String(_JOINString);
+    public static final java.lang.String _CONTAINS_TEXT_OF = new java.lang.String(_CONTAINS_TEXT_OFString);
     public static final java.lang.String _CONTAINS = new java.lang.String(_CONTAINSString);
     public static final java.lang.String _STARTSWITH = new java.lang.String(_STARTSWITHString);
     public static final java.lang.String _STRICTCONTAINS = new java.lang.String(_STRICTCONTAINSString);
@@ -39,6 +41,7 @@ public class WSWhereOperator {
     public static final java.lang.String _FULLTEXTSEARCH = new java.lang.String(_FULLTEXTSEARCHString);
     
     public static final WSWhereOperator JOIN = new WSWhereOperator(_JOIN);
+    public static final WSWhereOperator CONTAINS_TEXT_OF = new WSWhereOperator(_CONTAINS_TEXT_OF);
     public static final WSWhereOperator CONTAINS = new WSWhereOperator(_CONTAINS);
     public static final WSWhereOperator STARTSWITH = new WSWhereOperator(_STARTSWITH);
     public static final WSWhereOperator STRICTCONTAINS = new WSWhereOperator(_STRICTCONTAINS);
@@ -64,6 +67,8 @@ public class WSWhereOperator {
         throws java.lang.IllegalStateException {
         if (JOIN.value.equals(value)) {
             return JOIN;
+        } else if (CONTAINS_TEXT_OF.value.equals(value)) {
+            return CONTAINS_TEXT_OF;
         } else if (CONTAINS.value.equals(value)) {
             return CONTAINS;
         } else if (STARTSWITH.value.equals(value)) {
@@ -98,6 +103,8 @@ public class WSWhereOperator {
         }
         if (value.equals(_JOINString)) {
             return JOIN;
+        } else if (value.equals(_CONTAINS_TEXT_OFString)) {
+            return CONTAINS_TEXT_OF;
         } else if (value.equals(_CONTAINSString)) {
             return CONTAINS;
         } else if (value.equals(_STARTSWITHString)) {

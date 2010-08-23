@@ -28,6 +28,10 @@ public class WSView_LiteralSerializer extends LiteralObjectSerializerBase implem
     private static final QName ns2_WSWhereCondition_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSWhereCondition");
     private CombinedSerializer ns2_myWSWhereCondition_LiteralSerializer;
     private static final QName ns1_searchableBusinessElements_QNAME = new QName("", "searchableBusinessElements");
+    private static final QName ns1_transformerPK_QNAME = new QName("", "transformerPK");
+    private static final QName ns1_isTransformerActive_QNAME = new QName("", "isTransformerActive");
+    private static final QName ns2_WSBoolean_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSBoolean");
+    private CombinedSerializer ns2_myWSBoolean_LiteralSerializer;
     
     public WSView_LiteralSerializer(QName type, String encodingStyle) {
         this(type, encodingStyle, false);
@@ -40,6 +44,7 @@ public class WSView_LiteralSerializer extends LiteralObjectSerializerBase implem
     public void initialize(InternalTypeMappingRegistry registry) throws Exception {
         ns3_myns3_string__java_lang_String_String_Serializer = (CombinedSerializer)registry.getSerializer("", java.lang.String.class, ns3_string_TYPE_QNAME);
         ns2_myWSWhereCondition_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSWhereCondition.class, ns2_WSWhereCondition_TYPE_QNAME);
+        ns2_myWSBoolean_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSBoolean.class, ns2_WSBoolean_TYPE_QNAME);
     }
     
     public Object doDeserialize(XMLReader reader,
@@ -146,6 +151,22 @@ public class WSView_LiteralSerializer extends LiteralObjectSerializerBase implem
         else if(!(reader.getState() == XMLReader.END)) {
             throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
+        elementName = reader.getName();
+        if (reader.getState() == XMLReader.START) {
+            if (elementName.equals(ns1_transformerPK_QNAME)) {
+                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_transformerPK_QNAME, reader, context);
+                instance.setTransformerPK((java.lang.String)member);
+                reader.nextElementContent();
+            }
+        }
+        elementName = reader.getName();
+        if (reader.getState() == XMLReader.START) {
+            if (elementName.equals(ns1_isTransformerActive_QNAME)) {
+                member = ns2_myWSBoolean_LiteralSerializer.deserialize(ns1_isTransformerActive_QNAME, reader, context);
+                instance.setIsTransformerActive((com.amalto.webapp.util.webservices.WSBoolean)member);
+                reader.nextElementContent();
+            }
+        }
         
         XMLReaderUtil.verifyReaderState(reader, XMLReader.END);
         return (Object)instance;
@@ -178,5 +199,7 @@ public class WSView_LiteralSerializer extends LiteralObjectSerializerBase implem
                 ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getSearchableBusinessElements()[i], ns1_searchableBusinessElements_QNAME, null, writer, context);
             }
         }
+        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getTransformerPK(), ns1_transformerPK_QNAME, null, writer, context);
+        ns2_myWSBoolean_LiteralSerializer.serialize(instance.getIsTransformerActive(), ns1_isTransformerActive_QNAME, null, writer, context);
     }
 }

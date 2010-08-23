@@ -12,16 +12,20 @@ public class WSView {
     protected java.lang.String[] viewableBusinessElements;
     protected com.amalto.webapp.util.webservices.WSWhereCondition[] whereConditions;
     protected java.lang.String[] searchableBusinessElements;
+    protected java.lang.String transformerPK;
+    protected com.amalto.webapp.util.webservices.WSBoolean isTransformerActive;
     
     public WSView() {
     }
     
-    public WSView(java.lang.String name, java.lang.String description, java.lang.String[] viewableBusinessElements, com.amalto.webapp.util.webservices.WSWhereCondition[] whereConditions, java.lang.String[] searchableBusinessElements) {
+    public WSView(java.lang.String name, java.lang.String description, java.lang.String[] viewableBusinessElements, com.amalto.webapp.util.webservices.WSWhereCondition[] whereConditions, java.lang.String[] searchableBusinessElements, java.lang.String transformerPK, com.amalto.webapp.util.webservices.WSBoolean isTransformerActive) {
         this.name = name;
         this.description = description;
         this.viewableBusinessElements = viewableBusinessElements;
         this.whereConditions = whereConditions;
         this.searchableBusinessElements = searchableBusinessElements;
+        this.transformerPK = transformerPK;
+        this.isTransformerActive = isTransformerActive;
     }
     
     public java.lang.String getName() {
@@ -62,5 +66,21 @@ public class WSView {
     
     public void setSearchableBusinessElements(java.lang.String[] searchableBusinessElements) {
         this.searchableBusinessElements = searchableBusinessElements;
+    }
+    
+    public java.lang.String getTransformerPK() {
+        return transformerPK;
+    }
+    
+    public void setTransformerPK(java.lang.String transformerPK) {
+        this.transformerPK = transformerPK;
+    }
+    
+    public com.amalto.webapp.util.webservices.WSBoolean getIsTransformerActive() {
+        return isTransformerActive;
+    }
+    
+    public void setIsTransformerActive(com.amalto.webapp.util.webservices.WSBoolean isTransformerActive) {
+        this.isTransformerActive = isTransformerActive;
     }
 }

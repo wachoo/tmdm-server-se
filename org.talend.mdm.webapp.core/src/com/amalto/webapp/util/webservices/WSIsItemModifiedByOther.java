@@ -3,24 +3,24 @@
 // JAX-RPC Standard Implementation £®1.1.2_01£¨±‡“Î∞Ê R40£©
 // Generated source version: 1.1.2
 
-package com.amalto.core.webservice;
+package com.amalto.webapp.util.webservices;
 
 
 public class WSIsItemModifiedByOther {
-    protected com.amalto.core.webservice.WSItem wsItem;
+    protected com.amalto.webapp.util.webservices.WSItem wsItem;
     
     public WSIsItemModifiedByOther() {
     }
     
-    public WSIsItemModifiedByOther(com.amalto.core.webservice.WSItem wsItem) {
+    public WSIsItemModifiedByOther(com.amalto.webapp.util.webservices.WSItem wsItem) {
         this.wsItem = wsItem;
     }
     
-    public com.amalto.core.webservice.WSItem getWsItem() {
+    public com.amalto.webapp.util.webservices.WSItem getWsItem() {
         return wsItem;
     }
     
-    public void setWsItem(com.amalto.core.webservice.WSItem wsItem) {
+    public void setWsItem(com.amalto.webapp.util.webservices.WSItem wsItem) {
         this.wsItem = wsItem;
     }
 }

@@ -2929,4 +2929,10 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 	return null;
 	}
 	
+	public WSBoolean isItemModifiedByOther(WSIsItemModifiedByOther wsItem)
+	throws RemoteException {
+	// TODO Auto-generated method stub
+	return null;
+	}
+	
 }
