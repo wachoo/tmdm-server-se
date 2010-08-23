@@ -69,7 +69,11 @@ amalto.actions = function () {
 			})
 		);
 		
-		amalto.core.doLayout();		
+		amalto.core.doLayout();
+		
+		//reset client cache
+		DWRUtil.setValue('datacluster-select',null);
+		DWRUtil.setValue('datamodel-select',null);
 		
 		ActionsInterface.getCluster(function(result){
 			DWRUtil.setValue('datacluster-select',result);
