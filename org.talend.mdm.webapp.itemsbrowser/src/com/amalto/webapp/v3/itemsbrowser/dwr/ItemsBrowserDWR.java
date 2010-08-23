@@ -668,6 +668,7 @@ public class ItemsBrowserDWR {
 		}
 		}catch(Exception e) {
 			e.printStackTrace();
+			return key;
 		}
 		return null;
 	}
