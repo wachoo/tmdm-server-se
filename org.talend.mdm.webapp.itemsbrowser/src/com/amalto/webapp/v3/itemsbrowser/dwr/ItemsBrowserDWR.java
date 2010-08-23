@@ -2659,18 +2659,17 @@ public class ItemsBrowserDWR {
 		ListRange listRange = new ListRange();
 		ArrayList<SearchTempalteName> list = new ArrayList<SearchTempalteName>();
 		String templates = getSearchTemplateNames(start,limit,regex,false);
-        String[] searchTemplates = templates.split("##"); 
-        for(int i=0;i<searchTemplates.length;i++){
-        	SearchTempalteName name = new SearchTempalteName(searchTemplates[i]);
-        	list.add(name);
-        }
-        listRange.setData(list.toArray());
-        String countItem = countSearchTemplate(regex);
-        if(countItem.length()>0){
-        	listRange.setTotalSize(Integer.parseInt(countItem));
-        }
-        else
-        	listRange.setTotalSize(searchTemplates.length);
+		if(templates.length()>0){
+			
+			String[] searchTemplates = templates.split("##"); 
+			for(int i=0;i<searchTemplates.length;i++){
+				SearchTempalteName name = new SearchTempalteName(searchTemplates[i]);
+				list.add(name);
+			}
+		}
+		listRange.setData(list.toArray());
+		String countItem = countSearchTemplate(regex);
+		listRange.setTotalSize(Integer.parseInt(countItem));
 		return listRange;
 	}
 	
