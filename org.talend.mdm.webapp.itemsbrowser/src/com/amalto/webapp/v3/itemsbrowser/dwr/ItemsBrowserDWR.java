@@ -2406,11 +2406,29 @@ public class ItemsBrowserDWR {
 		ArrayList<Restriction> restrictions = null;
 		if(xpath!=null)
 			node = xpathToTreeNode.get(xpath);
+		
+		
+		boolean isValidation = true;//if true, return null,else return errorMessage
+		if(value.length() == 0  && node!=null && (node.getMinOccurs() >= 1 || checkAncestorMinOCcurs(node))){
+			if(errorMessage == null){
+				if(node.getMinOccurs() >=1)
+					errorMessage = "The value does not comply with the facet defined in the model: "
+						+ "minOccurs"
+						+": "
+						+node.getMinOccurs();
+				else
+					errorMessage = "This item is mandatory!";
+			}
+			isValidation = false;
+			return errorMessage;
+		}
+		
+		
 		if(node!=null){
 			restrictions = node.getRestrictions();
 		}
 		if(restrictions==null) return "null";
-		boolean isValidation = true;//if true, return null,else return errorMessage
+		
 		for(Restriction re : restrictions){
 			if(node.getFacetErrorMsg()!=null)
 				errorMessage = (String) node.getFacetErrorMsg().get("en");
@@ -2425,20 +2443,6 @@ public class ItemsBrowserDWR {
 			
 			//boolean ancestor = true;//@TODO... check ancestor
 			//boolean ancestor = checkAncestorMinOCcurs(node);
-			if(value.length() == 0 && (node.getMinOccurs() >= 1 || checkAncestorMinOCcurs(node))){
-				if(errorMessage == null){
-					if(node.getMinOccurs() >=1)
-						 errorMessage = "The value does not comply with the facet defined in the model: "
-								+ "minOccurs"
-								+": "
-								+node.getMinOccurs();
-					else
-						errorMessage = "This item is mandatory!";
-				}
-				isValidation = false;
-				break;
-			}
-			
 			
 			if(re.getName()!="whiteSpace")
 				if (errorMessage == null)

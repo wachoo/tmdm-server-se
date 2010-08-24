@@ -845,8 +845,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         
         manageSearchTemplateWindow = new Ext.Window({
                 title: 'Manage Search Template',
-                width: 400,
-                height:600,
+                width: 300,
+                height:500,
                 minWidth: 400,
                 minHeight: 600,
                 layout: 'fit',
