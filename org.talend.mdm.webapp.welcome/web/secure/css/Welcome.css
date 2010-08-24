@@ -1,0 +1,47 @@
+
+#ddgrid1, #ddgrid2 {
+	width:250px;
+	height:225px;
+	border: 1px solid #c3daf9;
+	float: left;
+}
+#messagePL {
+	font-size:20%;
+}
+
+.sendTrash {
+    background-image: url(../img/send_to_trash.png) !important;
+}
+
+.duplicate {
+    background-image: url(../img/duplicate.png) !important;
+}
+
+.journal {
+    background-image: url(../img/journal.png) !important;
+}
+
+.delete {
+    background-image: url(../img/delete.png) !important;
+}
+
+.alert_icon {
+    background-image: url(../img/alert-icon.png) !important;
+}
+
+.start_icon {
+    background-image: url(../img/start-icon.png) !important;
+}
+
+.task_list_icon {
+    background-image: url(../img/task-list-icon.png) !important;
+}
+
+.description_icon {
+    background-image: url(../img/text-icon.png) !important;
+}
+
+
+
+
+
