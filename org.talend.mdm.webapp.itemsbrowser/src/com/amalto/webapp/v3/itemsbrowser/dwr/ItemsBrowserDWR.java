@@ -1,12 +1,13 @@
 package com.amalto.webapp.v3.itemsbrowser.dwr;
 
+import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +19,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.security.jacc.PolicyContextException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -44,9 +52,6 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dwr.CommonDWR;
-import com.amalto.webapp.core.json.JSONArray;
-import com.amalto.webapp.core.json.JSONException;
-import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
@@ -97,6 +102,7 @@ import com.amalto.webapp.v3.itemsbrowser.bean.SearchTempalteName;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
 import com.amalto.webapp.v3.itemsbrowser.bean.View;
 import com.amalto.webapp.v3.itemsbrowser.bean.WhereCriteria;
+import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
@@ -110,7 +116,6 @@ import com.sun.xml.xsom.XSTerm;
 import com.sun.xml.xsom.XSType;
 import com.sun.xml.xsom.impl.AnnotationImpl;
 import com.sun.xml.xsom.impl.FacetImpl;
-
 /**cluster
  * 
  * 
@@ -296,15 +301,26 @@ public class ItemsBrowserDWR {
 			String dataModelPK = config.getModel();
 			String dataClusterPK = config.getCluster();
 			String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
+			Map<String,XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(xsd);
+        	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
 			// get item
 	        if(ids!=null){
-				WSItem wsItem = Util.getPort().getItem(
+	        	
+	        	WSItem wsItem = Util.getPort().getItem(
 						new WSGetItem(new WSItemPK(
 								new WSDataClusterPK(dataClusterPK),
 								concept, 
 								ids
 						))
 				);
+	        	
+				try {
+					extractUsingTransformerThroughView(concept, ids,
+							dataModelPK, dataClusterPK, map, wsItem);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
 				Document document = Util.parse(wsItem.getContent());
 				
 				//update the node according to schema
@@ -324,9 +340,7 @@ public class ItemsBrowserDWR {
 	        	createItem(concept, docIndex);
 	        }
 			
-			Map<String,XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(xsd);
-        	
-        	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
+
         	
         	HashMap<Integer,XSParticle> idToParticle;
 			if(ctx.getSession().getAttribute("idToParticle") == null) {
@@ -360,6 +374,159 @@ public class ItemsBrowserDWR {
 			e.printStackTrace();
 			return "ERROR";
 		}		
+	}
+
+
+	/**
+	 * @param concept
+	 * @param ids
+	 * @param dataModelPK
+	 * @param dataClusterPK
+	 * @param map
+	 * @param wsItem
+	 * @throws RemoteException
+	 * @throws XtentisWebappException
+	 * @throws UnsupportedEncodingException
+	 * @throws Exception
+	 * @throws XPathExpressionException
+	 * @throws TransformerFactoryConfigurationError
+	 * @throws TransformerConfigurationException
+	 * @throws TransformerException
+	 * 
+	 * 1.see if there is a job in the view
+	 * 2.invoke the job.
+	 * 3.convert the job's return value into xml doc,
+	 * 4.convert the wsItem's xml String value into xml doc,
+	 * 5.cover wsItem's xml with job's xml value.
+	 * step 6 and 7 must do first.
+	 * 6.add properties into ViewPOJO.
+	 * 7.add properties into webservice parameter. 
+	 */
+	private void extractUsingTransformerThroughView(String concept,
+			String[] ids, String dataModelPK, String dataClusterPK,
+			Map<String, XSElementDecl> map, WSItem wsItem)
+			throws RemoteException, XtentisWebappException,
+			UnsupportedEncodingException, Exception, XPathExpressionException,
+			TransformerFactoryConfigurationError,
+			TransformerConfigurationException, TransformerException {
+		
+		WSView view = Util.getPort().getView(
+				new WSGetView(new WSViewPK("Browse_items_" + concept)));
+
+		if ((null != view.getTransformerPK() && !"".equals(view.getTransformerPK()))&& view.getIsTransformerActive().is_true()) {
+			String transformerPK = view.getTransformerPK();
+			//FIXME:use ID as input parameter
+			String passToProcessPara = dataClusterPK + "." + concept + "." + Util.joinStrings(ids, ".");
+
+			WSTypedContent typedContent = new WSTypedContent(null,
+					new WSByteArray(passToProcessPara.getBytes("UTF-8")),
+					"text/xml; charset=UTF-8");
+
+			WSTransformerContext wsTransformerContext = new WSTransformerContext(
+					new WSTransformerV2PK(transformerPK), null, null);
+
+			WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(
+					wsTransformerContext, typedContent);
+			// check binding transformer
+			// we can leverage the exception mechanism also
+			boolean isATransformerExist = false;
+			WSTransformerPK[] wst = Util.getPort().getTransformerPKs(
+					new WSGetTransformerPKs("*")).getWsTransformerPK();
+			for (int i = 0; i < wst.length; i++) {
+				if (wst[i].getPk().equals(transformerPK)) {
+					isATransformerExist = true;
+					break;
+				}
+			}
+			// execute
+			WSTransformer wsTransformer = Util.getPort().getTransformer(
+					new WSGetTransformer(new WSTransformerPK(transformerPK)));
+			if (wsTransformer.getPluginSpecs() == null
+					|| wsTransformer.getPluginSpecs().length == 0)
+				throw new Exception(
+						"The Plugin Specs of this process is undefined! ");
+			WSTransformerContextPipelinePipelineItem[] entries = null;
+			if (isATransformerExist) {
+
+				entries = Util.getPort().executeTransformerV2(
+						wsExecuteTransformerV2).getPipeline().getPipelineItem();
+
+			} else {
+				// return false;
+				throw new Exception("The target process is not existed! ");
+			}
+
+			WSTransformerContextPipelinePipelineItem entrie = null;
+			boolean flag=false;
+			//FIXME:use 'output' as spec.
+			for (int i = 0; i < entries.length; i++) {
+				if ("output".equals(entries[i].getVariable())) {
+					entrie = entries[i];
+					flag = !flag;
+					break;
+				}
+			}
+			if (!flag) {
+				for (int i = 0; i < entries.length; i++) {
+					if ("_DEFAULT_".equals(entries[i].getVariable())) {
+						entrie = entries[i];
+						break;
+					}
+				}
+			}
+			String xmlStringFromProcess = "";
+			if (entrie.getWsTypedContent().getWsBytes().getBytes() != null
+					&& entrie.getWsTypedContent().getWsBytes().getBytes().length != 0) {
+				xmlStringFromProcess = new String(entrie.getWsTypedContent()
+						.getWsBytes().getBytes(), "UTF-8");
+			}
+			if (null != xmlStringFromProcess
+					&& !"".equals(xmlStringFromProcess)) {
+				Document wsItemDoc = Util.parse(wsItem.getContent());
+				Document jobDoc = Util.parse(xmlStringFromProcess);
+
+				ArrayList<String> lookupFieldsForWSItemDoc = new ArrayList<String>();
+				XSElementDecl elementDecl = map.get(concept);
+				XSAnnotation xsa = elementDecl.getAnnotation();
+				if (xsa != null && xsa.getAnnotation() != null) {
+					Element el = (Element) xsa.getAnnotation();
+					NodeList annotList = el.getChildNodes();
+					for (int k = 0; k < annotList.getLength(); k++) {
+						if ("appinfo".equals(annotList.item(k).getLocalName())) {
+							Node source = annotList.item(k).getAttributes()
+									.getNamedItem("source");
+							if (source == null)
+								continue;
+							String appinfoSource = annotList.item(k)
+									.getAttributes().getNamedItem("source")
+									.getNodeValue();
+							if ("X_Lookup_Field".equals(appinfoSource)) {
+				
+								lookupFieldsForWSItemDoc.add(annotList.item(k)
+										.getFirstChild().getNodeValue());
+							}
+						}
+					}
+				}
+				
+				String searchPrefix="/results/item/attr/";
+				
+				for (Iterator iterator = lookupFieldsForWSItemDoc.iterator(); iterator.hasNext();) {
+					String xpath = (String) iterator.next();
+					String firstValue=Util.getFirstTextNode(jobDoc, searchPrefix+xpath);//FIXME:use first node
+					if (null != firstValue&& !"".equals(firstValue)) {
+						XObject xObjectWSItem = XPathAPI.eval(wsItemDoc,xpath, wsItemDoc);
+						if (xObjectWSItem != null) {
+							NodeList wSItemNodes = xObjectWSItem.nodelist();
+							if (wSItemNodes.item(0) != null) {
+								wSItemNodes.item(0).setTextContent(firstValue);
+							}
+						}
+					}
+				}
+				wsItem.setContent(Util.nodeToString(wsItemDoc));
+			}
+		}
 	}
 	private void setChildrenWithKeyMask(int id, String language, boolean foreignKey, int docIndex, boolean maskKey, boolean choice, XSParticle xsp,ArrayList<TreeNode> list,HashMap<String,TreeNode> xpathToTreeNode) throws ParseException{
 		//aiming added see 0009563
