@@ -3,8 +3,12 @@ package com.amalto.core.util.license;
 import java.util.ArrayList;
 import java.util.List;
 import javax.naming.InitialContext;
+
+import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 
 public class LicenseHelper {
     private static LicenseHelper instance;
@@ -61,19 +65,32 @@ public class LicenseHelper {
      * @param license the license to save
      * @return true if license has been saved
      */
-    public boolean saveOrUpdate(LicensePOJO license) {
+    public boolean saveOrUpdate(LicensePOJO license) throws XtentisException {
         try {
             LicensePOJO licensePOJO = getLicense();
             
-            if(licensePOJO != null && licensePOJO.getLicense() != null){
-                licensePOJO.remove(LicensePOJO.class, new LicensePOJOPK(licensePOJO.getLicense()));
+            if(licensePOJO != null && licensePOJO.getLicense() != null) {
+                deleteLicenseCluster();
+//                licensePOJO.remove(LicensePOJO.class, new LicensePOJOPK(licensePOJO.getPK().getUniqueId()));
             }
             
+            license.setPK(new LicensePOJOPK("License"));
             license.store();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    /**
+     * delete license cluster.
+     * @return
+     */
+    private boolean deleteLicenseCluster() throws XtentisException {
+        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        long result = server.deleteCluster("", LicensePOJO.getCluster(LicensePOJO.class));
+        
+        return result != -1;
     }
 }

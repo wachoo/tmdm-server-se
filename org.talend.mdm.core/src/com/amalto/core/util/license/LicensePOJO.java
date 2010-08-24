@@ -9,6 +9,7 @@ public class LicensePOJO extends ObjectPOJO {
    private String license;
    private String customerCompany;
    private String token;
+   private LicensePOJOPK PK;
    
    public String getToken() {
       return token;
@@ -34,10 +35,17 @@ public class LicensePOJO extends ObjectPOJO {
    public void setLicense(String license) {
       this.license = license;
    }
+   
    @Override
    public LicensePOJOPK getPK() {
-      if (getLicense()==null) return null;
-      return new LicensePOJOPK("License");
+      if (getLicense() !=null && PK != null) 
+          return PK;
+      
+      return null;
+   }
+   
+   public void setPK(LicensePOJOPK PK) {
+       this.PK = PK;
    }
    
    /**
@@ -50,6 +58,7 @@ public class LicensePOJO extends ObjectPOJO {
          setLicense(Util.getFirstTextNode(result, "//license"));
          setCustomerCompany(Util.getFirstTextNode(result, "//customer-company"));
          setToken(Util.getFirstTextNode(result, "//token"));
+         setPK(new LicensePOJOPK(Util.getFirstTextNode(result, "//unique-id")));
       }
       catch(Exception e) {
          e.printStackTrace();
