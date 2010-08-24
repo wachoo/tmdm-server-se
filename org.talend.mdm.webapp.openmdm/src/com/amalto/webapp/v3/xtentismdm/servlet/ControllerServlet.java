@@ -90,6 +90,8 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 					"<title>Talend MDM</title>\n" +
 					super.getCommonImport();
 			html += super.getJavascriptImportsHtml();
+			html +="<script type=\"text/javascript\" src=\"/welcome/secure/js/Welcome.js\"></script>\n";
+			html +="<script type=\"text/javascript\" src=\"/welcome/secure/dwr/interface/WelcomeInterface.js\"></script>\n";
 			html +="<script type=\"text/javascript\" src=\"/talendmdm/secure/js/conf.js\"></script>\n";
 			html +="<script type=\"text/javascript\" src=\"/talendmdm/secure/js/actions.js\"></script>\n";
 			html +="<script type=\"text/javascript\" src=\"/talendmdm/secure/dwr/interface/ActionsInterface.js\"></script>\n";
