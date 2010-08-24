@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -27,6 +28,9 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.xmlrpc.client.XmlRpcClient;
+import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.exist.xmldb.XmldbURI;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -286,13 +290,26 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 	public long deleteCluster(String revisionID, String clusterName) throws XmlServerException {
 		try {
 			long startT = System.currentTimeMillis();
-			org.xmldb.api.base.Collection col = getCollection(revisionID, null, true);
-			CollectionManagementService service = (CollectionManagementService)col.getService("CollectionManagementService", "1.0");
-			service.removeCollection(clusterName);
-			String key =
-				((revisionID == null) || "".equals(revisionID) ? "__HEAD__" : revisionID)
-				+((clusterName == null) ? "__ROOT__" : clusterName);
-			clusters.remove(key);
+		    
+			XmldbURI uri = XmldbURI.xmldbUriFor("xmldb:"+DBID+"://"+SERVERNAME+":"+SERVERPORT+"/"+DBURL);
+
+            XmlRpcClient client = new XmlRpcClient();
+            XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+            String url = "http://" + uri.getAuthority() + uri.getContext();
+            config.setServerURL(new URL(url));
+            config.setBasicUserName(ADMIN_USERNAME);
+            config.setBasicPassword(ADMIN_PASSWORD);
+            client.setConfig(config);
+            
+            client.execute("removeCollection", new Object[]{clusterName});
+            
+//			org.xmldb.api.base.Collection col = getCollection(revisionID, null, true);
+//			CollectionManagementService service = (CollectionManagementService)col.getService("CollectionManagementService", "1.0");
+//			service.removeCollection(clusterName);
+//			String key =
+//				((revisionID == null) || "".equals(revisionID) ? "__HEAD__" : revisionID)
+//				+((clusterName == null) ? "__ROOT__" : clusterName);
+//			clusters.remove(key);
 //			//clear items from the cache
 //			for(ItemCacheKey key1: itemsCache.keySet()){
 //				if(key1.getRevisionID().equals((revisionID == null) || "".equals(revisionID)?"__HEAD__":revisionID) && key1.getDataClusterID().equals(clusterName==null?"__ROOT__":clusterName)){
