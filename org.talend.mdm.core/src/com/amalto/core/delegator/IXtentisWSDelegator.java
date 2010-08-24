@@ -901,7 +901,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	    WSView s = new WSView();
 		s.setDescription(pojo.getDescription());
 		s.setName(pojo.getName());
-
+		s.setIsTransformerActive(new WSBoolean(pojo.isTransformerActive()));
+		s.setTransformerPK(pojo.getTransformerPK());
 		String[] bes = null;
 		Collection c = pojo.getSearchableBusinessElements().getList();
 		if (c!=null) {		
@@ -945,7 +946,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 		ViewPOJO pojo = new ViewPOJO();
 		pojo.setName(ws.getName());
 		pojo.setDescription(ws.getDescription());
-				
+		pojo.setTransformerPK(ws.getTransformerPK());
+		pojo.setTransformerActive(ws.getIsTransformerActive().is_true());
 		ArrayList l = new ArrayList();
 	    String[] s = ws.getSearchableBusinessElements();
 	    if (s!=null) {

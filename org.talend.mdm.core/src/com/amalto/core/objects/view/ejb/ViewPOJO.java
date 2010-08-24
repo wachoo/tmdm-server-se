@@ -17,9 +17,23 @@ public class ViewPOJO extends ObjectPOJO{
     private ArrayListHolder searchableBusinessElements;
     private ArrayListHolder viewableBusinessElements;
     private ArrayListHolder whereConditions;
+    private String transformerPK;
+    private boolean isTransformerActive;
     
     
-    /**
+    public String getTransformerPK() {
+		return transformerPK;
+	}
+	public void setTransformerPK(String transformerPK) {
+		this.transformerPK = transformerPK;
+	}
+	public boolean isTransformerActive() {
+		return isTransformerActive;
+	}
+	public void setTransformerActive(boolean isTransformerActive) {
+		this.isTransformerActive = isTransformerActive;
+	}
+	/**
      * 
      */
     public ViewPOJO() {

@@ -53,6 +53,7 @@ import com.amalto.core.util.RoleSpecification;
 import com.amalto.core.util.TransformerPluginSpec;
 import com.amalto.webapp.util.webservices.BackgroundJobStatusType;
 import com.amalto.webapp.util.webservices.WSBackgroundJob;
+import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSByteArray;
 import com.amalto.webapp.util.webservices.WSDataCluster;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
@@ -161,6 +162,8 @@ public class XConverter {
 		WSView s = new WSView();
 		s.setDescription(pojo.getDescription());
 		s.setName(pojo.getName());
+		s.setTransformerPK(pojo.getTransformerPK());
+		s.setIsTransformerActive(new WSBoolean(pojo.isTransformerActive()));
 		String bes[] = null;
 		Collection c = pojo.getSearchableBusinessElements().getList();
 		if (c != null) {
@@ -202,6 +205,8 @@ public class XConverter {
 		ViewPOJO pojo = new ViewPOJO();
 		pojo.setName(ws.getName());
 		pojo.setDescription(ws.getDescription());
+		pojo.setTransformerPK(ws.getTransformerPK());
+		pojo.setTransformerActive(ws.getIsTransformerActive().is_true());
 		ArrayList l = new ArrayList();
 		String s[] = ws.getSearchableBusinessElements();
 		if (s != null) {
