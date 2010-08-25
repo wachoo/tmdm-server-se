@@ -24,6 +24,7 @@ Ext.extend(amalto.updatereport.DataLogViewer, Ext.Panel, {
 					draggable : false,
 					id : "0"
 				}),
+				autoScroll : "true",
 				containerScroll : "true"
 			}],
 			closable:true,
