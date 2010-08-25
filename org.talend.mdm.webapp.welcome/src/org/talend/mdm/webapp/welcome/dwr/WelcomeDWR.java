@@ -12,7 +12,6 @@ import org.ow2.bonita.util.AccessorUtil;
 
 import com.amalto.core.enterpriseutil.EnterpriseUtil;
 import com.amalto.core.objects.license.ejb.local.LicenseCtrlLocal;
-import com.amalto.core.util.license.LicenseVO;
 import com.amalto.core.util.license.LicenseHelper;
 import com.amalto.core.util.license.LicenseUtil;
 import com.amalto.webapp.core.util.Menu;

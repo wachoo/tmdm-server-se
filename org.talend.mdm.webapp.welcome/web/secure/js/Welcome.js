@@ -43,6 +43,11 @@ amalto.welcome.Welcome = function () {
 		'en':'If you need to add users to your license, you may contact your Talend account manager.'
 	}
 	
+	var Loading_Task_Msg = {
+		'en':'Loading workflow task list, please wait...',
+		'fr':'Chargement de la liste de tâches en cours, veuillez patienter...'
+	}
+	
 	var welcomePanel;	
 	var messageArea;
 	var startMessagePL;
@@ -406,7 +411,7 @@ amalto.welcome.Welcome = function () {
 	 function applyTaskMessage() {
 		 var taskMessage;
 		 var taskMessageLB = Ext.getCmp("taskMessageLB");
-		 taskMessageLB.setText("please waiting .......");
+		 taskMessageLB.setText(Loading_Task_Msg[language]);
 		 
 		 WelcomeInterface.getTaskMsg(function(result){
 			 taskMessage = "You have " + result + " workflow task ready to handle.";
