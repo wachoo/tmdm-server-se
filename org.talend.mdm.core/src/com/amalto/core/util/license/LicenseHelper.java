@@ -84,6 +84,21 @@ public class LicenseHelper {
     }
     
     /**
+     * update token for license.
+     * @param license
+     * @throws Exception 
+     */
+    public void updateToken(String token) throws Exception{
+        LicensePOJO licensePOJO = getLicense();
+        
+        if(licensePOJO != null && licensePOJO.getLicense() != null) {
+            licensePOJO.setToken(token);
+        }
+        
+        licensePOJO.store();
+    }
+    
+    /**
      * delete license cluster.
      * @return
      */

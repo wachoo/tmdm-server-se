@@ -224,9 +224,7 @@ public final class LicenseUtil {
 
         new TokenReader().readToken(token.getBytes());
 
-        LicensePOJO license = LicenseHelper.getInstance().getLicense();
-        license.setToken(token);
-        LicenseHelper.getInstance().saveOrUpdate(license);
+        LicenseHelper.getInstance().updateToken(token);
     }
 
     /**
