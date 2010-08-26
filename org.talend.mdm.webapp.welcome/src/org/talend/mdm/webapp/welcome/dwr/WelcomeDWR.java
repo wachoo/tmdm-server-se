@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.welcome.dwr;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,19 +8,17 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.ow2.bonita.facade.runtime.ActivityState;
-import org.ow2.bonita.facade.runtime.TaskInstance;
 import org.ow2.bonita.util.AccessorUtil;
 
-import com.amalto.core.enterpriseutil.EnterpriseUtil;
-import com.amalto.core.objects.license.ejb.local.LicenseCtrlLocal;
 import com.amalto.core.util.license.LicenseHelper;
 import com.amalto.core.util.license.LicenseUtil;
 import com.amalto.webapp.core.util.Menu;
-import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.dwr.ExtJSFormResponse;
 import com.amalto.webapp.core.util.dwr.ExtJSFormSuccessResponse;
 
 public class WelcomeDWR {
+   private static final String WORKFLOW_SERVICE_JNDINAME = "amalto/local/service/workflow";
+   
    public WelcomeDWR() {
       super();
    }
@@ -73,9 +72,15 @@ public class WelcomeDWR {
     */
    public int getTaskMsg() {
        try {
-           Collection tasks = EnterpriseUtil.getWorkflowService().getTaskList(
-               AccessorUtil.getAPIAccessor().getManagementAPI().getLoggedUser(), 
-               ActivityState.READY);
+           Object service= com.amalto.core.util.Util.retrieveComponent(null, WORKFLOW_SERVICE_JNDINAME);
+           Class[] paramTypes = {String.class, ActivityState.READY.getClass()};
+           String methodName = "getTaskList";
+           Method getTasksListMethod = service.getClass().getDeclaredMethod(methodName, paramTypes);
+           Collection tasks = (Collection)getTasksListMethod.invoke(service, 
+                   new Object[] {AccessorUtil.getAPIAccessor().getManagementAPI().getLoggedUser(),
+                                 ActivityState.READY
+                   });
+
            return tasks.size();
        }
        catch(Exception e) {
