@@ -81,13 +81,34 @@ amalto.welcome.Welcome = function () {
 		 //update display of menu in menu Panel
 //		 YAHOO.util.Dom.removeClass(Ext.get('menus').dom.getElementsByTagName('a'), 'selected');
 //		 YAHOO.util.Dom.addClass(a.id, 'selected');
-
-		 amalto.core.loadMainScript(context, application,
-			function() {
-				var initFunction = "amalto." + context + "." + application + ".init()";
-				setTimeout(initFunction,'50');
-			}
-		 );
+		 
+		 if("license" != context) {
+			 LayoutInterface.isExpired({
+				callback:function(isExpired){
+				Ext.MessageBox.hide();
+					if(!isExpired) {
+						amalto.core.loadMainScript(context, application,
+							function() {
+								var initFunction = "amalto." + context + "." + application + ".init()";
+								setTimeout(initFunction,'50');
+							}
+						);
+					}
+				},
+				errorHandler:function(errorString, exception) { 
+					Ext.MessageBox.hide();
+					alert('Error:'+ errorString);
+				}  
+			 });
+		 }
+		 else {
+			 amalto.core.loadMainScript(context, application,
+				function() {
+					var initFunction = "amalto." + context + "." + application + ".init()";
+					setTimeout(initFunction,'50');
+				}
+			 );
+		 }
 	 }
 	 
 	 /**
@@ -377,21 +398,10 @@ amalto.welcome.Welcome = function () {
 	  */
 	 function applyAlertsMessage(language) {
 		 var licenseMessage;
-		 //@temp yguo, should get alerts from server.
+
 		 WelcomeInterface.getLicenseMsg(language, function(result) {
 			 if(result.data.license) {
-				 applyDescriptionMessage(result.data.adminUsers + result.data.normalUsers + result.data.viewers);
-
-				 if(result.data.licenseValid && result.data.warning) {
-					 licenseMessage = result.data.warning;
-				 }
-				 else if(result.data.licenseValid) {
-					 licenseMessage = "License is available.";
-					 Ext.getCmp("alertsFields").setVisible(false);
-					 Ext.getCmp("alertsMessage").setText("No alerts.");
-					 return;
-				 }
-				 else {
+				 if(!result.data.licenseValid) {
 					 licenseMessage = "License expired, please update your license by license wizard.";
 				 }
 			 }

@@ -32,25 +32,12 @@ public class WelcomeDWR {
        LicenseVO license = new LicenseVO();
 
        try {
-           LicenseCtrlLocal ctrl = EnterpriseUtil.getLicenseCtrlLocal();
-           LicenseUtil licenseData = ctrl.getLicenseData(true);
-           
            license.setLicense(LicenseHelper.getInstance().getLicense().getLicense());
-           license.setLicenseValid(licenseData.isLicenseDateValid());
-           license.setWarning(ctrl.getWarnings(language));
-           license.setAdminUsers(licenseData.getAdminUsers());
-           license.setNormalUsers(licenseData.getInteractiveUsers());
-           license.setViewers(licenseData.getViewers());
-           license.setNbUser(licenseData.getNbUser());
+           license.setLicenseValid(LicenseUtil.getInstance().isLicenseDateValid());
        }
        catch(Exception e) {
            e.printStackTrace();
-           if(true) {
-               license.setLicense(null);
-           }
-           else if(true) {
-               license.setLicenseValid(false);
-           }
+           license.setLicense(null);
        }
        
        return new ExtJSFormSuccessResponse("", license);   
