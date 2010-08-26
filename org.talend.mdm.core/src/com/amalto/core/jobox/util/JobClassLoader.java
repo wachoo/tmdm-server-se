@@ -8,7 +8,9 @@ import java.net.URLClassLoader;
 public class JobClassLoader extends URLClassLoader {
 
 	public JobClassLoader() {
-		super(new URL[0], ClassLoader.getSystemClassLoader());
+		//super(new URL[0], ClassLoader.getSystemClassLoader());
+		//We had better use the same class loader hierarchy as the war package
+		super(new URL[0], JobClassLoader.class.getClassLoader());
 	}
 
 	public void addPath(String paths) {
