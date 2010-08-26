@@ -404,6 +404,11 @@ amalto.welcome.Welcome = function () {
 				 if(!result.data.licenseValid) {
 					 licenseMessage = "License expired, please update your license by license wizard.";
 				 }
+				 else {
+					 Ext.getCmp("alertsFields").setVisible(false);
+					 Ext.getCmp("alertsMessage").setText("No alerts.");
+					 return;
+				 }
 			 }
 			 else {
 				 licenseMessage = "No license available, please input your valid license by license wizard.";
