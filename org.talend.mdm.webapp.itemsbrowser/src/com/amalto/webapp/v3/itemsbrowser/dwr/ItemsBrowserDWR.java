@@ -1,6 +1,7 @@
 package com.amalto.webapp.v3.itemsbrowser.dwr;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
@@ -102,6 +103,7 @@ import com.amalto.webapp.v3.itemsbrowser.bean.SearchTempalteName;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
 import com.amalto.webapp.v3.itemsbrowser.bean.View;
 import com.amalto.webapp.v3.itemsbrowser.bean.WhereCriteria;
+import com.amalto.webapp.v3.itemsbrowser.util.PropsUtils;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSAnnotation;
@@ -3011,4 +3013,13 @@ public class ItemsBrowserDWR {
 		return wsBoolean.is_true();
 	}
 	
+	/**
+     * get properties by specify key.
+     * @param key
+     * @return
+     * @throws IOException 
+     */
+    public String getProperty(String key) throws IOException {
+        return PropsUtils.getProperties().getProperty(key);
+    }
 }

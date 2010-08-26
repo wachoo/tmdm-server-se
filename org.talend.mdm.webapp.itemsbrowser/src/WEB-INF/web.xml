@@ -26,7 +26,15 @@
         <servlet-name>SmartViewServlet</servlet-name>
         <servlet-class>com.amalto.webapp.v3.itemsbrowser.servlet.SmartViewServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>RefreshProperties</servlet-name>
+        <servlet-class>com.amalto.webapp.v3.itemsbrowser.servlet.RefreshPropertiesServlet</servlet-class>
+    </servlet>
       
+    <servlet-mapping>
+        <servlet-name>RefreshProperties</servlet-name>
+        <url-pattern>/secure/RefreshProperties</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/secure/dwr/*</url-pattern>

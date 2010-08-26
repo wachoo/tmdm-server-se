@@ -2293,6 +2293,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                        return;
                     }
                     
+                    DWREngine.setAsync(false);
+                    var timeoutConfig;
+                    ItemsBrowserInterface.getProperty('runnable.process.timeout', function(result) {
+                    	timeoutConfig = result;
+                    });
+                    DWREngine.setAsync(true);
                     //TODO:add a confirm here( do save)
                     
                     Ext.MessageBox.show({
@@ -2331,6 +2337,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                            Ext.MessageBox.alert('Status', "Process failed! ");  
                            }
                         },
+                        timeout:timeoutConfig,
                         errorHandler:function(errorString, exception) {  
                               alert('Error:'+ errorString);
                               Ext.MessageBox.hide();
