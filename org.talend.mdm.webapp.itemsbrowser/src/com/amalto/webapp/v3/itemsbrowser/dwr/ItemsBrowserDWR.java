@@ -2971,11 +2971,11 @@ public class ItemsBrowserDWR {
 		WSWhereCondition wc3 = new WSWhereCondition(
 				"BrowseItem/Owner", WSWhereOperator.EQUALS, Util
 						.getAjaxSubject().getUsername(),
-				WSStringPredicate.NONE, false);
+						WSStringPredicate.NONE, false);
 		
 		WSWhereOr or = new WSWhereOr(new WSWhereItem[] {
-					new WSWhereItem(wc3, null, null)
-					});
+				new WSWhereItem(wc3, null, null)
+		});
 
 		WSWhereAnd and = new WSWhereAnd(new WSWhereItem[] {
 				new WSWhereItem(wc1, null, null),
@@ -2993,4 +2993,22 @@ public class ItemsBrowserDWR {
 		).getValue();
 	}
 
+	public boolean isExistCriteria(String dataObjectLabel,String id) throws RemoteException, XtentisWebappException{
+		
+		WSItemPK wsItemPK = new WSItemPK();
+		wsItemPK.setConceptName("BrowseItem");
+		
+		WSDataClusterPK wsDataClusterPK = new WSDataClusterPK();
+		wsDataClusterPK.setPk(XSystemObjects.DC_SEARCHTEMPLATE.getName());
+		wsItemPK.setWsDataClusterPK(wsDataClusterPK);
+		
+		String[] ids = new String[1];
+		ids[0] = id;
+		wsItemPK.setIds(ids);
+		
+		WSExistsItem wsExistsItem = new WSExistsItem(wsItemPK);
+		WSBoolean wsBoolean=Util.getPort().existsItem(wsExistsItem);
+		return wsBoolean.is_true();
+	}
+	
 }

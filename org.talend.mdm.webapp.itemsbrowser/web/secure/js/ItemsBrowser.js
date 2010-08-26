@@ -925,13 +925,23 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         }
         var isSharedReport = DWRUtil.getValue('SearchTemplateShared');
         
-       ItemsBrowserInterface.saveCriteria(dataObjectLabel,reportName,isSharedReport,_criterias,function(result){
-           if(result=="OK"){
-           	    saveReportWindow.destroy();
-                Ext.MessageBox.alert("Save","Save Search Template Successfully!");
-                ItemsBrowserInterface.getviewItemsCriterias(getConditionsCB,dataObjectLabel,true);
-           }
-       });
+        ItemsBrowserInterface.isExistCriteria(dataObjectLabel,reportName,function(isExist){
+            if(!isExist)
+                ItemsBrowserInterface.saveCriteria(dataObjectLabel,reportName,isSharedReport,_criterias,function(result){
+                    if(result=="OK"){
+           	            saveReportWindow.destroy();
+                        Ext.MessageBox.alert("Save","Save Search Template Successfully!");
+                        ItemsBrowserInterface.getviewItemsCriterias(getConditionsCB,dataObjectLabel,true);
+                    }
+                });
+            else{
+                    Ext.MessageBox.alert('Status', "This Template already exist,please enter other name! ",function(){
+                    saveCriteriasClick();
+                    });
+                }
+        });
+        
+        
        
     }
 	
