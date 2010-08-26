@@ -49,6 +49,7 @@
 			<zipfileset dir="web" includes="**/*" />
 			<zipfileset dir="src" prefix="WEB-INF/classes" includes="**/*.xsl" />
 			<zipfileset dir="libs" prefix="WEB-INF/lib" includes="*.jar" />
+			<zipfileset dir="." prefix="WEB-INF" includes="itemsbrowser.properties" />
 		</jar>
    		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
     </target>
