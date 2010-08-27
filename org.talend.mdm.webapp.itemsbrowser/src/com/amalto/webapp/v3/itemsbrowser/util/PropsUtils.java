@@ -1,6 +1,5 @@
 package com.amalto.webapp.v3.itemsbrowser.util;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -14,26 +13,19 @@ public class PropsUtils {
 
     /**
      * refresh properties.
+     * @throws IOException 
      */
-    public static void refreshProperties() {
+    public static void refreshProperties() throws IOException {
         properties = new Properties();
-
-        try {
-            properties.load(PropsUtils.class.getResourceAsStream(CONFIG_PROPERTIES_PATH));
-        } 
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } 
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        properties.load(PropsUtils.class.getResourceAsStream(CONFIG_PROPERTIES_PATH));
     }
 
     /**
      * get properties.
      * @return
+     * @throws IOException 
      */
-    public static Properties getProperties() {
+    public static Properties getProperties() throws IOException {
         if(properties == null) {
             refreshProperties();
         }
