@@ -21,8 +21,10 @@ import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
+import org.talend.commons.model.KeyConstants;
 import org.talend.commons.model.ProductsMapping;
 import org.talend.commons.model.TalendObject;
+import org.talend.commons.model.Type;
 
 import com.amalto.core.util.UserHelper;
 import com.amalto.core.util.Util;
@@ -144,19 +146,30 @@ public final class LicenseUtil {
         String license = new String(Base64.encodeBase64(licenseb));
         boolean result = false;
         try {
-            TalendObject t = new TalendObject(license, newCompanyName);
+        	license=newCompanyName+"_"+license;
+            TalendObject t = new TalendObject(license);
             t.isAvailable("mdm");
-            companyName = t.companyName;
-            licenseDate = t.licenseDate;
-            productMapping = t.productMapping;
-            licenseZone = LicenseZone.getZone(t.licenseZone);
-            licenseMode = LicenseMode.getMode(t.licenseMode);
-            licenseType = t.licenseType.toString();
-            adminUsers = t.adminUsers;
-            interactiveUsers = t.interactiveUsers;
-            viewers = t.viewers;
-            installations = t.installations;
-            
+//            companyName = t.companyName;
+//            licenseDate = t.licenseDate;
+//            productMapping = t.productMapping;
+//            licenseZone = LicenseZone.getZone(t.licenseZone);
+//            licenseMode = LicenseMode.getMode(t.licenseMode);
+//            licenseType = t.licenseType.toString();
+//            adminUsers = t.adminUsers;
+//            interactiveUsers = t.interactiveUsers;
+//            viewers = t.viewers;
+//            installations = t.installations;
+ 
+          companyName = t.getString(KeyConstants.COMPANY_NAME);
+          licenseDate = t.getDate(KeyConstants.VALIDITY_DATE);
+          productMapping = t.getProductMapping();
+          licenseZone = LicenseZone.getZone(t.getInt(KeyConstants.ZONE));
+          licenseMode = LicenseMode.getMode(t.getInt(KeyConstants.USER_COUNT_POLICY));
+          licenseType = Type.getType(t.getInt(KeyConstants.TYPE)).name();
+          adminUsers = t.getInt(KeyConstants.MDM_ADMIN_LIMIT);
+          interactiveUsers = t.getInt(KeyConstants.MDM_INTERACTIVE_LIMIT);
+          viewers = t.getInt(KeyConstants.MDM_WEB_LIMIT);
+          //installations = t.getInt(KeyConstants.);            
             result = true;
         } catch (Throwable e) {
             resetFields();
