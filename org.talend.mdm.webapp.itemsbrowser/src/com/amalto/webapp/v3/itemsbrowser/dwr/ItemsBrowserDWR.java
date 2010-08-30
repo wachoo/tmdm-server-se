@@ -2072,7 +2072,25 @@ public class ItemsBrowserDWR {
         	}
         	metaDataTypes.put(viewItem, dataTypesHolder);
         }
-
+        //fix the bug:0015278 by ymli
+        Set<String> searchablesKeys = view.getSearchables().keySet();
+        for(String key : searchablesKeys){
+        	if(!metaDataTypes.containsKey(key)){
+        		ArrayList<String> dataTypesHolder = new ArrayList<String>();
+            	String[] pathSlices = key.split("/");
+            	XSElementDecl node = parseMetaDataTypes(el, pathSlices[0], dataTypesHolder);
+            	if(pathSlices.length > 1)
+            	{
+                	for (int i = 1; i < pathSlices.length; i++)
+                	{
+                		node = parseMetaDataTypes(node, pathSlices[i], dataTypesHolder);
+                	}
+            	}
+            	metaDataTypes.put(key, dataTypesHolder);
+        	}
+        	
+        }
+        
 		return metaDataTypes;
 	}
 	
