@@ -165,7 +165,7 @@ public class ItemsBrowserDWR {
 					bc.contains(concept)
 					){
 				
-				views.put(wsview.getName(),p.matcher(wsview.getDescription()).replaceAll("$1"));
+				views.put(wsview.getName(),p.matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName()).replaceAll("$1"));
 			}
 		}	
 		return CommonDWR.getMapSortedByValue(views);
