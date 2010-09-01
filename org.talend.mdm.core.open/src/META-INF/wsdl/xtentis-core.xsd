@@ -670,7 +670,9 @@
 			<xsd:element maxOccurs="1" minOccurs="1" name="description" nillable="true" type="xsd:string"/>
 			<xsd:element maxOccurs="unbounded" minOccurs="1" name="viewableBusinessElements" nillable="false" type="xsd:string"/> <!-- projected business elements -->
 			<xsd:element maxOccurs="unbounded" minOccurs="0" name="whereConditions" nillable="true" type="tns:WSWhereCondition"/>
-			<xsd:element maxOccurs="unbounded" minOccurs="1" name="searchableBusinessElements" nillable="false" type="xsd:string"/> 
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="searchableBusinessElements" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="transformerPK" nillable="true" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="isTransformerActive" nillable="true" type="tns:WSBoolean"/>  
 		</xsd:sequence>		
 	</xsd:complexType>
 	<xsd:element name="WSView" type="tns:WSView"/>
