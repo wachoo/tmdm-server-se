@@ -2138,10 +2138,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				}	
 	
 				//update the div structure
+				var errorHtml = '<div id="errorDesc'  + treeIndex + '" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:25px;padding-top:5px"><img src="img/genericUI/errorstate.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
+                         + errorDesc[language] + '</span></div>' +
+                    '<div id="errorDetail' + treeIndex + '" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:65px"></div></br>';
+				
 				var html =
-				   '<div id="errorDesc'  + treeIndex + '" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:25px;padding-top:5px"><img src="img/genericUI/errorstate.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
-			             + errorDesc[language] + '</span></div>' +
-				    '<div id="errorDetail' + treeIndex + '" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:65px"></div></br>'+
 					'<div>' +
 					'		<span id="itemDetails'+treeIndex+'" class="itemTree"></span>' +
 					'		<span id="smartView'+treeIndex+'" style="display=none;">'+smartView+'</span>' +
@@ -2417,22 +2418,61 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			    });
 				}
     			
+				var errorContentPanel = new Ext.Panel({
+				    id:'errorDetailsdiv'+treeIndex, 
+                    headerAsText:false,
+                    //activeTab: 0,
+                    //tabPosition:'bottom',
+                    //layout:'border',
+                    autoScroll:false,
+                    html:errorHtml,
+                    border:false,
+                    closable:false
+				});
+				
+				var treeDetailPanel = new Ext.Panel({
+                    id:'treeDetailsdiv'+treeIndex, 
+                     headerAsText:false,
+                    //activeTab: 0,
+                    //tabPosition:'bottom',
+                    //layout:'border',
+                    height:501,
+                    autoScroll:true,
+                    html:html,
+                    border:false,
+                    closable:false
+                });
     		
-    			contentPanel = new Ext.Panel({
+    			/*contentPanel = new Ext.Panel({
     				id:'itemDetailsdiv'+treeIndex, 
     				title: myTitle, 
     				//activeTab: 0,
     				//tabPosition:'bottom',
     				//layout:'border',
     				autoScroll:true,
-    				tbar: tbDetail,
     				html:html,
     				closable:true,
     				bbar : new Ext.Toolbar([{
 						text : EDIT_ITEM_TOOLTIP[language],
 						xtype : "tbtext"
 					}])					
-    			});
+    			});*/
+                contentPanel = new Ext.Panel({
+                    id:'itemDetailsdiv'+treeIndex, 
+                    title: myTitle, 
+                    //activeTab: 0,
+                    //tabPosition:'bottom',
+                    //layout:'border',
+                    height:500,
+                    tbar: tbDetail,
+                    //autoScroll:true,
+                    closable:true,
+                    items:[errorContentPanel,treeDetailPanel],
+                    bbar : new Ext.Toolbar([{
+                        text : EDIT_ITEM_TOOLTIP[language],
+                        xtype : "tbtext"
+                    }])                 
+                });
 			}
 			tabPanel.add(contentPanel); 
 
