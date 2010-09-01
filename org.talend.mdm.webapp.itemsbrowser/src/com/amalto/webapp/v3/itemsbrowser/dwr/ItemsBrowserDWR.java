@@ -164,8 +164,8 @@ public class ItemsBrowserDWR {
 					//&& wsviews[i].getWsDataModelPK().getPk().equals(model) && 
 					bc.contains(concept)
 					){
-				
-				views.put(wsview.getName(),p.matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName()).replaceAll("$1"));
+				String viewDesc = p.matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName()).replaceAll("$1");
+				views.put(wsview.getName(), viewDesc.equals("") ? wsview.getName() : viewDesc);
 			}
 		}	
 		return CommonDWR.getMapSortedByValue(views);
