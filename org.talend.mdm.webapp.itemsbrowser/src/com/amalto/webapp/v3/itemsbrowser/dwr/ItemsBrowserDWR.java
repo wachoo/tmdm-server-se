@@ -2408,9 +2408,18 @@ public class ItemsBrowserDWR {
 			//get Runnable process
 			List<ComboItemBean> comboItem = new ArrayList<ComboItemBean>();
 			
+			//FIXME we can cache these concepts
+			Configuration config = Configuration.getInstance(true);
+			String model = config.getModel();
+			String [] businessConcepts = Util.getPort().getBusinessConcepts(
+						new WSGetBusinessConcepts(
+								new WSDataModelPK(model)
+							)
+						).getStrings();
+			
 			WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();
 			for (int i = 0; i < wst.length; i++) {
-				if (wst[i].getPk().startsWith("Runnable_" + businessConcept)) {
+				if (isMyRunableProcess(wst[i].getPk(),businessConcept,businessConcepts)) {
 					/*
 					 * String pk=wst[i].getPk(); String text=pk;
 					 * if(pk.lastIndexOf("#")==-1) {
@@ -2429,7 +2438,7 @@ public class ItemsBrowserDWR {
 					String name = p.matcher(description).replaceAll("$1");
 					if (name.equals(""))
 						if (language.equalsIgnoreCase("fr"))
-							name = "Action par d��faut";
+							name = "Action par défaut";
 						else if (language.equalsIgnoreCase("en"))
 							name = "Default Action";
 						else 
@@ -2447,6 +2456,26 @@ public class ItemsBrowserDWR {
 			throw new Exception(e.getLocalizedMessage());
 		}
 		return listRange;
+	}
+	
+	private boolean isMyRunableProcess(String transformerName, String ownerConcept, String [] businessConcepts) {
+		
+		String possibleConcept="";
+		if(businessConcepts!=null) {
+			for (int i = 0; i < businessConcepts.length; i++) {
+				String businessConcept=businessConcepts[i];
+				if(transformerName.startsWith("Runnable_" + businessConcept)) {
+					if(businessConcept.length()>possibleConcept.length())
+					possibleConcept=businessConcept;
+				}
+			}
+		}
+		
+		//System.out.println("PossibleConcept: "+possibleConcept);
+		
+		if(ownerConcept!=null&&ownerConcept.equals(possibleConcept))return true;
+		
+		return false;
 	}
 	
 	public boolean processItem(String concept, String[] ids,int docIndex, String transformerPK) throws Exception {
