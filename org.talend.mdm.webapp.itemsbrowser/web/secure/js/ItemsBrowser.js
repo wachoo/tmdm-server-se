@@ -1376,7 +1376,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				var fkField = foreignKeyFields[actulID];
 //				searchValue = DWRUtil.getValue('itemsForeignKeyValues' + actulID);
 				if(fkField != undefined || fkField != null)
-				  searchValue = fkField.el.dom.value;
+				{
+				   searchValue = fkField.el.dom.value;
+				   if(fkField.getValue().length > 0)
+				   {
+					   searchValue = fkField.getValue();
+				   }
+				}
+					
+
 			}
 			_criterias[idx][0] = criteria + searchValue;
 		}
