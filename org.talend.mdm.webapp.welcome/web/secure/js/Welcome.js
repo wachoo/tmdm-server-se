@@ -199,7 +199,7 @@ amalto.welcome.Welcome = function () {
 				        {
 				        	id : 'alertsMessage',
 				        	xtype : 'label',
-				        	style : 'padding-left: 20px;',
+				        	style : 'padding-left: 20px;'
 				        }]
 	 		});
 			
@@ -259,7 +259,7 @@ amalto.welcome.Welcome = function () {
 				items : [{
 					id : 'taskMessageLB',
 					xtype : 'label',
-					style : 'padding-left: 20px;',
+					style : 'padding-left: 20px;'
 				}]
 	 		});
 			

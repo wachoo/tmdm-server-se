@@ -671,13 +671,6 @@ amalto.core = function () {
 	 * load welcome page.
 	 */
 	function loadWelcome() {
-		//@temp yguo
-		//question, 1. whether still display, don't close it.
-		//		    2. whether display with tab panel.
-		/**
-		 * 1. init welcome page and render to tab panel(getTabPanel).
-		 *    write hard code for welcome page javascript init function.
-		 */
 		amalto.core.loadMainScript("welcome", "Welcome",
 				function() {
 					var initFunction = "amalto.welcome.Welcome.init()";
