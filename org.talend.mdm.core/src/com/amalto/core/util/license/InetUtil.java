@@ -253,7 +253,10 @@ public class InetUtil {
             String line = tokenizer.nextToken().trim();
             // see if line contains IP address
 
-            if (line.endsWith(localHost) && lastMacAddress != null) {
+            //by yguo, fix 0015328: Failure to retrieve the token 
+            if (line.endsWith(localHost) || line.replace("(Preferred)", "").endsWith(localHost)
+                    && lastMacAddress != null) 
+            {
                 return lastMacAddress;
             }
 
