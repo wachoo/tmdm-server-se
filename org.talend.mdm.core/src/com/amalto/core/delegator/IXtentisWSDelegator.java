@@ -408,7 +408,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
         WSBusinessConcept bc = wsPutBusinessConcept.getBusinessConcept();
 		try {
 		    String s = 
-		    "<xsd:element name="+bc.getName()+" type="+bc.getBusinessTemplate()+">"+
+		    "<xsd:element name=\""+bc.getName()+"\" type=\""+bc.getBusinessTemplate()+"\">"+
 		    "	<xsd:annotation>";
 		    WSI18NString[] labels = bc.getWsLabel();
 		    for (int i = 0; i < labels.length; i++) {
