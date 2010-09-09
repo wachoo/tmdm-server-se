@@ -612,22 +612,22 @@ public class ItemsBrowserDWR {
 		ArrayList<String> infos = treeNode.getForeignKeyInfo();
 		//String keyInfos = "";
 		
-		if(infos != null && treeNode.isRetrieveFKinfos()) {
+		try {
+			String value = StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath));
+			treeNode.setValue(value);
+			if(infos != null && treeNode.isRetrieveFKinfos()) {
 
-			try {
-			   String value = StringEscapeUtils.escapeHtml(Util.getFirstTextNode(d,xpath));
-			   
 			   //max occurs > 1 support and do not get foreignkeylist by here.
 			   if(value != null && !"".equals(value) && !(maxOccurs<0 || maxOccurs>1)) {
 			      //String jasonData = Util.getForeignKeyList(0, Integer.MAX_VALUE, value,  treeNode.getForeignKey(), keyInfos, treeNode.getFkFilter(), false);
 				  treeNode.setValueInfo(getFKInfo(value, treeNode.getForeignKey(), infos));
 			   }
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}					
 			
 		}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}					
 
 		// this child is a complex type
 		if(xsp.getTerm().asElementDecl().getType().isComplexType()==true) {    			
@@ -727,8 +727,9 @@ public class ItemsBrowserDWR {
 						idToXpath.put(nodeCount,xpath+"["+(i+1)+"]");
 						TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
 						
+						String value = StringEscapeUtils.escapeHtml(nodeList.item(i).getTextContent());
+						treeNodeTmp.setValue(value);
 						if(nodeList.item(i).getFirstChild() != null && infos != null && treeNode.isRetrieveFKinfos() && treeNode.getForeignKey() != null) {
-						   String value = StringEscapeUtils.escapeHtml(nodeList.item(i).getTextContent());
 						   
 						   treeNodeTmp.setValueInfo(getFKInfo(value, treeNode.getForeignKey(), infos));
 						}
