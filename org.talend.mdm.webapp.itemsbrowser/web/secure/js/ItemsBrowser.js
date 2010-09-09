@@ -2048,8 +2048,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 valueField:'value',
                 typeAhead: true,
                 triggerAction: 'all',
-                forceSelection:true
-                //width:135
+                forceSelection:true,
+                resizable:true 
             });
             
             toolbar.addField(combo);
