@@ -48,6 +48,11 @@ amalto.welcome.Welcome = function () {
 		'fr':'Chargement de la liste de tâches en cours, veuillez patienter...'
 	}
 	
+	var Loading_Alert_Msg = {
+		'en':'Loading list of alerts, please wait...',
+		'fr':'Chargement de la liste de tâches en cours, veuillez patienter...'
+	}
+	
 	var welcomePanel;	
 	var messageArea;
 	var startMessagePL;
@@ -223,8 +228,7 @@ amalto.welcome.Welcome = function () {
 							style : 'font-size: 80%;',
 							colspan : 2,
 							autoHeight : true,
-							html : '<span id="licenseAlert" style="padding-right:8px;cursor: pointer; width:150;" onclick="amalto.welcome.Welcome.openPages(\'license\', \'License\');">' + 
-								   '<IMG SRC=\"../img/alert-icon.png\"/>License</span>'
+							html : '<span id="licenseAlert" style="padding-right:8px;cursor: pointer;" onclick="amalto.welcome.Welcome.openPages(\'license\', \'License\');"></span>'
 						})
 				         ]
 			});
@@ -282,7 +286,7 @@ amalto.welcome.Welcome = function () {
 							width : 500,
 							autoHeight : true,
 							style : 'font-size:80%;',
-							html : '<span id="workflowtasks" style="padding-right:8px;cursor: pointer; width:150;" onclick="amalto.welcome.Welcome.openPages(\'workflowtasks\', \'WorkflowTasks\');"></span>'
+							html : '<span id="workflowtasks" style="padding-right:8px;cursor: pointer;" onclick="amalto.welcome.Welcome.openPages(\'workflowtasks\', \'WorkflowTasks\');"></span>'
 						})
 				         ]
 			});
@@ -388,8 +392,9 @@ amalto.welcome.Welcome = function () {
 	  */
 	 function setLabels(language) {
 		 WelcomeInterface.getLabels(language, function(result) {
-			 //@temp yguo, fool to set all labels.abstract id
-			 DWRUtil.setValue("workflowtasks", '<IMG SRC=\"/talendmdm/secure/img/menu/workflowtasks.png\"/>' + '  ' + result["WorkflowTasks"]);
+			 if(Ext.getCmp("workflowtasks")) {
+				 DWRUtil.setValue("workflowtasks", '<IMG SRC=\"/talendmdm/secure/img/menu/workflowtasks.png\"/>' + '  ' + result["WorkflowTasks"]);
+			 }
 		 });
 	 }
 	 
@@ -398,7 +403,9 @@ amalto.welcome.Welcome = function () {
 	  */
 	 function applyAlertsMessage(language) {
 		 var licenseMessage;
-
+		 var alertMessageLB = Ext.getCmp("alertsMessage");
+		 alertMessageLB.setText(Loading_Alert_Msg[language]);
+		 
 		 WelcomeInterface.getLicenseMsg(language, function(result) {
 			 if(result.data.license) {
 				 if(!result.data.licenseValid) {
@@ -416,7 +423,7 @@ amalto.welcome.Welcome = function () {
 			 
 			 var licenseAlert = Ext.getCmp("licenseAlert");
 			 DWRUtil.setValue("licenseAlert",  '<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>' + ' ' + licenseMessage);
-			 Ext.getCmp("alertsMessage").setText("You can handle alerts by the following links.");
+			 alertMessageLB.setText("You can handle alerts by the following links.");
 		 });
 	 }
 	 
@@ -431,14 +438,16 @@ amalto.welcome.Welcome = function () {
 		 WelcomeInterface.getTaskMsg(function(result){
 			 taskMessage = "You have " + result + " workflow task ready to handle.";
 			 
-			 DWRUtil.setValue("workflowtasks", '<IMG SRC=\"/talendmdm/secure/img/genericUI/task-list-icon.png\"/>' + ' ' + taskMessage);
+			 if(Ext.getCmp("tasksField")) {
+				 DWRUtil.setValue("workflowtasks", '<IMG SRC=\"/talendmdm/secure/img/genericUI/task-list-icon.png\"/>' + ' ' + taskMessage);
 			 
-			 if(result == "0") {
-				 taskMessageLB.setText("No tasks.");
-				 Ext.getCmp("tasksField").setVisible(false);
-			 }
-			 else {
-				 taskMessageLB.setText("You can handle tasks by the following links.");
+				 if(result == "0") {
+					 taskMessageLB.setText("No tasks.");
+					 Ext.getCmp("tasksField").setVisible(false);
+				 }
+				 else {
+					 taskMessageLB.setText("You can handle tasks by the following links.");
+				 }
 			 }
 		 });
 	 }
