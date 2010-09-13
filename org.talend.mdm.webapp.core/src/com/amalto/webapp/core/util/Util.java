@@ -1296,6 +1296,13 @@ public class Util {
 	            }
 	            //add the key paths last, since there may be multiple keys
 	            xPaths.add(filteredConcept+"/../../i");
+	            //order by 
+	            String orderbyPath=null;
+	            if(!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey!=null) {
+	            	orderbyPath=xpathInfos[0].replaceFirst(conceptName, filteredConcept);
+	            }else {
+	            	
+	            }
 	            
 	            //Run the query
 	            String [] results = getPort().xPathsSearch(new WSXPathsSearch(
@@ -1306,7 +1313,7 @@ public class Util {
 	                -1,
 	                start,
 	                limit,
-	                null,
+	                orderbyPath,
 	                null
 	            )).getStrings();
 	            
