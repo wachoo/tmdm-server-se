@@ -230,6 +230,17 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean  i
 			bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, parameters.getUsername());
 			bp.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, parameters.getPassword());
 			
+			if(java.lang.reflect.Proxy.getInvocationHandler(port) instanceof org.apache.cxf.jaxws.JaxWsClientProxy) {
+				org.apache.cxf.endpoint.Client client = org.apache.cxf.frontend.ClientProxy.getClient(port);  
+				if (client != null) {  
+					 org.apache.cxf.transport.http.HTTPConduit conduit = (org.apache.cxf.transport.http.HTTPConduit) client.getConduit();  
+					 org.apache.cxf.transports.http.configuration.HTTPClientPolicy policy = new org.apache.cxf.transports.http.configuration.HTTPClientPolicy();  
+				     policy.setConnectionTimeout(600000);  
+				     policy.setReceiveTimeout(0);//infinitely  
+				     conduit.setClient(policy);
+				 }
+			}
+			
 			context.put(CONTENT_TYPE, parameters.getContentType());
 			context.put(PORT, port);
 			context.put(TIS_VARIABLE_NAME, parameters.getTisVariableName());
