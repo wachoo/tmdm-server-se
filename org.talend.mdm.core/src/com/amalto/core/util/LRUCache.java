@@ -1,5 +1,6 @@
 package com.amalto.core.util;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Collection;
 import java.util.Map;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
  * Author: Christian d'Heureuse (<a href="http://www.source-code.biz">www.source-code.biz</a>)<br>
  * License: <a href="http://www.gnu.org/licenses/lgpl.html">LGPL</a>.
  */
-public class LRUCache<K,V> {
+public class LRUCache<K,V> implements Serializable {
 
 	private static final float   hashTableLoadFactor = 0.75f;
 
@@ -65,6 +66,13 @@ public class LRUCache<K,V> {
 	public synchronized int usedEntries() {
 		return map.size(); }
 
+	/**
+	 * Returns the number of used entries in the cache.
+	 * @return the number of entries currently in the cache.
+	 */
+	public synchronized int allEntries() {
+		return cacheSize; }
+	
 	/**
 	 * Returns a <code>Collection</code> that contains a copy of all cache entries.
 	 * @return a <code>Collection</code> with a copy of the cache content.

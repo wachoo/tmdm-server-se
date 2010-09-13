@@ -957,4 +957,7 @@ public abstract class ObjectPOJO implements Serializable{
     public static void clearCache(){
     	cachedPojo.clear();
     }
+    public static LRUCache<ItemCacheKey, String> getCache(){
+    	return cachedPojo;
+    }    
 }

@@ -1019,4 +1019,8 @@ public class ItemPOJO implements Serializable{
     public static void clearCache(){
     	cachedPojo.clear();
     }
+    
+    public static LRUCache<ItemCacheKey, String> getCache(){
+    	return cachedPojo;
+    }
 }
