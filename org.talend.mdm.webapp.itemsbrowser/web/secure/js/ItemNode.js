@@ -157,12 +157,12 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+treeIndex+'\')" >' +
 						' <img src="img/genericUI/magnifier.gif"/></span>';
 						
-				
-				ItemsBrowserInterface.getRootNode(fkDataObject, language, function(fkNode) {
-					if(fkNode!=null && fkNode.readOnly != false && fkDataObject!=null) {
-						$(fkDataObject).style.display = 'none';
-					}
-				}); 
+				//TODO: move this logical to the click-listener of the button 'Add Foreign Key' 
+//				ItemsBrowserInterface.getRootNode(fkDataObject, language, function(fkNode) {
+//					if(fkNode!=null && fkNode.readOnly != false && fkDataObject!=null) {
+//						$(fkDataObject).style.display = 'none';
+//					}
+//				}); 
 			}
 			
 			var value = "";
