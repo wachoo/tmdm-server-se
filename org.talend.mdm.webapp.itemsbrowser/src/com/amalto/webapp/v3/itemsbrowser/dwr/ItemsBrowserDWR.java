@@ -67,6 +67,7 @@ import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
 import com.amalto.webapp.util.webservices.WSExistsDataCluster;
 import com.amalto.webapp.util.webservices.WSExistsItem;
+import com.amalto.webapp.util.webservices.WSExistsView;
 import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
@@ -305,6 +306,10 @@ public class ItemsBrowserDWR {
 			String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
 			Map<String,XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(xsd);
         	XSComplexType xsct = (XSComplexType)(map.get(concept).getType());
+        	
+        	
+        	
+        	
 			// get item
 	        if(ids!=null){
 	        	
@@ -412,6 +417,9 @@ public class ItemsBrowserDWR {
 			TransformerFactoryConfigurationError,
 			TransformerConfigurationException, TransformerException {
 		
+		WSBoolean  isExist = Util.getPort().existsView(new WSExistsView(new WSViewPK("Browse_items_" + concept)));
+		if(!isExist.is_true())
+			return;
 		WSView view = Util.getPort().getView(
 				new WSGetView(new WSViewPK("Browse_items_" + concept)));
 
