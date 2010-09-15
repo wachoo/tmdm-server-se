@@ -540,10 +540,20 @@ public abstract class ObjectPOJO implements Serializable{
     }
     
     private static Set<String> getSystemObjectIDs(String cluster) {
-    	if("amaltoOBJECTSDataCluster".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER).keySet();
-    	if("amaltoOBJECTSMenu".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.MENU).keySet();
-    	if("amaltoOBJECTSRole".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.ROLE).keySet();
-    	if("amaltoOBJECTSDataModel".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL).keySet();
+    	if(Util.isEnterprise()){
+    		if("amaltoOBJECTSDataCluster".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER).keySet();
+    		if("amaltoOBJECTSMenu".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.MENU).keySet();
+    		if("amaltoOBJECTSRole".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.ROLE).keySet();
+    		if("amaltoOBJECTSDataModel".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL).keySet();
+    	}
+    	else{
+    		if("amaltoOBJECTSDataCluster".equals(cluster))return XSystemObjects.getXSystemObjectsTOM(XObjectType.DATA_CLUSTER).keySet();
+        	if("amaltoOBJECTSMenu".equals(cluster))return XSystemObjects.getXSystemObjectsTOM(XObjectType.MENU).keySet();
+        	if("amaltoOBJECTSRole".equals(cluster))return XSystemObjects.getXSystemObjectsTOM(XObjectType.ROLE).keySet();
+        	if("amaltoOBJECTSDataModel".equals(cluster))return XSystemObjects.getXSystemObjectsTOM(XObjectType.DATA_MODEL).keySet();
+
+    	}
+    		
     	return new HashSet<String>();
     }    
 
