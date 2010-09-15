@@ -655,7 +655,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		//conceptNameSelect =  viewName.replace("Browse_items_","");
 		amalto.core.working();
 		if(viewName!=LABEL_SELECT_DATAOBJECT[language]){
-			
+			if(Ext.get('items-grid')!=undefined) {
+				gridContainerPanel.remove('items-grid');
+			}		
 			ItemsBrowserInterface.getviewItemsCriterias(getConditionsCB,viewName,true);
 			ItemsBrowserInterface.getView(getViewItemsCB,viewName, language);
 		}
