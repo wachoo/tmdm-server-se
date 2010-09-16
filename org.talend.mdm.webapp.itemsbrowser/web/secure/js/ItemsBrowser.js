@@ -425,7 +425,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Save this object'
 	}; 		
 	var SAVEANDCLOSE_TOOLTIP={
-		'fr':'Sauve cet objet et ferme l\onglet',
+		'fr':'Sauve cet objet et ferme l\'onglet',
 		'en':'Save this object and close the tab'
 	};
 	var DUPLICATE_TOOLTIP={
@@ -433,7 +433,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Clone the selected record'
 	};
 	var REFRESH_TOOLTIP={
-		'fr':'Ouvre le journal d\'audit de cet enregistrement',
+		'fr':'Rafraîchir',
 		'en':'Refresh'
 	};
 	var JOURNAL_TOOLTIP={
