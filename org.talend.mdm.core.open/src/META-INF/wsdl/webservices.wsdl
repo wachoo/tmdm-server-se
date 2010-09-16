@@ -22,7 +22,7 @@
     		xmlns:tns="urn-com-amalto-xtentis-webservice"
 			>
 			
-			<xsd:import namespace="urn-com-amalto-xtentis-webservice" schemaLocation="xtentis.xsd"/>
+			<xsd:include schemaLocation="xtentis.xsd"/>
     	</xsd:schema>
 	</types>
 
