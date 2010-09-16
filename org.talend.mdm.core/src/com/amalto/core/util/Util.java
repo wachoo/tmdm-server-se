@@ -2419,6 +2419,10 @@ public  class Util {
 					}
 
 				}
+				else
+				{
+					return "Failed to retrieve the before saving status. The record was not saved";
+				}
 			} catch (Exception e) {
 				return e.getLocalizedMessage();
 			}
