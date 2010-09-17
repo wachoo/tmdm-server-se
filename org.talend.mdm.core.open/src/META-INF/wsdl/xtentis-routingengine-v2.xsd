@@ -5,8 +5,6 @@
     xmlns:tns="urn-com-amalto-xtentis-webservice"
     >
     
-    <xsd:include schemaLocation="xtentis-core.xsd"/>
-
 
     <!-- *****************************************************
         ROUTING ORDERS

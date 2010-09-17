@@ -6,9 +6,6 @@
 	>
 
 
-	<xsd:include schemaLocation="xtentis-core.xsd"/>
-	<xsd:include schemaLocation="xtentis-deprecated.xsd"/>
-
 	<!-- *****************************************************
 							Objects
 		*******************************************************-->

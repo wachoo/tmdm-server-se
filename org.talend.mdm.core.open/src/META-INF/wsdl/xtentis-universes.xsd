@@ -4,8 +4,6 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:tns="urn-com-amalto-xtentis-webservice"
 	>
-
-	<xsd:include schemaLocation="xtentis-core.xsd"/>
 	
 	<!-- *****************************************************
 		Universe Objects
