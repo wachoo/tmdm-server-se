@@ -3,7 +3,7 @@
 	
 	<property name="version.props" value="version.properties"/>
 		
-	<property name="jboss.dir" value="c:/opt/jboss-4.2.2.GA"/>
+	<property name="jboss.dir" value="/media/mdm/opt/trunk/jboss_tem"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
@@ -12,6 +12,7 @@
 	<property name="jboss.conf.dir" value="${jboss.instance.dir}/conf"/>
 	<property name="jboss.web.deployer" value="${jboss.deploy.dir}/jboss-web.deployer"/>
 	<property name="exist.version" value="exist-1.4.0-rev11706-TalendPatch"/>
+	<property name="exist.client" value="${jboss.dir}/eXist"/>
 	
     <!-- ================================= 
           target: all              
@@ -62,6 +63,9 @@
 	    <copy todir="${jboss.deploy.dir}">
 	            <fileset dir="eXist" includes="${exist.version}.war/**"/>
 	        </copy>
+        <copy todir="${exist.client}" overwrite="true">
+            <fileset dir="eXist/eXist-client"></fileset>            
+        </copy>
 		
     </target>
 </project>

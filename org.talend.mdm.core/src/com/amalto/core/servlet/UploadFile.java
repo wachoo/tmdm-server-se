@@ -110,7 +110,7 @@ public class UploadFile extends HttpServlet {
             throw new ServletException(e.getClass().getName()+": "+e.getLocalizedMessage());
         }
 
-        File tempFile = File.createTempFile("xtentis-", ".tmp");
+        
         
         //String returnURL=null;
         ArrayList<String> files = new ArrayList<String>();
@@ -121,6 +121,7 @@ public class UploadFile extends HttpServlet {
         //while (iter.hasNext()) {
         	//FIXME: should handle more than files in parts e.g. text passed as parameter
             FileItem item = iter.next();
+            File tempFile = new File(Util.getJbossHomeDir()+"/server/default/tmp/"+item.getName());
             System.out.println(item.getFieldName());
             if (item.isFormField()) {
             	//we are not expecting any field just (one) file(s)

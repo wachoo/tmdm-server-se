@@ -1,0 +1,5 @@
+#eXist build info (updated using svnkit)
+#Wed Nov 11 17:37:17 CET 2009
+project.version=1.4.0
+project.build=20091111
+svn.revision=10440

@@ -21,6 +21,7 @@ import java.security.acl.Group;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -70,9 +71,8 @@ import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.directwebremoting.WebContext;
-import org.directwebremoting.WebContextFactory;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -3507,4 +3507,63 @@ public  class Util {
 		return formattedContent;
 
 	}
+
+    public static void restoreDatacluster(String filename) throws Exception{
+    	if(!MDMConfiguration.isExistDb())return;
+    	Properties config=MDMConfiguration.getConfiguration();
+		List<String> list=new ArrayList<String>();
+		String home=getExistHome();
+		String path=new File(home+"/start.jar").getAbsolutePath();
+		String server=config.getProperty("xmldb.server.name","localhost");
+		String passwd=config.getProperty("xmldb.administrator.password","1bc29b36f623ba82aaf6724fd3b16718");
+		String port=config.getProperty("xmldb.server.port","8080");
+		String cmd="java -Xms128m -Xmx512m -Dfile.encoding=UTF-8 -jar "+path+" backup -u admin -p "+passwd;
+		String[] cmds=cmd.split("\\s");
+		list.addAll(Arrays.asList(cmds));
+		list.add("-r");
+		list.add(filename.trim());
+		//add server
+		String uri="-ouri=xmldb:exist://"+server+":"+port+"/exist/xmlrpc";
+		list.add(uri);
+        
+		ConsoleSimulator.runCmd(list.toArray(new String[list.size()]), null, home);
+    }
+    
+    
+    public static void backupDatacluster(String datacluster, String filename) throws Exception{
+    	if(!MDMConfiguration.isExistDb())return;
+    	
+    	Properties config=MDMConfiguration.getConfiguration();
+		List<String> list=new ArrayList<String>();
+		String home=getExistHome();
+
+		String path=new File(home+"/start.jar").getAbsolutePath();
+		String server=config.getProperty("xmldb.server.name","localhost");
+		String passwd=config.getProperty("xmldb.administrator.password","1bc29b36f623ba82aaf6724fd3b16718");
+		String port=config.getProperty("xmldb.server.port","8080");
+		String cmd="java -Xms128m -Xmx512m -Dfile.encoding=UTF-8 -jar "+path+" backup -u admin -p "+passwd+" -b /db/"+datacluster;
+		String[] cmds=cmd.split("\\s");
+		list.addAll(Arrays.asList(cmds));
+		list.add("-d");
+		list.add(new File(home+"/"+filename.trim()).getAbsolutePath());
+		//add server
+		String uri="-ouri=xmldb:exist://"+server+":"+port+"/exist/xmlrpc";
+		list.add(uri);
+		//set exist home       
+        if(System.getProperty("os.name").indexOf("win") != -1){//windows
+        	list.add(0,"cmd");
+        	list.add(1,"/c");
+        }
+        
+        ConsoleSimulator.runCmd(list.toArray(new String[list.size()]), null, home);
+    }
+    
+    public static String getExistHome(){
+    	String home=getJbossHomeDir()+"/eXist";
+    	home=new File(home).getAbsolutePath();    				
+        System.setProperty("exist.home", home);
+        System.out.println("exist.home==="+home);
+        return home;
+    }    
+    
 } 
