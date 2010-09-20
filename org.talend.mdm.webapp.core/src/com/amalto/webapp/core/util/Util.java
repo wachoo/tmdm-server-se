@@ -275,7 +275,12 @@ public class Util {
     	}
    		return null;
     }
+    
     public static WSWhereItem getConditionFromFKFilter(String fkFilter) {
+    	return getConditionFromFKFilter(fkFilter,null);
+    }
+    
+    public static WSWhereItem getConditionFromFKFilter(String fkFilter,ForeignKeyFilterParserCallback fkFilterParserCallback) {
     	if(fkFilter==null || fkFilter.length()==0) return null;
     	if(fkFilter.equals("null")) return null;
     	
@@ -287,8 +292,10 @@ public class Util {
 			String[] values = cria.split("\\$\\$");
 	
 			WSWhereCondition wc = Util.convertLine(values);
-			if(wc!=null)
-			condition.add(new WSWhereItem(wc,null,null));
+			if(wc!=null) {
+				if(fkFilterParserCallback!=null)fkFilterParserCallback.parse(wc);
+				condition.add(new WSWhereItem(wc,null,null));
+			}
 		}
 		if(condition.size()>0) {
 			WSWhereAnd and = new WSWhereAnd(condition
@@ -1217,6 +1224,10 @@ public class Util {
 		}
 		
 		public static String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter, boolean isCount) throws RemoteException, Exception{
+			return getForeignKeyList(start,limit,value,xpathForeignKey,xpathInfoForeignKey,fkFilter,null,isCount);
+		}
+		
+		public static String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter, WSWhereItem parsedFkFilterWi, boolean isCount) throws RemoteException, Exception{
 			if(xpathForeignKey == null) return null;
 	        String initxpathForeignKey = "";
 	        initxpathForeignKey = getForeignPathFromPath(xpathForeignKey);
@@ -1227,7 +1238,9 @@ public class Util {
 	            whereItem= new WSWhereItem (whereCondition, null, null);
 	        }
 	        //get FK filter
-	        WSWhereItem fkFilterWi = getConditionFromFKFilter(fkFilter);
+	        WSWhereItem fkFilterWi = null;
+	        if(parsedFkFilterWi!=null)fkFilterWi=parsedFkFilterWi;
+	        else fkFilterWi=getConditionFromFKFilter(fkFilter);
 	        if(fkFilterWi != null) whereItem = fkFilterWi;
 	        Configuration config = Configuration.getInstance();
 	        //aiming modify there is bug when initxpathForeignKey when it's like 'conceptname/key'
@@ -1381,7 +1394,7 @@ public class Util {
 
 	    }
 		
-		private static String countForeignKey_filter(String xpathForeignKey,WSWhereItem whereItem) throws Exception{
+		public static String countForeignKey_filter(String xpathForeignKey,WSWhereItem whereItem) throws Exception{
 	        Configuration config = Configuration.getInstance();
 	        String conceptName = getConceptFromPath(xpathForeignKey);
 	                    

@@ -53,6 +53,7 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dwr.CommonDWR;
+import com.amalto.webapp.core.util.ForeignKeyFilterParserCallback;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
@@ -1767,15 +1768,79 @@ public class ItemsBrowserDWR {
 	}
 	
 	/**
+	 * Limitation: only support for item browser first
+	 */
+	public WSWhereItem parseForeignKeyFilter(final String dataObject,String fkFilter) {
+		
+		WSWhereItem wsWhereItem=Util.getConditionFromFKFilter(fkFilter, new ForeignKeyFilterParserCallback(){ 
+			
+			@Override
+			public void parse(WSWhereCondition wc) {
+				WebContext ctx = WebContextFactory.get();
+				HashMap<String,TreeNode> xpathToTreeNode = 
+					(HashMap<String,TreeNode>)ctx.getSession().getAttribute("xpathToTreeNode");
+				
+				if(wc!=null) {
+					String rightValueOrPath=wc.getRightValueOrPath();
+					String patternString=dataObject+"(/[A-Za-z0-9\\[\\]]*)+";
+					boolean isSingleMode=true;
+					Pattern singlePattern = Pattern.compile("^"+patternString+"$");
+					if(!singlePattern.matcher(rightValueOrPath).matches())isSingleMode=false;
+					Pattern pattern = Pattern.compile(patternString);//support simple xpath
+					Matcher matcher = pattern.matcher(rightValueOrPath);
+					while (matcher.find()) {
+						for (int i = 0; i < matcher.groupCount(); i++) {
+							String gettedXpath=matcher.group(i);
+							
+							if(gettedXpath!=null) {
+								//get replaced value
+								String replacedValue=gettedXpath;
+								boolean matchedAValue=false;
+								
+								//How to handle multi-nodes?
+								if(xpathToTreeNode!=null&&xpathToTreeNode.get("/"+gettedXpath)!=null) {
+									replacedValue=xpathToTreeNode.get("/"+gettedXpath).getValue();
+									if(replacedValue!=null) {
+										matchedAValue=true;
+									}else{
+										
+										HashMap<String,UpdateReportItem> updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
+										if(updatedPath!=null&&updatedPath.get("/"+gettedXpath)!=null) {
+											UpdateReportItem updateReportItem=updatedPath.get("/"+gettedXpath);
+											replacedValue=updateReportItem.getNewValue();
+											if(replacedValue!=null)matchedAValue=true;
+										}
+										
+									}
+								}
+								
+								if(matchedAValue&&!isSingleMode)replacedValue="\""+replacedValue+"\"";
+								replacedValue=replacedValue==null?"null":replacedValue;
+								rightValueOrPath=matcher.replaceAll(replacedValue);
+							}
+							
+						}//end for
+					}//end while
+					wc.setRightValueOrPath(rightValueOrPath);
+				}
+				
+			}
+		});
+    	
+        return wsWhereItem;
+	}
+	
+	/**
 	 * lym
 	 */
-	public String countForeignKey_filter(String xpathForeignKey, String fkFilter) throws Exception{
-		return Util.countForeignKey_filter(xpathForeignKey, fkFilter);
-	}	
-	public String getForeignKeyListWithCount(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter) 
+	public String countForeignKey_filter(String dataObject,String xpathForeignKey, String fkFilter) throws Exception{
+		return Util.countForeignKey_filter(xpathForeignKey, parseForeignKeyFilter(dataObject,fkFilter));
+	}
+
+	public String getForeignKeyListWithCount(int start, int limit, String value,String dataObject, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter) 
 	   throws RemoteException, Exception 
 	{
-	   return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey,fkFilter, true);
+	   return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey,fkFilter, parseForeignKeyFilter(dataObject,fkFilter), true);
 	}
 	
 	private static String pushUpdateReport(String[] ids, String concept, String operationType)throws Exception{

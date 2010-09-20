@@ -3273,22 +3273,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function journalItem(ids, dataObject){
 		if(ids.indexOf("@")>0)ids=ids.replaceAll("@",".");
 	    amalto.updatereport.UpdateReport.browseUpdateReportWithSearchCriteria(dataObject, ids, true);	
-	}	
-
-	/**
-	 * Search for foreign keys and return a map that can be used 
-	 * to fill the Foreign Key Search Combo
-	 */
-	function filterForeignKey(xpathForeignKey, xpathInfoForeignKey, nodeId, value){
-		var value =DWRUtil.getValue('foreignkey-filter-'+nodeId);
-		amalto.core.working();
-		Ext.getCmp('foreignkey-search-button-'+nodeId).disable();
-		ItemsBrowserInterface.getForeignKeyListWithCount(xpathForeignKey, xpathInfoForeignKey, value, function(results){
-			DWRUtil.removeAllOptions('foreignkey-list-'+nodeId);
-	    	DWRUtil.addOptions('foreignkey-list-'+nodeId,results);
-	    	amalto.core.ready();
-	    	Ext.getCmp('foreignkey-search-button-'+nodeId).enable();
-		});
 	}
 	
 	function showDatePicker(nodeId, treeIndex, nodeType,displayFormats) {
@@ -3507,8 +3491,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function chooseForeignKey(nodeId, xpathForeignKey, xpathInfoForeignKey, fkFilter, treeIndex) {
 		amalto.core.working('Running...');
 	    amalto.core.ready();
-	    
-		ItemsBrowserInterface.countForeignKey_filter(xpathForeignKey,fkFilter, function(count){
+	    var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
+	    var dataObject=tbDetail.dataObject;
+		ItemsBrowserInterface.countForeignKey_filter(dataObject,xpathForeignKey,fkFilter, function(count){
 			//Display a pop-up window to search for foreign keys
 			if(foreignKeyWindow){
 			    foreignKeyWindow.hide();
@@ -3518,7 +3503,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var store = new Ext.data.Store({
 				proxy: new Ext.ux.data.ImprovedDWRProxy({
 			        dwrFunction: ItemsBrowserInterface.getForeignKeyListWithCount,
-			        dwrAdditional: [xpathForeignKey, xpathInfoForeignKey,fkFilter ] //, Ext.getCmp('foreign-key-filter').getValue()]}
+			        dwrAdditional: [dataObject,xpathForeignKey, xpathInfoForeignKey,fkFilter ] //, Ext.getCmp('foreign-key-filter').getValue()]}
 				}),
 		        reader: new Ext.data.JsonReader({
 		            root: 'rows',
@@ -3547,7 +3532,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 id: 'foreign-key-filter',
 		        store: store,
 		        displayField:'title',
-		        typeAhead: true,
+		        typeAhead: false,
 		        triggerAction: 'all',
 		        loadingText: 'Searching...',
 		        pageSize:20,
@@ -3915,7 +3900,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		removeForeignKey:function(nodeId, treeIndex){removeForeignKey(nodeId,treeIndex)},
 		displayItemDetails:function(itemPK2, dataObject){displayItemDetails(itemPK2, dataObject);},
 		editItemDetails:function(itemPK,dataObject,refreshCB){displayItemDetails4Reference(itemPK,dataObject,refreshCB);},
-		filterForeignKey:function(string0, string1, id){filterForeignKey(string0, string1, id);},
 		getSiblingsLength:function(node){getSiblingsLength(node);},
 		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);},
 		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);}
