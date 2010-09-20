@@ -3513,6 +3513,7 @@ public  class Util {
     	Properties config=MDMConfiguration.getConfiguration();
 		List<String> list=new ArrayList<String>();
 		String home=getExistHome();
+		if(!new File(home).exists()) return;
 		String path=new File(home+"/start.jar").getAbsolutePath();
 		String server=config.getProperty("xmldb.server.name","localhost");
 		String passwd=config.getProperty("xmldb.administrator.password","1bc29b36f623ba82aaf6724fd3b16718");
@@ -3536,7 +3537,8 @@ public  class Util {
     	Properties config=MDMConfiguration.getConfiguration();
 		List<String> list=new ArrayList<String>();
 		String home=getExistHome();
-
+		
+		if(!new File(home).exists()) return;
 		String path=new File(home+"/start.jar").getAbsolutePath();
 		String server=config.getProperty("xmldb.server.name","localhost");
 		String passwd=config.getProperty("xmldb.administrator.password","1bc29b36f623ba82aaf6724fd3b16718");
