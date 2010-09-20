@@ -2866,7 +2866,10 @@ public class ItemsBrowserDWR {
 			String[] paths = criteriaString[0].split(" ");
 			criteria.setField(paths[0]);
 			criteria.setOperator(paths[1]);
-			criteria.setValue(paths[2]);
+			if(paths.length<3)
+				criteria.setValue("*");
+			else
+				criteria.setValue(paths[2]);
 			
 			
 			criteriaString[0] = criteriaString[0].replaceAll(" ", "#");
@@ -3077,5 +3080,35 @@ public class ItemsBrowserDWR {
      */
     public String getProperty(String key) throws IOException {
         return PropsUtils.getProperties().getProperty(key);
+    }
+    
+    /**
+     * @author ymli
+     * @param start
+     * @param limit
+     * @param sort
+     * @param dir
+     * @param regex
+     * @return
+     * @throws Exception
+     */
+    public ListRange getBookMarks(int start, int limit, String sort,String dir, String regex) throws Exception{
+    	ListRange listRange = new ListRange();
+		String templates = getSearchTemplateNames(start,limit,regex,false);
+		List<ComboItemBean> comboItem = new ArrayList<ComboItemBean>();
+		/*ComboItemBean save = new ComboItemBean("Bookmark this Search","Bookmark this Search");
+		ComboItemBean manage = new ComboItemBean("Manage Search Bookmarks","Manage Search Bookmarks");
+		comboItem.add(save);
+		comboItem.add(manage);*/
+		if(templates.length()>0){
+			String[] searchTemplates = templates.split("##"); 
+			for(int i=0;i<searchTemplates.length;i++){
+				comboItem.add(new ComboItemBean(searchTemplates[i],searchTemplates[i]));
+			}
+		}
+		listRange.setData(comboItem.toArray());
+		String countItem = countSearchTemplate(regex);
+		listRange.setTotalSize(Integer.parseInt(countItem));
+    	return listRange;
     }
 }

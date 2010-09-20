@@ -95,7 +95,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	var LABEL_SELECT_TEMPLATE={
         'fr':'Sélectionnez une entité',
-        'en':'Select a Template'
+        'en':'Select a Bookmark'
     };
 	
 	var LABEL_SELECT = {
@@ -264,14 +264,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	
 	
-	var BUTTON_SAVE_ITEM = {
-        'fr':'Sauvegarder Template',
-        'en':'Save Template'
+	var BUTTON_BOOKMARK_SEARCH = {
+        'fr':'Bookmark Search',
+        'en':'Bookmark Search'
     };
     
-    var BUTTON_MANAGE_ITEM = {
-        'fr':'Manage Template',
-        'en':'Manage Template' 
+    var BUTTON_MANAGE_BOOKMARKS = {
+        'fr':'Manage Bookmarks',
+        'en':'Manage Bookmarks' 
     };
 	
 	var SAVE = {
@@ -553,6 +553,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var conditions = [];
 	
 	var itemsCriteriaParentId = "1";
+	var combo1;
+	var bookMarkbutton;
+	var manageBookMarksButton;
 	
 	function browseItems(){
 		showItemsPanel();
@@ -564,6 +567,25 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		//displayItems();
 	}
 	
+	
+	           
+            
+            
+     var templateStore = new Ext.data.Store({
+             proxy: new Ext.data.DWRProxy(ItemsBrowserInterface.getBookMarks, true),
+              reader:new Ext.data.ListRangeReader({
+              totalProperty: 'totalSize',
+              id: 'value',
+                root: 'data'
+                  }, Ext.data.Record.create([
+                            {name: 'value',mapping:'value',type:'string'},
+                            {name: 'text',mapping:'text',type:'string'}
+                           ])
+                   )
+                });
+                
+             
+           
 	function showItemsPanel() {	
 		var tabPanel = amalto.core.getTabPanel();
 		itemsBrowserPanel = tabPanel.getItem('itemsBrowser');
@@ -581,6 +603,72 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				collapsible: false
 			});
 				
+			
+			
+
+			
+  
+            templateStore.on('beforeload', 
+                    function(button, event) {
+                    var viewName = DWRUtil.getValue('viewItemsSelect'); 
+                                
+                       Ext.apply(templateStore.baseParams,{
+                            start: 0, 
+                            limit: 0,
+                            regex: viewName
+                            });
+                    }
+                    
+                    
+             );
+            
+            combo1 = new Ext.form.ComboBox({
+                id : 'bookMark1',
+                name : "bookMarkCombo1",
+                editable : false,
+                store: templateStore,
+                displayField:'value',
+                valueField:'text',
+                typeAhead: true,
+                triggerAction: 'all',
+                forceSelection:true,
+                resizable:true,
+                listAlign: 'tr-br',
+                onSelect: function(record){
+                	this.collapse();
+                	this.setValue(record.get("value"));
+                    getViewItems2(record.get("value"));
+                }
+            });
+          
+            bookMarkbutton = new Ext.Button({
+                 id:'bookMarkbutton',
+                 name:'bookMarkbutton',
+                 text:BUTTON_BOOKMARK_SEARCH[language],
+                 handler:saveCriteriasClick
+            });
+            manageBookMarksButton = new Ext.Button({
+                id:'manageBookMarksButton',
+                name:'manageBookMarksButton',
+                text:BUTTON_MANAGE_BOOKMARKS[language],
+                handler:manageSearchTemplates
+            });
+            
+    
+            
+           var html = '' +
+                        '<div>'+LABEL_DATAOBJECT[language]+' : <select id="viewItemsSelect" onChange="amalto.itemsbrowser.ItemsBrowser.getViewItems();"><option value="">'+MSG_LOADING[language]+'</option></select>' +
+                        '<span id="viewItemsInfos"></span></div>' +
+                        
+                        '<span id="labelItemsCriteria" style="display:none">'+LABEL_CRITERIA[language] +' : </span>'+
+                        '<div style="border:1px solid #0066FF" id="itemsCriterias">' +
+                        '</div>' +
+                        '<br/>' +
+                        '<input id="item-search-btn" type="button" value="'+BUTTON_SEARCH[language]+'" disabled="true" onClick="amalto.itemsbrowser.ItemsBrowser.displayItems();"/>' +
+                        '<input id="item-new-btn" type="button" value="'+BUTTON_NEW_ITEM[language]+'" disabled="true"  onClick="amalto.itemsbrowser.ItemsBrowser.displayItemDetails();"/>';
+            
+            
+            
 			itemsBrowserPanel = new Ext.Panel({
 				id: 'itemsBrowser',
 				title: BROWSE_ITEMS[language],
@@ -605,20 +693,17 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						bodyStyle:'padding:5px',
 						height:200,		
 						split:true,
-						html: '' +
-						'<div>'+LABEL_DATAOBJECT[language]+' : <select id="viewItemsSelect" onChange="amalto.itemsbrowser.ItemsBrowser.getViewItems();"><option value="">'+MSG_LOADING[language]+'</option></select>' +
-						'<span id="viewItemsInfos"></span></div>' +
-						
-						'<span id="labelItemsCriteria" style="display:none">'+LABEL_CRITERIA[language] +' : </span>'+
-						'<div id="itemsCriterias">' +
-						'</div>' +
-						'<br/>' +
-						'<input id="item-search-btn" type="button" value="'+BUTTON_SEARCH[language]+'" disabled="true" onClick="amalto.itemsbrowser.ItemsBrowser.displayItems();"/>' +
-						'<input id="item-new-btn" type="button" value="'+BUTTON_NEW_ITEM[language]+'" disabled="true"  onClick="amalto.itemsbrowser.ItemsBrowser.displayItemDetails();"/>'+
-						'<select id="viewItemsCriteriaListSelect" onChange="amalto.itemsbrowser.ItemsBrowser.getViewItems1();"><option value="">'+MSG_LOADING[language]+'</option></select>' +
-                        '<span id="viewItemsCriterias"></span>'+
-						'<input id="item-save-btn" type="button" value="'+BUTTON_SAVE_ITEM[language]+'" disabled="true"  onClick="amalto.itemsbrowser.ItemsBrowser.saveCriteriasClick();"/>'+
-						'<input id="item-manage-btn" type="button" value="'+BUTTON_MANAGE_ITEM[language]+'" disabled="true"  onClick="amalto.itemsbrowser.ItemsBrowser.manageSearchTemplates();"/>',
+					    items:[{
+                            layout : 'fit',
+                            border:false,
+                            items : [{
+                                     layout : 'table',
+                                     border:false,
+                                     layoutConfig:{columns:6},
+                                     items:[{border:false,layoutConfig:{columns:5},html :html},{layoutConfig:{columns:1},border: false,items:[combo1,bookMarkbutton,manageBookMarksButton]}]
+                            }]
+                        }],
+
 						border: true,
 						bodyborder: true
 					}),
@@ -635,8 +720,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				
 		$('item-search-btn').disabled = true;
 		$('item-new-btn').disabled = true;
-		$('item-save-btn').disabled = true;
-		$('item-manage-btn').disabled = true;
+		combo1.setVisible(false);
+        bookMarkbutton.setVisible(false);
+        manageBookMarksButton.setVisible(false);
 		DWRUtil.setValue('itemsCriterias',"");
 		$('labelItemsCriteria').style.display = "none";
 		
@@ -658,29 +744,27 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			if(Ext.get('items-grid')!=undefined) {
 				gridContainerPanel.remove('items-grid');
 			}		
-			ItemsBrowserInterface.getviewItemsCriterias(getConditionsCB,viewName,true);
+			templateStore.reload();
 			ItemsBrowserInterface.getView(getViewItemsCB,viewName, language);
 		}
 		else{
 			$('item-search-btn').disabled = true;
 			$('item-new-btn').disabled = true;
-			$('item-save-btn').disabled = true;
-			$('item-manage-btn').disabled = true;
+			combo1.setVisible(false);
+			bookMarkbutton.setVisible(false);
+			manageBookMarksButton.setVisible(false);
 			$('labelItemsCriteria').style.display = "none";
 			DWRUtil.setValue('itemsCriterias',"");
 			amalto.core.ready();
 		}
 	}
 	
-	function getViewItems1(){
-	   var viewName = DWRUtil.getValue('viewItemsCriteriaListSelect');
-	   
-        //conceptNameSelect =  viewName.replace("Browse_items_","");
+	   function getViewItems2(viewName){
         amalto.core.working();
         if(viewName!=LABEL_SELECT_TEMPLATE[language]){
-        	ItemsBrowserInterface.getWhereItemsByCriteria(getWhereItemsCB,viewName);
+            ItemsBrowserInterface.getWhereItemsByCriteria(getWhereItemsCB,viewName);
         }
-	}
+    }
 	/**
      * @author ymli
      */
@@ -730,30 +814,18 @@ amalto.itemsbrowser.ItemsBrowser = function () {
      * @author ymli
      * */
 	 function toDelete(viewName){
-        Ext.MessageBox.confirm("confirm","Do you really want to remove this Template?",function de(e){
+        Ext.MessageBox.confirm("confirm","Do you really want to remove this Bookmark?",function de(e){
             if(e.toLocaleString()=="yes"){
                 ItemsBrowserInterface.deleteTemplate(viewName,function(){
                     ManageSearchTemplateStore.reload();
                     var dataObjectLabel=DWRUtil.getValue('viewItemsSelect');
-                    ItemsBrowserInterface.getviewItemsCriterias(getConditionsCB,dataObjectLabel,true);
+                    //ItemsBrowserInterface.getviewItemsCriterias(getConditionsCB,dataObjectLabel,true);
+                    templateStore.reload();
                 });
                 
                 }
             }) ;
     }
-	
-	
-	/**
-	 * @author ymli
-	 */
-	function getConditionsCB(result){
-	   conditions = result.split("##");
-	   //DWRUtil.setValue("viewItemsCriterias","");
-	  DWRUtil.removeAllOptions('viewItemsCriteriaListSelect');
-	  DWRUtil.addOptions('viewItemsCriteriaListSelect',[LABEL_SELECT_TEMPLATE[language]]);
-	  DWRUtil.addOptions('viewItemsCriteriaListSelect',conditions); 
-	  amalto.core.ready();
-	}
 	
 	 /**
      * @author ymli
@@ -797,7 +869,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             }
     	
     	var myColumns = [
-        {header: "SearchTemplate",  sortable: true,dataIndex: 'name'}, 
+        {header: "Bookmarks",  sortable: true,dataIndex: 'name'}, 
         {header: "Delete",   sortable: true,renderer: deleteItemImg}]
         var cm = new Ext.grid.ColumnModel(myColumns);       
         cm.defaultSortable = true;
@@ -846,7 +918,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         });
         
         manageSearchTemplateWindow = new Ext.Window({
-                title: 'Manage Search Template',
+                title: 'Manage Search Bookmarks',
                 width: 300,
                 height:500,
                 minWidth: 400,
@@ -857,7 +929,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 buttonAlign:'center',
                 items: manageSearchTemplateGridPanel
             });
-            //var viewName = DWRUtil.getValue('viewItemsSelect');    
             manageSearchTemplateWindow.show();
             ManageSearchTemplateStore.load({params:{start:0, limit:pageSize}});
     }
@@ -885,7 +956,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     checked : false
                  },{
                     name:"SearchTemplateName",
-                    fieldLabel : "Template Name",
+                    fieldLabel : "Bookmark Name",
                     xtype : "textfield",
                     allowBlank : false,
                     value : ""
@@ -905,7 +976,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 buttons: [{
                     text: "Save",
                     handler: function(){
-                                   saveReportWindowExecuteClick();
+                                   saveReportWindowExecuteClick(this.saveReportWindow);
                                 }.createDelegate(this)
                 }]
             });
@@ -917,12 +988,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     /**
      * @author ymli
      * */
-     function saveReportWindowExecuteClick(){
+     function saveReportWindowExecuteClick(saveReportWindow){
      	 var dataObjectLabel=DWRUtil.getValue('viewItemsSelect');
         
         var reportName = DWRUtil.getValue('SearchTemplateName');
         if(reportName==''){
-                Ext.MessageBox.alert("","Enter Template Name, please!");
+                Ext.MessageBox.alert("","Enter Bookmark Name, please!");
                 return;
         }
         var isSharedReport = DWRUtil.getValue('SearchTemplateShared');
@@ -932,12 +1003,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 ItemsBrowserInterface.saveCriteria(dataObjectLabel,reportName,isSharedReport,_criterias,function(result){
                     if(result=="OK"){
            	            saveReportWindow.destroy();
-                        Ext.MessageBox.alert("Save","Save Search Template Successfully!");
-                        ItemsBrowserInterface.getviewItemsCriterias(getConditionsCB,dataObjectLabel,true);
+                        Ext.MessageBox.alert("Save","Save Bookmark Successfully!");
+                        //ItemsBrowserInterface.getviewItemsCriterias(getConditionsCB,dataObjectLabel,true);
+                        templateStore.reload();
                     }
                 });
             else{
-                    Ext.MessageBox.alert('Status', "This Template already exist,please enter other name! ",function(){
+                    Ext.MessageBox.alert('Status', "This Bookmark already exist,please enter other name! ",function(){
                     saveCriteriasClick();
                     });
                 }
@@ -977,8 +1049,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 //			if(!rootNode.readOnly) $('item-new-btn').disabled = false;
 //			else $('item-new-btn').disabled = true;
 			$('item-new-btn').disabled=rootNode.readOnly;
-			$('item-save-btn').disabled=rootNode.readOnly;
-			$('item-manage-btn').disabled=rootNode.readOnly;
+			combo1.setVisible(!rootNode.readOnly);
+            bookMarkbutton.setVisible(!rootNode.readOnly);
+            manageBookMarksButton.setVisible(!rootNode.readOnly);
+            if(!rootNode.readOnly)
+                combo1.setValue("");
 			if($('btn-logicaldelete'))$('btn-logicaldelete').disabled=$('item-new-btn').disabled;
 			if($('btn-delete'))$('btn-delete').disabled=$('item-new-btn').disabled;			
 		});
@@ -3816,7 +3891,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		init: function() {browseItems(); },
 		getViewItems:function() {getViewItems();},
 		
-		getViewItems1:function(){getViewItems1()},
 		saveCriteriasClick:function(){saveCriteriasClick()},
 		manageSearchTemplates:function(){manageSearchTemplates()},
 		
