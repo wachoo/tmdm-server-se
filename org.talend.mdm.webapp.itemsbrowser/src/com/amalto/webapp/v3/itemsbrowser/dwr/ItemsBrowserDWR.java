@@ -1774,7 +1774,6 @@ public class ItemsBrowserDWR {
 		
 		WSWhereItem wsWhereItem=Util.getConditionFromFKFilter(fkFilter, new ForeignKeyFilterParserCallback(){ 
 			
-			@Override
 			public void parse(WSWhereCondition wc) {
 				WebContext ctx = WebContextFactory.get();
 				HashMap<String,TreeNode> xpathToTreeNode = 
