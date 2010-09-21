@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -3036,8 +3037,32 @@ public  class Util {
 	/*********************************************************************
 	 *MAIN
 	 *********************************************************************/	
- 
+	 public static List<File> listFiles(FileFilter filter, File folder){
+	     List<File> ret =new ArrayList<File>();
+	     File[] childs= folder.listFiles(filter);
+	     for(File f: childs){
+	         if(f.isFile()){
+	             ret.add(f);
+	         }else{
+	             ret.addAll(listFiles(filter, f));
+	         }
+	     }
+	     return ret;
+	 }
 	 public static void main(String args[]) throws Exception {
+	     FileFilter  filter=new FileFilter() {         
+             public boolean accept(File pathname) {
+                 if(pathname.isDirectory()||(pathname.isFile() && pathname.getName().toLowerCase().endsWith(".zip"))) {
+                     return true;
+                 }
+                 return false;
+             }
+         };
+	     File f=new File("C:\\opt\\jboss_tem\\jobox\\deploy");
+	     List<File> fs=listFiles(filter, f);
+	     for(File f1: fs){
+	         System.out.println(f1);
+	     }
 	 	//testSpellCheck();	
 	 }
 
@@ -3276,29 +3301,34 @@ public  class Util {
 			deploydir=deploydir+File.separator+"server"+File.separator+"default"+File.separator+"deploy";
 			System.out.println("deploy url:"+deploydir);
 			if(!new File(deploydir).exists())throw new FileNotFoundException();
-			
-			File[] warFiles=new File(deploydir).listFiles(new FileFilter() {			
-				public boolean accept(File pathname) {
-					if(pathname.isFile() && pathname.getName().toLowerCase().endsWith(".war")) {
-						return true;
-					}
-					return false;
-				}
-			});
-			File[] zipFiles=new File(JobContainer.getUniqueInstance().getDeployDir()).listFiles(new FileFilter() {
-				public boolean accept(File pathname) {
-					if(pathname.isFile() ||pathname.getName().toLowerCase().endsWith(".zip")) {
-						return true;
-					}
-					return false;
-				}
-			});
+			//TODO is it recursive
+			FileFilter filter=new FileFilter() {         
+                public boolean accept(File pathname) {
+                    if(pathname.isDirectory()||(pathname.isFile() && pathname.getName().toLowerCase().endsWith(".war"))) {
+                        return true;
+                    }
+                    return false;
+                }
+            };
+			List<File> warFiles=listFiles(filter, new File(deploydir));
+			// zip 
+			filter=new FileFilter() {         
+                public boolean accept(File pathname) {
+                    if(pathname.isDirectory()||(pathname.isFile() && pathname.getName().toLowerCase().endsWith(".zip"))) {
+                        return true;
+                    }
+                    return false;
+                }
+            };
+			List<File> zipFiles=listFiles(filter,new File(JobContainer.getUniqueInstance().getDeployDir()));
 			for(File war: warFiles) {
+			    String jobpath=war.getAbsolutePath().replace(new File(deploydir).getAbsolutePath(), "");
 				WSMDMJob job= getJobInfo(war.getAbsolutePath());
 				if(job!=null)
 					jobs.add(job);
 			}
 			for(File zip: zipFiles) {
+			    String jobpath=zip.getAbsolutePath().replace(new File(deploydir).getAbsolutePath(), "");			    
 				WSMDMJob job= getJobInfo(zip.getAbsolutePath());
 				if(job!=null)
 					jobs.add(job);
@@ -3316,7 +3346,7 @@ public  class Util {
 	 * @param fileName
 	 * @return
 	 */
-	private static WSMDMJob getJobInfo(String fileName) {
+	public static WSMDMJob getJobInfo(String fileName) {
 		WSMDMJob jobInfo =null;
 		try {
 			ZipInputStream in = new ZipInputStream(

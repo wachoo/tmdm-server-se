@@ -76,20 +76,20 @@ public class UploadFile extends HttpServlet {
         
         //delete file
         if(deleteFilename!=null){
-        	 if(deleteFilename.endsWith(".zip")) {
-        		 File f=new File(JobContainer.getUniqueInstance().getDeployDir()+File.separator+deleteFilename);
-        		 f.delete();        		 
-        	 }else  if(deleteFilename.endsWith(".war")) {        		 
-        		 File f=new File(path+File.separator+deleteFilename);
-        		 f.delete();
-        	 }else if(deleteFilename.endsWith(".bar")) {
-        		 String barpath=Util.getBarHomeDir();         		
-         		 File f=new File(barpath+File.separator+deleteFilename);
-         		 f.delete();
-        	 }
-        	  writer.write("Delete sucessfully");
+             if(deleteFilename.endsWith(".zip")) {
+                 File f=new File(JobContainer.getUniqueInstance().getDeployDir()+File.separator+deleteFilename);
+                 f.delete();                 
+             }else  if(deleteFilename.endsWith(".war")) {                
+                 File f=new File(path+File.separator+deleteFilename);
+                 f.delete();
+             }else if(deleteFilename.endsWith(".bar")) {
+                 String barpath=Util.getBarHomeDir();               
+                 File f=new File(barpath+File.separator+deleteFilename);
+                 f.delete();
+             }
+              writer.write("Delete sucessfully");
               writer.close();
-        	  return ;
+              return ;
         }
         //upload file
         if (!FileUploadBase.isMultipartContent(req)) {
@@ -129,11 +129,22 @@ public class UploadFile extends HttpServlet {
                 try {
                 	if(req.getParameter("deployjob")!=null){//deploy job
                 		//tempFile=new File(path+"/"+item.getName());
-                		if(item.getName().endsWith(".zip")) {//zip file
-                			tempFile=new File(JobContainer.getUniqueInstance().getDeployDir()+File.separator+item.getName());
-                		}else {//war file
-                			tempFile=new File(path+File.separator+item.getName());
-                		}
+                	    String deploydir=item.getName().endsWith(".zip")?JobContainer.getUniqueInstance().getDeployDir():path;
+
+                	    //XXX:remove the job path for there should not be any information of category in the deployed jobs.
+                	    
+//                	    String jobpath=req.getParameter("jobpath");
+//                	    if(jobpath!=null){
+//                	        //create the path
+//                	        File jobfolder=new File(deploydir+File.separator+jobpath);
+//                	        if(!jobfolder.exists()){
+//                	            jobfolder.mkdirs();
+//                	        }
+//                	    }else{
+//                	        jobpath="";
+//                	    }
+//                		tempFile=new File(deploydir+File.separator+jobpath+(jobpath.length()==0?"":File.separator)+item.getName());                		
+                		tempFile=new File(deploydir+File.separator+item.getName());                		
                 	}
                 	//bar files
                 	if(item.getName().endsWith(".bar")) {
