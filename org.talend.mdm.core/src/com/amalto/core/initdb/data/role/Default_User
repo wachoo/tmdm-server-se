@@ -119,6 +119,10 @@
         <key xsi:type="java:java.lang.String">Data Model</key>
         <value admin="false" xsi:type="java:com.amalto.core.util.RoleSpecification">
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
+                <key xsi:type="java:java.lang.String">SearchTemplate</key>
+                <value writeable="true" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
+            </instances>
+            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
                 <key xsi:type="java:java.lang.String">Reporting</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
             </instances>
@@ -139,6 +143,10 @@
     <role-specifications xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:org.exolab.castor.mapping.MapItem">
         <key xsi:type="java:java.lang.String">Data Cluster</key>
         <value admin="false" xsi:type="java:com.amalto.core.util.RoleSpecification">
+            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
+                <key xsi:type="java:java.lang.String">SearchTemplate</key>
+                <value writeable="true" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
+            </instances>
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
                 <key xsi:type="java:java.lang.String">Reporting</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
