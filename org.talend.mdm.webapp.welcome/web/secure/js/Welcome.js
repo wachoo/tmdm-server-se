@@ -149,6 +149,7 @@ amalto.welcome.Welcome = function () {
 	 			layoutConfig: {
 			        columns: 3
 			    },
+			    border : false,
 	 			items : [
 						{
 							width : 20,
