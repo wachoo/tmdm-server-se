@@ -4,28 +4,28 @@ amalto.welcome.Welcome = function () {
 	loadResource("/welcome/secure/css/Welcome.css", "" );
 	
 	var WELCOME_TITLE = {
-		'fr':'WELCOME',
-		'en':'WELCOME'
+		'fr':'Home',
+		'en':'Accueil'
 	}
 	
 	var WELCOME_PANEL = {
-		'fr':'Administration Center is the centralized place where you can manage:',
-		'en':'Administration Center is the centralized place where you can manage:'
+		'fr':'Bienvenue dans le tableau de bord de Talend MDM :',
+		'en':'Welcome to the Talend MDM dashboard:'
 	}
 	
 	var WELCOME_DESCRIPTION = {
-		'fr':'Welcome to talend MDM.',
-		'en':'Welcome to talend MDM.'
+		'fr':'Bienvenue dans Talend MDM.',
+		'en':'Welcome to Talend MDM.'
 	}
 	
 	var BROWSE_ITEMS = {
-		'en':'Browse Records',
-		'fr':'Accès aux données'
+		'fr':'Accès aux données',
+		'en':'Browse Records'
 	}
 	
 	var JOURNAL = {
-		'en':'Journal',
-		'fr':'Journal'
+		'fr':'Journal',
+		'en':'Journal'
 	}
 	
 	var LICENSE_SOON_MESSAGE = {
@@ -34,23 +34,23 @@ amalto.welcome.Welcome = function () {
 	}
 	
 	var LICENSE_DES_NUMBERS = {
-		'fr':'You have currently subscribed to a license with {0} users.',
+		'fr':'Vous avez actuellement souscrit à une license pour {0} utilisateurs.',
 		'en':'You have currently subscribed to a license with {0} users.'
 	}
 	
 	var LICENSE_DES_CON = {
-		'fr':'If you need to add users to your license, you may contact your Talend account manager.',
+		'fr':'Si vous avez besoin d\'ajouter des utilisateurs, vous pouvez contacter votre commercial Talend.',
 		'en':'If you need to add users to your license, you may contact your Talend account manager.'
 	}
 	
 	var Loading_Task_Msg = {
-		'en':'Loading workflow task list, please wait...',
-		'fr':'Chargement de la liste de tâches en cours, veuillez patienter...'
+		'fr':'Chargement de la liste de tâches en cours, veuillez patienter...',
+		'en':'Loading workflow task list, please wait...'
 	}
 	
 	var Loading_Alert_Msg = {
-		'en':'Loading list of alerts, please wait...',
-		'fr':'Chargement de la liste de tâches en cours, veuillez patienter...'
+		'fr':'Chargement de la liste des alertes en cours, veuillez patienter...',
+		'en':'Loading list of alerts, please wait...'
 	}
 	
 	var welcomePanel;	
