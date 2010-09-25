@@ -3155,7 +3155,7 @@ public class ItemsBrowserDWR {
      */
     public ListRange getBookMarks(int start, int limit, String sort,String dir, String regex) throws Exception{
     	ListRange listRange = new ListRange();
-		String templates = getSearchTemplateNames(start,limit,regex,false);
+		String templates = getSearchTemplateNames(start,limit,regex,true);
 		List<ComboItemBean> comboItem = new ArrayList<ComboItemBean>();
 		/*ComboItemBean save = new ComboItemBean("Bookmark this Search","Bookmark this Search");
 		ComboItemBean manage = new ComboItemBean("Manage Search Bookmarks","Manage Search Bookmarks");
