@@ -745,7 +745,7 @@ public class QueryBuilder {
 		if(fkMaps.size()>0) where.append(" where ");
 		int count=0;
 		for(Entry<String,ArrayList<String>> entry: fkMaps.entrySet()) {
-			String fk =entry.getKey();
+			String fk =entry.getKey()+"[not(.) or not(text()) or .]"; //see  	 0015254: Resolve FK info on search results 
 			ArrayList<String> vars=new ArrayList<String>();
 			for(String v:entry.getValue()) {
 				int pos=v.indexOf("#");
