@@ -1778,6 +1778,8 @@ public class ItemsBrowserDWR {
 				WebContext ctx = WebContextFactory.get();
 				HashMap<String,TreeNode> xpathToTreeNode = 
 					(HashMap<String,TreeNode>)ctx.getSession().getAttribute("xpathToTreeNode");
+				HashMap<String,UpdateReportItem> updatedPath = 
+					(HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
 				
 				if(wc!=null) {
 					String rightValueOrPath=wc.getRightValueOrPath();
@@ -1793,24 +1795,19 @@ public class ItemsBrowserDWR {
 							
 							if(gettedXpath!=null) {
 								//get replaced value
-								String replacedValue=gettedXpath;
+								String replacedValue=null;
 								boolean matchedAValue=false;
 								
 								//How to handle multi-nodes?
-								if(xpathToTreeNode!=null&&xpathToTreeNode.get("/"+gettedXpath)!=null) {
+								if(updatedPath!=null&&updatedPath.get("/"+gettedXpath)!=null) {
+									UpdateReportItem updateReportItem=updatedPath.get("/"+gettedXpath);
+									replacedValue=updateReportItem.getNewValue();
+									if(replacedValue!=null)matchedAValue=true;
+								}
+								
+								if(!matchedAValue&&xpathToTreeNode!=null&&xpathToTreeNode.get("/"+gettedXpath)!=null) {
 									replacedValue=xpathToTreeNode.get("/"+gettedXpath).getValue();
-									if(replacedValue!=null) {
-										matchedAValue=true;
-									}else{
-										
-										HashMap<String,UpdateReportItem> updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
-										if(updatedPath!=null&&updatedPath.get("/"+gettedXpath)!=null) {
-											UpdateReportItem updateReportItem=updatedPath.get("/"+gettedXpath);
-											replacedValue=updateReportItem.getNewValue();
-											if(replacedValue!=null)matchedAValue=true;
-										}
-										
-									}
+									if(replacedValue!=null)matchedAValue=true;
 								}
 								
 								if(matchedAValue&&!isSingleMode)replacedValue="\""+replacedValue+"\"";
