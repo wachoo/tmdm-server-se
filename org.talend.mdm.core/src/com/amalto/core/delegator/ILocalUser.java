@@ -1,8 +1,13 @@
 package com.amalto.core.delegator;
 
+import java.security.Principal;
+import java.security.acl.Group;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
@@ -11,7 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 
@@ -54,8 +61,26 @@ public abstract class ILocalUser implements IBeanDelegator{
 		return null;
 	}
 
-	public String getUsername() {
-		// TODO Auto-generated method stub
+	public String getUsername()  {
+		Set<Principal> set;
+		try {
+			set = getICurrentSubject().getPrincipals();
+			for (Iterator<Principal> iter = set.iterator(); iter.hasNext(); ) {
+				Principal principal = iter.next();
+				if (principal instanceof Group) {
+					Group group = (Group) principal;
+					//@see XtentisMDMLoginModule
+					if("Username".equals(group.getName())) {
+						if (group.members().hasMoreElements()) {
+							return group.members().nextElement().getName();
+						}
+					}
+				}
+			}//for
+		} catch (XtentisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return "admin";
 	}
 

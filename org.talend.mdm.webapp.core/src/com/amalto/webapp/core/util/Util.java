@@ -60,6 +60,7 @@ import org.xml.sax.InputSource;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
+import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.util.LocalUser;
@@ -839,7 +840,7 @@ public class Util {
 			
 			Element user  = (Element)Util.getNodeList(Util.parse(userString), "//User").item(0);
 			return user;
-    	//return com.amalto.core.util.Util.getLoginProvisioningFromDB();
+    	   //return com.amalto.core.util.Util.getLoginProvisioningFromDB();
     }
 
 	/*********************************************************************
@@ -1018,6 +1019,7 @@ public class Util {
 	      com.amalto.core.util.Util.getXmlServerCtrlLocal();
 	   server.putDocumentFromString(xmlString, 
 	      "PROVISIONING"+"."+"User"+"."+username, "PROVISIONING", null);
+	   ItemPOJO.clearCache();
 	}
 	
 	/**
