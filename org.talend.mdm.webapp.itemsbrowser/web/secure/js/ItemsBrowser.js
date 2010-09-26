@@ -1737,11 +1737,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 													if(err1==null || err1==""){
 														return;
 													}else{
-														Ext.MessageBox.alert("ERROR", err1);
+														Ext.MessageBox.show({
+														    msg:err1,
+														    buttons:{"ok":"CANCEL"},
+														    icon:Ext.MessageBox.ERROR
+														 });
 														return;
 													}
 												}else{
-													Ext.MessageBox.alert("INFO", result);
+													Ext.MessageBox.show({
+													    msg:result,
+													    buttons:{"ok":"OK"},
+													    icon:Ext.MessageBox.INFO
+													 });
 													return;
 												}
 											}
