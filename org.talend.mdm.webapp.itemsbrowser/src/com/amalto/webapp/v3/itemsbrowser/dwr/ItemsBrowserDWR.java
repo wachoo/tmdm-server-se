@@ -2897,6 +2897,7 @@ public class ItemsBrowserDWR {
  * //[Country/isoCode EQUALS 33,  , OR,  ]
 	//[Country/isoCode CONTAINS *]
  */
+	@SuppressWarnings("finally")
 	public String saveCriteria(String viewPK,String templateName,boolean isShared,String[][] criteriasString){
 		String returnString = "OK";
 		try {
@@ -2931,8 +2932,10 @@ public class ItemsBrowserDWR {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			returnString = e.getMessage();
+		}finally{
+			return returnString;
 		}
-		return returnString;
 	}
 	
 	private void setwhereCriteria(Criteria[] criterias,String[][] criteriasString){
@@ -2952,7 +2955,7 @@ public class ItemsBrowserDWR {
 			
 			criteriaString[0] = criteriaString[0].replaceAll(" ", "#");
 			for(int j = 1;j<criteriaString.length;j++){
-				if(criteriaString[j].trim().length()>0 &&(criteriaString[j].trim().equals("AND")
+				if(criteriaString[j]!=null && criteriaString[j].trim().length()>0 &&(criteriaString[j].trim().equals("AND")
 						||criteriaString[j].trim().equals("OR")))
 					criteria.setJoin(criteriaString[j].trim());
 					//whereItem+=criteria[j].trim()+"#";
@@ -2960,6 +2963,7 @@ public class ItemsBrowserDWR {
 			
 			criterias[i] = criteria;
 		}
+		
 		
 	}
 	
@@ -3172,7 +3176,7 @@ public class ItemsBrowserDWR {
      */
     public ListRange getBookMarks(int start, int limit, String sort,String dir, String regex) throws Exception{
     	ListRange listRange = new ListRange();
-		String templates = getSearchTemplateNames(start,limit,regex,true);
+		String templates = getSearchTemplateNames(start,limit,regex,false);
 		List<ComboItemBean> comboItem = new ArrayList<ComboItemBean>();
 		/*ComboItemBean save = new ComboItemBean("Bookmark this Search","Bookmark this Search");
 		ComboItemBean manage = new ComboItemBean("Manage Search Bookmarks","Manage Search Bookmarks");
