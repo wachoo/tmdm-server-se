@@ -2431,50 +2431,82 @@ public  class Util {
 		return null;
 	}	
 	
-	public static boolean beforeDeleting(String clusterName,String concept,String[] ids)throws Exception{
-		//check before deleting transformer
-		boolean isBeforeDeletingTransformerExist=false;
-		Collection<TransformerV2POJOPK> transformers = getTransformerV2CtrlLocal().getTransformerPKs("*");
-		for(TransformerV2POJOPK id: transformers){
-			if(id.getIds()[0].equals("beforeDeleting_"+concept)){
-				isBeforeDeletingTransformerExist=true;
+	public static String beforeDeleting(String clusterName, String concept,
+			String[] ids) throws Exception {
+		// check before deleting transformer
+		boolean isBeforeDeletingTransformerExist = false;
+		Collection<TransformerV2POJOPK> transformers = getTransformerV2CtrlLocal()
+				.getTransformerPKs("*");
+		for (TransformerV2POJOPK id : transformers) {
+			if (id.getIds()[0].equals("beforeDeleting_" + concept)) {
+				isBeforeDeletingTransformerExist = true;
 				break;
 			}
 		}
-		
-		if(!isBeforeDeletingTransformerExist)return false;
-		
-		//call before deleting transformer
-		
-		final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
-	    TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_" + concept));
-		context.put(RUNNING, Boolean.TRUE);
-		TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
-		TypedContent wsTypedContent = new TypedContent(
-				        buildItemPKString(clusterName,concept,ids).getBytes("UTF-8"),
-						"text/xml; charset=utf-8");
-				
-		ctrl.execute(
-						context, 
-						wsTypedContent,
+
+		if (isBeforeDeletingTransformerExist) {
+			try {
+				// call before deleting transformer
+
+				final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
+				TransformerContext context = new TransformerContext(
+						new TransformerV2POJOPK("beforeDeleting_" + concept));
+				context.put(RUNNING, Boolean.TRUE);
+				TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
+				TypedContent wsTypedContent = new TypedContent(
+						buildItemPKString(clusterName, concept, ids).getBytes(
+								"UTF-8"), "text/xml; charset=utf-8");
+
+				ctrl.execute(context, wsTypedContent,
 						new TransformerCallBack() {
-							public void contentIsReady(TransformerContext context) throws XtentisException {
-								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.beforeDeleting.contentIsReady() ");
+							public void contentIsReady(
+									TransformerContext context)
+									throws XtentisException {
+								org.apache.log4j.Logger
+										.getLogger(this.getClass())
+										.debug(
+												"XtentisWSBean.executeTransformerV2.beforeDeleting.contentIsReady() ");
 							}
-							public void done(TransformerContext context) throws XtentisException {
-								org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.beforeDeleting.done() ");
+
+							public void done(TransformerContext context)
+									throws XtentisException {
+								org.apache.log4j.Logger
+										.getLogger(this.getClass())
+										.debug(
+												"XtentisWSBean.executeTransformerV2.beforeDeleting.done() ");
 								context.put(RUNNING, Boolean.FALSE);
 							}
-						}
-				);
-				
-		while (((Boolean)context.get(RUNNING)).booleanValue()) {
+						});
+
+				while (((Boolean) context.get(RUNNING)).booleanValue()) {
 					Thread.sleep(100);
+				}
+				// TODO process no plug-in issue
+				String outputErrorMessage = "";
+				// Scan the entries - in priority, taka the content of the
+				// 'output_error_message' entry,
+				for (Entry<String, TypedContent> entry : context
+						.getPipelineClone().entrySet()) {
+
+					if ("output_error_message".equals(entry.getKey())) {
+						outputErrorMessage = new String(entry.getValue()
+								.getContentBytes(), "UTF-8");
+						break;
+					}
+				}
+				// handle error message
+				if (outputErrorMessage.length() > 0) {
+					return outputErrorMessage;
+				} else {
+					return "<error code=\"1\">Failed to retrieve the before deleting status. The record was not deleted</error>";
+				}
+			} catch (Exception e) {
+				return e.getLocalizedMessage();
+			}
 		}
-				
-		//TODO Scan the entries - in priority, taka the content of the specific entry
-		
-		return true;
+		// TODO Scan the entries - in priority, taka the content of the specific
+		// entry
+		return null;
 	}
 	public static String buildItemPKString(String clusterName,String conceptName,String[] ids) {
 		

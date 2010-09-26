@@ -1729,10 +1729,21 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			                               }//end for
 			                            });//end callback									
 										ItemsBrowserInterface.deleteItem(_dataObject, itemPK, function(result){
-											if(result.lastIndexOf("ERROR")>-1){
-												var err1=result.substring(7);
-												Ext.MessageBox.alert("ERROR", err1);
+											if(result==null || result==""){
 												return;
+											}else{
+												if(result.lastIndexOf("ERROR")>-1){
+													var err1=result.substring(7);
+													if(err1==null || err1==""){
+														return;
+													}else{
+														Ext.MessageBox.alert("ERROR", err1);
+														return;
+													}
+												}else{
+													Ext.MessageBox.alert("INFO", result);
+													return;
+												}
 											}
 											amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 																				

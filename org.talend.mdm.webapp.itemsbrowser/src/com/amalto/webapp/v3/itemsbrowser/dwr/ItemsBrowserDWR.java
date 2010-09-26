@@ -1594,32 +1594,49 @@ public class ItemsBrowserDWR {
 		try {
 			Configuration config = Configuration.getInstance();
 			String dataClusterPK = config.getCluster();
-			
-				if(com.amalto.core.util.Util.beforeDeleting(dataClusterPK,concept,ids)){
-					return "OK - But go through the beforeDeleting transformer first";
+			String outputErrorMessage = com.amalto.core.util.Util
+					.beforeDeleting(dataClusterPK, concept, ids);
+			String errorCode = "";
+			String errorMessage = "";
+			Pattern pattern = Pattern
+					.compile("<error code=['\042](.*)['\042]>(.*)</error>");
+			Matcher matcher = pattern.matcher(outputErrorMessage);
+			while (matcher.find()) {
+				errorCode = matcher.group(1);
+				errorMessage = matcher.group(2);
+			}
+			if ("".equals(errorCode) || null == errorCode) {
+				Pattern pattern2 = Pattern
+						.compile("<error code=['\042](.*)['\042]/>");
+				Matcher matcher2 = pattern2.matcher(outputErrorMessage);
+				while (matcher2.find()) {
+					errorCode = matcher2.group(1);
 				}
-			
-			TreeNode rootNode = getRootNode(concept, "en");
-	        if(ids!=null && !rootNode.isReadOnly()){
-				WSItemPK wsItem = Util.getPort().deleteItem(
-						new WSDeleteItem(new WSItemPK(
-								new WSDataClusterPK(dataClusterPK),
-								concept, ids
-								)));
-				if(wsItem!=null)
-					pushUpdateReport(ids,concept, "DELETE");
-				else
-					return "ERROR - delteItem is NULL";
-				ctx.getSession().setAttribute("viewNameItems",null);
-				return "OK";
-	        }
-	        else {
-	        	return "OK - But no update report";
-	        }
-		}
-		catch(Exception e){
+			}
+			if (!errorCode.equals("") && !errorCode.equals("0")) {
+				errorMessage = "ERROR_3" + errorMessage;
+				return errorMessage;
+			}
+			if (!errorCode.equals("") && errorCode.equals("0")) {
+				TreeNode rootNode = getRootNode(concept, "en");
+				if (ids != null && !rootNode.isReadOnly()) {
+					WSItemPK wsItem = Util.getPort().deleteItem(
+							new WSDeleteItem(new WSItemPK(new WSDataClusterPK(
+									dataClusterPK), concept, ids)));
+					if (wsItem != null)
+						pushUpdateReport(ids, concept, "DELETE");
+					else
+						return "ERROR - delteItem is NULL";
+					ctx.getSession().setAttribute("viewNameItems", null);
+					return errorMessage;
+				} else {
+					return errorMessage + " - But no update report";
+				}
+			}
+		} catch (Exception e) {
 			return "ERROR -" + e.getLocalizedMessage();
-		}       
+		}
+		return null;
 	}
 	
 	public String[] getUriArray(String concept, String[] ids){
