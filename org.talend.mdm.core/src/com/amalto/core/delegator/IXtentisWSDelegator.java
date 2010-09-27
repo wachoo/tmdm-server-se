@@ -5027,4 +5027,55 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	    		throw new RemoteException(e.getLocalizedMessage());
 	    	}
 	    }
+	    
+	    /**
+		 * @ejb.interface-method view-type = "service-endpoint"
+		 * @ejb.permission 
+		 * 	role-name = "authenticated"
+		 * 	view-type = "service-endpoint"
+		 */ 
+		public WSString countItemsByCustomFKFilters(
+				WSCountItemsByCustomFKFilters wsCountItemsByCustomFKFilters)
+				throws RemoteException {
+			try {
+				long count = Util.getItemCtrl2Local().countItemsByCustomFKFilters(
+					new DataClusterPOJOPK(wsCountItemsByCustomFKFilters.getWsDataClusterPK().getPk()),
+					wsCountItemsByCustomFKFilters.getConceptName(),
+					wsCountItemsByCustomFKFilters.getInjectedXpath()
+				);
+				return new WSString(count+"");
+			} catch (XtentisException e) {
+				throw(new RemoteException(e.getLocalizedMessage()));			
+			} catch (Exception e) {
+				throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+			}
+		}
+
+		/**
+		 * @ejb.interface-method view-type = "service-endpoint"
+		 * @ejb.permission 
+		 * 	role-name = "authenticated"
+		 * 	view-type = "service-endpoint"
+		 */ 
+		public WSStringArray getItemsByCustomFKFilters(
+				WSGetItemsByCustomFKFilters wsGetItemsByCustomFKFilters)
+				throws RemoteException {
+			try {
+				ArrayList res = Util.getItemCtrl2Local().getItemsByCustomFKFilters(
+						new DataClusterPOJOPK(wsGetItemsByCustomFKFilters.getWsDataClusterPK().getPk()),
+						wsGetItemsByCustomFKFilters.getConceptName(),
+						new ArrayList<String>(Arrays.asList(wsGetItemsByCustomFKFilters.getViewablePaths().getStrings())),
+						wsGetItemsByCustomFKFilters.getInjectedXpath(),
+						wsGetItemsByCustomFKFilters.getSkip(),
+						wsGetItemsByCustomFKFilters.getMaxItems(),
+						wsGetItemsByCustomFKFilters.getOrderBy(),
+						wsGetItemsByCustomFKFilters.getDirection()
+				);
+				return new WSStringArray((String[])res.toArray(new String[res.size()]));
+			} catch (XtentisException e) {
+				throw(new RemoteException(e.getLocalizedMessage()));			
+			} catch (Exception e) {
+				throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+			}
+		}
 }

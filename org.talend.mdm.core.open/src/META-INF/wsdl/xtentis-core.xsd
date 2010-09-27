@@ -885,6 +885,39 @@
 	</xsd:complexType>
 	<xsd:element name="WSItemPKsByCriteriaResponse" type="tns:WSItemPKsByCriteriaResponse"/>
 	
+	<xsd:complexType name="WSCountItemsByCustomFKFilters">
+        <xsd:annotation>
+            <xsd:documentation>
+                Count items based on customized FK filters
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="conceptName" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="injectedXpath" nillable="false" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="WSCountItemsByCustomFKFilters" type="tns:WSCountItemsByCustomFKFilters"/>
+    
+    <xsd:complexType name="WSGetItemsByCustomFKFilters">
+        <xsd:annotation>
+            <xsd:documentation>
+                Return items based on customized FK filters
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="wsDataClusterPK" nillable="false" type="tns:WSDataClusterPK"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="conceptName" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="viewablePaths" nillable="false" type="tns:WSStringArray"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="injectedXpath" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="skip" nillable="false" type="xsd:int"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="maxItems" nillable="false" type="xsd:int"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="orderBy" nillable="true" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="direction" nillable="true" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="WSGetItemsByCustomFKFilters" type="tns:WSGetItemsByCustomFKFilters"/>
+	
 	<xsd:complexType name="WSGetBusinessConceptValue">
 		<xsd:annotation>
 			<xsd:documentation>

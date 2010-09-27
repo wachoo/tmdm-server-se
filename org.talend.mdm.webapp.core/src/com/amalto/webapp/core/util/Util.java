@@ -45,8 +45,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.exolab.castor.types.Date;
-import org.exolab.castor.types.Time;
 import org.jboss.security.Base64Encoder;
 import org.jboss.security.SimpleGroup;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -71,8 +71,10 @@ import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.util.webservices.WSBase64KeyValue;
 import com.amalto.webapp.util.webservices.WSConnectorResponseCode;
 import com.amalto.webapp.util.webservices.WSCount;
+import com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
@@ -88,9 +90,6 @@ import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.amalto.webapp.util.webservices.XtentisPort;
 import com.amalto.webapp.util.webservices.XtentisService_Impl;
-import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
-import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
-import com.amalto.xmlserver.interfaces.XmlServerException;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 
@@ -277,11 +276,7 @@ public class Util {
    		return null;
     }
     
-    public static WSWhereItem getConditionFromFKFilter(String fkFilter) {
-    	return getConditionFromFKFilter(fkFilter,null);
-    }
-    
-    public static WSWhereItem getConditionFromFKFilter(String fkFilter,ForeignKeyFilterParserCallback fkFilterParserCallback) {
+    private static WSWhereItem getConditionFromFKFilter(String fkFilter) {
     	if(fkFilter==null || fkFilter.length()==0) return null;
     	if(fkFilter.equals("null")) return null;
     	
@@ -294,7 +289,6 @@ public class Util {
 	
 			WSWhereCondition wc = Util.convertLine(values);
 			if(wc!=null) {
-				if(fkFilterParserCallback!=null)fkFilterParserCallback.parse(wc);
 				condition.add(new WSWhereItem(wc,null,null));
 			}
 		}
@@ -341,6 +335,7 @@ public class Util {
 					"Strict Contains"))
 				operator = WSWhereOperator.STRICTCONTAINS;
 			wc.setOperator(operator);
+			if(values[2]!=null&&values[2].matches("^\".*\"$"))values[2]=values[2].substring(1,values[2].length()-1);
 			wc.setRightValueOrPath(values[2]);
 		}
 		
@@ -1226,10 +1221,6 @@ public class Util {
 		}
 		
 		public static String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter, boolean isCount) throws RemoteException, Exception{
-			return getForeignKeyList(start,limit,value,xpathForeignKey,xpathInfoForeignKey,fkFilter,null,isCount);
-		}
-		
-		public static String getForeignKeyList(int start, int limit, String value, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter, WSWhereItem parsedFkFilterWi, boolean isCount) throws RemoteException, Exception{
 			if(xpathForeignKey == null) return null;
 	        String initxpathForeignKey = "";
 	        initxpathForeignKey = getForeignPathFromPath(xpathForeignKey);
@@ -1241,8 +1232,7 @@ public class Util {
 	        }
 	        //get FK filter
 	        WSWhereItem fkFilterWi = null;
-	        if(parsedFkFilterWi!=null)fkFilterWi=parsedFkFilterWi;
-	        else fkFilterWi=getConditionFromFKFilter(fkFilter);
+            fkFilterWi=getConditionFromFKFilter(fkFilter);
 	        if(fkFilterWi != null) whereItem = fkFilterWi;
 	        Configuration config = Configuration.getInstance();
 	        //aiming modify there is bug when initxpathForeignKey when it's like 'conceptname/key'
@@ -1320,17 +1310,31 @@ public class Util {
 	            }
 	            
 	            //Run the query
-	            String [] results = getPort().xPathsSearch(new WSXPathsSearch(
-	                new WSDataClusterPK(config.getCluster()),
-	                null,
-	                new WSStringArray(xPaths.toArray(new String[xPaths.size()])),
-	                whereItem,
-	                -1,
-	                start,
-	                limit,
-	                orderbyPath,
-	                null
-	            )).getStrings();
+	            String [] results = null;
+	            if(!isCustomFilter(fkFilter)) {
+	            	results=getPort().xPathsSearch(new WSXPathsSearch(
+	    	                new WSDataClusterPK(config.getCluster()),
+	    	                null,
+	    	                new WSStringArray(xPaths.toArray(new String[xPaths.size()])),
+	    	                whereItem,
+	    	                -1,
+	    	                start,
+	    	                limit,
+	    	                orderbyPath,
+	    	                null
+	    	            )).getStrings();
+	            }else {
+	            	results=getPort().getItemsByCustomFKFilters(new WSGetItemsByCustomFKFilters(
+	    	                new WSDataClusterPK(config.getCluster()),
+	    	                conceptName,
+	    	                new WSStringArray(xPaths.toArray(new String[xPaths.size()])),
+	    	                getInjectedXpath(fkFilter),
+	    	                start,
+	    	                limit,
+	    	                orderbyPath,
+	    	                null
+	    	            )).getStrings();
+	            }
 	            
 	            if (results == null) results = new String[0];
 	            
@@ -1386,7 +1390,7 @@ public class Util {
 	            }
 	            //edit by ymli; fix the bug:0011918: set the pageSize correctly.
 	            if(isCount) {
-	               json.put("count", countForeignKey_filter(xpathForeignKey,whereItem));              
+	               json.put("count", countForeignKey_filter(xpathForeignKey,fkFilter));              
 	            }
 
 	            return json.toString();
@@ -1396,45 +1400,61 @@ public class Util {
 
 	    }
 		
-		public static String countForeignKey_filter(String xpathForeignKey,WSWhereItem whereItem) throws Exception{
-	        Configuration config = Configuration.getInstance();
-	        String conceptName = getConceptFromPath(xpathForeignKey);
-	                    
-	        return getPort().count(
-	            new WSCount(
-	                new WSDataClusterPK(config.getCluster()),
-	                conceptName,
-	                whereItem,//null,
-	                -1
-	            )
-	        ).getValue();
-	    }
-		
-		/**
-	     * lym
-	     */
+
 	    public static String countForeignKey_filter(String xpathForeignKey,String fkFilter) throws Exception{
 	        Configuration config = Configuration.getInstance();
 	        String conceptName = getConceptFromPath(xpathForeignKey);
 	        
-	        WSWhereCondition whereCondition = getConditionFromPath(xpathForeignKey);
-	        WSWhereItem whereItem=null;
-	        if(whereCondition!=null){
-	            whereItem= new WSWhereItem (whereCondition,null,null);
+	        boolean isCustom = isCustomFilter(fkFilter);
+	        
+	        String count="0";
+	        
+	        if(!isCustom) {
+	        	WSWhereCondition whereCondition = getConditionFromPath(xpathForeignKey);
+		        WSWhereItem whereItem=null;
+		        if(whereCondition!=null){
+		            whereItem= new WSWhereItem (whereCondition,null,null);
+		        }
+		        //get FK filter
+	            WSWhereItem fkFilterWi = getConditionFromFKFilter(fkFilter);
+	            if(fkFilterWi != null) whereItem = fkFilterWi;
+	            
+	            count=getPort().count(
+		            new WSCount(
+		                new WSDataClusterPK(config.getCluster()),
+		                conceptName,
+		                whereItem,//null,
+		                -1
+		            )
+		        ).getValue();
+	        }else {
+	        	String injectedXpath = getInjectedXpath(fkFilter);
+	            
+	        	count=getPort().countItemsByCustomFKFilters(
+		            new WSCountItemsByCustomFKFilters(
+		                new WSDataClusterPK(config.getCluster()),
+		                conceptName,
+		                injectedXpath
+		            )
+		        ).getValue();
 	        }
-	        //get FK filter
-            WSWhereItem fkFilterWi = getConditionFromFKFilter(fkFilter);
-            if(fkFilterWi != null) whereItem = fkFilterWi;
-            
-	        return getPort().count(
-	            new WSCount(
-	                new WSDataClusterPK(config.getCluster()),
-	                conceptName,
-	                whereItem,//null,
-	                -1
-	            )
-	        ).getValue();
+	        
+	        return count;
+	        
 	    }
+
+		private static String getInjectedXpath(String fkFilter) {
+			String injectedXpath=null;
+			injectedXpath=fkFilter.substring(6);
+			return injectedXpath;
+		}
+
+		public static boolean isCustomFilter(String fkFilter) {
+			boolean isCustom=false;
+	        if(fkFilter!=null&&fkFilter.startsWith("$CFFP:"))isCustom=true;
+			return isCustom;
+		}
+		
 	    /**
 	     * @author ymli
 	     * @param type

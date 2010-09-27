@@ -38,7 +38,6 @@ import com.amalto.core.util.JazzyConfiguration;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import com.amalto.core.webservice.WSItem;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.WhereCondition;
@@ -1334,6 +1333,224 @@ public class ItemCtrl2Bean implements SessionBean {
     }
 	
 	
+	/**
+	 * @param dataClusterPOJOPK
+	 * @param conceptName
+	 * @param injectedXpath
+	 * @return
+	 * @throws XtentisException
+	 * 
+	 * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method 
+	 */
+	public long countItemsByCustomFKFilters(
+			DataClusterPOJOPK dataClusterPOJOPK,
+    		String conceptName,
+            String injectedXpath)
+			throws XtentisException {
+		
+		try{
+			
+			String dataClusterName=dataClusterPOJOPK.getUniqueId();
+		    			    
+		    //Check if user is allowed to read the cluster
+			ILocalUser user = LocalUser.getLocalUser();			
+			boolean authorized = false;
+	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
+	    		authorized = true;
+	    	} else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
+	    		authorized = true;
+	    	}
+	    	if (! authorized) {
+	    		throw new XtentisException("Unauthorized read access on data cluster '"+dataClusterName+"' by user '"+user.getUsername()+"'");
+	    	}
+	    	
+	    	//Get the universe and revision ID
+		    String revisionID = null;
+		    
+		    UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+        	if (universe == null) {
+        		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+        		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+        		throw new XtentisException(err);
+        	}
+        	
+			if (conceptName == null) {
+    			if (universe.getItemsRevisionIDs().size()>0) {
+    				throw new RemoteException(
+    					"User "+user.getUsername()+" is using items coming from multiple revisions." +
+    					" In that particular case, the concept must be specified"
+    				);
+    			} else {
+    				revisionID = universe.getDefaultItemRevisionID();
+    			}
+			} else {
+				revisionID = universe.getConceptRevisionID(conceptName);
+			}
+			
+			
+			injectedXpath=injectedXpath==null?"":injectedXpath;
+			
+			//Get collectionpath take revision into account
+		    String collectionpath= CommonUtil.getPath(revisionID, dataClusterName);
+		    
+		    //Build query
+		    StringBuffer itemsQuery=new StringBuffer();
+		    itemsQuery.append("let $_leres0_ := ").append("collection(\""+collectionpath+"\")").append("//p/").append(injectedXpath)
+		              .append("\n for $pivot0 in subsequence($_leres0_,1,"+Integer.MAX_VALUE+")")
+                      .append("\n return if ($pivot0) then $pivot0 else <"+conceptName+"/>");
+		
+			String xquery = "let $zcount := ";
+			xquery += itemsQuery.toString();
+			xquery +="\n return count($zcount)";
+			
+			System.out.println(xquery);
+    		
+			//Run query
+    		ArrayList<String> results = 
+    			runQuery(
+    					revisionID,
+    					new DataClusterPOJOPK(dataClusterName),
+    					xquery,
+    					null
+    				);
+    		
+    		long count = Long.parseLong(results.get(0));
+    		
+    		return count;
+    		
+        } catch (Exception e) {
+     	    String err = "Unable to count the elements! ";
+     	    org.apache.log4j.Logger.getLogger("INFO SYSTRACE "+this.getClass()).info(err,e);
+     	    throw new XtentisException(err);
+	    }
+
+	}
+ 
+	/**
+	 * @param dataClusterPOJOPK
+	 * @param conceptName
+	 * @param viewablePaths
+	 * @param injectedXpath
+	 * @param start
+	 * @param limit
+	 * @param orderbyPath
+	 * @param direction
+	 * @return
+	 * @throws XtentisException
+	 * 
+	 * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+	 */
+	public ArrayList<String> getItemsByCustomFKFilters(
+			DataClusterPOJOPK dataClusterPOJOPK,
+    		String conceptName,
+    		ArrayList<String> viewablePaths,
+    		String injectedXpath,
+			int start,
+			int limit,
+			String orderbyPath,
+			String direction)
+			throws XtentisException {
+		
+		try {            
+
+			String dataClusterName=dataClusterPOJOPK.getUniqueId();
+			
+			//check parameters
+        	if (viewablePaths.size()==0) {
+        	    String err = "The list of viewable xPaths must contain at least one element";
+        	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+        	    throw new XtentisException(err);
+        	}
+        	
+        	//Check if user is allowed to read the cluster
+			ILocalUser user = LocalUser.getLocalUser();			
+			boolean authorized = false;
+	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
+	    		authorized = true;
+	    	} else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
+	    		authorized = true;
+	    	}
+	    	if (! authorized) {
+	    		throw new XtentisException("Unauthorized read access on data cluster '"+dataClusterName+"' by user '"+user.getUsername()+"'");
+	    	}
+	    	
+	    	//Get the universe and revision ID
+		    String revisionID = null;
+		    
+		    UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
+        	if (universe == null) {
+        		String err = "ERROR: no Universe set for user '"+LocalUser.getLocalUser().getUsername()+"'";
+        		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+        		throw new XtentisException(err);
+        	}
+        	
+			if (conceptName == null) {
+    			if (universe.getItemsRevisionIDs().size()>0) {
+    				throw new RemoteException(
+    					"User "+user.getUsername()+" is using items coming from multiple revisions." +
+    					" In that particular case, the concept must be specified"
+    				);
+    			} else {
+    				revisionID = universe.getDefaultItemRevisionID();
+    			}
+			} else {
+				revisionID = universe.getConceptRevisionID(conceptName);
+			}
+        	
+			injectedXpath=injectedXpath==null?"":injectedXpath;
+			
+			//Get collectionpath take revision into account
+		    String collectionpath= CommonUtil.getPath(revisionID, dataClusterName);
+		    
+		    //build baseQuery
+		    String baseQuery="collection(\""+collectionpath+"\")//p/"+injectedXpath;;
+		    if(orderbyPath!=null&&orderbyPath.length()>0) {
+		    	orderbyPath=Util.replaceXpathPivot(conceptName,orderbyPath,"$r");
+		    	baseQuery="for $r in "+baseQuery+" order by "+orderbyPath;
+		    	if(direction!=null&&direction.length()>0)baseQuery+=(" "+direction);
+		    	baseQuery+=" return $r ";
+		    }
+		    
+		    //build result
+		    StringBuffer resultQuery=new StringBuffer();
+		    resultQuery.append("<result>");
+		    for (String viewablePath : viewablePaths) {
+				if(viewablePath!=null&&viewablePath.length()>0) {
+					String lastElem=viewablePath.substring(viewablePath.lastIndexOf("/")+1);
+					String replacedXpath=Util.replaceXpathPivot(conceptName,viewablePath,"$pivot0");
+					resultQuery.append("{if ("+replacedXpath+") then "+replacedXpath+" else <"+lastElem+"/>}");
+				}	
+			}
+		    resultQuery.append("</result>");
+		    
+		    //Build query
+		    StringBuffer xquery=new StringBuffer();
+		    xquery.append("let $_leres0_ := ").append(baseQuery)
+		          .append("\n for $pivot0 in subsequence($_leres0_,"+start+","+limit+")")
+                  .append("\n return "+resultQuery.toString());
+			
+			System.out.println(xquery.toString());
+	
+			//Run query
+    		ArrayList<String> results = 
+    			runQuery(
+    					revisionID,
+    					new DataClusterPOJOPK(dataClusterName),
+    					xquery.toString(),
+    					null
+    				);
+    		return results;
+            
+	    } catch (XtentisException e) {
+	    	throw(e);
+	    } catch (Exception e) {
+    	    String err = "Unable to get items by custom FK filters "+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+    	    throw new XtentisException(err);
+	    }
+	}
 	
 
 }

@@ -285,6 +285,26 @@ public class ItemCtrl2Remote extends Observable
 
    }
 
+   public long countItemsByCustomFKFilters ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,java.lang.String injectedXpath )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        long retval;
+       retval =  getSession().countItemsByCustomFKFilters( dataClusterPOJOPK,conceptName,injectedXpath );
+
+      return retval;
+
+   }
+
+   public java.util.ArrayList getItemsByCustomFKFilters ( com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String conceptName,java.util.ArrayList viewablePaths,java.lang.String injectedXpath,int start,int limit,java.lang.String orderbyPath,java.lang.String direction )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        java.util.ArrayList retval;
+       retval =  getSession().getItemsByCustomFKFilters( dataClusterPOJOPK,conceptName,viewablePaths,injectedXpath,start,limit,orderbyPath,direction );
+
+      return retval;
+
+   }
+
   /**
    * override this method to provide feedback to interested objects
    * in case collections were changed.

@@ -78,6 +78,10 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSItemPKsByCriteriaResponse getItemPKsByFullCriteria(com.amalto.webapp.util.webservices.WSGetItemPKsByFullCriteria wsGetItemPKsByFullCriteria) throws 
          java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSString countItemsByCustomFKFilters(com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters wsCountItemsByCustomFKFilters) throws 
+         java.rmi.RemoteException;
+    public com.amalto.webapp.util.webservices.WSStringArray getItemsByCustomFKFilters(com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters wsGetItemsByCustomFKFilters) throws 
+         java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSStringArray viewSearch(com.amalto.webapp.util.webservices.WSViewSearch wsViewSearch) throws 
          java.rmi.RemoteException;
     public com.amalto.webapp.util.webservices.WSStringArray xPathsSearch(com.amalto.webapp.util.webservices.WSXPathsSearch wsXPathsSearch) throws 

@@ -1762,4 +1762,28 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 
 	}
 
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */ 
+	public WSString countItemsByCustomFKFilters(
+			WSCountItemsByCustomFKFilters wsCountItemsByCustomFKFilters)
+			throws RemoteException {
+		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().countItemsByCustomFKFilters(wsCountItemsByCustomFKFilters);
+	}
+
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */ 
+	public WSStringArray getItemsByCustomFKFilters(
+			WSGetItemsByCustomFKFilters wsGetItemsByCustomFKFilters)
+			throws RemoteException {
+		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().getItemsByCustomFKFilters(wsGetItemsByCustomFKFilters);
+	}
+
 }

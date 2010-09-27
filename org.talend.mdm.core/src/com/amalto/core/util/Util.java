@@ -3630,4 +3630,11 @@ public  class Util {
         return home;
     }    
     
+	public static String replaceXpathPivot(String concept,String xpath, String replacement) {
+		String[] xpathParts=xpath.split("/");
+		if(xpathParts[0].equals(concept))xpathParts[0]=replacement;
+		xpath=joinStrings(xpathParts, "/");
+		return xpath;
+	}
+    
 } 

@@ -1,6 +1,5 @@
 package com.amalto.webapp.v3.itemsbrowser.dwr;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -20,13 +19,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.security.jacc.PolicyContextException;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.jxpath.JXPathContext;
@@ -53,7 +48,6 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dwr.CommonDWR;
-import com.amalto.webapp.core.util.ForeignKeyFilterParserCallback;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
@@ -1784,63 +1778,125 @@ public class ItemsBrowserDWR {
 		).getValue();
 	}
 	
-	/**
-	 * Limitation: only support for item browser first
-	 */
-	public WSWhereItem parseForeignKeyFilter(final String dataObject,String fkFilter) {
+
+	public String parseForeignKeyFilter(String dataObject,String fkFilter) throws Exception{
 		
-		WSWhereItem wsWhereItem=Util.getConditionFromFKFilter(fkFilter, new ForeignKeyFilterParserCallback(){ 
+            String parsedFkfilter=fkFilter;
+		
+			//get xpath value map
+			WebContext ctx = WebContextFactory.get();
+			HashMap<String,TreeNode> xpathToTreeNode = 
+				(HashMap<String,TreeNode>)ctx.getSession().getAttribute("xpathToTreeNode");
+			HashMap<String,UpdateReportItem> updatedPath = 
+				(HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
 			
-			public void parse(WSWhereCondition wc) {
-				WebContext ctx = WebContextFactory.get();
-				HashMap<String,TreeNode> xpathToTreeNode = 
-					(HashMap<String,TreeNode>)ctx.getSession().getAttribute("xpathToTreeNode");
-				HashMap<String,UpdateReportItem> updatedPath = 
-					(HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
+			if(fkFilter!=null) {
 				
-				if(wc!=null) {
-					String rightValueOrPath=wc.getRightValueOrPath();
-					String patternString=dataObject+"(/[A-Za-z0-9\\[\\]]*)+";
-					boolean isSingleMode=true;
-					Pattern singlePattern = Pattern.compile("^"+patternString+"$");
-					if(!singlePattern.matcher(rightValueOrPath).matches())isSingleMode=false;
-					Pattern pattern = Pattern.compile(patternString);//support simple xpath
-					Matcher matcher = pattern.matcher(rightValueOrPath);
-					while (matcher.find()) {
-						for (int i = 0; i < matcher.groupCount(); i++) {
-							String gettedXpath=matcher.group(i);
-							
-							if(gettedXpath!=null) {
-								//get replaced value
-								String replacedValue=null;
-								boolean matchedAValue=false;
-								
-								//How to handle multi-nodes?
-								if(updatedPath!=null&&updatedPath.get("/"+gettedXpath)!=null) {
-									UpdateReportItem updateReportItem=updatedPath.get("/"+gettedXpath);
-									replacedValue=updateReportItem.getNewValue();
-									if(replacedValue!=null)matchedAValue=true;
-								}
-								
-								if(!matchedAValue&&xpathToTreeNode!=null&&xpathToTreeNode.get("/"+gettedXpath)!=null) {
-									replacedValue=xpathToTreeNode.get("/"+gettedXpath).getValue();
-									if(replacedValue!=null)matchedAValue=true;
-								}
-								
-								if(matchedAValue&&!isSingleMode)replacedValue="\""+replacedValue+"\"";
-								replacedValue=replacedValue==null?"null":replacedValue;
-								rightValueOrPath=matcher.replaceAll(replacedValue);
-							}
-							
-						}//end for
-					}//end while
-					wc.setRightValueOrPath(rightValueOrPath);
+				if(Util.isCustomFilter(fkFilter)) {
+					
+					fkFilter=StringEscapeUtils.unescapeXml(fkFilter);
+					parsedFkfilter=parseRightValueOrPath(xpathToTreeNode,updatedPath,dataObject,fkFilter);
+					return parsedFkfilter;
+					
 				}
 				
-			}
-		});
-    	
-        return wsWhereItem;
+				//parse
+				String[] criterias = fkFilter.split("#");
+				List conditions=new ArrayList<String>();
+				for (String cria: criterias)
+				{
+					Map<String,String> conditionMap=new HashMap<String,String>();
+					String[] values = cria.split("\\$\\$");
+					for (int i = 0; i < values.length; i++) {
+							
+						switch (i) {
+						case 0:
+							conditionMap.put("Xpath", values[0]);
+							break;
+						case 1:
+							conditionMap.put("Operator", values[1]);
+							break;
+						case 2:
+							String rightValueOrPath=values[2];
+							
+							rightValueOrPath=StringEscapeUtils.unescapeXml(rightValueOrPath);
+							
+							rightValueOrPath = parseRightValueOrPath(
+									xpathToTreeNode, updatedPath,dataObject,rightValueOrPath);
+							
+							conditionMap.put("Value",rightValueOrPath);
+							break;
+						case 3:
+							conditionMap.put("Predicate", values[3]);
+							break;
+						default:
+							break;
+						}	
+				    }
+					conditions.add(conditionMap);
+				}
+				//build
+				if(conditions.size()>0) {
+					StringBuffer sb =new StringBuffer();
+					for (Iterator iterator = conditions.iterator(); iterator.hasNext();) {
+						Map<String,String> conditionMap = (Map<String,String>) iterator.next();
+						if(conditionMap.size()>0) {
+							String xpath=conditionMap.get("Xpath")==null?"":conditionMap.get("Xpath");			
+							String operator=conditionMap.get("Operator")==null?"":conditionMap.get("Operator");
+							String value=conditionMap.get("Value")==null?"":conditionMap.get("Value");
+							String predicate=conditionMap.get("Predicate")==null?"":conditionMap.get("Predicate");
+							sb.append(xpath+"$$" + operator+ "$$" + value+"$$"+predicate +"#");
+						}
+					}
+					if(sb.length()>0)parsedFkfilter=sb.toString();
+				}
+				
+			}//end if
+					
+		
+		   return parsedFkfilter;
+		
+	}
+
+	private String parseRightValueOrPath(
+			HashMap<String, TreeNode> xpathToTreeNode,
+			HashMap<String, UpdateReportItem> updatedPath,
+			String dataObject,
+			String rightValueOrPath) {
+		
+		String patternString=dataObject+"(/[A-Za-z0-9\\[\\]]*)+";
+		Pattern pattern = Pattern.compile(patternString);//FIXME support simple xpath
+		Matcher matcher = pattern.matcher(rightValueOrPath);
+		while (matcher.find()) {
+			for (int j = 0; j < matcher.groupCount(); j++) {
+				String gettedXpath=matcher.group(j);
+				
+				if(gettedXpath!=null) {
+					//get replaced value
+					String replacedValue=null;
+					boolean matchedAValue=false;
+					
+					//How to handle multi-nodes?
+					if(updatedPath!=null&&updatedPath.get("/"+gettedXpath)!=null) {
+						UpdateReportItem updateReportItem=updatedPath.get("/"+gettedXpath);
+						replacedValue=updateReportItem.getNewValue();
+						if(replacedValue!=null)matchedAValue=true;
+					}
+					
+					if(!matchedAValue&&xpathToTreeNode!=null&&xpathToTreeNode.get("/"+gettedXpath)!=null) {
+						replacedValue=xpathToTreeNode.get("/"+gettedXpath).getValue();
+						if(replacedValue!=null)matchedAValue=true;
+					}
+					
+					replacedValue=replacedValue==null?"null":replacedValue;
+					if(matchedAValue)replacedValue="\""+replacedValue+"\"";
+					rightValueOrPath=matcher.replaceAll(replacedValue);
+				}
+				
+			}//end for
+		}//end while
+		
+		return rightValueOrPath;
 	}
 	
 	/**
@@ -1853,7 +1909,7 @@ public class ItemsBrowserDWR {
 	public String getForeignKeyListWithCount(int start, int limit, String value,String dataObject, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter) 
 	   throws RemoteException, Exception 
 	{
-	   return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey,fkFilter, parseForeignKeyFilter(dataObject,fkFilter), true);
+	   return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, parseForeignKeyFilter(dataObject,fkFilter), true);
 	}
 	
 	private static String pushUpdateReport(String[] ids, String concept, String operationType)throws Exception{

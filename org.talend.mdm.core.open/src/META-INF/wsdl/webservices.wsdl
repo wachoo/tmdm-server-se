@@ -327,6 +327,20 @@
     <message name="getItemPKsByFullCriteriaResponse">
         <part name="wsItemPKsByFullCriteriaResponse" element="tns:WSItemPKsByCriteriaResponse"/>
     </message>
+    
+    <message name="countItemsByCustomFKFiltersRequest">
+        <part name="wsCountItemsByCustomFKFilters" element="tns:WSCountItemsByCustomFKFilters"/>
+    </message>
+    <message name="countItemsByCustomFKFiltersResponse">
+        <part name="wsCountItemsByCustomFKFiltersResponse" element="tns:WSString"/>
+    </message>
+    
+    <message name="getItemsByCustomFKFiltersRequest">
+        <part name="wsGetItemsByCustomFKFilters" element="tns:WSGetItemsByCustomFKFilters"/>
+    </message>
+    <message name="getItemsByCustomFKFiltersResponse">
+        <part name="wsGetItemsByCustomFKFiltersResponse" element="tns:WSStringArray"/>
+    </message>
 	
 	<message name="viewSearchRequest">
 		<part name="wsViewSearch" element="tns:WSViewSearch"/>
@@ -1102,9 +1116,17 @@
 			<input message="tns:getItemPKsByCriteriaRequest"/>
 			<output message="tns:getItemPKsByCriteriaResponse"/>
 		</operation>
-		<operation name="getItemPKsByFullCriteria">
+        <operation name="getItemPKsByFullCriteria">
             <input message="tns:getItemPKsByFullCriteriaRequest"/>
             <output message="tns:getItemPKsByFullCriteriaResponse"/>
+        </operation>
+        <operation name="countItemsByCustomFKFilters">
+            <input message="tns:countItemsByCustomFKFiltersRequest"/>
+            <output message="tns:countItemsByCustomFKFiltersResponse"/>
+        </operation>
+        <operation name="getItemsByCustomFKFilters">
+            <input message="tns:getItemsByCustomFKFiltersRequest"/>
+            <output message="tns:getItemsByCustomFKFiltersResponse"/>
         </operation>				
 		<operation name="viewSearch">
 			<input message="tns:viewSearchRequest"/>
@@ -1726,6 +1748,16 @@
 			<output><soap:body use="literal"/></output>
 		</operation>
 		<operation name="getItemPKsByFullCriteria">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="countItemsByCustomFKFilters">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="getItemsByCustomFKFilters">
             <soap:operation/>
             <input><soap:body use="literal"/></input>
             <output><soap:body use="literal"/></output>

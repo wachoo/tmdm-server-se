@@ -217,6 +217,18 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSItemPKsByCriteriaResponse _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSString countItemsByCustomFKFilters(com.amalto.core.webservice.WSCountItemsByCustomFKFilters wsCountItemsByCustomFKFilters) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSString _retVal = null;
+        return _retVal;
+    }
+    public com.amalto.core.webservice.WSStringArray getItemsByCustomFKFilters(com.amalto.core.webservice.WSGetItemsByCustomFKFilters wsGetItemsByCustomFKFilters) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSStringArray _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSStringArray viewSearch(com.amalto.core.webservice.WSViewSearch wsViewSearch) throws 
          java.rmi.RemoteException {
         
