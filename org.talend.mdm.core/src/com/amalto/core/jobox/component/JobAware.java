@@ -107,7 +107,7 @@ public class JobAware {
 					startRecord=false;
 					break;
 				}
-				if(parts[i].equals(jobName)) {
+				if(parts[i].equals(jobName)&&!startRecord) {
 					startRecord=true;
 					continue;
 				}
