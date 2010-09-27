@@ -246,9 +246,12 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
 					String[] ids= key.split("\\.");
 					String clusterPK=Util.getFirstTextNode(root, "DataCluster");
 					ItemPOJOPK itempk=new ItemPOJOPK(new DataClusterPOJOPK(clusterPK), concept, ids);
+					try {
 					ItemPOJO itempojo=itemCtrl2Local.getItem(itempk);
+					
 					String itemxml=itempojo.getProjectionAsString();
 					value=Util.mergeExchangeData(itemxml, updateReportXml);
+					}catch(Exception e) {}
 				}
 				p.setProperty(kv.getName(), value);					
 			}
