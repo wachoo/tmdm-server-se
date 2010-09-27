@@ -2413,7 +2413,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			    var node2 = new YAHOO.widget.HTMLNode(nameTmp, root, false, true);
     				var rootnode = root.children[0];
     				itemTree.removeNode(rootnode);
-    				ItemsBrowserInterface.setTree(dataObject, ids, node2.index, false, treeIndex, true, function(result){
+    				var ids1;
+    				if(ids.length==0)
+    				    ids1 = itemPK2;
+    				else
+    				    ids1 = ids;
+    				ItemsBrowserInterface.setTree(dataObject, ids1, node2.index, false, treeIndex, true, function(result){
                         node2.setDynamicLoad(fnLoadData, 1);
                         node2.expand();
                         itemTree.draw();
