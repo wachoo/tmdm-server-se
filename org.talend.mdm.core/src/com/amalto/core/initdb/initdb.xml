@@ -61,7 +61,7 @@
 		</item>			
 		<item>
 			<name>amaltoOBJECTSDataModel</name>
-			<list>datamodel/CONF;datamodel/Reporting;datamodel/UpdateReport;datamodel/SearchTemplate;datamodel/XMLSCHEMA---</list>			
+			<list>datamodel/CONF;datamodel/Reporting;datamodel/UpdateReport;datamodel/SearchTemplate;datamodel/XMLSCHEMA---;datamodel/PROVISIONING</list>			
 		</item>			
 		<item>
 			<name>amaltoOBJECTSMenu</name>
