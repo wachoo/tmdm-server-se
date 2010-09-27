@@ -230,7 +230,7 @@ public class ItemsRemotePaging  extends HttpServlet{
 		if(viewName!=null&&viewName.length()>0&&fieldPath!=null&&fieldPath.length()>0){
 			if(viewName.matches("Browse_items_.*")){
 				String concept = viewName.replaceAll("Browse_items_","").replaceAll("#.*","");
-				if(fieldPath.startsWith(concept)||fieldPath.startsWith("/"+concept)||fieldPath.startsWith("//"+concept))return true;
+				if(fieldPath.startsWith(concept+"/")||fieldPath.startsWith("/"+concept+"/")||fieldPath.startsWith("//"+concept+"/"))return true;
 			}
 		}
 		
