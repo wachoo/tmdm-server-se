@@ -47,6 +47,22 @@ public final class UserHelper {
     }
     
     /**
+     * get web users
+     * @return
+     */
+    public int getWebUsers(){
+        List<User> viewers = new ArrayList<User>();
+        
+        for(User user : users) {
+           if(user.enabled && user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_WEB.getName())) {
+               viewers.add(user); 
+           }
+        }
+        
+        return viewers.size();
+    }
+    
+    /**
      * get viewer users.
      * @return
      */
@@ -71,7 +87,8 @@ public final class UserHelper {
        
        for(User user : users) {
           if(user.enabled && !user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_ADMIN.getName()) && 
-                  !user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_VIEWER.getName())) {
+                  !user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_VIEWER.getName()) 
+                  && !user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_WEB.getName())) {
               normalUsers.add(user);
           }
        }
