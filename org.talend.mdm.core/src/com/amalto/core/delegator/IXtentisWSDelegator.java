@@ -3650,6 +3650,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
    public WSRoutingRule getRoutingRule(WSGetRoutingRule wsRoutingRuleGet)
     throws RemoteException {
 		try {
+			if(Util.getRoutingRuleCtrlLocal().existsRoutingRule(
+								new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())
+						)==null) return null;
 		    return VO2WS( 
 					Util.getRoutingRuleCtrlLocal().getRoutingRule(
 							new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())
