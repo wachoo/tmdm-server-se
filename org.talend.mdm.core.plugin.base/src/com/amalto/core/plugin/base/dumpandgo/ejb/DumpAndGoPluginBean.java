@@ -219,7 +219,7 @@ public class DumpAndGoPluginBean extends TransformerPluginV2CtrlBean  implements
 			String charset = Util.extractCharset(textTC.getContentType());
 			String inText = new String(textTC.getContentBytes(),charset);
 			
-			org.apache.log4j.Logger.getLogger(this.getClass()).info("[Dump:]"+inText);
+			org.apache.log4j.Logger.getLogger(this.getClass()).info("[Dump]:\n"+inText);
 			
 			String outText=inText;			
 			
