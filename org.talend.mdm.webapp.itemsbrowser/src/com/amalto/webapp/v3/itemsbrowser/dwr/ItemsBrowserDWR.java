@@ -1990,13 +1990,16 @@ public class ItemsBrowserDWR {
 			throw e1;
 		}
 		
-		String key = "";
+		String key = null;
 		if(ids!=null){
+			key="";
 			for (int i = 0; i < ids.length; i++) {
 				key+=ids[i];
 				if(i!=ids.length-1) key+=".";
 			}
 		}
+		key=key==null?"null":key;
+		
 		String xml2 = "" +
 			"<Update>"+
 			"<UserName>"+username+"</UserName>"+
