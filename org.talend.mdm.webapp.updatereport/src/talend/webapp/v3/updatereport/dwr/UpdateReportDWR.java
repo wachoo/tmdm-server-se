@@ -18,11 +18,13 @@ import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSGetItems;
 import com.amalto.webapp.util.webservices.WSString;
+import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSWhereAnd;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.amalto.webapp.util.webservices.WSXPathsSearch;
 
 public class UpdateReportDWR {
 	
@@ -175,16 +177,17 @@ public class UpdateReportDWR {
 		int totalSize=0;
 		if(totalString!=null&&totalString.getValue()!=null&&totalString.getValue().length()>0)totalSize=Integer.parseInt(totalString.getValue());
  		
- 		String[] results =
-			Util.getPort().getItems(new WSGetItems(
-					wsDataClusterPK,
-					conceptName,
-					wi,
-            		-1,
-            		start,
-            		limit
-            	)
-            ).getStrings();
+ 		String[] results=Util.getPort().xPathsSearch(new WSXPathsSearch(
+ 				wsDataClusterPK,
+                null,
+                new WSStringArray(new String[]{conceptName}),
+                wi,
+                -1,
+                start,
+                limit,
+                "/Update/TimeInMillis",
+                "descending"
+            )).getStrings();
  		
  		logger.debug("Total:"+totalSize+";Start:"+start+";Limit:"+limit+";Length:"+(results==null?0:results.length));
  		//sub result
