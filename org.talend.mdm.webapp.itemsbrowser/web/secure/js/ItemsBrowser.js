@@ -492,6 +492,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	   'fr':["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Aout","Septembre","Octobre","Novembre","Decembre"],
 	   'en':["January","February","March","April","May","June","July","August","September","October","November","December"]
 	};
+	var SEARCH_RESULT={
+		'fr':'Définissez des critères de recherche et cliquez \'Rechercher\'.',
+		'en':'Enter search criteria and hit the \'Search\' button.'
+	};
 
 	/*****************
 	 * EXT 2.0
@@ -662,7 +666,23 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		if(viewName!=LABEL_SELECT_DATAOBJECT[language]){
 			if(Ext.get('items-grid')!=undefined) {
 				gridContainerPanel.remove('items-grid');
-			}		
+			}
+			if(Ext.get('searchResult')==undefined){
+				gridContainerPanel.add( {
+					xtype : "panel",
+					bodyStyle : 'margin:20px',
+					style:'color: #8F8FBD;',
+					border : false,
+					bodyborder : false,
+					items : [{
+						xtype : 'label',
+						id:'searchResult',
+						text : SEARCH_RESULT[language]
+					}]
+				});
+
+			}
+			gridContainerPanel.doLayout();
 			ItemsBrowserInterface.getviewItemsCriterias(getConditionsCB,viewName,true);
 			ItemsBrowserInterface.getView(getViewItemsCB,viewName, language);
 		}
