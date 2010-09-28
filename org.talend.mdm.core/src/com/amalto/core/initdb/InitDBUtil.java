@@ -1,10 +1,12 @@
 package com.amalto.core.initdb;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,6 +23,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.amalto.core.objects.configurationinfo.localutil.ConfigurationHelper;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 
 /**
  * Create system init datacluster/datamodel. etc
@@ -94,6 +98,8 @@ public class InitDBUtil {
 
 		updateDB("/com/amalto/core/initdb/data", initDB);
 		if(useExtension)updateDB("/com/amalto/core/initdb/extensiondata", initExtensionDB);
+		deleteScrapDB();
+		pushJBossHomeDirToDB();
 	}
 		
 	private static void updateDB(String resourcePath,
@@ -127,6 +133,41 @@ public class InitDBUtil {
 		}
 	}
 	
+	private static void deleteScrapDB()
+	{
+		final String  scrapClusterName = "amaltoOBJECTSRole";
+		final String[] scrapResourceNames = new String[]{"Default_Admin", "Default_User", "Default_Viewer"};
+		for (String resName : scrapResourceNames)
+		{
+			try {
+				ConfigurationHelper.deleteDocumnet(null, scrapClusterName, resName);
+			} catch (XtentisException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private static void pushJBossHomeDirToDB()
+	{
+		String jbossDir = Util.getJbossHomeDir();
+		File dirFile = new File(jbossDir);
+		String url = dirFile.toURI().toString();
+		try {
+			URLConnection cn = dirFile.toURL().openConnection();
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		String xmlStuff = "<JBOSS_DIR>" + url + "</JBOSS_DIR>";
+		try {
+			ConfigurationHelper.putDomcument("CONF", xmlStuff, "CONF.TREEOBJECT.JBOSSDIR");
+		} catch (XtentisException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static String getString(InputStream in){
 		String result="";
 		try {
@@ -149,6 +190,7 @@ public class InitDBUtil {
 		return result;
 	}
 	public static void main(String[] args) {
+		pushJBossHomeDirToDB();
 		init();
 		try {
 			initDB();
