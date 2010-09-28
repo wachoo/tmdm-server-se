@@ -611,7 +611,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		//autoHide: false,  
 		//closable: false
 		//});
-		$(nodeId+"ValidateBadge").qtip=msg;
+		$(nodeId+"ValidateBadge").qtip=htmlEscape(msg);
 		$(nodeId+"ValidateBadge").qclass='x-form-invalid-tip';
 	},
 	
