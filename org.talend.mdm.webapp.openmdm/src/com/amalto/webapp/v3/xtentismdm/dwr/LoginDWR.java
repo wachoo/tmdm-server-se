@@ -3,6 +3,7 @@ package com.amalto.webapp.v3.xtentismdm.dwr;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.xerces.impl.dv.util.Base64;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 
@@ -61,4 +62,7 @@ public class LoginDWR {
 
 	}
 
+	public String encodeUserName(String usernameWithSuffix) {
+		return new String(Base64.encode(usernameWithSuffix.getBytes()));
+	}
 }

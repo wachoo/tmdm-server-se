@@ -3,6 +3,7 @@
 <%@page import="com.amalto.core.util.Util"%>
 <%@page import="com.amalto.core.util.Version"%>
 <%@page import="com.amalto.webapp.core.util.DefaultCommonUtil"%>
+<%@page import="org.talend.mdm.commmon.util.core.ICoreConstants"%>
 
 <%
     String contextPath = request.getContextPath();
@@ -28,6 +29,7 @@
     String editionTitle=DefaultCommonUtil.getEditionTitle();
     String version=Version.getSimpleVersionAsString(this.getClass());
     
+    String suffix = ICoreConstants.ACCESS_BYWEBUI;
 %>
 
 <html>
@@ -64,26 +66,33 @@
 <script type="text/javascript">
 function f_submit(){    
     
-    var username=document.loginform.j_username.value;
+    var username=document.loginform.j_username.value + "<%=suffix%>";
     var password=document.loginform.j_password.value;
     var universe='';
     if(document.loginform.j_universe!=undefined && document.loginform.j_universe!=null)universe=document.loginform.j_universe.value;
     if(universe!=''&&universe=='HEAD')universe='';
     
-    LoginInterface.isTimeOut(function(result) {
+    var encodeuser='';
+    LoginInterface.encodeUserName(username, function(result){
+       encodeuser = result;
+       
+       LoginInterface.isTimeOut(function(result) {
         if(result) {
             alert("Session time out!");
             window.location.reload();
         }
         else {
             if(universe){
-                document.loginform.j_username.value=universe+"/"+username;
+                document.loginform.j_username.value=universe+"/"+encodeuser ;
             }   
             
-            //alert(document.loginform.j_username.value);
+            document.loginform.j_username.value = encodeuser;
             document.loginform.submit();
         }
     });
+    });
+    
+
     
 }
 
