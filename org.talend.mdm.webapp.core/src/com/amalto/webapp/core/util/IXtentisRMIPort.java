@@ -2804,7 +2804,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 			
 			String resultUpdateReport= Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem.getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
 			//invoke before saving
-			if(Util.isEnterprise()){
+			//if(Util.isEnterprise()){
 				if(wsPutItemWithReport.getInvokeBeforeSaving()){
 					String err=Util.beforeSaving(concept, projection, resultUpdateReport);
 					if(err!=null){
@@ -2813,7 +2813,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 						throw new XtentisException(err);
 					}
 				}
-			}
+			//}
 			String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
 	
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[putItem-of-putItemWithReport] in dataCluster:"+dataClusterPK);
