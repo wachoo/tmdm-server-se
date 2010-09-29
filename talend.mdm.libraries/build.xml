@@ -12,7 +12,7 @@
 	<property name="jboss.conf.dir" value="${jboss.instance.dir}/conf"/>
 	<property name="jboss.web.deployer" value="${jboss.deploy.dir}/jboss-web.deployer"/>
 	<property name="exist.version" value="exist-1.4.0-rev11706-TalendPatch"/>
-	<property name="exist.client" value="${jboss.dir}/eXist"/>
+
 	
     <!-- ================================= 
           target: all              
@@ -63,9 +63,6 @@
 	    <copy todir="${jboss.deploy.dir}">
 	            <fileset dir="eXist" includes="${exist.version}.war/**"/>
 	        </copy>
-        <copy todir="${exist.client}" overwrite="true">
-            <fileset dir="eXist/eXist-client"></fileset>            
-        </copy>
 		
     </target>
 </project>
