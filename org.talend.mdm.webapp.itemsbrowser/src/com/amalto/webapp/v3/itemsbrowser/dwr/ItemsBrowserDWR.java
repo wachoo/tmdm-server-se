@@ -420,11 +420,31 @@ public class ItemsBrowserDWR {
 
 		if ((null != view.getTransformerPK() && !"".equals(view.getTransformerPK()))&& view.getIsTransformerActive().is_true()) {
 			String transformerPK = view.getTransformerPK();
-			//FIXME:use ID as input parameter
-			String passToProcessPara = dataClusterPK + "." + concept + "." + Util.joinStrings(ids, ".");
+			//FIXME: consider about revision
+			//String itemPK = dataClusterPK + "." + concept + "." + Util.joinStrings(ids, ".");
+            String passToProcessContent=wsItem.getContent();
+            
+            /*compact  
+            if(passToProcessContent!=null&&passToProcessContent.length()>0) {
+            	try {
+					org.dom4j.Document document = org.dom4j.DocumentHelper.parseText(passToProcessContent);
 
+					org.dom4j.io.OutputFormat format=org.dom4j.io.OutputFormat.createCompactFormat();
+					format.setEncoding("UTF-8");
+					format.setNewLineAfterDeclaration(false);
+					
+					StringWriter writer = new StringWriter();
+					org.dom4j.io.XMLWriter xmlwriter = new org.dom4j.io.XMLWriter(writer, format);
+					xmlwriter.write(document);
+					
+					passToProcessContent=writer.toString().replaceAll("<\\?xml.*?\\?>","").trim();
+				} catch (Exception e) {
+					org.apache.log4j.Logger.getLogger(this.getClass()).error("Compact input-xml failed! ");
+				}
+            }            
+            */
 			WSTypedContent typedContent = new WSTypedContent(null,
-					new WSByteArray(passToProcessPara.getBytes("UTF-8")),
+					new WSByteArray(passToProcessContent.getBytes("UTF-8")),
 					"text/xml; charset=UTF-8");
 
 			WSTransformerContext wsTransformerContext = new WSTransformerContext(
@@ -514,7 +534,10 @@ public class ItemsBrowserDWR {
 					}
 				}
 				
-				String searchPrefix="/results/item/attr/";
+				//TODO String 
+				String searchPrefix="";
+				NodeList attrNodeList=Util.getNodeList(jobDoc, "/results/item/attr");
+				if(attrNodeList!=null&&attrNodeList.getLength()>0)searchPrefix="/results/item/attr/";
 				
 				for (Iterator iterator = lookupFieldsForWSItemDoc.iterator(); iterator.hasNext();) {
 					String xpath = (String) iterator.next();
@@ -533,6 +556,7 @@ public class ItemsBrowserDWR {
 			}
 		}
 	}
+	
 	private void setChildrenWithKeyMask(int id, String language, boolean foreignKey, int docIndex, boolean maskKey, boolean choice, XSParticle xsp,ArrayList<TreeNode> list,HashMap<String,TreeNode> xpathToTreeNode) throws ParseException{
 		//aiming added see 0009563
 		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
