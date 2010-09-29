@@ -250,8 +250,8 @@
     <name>Default_Admin</name>
     <description>[EN:Administrator][FR:Administrator]</description>
     <PK>
-        <ids>Default_Admin</ids>
-        <unique-id>Default_Admin</unique-id>
+        <ids>System_Admin</ids>
+        <unique-id>System_Admin</unique-id>
     </PK>
     <last-error/>
 </role-pOJO>
