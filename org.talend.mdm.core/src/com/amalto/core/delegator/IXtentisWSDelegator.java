@@ -169,23 +169,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 * 	view-type = "service-endpoint"
 	 */
 	public WSString ping(WSPing wsPing) throws RemoteException {
-		String echo=wsPing.getEcho();
-		if(echo!=null && echo.startsWith("Studio_Backup")) {
-			String cluster= echo.substring(13).trim();
-			try {
-				Util.backupDatacluster(cluster, cluster+".zip");
-			} catch (Exception e) {
-				throw(new RemoteException(e.getLocalizedMessage()));
-			}
-		}
-		if(echo!=null && echo.startsWith("Studio_Restore")) {
-			String filename= echo.substring(14).trim();
-			try {
-				Util.restoreDatacluster(filename);
-			} catch (Exception e) {
-				throw(new RemoteException(e.getLocalizedMessage()));
-			}
-		}
 		if("Studio".equals(wsPing.getEcho())){// check view user can't use studio
 			try {
 				if(LocalUser.getLocalUser().getRoles().contains(XSystemObjects.ROLE_DEFAULT_VIEWER.getName())) {
