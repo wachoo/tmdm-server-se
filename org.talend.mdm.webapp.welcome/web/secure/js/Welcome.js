@@ -4,8 +4,8 @@ amalto.welcome.Welcome = function () {
 	loadResource("/welcome/secure/css/Welcome.css", "" );
 	
 	var WELCOME_TITLE = {
-		'fr':'Home',
-		'en':'Accueil'
+		'fr':'Bienvenue',
+		'en':'Welcome'
 	}
 	
 	var WELCOME_PANEL = {
@@ -68,6 +68,7 @@ amalto.welcome.Welcome = function () {
 	var nbusers;
 	var hidenTaskPL = true;
 	var hidenAlertsPL = true;
+	
 	/********************************************************************
 	 * Action show welcome
 	 ********************************************************************/
@@ -77,6 +78,8 @@ amalto.welcome.Welcome = function () {
 	 */
 	 function displayWelcome(){
 	  	showWelcomePanel();
+	  	applyAlertsMessage(language);
+	  	applyTaskMessage();
 	 }
 	 
 	 /**
