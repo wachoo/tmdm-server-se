@@ -5,4 +5,5 @@
 <com.amalto.core.migration.tasks.AddActionInUpdateReportTask/>
 <com.amalto.core.migration.tasks.AutoIncrementTask/>
 <com.amalto.core.migration.tasks.AutoIncrementTask4/>
+<com.amalto.core.migration.tasks.UpdateOldRolesWithNewRoleSchemeTask/>
 </Root>

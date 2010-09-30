@@ -1,21 +1,20 @@
 package com.amalto.core.initdb;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,6 +35,8 @@ public class InitDBUtil {
 	static HashMap<String, List<String>> initDB=new HashMap<String, List<String>>();
 	static HashMap<String, List<String>> initExtensionDB=new HashMap<String, List<String>>();
 	static boolean useExtension=false;
+	
+	static final String[] scrapResourceNames = new String[]{"Default_Admin", "Default_User", "Default_Viewer"};
 	
 	public static void init(){
 		InputStream dbIn=null;
@@ -98,8 +99,8 @@ public class InitDBUtil {
 
 		updateDB("/com/amalto/core/initdb/data", initDB);
 		if(useExtension)updateDB("/com/amalto/core/initdb/extensiondata", initExtensionDB);
+		updateUsersWithNewRoleScheme();
 		deleteScrapDB();
-		pushJBossHomeDirToDB();
 	}
 		
 	private static void updateDB(String resourcePath,
@@ -133,10 +134,43 @@ public class InitDBUtil {
 		}
 	}
 	
+	private static void updateUsersWithNewRoleScheme()
+	{
+		final HashMap<String, String> oldRoleToNewRoleMap = new HashMap<String, String>(); 
+		oldRoleToNewRoleMap.put("Default_Admin", ICoreConstants.SYSTEM_ADMIN_ROLE);
+		oldRoleToNewRoleMap.put("Default_User", ICoreConstants.SYSTEM_INTERACTIVE_ROLE);
+		oldRoleToNewRoleMap.put("Default_Viewer", ICoreConstants.SYSTEM_VIEW_ROLE);
+		
+		final String userClusterName = "PROVISIONING";
+		String query = "collection(\"" + userClusterName + "\")/ii/p/User/username";
+		try {
+			ArrayList<String> list = ConfigurationHelper.getServer().runQuery(null, userClusterName, query, null);
+			for (String user: list)
+			{
+				NodeList users = Util.getNodeList(Util.parse(user), "/username");
+				for (int i = 0; i < users.getLength(); i++)
+				{
+					String entry = users.item(i).getFirstChild().getNodeValue();
+					String uniqueID = userClusterName + ".User." + entry;
+					String userXml = ConfigurationHelper.getServer().getDocumentAsString(null, userClusterName, uniqueID);
+					String updateXml = new String(userXml);
+					 for (Map.Entry<String, String> pair : oldRoleToNewRoleMap.entrySet())
+					 {
+						 userXml = userXml.replaceAll(pair.getKey().toString(), pair.getValue().toString());
+					 }
+					 if(!updateXml.equals(userXml))
+					 {
+						 ConfigurationHelper.getServer().putDocumentFromString(userXml, uniqueID, userClusterName, null);
+					 }
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	private static void deleteScrapDB()
 	{
 		final String  scrapClusterName = "amaltoOBJECTSRole";
-		final String[] scrapResourceNames = new String[]{"Default_Admin", "Default_User", "Default_Viewer"};
 		for (String resName : scrapResourceNames)
 		{
 			try {
@@ -144,27 +178,6 @@ public class InitDBUtil {
 			} catch (XtentisException e) {
 				e.printStackTrace();
 			}
-		}
-	}
-	
-	private static void pushJBossHomeDirToDB()
-	{
-		String jbossDir = Util.getJbossHomeDir();
-		File dirFile = new File(jbossDir);
-		String url = dirFile.toURI().toString();
-		try {
-			URLConnection cn = dirFile.toURL().openConnection();
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		String xmlStuff = "<JBOSS_DIR>" + url + "</JBOSS_DIR>";
-		try {
-			ConfigurationHelper.putDomcument("CONF", xmlStuff, "CONF.TREEOBJECT.JBOSSDIR");
-		} catch (XtentisException e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -190,7 +203,6 @@ public class InitDBUtil {
 		return result;
 	}
 	public static void main(String[] args) {
-		pushJBossHomeDirToDB();
 		init();
 		try {
 			initDB();

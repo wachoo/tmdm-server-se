@@ -115,5 +115,4 @@ public class ConfigurationHelper {
 		  Util.getXmlServerCtrlLocal().deleteDocument(revisionID, clusterName, uniqueID);
 		}
 	}
-
 }
