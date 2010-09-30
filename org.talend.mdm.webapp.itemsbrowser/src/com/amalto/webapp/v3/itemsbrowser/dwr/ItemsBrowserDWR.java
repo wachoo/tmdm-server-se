@@ -1484,9 +1484,9 @@ public class ItemsBrowserDWR {
 			//check updatedPath
 			HashMap<String,UpdateReportItem> updatedPath = new HashMap<String,UpdateReportItem>();
 			updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
-			if(!"DELETE".equals(operationType) && updatedPath==null){
+			/*if(!"DELETE".equals(operationType) && updatedPath==null){
 				return "ERROR_2";
-			}
+			}*/
 			//create updateReport
 //			String resultUpdateReport = createUpdateReport(ids, concept, operationType, updatedPath);
 			
