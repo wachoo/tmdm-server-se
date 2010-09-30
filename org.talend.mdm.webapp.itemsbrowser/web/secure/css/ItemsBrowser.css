@@ -13,35 +13,35 @@
 /***************************************************************************************
   Buttons
 ****************************************************************************************/
-.save {
+.item_bt_save {
     background-image: url(../img/save.png) !important;
 }
 
-.refresh {
+.item_bt_refresh {
     background-image: url(../img/refresh.png) !important;
 }
 
-.process {
+.item_bt_process {
     background-image: url(../img/launch_process.png) !important;
 }
 
-.saveAndQ {
+.item_bt_saveAndQ {
     background-image: url(../img/save_and_close.png) !important;
 }
 
-.sendTrash {
+.item_bt_sendTrash {
     background-image: url(../img/send_to_trash.png) !important;
 }
 
-.duplicate {
+.item_bt_duplicate {
     background-image: url(../img/duplicate.png) !important;
 }
 
-.journal {
+.item_bt_journal {
     background-image: url(../img/journal.png) !important;
 }
 
-.delete {
+.item_bt_delete {
     background-image: url(../img/delete.png) !important;
 }
 

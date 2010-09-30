@@ -1638,7 +1638,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	        		id:'btn-delete',
 	        		//hidden :true,
 	        		xtype:'button',
-	        		iconCls : 'delete',
+	        		iconCls : 'item_bt_delete',
 	        		disabled:$('item-new-btn').disabled,
 	        		tooltip:PHYSICALLY_DELETE_TOOLTIP[language],
 		        	listeners:{
@@ -1717,7 +1717,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	        	{text:BUTTON_LOGICAL_DEL[language],
 	        		id:'btn-logicaldelete',
 	        		xtype:'button',
-	        		iconCls : 'sendTrash',
+	        		iconCls : 'item_bt_sendTrash',
 	        		disabled:$('item-new-btn').disabled,
 	        		tooltip:LOGICALLY_DELETE_TOOLTIP[language],
 	        		listeners:{
@@ -1951,7 +1951,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {id:'saveBTN', disabled : isReadOnlyinItem, iconCls:'save',tooltip:SAVE_TOOLTIP[language],text: BUTTON_SAVE[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemHandler});
+			toolbar.addButton( {id:'saveBTN', disabled : isReadOnlyinItem, iconCls:'item_bt_save',tooltip:SAVE_TOOLTIP[language],text: BUTTON_SAVE[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemHandler});
 			nbButtons++;
 		}
 	
@@ -1964,7 +1964,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {id:'saveAndQBTN', disabled : isReadOnlyinItem, iconCls:'saveAndQ',tooltip:SAVEANDCLOSE_TOOLTIP[language],text: BUTTON_SAVE_AND_QUIT[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemAndQuitHandler});
+			toolbar.addButton( {id:'saveAndQBTN', disabled : isReadOnlyinItem, iconCls:'item_bt_saveAndQ',tooltip:SAVEANDCLOSE_TOOLTIP[language],text: BUTTON_SAVE_AND_QUIT[language], className: 'tb-button tb-button-nude', handler: toolbar.saveItemAndQuitHandler});
 			nbButtons++;
 		}
 		
@@ -1975,11 +1975,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		{
 			if (nbButtons>0)
 			{
-				toolbar.addSeparator();
+				//toolbar.addSeparator();
 				nbButtons++;
 			}
 	
-			deleteBTN = {text: BUTTON_DELETE[language], iconCls : 'delete', handler: toolbar.deleteItemHandler};
+			deleteBTN = {text: BUTTON_DELETE[language], iconCls : 'item_bt_delete', handler: toolbar.deleteItemHandler};
 			nbButtons++;
 		}
 		
@@ -1992,7 +1992,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			logicalDelBTN = {text: BUTTON_LOGICAL_DEL[language], iconCls : 'sendTrash', handler: toolbar.logicalDelItemHandler};
+			logicalDelBTN = {text: BUTTON_LOGICAL_DEL[language], iconCls : 'item_bt_sendTrash', handler: toolbar.logicalDelItemHandler};
 			nbButtons++;
 		}
 		
@@ -2000,7 +2000,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			toolbar.add({
 				xtype : 'tbsplit',
 				text: BUTTON_LOGICAL_DEL[language],
-				iconCls : 'sendTrash',
+				iconCls : 'item_bt_sendTrash',
 				disabled : isReadOnlyinItem,
 				menu : {
 					items : [logicalDelBTN, deleteBTN]
@@ -2018,7 +2018,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:DUPLICATE_TOOLTIP[language],iconCls : 'duplicate', text: BUTTON_DUPLICATE[language], className: 'tb-button tb-button-nude', handler: toolbar.duplicateItemHandler});
+			toolbar.addButton( {tooltip:DUPLICATE_TOOLTIP[language],iconCls : 'item_bt_duplicate', text: BUTTON_DUPLICATE[language], className: 'tb-button tb-button-nude', handler: toolbar.duplicateItemHandler});
 			nbButtons++;
 		}
 		
@@ -2031,7 +2031,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:JOURNAL_TOOLTIP[language], iconCls : 'journal', text: BUTTON_JOURNAL[language], className: 'tb-button tb-button-nude', handler: toolbar.journalItemHandler});
+			toolbar.addButton( {tooltip:JOURNAL_TOOLTIP[language], iconCls : 'item_bt_journal', text: BUTTON_JOURNAL[language], className: 'tb-button tb-button-nude', handler: toolbar.journalItemHandler});
 			nbButtons++;
 		}
 		
@@ -2044,7 +2044,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:REFRESH_TOOLTIP[language],iconCls: 'refresh', className: 'tb-button tb-button-nude', handler: toolbar.refreshItemHandler});
+			toolbar.addButton( {tooltip:REFRESH_TOOLTIP[language],iconCls: 'item_bt_refresh', className: 'tb-button tb-button-nude', handler: toolbar.refreshItemHandler});
 			nbButtons++;
 		}
 		
@@ -2098,7 +2098,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             });
             
             toolbar.addField(combo);
-            toolbar.addButton( {tooltip:ACTION_TOOLTIP[language], iconCls : 'process', className: 'tb-button tb-button-nude', handler: toolbar.processItemHandler});
+            toolbar.addButton( {tooltip:ACTION_TOOLTIP[language], iconCls : 'item_bt_process', className: 'tb-button tb-button-nude', handler: toolbar.processItemHandler});
             nbButtons++;
         }
 	}
