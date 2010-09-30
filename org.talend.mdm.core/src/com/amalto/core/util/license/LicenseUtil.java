@@ -215,7 +215,7 @@ public final class LicenseUtil {
         if (!result) {
             throw new Exception("License invalid");
         }
-        
+        Util.getXmlServerCtrlLocal().clearCache();
         LicenseHelper.getInstance().saveOrUpdate(licenseProxy);
 
         licenseProxy = LicenseHelper.getInstance().getLicense();

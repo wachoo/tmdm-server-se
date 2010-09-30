@@ -1859,7 +1859,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 
 
 	public void clearCache() {
-		//itemsCache.clear();		
+		clusters.clear();
 	}
 
 
