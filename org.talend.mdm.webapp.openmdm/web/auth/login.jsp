@@ -66,7 +66,7 @@
 <script type="text/javascript">
 function f_submit(){    
     
-    var username=document.loginform.j_username.value + "<%=suffix%>";
+    var username=document.loginform.j_username.value ;
     var password=document.loginform.j_password.value;
     var universe='';
     if(document.loginform.j_universe!=undefined && document.loginform.j_universe!=null)universe=document.loginform.j_universe.value;
