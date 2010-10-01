@@ -19,6 +19,7 @@ import javax.security.auth.login.LoginException;
 import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.jaas.jboss.open.util.Util;
 import org.w3c.dom.Element;
@@ -311,7 +312,7 @@ public class SimpleLoginModule extends AbstractServerLoginModule {
 			return new Group[]{usernameGroup,passwordGroup, universeGroup, rolesGroup};
 		}
 		//add an 'openTest' role 
-		rolesGroup.addMember(new SimplePrincipal("Default_User"));
+		rolesGroup.addMember(new SimplePrincipal(ICoreConstants.SYSTEM_INTERACTIVE_ROLE));
 		//Fetch the xtentis based saved User Details
 		Element user = getSavedUserDetails(getUsername(),getPassword());
 
