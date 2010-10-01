@@ -9,7 +9,7 @@
         </create>
         
         <convert converter="bean" match="com.amalto.webapp.core.util.dwr.ExtJSFormResponse"/>
-        <convert converter="bean" match="org.talend.mdm.webapp.welcome.dwr.LicenseVO"/>
+        <convert converter="bean" match="com.amalto.webapp.core.util.dwr.WebappInfo"/>
         
     </allow>
 

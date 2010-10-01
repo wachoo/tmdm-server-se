@@ -1,7 +1,7 @@
-package org.talend.mdm.webapp.welcome.dwr;
+package com.amalto.webapp.core.util.dwr;
 
 
-public class LicenseVO {
+public class WebappInfo {
    private String licenseModel;
    private int nbUser;
    private String licenseExpired;

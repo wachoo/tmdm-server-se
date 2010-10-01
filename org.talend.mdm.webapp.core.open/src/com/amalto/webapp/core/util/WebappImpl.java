@@ -10,12 +10,25 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package com.amalto.core.util.license;
+package com.amalto.webapp.core.util;
 
-/**
- * DOC stephane class global comment. Detailled comment
- */
-public class YekEht {
+import com.amalto.webapp.core.util.dwr.WebappInfo;
 
-    public static final byte[] DK = "TIgtpQPw9ERQJmPh".getBytes();
+public class WebappImpl implements Webapp {
+
+    public void getInfo(WebappInfo info, String language) {
+        return;
+    }
+
+    public int getTaskMsg() {
+        return 0;
+    }
+
+    public boolean isExpired() throws Exception {
+        return false;
+    }
+
+    public boolean isShowMsg() throws Exception {
+        return false;
+    }
 }
