@@ -3,10 +3,8 @@ package com.amalto.webapp.v3.xtentismdm.dwr;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.xerces.impl.dv.util.Base64;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
-import org.talend.mdm.commmon.util.core.ICoreConstants;
 
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -61,10 +59,5 @@ public class LoginDWR {
 		}
 		return universeNames.toArray(new String[universeNames.size()]);
 
-	}
-
-	public String encodeUserName(String username) {
-		String usernameWithSuffix = username + ICoreConstants.ACCESS_BYWEBUI;
-		return new String(Base64.encode(usernameWithSuffix.getBytes()));
 	}
 }
