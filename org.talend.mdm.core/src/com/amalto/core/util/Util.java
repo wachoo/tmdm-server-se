@@ -2412,7 +2412,7 @@ public class Util {
 				}
             } catch (Exception e) {
                 Logger.getLogger(Util.class).error(e);
-                return "" + e.getLocalizedMessage();
+                throw e;
 			}
 		}
 		// TODO Scan the entries - in priority, taka the content of the specific

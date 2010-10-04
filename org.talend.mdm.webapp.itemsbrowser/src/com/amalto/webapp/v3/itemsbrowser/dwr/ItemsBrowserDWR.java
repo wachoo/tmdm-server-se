@@ -39,6 +39,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -1610,52 +1611,53 @@ public class ItemsBrowserDWR {
 	public String deleteItem(String concept, String[] ids) {
 		WebContext ctx = WebContextFactory.get();
 		try {
-			Configuration config = Configuration.getInstance();
-			String dataClusterPK = config.getCluster();
-			String outputErrorMessage = com.amalto.core.util.Util
-					.beforeDeleting(dataClusterPK, concept, ids);
-			String errorCode = "";
-			String errorMessage = "";
-			
+            Configuration config = Configuration.getInstance();
+            String dataClusterPK = config.getCluster();
+            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
+
+            String errorMessage;
+            String errorCode;
             if (outputErrorMessage != null) {
-                Pattern pattern = Pattern.compile("<error code=['\042](.*)['\042]>(.*)</error>");
-                Matcher matcher = pattern.matcher(outputErrorMessage);
-                while (matcher.find()) {
-                    errorCode = matcher.group(1);
-                    errorMessage = matcher.group(2);
+                Element root = Util.parse(outputErrorMessage).getDocumentElement();
+                if (root.getLocalName().equals("error")) {
+                    errorCode = root.getAttribute("code");
+                    Node child = root.getFirstChild();
+                    if (child instanceof Text)
+                        errorMessage = ((Text) child).getTextContent();
+                    else
+                        errorMessage = "";
+                } else {
+                    errorCode = null;
+                    errorMessage = outputErrorMessage;
                 }
-                if ("".equals(errorCode) || null == errorCode) {
-                    Pattern pattern2 = Pattern.compile("<error code=['\042](.*)['\042]/>");
-                    Matcher matcher2 = pattern2.matcher(outputErrorMessage);
-                    while (matcher2.find()) {
-                        errorCode = matcher2.group(1);
-                    }
-                }
-                if (!errorCode.equals("") && !errorCode.equals("0")) {
-                    errorMessage = "ERROR_3" + errorMessage;
-                    return errorMessage;
-                }
+            } else {
+                errorCode = null;
+                errorMessage = null;
             }
-            if (outputErrorMessage == null || errorCode.equals("0")) {
-				TreeNode rootNode = getRootNode(concept, "en");
-				if (ids != null && !rootNode.isReadOnly()) {
-					WSItemPK wsItem = Util.getPort().deleteItem(
-							new WSDeleteItem(new WSItemPK(new WSDataClusterPK(
-									dataClusterPK), concept, ids)));
-					if (wsItem != null)
-						pushUpdateReport(ids, concept, "DELETE");
-					else
-						return "ERROR - delteItem is NULL";
-					ctx.getSession().setAttribute("viewNameItems", null);
-					return errorMessage;
-				} else {
-					return errorMessage + " - But no update report";
-				}
-			}
-		} catch (Exception e) {
-			return "ERROR -" + e.getLocalizedMessage();
-		}
-		return null;
+
+            if (outputErrorMessage == null || "0".equals(errorCode)) {
+                TreeNode rootNode = getRootNode(concept, "en");
+                if (ids != null && !rootNode.isReadOnly()) {
+                    WSItemPK wsItem = Util.getPort().deleteItem(
+                            new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+                    if (wsItem != null)
+                        pushUpdateReport(ids, concept, "DELETE");
+                    else
+                        return "ERROR - delteItem is NULL";
+                    ctx.getSession().setAttribute("viewNameItems", null);
+                    return errorMessage;
+                } else {
+                    return errorMessage + " - But no update report";
+                }
+            } else {
+                // Anything but 0 is unsuccessful
+                errorMessage = "ERROR_3" + errorMessage;
+                return errorMessage;
+            }
+
+        } catch (Exception e) {
+            return "ERROR -" + e.getLocalizedMessage();
+        }
 	}
 	
 	public String[] getUriArray(String concept, String[] ids){
