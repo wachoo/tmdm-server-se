@@ -2370,7 +2370,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                                //FIXME mock refresh
                                itemTree.removeNode(itemTree.getRoot().children[0]);
                                node1 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
-                               ItemsBrowserInterface.setTree(dataObject, itemPK2, node1.index, false, treeIndex, false, function(result){                             
+                               var viewName = DWRUtil.getValue('viewItemsSelect');	
+                               ItemsBrowserInterface.setTree(dataObject,viewName, itemPK2, node1.index, false, treeIndex, false, function(result){                             
                                     node1.setDynamicLoad(fnLoadData,1);
                                     node1.expand();
                                     itemTree.draw();
@@ -2438,7 +2439,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     				    ids1 = itemPK2;
     				else
     				    ids1 = ids;
-    				ItemsBrowserInterface.setTree(dataObject, ids1, node2.index, false, treeIndex, true, function(result){
+    				var viewName = DWRUtil.getValue('viewItemsSelect');	
+    				ItemsBrowserInterface.setTree(dataObject,viewName, ids1, node2.index, false, treeIndex, true, function(result){
                         node2.setDynamicLoad(fnLoadData, 1);
                         node2.expand();
                         itemTree.draw();
@@ -2460,16 +2462,17 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			else
     	           tbDetail.baseOptions |=O_ACTION;
     			
+    			var viewName = DWRUtil.getValue('viewItemsSelect');	
     			//add for duplicate case
 				if(isDuplicate){
-					ItemsBrowserInterface.setTree(dataObject, itemPK2, node1.index, false, treeIndex, false, function(result){
+					ItemsBrowserInterface.setTree(dataObject, viewName,itemPK2, node1.index, false, treeIndex, false, function(result){
     				node1.setDynamicLoad(fnLoadData,1);
     				node1.expand();
     				itemTree.draw();
     				ItemsBrowserInterface.updateKeyNodesToEmptyInItemDocument(treeIndex);
     			    });
 				}else{
-					ItemsBrowserInterface.setTree(dataObject, itemPK2, node1.index, false, treeIndex, false, function(result){
+					ItemsBrowserInterface.setTree(dataObject,viewName, itemPK2, node1.index, false, treeIndex, false, function(result){
     				node1.setDynamicLoad(fnLoadData,1);
     				node1.expand();
     				itemTree.draw();
@@ -3682,10 +3685,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 		ItemsBrowserInterface.getRootNode(dataObject,language, function(rootNode){
 			var nameTmp = dataObject;
+			var viewName = DWRUtil.getValue('viewItemsSelect');	
 			if(rootNode.name!=null) nameTmp = rootNode.name;
 			var node2 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
 			//itemTreeFK.setDynamicLoad(fnLoadData2);
-			ItemsBrowserInterface.setTree(dataObject,itemPK,node2.index,true,"", false, function(result){
+			ItemsBrowserInterface.setTree(dataObject,viewName,itemPK,node2.index,true,"", false, function(result){
 			node2.setDynamicLoad(fnLoadData2);
 			node2.expand();
 			itemTreeFK.draw();

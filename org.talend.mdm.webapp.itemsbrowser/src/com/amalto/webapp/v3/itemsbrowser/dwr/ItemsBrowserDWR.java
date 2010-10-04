@@ -285,7 +285,7 @@ public class ItemsBrowserDWR {
 	 * @param nodeId the id of the root node in yui tree
 	 * @return an error or succes message
 	 */
-	public String setTree(String concept, String[] ids, int nodeId, boolean foreignKey, int docIndex, boolean refresh){
+	public String setTree(String concept, String viewName, String[] ids, int nodeId, boolean foreignKey, int docIndex, boolean refresh){
         WebContext ctx = WebContextFactory.get();	
 		try {
 			if(ids == null)
@@ -318,7 +318,7 @@ public class ItemsBrowserDWR {
 				);
 	        	
 				try {
-					extractUsingTransformerThroughView(concept, ids,
+					extractUsingTransformerThroughView(concept, viewName, ids,
 							dataModelPK, dataClusterPK, map, wsItem);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -405,7 +405,7 @@ public class ItemsBrowserDWR {
 	 * 6.add properties into ViewPOJO.
 	 * 7.add properties into webservice parameter. 
 	 */
-	private void extractUsingTransformerThroughView(String concept,
+	private void extractUsingTransformerThroughView(String concept, String viewName,
 			String[] ids, String dataModelPK, String dataClusterPK,
 			Map<String, XSElementDecl> map, WSItem wsItem)
 			throws RemoteException, XtentisWebappException,
@@ -413,11 +413,7 @@ public class ItemsBrowserDWR {
 			TransformerFactoryConfigurationError,
 			TransformerConfigurationException, TransformerException {
 		
-		WSBoolean  isExist = Util.getPort().existsView(new WSExistsView(new WSViewPK("Browse_items_" + concept)));
-		if(!isExist.is_true())
-			return;
-		WSView view = Util.getPort().getView(
-				new WSGetView(new WSViewPK("Browse_items_" + concept)));
+		WSView view = Util.getPort().getView(new WSGetView(new WSViewPK(viewName)));
 
 		if ((null != view.getTransformerPK() && !"".equals(view.getTransformerPK()))&& view.getIsTransformerActive().is_true()) {
 			String transformerPK = view.getTransformerPK();
