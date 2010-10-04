@@ -1621,7 +1621,7 @@ public class ItemsBrowserDWR {
                     if (child instanceof Text)
                         errorMessage = ((Text) child).getTextContent();
                     else
-                        errorMessage = "";
+                        errorMessage = "No message";
                 } else {
                     errorCode = null;
                     errorMessage = outputErrorMessage;
@@ -1639,7 +1639,7 @@ public class ItemsBrowserDWR {
                     if (wsItem != null)
                         pushUpdateReport(ids, concept, "DELETE");
                     else
-                        return "ERROR - delteItem is NULL";
+                        return "ERROR - deleteItem is NULL";
                     ctx.getSession().setAttribute("viewNameItems", null);
                     return errorMessage;
                 } else {
