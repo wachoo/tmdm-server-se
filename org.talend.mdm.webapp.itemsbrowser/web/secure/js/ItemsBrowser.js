@@ -94,7 +94,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Select an Entity'
 	};
 	var LABEL_SELECT_TEMPLATE={
-        'fr':'Sélectionnez une entité',
+        'fr':'Sélectionnez une recherche',
         'en':'Select a Bookmark'
     };
 	
@@ -265,12 +265,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	
 	var BUTTON_BOOKMARK_SEARCH = {
-        'fr':'Bookmark Search',
-        'en':'Bookmark Search'
+        'fr':'Marquer cette recherche',
+        'en':'Bookmark this Search'
     };
     
     var BUTTON_MANAGE_BOOKMARKS = {
-        'fr':'Manage Bookmarks',
+        'fr':'Gérer les recherches',
         'en':'Manage Bookmarks' 
     };
 	
@@ -366,7 +366,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var SELECTED_FIELD = {
 		'fr':'champ sélectionné',
 		'en':'selected field'
-	}
+	};
+	
 	var SELECTED_FIELDS = {
 		'fr':'champs sélectionnés',
 		'en':'selected fields'
@@ -624,7 +625,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						'<input id="item-search-btn" type="button" value="'+BUTTON_SEARCH[language]+'" disabled="true" onClick="amalto.itemsbrowser.ItemsBrowser.displayItems();"/>' +
 						'<input id="item-new-btn" type="button" value="'+BUTTON_NEW_ITEM[language]+'" disabled="true"  onClick="amalto.itemsbrowser.ItemsBrowser.displayItemDetails();"/>'+
 						'&nbsp;&nbsp;&nbsp;&nbsp;'+
-						'<select id="viewItemsCriteriaListSelect" onChange="amalto.itemsbrowser.ItemsBrowser.getViewItems1();"><option value="">'+MSG_LOADING[language]+'</option></select>' +
+						'<select id="viewItemsCriteriaListSelect" onChange="amalto.itemsbrowser.ItemsBrowser.getViewItems1();"><option value="">'+LABEL_SELECT_TEMPLATE[language]+'</option></select>' +
                         '<span id="viewItemsCriterias"></span>'+
 						'<input id="item-save-btn" type="button" value="'+BUTTON_BOOKMARK_SEARCH[language]+'" disabled="true"  onClick="amalto.itemsbrowser.ItemsBrowser.saveCriteriasClick();"/>'+
 						'<input id="item-manage-btn" type="button" value="'+BUTTON_MANAGE_BOOKMARKS[language]+'" disabled="true"  onClick="amalto.itemsbrowser.ItemsBrowser.manageSearchTemplates();"/>',
@@ -819,7 +820,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     	
     	var myColumns = [
         {header: "Bookmarks",  sortable: true,dataIndex: 'name'}, 
-        {header: "Delete",   sortable: true,renderer: deleteItemImg}]
+        {header: "Delete",   sortable: true,renderer: deleteItemImg}];
         var cm = new Ext.grid.ColumnModel(myColumns);       
         cm.defaultSortable = true;
     
@@ -1664,7 +1665,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 											var uriArray = [];
 											uriArray=picUriArray;
 											for (var index = 0; index < uriArray.length; index++) {
-												var picUri=uriArray[index]
+												var picUri=uriArray[index];
 											     if(picUri!=""){
 													 var pos=picUri.indexOf('?');
 									 				 var uri=picUri.substring("/imageserver/".length,pos); 
@@ -2679,7 +2680,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				   innerHml += '<br/>';
 				}
 			else
-			 innerHml += errorString +'<br/>'
+			 innerHml += errorString +'<br/>';
 			$('errorDetail' + treeIndex).style.display = "block";
 			$('errorDetail' + treeIndex).innerHTML = innerHml;
 			_exception = true;
@@ -3155,7 +3156,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				var uriArray = [];
 				uriArray=picUriArray;
 				for (var index = 0; index < uriArray.length; index++) {
-					var picUri=uriArray[index]
+					var picUri=uriArray[index];
 				if(picUri!=""){
 					 var pos=picUri.indexOf('?');
 	 				 var uri=picUri.substring("/imageserver/".length,pos); 
@@ -3281,7 +3282,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 									select : function(src, date) {
 										var setValue = date.format("Y-m-d");
 										if (nodeType == "dateTime") {
-											setValue += "T00:00:00"
+											setValue += "T00:00:00";
 										};
 										if(displayFormats!="null")
 										ItemsBrowserInterface.printFormatDate(language,displayFormats,setValue,"date",function(resultValue){
@@ -3853,9 +3854,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		init: function() {browseItems(); },
 		getViewItems:function() {getViewItems();},
 		
-		getViewItems1:function(){getViewItems1()},
-		saveCriteriasClick:function(){saveCriteriasClick()},
-		manageSearchTemplates:function(){manageSearchTemplates()},
+		getViewItems1:function(){getViewItems1();},
+		saveCriteriasClick:function(){saveCriteriasClick();},
+		manageSearchTemplates:function(){manageSearchTemplates();},
 		
 		displayItems:function() {displayItems();},
 		addItemsCriteria:function(criteriaParent) {addItemsCriteria(criteriaParent);},
@@ -3868,14 +3869,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		setlastUpdatedInputFlagPublic:function(id,treeIndex){setlastUpdatedInputFlag(id,treeIndex);},
 		browseForeignKey:function(nodeId, foreignKeyXpath, foreignKeyInfo){browseForeignKey(nodeId, foreignKeyXpath, foreignKeyInfo);},
 		showDatePicker:function(nodeId,treeIndex,nodeType,displayFormats){showDatePicker(nodeId,treeIndex,nodeType,displayFormats);},
-		showUploadFile: function (nodeId, treeIndex, nodeType){showUploadFile(nodeId, treeIndex, nodeType)},
-		removePicture: function (nodeId, treeIndex){removePicture(nodeId, treeIndex)},
+		showUploadFile: function (nodeId, treeIndex, nodeType){showUploadFile(nodeId, treeIndex, nodeType);},
+		removePicture: function (nodeId, treeIndex){removePicture(nodeId, treeIndex);},
 		chooseForeignKey:function(nodeId,xpath,xpathInfo,fkFilter,treeIndex){chooseForeignKey(nodeId,xpath,xpathInfo,fkFilter,treeIndex);},
-		cloneNode2:function(siblingId,hasIcon,treeIndex){cloneNode2(siblingId,hasIcon,treeIndex)},
-		removeNode2:function(id,treeIndex){removeNode2(id,treeIndex)},
-		displayXsdDetails:function(id){displayXsdDetails(id)},
-		setForeignKey:function(nodeId,treeIndex){setForeignKey(nodeId,treeIndex)},
-		removeForeignKey:function(nodeId, treeIndex){removeForeignKey(nodeId,treeIndex)},
+		cloneNode2:function(siblingId,hasIcon,treeIndex){cloneNode2(siblingId,hasIcon,treeIndex);},
+		removeNode2:function(id,treeIndex){removeNode2(id,treeIndex);},
+		displayXsdDetails:function(id){displayXsdDetails(id);},
+		setForeignKey:function(nodeId,treeIndex){setForeignKey(nodeId,treeIndex);},
+		removeForeignKey:function(nodeId, treeIndex){removeForeignKey(nodeId,treeIndex);},
 		displayItemDetails:function(itemPK2, dataObject){displayItemDetails(itemPK2, dataObject);},
 		editItemDetails:function(itemPK,dataObject,refreshCB){displayItemDetails4Reference(itemPK,dataObject,refreshCB);},
 		getSiblingsLength:function(node){getSiblingsLength(node);},
@@ -3883,5 +3884,5 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);}
 		/*getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
 		setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}*/
- 	}
+ 	};
 }();
