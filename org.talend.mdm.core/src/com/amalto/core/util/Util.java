@@ -77,6 +77,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -2313,19 +2314,23 @@ public class Util {
                 }
                 // handle error message
                 if (outputErrorMessage.length() > 0) {
-
                     String errorCode = "";
                     String errorMessage = "";
-                    Pattern pattern = Pattern.compile("<error code=['\042](.*)['\042]>(.*)</error>");
-                    Matcher matcher = pattern.matcher(outputErrorMessage);
-                    while (matcher.find())
-
-                    {
-                        errorCode = matcher.group(1);
-                        errorMessage = matcher.group(2);
-
+                    
+                    Element root = Util.parse(outputErrorMessage).getDocumentElement();
+                    if (root.getLocalName().equals("error")) {
+                        errorCode = root.getAttribute("code");
+                        Node child = root.getFirstChild();
+                        if (child instanceof Text)
+                            errorMessage = ((Text) child).getTextContent();
+                        else
+                            errorMessage = "No message";
+                    } else {
+                        errorCode = null;
+                        errorMessage = outputErrorMessage;
                     }
-                    if (!errorCode.equals("") && !errorCode.equals("0")) {
+                    
+                    if (!"0".equals(errorCode)) {
                         errorMessage = "ERROR_3:" + errorMessage;
                         return errorMessage;
                     }
@@ -2335,7 +2340,7 @@ public class Util {
                 }
             } catch (Exception e) {
                 Logger.getLogger(Util.class).error(e);
-                return "" + e.getLocalizedMessage();
+                return "ERROR -" + e.getLocalizedMessage();
             }
         }
         return null;
