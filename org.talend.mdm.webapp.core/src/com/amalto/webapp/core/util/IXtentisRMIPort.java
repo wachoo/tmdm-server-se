@@ -87,6 +87,7 @@ import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.UpdateReportItem;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.Version;
+import com.amalto.core.util.WhereConditionForcePivotFilter;
 import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.util.webservices.*;
@@ -2340,10 +2341,15 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
 	public WSString count(WSCount wsCount) throws RemoteException {
 		try {
+			
+			String countPath=wsCount.getCountPath();
+			Map wcfContext=new HashMap();
+			wcfContext.put(WhereConditionForcePivotFilter.FORCE_PIVOT, countPath);
+			
 			long count = Util.getItemCtrl2Local().count(
 				new DataClusterPOJOPK(wsCount.getWsDataClusterPK().getPk()),
 				wsCount.getCountPath(),
-				XConverter.WS2VO(wsCount.getWhereItem()),
+				XConverter.WS2VO(wsCount.getWhereItem(),new WhereConditionForcePivotFilter(wcfContext)),
 				wsCount.getSpellTreshold()
 			);
 			return new WSString(count+"");

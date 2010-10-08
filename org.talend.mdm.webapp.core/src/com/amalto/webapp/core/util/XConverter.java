@@ -51,6 +51,7 @@ import com.amalto.core.util.ArrayListHolder;
 import com.amalto.core.util.RoleInstance;
 import com.amalto.core.util.RoleSpecification;
 import com.amalto.core.util.TransformerPluginSpec;
+import com.amalto.core.util.WhereConditionFilter;
 import com.amalto.webapp.util.webservices.BackgroundJobStatusType;
 import com.amalto.webapp.util.webservices.WSBackgroundJob;
 import com.amalto.webapp.util.webservices.WSBoolean;
@@ -103,7 +104,6 @@ import com.amalto.webapp.util.webservices.WSTypedContent;
 import com.amalto.webapp.util.webservices.WSUniverse;
 import com.amalto.webapp.util.webservices.WSUniverseItemsRevisionIDs;
 import com.amalto.webapp.util.webservices.WSUniverseXtentisObjectsRevisionIDs;
-import com.amalto.webapp.util.webservices.WSVersioningHistoryEntry;
 import com.amalto.webapp.util.webservices.WSView;
 import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
@@ -268,8 +268,12 @@ public class XConverter {
     	return ws;
     }
 	
+    public static IWhereItem WS2VO(WSWhereItem ws) throws Exception{
+		
+		return WS2VO(ws, null);
+	}
     
-	public static IWhereItem WS2VO(WSWhereItem ws) throws Exception{
+	public static IWhereItem WS2VO(WSWhereItem ws, WhereConditionFilter wcf) throws Exception{
     	
     	if (ws==null) return null;
     	
@@ -278,7 +282,7 @@ public class XConverter {
     		WSWhereItem[] children = ws.getWhereAnd().getWhereItems();
     		if (children!=null) {
     			for (int i = 0; i < children.length; i++) {
-					wand.add(WS2VO(children[i]));
+					wand.add(WS2VO(children[i],wcf));
 				}
     		}
     		return wand;
@@ -287,19 +291,22 @@ public class XConverter {
     		WSWhereItem[] children = ws.getWhereOr().getWhereItems();
     		if (children!=null) {
     			for (int i = 0; i < children.length; i++) {
-					wor.add(WS2VO(children[i]));
+					wor.add(WS2VO(children[i],wcf));
 				}
     		}
     		return wor;
     	} else if (ws.getWhereCondition() != null) {
-    		return WS2VO(ws.getWhereCondition());
+    		return WS2VO(ws.getWhereCondition(),wcf);
     	} else {
     		throw new IllegalArgumentException("The WSWhereItem mus have at least one child");
     	}
     }
     
-    
 	public static WhereCondition WS2VO(WSWhereCondition ws) throws Exception{
+		return WS2VO(ws,null);
+	}
+	
+	public static WhereCondition WS2VO(WSWhereCondition ws, WhereConditionFilter wcf) throws Exception{
 		
 		String operator = WhereCondition.CONTAINS;
 		if (ws.getOperator().equals(WSWhereOperator.CONTAINS)) {
@@ -343,13 +350,19 @@ public class XConverter {
 			predicate = WhereCondition.PRE_NOT;
 		}
 		
-		return new WhereCondition(
-			ws.getLeftPath(),
-			operator,
-			ws.getRightValueOrPath(),
-			predicate,
-			ws.isSpellCheck()
-		);
+		WhereCondition myWhereCondition = new WhereCondition(
+				ws.getLeftPath(),
+				operator,
+				ws.getRightValueOrPath(),
+				predicate,
+				ws.isSpellCheck()
+			);
+			
+		if(wcf!=null){
+			wcf.doFilter(myWhereCondition);
+		}
+			
+	   return myWhereCondition;
 	}
     
     

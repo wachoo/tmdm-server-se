@@ -110,6 +110,8 @@ import com.amalto.core.util.TransformerPluginSpec;
 import com.amalto.core.util.UpdateReportItem;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.Version;
+import com.amalto.core.util.WhereConditionFilter;
+import com.amalto.core.util.WhereConditionForcePivotFilter;
 import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.core.webservice.*;
@@ -1021,8 +1023,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
     	return ws;
     }
 	
-    
     protected IWhereItem WS2VO(WSWhereItem ws) throws Exception{
+    	return WS2VO(ws,null);
+    }
+    
+    protected IWhereItem WS2VO(WSWhereItem ws, WhereConditionFilter wcf) throws Exception{
     	
     	if (ws==null) return null;
     	
@@ -1031,7 +1036,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
     		WSWhereItem[] children = ws.getWhereAnd().getWhereItems();
     		if (children!=null) {
     			for (int i = 0; i < children.length; i++) {
-					wand.add(WS2VO(children[i]));
+					wand.add(WS2VO(children[i],wcf));
 				}
     		}
     		return wand;
@@ -1040,18 +1045,22 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
     		WSWhereItem[] children = ws.getWhereOr().getWhereItems();
     		if (children!=null) {
     			for (int i = 0; i < children.length; i++) {
-					wor.add(WS2VO(children[i]));
+					wor.add(WS2VO(children[i],wcf));
 				}
     		}
     		return wor;
     	} else if (ws.getWhereCondition() != null) {
-    		return WS2VO(ws.getWhereCondition());
+    		return WS2VO(ws.getWhereCondition(),wcf);
     	} else {
     		throw new IllegalArgumentException("The WSWhereItem mus have at least one child");
     	}
     }
+    
+    protected WhereCondition WS2VO(WSWhereCondition ws) throws Exception{
+    	return WS2VO(ws,null);
+    }
 	
-	protected WhereCondition WS2VO(WSWhereCondition ws) throws Exception{
+	protected WhereCondition WS2VO(WSWhereCondition ws,WhereConditionFilter wcf) throws Exception{
 		
 		String operator = WhereCondition.CONTAINS;
 		if (ws.getOperator().equals(WSWhereOperator.CONTAINS)) {
@@ -1093,13 +1102,19 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			predicate = WhereCondition.PRE_NOT;
 		}
 		
-		return new WhereCondition(
-			ws.getLeftPath(),
-			operator,
-			ws.getRightValueOrPath(),
-			predicate,
-			ws.isSpellCheck()
-		);
+		WhereCondition myWhereCondition = new WhereCondition(
+				ws.getLeftPath(),
+				operator,
+				ws.getRightValueOrPath(),
+				predicate,
+				ws.isSpellCheck()
+			);
+			
+		if(wcf!=null){
+				wcf.doFilter(myWhereCondition);
+			}
+			
+		return myWhereCondition;
 	}
 	
 	
@@ -1232,10 +1247,15 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 */
 	public WSString count(WSCount wsCount) throws RemoteException {
 		try {
+			
+			String countPath=wsCount.getCountPath();
+			Map wcfContext=new HashMap();
+			wcfContext.put(WhereConditionForcePivotFilter.FORCE_PIVOT, countPath);
+			
 			long count = Util.getItemCtrl2Local().count(
 				new DataClusterPOJOPK(wsCount.getWsDataClusterPK().getPk()),
 				wsCount.getCountPath(),
-				WS2VO(wsCount.getWhereItem()),
+				WS2VO(wsCount.getWhereItem(),new WhereConditionForcePivotFilter(wcfContext)),
 				wsCount.getSpellTreshold()
 			);
 			return new WSString(count+"");
