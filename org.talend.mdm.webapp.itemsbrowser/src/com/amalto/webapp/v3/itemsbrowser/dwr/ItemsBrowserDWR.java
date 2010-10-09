@@ -2796,7 +2796,14 @@ public class ItemsBrowserDWR {
 		boolean isValidation = true;//if true, return null,else return errorMessage
 		if(value.length() == 0  && node!=null && (node.getMinOccurs() >= 1 || checkAncestorMinOCcurs(node))){
 			if(errorMessage == null){
-				if(node.getMinOccurs() >=1)
+			    //by yguo, fix 0016045: Facet messages not taken into account 
+			    if(node.getRestrictions() != null && node.getMinOccurs() >=1 && 
+			       node.getFacetErrorMsg() != null && node.getFacetErrorMsg().size() != 0) 
+			    {
+			        restrictions = node.getRestrictions();
+			        errorMessage = (String) node.getFacetErrorMsg().get("en");
+			    }
+			    else if(node.getMinOccurs() >=1)
 					errorMessage = "The value does not comply with the facet defined in the model: "
 						+ "minOccurs"
 						+": "
