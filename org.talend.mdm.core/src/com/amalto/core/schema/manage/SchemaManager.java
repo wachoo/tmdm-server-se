@@ -135,15 +135,15 @@ public class SchemaManager {
 					Node source=annotList.item(k).getAttributes().getNamedItem("source");
 					if(source==null) continue;
 					String appinfoSource = source.getNodeValue();
-					String appinfoSourceValue =annotList.item(k).getFirstChild().getNodeValue();
-					
-					if(appinfoSource.equals(X_Hide_AppinfoSource)){							
-						appinfoSourceHolder.addSource(X_Hide_AppinfoSource,currentXPath,appinfoSourceValue);
+					if(annotList.item(k)!=null && annotList.item(k).getFirstChild()!=null) {
+						String appinfoSourceValue =annotList.item(k).getFirstChild().getNodeValue();					
+						if(appinfoSource.equals(X_Hide_AppinfoSource)){							
+							appinfoSourceHolder.addSource(X_Hide_AppinfoSource,currentXPath,appinfoSourceValue);
+						}
+						else if(appinfoSource.equals(X_Write_AppinfoSource)){
+							appinfoSourceHolder.addSource(X_Write_AppinfoSource,currentXPath,appinfoSourceValue);					
+						}
 					}
-					else if(appinfoSource.equals(X_Write_AppinfoSource)){
-						appinfoSourceHolder.addSource(X_Write_AppinfoSource,currentXPath,appinfoSourceValue);					
-					}
-					
 					
 				}
 			}	
