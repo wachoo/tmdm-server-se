@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -111,9 +112,12 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
         for (File barFile : monitorFiles)
         {
             String outName = barFile.getAbsolutePath().substring(0, barFile.getAbsolutePath().length() - 4) + SUFFIX_BAR + BAR_ZIP;
+            JarInputStream jarIn = null;
+            JarOutputStream jarOut = null;
+            ByteArrayOutputStream outBytes = null;
             try {
-                JarInputStream jarIn = new JarInputStream(new FileInputStream(barFile));
-                JarOutputStream jarOut = new JarOutputStream(new FileOutputStream(outName));
+                 jarIn = new JarInputStream(new FileInputStream(barFile));
+                 jarOut = new JarOutputStream(new FileOutputStream(outName));
                 JarEntry entry;
                 byte[] buf = new byte[4096];
                 while ((entry = jarIn.getNextJarEntry()) != null) {
@@ -129,7 +133,7 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
                   }
                   else
                   {
-                      ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
+                      outBytes = new ByteArrayOutputStream();
                       while ((read = jarIn.read(buf, 0, 4096)) != -1) {
                           outBytes.write(buf, 0 , read);
                       }
@@ -165,11 +169,18 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
                 	oldBarFiles.add(outName);  
                 }
                 jarOut.flush();
-                jarOut.close();
-                jarIn.close();
             } catch (Exception e) {
-                e.printStackTrace();
                 return false;
+            }
+            finally
+            {
+                try {
+	                outBytes.close();
+					jarOut.close();
+	                jarIn.close();
+				} catch (IOException e) {
+					return false;
+				}
             }
         }
 
@@ -180,7 +191,6 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
                 toDelFile.delete();
         }
 
-        System.gc();
 
         boolean rename = true;
         for (String fileName : newBarFiles)
