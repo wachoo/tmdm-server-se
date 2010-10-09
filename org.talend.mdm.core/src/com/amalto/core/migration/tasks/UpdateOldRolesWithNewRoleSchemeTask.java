@@ -212,7 +212,10 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
 	
 	@Override
 	protected Boolean execute() {
-		
-		return updateRolesInProvision() && updateRolesInDataModel() && updateRolesInWorkFlow();
+		boolean execute = updateRolesInProvision() && updateRolesInDataModel();
+		if(Util.isEnterprise()){
+			execute &= updateRolesInWorkFlow();
+		}
+		return execute;
 	}
 }
