@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.talend.mdm.commmon.util.core.ICoreConstants;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -128,6 +129,9 @@ public class InitDBUtil {
 //				System.out.println("===================================");
 //				System.out.println(xmlString);
 				try {
+				if(MDMConfiguration.getConfiguration().get("cluster_override").equals("true")){
+					ConfigurationHelper.deleteDocumnet(null, datacluster, uniqueID);
+				}
 				ConfigurationHelper.putDomcument(datacluster, xmlString, uniqueID);
 				}catch(Exception e) {}
 			}

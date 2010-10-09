@@ -9,6 +9,7 @@ import javax.naming.NamingException;
 
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
+import com.amalto.core.initdb.InitDBUtil;
 import com.amalto.core.migration.AbstractMigrationTask;
 import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
@@ -66,6 +67,9 @@ public class CoreUpgrades {
     		if(isNeedUpgrade){
     			ConfigurationHelper.removeCluster(null, AbstractMigrationTask.CLUSTER_MIGRATION);
     			org.apache.log4j.Logger.getLogger(CoreUpgrades.class).info("Reset migration history records...");
+    			MDMConfiguration.getConfiguration().setProperty("cluster_override", "true");
+    			MDMConfiguration.save();
+    			InitDBUtil.initDB();
     		}
         	//upgrading
         	upgradeFrom(previousCoreConf.getMajor(), previousCoreConf.getMinor(), previousCoreConf.getRevision());

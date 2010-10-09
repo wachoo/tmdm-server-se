@@ -98,10 +98,10 @@ public class ConfigurationHelper {
 	 * override : false
 	 */
 	public static void putDomcument(String datacluster, String xmlString,String uniqueID) throws XtentisException {
-//		if(Util.getXmlServerCtrlLocal().getDocumentAsString(null, datacluster, uniqueID)==null){
+		if(Util.getXmlServerCtrlLocal().getDocumentAsString(null, datacluster, uniqueID)==null){
 			Util.getXmlServerCtrlLocal().putDocumentFromString(xmlString, uniqueID, datacluster, null);
 			logger.info("Inserted document "+uniqueID+" to datacluster "+datacluster);
-//		}
+		}
 	}
 	
 	/**
