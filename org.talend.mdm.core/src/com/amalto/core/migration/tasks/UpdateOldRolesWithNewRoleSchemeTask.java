@@ -21,12 +21,6 @@ import com.amalto.core.objects.configurationinfo.localutil.ConfigurationHelper;
 import com.amalto.core.util.Util;
 
 public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
-	static final HashMap<String, String> oldRoleToNewRoleMap = new HashMap<String, String>(); 
-	static{
-		oldRoleToNewRoleMap.put("Default_Admin", ICoreConstants.SYSTEM_ADMIN_ROLE);
-		oldRoleToNewRoleMap.put("Default_User", ICoreConstants.SYSTEM_INTERACTIVE_ROLE);
-		oldRoleToNewRoleMap.put("Default_Viewer", ICoreConstants.SYSTEM_VIEW_ROLE);
-	}
 	
 	static final String BAR_ZIP = ".bar";
 	static final String SUFFIX_BAR = "_r";
@@ -44,10 +38,10 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
 				{
 					String uniqueID = users.item(i).getFirstChild().getNodeValue();
 					String userXml = ConfigurationHelper.getServer().getDocumentAsString(null, userClusterName, uniqueID);
-                    String newUniqueID = oldRoleToNewRoleMap.get(uniqueID);
+                    String newUniqueID = ICoreConstants.rolesConvert.oldRoleToNewRoleMap.get(uniqueID);
 					 if(newUniqueID != null)
 					 {
-						 for (Map.Entry<String, String> pair : oldRoleToNewRoleMap.entrySet())
+						 for (Map.Entry<String, String> pair : ICoreConstants.rolesConvert.oldRoleToNewRoleMap.entrySet())
 						 {
 							 userXml = userXml.replaceAll(pair.getKey().toString(), pair.getValue().toString());
 						 }
@@ -79,7 +73,7 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
 					if(uniqueID.equals("XMLSCHEMA---"))continue;
 					String dataModelXml = ConfigurationHelper.getServer().getDocumentAsString(null, dataModelClusterName, uniqueID);
 					String cpyXml = new String(dataModelXml);
-					 for (Map.Entry<String, String> pair : oldRoleToNewRoleMap.entrySet())
+					 for (Map.Entry<String, String> pair : ICoreConstants.rolesConvert.oldRoleToNewRoleMap.entrySet())
 					 {
 						 dataModelXml = dataModelXml.replaceAll(pair.getKey().toString(), pair.getValue().toString());
 					 }
@@ -140,7 +134,7 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
 
                       String orgSrc = new String(outBytes.toByteArray());
                       String orgCpy = new String(orgSrc);
-                      for (Map.Entry<String, String> pair : oldRoleToNewRoleMap.entrySet())
+                      for (Map.Entry<String, String> pair : ICoreConstants.rolesConvert.oldRoleToNewRoleMap.entrySet())
                       {
                           orgSrc = orgSrc.replaceAll(pair.getKey().toString(), pair.getValue().toString());
                       }
