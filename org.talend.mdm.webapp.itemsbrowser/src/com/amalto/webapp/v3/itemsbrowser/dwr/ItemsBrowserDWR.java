@@ -806,13 +806,13 @@ public class ItemsBrowserDWR {
 			
 			
 			HashMap<String,UpdateReportItem> updatedPath;
-			if(ctx.getSession().getAttribute("updatedPath")!=null){
-				updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
+			if(ctx.getSession().getAttribute("updatedPath"+docIndex)!=null){
+				updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath"+docIndex);
 			}				
 			else{
 				updatedPath = new HashMap<String,UpdateReportItem>();
 			}
-			ctx.getSession().setAttribute("updatedPath",updatedPath);
+			ctx.getSession().setAttribute("updatedPath"+docIndex,updatedPath);
 			updatedPath.put(xpath, new UpdateReportItem(xpath,oldPath,""));
 			
 		}
@@ -986,14 +986,14 @@ public class ItemsBrowserDWR {
 			//System.out.println("clone:"+newId+" "+siblingXpath+"["+id+"]");
 			UpdateReportItem ri = new UpdateReportItem(idToXpath.get(newId), "", "");
 			HashMap<String, UpdateReportItem> updatedPath;
-         if (ctx.getSession().getAttribute("updatedPath") != null) {
+         if (ctx.getSession().getAttribute("updatedPath"+docIndex) != null) {
             updatedPath = (HashMap<String, UpdateReportItem>) ctx
-                  .getSession().getAttribute("updatedPath");
+                  .getSession().getAttribute("updatedPath"+docIndex);
          } else {
             updatedPath = new HashMap<String, UpdateReportItem>();
          }
          	updatedPath.put(siblingXpath+"["+(siblingIndex+1)+"]", ri);
-			ctx.getSession().setAttribute("updatedPath", updatedPath);
+			ctx.getSession().setAttribute("updatedPath"+docIndex, updatedPath);
 			
 			nodeAutorization.add(siblingXpath+"["+(siblingIndex+1)+"]");
 			ctx.getSession().setAttribute("nodeAutorization",nodeAutorization);
@@ -1098,9 +1098,9 @@ public class ItemsBrowserDWR {
 				Util.getNodeList(d, xpath).item(0).getFirstChild().setNodeValue(content);
 			//TODO add path to session
 			HashMap<String,UpdateReportItem> updatedPath;
-			if(ctx.getSession().getAttribute("updatedPath")!=null){
-				updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
-			}				
+			if(ctx.getSession().getAttribute("updatedPath"+docIndex)!=null){
+				updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath"+docIndex);
+			}
 			else{
 				updatedPath = new HashMap<String,UpdateReportItem>();
 			}			
@@ -1109,7 +1109,7 @@ public class ItemsBrowserDWR {
 			}
 			UpdateReportItem item = new UpdateReportItem(xpath,oldValue,content);
 			updatedPath.put(xpath,item);
-			ctx.getSession().setAttribute("updatedPath",updatedPath);
+			ctx.getSession().setAttribute("updatedPath"+docIndex,updatedPath);
 			return "Node updated";
 		} 
 		catch (Exception e2) {
@@ -1365,9 +1365,9 @@ public class ItemsBrowserDWR {
 					.removeChild(Util.getNodeList(d, idToXpath.get(id)).item(0));
 			// add by ymli
 			HashMap<String, UpdateReportItem> updatedPath;
-			if (ctx.getSession().getAttribute("updatedPath") != null) {
+			if (ctx.getSession().getAttribute("updatedPath"+docIndex) != null) {
 				updatedPath = (HashMap<String, UpdateReportItem>) ctx
-						.getSession().getAttribute("updatedPath");
+						.getSession().getAttribute("updatedPath"+docIndex);
 			} else {
 				updatedPath = new HashMap<String, UpdateReportItem>();
 			}
@@ -1399,7 +1399,7 @@ public class ItemsBrowserDWR {
 			updatedPath.put(path, ri);
 			idToXpath.remove(id);
 			ctx.getSession().setAttribute("idToXpath", idToXpath);
-			ctx.getSession().setAttribute("updatedPath", updatedPath);
+			ctx.getSession().setAttribute("updatedPath"+docIndex, updatedPath);
 			return "Deleted";
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1480,10 +1480,10 @@ public class ItemsBrowserDWR {
 			
 			//check updatedPath
 			HashMap<String,UpdateReportItem> updatedPath = new HashMap<String,UpdateReportItem>();
-			updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
-			/*if(!"DELETE".equals(operationType) && updatedPath==null){
+			updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath"+docIndex);
+			if(!"DELETE".equals(operationType) && updatedPath==null){
 				return "ERROR_2";
-			}*/
+			}
 			//create updateReport
 //			String resultUpdateReport = createUpdateReport(ids, concept, operationType, updatedPath);
 			
@@ -1566,7 +1566,7 @@ public class ItemsBrowserDWR {
 							new WSDataClusterPK(dataClusterPK), 
 							xml,
 							new WSDataModelPK(dataModelPK),isUpdateThisItem),"genericUI",true));
-			synchronizeUpdateState(ctx);
+			synchronizeUpdateState(ctx,docIndex);
 			if(wsi!=null) {
 				//put update report
 				ctx.getSession().setAttribute("treeIdxToIDS" + docIndex, wsi.getIds());
@@ -1604,7 +1604,7 @@ public class ItemsBrowserDWR {
 	}
 	
 	
-	public String deleteItem(String concept, String[] ids) {
+	public String deleteItem(String concept, String[] ids,int docIndex) {
 		WebContext ctx = WebContextFactory.get();
 		try {
             Configuration config = Configuration.getInstance();
@@ -1637,7 +1637,7 @@ public class ItemsBrowserDWR {
                     WSItemPK wsItem = Util.getPort().deleteItem(
                             new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
                     if (wsItem != null)
-                        pushUpdateReport(ids, concept, "DELETE");
+                        pushUpdateReport(ids, concept, "DELETE",docIndex);//If docIndex is -1, it means the item is deleted from the list.
                     else
                         return "ERROR - deleteItem is NULL";
                     ctx.getSession().setAttribute("viewNameItems", null);
@@ -1707,7 +1707,7 @@ public class ItemsBrowserDWR {
 								), path));
 				if(wsItem!=null && xml!=null)
 					if("/".equalsIgnoreCase(path)){
-						pushUpdateReport(ids,concept, "DELETE");
+						pushUpdateReport(ids,concept, "DELETE",docIndex);
 					}else{//part delete consider as 'UPDATE'																		
 						xml = xml.replaceAll("<\\?xml.*?\\?>","");
 						String xpath= path.replaceAll("/"+concept, "");
@@ -1715,11 +1715,11 @@ public class ItemsBrowserDWR {
 						Object oldValue=jxpContext.getValue(xpath);
 						if(oldValue!=null && !oldValue.equals("")){
 							UpdateReportItem item = new UpdateReportItem(path,oldValue.toString(),"");
-							HashMap<String,UpdateReportItem> updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
+							HashMap<String,UpdateReportItem> updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath"+docIndex);
 							if(updatedPath==null)updatedPath = new HashMap<String,UpdateReportItem>();
 							updatedPath.put(path,item);
-							ctx.getSession().setAttribute("updatedPath",updatedPath);
-							pushUpdateReport(ids,concept, "UPDATE");
+							ctx.getSession().setAttribute("updatedPath"+docIndex,updatedPath);
+							pushUpdateReport(ids,concept, "UPDATE",docIndex);
 						}
 					}
 				else
@@ -1802,7 +1802,7 @@ public class ItemsBrowserDWR {
 	}
 	
 
-	public String parseForeignKeyFilter(String dataObject,String fkFilter) throws Exception{
+	public String parseForeignKeyFilter(String dataObject,String fkFilter,int docIndex) throws Exception{
 		
             String parsedFkfilter=fkFilter;
 		
@@ -1811,7 +1811,7 @@ public class ItemsBrowserDWR {
 			HashMap<String,TreeNode> xpathToTreeNode = 
 				(HashMap<String,TreeNode>)ctx.getSession().getAttribute("xpathToTreeNode");
 			HashMap<String,UpdateReportItem> updatedPath = 
-				(HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
+				(HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath"+docIndex);
 			
 			if(fkFilter!=null) {
 				
@@ -1925,31 +1925,36 @@ public class ItemsBrowserDWR {
 	/**
 	 * lym
 	 */
-	public String countForeignKey_filter(String dataObject,String xpathForeignKey, String fkFilter) throws Exception{
-		return Util.countForeignKey_filter(xpathForeignKey, parseForeignKeyFilter(dataObject,fkFilter));
+	public String countForeignKey_filter(String dataObject,String xpathForeignKey, String fkFilter,int docIndex) throws Exception{
+		return Util.countForeignKey_filter(xpathForeignKey, parseForeignKeyFilter(dataObject,fkFilter,docIndex));
 	}
 
-	public String getForeignKeyListWithCount(int start, int limit, String value,String dataObject, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter) 
+	public String getForeignKeyListWithCount(int start, int limit, String value,String dataObject, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter,int docIndex) 
 	   throws RemoteException, Exception 
 	{
-	   return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, parseForeignKeyFilter(dataObject,fkFilter), true);
+	   return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, parseForeignKeyFilter(dataObject,fkFilter,docIndex), true);
 	}
 	
-	private static String pushUpdateReport(String[] ids, String concept, String operationType)throws Exception{
+	private static String pushUpdateReport(String[] ids, String concept, String operationType,int docIndex)throws Exception{
 		org.apache.log4j.Logger.getLogger(ItemsBrowserDWR.class).trace("pushUpdateReport() concept "+concept+" operation "+operationType);
 
 		//check updatedPath
-		WebContext ctx = WebContextFactory.get();
-		HashMap<String,UpdateReportItem> updatedPath = new HashMap<String,UpdateReportItem>();
-		updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath");
-		if(!"DELETE".equals(operationType) && updatedPath==null){
-			return "ERROR_2";
+		if(docIndex!=-1){
+			WebContext ctx = WebContextFactory.get();
+			HashMap<String,UpdateReportItem> updatedPath = new HashMap<String,UpdateReportItem>();
+			updatedPath = (HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath"+docIndex);
+			if(!"DELETE".equals(operationType) && updatedPath==null){
+				return "ERROR_2";
+			}
+			
+			String xml2 = createUpdateReport(ids, concept, operationType,updatedPath);
+			
+			synchronizeUpdateState(ctx,docIndex);
+			return persistentUpdateReport(xml2,true);			
+			
 		}
-		
-		String xml2 = createUpdateReport(ids, concept, operationType,updatedPath);
-
-		synchronizeUpdateState(ctx);
-		return persistentUpdateReport(xml2,true);			
+		else
+			return "OK";
 	}
 
 
@@ -1979,13 +1984,14 @@ public class ItemsBrowserDWR {
 		}
 	}
 
-	public static void  synchronizeUpdateState() {
+	public static void  synchronizeUpdateState(int docIndex) {
         WebContext ctx = WebContextFactory.get();   
-        synchronizeUpdateState(ctx);
+        synchronizeUpdateState(ctx,docIndex);
     }
 	
-	private static void synchronizeUpdateState(WebContext ctx) {
-		ctx.getSession().setAttribute("updatedPath",null);
+	private static void synchronizeUpdateState(WebContext ctx,int docIndex) {
+		if(docIndex!=-1)
+			ctx.getSession().setAttribute("updatedPath"+docIndex,null);
 		ctx.getSession().setAttribute("viewNameItems",null);
 	}
 

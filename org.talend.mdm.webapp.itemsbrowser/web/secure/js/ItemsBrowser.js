@@ -1678,7 +1678,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 											     }//end if
 			                               }//end for
 			                            });//end callback									
-										ItemsBrowserInterface.deleteItem(_dataObject, itemPK, function(result){
+										ItemsBrowserInterface.deleteItem(_dataObject, itemPK,-1, function(result){
 											if(result==null || result==""){
 												return;
 											}else{
@@ -3169,7 +3169,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				  }
 			   }
 			});
-			ItemsBrowserInterface.deleteItem(dataObject, itemPK, function(result){
+			ItemsBrowserInterface.deleteItem(dataObject, itemPK,treeIndex, function(result){
 				if(result.lastIndexOf("ERROR")>-1){
 					var err1=result.substring(7);
 					//Ext.MessageBox.alert("ERROR", err1);
@@ -3470,7 +3470,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    amalto.core.ready();
 	    var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
 	    var dataObject=tbDetail.dataObject;
-		ItemsBrowserInterface.countForeignKey_filter(dataObject,xpathForeignKey,fkFilter, function(count){
+		ItemsBrowserInterface.countForeignKey_filter(dataObject,xpathForeignKey,fkFilter,treeIndex, function(count){
 			//Display a pop-up window to search for foreign keys
 			if(foreignKeyWindow){
 			    foreignKeyWindow.hide();
@@ -3480,7 +3480,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var store = new Ext.data.Store({
 				proxy: new Ext.ux.data.ImprovedDWRProxy({
 			        dwrFunction: ItemsBrowserInterface.getForeignKeyListWithCount,
-			        dwrAdditional: [dataObject,xpathForeignKey, xpathInfoForeignKey,fkFilter ] //, Ext.getCmp('foreign-key-filter').getValue()]}
+			        dwrAdditional: [dataObject,xpathForeignKey, xpathInfoForeignKey,fkFilter,treeIndex] //, Ext.getCmp('foreign-key-filter').getValue()]}
 				}),
 		        reader: new Ext.data.JsonReader({
 		            root: 'rows',
