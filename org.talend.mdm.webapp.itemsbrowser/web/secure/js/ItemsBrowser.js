@@ -3135,6 +3135,30 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	                }else{
 				       if(callbackOnSuccess)callbackOnSuccess();   
 					}
+					if(result==null || result==""){
+						return;
+					}else{
+						if(result.lastIndexOf("ERROR")>-1){
+							var err1=result.substring(7);
+							if(err1==null || err1==""){
+								return;
+							}else{
+								Ext.MessageBox.show({
+								    msg:err1,
+								    buttons:{"ok":"CANCEL"},
+								    icon:Ext.MessageBox.ERROR
+								 });
+								return;
+							}
+						}else{
+							Ext.MessageBox.show({
+							    msg:result,
+							    buttons:{"ok":"OK"},
+							    icon:Ext.MessageBox.INFO
+							 });
+							return;
+						}
+					}
 					amalto.core.ready();
 					tbDetail.items.get('saveBTN').enable();
 					tbDetail.items.get('saveAndQBTN').enable();

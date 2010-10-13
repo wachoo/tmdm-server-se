@@ -1576,7 +1576,7 @@ public class ItemsBrowserDWR {
 //					return persistentUpdateReport(resultUpdateReport,true);
 //				}
 			}
-			return "OK";
+			return "Process beforeSaving_"+concept+" has been executed";
 		}
 		catch(Exception e){	
 	         String saveSUCCE = "Save item '" + concept + "." + Util.joinStrings(ids, ".") + 
