@@ -69,7 +69,7 @@ public class DataModelPOJO extends ObjectPOJO{
 	 * @return the xsd Schema
 	 */
 	public String getSchema() {
-		return SchemaUtil.formatXsdSource(schema);
+		return schema;		
 	}
 	
 	public void setSchema(String schema) {

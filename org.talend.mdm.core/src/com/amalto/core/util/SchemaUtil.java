@@ -29,7 +29,10 @@ public class SchemaUtil {
 			format.setSuppressDeclaration(true);
 			XMLWriter xmlwriter = new XMLWriter(writer, format);
 			xmlwriter.write(document);
-			return writer.toString();
+			String str= writer.toString();
+			writer.close();
+			xmlwriter.close();
+			return str;
 		} catch (Exception e) {
 			
 		}
