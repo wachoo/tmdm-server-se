@@ -966,6 +966,8 @@ public class ItemsBrowserDWR {
 			else
 				node.getParentNode().appendChild(nodeClone);
 */			
+			ctx.getSession().setAttribute("itemDocument"+docIndex,node.getOwnerDocument());
+			
 			String siblingXpath = idToXpath.get(siblingId).replaceAll("\\[\\d+\\]$","");
 			
 			//int id = Util.getNodeList(d,siblingXpath).getLength();
@@ -974,9 +976,15 @@ public class ItemsBrowserDWR {
 			int siblingIndex = getXpathIndex(idToXpath.get(siblingId));
 			
 			//idToXpath.put(newId,siblingXpath+"["+id+"]");
+			HashMap<String, UpdateReportItem> updatedPath;
+	         if (ctx.getSession().getAttribute("updatedPath"+docIndex) != null) {
+	            updatedPath = (HashMap<String, UpdateReportItem>) ctx
+	                  .getSession().getAttribute("updatedPath"+docIndex);
+	         } else {
+	            updatedPath = new HashMap<String, UpdateReportItem>();
+	         }
 			
-			
-			editXpathInidToXpathAdd(siblingId, idToXpath);
+			editXpathInidToXpathAdd(siblingId, idToXpath,updatedPath);
 			
 			idToXpath.put(newId,siblingXpath+"["+(siblingIndex+1)+"]");
 			ctx.getSession().setAttribute("idToXpath", idToXpath);
@@ -985,18 +993,12 @@ public class ItemsBrowserDWR {
 			
 			//System.out.println("clone:"+newId+" "+siblingXpath+"["+id+"]");
 			UpdateReportItem ri = new UpdateReportItem(idToXpath.get(newId), "", "");
-			HashMap<String, UpdateReportItem> updatedPath;
-         if (ctx.getSession().getAttribute("updatedPath"+docIndex) != null) {
-            updatedPath = (HashMap<String, UpdateReportItem>) ctx
-                  .getSession().getAttribute("updatedPath"+docIndex);
-         } else {
-            updatedPath = new HashMap<String, UpdateReportItem>();
-         }
          	updatedPath.put(siblingXpath+"["+(siblingIndex+1)+"]", ri);
 			ctx.getSession().setAttribute("updatedPath"+docIndex, updatedPath);
 			
 			nodeAutorization.add(siblingXpath+"["+(siblingIndex+1)+"]");
 			ctx.getSession().setAttribute("nodeAutorization",nodeAutorization);
+			
 			return "Cloned";
 			
 		} catch (Exception e) {
@@ -1057,7 +1059,7 @@ public class ItemsBrowserDWR {
 
     }
     
-	public String updateNode(int id, String content, int docIndex) throws TransformerException{
+	public String updateNode(int id, String content, int docIndex){
 		WebContext ctx = WebContextFactory.get();
 		HashMap<Integer,String> idToXpath = 
 			(HashMap<Integer,String>) ctx.getSession().getAttribute("idToXpath");
@@ -1066,7 +1068,7 @@ public class ItemsBrowserDWR {
 		return updateNode2(xpath,StringEscapeUtils.unescapeHtml(content),docIndex);
 	}
 	
-	public static String updateNode2(String xpath, String content, int docIndex) throws TransformerException{
+	public static String updateNode2(String xpath, String content, int docIndex){
 		WebContext ctx = WebContextFactory.get();
 		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);
 		HashMap<Integer,String> idToXpath = 
@@ -1080,14 +1082,14 @@ public class ItemsBrowserDWR {
 
 		//TODO
 		
-		int i = xpath.lastIndexOf("/");
-		String subXpath = xpath.substring(0, i);
+		/*int i = xpath.lastIndexOf("/");
+		String subXpath = xpath.substring(0, i);*/
 //		if(!nodeAutorization.contains(xpath) 
 //				&& !nodeAutorization.contains(xpath.replaceAll("\\[.*\\]",""))&&!nodeAutorization.contains(subXpath)){
 //			return "Not authorized";
 //		}
 		try {			
-			Document d2 = checkNode(xpath, d);
+			//Document d2 = checkNode(xpath, d);
 			String oldValue = Util.getFirstTextNode(d,xpath);
 			if(content.equals(oldValue))
 				return "Nothing to update";
@@ -1184,11 +1186,11 @@ public class ItemsBrowserDWR {
 	 *  '/PurchaseOrder/ListItems/POItem[j]'(j>i), j--
 	 * 
 	 */
-	public void editXpathInidToXpath(int id ,HashMap<Integer,String> idToXpath){
+	public void editXpathInidToXpath(int id ,HashMap<Integer,String> idToXpath,HashMap<String, UpdateReportItem> updatedPath){
 		String nodeXpath = idToXpath.get(id).replaceAll("\\[\\d+\\]$","");
 		String patternXpath = nodeXpath.replaceAll("\\[", "\\\\[");
 		patternXpath = patternXpath.replaceAll("\\]", "\\\\]");;
-		Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\]$)");
+		Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\](.*?))");
 		Matcher m = p.matcher(idToXpath.get(id));
 		int nodeIndex = -1;
 		if (m.matches()) 
@@ -1197,19 +1199,27 @@ public class ItemsBrowserDWR {
 		while(keys.hasNext()){
 			int key = keys.next();
 			String xpath = idToXpath.get(key);
-			
-			if(xpath.matches(patternXpath+"\\[\\d+\\]$")){
+			String xpath1 = xpath;
+			if(xpath.matches(patternXpath+"\\[\\d+\\].*")){
 				int pathIndex = -1;
 				Matcher m1 = p.matcher(xpath);
 				if (m1.matches()) 
 					pathIndex =  Integer.parseInt(m1.group(3));
 				if(nodeIndex<pathIndex){
+					//m1.group(m1.groupCount());
+						
 					pathIndex--;
-					xpath = nodeXpath+"["+pathIndex+"]";
+					xpath = nodeXpath+"["+pathIndex+"]"+m1.group(m1.groupCount());
 //					keys.remove();
 //					idToXpath.remove(key);
 					idToXpath.put(key, xpath);
 					
+
+					if(updatedPath.get(xpath1)!=null){
+						UpdateReportItem uri = updatedPath.get(xpath1);
+						updatedPath.remove(xpath1);
+						updatedPath.put(xpath,uri);
+					}
 				}//if(nodeIndex
 				
 			}//if(xpath
@@ -1224,7 +1234,7 @@ public class ItemsBrowserDWR {
 	 *  '/PurchaseOrder/ListItems/POItem[j]'(j>i), j++
 	 * 
 	 */
-	public void  editXpathInidToXpathAdd(int id ,HashMap<Integer,String> idToXpath){
+	public void  editXpathInidToXpathAdd(int id ,HashMap<Integer,String> idToXpath,HashMap<String, UpdateReportItem> updatedPath){
 		/*String nodeXpath = idToXpath.get(id).replace("\\[\\d+\\]$","");
 		String patternXpath = nodeXpath.replaceAll("\\[", "\\\\[");
 		patternXpath = patternXpath.replaceAll("\\]", "\\\\]");*/
@@ -1251,6 +1261,7 @@ public class ItemsBrowserDWR {
 		while(keys.hasNext()){
 			int key = keys.next();
 			String xpath = idToXpath.get(key);
+			String xpath1 = xpath;
 			String lastString = "";
 			//if(xpath.matches(patternXpath+"\\[\\d+\\](.*?)")){
 			int xpathIndex = xpath.indexOf(patternXpath);
@@ -1267,6 +1278,12 @@ public class ItemsBrowserDWR {
 					pathIndex++;
 					xpath = patternXpath+"["+pathIndex+"]"+lastString;
 					idToXpath.put(key, xpath);
+					
+					if(updatedPath.get(xpath1)!=null){
+						UpdateReportItem uri = updatedPath.get(xpath1);
+						updatedPath.remove(xpath1);
+						updatedPath.put(xpath,uri);
+					}
 					
 				}//if(nodeIndex
 				
@@ -1358,11 +1375,14 @@ public class ItemsBrowserDWR {
 		try {
 
 			// System.out.println("remove:"+id+" "+idToXpath.get(id));
+			//String xml = CommonDWR.getXMLStringFromDocument(d);
 			Util
 					.getNodeList(d, idToXpath.get(id))
 					.item(0)
 					.getParentNode()
 					.removeChild(Util.getNodeList(d, idToXpath.get(id)).item(0));
+			
+			//String xml1 = CommonDWR.getXMLStringFromDocument(d);
 			// add by ymli
 			HashMap<String, UpdateReportItem> updatedPath;
 			if (ctx.getSession().getAttribute("updatedPath"+docIndex) != null) {
@@ -1375,7 +1395,7 @@ public class ItemsBrowserDWR {
 					oldValue, "");
 
 			// editUpdatedPath(updatedPath,idToXpath.get(id));
-			editXpathInidToXpath(id, idToXpath);
+			editXpathInidToXpath(id, idToXpath,updatedPath);
 			//add by ymli. fix the bug:0010576. edit the path
 			String path = idToXpath.get(id);
 			if (updatedPath.get(idToXpath.get(id)) != null) {
@@ -1400,6 +1420,7 @@ public class ItemsBrowserDWR {
 			idToXpath.remove(id);
 			ctx.getSession().setAttribute("idToXpath", idToXpath);
 			ctx.getSession().setAttribute("updatedPath"+docIndex, updatedPath);
+			ctx.getSession().setAttribute("itemDocument" + docIndex,d);
 			return "Deleted";
 		} catch (Exception e) {
 			e.printStackTrace();
