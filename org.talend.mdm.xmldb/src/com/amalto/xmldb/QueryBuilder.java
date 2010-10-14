@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 
 import com.amalto.commons.core.utils.XPathUtils;
@@ -37,6 +38,7 @@ import com.amalto.xmlserver.interfaces.XmlServerException;
  */
 public class QueryBuilder {
 
+    private static final Logger LOG = Logger.getLogger(QueryBuilder.class);
 	/**
 	 * Builds the xQuery Return statement
 	 * @param viewableFullPaths
@@ -246,7 +248,7 @@ public class QueryBuilder {
 	    } catch (Exception e) {
      	    String err = "Unable to build the XQuery Where Clause "
      	    		+": "+e.getLocalizedMessage();
-     	    org.apache.log4j.Logger.getLogger("INFO SYSTRACE "+QueryBuilder.class).info(err,e);
+     	    LOG.error(err,e);
      	    throw new XmlServerException(err);
 	    }
 	}
@@ -512,7 +514,7 @@ public class QueryBuilder {
 		} catch (Exception e) {
      	    String err = "Unable to build the Where Condition "
      	    		+": "+e.getLocalizedMessage();
-     	    org.apache.log4j.Logger.getLogger(QueryBuilder.class).info(err,e);
+     	    LOG.error(err,e);
      	    throw new XmlServerException(err);
 	    }
 
@@ -676,16 +678,17 @@ public class QueryBuilder {
 	    	query=query.replaceAll(" and \\(\\)"," ");
 	    	query=query.replaceAll("\\(\\(\\) and","( ");
 
-	    	System.out.println("query:\n");
-	    	System.out.println(query);
-	    	
+	    	if(LOG.isDebugEnabled()) {
+                LOG.debug("query:\n");
+                LOG.debug(query);
+	    	}
 	    	return query;
 
     	} catch (XmlServerException e) {
     		throw(e);
 	    } catch (Exception e) {
      	    String err = "Unable to build the Item XQuery";
-     	    org.apache.log4j.Logger.getLogger("INFO SYSTRACE "+QueryBuilder.class).info(err,e);
+     	    LOG.error(err,e);
      	    throw new XmlServerException(err);
 	    }
     }
