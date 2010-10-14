@@ -72,7 +72,7 @@ public class CoreUpgrades {
     			InitDBUtil.initDB();
     		}
         	//upgrading
-        	upgradeFrom(previousCoreConf.getMajor(), previousCoreConf.getMinor(), previousCoreConf.getRevision());
+        	upgradeFrom(previousCoreConf.getMajor(), previousCoreConf.getMinor(), previousCoreConf.getRevision(),forceupgrade);
     	} else {
     		org.apache.log4j.Logger.getLogger(CoreUpgrades.class).info("No core upgrade needed...");
     	}
@@ -124,10 +124,10 @@ public class CoreUpgrades {
 	}
 	
 
-    private static void upgradeFrom(int previousMajor, int previousMinor, int previousRevision) throws XtentisException{
+    private static void upgradeFrom(int previousMajor, int previousMinor, int previousRevision,boolean forceupgrade) throws XtentisException{
 
     	//execute migration task
-    	MigrationRepository.getInstance().connect();
+    	MigrationRepository.getInstance().connect(forceupgrade);
 		
     	org.apache.log4j.Logger.getLogger(CoreUpgrades.class).info("Done upgrade from "+previousMajor+"."+previousMinor+"."+previousRevision+" to current version. ");
 		org.apache.log4j.Logger.getLogger(CoreUpgrades.class).info("Core upgrades completed. ");

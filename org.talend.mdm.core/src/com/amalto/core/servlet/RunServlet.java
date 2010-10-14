@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.objects.configurationinfo.assemble.AssembleConcreteBuilder;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleDirector;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleProc;
@@ -88,6 +90,7 @@ public class RunServlet extends HttpServlet {
         		Util.getConfigurationInfoCtrlLocal().autoUpgradeInBackground(assembleProc);
     			
     		} else if("migrate".equals(action)){
+    			MDMConfiguration.getConfiguration(true);
     			writer.write(
        					"<p><b>Migrate data to the new revision</b><br/>" +
        					"Check jboss/server/default/log/server.log or the jboss console output to determine when migrate is completed</b></p>"

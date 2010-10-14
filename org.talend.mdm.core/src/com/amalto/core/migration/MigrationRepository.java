@@ -88,9 +88,9 @@ public class MigrationRepository{
 	}
   
    
-   public void connect()
+   public void connect(boolean forceupgrade)
    {	   
-	   execute(false);
+	   execute(forceupgrade);
    }
 
 }
