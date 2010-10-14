@@ -5,11 +5,13 @@ import java.util.Collection;
 import javax.ejb.EJBException;
 import javax.naming.InitialContext;
 
+import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
 
@@ -22,7 +24,7 @@ public class StoredProcedurePOJO extends ObjectPOJO{
     private String name;
     private String description;
     private String procedure;
-        
+    private boolean refreshCache;    
     /**
      * 
      */
@@ -52,6 +54,14 @@ public class StoredProcedurePOJO extends ObjectPOJO{
 	}
 
 	
+	public boolean isRefreshCache() {
+		return refreshCache;
+	}
+
+	public void setRefreshCache(boolean refreshCache) {
+		this.refreshCache = refreshCache;
+	}
+
 	/**
 	 * @return Returns the Description.
 	 */
@@ -88,19 +98,15 @@ public class StoredProcedurePOJO extends ObjectPOJO{
     	if (getProcedure()==null) return null;
     	
         try {
-	    	
+	    	if(refreshCache) {
+	    		ItemPOJO.clearCache();
+	    	}
             //get the xml server wrapper
-            XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Error Executing Stored Procedure '"+getName()+"': unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-				throw new XtentisException(err);
-			}
-        	
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        	String cluster=null;
+        	if(dataClusterPOJOPK!=null)cluster=dataClusterPOJOPK.getUniqueId();
         	//execute
-        	return server.runQuery(revisionID, dataClusterPOJOPK.getUniqueId(), getProcedure(), parameters);
+        	return server.runQuery(revisionID, cluster, getProcedure(), parameters);
  
 	    } catch (Exception e) {
     	    String err = "Unable to execute the Stored Procedure "+getPK().getUniqueId()

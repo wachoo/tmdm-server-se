@@ -2583,15 +2583,19 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	public WSStringArray executeStoredProcedure(WSExecuteStoredProcedure wsExecuteStoredProcedure) throws RemoteException {
 		try {
 			StoredProcedureCtrlLocal ctrl = Util.getStoredProcedureCtrlLocal();
+			DataClusterPOJOPK dcpk=null;
+			if(wsExecuteStoredProcedure.getWsDataClusterPK()!=null) {
+				dcpk=new DataClusterPOJOPK(
+						wsExecuteStoredProcedure.getWsDataClusterPK().getPk()
+				);
+			}
 			Collection c =
 				ctrl.execute(
 					new StoredProcedurePOJOPK(
 							wsExecuteStoredProcedure.getWsStoredProcedurePK().getPk()
 					),
 					wsExecuteStoredProcedure.getRevisionID(),
-					new DataClusterPOJOPK(
-							wsExecuteStoredProcedure.getWsDataClusterPK().getPk()
-					),
+					dcpk,
 					wsExecuteStoredProcedure.getParameters()
 				);
 			if (c==null) return null;
@@ -2699,6 +2703,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 		ws.setName(storedProcedurePOJO.getName());
 		ws.setDescription(storedProcedurePOJO.getDescription());
 		ws.setProcedure(storedProcedurePOJO.getProcedure());
+		ws.setRefreshCache(storedProcedurePOJO.isRefreshCache());
 		return ws;
 	}
 
@@ -2707,6 +2712,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 		pojo.setName(wsStoredProcedure.getName());
 		pojo.setDescription(wsStoredProcedure.getDescription());
 		pojo.setProcedure(wsStoredProcedure.getProcedure());
+		pojo.setRefreshCache(wsStoredProcedure.getRefreshCache());
 		return pojo;
 	}
 	
