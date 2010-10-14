@@ -726,7 +726,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
              else{
                   addAdnSetItemsCriteria("itemsCriteria"+itemsCriteriaParentId, itemsCriteriaParentId, items[3]);
                   setValuesForCriteria(items,itemsCriteriaParentId);
-                  outPutCriteriaResult();
+                  outPutCriteriaResult(); 
+                  
              }   
             
        }
@@ -737,6 +738,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function setValuesForCriteria(items,idtt){
 	   	
 	   DWRUtil.setValue("itemsSearchField"+idtt,items[0]);
+	   updateOperatorList(idtt);
+	   
 	   DWRUtil.setValue("itemsSearchOperator"+idtt,items[1]); 
 	   DWRUtil.setValue("itemsSearchValue"+idtt,items[2]);
 	   
@@ -1096,7 +1099,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         DWRUtil.addOptions('itemsSearchField'+actulId,itemsElements);
         
         newCriteriaItemSet(idx, and);
-        updateOperatorList(actulId);
+        //updateOperatorList(actulId);
 		itemsCriteriaParentId =  actulId;
 	   
 	}
