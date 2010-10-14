@@ -25,6 +25,7 @@ import java.security.Principal;
 import java.security.acl.Group;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +35,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ejb.CreateException;
+import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
@@ -62,6 +65,7 @@ import sun.misc.BASE64Encoder;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
@@ -1500,4 +1504,26 @@ public class Util {
 				return Double.valueOf(value);
 			return null;
 		}	
+
+	public static boolean isTransformerExist(String transformerPK) {
+		try {
+			boolean isBeforeSavingTransformerExist = false;
+			Collection<TransformerV2POJOPK> wst = com.amalto.core.util.Util
+					.getTransformerV2CtrlLocal().getTransformerPKs("*");
+			for (TransformerV2POJOPK id : wst) {
+				if (id.getIds()[0].equals(transformerPK)) {
+					isBeforeSavingTransformerExist = true;
+					break;
+				}
+			}
+			return isBeforeSavingTransformerExist;
+		} catch (XtentisException e) {
+			e.printStackTrace();
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (CreateException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 }

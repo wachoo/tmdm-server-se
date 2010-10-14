@@ -1597,7 +1597,11 @@ public class ItemsBrowserDWR {
 //					return persistentUpdateReport(resultUpdateReport,true);
 //				}
 			}
-			return "Process beforeSaving_"+concept+" has been executed";
+			if(Util.isTransformerExist("beforeSaving_"+concept)){
+				return "Process beforeSaving_"+concept+" has been executed";
+			}else{
+				return "OK";
+			}
 		}
 		catch(Exception e){	
 	         String saveSUCCE = "Save item '" + concept + "." + Util.joinStrings(ids, ".") + 
