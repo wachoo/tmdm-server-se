@@ -101,6 +101,7 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
             }
         });
 
+        if(monitorFiles == null) return true;
         ArrayList<String> oldBarFiles = new ArrayList<String>();
         ArrayList<String> newBarFiles = new ArrayList<String>();
         for (File barFile : monitorFiles)
