@@ -1335,7 +1335,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			            defaultAutoCreate : {tag: "input", type: "text", style :"height:21px;" ,autocomplete: "off"},
 						xpathForeignKey : fks["foreignKey"] + "",
 						xpathForeignKeyInfo: fks["foreignKeyInfo"] + "",
-						fkFilter : fks["foreignKeyFilter"] + "",
+						//fkFilter : fks["foreignKeyFilter"] + "",
+						fkFilter : "",
 						retrieveFKinfos : fks["foreignKeyRetrieve"] + "",
 						showDeleteButton : false,
 						renderTo : itemsForeignKeyValues

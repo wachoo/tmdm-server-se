@@ -1912,6 +1912,7 @@ public class ItemsBrowserDWR {
 			String dataObject,
 			String rightValueOrPath) {
 		
+		String origiRightValueOrPath=rightValueOrPath;
 		String patternString=dataObject+"(/[A-Za-z0-9\\[\\]]*)+";
 		Pattern pattern = Pattern.compile(patternString);//FIXME support simple xpath
 		Matcher matcher = pattern.matcher(rightValueOrPath);
@@ -1920,6 +1921,15 @@ public class ItemsBrowserDWR {
 				String gettedXpath=matcher.group(j);
 				
 				if(gettedXpath!=null) {
+					
+					//check literal
+					int startPos=matcher.start(j);
+					int endPos=matcher.end(j);
+					if(startPos>0&&endPos<origiRightValueOrPath.length()-1) {
+						String checkValue=origiRightValueOrPath.substring(startPos-1, endPos+1).trim();
+						if(checkValue.startsWith("\"")&&checkValue.endsWith("\""))return rightValueOrPath;
+					}
+						
 					//get replaced value
 					String replacedValue=null;
 					boolean matchedAValue=false;
@@ -1938,7 +1948,7 @@ public class ItemsBrowserDWR {
 					
 					replacedValue=replacedValue==null?"null":replacedValue;
 					if(matchedAValue)replacedValue="\""+replacedValue+"\"";
-					rightValueOrPath=matcher.replaceAll(replacedValue);
+					rightValueOrPath=rightValueOrPath.replaceFirst(patternString, replacedValue);
 				}
 				
 			}//end for
