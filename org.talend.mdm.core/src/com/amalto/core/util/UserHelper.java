@@ -67,15 +67,7 @@ public final class UserHelper {
      * @return
      */
     public int getViewerUsers() {
-       List<User> viewers = new ArrayList<User>();
-       
-       for(User user : users) {
-          if(user.enabled && user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_WEB.getName())) {
-              viewers.add(user); 
-          }
-       }
-       
-       return viewers.size();
+        return getUserCount(XSystemObjects.ROLE_DEFAULT_WEB.getName());
     }
     
     /**
@@ -83,15 +75,7 @@ public final class UserHelper {
      * @return
      */
     public int getNormalUsers() {
-       List<User> normalUsers = new ArrayList<User>();
-       
-       for(User user : users) {
-           if(user.enabled && user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_USER.getName())) {
-               normalUsers.add(user); 
-          }
-       }
-       
-       return normalUsers.size();
+        return getUserCount(XSystemObjects.ROLE_DEFAULT_USER.getName());
     }
     
     /**
@@ -99,17 +83,19 @@ public final class UserHelper {
      * @return
      */
     public int getNBAdminUsers() {
-       List<User> admins = new ArrayList<User>();
-       
-       for(User user : users) {
-          if(user.enabled && user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_ADMIN.getName())) {
-              admins.add(user); 
-          }
-       }
-       
-       return admins.size();
+        return getUserCount(XSystemObjects.ROLE_DEFAULT_ADMIN.getName());
     }
     
+    private int getUserCount(String role) {
+        List<User> userList = new ArrayList<User>();
+        
+        for(User user : users) {
+            if(user.enabled && user.getRoleNames().contains(role)) {
+                userList.add(user); 
+           }
+        }
+        return userList.size();
+    }
     /**
      * Get the number of active users.
      * @return
