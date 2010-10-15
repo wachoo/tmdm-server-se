@@ -70,7 +70,7 @@ public final class UserHelper {
        List<User> viewers = new ArrayList<User>();
        
        for(User user : users) {
-          if(user.enabled && user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_VIEWER.getName())) {
+          if(user.enabled && user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_WEB.getName())) {
               viewers.add(user); 
           }
        }
@@ -86,10 +86,8 @@ public final class UserHelper {
        List<User> normalUsers = new ArrayList<User>();
        
        for(User user : users) {
-          if(user.enabled && !user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_ADMIN.getName()) && 
-                  !user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_VIEWER.getName()) 
-                  && !user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_WEB.getName())) {
-              normalUsers.add(user);
+           if(user.enabled && user.getRoleNames().contains(XSystemObjects.ROLE_DEFAULT_USER.getName())) {
+               normalUsers.add(user); 
           }
        }
        
