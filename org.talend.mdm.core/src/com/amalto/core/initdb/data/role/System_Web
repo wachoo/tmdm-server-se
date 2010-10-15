@@ -126,7 +126,7 @@
     </role-specifications>
     <role-specifications xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:org.exolab.castor.mapping.MapItem">
         <key xsi:type="java:java.lang.String">Item</key>
-        <value admin="false" xsi:type="java:com.amalto.core.util.RoleSpecification"/>
+        <value admin="true" xsi:type="java:com.amalto.core.util.RoleSpecification"/>
     </role-specifications>
     <role-specifications xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:org.exolab.castor.mapping.MapItem">
         <key xsi:type="java:java.lang.String">Routing Order V2 Completed</key>
