@@ -143,7 +143,7 @@ public class InitDBUtil {
 		final HashMap<String, String> oldRoleToNewRoleMap = new HashMap<String, String>(); 
 		oldRoleToNewRoleMap.put("Default_Admin", ICoreConstants.SYSTEM_ADMIN_ROLE);
 		oldRoleToNewRoleMap.put("Default_User", ICoreConstants.SYSTEM_INTERACTIVE_ROLE);
-		oldRoleToNewRoleMap.put("Default_Viewer", ICoreConstants.SYSTEM_VIEW_ROLE);
+		oldRoleToNewRoleMap.put("Default_Viewer", ICoreConstants.SYSTEM_WEB_ROLE);
 		
 		final String userClusterName = "PROVISIONING";
 		String query = "collection(\"" + userClusterName + "\")/ii/p/User/username";
