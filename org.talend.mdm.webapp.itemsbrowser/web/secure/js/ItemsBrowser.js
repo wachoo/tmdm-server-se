@@ -1206,6 +1206,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function updateCurrentPredicate(id)
 	{
 		currentPredicate[id] = "";
+		if(!$('itemsSearchField' + id))return;
 		var search = $('itemsSearchField' + id).value;
 //		var delimeter = search.indexOf("/");
 //		if(delimeter != -1)
@@ -1395,6 +1396,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			if (_criterias[idx] == undefined)
 				continue;
 			var actulID = idx+1;
+			
+			if(!$('itemsSearchField' + actulID))break;
+			
 			var criteria = DWRUtil.getValue('itemsSearchField' + actulID) + ' '
 					+ convertSearchValueInEnglish(actulID) + ' ';
 			var searchValue = "";
@@ -1519,6 +1523,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function displayItems(){
 		updateCurrentPredicate(1);
 		outPutCriteriaResult();
+		if(!$('viewItemsSelect'))return;
 		var viewName = DWRUtil.getValue('viewItemsSelect');
 		if(viewName!=LABEL_SELECT_DATAOBJECT[language] && viewName!=""){	
 			amalto.core.working();
@@ -1863,7 +1868,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	function clearToolBar(toolbar)
 	{
-		if (toolbar.tr.childNodes)
+		if (toolbar.tr!=undefined && toolbar.tr.childNodes)
 		{
 			while(toolbar.tr.childNodes.length > 0)
 			{
@@ -2330,7 +2335,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         		
         	
         		tbDetail.deleteItemHandler = function() {
-        			deleteItem(ids, dataObject, treeIndex);
+        			deleteItem(ids, dataObject, treeIndex,refreshCB);
         		};
         		
         		tbDetail.logicalDelItemHandler = function() {
@@ -2375,7 +2380,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                                //FIXME mock refresh
                                itemTree.removeNode(itemTree.getRoot().children[0]);
                                node1 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
-                               var viewName = DWRUtil.getValue('viewItemsSelect');	
+                               //var viewName = DWRUtil.getValue('viewItemsSelect');	
+                               var viewName = dataObject;
                                ItemsBrowserInterface.setTree(dataObject,viewName, itemPK2, node1.index, false, treeIndex, false, function(result){                             
                                     node1.setDynamicLoad(fnLoadData,1);
                                     node1.expand();
@@ -2404,7 +2410,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                         }  
                     });
                 };
-        		
+        		DWREngine.setAsync(false);
         		ItemsBrowserInterface.checkSmartViewExists(dataObject, language, function(result){
         			
         			var mode = M_TREE_VIEW;
@@ -2431,7 +2437,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         			initToolBar(tb, mode);
         			
         		});
-    	
+    	       DWREngine.setAsync(true);
     			tbDetail.saveItemHandler = function(){			
     				saveItemWithoutQuit(ids,dataObject,treeIndex,refreshCB);
     			};			
@@ -2444,7 +2450,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     				    ids1 = itemPK2;
     				else
     				    ids1 = ids;
-    				var viewName = DWRUtil.getValue('viewItemsSelect');	
+    				//var viewName = DWRUtil.getValue('viewItemsSelect');
+    				  var viewName =  dataObject;
     				ItemsBrowserInterface.setTree(dataObject,viewName, ids1, node2.index, false, treeIndex, true, function(result){
                         node2.setDynamicLoad(fnLoadData, 1);
                         node2.expand();
@@ -2467,7 +2474,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			else
     	           tbDetail.baseOptions |=O_ACTION;
     			
-    			var viewName = DWRUtil.getValue('viewItemsSelect');	
+    			//var viewName = DWRUtil.getValue('viewItemsSelect');
+                 var viewName =  dataObject;
     			//add for duplicate case
 				if(isDuplicate){
 					ItemsBrowserInterface.setTree(dataObject, viewName,itemPK2, node1.index, false, treeIndex, false, function(result){
@@ -3170,7 +3178,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	        });
 	}
 
-	function deleteItem(ids, dataObject, treeIndex) {
+	function deleteItem(ids, dataObject, treeIndex,refreshCB) {
 		//var viewName = DWRUtil.getValue('viewItemsSelect');
 		//var dataObject = viewName.replace("Browse_items_",""); 
 		var tmp = "";
@@ -3213,7 +3221,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 				amalto.core.ready(result);
 				displayItems();
-				
+				refreshCB.call();
 				if(result)Ext.MessageBox.alert('Status', result);
 			});		
 		}});		
