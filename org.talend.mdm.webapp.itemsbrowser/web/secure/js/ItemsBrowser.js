@@ -2381,7 +2381,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                                itemTree.removeNode(itemTree.getRoot().children[0]);
                                node1 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
                                //var viewName = DWRUtil.getValue('viewItemsSelect');	
-                               var viewName = dataObject;
+                               var viewName =  "Browse_items_"+dataObject;
                                ItemsBrowserInterface.setTree(dataObject,viewName, itemPK2, node1.index, false, treeIndex, false, function(result){                             
                                     node1.setDynamicLoad(fnLoadData,1);
                                     node1.expand();
@@ -2410,7 +2410,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                         }  
                     });
                 };
-        		DWREngine.setAsync(false);
+
         		ItemsBrowserInterface.checkSmartViewExists(dataObject, language, function(result){
         			
         			var mode = M_TREE_VIEW;
@@ -2437,7 +2437,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         			initToolBar(tb, mode);
         			
         		});
-    	       DWREngine.setAsync(true);
+    	       
     			tbDetail.saveItemHandler = function(){			
     				saveItemWithoutQuit(ids,dataObject,treeIndex,refreshCB);
     			};			
@@ -2451,7 +2451,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     				else
     				    ids1 = ids;
     				//var viewName = DWRUtil.getValue('viewItemsSelect');
-    				  var viewName =  dataObject;
+    				  var viewName =  "Browse_items_"+dataObject;
     				ItemsBrowserInterface.setTree(dataObject,viewName, ids1, node2.index, false, treeIndex, true, function(result){
                         node2.setDynamicLoad(fnLoadData, 1);
                         node2.expand();
@@ -2474,8 +2474,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			else
     	           tbDetail.baseOptions |=O_ACTION;
     			
-    			//var viewName = DWRUtil.getValue('viewItemsSelect');
-                 var viewName =  dataObject;
+    			 //var viewName = DWRUtil.getValue('viewItemsSelect');
+                 var viewName =  "Browse_items_"+dataObject;
     			//add for duplicate case
 				if(isDuplicate){
 					ItemsBrowserInterface.setTree(dataObject, viewName,itemPK2, node1.index, false, treeIndex, false, function(result){
