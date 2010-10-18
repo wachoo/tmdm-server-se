@@ -3120,8 +3120,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var itemPK = ids.split('@');
 		amalto.core.working("Saving...");
 		var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
-		tbDetail.items.get('saveBTN').disable();
-		tbDetail.items.get('saveAndQBTN').disable();
+		//tbDetail.items.get('saveBTN').disable();
+		//tbDetail.items.get('saveAndQBTN').disable();
 			ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
 				callback:function(result){ 
 					amalto.core.ready(result);
@@ -3135,14 +3135,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	                    Ext.MessageBox.alert("Status",result.substring(8));
 	                }else if(result.indexOf('Unable to save item')==0){
 	                	amalto.core.ready();
-	    				tbDetail.items.get('saveBTN').enable();
-	    				tbDetail.items.get('saveAndQBTN').enable();
+	    				//tbDetail.items.get('saveBTN').enable();
+	    				//tbDetail.items.get('saveAndQBTN').enable();
 	    				showExceptionMsg(result, null, treeIndex);
 	                }
 	                else if(result.indexOf("Save item") == 0) {
 	                	amalto.core.ready();
-	    				tbDetail.items.get('saveBTN').enable();
-	    				tbDetail.items.get('saveAndQBTN').enable();
+	    				//tbDetail.items.get('saveBTN').enable();
+	    				//tbDetail.items.get('saveAndQBTN').enable();
 	    				showExceptionMsg(result, null, treeIndex);
 	                }else{
 				       if(callbackOnSuccess)callbackOnSuccess();   
@@ -3172,8 +3172,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						}
 					}
 					amalto.core.ready();
-					tbDetail.items.get('saveBTN').enable();
-					tbDetail.items.get('saveAndQBTN').enable();
+					//tbDetail.items.get('saveBTN').enable();
+					//tbDetail.items.get('saveAndQBTN').enable();
 				}
 	        });
 	}
