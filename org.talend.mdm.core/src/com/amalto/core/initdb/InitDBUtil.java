@@ -103,7 +103,7 @@ public class InitDBUtil {
 		updateUsersWithNewRoleScheme();
 		deleteScrapDB();
 	}
-		
+	
 	private static void updateDB(String resourcePath,
 			HashMap<String, List<String>> initdb)  {
 		for(Entry<String, List<String>> entry: initdb.entrySet()){
@@ -139,12 +139,7 @@ public class InitDBUtil {
 	}
 	
 	private static void updateUsersWithNewRoleScheme()
-	{
-		final HashMap<String, String> oldRoleToNewRoleMap = new HashMap<String, String>(); 
-		oldRoleToNewRoleMap.put("Default_Admin", ICoreConstants.SYSTEM_ADMIN_ROLE);
-		oldRoleToNewRoleMap.put("Default_User", ICoreConstants.SYSTEM_INTERACTIVE_ROLE);
-		oldRoleToNewRoleMap.put("Default_Viewer", ICoreConstants.SYSTEM_WEB_ROLE);
-		
+	{		
 		final String userClusterName = "PROVISIONING";
 		String query = "collection(\"" + userClusterName + "\")/ii/p/User/username";
 		try {
@@ -158,7 +153,7 @@ public class InitDBUtil {
 					String uniqueID = userClusterName + ".User." + entry;
 					String userXml = ConfigurationHelper.getServer().getDocumentAsString(null, userClusterName, uniqueID);
 					String updateXml = new String(userXml);
-					 for (Map.Entry<String, String> pair : oldRoleToNewRoleMap.entrySet())
+					 for (Map.Entry<String, String> pair : ICoreConstants.rolesConvert.oldRoleToNewRoleMap.entrySet())
 					 {
 						 userXml = userXml.replaceAll(pair.getKey().toString(), pair.getValue().toString());
 					 }

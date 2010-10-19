@@ -57,6 +57,38 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
 		return true;
 	}
 	
+	private  boolean updateUsersWithNewRoleScheme()
+	{		
+		final String userClusterName = "PROVISIONING";
+		String query = "collection(\"" + userClusterName + "\")/ii/p/User/username";
+		try {
+			ArrayList<String> list = ConfigurationHelper.getServer().runQuery(null, userClusterName, query, null);
+			for (String user: list)
+			{
+				NodeList users = Util.getNodeList(Util.parse(user), "/username");
+				for (int i = 0; i < users.getLength(); i++)
+				{
+					String entry = users.item(i).getFirstChild().getNodeValue();
+					String uniqueID = userClusterName + ".User." + entry;
+					String userXml = ConfigurationHelper.getServer().getDocumentAsString(null, userClusterName, uniqueID);
+					String updateXml = new String(userXml);
+					 for (Map.Entry<String, String> pair : ICoreConstants.rolesConvert.oldRoleToNewRoleMap.entrySet())
+					 {
+						 userXml = userXml.replaceAll(pair.getKey().toString(), pair.getValue().toString());
+					 }
+					 if(!updateXml.equals(userXml))
+					 {
+						 ConfigurationHelper.getServer().putDocumentFromString(userXml, uniqueID, userClusterName, null);
+					 }
+				}
+			}
+		} catch (Exception e) {
+			return false;
+		}
+		
+		return true;
+	}
+	
 	private boolean updateRolesInDataModel()
 	{
 		final String  dataModelClusterName = "amaltoOBJECTSDataModel";
@@ -207,7 +239,7 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
 	
 	@Override
 	protected Boolean execute() {
-		boolean execute = updateRolesInProvision() && updateRolesInDataModel();
+		boolean execute = updateRolesInProvision() && updateRolesInDataModel() && updateUsersWithNewRoleScheme();
 		if(Util.isEnterprise()){
 			execute &= updateRolesInWorkFlow();
 		}
