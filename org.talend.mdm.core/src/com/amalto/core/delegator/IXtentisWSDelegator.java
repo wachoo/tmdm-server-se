@@ -1276,10 +1276,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 */	
 	public WSStringArray getItems(WSGetItems wsGetItems) throws RemoteException {
 		try {
+			Map wcfContext=new HashMap();
+			wcfContext.put(WhereConditionForcePivotFilter.FORCE_PIVOT, wsGetItems.getConceptName());
+			
 			Collection res = Util.getItemCtrl2Local().getItems(
 					new DataClusterPOJOPK(wsGetItems.getWsDataClusterPK().getPk()), 
 					wsGetItems.getConceptName(), 
-					WS2VO(wsGetItems.getWhereItem()), 
+					WS2VO(wsGetItems.getWhereItem(),new WhereConditionForcePivotFilter(wcfContext)),  
 					wsGetItems.getSpellTreshold(), 
 					wsGetItems.getSkip(), 
 					wsGetItems.getMaxItems()

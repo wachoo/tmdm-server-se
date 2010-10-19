@@ -647,10 +647,13 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
 	public WSStringArray getItems(WSGetItems wsGetItems) throws RemoteException {
 		try {
+			Map wcfContext=new HashMap();
+			wcfContext.put(WhereConditionForcePivotFilter.FORCE_PIVOT, wsGetItems.getConceptName());
+			
 			Collection res = com.amalto.core.util.Util.getItemCtrl2Local().getItems(
 					new DataClusterPOJOPK(wsGetItems.getWsDataClusterPK().getPk()), 
 					wsGetItems.getConceptName(), 
-					XConverter.WS2VO(wsGetItems.getWhereItem()), 
+					XConverter.WS2VO(wsGetItems.getWhereItem(),new WhereConditionForcePivotFilter(wcfContext)),  
 					wsGetItems.getSpellTreshold(), 
 					wsGetItems.getSkip(), 
 					wsGetItems.getMaxItems()
