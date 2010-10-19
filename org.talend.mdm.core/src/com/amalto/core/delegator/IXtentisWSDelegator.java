@@ -1458,6 +1458,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	 */
 	public WSItem getItem(WSGetItem wsGetItem) throws RemoteException {
 		try {
+			
+			if(wsGetItem.getWsItemPK().getIds()==null)
+				throw(new RemoteException("input ids is null!"));
 			ItemPOJOPK pk =
 				new ItemPOJOPK(
 					new DataClusterPOJOPK(wsGetItem.getWsItemPK().getWsDataClusterPK().getPk()),
