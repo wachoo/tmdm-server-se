@@ -289,7 +289,7 @@ public class QueryBuilder {
 			boolean isXpathFunction = false;
 			boolean isNum=false;
 			if (wc.getRightValueOrPath() != null) {
-				isXpathFunction = isValidatedFunction(wc.getRightValueOrPath()
+				isXpathFunction = wc.isRightValueXPath() && isValidatedFunction(wc.getRightValueOrPath()
 						.trim());
 				// handle case of String starting with a zero e.g. 00441065 or
 				// ending with . e.g. 12345.
@@ -348,7 +348,7 @@ public class QueryBuilder {
 			String factorPivots = XPathUtils.factor(wc.getLeftPath(), pivots)
 					+ "";
 			//see 0015004, if rightPath contains '/', we consider it as xpathFunction
-			if(wc.getRightValueOrPath()!=null && wc.getRightValueOrPath().contains("/")) {
+			if(wc.getRightValueOrPath()!=null && wc.isRightValueXPath() && wc.getRightValueOrPath().contains("/")) {
 				encoded=XPathUtils.factor(wc.getRightValueOrPath(), pivots)+"";
 				isXpathFunction=true;
 			}

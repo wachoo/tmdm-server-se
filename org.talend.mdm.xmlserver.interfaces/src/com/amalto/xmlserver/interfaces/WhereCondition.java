@@ -50,6 +50,7 @@ public class WhereCondition  implements IWhereItem, Serializable {
 	String rightValueOrPath;
 	String stringPredicate;
 	boolean spellCheck;
+	private boolean isRightValueXPath;
 	
 	/**
 	 * Constructor used by Castor 
@@ -87,11 +88,7 @@ public class WhereCondition  implements IWhereItem, Serializable {
 		super();
 		this.leftPath = leftPath;
 		this.operator = operator;
-		if(!rightValueOrPath.startsWith("^") && (null!=this.operator && this.operator.equals(WhereCondition.STARTSWITH))){
-			this.rightValueOrPath = "^"+rightValueOrPath;
-		}else{
-			this.rightValueOrPath = rightValueOrPath;
-		}
+		setRightValueOrPath(rightValueOrPath);
 		this.stringPredicate = stringPredicate;
 		this.spellCheck = spellCheck;
 	}
@@ -113,12 +110,26 @@ public class WhereCondition  implements IWhereItem, Serializable {
 		return rightValueOrPath;
 	}
 	public void setRightValueOrPath(String rightValueOrPath) {
+	    // Quoted values (either simple or double) are considered as literal values
+        // TODO To be refactored to support true literal/Xpath differenciation 
+        if ((rightValueOrPath.startsWith("\"") && rightValueOrPath.endsWith("\""))
+                || (rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'"))) {
+            isRightValueXPath = false;
+            rightValueOrPath = rightValueOrPath.substring(1, rightValueOrPath.length() - 1);
+        } else
+            isRightValueXPath = true;
+        
 		if(!rightValueOrPath.startsWith("^") && (null!=this.operator && this.operator.equals(WhereCondition.STARTSWITH))){
 			this.rightValueOrPath = "^"+rightValueOrPath;
 		}else{
 			this.rightValueOrPath = rightValueOrPath;
 		}
 	}
+	
+    public boolean isRightValueXPath() {
+        return this.isRightValueXPath;
+    }
+    
 	public String getStringPredicate() {
 		return stringPredicate;
 	}
