@@ -70,6 +70,8 @@ public class CoreUpgrades {
     			MDMConfiguration.getConfiguration().setProperty("cluster_override", "true");
     			MDMConfiguration.save();
     			InitDBUtil.initDB();
+    			MDMConfiguration.getConfiguration().setProperty("cluster_override", "false");
+    			MDMConfiguration.save();
     		}
         	//upgrading
         	upgradeFrom(previousCoreConf.getMajor(), previousCoreConf.getMinor(), previousCoreConf.getRevision(),forceupgrade);
