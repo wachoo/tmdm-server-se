@@ -1666,7 +1666,7 @@ public class ItemsBrowserDWR {
                     else
                         return "ERROR - deleteItem is NULL";
                     ctx.getSession().setAttribute("viewNameItems", null);
-                    errorMessage = "OK";
+                    //errorMessage = "OK";
                     return errorMessage;
                 } else {
                     return errorMessage + " - But no update report";
