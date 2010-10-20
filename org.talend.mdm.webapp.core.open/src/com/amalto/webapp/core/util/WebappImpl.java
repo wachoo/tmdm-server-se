@@ -31,4 +31,9 @@ public class WebappImpl implements Webapp {
     public boolean isShowMsg() throws Exception {
         return false;
     }
+
+    public boolean isDataSteWardShip() throws Exception {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }
