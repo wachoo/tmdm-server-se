@@ -9,6 +9,20 @@
 
       <!-- Session Beans -->
       <session >
+         <description><![CDATA[Description for GroovyPluginBean]]></description>
+         <display-name>Name for GroovyPluginBean</display-name>
+
+         <ejb-name>GroovyPluginBean</ejb-name>
+
+         <local-home>com.amalto.core.plugin.base.groovy.ejb.local.GroovyPluginBeanLocalHome</local-home>
+         <local>com.amalto.core.plugin.base.groovy.ejb.local.GroovyPluginBeanLocal</local>
+         <ejb-class>com.amalto.core.plugin.base.groovy.ejb.local.GroovyPluginBeanSession</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
+      <session >
          <description><![CDATA[Description for BatchProjectPlugin]]></description>
          <display-name>Name for BatchProjectPlugin</display-name>
 
@@ -264,6 +278,47 @@
        To specify additional method-permission elements, add a file in the merge
        directory called ejb-method-permissions.ent that contains them.
      -->
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>GroovyPluginBean</ejb-name>
+         <method-intf>Remote</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>GroovyPluginBean</ejb-name>
+         <method-intf>Home</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>GroovyPluginBean</ejb-name>
+         <method-intf>Local</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>GroovyPluginBean</ejb-name>
+         <method-intf>LocalHome</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+
    <method-permission >
       <description><![CDATA[description not supported yet by ejbdoclet]]></description>
       <role-name>administration</role-name>

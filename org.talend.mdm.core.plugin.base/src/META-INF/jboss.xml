@@ -16,6 +16,13 @@
      -->
 
       <session>
+         <ejb-name>GroovyPluginBean</ejb-name>
+         <local-jndi-name>amalto/local/transformer/plugin/groovy</local-jndi-name>
+
+        <method-attributes>
+        </method-attributes>
+      </session>
+      <session>
          <ejb-name>BatchProjectPlugin</ejb-name>
          <local-jndi-name>amalto/local/transformer/plugin/batchproject</local-jndi-name>
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/groovy-all-1.7.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.cxf-2.2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="deploy/lib/org.talend.commons.model.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.commons-jxpath-1.3.jar"/>
