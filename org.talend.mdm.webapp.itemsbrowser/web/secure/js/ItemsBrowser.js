@@ -3151,7 +3151,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						return;
 					}else{
 						if(result.lastIndexOf("ERROR")>-1){
-							var err1=result.substring(7);
+							var err1=result.substring(8);
 							if(err1==null || err1==""){
 								return;
 							}else{
