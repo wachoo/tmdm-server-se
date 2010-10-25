@@ -2821,7 +2821,7 @@ public class ItemsBrowserDWR {
  * @param value
  * @return
  */
-	public String validateNode(int nodeId,String value){
+	public String validateNode(String language, int nodeId,String value){
 		String errorMessage= null;
 		WebContext ctx = WebContextFactory.get();
 		HashMap<String,TreeNode> xpathToTreeNode = 
@@ -2843,7 +2843,7 @@ public class ItemsBrowserDWR {
 			       node.getFacetErrorMsg() != null && node.getFacetErrorMsg().size() != 0) 
 			    {
 			        restrictions = node.getRestrictions();
-			        errorMessage = (String) node.getFacetErrorMsg().get("en");
+			        errorMessage = (String) node.getFacetErrorMsg().get(language);
 			    }
 			    else if(node.getMinOccurs() >=1)
 					errorMessage = "The value does not comply with the facet defined in the model: "

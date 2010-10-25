@@ -3870,7 +3870,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             var value = DWRUtil.getValue(nodeId+'Value');
             node.resetErrorMessage(nodeId);
             DWREngine.setAsync(false);
-            ItemsBrowserInterface.validateNode(nodeId,value,function(result){
+            ItemsBrowserInterface.validateNode(language, nodeId,value,function(result){
                 if(result=="null")
                     returnRe = true;
                 else{
