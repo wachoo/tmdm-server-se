@@ -1063,7 +1063,7 @@ public class Util {
 	public static boolean checkDigist(ArrayList<String[]> itemsBrowserContent,int col){
 		if(col==-1)return false;
 		for(String[] temp:itemsBrowserContent){
-			if(!temp[col].matches("^(-|)[0-9]*(.?)[0-9]*$"))
+			if(!temp[col].matches("^(-|)[0-9]+(\\.?)[0-9]*$"))
 				return false;
 		}
 		return true;
