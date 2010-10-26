@@ -57,7 +57,7 @@
 		</item>		
 		<item>
 			<name>amaltoOBJECTSDataCluster</name>
-			<list>datacluster/CONF;datacluster/Inbox;datacluster/Reporting;datacluster/UpdateReport;datacluster/SearchTemplate</list>			
+			<list>datacluster/CONF;datacluster/Inbox;datacluster/Reporting;datacluster/UpdateReport;datacluster/SearchTemplate;datacluster/MDMItemsTrash</list>			
 		</item>			
 		<item>
 			<name>amaltoOBJECTSDataModel</name>
