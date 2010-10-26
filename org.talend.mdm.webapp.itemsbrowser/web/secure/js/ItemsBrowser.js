@@ -2990,6 +2990,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						itempanel.isdirty=false;
 					}				      
 				 });
+		
+		var toolbar = amalto.core.getTabPanel().getComponent('itemDetailsdiv' + treeIndex).getTopToolbar();
+		//by yguo, fix 0016461. hard code baseOptions of tool bar to 2016. 
+		toolbar.baseOptions = 2016;
+		initToolBar(toolbar, 1);
 		DWREngine.setAsync(true);
 	}
 
