@@ -345,10 +345,14 @@ public class XSLTTransformerPluginBean extends TransformerPluginV2CtrlBean  impl
 
 		} catch (XtentisException xe) {
 			throw (xe);
-		} catch (Exception e) {
-			e.printStackTrace();
-			String err = "Could not init the XSLT Plugin: "+
-				e.getClass().getName()+": "+e.getLocalizedMessage();
+		}
+		catch (Exception e) {
+//			e.printStackTrace();
+			String err=compilationErrors;
+			if(err==null || err.length()==0) {				
+				err = "Could not init the XSLT Plugin: "+
+				": "+e.getLocalizedMessage();
+			}
 			org.apache.log4j.Logger.getLogger(this.getClass()).error("init() "+err);
 			throw new XtentisException(err);
 		}
