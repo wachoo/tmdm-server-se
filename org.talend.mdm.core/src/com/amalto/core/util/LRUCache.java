@@ -21,7 +21,9 @@ public class LRUCache<K,V> implements Serializable {
 
 	private LinkedHashMap<K,V>   map;
 	private int                  cacheSize;
-
+	public LRUCache() {
+		
+	}
 	/**
 	 * Creates a new LRU cache.
 	 * @param cacheSize the maximum number of entries that will be kept in this cache.
@@ -116,6 +118,26 @@ public class LRUCache<K,V> implements Serializable {
 	   // List cache content.
 	   for (Map.Entry<String,String> e : c.getAll())
 	      System.out.println (e.getKey() + " : " + e.getValue());
+	}
+
+	public LinkedHashMap<K, V> getMap() {
+		return map;
+	}
+
+	public void setMap(LinkedHashMap<K, V> map) {
+		this.map = map;
+	}
+
+	public int getCacheSize() {
+		return cacheSize;
+	}
+
+	public void setCacheSize(int cacheSize) {
+		this.cacheSize = cacheSize;
+	}
+
+	public static float getHashtableloadfactor() {
+		return hashTableLoadFactor;
 	}
 
 } // end class LRUCache
