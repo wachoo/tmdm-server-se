@@ -13,5 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commmon"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.bulkload.client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.core"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

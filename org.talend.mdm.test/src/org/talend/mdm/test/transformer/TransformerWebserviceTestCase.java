@@ -1,6 +1,8 @@
-package org.talend.mdm.test;
+package org.talend.mdm.test.transformer;
 
 import java.rmi.RemoteException;
+
+import org.talend.mdm.test.WebserviceTestCase;
 
 import urn_com_amalto_xtentis_webservice.WSBoolean;
 import urn_com_amalto_xtentis_webservice.WSDeleteTransformer;
