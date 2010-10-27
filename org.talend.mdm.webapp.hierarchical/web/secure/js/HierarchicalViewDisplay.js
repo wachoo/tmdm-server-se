@@ -331,6 +331,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 			        typeAhead: true,
 			        forceSelection: true,
 			        triggerAction: 'all',
+			        resizable:true,
 			        listeners : {
                                'select' : function(combo,record,index) {
                                	                      this.reloadRelatedComboStore();
@@ -348,6 +349,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 					typeAhead: true,
 					triggerAction: 'all',
 					forceSelection:true,
+					resizable:true,
 					listeners : {
                                'beforequery' : function(queryEvent) {
                                	                     var dataObjectLabel=DWRUtil.getValue('dataObjectCmp');
@@ -378,6 +380,7 @@ Ext.extend(amalto.hierarchical.HierarchicalViewDisplay, Ext.Panel, {
 					typeAhead: true,
 					triggerAction: 'all',
 					forceSelection:true,
+					resizable:true,
 					listeners : {
                                'beforequery' : function(queryEvent) {
                                	                     var dataObjectLabel=DWRUtil.getValue('dataObjectCmp');
