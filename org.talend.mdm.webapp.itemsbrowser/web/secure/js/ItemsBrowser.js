@@ -1417,6 +1417,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				   {
 					   searchValue = fkField.getValue();
 				   }
+				   else if(searchValue == fkField.getTextOrg())
+				   {
+					   searchValue = fkField.getValueOrg();
+				   }
 				}
 					
 

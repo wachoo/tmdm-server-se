@@ -35,8 +35,10 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     showDeleteButton:true,
     fkFilter : "",
     retrieveFKinfos : false,
+    enableKeyEvents : true,
     value : "",
-    
+    valueCpy : "",
+    textCpy : "",
     onTrigger1Click : function() {
         this.el.dom.value = '';
     },
@@ -119,6 +121,8 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		    }.createDelegate(this));
 		    
 		    
+		    this.foreignKeyCombo.on('keydown', this.keySearch, this, true); 
+		    
 		    this.taskForeignKeyWindow = new Ext.Window({
                 layout : 'fit',
                 width : 300,
@@ -173,7 +177,11 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		 this.wrap.setWidth(this.el.getWidth()+this.trigger.getWidth());
 		 }
 	}, 
-
+	
+    onKeyPress : function(e){
+		this.value = "";
+    },
+    
 	 wrap: function(config, returnDom){
 	     
 	     config = {tag: "span",cls: "x-form-field-wrap"};
@@ -203,15 +211,24 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     
     setValue : function(value) {
 		this.value = value;
+		this.valueCpy = value;
 	},
     
 	setText : function(text) {
 		this.el.dom.value = text;
+		this.textCpy = text;
 	},
 	
 	getValue : function() {
 		return this.value;
+	},
+	
+	getTextOrg : function(){
+		return this.textCpy;
+	},
+	
+	getValueOrg : function() {
+		return this.valueCpy;
 	}
-    
 });
 Ext.reg('foreignfeyfield', amalto.widget.ForeignKeyField);
