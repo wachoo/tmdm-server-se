@@ -231,7 +231,6 @@ amalto.reporting.Reporting = function () {
 	  	showReportingPanel();
 	 }
 	 
-	 
 	 function showReportingPanel() {
 	 	var tabPanel = amalto.core.getTabPanel();
 		if(tabPanel.getItem('reporting') == undefined){
@@ -261,17 +260,18 @@ amalto.reporting.Reporting = function () {
 						split:true,
 						border: true,
 						bodyborder: true,
-						labelWidth:200,
 						buttonAlign:'left',
 						defaults: {labelSeparator:''},
 						items:[
 							new Ext.form.ComboBox({
 								fieldLabel:REPORTING[language],
 								id:'reportingSelect',
+								grow:true,
+                                resizable:true,
 								store: new Ext.data.Store({
 										proxy: new Ext.data.SimpleDWRProxy(ReportingInterface.getReportingsName),
 							        	reader: new Ext.data.MapReader()
-									}),
+                                }),
 								displayField: 'value',
 								valueField: 'key',
 							  	loadingText:MSG_LOADING[language],
@@ -282,7 +282,10 @@ amalto.reporting.Reporting = function () {
 					          		'select' : function( combo, record, index ){
 								                	var key = record.data.key;
 								                	getReporting(key);
+								                	combo.setWidth(key.length*8);
+								          	
 					          		}
+					          		
 					          	}	               
 							}),
 							{
@@ -431,7 +434,9 @@ amalto.reporting.Reporting = function () {
 				fields.push('parameter_'+i);
 			}			
 		}
+		
 		reportingPanel.doLayout();
+
 
 		//DWRUtil.setValue('parametersSpan',html3);
 		//setTimeout('getReportingContent()',100);
