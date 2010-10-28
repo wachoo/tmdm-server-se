@@ -1648,12 +1648,12 @@ public class ItemsBrowserDWR {
                     else
                         errorMessage = "No message";
                 } else {
-                    errorCode = null;
+                    errorCode = "";
                     errorMessage = outputErrorMessage;
                 }
             } else {
-                errorCode = null;
-                errorMessage = null;
+                errorCode = "";
+                errorMessage = "";
             }
 
             if (outputErrorMessage == null || "0".equals(errorCode)) {
