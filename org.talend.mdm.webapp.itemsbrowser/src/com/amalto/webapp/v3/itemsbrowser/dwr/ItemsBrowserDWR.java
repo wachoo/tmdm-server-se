@@ -1272,22 +1272,26 @@ public class ItemsBrowserDWR {
 				String lastSubString = xpath.substring(xpathIndex+patternXpath.length());
 				int beginIndex1= lastSubString.indexOf("[");
 				int endIndex1= lastSubString.indexOf("]");
-				pathIndex = Integer.parseInt(lastSubString.substring(beginIndex1+1, endIndex1));
-				lastString = lastSubString.substring(endIndex1+1);
-				if(nodeIndex<pathIndex){
-					pathIndex++;
-					xpath = patternXpath+"["+pathIndex+"]"+lastString;
-					idToXpath.put(key, xpath);
+				if(beginIndex1<endIndex1 && beginIndex1 !=-1 && endIndex1 != -1){
 					
-					if(updatedPath.get(xpath1)!=null){
-						UpdateReportItem uri = updatedPath.get(xpath1);
-						updatedPath.remove(xpath1);
-						updatedPath.put(xpath,uri);
+					pathIndex = Integer.parseInt(lastSubString.substring(beginIndex1+1, endIndex1));
+					lastString = lastSubString.substring(endIndex1+1);
+					if(nodeIndex<pathIndex){
+						pathIndex++;
+						xpath = patternXpath+"["+pathIndex+"]"+lastString;
+						idToXpath.put(key, xpath);
+						
+						if(updatedPath.get(xpath1)!=null){
+							UpdateReportItem uri = updatedPath.get(xpath1);
+							updatedPath.remove(xpath1);
+							updatedPath.put(xpath,uri);
+						}
+					
 					}
-					
 				}//if(nodeIndex
-				
+					
 			}//if(xpath
+				
 		}//	while(keys.
 	}
 	
@@ -1311,14 +1315,16 @@ public class ItemsBrowserDWR {
 			if(key.matches(subXpath+"\\[\\d+\\]$")){
 				int star = key.indexOf("[")+1;
 				int end = key.indexOf("]");
-				int pathIndex = Integer.parseInt((String) key.subSequence(star, end));
-				if(nodeIndex<pathIndex){
-					UpdateReportItem report = updatedPath.get(key);
-					keys.remove();
-					updatedPath.remove(key);
-					pathIndex--;
-					xpath = subXpath+"["+pathIndex+"]";
-					updatedPath.put(xpath, report);
+				if(star<end && star!= -1){
+					int pathIndex = Integer.parseInt((String) key.subSequence(star, end));
+					if(nodeIndex<pathIndex){
+						UpdateReportItem report = updatedPath.get(key);
+						keys.remove();
+						updatedPath.remove(key);
+						pathIndex--;
+						xpath = subXpath+"["+pathIndex+"]";
+						updatedPath.put(xpath, report);
+					}
 				}
 			}
 		}
