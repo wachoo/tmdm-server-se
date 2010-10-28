@@ -2865,7 +2865,7 @@ public class ItemsBrowserDWR {
 		
 		for(Restriction re : restrictions){
 			if(node.getFacetErrorMsg()!=null)
-				errorMessage = (String) node.getFacetErrorMsg().get("en");
+				errorMessage = (String) node.getFacetErrorMsg().get(language);
 			if(value.length() == 0 && node.isKey()){
 				if(errorMessage == null){
 					errorMessage = "The value does not comply with the facet defined in the model: "
