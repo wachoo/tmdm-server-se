@@ -497,6 +497,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'fr':'Définissez des critères de recherche et cliquez \'Rechercher\'.',
 		'en':'Enter search criteria and hit the \'Search\' button.'
 	};
+	var SAVE_STATUS_OK={
+        'fr':'L\'enregistrement a bien été sauvegardé.',
+        'en':'The record was saved successfully.'
+    };
 
 	/*****************
 	 * EXT 2.0
@@ -3173,8 +3177,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 								return;
 							}
 						}else{
+							var msg2show=result;
+							if(result=="OK")msg2show=SAVE_STATUS_OK[language];
 							Ext.MessageBox.show({
-							    msg:result,
+							    msg:msg2show,
 							    buttons:{"ok":"OK"},
 							    icon:Ext.MessageBox.INFO
 							 });
