@@ -471,7 +471,17 @@ amalto.core = function () {
 								}
 								else
 								return true;
-							}
+							},'beforetabchange': function(tabPanel, newTab, currentTab){
+                               if(currentTab!=undefined&&currentTab!=null){
+                                 var currentTabId=currentTab.id;
+                                 if(currentTabId.startWith('itemDetailsdiv')){
+                                   //FIXME: suppose to use a hidden textfield, however I can't focus on a hidden tf 
+                                   var defaultComp=Ext.getCmp('processCombo'+currentTabId.substring(14));
+                                   if(defaultComp!=undefined&&defaultComp!=null)defaultComp.focus();
+                                 }
+                               }
+                               return true;
+                            }
 						},
 						defaults : {
 							hideMode : 'offsets'
