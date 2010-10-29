@@ -260,6 +260,7 @@ amalto.reporting.Reporting = function () {
 						split:true,
 						border: true,
 						bodyborder: true,
+						labelWidth:200,
 						buttonAlign:'left',
 						defaults: {labelSeparator:''},
 						items:[
@@ -282,7 +283,7 @@ amalto.reporting.Reporting = function () {
 					          		'select' : function( combo, record, index ){
 								                	var key = record.data.key;
 								                	getReporting(key);
-								                	combo.setWidth(key.length*8);
+								                	//combo.setWidth(key.length*8);
 								          	
 					          		}
 					          		
