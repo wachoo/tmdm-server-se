@@ -2464,6 +2464,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                         node2.setDynamicLoad(fnLoadData, 1);
                         node2.expand();
                         itemTree.draw();
+                        //reset the ids
+                        if(result){
+                        	ids=result;
+                        }
                     });
     		        
     		        //displayItems.call(); 

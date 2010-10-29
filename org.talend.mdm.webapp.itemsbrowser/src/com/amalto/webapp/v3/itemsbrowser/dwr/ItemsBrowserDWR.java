@@ -372,10 +372,10 @@ public class ItemsBrowserDWR {
 			ArrayList<String> nodeAutorization = new ArrayList<String>();
 			ctx.getSession().setAttribute("nodeAutorization",nodeAutorization);
 			
-			return "OK";
+			return ids!=null?Util.joinStrings(ids, "."):null;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "ERROR";
+			return null;
 		}		
 	}
 
