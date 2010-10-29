@@ -841,7 +841,7 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
         	wAnd.add(new WhereCondition(
         			pojoName+"/service-jNDI",
         			WhereCondition.CONTAINS,
-        			serviceJNDIContains.contains("/") || serviceJNDIContains.startsWith("*") ? serviceJNDIContains : "amalto/local/service/"+serviceJNDIContains,
+        			serviceJNDIContains.contains("/") || serviceJNDIContains.startsWith("*") ? serviceJNDIContains : serviceJNDIContains,
         			WhereCondition.PRE_AND,
         			false
         	));
