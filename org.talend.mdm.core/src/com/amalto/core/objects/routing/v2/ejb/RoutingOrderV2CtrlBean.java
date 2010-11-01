@@ -723,7 +723,7 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
      	
         if((anyFieldContains!=null) && (!"*".equals(anyFieldContains))) {
         	wAnd.add(new WhereCondition(
-        			pojoName,
+        			pojoName+"/.",
         			WhereCondition.CONTAINS,
         			anyFieldContains,
         			WhereCondition.PRE_NONE,
