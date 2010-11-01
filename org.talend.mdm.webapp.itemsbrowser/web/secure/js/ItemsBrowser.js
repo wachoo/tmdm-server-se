@@ -2994,20 +2994,21 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function saveItemWithoutQuit(ids,dataObject,treeIndex,refreshCB){
 		DWREngine.setAsync(false);
 		saveItem(ids,dataObject,treeIndex,function(){
-				  //amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
-			      //refreshCB.call();
-			      amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar().refreshItemHandler();
-					//set isdirty=true
-					var itempanel = amalto.core.getTabPanel().activeTab;
-					if(itempanel){
-						itempanel.isdirty=false;
-					}				      
-				 });
+		    //amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
+	        //refreshCB.call();
+			var toolbar = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
+			toolbar.refreshItemHandler();
+			//set isdirty=true
+			var itempanel = amalto.core.getTabPanel().activeTab;
+			if(itempanel){
+				itempanel.isdirty=false;
+			}				
+			
+			//by yguo, fix 0016461. hard code baseOptions of tool bar to 2016. 
+			toolbar.baseOptions = 2016;
+			initToolBar(toolbar, 1);
+		 });
 		
-		var toolbar = amalto.core.getTabPanel().getComponent('itemDetailsdiv' + treeIndex).getTopToolbar();
-		//by yguo, fix 0016461. hard code baseOptions of tool bar to 2016. 
-		toolbar.baseOptions = 2016;
-		initToolBar(toolbar, 1);
 		DWREngine.setAsync(true);
 	}
 
