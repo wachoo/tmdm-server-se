@@ -721,7 +721,7 @@ public class QueryBuilder {
 		LinkedHashMap<String,ArrayList<String>> fkMaps=new LinkedHashMap<String, ArrayList<String>>();
 		//String keyvalue="";
 		for(String joinkey: joinKeys) {
-			String[] items=joinkey.split("or|and");
+			String[] items=joinkey.split("\\b(or|and)\\b");
 			for(String item: items) {
 				String key=item.trim();
 				if(key.matches("\\((.*?)\\)"))
