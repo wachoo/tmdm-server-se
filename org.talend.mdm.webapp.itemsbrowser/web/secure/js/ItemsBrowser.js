@@ -2523,7 +2523,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     //tabPosition:'bottom',
                     //layout:'border',
                    // height:501,
-                    style:"overflow:auto;height:97%;",
+                    style:"overflow:auto;height:93%;",
                     autoScroll:true,
                     html:html,
                     border:false,
