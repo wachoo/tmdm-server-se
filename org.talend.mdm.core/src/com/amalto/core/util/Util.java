@@ -2307,8 +2307,8 @@ public class Util {
                 // Scan the entries - in priority, taka the content of the 'output_error_message' entry,
                 for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
 
-                    if ("output_error_message".equals(entry.getKey())) {
-                        outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8");
+                    if ("output_error_message".equals(entry.getKey())) { //$NON-NLS-1$
+                        outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$
                         break;
                     }
                 }
@@ -2317,10 +2317,14 @@ public class Util {
                     String errorCode = "";
                     String errorMessage = "";
                     
-                    Element root = Util.parse(outputErrorMessage).getDocumentElement();
-                    if (root.getLocalName().equals("error")) {
-                        errorCode = root.getAttribute("code");
-                        Node child = root.getFirstChild();
+                    Document doc = Util.parse(outputErrorMessage);
+                    //TODO what if multiple error nodes ?
+                    String xpath = "/descendant::error"; //$NON-NLS-1$
+                    Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
+                    if (errorNode instanceof Element) {
+                        Element errorElement = (Element)errorNode;
+                        errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                        Node child = errorElement.getFirstChild();
                         if (child instanceof Text)
                             errorMessage = ((Text) child).getTextContent();
                         else
@@ -2330,7 +2334,7 @@ public class Util {
                         errorMessage = outputErrorMessage;
                     }
                     
-                    if (!"0".equals(errorCode)) {
+                    if (!"0".equals(errorCode)) { //$NON-NLS-1$
                         errorMessage = "ERROR_3:" + errorMessage;
                         return errorMessage;
                     }
@@ -2970,24 +2974,6 @@ public class Util {
         return ret;
     }
 
-    public static void main(String args[]) throws Exception {
-        FileFilter filter = new FileFilter() {
-
-            public boolean accept(File pathname) {
-                if (pathname.isDirectory() || (pathname.isFile() && pathname.getName().toLowerCase().endsWith(".zip"))) {
-                    return true;
-                }
-                return false;
-            }
-        };
-        File f = new File("C:\\opt\\jboss_tem\\jobox\\deploy");
-        List<File> fs = listFiles(filter, f);
-        for (File f1 : fs) {
-            System.out.println(f1);
-        }
-        // testSpellCheck();
-    }
-
     public static void getView(ArrayList<String> views, IWhereItem whereItem) {
         if (whereItem instanceof WhereLogicOperator) {
             Collection<IWhereItem> subItems = ((WhereLogicOperator) whereItem).getItems();
@@ -3454,5 +3440,4 @@ public class Util {
         xpath = joinStrings(xpathParts, "/");
         return xpath;
     }
-
 }

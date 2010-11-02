@@ -1645,24 +1645,28 @@ public class ItemsBrowserDWR {
             String errorMessage;
             String errorCode;
             if (outputErrorMessage != null) {
-                Element root = Util.parse(outputErrorMessage).getDocumentElement();
-                if (root.getLocalName().equals("error")) {
-                    errorCode = root.getAttribute("code");
-                    Node child = root.getFirstChild();
+                Document doc = Util.parse(outputErrorMessage);
+                //TODO what if multiple error nodes ?
+                String xpath = "/descendant::error"; //$NON-NLS-1$
+                Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
+                if (errorNode instanceof Element) {
+                    Element errorElement = (Element)errorNode;
+                    errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                    Node child = errorElement.getFirstChild();
                     if (child instanceof Text)
                         errorMessage = ((Text) child).getTextContent();
                     else
                         errorMessage = "No message";
                 } else {
-                    errorCode = "";
+                    errorCode = ""; //$NON-NLS-1$
                     errorMessage = outputErrorMessage;
                 }
             } else {
-                errorCode = "";
-                errorMessage = "";
+                errorCode = ""; //$NON-NLS-1$
+                errorMessage = ""; //$NON-NLS-1$
             }
 
-            if (outputErrorMessage == null || "0".equals(errorCode)) {
+            if (outputErrorMessage == null || "0".equals(errorCode)) { //$NON-NLS-1$
                 TreeNode rootNode = getRootNode(concept, "en");
                 if (ids != null && !rootNode.isReadOnly()) {
                     WSItemPK wsItem = Util.getPort().deleteItem(
