@@ -2467,7 +2467,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                         //reset the ids
                         if(result){
                         	ids=result;
-                        }
+                        }            		                       
                     });
     		        
     		        //displayItems.call(); 
@@ -3007,6 +3007,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			//by yguo, fix 0016461. hard code baseOptions of tool bar to 2016. 
 			toolbar.baseOptions = 2016;
 			initToolBar(toolbar, 1);
+			
+			//refresh the search result tabs
+            if(Ext.get('items-grid')){
+    			var grid=gridContainerPanel.items.first();            			
+    			grid.store.reload();
+            }
 		 });
 		
 		DWREngine.setAsync(true);
