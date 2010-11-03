@@ -3533,7 +3533,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    amalto.core.ready();
 	    var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
 	    var dataObject=tbDetail.dataObject;
-		ItemsBrowserInterface.countForeignKey_filter(dataObject,xpathForeignKey,fkFilter,treeIndex, function(count){
+		ItemsBrowserInterface.countForeignKey_filter(dataObject,xpathForeignKey,fkFilter,treeIndex,nodeId, function(count){
 			//Display a pop-up window to search for foreign keys
 			if(foreignKeyWindow){
 			    foreignKeyWindow.hide();
@@ -3543,7 +3543,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var store = new Ext.data.Store({
 				proxy: new Ext.ux.data.ImprovedDWRProxy({
 			        dwrFunction: ItemsBrowserInterface.getForeignKeyListWithCount,
-			        dwrAdditional: [dataObject,xpathForeignKey, xpathInfoForeignKey,fkFilter,treeIndex] //, Ext.getCmp('foreign-key-filter').getValue()]}
+			        dwrAdditional: [dataObject,xpathForeignKey, xpathInfoForeignKey,fkFilter,treeIndex,nodeId] //, Ext.getCmp('foreign-key-filter').getValue()]}
 				}),
 		        reader: new Ext.data.JsonReader({
 		            root: 'rows',

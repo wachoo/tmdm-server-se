@@ -1844,7 +1844,7 @@ public class ItemsBrowserDWR {
 	}
 	
 
-	public String parseForeignKeyFilter(String dataObject,String fkFilter,int docIndex) throws Exception{
+	public String parseForeignKeyFilter(String dataObject,String fkFilter,int docIndex,int nodeId) throws Exception{
 		
             String parsedFkfilter=fkFilter;
 		
@@ -1854,13 +1854,18 @@ public class ItemsBrowserDWR {
 				(HashMap<String,TreeNode>)ctx.getSession().getAttribute("xpathToTreeNode");
 			HashMap<String,UpdateReportItem> updatedPath = 
 				(HashMap<String,UpdateReportItem>) ctx.getSession().getAttribute("updatedPath"+docIndex);
+			HashMap<Integer,String> idToXpath = 
+				(HashMap<Integer,String>) ctx.getSession().getAttribute("idToXpath");
+			String currentXpath=null;
+			if(idToXpath!=null&&idToXpath.get(nodeId)!=null)currentXpath=idToXpath.get(nodeId);
+			
 			
 			if(fkFilter!=null) {
 				
 				if(Util.isCustomFilter(fkFilter)) {
 					
 					fkFilter=StringEscapeUtils.unescapeXml(fkFilter);
-					parsedFkfilter=parseRightValueOrPath(xpathToTreeNode,updatedPath,dataObject,fkFilter);
+					parsedFkfilter=parseRightValueOrPath(xpathToTreeNode,updatedPath,dataObject,fkFilter,currentXpath);
 					return parsedFkfilter;
 					
 				}
@@ -1887,7 +1892,7 @@ public class ItemsBrowserDWR {
 							rightValueOrPath=StringEscapeUtils.unescapeXml(rightValueOrPath);
 							
 							rightValueOrPath = parseRightValueOrPath(
-									xpathToTreeNode, updatedPath,dataObject,rightValueOrPath);
+									xpathToTreeNode, updatedPath,dataObject,rightValueOrPath,currentXpath);
 							
 							conditionMap.put("Value",rightValueOrPath);
 							break;
@@ -1927,7 +1932,8 @@ public class ItemsBrowserDWR {
 			HashMap<String, TreeNode> xpathToTreeNode,
 			HashMap<String, UpdateReportItem> updatedPath,
 			String dataObject,
-			String rightValueOrPath) {
+			String rightValueOrPath,
+			String currentXpath) {
 		
 		String origiRightValueOrPath=rightValueOrPath;
 		String patternString=dataObject+"(/[A-Za-z0-9\\[\\]]*)+";
@@ -1945,6 +1951,29 @@ public class ItemsBrowserDWR {
 					if(startPos>0&&endPos<origiRightValueOrPath.length()-1) {
 						String checkValue=origiRightValueOrPath.substring(startPos-1, endPos+1).trim();
 						if(checkValue.startsWith("\"")&&checkValue.endsWith("\""))return rightValueOrPath;
+					}
+					
+					//handle multi occurrences
+					
+					//clean start char
+					if(currentXpath.startsWith("//"))currentXpath=currentXpath.substring(2);
+					else if(currentXpath.startsWith("/"))currentXpath=currentXpath.substring(1);
+					
+					if(gettedXpath.startsWith("//"))gettedXpath=currentXpath.substring(2);
+					else if(gettedXpath.startsWith("/"))gettedXpath=currentXpath.substring(1);
+					
+					if(currentXpath.matches(".*\\[(\\d+)\\].*")&&!gettedXpath.matches(".*\\[(\\d+)\\].*")){
+						//get ..
+						String currentXpathParent=currentXpath;
+						String gettedXpathParent=gettedXpath;
+						if(currentXpath.lastIndexOf("/")!=-1)currentXpathParent=currentXpath.substring(0,currentXpath.lastIndexOf("/"));
+						if(gettedXpath.lastIndexOf("/")!=-1)gettedXpathParent=gettedXpath.substring(0,gettedXpath.lastIndexOf("/"));
+						//clean
+						String currentXpathParentReplaced=currentXpathParent.replaceAll("\\[(\\d+)\\]", "");
+						//compare
+						if(currentXpathParentReplaced.equals(gettedXpathParent)) {
+							if(gettedXpath.lastIndexOf("/")!=-1)gettedXpath=currentXpathParent+gettedXpath.substring(gettedXpath.lastIndexOf("/"));
+						}
 					}
 						
 					//get replaced value
@@ -1977,14 +2006,14 @@ public class ItemsBrowserDWR {
 	/**
 	 * lym
 	 */
-	public String countForeignKey_filter(String dataObject,String xpathForeignKey, String fkFilter,int docIndex) throws Exception{
-		return Util.countForeignKey_filter(xpathForeignKey, parseForeignKeyFilter(dataObject,fkFilter,docIndex));
+	public String countForeignKey_filter(String dataObject,String xpathForeignKey, String fkFilter,int docIndex,int nodeId) throws Exception{
+		return Util.countForeignKey_filter(xpathForeignKey, parseForeignKeyFilter(dataObject,fkFilter,docIndex,nodeId));
 	}
 
-	public String getForeignKeyListWithCount(int start, int limit, String value,String dataObject, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter,int docIndex) 
+	public String getForeignKeyListWithCount(int start, int limit, String value,String dataObject, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter,int docIndex,int nodeId) 
 	   throws RemoteException, Exception 
 	{
-	   return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, parseForeignKeyFilter(dataObject,fkFilter,docIndex), true);
+	   return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, parseForeignKeyFilter(dataObject,fkFilter,docIndex,nodeId), true);
 	}
 	
 	private static String pushUpdateReport(String[] ids, String concept, String operationType,int docIndex)throws Exception{
