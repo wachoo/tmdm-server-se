@@ -762,6 +762,7 @@ public class ItemsBrowserDWR {
 						// TODO check addThisNode
 		    			list.add(treeNodeTmp);  
 						nodeCount++;
+						xpathToTreeNode.put(xpath + "[" + (i + 1) + "]", treeNode);
 					}
 					if(nodeList.getLength() == 0){
 						if(!treeNode.isReadOnly())
@@ -953,6 +954,9 @@ public class ItemsBrowserDWR {
 		// associate the new id node to the particle of his sibling
 		idToParticle.put(newId,xsp);
 		Document d = (Document) ctx.getSession().getAttribute("itemDocument"+docIndex);		
+		HashMap<String,TreeNode> xpathToTreeNode = 
+            (HashMap<String,TreeNode>)ctx.getSession().getAttribute("xpathToTreeNode");
+            
 		try {
 			
 			Node node = Util.getNodeList(d,idToXpath.get(siblingId)).item(0);
@@ -998,6 +1002,8 @@ public class ItemsBrowserDWR {
 			
 			nodeAutorization.add(siblingXpath+"["+(siblingIndex+1)+"]");
 			ctx.getSession().setAttribute("nodeAutorization",nodeAutorization);
+			TreeNode siblingNode = xpathToTreeNode.get(siblingXpath + "[" + siblingIndex + "]");
+			xpathToTreeNode.put(siblingXpath + "[" + (siblingIndex + 1) + "]", siblingNode);
 			
 			return "Cloned";
 			
@@ -2831,7 +2837,7 @@ public class ItemsBrowserDWR {
  * @param value
  * @return
  */
-	public String validateNode(String language, int nodeId,String value){
+	public String validateNode(String language, int nodeId, String value){
 		String errorMessage= null;
 		WebContext ctx = WebContextFactory.get();
 		HashMap<String,TreeNode> xpathToTreeNode = 
