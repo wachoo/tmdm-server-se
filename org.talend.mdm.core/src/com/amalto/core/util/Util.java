@@ -2307,38 +2307,14 @@ public class Util {
                 // Scan the entries - in priority, taka the content of the 'output_error_message' entry,
                 for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
 
-                    if ("output_error_message".equals(entry.getKey())) { //$NON-NLS-1$
-                        outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8"); //$NON-NLS-1$
+                    if ("output_error_message".equals(entry.getKey())) {
+                        outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8");
                         break;
                     }
                 }
                 // handle error message
                 if (outputErrorMessage.length() > 0) {
-                    String errorCode = "";
-                    String errorMessage = "";
-                    
-                    Document doc = Util.parse(outputErrorMessage);
-                    //TODO what if multiple error nodes ?
-                    String xpath = "/descendant::error"; //$NON-NLS-1$
-                    Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
-                    if (errorNode instanceof Element) {
-                        Element errorElement = (Element)errorNode;
-                        errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
-                        Node child = errorElement.getFirstChild();
-                        if (child instanceof Text)
-                            errorMessage = ((Text) child).getTextContent();
-                        else
-                            errorMessage = "No message";
-                    } else {
-                        errorCode = null;
-                        errorMessage = outputErrorMessage;
-                    }
-                    
-                    if (!"0".equals(errorCode)) { //$NON-NLS-1$
-                        errorMessage = "ERROR_3:" + errorMessage;
-                        return errorMessage;
-                    }
-
+                	return outputErrorMessage;
                 } else {
                     return "Failed to retrieve the before saving status. The record was not saved";
                 }

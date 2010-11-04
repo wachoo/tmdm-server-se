@@ -1594,11 +1594,12 @@ public class ItemsBrowserDWR {
 			if(newItem==true) isUpdateThisItem = false;
 			//if update, check the item is modified by others?
 			WSItemPK wsi=null;
-			wsi = Util.getPort().putItemWithReport(new WSPutItemWithReport(
+			WSPutItemWithReport wsPutItemWithReport=new WSPutItemWithReport(
 					new WSPutItem(
 							new WSDataClusterPK(dataClusterPK), 
 							xml,
-							new WSDataModelPK(dataModelPK),isUpdateThisItem),"genericUI",true));
+							new WSDataModelPK(dataModelPK),isUpdateThisItem),"genericUI",true);
+			wsi = Util.getPort().putItemWithReport(wsPutItemWithReport);
 			synchronizeUpdateState(ctx,docIndex);
 			if(wsi!=null) {
 				//put update report
@@ -1610,7 +1611,34 @@ public class ItemsBrowserDWR {
 //				}
 			}
 			if(Util.isTransformerExist("beforeSaving_"+concept)){
-				return "Process beforeSaving_"+concept+" has been executed";
+				
+				String outputErrorMessage=wsPutItemWithReport.getSource();
+				 String errorMessage;
+		            String errorCode;
+		            if (outputErrorMessage != null) {
+		                Element root = Util.parse(outputErrorMessage).getDocumentElement();
+		                if (root.getLocalName().equals("error")) {
+		                    errorCode = root.getAttribute("code");
+		                    Node child = root.getFirstChild();
+		                    if (child instanceof Text)
+		                        errorMessage = ((Text) child).getTextContent();
+		                    else
+		                        errorMessage = "No message";
+		                } else {
+		                    errorCode = null;
+		                    errorMessage = outputErrorMessage;
+		                }
+		            } else {
+		                errorCode = null;
+		                errorMessage = null;
+		            }
+		            if (outputErrorMessage == null || "0".equals(errorCode)) {
+		            	 return errorMessage;
+		            } else {
+		                // Anything but 0 is unsuccessful
+		                errorMessage = "ERROR_3 " + errorMessage;
+		                return errorMessage;
+		            }
 			}else{
 				return "OK";
 			}
