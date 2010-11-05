@@ -553,7 +553,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var lineMax = 20;
 	
 	var realValues = [];
-	
+    var lineMaxPrefix = "lineMax";
+    
 	//var conceptNameSelect = "";
 	var isReadOnlyinItem = false;
 	
@@ -1528,6 +1529,46 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		return searchValue;
 	}
 	
+	function getLineMaxFromCookie(){
+		if(document.cookie == undefined || document.cookie == null){
+			return 20;
+		}
+		
+        var strCookie=document.cookie;
+        var arrCookie=strCookie.split("; ");
+        for(var i=0;i<arrCookie.length;i++){
+              var arr=arrCookie[i].split("=");
+              if(arr[0]=='lineMax')
+            	  return arr[1];
+        }
+
+
+		return 20;
+	}
+	
+	function setLineMaxToCookie(lineNum){
+		if(document.cookie == undefined || document.cookie == null){
+			return;
+		}
+		
+		if (isNaN(lineNum))
+		{
+			Ext.MessageBox.alert("Error","Please Input a valid number");
+			return;
+		}
+		
+		var posValue = document.cookie.indexOf(lineMaxPrefix + '=');
+		var middleValue = lineMaxPrefix + "=" + lineNum;
+	    var futdate = new Date()		
+	    var expdate = futdate.getTime()  
+	    expdate += 3600*10000000  
+	    futdate.setTime(expdate)
+	    var newCookie= lineMaxPrefix + "=" + lineNum + "; path=/;"	//Set the new cookie values up
+	    newCookie += " expires=" + futdate.toGMTString()
+
+		window.document.cookie = newCookie;
+	}
+	
 	function displayItems(){
 		updateCurrentPredicate(1);
 		outPutCriteriaResult();
@@ -1538,7 +1579,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			var columnsHeader = [];
 			ItemsBrowserInterface.getViewables(viewName, language, function(result){		
 				columnsHeader = result;
-				displayItems2(columnsHeader,lineMax);
+				var lineNum = getLineMaxFromCookie();
+				displayItems2(columnsHeader,lineNum);
 				
 				//delete/logicaldelete should be the same as new buttton
 				$('btn-logicaldelete').disabled=$('item-new-btn').disabled;
@@ -1813,6 +1855,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			                		lineMax = DWRUtil.getValue('itemslineMaxItems');
 									if(lineMax==null || lineMax=="") 
 										lineMax=20;
+									setLineMaxToCookie(lineMax);
 									displayItems2(columnsHeader,lineMax);
 					            } 
 							},
@@ -1822,6 +1865,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 								    lineMax = newValue;
 								    if(lineMax==null || lineMax=="") 
                                         lineMax=20;
+								    setLineMaxToCookie(lineMax);
 								    displayItems2(columnsHeader,lineMax);
 								}
 							
