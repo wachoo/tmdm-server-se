@@ -11,11 +11,25 @@ public class IOUtil {
 		boolean bl = false;
 		File binaryFile = new File(filePath);
 		FileOutputStream fileOutStream = null;
+		
 		try {
+		    if(!binaryFile.exists()) {
+		        int index = filePath.lastIndexOf("\\");
+		        File dateFolder = new File(filePath.substring(0, index));
+		        
+		        if(!dateFolder.exists()) {
+		            dateFolder.mkdir();
+		        }
+		    
+		        binaryFile.createNewFile();
+		    }
+		    
 			fileOutStream = new FileOutputStream(binaryFile);
+			
 			for (int i = 0; i < b.length; i++) {
 				fileOutStream.write(b[i]);
 			}
+			
 			fileOutStream.flush();
 			bl = true;
 		} catch (FileNotFoundException e) {
