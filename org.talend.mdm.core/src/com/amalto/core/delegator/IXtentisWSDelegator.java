@@ -119,6 +119,7 @@ import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereOr;
+import com.sun.org.apache.xpath.internal.XPathAPI;
 
 public abstract class IXtentisWSDelegator implements IBeanDelegator{
 	
@@ -2020,18 +2021,31 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			//create resultUpdateReport			
 			String resultUpdateReport= Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem.getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
 
-			//invoke before saving
-			if(wsPutItemWithReport.getInvokeBeforeSaving()){
-				String err=Util.beforeSaving(concept, projection, resultUpdateReport);
-				if(err!=null){
-					//fix bug 0014896
-					//err="execute beforeSaving ERROR:"+ err;
-					org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-					throw new XtentisException(err);
-				}
-			}
+			///invoke before saving
+            String outputErrorMessage = null;
+            String errorCode = null;
+            if (wsPutItemWithReport.getInvokeBeforeSaving()) {
+                outputErrorMessage = Util.beforeSaving(concept, projection, resultUpdateReport);
+                if (outputErrorMessage != null) {
+                    Document doc = Util.parse(outputErrorMessage);
+                    // TODO what if multiple error nodes ?
+                    String xpath = "/descendant::error"; //$NON-NLS-1$
+                    Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
+                    if (errorNode instanceof Element) {
+                        Element errorElement = (Element) errorNode;
+                        errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                    }
+                }
+            }
+            wsPutItemWithReport.setSource(outputErrorMessage);
+
 			//if don't put the item ,return see 0012169
-			if(wsi==null) return null;
+			if(wsi==null)
+			    return null;
+            
+			if(outputErrorMessage != null && !"0".equals(errorCode))
+			    return null;
+            
 			concept=wsi.getConceptName();
 			ids=wsi.getIds();			
 			//additional attributes for data changes log

@@ -46,6 +46,7 @@
 				<include name="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
 			</zipfileset>
 			<zipfileset dir="bin" prefix="WEB-INF/classes" includes="**/*.class" />
+		    <zipfileset dir="bin" prefix="WEB-INF/classes" includes="**/*.properties" />
 			<zipfileset dir="web" includes="**/*" />
 			<zipfileset dir="src" prefix="WEB-INF/classes" includes="**/*.xsl" />
 			<zipfileset dir="libs" prefix="WEB-INF/lib" includes="*.jar" />

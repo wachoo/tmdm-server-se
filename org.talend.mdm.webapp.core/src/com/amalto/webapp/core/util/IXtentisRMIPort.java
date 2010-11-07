@@ -92,6 +92,7 @@ import com.amalto.core.util.WhereConditionForcePivotFilter;
 import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.util.webservices.*;
+import com.sun.org.apache.xpath.internal.XPathAPI;
 
 public abstract class IXtentisRMIPort implements XtentisPort {
 
@@ -2810,79 +2811,66 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 						updateReportItemsMap.put(entry.getKey(), pojo);
 				}				
 			}
-			//create resultUpdateReport
 			
+			//create resultUpdateReport
 			String resultUpdateReport= Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem.getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
+			
 			//invoke before saving
-			//if(Util.isEnterprise()){
-			String err="";
-				if(wsPutItemWithReport.getInvokeBeforeSaving()){
-					err=Util.beforeSaving(concept, projection, resultUpdateReport);
-					if(err!=null){
-						//err="execute beforeSaving ERROR:"+ err;
-						org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-						//throw new XtentisException(err);
-					}
-				}
-			//}
-				 String errorMessage;
-		            String errorCode;
-		            if (err != null) {
-		                Element element = Util.parse(err).getDocumentElement();
-		                if (element.getLocalName().equals("error")) {
-		                    errorCode = element.getAttribute("code");
-		                    Node child = element.getFirstChild();
-		                    if (child instanceof Text)
-		                        errorMessage = ((Text) child).getTextContent();
-		                    else
-		                        errorMessage = "No message";
-		                } else {
-		                    errorCode = null;
-		                    errorMessage = err;
-		                }
-		            } else {
-		                errorCode = null;
-		                errorMessage = null;
-		            }
-		            WSItemPK wsi=null;
-		            if (err == null || "0".equals(errorCode)) {
-		    			String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
-		    			
-		    			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[putItem-of-putItemWithReport] in dataCluster:"+dataClusterPK);
-		    			wsi = putItem(wsPutItem);	
-		    			if(wsi==null) return null;
-		    			concept=wsi.getConceptName();
-		    			ids=wsi.getIds();			
-		    			//additional attributes for data changes log
-		    			ILocalUser user = LocalUser.getLocalUser();
-		    			String userName=user.getUsername();
-		    			String revisionID ="";
-		    			UniversePOJO universe = user.getUniverse();
-		                if(universe!=null){
-		                	revisionID=universe.getConceptRevisionID(concept);
-		                }
-		                String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
-		    			
-		    			org.apache.log4j.Logger.getLogger(this.getClass()).debug("[pushUpdateReport-of-putItemWithReport] with concept:"+concept+" operation:"+operationType);
-		    			UpdateReportPOJO updateReportPOJO=new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, source, System.currentTimeMillis(),dataClusterPK,dataModelPK,userName,revisionID,updateReportItemsMap);
-		    			
-		    				WSItemPK itemPK = putItem(
-		    						new WSPutItem(
-		    								new WSDataClusterPK("UpdateReport"), 
-		    								updateReportPOJO.serialize(),
-		    								new WSDataModelPK("UpdateReport"),false));
-		    				
-		    			try {
-		    			    routeItemV2(new WSRouteItemV2(itemPK));
-		    			}
-		    			catch(RemoteException ex) {
-		    			    throw(new RemoteException("routing failed: " + ex.getLocalizedMessage()));
-		    			}
-		    			
-		            }
-		            wsPutItemWithReport.setSource(err);
-		            return wsi;	
-		
+			String outputErrorMessage = null;
+            String errorCode = null;
+            if (wsPutItemWithReport.getInvokeBeforeSaving()) {
+                outputErrorMessage = Util.beforeSaving(concept, projection, resultUpdateReport);
+                if (outputErrorMessage != null) {
+                    Document doc = Util.parse(outputErrorMessage);
+                    // TODO what if multiple error nodes ?
+                    String xpath = "/descendant::error"; //$NON-NLS-1$
+                    Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
+                    if (errorNode instanceof Element) {
+                        Element errorElement = (Element) errorNode;
+                        errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                    }
+                }
+            }
+            wsPutItemWithReport.setSource(outputErrorMessage);
+            
+            WSItemPK wsi = null;
+            if (outputErrorMessage == null || "0".equals(errorCode)) {
+                String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
+
+                org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                        "[putItem-of-putItemWithReport] in dataCluster:" + dataClusterPK);
+                wsi = putItem(wsPutItem);
+                if (wsi == null)
+                    return null;
+                concept = wsi.getConceptName();
+                ids = wsi.getIds();
+                // additional attributes for data changes log
+                ILocalUser user = LocalUser.getLocalUser();
+                String userName = user.getUsername();
+                String revisionID = "";
+                UniversePOJO universe = user.getUniverse();
+                if (universe != null) {
+                    revisionID = universe.getConceptRevisionID(concept);
+                }
+                String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
+
+                org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                        "[pushUpdateReport-of-putItemWithReport] with concept:" + concept + " operation:" + operationType);
+                UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType,
+                        source, System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, revisionID,
+                        updateReportItemsMap);
+
+                WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(),
+                        new WSDataModelPK("UpdateReport"), false));
+
+                try {
+                    routeItemV2(new WSRouteItemV2(itemPK));
+                } catch (RemoteException ex) {
+                    throw (new RemoteException("routing failed: " + ex.getLocalizedMessage()));
+                }
+            }
+            
+            return wsi;
 		}catch (XtentisException e) {
 			throw(new RemoteException(e.getLocalizedMessage()));			
 		} catch (Exception e) {

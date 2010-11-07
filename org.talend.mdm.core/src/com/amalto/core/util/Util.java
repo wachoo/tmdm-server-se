@@ -72,12 +72,12 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -2266,6 +2266,14 @@ public class Util {
         return ItemPOJO.load(itemPOJOPK);
     }
 
+    /**
+     * Executes a BeforeSaving process if any
+     * 
+     * @return Either <code>null</code> if no process was found or a status message (0=success; <>0=failure) of the form
+     * &lt;error code='1'&gt;This is a message&lt;/error>
+     * @throws Exception If something went wrong
+     */
+    @SuppressWarnings("unchecked")
     public static String beforeSaving(String concept, String xml, String resultUpdateReport) throws Exception {
         // check before saving transformer
         boolean isBeforeSavingTransformerExist = false;
@@ -2303,107 +2311,102 @@ public class Util {
                     Thread.sleep(100);
                 }
                 // TODO process no plug-in issue
-                String outputErrorMessage = "";
+                String outputErrorMessage = null;
                 // Scan the entries - in priority, taka the content of the 'output_error_message' entry,
                 for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
 
-                    if ("output_error_message".equals(entry.getKey())) {
+                    if (ITransformerConstants.VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
                         outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8");
                         break;
                     }
                 }
                 // handle error message
-                if (outputErrorMessage.length() > 0) {
-                	return outputErrorMessage;
+                if (outputErrorMessage != null && outputErrorMessage.length() > 0) {
+                    return outputErrorMessage;
                 } else {
-                    return "Failed to retrieve the before saving status. The record was not saved";
+                    return "<error code='1'/>"; //$NON-NLS-1$
                 }
             } catch (Exception e) {
                 Logger.getLogger(Util.class).error(e);
-                return "ERROR -" + e.getLocalizedMessage();
+                throw e;
             }
         }
         return null;
     }
 
-    public static String beforeDeleting(String clusterName, String concept,
-			String[] ids) throws Exception {
-		// check before deleting transformer
-		boolean isBeforeDeletingTransformerExist = false;
-		Collection<TransformerV2POJOPK> transformers = getTransformerV2CtrlLocal()
-				.getTransformerPKs("*");
-		for (TransformerV2POJOPK id : transformers) {
-			if (id.getIds()[0].equals("beforeDeleting_" + concept)) {
-				isBeforeDeletingTransformerExist = true;
-				break;
-			}
-		}
+    /**
+     * Executes a BeforeDeleting process if any
+     * 
+     * @return Either <code>null</code> if no process was found or a status message (0=success; <>0=failure) of the form
+     * &lt;error code='1'&gt;This is a message&lt;/error>
+     * @throws Exception If something went wrong
+     */
+    @SuppressWarnings("unchecked")
+    public static String beforeDeleting(String clusterName, String concept, String[] ids) throws Exception {
+        // check before deleting transformer
+        boolean isBeforeDeletingTransformerExist = false;
+        Collection<TransformerV2POJOPK> transformers = getTransformerV2CtrlLocal().getTransformerPKs("*");
+        for (TransformerV2POJOPK id : transformers) {
+            if (id.getIds()[0].equals("beforeDeleting_" + concept)) {
+                isBeforeDeletingTransformerExist = true;
+                break;
+            }
+        }
 
-		if (isBeforeDeletingTransformerExist) {
-			try {
-				// call before deleting transformer
+        if (isBeforeDeletingTransformerExist) {
+            try {
+                // call before deleting transformer
 
-				final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
-				TransformerContext context = new TransformerContext(
-						new TransformerV2POJOPK("beforeDeleting_" + concept));
-				context.put(RUNNING, Boolean.TRUE);
-				TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
-				TypedContent wsTypedContent = new TypedContent(
-						buildItemPKString(clusterName, concept, ids).getBytes(
-								"UTF-8"), "text/xml; charset=utf-8");
+                final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
+                TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_" + concept));
+                context.put(RUNNING, Boolean.TRUE);
+                TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
+                TypedContent wsTypedContent = new TypedContent(buildItemPKString(clusterName, concept, ids).getBytes("UTF-8"),
+                        "text/xml; charset=utf-8");
 
-				ctrl.execute(context, wsTypedContent,
-						new TransformerCallBack() {
-							public void contentIsReady(
-									TransformerContext context)
-									throws XtentisException {
-								org.apache.log4j.Logger
-										.getLogger(this.getClass())
-										.debug(
-												"XtentisWSBean.executeTransformerV2.beforeDeleting.contentIsReady() ");
-							}
+                ctrl.execute(context, wsTypedContent, new TransformerCallBack() {
 
-							public void done(TransformerContext context)
-									throws XtentisException {
-								org.apache.log4j.Logger
-										.getLogger(this.getClass())
-										.debug(
-												"XtentisWSBean.executeTransformerV2.beforeDeleting.done() ");
-								context.put(RUNNING, Boolean.FALSE);
-							}
-						});
+                    public void contentIsReady(TransformerContext context) throws XtentisException {
+                        org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                                "XtentisWSBean.executeTransformerV2.beforeDeleting.contentIsReady() ");
+                    }
 
-				while (((Boolean) context.get(RUNNING)).booleanValue()) {
-					Thread.sleep(100);
-				}
-				// TODO process no plug-in issue
-				String outputErrorMessage = "";
-				// Scan the entries - in priority, taka the content of the
-				// 'output_error_message' entry,
-				for (Entry<String, TypedContent> entry : context
-						.getPipelineClone().entrySet()) {
+                    public void done(TransformerContext context) throws XtentisException {
+                        org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                                "XtentisWSBean.executeTransformerV2.beforeDeleting.done() ");
+                        context.put(RUNNING, Boolean.FALSE);
+                    }
+                });
 
-					if ("output_error_message".equals(entry.getKey())) {
-						outputErrorMessage = new String(entry.getValue()
-								.getContentBytes(), "UTF-8");
-						break;
-					}
-				}
-				// handle error message
-				if (outputErrorMessage.length() > 0) {
-					return outputErrorMessage;
-				} else {
-					return "<error code=\"1\">Failed to retrieve the before deleting status. The record was not deleted</error>";
-				}
+                while (((Boolean) context.get(RUNNING)).booleanValue()) {
+                    Thread.sleep(100);
+                }
+                // TODO process no plug-in issue
+                String outputErrorMessage = null;
+                // Scan the entries - in priority, taka the content of the
+                // 'output_error_message' entry,
+                for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
+
+                    if (ITransformerConstants.VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
+                        outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8");
+                        break;
+                    }
+                }
+                // handle error message
+                if (outputErrorMessage != null && outputErrorMessage.length() > 0) {
+                    return outputErrorMessage;
+                } else {
+                    return "<error code='1'/>"; //$NON-NLS-1$
+                }
             } catch (Exception e) {
                 Logger.getLogger(Util.class).error(e);
                 throw e;
-			}
-		}
-		// TODO Scan the entries - in priority, taka the content of the specific
-		// entry
-		return null;
-	}
+            }
+        }
+        // TODO Scan the entries - in priority, taka the content of the specific
+        // entry
+        return null;
+    }
 
     public static String buildItemPKString(String clusterName, String conceptName, String[] ids) {
 
