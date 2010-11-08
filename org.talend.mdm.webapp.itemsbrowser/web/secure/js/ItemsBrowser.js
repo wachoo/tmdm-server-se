@@ -3200,17 +3200,17 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	                          Ext.MessageBox.alert("Status",result.description.substring(8));
 	                        }else if(result.description.indexOf('Unable to save item')==0){
 	                	        amalto.core.ready();
-	    				        tbDetail.items.get('saveBTN').enable();
-	    				        tbDetail.items.get('saveAndQBTN').enable();
 	    				        showExceptionMsg(result.description, null, treeIndex);
 	                        }else if(result.description.indexOf('Save item')==0){
 	                	        amalto.core.ready();
-	    				        tbDetail.items.get('saveBTN').enable();
-	    				        tbDetail.items.get('saveAndQBTN').enable();
 	    				        showExceptionMsg(result.description, null, treeIndex);
 	                        }
 					    }
 					}
+					
+					tbDetail.items.get('saveBTN').enable();
+			        tbDetail.items.get('saveAndQBTN').enable();
+			        
 					if(callbackOnSuccess)callbackOnSuccess();
 					
 					if(result.description==null || result.description==""){
