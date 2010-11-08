@@ -97,6 +97,7 @@ import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.amalto.webapp.v3.itemsbrowser.bean.BrowseItem;
 import com.amalto.webapp.v3.itemsbrowser.bean.Criteria;
+import com.amalto.webapp.v3.itemsbrowser.bean.ItemResult;
 import com.amalto.webapp.v3.itemsbrowser.bean.Restriction;
 import com.amalto.webapp.v3.itemsbrowser.bean.SearchTempalteName;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
@@ -1373,7 +1374,7 @@ public class ItemsBrowserDWR {
         return false;
     }
 
-    public static String saveItem(String[] ids, String concept, boolean newItem, int docIndex) throws Exception {
+    public static ItemResult saveItem(String[] ids, String concept, boolean newItem, int docIndex) throws Exception {
         WebContext ctx = WebContextFactory.get();
 
         try {
@@ -1403,7 +1404,7 @@ public class ItemsBrowserDWR {
             HashMap<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
             updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex); //$NON-NLS-1$
             if (!"DELETE".equals(operationType) && updatedPath == null) { //$NON-NLS-1$
-                return "ERROR_2"; //$NON-NLS-1$
+                return new ItemResult(ItemResult.UNCHANGED);
             }
 
             // put item
@@ -1422,10 +1423,10 @@ public class ItemsBrowserDWR {
             }
 
             String message = null;
+            int status;
             if (Util.isTransformerExist("beforeSaving_" + concept)) {
 
                 String outputErrorMessage = wsPutItemWithReport.getSource();
-
                 String errorCode = null;
                 if (outputErrorMessage != null) {
                     Document doc = Util.parse(outputErrorMessage);
@@ -1441,31 +1442,37 @@ public class ItemsBrowserDWR {
                     }
                 }
 
-                if (outputErrorMessage == null) {
-                    message = "OK";
-                } else if ("0".equals(errorCode)) { //$NON-NLS-1$
+                if ("0".equals(errorCode)) { //$NON-NLS-1$
                     if (message == null || message.length() == 0)
                         message = MESSAGES.getMessage("save.process.validation.success"); //$NON-NLS-1$
+                    status = ItemResult.SUCCESS;
                 } else {
                     // Anything but 0 is unsuccessful
                     if (message == null || message.length() == 0)
                         message = MESSAGES.getMessage("save.process.validation.failure"); //$NON-NLS-1$
-                    message = "ERROR_3:" + message;
+                    status = ItemResult.FAILURE;
                 }
             } else {
-                message = "OK";
+                message = MESSAGES.getMessage("save.success"); //$NON-NLS-1$
+                status = ItemResult.SUCCESS;
             }
-            return message;
+            return new ItemResult(status, message);
         } catch (Exception e) {
-            String saveSUCCE = "Save item '" + concept + "." + Util.joinStrings(ids, ".") + "' successfully, But "
-                    + e.getLocalizedMessage();
-            String err = "Unable to save item '" + concept + "." + Util.joinStrings(ids, ".") + "'" + e.getLocalizedMessage();
-            // fix bug 0014896
-            if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {
-                err = e.getLocalizedMessage();
-            }
+            ItemResult result;
             // TODO Ugly isn't it ?
-            return e.getLocalizedMessage().indexOf("routing failed:") == 0 ? saveSUCCE : err;
+            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {
+                String saveSUCCE = "Save item '" + concept + "." + Util.joinStrings(ids, ".") + "' successfully, But "
+                        + e.getLocalizedMessage();
+                result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
+            } else {
+                String err = "Unable to save item '" + concept + "." + Util.joinStrings(ids, ".") + "'" + e.getLocalizedMessage();
+                // fix bug 0014896
+                if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {
+                    err = e.getLocalizedMessage();
+                }
+                result = new ItemResult(ItemResult.FAILURE, err);
+            }
+            return result;      
         }
     }
 

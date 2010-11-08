@@ -497,10 +497,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'fr':'Définissez des critères de recherche et cliquez \'Rechercher\'.',
 		'en':'Enter search criteria and hit the \'Search\' button.'
 	};
-	var SAVE_STATUS_OK={
-        'fr':'L\'enregistrement a bien été sauvegardé.',
-        'en':'The record was saved successfully.'
-    };
 
 	/*****************
 	 * EXT 2.0
@@ -3189,51 +3185,53 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var itemPK = ids.split('@');
 		amalto.core.working("Saving...");
 		var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
-		//tbDetail.items.get('saveBTN').disable();
-		//tbDetail.items.get('saveAndQBTN').disable();
+		tbDetail.items.get('saveBTN').disable();
+		tbDetail.items.get('saveAndQBTN').disable();
 			ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex],treeIndex,{
 				callback:function(result){ 
 					amalto.core.ready(result);
-					if(result=="ERROR_2"){
+					if(result.status == 2) { //unchanged
 						amalto.core.ready(ALERT_NO_CHANGE[language]);
-						if(callbackOnSuccess)callbackOnSuccess(); 
-						// alert(ALERT_NO_CHANGE[language]);
-					}else if(result.indexOf('ERROR_3:')==0){
-						// add for before saving transformer check
-	                    amalto.core.ready(result.substring(8));
-	                    Ext.MessageBox.alert("Status",result.substring(8));
-	                }else if(result.indexOf('Unable to save item')==0){
-	                	amalto.core.ready();
-	    				//tbDetail.items.get('saveBTN').enable();
-	    				//tbDetail.items.get('saveAndQBTN').enable();
-	    				showExceptionMsg(result, null, treeIndex);
-	                }
-	                else if(result.indexOf("Save item") == 0) {
-	                	amalto.core.ready();
-	    				//tbDetail.items.get('saveBTN').enable();
-	    				//tbDetail.items.get('saveAndQBTN').enable();
-	    				showExceptionMsg(result, null, treeIndex);
-	                }else{
-				       if(callbackOnSuccess)callbackOnSuccess();   
+					}else if(result.status == 1) { //failure
+					    if(result.description!=null){
+					    	if(result.description.indexOf('ERROR_3:')==0){
+						      // add for before saving transformer check
+	                          amalto.core.ready(result.substring(8));
+	                          Ext.MessageBox.alert("Status",result.description.substring(8));
+	                        }else if(result.description.indexOf('Unable to save item')==0){
+	                	        amalto.core.ready();
+	    				        tbDetail.items.get('saveBTN').enable();
+	    				        tbDetail.items.get('saveAndQBTN').enable();
+	    				        showExceptionMsg(result.description, null, treeIndex);
+	                        }else if(result.description.indexOf('Save item')==0){
+	                	        amalto.core.ready();
+	    				        tbDetail.items.get('saveBTN').enable();
+	    				        tbDetail.items.get('saveAndQBTN').enable();
+	    				        showExceptionMsg(result.description, null, treeIndex);
+	                        }
+					    }
 					}
-					if(result==null || result==""){
+					if(callbackOnSuccess)callbackOnSuccess();
+					
+					if(result.description==null || result.description==""){
 						return;
 					}else{
-						if(result.lastIndexOf("ERROR")>-1){
-							var err1=result.substring(8);
+						if(result.status == 1) {
+							var err1=result.description;
+						    if(err1.lastIndexOf("ERROR")>-1)
+							    var err1=result.description.substring(8);
 							if(err1==null || err1==""){
-								return;
+							    return;
 							}else{
-								Ext.MessageBox.show({
-								    msg:err1,
-								    buttons:{"ok":"CANCEL"},
-								    icon:Ext.MessageBox.ERROR
-								 });
-								return;
+							    Ext.MessageBox.show({
+							        msg:err1,
+							        buttons:{"ok":"CANCEL"},
+							        icon:Ext.MessageBox.ERROR
+							     });
+							    return;
 							}
 						}else{
-							var msg2show=result;
-							if(result=="OK")msg2show=SAVE_STATUS_OK[language];
+							var msg2show=result.description;
 							Ext.MessageBox.show({
 							    msg:msg2show,
 							    buttons:{"ok":"OK"},
@@ -3243,8 +3241,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						}
 					}
 					amalto.core.ready();
-					//tbDetail.items.get('saveBTN').enable();
-					//tbDetail.items.get('saveAndQBTN').enable();
+					tbDetail.items.get('saveBTN').enable();
+					tbDetail.items.get('saveAndQBTN').enable();
 				}
 	        });
 	}
