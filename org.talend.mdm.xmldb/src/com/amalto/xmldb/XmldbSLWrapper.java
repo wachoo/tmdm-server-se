@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -21,6 +22,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -35,6 +41,7 @@ import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xmldb.api.DatabaseManager;
 import org.xmldb.api.base.Database;
 import org.xmldb.api.base.Resource;
@@ -1869,5 +1876,26 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper,IXmlServerEBJLifeCycl
 		if(col==null) return false;
 		return true;
 	}
-
+    /**
+     * Generates an xml string from a node with or without the xml declaration (not pretty formatted)
+     * 
+     * @param n the node
+     * @return the xml string
+     * @throws TransformerException
+     */
+    public static String nodeToString(Node n, boolean omitXMLDeclaration) throws TransformerException {
+        StringWriter sw = new StringWriter();
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        if (omitXMLDeclaration) {
+            transformer.setOutputProperty("omit-xml-declaration", "yes");
+        } else {
+            transformer.setOutputProperty("omit-xml-declaration", "no");
+        }
+        transformer.setOutputProperty("indent", "yes"); // TODO: why? impact on performance + memory usage
+        transformer.transform(new DOMSource(n), new StreamResult(sw));
+        if (sw == null) {
+            return null;
+        }
+        return sw.toString().replaceAll("\r\n", "\n");
+    }
 }
