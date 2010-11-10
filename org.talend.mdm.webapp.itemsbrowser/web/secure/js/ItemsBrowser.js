@@ -1929,6 +1929,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 	}
 	
+	function reFreshToolBar(toolbar) {
+		toolbar.baseOptions |= O_DELETE|O_LOGICAL_DEL|O_DUPLICATE|O_JOURNAL|O_REFRESH; 
+		initToolBar(toolbar, M_TREE_VIEW);
+	}
 	
 	function initToolBar(/*Ext.Toolbar*/toolbar, mode)
 	{
@@ -3044,10 +3048,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				itempanel.isdirty=false;
 			}				
 			
-			//by yguo, fix 0016461. hard code baseOptions of tool bar to 2016. 
-			toolbar.baseOptions = 2016;
-			initToolBar(toolbar, 1);
-			
 			//refresh the search result tabs
             if(Ext.get('items-grid')){
     			var grid=gridContainerPanel.items.first();            			
@@ -3192,7 +3192,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					amalto.core.ready(result);
 					if(result.status == 2) { //unchanged
 						amalto.core.ready(ALERT_NO_CHANGE[language]);
-					}else if(result.status == 1) { //failure
+					}
+					else if(result.status == 1) { //failure
 					    if(result.description!=null){
 					    	if(result.description.indexOf('ERROR_3:')==0){
 						      // add for before saving transformer check
@@ -3206,6 +3207,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    				        showExceptionMsg(result.description, null, treeIndex);
 	                        }
 					    }
+					}
+					else if(result.status == 0) {//by yguo, fix 0016461. hard code baseOptions of tool bar to 2016. 
+						reFreshToolBar(tbDetail);
 					}
 					
 					tbDetail.items.get('saveBTN').enable();
