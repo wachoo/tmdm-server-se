@@ -1472,7 +1472,7 @@ public class ItemsBrowserDWR {
                 }
                 result = new ItemResult(ItemResult.FAILURE, err);
             }
-            return result;      
+            return result;
         }
     }
 
@@ -2080,7 +2080,7 @@ public class ItemsBrowserDWR {
         try {
 
             WebContext ctx = WebContextFactory.get();
-            Configuration config = Configuration.getInstance();
+            Configuration config = Configuration.getInstance(true);
             String model = config.getModel();
 
             CommonDWR.getFieldsByDataModel(model, concept, language, true);
@@ -2914,7 +2914,7 @@ public class ItemsBrowserDWR {
             String[] results = Util.getPort().xPathsSearch(
                     new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
                             new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order
-                                                                                                                                 // by
+                            // by
                             null // direction
                     )).getStrings();
 
