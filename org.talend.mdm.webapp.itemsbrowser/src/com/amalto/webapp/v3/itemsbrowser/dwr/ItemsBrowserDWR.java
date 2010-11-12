@@ -2612,6 +2612,9 @@ public class ItemsBrowserDWR {
         ArrayList<Restriction> restrictions = null;
         if (xpath != null)
             node = xpathToTreeNode.get(xpath);
+        if (xpath.lastIndexOf("]") == xpath.length() - 1 && node == null) {
+            node = xpathToTreeNode.get(xpath.replaceAll("\\[\\d+\\]$", "[1]"));
+        }
 
         boolean isValidation = true;// if true, return null,else return errorMessage
         if (value.length() == 0 && node != null && (node.getMinOccurs() >= 1 || checkAncestorMinOCcurs(node))) {

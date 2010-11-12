@@ -2790,6 +2790,18 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		return values;
 	}
+	
+	function cloneObject(obj){
+	    if(obj == null || typeof(obj) != 'object')
+	        return obj;
+
+	    var temp = obj.constructor(); // changed
+
+	    for(var key in obj)
+	        temp[key] = cloneObject(obj[key]);
+	    return temp;
+	}
+	
 	function cloneNode2(siblingId, hasIcon, treeIndex){
 		var itemTree = itemTreeList[treeIndex];
 		var siblingNode = itemTree.getNodeByIndex(siblingId);
@@ -2806,7 +2818,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var nodeCount = YAHOO.widget.TreeView.nodeCount;
 		//add by yguo. fix bug clone node then browseForeignKey. the value of node equals siblingNode's value.
 		siblingNode.itemData.value = "";
-		var newNode = new amalto.itemsbrowser.ItemNode(siblingNode.itemData,true,treeIndex,siblingNode.parent,true,true,isReadOnlyinItem);
+		var newNode = new amalto.itemsbrowser.ItemNode(cloneObject(siblingNode.itemData),true,treeIndex,siblingNode.parent,true,true,isReadOnlyinItem);
 		
 		newNode.updateNodeId(nodeCount);
 		//remove by ymli; fix the bug:0013463
@@ -3943,7 +3955,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             var value = DWRUtil.getValue(nodeId+'Value');
             node.resetErrorMessage(nodeId);
             DWREngine.setAsync(false);
-            ItemsBrowserInterface.validateNode(language, nodeId,value,function(result){
+            ItemsBrowserInterface.validateNode(language, nodeId, value,function(result){
                 if(result=="null")
                     returnRe = true;
                 else{
