@@ -1755,7 +1755,7 @@ public class ItemsBrowserDWR {
             HashMap<String, UpdateReportItem> updatedPath, String dataObject, String rightValueOrPath, String currentXpath) {
 
         String origiRightValueOrPath = rightValueOrPath;
-        String patternString = dataObject + "(/[A-Za-z0-9\\[\\]]*)+";
+        String patternString = dataObject + "(/[A-Za-z0-9_\\[\\]]*)+";
         Pattern pattern = Pattern.compile(patternString);// FIXME support simple xpath
         Matcher matcher = pattern.matcher(rightValueOrPath);
         while (matcher.find()) {
