@@ -1085,7 +1085,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
                 }
 
                 for (int m = 0; m < indexPaths.length; m++) {
-                    xqOrderby.append(",").append("$").append(indexPaths[m]).append(" ");
+                    // see 0016991, using the first element as pivot
+                    xqOrderby.append(",").append("$").append(indexPaths[m] + "[0]").append(" ");
                     // add direction
                     if (indexDirections != null && indexDirections.length > 0)
                         xqOrderby.append(indexDirections[m] == null ? "" : " " + indexDirections[m] + " ");
