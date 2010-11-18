@@ -2625,10 +2625,9 @@ public class ItemsBrowserDWR {
                     restrictions = node.getRestrictions();
                     errorMessage = (String) node.getFacetErrorMsg().get(language);
                 } else if (node.getMinOccurs() >= 1)
-                    errorMessage = "The value does not comply with the facet defined in the model: " + "minOccurs" + ": "
-                            + node.getMinOccurs();
+                    errorMessage = "the field minOccurs is " + node.getMinOccurs();
                 else
-                    errorMessage = "This item is mandatory!";
+                    errorMessage = "this field is mandatory!";
             }
             isValidation = false;
             return errorMessage;
@@ -2645,7 +2644,7 @@ public class ItemsBrowserDWR {
                 errorMessage = (String) node.getFacetErrorMsg().get(language);
             if (value.length() == 0 && node.isKey()) {
                 if (errorMessage == null) {
-                    errorMessage = "The value does not comply with the facet defined in the model: " + "Key should not be empty";
+                    errorMessage = "Entity key field should not be empty";
                     isValidation = false;
                     break;
                 }
@@ -2654,54 +2653,71 @@ public class ItemsBrowserDWR {
             // boolean ancestor = true;//@TODO... check ancestor
             // boolean ancestor = checkAncestorMinOCcurs(node);
 
-            if (re.getName() != "whiteSpace")
-                if (errorMessage == null)
-                    errorMessage = "The value does not comply with the facet defined in the model: " + re.getName() + ":"
-                            + re.getValue();
+            if (re.getName().equals("pattern")) {
+                if (errorMessage == null) {
+                    if (!Pattern.compile(re.getValue()).matcher(value).matches()) {
+                        errorMessage = value + " don't match the field's pattern: " + re.getValue();
+                        isValidation = false;
+                        break;
+                    }
+                }
+            }
             if (node.getMinOccurs() >= 1 || (node.getMinOccurs() == 0 && value.trim().length() != 0)) {
-                if (re.getName() == "minLength" && value.length() < Integer.parseInt(re.getValue())) {
+                if (re.getName().equals("minLength") && value.length() < Integer.parseInt(re.getValue())) {
+                    errorMessage = "the field minLength is " + re.getValue();
                     isValidation = false;
                     break;
                 }
-                if (re.getName() == "maxLength" && value.length() > Integer.parseInt(re.getValue())) {
+                if (re.getName().equals("maxLength") && value.length() > Integer.parseInt(re.getValue())) {
+                    errorMessage = "the field maxLength is " + re.getValue();
                     isValidation = false;
                     break;
                 }
-                if (re.getName() == "length" && value.length() != Integer.parseInt(re.getValue())) {
+                if (re.getName().equals("length") && value.length() != Integer.parseInt(re.getValue())) {
+                    errorMessage = "the field's length should be " + re.getValue();
                     isValidation = false;
                     break;
                 }
-                if (re.getName() == "minExclusive")
+                if (re.getName().equals("minExclusive"))
                     if (!isNumeric(value)) {
-                        errorMessage = node.getName() + " " + "is not a valid value for double";
+                        errorMessage = node.getName() + " is not a valid value for number";
                         isValidation = false;
                         break;
                     } else if (Float.parseFloat(value) <= Float.parseFloat(re.getValue())) {
+                        errorMessage = "the field minExclusive is " + re.getValue();
                         isValidation = false;
                         break;
                     }
 
-                if (re.getName() == "minInclusive") {
+                if (re.getName().equals("minInclusive")) {
                     if (!isNumeric(value)) {
-                        errorMessage = node.getName() + " " + "is not a valid value for double";
+                        errorMessage = node.getName() + " is not a valid value for number";
                         isValidation = false;
                         break;
                     } else if (Float.parseFloat(value) < Float.parseFloat(re.getValue())) {
+                        errorMessage = "the field minInclusive is " + re.getValue();
                         isValidation = false;
                         break;
                     }
-
                 }
 
-                if (re.getName() == "maxInclusive")
+                if (re.getName().equals("maxInclusive"))
                     if (!isNumeric(value)) {
-                        errorMessage = node.getName() + " " + "is not a valid value for double";
+                        errorMessage = node.getName() + " is not a valid value for number";
                         isValidation = false;
                         break;
                     } else if (Float.parseFloat(value) > Float.parseFloat(re.getValue())) {
+                        errorMessage = "the field maxInclusive is " + re.getValue();
                         isValidation = false;
                         break;
                     }
+                if (re.getName().equals("whiteSpace") && re.getValue().equals("collapse")) {
+                    if (!isNumeric(value)) {
+                        errorMessage = node.getName() + " is not a valid value for number";
+                        isValidation = false;
+                        break;
+                    }
+                }
             }
 
         }
@@ -2711,7 +2727,7 @@ public class ItemsBrowserDWR {
     }
 
     public static boolean isNumeric(String str) {
-        Pattern pattern = Pattern.compile("[0-9]+\\.?[0-9]*");
+        Pattern pattern = Pattern.compile("[\\-+]?[0-9]+\\.?[0-9]*");
         return pattern.matcher(str).matches();
     }
 
