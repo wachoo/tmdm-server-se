@@ -2714,13 +2714,6 @@ public class ItemsBrowserDWR {
                         isValidation = false;
                         break;
                     }
-                if (re.getName().equals("whiteSpace") && re.getValue().equals("collapse")) {
-                    if (!isNumeric(value)) {
-                        errorMessage = node.getName() + " is not a valid value for number";
-                        isValidation = false;
-                        break;
-                    }
-                }
             }
 
         }
