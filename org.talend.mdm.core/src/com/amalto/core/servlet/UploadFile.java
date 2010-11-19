@@ -153,6 +153,12 @@ public class UploadFile extends HttpServlet {
                 		new File(barpath).mkdir();
                 		tempFile=new File(barpath+File.separator+item.getName());
                 	}
+                	else if(item.getName().endsWith(".war")){
+                		String deplayPath = Util.getAppServerDeployDir();
+					tempFile = new File(deplayPath + File.separator + "server"
+							+ File.separator + "default" + File.separator
+							+ "deploy" + File.separator + item.getName());
+                	}
                     item.write(tempFile);
                     files.add(tempFile.getAbsolutePath());
                 } catch(Exception e) {
