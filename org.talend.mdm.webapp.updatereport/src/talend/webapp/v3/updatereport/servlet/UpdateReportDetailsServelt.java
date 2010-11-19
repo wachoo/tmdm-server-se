@@ -22,8 +22,6 @@ import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
@@ -132,7 +130,8 @@ public class UpdateReportDetailsServelt extends HttpServlet {
 
                         for (int i = 0; i < ls.getLength(); i++) {
                             String path = Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/path");
-                            FKInstance fkInstance = getRetrieveConf(dataModel, concept, path);
+                            String elementPath = path.replaceAll("\\[\\d+\\]$", "");
+                            FKInstance fkInstance = getRetrieveConf(dataModel, concept, elementPath);
 
                             String oldValue = Util.getFirstTextNode(doc, "/Update/Item[" + (i + 1) + "]/oldValue");
 
@@ -253,8 +252,6 @@ public class UpdateReportDetailsServelt extends HttpServlet {
      */
     private FKInstance getRetrieveConf(String dataModel, String concept, String path) throws Exception {
         FKInstance fkInstance = new FKInstance();
-        String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModel))).getXsdSchema();
-
         Map<String, XSElementDecl> map = CommonDWR.getConceptMap(dataModel);
         XSElementDecl decl = map.get(concept);
         XSType type = decl.getType();
