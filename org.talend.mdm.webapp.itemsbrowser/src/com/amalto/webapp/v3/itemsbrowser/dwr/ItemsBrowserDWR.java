@@ -700,8 +700,11 @@ public class ItemsBrowserDWR {
 
                         treeNodeTmp.setNodeId(nodeCount);
                         // TODO check addThisNode
-                        list.add(treeNodeTmp);
-                        nodeCount++;
+                        if (treeNodeTmp.isVisible()) {
+                            list.add(treeNodeTmp);
+                            nodeCount++;
+                        }
+
                         xpathToTreeNode.put(xpath + "[" + (i + 1) + "]", treeNode);
                     }
                     if (nodeList.getLength() == 0) {
@@ -1751,8 +1754,8 @@ public class ItemsBrowserDWR {
 
     }
 
-    private String parseRightValueOrPath(HashMap<String, TreeNode> xpathToTreeNode,
-            HashMap<String, UpdateReportItem> updatedPath, String dataObject, String rightValueOrPath, String currentXpath) {
+    public String parseRightValueOrPath(HashMap<String, TreeNode> xpathToTreeNode, HashMap<String, UpdateReportItem> updatedPath,
+            String dataObject, String rightValueOrPath, String currentXpath) {
 
         String origiRightValueOrPath = rightValueOrPath;
         String patternString = dataObject + "(/[A-Za-z0-9_\\[\\]]*)+";
