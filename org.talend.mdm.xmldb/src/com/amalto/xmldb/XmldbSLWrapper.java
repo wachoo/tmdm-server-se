@@ -192,9 +192,13 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             try {
                 col = DatabaseManager.getCollection(getFullURL(revisionID, clusterName), ADMIN_USERNAME, ADMIN_PASSWORD);
                 if (col == null) {
-                    if (!create)
-                        throw new XmlServerException("The cluster '" + clusterName + "' cannot be found in "
-                                + (revisionID == null ? "HEAD" : "revision " + revisionID));
+                    if (!create) {
+                        if (org.apache.log4j.Logger.getLogger(this.getClass()).isDebugEnabled())
+                            org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                                    "The cluster '" + clusterName + "' cannot be found in " //$NON-NLS-1$ //$NON-NLS-2$
+                                            + (revisionID == null ? "HEAD" : "revision " + revisionID)); //$NON-NLS-1$ //$NON-NLS-2$
+                        return null;
+                    }
                     // get the revision
                     col = DatabaseManager.getCollection(getFullURL(revisionID, null), ADMIN_USERNAME, ADMIN_PASSWORD);
                     if (col == null) {
@@ -210,8 +214,6 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
                     col = service.createCollection(clusterName);
                 }
                 clusters.put(key, col);
-            } catch (XmlServerException e) {
-                throw (e);
             } catch (Exception e) {
                 String err = "getCollection failed on cluster " + clusterName;
                 org.apache.log4j.Logger.getLogger("INFO SYSTRACE " + this.getClass()).info(err, e);
