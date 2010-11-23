@@ -150,6 +150,11 @@ public class ItemsBrowserDWR {
         // Configuration config = Configuration.getInstance();
         Configuration config = Configuration.getInstance(true);
         String model = config.getModel();
+
+        if (model == null || "".equals(model)) {
+            throw new Exception("The Data Model can't be empty!");
+        }
+
         String[] businessConcept = Util.getPort().getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model)))
                 .getStrings();
         ArrayList<String> bc = new ArrayList<String>();
