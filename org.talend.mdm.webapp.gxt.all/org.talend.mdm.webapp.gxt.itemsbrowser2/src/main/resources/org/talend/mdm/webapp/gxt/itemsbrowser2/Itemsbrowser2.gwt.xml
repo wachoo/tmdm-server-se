@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<inherits name='com.google.gwt.user.User'/>
+	<stylesheet src="itemsbrowser.css" />
+	
+	<!-- Client side code -->
+    <super-source path="translatable" />
+	
+	<!-- Specify the app entry point class. -->
+	<entry-point class='org.talend.mdm.webapp.gxt.itemsbrowser2.client.Itemsbrowser2EntryPoint'/>	
+</module>

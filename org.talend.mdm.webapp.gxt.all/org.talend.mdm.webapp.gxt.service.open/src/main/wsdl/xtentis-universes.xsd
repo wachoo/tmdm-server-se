@@ -1,0 +1,124 @@
+<xsd:schema 
+	elementFormDefault="unqualified"
+	targetNamespace="urn-com-amalto-xtentis-webservice"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="urn-com-amalto-xtentis-webservice"
+	>
+	
+	<!-- *****************************************************
+		Universe Objects
+		*******************************************************-->
+	
+	<xsd:complexType name="WSUniverse">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="description" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="xtentisObjectsRevisionIDs">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="xtentisObjectName" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="defaultItemsRevisionID" type="xsd:string"/>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="itemsRevisionIDs">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="conceptPattern" type="xsd:string"/>
+						<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="revisionID" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSUniverse" type = "tns:WSUniverse"/>		
+	
+	<xsd:complexType name="WSUniversePK">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="pk" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSUniversePK" type="tns:WSUniversePK"/>		
+	
+	<xsd:complexType name="WSUniversePKArray">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsUniversePK" type="tns:WSUniversePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSUniversePKArray" type = "tns:WSUniversePKArray"/>
+	
+
+	<!-- *****************************************************
+		Universe Operations
+		*******************************************************-->
+	
+	<xsd:complexType name="WSGetUniverse">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsUniversePK" type="tns:WSUniversePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetUniverse" type="tns:WSGetUniverse"/>
+	
+	<xsd:complexType name="WSExistsUniverse">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsUniversePK" type="tns:WSUniversePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSExistsUniverse" type="tns:WSExistsUniverse"/>
+	
+	<xsd:complexType name="WSPutUniverse">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsUniverse" type="tns:WSUniverse"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPutUniverse" type="tns:WSPutUniverse"/>
+	
+	<xsd:complexType name="WSDeleteUniverse">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsUniversePK" type="tns:WSUniversePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteUniverse" type="tns:WSDeleteUniverse"/>
+	
+	<xsd:complexType name="WSGetUniversePKs">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetUniversePKs" type="tns:WSGetUniversePKs"/>	
+	
+	<xsd:complexType name="WSGetObjectsForUniverses">
+		<xsd:annotation>
+			<xsd:documentation>
+				Return the xtentis object names for which a revision ID can be set
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="0" maxOccurs="unbounded"  nillable="false" name="regex" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetObjectsForUniverses" type="tns:WSGetObjectsForUniverses"/>
+		
+		
+	<xsd:complexType name="WSGetCurrentUniverse">
+		<xsd:annotation>
+			<xsd:documentation>
+				Return the Universe the calling user is using
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element minOccurs="0" maxOccurs="1"  nillable="true" name="dummy" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetCurrentUniverse" type="tns:WSGetCurrentUniverse"/>
+	
+	<xsd:complexType name="WSGetConceptsInDataClusterWithRevisions">
+		<xsd:sequence>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="dataClusterPOJOPK" type="tns:WSDataClusterPK"/>
+			<xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="universePK" type="tns:WSUniversePK"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSGetConceptsInDataClusterWithRevisions" type="tns:WSGetConceptsInDataClusterWithRevisions"/>
+	
+</xsd:schema>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.talend.mdm.webapp.gxt.all</groupId>
+	<artifactId>org.talend.mdm.webapp.gxt.all</artifactId>
+	<version>4.2.0</version>
+	<packaging>pom</packaging>
+
+	<name>org.talend.mdm.webapp.gxt.all</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<!-- convenience to define GWT version in one place -->
+		<gwt.version>2.0.3</gwt.version>
+		<gxt.version>2.1.1</gxt.version>
+		<!--  tell the compiler we can use 1.6 -->
+		<maven.compiler.source>1.6</maven.compiler.source>
+		<maven.compiler.target>1.6</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<modules>
+		<module>org.talend.mdm.webapp.gxt.common</module>
+		<module>org.talend.mdm.webapp.gxt.framework</module>
+		<module>org.talend.mdm.webapp.gxt.service.open</module>
+		<module>org.talend.mdm.webapp.gxt.itemsbrowser2</module>
+	</modules>
+</project>
