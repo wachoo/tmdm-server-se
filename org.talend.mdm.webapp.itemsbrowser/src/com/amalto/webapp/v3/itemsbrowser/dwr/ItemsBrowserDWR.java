@@ -2626,17 +2626,16 @@ public class ItemsBrowserDWR {
 
         boolean isValidation = true;// if true, return null,else return errorMessage
         if (value.length() == 0 && node != null && (node.getMinOccurs() >= 1 || checkAncestorMinOCcurs(node))) {
-            if (errorMessage == null) {
-                // by yguo, fix 0016045: Facet messages not taken into account
-                if (node.getRestrictions() != null && node.getMinOccurs() >= 1 && node.getFacetErrorMsg() != null
-                        && node.getFacetErrorMsg().size() != 0) {
-                    restrictions = node.getRestrictions();
-                    errorMessage = (String) node.getFacetErrorMsg().get(language);
-                } else if (node.getMinOccurs() >= 1)
-                    errorMessage = "the field minOccurs is " + node.getMinOccurs();
-                else
-                    errorMessage = "this field is mandatory!";
+            // by yguo, fix 0016045: Facet messages not taken into account
+            if (node.getRestrictions() != null && node.getFacetErrorMsg() != null && node.getFacetErrorMsg().size() != 0) {
+                restrictions = node.getRestrictions();
+                errorMessage = (String) node.getFacetErrorMsg().get(language);
             }
+            if (node.getMinOccurs() >= 1)
+                errorMessage = errorMessage == null ? "the field minOccurs is " + node.getMinOccurs() : errorMessage;
+            else
+                errorMessage = errorMessage == null ? "this field is mandatory!" : errorMessage;
+
             isValidation = false;
             return errorMessage;
         }
@@ -2651,59 +2650,56 @@ public class ItemsBrowserDWR {
             if (node.getFacetErrorMsg() != null)
                 errorMessage = (String) node.getFacetErrorMsg().get(language);
             if (value.length() == 0 && node.isKey()) {
-                if (errorMessage == null) {
-                    errorMessage = "Entity key field should not be empty";
-                    isValidation = false;
-                    break;
-                }
+                errorMessage = errorMessage == null ? "Entity key field should not be empty" : errorMessage;
+                isValidation = false;
+                break;
             }
 
             // boolean ancestor = true;//@TODO... check ancestor
             // boolean ancestor = checkAncestorMinOCcurs(node);
 
             if (re.getName().equals("pattern")) {
-                if (errorMessage == null) {
-                    if (!Pattern.compile(re.getValue()).matcher(value).matches()) {
-                        errorMessage = value + " don't match the field's pattern: " + re.getValue();
-                        isValidation = false;
-                        break;
-                    }
+                if (!Pattern.compile(re.getValue()).matcher(value).matches()) {
+                    errorMessage = errorMessage == null ? value + " don't match the field's pattern: " + re.getValue()
+                            : errorMessage;
+                    isValidation = false;
+                    break;
                 }
             }
             if (node.getMinOccurs() >= 1 || (node.getMinOccurs() == 0 && value.trim().length() != 0)) {
                 if (re.getName().equals("minLength") && value.length() < Integer.parseInt(re.getValue())) {
-                    errorMessage = "the field minLength is " + re.getValue();
+                    errorMessage = errorMessage == null ? "the field minLength is " + re.getValue() : errorMessage;
                     isValidation = false;
                     break;
                 }
                 if (re.getName().equals("maxLength") && value.length() > Integer.parseInt(re.getValue())) {
-                    errorMessage = "the field maxLength is " + re.getValue();
+                    errorMessage = errorMessage == null ? "the field maxLength is " + re.getValue() : errorMessage;
                     isValidation = false;
                     break;
                 }
                 if (re.getName().equals("length") && value.length() != Integer.parseInt(re.getValue())) {
-                    errorMessage = "the field's length should be " + re.getValue();
+                    errorMessage = errorMessage == null ? "the field's length should be " + re.getValue() : errorMessage;
                     isValidation = false;
                     break;
                 }
                 if (re.getName().equals("minExclusive"))
                     if (!isNumeric(value)) {
-                        errorMessage = node.getName() + " is not a valid value for number";
+                        errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
                         isValidation = false;
                         break;
                     } else if (Float.parseFloat(value) <= Float.parseFloat(re.getValue())) {
-                        errorMessage = "the field minExclusive is " + re.getValue();
+                        errorMessage = errorMessage == null ? "the field minExclusive is " + re.getValue() : errorMessage;
                         isValidation = false;
                         break;
                     }
 
                 if (re.getName().equals("minInclusive")) {
                     if (!isNumeric(value)) {
-                        errorMessage = node.getName() + " is not a valid value for number";
+                        errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
                         isValidation = false;
                         break;
                     } else if (Float.parseFloat(value) < Float.parseFloat(re.getValue())) {
-                        errorMessage = "the field minInclusive is " + re.getValue();
+                        errorMessage = errorMessage == null ? "the field minInclusive is " + re.getValue() : errorMessage;
                         isValidation = false;
                         break;
                     }
@@ -2711,11 +2707,11 @@ public class ItemsBrowserDWR {
 
                 if (re.getName().equals("maxInclusive"))
                     if (!isNumeric(value)) {
-                        errorMessage = node.getName() + " is not a valid value for number";
+                        errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
                         isValidation = false;
                         break;
                     } else if (Float.parseFloat(value) > Float.parseFloat(re.getValue())) {
-                        errorMessage = "the field maxInclusive is " + re.getValue();
+                        errorMessage = errorMessage == null ? "the field maxInclusive is " + re.getValue() : errorMessage;
                         isValidation = false;
                         break;
                     }
