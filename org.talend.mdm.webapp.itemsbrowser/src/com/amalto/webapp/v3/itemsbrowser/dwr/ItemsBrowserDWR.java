@@ -2635,8 +2635,7 @@ public class ItemsBrowserDWR {
                 errorMessage = errorMessage == null ? "the field minOccurs is " + node.getMinOccurs() : errorMessage;
             else
                 errorMessage = errorMessage == null ? "this field is mandatory!" : errorMessage;
-
-            isValidation = false;
+            // isValidation = false;
             return errorMessage;
         }
 
@@ -2658,15 +2657,15 @@ public class ItemsBrowserDWR {
             // boolean ancestor = true;//@TODO... check ancestor
             // boolean ancestor = checkAncestorMinOCcurs(node);
 
-            if (re.getName().equals("pattern")) {
-                if (!Pattern.compile(re.getValue()).matcher(value).matches()) {
-                    errorMessage = errorMessage == null ? value + " don't match the field's pattern: " + re.getValue()
-                            : errorMessage;
-                    isValidation = false;
-                    break;
-                }
-            }
             if (node.getMinOccurs() >= 1 || (node.getMinOccurs() == 0 && value.trim().length() != 0)) {
+                if (re.getName().equals("pattern")) {
+                    if (!Pattern.compile(re.getValue()).matcher(value).matches()) {
+                        errorMessage = errorMessage == null ? value + " don't match the field's pattern: " + re.getValue()
+                                : errorMessage;
+                        isValidation = false;
+                        break;
+                    }
+                }
                 if (re.getName().equals("minLength") && value.length() < Integer.parseInt(re.getValue())) {
                     errorMessage = errorMessage == null ? "the field minLength is " + re.getValue() : errorMessage;
                     isValidation = false;
