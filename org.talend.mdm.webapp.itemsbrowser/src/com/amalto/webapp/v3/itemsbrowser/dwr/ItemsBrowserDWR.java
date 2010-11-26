@@ -1670,6 +1670,15 @@ public class ItemsBrowserDWR {
                 }
             }
         }
+        else
+        {
+        	// simple Type and check out the bool type
+        	if(xsp.getTerm().asElementDecl().getType().asSimpleType().getName().equals("boolean"))
+        	{
+        		el.setTextContent("false");
+        	}
+        	
+        }
     }
 
     public String countForeignKey(String xpathForeignKey) throws Exception {
