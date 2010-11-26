@@ -18,6 +18,16 @@ amalto.welcome.Welcome = function () {
 		'en':'Welcome to Talend MDM.'
 	}
 	
+	var START_TITLE = {
+		'fr':'Démarrage',
+		'en':'Getting Started'
+	}
+	
+	var START_DESCRIPTION = {
+		'fr':'Vous pouvez commencer par le panneau \"Démarrage\".',
+		'en':'You can start with \"Getting Started\" panel.'
+	}
+	
 	var BROWSE_ITEMS = {
 		'fr':'Accès aux données',
 		'en':'Browse Records'
@@ -43,6 +53,16 @@ amalto.welcome.Welcome = function () {
 		'en':'If you need to add users to your license, you may contact your Talend account manager.'
 	}
 	
+	var NO_LICENSE_MESSAGE = {
+		'fr': 'Aucune license disponible, veuillez entrer une license valide.',
+		'en': 'No license available, please input your valid license.'
+	}
+	
+	var LICENSE_EXPIRED_MESSAGE = {
+		'fr': 'La license a expiré, veuillez renouveler votre license.',
+		'en': 'License expired, please update your license.'
+	}
+	
 	var Loading_Task_Msg = {
 		'fr':'Chargement de la liste de tâches en cours, veuillez patienter...',
 		'en':'Loading workflow task list, please wait...'
@@ -51,6 +71,56 @@ amalto.welcome.Welcome = function () {
 	var Loading_Alert_Msg = {
 		'fr':'Chargement de la liste des alertes en cours, veuillez patienter...',
 		'en':'Loading list of alerts, please wait...'
+	}
+	
+	var USEFUL_LINKS = {
+		'fr':'Liens Utiles',
+		'en':'Useful links'
+	}
+	
+	var USEFUL_LINKS_DESCRIPTION = {
+		'fr':'Liens utiles pour démarrer avec Talend MDM:',
+		'en':'Here are a few links to help you get started with Talend MDM:'
+	}
+
+	var TASKS_TITLE = {
+		'fr':'Tâches',
+		'en':'Tasks'
+	}
+
+	var ALERTS_TITLE = {
+		'fr':'Alertes',
+		'en':'Alerts'
+	}
+
+	var NO_TASKS = {
+		'fr':'Aucune tâche.',
+		'en':'No tasks.'
+	}
+
+	var NO_ALERTS = {
+		'fr':'Aucune alerte.',
+		'en':'No alerts.'
+	}
+	
+	var WAITING_TASK_PREFIX = {
+		'fr':'Vous avez ',
+		'en':'You have '
+	}
+	
+	var WAITING_TASK_SUFFIX = {
+		'fr':' tâche(s) de workflow en attente.',
+		'en':' workflow task(s) ready to handle.'
+	}
+	
+	var TASKS_DESCRIPTION = {
+		'fr':'Gérez vos tâches via les liens suivants.',
+		'en':'You can handle tasks by the following links.'
+	}
+	
+	var ALERTS_DESCRIPTION = {
+		'fr':'Gérez vos alertes via les liens suivants.',
+		'en':'You can handle alerts by the following links.'
 	}
 	
 	var welcomePanel;	
@@ -142,7 +212,7 @@ amalto.welcome.Welcome = function () {
 					id : 'startMessageLB',
 					xtype : 'label',
 					style : 'padding-left: 20px;',
-					text : 'Here are a few links to help you get started with Talend MDM:'
+					text : USEFUL_LINKS_DESCRIPTION[language]
 				}]
 	 		});
 	 		
@@ -160,7 +230,7 @@ amalto.welcome.Welcome = function () {
 							border : false
 						},
 						new Ext.form.FieldSet({
-							 title : 'Useful Links',
+							 title : USEFUL_LINKS[language],
 							 width : 500,
 							 colspan: 2,
 							 style : 'font-size:80%;',
@@ -177,7 +247,7 @@ amalto.welcome.Welcome = function () {
 			startPanel = new Ext.Panel({
 				id: 'startPL',
 				iconCls : 'start_icon',
-				title : 'Getting Started',
+				title : START_TITLE[language],
 				height : 145,
 				border: true,
 				header:true,
@@ -226,7 +296,7 @@ amalto.welcome.Welcome = function () {
 							border : false
 						},
 						new Ext.form.FieldSet({
-							title : 'Alerts',
+							title : ALERTS_TITLE[language],
 							id : 'alertsFields',
 							width : 500,
 							style : 'font-size: 80%;',
@@ -241,7 +311,7 @@ amalto.welcome.Welcome = function () {
 				id: 'alertsPL',
 				iconCls : 'alert_icon',
 				hidden : hidenAlertsPL,
-				title : 'Alerts',
+				title : ALERTS_TITLE[language],
 				border: true,
 				height:120,
 				header:true,
@@ -285,7 +355,7 @@ amalto.welcome.Welcome = function () {
 							border : false
 						},
 						new Ext.form.FieldSet({
-							title : 'Tasks',
+							title : TASKS_TITLE[language],
 							id : 'tasksField',
 							width : 500,
 							autoHeight : true,
@@ -299,7 +369,7 @@ amalto.welcome.Welcome = function () {
 				id: 'taskPL',
 				iconCls : 'task_list_icon',
 				hidden : hidenTaskPL,
-				title : 'Tasks',
+				title : TASKS_TITLE[language],
 				border: true,
 				height:120,
 				header:true,
@@ -336,7 +406,7 @@ amalto.welcome.Welcome = function () {
 					id : 'startDescription',
 					xtype : 'label',
 					style : 'font-size:80%;',
-					text : 'You can start with "Getting Started" panel.',
+					text : START_DESCRIPTION[language],
 					colspan: 2
 				},{
 					id : 'descriptionNumbers',
@@ -413,21 +483,21 @@ amalto.welcome.Welcome = function () {
 		 WelcomeInterface.getLicenseMsg(language, function(result) {
 			 if(result.data.license) {
 				 if(!result.data.licenseValid) {
-					 licenseMessage = "License expired, please update your license by license wizard.";
+					 licenseMessage = LICENSE_EXPIRED_MESSAGE[language];
 				 }
 				 else {
 					 Ext.getCmp("alertsFields").setVisible(false);
-					 Ext.getCmp("alertsMessage").setText("No alerts.");
+					 Ext.getCmp("alertsMessage").setText(NO_ALERTS[language]);
 					 return;
 				 }
 			 }
 			 else {
-				 licenseMessage = "No license available, please input your valid license by license wizard.";
+				 licenseMessage = NO_LICENSE_MESSAGE[language];
 			 }
 			 
 			 var licenseAlert = Ext.getCmp("licenseAlert");
 			 DWRUtil.setValue("licenseAlert",  '<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>' + ' ' + licenseMessage);
-			 alertMessageLB.setText("You can handle alerts by the following links.");
+			 alertMessageLB.setText(ALERTS_DESCRIPTION[language]);
 		 });
 	 }
 	 
@@ -440,17 +510,17 @@ amalto.welcome.Welcome = function () {
 		 taskMessageLB.setText(Loading_Task_Msg[language]);
 		 
 		 WelcomeInterface.getTaskMsg(function(result){
-			 taskMessage = "You have " + result + " workflow task ready to handle.";
+			 taskMessage = WAITING_TASK_PREFIX[language] + result +  WAITING_TASK_SUFFIX[language];
 			 
 			 if(Ext.getCmp("tasksField")) {
 				 DWRUtil.setValue("workflowtasks", '<IMG SRC=\"/talendmdm/secure/img/genericUI/task-list-icon.png\"/>' + ' ' + taskMessage);
 			 
 				 if(result == "0") {
-					 taskMessageLB.setText("No tasks.");
+					 taskMessageLB.setText(NO_TASKS[language]);
 					 Ext.getCmp("tasksField").setVisible(false);
 				 }
 				 else {
-					 taskMessageLB.setText("You can handle tasks by the following links.");
+					 taskMessageLB.setText(TASKS_DESCRIPTION[language]);
 				 }
 			 }
 		 });
