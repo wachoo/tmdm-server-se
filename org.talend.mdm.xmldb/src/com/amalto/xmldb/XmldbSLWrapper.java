@@ -1801,14 +1801,18 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
     }
     
     public void start() throws XmlServerException {
+        throw new UnsupportedOperationException();
     }
 
     public void commit() throws XmlServerException {
+        throw new UnsupportedOperationException();
     }
 
     public void rollback() throws XmlServerException {
+        throw new UnsupportedOperationException();
     }
 
     public void end() throws XmlServerException {
+        throw new UnsupportedOperationException();
     }
 }
