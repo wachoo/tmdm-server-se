@@ -1122,6 +1122,10 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		}
 	}
 	
+	public boolean supportTransaction() {
+	    return server.supportTransaction();
+	}
+	
     public void start() throws com.amalto.core.util.XtentisException {
         try {
             server.start();

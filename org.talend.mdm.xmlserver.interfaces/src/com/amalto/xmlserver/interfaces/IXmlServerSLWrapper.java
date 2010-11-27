@@ -583,6 +583,7 @@ public interface IXmlServerSLWrapper {
 	 */
 	public void clearCache();
 	
+	public boolean supportTransaction();
     public void start() throws XmlServerException;
     public void commit() throws XmlServerException;
     public void rollback() throws XmlServerException;

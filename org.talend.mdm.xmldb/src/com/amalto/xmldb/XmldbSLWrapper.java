@@ -1796,8 +1796,19 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
         return sw.toString().replaceAll("\r\n", "\n");
     }
     
-    public void start() throws XmlServerException {}
-    public void commit() throws XmlServerException {}
-    public void rollback() throws XmlServerException {}
-    public void end() throws XmlServerException {}
+    public boolean supportTransaction() {
+        return false;
+    }
+    
+    public void start() throws XmlServerException {
+    }
+
+    public void commit() throws XmlServerException {
+    }
+
+    public void rollback() throws XmlServerException {
+    }
+
+    public void end() throws XmlServerException {
+    }
 }

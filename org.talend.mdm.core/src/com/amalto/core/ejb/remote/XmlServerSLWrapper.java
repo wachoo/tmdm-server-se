@@ -307,6 +307,7 @@ public interface XmlServerSLWrapper
    public java.lang.String getChildrenItemsQuery( java.lang.String clusterName,java.lang.String conceptName,java.lang.String[] PKXpaths,java.lang.String FKXpath,java.lang.String labelXpath,java.lang.String fatherPK,java.util.LinkedHashMap itemsRevisionIDs,java.lang.String defaultRevisionID,com.amalto.xmlserver.interfaces.IWhereItem whereItem )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
+   public boolean supportTransaction() throws java.rmi.RemoteException;
    public void start() throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
    public void commit() throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
    public void rollback() throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
