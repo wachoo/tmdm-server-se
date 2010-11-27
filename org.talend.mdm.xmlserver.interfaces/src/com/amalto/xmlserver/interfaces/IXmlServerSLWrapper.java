@@ -582,5 +582,10 @@ public interface IXmlServerSLWrapper {
 	 * clear the item cache
 	 */
 	public void clearCache();
+	
+    public void start() throws XmlServerException;
+    public void commit() throws XmlServerException;
+    public void rollback() throws XmlServerException;
+    public void end() throws XmlServerException;
 
 }

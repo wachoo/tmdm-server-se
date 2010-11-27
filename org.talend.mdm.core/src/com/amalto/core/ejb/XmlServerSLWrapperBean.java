@@ -14,6 +14,7 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
+import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
 
@@ -57,11 +58,13 @@ import com.amalto.xmlserver.interfaces.XmlServerException;
  */
 public class XmlServerSLWrapperBean implements SessionBean {
 	
-    public static String SERVERCLASS;
+    private static final Logger LOG = Logger.getLogger(XmlServerSLWrapperBean.class);
+    
+    private static String SERVERCLASS;
 	
 	{
-		SERVERCLASS = MDMConfiguration.getConfiguration().getProperty("xmlserver.class");
-		if ((SERVERCLASS==null) || "".equals(SERVERCLASS)) SERVERCLASS = "com.amalto.xmldb.XmldbSLWrapper";
+		SERVERCLASS = MDMConfiguration.getConfiguration().getProperty("xmlserver.class"); //$NON-NLS-1$
+		if ((SERVERCLASS==null) || SERVERCLASS.length() == 0) SERVERCLASS = "com.amalto.xmldb.XmldbSLWrapper"; //$NON-NLS-1$
 	}
 
 	 
@@ -164,7 +167,8 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	 * @ejb.facade-method
 	 */
 	public boolean isUpAndRunning() {
-		org.apache.log4j.Logger.getLogger(this.getClass()).trace("isUpAndRunning() ");
+		if(LOG.isTraceEnabled())
+		    LOG.trace("isUpAndRunning() "); //$NON-NLS-1$
 		return server.isUpAndRunning();
 	}
 
@@ -189,7 +193,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.getAllClusters(revisionID);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 	/**
@@ -215,7 +219,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.deleteCluster(revisionID, clusterName);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 
@@ -231,7 +235,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.deleteAllClusters(revisionID);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 
@@ -249,7 +253,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.createCluster(revisionID, clusterName);	
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}	
 	}
 
@@ -279,7 +283,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.putDocumentFromFile(fileName, uniqueID, clusterName, revisionID);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 
@@ -310,7 +314,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.putDocumentFromFile(fileName, uniqueID, clusterName, revisionID, documentType);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 
@@ -334,7 +338,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.putDocumentFromString(xmlString, uniqueID, clusterName, revisionID);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 
@@ -365,7 +369,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.putDocumentFromString(string, uniqueID, clusterName, revisionID , documentType);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 	
@@ -388,7 +392,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.putDocumentFromDOM(root, uniqueID, clusterName, revisionID);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 
@@ -411,7 +415,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.getDocumentAsString(revisionID, clusterName, uniqueID);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 	/**
@@ -427,7 +431,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.existCluster(revision, cluster);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 	/**
@@ -451,7 +455,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.getDocumentAsString(revisionID, clusterName, uniqueID, encoding);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 	
@@ -477,7 +481,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.getDocumentBytes(revisionID, clusterName, uniqueID, documentType);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 
@@ -497,7 +501,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.getAllDocumentsUniqueID(revisionID, clusterName);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 
@@ -535,7 +539,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.deleteDocument(revisionID, clusterName, uniqueID, documentType);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 
@@ -565,7 +569,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.deleteXtentisObjects(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, objectRootElementName, whereItem);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 	
@@ -593,7 +597,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.deleteItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 
@@ -620,7 +624,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.moveDocumentById(sourceRevisionID, sourceclusterName, uniqueID, targetRevisionID, targetclusterName);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 
@@ -649,7 +653,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 	        return server.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
         } catch (XmlServerException e) {
-	        throw new XtentisException(e.getMessage());
+	        throw new XtentisException(e);
         }
 	}
 	
@@ -679,7 +683,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 	        return server.countXtentisObjects(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, whereItem);
         } catch (XmlServerException e) {
-	        throw new XtentisException(e.getMessage());
+	        throw new XtentisException(e);
         }
 	}
 	
@@ -703,7 +707,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		try {
 			return server.runQuery(revisionID, clusterName, query, parameters);
 		} catch (XmlServerException e) {
-			throw new XtentisException(e.getMessage());
+			throw new XtentisException(e);
 		}
 	}
 	
@@ -759,7 +763,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	        	limit
 	        );
         } catch (XmlServerException e) {
-	        throw new XtentisException("Unable to get the Xtentis Objects Query "+e.getMessage());
+	        throw new XtentisException("Unable to get the Xtentis Objects Query ", e);
         }
 	}
 	
@@ -823,13 +827,13 @@ public class XmlServerSLWrapperBean implements SessionBean {
 				start, 
 				limit
 			);
-			
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug("getQuery():\n "+q);
+			if(LOG.isDebugEnabled())
+	            LOG.debug("getQuery():\n "+q); //$NON-NLS-1$
 			return q;
 		} catch (XtentisException e) {
 			throw(e);
 		} catch (Exception e) {
-			throw new XtentisException("Unable to build the query: "+e.getLocalizedMessage());
+			throw new XtentisException("Unable to build the query", e);
 		}
 	}
 	/**
@@ -898,13 +902,13 @@ public class XmlServerSLWrapperBean implements SessionBean {
 				firstTotalCount,
 				metaDataTypes
 			);
-			
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug("getQuery():\n "+q);
+			if(LOG.isDebugEnabled())
+			    LOG.debug("getQuery():\n "+q); //$NON-NLS-1$
 			return q;
 		} catch (XtentisException e) {
 			throw(e);
 		} catch (Exception e) {
-			throw new XtentisException("Unable to build the query: "+e.getLocalizedMessage());
+			throw new XtentisException("Unable to build the query", e);
 		}
 	}
 	
@@ -954,7 +958,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	        	limit
 	        );
         } catch (XmlServerException e) {
-	        throw new XtentisException("Unable to get the Xtentis Objects Query "+e.getMessage());
+	        throw new XtentisException("Unable to get the Xtentis Objects Query", e);
         }
 	}
 	
@@ -999,7 +1003,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	        		whereItem);
 	        	
         } catch (XmlServerException e) {
-	        throw new XtentisException("Unable to get the Xtentis Items Query "+e.getMessage());
+	        throw new XtentisException("Unable to get the Xtentis Items Query", e);
         }
 	}
 	
@@ -1022,11 +1026,10 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		LinkedHashMap<String, String> conceptPatternsToClusterName,
 		IWhereItem item, int spellThreshold
 	) throws XtentisException{
-		org.apache.log4j.Logger.getLogger(this.getClass()).trace(
-				"spellCheckWhere() "
-				+(((item!=null) && (item instanceof WhereCondition)) ? ((WhereCondition)item).toString():"")
-		);
-		
+	    if(LOG.isTraceEnabled())
+            LOG.trace("spellCheckWhere() " //$NON-NLS-1$
+                    + (((item != null) && (item instanceof WhereCondition)) ? ((WhereCondition) item).toString() : "")); //$NON-NLS-1$
+	    
 		HashMap<String, DataClusterPOJO> clusterCache = new HashMap<String, DataClusterPOJO>();
 		
 		try {
@@ -1067,7 +1070,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 					}
 
 					//fetch the cluster
-					String cacheKey = revisionID+"$..$"+dataclusterName;
+					String cacheKey = revisionID+"$..$"+dataclusterName; //$NON-NLS-1$
 					DataClusterPOJO dataCluster = clusterCache.get(cacheKey);
 					if (dataCluster == null) {
 						dataCluster = ObjectPOJO.load(revisionID, DataClusterPOJO.class, new DataClusterPOJOPK(dataclusterName));
@@ -1075,7 +1078,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
 					}
 					
 					//spell check the cluster
-					if ((wc.getRightValueOrPath().indexOf("*")==-1) && (wc.getRightValueOrPath().length()>2)) {
+					if ((wc.getRightValueOrPath().indexOf("*")==-1) && (wc.getRightValueOrPath().length()>2)) { //$NON-NLS-1$
 						sentences =  dataCluster.spellCheck(wc.getRightValueOrPath(),spellThreshold, true);
 					}
 					if (sentences.size() == 0) sentences.add(wc.getRightValueOrPath());
@@ -1115,8 +1118,40 @@ public class XmlServerSLWrapperBean implements SessionBean {
 				throw new XtentisException("Unknown element of whereCondition: "+item.getClass().getName());
 			}
 		} catch (Exception e) {
-			throw new XtentisException("Unable to spell check the where conditions: "+e.getLocalizedMessage());
+			throw new XtentisException("Unable to spell check the where conditions", e);
 		}
 	}
+	
+    public void start() throws com.amalto.core.util.XtentisException {
+        try {
+            server.start();
+        } catch (XmlServerException e) {
+            throw new XtentisException(e);
+        }
+    }
+
+    public void commit() throws com.amalto.core.util.XtentisException {
+        try {
+            server.commit();
+        } catch (XmlServerException e) {
+            throw new XtentisException(e);
+        }
+    }
+
+    public void rollback() throws com.amalto.core.util.XtentisException {
+        try {
+            server.rollback();
+        } catch (XmlServerException e) {
+            throw new XtentisException(e);
+        }
+    }
+
+    public void end() throws com.amalto.core.util.XtentisException {
+        try {
+            server.end();
+        } catch (XmlServerException e) {
+            throw new XtentisException(e);
+        }
+    }
 	
 }
