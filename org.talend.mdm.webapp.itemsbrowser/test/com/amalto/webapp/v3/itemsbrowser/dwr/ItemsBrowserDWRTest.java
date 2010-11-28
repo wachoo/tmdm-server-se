@@ -1,12 +1,14 @@
+package com.amalto.webapp.v3.itemsbrowser.dwr;
+
 import java.util.HashMap;
 
-import talend.mdm.test.MDMTestCase;
+import junit.framework.TestCase;
 
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
-import com.amalto.webapp.v3.itemsbrowser.dwr.ItemsBrowserDWR;
 
-public class ItemsBrowserDWRTestCase extends MDMTestCase {
+@SuppressWarnings("nls")
+public class ItemsBrowserDWRTest extends TestCase {
 
     ItemsBrowserDWR dwr = new ItemsBrowserDWR();
 
