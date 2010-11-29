@@ -254,10 +254,13 @@ amalto.welcome.Welcome = function () {
 				split:true,
 				collapsible: true,
 				bodyborder: true,
-				items : [
-				         startMessagePL,
-				         startFieldPL
-				         ]
+				items : [startMessagePL, startFieldPL],
+		        tools:[{
+				    id:'refresh',
+				    qtip: 'Refresh',
+				    handler: function(event, toolEl, panel){
+				    }
+		        }]
 			});
 			
 			hidenAlertsPL = isHiddenLicense();
@@ -318,7 +321,14 @@ amalto.welcome.Welcome = function () {
 				split:true,
 				collapsible: true,
 				bodyborder: true,
-				items : [alertMessageLB, alertsFieldPL]
+				items : [alertMessageLB, alertsFieldPL],
+				tools:[{
+				    id:'refresh',
+				    qtip: 'Refresh',
+				    handler: function(event, toolEl, panel){
+						applyAlertsMessage(language);
+				    }
+				}]
 			});
 			
 			hidenTaskPL = isHiddenTask();
@@ -376,7 +386,14 @@ amalto.welcome.Welcome = function () {
 				split:true,
 				collapsible: true,
 				bodyborder: true,
-				items : [taskMessagePL, taskFieldPL]
+				items : [taskMessagePL, taskFieldPL],
+				tools:[{
+				    id:'refresh',
+				    qtip: 'Refresh',
+				    handler: function(event, toolEl, panel){
+						applyTaskMessage();
+				    }
+				}]
 			});
 			
 			descriptionPanel = new Ext.Panel({
