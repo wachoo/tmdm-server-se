@@ -150,9 +150,13 @@ public class ItemsBrowserDWR {
         // Configuration config = Configuration.getInstance();
         Configuration config = Configuration.getInstance(true);
         String model = config.getModel();
+        String dataCluster = config.getCluster();
 
         if (model == null || "".equals(model)) {
             throw new Exception("The Data Model can't be empty!");
+        } else {
+            // fix bug0017075, syn the to property to PROVISIONING
+            Configuration.initialize(dataCluster, model);
         }
 
         String[] businessConcept = Util.getPort().getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model)))
@@ -1669,15 +1673,12 @@ public class ItemsBrowserDWR {
                     setChilden(xsps[i], xpathParent, docIndex);
                 }
             }
-        }
-        else
-        {
-        	// simple Type and check out the bool type
-        	if(xsp.getTerm().asElementDecl().getType().asSimpleType().getName().equals("boolean"))
-        	{
-        		el.setTextContent("false");
-        	}
-        	
+        } else {
+            // simple Type and check out the bool type
+            if (xsp.getTerm().asElementDecl().getType().asSimpleType().getName().equals("boolean")) {
+                el.setTextContent("false");
+            }
+
         }
     }
 
