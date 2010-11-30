@@ -28,6 +28,9 @@
   </target>
 
   <target name="junit">
+    <delete dir="${basedir}/target/test-classes" />
+    <mkdir dir="${basedir}/target/test-classes" />
+
     <delete dir="${basedir}/target/test-reports" />
     <mkdir dir="${basedir}/target/test-reports" />
 
@@ -43,11 +46,25 @@
       <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-jxpath-1.3.jar" />
     </path>
 
-    <path id="test.classpath">
-      <pathelement path="target/test-classes" />
+    <path id="compile.classpath">
       <pathelement path="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar" />
       <path refid="base.classpath" />
     </path>
+
+    <path id="test.classpath">
+      <pathelement path="target/test-classes" />
+      <path refid="compile.classpath" />
+    </path>
+
+    <copy todir="${basedir}/target/test-classes" verbose="true">
+      <fileset dir="${basedir}/test" excludes="**/*.java" />
+    </copy>
+
+    <javac srcdir="${basedir}/test" destdir="${basedir}/target/test-classes">
+      <classpath>
+        <path refid="compile.classpath" />
+      </classpath>
+    </javac>
 
     <junit printsummary="yes" haltonfailure="yes" showoutput="yes">
       <classpath>
