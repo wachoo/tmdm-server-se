@@ -1138,6 +1138,9 @@ public class Util {
 
     public static List<UUIDPath> getUUIDNodes(String schema, String concept) throws Exception {
 
+    	HashSet<String> set = new HashSet<String>();
+    	_multipleOccuranceNodeSetThreadLocal.set(set);
+
         List<UUIDPath> list = new ArrayList<UUIDPath>();
         Map<String, XSElementDecl> map = getConceptMap(schema);
         if (map.get(concept) != null) {
@@ -1150,7 +1153,14 @@ public class Util {
         return list;
     }
 
+    private static ThreadLocal<HashSet<String>> _multipleOccuranceNodeSetThreadLocal = new ThreadLocal<HashSet<String>>();
+    
     private static void getChildren(String parentPath, XSParticle xsp, List<UUIDPath> list) {
+    	if(xsp.getMaxOccurs() == -1){
+    		String particleName = xsp.getTerm().asElementDecl().getName();
+    		if(!_multipleOccuranceNodeSetThreadLocal.get().contains(particleName))
+    		     _multipleOccuranceNodeSetThreadLocal.get().add(parentPath + "/" + particleName);
+    	}
         // aiming added see 0009563
         if (xsp.getTerm().asModelGroup() != null) { // is complex type
             XSParticle[] xsps = xsp.getTerm().asModelGroup().getChildren();
@@ -1410,6 +1420,7 @@ public class Util {
         for (int i = 0; i < uuidLists.size(); i++) {
             UUIDPath uuid = uuidLists.get(i);
             String xpath = uuid.getXpath();
+            String xpathCpy = xpath;
             String type = uuid.getType();
             xpath = xpath.replaceFirst("/" + concept + "/", "");
             String value = "";
@@ -1426,20 +1437,106 @@ public class Util {
                     else
                         value = o.toString();
                 }
+                jxpContext.createPathAndSetValue(xpath, value);
             }
             if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)) {
-                Object o = jxpContext.getValue(xpath);
-                if (o == null || o.toString().trim().length() == 0)
-                    value = UUID.randomUUID().toString();
-                else
-                    value = o.toString();
+            	ArrayList<String> xpathes = new ArrayList<String>();
+            	for (String path : _multipleOccuranceNodeSetThreadLocal.get()){
+            		if(xpathCpy.indexOf(path) >= 0){
+            			String pathPrefix = path.replaceFirst("/" + concept, "");
+            			String pathTail = xpathCpy.substring(path.length());
+            			Double cnt = (Double)jxpContext.getValue("count(" + pathPrefix + ")");
+            			for (double db = 1; db <= cnt; db++){
+            				String valueToMerge = pathPrefix + "[" + (int)db + "]"+ pathTail;
+            				mergeValueIntoArrayList(xpathes, valueToMerge);
+            			}
+            		}
+            	}
+            	if(xpathes.isEmpty()){
+            		xpathes.add(xpath);
+            	}
+            	for (String newPath : xpathes){
+                    Object o = jxpContext.getValue(newPath);
+                    if (o == null || o.toString().trim().length() == 0)
+                        value = UUID.randomUUID().toString();
+                    else
+                        value = o.toString();
+                    if(o != null)
+                      jxpContext.createPathAndSetValue(newPath, value);	
+            	}
             }
-            jxpContext.createPathAndSetValue(xpath, value);
 
         }
         return (Node) jxpContext.getContextBean();
     }
 
+    private static void mergeValueIntoArrayList(ArrayList<String> list, String value){
+    	if (list.isEmpty()){
+    		list.add(value);
+    		return;
+    	}
+    	if(list.contains(value))return;
+    	
+    	String mergeValue = "";	
+
+    	for (int i = 0; i < list.size(); i++){
+        	int merge = -1;
+        	int del = -1;
+    		String[] existItems = list.get(i).split("/");
+    		String[] newItems = value.split("/");
+    		if(existItems.length != newItems.length){
+    			continue;
+    		}
+            if(list.get(i).equals(value))continue;
+			Pattern cdatabracket = Pattern.compile("([^\\[]*)(\\[.*\\])");
+    		merge = i;
+    		for (int item = 0; item < existItems.length; item++){
+    			Matcher matchNewItem = cdatabracket.matcher(newItems[item]);
+    			Matcher matchExistItem = cdatabracket.matcher(existItems[item]);
+    			if(matchNewItem.matches() && !matchExistItem.matches() && matchNewItem.group(1).equals(existItems[item])){
+    				if(newItems[item].length() > 0){
+    					mergeValue += "/";
+    				}
+        			mergeValue += newItems[item];
+        			del = i;
+        			merge = -1;
+    			}
+    			else if(!matchNewItem.matches() && matchExistItem.matches() && matchExistItem.group(1).equals(newItems[item])){
+    				if(existItems[item].length() > 0){
+    					mergeValue += "/";
+    				}
+    				mergeValue += existItems[item];
+    			}
+    			else if(matchNewItem.matches() && matchExistItem.matches()){
+    				mergeValue += "/";
+    				mergeValue += newItems[item];
+    				if(!existItems[item].equals(newItems[item]))
+    				   merge = -1;
+    			}
+    			else{
+    				if(existItems[item].length() > 0){
+    					mergeValue += "/";
+    				}
+    				mergeValue += existItems[item];
+    			}
+    		}
+    		
+			if (merge == -1) {
+				if (del != -1) {
+					list.add(del, mergeValue);
+					list.remove(del + 1);
+				} else if (!list.contains(mergeValue)) {
+					list.add(mergeValue);
+				}
+
+			} else {
+				list.add(merge, mergeValue);
+				list.remove(merge + 1);
+			}
+        	mergeValue = "";
+       }
+    }
+    
     public static String getXMLStringFromNode(Node d) throws TransformerException {
         return nodeToString(d);
     }
