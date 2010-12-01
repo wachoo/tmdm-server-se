@@ -1547,12 +1547,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			return;
 		}
 		
-		if (isNaN(lineNum))
-		{
-			Ext.MessageBox.alert("Error","Please Input a valid number");
-			return;
-		}
-		
 		var posValue = document.cookie.indexOf(lineMaxPrefix + '=');
 		var middleValue = lineMaxPrefix + "=" + lineNum;
 	    var futdate = new Date()		
@@ -1733,7 +1727,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 											     }//end if
 			                               }//end for
 			                            });//end callback									
-										ItemsBrowserInterface.deleteItem(_dataObject, itemPK,-1, function(result){
+										ItemsBrowserInterface.deleteItem(_dataObject, itemPK,0, function(result){
 											if(result==null || result==""){
 												return;
 											}else{
@@ -1851,6 +1845,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			                		lineMax = DWRUtil.getValue('itemslineMaxItems');
 									if(lineMax==null || lineMax=="") 
 										lineMax=20;
+									
+									if (isNaN(lineMax))
+									{
+										Ext.MessageBox.alert("Error","Please Input a valid number");
+										return;
+									}
 									setLineMaxToCookie(lineMax);
 									displayItems2(columnsHeader,lineMax);
 					            } 
