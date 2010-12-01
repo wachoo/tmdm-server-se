@@ -215,7 +215,9 @@ public class ItemsRemotePaging  extends HttpServlet{
 			
 		} catch (Exception e) {
 			PrintWriter writer = response.getWriter();
-	        writer.write(e.getLocalizedMessage());
+			if(e.getLocalizedMessage()!=null)
+	           writer.write(e.getLocalizedMessage());
+	        e.printStackTrace(writer);
 	        writer.close();				
 			throw new ServletException(e.getLocalizedMessage());
 		}	
