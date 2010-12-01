@@ -130,7 +130,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
    	    				var dataLogViewer=tabPanel.getItem(ids);
 						if( dataLogViewer== undefined){
 							
-							dataLogViewer=new amalto.updatereport.DataLogViewer({'ids':ids});
+							dataLogViewer=new amalto.updatereport.DataLogViewer({'ids':ids,'key':record.data.key,'concept':record.data.concept});
 							tabPanel.add(dataLogViewer);							
 						}
 				        

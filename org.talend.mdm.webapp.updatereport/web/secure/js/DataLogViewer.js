@@ -1,5 +1,7 @@
 Ext.namespace('amalto.updatereport');
 amalto.updatereport.DataLogViewer = function(config) {
+	loadResource("/updatereport/secure/css/UpdateReport.css", "" );
+	
 	Ext.applyIf(this, config);
 	this.initUIComponents();
 	amalto.updatereport.DataLogViewer.superclass.constructor.call(this);
@@ -28,8 +30,17 @@ Ext.extend(amalto.updatereport.DataLogViewer, Ext.Panel, {
 				containerScroll : "true"
 			}],
 			closable:true,
-			id:this.ids
+			id:this.ids,
+			key:this.key,
+			concept:this.concept,
+			tbar: ['->',{
+		        text : "Open Record",
+		        iconCls:'report_bt_openRecord',
+		        handler : function() {
+					amalto.itemsbrowser.ItemsBrowser.editItemDetails(this.key, this.concept, function(){});
+		        	}.createDelegate(this)
+		        }]
+
 		});
 	}
-	
 });
