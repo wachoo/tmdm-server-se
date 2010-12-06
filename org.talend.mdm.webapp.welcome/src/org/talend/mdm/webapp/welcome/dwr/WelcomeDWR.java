@@ -139,9 +139,9 @@ public class WelcomeDWR {
             listRange.setData(process.toArray());
             listRange.setTotalSize(process.size());
         } catch (RemoteException e) {
-            e.printStackTrace();
+            LOG.error(e);
         } catch (XtentisWebappException e) {
-            e.printStackTrace();
+            LOG.error(e);
         }
 
         return process;
@@ -168,9 +168,9 @@ public class WelcomeDWR {
             WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, null);
             Util.getPort().executeTransformerV2(wsExecuteTransformerV2);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            LOG.error(e);
         } catch (XtentisWebappException e) {
-            e.printStackTrace();
+            LOG.error(e);
         }
 
         return sucess;
