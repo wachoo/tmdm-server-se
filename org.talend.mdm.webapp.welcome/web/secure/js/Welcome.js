@@ -87,6 +87,11 @@ amalto.welcome.Welcome = function () {
 		'fr':'Tâches',
 		'en':'Tasks'
 	}
+	
+	var PROCESS_TITLE = {
+		'fr':'Tâches',
+		'en':'Processes'
+	}
 
 	var ALERTS_TITLE = {
 		'fr':'Alertes',
@@ -96,6 +101,11 @@ amalto.welcome.Welcome = function () {
 	var NO_TASKS = {
 		'fr':'Aucune tâche.',
 		'en':'No tasks.'
+	}
+	
+	var NO_STANDALONG_PROCESS = {
+		'fr':'Aucune tâche.',
+		'en':'No standalong process.'
 	}
 
 	var NO_ALERTS = {
@@ -123,15 +133,21 @@ amalto.welcome.Welcome = function () {
 		'en':'You can handle alerts by the following links.'
 	}
 	
+	var PROCESS_DESCRIPTION = {
+		'fr':'Gérez vos tâches via les liens suivants.',
+		'en':'You can run the following standalong processes.'
+	}
+	
 	var welcomePanel;	
 	var messageArea;
 	var startMessagePL;
-	var alertMessageLB;
-	var taskMessagePL;
 	var startPanel;
+	var alertMessageLB;
 	var alertsPanel;
+	var taskMessagePL;
 	var taskPanel;
-	var descriptionPanel;
+	var processMessagePL;
+	var processPanel;
 	var admins;
 	var normals;
 	var viewers;
@@ -150,6 +166,7 @@ amalto.welcome.Welcome = function () {
 	  	showWelcomePanel();
 	  	applyAlertsMessage(language);
 	  	applyTaskMessage();
+	  	applyProcess();
 	 }
 	 
 	 /**
@@ -396,14 +413,55 @@ amalto.welcome.Welcome = function () {
 				}]
 			});
 			
-			descriptionPanel = new Ext.Panel({
-				id : 'messagePL',
-				iconCls : 'description_icon',
-				title : 'Description',
-				border: true,
+			processMessagePL = new Ext.Panel({
+	 			id: 'processMessagePL',
+	 			border : false,
+				header : false,
+				split : true,
+				style : 'font-weight:bold;',
+				colspan : 2,
+				height : 30,
+				collapsible : false,
+				bodyborder : true,
+				bodyStyle : "background-color:#F1F1F1;",
+				items : [{
+					id : 'processMessageLB',
+					xtype : 'label',
+					style : 'padding-left: 20px;'
+				}]
+	 		});
+			
+			var processFieldPL = new Ext.Panel({
+				id : 'processFieldPL',
 				layout : 'table',
+				border : false,
+				autoHeight : true,
+				layoutConfig : {
+				 columns: 3
+				},
+				items : [
+						{
+							width : 20,
+							rowspan: 2,
+							border : false
+						},
+						new Ext.form.FieldSet({
+							title : PROCESS_TITLE[language],
+							id : 'processField',
+							width : 500,
+							autoHeight : true,
+							style : 'font-size:80%;'
+							})
+				         ]
+			});
+			
+			processPanel = new Ext.Panel({
+				id : 'processPL',
+				iconCls : 'transformer',
+				title : 'Processes',
+				border: true,
 				height:120,
-				bodyStyle : "background-color:#F1F1F1;padding:5px",
+				autoHeight : true,
 				layoutConfig: {
 			        columns: 2
 			    },
@@ -411,34 +469,14 @@ amalto.welcome.Welcome = function () {
 				split:true,
 				collapsible: true,
 				bodyborder: true,
-				items :[{
-					rowspan: 4
-				},{
-					id : 'descriptionWelcome',
-					xtype : 'label',
-					style : 'font-size:80%;',
-					text : WELCOME_DESCRIPTION[language],
-					colspan: 2
-				},{
-					id : 'startDescription',
-					xtype : 'label',
-					style : 'font-size:80%;',
-					text : START_DESCRIPTION[language],
-					colspan: 2
-				},{
-					id : 'descriptionNumbers',
-					xtype : 'label',
-					style : 'font-size:80%;',
-					hidden : hidenAlertsPL,
-					colspan: 2
-				},{
-					id : 'descriptionCon',
-					xtype : 'label',
-					style : 'font-size:80%;',
-					text : LICENSE_DES_CON[language],
-					hidden : hidenAlertsPL,
-					colspan: 2
-				}]
+				tools:[{
+				    id:'refresh',
+				    qtip: 'Refresh',
+				    handler: function(event, toolEl, panel){
+						applyProcess();
+				    }
+				}],
+				items : [processMessagePL, processFieldPL]
 			});
 			
 			welcomePanel = new Ext.Panel({
@@ -458,11 +496,10 @@ amalto.welcome.Welcome = function () {
 					 split : true,
 					 collapsible : false,
 					 bodyborder : true,
-					 items : [startPanel, alertsPanel, taskPanel]
+					 items : [startPanel, alertsPanel, taskPanel, processPanel]
 				 })]
 			});
 			
-//			setLabels(language);
 			if(!hidenTaskPL) {
 				applyTaskMessage();
 			}
@@ -544,11 +581,82 @@ amalto.welcome.Welcome = function () {
 	 }
 	 
 	 /**
-	  * get all description.
+	  * get all processes.
 	  */
-	 function applyDescriptionMessage(number) {
-		 var numberDescription = LICENSE_DES_NUMBERS[language].replace("{0}", number);
-		 Ext.getCmp("descriptionNumbers").setText(numberDescription);
+	 function applyProcess() {
+		 var processMessageLB = Ext.getCmp("processMessageLB");
+		 
+		 WelcomeInterface.getStandalongProcess(function(result) {
+			 clearProcessesSpan();
+			 
+			 if(result.length == "0") {
+				 processMessageLB.setText(NO_STANDALONG_PROCESS[language]);
+				 Ext.getCmp("processField").setVisible(false);
+			 }
+			 else {
+				 processMessageLB.setText(PROCESS_DESCRIPTION[language]);
+				 buildProcessSpan(result);
+			 }
+		 });
+	 }
+	 
+	 /**
+	  * clear all component in processField.
+	  */
+	 function clearProcessesSpan() {
+		 var processesSpan = Ext.getCmp("processField");
+		 var items = processesSpan.items.items;
+		 processesSpan.items.clear();
+		 
+		 if(items != undefined && items.length != 0) {
+			 for(var i = 0; i < items.length; i++) {
+				 processesSpan.remove(items[i]);
+			 }
+		 }
+		 
+		 processesSpan.doLayout(true);
+	 }
+	 
+	 /**
+	  * build processes fieldSet.
+	  */
+	 function buildProcessSpan(processes) {
+		 var processesSpan = Ext.getCmp("processField");
+		 
+		 for(var i = 0; i < processes.length; i++) {
+			 var processBtn = {
+				 id : processes[i] + "Btn",
+				 xtype:'button',
+				 name:processes[i], 
+				 iconCls: "launch_process",
+				 listeners : {
+				 	'click':function(){runProcess(this.name);}
+			     }
+			 };
+			 
+			 var processText = {
+				 id : processes[i] + "label",
+				 xtype:'label',
+			     text: processes[i].replace("Runnable#", "")
+			 };
+			 
+			 var processPL = {
+			     xtype : 'panel',
+			     layout : 'table',
+			     border : false,
+			     items : [processBtn, processText]
+			 };
+			 
+			 processesSpan.add(processPL);
+		 }
+		 
+		 processesSpan.doLayout(true);
+	 }
+	 
+	 function runProcess(processPK) {
+		 WelcomeInterface.runProcess(processPK, function(result) {
+			 //@temp yguo, reaction to user by result.
+		 });
 	 }
 	 
 	 /**

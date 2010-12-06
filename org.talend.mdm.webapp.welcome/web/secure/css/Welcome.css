@@ -25,6 +25,14 @@
     background-image: url(../img/delete.png) !important;
 }
 
+.transformer {
+    background-image: url(../img/transformer.png) !important;
+}
+
+.launch_process {
+    background-image: url(../img/launch_process.png) !important;
+}
+
 .alert_icon {
     background-image: url(../img/alert-icon.png) !important;
 }
