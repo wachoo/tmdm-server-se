@@ -595,6 +595,7 @@ amalto.welcome.Welcome = function () {
 			 }
 			 else {
 				 processMessageLB.setText(PROCESS_DESCRIPTION[language]);
+				 Ext.getCmp("processField").setVisible(true);
 				 buildProcessSpan(result);
 			 }
 		 });
