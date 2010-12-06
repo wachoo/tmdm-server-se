@@ -2243,7 +2243,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		keys[treeIndex] = [];
 		map[treeIndex] = [];
 		if(dataObject==null) dataObject=_dataObject;
-		ItemsBrowserInterface.getRootNode(dataObject, language, function(rootNode){
+		ItemsBrowserInterface.getRootNode2(dataObject,itemPK2,treeIndex,language, function(rootNode){
 			
 			if(contentPanel == undefined){
 					
@@ -2274,15 +2274,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				var myTitle = "";
 				if(_dataObject!=null) myTitle=_dataObject;
 		
-				if(dataObject!=null) myTitle = dataObject;		
-		
-				if(rootNode.name!=null)	myTitle = rootNode.name;	
-		
-				if(itemPK2!=null) {
-					for(var i=0; i<itemPK2.length; i++) {
-						myTitle +=" "+itemPK2[i];
-					}	
-				}
+				if(dataObject!=null) myTitle = dataObject;	
+
+		        if(rootNode.primaryKeyInfo!=null&&rootNode.primaryKeyInfo.length>0){
+		        	if(rootNode.name!=null)	myTitle += " "+rootNode.name;
+		        }else{
+		        	if(rootNode.name!=null)	myTitle = rootNode.name;
+		        	if(itemPK2!=null) {
+						for(var i=0; i<itemPK2.length; i++) {
+							myTitle +=" "+itemPK2[i];
+						}	
+					}
+		        }	
+				
 				//get item readonly
 				var itempk=itemPK2;
 				if(isDuplicate){
@@ -3774,6 +3778,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			displayItemDetails(itemPK,dataObject);
 	}
 	
+	/* seems this function is useless
 	function browseForeignKey2(nodeId, foreignKeyXpath){
 		amalto.core.working('Running...');
 		var itemPK = DWRUtil.getValue(nodeId+'Value');
@@ -3819,6 +3824,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		);
 	}
+	*/
 	
 	function setForeignKey(nodeId,treeIndex){	
 		var fk= DWRUtil.getValue('foreignKeyList');

@@ -7,7 +7,6 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.exolab.castor.types.Date;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -89,6 +88,7 @@ public class TreeNode implements Cloneable {
     		if(xsa!=null && xsa.getAnnotation()!=null){
     			Element el = (Element) xsa.getAnnotation();
     			NodeList annotList = el.getChildNodes();
+    			ArrayList<String> pkInfoList = new ArrayList<String>();
     			ArrayList<String> fkInfoList = new ArrayList<String>();
     			for (int k = 0; k < annotList.getLength(); k++) {					
     				if("appinfo".equals(annotList.item(k).getLocalName())) {
@@ -121,7 +121,9 @@ public class TreeNode implements Cloneable {
     						fkInfoList.add(annotList.item(k).getFirstChild().getNodeValue());
     					}else if("X_Retrieve_FKinfos".equals(appinfoSource)) {
     					   setRetrieveFKinfos("true".equals(annotList.item(k).getFirstChild().getNodeValue()));
-    					}else if(("X_Description_"+language.toUpperCase()).equals(appinfoSource)){		
+    					}else if("X_PrimaryKeyInfo".equals(appinfoSource)){                         
+                            pkInfoList.add(annotList.item(k).getFirstChild().getNodeValue());
+                        }else if(("X_Description_"+language.toUpperCase()).equals(appinfoSource)){		
     					   Node description = annotList.item(k).getFirstChild();
     					   String encodedDESP = description != null ? description.getNodeValue().replaceAll("\"", "&quot;") : "";
     						setDescription(encodedDESP);
@@ -143,6 +145,7 @@ public class TreeNode implements Cloneable {
    							  setDisplayFomats(matcher.group(1).toLowerCase(), annotList.item(k).getFirstChild().getNodeValue());
    						  }
     					}
+    					
     				}
     				
     				
@@ -151,14 +154,25 @@ public class TreeNode implements Cloneable {
     				}
     			}
     			setForeignKeyInfo(fkInfoList);
+    			setPrimaryKeyInfo(pkInfoList);
     		}			
 		}
 		catch(Exception e) {
 			throw new Exception(e.getClass().getName()+": "+e.getLocalizedMessage());
 		}		
 	}
+	
+    private ArrayList<String> primaryKeyInfo;
+	    
+    public ArrayList<String> getPrimaryKeyInfo() {
+        return primaryKeyInfo;
+    }
 
-	private ArrayList<String> foreignKeyInfo;
+    public void setPrimaryKeyInfo(ArrayList<String> primaryKeyInfo) {
+        this.primaryKeyInfo = primaryKeyInfo;
+    }
+
+    private ArrayList<String> foreignKeyInfo;
 	
 	public ArrayList<String> getForeignKeyInfo() {
 		return foreignKeyInfo;
@@ -168,7 +182,7 @@ public class TreeNode implements Cloneable {
 		this.foreignKeyInfo = foreignKeyInfo;
 	}
 
-	public String getForeignKey() {
+    public String getForeignKey() {
 		return foreignKey;
 	}
 
@@ -279,13 +293,13 @@ public class TreeNode implements Cloneable {
    }
 
 	public String getFkFilter() {
-	return fkFilter;
-}
-
-
-public void setFkFilter(String fkFilter) {
-	this.fkFilter = fkFilter;
-}
+	 return fkFilter;
+    }
+    
+    
+    public void setFkFilter(String fkFilter) {
+    	this.fkFilter = fkFilter;
+    }
 
 
 	public ArrayList<Restriction> getRestrictions() {

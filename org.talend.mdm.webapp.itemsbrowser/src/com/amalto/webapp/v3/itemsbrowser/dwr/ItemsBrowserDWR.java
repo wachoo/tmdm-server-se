@@ -261,6 +261,11 @@ public class ItemsBrowserDWR {
     }
 
     public TreeNode getRootNode(String concept, String language) throws RemoteException, Exception {
+        return getRootNode2(concept,null,-1,language);
+    }
+    
+    public TreeNode getRootNode2(String concept,String[] ids, int docIndex, String language) throws RemoteException, Exception {
+        
         Configuration config = Configuration.getInstance();
         String dataModelPK = config.getModel();
         Map<String, XSElementDecl> map = CommonDWR.getConceptMap(dataModelPK);
@@ -275,7 +280,45 @@ public class ItemsBrowserDWR {
         TreeNode rootNode = new TreeNode();
         ArrayList<String> roles = Util.getAjaxSubject().getRoles();
         rootNode.fetchAnnotations(xsa, roles, language);
+        
+        try {
+            updateRootNodeByPKInfo(config.getCluster(), concept, ids, rootNode, docIndex);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
         return rootNode;
+        
+    }
+
+    private void updateRootNodeByPKInfo(String dataClusterPK, String concept, String[] ids, TreeNode rootNode, int docIndex) throws Exception {
+        if(rootNode.getPrimaryKeyInfo()!=null&&rootNode.getPrimaryKeyInfo().size()>0&&ids!=null) {
+            
+            WSItem wsItem = Util.getPort().getItem(
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+            Document document = Util.parse(wsItem.getContent());
+            
+            String gettedValue="";
+            for (String pkInfoPath : rootNode.getPrimaryKeyInfo()) {
+                if(pkInfoPath!=null&&pkInfoPath.length()>0) {
+                    String pkInfo=Util.getFirstTextNode(document, pkInfoPath);
+                    if(pkInfo!=null) {
+                        if(gettedValue.length()==0)gettedValue+=pkInfo;
+                        else gettedValue+="-"+pkInfo;;
+                    }
+                }
+            }
+            
+            rootNode.setName(gettedValue);
+            
+            //update session
+            if(docIndex!=-1) {
+                WebContext ctx = WebContextFactory.get();
+                ctx.getSession().setAttribute("itemDocument" + docIndex + "_wsItem", wsItem);
+                ctx.getSession().setAttribute("itemDocument" + docIndex, document);
+            }
+            //FIXME: when extractUsingTransformerThroughView 
+        }
     }
 
     /**
@@ -306,8 +349,13 @@ public class ItemsBrowserDWR {
             // get item
             if (ids != null) {
 
-                WSItem wsItem = Util.getPort().getItem(
-                        new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+                WSItem wsItem=null;
+                if(ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem")==null)
+                    wsItem= Util.getPort().getItem(
+                            new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+                else {
+                    wsItem=(WSItem) ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem");
+                }
 
                 try {
                     extractUsingTransformerThroughView(concept, viewName, ids, dataModelPK, dataClusterPK, map, wsItem);
@@ -315,8 +363,13 @@ public class ItemsBrowserDWR {
                     LOG.error(e.getMessage(), e);
                 }
 
-                Document document = Util.parse(wsItem.getContent());
-
+                Document document = null;
+                if(ctx.getSession().getAttribute("itemDocument" + docIndex)==null) {
+                    document=Util.parse(wsItem.getContent());
+                }else {
+                    document=(Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
+                }
+                
                 // update the node according to schema
                 // if("sequence".equals(com.amalto.core.util.Util.getConceptModelType(concept, xsd))) {
                 Node newNode = com.amalto.core.util.Util.updateNodeBySchema(concept, xsd, document.getDocumentElement());
