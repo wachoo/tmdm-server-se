@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package com.amalto.core.util;
+package com.amalto.webapp.core.util;
 
 import java.text.MessageFormat;
 import java.util.Locale;
