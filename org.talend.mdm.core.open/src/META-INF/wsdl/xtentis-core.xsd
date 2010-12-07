@@ -581,9 +581,9 @@
 		</xsd:annotation>
 		<xsd:sequence>
 			<xsd:element maxOccurs="1" minOccurs="0" name="leftPath" nillable="true" type="xsd:string"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="operator" nillable="true" type="tns:WSWhereOperator"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="operator" nillable="true" type="tns:WSWhereOperator"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="rightValueOrPath" nillable="true" type="xsd:string"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="stringPredicate" nillable="true" type="tns:WSStringPredicate"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="stringPredicate" nillable="true" type="tns:WSStringPredicate"/>
 			<xsd:element maxOccurs="1" minOccurs="1" name="spellCheck" nillable="false" type="xsd:boolean"/>
 		</xsd:sequence>		
 	</xsd:complexType>
