@@ -50,6 +50,7 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dwr.CommonDWR;
+import com.amalto.webapp.core.util.DynamicLabelUtil;
 import com.amalto.webapp.core.util.Messages;
 import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Util;
@@ -606,6 +607,7 @@ public class ItemsBrowserDWR {
         TreeNode treeNode = new TreeNode();
         treeNode.setChoice(choice);
         String xpath = idToXpath.get(id) + "/" + xsp.getTerm().asElementDecl().getName();
+        treeNode.setBindingPath(xpath);
         // aiming modify see 9642 some node's parent is null
         String parentxpath = idToXpath.get(id).replaceAll("\\[.*?\\]", ""); // parent xpath maybe A.fileds[1]
         if (xpathToTreeNode.containsKey(parentxpath)) {
@@ -679,6 +681,7 @@ public class ItemsBrowserDWR {
                         xpathToParticle.put(xpath + "[" + (i + 1) + "]", particle);
                         TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
                         treeNodeTmp.setNodeId(nodeCount);
+                        treeNodeTmp.setBindingPath(xpath + "[" + (i + 1) + "]");
                         idToParticle.put(nodeCount, particle);
                         // TODO check addThisNode
                         list.add(treeNodeTmp);
@@ -751,9 +754,9 @@ public class ItemsBrowserDWR {
                             nodeAutorization.add(xpath + "[" + (i + 1) + "]");
                         idToXpath.put(nodeCount, xpath + "[" + (i + 1) + "]");
                         TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
-
                         String value = StringEscapeUtils.escapeHtml(nodeList.item(i).getTextContent());
                         treeNodeTmp.setValue(value);
+                        treeNodeTmp.setBindingPath(xpath + "[" + (i + 1) + "]");
                         if (nodeList.item(i).getFirstChild() != null && infos != null && treeNode.isRetrieveFKinfos()
                                 && treeNode.getForeignKey() != null) {
 
@@ -886,8 +889,35 @@ public class ItemsBrowserDWR {
      * @throws ParseException
      */
     // TreeNode parentNode,
-    public TreeNode[] getChildren(int id, int nodeCount, String language, boolean foreignKey, int docIndex) throws ParseException {
-        return getChildrenWithKeyMask(id, nodeCount, language, foreignKey, docIndex, false);
+    public TreeNode[] getChildren(int id, int nodeCount, String language, boolean foreignKey, int docIndex) throws Exception {
+        TreeNode[] nodes = getChildrenWithKeyMask(id, nodeCount, language, foreignKey, docIndex, false);
+        handleDynamicLable(nodes,docIndex);//FIXME: performance maybe a problem
+        return nodes;
+    }
+
+    /**
+     * DOC HSHU Comment method "handleDynamicLable".
+     * @param nodes
+     * @param docIndex
+     * @throws Exception
+     * 
+     */
+    private void handleDynamicLable(TreeNode[] nodes,int docIndex) throws XtentisWebappException {
+        try {
+            Document document = (Document) WebContextFactory.get().getSession().getAttribute("itemDocument" + docIndex);
+            org.dom4j.Document parsedDocument=DynamicLabelUtil.parseDocument(document);
+            for (int i = 0; i < nodes.length; i++) {
+                String label=nodes[i].getName();
+                if(DynamicLabelUtil.isDynamicLabel(label)){
+                    String stylesheet=DynamicLabelUtil.genStyle(nodes[i].getBindingPath(), label);
+                    String parsedLabel=DynamicLabelUtil.getParsedLabel(DynamicLabelUtil.styleDocument(parsedDocument, stylesheet));
+                    if(parsedLabel!=null)nodes[i].setName(parsedLabel);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new XtentisWebappException("Exception happened during parsing dynamic label! ");
+        }
     }
 
     public TreeNode[] getChildrenWithKeyMask(int id, int nodeCount, String language, boolean foreignKey, int docIndex,

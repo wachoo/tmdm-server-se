@@ -56,6 +56,7 @@ public class TreeNode implements Cloneable {
 	//add by fliu 0009157
 	private HashMap<String, String> facetErrorMsgs  = new HashMap<String, String>();
 	private String realValue;
+	private String bindingPath;
 
 	public void setRealValue(String realValue) {
 		this.realValue = realValue;
@@ -65,9 +66,18 @@ public class TreeNode implements Cloneable {
 	public String getRealValue() {
 		return realValue;
 	}
+	
+	
+    public String getBindingPath() {
+        return bindingPath;
+    }
 
 
-	//add by ymli; fix the bug:0013463
+    public void setBindingPath(String bindingPath) {
+        this.bindingPath = bindingPath;
+    }
+
+    //add by ymli; fix the bug:0013463
 	//private HashMap<String, String> displayFomats  = new HashMap<String, String>();
 	private String[] displayFomats = new String[2];
 	
