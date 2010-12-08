@@ -103,9 +103,9 @@ amalto.welcome.Welcome = function () {
 		'en':'No tasks.'
 	}
 	
-	var NO_STANDALONG_PROCESS = {
-		'fr':'Aucune tâche.',
-		'en':'No standalong process.'
+	var NO_STANDALONE_PROCESS = {
+		'fr':'Aucun processus autonome.',
+		'en':'No standalone processes.'
 	}
 
 	var NO_ALERTS = {
@@ -134,8 +134,8 @@ amalto.welcome.Welcome = function () {
 	}
 	
 	var PROCESS_DESCRIPTION = {
-		'fr':'Gérez vos tâches via les liens suivants.',
-		'en':'You can run the following standalong processes.'
+		'fr':'Lancez vos processus autonomes via les liens suivants.',
+		'en':'You can run the following standalone processes.'
 	}
 	
 	var welcomePanel;	
@@ -586,11 +586,11 @@ amalto.welcome.Welcome = function () {
 	 function applyProcess() {
 		 var processMessageLB = Ext.getCmp("processMessageLB");
 		 
-		 WelcomeInterface.getStandalongProcess(function(result) {
+		 WelcomeInterface.getStandaloneProcess(function(result) {
 			 clearProcessesSpan();
 			 
 			 if(result.length == "0") {
-				 processMessageLB.setText(NO_STANDALONG_PROCESS[language]);
+				 processMessageLB.setText(NO_STANDALONE_PROCESS[language]);
 				 Ext.getCmp("processField").setVisible(false);
 			 }
 			 else {
