@@ -130,3 +130,6 @@ div .sub-body{
 .right{float:right;}
 .buttonRightBottom{float:right;bottom:20px;right:20px}
 
+.x-form-text, .ext-ie .x-form-file {
+    vertical-align: baseline;
+}
