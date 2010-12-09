@@ -1756,7 +1756,7 @@ public class ItemsBrowserDWR {
                     setChilden(xsps[i], xpathParent, docIndex);
                 }
             }
-        } else {
+        } else if (xsp.getTerm().asElementDecl().getType().asSimpleType().getName() != null){
             // simple Type and check out the bool type
             if (xsp.getTerm().asElementDecl().getType().asSimpleType().getName().equals("boolean")) {
                 el.setTextContent("false");
