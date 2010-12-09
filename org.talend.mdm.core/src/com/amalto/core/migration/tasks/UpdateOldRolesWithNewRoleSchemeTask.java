@@ -202,7 +202,8 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask{
             finally
             {
                 try {
-	                outBytes.close();
+                	if(outBytes != null)
+	                   outBytes.close();
 					jarOut.close();
 	                jarIn.close();
 				} catch (IOException e) {
