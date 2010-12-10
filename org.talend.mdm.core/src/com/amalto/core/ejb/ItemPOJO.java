@@ -18,7 +18,6 @@ import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -37,7 +36,7 @@ import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.schema.manage.AppinfoSourceHolder;
 import com.amalto.core.schema.manage.AppinfoSourceHolderPK;
-import com.amalto.core.schema.manage.SchemaCoreAgent;
+import com.amalto.core.schema.manage.SchemaManager;
 import com.amalto.core.util.LRUCache;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -424,20 +423,21 @@ public class ItemPOJO implements Serializable {
             if (checkRights && newItem.getDataModelName() != null) {
                 try {
 
-                    AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(
-                            new AppinfoSourceHolderPK(newItem.getDataModelName(), newItem.getConceptName()));
-                    
-                    SchemaCoreAgent.getInstance().analyzeAccessRights(
-                            new DataModelID(newItem.getDataModelName(), newItem.getDataModelRevision()), newItem.getConceptName(), appinfoSourceHolder);
+                    DataModelPOJO bindingDataModelPOJO = ObjectPOJO.load(newItem.getDataModelRevision(), DataModelPOJO.class,
+                            new ObjectPOJOPK(newItem.getDataModelName()));
+
+                    AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(new AppinfoSourceHolderPK(newItem
+                            .getDataModelName(), newItem.getConceptName()));
+                    SchemaManager
+                            .analyzeAnnotationsOfConcept(bindingDataModelPOJO, newItem.getConceptName(), appinfoSourceHolder);
 
                     String itemContentString = newItem.getProjectionAsString();
                     HashSet<String> roles = LocalUser.getLocalUser().getRoles();
 
-                    Document cleanedDocument = SchemaCoreAgent.getInstance().executeHideCheck(itemContentString, roles, appinfoSourceHolder);
+                    Document cleanedDocument = SchemaManager.executeHideCheck(itemContentString, roles, appinfoSourceHolder);
 
                     if (cleanedDocument != null)
                         newItem.setProjectionAsString(Util.nodeToString(cleanedDocument));
-                    
                 } catch (Exception e) {
                     String err = "Unable to check user rights of the item " + itemPOJOPK.getUniqueID() + ": "
                             + e.getClass().getName() + ": " + e.getLocalizedMessage();

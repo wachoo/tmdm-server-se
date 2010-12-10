@@ -1,10 +1,9 @@
 package com.amalto.core.objects.datamodel.ejb;
 
-import org.talend.mdm.commmon.util.datamodel.synchronization.DMUpdateEvent;
-import org.talend.mdm.commmon.util.datamodel.synchronization.DatamodelChangeNotifier;
-
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.schema.manage.SchemaManager;
+import com.amalto.core.util.SchemaUtil;
 import com.amalto.core.util.XtentisException;
 
 
@@ -88,23 +87,9 @@ public class DataModelPOJO extends ObjectPOJO{
 	@Override
 	public ObjectPOJOPK store() throws XtentisException {
 		ObjectPOJOPK pk=super.store();
+		//update the cache
+		if (getName()!=null)SchemaManager.resetParsedDatamodelCache(getName());
 		return pk;
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.amalto.core.ejb.ObjectPOJO#store(java.lang.String)
-	 */
-	@Override
-	public ObjectPOJOPK store(String revisionID) throws XtentisException {
-	    
-	    ObjectPOJOPK objectPK=super.store(revisionID);
-	    
-	    //synchronize with outer agents
-        DatamodelChangeNotifier dmUpdateEventNotifer = new DatamodelChangeNotifier();
-        dmUpdateEventNotifer.addUpdateMessage(new DMUpdateEvent(getPK().getUniqueId(),revisionID));
-        dmUpdateEventNotifer.sendMessages();
-        
-        return objectPK;
 	}
 	
 
