@@ -2436,8 +2436,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                                //FIXME mock refresh
                                itemTree.removeNode(itemTree.getRoot().children[0]);
                                node1 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
-                               //var viewName = DWRUtil.getValue('viewItemsSelect');	
-                               var viewName =  "Browse_items_"+dataObject;
+                               var viewName =  getSelectedViewName(dataObject);
                                ItemsBrowserInterface.setTree(dataObject,viewName, itemPK2, node1.index, false, treeIndex, false, function(result){                             
                                     node1.setDynamicLoad(fnLoadData,1);
                                     node1.expand();
@@ -2506,8 +2505,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     				    ids1 = itemPK2;
     				else
     				    ids1 = ids;
-    				//var viewName = DWRUtil.getValue('viewItemsSelect');
-    				  var viewName =  "Browse_items_"+dataObject;
+    				
+    				var viewName =  getSelectedViewName(dataObject);
     				ItemsBrowserInterface.setTree(dataObject,viewName, ids1, node2.index, false, treeIndex, true, function(result){
                         node2.setDynamicLoad(fnLoadData, 1);
                         node2.expand();
@@ -2534,8 +2533,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			else
     	           tbDetail.baseOptions |=O_ACTION;
     			
-    			 //var viewName = DWRUtil.getValue('viewItemsSelect');
-                 var viewName =  "Browse_items_"+dataObject;
+                 var viewName =  getSelectedViewName(dataObject);
     			//add for duplicate case
 				if(isDuplicate){
 					ItemsBrowserInterface.setTree(dataObject, viewName,itemPK2, node1.index, false, treeIndex, false, function(result){
@@ -2621,6 +2619,17 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 		amalto.core.ready();
 		
+	}
+	
+	function getSelectedViewName(dataObject){
+		
+		 var viewName = "";
+		 if(Ext.get('viewItemsSelect')!=null){
+			 viewName = DWRUtil.getValue('viewItemsSelect'); 
+		 }else{
+			 viewName =  "Browse_items_"+dataObject;
+		 }
+		 return viewName;
 	}
 	
 	function updateNode2(id,node, value,treeIndex){
