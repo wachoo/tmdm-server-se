@@ -53,112 +53,131 @@ import com.amalto.webapp.core.dmagent.SchemaWebAgent;
  *   
  * @jboss.pool   initial-beans-in-free-pool="1"  
  *               max-beans-in-free-pool="1"  
- */                 
+ */
 public class DataModelSynchronizationMDB implements MessageDrivenBean, MessageListener {
 
-	    private MessageDrivenContext ctx = null;
-	    private QueueConnection conn;
-	    private QueueSession session;
-	    
-	    public DataModelSynchronizationMDB()
-	    {
-	       
-	    }
-	    
-	    public void setMessageDrivenContext(MessageDrivenContext ctx)
-	    {
-	        this.ctx = ctx;
+    private static final Logger logger = Logger.getLogger(DataModelSynchronizationMDB.class.getName());
 
-	    }
-	    
-	    public void ejbCreate()
-	    {
-	        try {
-	            init();
-	        } catch (Exception e) {
-	            throw new EJBException("Failed to init DataModelSynchronizationMDB", e);
-	        }
-	    }
+    private MessageDrivenContext ctx = null;
 
-	    public void ejbRemove()
-	    {
-	        ctx = null;
-	        try {
-	            if (session != null) {
-	                session.close();
-	            }
-	            if (conn != null) {
-	                conn.close();
-	            }
-	        } catch(JMSException e) {
-	            e.printStackTrace();
-	        }
-	    }
-	                
-	    public void onMessage(Message message)
-	    {
-	        try {
-	            
-                if(message instanceof ObjectMessage)  {
-	                 ObjectMessage msg=(ObjectMessage)message;
-	                 
-	                 DMUpdateEvent dmUpdateEvent=(DMUpdateEvent)msg.getObject();
-	                 Logger.getLogger(this.getClass()).info(dmUpdateEvent);
-	                 String eventType=dmUpdateEvent.getEventType();
-	                 
-	                 SchemaManager schemaCoreAgent=SchemaCoreAgent.getInstance();
-	                 SchemaManager schemaWebAgent=SchemaWebAgent.getInstance();
-	                 if(eventType.equals(DMUpdateEvent.EVENT_TYPE_INIT)||eventType.equals(DMUpdateEvent.EVENT_TYPE_UPDATE)) { 
-	                     String dataModelSchema = getSchemaFromDB(dmUpdateEvent.getDataModelVersion(),dmUpdateEvent.getDataModelPK());
-	                     schemaCoreAgent.updateToDatamodelPool(
-                                 dmUpdateEvent.getDataModelVersion(), 
-                                 dmUpdateEvent.getDataModelPK(),
-                                 dataModelSchema
-                                 );
-	                     schemaWebAgent.updateToDatamodelPool(
-	                             dmUpdateEvent.getDataModelVersion(), 
-	                             dmUpdateEvent.getDataModelPK(),
-	                             dataModelSchema
-	                             );
-	                 }else if(eventType.equals(DMUpdateEvent.EVENT_TYPE_DELETE)) {
-	                     schemaCoreAgent.removeFromDatamodelPool(dmUpdateEvent.getDataModelVersion(), dmUpdateEvent.getDataModelPK());
-	                     schemaWebAgent.removeFromDatamodelPool(dmUpdateEvent.getDataModelVersion(), dmUpdateEvent.getDataModelPK());
-	                 }
-	            }
-	            
-	        } catch (JMSException e) {
-	            Logger.getLogger(this.getClass()).error(e.toString());
-	        } catch (Throwable t) {
-	            Logger.getLogger(this.getClass()).error(t.getMessage());
-	        }
-	    	
-	    }
-	                
-	    private void init()
-	        throws JMSException, NamingException
-	    {
-	        InitialContext iniCtx = new InitialContext();
-	        Object tmp = iniCtx.lookup("ConnectionFactory");
-	        QueueConnectionFactory qcf = (QueueConnectionFactory) tmp;
-	        conn = qcf.createQueueConnection();
-	        session = conn.createQueueSession(false,QueueSession.AUTO_ACKNOWLEDGE);
-	        conn.start();
-	    }
-	    
-	    /**
-	     * DOC HSHU Comment method "getSchemaFromDB".
-	     * @throws Exception 
-	     */
-	    private String getSchemaFromDB(String revisionID, String uniqueID){
-	        String dataModelSchema=null;
-            try {
-                DataModelPOJO dataModelPOJO = ObjectPOJO.load(revisionID, DataModelPOJO.class,new ObjectPOJOPK(uniqueID));
-                dataModelSchema=dataModelPOJO.getSchema();
-            } catch (XtentisException e) {
-                e.printStackTrace();
-                return null;
+    private QueueConnection conn;
+
+    private QueueSession session;
+
+    /**
+     * DOC HSHU DataModelSynchronizationMDB constructor comment.
+     */
+    public DataModelSynchronizationMDB() {
+
+    }
+
+    /*
+     * (non-Jsdoc)
+     * 
+     * @see javax.ejb.MessageDrivenBean#setMessageDrivenContext(javax.ejb.MessageDrivenContext)
+     */
+    public void setMessageDrivenContext(MessageDrivenContext ctx) {
+        this.ctx = ctx;
+
+    }
+
+    /**
+     * DOC HSHU Comment method "ejbCreate".
+     */
+    public void ejbCreate() {
+        try {
+            init();
+        } catch (Exception e) {
+            throw new EJBException("Failed to init DataModelSynchronizationMDB", e);
+        }
+    }
+
+    /*
+     * (non-Jsdoc)
+     * 
+     * @see javax.ejb.MessageDrivenBean#ejbRemove()
+     */
+    public void ejbRemove() {
+        ctx = null;
+        try {
+            if (session != null) {
+                session.close();
             }
-	        return dataModelSchema;
-	    }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*
+     * (non-Jsdoc)
+     * 
+     * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
+     */
+    public void onMessage(Message message) {
+        try {
+
+            if (message instanceof ObjectMessage) {
+                ObjectMessage msg = (ObjectMessage) message;
+
+                DMUpdateEvent dmUpdateEvent = (DMUpdateEvent) msg.getObject();
+                Logger.getLogger(this.getClass()).info(dmUpdateEvent);
+                String eventType = dmUpdateEvent.getEventType();
+
+                SchemaManager schemaCoreAgent = SchemaCoreAgent.getInstance();
+                SchemaManager schemaWebAgent = SchemaWebAgent.getInstance();
+                if (eventType.equals(DMUpdateEvent.EVENT_TYPE_INIT) || eventType.equals(DMUpdateEvent.EVENT_TYPE_UPDATE)) {
+                    String dataModelSchema = getSchemaFromDB(dmUpdateEvent.getDataModelVersion(), dmUpdateEvent.getDataModelPK());
+                    schemaCoreAgent.updateToDatamodelPool(dmUpdateEvent.getDataModelVersion(), dmUpdateEvent.getDataModelPK(),
+                            dataModelSchema);
+                    schemaWebAgent.updateToDatamodelPool(dmUpdateEvent.getDataModelVersion(), dmUpdateEvent.getDataModelPK(),
+                            dataModelSchema);
+                } else if (eventType.equals(DMUpdateEvent.EVENT_TYPE_DELETE)) {
+                    schemaCoreAgent.removeFromDatamodelPool(dmUpdateEvent.getDataModelVersion(), dmUpdateEvent.getDataModelPK());
+                    schemaWebAgent.removeFromDatamodelPool(dmUpdateEvent.getDataModelVersion(), dmUpdateEvent.getDataModelPK());
+                }
+            }
+
+        } catch (JMSException e) {
+            logger.error(e.getMessage(), e);
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
+        }
+
+    }
+
+    /**
+     * DOC HSHU Comment method "init".
+     * 
+     * @throws JMSException
+     * @throws NamingException
+     */
+    private void init() throws JMSException, NamingException {
+        InitialContext iniCtx = new InitialContext();
+        Object tmp = iniCtx.lookup("ConnectionFactory");
+        QueueConnectionFactory qcf = (QueueConnectionFactory) tmp;
+        conn = qcf.createQueueConnection();
+        session = conn.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
+        conn.start();
+    }
+
+    /**
+     * DOC HSHU Comment method "getSchemaFromDB".
+     * 
+     * @param revisionID
+     * @param uniqueID
+     * @return
+     * @throws XtentisException
+     */
+    private String getSchemaFromDB(String revisionID, String uniqueID) throws XtentisException {
+        String dataModelSchema = null;
+
+        DataModelPOJO dataModelPOJO = ObjectPOJO.load(revisionID, DataModelPOJO.class, new ObjectPOJOPK(uniqueID));
+        dataModelSchema = dataModelPOJO.getSchema();
+
+        return dataModelSchema;
+    }
 
 }
