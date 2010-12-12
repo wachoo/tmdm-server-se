@@ -28,7 +28,7 @@ public class WelcomeDWR {
 
     private static final Logger LOG = Logger.getLogger(Webapp.class);
 
-    private static final String standAlongName = "Runnable#";
+    private static final String STANDALONE_PROCESS_PREFIX = "Runnable#"; //$NON-NLS-1$
 
     public WelcomeDWR() {
         super();
@@ -42,7 +42,7 @@ public class WelcomeDWR {
     public ExtJSFormResponse getLicenseMsg(String language) {
         WebappInfo webappInfo = new WebappInfo();
         Webapp.INSTANCE.getInfo(webappInfo, language);
-        return new ExtJSFormSuccessResponse("", webappInfo);
+        return new ExtJSFormSuccessResponse("", webappInfo); //$NON-NLS-1$
     }
 
     /**
@@ -63,7 +63,7 @@ public class WelcomeDWR {
                 labels.put(subMenu.getApplication(), subMenu.getLabels().get(language));
             }
         } catch (Exception e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
         }
 
         return labels;
@@ -84,7 +84,7 @@ public class WelcomeDWR {
      * @return
      */
     public boolean isHiddenLicense() {
-        return isHiddenMenu("License");
+        return isHiddenMenu("License"); //$NON-NLS-1$
     }
 
     /**
@@ -105,7 +105,7 @@ public class WelcomeDWR {
                 }
             }
         } catch (Exception e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
         }
 
         return true;
@@ -117,21 +117,21 @@ public class WelcomeDWR {
      * @return
      */
     public boolean isHiddenTask() {
-        return isHiddenMenu("WorkflowTasks");
+        return isHiddenMenu("WorkflowTasks"); //$NON-NLS-1$
     }
 
     /**
-     * get all standalong processes.
+     * get all standalone processes.
      */
-    public List getStandalongProcess() {
+    public List getStandaloneProcess() {
         ListRange listRange = new ListRange();
         List<String> process = new ArrayList<String>();
 
         try {
-            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();
+            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK(); //$NON-NLS-1$
 
             for (WSTransformerPK wstransformerpk : wst) {
-                if (isStandAlongProcess(wstransformerpk.getPk())) {
+                if (isStandaloneProcess(wstransformerpk.getPk())) {
                     process.add(wstransformerpk.getPk());
                 }
             }
@@ -139,9 +139,9 @@ public class WelcomeDWR {
             listRange.setData(process.toArray());
             listRange.setTotalSize(process.size());
         } catch (RemoteException e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
         } catch (XtentisWebappException e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
         }
 
         return process;
@@ -150,8 +150,8 @@ public class WelcomeDWR {
     /**
      * check if is it standalong process.
      */
-    public boolean isStandAlongProcess(String wstransformerpk) {
-        return wstransformerpk.startsWith(standAlongName);
+    public boolean isStandaloneProcess(String wstransformerpk) {
+        return wstransformerpk.startsWith(STANDALONE_PROCESS_PREFIX);
     }
 
     /**
@@ -168,9 +168,9 @@ public class WelcomeDWR {
             WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, null);
             Util.getPort().executeTransformerV2(wsExecuteTransformerV2);
         } catch (RemoteException e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
         } catch (XtentisWebappException e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
         }
 
         return sucess;
