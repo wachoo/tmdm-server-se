@@ -306,31 +306,25 @@ public class QueryBuilder {
 				}
 				// TODO {Country/isoCode=[xsd:integer],
 				
-				if (null != metaDataTypes) {
-					String leftPath = wc.getLeftPath();
-					String type = metaDataTypes.get(leftPath).get(0);
-					if (type.indexOf("xsd:double") >= 0
-							|| type.indexOf("xsd:float") >= 0
-							|| type.indexOf("xsd:integer") >= 0
-							|| type.indexOf("xsd:decimal") >= 0
-							|| type.indexOf("xsd:byte") >= 0
-							|| type.indexOf("xsd:int") >= 0
-							|| type.indexOf("xsd:long") >= 0
-							|| type.indexOf("xsd:negativeInteger") >= 0
-							|| type.indexOf("xsd:nonNegativeInteger") >= 0
-							|| type.indexOf("xsd:nonPositiveInteger") >= 0
-							|| type.indexOf("xsd:positiveInteger") >= 0
-							|| type.indexOf("xsd:short") >= 0
-							|| type.indexOf("xsd:unsignedLong") >= 0
-							|| type.indexOf("xsd:unsignedInt") >= 0
-							|| type.indexOf("xsd:unsignedShort") >= 0
-							|| type.indexOf("xsd:unsignedByte") >= 0)
-					{
-						isLeftPathNum = true;	
-					}
-					
+                // TODO {Country/isoCode=[xsd:integer],             
+                if (null != metaDataTypes) {
+                    String leftPath = wc.getLeftPath();
+                    List<String> types = metaDataTypes.get(leftPath);
+                    if (types != null) {
+                        String type = types.get(0);
+                        if (type.indexOf("xsd:double") >= 0 || type.indexOf("xsd:float") >= 0 || type.indexOf("xsd:integer") >= 0 //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                || type.indexOf("xsd:decimal") >= 0 || type.indexOf("xsd:byte") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.indexOf("xsd:int") >= 0 || type.indexOf("xsd:long") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.indexOf("xsd:negativeInteger") >= 0 || type.indexOf("xsd:nonNegativeInteger") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.indexOf("xsd:nonPositiveInteger") >= 0 || type.indexOf("xsd:positiveInteger") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.indexOf("xsd:short") >= 0 || type.indexOf("xsd:unsignedLong") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.indexOf("xsd:unsignedInt") >= 0 || type.indexOf("xsd:unsignedShort") >= 0 //$NON-NLS-1$ //$NON-NLS-2$
+                                || type.indexOf("xsd:unsignedByte") >= 0) { //$NON-NLS-1$
+                            isLeftPathNum = true;
+                        }
+                    }
+                }
 
-				}
 				isNum=isLeftPathNum && isRightValueNum;
 
 				encoded = isXpathFunction ? wc.getRightValueOrPath().trim()
