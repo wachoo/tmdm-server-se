@@ -1694,6 +1694,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		        	listeners:{
 		        		'click':function(){
 			        		var sel=sm2.getSelections();
+			        		var dcount = 0;//used to record the successful callback count
 			        		if(sel.length==0) return;
 				    		Ext.MessageBox.confirm("confirm",MSG_CONFIRM_DELETE_ITEMS[language]+ " ?",function re(en){
 					    		if(en=="yes"){
@@ -1728,36 +1729,30 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			                               }//end for
 			                            });//end callback									
 										ItemsBrowserInterface.deleteItem(_dataObject, itemPK,0, function(result){
-											if(result==null || result==""){
+											if(result==null)
 												return;
-											}else{
-												if(result.lastIndexOf("ERROR")>-1){
-													var err1=result.substring(7);
-													if(err1==null || err1==""){
-														return;
-													}else{
-														Ext.MessageBox.show({
-														    msg:err1,
-														    buttons:{"ok":"CANCEL"},
-														    icon:Ext.MessageBox.ERROR
-														 });
-														return;
-													}
+											else if(result.lastIndexOf("ERROR")>-1){
+												var err1=result.substring(7);
+												if(err1==null || err1==""){
+													return;
 												}else{
 													Ext.MessageBox.show({
-													    msg:result,
-													    buttons:{"ok":"OK"},
-													    icon:Ext.MessageBox.INFO
+													    msg:err1,
+													    buttons:{"ok":"CANCEL"},
+													    icon:Ext.MessageBox.ERROR
 													 });
 													return;
 												}
 											}
-											amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
-																				
+											amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);										
+											
+											dcount++;
+											//added by lzhang
+											//fix bug 0017503
+											if ( dcount == sel.length)
+												displayItems();
 										});
-					        		}
-					        		//display
-					        		displayItems();
+					        		}				        		
 					    		}				    			
 				    		});	//comfirm		        			        		
 		        		}
@@ -1788,7 +1783,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						       if (btn == 'cancel') {
 									return;
 								}
-										        		
+						       	
+								var dcount = 0; //used to record the successful callback count 		        		
 				        		for(var j=0; j<sel.length; j++){
 				        			//get ItemPK
 				        			var itemPK=[];
@@ -1803,14 +1799,20 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 									var treeIndex=1;
 									if(_dataObject==null) _dataObject=_dataObject2;
 									ItemsBrowserInterface.logicalDeleteItem(_dataObject, itemPK, path,treeIndex, function(result){
-											if(result.lastIndexOf("ERROR")>-1){
+											if (result == null) return;
+											else if(result.lastIndexOf("ERROR")>-1){
 												var err1=result.substring(7);
 												Ext.MessageBox.alert("ERROR", err1);
 												return;
-											}											
+											}
+											dcount++;
+											//added by lzhang
+											//fix bug 0017503
+											if (dcount == sel.length)
+												displayItems();
 									});									
 				        		}		
-				        		displayItems();	
+				        			
 							};			        				        		
 		        		}
 		        	}
