@@ -580,11 +580,7 @@ public class ItemPOJO implements Serializable {
                     throw new XtentisException("Unable to create the Data Cluster. Please check the XML Server logs");
 
                 // create cluster
-                boolean exist = false;
-                String[] clusters = server.getAllClusters(null);
-                if (clusters != null) {
-                    exist = Arrays.asList(clusters).contains(pk.getUniqueId());
-                }
+                boolean exist = server.existCluster(null, pk.getUniqueId());
                 if (!exist)
                     server.createCluster(null, pk.getUniqueId());
                 // log

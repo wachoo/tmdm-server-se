@@ -15,9 +15,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -37,7 +37,6 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.Text;
 
 import sun.misc.BASE64Decoder;
 
@@ -412,13 +411,12 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 	   public WSBoolean existsDBDataCluster(WSExistsDBDataCluster wsExistsDataCluster)
 	    throws RemoteException {
 			try {
-			   
-				String[] ids=Util.getXmlServerCtrlLocal().getAllClusters(wsExistsDataCluster.getRevisionID());
-				List<String> list=new ArrayList<String>();
-				return new WSBoolean(Arrays.asList(ids).contains(wsExistsDataCluster.getName()));
-				
+			    String revisionId = wsExistsDataCluster.getRevisionID();
+			    String clusterName = wsExistsDataCluster.getName();
+				boolean exist = Util.getXmlServerCtrlLocal().existCluster(revisionId, clusterName);
+				return new WSBoolean(exist);
 			} catch (Exception e) {
-				throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+				throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
 			}
 	    }
 	   

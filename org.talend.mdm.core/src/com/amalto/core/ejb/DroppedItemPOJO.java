@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.naming.InitialContext;
@@ -484,20 +483,16 @@ public class DroppedItemPOJO implements Serializable{
     		    if (pk == null) throw new XtentisException("Unable to create the Data Cluster. Please check the XML Server logs");
     		    
     		    //create cluster
-    		    boolean exist=false;
-    		    String[] clusters = server.getAllClusters(null);
-    			if (clusters != null) {
-    				exist = Arrays.asList(clusters).contains(pk.getUniqueId());
-    			}
-    			if (!exist) server.createCluster(null, pk.getUniqueId()); 
+    		    boolean exist = server.existCluster(null, pk.getUniqueId());
+    			if (!exist)
+    			    server.createCluster(null, pk.getUniqueId()); 
     			//log
     			org.apache.log4j.Logger.getLogger(ItemPOJO.class).info("Init MDMItemsTrash Cluster");
     		}
             
 	    } catch (Exception e) {
     	    String err = "Unable to init the items-trash "+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(DroppedItemPOJO.class).error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    }
 		
     }

@@ -2,7 +2,6 @@ package com.amalto.core.objects.datacluster.ejb;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -11,7 +10,6 @@ import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
-import javax.ejb.TimerService;
 import javax.naming.InitialContext;
 
 import com.amalto.core.ejb.ObjectPOJO;
@@ -125,27 +123,27 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
     	    	}
     	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(DataClusterPOJO.class));
     	    	
-    			boolean exist = false;
-                //get the xml server wrapper
+    			//get the xml server wrapper
                 XmlServerSLWrapperLocal server = null;
       			try {
       				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
       			} catch (Exception e) {
       				String err = "Error creating cluster '"+dataCluster.getName()+"' : unable to access the XML Server wrapper";
       				org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-      				throw new XtentisException(err);
+      				throw new XtentisException(err, e);
       			}
-    			String[] clusters = server.getAllClusters(revisionID);
-    			if (clusters != null) {
-    				exist = Arrays.asList(clusters).contains(pk.getUniqueId());
-    			}
-    			if (! exist) server.createCluster(revisionID, pk.getUniqueId());
+    			boolean exist = server.existCluster(revisionID, pk.getUniqueId());
+                if (!exist)
+    			    server.createCluster(revisionID, pk.getUniqueId());
     		} catch (Exception e) {
-    			String err = "Unable to physically create the data cluster "+pk.getUniqueId()+
-    			": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    			try {ObjectPOJO.remove(DataClusterPOJO.class, new ObjectPOJOPK(pk.getUniqueId()));} catch(Exception x) {}
-    			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    			throw new XtentisException(err);
+                String err = "Unable to physically create the data cluster " + pk.getUniqueId() + ": " + e.getClass().getName()
+                        + ": " + e.getLocalizedMessage();
+                try {
+                    ObjectPOJO.remove(DataClusterPOJO.class, new ObjectPOJOPK(pk.getUniqueId()));
+                } catch (Exception x) {
+                    org.apache.log4j.Logger.getLogger(this.getClass()).error(x.getMessage(), x);  
+                }
+                throw new XtentisException(err, e);
     		}
             
             return new DataClusterPOJOPK(pk);
@@ -156,7 +154,7 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
     	    String err = "Unable to create/update the datacluster "+dataCluster.getName()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    }
 
     }

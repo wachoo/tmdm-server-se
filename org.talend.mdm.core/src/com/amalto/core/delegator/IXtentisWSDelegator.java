@@ -610,13 +610,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			   public WSBoolean existsDBDataCluster(WSExistsDBDataCluster wsExistsDataCluster)
 			    throws RemoteException {
 					try {
-					   
-						String[] ids=Util.getXmlServerCtrlLocal().getAllClusters(wsExistsDataCluster.getRevisionID());
-						List<String> list=new ArrayList<String>();
-						return new WSBoolean(Arrays.asList(ids).contains(wsExistsDataCluster.getName()));
-						
+					    String revisionId = wsExistsDataCluster.getRevisionID();
+					    String clusterName = wsExistsDataCluster.getName();
+						boolean exist =Util.getXmlServerCtrlLocal().existCluster(revisionId, clusterName);
+						return new WSBoolean(exist);
 					} catch (Exception e) {
-						throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+						throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
 					}
 			    }
 
