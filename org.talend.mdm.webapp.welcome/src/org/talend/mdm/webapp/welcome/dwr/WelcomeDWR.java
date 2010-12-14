@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.welcome.dwr;
 
+import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,11 +19,13 @@ import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.core.util.dwr.ExtJSFormResponse;
 import com.amalto.webapp.core.util.dwr.ExtJSFormSuccessResponse;
 import com.amalto.webapp.core.util.dwr.WebappInfo;
+import com.amalto.webapp.util.webservices.WSByteArray;
 import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
 import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
 import com.amalto.webapp.util.webservices.WSTransformerContext;
 import com.amalto.webapp.util.webservices.WSTransformerPK;
 import com.amalto.webapp.util.webservices.WSTransformerV2PK;
+import com.amalto.webapp.util.webservices.WSTypedContent;
 
 public class WelcomeDWR {
 
@@ -165,12 +168,21 @@ public class WelcomeDWR {
         WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
 
         try {
-            WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, null);
+            // yguo, plugin input parameters
+            String content = "<root/>"; //$NON-NLS-1$
+            WSTypedContent typedContent = new WSTypedContent(null, new WSByteArray(content.getBytes("UTF-8")),//$NON-NLS-1$
+                    "text/xml; charset=UTF-8");//$NON-NLS-1$
+            WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, typedContent);
             Util.getPort().executeTransformerV2(wsExecuteTransformerV2);
         } catch (RemoteException e) {
             LOG.error(e.getMessage(), e);
+            sucess = false;
         } catch (XtentisWebappException e) {
             LOG.error(e.getMessage(), e);
+            sucess = false;
+        } catch (UnsupportedEncodingException e) {
+            LOG.error(e.getMessage(), e);
+            sucess = false;
         }
 
         return sucess;

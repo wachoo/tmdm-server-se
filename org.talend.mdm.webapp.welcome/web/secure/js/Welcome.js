@@ -655,8 +655,30 @@ amalto.welcome.Welcome = function () {
 	 }
 	 
 	 function runProcess(processPK) {
-		 WelcomeInterface.runProcess(processPK, function(result) {
-			 //@temp yguo, reaction to user by result.
+         Ext.MessageBox.show({
+                msg: 'Processing, please wait...',
+                progressText: 'Processing...',
+                width:300,
+                wait:true,
+                waitConfig: {interval:200}
+         });
+         
+		 WelcomeInterface.runProcess(processPK, {
+         	callback : function(result){
+                Ext.MessageBox.hide();
+                
+                if(result){
+                    Ext.MessageBox.alert('Status', "Process done! ");
+                }else{
+                	Ext.MessageBox.alert('Status', "Process failed! ");  
+                }
+             },
+             timeout : 600000,
+             errorHandler : function(errorString, exception) {  
+                   alert('Error:' + errorString);
+                   Ext.MessageBox.hide();
+             }  
+         
 		 });
 	 }
 	 
