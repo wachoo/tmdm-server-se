@@ -34,8 +34,6 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask {
 
     static final String SUFFIX_BAR = "_r";
 
-    ArrayList<String> roles = new ArrayList<String>();
-
     private boolean updateRolesInProvision() {
         final String userClusterName = "amaltoOBJECTSRole";
         String query = "collection(\"" + userClusterName + "\")/role-pOJO/PK/ids"; // collection("/amaltoOBJECTSRole")/role-pOJO/PK/ids
@@ -126,9 +124,8 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask {
                     if (nodeList.getLength() > 0) {
                         Object obj = nodeList.item(0);
                         if (obj instanceof Text) {
-                            String wholeSchema = StringEscapeUtils.unescapeXml(((Text) obj).getWholeText());
+                            String wholeSchema = ((Text) obj).getWholeText();
                             schemaRoot = Util.parseXSD(wholeSchema);
-                            System.out.println(Util.nodeToString(schemaRoot) + "");
                         }
                     }
                     if (schemaRoot != null) {
@@ -152,12 +149,13 @@ public class UpdateOldRolesWithNewRoleSchemeTask extends AbstractMigrationTask {
                             }
                         }
 
-                        if (!toDelSet.isEmpty() || uniqueID.equals("DStar")) {
-                            String newSchema = Util.nodeToString(schemaRoot);
-                            newSchema = StringEscapeUtils.escapeXml(newSchema);
-                            int beg = dataModelXml.indexOf("<schema");
-                            int end = dataModelXml.indexOf("</schema");
-                            dataModelXml = dataModelXml.substring(0, beg) + "<schema>" + newSchema + dataModelXml.substring(end);
+                        if (!toDelSet.isEmpty()) {
+                            String newSchema = "<schema>" + StringEscapeUtils.escapeXml(Util.nodeToString(schemaRoot))
+                                    + "</schema>";
+                            Node oldChild = Util.getNodeList(doc, "./schema").item(0);
+                            Node elem = doc.importNode(Util.parse(newSchema).getDocumentElement(), true);
+                            doc.getDocumentElement().replaceChild(elem, oldChild);
+                            dataModelXml = Util.nodeToString(doc);
                         }
                     }
                     if (!dataModelXml.equals(cpyXml)) {
