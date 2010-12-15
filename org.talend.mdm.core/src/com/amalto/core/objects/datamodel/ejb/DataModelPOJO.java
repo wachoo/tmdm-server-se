@@ -1,8 +1,7 @@
 package com.amalto.core.objects.datamodel.ejb;
 
-import org.talend.mdm.commmon.util.datamodel.synchronization.DMUpdateEvent;
-import org.talend.mdm.commmon.util.datamodel.synchronization.DatamodelChangeNotifier;
-
+import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
+import com.amalto.commons.core.datamodel.synchronization.DatamodelChangeNotifier;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.util.XtentisException;

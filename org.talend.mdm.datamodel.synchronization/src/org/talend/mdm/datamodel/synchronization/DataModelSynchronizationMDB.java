@@ -27,8 +27,8 @@ import javax.naming.NamingException;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
-import org.talend.mdm.commmon.util.datamodel.synchronization.DMUpdateEvent;
 
+import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;

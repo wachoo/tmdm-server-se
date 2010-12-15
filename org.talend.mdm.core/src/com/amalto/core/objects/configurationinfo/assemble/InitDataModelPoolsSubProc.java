@@ -17,9 +17,9 @@ import java.util.Collection;
 import javax.naming.InitialContext;
 
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.datamodel.synchronization.DMUpdateEvent;
-import org.talend.mdm.commmon.util.datamodel.synchronization.DatamodelChangeNotifier;
 
+import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
+import com.amalto.commons.core.datamodel.synchronization.DatamodelChangeNotifier;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
 import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocalHome;
