@@ -66,10 +66,58 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
      * icon or not
      */
     initContent: function(itemData, newItem,treeIndex, hasIcon,isReadOnlyinItem) {	
-    	var KEY_DEFAULT_vALUE = {
+		/********************************************************************
+		 * Localization
+		 ********************************************************************/
+		var DEL_TT={
+			'fr':'Supprimer cette valeur',
+			'en':'Remove this value'
+		};
+		
+		var MAGPLUS_TT = {
+			'fr': 'Sélectionner la relation',
+			'en': 'Select the relationship'
+		};
+		
+		var MAG_TT = {
+			'fr': 'Ouvrir l\'enregistrement lié',
+			'en': 'Open the related record'
+		};
+		
+		var PLUSMUL_TT = {
+			'fr':'Ajouter une occurrence',
+			'en':'Add an occurrence'
+		};
+		
+		var PLUSFKS_TT = {
+			'fr':'Nouvel enregistrement pour cette relation',
+			'en':'Create a new record for this relation'
+		};
+		
+		var DELMUL_TT = {
+			'fr':'Effacer une occurrence',
+			'en':'Delete an occurrence'
+		};
+		var PIC_TT = {
+			'fr':'Image',
+			'en':'Picture'
+		};
+		var REMPIC_TT = {
+			'fr':'Supprimer l\'image',
+			'en':'Remove the picture'
+		};
+		var SELPIC_TT = {
+			'fr':'Sélectionner une image',
+			'en':'Select a picture'
+		};
+		var XSDDET_TT = {
+			'fr':'Afficher les détails XSD',
+			'en':'Display XSD details'
+		};		
+		var KEY_DEFAULT_vALUE = {
 			'en':'(Auto)',
 			'fr':'(Auto)'
-		}
+		};
 		var html = [];		
 		
 		/*var choice = '';
@@ -86,9 +134,9 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				
 		if((itemData.maxOccurs<0 || itemData.maxOccurs>1) && tmpStatusItems){
 			cloneNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.cloneNode2(\''+itemData.nodeId+'\',false,'+treeIndex+')">' +
-					' <img src="img/genericUI/add-element.gif"/></span>';
+					' <img src="img/genericUI/add-element.gif" title="'+ PLUSMUL_TT[language] +'"/></span>';
 			removeNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.removeNode2(\''+itemData.nodeId+'\','+treeIndex+')">' +
-					' <img src="img/genericUI/remove-element.gif"/></span>';
+					' <img src="img/genericUI/remove-element.gif" title="'+ DELMUL_TT[language] +'"/></span>';
 		}
 		if(itemData.typeName!=null&&(itemData.typeName=="PICTURE" || itemData.typeName=="URL")){
 			type='hidden';
@@ -139,23 +187,23 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					readOnlyStyle = "ForeignKey";
 					foreignKeyImg = '' +
 					   '<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removeForeignKey(\''+itemData.nodeId+'\','+treeIndex+')">' +
-					   '<img alt="Remove the Foreign Key" src="img/genericUI/clear-icon.gif"/></span>';
+					   '<img title="' + DEL_TT[language] + '" src="img/genericUI/clear-icon.gif"/></span>';
 					foreignKeyImg += '' +
 						'<span style="cursor: pointer;" ' +
 						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+')" >' +
-						' <img src="img/genericUI/magnifier_plus.gif"/></span>';
+						' <img src="img/genericUI/magnifier_plus.gif" title="' + MAGPLUS_TT[language] + '"/></span>';
 				
 				var fkDataObject =  itemData.foreignKey.split("/")[0];	
 				foreignKeyImg += '' +
 					'<span id = "' + fkDataObject +'" style="cursor: pointer;" ' +
 					'onclick="amalto.itemsbrowser.ItemsBrowser.displayItemDetails(' + null +',\'' + fkDataObject +'\')" >' +
-					' <img src="img/genericUI/add-element.gif"/></span>';
+					' <img src="img/genericUI/add-element.gif" title="'+ PLUSFKS_TT[language] +'"/></span>';
 					
 				}   
 				foreignKeyImg += ''+
 						'<span style="cursor: pointer;" ' +
 						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+treeIndex+'\')" >' +
-						' <img src="img/genericUI/magnifier.gif"/></span>';
+						' <img src="img/genericUI/magnifier.gif" title="' + MAG_TT[language] + '"/></span>';
 						
 				//move this logical to the click-listener of the button 'Add Foreign Key'
 			    //This logical seems useless now
@@ -243,7 +291,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
 				var clearDate = '<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removeForeignKey(\''+itemData.nodeId+'\','+treeIndex+')">' +
-                       '<img alt="Remove the Foreign Key" src="img/genericUI/clear-icon.gif"/></span>';
+                       '<img title="'+ DEL_TT[language] +'" src="img/genericUI/clear-icon.gif"/></span>';
 				if((itemData.readOnly == false && !isReadOnlyinItem) || tmpStatus)
 			   			html[html.length]  = clearDate +
 			   			'<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\',\''+itemData.displayFomats[1]+'\')">'+
@@ -252,17 +300,17 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				   html[html.length] = input;
 				   //show picture
 				   if(value.length>0){
-				 		html[html.length] = '<span style="cursor: pointer;"> '+	' <img alt="Picture" id="'+itemData.nodeId+'showPicture" src="'+ itemData.value+ '"/></span>';	
+				 		html[html.length] = '<span style="cursor: pointer;"> '+	' <img title="'+ PIC_TT[language] +'" id="'+itemData.nodeId+'showPicture" src="'+ itemData.value+ '"/></span>';	
 				 	}else{				 		
-				 		html[html.length] = '<span style="cursor: pointer;"> '+	' <img alt="Picture" id="'+itemData.nodeId+'showPicture" src="img/genericUI/no_image.gif"/></span>';	
+				 		html[html.length] = '<span style="cursor: pointer;"> '+	' <img title="'+ PIC_TT[language] +'" id="'+itemData.nodeId+'showPicture" src="img/genericUI/no_image.gif"/></span>';	
 				 	}					
 					//remove picture
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
 				if((itemData.readOnly == false && !isReadOnlyinItem) ||tmpStatus){
 					html[html.length]='<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removePicture(\''+itemData.nodeId+'\','+treeIndex+')">' +
-					'<img alt="Remove the picture" src="img/genericUI/clear-icon.gif"/></span>';									
-				    html[html.length] ='<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showUploadFile(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\')"><img alt="Select a picture" src="img/genericUI/image_add.png"/></span>'+'</div>';
+					'<img title="'+ REMPIC_TT[language] +'" src="img/genericUI/clear-icon.gif"/></span>';									
+				    html[html.length] ='<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showUploadFile(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\')"><img title="'+ SELPIC_TT[language] +'" src="img/genericUI/image_add.png"/></span>'+'</div>';
 				}			
 			}else if(itemData.typeName!=null&&(itemData.typeName=="URL")){//URL
 				   html[html.length] = ' ' +'<input type="hidden" id="'+itemData.nodeId+'Value" value="'+value+'"'+'/>';
@@ -284,7 +332,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			
 			html[html.length] = '<div style="display:inline"><span id="'+itemData.nodeId+'ValidateBadge" style="background-image:url(img/genericUI/validateBadge.gif);background-repeat:no-repeat;background-position:bottom;width:16px;height:16px;padding-left:4px;display:none"></span>'+'</div>' ;
 			html[html.length] = '<span id="'+itemData.nodeId+'OpenDetails" style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >';
-			html[html.length] = '<img src="img/genericUI/open-detail2.gif"/></span>' ;
+			html[html.length] = '<img src="img/genericUI/open-detail2.gif" title="'+ XSDDET_TT[language] +'"/></span>' ;
 			html[html.length] = 		cloneNodeImg+' '+removeNodeImg+' '+foreignKeyImg ;
 			
 			html[html.length] = '<div style="display:inline"><div id="'+itemData.nodeId+'ErrorMessage" style="padding-left:180px;display:none" ></div>';
@@ -308,7 +356,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;font-size:13px">'+itemData.name+' '+mandatory+' '+descInfo+'</div>' ;
 			html[html.length] = 	'<input type="text" size="72" class="dotted-line" READONLY /></div>' ;
 			html[html.length] = 	'<span id="'+itemData.nodeId+'OpenDetails" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >' ;
-			html[html.length] = 	' <img src="img/genericUI/open-detail2.gif"/></span>';
+			html[html.length] = 	' <img src="img/genericUI/open-detail2.gif" title="'+ XSDDET_TT[language] +'"/></span>';
 			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + '<br/>';
 
 			html[html.length] = 	'<div class="detailLabel" id="'+itemData.nodeId+'XsdDetails" style="display:none">' ;

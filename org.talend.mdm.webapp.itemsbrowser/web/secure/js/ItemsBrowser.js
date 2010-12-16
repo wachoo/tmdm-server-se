@@ -111,6 +111,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'fr':'clé possible trouvée',
 		'en':'possible key is found'
 	};
+	var DISPLAYXSD_TT = {
+			'fr':'Afficher les détails XSD',
+			'en':'Display XSD details'
+	};
 	
 	
 	var OPERATORS = {
@@ -3854,7 +3858,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			
 		else{
 			$(divId).style.display = "none";
-			DWRUtil.setValue(openerId," <img src=\"img/genericUI/open-detail2.gif\"/>");
+			DWRUtil.setValue(openerId," <img src=\"img/genericUI/open-detail2.gif\" title=\""+ DISPLAYXSD_TT[language] + "\"/>");
 		}		
 	}
 	
