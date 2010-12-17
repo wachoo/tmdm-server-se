@@ -12,8 +12,6 @@
 // ============================================================================
 package com.amalto.commons.core.datamodel.synchronization;
 
-import java.util.Properties;
-
 import javax.jms.Queue;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.Topic;
@@ -28,16 +26,14 @@ import javax.naming.NamingException;
  */
 public class ServiceLocator {
 
-    private static final String NAMING_URL = "localhost";
-
-    private static final String NAMING_INTERFACES = "org.jboss.naming:org.jnp.interfaces";
-
-    private static final String NAMING_CONTEXT_FACTORY = "org.jnp.interfaces.NamingContextFactory";
-
     private InitialContext ic;
 
-    public ServiceLocator() {
-        ic = this.getInitialContext();
+    public ServiceLocator() throws IllegalStateException {
+        try {
+            ic = new InitialContext();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     /**
@@ -102,22 +98,5 @@ public class ServiceLocator {
             throw new ServiceLocatorException(e);
         }
         return topic;
-    }
-
-    /**
-     *get context
-     */
-    public InitialContext getInitialContext() {
-        Properties p = new Properties();
-        try {
-            p.put("java.naming.factory.initial", NAMING_CONTEXT_FACTORY);
-            p.put("java.naming.factory.url.pkgs", NAMING_INTERFACES);
-            p.put("java.naming.provider.url", NAMING_URL);
-            return new InitialContext(p);
-        } catch (NamingException e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 }
