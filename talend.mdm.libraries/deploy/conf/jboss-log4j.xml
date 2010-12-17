@@ -269,6 +269,12 @@
 
    </category>
    
+   <!-- Limit error information used by Bonita -->
+   <category name="STDERR" additivity="false">
+      <priority value="WARN"/>
+      <appender-ref ref="FILE"/>
+   </category>
+   
    <!-- Decrease the priority threshold for the org.jboss.varia category
    <category name="org.jboss.varia">
      <priority value="DEBUG"/>
