@@ -62,28 +62,28 @@ public abstract class ILocalUser implements IBeanDelegator{
 	}
 
 	public String getUsername()  {
-		Set<Principal> set;
+		String username=null;
 		try {
-			set = getICurrentSubject().getPrincipals();
-			for (Iterator<Principal> iter = set.iterator(); iter.hasNext(); ) {
-				Principal principal = iter.next();
-				if (principal instanceof Group) {
-					Group group = (Group) principal;
-					//@see XtentisMDMLoginModule
-					if("Username".equals(group.getName())) {
-						if (group.members().hasMoreElements()) {
-							return group.members().nextElement().getName();
-						}
-					}
-				}
-			}//for
-		} catch (XtentisException e) {
+			username=LocalUser.getPrincipalMember("Username");
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return "admin";
+		
+		return username==null?"admin":username;
 	}
 
+	public String getPassword(){
+		String passwd=null;
+		try {
+			passwd=LocalUser.getPrincipalMember("Password");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return passwd;
+	}
 	public boolean isAdmin(Class<?> objectTypeClass) throws XtentisException {
 		// TODO Auto-generated method stub
 		return true;

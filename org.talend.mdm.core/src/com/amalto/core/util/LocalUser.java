@@ -1,8 +1,15 @@
 package com.amalto.core.util;
 
+import java.security.Principal;
+import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
+
+import org.jboss.security.SimpleGroup;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
@@ -156,4 +163,52 @@ public class LocalUser{
 		
 	}
     
+    public static String getPrincipalMember(String key) throws Exception{
+    	String result="";
+    	// Get the Authenticated Subject
+
+        Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
+
+        // Now look for a Group 
+
+        Set principals = subject.getPrincipals(Principal.class);
+
+        Iterator iter = principals.iterator();
+
+        while(iter.hasNext())
+
+		{
+
+		  Principal p = (Principal)iter.next();
+		  if(p instanceof SimpleGroup)
+		  {
+
+             SimpleGroup sg = (SimpleGroup)p;
+
+             if(key.equals(sg.getName()))
+
+             {
+
+                Enumeration en = sg.members();
+
+                while(en.hasMoreElements())
+
+                {
+
+					String info = en.nextElement().toString();
+					
+					result=result+","+info;
+
+                }
+
+             }
+
+          }
+
+        }
+        
+        if(result.length()>0)result=result.substring(1);
+    	return result;
+    }
+
 }
