@@ -33,12 +33,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -73,6 +73,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.ITransformerConstants;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -1138,8 +1139,8 @@ public class Util {
 
     public static List<UUIDPath> getUUIDNodes(String schema, String concept) throws Exception {
 
-    	HashSet<String> set = new HashSet<String>();
-    	_multipleOccuranceNodeSetThreadLocal.set(set);
+        HashSet<String> set = new HashSet<String>();
+        _multipleOccuranceNodeSetThreadLocal.set(set);
 
         List<UUIDPath> list = new ArrayList<UUIDPath>();
         Map<String, XSElementDecl> map = getConceptMap(schema);
@@ -1154,13 +1155,13 @@ public class Util {
     }
 
     private static ThreadLocal<HashSet<String>> _multipleOccuranceNodeSetThreadLocal = new ThreadLocal<HashSet<String>>();
-    
+
     private static void getChildren(String parentPath, XSParticle xsp, List<UUIDPath> list) {
-    	if(xsp.getMaxOccurs() == -1){
-    		String particleName = xsp.getTerm().asElementDecl().getName();
-    		if(!_multipleOccuranceNodeSetThreadLocal.get().contains(particleName))
-    		     _multipleOccuranceNodeSetThreadLocal.get().add(parentPath + "/" + particleName);
-    	}
+        if (xsp.getMaxOccurs() == -1) {
+            String particleName = xsp.getTerm().asElementDecl().getName();
+            if (!_multipleOccuranceNodeSetThreadLocal.get().contains(particleName))
+                _multipleOccuranceNodeSetThreadLocal.get().add(parentPath + "/" + particleName);
+        }
         // aiming added see 0009563
         if (xsp.getTerm().asModelGroup() != null) { // is complex type
             XSParticle[] xsps = xsp.getTerm().asModelGroup().getChildren();
@@ -1333,9 +1334,40 @@ public class Util {
         XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
         for (int j = 0; j < xsp.length; j++) {
             // why don't set up children element? FIXME
-            setChilden(xsp[j], "/" + concept, d);
+            if (checkHidden(xsp[j])) {
+                setChilden(xsp[j], "/" + concept, d);
+            }
         }
         return d.getDocumentElement();
+    }
+
+    /**
+     * check is hidden for specify element.
+     * 
+     * @param xsp
+     * @return
+     */
+    public static boolean checkHidden(XSParticle xsp) {
+        boolean hidden = false;
+        Element annotations = (Element) xsp.getTerm().getAnnotation().getAnnotation();
+        NodeList annotList = annotations.getChildNodes();
+
+        for (int k = 0; k < annotList.getLength(); k++) {
+            if ("appinfo".equals(annotList.item(k).getLocalName())) {
+                Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                if (source == null)
+                    continue;
+                String appinfoSource = source.getNodeValue();
+
+                if (annotList.item(k) != null && annotList.item(k).getFirstChild() != null) {
+                    if (appinfoSource.equals(BusinessConcept.APPINFO_X_HIDE)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return hidden;
     }
 
     /**
@@ -1432,111 +1464,110 @@ public class Util {
                     String universe = LocalUser.getLocalUser().getUniverse().getName();
                     Object o = jxpContext.getValue(xpath);
                     if (o == null || o.toString().trim().length() == 0)
-                        value = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, concept + "."
-                                + xpath.replaceAll("/", ".")));
+                        value = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster,
+                                concept + "." + xpath.replaceAll("/", ".")));
                     else
                         value = o.toString();
                 }
                 jxpContext.createPathAndSetValue(xpath, value);
             }
             if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(type)) {
-            	ArrayList<String> xpathes = new ArrayList<String>();
-            	for (String path : _multipleOccuranceNodeSetThreadLocal.get()){
-            		if(xpathCpy.indexOf(path) >= 0){
-            			String pathPrefix = path.replaceFirst("/" + concept, "");
-            			String pathTail = xpathCpy.substring(path.length());
-            			Double cnt = (Double)jxpContext.getValue("count(" + pathPrefix + ")");
-            			for (double db = 1; db <= cnt; db++){
-            				String valueToMerge = pathPrefix + "[" + (int)db + "]"+ pathTail;
-            				mergeValueIntoArrayList(xpathes, valueToMerge);
-            			}
-            		}
-            	}
-            	if(xpathes.isEmpty()){
-            		xpathes.add(xpath);
-            	}
-            	for (String newPath : xpathes){
+                ArrayList<String> xpathes = new ArrayList<String>();
+                for (String path : _multipleOccuranceNodeSetThreadLocal.get()) {
+                    if (xpathCpy.indexOf(path) >= 0) {
+                        String pathPrefix = path.replaceFirst("/" + concept, "");
+                        String pathTail = xpathCpy.substring(path.length());
+                        Double cnt = (Double) jxpContext.getValue("count(" + pathPrefix + ")");
+                        for (double db = 1; db <= cnt; db++) {
+                            String valueToMerge = pathPrefix + "[" + (int) db + "]" + pathTail;
+                            mergeValueIntoArrayList(xpathes, valueToMerge);
+                        }
+                    }
+                }
+                if (xpathes.isEmpty()) {
+                    xpathes.add(xpath);
+                }
+                for (String newPath : xpathes) {
                     Object o = jxpContext.getValue(newPath);
                     if (o == null || o.toString().trim().length() == 0)
                         value = UUID.randomUUID().toString();
                     else
                         value = o.toString();
-                    if(o != null)
-                      jxpContext.createPathAndSetValue(newPath, value);	
-            	}
+                    if (o != null)
+                        jxpContext.createPathAndSetValue(newPath, value);
+                }
             }
 
         }
         return (Node) jxpContext.getContextBean();
     }
 
-    private static void mergeValueIntoArrayList(ArrayList<String> list, String value){
-    	if (list.isEmpty()){
-    		list.add(value);
-    		return;
-    	}
-    	if(list.contains(value))return;
-    	
-    	String mergeValue = "";	
+    private static void mergeValueIntoArrayList(ArrayList<String> list, String value) {
+        if (list.isEmpty()) {
+            list.add(value);
+            return;
+        }
+        if (list.contains(value))
+            return;
 
-    	for (int i = 0; i < list.size(); i++){
-        	int merge = -1;
-        	int del = -1;
-    		String[] existItems = list.get(i).split("/");
-    		String[] newItems = value.split("/");
-    		if(existItems.length != newItems.length){
-    			continue;
-    		}
-            if(list.get(i).equals(value))continue;
-			Pattern cdatabracket = Pattern.compile("([^\\[]*)(\\[.*\\])");
-    		merge = i;
-    		for (int item = 0; item < existItems.length; item++){
-    			Matcher matchNewItem = cdatabracket.matcher(newItems[item]);
-    			Matcher matchExistItem = cdatabracket.matcher(existItems[item]);
-    			if(matchNewItem.matches() && !matchExistItem.matches() && matchNewItem.group(1).equals(existItems[item])){
-    				if(newItems[item].length() > 0){
-    					mergeValue += "/";
-    				}
-        			mergeValue += newItems[item];
-        			del = i;
-        			merge = -1;
-    			}
-    			else if(!matchNewItem.matches() && matchExistItem.matches() && matchExistItem.group(1).equals(newItems[item])){
-    				if(existItems[item].length() > 0){
-    					mergeValue += "/";
-    				}
-    				mergeValue += existItems[item];
-    			}
-    			else if(matchNewItem.matches() && matchExistItem.matches()){
-    				mergeValue += "/";
-    				mergeValue += newItems[item];
-    				if(!existItems[item].equals(newItems[item]))
-    				   merge = -1;
-    			}
-    			else{
-    				if(existItems[item].length() > 0){
-    					mergeValue += "/";
-    				}
-    				mergeValue += existItems[item];
-    			}
-    		}
-    		
-			if (merge == -1) {
-				if (del != -1) {
-					list.add(del, mergeValue);
-					list.remove(del + 1);
-				} else if (!list.contains(mergeValue)) {
-					list.add(mergeValue);
-				}
+        String mergeValue = "";
 
-			} else {
-				list.add(merge, mergeValue);
-				list.remove(merge + 1);
-			}
-        	mergeValue = "";
-       }
+        for (int i = 0; i < list.size(); i++) {
+            int merge = -1;
+            int del = -1;
+            String[] existItems = list.get(i).split("/");
+            String[] newItems = value.split("/");
+            if (existItems.length != newItems.length) {
+                continue;
+            }
+            if (list.get(i).equals(value))
+                continue;
+            Pattern cdatabracket = Pattern.compile("([^\\[]*)(\\[.*\\])");
+            merge = i;
+            for (int item = 0; item < existItems.length; item++) {
+                Matcher matchNewItem = cdatabracket.matcher(newItems[item]);
+                Matcher matchExistItem = cdatabracket.matcher(existItems[item]);
+                if (matchNewItem.matches() && !matchExistItem.matches() && matchNewItem.group(1).equals(existItems[item])) {
+                    if (newItems[item].length() > 0) {
+                        mergeValue += "/";
+                    }
+                    mergeValue += newItems[item];
+                    del = i;
+                    merge = -1;
+                } else if (!matchNewItem.matches() && matchExistItem.matches() && matchExistItem.group(1).equals(newItems[item])) {
+                    if (existItems[item].length() > 0) {
+                        mergeValue += "/";
+                    }
+                    mergeValue += existItems[item];
+                } else if (matchNewItem.matches() && matchExistItem.matches()) {
+                    mergeValue += "/";
+                    mergeValue += newItems[item];
+                    if (!existItems[item].equals(newItems[item]))
+                        merge = -1;
+                } else {
+                    if (existItems[item].length() > 0) {
+                        mergeValue += "/";
+                    }
+                    mergeValue += existItems[item];
+                }
+            }
+
+            if (merge == -1) {
+                if (del != -1) {
+                    list.add(del, mergeValue);
+                    list.remove(del + 1);
+                } else if (!list.contains(mergeValue)) {
+                    list.add(mergeValue);
+                }
+
+            } else {
+                list.add(merge, mergeValue);
+                list.remove(merge + 1);
+            }
+            mergeValue = "";
+        }
     }
-    
+
     public static String getXMLStringFromNode(Node d) throws TransformerException {
         return nodeToString(d);
     }
@@ -1554,8 +1585,8 @@ public class Util {
         try {
             String type;
             type = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element[@name='" + businessConceptName
-                    + "']/xsd:complexType//xsd:element[@name='" + keyName + "']/@type", getRootElement("nsholder", xsd
-                    .getDocumentElement().getNamespaceURI(), "xsd"))[0];
+                    + "']/xsd:complexType//xsd:element[@name='" + keyName + "']/@type",
+                    getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"))[0];
 
             return type;
         } catch (TransformerException e) {
@@ -1741,8 +1772,8 @@ public class Util {
      */
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws XtentisException {
         try {
-            XObject xo = XPathAPI.eval(contextNode, xPath, (namespace == null) ? contextNode : Util.getRootElement("nsholder",
-                    namespace, prefix));
+            XObject xo = XPathAPI.eval(contextNode, xPath,
+                    (namespace == null) ? contextNode : Util.getRootElement("nsholder", namespace, prefix));
             if (xo.getType() != XObject.CLASS_NODESET)
                 return null;
             return xo.nodelist();
@@ -1867,12 +1898,13 @@ public class Util {
             long[] values = iter.next();
             if (i > 0)
                 totalProcessing += values[2];
-            Logger.getLogger(Util.class).debug("Marker " + (i++) + ":" + "tops: " + values[0] + " -- " + "totalPeriods: " + values[2] + " -- "
-                    + "average: " + (values[2] / values[0]));
+            Logger.getLogger(Util.class).debug(
+                    "Marker " + (i++) + ":" + "tops: " + values[0] + " -- " + "totalPeriods: " + values[2] + " -- " + "average: "
+                            + (values[2] / values[0]));
         }
         if (i > 0)
-            Logger.getLogger(Util.class).debug("Total Processing: " + totalProcessing + " -- average: " + totalProcessing
-                    / (timeMarkers.get(0))[0]);
+            Logger.getLogger(Util.class).debug(
+                    "Total Processing: " + totalProcessing + " -- average: " + totalProcessing / (timeMarkers.get(0))[0]);
     }
 
     /*********************************************************************
@@ -2297,7 +2329,8 @@ public class Util {
 
                 localInetAddress = java.net.InetAddress.getLocalHost();
             } catch (java.net.UnknownHostException uhe) {
-                Logger.getLogger(Util.class).error("JobUtil: Could not get the local IP address using InetAddress.getLocalHost()!", uhe);
+                Logger.getLogger(Util.class).error(
+                        "JobUtil: Could not get the local IP address using InetAddress.getLocalHost()!", uhe);
                 // todo: find better way to get around this...
                 return null;
             }
@@ -2516,9 +2549,9 @@ public class Util {
         if (ids == null)
             return itemPKXmlString.toString();
 
-        itemPKXmlString.append("<item-pOJOPK><concept-name>").append(conceptName).append("</concept-name><ids>").append(
-                joinStrings(ids, ".")).append("</ids><data-cluster-pOJOPK><ids>").append(clusterName).append(
-                "</ids></data-cluster-pOJOPK></item-pOJOPK>");
+        itemPKXmlString.append("<item-pOJOPK><concept-name>").append(conceptName).append("</concept-name><ids>")
+                .append(joinStrings(ids, ".")).append("</ids><data-cluster-pOJOPK><ids>").append(clusterName)
+                .append("</ids></data-cluster-pOJOPK></item-pOJOPK>");
 
         return itemPKXmlString.toString();
     }
@@ -2846,9 +2879,9 @@ public class Util {
         // DataClusterBMP dcb = new DataClusterBMP();
         // dcb.addToVocabulary(xml);
         // System.out.println("VOCABULARY:\n"+dcb.getVocabulary());
-        // 	
+        //
         // System.setProperty("jazzy.config", "com.amalto.core.util.JazzyConfiguration");
-        // 	
+        //
         // SpellDictionary dictionary = new SpellDictionaryHashMap(
         // new StringReader(dcb.getVocabulary()),
         // SpellCheckHandler.getPhonetsReader("fr")
@@ -2857,17 +2890,17 @@ public class Util {
         // SpellChecker spellCheck = new SpellChecker(dictionary);
         // SpellCheckHandler handler = new SpellCheckHandler();
         // spellCheck.addSpellCheckListener(handler);
-        //  
+        //
         // String toCheck = "Aalto dNs boneur boner bonh pascl pcheri 123-456 stars crstal";
         // int errors = spellCheck.checkSpelling(new StringWordTokenizer(toCheck.toLowerCase()));
         // if (errors ==0) {
         // System.out.println("Nothing I can do");
         // return;
         // }
-        //  
+        //
         // boolean IGNORE_NON_EXISTENT_WORDS = false;
         // //int depth = 4;
-        //  
+        //
         // ArrayList suggestions = new ArrayList();
         // Pattern p = Pattern.compile("\\p{Space}*([^\\p{Space}]{3,}?)\\p{Space}+");
         // Matcher m = p.matcher(" "+toCheck+" ");
@@ -2900,7 +2933,7 @@ public class Util {
         // }
         //
         // System.out.println("TO CHECK: "+toCheck);
-        //		
+        //
         // ArrayList proposals = new ArrayList();
         // for (Iterator iter = suggestions.iterator(); iter.hasNext();) {
         // ArrayList sug = (ArrayList) iter.next();
@@ -2918,7 +2951,7 @@ public class Util {
         // } //for suggestions
         // proposals = newProposals;
         // }//for words
-        //		
+        //
         // int i=0;
         // for (Iterator iter = proposals.iterator(); iter.hasNext(); ) {
         // String proposal = (String) iter.next();
@@ -3035,7 +3068,7 @@ public class Util {
     }
 
     /*********************************************************************
-     *MAIN
+     * MAIN
      *********************************************************************/
     public static List<File> listFiles(FileFilter filter, File folder) {
         List<File> ret = new ArrayList<File>();
