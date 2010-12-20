@@ -1755,6 +1755,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 											//fix bug 0017503
 											if ( dcount == sel.length)
 												displayItems();
+											if(result)Ext.MessageBox.alert('Status', result);	
 										});
 					        		}				        		
 					    		}				    			
