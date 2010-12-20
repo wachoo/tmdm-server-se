@@ -3550,4 +3550,28 @@ public class Util {
         xpath = joinStrings(xpathParts, "/");
         return xpath;
     }
+    
+    public static String[] getParentAndLeafPath(String pivot) throws XtentisException {
+		if (pivot.endsWith(")")) {
+			String err = "Invalid pivot '"+pivot+"': pivots must be 'pure' path, with no functions";
+			
+			throw new XtentisException(err);
+		}
+    	//Normalize path
+		pivot = pivot.startsWith("/") ? pivot.substring(1): pivot; //remove leading slash
+		pivot = pivot.endsWith("/") ? pivot.substring(0,pivot.length()-1): pivot; //remove trailing slash
+		String[] pivotPaths = pivot.split("\\/");
+		if (pivotPaths.length <2) {
+			String err = "Invalid pivot '"+pivot+"': partial updates cannot be applied to the root element";
+			throw new XtentisException(err);
+		}
+		//build parent pivot
+		String parentPivot = "";
+		for (int i = 0; i < pivotPaths.length-1; i++) {
+			parentPivot+="/"+pivotPaths[i];
+		}
+		//assign pivotElement
+		String pivotLeaf = pivotPaths[pivotPaths.length-1];
+		return new String[]{parentPivot,pivotLeaf};
+    }
 }
