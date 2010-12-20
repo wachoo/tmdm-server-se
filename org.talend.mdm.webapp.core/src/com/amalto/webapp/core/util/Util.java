@@ -586,6 +586,21 @@ public class Util {
 				);
 		return sw.toString();
 	}
+	
+	// This method walks the document and removes all nodes 
+    // of the specified type and specified name. 
+    // If name is
+    // null, then the node is removed if the type matches.
+    public static void removeAll(Node node, short nodeType, String name) {
+        if ((nodeType==-1 || node.getNodeType() == nodeType) && (name == null || node.getNodeName().equals(name))) {
+            node.getParentNode().removeChild(node);
+        } else {
+            NodeList list = node.getChildNodes();
+            for (int i = 0; i < list.getLength(); i++) {
+                removeAll(list.item(i), nodeType, name);
+            }
+        }
+    }
 
 	/**
 	 * Get a nodelist from an xPath

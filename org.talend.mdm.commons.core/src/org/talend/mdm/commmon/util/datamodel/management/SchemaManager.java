@@ -55,7 +55,7 @@ public abstract class SchemaManager {
         // put to pool
         addToPool(dataModelID, dataModelBean);
         // dump
-        // dataModelBean.dump();//FIXME
+        //dataModelBean.dump();//FIXME
 
         return dataModelBean;
     }
@@ -144,6 +144,22 @@ public abstract class SchemaManager {
             }
         }
         return targetBusinessConcept;
+    }
+
+    /**
+     * DOC HSHU Comment method "getReusableType".
+     */
+    public ReusableType getReusableType(String typeName, DataModelID dataModelID) throws Exception {
+        ReusableType targetReusableType = null;
+        DataModelBean dataModelBean = getFromPool(dataModelID);
+        List<ReusableType> reusableTypes = dataModelBean.getReusableTypes();
+        for (ReusableType reusableType : reusableTypes) {
+            if (reusableType.getName().equals(typeName)) {
+                targetReusableType = reusableType;
+                break;
+            }
+        }
+        return targetReusableType;
     }
 
 }

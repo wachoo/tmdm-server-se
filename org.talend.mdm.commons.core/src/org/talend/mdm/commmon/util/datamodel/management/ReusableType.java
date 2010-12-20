@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.commmon.util.datamodel.management;
 
+import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSType;
 
 /**
@@ -25,6 +26,8 @@ public class ReusableType {
 
     private String parentName;
 
+    private boolean isAbstract;
+
     // TODO: translate it from technique to business logic
     // mainly maintain the relationships among different business concepts
 
@@ -33,10 +36,50 @@ public class ReusableType {
         this.xsType = xsType;
         name = xsType.getName();
         parentName = xsType.getBaseType().getName();// Is this the best way?
+        isAbstract = xsType.asComplexType().isAbstract();
+    }
+
+    @Deprecated
+    public ReusableType(String name) {
+        super();
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getParentName() {
         return parentName;
+    }
+
+    public XSParticle getXsParticle() {
+        return xsType.asComplexType().getContentType().asParticle();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ReusableType other = (ReusableType) obj;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
     }
 
     @Override

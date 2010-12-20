@@ -118,6 +118,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			'en':'(Auto)',
 			'fr':'(Auto)'
 		};
+		var USE_EXTENSION_LABEL = {
+            'en':'Use Extension',
+            'fr':'Utilisez Extension'
+        };
 		var html = [];		
 		
 		/*var choice = '';
@@ -151,6 +155,20 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		// (itemData.parent==null || (itemData.parent!=null && itemData.parent.minOccurs>=1))
 		var descInfo = "";
 		if(itemData.description!=null)descInfo='<img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'+itemData.description+'"/>';
+		var polymSelector = "";
+		if(itemData.polymiorphism&&itemData.subTypes.length>0){
+            var options = '<option value=""></option>';
+            for(var k=0; k<itemData.subTypes.length; k++) {
+                 if(itemData.subTypes[k]==itemData.realType) var selected = "selected";
+                 else var selected = "";
+                 options +='<option value="'+itemData.subTypes[k]+'" '+selected+'>'+itemData.subTypes[k]+'</option>';
+            }
+            polymSelector = '<div style="display:inline">' +
+                        '<select onchange="amalto.itemsbrowser.ItemsBrowser.reloadNode(\''+itemData.nodeId+'\','+treeIndex+');" id="'+itemData.nodeId+'TypeSelector">' +
+                        options+
+                        '</select>'+
+                        '</div>';
+        }
 		if(itemData.type=="simple"){
 				
 			var readOnly = "";
@@ -358,6 +376,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			html[html.length] = 	'<span id="'+itemData.nodeId+'OpenDetails" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >' ;
 			html[html.length] = 	' <img src="img/genericUI/open-detail2.gif" title="'+ XSDDET_TT[language] +'"/></span>';
 			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + '<br/>';
+			
+			html[html.length] =     '<span style="width:180;float:left;font-size:13px">'+USE_EXTENSION_LABEL[language]+'</span>'+' '+polymSelector + '<br/>';
 
 			html[html.length] = 	'<div class="detailLabel" id="'+itemData.nodeId+'XsdDetails" style="display:none">' ;
 			html[html.length] = 	'XML tag : '+itemData.xmlTag+'<br/> ' ;

@@ -2317,7 +2317,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					
 				   var fnLoadData = function(oNode, fnCallback) {
     				//getChildren(oNode.index,fnCallback, false, newItem, itemTree, treeIndex);
-    				ItemsBrowserInterface.getChildrenWithKeyMask(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,true,function(result){
+    				ItemsBrowserInterface.getChildrenWithKeyMask(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,true,Ext.get(oNode.index+"TypeSelector")==null?null:DWRUtil.getValue(oNode.index+"TypeSelector"),function(result){
     					if(result==null) {
     						fnCallback();
     						return;
@@ -2352,7 +2352,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					
 					var fnLoadData = function(oNode, fnCallback) {
     				//getChildren(oNode.index,fnCallback, false, newItem, itemTree, treeIndex);
-    				ItemsBrowserInterface.getChildren(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,function(result){
+    				ItemsBrowserInterface.getChildren(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,Ext.get(oNode.index+"TypeSelector")==null?null:DWRUtil.getValue(oNode.index+"TypeSelector"),function(result){
     					if(result==null) {
     						fnCallback();
     						return;
@@ -2700,6 +2700,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         
 	}
 	
+	function reloadNode(id, treeIndex){
+		var itemTree = itemTreeList[treeIndex];
+		var node = itemTree.getNodeByIndex(id);
+		itemTree.removeChildren(node);
+		node.expand();
+	}
+	
 	function updateNode(id, treeIndex,format,typeName){
 		updateFlag[treeIndex] = 1;
 		var allUpdate = false;
@@ -2853,7 +2860,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 		var fnLoadData = function(oNode,fnCallback){
 			//getChildren(oNode.index,fnCallback, false, newItem, itemTree, treeIndex);
-			ItemsBrowserInterface.getChildren(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,function(result){
+			ItemsBrowserInterface.getChildren(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,null,function(result){
 				if(result==null) {
 					fnCallback();
 					return;
@@ -2969,7 +2976,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 		var fnLoadData = function(oNode,fnCallback){
 			//getChildren(oNode.index,fnCallback, false, newItem, itemTree, treeIndex);
-			ItemsBrowserInterface.getChildren(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,function(result){
+			ItemsBrowserInterface.getChildren(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,null,function(result){
 				if(result==null) {
 					fnCallback();
 					return;
@@ -4010,6 +4017,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		convertSearchValueInEnglish:function(id){convertSearchValueInEnglish(id);},
 		updateOperatorList:function(id){updateOperatorList(id);},
 		updateNode:function(id,treeIndex,format,typeName){updateNode(id, treeIndex,format,typeName);},
+		reloadNode:function(id,treeIndex){reloadNode(id, treeIndex);},
 		setlastUpdatedInputFlagPublic:function(id,treeIndex){setlastUpdatedInputFlag(id,treeIndex);},
 		browseForeignKey:function(nodeId, foreignKeyXpath, foreignKeyInfo){browseForeignKey(nodeId, foreignKeyXpath, foreignKeyInfo);},
 		showDatePicker:function(nodeId,treeIndex,nodeType,displayFormats){showDatePicker(nodeId,treeIndex,nodeType,displayFormats);},

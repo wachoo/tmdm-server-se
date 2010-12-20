@@ -955,8 +955,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 								projection
 						);
 						String revisionId=LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
-						pj=ItemPOJO.load(revisionId, pj.getItemPOJOPK(),false);				
-						if(pj!=null){
+						pj=ItemPOJO.load(revisionId, pj.getItemPOJOPK(),false);	
+						//normal case no polym //FIXME a bad solution
+						if(pj!=null&&projection.indexOf("xsi:type")==-1){
 							// get updated path			
 							Node old=pj.getProjection();
 							Node newNode=root;					
@@ -964,7 +965,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 							if(updatedPath.size()>0){
 								if("sequence".equals(Util.getConceptModelType(concept, dataModel.getSchema()))) { //if the concept is sequence
 									//update the  Node according to schema to keep the sequence as the same with the schema
-									old=Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
+									  old=Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
 								}
 		   						old=Util.updateElement("/"+old.getLocalName(), old, updatedPath);					
 		   						projection=Util.getXMLStringFromNode(old);

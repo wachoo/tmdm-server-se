@@ -57,21 +57,46 @@ public class TreeNode implements Cloneable {
 	private HashMap<String, String> facetErrorMsgs  = new HashMap<String, String>();
 	private String realValue;
 	private String bindingPath;
+	
+	private boolean polymiorphism;
+	private ArrayList<String> subTypes;
+	private String realType;
 
-	public void setRealValue(String realValue) {
+    public boolean isPolymiorphism() {
+        return polymiorphism;
+    }
+
+    public void setPolymiorphism(boolean polymiorphism) {
+        this.polymiorphism = polymiorphism;
+    }
+   
+    public ArrayList<String> getSubTypes() {
+        return subTypes;
+    }
+  
+    public void setSubTypes(ArrayList<String> subTypes) {
+        this.subTypes = subTypes;
+    }
+    
+    public String getRealType() {
+        return realType;
+    }
+
+    public void setRealType(String realType) {
+        this.realType = realType;
+    }
+
+    public void setRealValue(String realValue) {
 		this.realValue = realValue;
 	}
-
 
 	public String getRealValue() {
 		return realValue;
 	}
 	
-	
     public String getBindingPath() {
         return bindingPath;
     }
-
 
     public void setBindingPath(String bindingPath) {
         this.bindingPath = bindingPath;

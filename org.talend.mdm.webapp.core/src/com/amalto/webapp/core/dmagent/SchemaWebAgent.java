@@ -151,6 +151,20 @@ public class SchemaWebAgent extends SchemaManager {
     }
 
     /**
+     * DOC HSHU Comment method "getReusableType".
+     * 
+     * @param typeName
+     * @return
+     * @throws Exception
+     */
+    public ReusableType getReusableType(String typeName) throws Exception {
+
+        DataModelID dataModelID = getMyDataModelTicket();
+        return super.getReusableType(typeName, dataModelID);
+
+    }
+
+    /**
      * DOC HSHU Comment method "getSubtypes".
      * 
      * @param parentTypeName
@@ -167,6 +181,19 @@ public class SchemaWebAgent extends SchemaManager {
             }
         }
         return subTypes;
+
+    }
+
+    /**
+     * DOC HSHU Comment method "isMySubType".
+     * 
+     * @throws Exception
+     */
+    public boolean isMySubType(String parentTypeName, String subTypeName) throws Exception {
+
+        List<ReusableType> subTypes = getMySubtypes(parentTypeName);
+
+        return subTypes.contains(new ReusableType(subTypeName));
 
     }
 
