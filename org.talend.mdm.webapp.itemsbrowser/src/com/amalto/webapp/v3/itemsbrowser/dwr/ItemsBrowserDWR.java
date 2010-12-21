@@ -956,12 +956,14 @@ public class ItemsBrowserDWR {
         try {
             Document document = (Document) WebContextFactory.get().getSession().getAttribute("itemDocument" + docIndex);
             org.dom4j.Document parsedDocument=DynamicLabelUtil.parseDocument(document);
-            for (int i = 0; i < nodes.length; i++) {
-                String label=nodes[i].getName();
-                if(DynamicLabelUtil.isDynamicLabel(label)){
-                    String stylesheet=DynamicLabelUtil.genStyle(nodes[i].getBindingPath(), label);
-                    String parsedLabel=DynamicLabelUtil.getParsedLabel(DynamicLabelUtil.styleDocument(parsedDocument, stylesheet));
-                    if(parsedLabel!=null)nodes[i].setName(parsedLabel);
+            if(nodes!=null) {
+                for (int i = 0; i < nodes.length; i++) {
+                    String label=nodes[i].getName();
+                    if(DynamicLabelUtil.isDynamicLabel(label)){
+                        String stylesheet=DynamicLabelUtil.genStyle(nodes[i].getBindingPath(), label);
+                        String parsedLabel=DynamicLabelUtil.getParsedLabel(DynamicLabelUtil.styleDocument(parsedDocument, stylesheet));
+                        if(parsedLabel!=null)nodes[i].setName(parsedLabel);
+                    }
                 }
             }
         } catch (Exception e) {
