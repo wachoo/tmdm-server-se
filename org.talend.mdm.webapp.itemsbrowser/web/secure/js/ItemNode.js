@@ -377,7 +377,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			html[html.length] = 	' <img src="img/genericUI/open-detail2.gif" title="'+ XSDDET_TT[language] +'"/></span>';
 			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + '<br/>';
 			
-			html[html.length] =     '<span style="width:180;float:left;font-size:13px">'+USE_EXTENSION_LABEL[language]+'</span>'+' '+polymSelector + '<br/>';
+			if(itemData.polymiorphism&&itemData.subTypes.length>0)
+			   html[html.length] =     '<span style="width:180;float:left;font-size:13px">'+USE_EXTENSION_LABEL[language]+'</span>'+' '+polymSelector + '<br/>';
 
 			html[html.length] = 	'<div class="detailLabel" id="'+itemData.nodeId+'XsdDetails" style="display:none">' ;
 			html[html.length] = 	'XML tag : '+itemData.xmlTag+'<br/> ' ;
