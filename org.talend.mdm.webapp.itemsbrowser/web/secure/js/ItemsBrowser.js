@@ -230,8 +230,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	
 	var  MSG_CONFIRM_DELETE_ITEM =    {
-	    'fr' : 'Voulez vous réellement effacer cet enregistrement : ',
-	    'en' : 'Do you really want to delete this record: '
+	    'fr' : 'Voulez vous réellement effacer cet enregistrement ',
+	    'en' : 'Do you really want to delete this record '
 	};
 	var  MSG_CONFIRM_DELETE_ITEMS =    {
 	    'fr' : 'Voulez vous réellement effacer les enregistrements sélectionnés ',
@@ -3321,9 +3321,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			ItemsBrowserInterface.deleteItem(dataObject, itemPK,treeIndex, function(result){
 				if(result.lastIndexOf("ERROR")>-1){
 					var err1=result.substring(7);
-					//Ext.MessageBox.alert("ERROR", err1);
-					$('errorDetail' + treeIndex).style.display = "block";
-					$('errorDetail' + treeIndex).innerHTML ="<br/>"+err1+"<br/>";					
+					Ext.MessageBox.alert("ERROR", err1);
+//					$('errorDetail' + treeIndex).style.display = "block";
+//					$('errorDetail' + treeIndex).innerHTML ="<br/>"+err1+"<br/>";					
 					return;
 				}
 				else if(result.lastIndexOf)
