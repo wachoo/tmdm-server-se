@@ -1732,7 +1732,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 											     }//end if
 			                               }//end for
 			                            });//end callback									
-										ItemsBrowserInterface.deleteItem(_dataObject, itemPK,0, function(result){
+										ItemsBrowserInterface.deleteItem(_dataObject, itemPK,0, language, function(result){
 											if(result==null)
 												return;
 											else if(result.lastIndexOf("ERROR")>-1){
@@ -1740,8 +1740,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 												if(err1==null || err1==""){
 													return;
 												}else{
+                                                    var errOne = dropOnErrorMsg(err1);
 													Ext.MessageBox.show({
-													    msg:err1,
+													    msg:errOne,
 													    buttons:{"ok":"CANCEL"},
 													    icon:Ext.MessageBox.ERROR
 													 });
@@ -3267,6 +3268,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 							if(err1==null || err1==""){
 							    return;
 							}else{
+							    err1 = dropOnErrorMsg(err1);
 							    Ext.MessageBox.show({
 							        msg:err1,
 							        buttons:{"ok":"CANCEL"},
@@ -3998,7 +4000,26 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         return returnRe;
     }
     
-    
+    function dropOnErrorMsg(raw){
+        var reg = /\[(.*?):(.*?)\]/gi;
+        var errorsArray = raw.match(reg);
+         if(errorsArray!=null){
+          for(var i=0;i<errorsArray.length;i++){
+            var error = errorsArray[i];
+            if(error.indexOf("[")>=0){
+              error = error.replace("[","").trim();
+           }
+            if(error.indexOf("]")>=0){
+              error = error.replace("]"," ").trim();
+            }
+            if(language.toLowerCase()==error.split(":")[0].toLowerCase().trim()){
+             return error.split(":")[1].trim();
+            }
+          }
+        }
+        
+        return raw;
+    }
     
     
  	return {
