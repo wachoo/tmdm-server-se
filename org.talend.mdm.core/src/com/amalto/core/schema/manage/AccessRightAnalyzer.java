@@ -42,24 +42,30 @@ public class AccessRightAnalyzer {
     private void travelXSElement(XSElementDecl e, String currentXPath, AppinfoSourceHolder appinfoSourceHolder) {
         if (e != null) {
 
-            // System.out.print( currentXPath );
-            // System.out.println();
-
             parseAnnotation(currentXPath, e, appinfoSourceHolder);
 
             if (e.getType().isComplexType()) {
-                XSParticle[] subElements = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup()
-                        .getChildren();
-                if (subElements != null) {
-                    for (int i = 0; i < subElements.length; i++) {
-                        XSParticle xsParticle = subElements[i];
-                        XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
-                        travelXSElement(subElement, currentXPath + "/" + subElement.getName(), appinfoSourceHolder);
+                XSParticle[] subParticles = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup().getChildren();
+                if (subParticles != null) {
+                    for (int i = 0; i < subParticles.length; i++) {
+                        XSParticle xsParticle = subParticles[i];
+                        travelParticle(xsParticle,currentXPath, appinfoSourceHolder);
                     }
                 }
-
             }
 
+        }
+    }
+
+    private void travelParticle(XSParticle xsParticle, String currentXPath, AppinfoSourceHolder appinfoSourceHolder) {
+        if (xsParticle.getTerm().asModelGroup() != null) {
+            XSParticle[] xsps = xsParticle.getTerm().asModelGroup().getChildren();
+            for (int j = 0; j < xsps.length; j++) {
+                travelParticle(xsps[j],currentXPath, appinfoSourceHolder);
+            }
+        }else if(xsParticle.getTerm().asElementDecl()!=null) {
+            XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
+            travelXSElement(subElement, currentXPath + "/" + subElement.getName(), appinfoSourceHolder);
         }
     }
 

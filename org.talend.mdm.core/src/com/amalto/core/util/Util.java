@@ -1157,22 +1157,24 @@ public class Util {
     private static ThreadLocal<HashSet<String>> _multipleOccuranceNodeSetThreadLocal = new ThreadLocal<HashSet<String>>();
 
     private static void getChildren(String parentPath, XSParticle xsp, List<UUIDPath> list) {
+        
+        if (xsp.getTerm().asModelGroup() != null) { // is complex type
+            XSParticle[] xsps = xsp.getTerm().asModelGroup().getChildren();
+            //String path = parentPath + "/" + xsp.getTerm().asElementDecl().getName();
+            for (int i = 0; i < xsps.length; i++) {
+                getChildren(parentPath, xsps[i], list);
+            }
+        }
+        
+        if (xsp.getTerm().asElementDecl() == null)
+            return;
+        
         if (xsp.getMaxOccurs() == -1) {
             String particleName = xsp.getTerm().asElementDecl().getName();
             if (!_multipleOccuranceNodeSetThreadLocal.get().contains(particleName))
                 _multipleOccuranceNodeSetThreadLocal.get().add(parentPath + "/" + particleName);
         }
-        // aiming added see 0009563
-        if (xsp.getTerm().asModelGroup() != null) { // is complex type
-            XSParticle[] xsps = xsp.getTerm().asModelGroup().getChildren();
-            String path = parentPath + "/" + xsp.getTerm().asElementDecl().getName();
-            for (int i = 0; i < xsps.length; i++) {
-                getChildren(path, xsps[i], list);
-            }
-        }
-        if (xsp.getTerm().asElementDecl() == null)
-            return;
-        // end
+
         if (xsp.getTerm().asElementDecl().getType().isComplexType() == false) {
             String type = xsp.getTerm().asElementDecl().getType().getName();
             if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(type)
