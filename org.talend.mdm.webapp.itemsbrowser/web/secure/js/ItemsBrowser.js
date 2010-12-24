@@ -1741,11 +1741,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 													return;
 												}else{
                                                     var errOne = dropOnErrorMsg(err1);
-													Ext.MessageBox.show({
-													    msg:errOne,
-													    buttons:{"ok":"CANCEL"},
-													    icon:Ext.MessageBox.ERROR
-													 });
+													Ext.MessageBox.show({msg:errOne, buttons:{"ok":"CANCEL"}, icon:Ext.MessageBox.ERROR});
 													return;
 												}
 											}
@@ -1757,7 +1753,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 											if ( dcount == sel.length)
 												displayItems();
 											
-											if(result)Ext.MessageBox.alert('Status', result);	
+											if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.WARNING});			
 										});
 					        		}				        		
 					    		}				    			
@@ -3323,7 +3319,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			ItemsBrowserInterface.deleteItem(dataObject, itemPK,treeIndex, function(result){
 				if(result.lastIndexOf("ERROR")>-1){
 					var err1=result.substring(7);
-					Ext.MessageBox.alert("ERROR", err1);
+					Ext.MessageBox.show({msg:err1, buttons:{"ok":"CANCEL"}, icon:Ext.MessageBox.ERROR});
 //					$('errorDetail' + treeIndex).style.display = "block";
 //					$('errorDetail' + treeIndex).innerHTML ="<br/>"+err1+"<br/>";					
 					return;
@@ -3337,7 +3333,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				amalto.core.ready(result);
 				displayItems();
 				refreshCB.call();
-				if(result)Ext.MessageBox.alert('Status', result);
+				if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.WARNING});		
 			});		
 		}});		
 	}
