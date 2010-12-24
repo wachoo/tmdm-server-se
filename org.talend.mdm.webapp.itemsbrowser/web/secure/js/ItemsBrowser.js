@@ -1732,7 +1732,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 											     }//end if
 			                               }//end for
 			                            });//end callback									
-										ItemsBrowserInterface.deleteItem(_dataObject, itemPK,0, language, function(result){
+										ItemsBrowserInterface.deleteItem(_dataObject, itemPK,0, function(result){
 											if(result==null)
 												return;
 											else if(result.lastIndexOf("ERROR")>-1){
