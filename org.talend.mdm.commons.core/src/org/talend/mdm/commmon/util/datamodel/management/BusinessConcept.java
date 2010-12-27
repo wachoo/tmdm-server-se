@@ -26,6 +26,8 @@ public class BusinessConcept {
     private XSElementDecl e;
 
     private String name;
+    
+    private String correspondTypeName;
 
     // TODO: translate it from technique to business logic
     // annotations{label,access rules,foreign keys,workflow,schematron,lookup fields...}
@@ -36,6 +38,7 @@ public class BusinessConcept {
         super();
         this.e = e;
         this.name = e.getName();
+        this.correspondTypeName=e.getType().getName();
     }
 
     public XSElementDecl getE() {
@@ -44,6 +47,10 @@ public class BusinessConcept {
 
     public String getName() {
         return name;
+    }
+    
+    public String getCorrespondTypeName() {
+        return correspondTypeName;
     }
 
     @Override

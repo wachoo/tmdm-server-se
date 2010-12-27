@@ -149,6 +149,25 @@ public class SchemaWebAgent extends SchemaManager {
         return super.getBusinessConcept(conceptName, dataModelID);
 
     }
+    
+    /**
+     * DOC HSHU Comment method "getFirstBusinessConceptFromRootType".
+     * @param typeName
+     * @return
+     * @throws Exception
+     */
+    public BusinessConcept getFirstBusinessConceptFromRootType(String typeName) throws Exception {
+        BusinessConcept targetBusinessConcept = null;
+        DataModelID dataModelID = getMyDataModelTicket();
+        List<BusinessConcept> businessConcepts=super.getBusinessConcepts(dataModelID);
+        for (BusinessConcept businessConcept : businessConcepts) {
+            if (businessConcept.getCorrespondTypeName().equals(typeName)) {
+                targetBusinessConcept = businessConcept;
+                break;
+            }
+        }
+        return targetBusinessConcept;
+    }
 
     /**
      * DOC HSHU Comment method "getReusableType".
@@ -165,23 +184,59 @@ public class SchemaWebAgent extends SchemaManager {
     }
 
     /**
-     * DOC HSHU Comment method "getSubtypes".
-     * 
+     * DOC HSHU Comment method "getMySubtypes".
      * @param parentTypeName
+     * @return
      * @throws Exception
      */
-    public List<ReusableType> getMySubtypes(String parentTypeName) throws Exception {
+    public List<ReusableType> getMySubtypes(String parentTypeName) throws Exception{
+        return getMySubtypes(parentTypeName,false);
+    }
+    
+    /**
+     * DOC HSHU Comment method "getMySubtypes".
+     * @param parentTypeName
+     * @param deep
+     * @return
+     * @throws Exception
+     */
+    public List<ReusableType> getMySubtypes(String parentTypeName, boolean deep) throws Exception {
         List<ReusableType> subTypes = new ArrayList<ReusableType>();
 
         DataModelBean dataModelBean = getFromPool(getMyDataModelTicket());
+        
         List<ReusableType> reusableTypes = dataModelBean.getReusableTypes();
-        for (ReusableType reusableType : reusableTypes) {
-            if (reusableType.getParentName() != null && reusableType.getParentName().equals(parentTypeName)) {
-                subTypes.add(reusableType);
-            }
-        }
+        
+        setMySubtypes(parentTypeName, subTypes, reusableTypes, deep);
+        
         return subTypes;
 
+    }
+
+    /**
+     * DOC HSHU Comment method "setMySubtypes".
+     * @param parentTypeName
+     * @param subTypes
+     * @param reusableTypes
+     * @param deep
+     */
+    private void setMySubtypes(String parentTypeName, List<ReusableType> subTypes, List<ReusableType> reusableTypes, boolean deep) {
+        List<String> checkList=new ArrayList<String>();
+        
+        for (ReusableType reusableType : reusableTypes) {
+               if (reusableType.getParentName() != null && reusableType.getParentName().equals(parentTypeName)) {    
+                       subTypes.add(reusableType);
+                       checkList.add(reusableType.getName());
+               }
+        }
+        
+        if(deep) {
+            if(checkList.size()>0) {
+                for (String storedTypeName : checkList) {
+                    setMySubtypes(storedTypeName, subTypes, reusableTypes,deep);
+                }
+            }
+        }
     }
 
     /**

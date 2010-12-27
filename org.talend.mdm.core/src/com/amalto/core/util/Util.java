@@ -77,6 +77,7 @@ import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -357,6 +358,9 @@ public class Util {
 
         // add by ymli; fix the bug:0009642:remove the null element to match the shema
         setNullNode(cloneNode);
+        
+        // strip of attributes
+        removeAllAttribute(cloneNode,"tmdm:type");
 
         String xmlstr = Util.nodeToString(cloneNode);
         // if element is null, remove it aiming added
@@ -1748,6 +1752,31 @@ public class Util {
         if (sw == null)
             return null;
         return sw.toString().replaceAll("\r\n", "\n");
+    }
+    
+    /**
+     * DOC HSHU Comment method "removeAllAttributes".
+     * @param node
+     */
+    public static void removeAllAttribute(Node node,String attrName) {
+        
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+            NamedNodeMap attrs = node.getAttributes();
+            for (int i = 0; i < attrs.getLength(); i++) {
+                if(attrs.item(i).getNodeName().equals(attrName)) {
+                    attrs.removeNamedItem(attrName);
+                    break;
+                } 
+            }
+        }
+        
+        NodeList list = node.getChildNodes();
+        if(list.getLength()>0) {
+            for (int i = 0; i < list.getLength(); i++) {
+                removeAllAttribute(list.item(i),attrName);
+            }
+        }
+        
     }
 
     /**

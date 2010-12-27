@@ -124,6 +124,18 @@ public abstract class SchemaManager {
     public void removeFromDatamodelPool(String revisionID, String uniqueID) {
         removeFromPool(new DataModelID(uniqueID, revisionID));
     }
+    
+    /**
+     * DOC HSHU Comment method "getBusinessConcepts".
+     * @param dataModelID
+     * @return
+     * @throws Exception
+     */
+    public List<BusinessConcept> getBusinessConcepts(DataModelID dataModelID) throws Exception {
+        DataModelBean dataModelBean = getFromPool(dataModelID);
+        List<BusinessConcept> businessConcepts = dataModelBean.getBusinessConcepts();
+        return businessConcepts;
+    }
 
     /**
      * DOC HSHU Comment method "getBusinessConcept".

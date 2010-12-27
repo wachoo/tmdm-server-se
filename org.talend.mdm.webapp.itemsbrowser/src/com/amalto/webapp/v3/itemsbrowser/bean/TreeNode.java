@@ -7,11 +7,14 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.core.util.Util;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.sun.xml.xsom.XSAnnotation;
 
 public class TreeNode implements Cloneable {
@@ -50,6 +53,7 @@ public class TreeNode implements Cloneable {
 	private boolean retrieveFKinfos = false;
 	private String fkFilter;
 	private String foreignKey;
+	private String usingforeignKey;
 	private boolean visible;
 	private boolean key = false;
 	private int keyIndex = -1;
@@ -197,6 +201,25 @@ public class TreeNode implements Cloneable {
 		}		
 	}
 	
+	public void fetchAttributes(Document d,String xpath)throws Exception {
+	        
+	        if(d==null||xpath==null)return;
+	    
+            org.apache.log4j.Logger.getLogger(this.getClass()).debug("fetchAttributes() ");
+            NodeList nodelist=Util.getNodeList(d, xpath);
+            if(nodelist!=null&&nodelist.getLength()>0) {
+                NamedNodeMap attrs=nodelist.item(0).getAttributes();
+                for (int i = 0; i < attrs.getLength(); i++) {
+                    Node attr=attrs.item(i);
+                    if(attr.getNodeName().equals("tmdm:type")) {
+                        String foreignKeyType=attr.getNodeValue();
+                        setUsingforeignKey(SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(foreignKeyType).getName());
+                        break;
+                    }
+                }
+            }
+    }
+	
     private ArrayList<String> primaryKeyInfo;
 	    
     public ArrayList<String> getPrimaryKeyInfo() {
@@ -225,7 +248,16 @@ public class TreeNode implements Cloneable {
 		this.foreignKey = foreignKey;
 	}
 	
-	public boolean isChoice() {
+    public String getUsingforeignKey() {
+        return usingforeignKey;
+    }
+
+    
+    public void setUsingforeignKey(String usingforeignKey) {
+        this.usingforeignKey = usingforeignKey;
+    }
+
+    public boolean isChoice() {
 		return choice;
 	}
 

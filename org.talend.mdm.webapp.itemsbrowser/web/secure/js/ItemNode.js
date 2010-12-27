@@ -208,7 +208,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					   '<img title="' + DEL_TT[language] + '" src="img/genericUI/clear-icon.gif"/></span>';
 					foreignKeyImg += '' +
 						'<span style="cursor: pointer;" ' +
-						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+')" >' +
+						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+',false)" >' +
 						' <img src="img/genericUI/magnifier_plus.gif" title="' + MAGPLUS_TT[language] + '"/></span>';
 				
 				var fkDataObject =  itemData.foreignKey.split("/")[0];	
@@ -220,7 +220,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				}   
 				foreignKeyImg += ''+
 						'<span style="cursor: pointer;" ' +
-						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+treeIndex+'\')" >' +
+						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+(itemData.usingforeignKey==null?itemData.foreignKey:itemData.usingforeignKey)+'\',\''+treeIndex+'\')" >' +
 						' <img src="img/genericUI/magnifier.gif" title="' + MAG_TT[language] + '"/></span>';
 						
 				//move this logical to the click-listener of the button 'Add Foreign Key'

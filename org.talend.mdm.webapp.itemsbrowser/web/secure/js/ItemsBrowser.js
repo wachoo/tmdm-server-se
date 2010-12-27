@@ -3612,9 +3612,17 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     uploadFileWindow.show();
 	}
 	var panel;
-	function chooseForeignKey(nodeId, xpathForeignKey, xpathInfoForeignKey, fkFilter, treeIndex) {
+	var originalXpathForeignKey;
+	var lastSelectedType;
+	var foreignKeyTypeCounter;
+	function chooseForeignKey(nodeId, xpathForeignKey, xpathInfoForeignKey, fkFilter, treeIndex , isSwitch) {
 		amalto.core.working('Running...');
 	    amalto.core.ready();
+	    if(!isSwitch){
+	       originalXpathForeignKey=xpathForeignKey;
+	       lastSelectedType="";
+	       foreignKeyTypeCounter=0;
+	    }
 	    var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
 	    var dataObject=tbDetail.dataObject;
 		ItemsBrowserInterface.countForeignKey_filter(dataObject,xpathForeignKey,fkFilter,treeIndex,nodeId, function(count){
@@ -3623,7 +3631,56 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			    foreignKeyWindow.hide();
 			    foreignKeyWindow.destroy();
 			}
-				
+			
+			//type combo
+            var xpath4GetForeignKeyPolymTypeList;
+            if(isSwitch)xpath4GetForeignKeyPolymTypeList=originalXpathForeignKey;
+            else xpath4GetForeignKeyPolymTypeList=xpathForeignKey;
+            
+            var typeStore = new Ext.data.Store({
+                proxy: new Ext.ux.data.ImprovedDWRProxy({
+                        dwrFunction: ItemsBrowserInterface.getForeignKeyPolymTypeList,
+                        dwrAdditional: [xpath4GetForeignKeyPolymTypeList,treeIndex,nodeId]
+                }),
+                reader: new Ext.data.JsonReader({
+                    root: 'rows',
+                    totalProperty: 'total',
+                    id: 'value'
+                },[
+                    {name: 'value', mapping: 'value'},
+                    {name: 'text', mapping: 'text'}
+                ])
+            });
+            
+            var typeCombo = new Ext.form.ComboBox({
+                
+                    id: 'foreign-key-type-filter',
+                    name : "foreign-key-type-filter",
+                    fieldLabel : "Select a type",
+                    editable : false,
+                    xtype : "combo",
+                    store: typeStore,
+                    displayField:'text',
+                    valueField:'value',   
+                    typeAhead: true,
+                    triggerAction: 'all',
+                    forceSelection:true,
+                    resizable:true
+            });
+
+            typeCombo.setValue(lastSelectedType);
+            typeStore.on('load', function() {  
+                 foreignKeyTypeCounter=this.getCount();
+                 typeCombo.on('select',function(box, record, index){ 
+                    lastSelectedType=record.get("text");
+                    ItemsBrowserInterface.switchForeignKeyType(lastSelectedType,xpathForeignKey, xpathInfoForeignKey, fkFilter, function(fkDrawer){
+                            amalto.itemsbrowser.ItemsBrowser.chooseForeignKey(nodeId, fkDrawer.xpathForeignKey, fkDrawer.xpathInfoForeignKey, fkFilter, treeIndex, true);
+                    });
+                 }); 
+                 
+            });
+            
+			// FK combo	
 			var store = new Ext.data.Store({
 				proxy: new Ext.ux.data.ImprovedDWRProxy({
 			        dwrFunction: ItemsBrowserInterface.getForeignKeyListWithCount,
@@ -3639,8 +3696,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		        ])
 			});
 			
-
-
 		    // Custom rendering Template
 		    var resultTpl = new Ext.XTemplate(
 			        '<tpl for="."><div class="search-item" style="font-size: 0.8em">',
@@ -3680,11 +3735,18 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             			DWRUtil.setValue(nodeId+'Value', record.get("keys"));//+"--"+record.get("fk"));
             		}
             		
+            		//fk-ploym //FIXME:do not use a different asynchronous http request
+                    if(foreignKeyTypeCounter>1){
+                    	var updateXpath=node.itemData.bindingPath;
+                    	var typeName=DWRUtil.getValue('foreign-key-type-filter');
+                        ItemsBrowserInterface.updateForeignKeyPolymMap(updateXpath,typeName,treeIndex,function(status){});
+                    }
+            		
                 	updateNode(nodeId,treeIndex);
+                	
 		        }
 		    });
-
-			
+		    
 			foreignKeyWindow = new Ext.Window({
                 layout:'fit',
                 width:300,
@@ -3697,6 +3759,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 items: [new Ext.form.FormPanel({
                 	labelAlign: 'top',
                     items: [
+                        typeCombo,    
                         new Ext.Panel({
                        	 	html: '', 
                		 		border: false
@@ -4040,7 +4103,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		showDatePicker:function(nodeId,treeIndex,nodeType,displayFormats){showDatePicker(nodeId,treeIndex,nodeType,displayFormats);},
 		showUploadFile: function (nodeId, treeIndex, nodeType){showUploadFile(nodeId, treeIndex, nodeType);},
 		removePicture: function (nodeId, treeIndex){removePicture(nodeId, treeIndex);},
-		chooseForeignKey:function(nodeId,xpath,xpathInfo,fkFilter,treeIndex){chooseForeignKey(nodeId,xpath,xpathInfo,fkFilter,treeIndex);},
+		chooseForeignKey:function(nodeId,xpath,xpathInfo,fkFilter,treeIndex,isSwitch){chooseForeignKey(nodeId,xpath,xpathInfo,fkFilter,treeIndex,isSwitch);},
 		cloneNode2:function(siblingId,hasIcon,treeIndex){cloneNode2(siblingId,hasIcon,treeIndex);},
 		removeNode2:function(id,treeIndex){removeNode2(id,treeIndex);},
 		displayXsdDetails:function(id){displayXsdDetails(id);},

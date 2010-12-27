@@ -39,6 +39,7 @@ import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
@@ -52,6 +53,8 @@ import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.dwr.CommonDWR;
+import com.amalto.webapp.core.json.JSONArray;
+import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.DynamicLabelUtil;
 import com.amalto.webapp.core.util.Messages;
 import com.amalto.webapp.core.util.MessagesFactory;
@@ -100,6 +103,7 @@ import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.amalto.webapp.v3.itemsbrowser.bean.BrowseItem;
 import com.amalto.webapp.v3.itemsbrowser.bean.Criteria;
+import com.amalto.webapp.v3.itemsbrowser.bean.ForeignKeyDrawer;
 import com.amalto.webapp.v3.itemsbrowser.bean.ItemResult;
 import com.amalto.webapp.v3.itemsbrowser.bean.Restriction;
 import com.amalto.webapp.v3.itemsbrowser.bean.SearchTempalteName;
@@ -401,6 +405,7 @@ public class ItemsBrowserDWR {
                 createItem(concept, docIndex);
             }
             ctx.getSession().setAttribute("xpathToPolymType" + docIndex, new HashMap<String, String>());
+            ctx.getSession().setAttribute("xpathToPolymFKType" + docIndex, new HashMap<String, String>());
 
             HashMap<Integer, XSParticle> idToParticle;
             if (ctx.getSession().getAttribute("idToParticle") == null) {
@@ -604,6 +609,7 @@ public class ItemsBrowserDWR {
         HashMap<String, XSParticle> xpathToParticle = (HashMap<String, XSParticle>) ctx.getSession().getAttribute("xpathToParticle");
         ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization");
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
+        Document bakDoc=(Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup");
         String[] keys = (String[]) ctx.getSession().getAttribute("foreignKeys");
         // add by ymli
         /*
@@ -638,7 +644,6 @@ public class ItemsBrowserDWR {
             if(((String)ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT)) {
                 String realType=null;
                 String xpath = idToXpath.get(id) + "/" + xsp.getTerm().asElementDecl().getName();
-                Document bakDoc=(Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup");
                 if(bakDoc!=null) {
                     NodeList tmpNodeList=Util.getNodeList(bakDoc, xpath);
                     if(tmpNodeList!=null&&tmpNodeList.getLength()>0) {
@@ -683,6 +688,13 @@ public class ItemsBrowserDWR {
         XSAnnotation xsa = xsp.getTerm().asElementDecl().getAnnotation();
         try {
             treeNode.fetchAnnotations(xsa, roles, language);
+        } catch (Exception e1) {
+            LOG.error(e1.getMessage(), e1);
+        }
+        
+        // attribute support
+        try {
+            treeNode.fetchAttributes(bakDoc,xpath);
         } catch (Exception e1) {
             LOG.error(e1.getMessage(), e1);
         }
@@ -1199,6 +1211,14 @@ public class ItemsBrowserDWR {
         return "";
 
     }
+    
+    public boolean updateForeignKeyPolymMap(String xpath, String type, int docIndex) {
+        WebContext ctx = WebContextFactory.get();
+        HashMap<String, String> xpathToPolymFKType=(HashMap<String, String>) ctx.getSession().getAttribute("xpathToPolymFKType" + docIndex);
+        xpathToPolymFKType.put(xpath, type);
+        
+        return true;
+    }
 
     public String updateNode(int id, String content, int docIndex) {
         WebContext ctx = WebContextFactory.get();
@@ -1596,6 +1616,14 @@ public class ItemsBrowserDWR {
                 for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
                     String xpath = (String) iterator.next();
                     ((Element)Util.getNodeList(d, xpath).item(0)).setAttribute("xsi:type", xpathToPolymType.get(xpath));
+                }
+            }
+            HashMap<String, String> xpathToPolymFKType=(HashMap<String, String>) ctx.getSession().getAttribute("xpathToPolymFKType" + docIndex);
+            if(xpathToPolymFKType!=null&&xpathToPolymFKType.size()>0) {
+                d.getDocumentElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:tmdm", "http://www.talend.com/mdm");
+                for (Iterator<String> iterator = xpathToPolymFKType.keySet().iterator(); iterator.hasNext();) {
+                    String xpath = (String) iterator.next();
+                    ((Element)Util.getNodeList(d, xpath).item(0)).setAttribute("tmdm:type", xpathToPolymFKType.get(xpath));
                 }
             }
             
@@ -2077,6 +2105,119 @@ public class ItemsBrowserDWR {
             String xpathInfoForeignKey, String fkFilter, int docIndex, int nodeId) throws RemoteException, Exception {
         return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, parseForeignKeyFilter(
                 dataObject, fkFilter, docIndex, nodeId), true);
+    }
+    
+    /**
+     * DOC HSHU Comment method "getForeignKeyPolymTypeList".
+     * @param value
+     * @param xpathForeignKey
+     * @param docIndex
+     * @param nodeId
+     * @return
+     * @throws Exception
+     */
+    public String getForeignKeyPolymTypeList(String value,String xpathForeignKey, int docIndex, int nodeId) throws Exception {
+        
+        String fkEntityType=null;
+        List<String> derivedTypes=new ArrayList<String>();
+        
+        if(xpathForeignKey!=null&&xpathForeignKey.length()>0) {
+            if(xpathForeignKey.startsWith("/"))xpathForeignKey=xpathForeignKey.substring(1);
+            String fkEntity="";
+            if(xpathForeignKey.indexOf("/")!=-1) {
+                fkEntity=xpathForeignKey.substring(0,xpathForeignKey.indexOf("/"));
+            }else {
+                fkEntity=xpathForeignKey;
+            }
+            fkEntityType=SchemaWebAgent.getInstance().getBusinessConcept(fkEntity).getCorrespondTypeName();
+            List<ReusableType> subtypes = SchemaWebAgent.getInstance().getMySubtypes(fkEntityType,true);
+            for (ReusableType reusableType : subtypes) {
+                derivedTypes.add(reusableType.getName());
+            }
+            
+        }
+        
+        /*
+        WebContext ctx = WebContextFactory.get();
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");//FIXME idToXpath should be separated by doc
+        String xpath = idToXpath.get(nodeId);
+        */
+        
+        JSONObject json = new JSONObject();
+        int counter=0;
+        JSONArray rows = new JSONArray();
+        json.put("rows", rows);
+        
+        if(fkEntityType!=null) {
+            JSONObject row = new JSONObject();      
+            row.put("value", "");
+            row.put("text", fkEntityType);
+            rows.put(row);
+            
+            counter++;
+        }
+        
+        for (String type : derivedTypes) {
+            JSONObject row = new JSONObject();      
+            row.put("value", type);
+            row.put("text", type);
+            rows.put(row);
+            
+            counter++;
+        }
+        
+        json.put("total", counter);
+        
+        return json.toString();
+    }
+    
+    /**
+     * DOC HSHU Comment method "switchForeignKeyType".
+     * @param targetEntity
+     * @param xpathForeignKey
+     * @param xpathInfoForeignKey
+     * @param fkFilter
+     * @return
+     * @throws Exception 
+     */
+    public ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter) throws Exception {
+        ForeignKeyDrawer fkDrawer=new ForeignKeyDrawer();
+        
+        String targetEntity=SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(targetEntityType).getName();
+        
+        if(xpathForeignKey!=null&&xpathForeignKey.length()>0) {     
+            xpathForeignKey = replaceXpathRoot(targetEntity, xpathForeignKey);
+        }
+        
+        if(xpathInfoForeignKey!=null&&xpathInfoForeignKey.length()>0) {
+            String[] fkInfoPaths=xpathInfoForeignKey.split(",");
+            xpathInfoForeignKey="";
+            for (int i = 0; i < fkInfoPaths.length; i++) {
+                String fkInfoPath=fkInfoPaths[i];
+                String relacedFkInfoPath=replaceXpathRoot(targetEntity,fkInfoPath);
+                if(relacedFkInfoPath!=null&&relacedFkInfoPath.length()>0) {
+                    if(xpathInfoForeignKey.length()>0)xpathInfoForeignKey+=",";
+                    xpathInfoForeignKey+=relacedFkInfoPath;
+                }
+            }
+        }
+        fkDrawer.setXpathForeignKey(xpathForeignKey);
+        fkDrawer.setXpathInfoForeignKey(xpathInfoForeignKey);
+        return fkDrawer;
+    }
+
+    /**
+     * DOC HSHU Comment method "replaceXpathRoot".
+     * @param targetEntity
+     * @param xpathForeignKey
+     * @return
+     */
+    private String replaceXpathRoot(String targetEntity, String xpath) {
+        if(xpath.indexOf("/")!=-1) 
+            xpath=targetEntity+xpath.substring(xpath.indexOf("/"));
+        else 
+            xpath=targetEntity;
+        return xpath;
     }
 
     private static String pushUpdateReport(String[] ids, String concept, String operationType, int docIndex) throws Exception {
