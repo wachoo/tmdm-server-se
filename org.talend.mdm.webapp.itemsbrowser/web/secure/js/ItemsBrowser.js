@@ -1753,7 +1753,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 											if ( dcount == sel.length)
 												displayItems();
 											
-											if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.WARNING});			
+											if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.INFO});			
 										});
 					        		}				        		
 					    		}				    			
@@ -3333,7 +3333,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				amalto.core.ready(result);
 				displayItems();
 				refreshCB.call();
-				if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.WARNING});		
+				if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.INFO});		
 			});		
 		}});		
 	}
