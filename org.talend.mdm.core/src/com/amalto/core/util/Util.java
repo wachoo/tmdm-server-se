@@ -3207,7 +3207,7 @@ public class Util {
         ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK("PROVISIONING"), "User", new String[] { LocalUser.getLocalUser()
                 .getUsername() });
         ItemPOJO item = ItemPOJO.load(itempk);
-
+        if(item==null)return null;
         Element user = (Element) Util.getNodeList(item.getProjection(), "//User").item(0);
         return user;
     }
@@ -3225,8 +3225,10 @@ public class Util {
         }
         return null;
     }
-
+    //FIXME: this method is very ugly
     public static Map<String, ArrayList<String>> getMetaDataTypes(IWhereItem whereItem) throws Exception {
+        if(getLoginProvisioningFromDB()==null)return null;
+        
         if (null != whereItem) {
             ArrayList<String> views = new ArrayList<String>();
             Util.getView(views, whereItem);
@@ -3234,6 +3236,7 @@ public class Util {
             for (String v : views) {
                 concepts.add(v.split("/")[0]);
             }
+            
             DataModelPOJO datamodelPojo = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(getUserDataModel()));
             Map<String, XSElementDecl> xsdMap = getConceptMap(datamodelPojo.getSchema());
             HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
