@@ -42,34 +42,41 @@ import com.amalto.core.util.XtentisException;
  * 
  * <h3>Description</h3> This service sends an email through the SMTP connector.<br/>
  * 
- * <h3>Parameters</h3> Parameters are set in the key/pair form separated by & e.g. <code>key1=value1&key2=value2</code>
+ * <h3>Parameters</h3>
  * <ul>
- * <li><b>logfilename</b>: optional; the full path of a log file that records the mails sent;</li>
- * <li><b>from</b>: mandatory; the email address of the sender</li>
- * <li><b>to</b>: mandatory; the email addresses, separated by commas, of the recipients</li>
- * <li><b>cc</b>: optional; the email addresses, separated by commas, of the copied recipients</li>
- * <li><b>bcc</b>: optional; the email addresses, separated by commas, of the blind copied recipients</li>
- * <li><b>subjectprefix</b>: optional; a sentence inserted at the beginning of the subject line</li>
- * <li><b>transformer</b>: optional; an optional transformer. When no transformer is supplied, the item xml is used as
- * the body of the mail. When a transformer is supplied, the following variables, are extracted from the pipeline after
- * the transformer is run:
+ * <li><b>MailInfos</b>: mandatory; the inner class which contains the detailed information when sending a email.</li>
+ * 
+ * @see MailInfos
+ * 
+ * <li><b>process</b>: optional; an optional process. When no process is supplied, the item xml will be used as the body
+ * of the mail. When a process is supplied, the following variables, will be extracted from the pipeline after the
+ * process is run:
+ * 
  * <ul>
+ * <li><b>recipients</b>: optional; if provided, a list of email addresses separated by commas will be added to those
+ * provided by the <code>to</code> parameter</li> <li><b>subject</b>: optional; if provided, it will be appended to the
+ * <code>subjectprefix</code> parameter as the subject line</li>
+ * 
  * <li><b>body</b>: mandatory; the body content of the email</li>
- * <li><b>recipients</b>: optional; if provided, a list of email addresses separated by commas that will be added to
- * those provided by the <code>to</code> parameter</li>
- * <li><b>subject</b>: optional; if provided, will be appended to the <code>subjectprefix</code> parameter to for the
- * subject line</li>
- * <li><b>files</b>: optional; a comma separated list of full path to files that will added in the email as attachments</li>
- * </ul>
- * </li>
+ * 
+ * <li><b>contentType</b>: optional; a string shows the type of the email content</li>
  * </ul>
  * 
- * <h3>Configuration</h3> The following parameters are set via the UI:
+ * </li>
+ * 
+ * </ul>
+ * 
+ * <h3>Configuration</h3> The following parameters are set via UI:
  * <ul>
  * <li><b>host</b>: the smtp server host name</li>
  * <li><b>port</b>: the smtp server port</li>
  * <li><b>username</b>: optional; the smtp server username</li>
  * <li><b>password</b>: optional; the smtp server password</li>
+ * <li><b>auth</b>: the authentication of the user</li>
+ * <li><b>permanentbcc</b>: the permanent blind copied recipients</li>
+ * <li><b>logfilename</b>: optional; the full path of a log file that records the mails sent</li>
+ * <li><b>from</b>: mandatory; the email address of the sender</li>
+ * <li><b>to</b>: mandatory; the email addresses of the recipients,separated by commas</li>
  * </ul>
  * 
  * @author Bruno Grieder
@@ -87,6 +94,22 @@ import com.amalto.core.util.XtentisException;
  */
 public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
 
+    /**
+     * <h3>Parameters</h3> Parameters are set in the key/pair form separated by & e.g.
+     * <code>key1=value1&key2=value2</code>
+     * <ul>
+     * <li><b>logFileName</b>: optional; the full path of a log file that records the mails sent;</li>
+     * <li><b>from</b>: mandatory; the email address of the sender</li>
+     * <li><b>to</b>: mandatory; the email addresses of the recipients,separated by commas</li>
+     * <li><b>cc</b>: optional; the email addresses of the copied recipients,separated by commas</li>
+     * <li><b>bcc</b>: optional; the email addresses of the blind copied recipients,separated by commas</li>
+     * <li><b>subjectPrefix</b>: optional; a sentence inserted at the beginning of the subject line</li>
+     * <li><b>mails</b>: optional; the string which represents the built email</li>
+     * <li><b>fileNames</b>: optional;a list of full path of files that separated by comma and will added in the email
+     * as attachments</li>
+     * <li><b>processParameters</b>: optional; a node string contains the process parameters</li>
+     * <ul>
+     */
     protected class MailInfos {
 
         public String logFileName = null;
@@ -105,7 +128,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
 
         public String[] fileNames = null;
 
-        public String transformerParameters = null;
+        public String processParameters = null;
     }
 
     private static final long serialVersionUID = 7146969238534906425L;
@@ -128,7 +151,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
 
     private String logfilename;
 
-    private String transformer;
+    private String process;
 
     private String from;
 
@@ -235,7 +258,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
                 } else if (("subjectprefix".equals(key)) && (kv.length == 2)) {
                     mailInfos.subjectPrefix = kv[1];
                 } else if (("transformer".equals(key)) && (kv.length == 2)) {
-                    transformer = kv[1];
+                    process = kv[1];
                 }
             }
         }
@@ -268,10 +291,10 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
 
             nl = root.getElementsByTagName("transformer");
             if (nl.item(0) != null) {
-                mailInfos.transformerParameters = Util.nodeToString(nl.item(0));
+                mailInfos.processParameters = Util.nodeToString(nl.item(0));
 
                 nl = nl.item(0).getOwnerDocument().getElementsByTagName("name");
-                transformer = nl.item(0).getTextContent();
+                process = nl.item(0).getTextContent();
                 // root = nl.item(0);
 
             }
@@ -287,7 +310,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
     private void parseParameters(MailInfos mailInfos, String parameters) throws TransformerException {
         if (parameters.trim().charAt(0) == '<') {
             parseParametersXMLFormat(mailInfos, parameters);
-            System.out.print(mailInfos.transformerParameters);
+            System.out.print(mailInfos.processParameters);
         } else {
             parseParametersPOSTFormat(mailInfos, parameters);
         }
@@ -330,12 +353,12 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
                     mailInfos.bcc = permanentbcc;
             }
 
-            // run transformer if any
+            // run process if any
             String recipients = null;
             String subject = null;
             String body;
             String contentType;
-            if (transformer == null) {
+            if (process == null) {
                 // Send generic messages with no transformation
                 String msg = StringEscapeUtils.unescapeXml(Util.getItemCtrl2Local().getItem(itemPK).getProjectionAsString());
                 subject = (mailInfos.subjectPrefix == null ? "" : mailInfos.subjectPrefix);
@@ -343,7 +366,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
                 contentType = "text/plain";
             } else {
                 String xml = Util.getItemCtrl2Local().getItem(itemPK).getProjectionAsString();
-                TransformerContext ctx = new TransformerContext(new TransformerV2POJOPK(transformer));
+                TransformerContext ctx = new TransformerContext(new TransformerV2POJOPK(process));
                 ctx = Util.getTransformerV2CtrlLocal().executeUntilDone(
                         ctx,
                         new com.amalto.core.objects.transformers.v2.util.TypedContent(xml.getBytes("UTF8"),
@@ -356,7 +379,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
                         + subject)).trim();
                 if (ctx.getFromPipeline("body") == null) {
                     String err = "SMTP Service: the body of the mail must available in an ouptut variable called 'body' in transformer '"
-                            + transformer + "'";
+                            + process + "'";
                     org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
                     throw new XtentisException(err);
                 }
@@ -710,7 +733,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
             username = usertmp;
 
             // Parsing of not so important parameters
-            transformer = StringEscapeUtils.unescapeXml(Util.getFirstTextNode(d.getDocumentElement(), "transformer"));
+            process = StringEscapeUtils.unescapeXml(Util.getFirstTextNode(d.getDocumentElement(), "transformer"));
             password = StringEscapeUtils.unescapeXml(Util.getFirstTextNode(d.getDocumentElement(), "password"));
             permanentbcc = Util.getFirstTextNode(d.getDocumentElement(), "permanentbcc");
             logfilename = StringEscapeUtils.unescapeXml(Util.getFirstTextNode(d.getDocumentElement(), "logfilename"));
