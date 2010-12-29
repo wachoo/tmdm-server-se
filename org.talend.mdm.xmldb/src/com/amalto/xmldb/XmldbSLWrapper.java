@@ -334,10 +334,9 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             // CollectionManagementService service =
             // (CollectionManagementService)col.getService("CollectionManagementService", "1.0");
             // service.removeCollection(clusterName);
-            // String key =
-            // ((revisionID == null) || "".equals(revisionID) ? "__HEAD__" : revisionID)
-            // +((clusterName == null) ? "__ROOT__" : clusterName);
-            // clusters.remove(key);
+            String key = ((revisionID == null) || "".equals(revisionID) ? "__HEAD__" : revisionID)
+                    + ((clusterName == null) ? "__ROOT__" : clusterName);
+            clusters.remove(key);
             // //clear items from the cache
             // for(ItemCacheKey key1: itemsCache.keySet()){
             // if(key1.getRevisionID().equals((revisionID == null) || "".equals(revisionID)?"__HEAD__":revisionID) &&
@@ -1164,15 +1163,15 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             // issue
             // String revisionID=null;
             String collectionPath = CommonUtil.getPath(revisionID, clusterName);
-            xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/").append(
-                    conceptName).append(" ");
+            xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/")
+                    .append(conceptName).append(" ");
 
             // where
             xqWhere.append("where (1=1)");
 
             if (FKXpath != null) {
-                xqWhere.append(" and ($").append(FKXpath).append(" = '").append(fatherPK).append("'").append(" or $").append(
-                        FKXpath).append("=concat('[','").append(fatherPK).append("',']')) ");
+                xqWhere.append(" and ($").append(FKXpath).append(" = '").append(fatherPK).append("'").append(" or $")
+                        .append(FKXpath).append("=concat('[','").append(fatherPK).append("',']')) ");
             }
 
             // build from WhereItem
@@ -1795,11 +1794,11 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
         }
         return sw.toString().replaceAll("\r\n", "\n");
     }
-    
+
     public boolean supportTransaction() {
         return false;
     }
-    
+
     public void start() throws XmlServerException {
         throw new UnsupportedOperationException();
     }
