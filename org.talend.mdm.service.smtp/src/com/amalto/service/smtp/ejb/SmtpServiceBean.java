@@ -54,8 +54,10 @@ import com.amalto.core.util.XtentisException;
  * 
  * <ul>
  * <li><b>recipients</b>: optional; if provided, a list of email addresses separated by commas will be added to those
- * provided by the <code>to</code> parameter</li> <li><b>subject</b>: optional; if provided, it will be appended to the
- * <code>subjectprefix</code> parameter as the subject line</li>
+ * provided by the <code>to</code> parameter</li>
+ * 
+ * <li><b>subject</b>: optional; if provided, it will be appended to the <code>subjectprefix</code> parameter as the
+ * subject line</li>
  * 
  * <li><b>body</b>: mandatory; the body content of the email</li>
  * 
@@ -68,12 +70,12 @@ import com.amalto.core.util.XtentisException;
  * 
  * <h3>Configuration</h3> The following parameters are set via UI:
  * <ul>
- * <li><b>host</b>: the smtp server host name</li>
- * <li><b>port</b>: the smtp server port</li>
+ * <li><b>host</b>:mandatory; the smtp server host name</li>
+ * <li><b>port</b>:mandatory; the smtp server port</li>
  * <li><b>username</b>: optional; the smtp server username</li>
  * <li><b>password</b>: optional; the smtp server password</li>
- * <li><b>auth</b>: the authentication of the user</li>
- * <li><b>permanentbcc</b>: the permanent blind copied recipients</li>
+ * <li><b>auth</b>:mandatory; the authentication of the user</li>
+ * <li><b>permanentbcc</b>:optional; the permanent blind copied recipients</li>
  * <li><b>logfilename</b>: optional; the full path of a log file that records the mails sent</li>
  * <li><b>from</b>: mandatory; the email address of the sender</li>
  * <li><b>to</b>: mandatory; the email addresses of the recipients,separated by commas</li>
@@ -175,7 +177,19 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
      */
     public String getDescription(String twoLetterLanguageCode) throws XtentisException {
 
-        return "This service sends an email through the SMTP connector";
+        return "This service sends an email through the SMTP connector.\n"
+                + "It cantains the following configurations:\n"
+                + "  host:         mandatory; the smtp server host name.\n"
+                + "  port:         mandatory; the smtp server port.\n"
+                + "  username:     optional;  the smtp server username.\n"
+                + "  password:     optional;  the smtp server password.\n"
+                + "  from:         mandatory; the email address of the sender.\n"
+                + "  to:           mandatory; the email addresses of the recipients,separated by commas.\n"
+                + "  permanentbcc: optional;  the permanent blind copied recipients.\n"
+                + "  logfilename:  optional;  the full path of a log file that records the mails sent.\n"
+                + "  process:      optional;  an optional process.When no process is supplied,the item xml will be used as the body "
+                + "of the mail.When a process is supplied,the following variables,including \'recipients\',\'subject\',\'body\'and \'contenttype\',will be extracted from the pipeline after the "
+                + "process is run.";
     }
 
     /**
@@ -257,7 +271,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
                     mailInfos.bcc = kv[1];
                 } else if (("subjectprefix".equals(key)) && (kv.length == 2)) {
                     mailInfos.subjectPrefix = kv[1];
-                } else if (("transformer".equals(key)) && (kv.length == 2)) {
+                } else if (("process".equals(key)) && (kv.length == 2)) {
                     process = kv[1];
                 }
             }
@@ -289,7 +303,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
             if (nl.item(0) != null)
                 mailInfos.bcc = nl.item(0).getTextContent();
 
-            nl = root.getElementsByTagName("transformer");
+            nl = root.getElementsByTagName("process");
             if (nl.item(0) != null) {
                 mailInfos.processParameters = Util.nodeToString(nl.item(0));
 
@@ -378,7 +392,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
                 subject = ((mailInfos.subjectPrefix == null ? "" : mailInfos.subjectPrefix) + (subject == null ? "" : " "
                         + subject)).trim();
                 if (ctx.getFromPipeline("body") == null) {
-                    String err = "SMTP Service: the body of the mail must available in an ouptut variable called 'body' in transformer '"
+                    String err = "SMTP Service: the body of the mail must available in an ouptut variable called 'body' in process '"
                             + process + "'";
                     org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
                     throw new XtentisException(err);
@@ -675,7 +689,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
     public String getDefaultConfiguration() {
         return "<configuration>\n" + "	<host>localhost</host>\n" + "	<port>25</port>\n" + "	<username></username>\n"
                 + "	<password></password>\n" + "      <from></from>\n" + "      <to></to>\n" + "	<permanentbcc></permanentbcc>\n"
-                + "	<transformer></transformer>\n" + "	<logfilename></logfilename>\n" + "</configuration>";
+                + "	<process></process>\n" + "	<logfilename></logfilename>\n" + "</configuration>";
     }
 
     /**
@@ -688,8 +702,8 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
         return "There are two type parameters,\n\n" + "One(Example) :\n"
                 + "from=***@***.com&to=###@###.com&subjectprefix=MDM Logging Event" + "\n\n\n" + "Two(Example) :\n"
                 + "<parameters>\n" + "	<from>***@***.com</from>\n" + "	<to>###@###.com</to>\n" + "	<cc></cc>\n"
-                + "	<bcc></bcc>\n" + "	<logFileName></logFileName>\n" + "	<subjectprefix></transformer>\n"
-                + "	<logfilename></logfilename>\n" + "	<transformer></transformer>\n" + "</parameters>\n";
+                + "	<bcc></bcc>\n" + "	<logFileName></logFileName>\n" + "	<subjectprefix></subjectprefix>\n"
+                + "	<logfilename></logfilename>\n" + "	<process></process>\n" + "</parameters>\n";
     }
 
     /**
@@ -733,7 +747,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
             username = usertmp;
 
             // Parsing of not so important parameters
-            process = StringEscapeUtils.unescapeXml(Util.getFirstTextNode(d.getDocumentElement(), "transformer"));
+            process = StringEscapeUtils.unescapeXml(Util.getFirstTextNode(d.getDocumentElement(), "process"));
             password = StringEscapeUtils.unescapeXml(Util.getFirstTextNode(d.getDocumentElement(), "password"));
             permanentbcc = Util.getFirstTextNode(d.getDocumentElement(), "permanentbcc");
             logfilename = StringEscapeUtils.unescapeXml(Util.getFirstTextNode(d.getDocumentElement(), "logfilename"));
