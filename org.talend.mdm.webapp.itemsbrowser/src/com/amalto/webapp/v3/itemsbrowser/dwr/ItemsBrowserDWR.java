@@ -865,6 +865,12 @@ public class ItemsBrowserDWR {
                 LOG.error(e.getMessage(), e);
             }
         }
+        
+        if (treeNode.isKey()&&
+              (treeNode.getTypeName().trim().toUpperCase().equals("UUID")||treeNode.getTypeName().trim().toUpperCase().equals("AUTO_INCREMENT"))) {
+            ctx.getSession().setAttribute("hasAutoChangeField" + docIndex, true);
+        }
+        
         if (maskKey && treeNode.isKey()) {
             String oldPath = treeNode.getValue();
             treeNode.setValue("");
@@ -1644,8 +1650,15 @@ public class ItemsBrowserDWR {
             // check updatedPath
             HashMap<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
             updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex); //$NON-NLS-1$
+            boolean hasAutoChangeField=false;
+            if(ctx.getSession().getAttribute("hasAutoChangeField" + docIndex)!=null
+                    &&ctx.getSession().getAttribute("hasAutoChangeField" + docIndex).equals(new Boolean(true))) {
+                hasAutoChangeField=true;
+            }
             if (!"DELETE".equals(operationType) && updatedPath == null) { //$NON-NLS-1$
+              if(!hasAutoChangeField) {
                 return new ItemResult(ItemResult.UNCHANGED);
+              } 
             }
 
             // put item
