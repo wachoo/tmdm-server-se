@@ -501,6 +501,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'fr':'Définissez des critères de recherche et cliquez \'Rechercher\'.',
 		'en':'Enter search criteria and hit the \'Search\' button.'
 	};
+	
+	var SELECT_TYPE_MESSAGE={
+            'fr': 'Sélectionnez le type',
+            'en': 'Select a type'
+    };
 
 	/*****************
 	 * EXT 2.0
@@ -3656,7 +3661,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 
                     id: 'foreign-key-type-filter',
                     name : "foreign-key-type-filter",
-                    fieldLabel : "Select a type",
+                    fieldLabel : SELECT_TYPE_MESSAGE[language],
                     editable : false,
                     xtype : "combo",
                     store: typeStore,
