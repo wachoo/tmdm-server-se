@@ -634,8 +634,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                         '<span id="viewItemsCriterias"></span>'+
 						'<input id="item-save-btn" type="button" value="'+BUTTON_BOOKMARK_SEARCH[language]+'" disabled="true"  onClick="amalto.itemsbrowser.ItemsBrowser.saveCriteriasClick();"/>'+
 						'<input id="item-manage-btn" type="button" value="'+BUTTON_MANAGE_BOOKMARKS[language]+'" disabled="true"  onClick="amalto.itemsbrowser.ItemsBrowser.manageSearchTemplates();"/>',
-						border: true,
-						bodyborder: true
+						border: false,
+						bodyborder: false
 					}),
 				    gridContainerPanel
 				]

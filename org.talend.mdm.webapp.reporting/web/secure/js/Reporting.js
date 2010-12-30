@@ -258,7 +258,6 @@ amalto.reporting.Reporting = function () {
 						bodyStyle:'padding:5px',
 						height:200,		
 						split:true,
-						border: true,
 						bodyborder: true,
 						labelWidth:200,
 						buttonAlign:'left',

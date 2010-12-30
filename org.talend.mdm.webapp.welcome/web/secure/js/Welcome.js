@@ -266,7 +266,7 @@ amalto.welcome.Welcome = function () {
 				iconCls : 'start_icon',
 				title : START_TITLE[language],
 				height : 145,
-				border: true,
+				border: false,
 				header:true,
 				split:true,
 				collapsible: true,
@@ -332,7 +332,7 @@ amalto.welcome.Welcome = function () {
 				iconCls : 'alert_icon',
 				hidden : hidenAlertsPL,
 				title : ALERTS_TITLE[language],
-				border: true,
+				border: false,
 				height:120,
 				header:true,
 				split:true,
@@ -397,7 +397,7 @@ amalto.welcome.Welcome = function () {
 				iconCls : 'task_list_icon',
 				hidden : hidenTaskPL,
 				title : TASKS_TITLE[language],
-				border: true,
+				border: false,
 				height:120,
 				header:true,
 				split:true,
@@ -459,7 +459,7 @@ amalto.welcome.Welcome = function () {
 				id : 'processPL',
 				iconCls : 'transformer',
 				title : 'Processes',
-				border: true,
+				border: false,
 				height:120,
 				autoHeight : true,
 				layoutConfig: {
@@ -491,11 +491,11 @@ amalto.welcome.Welcome = function () {
 				[new Ext.Panel({
 					 id : 'welcomePl',
 					 title : WELCOME_PANEL[language],
-					 border : true,
+					 border : false,
 					 header : true,
 					 split : true,
 					 collapsible : false,
-					 bodyborder : true,
+					 bodyborder : false,
 					 items : [startPanel, alertsPanel, taskPanel, processPanel]
 				 })]
 			});

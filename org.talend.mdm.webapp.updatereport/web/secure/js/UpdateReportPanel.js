@@ -69,6 +69,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 		this.gridPanel1 = new Ext.grid.GridPanel({
 			id:"updateReportGridPanel",
 			store : this.store1,
+			border: false,
 			loadMask:true, 
 			layout : "fit",
 			region : "center",
@@ -211,6 +212,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 				split : true,
 				title : amalto.updatereport.UpdateReportLocal.get("searchPanel_tile"),
 				collapsible : true,
+				border: false,
 				items : [{
 					height : 30,
 					layout : "column",
@@ -322,7 +324,8 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 				}]
 			}],
 			id : "UpdateReportPanel",
-			closable:true
+			closable:true,
+			border:false
 		});	
 	},
     
