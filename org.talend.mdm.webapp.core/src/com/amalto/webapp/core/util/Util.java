@@ -48,7 +48,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.jxpath.AbstractFactory;
+import org.apache.commons.jxpath.JXPathContext;
+import org.apache.commons.jxpath.Pointer;
 import org.exolab.castor.types.Date;
 import org.jboss.security.Base64Encoder;
 import org.jboss.security.SimpleGroup;
@@ -1541,4 +1543,45 @@ public class Util {
 		}
 		return false;
 	}
+	
+	public static void createOrUpdateNode(String xpath, String value, Document doc) {
+        JXPathContext ctx = JXPathContext.newContext(doc);
+        AbstractFactory factory = new AbstractFactory() {
+
+            public boolean createObject(JXPathContext context, Pointer pointer, Object parent, String name, int index) {
+                if (parent instanceof Node) {
+                    try {
+                        Node node = (Node) parent;
+                        Document doc1 = node.getOwnerDocument();
+                        Element e = doc1.createElement(name);
+                        if (index > 0) { // list
+                            Pointer p = context.getRelativeContext(pointer).getPointer(name + "[" + (index) + "]");
+                            Node curNode = (Node) p.getNode();
+                            if (curNode != null) {
+                                if (curNode.getNextSibling() != null) {
+                                    node.insertBefore(e, curNode.getNextSibling());
+                                } else {
+                                    node.appendChild(e);
+                                }
+                            } else {
+                                node.appendChild(e);
+                            }
+                        } else {
+                            node.appendChild(e);
+                        }
+                        return true;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                } else
+                    return false;
+            }
+
+            public boolean declareVariable(JXPathContext context, String name) {
+                return false;
+            }
+        };
+        ctx.setFactory(factory);
+        ctx.createPathAndSetValue(xpath, value);
+    }
 }
