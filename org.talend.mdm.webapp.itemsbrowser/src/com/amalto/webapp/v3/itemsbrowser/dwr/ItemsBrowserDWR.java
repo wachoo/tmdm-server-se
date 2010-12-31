@@ -39,7 +39,6 @@ import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
@@ -1260,9 +1259,14 @@ public class ItemsBrowserDWR {
             if (content.equals(oldValue))
                 return "Nothing to update";
             // Util.getNodeList(d, xpath).item(0).setTextContent(content);
-            if (oldValue == null)
-                Util.getNodeList(d, xpath).item(0).appendChild(d.createTextNode(content));
-            else
+            if (oldValue == null) {
+                Node checkNode=Util.getNodeList(d, xpath).item(0);
+                if(checkNode!=null) {
+                    checkNode.appendChild(d.createTextNode(content));
+                }else {
+                    Util.createOrUpdateNode(xpath, content, d);
+                }
+            }else
                 Util.getNodeList(d, xpath).item(0).getFirstChild().setNodeValue(content);
             // TODO add path to session
             HashMap<String, UpdateReportItem> updatedPath;
