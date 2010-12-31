@@ -462,7 +462,8 @@ public class ItemsBrowserDWR {
             String dataClusterPK, Map<String, XSElementDecl> map, WSItem wsItem) throws RemoteException, XtentisWebappException,
             UnsupportedEncodingException, Exception, XPathExpressionException, TransformerFactoryConfigurationError,
             TransformerConfigurationException, TransformerException {
-
+        if(viewName==null||viewName.length()==0)return;
+        
         WSView view = Util.getPort().getView(new WSGetView(new WSViewPK(viewName)));
 
         if ((null != view.getTransformerPK() && !"".equals(view.getTransformerPK())) && view.getIsTransformerActive().is_true()) {
