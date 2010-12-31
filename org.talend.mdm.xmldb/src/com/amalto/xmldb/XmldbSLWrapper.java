@@ -1170,6 +1170,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             xqWhere.append("where (1=1)");
 
             if (FKXpath != null) {
+                fatherPK=(fatherPK==null?"":StringEscapeUtils.escapeXml(fatherPK));
                 xqWhere.append(" and ($").append(FKXpath).append(" = '").append(fatherPK).append("'").append(" or $")
                         .append(FKXpath).append("=concat('[','").append(fatherPK).append("',']')) ");
             }
