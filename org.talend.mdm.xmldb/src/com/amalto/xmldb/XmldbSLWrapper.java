@@ -1415,6 +1415,10 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             if (encoded != null && encoded.trim().length() == 0) {
                 encoded = "*";
             }
+            // handle empty case
+            if (encoded != null && encoded.equals("null")) {
+                encoded = "";
+            }
             // change * to .*
             encoded = encoded.replaceAll("\\.\\*|\\*", "\\.\\*");
             if (".*".equals(encoded))
