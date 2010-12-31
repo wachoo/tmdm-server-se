@@ -358,9 +358,9 @@ public class Util {
 
         // add by ymli; fix the bug:0009642:remove the null element to match the shema
         setNullNode(cloneNode);
-        
+
         // strip of attributes
-        removeAllAttribute(cloneNode,"tmdm:type");
+        removeAllAttribute(cloneNode, "tmdm:type");
 
         String xmlstr = Util.nodeToString(cloneNode);
         // if element is null, remove it aiming added
@@ -1161,18 +1161,18 @@ public class Util {
     private static ThreadLocal<HashSet<String>> _multipleOccuranceNodeSetThreadLocal = new ThreadLocal<HashSet<String>>();
 
     private static void getChildren(String parentPath, XSParticle xsp, List<UUIDPath> list) {
-        
+
         if (xsp.getTerm().asModelGroup() != null) { // is complex type
             XSParticle[] xsps = xsp.getTerm().asModelGroup().getChildren();
-            //String path = parentPath + "/" + xsp.getTerm().asElementDecl().getName();
+            // String path = parentPath + "/" + xsp.getTerm().asElementDecl().getName();
             for (int i = 0; i < xsps.length; i++) {
                 getChildren(parentPath, xsps[i], list);
             }
         }
-        
+
         if (xsp.getTerm().asElementDecl() == null)
             return;
-        
+
         if (xsp.getMaxOccurs() == -1) {
             String particleName = xsp.getTerm().asElementDecl().getName();
             if (!_multipleOccuranceNodeSetThreadLocal.get().contains(particleName))
@@ -1340,7 +1340,7 @@ public class Util {
         XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
         for (int j = 0; j < xsp.length; j++) {
             // why don't set up children element? FIXME
-            if (checkHidden(xsp[j])) {
+            if (!checkHidden(xsp[j])) {
                 setChilden(xsp[j], "/" + concept, d);
             }
         }
@@ -1753,30 +1753,31 @@ public class Util {
             return null;
         return sw.toString().replaceAll("\r\n", "\n");
     }
-    
+
     /**
      * DOC HSHU Comment method "removeAllAttributes".
+     * 
      * @param node
      */
-    public static void removeAllAttribute(Node node,String attrName) {
-        
+    public static void removeAllAttribute(Node node, String attrName) {
+
         if (node.getNodeType() == Node.ELEMENT_NODE) {
             NamedNodeMap attrs = node.getAttributes();
             for (int i = 0; i < attrs.getLength(); i++) {
-                if(attrs.item(i).getNodeName().equals(attrName)) {
+                if (attrs.item(i).getNodeName().equals(attrName)) {
                     attrs.removeNamedItem(attrName);
                     break;
-                } 
+                }
             }
         }
-        
+
         NodeList list = node.getChildNodes();
-        if(list.getLength()>0) {
+        if (list.getLength() > 0) {
             for (int i = 0; i < list.getLength(); i++) {
-                removeAllAttribute(list.item(i),attrName);
+                removeAllAttribute(list.item(i), attrName);
             }
         }
-        
+
     }
 
     /**
@@ -3207,7 +3208,8 @@ public class Util {
         ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK("PROVISIONING"), "User", new String[] { LocalUser.getLocalUser()
                 .getUsername() });
         ItemPOJO item = ItemPOJO.load(itempk);
-        if(item==null)return null;
+        if (item == null)
+            return null;
         Element user = (Element) Util.getNodeList(item.getProjection(), "//User").item(0);
         return user;
     }
@@ -3225,10 +3227,12 @@ public class Util {
         }
         return null;
     }
-    //FIXME: this method is very ugly
+
+    // FIXME: this method is very ugly
     public static Map<String, ArrayList<String>> getMetaDataTypes(IWhereItem whereItem) throws Exception {
-        if(getLoginProvisioningFromDB()==null)return null;
-        
+        if (getLoginProvisioningFromDB() == null)
+            return null;
+
         if (null != whereItem) {
             ArrayList<String> views = new ArrayList<String>();
             Util.getView(views, whereItem);
@@ -3236,7 +3240,7 @@ public class Util {
             for (String v : views) {
                 concepts.add(v.split("/")[0]);
             }
-            
+
             DataModelPOJO datamodelPojo = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(getUserDataModel()));
             Map<String, XSElementDecl> xsdMap = getConceptMap(datamodelPojo.getSchema());
             HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
@@ -3584,28 +3588,28 @@ public class Util {
         xpath = joinStrings(xpathParts, "/");
         return xpath;
     }
-    
+
     public static String[] getParentAndLeafPath(String pivot) throws XtentisException {
-		if (pivot.endsWith(")")) {
-			String err = "Invalid pivot '"+pivot+"': pivots must be 'pure' path, with no functions";
-			
-			throw new XtentisException(err);
-		}
-    	//Normalize path
-		pivot = pivot.startsWith("/") ? pivot.substring(1): pivot; //remove leading slash
-		pivot = pivot.endsWith("/") ? pivot.substring(0,pivot.length()-1): pivot; //remove trailing slash
-		String[] pivotPaths = pivot.split("\\/");
-		if (pivotPaths.length <2) {
-			String err = "Invalid pivot '"+pivot+"': partial updates cannot be applied to the root element";
-			throw new XtentisException(err);
-		}
-		//build parent pivot
-		String parentPivot = "";
-		for (int i = 0; i < pivotPaths.length-1; i++) {
-			parentPivot+="/"+pivotPaths[i];
-		}
-		//assign pivotElement
-		String pivotLeaf = pivotPaths[pivotPaths.length-1];
-		return new String[]{parentPivot,pivotLeaf};
+        if (pivot.endsWith(")")) {
+            String err = "Invalid pivot '" + pivot + "': pivots must be 'pure' path, with no functions";
+
+            throw new XtentisException(err);
+        }
+        // Normalize path
+        pivot = pivot.startsWith("/") ? pivot.substring(1) : pivot; // remove leading slash
+        pivot = pivot.endsWith("/") ? pivot.substring(0, pivot.length() - 1) : pivot; // remove trailing slash
+        String[] pivotPaths = pivot.split("\\/");
+        if (pivotPaths.length < 2) {
+            String err = "Invalid pivot '" + pivot + "': partial updates cannot be applied to the root element";
+            throw new XtentisException(err);
+        }
+        // build parent pivot
+        String parentPivot = "";
+        for (int i = 0; i < pivotPaths.length - 1; i++) {
+            parentPivot += "/" + pivotPaths[i];
+        }
+        // assign pivotElement
+        String pivotLeaf = pivotPaths[pivotPaths.length - 1];
+        return new String[] { parentPivot, pivotLeaf };
     }
 }
