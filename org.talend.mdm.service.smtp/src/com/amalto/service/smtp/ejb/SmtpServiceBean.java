@@ -307,10 +307,11 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
             if (nl.item(0) != null) {
                 mailInfos.processParameters = Util.nodeToString(nl.item(0));
 
-                nl = nl.item(0).getOwnerDocument().getElementsByTagName("name");
-                process = nl.item(0).getTextContent();
-                // root = nl.item(0);
-
+                NodeList tmpN = nl.item(0).getOwnerDocument().getElementsByTagName("name");
+                if (tmpN.item(0) != null) {
+                    process = tmpN.item(0).getTextContent();
+                } else
+                    process = nl.item(0).getTextContent();
             }
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
