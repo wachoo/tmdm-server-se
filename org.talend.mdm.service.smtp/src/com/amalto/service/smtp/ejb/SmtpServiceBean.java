@@ -72,8 +72,8 @@ import com.amalto.core.util.XtentisException;
  * <ul>
  * <li><b>host</b>:mandatory; the smtp server host name</li>
  * <li><b>port</b>:mandatory; the smtp server port</li>
- * <li><b>username</b>: optional; the smtp server username</li>
- * <li><b>password</b>: optional; the smtp server password</li>
+ * <li><b>username</b>: mandatory; the smtp server username</li>
+ * <li><b>password</b>: mandatory; the smtp server password</li>
  * <li><b>auth</b>:mandatory; the authentication of the user</li>
  * <li><b>permanentbcc</b>:optional; the permanent blind copied recipients</li>
  * <li><b>logfilename</b>: optional; the full path of a log file that records the mails sent</li>
@@ -181,11 +181,12 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
                 + "It cantains the following configurations:\n"
                 + "  host:         mandatory; the smtp server host name.\n"
                 + "  port:         mandatory; the smtp server port.\n"
-                + "  username:     optional;  the smtp server username.\n"
-                + "  password:     optional;  the smtp server password.\n"
+                + "  username:     mandatory; the smtp server username.\n"
+                + "  password:     mandatory; the smtp server password.\n"
                 + "  from:         mandatory; the email address of the sender.\n"
                 + "  to:           mandatory; the email addresses of the recipients,separated by commas.\n"
                 + "  permanentbcc: optional;  the permanent blind copied recipients.\n"
+                + "  subjectPrefix:optional;  a sentence inserted at the beginning of the subject line.\n"
                 + "  logfilename:  optional;  the full path of a log file that records the mails sent.\n"
                 + "  process:      optional;  an optional process.When no process is supplied,the item xml will be used as the body "
                 + "of the mail.When a process is supplied,the following variables,including \'recipients\',\'subject\',\'body\'and \'contenttype\',will be extracted from the pipeline after the "
