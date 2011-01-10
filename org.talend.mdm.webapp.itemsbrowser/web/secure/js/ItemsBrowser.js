@@ -2507,6 +2507,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     				saveItemWithoutQuit(ids,dataObject,treeIndex,refreshCB);
     			};			
     			tbDetail.refreshItemHandler = function() {
+    			    
+    				reloadNode(node1.index,treeIndex);
+    			    
+    				/*
     			    var node2 = new YAHOO.widget.HTMLNode(nameTmp, root, false, true);
     				var rootnode = root.children[0];
     				itemTree.removeNode(rootnode);
@@ -2526,8 +2530,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                         	ids=result;
                         }            		                       
                     });
-    		        
     		        //displayItems.call(); 
+    		         * 
+    		         */
     			};
     			
     			tbDetail.saveItemAndQuitHandler = function(){			
