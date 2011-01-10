@@ -254,6 +254,23 @@ public class Util {
     		return m.group(1);
    		return null;
     }
+
+    /**
+     * DOC HSHU Comment method "getFieldFromPath".
+     * Returns the last part - eg. the field name - from the path
+     * @param path
+     * @return
+     */
+    public static String getFieldFromPath(String path) {
+        String result=null;
+        if(path!=null) {
+            if (path.endsWith("/")) 
+                path=path.substring(0, path.lastIndexOf("/"));
+            String[] tmps=path.split("/");
+            result=tmps[tmps.length-1];
+        }
+        return result;
+    }
     
     public static String getForeignPathFromPath(String path){
     	int pos= path.indexOf("[");    	    	

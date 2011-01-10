@@ -258,9 +258,21 @@ public class ItemsBrowserDWR {
             HashMap<String, String> xpathToLabel = CommonDWR.getFieldsByDataModel(config.getModel(), CommonDWR
                     .getConceptFromBrowseItemView(viewPK), language, true);
             for (int i = 0; i < viewables.length; i++) {
-                String path = xpathToLabel.get(viewables[i]);
-                labelViewables[i] = path != null ? path : viewables[i];
-                // System.out.println(labelViewables[i]);
+                String labelViewable = "";
+                String path = viewables[i];
+                String label = xpathToLabel.get(viewables[i]);
+                if(label==null) {
+                    labelViewable=path;
+                }else {
+                    if(DynamicLabelUtil.isDynamicLabel(label)) {
+                        String field=Util.getFieldFromPath(path);//get field
+                        labelViewable=(field==null?path:field);
+                    }
+                    else {
+                        labelViewable=label;
+                    }
+                }
+                labelViewables[i] = labelViewable;
             }
             return labelViewables;
         } catch (Exception e) {
