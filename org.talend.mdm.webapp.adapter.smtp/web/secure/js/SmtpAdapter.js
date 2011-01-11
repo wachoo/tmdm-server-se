@@ -182,6 +182,7 @@ amalto.smtp.SmtpAdapter = function () {
 							regex:new RegExp("[^ ].*"),
 					    	regexText:PASSWORD_TIP[language],
 					    	readOnly:false,
+					    	inputType:'password',
 					    	value:""
 						},
 						{
