@@ -214,9 +214,7 @@ public class StoredProcedureCtrlBean implements SessionBean{
 	    } catch (XtentisException e) {
 	    	throw(e);
 	    } catch (Exception e) {
-    	    String err = "Unable to execute the Stored Procedure: "+sppk.getUniqueId()
-    	    		+" on Data Cluster "+dcpk.getUniqueId()
-    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
+    	    String err = e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
     	    throw new XtentisException(err);
 	    }

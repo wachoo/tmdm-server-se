@@ -2627,7 +2627,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			}
 			return new WSStringArray(xmls);		
 		} catch (Exception e) {
-			throw new RemoteException(e.getClass().getName()+": "+e.getLocalizedMessage());
+			throw new RemoteException(e.getLocalizedMessage());
 		}
 	}
 

@@ -880,7 +880,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
 
         } catch (Exception e) {
             String err = "Unable to perform single find for query: \"" + query + "\"" + " on "
-                    + getFullURL(revisionID, clusterName) + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+                    + getFullURL(revisionID, clusterName) + ": "  + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger("INFO SYSTRACE " + this.getClass()).info(err, e);
             throw new XmlServerException(err);
         }
