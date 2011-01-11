@@ -35,6 +35,7 @@ import org.exolab.castor.types.Date;
 import org.exolab.castor.types.Time;
 import org.jboss.dom4j.DocumentException;
 import org.jboss.dom4j.io.SAXReader;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -2213,7 +2214,9 @@ public class ItemsBrowserDWR {
     public ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter) throws Exception {
         ForeignKeyDrawer fkDrawer=new ForeignKeyDrawer();
         
-        String targetEntity=SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(targetEntityType).getName();
+        BusinessConcept businessConcept=SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(targetEntityType);
+        if(businessConcept==null)return null;
+        String targetEntity=businessConcept.getName();
         
         if(xpathForeignKey!=null&&xpathForeignKey.length()>0) {     
             xpathForeignKey = replaceXpathRoot(targetEntity, xpathForeignKey);

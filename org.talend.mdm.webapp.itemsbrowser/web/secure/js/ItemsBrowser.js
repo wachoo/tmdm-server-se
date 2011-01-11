@@ -3684,6 +3684,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                  typeCombo.on('select',function(box, record, index){ 
                     lastSelectedType=record.get("text");
                     ItemsBrowserInterface.switchForeignKeyType(lastSelectedType,xpathForeignKey, xpathInfoForeignKey, fkFilter, function(fkDrawer){
+                    	    if(fkDrawer==null)return;
                             amalto.itemsbrowser.ItemsBrowser.chooseForeignKey(nodeId, fkDrawer.xpathForeignKey, fkDrawer.xpathInfoForeignKey, fkFilter, treeIndex, true);
                     });
                  }); 
