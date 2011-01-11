@@ -1362,12 +1362,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			String collectionpath= CommonUtil.getPath(revisionID, dataClusterName);
 	 		String query = 	 			
 	 				"let $allres := collection(\""+collectionpath+"\")/ii"+	 			
-					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "[matches(./p , '"+wsGetItemPKsByCriteria.getContentKeywords()+"')]")+
+					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "[matches(./p/* , '"+wsGetItemPKsByCriteria.getContentKeywords()+"')]")+
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[matches(./i , '"+wsGetItemPKsByCriteria.getKeysKeywords()+"')]");
 			String concept=	wsGetItemPKsByCriteria.getConceptName() != null?"p/"+wsGetItemPKsByCriteria.getConceptName():".";		 		
-	 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+="[ft:query("+concept+",\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";
+	 		if(MDMConfiguration.isExistDb() && useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)//only exist db support FullTextQuery
+	 			query+="[ft:query("+concept+",\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";
 	 		query+=(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq '"+wsGetItemPKsByCriteria.getConceptName()+"']");
 	 		
 	 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
