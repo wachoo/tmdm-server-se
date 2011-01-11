@@ -54,6 +54,7 @@ import org.apache.commons.jxpath.Pointer;
 import org.exolab.castor.types.Date;
 import org.jboss.security.Base64Encoder;
 import org.jboss.security.SimpleGroup;
+import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -1267,7 +1268,8 @@ public class Util {
 	        WSWhereItem whereItem = null;
 	        if(whereCondition != null){
 	            whereItem= new WSWhereItem (whereCondition, null, null);
-	        }
+	        }	        
+	        
 	        //get FK filter
 	        WSWhereItem fkFilterWi = null;
             fkFilterWi=getConditionFromFKFilter(fkFilter);
@@ -1301,7 +1303,11 @@ public class Util {
 	            	//hshu fixed the regression: the filter works only on FK, not on FK Info.
 	            	//if(xpathForeignKey.equals(conceptName))wc=buildWhereItem(conceptName+"/. CONTAINS "+value);
 	            	//else wc=buildWhereItem(xpathForeignKey+" CONTAINS "+value);
-	            	wc=buildWhereItem(conceptName+"/. CONTAINS "+value);
+	            	String strConcept=conceptName+"/. CONTAINS ";
+	            	if(MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())){
+	            		strConcept=conceptName+"//* CONTAINS ";
+	            	}
+	            	wc=buildWhereItem(strConcept+value);
 	            	condition.add(wc);
 	            	WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
 	    			WSWhereItem whand = new WSWhereItem(null,and,null);
