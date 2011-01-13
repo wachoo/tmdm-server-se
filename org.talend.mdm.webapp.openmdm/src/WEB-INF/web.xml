@@ -89,5 +89,12 @@
         <security-role>
         <role-name>authenticated</role-name>
         </security-role> 
-    
+        <error-page>
+        <error-code>403</error-code>
+        <location>/auth/login.jsp?error=loginFailedAndClean</location>
+        </error-page>
+        <error-page>
+        <error-code>404</error-code>
+        <location>/auth/login.jsp?error=loginFailedAndClean</location>
+        </error-page>
 </web-app>

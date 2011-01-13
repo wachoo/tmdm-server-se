@@ -8,6 +8,7 @@
     String contextPath = request.getContextPath();
     Locale locale = request.getLocale();
     String language=locale.getLanguage();
+    String error = request.getParameter("error");
     
     //if language is empty or unsupported
     if(language==""||!(language=="en"||language=="fr")){
@@ -72,7 +73,7 @@ function f_submit(){
     LoginInterface.isTimeOut(function(result) {
         if(result) {
             alert("Session time out!");
-            window.location.reload();
+            window.location.reload();           
         }
         else {
             if(universe){
@@ -99,6 +100,15 @@ function getUniverseList()
     }
 }
 
+function deleteCookie() {         
+        if ('<%= error%>' == 'loginFailedAndClean') {
+            alert('<%= _ERROR%>');
+            document.cookie = "JSESSIONID=" + "; path=/; expires = Thu, 01-Jan-1970 00:00:01 GMT";
+            document.cookie = "JSESSIONIDSSO=" + "; path=/; expires = Thu, 01-Jan-1970 00:00:01 GMT";
+            location.href = "../index.html";               
+        }
+    }
+deleteCookie();
 </script>
 
 </head>
@@ -122,14 +132,14 @@ function getUniverseList()
             </td>
             -->
             <td valign="middle" align="center">
-                <form method="POST" action="j_security_check" name="loginform">
+                <form method="POST" action='<%= response.encodeURL("j_security_check") %>' name="loginform">
                     <br>
                     <table width="300" height="150" cellpadding="0" cellspacing="0"
                         class="form">
                         <tr>
                             <td colspan="2">
                             <% if(request.getParameter("error")!=null) {%>
-                            <div style="text-align:center;color:red"><%= _ERROR %></div>
+                            <div style="text-align:center;color:red"><%= _ERROR %></div>                            
                             <% } %>
                             </td>
                         </tr>
