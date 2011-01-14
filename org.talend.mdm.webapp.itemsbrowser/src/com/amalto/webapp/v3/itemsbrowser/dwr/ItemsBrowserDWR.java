@@ -666,7 +666,11 @@ public class ItemsBrowserDWR {
                          }
                     } 
                 }
-                if(realType!=null&&realType.length()>0)treeNode.setRealType(realType);
+                if(realType!=null&&realType.length()>0) {
+                    treeNode.setRealType(realType);
+                    HashMap<String, String> xpathToPolymType=(HashMap<String, String>) ctx.getSession().getAttribute("xpathToPolymType" + docIndex);
+                    xpathToPolymType.put(xpath, realType);
+                }
             }
             
         } catch (Exception e2) {
