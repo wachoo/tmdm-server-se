@@ -86,13 +86,16 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
     // be pessimistic
     protected static boolean SERVER_STATE_OK = false;
     // protected final static String CONFIG_FILE = "amaltoConfig.xml";
-
+    
+    QueryBuilder queryBuilder=getQueryBuilder();
+    protected QueryBuilder getQueryBuilder(){
+    	return new ExistQueryBuilder();
+    }
     static {
         if (MDMConfiguration.isExistDb()) {
             registerDataBase();
         }
     }
-
     protected static void registerDataBase() {
 
         // Make sure the DB is not already registered
@@ -744,7 +747,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             conceptName = conceptName.startsWith("/") ? conceptName : "/" + conceptName;
             String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p"
                     + conceptName
-                    + (whereItem != null ? "\nwhere " + QueryBuilder.buildWhere("", pivots, whereItem, null) + "\n" : "")
+                    + (whereItem != null ? "\nwhere " + queryBuilder.buildWhere("", pivots, whereItem, null) + "\n" : "")
                     + "\nreturn base-uri($pivot)";
 
             Collection<String> res = runQuery(null, null, xquery, null);
@@ -803,7 +806,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             // "\nreturn base-uri($pivot)";
             String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/"
                     + objectRootElementName
-                    + (whereItem != null ? "\nwhere " + QueryBuilder.buildWhere("", pivots, whereItem, null) + "\n" : "")
+                    + (whereItem != null ? "\nwhere " + queryBuilder.buildWhere("", pivots, whereItem, null) + "\n" : "")
                     + "\nreturn base-uri($pivot)";
 
             Collection<String> res = runQuery(null, null, xquery, null);
@@ -836,7 +839,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
         }
 
     }
-
+    
     /**
      * Direct Query in the native language supported by the XML server
      * 
@@ -899,7 +902,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit,
             boolean totalCountOnfirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
         // Replace for QueryBuilder
-        return QueryBuilder.getQuery(true, conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
+        return queryBuilder.getQuery(true, conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
                 viewableFullPaths, whereItem, orderBy, direction, start, limit, totalCountOnfirstRow, metaDataTypes);
     }
 
@@ -913,29 +916,10 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             // if the where Item is null, try to make a simplified x path query
             if (whereItem == null) {
                 // get the concept
-                // Replace for QueryBuilder
-                // String conceptName = getRootElementNameFromPath(fullPath);
-                String conceptName = QueryBuilder.getRootElementNameFromPath(fullPath);
-                // determine revision
-                String revisionID = null;
-                Set<String> patterns = conceptPatternsToRevisionID.keySet();
-                for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext();) {
-                    String pattern = iterator.next();
-                    if (conceptName.matches(pattern)) {
-                        revisionID = conceptPatternsToRevisionID.get(pattern);
-                        break;
-                    }
-                }
+            	String revisionID=QueryBuilder.getRevisionID(conceptPatternsToRevisionID, fullPath);
                 // determine cluster
-                String clusterName = null;
-                patterns = conceptPatternsToClusterName.keySet();
-                for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext();) {
-                    String pattern = iterator.next();
-                    if (conceptName.matches(pattern)) {
-                        clusterName = conceptPatternsToClusterName.get(pattern);
-                        break;
-                    }
-                }
+                String clusterName = QueryBuilder.getClusterName(conceptPatternsToRevisionID, conceptPatternsToClusterName, fullPath);
+                
                 // Replace for QueryBuilder
                 // xquery = "count("+getXQueryCollectionName(revisionID, clusterName)+"/ii/p/"+fullPath+")";
                 xquery = "count(" + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p/" + fullPath + ")";
@@ -987,7 +971,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit,
             boolean totalCountOnfirstRow) throws XmlServerException {
         // Replace for QueryBuilder
-        return QueryBuilder.getQuery(false, objectRootElementNameToRevisionID, objectRootElementNameToClusterName,
+        return queryBuilder.getQuery(false, objectRootElementNameToRevisionID, objectRootElementNameToClusterName,
                 mainObjectRootElementName, viewableFullPaths, whereItem, orderBy, direction, start, limit, totalCountOnfirstRow,
                 null);
     }
@@ -1130,6 +1114,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             if (start >= 0 && limit > 0) {
                 query = "let $list := \n" + query + "\n return subsequence($list," + (start + 1) + "," + limit + ")";
             }
+
             // replace (1=1) and to ""
             query = query.replaceAll("\\(1=1\\) and", "");
             // replace () and to ""
@@ -1435,68 +1420,57 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
                 boolean isAttribute = nodes[nodes.length - 1].startsWith("@");
                 if ((predicate == null) || predicate.equals(WhereCondition.PRE_NONE)) {
                     if (isAttribute) {
-                        where = " matches(" + factorPivots + " , \"" + encoded + "\",\"i\") ";// factorPivots+" &= \""+encoded+"\" ";
+                        where = queryBuilder.getMatchesMethod(factorPivots, encoded);
                     } else {
-                        where = QueryBuilder.buildContains(factorPivots, encoded, isXpathFunction);
-                        // "("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+
-                        // "or ("+factorPivots+"/descendant-or-self::*/attribute() &= \""+encoded+"\") ";
+                        where = queryBuilder.buildContains(factorPivots, encoded, isXpathFunction);
                     }
                 } else if (predicate.equals(WhereCondition.PRE_AND)) {
                     if (isAttribute) {
-                        where = " matches(" + factorPivots + " , \"" + encoded + "\",\"i\") ";// factorPivots+" &= \""+encoded+"\" ";
+                        where = queryBuilder.getMatchesMethod(factorPivots, encoded);
                     } else {
-                        where = QueryBuilder.buildContains(factorPivots, encoded, isXpathFunction);
-                        // "("+factorPivots+"/descendant-or-self::* &= \""+encoded+"\") "+
-                        // "or ("+factorPivots+"/descendant-or-self::*/attribute() &= \""+encoded+"\") ";
+                        where = queryBuilder.buildContains(factorPivots, encoded, isXpathFunction);
                     }
                 } else if (predicate.equals(WhereCondition.PRE_EXACTLY)) {
                     where = factorPivots + " eq \"" + encoded + "\"";
                 } else if (predicate.equals(WhereCondition.PRE_STRICTAND)) {
                     // where = "near("+factorPivots+", \""+encoded+"\",1)";
-                    where = "matches(" + factorPivots + ", \"" + encoded + "\",\"i\") ";
+                    where = queryBuilder.getMatchesMethod(factorPivots, encoded);
                 } else if (predicate.equals(WhereCondition.PRE_OR)) {
                     if (isAttribute) {
-                        where = " matches(" + factorPivots + " , \"" + encoded + "\",\"i\") ";
+                        where = queryBuilder.getMatchesMethod(factorPivots, encoded);
                     } else {
                         if (isXpathFunction) {
-                            where = " matches(" + factorPivots + " , " + encoded + ",\"i\") ";
+                        	where = " contains(" + factorPivots + " , "
+							+ encoded + ") ";
                         } else {
-                            where = " matches(" + factorPivots + " , \"" + encoded + "\",\"i\") ";
-                            // "or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") ";
+                            where = queryBuilder.getMatchesMethod(factorPivots, encoded);
+                            
                         }
                     }
                 } else if (predicate.equals(WhereCondition.PRE_NOT)) {
-                    if (isAttribute) {
-                        where = "not matches(" + factorPivots + " , \"" + encoded + "\",\"i\") ";
-                    } else {
-                        if (isXpathFunction) {
-                            where = "not(" + " matches(" + factorPivots + " , " + encoded + ",\"i\") " + ")";
-                        } else {
-                            where = "not(" + " matches(" + factorPivots + " , \"" + encoded + "\",\"i\") " +
-                            // "or matches("+factorPivots+"/descendant-or-self::*/attribute() , \""+encoded+"\") "+
-                                    ")";
-                        }
-                    }
+					if (isAttribute) {
+						where = "not "+ queryBuilder.getMatchesMethod(factorPivots, encoded);
+					} else {
+						if (isXpathFunction) {
+							where = "not(" + " contains(" + factorPivots + " , "
+									+ encoded + ") " + ")";
+						} else {
+							where = "not(" + queryBuilder.getMatchesMethod(factorPivots, encoded) +
+									")";
+						}
+					}
                 }
-                /*
-                 * WAITING FOR FIX FROM EXIST if ((predicate==null) || predicate.equals(WhereCondition.PRE_NONE)) where
-                 * = "contains("+factorPivots+",\""+encoded+"\")"; else if (predicate.equals(WhereCondition.PRE_AND))
-                 * where = "contains("+factorPivots+",\""+encoded+"\")"; else if
-                 * (predicate.equals(WhereCondition.PRE_EXACTLY)) where = factorPivots+" eq \""+encoded+"\""; else if
-                 * (predicate.equals(WhereCondition.PRE_STRICTAND)) where = "near("+factorPivots+", \""+encoded+"\",1)";
-                 * else if (predicate.equals(WhereCondition.PRE_OR)) where = factorPivots+" |= \""+encoded+"\""; else if
-                 * (predicate.equals(WhereCondition.PRE_NOT)) where = "not(contains("+factorPivots+",\""+encoded+"\"))";
-                 */
 
             } else if (operator.equals(WhereCondition.STRICTCONTAINS)) {
                 // where = "near("+factorPivots+", \""+encoded+"\",1)";
-                where = "matches(" + factorPivots + ", \"" + encoded + "\",\"i\") ";
+                where = queryBuilder.getMatchesMethod(factorPivots, encoded);
             } else if (operator.equals(WhereCondition.STARTSWITH)) {
                 if (isXpathFunction) {
-                    where = "matches(" + factorPivots + ", " + "concat(" + encoded + ",\".*\") ,\"i\") ";
+                	where = "starts-with(" + factorPivots + ", " 
+					+ encoded + ") ";
                 } else {
                     // where = "near("+factorPivots+", \""+encoded+"*\",1)";
-                    where = "matches(" + factorPivots + ", \"" + encoded + ".*\",\"i\") ";
+                    where = queryBuilder.getMatchesMethod(factorPivots, encoded);
                 }
             } else if (operator.equals(WhereCondition.CONTAINS_TEXT_OF)) {
                 // where = getPathFromPivots(wc.getRightValueOrPath(),pivots)+" = "+factorPivots; //JOIN error
@@ -1819,4 +1793,11 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
     public void end() throws XmlServerException {
         throw new UnsupportedOperationException();
     }
+
+	
+	public ArrayList<String> runQuery(String revisionID, String clusterName,
+			String query, String[] parameters, int start, int limit,
+			boolean withTotalCount) throws XmlServerException {
+		return runQuery(revisionID, clusterName, query, parameters);
+	}
 }

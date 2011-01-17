@@ -36,7 +36,7 @@ import com.amalto.xmlserver.interfaces.XmlServerException;
  *
  * @author Bruno Grieder
  */
-public class QueryBuilder {
+public abstract class QueryBuilder {
 
     private static final Logger LOG = Logger.getLogger(QueryBuilder.class);
 	/**
@@ -46,7 +46,7 @@ public class QueryBuilder {
 	 * @return
 	 * @throws XmlServerException
 	 */
-	protected static String getXQueryReturn(
+	protected  String getXQueryReturn(
 		ArrayList<String> viewableFullPaths,
 		LinkedHashMap<String,String> pivotsMap,
 		boolean totalCountOnfirstRow
@@ -111,7 +111,7 @@ public class QueryBuilder {
     	return xqReturn;
 	}
 
-	private static void factorFirstPivotInMap(LinkedHashMap<String, String> pivotsMap, String viewablePath) {
+	protected static void factorFirstPivotInMap(LinkedHashMap<String, String> pivotsMap, String viewablePath) {
 		if(viewablePath!=null&&viewablePath.trim().length()>0) {
 			if (viewablePath.startsWith("/")) viewablePath = viewablePath.substring(1);
 			String thisRootElementName = getRootElementNameFromPath(viewablePath.toString());
@@ -126,7 +126,7 @@ public class QueryBuilder {
 	 * @return
 	 * @throws XmlServerException
 	 */
-	private static String getXQueryFor(
+	protected  String getXQueryFor(
 		boolean isItemQuery,
     	LinkedHashMap<String, String> rootElementNamesToRevisionID,
     	LinkedHashMap<String, String> rootElementNamesToClusterName,
@@ -147,14 +147,7 @@ public class QueryBuilder {
 			//determine revision
 			String revisionID = null;
 			if (isItemQuery) {
-    			Set<String> patterns = rootElementNamesToRevisionID.keySet();
-    			for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
-    				String pattern = iterator.next();
-    				if (rootElementName.matches(pattern)) {
-    					revisionID = rootElementNamesToRevisionID.get(pattern);
-    					break;
-    				}
-    			}
+				revisionID = getRevisionID(rootElementNamesToRevisionID, path);
 			} else {
 				//object name, not a pattern --> direct match
 				revisionID = rootElementNamesToRevisionID.get(rootElementName);
@@ -162,14 +155,7 @@ public class QueryBuilder {
 			//determine cluster
 			String clusterName = null;
 			if (isItemQuery) {
-				Set<String> patterns = rootElementNamesToClusterName.keySet();
-				for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext(); ) {
-					String pattern = iterator.next();
-					if (rootElementName.matches(pattern)) {
-						clusterName = rootElementNamesToClusterName.get(pattern);
-						break;
-					}
-				}
+				clusterName = getClusterName(rootElementNamesToRevisionID, rootElementNamesToClusterName, path);
 			} else {
 				//object name, not a pattern --> direct match
 				clusterName = rootElementNamesToClusterName.get(rootElementName);
@@ -199,7 +185,7 @@ public class QueryBuilder {
 	 * @return
 	 * @throws XmlServerException
 	 */
-	public static String buildWhere(
+	public  String buildWhere(
 			String where,
 			LinkedHashMap<String,String> pivots,
 			IWhereItem whereItem,
@@ -253,23 +239,24 @@ public class QueryBuilder {
 	    }
 	}
 	
-	public static String buildContains(String factorPivots, String encoded, boolean isFunction){
+	public  String buildContains(String factorPivots, String encoded, boolean isFunction){
 		if("*".equals(encoded) || ".*".equals(encoded)){				
-			return "matches("+factorPivots+" , \".*\", \"i\") "+		
-				"or (empty("+factorPivots+"/text())) ";
+			return getMatchesMethod(factorPivots, "") +
+				" or (empty("+factorPivots+"/text())) ";
 		}
 		else if(isFunction) {
 		   return "contains("+factorPivots+" , "+encoded+") ";
 		}
 		else{
 			//case insensitive aiming added
-			return "matches("+factorPivots+" , \""+encoded+"\",\"i\") ";									
+			return getMatchesMethod(factorPivots, encoded);
+			//return "matches("+factorPivots+" , \""+encoded+"\",\"i\") ";									
 		}
 	}
 	/**
 	 * Build a where condition in XQuery using paths relative to the provided list of pivots
 	 */
-	public static String buildWhereCondition(WhereCondition wc, LinkedHashMap<String,String> pivots,Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException{
+	public  String buildWhereCondition(WhereCondition wc, LinkedHashMap<String,String> pivots,Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException{
 		try {
 
 			// all this is EXIST specific
@@ -358,16 +345,14 @@ public class QueryBuilder {
 				if ((predicate == null)
 						|| predicate.equals(WhereCondition.PRE_NONE)) {
 					if (isAttribute) {
-						where = " matches(" + factorPivots + " , \"" + encoded
-								+ "\",\"i\") ";// factorPivots+" &= \""+encoded+"\" ";
+						where = getMatchesMethod(factorPivots, encoded);
 					} else {
 						where = buildContains(factorPivots, encoded,
 								isXpathFunction);
 					}
 				} else if (predicate.equals(WhereCondition.PRE_AND)) {
 					if (isAttribute) {
-						where = " matches(" + factorPivots + " , \"" + encoded
-								+ "\",\"i\") ";// factorPivots+" &= \""+encoded+"\" ";
+						where = getMatchesMethod(factorPivots, encoded);
 					} else {
 						where = buildContains(factorPivots, encoded,
 								isXpathFunction);					
@@ -384,51 +369,45 @@ public class QueryBuilder {
 						where = "contains(" + factorPivots + ", " + encoded
 								+ ") ";
 					} else {
-						where = "matches(" + factorPivots + ", \"" + encoded
-								+ "\",\"i\") ";
+						where = getMatchesMethod(factorPivots, encoded);
 					}
 				} else if (predicate.equals(WhereCondition.PRE_OR)) {
 					if (isAttribute) {
-						where = " matches(" + factorPivots + " , \"" + encoded
-								+ "\",\"i\") ";
+						where = getMatchesMethod(factorPivots, encoded);
 					} else {
 						if (isXpathFunction) {
 							where = " contains(" + factorPivots + " , "
 									+ encoded + ") ";
 						} else {
-							where = " matches(" + factorPivots + " , \""
-									+ encoded + "\",\"i\") ";
+							where = getMatchesMethod(factorPivots, encoded);
 						}
 					}
 				} else if (predicate.equals(WhereCondition.PRE_NOT)) {
 					if (isAttribute) {
-						where = "not matches(" + factorPivots + " , \""
-								+ encoded + "\",\"i\") ";
+						where = "not "+ getMatchesMethod(factorPivots, encoded);
 					} else {
 						if (isXpathFunction) {
 							where = "not(" + " contains(" + factorPivots + " , "
 									+ encoded + ") " + ")";
 						} else {
-							where = "not(" + " matches(" + factorPivots
-									+ " , \"" + encoded + "\",\"i\") " +
+							where = "not(" + getMatchesMethod(factorPivots, encoded) +
 									")";
 						}
 					}
 				}
 
 			} else if (operator.equals(WhereCondition.FULLTEXTSEARCH)) {
-				// where = "near("+factorPivots+", \""+encoded+"\",1)";
-				where = "ft:query(.,\""
-						+ StringEscapeUtils.escapeXml(wc.getRightValueOrPath()
-								.trim()) + "\")";
+
+//				where = "ft:query(.,\""
+//						+ StringEscapeUtils.escapeXml(wc.getRightValueOrPath()
+//								.trim()) + "\")";
+				where=getFullTextQueryString(wc.getRightValueOrPath().trim());
 			} else if (operator.equals(WhereCondition.STRICTCONTAINS)) {
-				// where = "near("+factorPivots+", \""+encoded+"\",1)";
 				if (isXpathFunction) {
 					where = "starts-with(" + factorPivots + ", " 
 					+ encoded + ") ";
 				}else {
-					where = "matches(" + factorPivots + ", \"" + encoded
-							+ "\",\"i\") ";
+					where = getMatchesMethod(factorPivots, encoded);
 				}
 			} else if (operator.equals(WhereCondition.STARTSWITH)) {
 				// where = "near("+factorPivots+", \""+encoded+"*\",1)";
@@ -436,8 +415,7 @@ public class QueryBuilder {
 					where = "starts-with(" + factorPivots + ", " 
 							+ encoded + ") ";
 				} else {
-					where = "matches(" + factorPivots + ", \"" + encoded
-							+ ".*\" ,\"i\") ";
+					where = getMatchesMethod(factorPivots, encoded);
 				}
 			} else if (operator.equals(WhereCondition.CONTAINS_TEXT_OF)) {
 
@@ -538,7 +516,7 @@ public class QueryBuilder {
 	 * @return
 	 * @throws XmlServerException
 	 */
-    public static String getQuery(
+    public  String getQuery(
     	boolean isItemQuery,
     	LinkedHashMap<String, String> objectRootElementNamesToRevisionID,
     	LinkedHashMap<String, String> objectRootElementNamesToClusterName,
@@ -613,42 +591,8 @@ public class QueryBuilder {
 	    		
 
 	    	//Determine Query based on number of results an counts
-	    	String query = null;
+	    	String query = getPagingString(withTotalCountOnFirstRow, partialXQLPackage, start, limit, rawQuery);
 	    	
-	    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
-	    	if (subsequence) {
-	    		
-	    		if (!partialXQLPackage.isUseSubsequenceFirst()) {
-	    			if (withTotalCountOnFirstRow) {
-			    		query =
-			    			"let $_page_ := \n"+rawQuery
-			    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{"
-			    			+getCountExpr(partialXQLPackage)
-			    			+"}</totalCount>)";
-		    		} else {
-	    	    		query =
-	    	    			"let $_page_ := \n"+rawQuery
-	    	    			+"\n return subsequence($_page_,"+(start+1)+","+limit+")";
-		    		}
-	    		}else {
-	    			if (withTotalCountOnFirstRow) {
-			    		query =
-			    			"let $_page_ := \n"+rawQuery
-			    			+"\n return insert-before($_page_,0,<totalCount>{"+getCountExpr(partialXQLPackage)+"}</totalCount>)";
-		    		} else {
-		    			query = rawQuery;
-		    		}
-	    		}
-	    		
-	    	} else {
-	    		if (withTotalCountOnFirstRow) {
-		    		query =
-		    			"let $_page_ := \n"+rawQuery
-		    			+"\n return insert-before($_page_,0,<totalCount>{"+getCountExpr(partialXQLPackage)+"}</totalCount>)";
-	    		} else {
-	    			query = rawQuery;
-	    		}
-	    	}
 	    	
 	    	//create a intermediate line for subsequence
 	    	
@@ -687,7 +631,7 @@ public class QueryBuilder {
 	    }
     }
 
-	private static String getCountExpr(PartialXQLPackage partialXQLPackage) {
+	protected  String getCountExpr(PartialXQLPackage partialXQLPackage) {
 		
 		StringBuffer countExpr=new StringBuffer();
 		if(partialXQLPackage.isUseJoin()) {
@@ -708,7 +652,7 @@ public class QueryBuilder {
 	 * @param joinKeys
 	 * @return
 	 */
-	private static String getJoinString(List<String> joinKeys) {
+	protected static String getJoinString(List<String> joinKeys) {
 		int c=0; 
 		//StringBuffer sb=new StringBuffer();
 		//String fk="";//FIXME only support one Foreignkey
@@ -778,6 +722,35 @@ public class QueryBuilder {
 	 *
 	 ***********************************************************************/
     
+	public static String getClusterName(LinkedHashMap<String, String> conceptPatternsToRevisionID,
+            LinkedHashMap<String, String> conceptPatternsToClusterName,String fullPath){
+		String conceptName = getRootElementNameFromPath(fullPath);
+        // determine cluster
+        String clusterName = null;
+        Set<String> patterns = conceptPatternsToClusterName.keySet();
+        for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext();) {
+            String pattern = iterator.next();
+            if (conceptName.matches(pattern)) {
+                clusterName = conceptPatternsToClusterName.get(pattern);
+                break;
+            }
+        }
+        return clusterName;
+	}
+	public static String getRevisionID(LinkedHashMap<String, String> conceptPatternsToRevisionID,String fullPath){
+		String conceptName = getRootElementNameFromPath(fullPath);
+	    // determine revision
+        String revisionID = null;
+        Set<String> patterns = conceptPatternsToRevisionID.keySet();
+        for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext();) {
+            String pattern = iterator.next();
+            if (conceptName.matches(pattern)) {
+                revisionID = conceptPatternsToRevisionID.get(pattern);
+                break;
+            }
+        }
+        return revisionID;
+	}
     /**
      * get the DB repository root path
      */
@@ -839,5 +812,66 @@ public class QueryBuilder {
     		return null;
     	}
     }
+    
+    /**
+     * Default Matches method
+     * @return
+     */
+    public String getMatchesMethod(String sourceStr,String matchStr){
+    	return " matches(" + sourceStr + ", \"" + matchStr
+    	+ ".*\" ,\"i\") ";
+    }
+    
+    /**
+     * FullText Query String
+     * @return
+     */
+    public abstract String getFullTextQueryString(String queryStr);
+    
+    
+    /**
+     * Default Paging 
+     * @return
+     */
+    public  String getPagingString(boolean withTotalCountOnFirstRow,PartialXQLPackage partialXQLPackage, long start, long limit, String rawQuery){
+    	boolean subsequence = (start>=0 && limit>=0 && limit!=Integer.MAX_VALUE);
+    	String query=null;
+    	if (subsequence) {
+    		
+    		if (!partialXQLPackage.isUseSubsequenceFirst()) {
+    			if (withTotalCountOnFirstRow) {
+		    		query =
+		    			"let $_page_ := \n"+rawQuery
+		    			+"\n return insert-before(subsequence($_page_,"+(start+1)+","+limit+"),0,<totalCount>{"
+		    			+getCountExpr(partialXQLPackage)
+		    			+"}</totalCount>)";
+	    		} else {
+    	    		query =
+    	    			"let $_page_ := \n"+rawQuery
+    	    			+"\n return subsequence($_page_,"+(start+1)+","+limit+")";
+	    		}
+    		}else {
+    			if (withTotalCountOnFirstRow) {
+		    		query =
+		    			"let $_page_ := \n"+rawQuery
+		    			+"\n return insert-before($_page_,0,<totalCount>{"+getCountExpr(partialXQLPackage)+"}</totalCount>)";
+	    		} else {
+	    			query = rawQuery;
+	    		}
+    		}
+    		
+    	} else {
+    		if (withTotalCountOnFirstRow) {
+	    		query =
+	    			"let $_page_ := \n"+rawQuery
+	    			+"\n return insert-before($_page_,0,<totalCount>{"+getCountExpr(partialXQLPackage)+"}</totalCount>)";
+    		} else {
+    			query = rawQuery;
+    		}
+    	}
+    	return query;
+    	
+    }
+        
 
 }

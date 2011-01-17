@@ -35,6 +35,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -1360,30 +1361,28 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
 			
 			//FIXME: xQuery only
 			String collectionpath= CommonUtil.getPath(revisionID, dataClusterName);
+			String matchesStr="matches";
+	 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+	 			matchesStr="ora:matches";
+	 		}
 	 		String query = 	 			
 	 				"let $allres := collection(\""+collectionpath+"\")/ii"+	 			
-					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "[matches(./p/* , '"+wsGetItemPKsByCriteria.getContentKeywords()+"')]")+
+					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "["+matchesStr+ "(./p/* , '"+wsGetItemPKsByCriteria.getContentKeywords()+"')]")+
 					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
 					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
-					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[matches(./i , '"+wsGetItemPKsByCriteria.getKeysKeywords()+"')]");
+					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "["+matchesStr+"(./i , '"+wsGetItemPKsByCriteria.getKeysKeywords()+"')]");
 			String concept=	wsGetItemPKsByCriteria.getConceptName() != null?"p/"+wsGetItemPKsByCriteria.getConceptName():".";		 		
-	 		if(MDMConfiguration.isExistDb() && useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)//only exist db support FullTextQuery
-	 			query+="[ft:query("+concept+",\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";
+	 		if( useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null){
+	 			if(MDMConfiguration.isExistDb())
+	 				query+="[ft:query("+concept+",\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";
+	 			else{
+	 				query+="[. contains text \""+ wsGetItemPKsByCriteria.getContentKeywords() +"\"] ";
+	 			}
+	 		}
 	 		query+=(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq '"+wsGetItemPKsByCriteria.getConceptName()+"']");
-	 		
-	 		if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-				
-				query = 
-					"let $allres := collection(\""+collectionpath+"\")/ii"+
-					((wsGetItemPKsByCriteria.getContentKeywords() == null||useFTSearch) ? "": "[ora:matches(./p , \""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]")+
-					(wsGetItemPKsByCriteria.getFromDate().longValue()<=0 ? "" : "[./t >= "+wsGetItemPKsByCriteria.getFromDate().longValue()+"]")+
-					(wsGetItemPKsByCriteria.getToDate().longValue()<=0 ? "" : "[./t <= "+wsGetItemPKsByCriteria.getToDate().longValue()+"]")+
-					(wsGetItemPKsByCriteria.getKeysKeywords()==null ? "" : "[ora:matches(./i , \""+wsGetItemPKsByCriteria.getKeysKeywords()+"\")]");
-				
-					concept=	wsGetItemPKsByCriteria.getConceptName() != null?"p/"+wsGetItemPKsByCriteria.getConceptName():".";		 		
-			 		if(useFTSearch&&wsGetItemPKsByCriteria.getContentKeywords() != null)query+="[ft:query("+concept+",\""+wsGetItemPKsByCriteria.getContentKeywords()+"\")]";
-			 		query+=(wsGetItemPKsByCriteria.getConceptName()==null ? "" : "[./n eq '"+wsGetItemPKsByCriteria.getConceptName()+"']");
-	 		}	 	
+	 		String xquery=query;
+	 		xquery=xquery+"\nfor $ii in $allres\n"+
+	 		"return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>\n";
 	    	int start=wsGetItemPKsByCriteria.getSkip();
 	    	int limit=wsGetItemPKsByCriteria.getMaxItems();
 	 		String sub="\nlet $res := for $ii in subsequence($allres, "+(start+1)+","+limit+")\n";   
@@ -1395,19 +1394,30 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator{
     		rquery =
 	    			query
 	    			+"return insert-before($res,0,<totalCount>{count($allres)}</totalCount>) ";
-	    	
-	    	System.out.println(rquery);
-			
+	    	    				
 			DataClusterPOJOPK dcpk =	new DataClusterPOJOPK(dataClusterName);
-			Collection<String> results = 
-				Util.getItemCtrl2Local().runQuery(
-					revisionID,
-					dcpk,
-					rquery,
-					null
-				);
-			
-						
+			Collection<String> results = null;
+			if(EDBType.QIZX.getName().equals(MDMConfiguration.getDBType().getName())) {
+				System.out.println(xquery);
+				results=Util.getXmlServerCtrlLocal().runQuery(
+						revisionID,
+						(dcpk == null ? null : dcpk.getUniqueId()),
+						xquery,
+						null,
+						start,
+						limit,
+						true
+					);
+			}else{
+				System.out.println(rquery);
+				results=Util.getItemCtrl2Local().runQuery(
+						revisionID,
+						dcpk,
+						rquery,
+						null
+					);
+			}
+									
 			XPath xpath = XPathFactory.newInstance().newXPath();
 			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			

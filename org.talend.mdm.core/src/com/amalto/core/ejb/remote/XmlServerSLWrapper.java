@@ -250,6 +250,17 @@ public interface XmlServerSLWrapper
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
+    * Performs a query on the db with optional parameters<br> The parameters are specified as %n in the query where n is the parameter number starting with 0
+    * @param revisionID The ID of the revision, <code>null</code> to run from the head
+    * @param clusterName The unique ID of the cluster, <code>null</code> to run from the head of the revision ID
+    * @param query The query in the native language
+    * @param parameters The parameter values to replace the %n in the query before execution
+    * @return the result of the Query as a Collection of Strings
+    */
+   public java.util.ArrayList runQuery( java.lang.String revisionID,java.lang.String clusterName,java.lang.String query,java.lang.String[] parameters,int start,int limit,boolean withTotalCount )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
     * Builds a query in the native language of the DB (for instance XQuery) based on conditions
     * @param objectRootElementNameToRevisionID A map that gives the revision ID of an Object XML Root Element Name
     * @param objectRootElementNameToClusterName An ordered map that gives the cluster name of an Object XML Root Element Name
@@ -307,9 +318,19 @@ public interface XmlServerSLWrapper
    public java.lang.String getChildrenItemsQuery( java.lang.String clusterName,java.lang.String conceptName,java.lang.String[] PKXpaths,java.lang.String FKXpath,java.lang.String labelXpath,java.lang.String fatherPK,java.util.LinkedHashMap itemsRevisionIDs,java.lang.String defaultRevisionID,com.amalto.xmlserver.interfaces.IWhereItem whereItem )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
-   public boolean supportTransaction() throws java.rmi.RemoteException;
-   public void start() throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
-   public void commit() throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
-   public void rollback() throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
-   public void end() throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+   public boolean supportTransaction(  )
+      throws java.rmi.RemoteException;
+
+   public void start(  )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   public void commit(  )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   public void rollback(  )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   public void end(  )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
 }

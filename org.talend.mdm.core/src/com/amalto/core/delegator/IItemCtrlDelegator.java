@@ -268,7 +268,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
             	metaDataTypes
             );
             
-            return server.runQuery(null, null, query, null);
+            return server.runQuery(null, null, query, null,start,limit,true);
             
 	    } catch (XtentisException e) {
 	    	throw(e);

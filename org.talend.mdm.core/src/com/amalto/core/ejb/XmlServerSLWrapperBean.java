@@ -712,6 +712,32 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	}
 	
 	/**
+	 * Performs a query on the db with optional parameters<br>
+	 * The parameters are specified as %n in the query where n is the parameter number starting with 0
+	 * @param revisionID
+	 * 			The ID of the revision, <code>null</code> to run from the head
+	 * @param clusterName
+	 * 			The unique ID of the cluster,  <code>null</code> to run from the head of the revision ID
+	 * @param query 
+	 * 			The query in the native language
+	 * @param parameters 
+	 * 			The parameter values to replace the %n in the query before execution
+	 * @return the result of the Query as a Collection of Strings
+	 * 
+	 * @ejb.interface-method view-type = "both"
+	 * @ejb.facade-method
+	 */
+	public ArrayList<String> runQuery(String revisionID, String clusterName,
+			String query, String[] parameters, final int start, final int limit, final boolean withTotalCount)
+			throws XtentisException {
+		try {
+			return server.runQuery(revisionID, clusterName, query, parameters,start,limit,withTotalCount);
+		} catch (XmlServerException e) {
+			throw new XtentisException(e);
+		}
+	}
+
+	/**
 	 * Builds a query in the native language of the DB (for instance XQuery) based on conditions
 	 * @param objectRootElementNameToRevisionID
 	 * 			A map that gives the revision ID of an Object XML Root Element Name
@@ -1121,11 +1147,23 @@ public class XmlServerSLWrapperBean implements SessionBean {
 			throw new XtentisException("Unable to spell check the where conditions", e);
 		}
 	}
-	
+	/**
+	 * @return
+	 * @throws XmlServerException
+	 * 
+	 * @ejb.interface-method view-type = "both"
+	 * @ejb.facade-method
+	 */ 	
 	public boolean supportTransaction() {
 	    return server.supportTransaction();
 	}
-	
+	/**
+	 * @return
+	 * @throws XmlServerException
+	 * 
+	 * @ejb.interface-method view-type = "both"
+	 * @ejb.facade-method
+	 */ 	
     public void start() throws com.amalto.core.util.XtentisException {
         try {
             server.start();
@@ -1133,7 +1171,13 @@ public class XmlServerSLWrapperBean implements SessionBean {
             throw new XtentisException(e);
         }
     }
-
+	/**
+	 * @return
+	 * @throws XmlServerException
+	 * 
+	 * @ejb.interface-method view-type = "both"
+	 * @ejb.facade-method
+	 */ 
     public void commit() throws com.amalto.core.util.XtentisException {
         try {
             server.commit();
@@ -1141,7 +1185,13 @@ public class XmlServerSLWrapperBean implements SessionBean {
             throw new XtentisException(e);
         }
     }
-
+	/**
+	 * @return
+	 * @throws XmlServerException
+	 * 
+	 * @ejb.interface-method view-type = "both"
+	 * @ejb.facade-method
+	 */ 
     public void rollback() throws com.amalto.core.util.XtentisException {
         try {
             server.rollback();
@@ -1149,7 +1199,13 @@ public class XmlServerSLWrapperBean implements SessionBean {
             throw new XtentisException(e);
         }
     }
-
+	/**
+	 * @return
+	 * @throws XmlServerException
+	 * 
+	 * @ejb.interface-method view-type = "both"
+	 * @ejb.facade-method
+	 */    
     public void end() throws com.amalto.core.util.XtentisException {
         try {
             server.end();

@@ -285,6 +285,16 @@ public class XmlServerSLWrapperRemote extends Observable
 
    }
 
+   public java.util.ArrayList runQuery ( java.lang.String revisionID,java.lang.String clusterName,java.lang.String query,java.lang.String[] parameters,int start,int limit,boolean withTotalCount )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        java.util.ArrayList retval;
+       retval =  getSession().runQuery( revisionID,clusterName,query,parameters,start,limit,withTotalCount );
+
+      return retval;
+
+   }
+
    public java.lang.String getXtentisObjectsQuery ( java.util.HashMap objectRootElementNameToRevisionID,java.util.HashMap objectRootElementNameToClusterName,java.lang.String mainObjectRootElementName,java.util.ArrayList viewableObjectElements,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {
@@ -332,6 +342,44 @@ public class XmlServerSLWrapperRemote extends Observable
        retval =  getSession().getChildrenItemsQuery( clusterName,conceptName,PKXpaths,FKXpath,labelXpath,fatherPK,itemsRevisionIDs,defaultRevisionID,whereItem );
 
       return retval;
+
+   }
+
+   public boolean supportTransaction (  )
+	  throws java.rmi.RemoteException
+   {
+        boolean retval;
+       retval =  getSession().supportTransaction(  );
+
+      return retval;
+
+   }
+
+   public void start (  )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+      getSession().start(  );
+
+   }
+
+   public void commit (  )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+      getSession().commit(  );
+
+   }
+
+   public void rollback (  )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+      getSession().rollback(  );
+
+   }
+
+   public void end (  )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+      getSession().end(  );
 
    }
 

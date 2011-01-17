@@ -578,6 +578,10 @@ public interface IXmlServerSLWrapper {
 	 */
 	public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters) throws XmlServerException;
 	
+	
+	public ArrayList<String> runQuery(String revisionID, String clusterName,
+			String query, String[] parameters, final int start, final int limit, final boolean withTotalCount)
+			throws XmlServerException ;
 	/**
 	 * clear the item cache
 	 */

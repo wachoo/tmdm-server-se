@@ -1186,15 +1186,7 @@ public class ItemCtrl2Bean implements SessionBean {
     	)
     	throws XtentisException{
 
-    	XmlServerSLWrapperLocal server = null;
-		try {
-			server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-		} catch (Exception e) {
-			String err = "Unable to search items in data cluster '"+dataClusterPOJOPK.getUniqueId()+"': unable to access the XML Server wrapper";
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-			throw new XtentisException(err);
-		}
-    	
+    	XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();    	
     	try {	
       
     		ArrayList<String> res =  server.runQuery(
@@ -1203,11 +1195,6 @@ public class ItemCtrl2Bean implements SessionBean {
         		query,
         		parameters
             );
-    		
-//    		org.apache.log4j.Logger.getLogger(this.getClass()).trace("runQuery() in '"+revisionID+"/"+dataClusterPOJOPK.getUniqueId()+"' " +
-//    				"returned "+res.size()+" items \n"+query
-//    		);
-    		
     		return res;
 
 	    } catch (Exception e) {

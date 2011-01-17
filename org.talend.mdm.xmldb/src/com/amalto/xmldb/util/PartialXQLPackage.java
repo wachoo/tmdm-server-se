@@ -52,7 +52,7 @@ public class PartialXQLPackage {
 			
 			if(pivotWhereMap.size()==0) {
 				boolean usingFTSearch=false;
-				if(xqWhere!=null&&xqWhere.trim().toLowerCase().startsWith("ft:"))usingFTSearch=true;
+				if(xqWhere!=null&&(xqWhere.trim().toLowerCase().startsWith("ft:")|| xqWhere.startsWith(" . contains text")))usingFTSearch=true;
 				if(usingFTSearch) {
 					pivotWhereMap.put("$pivot0", xqWhere.trim());
 				}
