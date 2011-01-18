@@ -6,9 +6,10 @@
  
 amalto.namespace("amalto.updatereport");
 
-amalto.updatereport.UpdateReport = function () {
-	
+amalto.updatereport.UpdateReport = function () {	
 	loadResource("/updatereport/secure/js/UpdateReportLocal.js", "amalto.updatereport.UpdateReportLocal" );
+	
+	loadResource("/updatereport/secure/js/gridToExcel.js","");
 	
     loadResource("/updatereport/secure/js/UpdateReportPanel.js", "");
     

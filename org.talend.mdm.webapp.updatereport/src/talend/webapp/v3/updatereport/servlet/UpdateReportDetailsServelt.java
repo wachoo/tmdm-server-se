@@ -44,6 +44,7 @@ public class UpdateReportDetailsServelt extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         String ids = req.getParameter("ids");
+        String export = req.getParameter("exportContent");
 
         String jsonTree = "";
         JSONObject json = new JSONObject();
@@ -188,7 +189,16 @@ public class UpdateReportDetailsServelt extends HttpServlet {
         }
 
         PrintWriter out = resp.getWriter();
-        out.println(jsonTree);
+        if (export != null && export.length() > 0) {
+            resp.setHeader("Pragma", "public");
+            resp.setHeader("Expires", "0");
+            resp.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+            resp.setHeader("Content-Type", "application/force-download");
+            resp.setHeader("Content-Type", "application/vnd.ms-excel");
+            resp.setHeader("Content-Disposition", "attachment;filename=MyReport.xls");
+            out.println(export);
+        } else
+            out.println(jsonTree);
         out.close();
 
     }
