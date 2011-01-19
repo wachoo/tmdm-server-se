@@ -304,6 +304,10 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
             if (nl.item(0) != null)
                 mailInfos.bcc = nl.item(0).getTextContent();
 
+            nl = root.getElementsByTagName("subjectprefix");
+            if (nl.item(0) != null)
+                mailInfos.subjectPrefix = nl.item(0).getTextContent();
+
             nl = root.getElementsByTagName("process");
             if (nl.item(0) != null) {
                 mailInfos.processParameters = Util.nodeToString(nl.item(0));
@@ -355,6 +359,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
         try {
 
             MailInfos mailInfos = new MailInfos();
+            process = "";
 
             // Parse parameters
             if (parameters != null) {
@@ -374,7 +379,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
             String subject = null;
             String body;
             String contentType;
-            if (process == null) {
+            if (process == null || process == "") {
                 // Send generic messages with no transformation
                 String msg = StringEscapeUtils.unescapeXml(Util.getItemCtrl2Local().getItem(itemPK).getProjectionAsString());
                 subject = (mailInfos.subjectPrefix == null ? "" : mailInfos.subjectPrefix);
