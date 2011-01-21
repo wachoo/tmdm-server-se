@@ -32,12 +32,27 @@ Ext.extend(amalto.updatereport.DataLogViewer, Ext.Panel, {
 			closable:true,
 			id:this.ids,
 			key:this.key,
+			dataCluster:this.dataCluster,
+			dataModel:this.dataModel,
 			concept:this.concept,
 			tbar: ['->',{
 		        text : "Open Record",
 		        iconCls:'report_bt_openRecord',
 		        handler : function() {
-					amalto.itemsbrowser.ItemsBrowser.editItemDetails(this.key, this.concept, function(){});
+		        	DWREngine.setAsync(false);
+		        	var result = true;
+		        	
+		        	UpdateReportInterface.checkDCAndDM(this.dataCluster, this.dataModel, function(data) {
+		        		result = data
+		        	});
+		        	
+		        	if(result) {
+		        		amalto.itemsbrowser.ItemsBrowser.editItemDetails(this.key, this.concept, function(){});
+		        	}
+		        	else {
+		        		Ext.MessageBox.alert("Error", "please set dataCluster and dataModel!");
+		        	}
+		        	DWREngine.setAsync(true);
 		        	}.createDelegate(this)
 		        }]
 
