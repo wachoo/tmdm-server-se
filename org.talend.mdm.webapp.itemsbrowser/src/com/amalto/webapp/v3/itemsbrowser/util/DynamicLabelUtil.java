@@ -10,27 +10,22 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package com.amalto.webapp.core.util;
+package com.amalto.webapp.v3.itemsbrowser.util;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamSource;
-
 import org.dom4j.Document;
 import org.dom4j.Node;
-import org.dom4j.io.DocumentResult;
-import org.dom4j.io.DocumentSource;
+
+import com.amalto.webapp.core.util.XmlUtil;
 
 /**
  * DOC HSHU class global comment. Detailled comment
  */
-public class DynamicLabelUtil {
+public class DynamicLabelUtil extends XmlUtil{
     
     private static final Pattern MULTI_OCCURRENCE_PATTERN = Pattern.compile("(.+)\\[(\\d+)\\]$");
 
@@ -38,19 +33,6 @@ public class DynamicLabelUtil {
 
     private static final String RESERVED_WORD_END_FLAG = "}";
 
-    /**
-     * DOC HSHU Comment method "parseDocument".
-     * @param doc
-     * @return
-     * @throws Exception
-     */
-    public static Document parseDocument(org.w3c.dom.Document doc) throws Exception {
-        if (doc == null) {
-            return (null);
-        }
-        org.dom4j.io.DOMReader xmlReader = new org.dom4j.io.DOMReader();
-        return (xmlReader.read(doc));
-    }
 
     /**
      * DOC HSHU Comment method "isDynamicLabel".
@@ -199,30 +181,6 @@ public class DynamicLabelUtil {
         if(transformedDoc==null)return null;
         Node node = transformedDoc.selectSingleNode("/result-lable");
         return node == null ? null : node.getText();
-    }
-
-    /**
-     * DOC HSHU Comment method "styleDocument".
-     * @param document
-     * @param stylesheet
-     * @return
-     * @throws Exception
-     */
-    public static Document styleDocument(Document document, String stylesheet) throws Exception {
-
-        // load the transformer using JAXP
-        TransformerFactory factory = TransformerFactory.newInstance();
-        Transformer transformer = factory.newTransformer(new StreamSource(new StringReader(stylesheet)));
-
-        // now lets style the given document
-        DocumentSource source = new DocumentSource(document);
-        DocumentResult result = new DocumentResult();
-        transformer.transform(source, result);
-
-        // return the transformed document
-        Document transformedDoc = result.getDocument();
-
-        return transformedDoc;
     }
 
 }

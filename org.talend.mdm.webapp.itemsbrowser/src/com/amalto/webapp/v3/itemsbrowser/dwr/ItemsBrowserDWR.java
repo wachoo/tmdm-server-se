@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,10 +56,10 @@ import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
-import com.amalto.webapp.core.util.DynamicLabelUtil;
 import com.amalto.webapp.core.util.Messages;
 import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSByteArray;
@@ -103,6 +104,7 @@ import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
 import com.amalto.webapp.v3.itemsbrowser.bean.BrowseItem;
 import com.amalto.webapp.v3.itemsbrowser.bean.Criteria;
+import com.amalto.webapp.v3.itemsbrowser.bean.DisplayRule;
 import com.amalto.webapp.v3.itemsbrowser.bean.ForeignKeyDrawer;
 import com.amalto.webapp.v3.itemsbrowser.bean.ItemResult;
 import com.amalto.webapp.v3.itemsbrowser.bean.Restriction;
@@ -110,6 +112,8 @@ import com.amalto.webapp.v3.itemsbrowser.bean.SearchTempalteName;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
 import com.amalto.webapp.v3.itemsbrowser.bean.View;
 import com.amalto.webapp.v3.itemsbrowser.bean.WhereCriteria;
+import com.amalto.webapp.v3.itemsbrowser.util.DisplayRulesUtil;
+import com.amalto.webapp.v3.itemsbrowser.util.DynamicLabelUtil;
 import com.amalto.webapp.v3.itemsbrowser.util.PropsUtils;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
@@ -353,7 +357,7 @@ public class ItemsBrowserDWR {
      * @return an error or succes message
      */
     public String setTree(String concept, String viewName, String[] ids, int nodeId, boolean foreignKey, int docIndex,
-            boolean refresh) {
+            boolean refresh) throws Exception{
         WebContext ctx = WebContextFactory.get();
         try {
             if (ids == null) {
@@ -367,7 +371,11 @@ public class ItemsBrowserDWR {
             String dataClusterPK = config.getCluster();
             String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
             Map<String, XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(xsd);
-            XSComplexType xsct = (XSComplexType) (map.get(concept).getType());
+            XSElementDecl xsed = map.get(concept);
+            XSComplexType xsct = (XSComplexType) (xsed.getType());
+            
+            BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(concept);
+            businessConcept.load();
             
             //set status
             if (ids != null) {
@@ -416,6 +424,48 @@ public class ItemsBrowserDWR {
             } else if (!refresh) {
                 createItem(concept, docIndex);
             }
+            
+            // apply display rules
+            try {
+                
+                DisplayRulesUtil displayRulesUtil=new DisplayRulesUtil(xsed);
+                String rulesStyle=displayRulesUtil.genStyle();
+                Document itemDocument=(Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
+                org.dom4j.Document transformedDocument = XmlUtil.styleDocument(itemDocument, rulesStyle);
+                
+                // yes we can override document directly, but I think this way is more safety
+                List<DisplayRule> dspRules=new ArrayList<DisplayRule>();
+                Map<String,String> defaultValueRules=businessConcept.getDefaultValueRulesMap();
+                Map<String,String> visibleRules=businessConcept.getVisibleRulesMap();
+                
+                if(defaultValueRules.size()>0) {
+                    for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
+                        String xpath = (String) iterator.next();
+                        String value = displayRulesUtil.evalDefaultValueRuleResult(transformedDocument,xpath);
+                        if(value!=null) {
+                            dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE,xpath,value));
+                        }
+                    }
+                }
+                
+                if(visibleRules.size()>0) {
+                    for (Iterator<String> iterator = visibleRules.keySet().iterator(); iterator.hasNext();) {
+                        String xpath = (String) iterator.next();
+                        String value = displayRulesUtil.evalVisibleRuleResult(transformedDocument,xpath);
+                        if(value!=null) {
+                            dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_VISIBLE_RULE,xpath,value));
+                        }
+                    }
+                }
+                
+                ctx.getSession().setAttribute("displayRules" + docIndex , dspRules);
+ 
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new XtentisWebappException("Exception happened during parsing display rules! ");
+            }
+            
             ctx.getSession().setAttribute("xpathToPolymType" + docIndex, new HashMap<String, String>());
             ctx.getSession().setAttribute("xpathToPolymFKType" + docIndex, new HashMap<String, String>());
 
@@ -445,9 +495,10 @@ public class ItemsBrowserDWR {
             ctx.getSession().setAttribute("nodeAutorization", nodeAutorization);
 
             return ids != null ? Util.joinStrings(ids, ".") : null;
+            
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            return null;
+            throw e;
         }
     }
 
@@ -977,6 +1028,7 @@ public class ItemsBrowserDWR {
     public TreeNode[] getChildren(int id, int nodeCount, String language, boolean foreignKey, int docIndex, String selectedExtendType) throws Exception {
         TreeNode[] nodes = getChildrenWithKeyMask(id, nodeCount, language, foreignKey, docIndex, false, selectedExtendType);
         handleDynamicLable(nodes,docIndex);//FIXME: performance maybe a problem
+        nodes=handleDisplayRules(nodes,docIndex);
         return nodes;
     }
 
@@ -1005,6 +1057,24 @@ public class ItemsBrowserDWR {
             e.printStackTrace();
             throw new XtentisWebappException("Exception happened during parsing dynamic label! ");
         }
+    }
+    
+    private TreeNode[] handleDisplayRules(TreeNode[] nodes,int docIndex) throws XtentisWebappException {
+        try {
+            List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute("displayRules" + docIndex);
+            if(nodes!=null) {
+                List<TreeNode> nodesList = new ArrayList(Arrays.asList(nodes));
+                for (int i = 0; i < nodes.length; i++) {
+                    DisplayRulesUtil.filterByDisplayRules(nodesList,nodes[i],dspRules);
+                }
+                
+                nodes=nodesList.toArray(new TreeNode[nodesList.size()]);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new XtentisWebappException("Exception happened during parsing display rules! ");
+        }
+        return nodes;
     }
 
     public TreeNode[] getChildrenWithKeyMask(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
