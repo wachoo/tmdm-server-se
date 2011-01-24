@@ -622,6 +622,18 @@ amalto.reporting.Reporting = function () {
 		ReportingInterface.getReportingsName();
 		Ext.getCmp('reportingSelect').setValue('');
 		Ext.getCmp('reportingSelect').store.reload();
+		
+		//fix the bug 18347; ymli
+		//after delete the report, set the buttons disabled and the infos ''.
+		Ext.getCmp('typeReportingInfo').setValue('');
+		Ext.getCmp('reportingInfo').setValue('');
+		Ext.getCmp('pivot').setValue('');
+		
+		Ext.getCmp('displayButton').setDisabled(true);
+        Ext.getCmp('exportButton').setDisabled(true);
+        Ext.getCmp('deleteButton').setDisabled(true);
+        Ext.getCmp('duplicateButton').setDisabled(true);
+        Ext.getCmp('editButton').setDisabled(true);
 	}
 	
 	
