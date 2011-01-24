@@ -38,6 +38,9 @@
 			<zipfileset dir="src/WEB-INF" prefix="WEB-INF">
 				<include name="dwr.xml" />
 			</zipfileset>
+			<zipfileset dir="src/WEB-INF" prefix="WEB-INF">
+				<include name="context.xml" />
+			</zipfileset>
 			<!--<zipfileset file="${webapp.core.lib}" prefix="WEB-INF/lib"/>-->
 			<zipfileset dir=".">
 				<include name="version.properties" />
