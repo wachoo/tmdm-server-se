@@ -24,6 +24,7 @@
 	<property name="ejbs" value="zz.20.core.jar"/>
 	<property name="lib" value="z.mdm.core.jar"/>
 	<property name="conf" value="mdm.conf"/>
+	<property name="conf.template" value="mdm.conf.template"/>
 	<property name="svn.revision" value="36233"/>
     <!-- ================================= 
           target: all              
@@ -97,6 +98,7 @@
 			<fileset dir="${jboss.deploy.dir}" includes="${ejbs}"/>
 			<fileset dir="${jboss.deploy.dir}" includes="${war}"/>
 			<fileset dir="${jboss.bin.dir}" includes="${conf}"/>
+			<fileset dir="${jboss.bin.dir}" includes="${conf.template}"/>
 		</delete>
     </target>
 	
@@ -107,6 +109,7 @@
 		<copy file="${ejbs}" tofile="${jboss.deploy.dir}/${ejbs}"/>
 		<copy file="${war}" tofile="${jboss.deploy.dir}/${war}"/>
 		<copy file="${conf}" tofile="${jboss.bin.dir}/${conf}"/>
+		<copy file="${conf.template}" tofile="${jboss.bin.dir}/${conf.template}"/>
     </target>
 
 </project>

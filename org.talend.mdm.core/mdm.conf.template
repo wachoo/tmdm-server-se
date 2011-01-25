@@ -120,3 +120,4 @@ routing.engine.run.period.millis=2500
 
 #max cache size of objects
 max_cache_size=5000
+cluster_override=false
