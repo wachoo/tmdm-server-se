@@ -603,6 +603,7 @@
 			<xsd:enumeration value="LOWER_THAN_OR_EQUAL"/>
 			<xsd:enumeration value="NO_OPERATOR"/>
 			<xsd:enumeration value="FULLTEXTSEARCH"/>
+			<xsd:enumeration value="EMPTY_NULL"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 

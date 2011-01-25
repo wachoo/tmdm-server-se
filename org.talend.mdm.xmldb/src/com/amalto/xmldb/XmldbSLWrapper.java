@@ -85,17 +85,21 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
 
     // be pessimistic
     protected static boolean SERVER_STATE_OK = false;
+
     // protected final static String CONFIG_FILE = "amaltoConfig.xml";
-    
-    QueryBuilder queryBuilder=getQueryBuilder();
-    protected QueryBuilder getQueryBuilder(){
-    	return new ExistQueryBuilder();
+
+    QueryBuilder queryBuilder = getQueryBuilder();
+
+    protected QueryBuilder getQueryBuilder() {
+        return new ExistQueryBuilder();
     }
+
     static {
         if (MDMConfiguration.isExistDb()) {
             registerDataBase();
         }
     }
+
     protected static void registerDataBase() {
 
         // Make sure the DB is not already registered
@@ -839,7 +843,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
         }
 
     }
-    
+
     /**
      * Direct Query in the native language supported by the XML server
      * 
@@ -883,7 +887,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
 
         } catch (Exception e) {
             String err = "Unable to perform single find for query: \"" + query + "\"" + " on "
-                    + getFullURL(revisionID, clusterName) + ": "  + e.getLocalizedMessage();
+                    + getFullURL(revisionID, clusterName) + ": " + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger("INFO SYSTRACE " + this.getClass()).info(err, e);
             throw new XmlServerException(err);
         }
@@ -916,10 +920,11 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             // if the where Item is null, try to make a simplified x path query
             if (whereItem == null) {
                 // get the concept
-            	String revisionID=QueryBuilder.getRevisionID(conceptPatternsToRevisionID, fullPath);
+                String revisionID = QueryBuilder.getRevisionID(conceptPatternsToRevisionID, fullPath);
                 // determine cluster
-                String clusterName = QueryBuilder.getClusterName(conceptPatternsToRevisionID, conceptPatternsToClusterName, fullPath);
-                
+                String clusterName = QueryBuilder.getClusterName(conceptPatternsToRevisionID, conceptPatternsToClusterName,
+                        fullPath);
+
                 // Replace for QueryBuilder
                 // xquery = "count("+getXQueryCollectionName(revisionID, clusterName)+"/ii/p/"+fullPath+")";
                 xquery = "count(" + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p/" + fullPath + ")";
@@ -1148,16 +1153,16 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
             // issue
             // String revisionID=null;
             String collectionPath = CommonUtil.getPath(revisionID, clusterName);
-            xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/")
-                    .append(conceptName).append(" ");
+            xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/").append(
+                    conceptName).append(" ");
 
             // where
             xqWhere.append("where (1=1)");
 
             if (FKXpath != null) {
-                fatherPK=(fatherPK==null?"":StringEscapeUtils.escapeXml(fatherPK));
-                xqWhere.append(" and ($").append(FKXpath).append(" = '").append(fatherPK).append("'").append(" or $")
-                        .append(FKXpath).append("=concat('[','").append(fatherPK).append("',']')) ");
+                fatherPK = (fatherPK == null ? "" : StringEscapeUtils.escapeXml(fatherPK));
+                xqWhere.append(" and ($").append(FKXpath).append(" = '").append(fatherPK).append("'").append(" or $").append(
+                        FKXpath).append("=concat('[','").append(fatherPK).append("',']')) ");
             }
 
             // build from WhereItem
@@ -1440,25 +1445,22 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
                         where = queryBuilder.getMatchesMethod(factorPivots, encoded);
                     } else {
                         if (isXpathFunction) {
-                        	where = " contains(" + factorPivots + " , "
-							+ encoded + ") ";
+                            where = " contains(" + factorPivots + " , " + encoded + ") ";
                         } else {
                             where = queryBuilder.getMatchesMethod(factorPivots, encoded);
-                            
+
                         }
                     }
                 } else if (predicate.equals(WhereCondition.PRE_NOT)) {
-					if (isAttribute) {
-						where = "not "+ queryBuilder.getMatchesMethod(factorPivots, encoded);
-					} else {
-						if (isXpathFunction) {
-							where = "not(" + " contains(" + factorPivots + " , "
-									+ encoded + ") " + ")";
-						} else {
-							where = "not(" + queryBuilder.getMatchesMethod(factorPivots, encoded) +
-									")";
-						}
-					}
+                    if (isAttribute) {
+                        where = "not " + queryBuilder.getMatchesMethod(factorPivots, encoded);
+                    } else {
+                        if (isXpathFunction) {
+                            where = "not(" + " contains(" + factorPivots + " , " + encoded + ") " + ")";
+                        } else {
+                            where = "not(" + queryBuilder.getMatchesMethod(factorPivots, encoded) + ")";
+                        }
+                    }
                 }
 
             } else if (operator.equals(WhereCondition.STRICTCONTAINS)) {
@@ -1466,8 +1468,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
                 where = queryBuilder.getMatchesMethod(factorPivots, encoded);
             } else if (operator.equals(WhereCondition.STARTSWITH)) {
                 if (isXpathFunction) {
-                	where = "starts-with(" + factorPivots + ", " 
-					+ encoded + ") ";
+                    where = "starts-with(" + factorPivots + ", " + encoded + ") ";
                 } else {
                     // where = "near("+factorPivots+", \""+encoded+"*\",1)";
                     where = queryBuilder.getMatchesMethod(factorPivots, encoded);
@@ -1543,6 +1544,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
                 } else {
                     where = factorPivots + " " + useOpe + " \"" + encoded + "\"";
                 }
+            } else if (operator.equals(WhereCondition.EMPTY_NULL)) {
+                where = factorPivots + "[not(text())]";
             } else if (operator.equals(WhereCondition.NO_OPERATOR)) {
                 where = factorPivots;
             }
@@ -1794,10 +1797,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
         throw new UnsupportedOperationException();
     }
 
-	
-	public ArrayList<String> runQuery(String revisionID, String clusterName,
-			String query, String[] parameters, int start, int limit,
-			boolean withTotalCount) throws XmlServerException {
-		return runQuery(revisionID, clusterName, query, parameters);
-	}
+    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start,
+            int limit, boolean withTotalCount) throws XmlServerException {
+        return runQuery(revisionID, clusterName, query, parameters);
+    }
 }

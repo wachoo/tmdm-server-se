@@ -33,12 +33,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -1471,8 +1471,8 @@ public class Util {
                     String universe = LocalUser.getLocalUser().getUniverse().getName();
                     Object o = jxpContext.getValue(xpath);
                     if (o == null || o.toString().trim().length() == 0)
-                        value = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster,
-                                concept + "." + xpath.replaceAll("/", ".")));
+                        value = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, concept + "."
+                                + xpath.replaceAll("/", ".")));
                     else
                         value = o.toString();
                 }
@@ -1592,8 +1592,8 @@ public class Util {
         try {
             String type;
             type = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element[@name='" + businessConceptName
-                    + "']/xsd:complexType//xsd:element[@name='" + keyName + "']/@type",
-                    getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"))[0];
+                    + "']/xsd:complexType//xsd:element[@name='" + keyName + "']/@type", getRootElement("nsholder", xsd
+                    .getDocumentElement().getNamespaceURI(), "xsd"))[0];
 
             return type;
         } catch (TransformerException e) {
@@ -1805,8 +1805,8 @@ public class Util {
      */
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws XtentisException {
         try {
-            XObject xo = XPathAPI.eval(contextNode, xPath,
-                    (namespace == null) ? contextNode : Util.getRootElement("nsholder", namespace, prefix));
+            XObject xo = XPathAPI.eval(contextNode, xPath, (namespace == null) ? contextNode : Util.getRootElement("nsholder",
+                    namespace, prefix));
             if (xo.getType() != XObject.CLASS_NODESET)
                 return null;
             return xo.nodelist();
@@ -2582,9 +2582,9 @@ public class Util {
         if (ids == null)
             return itemPKXmlString.toString();
 
-        itemPKXmlString.append("<item-pOJOPK><concept-name>").append(conceptName).append("</concept-name><ids>")
-                .append(joinStrings(ids, ".")).append("</ids><data-cluster-pOJOPK><ids>").append(clusterName)
-                .append("</ids></data-cluster-pOJOPK></item-pOJOPK>");
+        itemPKXmlString.append("<item-pOJOPK><concept-name>").append(conceptName).append("</concept-name><ids>").append(
+                joinStrings(ids, ".")).append("</ids><data-cluster-pOJOPK><ids>").append(clusterName).append(
+                "</ids></data-cluster-pOJOPK></item-pOJOPK>");
 
         return itemPKXmlString.toString();
     }
@@ -3320,7 +3320,9 @@ public class Util {
             if (conditions.get(i) instanceof WhereCondition) {
                 WhereCondition condition = (WhereCondition) conditions.get(i);
 
-                if (condition.getRightValueOrPath() == null || condition.getRightValueOrPath().length() == 0) {
+                if (condition.getRightValueOrPath() == null
+                        || (condition.getRightValueOrPath().length() == 0 && !condition.getOperator().equals(
+                                WhereCondition.EMPTY_NULL))) {
                     conditions.remove(i);
                 }
             }

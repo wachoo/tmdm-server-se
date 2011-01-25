@@ -60,6 +60,7 @@ public class RoleWhereCondition {
 		else if (this.getOperator().equals("Starts With")) operator = WhereCondition.STARTSWITH;
 		else if (this.getOperator().equals("Strict Contains")) operator = WhereCondition.STRICTCONTAINS;
 		else if (this.getOperator().equals("No Operator")) operator = WhereCondition.NO_OPERATOR;
+		else if (this.getOperator().equals("Is Empty Or Null")) operator = WhereCondition.EMPTY_NULL;
 		
 		String predicate = WhereCondition.PRE_NONE;
 		if (this.getPredicate().equalsIgnoreCase("and")) predicate = WhereCondition.PRE_AND;
