@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amalto.webapp.core.util.GxtFactory;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSLogout;
@@ -20,13 +21,15 @@ import com.amalto.webapp.util.webservices.WSLogout;
 
 public abstract class GenericControllerServlet extends HttpServlet {
 	
-	/**
-	 * 
-	 */
+
+    private static final String GXT_PROPERTIES = "gxt.properties";
+    /** a reference to the factory used to create Gxt instances */
+    private GxtFactory gxtFactory;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+		this.gxtFactory = new GxtFactory(GXT_PROPERTIES);
 	}
 	
 	@Override
@@ -131,6 +134,11 @@ public abstract class GenericControllerServlet extends HttpServlet {
 				imports.add(tmp);
 				//tmp ="<link rel=\"stylesheet\" type=\"text/css\" href=\"/"+subMenu.getContext()+"/secure/css/"+subMenu.getApplication()+".css\"></link>\n";
 				//imports.add(tmp);
+				String gxtEntryModule=gxtFactory.getGxtEntryModule(subMenu.getContext(), subMenu.getApplication());
+				if(gxtEntryModule!=null) {
+				    tmp ="<script type=\"text/javascript\" src=\"/"+subMenu.getContext()+"/"+gxtEntryModule+"/"+gxtEntryModule+".nocache.js\"></script>\n";
+	                imports.add(tmp);
+				}
 				i++;
 			}
 
