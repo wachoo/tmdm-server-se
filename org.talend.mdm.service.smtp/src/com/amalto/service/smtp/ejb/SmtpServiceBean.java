@@ -186,7 +186,7 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
                 + "  from:         mandatory; the email address of the sender.\n"
                 + "  to:           mandatory; the email addresses of the recipients,separated by commas.\n"
                 + "  permanentbcc: optional;  the permanent blind copied recipients.\n"
-                + "  subjectPrefix:optional;  a sentence inserted at the beginning of the subject line.\n"
+                + "  subjectprefix:optional;  a sentence inserted at the beginning of the subject line.\n"
                 + "  logfilename:  optional;  the full path of a log file that records the mails sent.\n"
                 + "  process:      optional;  an optional process.When no process is supplied,the item xml will be used as the body "
                 + "of the mail.When a process is supplied,the following variables,including \'recipients\',\'subject\',\'body\'and \'contenttype\',will be extracted from the pipeline after the "
@@ -709,8 +709,8 @@ public class SmtpServiceBean extends ServiceCtrlBean implements SessionBean {
         return "There are two type parameters,\n\n" + "One(Example) :\n"
                 + "from=***@***.com&to=###@###.com&subjectprefix=MDM Logging Event" + "\n\n\n" + "Two(Example) :\n"
                 + "<parameters>\n" + "	<from>***@***.com</from>\n" + "	<to>###@###.com</to>\n" + "	<cc></cc>\n"
-                + "	<bcc></bcc>\n" + "	<logFileName></logFileName>\n" + "	<subjectprefix></subjectprefix>\n"
-                + "	<logfilename></logfilename>\n" + "	<process></process>\n" + "</parameters>\n";
+                + "	<bcc></bcc>\n" + "	<subjectprefix></subjectprefix>\n" + "	<logfilename></logfilename>\n"
+                + "	<process></process>\n" + "</parameters>\n";
     }
 
     /**
