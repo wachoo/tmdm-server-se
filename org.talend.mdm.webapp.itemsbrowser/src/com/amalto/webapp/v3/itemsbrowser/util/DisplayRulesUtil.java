@@ -234,7 +234,8 @@ public class DisplayRulesUtil{
                 String xpathInRule=XmlUtil.normalizeXpath(displayRule.getXpath());
                 if(displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
                     if(xpath.equals(xpathInRule)){
-                        node.setValue(displayRule.getValue());
+                        if(node.getValue()==null||node.getValue().trim().equals(""))
+                           node.setValue(displayRule.getValue());
                     }
                 }else if(displayRule.getType().equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
                     if(xpath.startsWith(xpathInRule)){
