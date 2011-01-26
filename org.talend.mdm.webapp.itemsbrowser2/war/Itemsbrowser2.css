@@ -1,0 +1,42 @@
+/** Add css rules here for your application. */
+.mail-item-detail {
+  height: 55px;
+  background-color: #ddd;
+  border-bottom: 1px solid silver;
+}
+
+.mail-item-detail h1 {
+  font-weight: bold;
+  font-size: 12px;
+  padding: 5 0 2 5px;
+}
+
+.mail-item-detail h2 {
+  font-size: 11px;
+  font-weight: normal;
+  padding: 0 5 0 5px;
+}
+
+.mail-item-detail h3 {
+  font-size: 11px;
+  font-weight: normal;
+  padding: 0 5 5 5px;
+}
+
+.mail-item-body {
+  padding: 12px;
+}
+
+.icon-email {
+  background-image: url(./images/icons/email.png) !important;
+}
+
+.icon-email-add {
+  background-image: url(./images/icons/email_add.gif) !important;
+}
+
+.icon-email-reply {
+  background-image: url(./images/icons/email_go.png) !important;
+}
+
+

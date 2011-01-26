@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dwr>
+    <allow>
+        <create creator="new" javascript="ItemsBrowser2Interface">
+            <param name="class" value="org.talend.mdm.webapp.itemsbrowser2.server.dwr.ItemsBrowser2DWR"/>
+        </create>
+        
+        <convert converter="bean" match="java.lang.Exception"/>
+        
+        
+    </allow>
+
+</dwr>
