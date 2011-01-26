@@ -50,7 +50,7 @@ Ext.extend(amalto.updatereport.DataLogViewer, Ext.Panel, {
 		        		amalto.itemsbrowser.ItemsBrowser.editItemDetails(this.key, this.concept, function(){});
 		        	}
 		        	else {
-		        		Ext.MessageBox.alert("Error", "please set dataCluster and dataModel!");
+		        		Ext.MessageBox.alert("Error", "Please select the corresponding Data Container and Data Model.");
 		        	}
 		        	DWREngine.setAsync(true);
 		        	}.createDelegate(this)
