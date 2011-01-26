@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.regex.Matcher;
@@ -66,6 +65,16 @@ public class ItemPOJO implements Serializable {
     private String[] itemIds;
 
     private Element projection;
+
+    private String taskId;
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
 
     /* cached the Object pojos to improve performance */
     private static LRUCache<ItemCacheKey, String> cachedPojo;
@@ -408,6 +417,10 @@ public class ItemPOJO implements Serializable {
                     newItem.setPlanPK(new SynchronizationPlanPOJOPK(plan));
                 else
                     newItem.setPlanPK(null);
+                String taskId = Util.getFirstTextNode(header, "taskId");
+                if (taskId != null) {
+                    newItem.setTaskId(taskId);
+                }
 
                 if (m.group(2) == null || m.group(2).equals("<p/>")) {
                     newItem.setProjectionAsString("");
@@ -424,20 +437,22 @@ public class ItemPOJO implements Serializable {
             if (checkRights && newItem.getDataModelName() != null) {
                 try {
 
-                    AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(
-                            new AppinfoSourceHolderPK(newItem.getDataModelName(), newItem.getConceptName()));
-                    
+                    AppinfoSourceHolder appinfoSourceHolder = new AppinfoSourceHolder(new AppinfoSourceHolderPK(
+                            newItem.getDataModelName(), newItem.getConceptName()));
+
                     SchemaCoreAgent.getInstance().analyzeAccessRights(
-                            new DataModelID(newItem.getDataModelName(), newItem.getDataModelRevision()), newItem.getConceptName(), appinfoSourceHolder);
+                            new DataModelID(newItem.getDataModelName(), newItem.getDataModelRevision()),
+                            newItem.getConceptName(), appinfoSourceHolder);
 
                     String itemContentString = newItem.getProjectionAsString();
                     HashSet<String> roles = LocalUser.getLocalUser().getRoles();
 
-                    Document cleanedDocument = SchemaCoreAgent.getInstance().executeHideCheck(itemContentString, roles, appinfoSourceHolder);
+                    Document cleanedDocument = SchemaCoreAgent.getInstance().executeHideCheck(itemContentString, roles,
+                            appinfoSourceHolder);
 
                     if (cleanedDocument != null)
                         newItem.setProjectionAsString(Util.nodeToString(cleanedDocument));
-                    
+
                 } catch (Exception e) {
                     String err = "Unable to check user rights of the item " + itemPOJOPK.getUniqueID() + ": "
                             + e.getClass().getName() + ": " + e.getLocalizedMessage();
@@ -478,8 +493,8 @@ public class ItemPOJO implements Serializable {
             authorized = true;
             // } else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
         } else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId())
-                || user.userItemCanWrite(adminLoad(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), itemPOJOPK
-                        .getConceptName())) { // aiming modify see 10027
+                || user.userItemCanWrite(adminLoad(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId(),
+                        itemPOJOPK.getConceptName())) { // aiming modify see 10027
             authorized = true;
         }
 
@@ -545,8 +560,8 @@ public class ItemPOJO implements Serializable {
             authorized = true;
             // } else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
         } else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId())
-                || user.userItemCanWrite(adminLoad(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), itemPOJOPK
-                        .getConceptName())) { // aiming modify see 10027
+                || user.userItemCanWrite(adminLoad(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId(),
+                        itemPOJOPK.getConceptName())) { // aiming modify see 10027
             authorized = true;
         }
 
@@ -664,8 +679,8 @@ public class ItemPOJO implements Serializable {
 
             // str 2 pojo
             DroppedItemPOJO droppedItemPOJO = new DroppedItemPOJO(revisionID, itemPOJOPK.getDataClusterPOJOPK(), uniqueID,
-                    itemPOJOPK.getConceptName(), itemPOJOPK.getIds(), partPath, xmlDocument.toString(), userName, new Long(System
-                            .currentTimeMillis()));
+                    itemPOJOPK.getConceptName(), itemPOJOPK.getIds(), partPath, xmlDocument.toString(), userName, new Long(
+                            System.currentTimeMillis()));
 
             // Marshal
             StringWriter sw = new StringWriter();
@@ -880,6 +895,7 @@ public class ItemPOJO implements Serializable {
             item += "	<i>" + (ids[i] == null ? "" : StringEscapeUtils.escapeXml(ids[i].trim())) + "</i>";
         }
         item += "	<t>" + getInsertionTime() + "</t>";
+        item += "<taskId>" + getTaskId() + "</taskId>";
         item += "	<p>" + getProjectionAsString() + "</p>";
         item += "</ii>";
 

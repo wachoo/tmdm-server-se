@@ -58,6 +58,16 @@ public class ItemCtrl2Remote extends Observable
 
    }
 
+   public com.amalto.core.ejb.ItemPOJOPK updateItemMetadata ( com.amalto.core.ejb.ItemPOJO item )
+	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        com.amalto.core.ejb.ItemPOJOPK retval;
+       retval =  getSession().updateItemMetadata( item );
+
+      return retval;
+
+   }
+
    public com.amalto.core.ejb.ItemPOJO getItem ( com.amalto.core.ejb.ItemPOJOPK pk )
 	  throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
    {

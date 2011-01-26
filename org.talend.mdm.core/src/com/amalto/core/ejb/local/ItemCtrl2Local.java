@@ -20,6 +20,12 @@ public interface ItemCtrl2Local
    public com.amalto.core.ejb.ItemPOJOPK putItem( com.amalto.core.ejb.ItemPOJO item,com.amalto.core.objects.datamodel.ejb.DataModelPOJO datamodel ) throws com.amalto.core.util.XtentisException;
 
    /**
+    * updates a item taskId
+    * @throws XtentisException
+    */
+   public com.amalto.core.ejb.ItemPOJOPK updateItemMetadata( com.amalto.core.ejb.ItemPOJO item ) throws com.amalto.core.util.XtentisException;
+
+   /**
     * Get item
     * @throws XtentisException
     */
@@ -118,7 +124,7 @@ public interface ItemCtrl2Local
    /**
     * Returns an ordered collection of results searched in a cluster and specifying an optional condition<br/> The results are xml objects made of elements constituted by the specified viewablePaths
     * @param dataClusterPOJOPK The Data Cluster where to run the query
-    * @param forceMainPivot An optional pivot that will appear first in the list of pivots in the query<br>: This allows forcing cartesian products: for instance Order Header vs Order Line
+    * @param forceMainPivot An optional pivot that will appear first in the list of pivots in the query<br> : This allows forcing cartesian products: for instance Order Header vs Order Line
     * @param viewablePaths The list of elements returned in each result
     * @param whereItem The condition
     * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
@@ -132,7 +138,7 @@ public interface ItemCtrl2Local
    /**
     * Returns an ordered collection of results searched in a cluster and specifying an optional condition<br/> The results are xml objects made of elements constituted by the specified viewablePaths
     * @param dataClusterPOJOPK The Data Cluster where to run the query
-    * @param forceMainPivot An optional pivot that will appear first in the list of pivots in the query<br>: This allows forcing cartesian products: for instance Order Header vs Order Line
+    * @param forceMainPivot An optional pivot that will appear first in the list of pivots in the query<br> : This allows forcing cartesian products: for instance Order Header vs Order Line
     * @param viewablePaths The list of elements returned in each result
     * @param whereItem The condition
     * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
