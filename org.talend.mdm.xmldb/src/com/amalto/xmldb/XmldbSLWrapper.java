@@ -1545,7 +1545,8 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
                     where = factorPivots + " " + useOpe + " \"" + encoded + "\"";
                 }
             } else if (operator.equals(WhereCondition.EMPTY_NULL)) {
-                where = factorPivots + "[not(text())]";
+                // ticket 18359, query empty node or node doesn't exist
+                where = "not(" + factorPivots + ") or " + factorPivots + "[not(text())]";
             } else if (operator.equals(WhereCondition.NO_OPERATOR)) {
                 where = factorPivots;
             }
