@@ -71,7 +71,12 @@ public class WSWhereCondition_LiteralSerializer extends LiteralObjectSerializerB
                 member = ns2myns2_WSWhereOperator__WSWhereOperator_LiteralSerializer.deserialize(ns1_operator_QNAME, reader, context);
                 instance.setOperator((com.amalto.webapp.util.webservices.WSWhereOperator)member);
                 reader.nextElementContent();
+            } else {
+                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_operator_QNAME, reader.getName() });
             }
+        }
+        else {
+            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
@@ -87,7 +92,12 @@ public class WSWhereCondition_LiteralSerializer extends LiteralObjectSerializerB
                 member = ns2myns2_WSStringPredicate__WSStringPredicate_LiteralSerializer.deserialize(ns1_stringPredicate_QNAME, reader, context);
                 instance.setStringPredicate((com.amalto.webapp.util.webservices.WSStringPredicate)member);
                 reader.nextElementContent();
+            } else {
+                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_stringPredicate_QNAME, reader.getName() });
             }
+        }
+        else {
+            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {

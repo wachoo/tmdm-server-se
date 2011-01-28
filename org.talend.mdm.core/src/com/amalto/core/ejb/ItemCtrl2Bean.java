@@ -596,6 +596,8 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param labelXpath
      * @param fatherPK
      * @param whereItem
+     * @param start The first item index (starts at zero)
+     * @param limit The maximum number of items to return
      * 
      * @return
      * @throws XtentisException
@@ -604,9 +606,9 @@ public class ItemCtrl2Bean implements SessionBean {
      * @ejb.facade-method
      */
     public ArrayList<String> getChildrenItems(String clusterName, String conceptName, String PKXpaths[], String FKXpath,
-            String labelXpath, String fatherPK, IWhereItem whereItem) throws XtentisException {
+            String labelXpath, String fatherPK, IWhereItem whereItem, int start, int limit) throws XtentisException {
         return BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator()
-                .getChildrenItems(clusterName, conceptName, PKXpaths, FKXpath, labelXpath, fatherPK, whereItem);
+                .getChildrenItems(clusterName, conceptName, PKXpaths, FKXpath, labelXpath, fatherPK, whereItem, start, limit);
     }
 
     /**

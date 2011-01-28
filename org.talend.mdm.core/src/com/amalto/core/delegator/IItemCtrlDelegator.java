@@ -124,7 +124,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
 			String FKXpath,
 			String labelXpath,
 			String fatherPK,
-			IWhereItem whereItem
+			IWhereItem whereItem,
+		    int start, 
+		    int limit
 	) throws XtentisException{
 		
 		try {
@@ -177,7 +179,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator{
 				         fatherPK, 
 				         universe.getItemsRevisionIDs(),
 			             universe.getDefaultItemRevisionID(),
-			             fullWhere);
+			             fullWhere,
+			             start,
+			             limit);
 		                
 		
 		       org.apache.log4j.Logger.getLogger(this.getClass()).debug(query);

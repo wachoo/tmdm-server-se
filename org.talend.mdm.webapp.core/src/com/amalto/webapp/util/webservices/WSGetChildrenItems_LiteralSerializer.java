@@ -32,6 +32,10 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
     private static final QName ns1_whereItem_QNAME = new QName("", "whereItem");
     private static final QName ns2_WSWhereItem_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSWhereItem");
     private CombinedSerializer ns2_myWSWhereItem_LiteralSerializer;
+    private static final QName ns1_start_QNAME = new QName("", "start");
+    private static final QName ns3_int_TYPE_QNAME = SchemaConstants.QNAME_TYPE_INT;
+    private CombinedSerializer ns3_myns3__int__int_Int_Serializer;
+    private static final QName ns1_limit_QNAME = new QName("", "limit");
     
     public WSGetChildrenItems_LiteralSerializer(QName type, String encodingStyle) {
         this(type, encodingStyle, false);
@@ -45,6 +49,7 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
         ns3_myns3_string__java_lang_String_String_Serializer = (CombinedSerializer)registry.getSerializer("", java.lang.String.class, ns3_string_TYPE_QNAME);
         ns2_myWSStringArray_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSStringArray.class, ns2_WSStringArray_TYPE_QNAME);
         ns2_myWSWhereItem_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSWhereItem.class, ns2_WSWhereItem_TYPE_QNAME);
+        ns3_myns3__int__int_Int_Serializer = (CombinedSerializer)registry.getSerializer("", int.class, ns3_int_TYPE_QNAME);
     }
     
     public Object doDeserialize(XMLReader reader,
@@ -144,6 +149,38 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
                 reader.nextElementContent();
             }
         }
+        elementName = reader.getName();
+        if (reader.getState() == XMLReader.START) {
+            if (elementName.equals(ns1_start_QNAME)) {
+                member = ns3_myns3__int__int_Int_Serializer.deserialize(ns1_start_QNAME, reader, context);
+                if (member == null) {
+                    throw new DeserializationException("literal.unexpectedNull");
+                }
+                instance.setStart(((Integer)member).intValue());
+                reader.nextElementContent();
+            } else {
+                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_start_QNAME, reader.getName() });
+            }
+        }
+        else {
+            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
+        }
+        elementName = reader.getName();
+        if (reader.getState() == XMLReader.START) {
+            if (elementName.equals(ns1_limit_QNAME)) {
+                member = ns3_myns3__int__int_Int_Serializer.deserialize(ns1_limit_QNAME, reader, context);
+                if (member == null) {
+                    throw new DeserializationException("literal.unexpectedNull");
+                }
+                instance.setLimit(((Integer)member).intValue());
+                reader.nextElementContent();
+            } else {
+                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_limit_QNAME, reader.getName() });
+            }
+        }
+        else {
+            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
+        }
         
         XMLReaderUtil.verifyReaderState(reader, XMLReader.END);
         return (Object)instance;
@@ -175,5 +212,13 @@ public class WSGetChildrenItems_LiteralSerializer extends LiteralObjectSerialize
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getLabelXpath(), ns1_labelXpath_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getFatherPK(), ns1_fatherPK_QNAME, null, writer, context);
         ns2_myWSWhereItem_LiteralSerializer.serialize(instance.getWhereItem(), ns1_whereItem_QNAME, null, writer, context);
+        if (new Integer(instance.getStart()) == null) {
+            throw new SerializationException("literal.unexpectedNull");
+        }
+        ns3_myns3__int__int_Int_Serializer.serialize(new Integer(instance.getStart()), ns1_start_QNAME, null, writer, context);
+        if (new Integer(instance.getLimit()) == null) {
+            throw new SerializationException("literal.unexpectedNull");
+        }
+        ns3_myns3__int__int_Int_Serializer.serialize(new Integer(instance.getLimit()), ns1_limit_QNAME, null, writer, context);
     }
 }

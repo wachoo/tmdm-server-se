@@ -14,11 +14,13 @@ public class WSGetChildrenItems {
     protected java.lang.String labelXpath;
     protected java.lang.String fatherPK;
     protected com.amalto.webapp.util.webservices.WSWhereItem whereItem;
+    protected int start;
+    protected int limit;
     
     public WSGetChildrenItems() {
     }
     
-    public WSGetChildrenItems(java.lang.String clusterName, java.lang.String conceptName, com.amalto.webapp.util.webservices.WSStringArray PKXpaths, java.lang.String FKXpath, java.lang.String labelXpath, java.lang.String fatherPK, com.amalto.webapp.util.webservices.WSWhereItem whereItem) {
+    public WSGetChildrenItems(java.lang.String clusterName, java.lang.String conceptName, com.amalto.webapp.util.webservices.WSStringArray PKXpaths, java.lang.String FKXpath, java.lang.String labelXpath, java.lang.String fatherPK, com.amalto.webapp.util.webservices.WSWhereItem whereItem, int start, int limit) {
         this.clusterName = clusterName;
         this.conceptName = conceptName;
         this.PKXpaths = PKXpaths;
@@ -26,6 +28,8 @@ public class WSGetChildrenItems {
         this.labelXpath = labelXpath;
         this.fatherPK = fatherPK;
         this.whereItem = whereItem;
+        this.start = start;
+        this.limit = limit;
     }
     
     public java.lang.String getClusterName() {
@@ -82,5 +86,21 @@ public class WSGetChildrenItems {
     
     public void setWhereItem(com.amalto.webapp.util.webservices.WSWhereItem whereItem) {
         this.whereItem = whereItem;
+    }
+    
+    public int getStart() {
+        return start;
+    }
+    
+    public void setStart(int start) {
+        this.start = start;
+    }
+    
+    public int getLimit() {
+        return limit;
+    }
+    
+    public void setLimit(int limit) {
+        this.limit = limit;
     }
 }

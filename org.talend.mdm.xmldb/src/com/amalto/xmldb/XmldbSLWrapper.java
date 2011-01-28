@@ -1136,7 +1136,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
 
     public String getChildrenItemsQuery(String clusterName, String conceptName, String[] PKXpaths, String FKXpath,
             String labelXpath, String fatherPK, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID,
-            IWhereItem whereItem) throws XmlServerException {
+            IWhereItem whereItem, int start, int limit) throws XmlServerException {
 
         try {
 
@@ -1211,6 +1211,10 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
 
             xq.append(xqFor).append(xqWhere).append(xqOrderby).append(xqReturn);
             query = xq.toString();
+            
+            if (start >= 0 && limit > 0) {
+                query = "let $list := \n" + query + "\n return subsequence($list," + (start + 1) + "," + limit + ")";
+            }
 
             return query;
 

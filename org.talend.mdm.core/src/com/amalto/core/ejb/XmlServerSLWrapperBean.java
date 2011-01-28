@@ -998,6 +998,8 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	 * @param itemsRevisionIDs
 	 * @param defaultRevisionID
 	 * @param whereItem
+	 * @param start
+     * @param limit
 	 * @return
 	 * @throws XmlServerException
 	 * 
@@ -1014,7 +1016,9 @@ public class XmlServerSLWrapperBean implements SessionBean {
 			String fatherPK,
 			LinkedHashMap<String, String> itemsRevisionIDs,
 			String defaultRevisionID,
-			IWhereItem whereItem
+			IWhereItem whereItem,
+	        int start, 
+	        int limit
 	) throws XtentisException{
 		try {
 	        return server.getChildrenItemsQuery(
@@ -1026,7 +1030,9 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	        		fatherPK, 
 	        		itemsRevisionIDs, 
 	        		defaultRevisionID,
-	        		whereItem);
+	        		whereItem,
+	                start,
+	                limit);
 	        	
         } catch (XmlServerException e) {
 	        throw new XtentisException("Unable to get the Xtentis Items Query", e);
