@@ -456,8 +456,13 @@ public abstract class QueryBuilder {
                     where = factorPivots + " le \"" + encoded + "\"";
                 }
             } else if (operator.equals(WhereCondition.EMPTY_NULL)) {
-                // ticket 18359, query empty node or node doesn't exist
-                where = "not(" + factorPivots + ") or " + factorPivots + "[not(text())]";
+                String predicate = wc.getStringPredicate();
+                if (predicate.equals(WhereCondition.PRE_NOT)) {
+                    where = factorPivots + "[text()]";
+                } else {
+                    // ticket 18359, query empty node or node doesn't exist
+                    where = "not(" + factorPivots + ") or " + factorPivots + "[not(text())]";
+                }
             } else if (operator.equals(WhereCondition.NO_OPERATOR)) {
                 where = factorPivots.toString();
             }

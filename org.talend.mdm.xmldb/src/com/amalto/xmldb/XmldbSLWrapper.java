@@ -1211,7 +1211,7 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
 
             xq.append(xqFor).append(xqWhere).append(xqOrderby).append(xqReturn);
             query = xq.toString();
-            
+
             if (start >= 0 && limit > 0) {
                 query = "let $list := \n" + query + "\n return subsequence($list," + (start + 1) + "," + limit + ")";
             }
@@ -1549,8 +1549,13 @@ public class XmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCyc
                     where = factorPivots + " " + useOpe + " \"" + encoded + "\"";
                 }
             } else if (operator.equals(WhereCondition.EMPTY_NULL)) {
-                // ticket 18359, query empty node or node doesn't exist
-                where = "not(" + factorPivots + ") or " + factorPivots + "[not(text())]";
+                String predicate = wc.getStringPredicate();
+                if (predicate.equals(WhereCondition.PRE_NOT)) {
+                    where = factorPivots + "[text()]";
+                } else {
+                    // ticket 18359, query empty node or node doesn't exist
+                    where = "not(" + factorPivots + ") or " + factorPivots + "[not(text())]";
+                }
             } else if (operator.equals(WhereCondition.NO_OPERATOR)) {
                 where = factorPivots;
             }
