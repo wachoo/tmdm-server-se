@@ -1,4 +1,54 @@
--fix layout height bug
+-[frame]
+--fix gxt css override problem
+--fix viewport auto height problem
 
--add to build chain
- before build uncomment some configurations in web.xml
+-[build]
+--add to build chain
+  before build uncomment some configurations in web.xml
+--dependency management 
+  web-core.jar 
+ 
+-[function]
+--add permalink support
+--add search toolbar
+--add breadcrumb
+
+-[mdm function]
+(this part created by yanmei)
+1.Simple search 
+Different data type with different input as date, foreign key; Full text search; includes the where condition in view.
+2.Advance search criteria 
+add and remove criteria; express editor: Different data type with different input as date, foreign key, Full text search; includes the where conditions in view; users can edit the search expression (allows for copy/paste, save, email…also should add validation with red error badge etc. see PPT)
+3.New records
+4.Record lists
+Click an item, show the panel bellow; double click open the item in a new tab; the records list should be editable and should add validation as usual
+5.Bread crumb
+Whenever a record is open, record where it comes from, see the PPT
+6.Export the result to Excel
+7.Import from Excel to the list records
+8.Bookmark
+save and manage in advance search
+9.Multi-lingual labels
+entity, element, description in view, etc
+10.Dynamic labels
+11.FK resolution
+12.PK infos 
+13.Lookup fields
+14.Blue information badge(right of the labels)
+15.Red information(error info right of the input or others)
+16.Error infos on the top of page
+17.Date picker
+18.Inheritance & polymorphism 
+19.Picture(remove and upload)
+20.URL
+21.Display data format
+22.Write and hide access
+23.Validation rule
+24.Key(unique and composite keys )
+25.Call process(as Runnable_,.. also the one define in view)
+26.Trigger 
+27.Record journal
+28.System data type
+customer and system, as UUID,AUTO_INCREMENT,ect.
+29.Record operation
+save /save and close/delete/logic delete/duplicated/journal/refresh
