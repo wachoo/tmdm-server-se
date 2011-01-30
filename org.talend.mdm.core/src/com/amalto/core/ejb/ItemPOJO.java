@@ -420,6 +420,8 @@ public class ItemPOJO implements Serializable {
                 String taskId = Util.getFirstTextNode(header, "taskId");
                 if (taskId != null) {
                     newItem.setTaskId(taskId);
+                } else {
+                    newItem.setTaskId("");
                 }
 
                 if (m.group(2) == null || m.group(2).equals("<p/>")) {
@@ -894,8 +896,8 @@ public class ItemPOJO implements Serializable {
         for (int i = 0; i < ids.length; i++) {
             item += "	<i>" + (ids[i] == null ? "" : StringEscapeUtils.escapeXml(ids[i].trim())) + "</i>";
         }
-        item += "	<t>" + getInsertionTime() + "</t>";
         item += "<taskId>" + getTaskId() + "</taskId>";
+        item += "	<t>" + getInsertionTime() + "</t>";
         item += "	<p>" + getProjectionAsString() + "</p>";
         item += "</ii>";
 
