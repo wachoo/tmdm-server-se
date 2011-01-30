@@ -13,18 +13,20 @@ public class WSItem {
     protected java.lang.String conceptName;
     protected java.lang.String[] ids;
     protected long insertionTime;
+    protected java.lang.String taskId;
     protected java.lang.String content;
     
     public WSItem() {
     }
     
-    public WSItem(com.amalto.webapp.util.webservices.WSDataClusterPK wsDataClusterPK, java.lang.String dataModelName, java.lang.String dataModelRevision, java.lang.String conceptName, java.lang.String[] ids, long insertionTime, java.lang.String content) {
+    public WSItem(com.amalto.webapp.util.webservices.WSDataClusterPK wsDataClusterPK, java.lang.String dataModelName, java.lang.String dataModelRevision, java.lang.String conceptName, java.lang.String[] ids, long insertionTime, java.lang.String taskId, java.lang.String content) {
         this.wsDataClusterPK = wsDataClusterPK;
         this.dataModelName = dataModelName;
         this.dataModelRevision = dataModelRevision;
         this.conceptName = conceptName;
         this.ids = ids;
         this.insertionTime = insertionTime;
+        this.taskId = taskId;
         this.content = content;
     }
     
@@ -74,6 +76,14 @@ public class WSItem {
     
     public void setInsertionTime(long insertionTime) {
         this.insertionTime = insertionTime;
+    }
+    
+    public java.lang.String getTaskId() {
+        return taskId;
+    }
+    
+    public void setTaskId(java.lang.String taskId) {
+        this.taskId = taskId;
     }
     
     public java.lang.String getContent() {
