@@ -342,7 +342,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Add a new user'
 	};
 	
-	
+	var BUTTON_TASK = {
+		'fr':'Open Task',
+		'en':'Open Task'
+	};
 	
 	var LABEL_DATAOBJECT = {
 		'fr':'Entité',
@@ -444,6 +447,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var JOURNAL_TOOLTIP={
 		'fr':'Ouvre le journal d\'audit de cet enregistrement',
 		'en':'Browse the audit trail for this record'
+	};
+	var TASK_TOOLTIP={
+		'fr':'Ouvre le journal d\'audit de cet enregistrement',
+		'en':'Browse the task for this record'
 	};
 	var ACTION_TOOLTIP={
         'fr':'Lancer le process',
@@ -2120,6 +2127,17 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			nbButtons++;
 		}
 		
+		// task
+		if ( (options&O_JOURNAL)==O_JOURNAL && amalto.updatereport) {
+			if (nbButtons>0){
+				toolbar.addSeparator();
+				nbButtons++;
+			}
+	
+			toolbar.addButton( {tooltip:TASK_TOOLTIP[language], iconCls : 'item_bt_task', text: BUTTON_TASK[language], className: 'tb-button tb-button-nude', handler: toolbar.taskItemHandler});
+			nbButtons++;
+		}
+		
 		// action
         if ( (options&O_ACTION)==O_ACTION )
         {
@@ -2415,6 +2433,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         		tbDetail.journalItemHandler = function() {
         			journalItem(ids, dataObject);
         		};
+        		
+        		tbDetail.taskItemHandler = function() {
+        			taskItem(rootNode.taskId);
+        		};
+        		
         		tbDetail.processItemHandler = function() {
                     
                     selectedProcess = Ext.getCmp('processCombo'+tbDetail.treeIndex).value;
@@ -3403,6 +3426,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    }
 	}
 	
+	function taskItem(taskId) {
+		amalto.datastewardship.Datastewardship.taskItem(taskId);
+	}
 	
 	function journalItem(ids, dataObject){
 		if(ids.indexOf("@")>0)ids=ids.replaceAll("@",".");

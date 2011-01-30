@@ -41,6 +41,10 @@
     background-image: url(../img/journal.png) !important;
 }
 
+.item_bt_task {
+    background-image: url(../img/default.gif) !important;
+}
+
 .item_bt_delete {
     background-image: url(../img/delete.png) !important;
 }
