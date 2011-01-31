@@ -344,7 +344,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	var BUTTON_TASK = {
 		'fr':'Open Task',
-		'en':'Open Task'
+		'en':'Ouvrir la tâche'
 	};
 	
 	var LABEL_DATAOBJECT = {
@@ -449,7 +449,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Browse the audit trail for this record'
 	};
 	var TASK_TOOLTIP={
-		'fr':'Ouvre le journal d\'audit de cet enregistrement',
+		'fr':'Ouvre la tâche de cet enregistrement',
 		'en':'Browse the task for this record'
 	};
 	var ACTION_TOOLTIP={
