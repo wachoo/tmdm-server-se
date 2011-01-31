@@ -513,7 +513,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             'fr': 'Sélectionnez le type',
             'en': 'Select a type'
     };
-
+	
+	var NO_TASK_MSG = {
+		'en':'No task related to this record!',
+		'fr':'No task related to this record!'
+	};
+	
 	/*****************
 	 * EXT 2.0
 	 *****************/
@@ -3427,6 +3432,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	function taskItem(taskId) {
+		if(taskId == undefined) {
+			Ext.Msg.alert('Error', NO_TASK_MSG[language]);
+			return;
+		}
 		amalto.datastewardship.Datastewardship.taskItem(taskId);
 	}
 	
