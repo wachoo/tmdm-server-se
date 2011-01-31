@@ -343,8 +343,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	
 	var BUTTON_TASK = {
-		'fr':'Open Task',
-		'en':'Ouvrir la tâche'
+		'fr':'Ouvrir la tâche',
+		'en':'Open Task'
 	};
 	
 	var LABEL_DATAOBJECT = {
