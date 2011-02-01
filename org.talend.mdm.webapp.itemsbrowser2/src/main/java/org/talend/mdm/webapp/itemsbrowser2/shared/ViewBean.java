@@ -22,8 +22,18 @@ import java.util.List;
  */
 public class ViewBean implements Serializable{
     
+    private String viewName;
+    
     private List<String> viewableXpaths;
     
+    public String getViewName() {
+        return viewName;
+    }
+
+    public void setViewName(String viewName) {
+        this.viewName = viewName;
+    }
+
     public List<String> getViewableXpaths() {
         return viewableXpaths;
     }
@@ -31,6 +41,20 @@ public class ViewBean implements Serializable{
     public void addViewableXpath(String xpath) {
         if(this.viewableXpaths==null)viewableXpaths=new ArrayList<String>();
         viewableXpaths.add(xpath);
+    }
+    
+    /**
+     * DOC HSHU Comment method "getEntityNameFromViewName".
+     */
+    public static String getEntityFromViewName(String viewName) {
+        
+        String entity=null;
+        if(viewName==null)return entity;
+        
+        int pos=viewName.lastIndexOf("_");
+        entity=viewName.substring(pos+1);
+        return entity;
+
     }
 
 }

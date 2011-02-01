@@ -34,7 +34,13 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getEntityItems(java.lang.String)
      */
     public List<ItemBean> getEntityItems(String entityName) {
-        List<ItemBean> items = FakeData.getFakeItems();
+        List<ItemBean> items = null;
+        
+        if(entityName.equals("customer"))
+            items=FakeData.getFakeCustomerItems();
+        else if(entityName.equals("state"))
+            items=FakeData.getFakeStateItems();
+        
         return items;
     }
     
@@ -44,10 +50,11 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
      */
     public ViewBean getView(String viewName) {
         ViewBean viewBean=new ViewBean();
+        viewBean.setViewName(viewName);
         //TODO mockup
-        if(viewName.equals("Browse_items_customer")) {
+        if(viewName.equals(FakeData.DEFAULT_VIEW)) {
             
-            String[] viewables=FakeData.getCustomersViewables();
+            String[] viewables=FakeData.getEntityViewables(viewName);
             for (String viewable : viewables) {
                 viewBean.addViewableXpath(viewable);
             }

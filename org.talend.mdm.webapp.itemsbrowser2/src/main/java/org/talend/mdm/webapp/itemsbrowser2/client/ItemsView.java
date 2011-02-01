@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.mockup.ClientFakeData;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsFormPanel;
@@ -203,7 +204,7 @@ public class ItemsView extends View {
         Registry.register(ITEMS_SEARCH_CONTAINER, itemsSearchContainer);
 
         // FIXME
-        String defaultViewName = "Browse_items_customer";
+        String defaultViewName = ClientFakeData.DEFAULT_VIEW;
         Dispatcher.forwardEvent(ItemsEvents.GetView, defaultViewName);
 
     }
