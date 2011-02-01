@@ -1931,6 +1931,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var O_JOURNAL       = 256;
 	var O_ACTION        = 512;
 	var O_REFRESH       = 1024;
+	var O_TASK          = 2048;
 	
 	// modes
 	var M_TREE_VIEW		= 1;
@@ -1976,6 +1977,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				options |= (toolbar.baseOptions & O_JOURNAL);
 				options |= (toolbar.baseOptions & O_ACTION);
 				options |= (toolbar.baseOptions & O_REFRESH);
+				options |= (toolbar.baseOptions & O_TASK);
 				
 			break;
 			case M_PERSO_VIEW:
@@ -2133,7 +2135,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		
 		// task
-		if ( (options&O_JOURNAL)==O_JOURNAL && amalto.updatereport) {
+		if ( (options&O_TASK)==O_TASK && amalto.updatereport) {
 			if (nbButtons>0){
 				toolbar.addSeparator();
 				nbButtons++;
@@ -2438,6 +2440,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         		tbDetail.journalItemHandler = function() {
         			journalItem(ids, dataObject);
         		};
+        		
+        		if(rootNode.taskId != "null") {
+    				tbDetail.baseOptions |= O_TASK;
+    			};
         		
         		tbDetail.taskItemHandler = function() {
         			taskItem(rootNode.taskId);
