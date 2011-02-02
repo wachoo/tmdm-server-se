@@ -61,6 +61,7 @@
 				<include name="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
 			</zipfileset>
 			<zipfileset dir="bin" />
+			<zipfileset dir="src" includes="**/*.properties" />
 		</jar>
 		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
 	</target>
