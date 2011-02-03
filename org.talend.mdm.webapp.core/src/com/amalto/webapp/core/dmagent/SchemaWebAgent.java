@@ -95,8 +95,7 @@ public class SchemaWebAgent extends SchemaManager {
      */
     @Override
     protected void removeFromPool(DataModelID dataModelID) {
-        DataModelBean dataModelBean = DataModelWebPool.getUniqueInstance().remove(dataModelID);
-        dataModelBean = null;
+        DataModelWebPool.getUniqueInstance().remove(dataModelID);
     }
 
     /*
@@ -161,7 +160,8 @@ public class SchemaWebAgent extends SchemaManager {
         DataModelID dataModelID = getMyDataModelTicket();
         List<BusinessConcept> businessConcepts=super.getBusinessConcepts(dataModelID);
         for (BusinessConcept businessConcept : businessConcepts) {
-            if (businessConcept.getCorrespondTypeName().equals(typeName)) {
+            String businessConceptTypeName = businessConcept.getCorrespondTypeName();
+            if (businessConceptTypeName!= null && businessConceptTypeName.equals(typeName)) {
                 targetBusinessConcept = businessConcept;
                 break;
             }
@@ -287,7 +287,7 @@ public class SchemaWebAgent extends SchemaManager {
                 .getXtentisObjectsRevisionIDs();
         for (WSUniverseXtentisObjectsRevisionIDs wsUniverseXtentisObjectsRevisionIDs : wsUniverseXtentisObjectsRevisionIDsArray) {
             String objectName = wsUniverseXtentisObjectsRevisionIDs.getXtentisObjectName();
-            if (objectName != null && objectName.equals("Data Model"))
+            if (objectName != null && objectName.equals("Data Model")) //$NON-NLS-1$
                 revision = wsUniverseXtentisObjectsRevisionIDs.getRevisionID();
         }
 
