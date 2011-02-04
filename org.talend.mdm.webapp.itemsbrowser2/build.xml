@@ -13,9 +13,6 @@
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
 
-	<property name="connector.name" value="talend" />
-	<property name="bonita.version" value="5.3.1" />
-
 	<target name="clean">
 		<antcall target="mvn.invoke">
 			<param name="mvn.goal" value="clean" />
