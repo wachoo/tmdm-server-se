@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="datastewardship" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
 
-	<!-- Hudson build uses its own env. Uncomment these lines to build locally -->
-	<!--
-	<path id="maven-ant-tasks.classpath" path="lib/maven-ant-tasks-2.1.1.jar" />
-	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
-	<loadproperties srcfile="build.properties" />
-	-->
+	<property file="build.properties" />
+
+	<target name="prepare-maven" if="local.developer.build">
+		<path id="maven-ant-tasks.classpath" path="${maven.ant.tasks.file}" />
+		<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
+	</target>
 
 	<property name="build.dir" value="${basedir}/target" />
 	<property name="jboss.dir" value="/media/mdm/opt/trunk/jboss_tem" />
@@ -46,7 +46,7 @@
 
 	<target name="all" depends="clean,package,undeploy,deploy" />
 
-	<target name="mvn.invoke" description="invokes maven">
+	<target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
 		<property environment="env" />
 
 		<artifact:mvn pom="pom.xml" mavenHome="${env.M2_HOME}" fork="true">
