@@ -8,6 +8,7 @@
 	<loadproperties srcfile="build.properties" />
 	-->
 
+	<property name="build.dir" value="${basedir}/target" />
 	<property name="jboss.dir" value="/media/mdm/opt/trunk/jboss_tem" />
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
