@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.talend.mdm.webapp.itemsbrowser2</groupId>
   <artifactId>org.talend.mdm.webapp.itemsbrowser2</artifactId>
-  <version>4.2.0</version>
+  <version>${itemsbrowser2.build.version}</version>
   <packaging>war</packaging>
   <name>org.talend.mdm.webapp.itemsbrowser2</name>
   <url>http://maven.apache.org</url>
@@ -15,14 +15,12 @@
   </organization>
 
   <properties>
-    <!-- convenience to define GWT version in one place -->
     <gwt.version>2.0.3</gwt.version>
-
+    <itemsbrowser2.build.version>4.2.0-SNAPSHOT</itemsbrowser2.build.version>
     <maven.compiler.source>1.5</maven.compiler.source>
     <maven.compiler.target>1.5</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <web.core.version>4.2.0</web.core.version>
     <itemsbrowser2.build.dir>${basedir}/target</itemsbrowser2.build.dir>
   </properties>
 
@@ -80,9 +78,9 @@
     <dependency>
       <groupId>org.talend.mdm.webapp.core</groupId>
       <artifactId>org.talend.mdm.webapp.core</artifactId>
-      <version>${web.core.version}</version>
+      <version>${project.version}</version>
       <scope>system</scope>
-      <systemPath>${basedir}/lib/org.talend.mdm.webapp.core-${web.core.version}.jar</systemPath>
+      <systemPath>${basedir}/../org.talend.mdm.webapp.core/z.mdm.webapp.core.jar</systemPath>
     </dependency>
   </dependencies>
 
@@ -160,12 +158,12 @@
         <configuration>
           <warSourceDirectory>${basedir}/war</warSourceDirectory>
           <webappDirectory>${project.build.directory}/war</webappDirectory>
-          <warName>${project.artifactId}-${project.version}</warName>
+          <warName>${project.artifactId}-${itemsbrowser2.build.version}</warName>
           <useCache>false</useCache>
           <archive>
             <addMavenDescriptor>false</addMavenDescriptor>
             <manifestEntries>
-              <Build-Version>${project.version}</Build-Version>
+              <Build-Version>${itemsbrowser2.build.version}</Build-Version>
               <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
             </manifestEntries>
           </archive>

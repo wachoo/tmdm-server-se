@@ -12,6 +12,7 @@
 	<property name="jboss.dir" value="/media/mdm/opt/trunk/jboss_tem" />
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
+	<property name="mdm.build.version" value="r${product.revision}-V${product.version}${product.qualifier}" />
 
 	<target name="clean">
 		<antcall target="mvn.invoke">
@@ -32,13 +33,11 @@
 	</target>
 
 	<target name="undeploy" description="undeploy war">
-		<delete dir="${jboss.deploy.dir}/org.talend.mdm.webapp.itemsbrowser2.war" />
+		<delete file="${jboss.deploy.dir}/org.talend.mdm.webapp.itemsbrowser2.war" />
 	</target>
 
 	<target name="deploy" description="deploy war">
-		<copy todir="${jboss.deploy.dir}/org.talend.mdm.webapp.itemsbrowser2.war">
-			<fileset dir="${build.dir}/war" />
-		</copy>
+		<copy file="${build.dir}/org.talend.mdm.webapp.itemsbrowser2-${mdm.build.version}.war" tofile="${jboss.deploy.dir}/org.talend.mdm.webapp.itemsbrowser2.war" />
 	</target>
 
 	<target name="all" depends="clean,package,undeploy,deploy" />
@@ -49,6 +48,7 @@
 		<artifact:mvn pom="pom.xml" mavenHome="${env.M2_HOME}" fork="true">
 			<arg value="-V" />
 			<arg value="-Ditemsbrowser2.build.dir=${build.dir}" />
+			<arg value="-Ditemsbrowser2.build.version=${mdm.build.version}" />
 			<arg value="${mvn.goal}" />
 		</artifact:mvn>
 	</target>
