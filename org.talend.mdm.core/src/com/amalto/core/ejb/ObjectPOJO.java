@@ -8,16 +8,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.naming.InitialContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
@@ -31,7 +30,6 @@ import org.xml.sax.InputSource;
 
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
@@ -65,11 +63,13 @@ import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
  */
 public abstract class ObjectPOJO implements Serializable{
    
+    private static Logger LOG = Logger.getLogger(ObjectPOJO.class);
+    
 	/* cached the Object pojos to improve performance*/
 	private static LRUCache<ItemCacheKey, String> cachedPojo;
 	private static  int MAX_CACHE_SIZE=5000;
 	static{
-		String max_cache_size=(String)MDMConfiguration.getConfiguration().get("max_cache_size");
+		String max_cache_size=(String)MDMConfiguration.getConfiguration().get("max_cache_size"); //$NON-NLS-1$
 		if(max_cache_size!=null){
 			MAX_CACHE_SIZE=Integer.valueOf(max_cache_size).intValue();
 		}
@@ -81,12 +81,13 @@ public abstract class ObjectPOJO implements Serializable{
 	}
 	
 	public static String getCluster(String objectClassName) {
-		String[] names = objectClassName.split("\\.");
-		return "amaltoOBJECTS"+names[names.length-1].replaceAll("POJO.*", "");
+		String[] names = objectClassName.split("\\."); //$NON-NLS-1$
+		return "amaltoOBJECTS"+names[names.length-1].replaceAll("POJO.*", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
 	
-	private static Object[][] OBJECT_TYPES = 
+	@SuppressWarnings("nls")
+    private static Object[][] OBJECT_TYPES = 
 		new Object[][] {
 				{"Data Cluster",DataClusterPOJO.class},
 				{"Data Model",DataModelPOJO.class},
@@ -94,8 +95,6 @@ public abstract class ObjectPOJO implements Serializable{
 				{"Routing Rule",RoutingRulePOJO.class},
 				{"Service",ServiceBean.class},
 				{"Stored Procedure",StoredProcedurePOJO.class},
-//				{"Transformer Plugin",TransformerPluginPOJO.class},
-//				{"Transformer",TransformerPOJO.class},
 				{"Transformer Plugin V2",TransformerPluginV2POJO.class},
 				{"Transformer V2",TransformerV2POJO.class},
 				{"View",ViewPOJO.class},
@@ -113,6 +112,7 @@ public abstract class ObjectPOJO implements Serializable{
 		};
 	
 	
+	@SuppressWarnings("nls")
 	private static Object[][] OBJECT_ROOT_ELEMENT_NAMES = 
 		new Object[][] {
 				{"Data Cluster","data-cluster-pOJO"},
@@ -121,8 +121,6 @@ public abstract class ObjectPOJO implements Serializable{
 				{"Routing Rule","routing-rule-pOJO"},
 				{"Service","service"},
 				{"Stored Procedure","stored-procedure-pOJO"},
-//				{"Transformer Plugin",TransformerPluginPOJO.class},
-//				{"Transformer",TransformerPOJO.class},
 				{"Transformer Plugin V2","transformer-plugin-v2-pOJO"},
 				{"Transformer V2","transformer-v2-pOJO"},
 				{"View","view-pOJO"},
@@ -177,7 +175,7 @@ public abstract class ObjectPOJO implements Serializable{
 			return OBJECTS_NAMES_TO_CLASSES_MAP.get(name);
 		} catch (Exception e) {
 			String err = "No class found for Object "+name;
-			org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+			LOG.error(err,e);
 			throw new XtentisException(err);
 		}
 	}
@@ -199,14 +197,14 @@ public abstract class ObjectPOJO implements Serializable{
 			return OBJECTS_NAMES_TO_ROOT_NAMES_MAP.get(name);
 		} catch (Exception e) {
 			String err = "No element name found for Object "+name;
-			org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+			LOG.error(err,e);
 			throw new XtentisException(err);
 		}
 	}
 
 	
     
-	private transient String lastError = "";
+	private transient String lastError = "";  //$NON-NLS-1$ 
 	
 	private String lastSynch = null;
 	
@@ -261,7 +259,9 @@ public abstract class ObjectPOJO implements Serializable{
      * @throws XtentisException
      */
     public static <T extends ObjectPOJO> T load(Class<T> objectClass, ObjectPOJOPK objectPOJOPK) throws XtentisException {
-    	org.apache.log4j.Logger.getLogger(ObjectPOJO.class).trace("load() "+objectPOJOPK.getUniqueId());
+    	
+        if(LOG.isTraceEnabled())
+            LOG.trace("load() "+objectPOJOPK.getUniqueId()); //$NON-NLS-1$
 
     	try {
 	    	//for the user have a role of administration , or role of write on instance or role of read on instance
@@ -270,7 +270,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    	    String err = 
 	    	    	"Unauthorized read access by " +
 	    	    	"user '"+user.getUsername()+"' on object "+ObjectPOJO.getObjectName(objectClass)+" ["+objectPOJOPK.getUniqueId()+"] ";
-	    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+	    	    LOG.error(err);
 	    		throw new XtentisException(err);    				
 	    	}
 	    	
@@ -278,13 +278,14 @@ public abstract class ObjectPOJO implements Serializable{
 	    	UniversePOJO universe = user.getUniverse();
 	    	if (universe == null) {
 	    		String err = "ERROR: no Universe set for user '"+user.getUsername()+"'";
-	    		org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+	    		LOG.error(err);
 	    		throw new XtentisException(err);
 	    	}
 	    	//Determine revision ID
 	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectName(objectClass));
 	    	
-	    	BAMLogger.log("DATA MANAGER", user.getUsername(), "read", objectClass, objectPOJOPK, true);
+	    	if(BAMLogger.log)
+	    	    BAMLogger.log("DATA MANAGER", user.getUsername(), "read", objectClass, objectPOJOPK, true); //$NON-NLS-1$ //$NON-NLS-2$
 	    	
 	    	return load(revisionID, objectClass, objectPOJOPK);
 	    	
@@ -293,7 +294,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    } catch (Exception e) {
     	    String err = "Unable to load the Object  "+  objectPOJOPK.getUniqueId()+" in Cluster "+getCluster(objectClass)
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+    	    LOG.error(err,e);
     	    throw new XtentisException(err);
 	    } 
     }
@@ -307,17 +308,17 @@ public abstract class ObjectPOJO implements Serializable{
      * @throws XtentisException
      */
     public static <T extends ObjectPOJO> T load(String revisionID, Class<T> objectClass, ObjectPOJOPK objectPOJOPK) throws XtentisException {
-    	org.apache.log4j.Logger.getLogger(ObjectPOJO.class).trace("load() "+revisionID+"/"+objectClass+" ["+objectPOJOPK.getUniqueId()+"]");
-    	
+    	if(LOG.isTraceEnabled())
+    	    LOG.trace("load() "+revisionID+"/"+objectClass+" ["+objectPOJOPK.getUniqueId()+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         try {
-            //get the xml server wrapper
-            XmlServerSLWrapperLocal server =Util.getXmlServerCtrlLocal();
             //retrieve the item
             String urlid =  objectPOJOPK.getUniqueId();
-            String item=null;
             ItemCacheKey key =new ItemCacheKey(revisionID,urlid, getCluster(objectClass));
-            item=cachedPojo.get(key);       
+            String item=cachedPojo.get(key);       
             if (item == null) {
+                //get the xml server wrapper
+                XmlServerSLWrapperLocal server =Util.getXmlServerCtrlLocal();
+                
             	item = server.getDocumentAsString(revisionID, getCluster(objectClass), urlid, null);
             	//aiming add see 9603 if System Object load faild try to load it from HEAD universe
             	if(!(revisionID==null || revisionID.length()==0) && item == null){
@@ -341,7 +342,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    } catch (Exception e) {
     	    String err = "Unable to load the Object  "+objectClass.getName()+"["+objectPOJOPK.getUniqueId()+"] in Cluster "+getCluster(objectClass)
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+    	    LOG.error(err,e);
     	    throw new XtentisException(err);
 	    } 
     }
@@ -355,13 +356,14 @@ public abstract class ObjectPOJO implements Serializable{
 	 * @throws XtentisException
 	 */
     public static ObjectPOJOPK remove(Class<? extends ObjectPOJO> objectClass, ObjectPOJOPK objectPOJOPK) throws XtentisException {
-    	org.apache.log4j.Logger.getLogger(ObjectPOJO.class).trace("remove() "+objectPOJOPK.getUniqueId());
+    	if(LOG.isTraceEnabled())
+    	    LOG.trace("remove() "+objectPOJOPK.getUniqueId()); //$NON-NLS-1$ 
     	
     	try {
 	    	//for delete we need to be admin, or have a role of admin , or role of write on instance 
 	    	boolean authorized = false;
 	    	ILocalUser user = LocalUser.getLocalUser();
-	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
+	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$ 
 	    		authorized = true;
 	    	} else if (user.isAdmin(objectClass)) {
 	    		authorized = true;
@@ -373,7 +375,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    	    String err = 
 	    	    	"Unauthorized access on delete for " +
 	    	    	"user "+user.getUsername()+" of object "+ObjectPOJO.getObjectName(objectClass)+" ["+objectPOJOPK.getUniqueId()+"] "; 
-	    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+	    	    LOG.error(err);
 	    		throw new XtentisException(err);    				
 	    	}
 	    	
@@ -381,12 +383,13 @@ public abstract class ObjectPOJO implements Serializable{
 	    	UniversePOJO universe = user.getUniverse();
 	    	if (universe == null) {
 	    		String err = "ERROR: no Universe set for user '"+user.getUsername()+"'";
-	    		org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+	    		LOG.error(err);
 	    		throw new XtentisException(err);
 	    	}
 	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectsClasses2NamesMap().get(objectClass));
 	    	
-	    	BAMLogger.log("DATA MANAGER", user.getUsername(), "delete", objectClass, objectPOJOPK,authorized);
+	    	if(BAMLogger.log)
+	    	    BAMLogger.log("DATA MANAGER", user.getUsername(), "delete", objectClass, objectPOJOPK,authorized); //$NON-NLS-1$ //$NON-NLS-2$
 	    	
 	    	return internalRemove(revisionID, objectClass, objectPOJOPK);
 	    	
@@ -395,7 +398,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    } catch (Exception e) {
     	    String err = "Unable to remove the Object  "+  objectPOJOPK.getUniqueId()+" from Cluster "+getCluster(objectClass)
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+    	    LOG.error(err,e);
     	    throw new XtentisException(err);
 	    } 
     }
@@ -427,7 +430,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    } catch (Exception e) {
     	    String err = "Unable to remove the object "+objectPOJOPK.getUniqueId()+" from cluster "+getCluster(objectClass)
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+    	    LOG.error(err,e);
     	    throw new XtentisException(err);
 	    }  
 
@@ -439,7 +442,8 @@ public abstract class ObjectPOJO implements Serializable{
      * @throws XtentisException
      */
     public ObjectPOJOPK store() throws XtentisException {
-    	org.apache.log4j.Logger.getLogger(this.getClass()).trace("store() "+getPK().getUniqueId());
+    	if(LOG.isTraceEnabled())
+    	    LOG.trace("store() "+getPK().getUniqueId()); //$NON-NLS-1$ 
     	
        	try {
 	    	//for storing we need to be admin, or have a role of admin , or role of write on instance 
@@ -455,7 +459,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    	    String err = 
 	    	    	"Unauthorized write access by " +
 	    	    	"user "+user.getUsername()+" on object "+ObjectPOJO.getObjectName(this.getClass())+" ["+getPK().getUniqueId()+"] "; 
-	    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+	    	    LOG.error(err);
 	    		throw new XtentisException(err);    				
 	    	}
 	    	
@@ -463,12 +467,13 @@ public abstract class ObjectPOJO implements Serializable{
 	    	UniversePOJO universe = user.getUniverse();
 	    	if (universe == null) {
 	    		String err = "ERROR: no Universe set for user '"+user.getUsername()+"'";
-	    		org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+	    		LOG.error(err);
 	    		throw new XtentisException(err);
 	    	}
 	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectsClasses2NamesMap().get(this.getClass()));
 	    	
-	    	BAMLogger.log("DATA MANAGER", user.getUsername(), "save", this.getClass(), getPK(),authorized);
+	    	if(BAMLogger.log)
+	    	    BAMLogger.log("DATA MANAGER", user.getUsername(), "save", this.getClass(), getPK(),authorized); //$NON-NLS-1$ //$NON-NLS-2$
 	    	
 	    	return store(revisionID);
 	    	
@@ -477,7 +482,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    } catch (Exception e) {
     	    String err = "Unable to store the Object  "+  getPK().getUniqueId()+" in Cluster "+getCluster(this.getClass())
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+    	    LOG.error(err,e);
     	    throw new XtentisException(err);
 	    } 
     }
@@ -523,7 +528,7 @@ public abstract class ObjectPOJO implements Serializable{
             	return null;
             }
             	
-            setLastError("");
+            setLastError(""); //$NON-NLS-1$ 
             //update the cache
             ItemCacheKey key =new ItemCacheKey(revisionID,getPK().getUniqueId(), getCluster(this.getClass()));            
             cachedPojo.put(key, sw.toString());
@@ -533,12 +538,13 @@ public abstract class ObjectPOJO implements Serializable{
 	    } catch (Exception e) {
     	    String err = "Unable to store the Object "+this.getClass().getName()+" --> "+getPK().getUniqueId()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
+    	    LOG.error(err,e);
     	    throw new XtentisException(err);
 	    } 
 
     }
     
+    @SuppressWarnings("nls")
     private static Set<String> getSystemObjectIDs(String cluster) {
     	if(Util.isEnterprise()){
     		if("amaltoOBJECTSDataCluster".equals(cluster))return XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER).keySet();
@@ -576,13 +582,13 @@ public abstract class ObjectPOJO implements Serializable{
 	    	UniversePOJO universe = user.getUniverse();
 	    	if (universe == null) {
 	    		String err = "ERROR: no Universe set for user '"+user.getUsername()+"'";
-	    		org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+	    		LOG.error(err);
 	    		throw new XtentisException(err);
 	    	}
 	    	String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectsClasses2NamesMap().get(objectClass));
 	    	
 
-	    	if ("".equals(regex) || "*".equals(regex) || ".*".equals(regex)) regex = null;
+	    	if ("".equals(regex) || "*".equals(regex) || ".*".equals(regex)) regex = null; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
 	    	
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
@@ -600,23 +606,24 @@ public abstract class ObjectPOJO implements Serializable{
             //build PKs collection
             ArrayList<ObjectPOJOPK> list = new ArrayList<ObjectPOJOPK>();
             for (int i = 0; i < ids.length; i++) {
-            	if (org.apache.log4j.Logger.getLogger(ObjectPOJO.class).isTraceEnabled())
-            		org.apache.log4j.Logger.getLogger(ObjectPOJO.class).trace("findAllPKs() matching "+ids[i]);
+            	if (LOG.isTraceEnabled())
+            		LOG.trace("findAllPKs() matching "+ids[i]); //$NON-NLS-1$ 
             	boolean match =true;
             	if (regex !=null) {
             		match = ids[i].matches(regex);
             	}
             	if (match)	{
             		if (user.userCanRead(objectClass, ids[i])) {
-            			if (org.apache.log4j.Logger.getLogger(ObjectPOJO.class).isTraceEnabled())
-            				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).trace("findAllPKs() Adding PK");
+            			if (LOG.isTraceEnabled())
+            				LOG.trace("findAllPKs() Adding PK"); //$NON-NLS-1$ 
             			list.add(new ObjectPOJOPK(ids[i]));
             			numItems++;
             		}
             	}
 			}
-            	    	
-	    	BAMLogger.log("DATA MANAGER", user.getUsername(), "find all", objectClass, new ObjectPOJOPK(numItems+" Items"),numItems>0);
+            
+            if(BAMLogger.log)
+                BAMLogger.log("DATA MANAGER", user.getUsername(), "find all", objectClass, new ObjectPOJOPK(numItems+" Items"),numItems>0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	    	
 	    	return list;
 	    	
@@ -625,7 +632,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    } catch (Exception e) {
     	    String err = "Unable to find all the Object identifiers for object "+ getObjectName(objectClass)+" using regex "+regex
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+    	    LOG.error(err,e);
     	    throw new XtentisException(err);
 	    } 
     }
@@ -646,9 +653,9 @@ public abstract class ObjectPOJO implements Serializable{
        		
 	    	//check if we are admin 
 	    	ILocalUser user = LocalUser.getLocalUser();
-	    	if (!user.getRoles().contains("administration")) {
+	    	if (!user.getRoles().contains("administration")) { //$NON-NLS-1$ 
 	    		String err = "Only an user with the 'administration' role can call the synchronization methods";
-				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+				LOG.error(err);
 				throw new XtentisException(err);
 	    	}
 	    		    	
@@ -657,13 +664,13 @@ public abstract class ObjectPOJO implements Serializable{
             
             String clusterName=getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));
             String collectionpath= CommonUtil.getPath(revisionID, clusterName);
-			String patternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[matches(./text(),'"+instancePattern+"')]";
-			String synchronizationCondition = synchronizationPlanName == null ? "" : "[not (./last-synch/text() eq '"+synchronizationPlanName+"')]";
-			String query = "collection(\""+collectionpath+ "\")/*"+synchronizationCondition+"/PK/unique-id"+patternCondition+"/text()";
+			String patternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[matches(./text(),'"+instancePattern+"')]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$  //$NON-NLS-4$ 
+			String synchronizationCondition = synchronizationPlanName == null ? "" : "[not (./last-synch/text() eq '"+synchronizationPlanName+"')]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
+			String query = "collection(\""+collectionpath+ "\")/*"+synchronizationCondition+"/PK/unique-id"+patternCondition+"/text()"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$  //$NON-NLS-4$ 
 			if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-				patternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[ora:matches(./text(),\""+instancePattern+"\")]";
-				synchronizationCondition = synchronizationPlanName == null ? "" : "[not (./last-synch/text() eq \""+synchronizationPlanName+"\")]";
-				query=" for $pivot0 in collection(\""+collectionpath+ "\")/*"+synchronizationCondition+"/PK/unique-id"+patternCondition+"/text() return <result>{$pivot0}</result> ";								
+				patternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[ora:matches(./text(),\""+instancePattern+"\")]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ //$NON-NLS-4$  
+				synchronizationCondition = synchronizationPlanName == null ? "" : "[not (./last-synch/text() eq \""+synchronizationPlanName+"\")]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
+				query=" for $pivot0 in collection(\""+collectionpath+ "\")/*"+synchronizationCondition+"/PK/unique-id"+patternCondition+"/text() return <result>{$pivot0}</result> "; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$  //$NON-NLS-4$ 						
 			}
             //retrieve the objects
 			return server.runQuery(
@@ -678,7 +685,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    } catch (Exception e) {
     	    String err = "Error Finding All Unsynchronized PKs"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+    	    LOG.error(err,e);
     	    throw new XtentisException(err);
 	    } 
     }
@@ -700,9 +707,9 @@ public abstract class ObjectPOJO implements Serializable{
        		
 	    	//check if we are admin 
 	    	ILocalUser user = LocalUser.getLocalUser();
-	    	if (!user.getRoles().contains("administration")) {
+	    	if (!user.getRoles().contains("administration")) { //$NON-NLS-1$ 
 	    		String err = "Only an user with the 'administration' role can call the synchronization methods";
-				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+				LOG.error(err);
 				throw new XtentisException(err);
 	    	}
 	    		    	
@@ -710,9 +717,9 @@ public abstract class ObjectPOJO implements Serializable{
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 			String clusterName=getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));
 			String collectionpath= CommonUtil.getPath(revisionID, clusterName);
-			String query = "collection(\""+collectionpath+ "\")/*[PK/unique-id/text() eq '"+uniqueID+"']";
+			String query = "collection(\""+collectionpath+ "\")/*[PK/unique-id/text() eq '"+uniqueID+"']"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
 			if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {				
-				query=" for $pivot0 in collection(\""+collectionpath+ "\")/*[PK/unique-id/text() eq \""+uniqueID+"\"] return $pivot0 ";								
+				query=" for $pivot0 in collection(\""+collectionpath+ "\")/*[PK/unique-id/text() eq \""+uniqueID+"\"] return $pivot0 "; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 								
 			}
 			ArrayList<String> res= server.runQuery(
 				revisionID, 
@@ -729,7 +736,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    } catch (Exception e) {
     	    String err = "Error getting the marshaled object '"+objectName+"' of id '"+uniqueID+"' in revision '"+(revisionID == null ? "[HEAD]": revisionID)+"'"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+    	    LOG.error(err,e);
     	    throw new XtentisException(err);
 	    } 
     }
@@ -751,9 +758,9 @@ public abstract class ObjectPOJO implements Serializable{
        		
 	    	//check if we are admin 
 	    	ILocalUser user = LocalUser.getLocalUser();
-	    	if (!user.getRoles().contains("administration")) {
+	    	if (!user.getRoles().contains("administration")) { //$NON-NLS-1$ 
 	    		String err = "Only an user with the 'administration' role can call the synchronization methods";
-				org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+				LOG.error(err);
 				throw new XtentisException(err);
 	    	}
 	    		    	
@@ -773,7 +780,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    } catch (Exception e) {
     	    String err = "Error creating/replacing the marshaled object '"+objectName+"' of id '"+uniqueID+"' in revision '"+(revisionID == null ? "[HEAD]": revisionID)+"'"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+    	    LOG.error(err,e);
     	    throw new XtentisException(err);
 	    } 
     }
@@ -809,7 +816,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    	//check if we are admin 
 	    	boolean isAdmin = false;
 	    	ILocalUser user = LocalUser.getLocalUser();
-	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
+	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$ 
 	    		isAdmin = true;
 	    	} else if (user.isAdmin(objectClass)) {
 	    		isAdmin = true;
@@ -819,7 +826,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    	UniversePOJO universe = user.getUniverse();
 	    	if (universe == null) {
 	    		String err = "ERROR: no Universe set for user '"+user.getUsername()+"'";
-	    		org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+	    		LOG.error(err);
 	    		throw new XtentisException(err);
 	    	}
 	    	
@@ -860,7 +867,8 @@ public abstract class ObjectPOJO implements Serializable{
 			Collection<String> res = server.runQuery(null, null, query, null);
 			
 			//Log
-			org.apache.log4j.Logger.getLogger(ObjectPOJO.class).trace("findAllPKsByCriteria() QUERY\n"+query+"\nResults size: "+res.size());
+			if(LOG.isTraceEnabled())
+			    LOG.trace("findAllPKsByCriteria() QUERY\n"+query+"\nResults size: "+res.size()); //$NON-NLS-1$  //$NON-NLS-2$ 
 			
 			//no result --> we are done
 			if (res==null) return new ArrayList<ObjectPOJOPK>(); 
@@ -875,7 +883,7 @@ public abstract class ObjectPOJO implements Serializable{
 				Document doc = builder.parse(new InputSource(new StringReader(string)));
 				String[] ids = new String[idsPaths.length];
 				for (int i = 0; i < ids.length; i++) {
-					ids[i] = xPath.evaluate("/*/*["+(i+1)+"]/text()", doc);
+					ids[i] = xPath.evaluate("/*/*["+(i+1)+"]/text()", doc); //$NON-NLS-1$  //$NON-NLS-2$ 
 				}
 				//get ObjectPOJOPK
 				ObjectPOJOPK pk = new ObjectPOJOPK(ids);
@@ -892,8 +900,9 @@ public abstract class ObjectPOJO implements Serializable{
         			numItems++;
         		}
 			}
-                	
-	    	BAMLogger.log("DATA MANAGER", user.getUsername(), "find all by criteria", objectClass, new ObjectPOJOPK(numItems+" Items"),numItems>0);
+            
+            if(BAMLogger.log)
+                BAMLogger.log("DATA MANAGER", user.getUsername(), "find all by criteria", objectClass, new ObjectPOJOPK(numItems+" Items"),numItems>0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	    	
 	    	return list;
 	    	
@@ -902,7 +911,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    } catch (Exception e) {
     	    String err = "Unable to find all the Object identifiers Using Criteria for object "+ getObjectName(objectClass)
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
-    	    org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,e);
+    	    LOG.error(err,e);
     	    throw new XtentisException(err);
 	    } 
     }
@@ -917,6 +926,7 @@ public abstract class ObjectPOJO implements Serializable{
         try {
 	        return marshal();
         } catch (XtentisException e) {
+            LOG.error(e.getMessage(),e);
 	        return null;
         }
     }
@@ -934,7 +944,7 @@ public abstract class ObjectPOJO implements Serializable{
 	        Marshaller.marshal(this, sw);
         } catch (Throwable t) {
         	String err = "Unable to marshal '"+this.getPK().getUniqueId()+"'";
-	        org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,t);
+	        LOG.error(err,t);
 	        throw new XtentisException(err);
         }
 		return sw.toString();
@@ -959,7 +969,7 @@ public abstract class ObjectPOJO implements Serializable{
 	        );
         } catch (Throwable t) {
 	        String err = "Unable to unmarshal the object of class '"+objectClass+"' from \n"+marshaledItem;
-	        org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err,t);
+	        LOG.error(err,t);
 	        throw new XtentisException(err);
         } 
     }
