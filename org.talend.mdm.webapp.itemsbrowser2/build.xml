@@ -12,7 +12,7 @@
 	<property name="jboss.dir" value="/media/mdm/opt/trunk/jboss_tem" />
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
-	<property name="mdm.build.version" value="r${product.revision}-V${product.version}${product.qualifier}" />
+	<property name="mdm.build.version" value="${major}.${minor}.${rev}-r${svn.revision}" />
 
 	<target name="clean">
 		<antcall target="mvn.invoke">
@@ -40,7 +40,7 @@
 		<copy file="${build.dir}/org.talend.mdm.webapp.itemsbrowser2-${mdm.build.version}.war" tofile="${jboss.deploy.dir}/org.talend.mdm.webapp.itemsbrowser2.war" />
 	</target>
 
-	<target name="all" depends="clean,package,undeploy,deploy" />
+	<target name="all" depends="package,undeploy,deploy" />
 
 	<target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
 		<property environment="env" />
