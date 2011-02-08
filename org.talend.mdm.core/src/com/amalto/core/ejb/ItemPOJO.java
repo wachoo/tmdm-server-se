@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import javax.ejb.EJBException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.CommonUtil;
@@ -48,7 +49,7 @@ import com.amalto.core.util.XtentisException;
  */
 public class ItemPOJO implements Serializable {
 
-    public final static String LOGGING_EVENT = "logging_event";
+    public final static String LOGGING_EVENT = "logging_event"; //$NON-NLS-1$
 
     private String dataModelName;// used for binding data model
 
@@ -78,10 +79,12 @@ public class ItemPOJO implements Serializable {
 
     /* cached the Object pojos to improve performance */
     private static LRUCache<ItemCacheKey, String> cachedPojo;
+    
+    private static Logger LOG = Logger.getLogger(ItemPOJO.class);
 
     private static int MAX_CACHE_SIZE = 5000;
     static {
-        String max_cache_size = (String) MDMConfiguration.getConfiguration().get("max_cache_size");
+        String max_cache_size = (String) MDMConfiguration.getConfiguration().get("max_cache_size"); //$NON-NLS-1$
         if (max_cache_size != null) {
             MAX_CACHE_SIZE = Integer.valueOf(max_cache_size).intValue();
         }
@@ -229,11 +232,11 @@ public class ItemPOJO implements Serializable {
             } catch (Exception e) {
                 String err = "Unable to serialize the Item " + this.getItemPOJOPK().getUniqueID() + ": "
                         + e.getLocalizedMessage();
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+                LOG.error(err, e);
                 throw new XtentisException(err);
             }
         }
-        return projectionString.replaceAll("<\\?xml.*?\\?>", "");
+        return projectionString.replaceAll("<\\?xml.*?\\?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     /**
@@ -249,7 +252,7 @@ public class ItemPOJO implements Serializable {
         } catch (Exception e) {
             String err = "Unable to parse the Item " + this.getItemPOJOPK().getUniqueID() + ". " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOG.error(err, e);
             throw new XtentisException(err);
         }
     }
@@ -264,7 +267,7 @@ public class ItemPOJO implements Serializable {
             } catch (Exception e) {
                 String err = "Unable to parse the Item " + this.getItemPOJOPK().getUniqueID() + ". " + e.getClass().getName()
                         + ": " + e.getLocalizedMessage();
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+                LOG.error(err, e);
                 throw new XtentisException(err);
             }
         }
@@ -290,7 +293,7 @@ public class ItemPOJO implements Serializable {
         return new ItemPOJOPK(getDataClusterPOJOPK(), getConceptName(), getItemIds());
     }
 
-    private static Pattern pLoad = Pattern.compile(".*?(<c>.*?</t>).*?(<p>(.*)</p>|<p/>).*", Pattern.DOTALL);
+    private static Pattern pLoad = Pattern.compile(".*?(<c>.*?</t>).*?(<p>(.*)</p>|<p/>).*", Pattern.DOTALL); //$NON-NLS-1$
 
     /**
      * Loads an Item. User rights are checked.
@@ -300,32 +303,11 @@ public class ItemPOJO implements Serializable {
      * @throws XtentisException
      */
     public static ItemPOJO load(ItemPOJOPK itemPOJOPK) throws XtentisException {
-        // org.apache.log4j.Logger.getLogger(ItemPOJO.class).trace("load() "+itemPOJOPK.getUniqueID());
-
         // Check authorizations
-        boolean authorized = false;
         ILocalUser user = LocalUser.getLocalUser();
-        if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
-            authorized = true;
-            // } else if (user.userCanRead(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
-        } else if (user.userItemCanRead(adminLoad(itemPOJOPK))) { // aiming modify see 10027
-            authorized = true;
-        }
-
-        if (!authorized) {
-            String err = "Unauthorized read access by " + "user " + user.getUsername() + " on Item '" + itemPOJOPK.getUniqueID()
-                    + "'";
-            org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
-            throw new XtentisException(err);
-        }
-
+        checkAccess(user, itemPOJOPK, false, "read");
         // get the universe and revision ID
-        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err);
-            throw new XtentisException(err);
-        }
+        UniversePOJO universe = getNonNullUniverse(user);
         String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
 
         // load the item
@@ -340,13 +322,10 @@ public class ItemPOJO implements Serializable {
      * @throws XtentisException
      */
     public static ItemPOJO adminLoad(ItemPOJOPK itemPOJOPK) throws XtentisException {
+        ILocalUser user = LocalUser.getLocalUser();
+        
         // get the universe and revision ID
-        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err);
-            throw new XtentisException(err);
-        }
+        UniversePOJO universe = getNonNullUniverse(user);
         String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
 
         // load the item
@@ -404,28 +383,28 @@ public class ItemPOJO implements Serializable {
             Matcher m = null;
             m = pLoad.matcher(item);
             if (m.matches()) {
-                String h = "<header>" + m.group(1) + "</header>";
+                String h = "<header>" + m.group(1) + "</header>"; //$NON-NLS-1$ //$NON-NLS-2$
                 Element header = Util.parse(h).getDocumentElement();
                 // used for binding data model
-                if (Util.getFirstTextNode(header, "dmn") != null)
-                    newItem.setDataModelName(Util.getFirstTextNode(header, "dmn"));
-                if (Util.getFirstTextNode(header, "dmr") != null)
-                    newItem.setDataModelRevision(Util.getFirstTextNode(header, "dmr"));
-                newItem.setInsertionTime(Long.parseLong(Util.getFirstTextNode(header, "t")));
-                String plan = Util.getFirstTextNode(header, "sp");
+                if (Util.getFirstTextNode(header, "dmn") != null) //$NON-NLS-1$
+                    newItem.setDataModelName(Util.getFirstTextNode(header, "dmn")); //$NON-NLS-1$
+                if (Util.getFirstTextNode(header, "dmr") != null) //$NON-NLS-1$
+                    newItem.setDataModelRevision(Util.getFirstTextNode(header, "dmr")); //$NON-NLS-1$
+                newItem.setInsertionTime(Long.parseLong(Util.getFirstTextNode(header, "t"))); //$NON-NLS-1$
+                String plan = Util.getFirstTextNode(header, "sp"); //$NON-NLS-1$
                 if (plan != null)
                     newItem.setPlanPK(new SynchronizationPlanPOJOPK(plan));
                 else
                     newItem.setPlanPK(null);
-                String taskId = Util.getFirstTextNode(header, "taskId");
+                String taskId = Util.getFirstTextNode(header, "taskId"); //$NON-NLS-1$
                 if (taskId != null) {
                     newItem.setTaskId(taskId);
                 } else {
-                    newItem.setTaskId("");
+                    newItem.setTaskId(""); //$NON-NLS-1$
                 }
 
-                if (m.group(2) == null || m.group(2).equals("<p/>")) {
-                    newItem.setProjectionAsString("");
+                if (m.group(2) == null || m.group(2).equals("<p/>")) { //$NON-NLS-1$
+                    newItem.setProjectionAsString(""); //$NON-NLS-1$
                 } else {
                     newItem.setProjectionAsString(m.group(3));
                 }
@@ -458,7 +437,7 @@ public class ItemPOJO implements Serializable {
                 } catch (Exception e) {
                     String err = "Unable to check user rights of the item " + itemPOJOPK.getUniqueID() + ": "
                             + e.getClass().getName() + ": " + e.getLocalizedMessage();
-                    org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err, e);
+                    LOG.error(err, e);
                 }
             }
 
@@ -467,7 +446,7 @@ public class ItemPOJO implements Serializable {
         } catch (Exception e) {
             String err = "Unable to load the item  " + itemPOJOPK.getUniqueID() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err, e);
+            LOG.error(err, e);
             throw new EJBException(err);
         }
     }
@@ -481,39 +460,13 @@ public class ItemPOJO implements Serializable {
      */
     public static ItemPOJOPK remove(ItemPOJOPK itemPOJOPK) throws XtentisException {
 
-        // org.apache.log4j.Logger.getLogger(this.getClass()).trace(
-        // "remove() "+pk.getDataCluster().getName()+"."+Util.joinStrings(pk.getItemIds(), "."));
-
         if (itemPOJOPK == null)
             return null;
 
-        // for load we need to be admin, or have a role of admin , or role of write on instance or role of read on
-        // instance
-        boolean authorized = false;
         ILocalUser user = LocalUser.getLocalUser();
-        if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
-            authorized = true;
-            // } else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
-        } else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId())
-                || user.userItemCanWrite(adminLoad(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId(),
-                        itemPOJOPK.getConceptName())) { // aiming modify see 10027
-            authorized = true;
-        }
-
-        if (!authorized) {
-            String err = "Unauthorized delete access by " + "user " + user.getUsername() + " on Item '"
-                    + itemPOJOPK.getUniqueID() + "'";
-            org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
-            throw new XtentisException(err);
-        }
-
+        checkAccess(user, itemPOJOPK, true, "delete");
         // get the universe and revision ID
-        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err);
-            throw new XtentisException(err);
-        }
+        UniversePOJO universe = getNonNullUniverse(user);
         String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
 
         XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
@@ -532,7 +485,7 @@ public class ItemPOJO implements Serializable {
         } catch (Exception e) {
             String err = "Unable to remove the item " + itemPOJOPK.getUniqueID() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err, e);
+            LOG.error(err, e);
             throw new XtentisException(err);
         }
 
@@ -551,37 +504,13 @@ public class ItemPOJO implements Serializable {
         // validate input
         if (itemPOJOPK == null)
             return null;
-        if (partPath == null || partPath.equals(""))
-            partPath = "/";
+        if (partPath == null || partPath.length() == 0) 
+            partPath = "/"; //$NON-NLS-1$
 
-        // for load we need to be admin, or have a role of admin , or role of write on instance or role of read on
-        // instance
-        boolean authorized = false;
         ILocalUser user = LocalUser.getLocalUser();
-        if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
-            authorized = true;
-            // } else if (user.userCanWrite(ItemPOJO.class, itemPOJOPK.getUniqueID())) {
-        } else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId())
-                || user.userItemCanWrite(adminLoad(itemPOJOPK), itemPOJOPK.getDataClusterPOJOPK().getUniqueId(),
-                        itemPOJOPK.getConceptName())) { // aiming modify see 10027
-            authorized = true;
-        }
-
-        if (!authorized) {
-            String err = "Unauthorized drop access by " + "user " + user.getUsername() + " on Item '" + itemPOJOPK.getUniqueID()
-                    + "'";
-            org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
-            throw new XtentisException(err);
-        }
-        String userName = user.getUsername();
-
+        checkAccess(user, itemPOJOPK, true, "drop");
         // get the universe and revision ID
-        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err);
-            throw new XtentisException(err);
-        }
+        UniversePOJO universe = getNonNullUniverse(user);
         String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
 
         // get XmlServerSLWrapperLocal
@@ -601,7 +530,7 @@ public class ItemPOJO implements Serializable {
                 if (!exist)
                     server.createCluster(null, pk.getUniqueId());
                 // log
-                org.apache.log4j.Logger.getLogger(ItemPOJO.class).info("Init MDMItemsTrash Cluster");
+                LOG.info("Init MDMItemsTrash Cluster");
             }
 
             String dataClusterName = itemPOJOPK.getDataClusterPOJOPK().getUniqueId();
@@ -681,7 +610,7 @@ public class ItemPOJO implements Serializable {
 
             // str 2 pojo
             DroppedItemPOJO droppedItemPOJO = new DroppedItemPOJO(revisionID, itemPOJOPK.getDataClusterPOJOPK(), uniqueID,
-                    itemPOJOPK.getConceptName(), itemPOJOPK.getIds(), partPath, xmlDocument.toString(), userName, new Long(
+                    itemPOJOPK.getConceptName(), itemPOJOPK.getIds(), partPath, xmlDocument.toString(), user.getUsername(), new Long(
                             System.currentTimeMillis()));
 
             // Marshal
@@ -696,7 +625,7 @@ public class ItemPOJO implements Serializable {
             // delete source item
 
             try {
-                if (partPath.equals("/")) {
+                if (partPath.equals("/")) { //$NON-NLS-1$
 
                     server.deleteDocument(revisionID, dataClusterName, uniqueID);
                     // update the cache
@@ -710,7 +639,7 @@ public class ItemPOJO implements Serializable {
                     cachedPojo.put(key, xmlstring);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error(e.getMessage(),e);
                 // roll back
                 server.deleteDocument(null, "MDMItemsTrash", droppedItemPOJO.obtainDroppedItemPK().getUniquePK());
                 return null;
@@ -725,7 +654,7 @@ public class ItemPOJO implements Serializable {
         } catch (Exception e) {
             String err = "Unable to drop the item " + itemPOJOPK.getUniqueID() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err, e);
+            LOG.error(err, e);
             throw new XtentisException(err);
         }
 
@@ -738,51 +667,29 @@ public class ItemPOJO implements Serializable {
      * @throws XtentisException
      */
     public ItemPOJOPK store() throws XtentisException {
-        // org.apache.log4j.Logger.getLogger(this.getClass()).debug("store() "));
-
-        if (getItemPOJOPK() == null)
+        return store(true);
+    }
+    
+    public ItemPOJOPK store(boolean putInCache) throws XtentisException {
+        ItemPOJOPK itemPK = getItemPOJOPK();
+        if (itemPK == null)
             return null;
-
-        // for load we need to be admin, or have a role of admin , or role of write on instance or role of read on
-        // instance
-        boolean authorized = false;
         ILocalUser user = LocalUser.getLocalUser();
-        if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
-            authorized = true;
-            // } else if (user.userCanWrite(ItemPOJO.class, getItemPOJOPK().getUniqueID())) {
-        } else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, getItemPOJOPK().getDataClusterPOJOPK().getUniqueId())
-                || user.userItemCanWrite(adminLoad(getItemPOJOPK()), getItemPOJOPK().getDataClusterPOJOPK().getUniqueId(),
-                        getItemPOJOPK().getConceptName())) { // aiming modify see 10027
-            authorized = true;
-        }
-
-        if (!authorized) {
-            String err = "Unauthorized write access by " + "user " + user.getUsername() + " on Item '"
-                    + getItemPOJOPK().getUniqueID() + "'";
-            org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
-            throw new XtentisException(err);
-        }
-
+        checkAccess(user, true, "write");
+        
         // get the universe and revision ID
-        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err);
-            throw new XtentisException(err);
-        }
-        String revisionID = universe.getConceptRevisionID(getItemPOJOPK().getConceptName());
+        UniversePOJO universe = getNonNullUniverse(user);    
+        String revisionID = universe.getConceptRevisionID(itemPK.getConceptName());
 
         // used for binding data model
         if (this.getDataModelName() != null) {
-
             String objectName = ObjectPOJO.getObjectsClasses2NamesMap().get(DataModelPOJO.class);
             String dataModelRevisionID = universe.getXtentisObjectsRevisionIDs().get(objectName);
             if (dataModelRevisionID != null)
                 this.dataModelRevision = dataModelRevisionID;
         }
-
-        return store(revisionID);
-
+        
+        return store(revisionID, putInCache);
     }
 
     /**
@@ -793,9 +700,18 @@ public class ItemPOJO implements Serializable {
      * @throws XtentisException
      */
     public ItemPOJOPK store(String revisionID) throws XtentisException {
-
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
-
+       return store(revisionID,true); 
+    }
+    
+    /**
+     * Stores the item in DB.<br/>
+     * Users rights will NOT be checked
+     * 
+     * @return The {@link ItemPOJOPK} of the stored item
+     * @throws XtentisException
+     */
+    public ItemPOJOPK store(String revisionID, boolean putInCache) throws XtentisException {
+        ItemPOJOPK itemPK = getItemPOJOPK();
         try {
             // don't do it, see 0015776
             // remove null element
@@ -804,31 +720,27 @@ public class ItemPOJO implements Serializable {
             // projectionString = Util.nodeToString(projection);
             // }
             String xml = serialize();
-            // remove null element
-            // xml=xml.replaceAll("<\\w+?/>", "");
-            org.apache.log4j.Logger.getLogger(this.getClass()).trace("store() " + getItemPOJOPK().getUniqueID() + "\n" + xml);
-            // check cluster exist or not
-            // if(!XSystemObjects.isExist(XObjectType.DATA_CLUSTER, getDataClusterPOJOPK().getUniqueId())) {
-            // if(!server.existCluster(revisionID, getDataClusterPOJOPK().getUniqueId())){
-            // throw new XtentisException("DataCluster R-"+revisionID+"/"+getDataClusterPOJOPK().getUniqueId()
-            // +" don't exists!");
-            // }
-            // }
-            // store
-            if (-1 == server.putDocumentFromString(xml, getFilename(getItemPOJOPK()), getDataClusterPOJOPK().getUniqueId(),
-                    revisionID))
+            
+            if(LOG.isTraceEnabled())
+                LOG.trace("store() " + itemPK.getUniqueID() + "\n" + xml); //$NON-NLS-1$ //$NON-NLS-2$
+            
+            String uniqueId = getFilename(itemPK);
+            String clusterId = getDataClusterPOJOPK().getUniqueId();
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+            if (-1 == server.putDocumentFromString(xml,uniqueId ,clusterId, revisionID))
                 return null;
             // update the cache
-            ItemCacheKey key = new ItemCacheKey(revisionID, getFilename(getItemPOJOPK()), getDataClusterPOJOPK().getUniqueId());
-            cachedPojo.put(key, xml);
-            return getItemPOJOPK();
+            if(putInCache) {
+                ItemCacheKey key = new ItemCacheKey(revisionID, uniqueId, clusterId);
+                cachedPojo.put(key, xml);
+            }
+            return itemPK;
         } catch (Exception e) {
-            String err = "Unable to store the item " + getItemPOJOPK().getUniqueID() + ": " + e.getClass().getName() + ": "
+            String err = "Unable to store the item " + itemPK.getUniqueID() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
+            LOG.error(err, e);
             throw new EJBException(err);
         }
-
     }
 
     /**
@@ -872,7 +784,7 @@ public class ItemPOJO implements Serializable {
             }
         } catch (Exception e) {
             String err = "Unable to parse the item \n" + marshaledItem;
-            org.apache.log4j.Logger.getLogger(ItemPOJO.class).error(err, e);
+            LOG.error(err, e);
             throw new XtentisException(err);
         }
 
@@ -925,7 +837,7 @@ public class ItemPOJO implements Serializable {
             ILocalUser user = LocalUser.getLocalUser();
             if (!user.getRoles().contains("administration")) {
                 String err = "Only an user with the 'administration' role can call the synchronization methods";
-                org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err);
+                LOG.error(err);
                 throw new XtentisException(err);
             }
 
@@ -967,7 +879,7 @@ public class ItemPOJO implements Serializable {
             throw (e);
         } catch (Exception e) {
             String err = "Error Finding All Unsynchronized PKs" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(ObjectPOJO.class).error(err, e);
+            LOG.error(err, e);
             throw new XtentisException(err);
         }
     }
@@ -984,7 +896,7 @@ public class ItemPOJO implements Serializable {
             return serialize();
         } catch (XtentisException e) {
             String err = "Unable to serialize the item: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).info("ERROR SYSTRACE toString() " + err, e);
+            LOG.error("ERROR SYSTRACE toString() " + err, e);
             throw new IllegalArgumentException(e.getMessage());
         }
     }
@@ -1025,7 +937,7 @@ public class ItemPOJO implements Serializable {
                 }
             }
         } catch (XtentisException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(),e);
         }
         return schema;
     }
@@ -1036,5 +948,46 @@ public class ItemPOJO implements Serializable {
 
     public static LRUCache<ItemCacheKey, String> getCache() {
         return cachedPojo;
+    }
+    
+    private void checkAccess(ILocalUser user, boolean mutableAccess,String accessLabel) throws XtentisException {
+        checkAccess(user,getItemPOJOPK(), mutableAccess, accessLabel);
+    }
+    
+    private static void checkAccess(ILocalUser user, ItemPOJOPK itemPOJOPK, boolean mutableAccess, String accessLabel) throws XtentisException {
+        assert user != null;
+
+        boolean authorizedAccess;
+        String username = user.getUsername();
+        
+        if(user.isAdmin(ItemPOJO.class))
+            authorizedAccess = true;           
+        else if ("admin".equals(username) || LocalUser.UNAUTHENTICATED_USER.equals(username)) //$NON-NLS-1$
+            authorizedAccess = true;
+        else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId()))
+            authorizedAccess = true;
+        else {
+            ItemPOJO itemPOJO = adminLoad(itemPOJOPK);
+            if(mutableAccess)
+                authorizedAccess = user.userItemCanWrite(itemPOJO, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), itemPOJOPK.getConceptName());
+            else
+                authorizedAccess = user.userItemCanRead(itemPOJO);
+        }
+        if (!authorizedAccess) {
+            String err = "Unauthorized " + accessLabel + " access by " + "user " + username + " on Item '" + itemPOJOPK.getUniqueID() + "'";
+            LOG.error(err);
+            throw new XtentisException(err);
+        }
+    }
+        
+    private static UniversePOJO getNonNullUniverse(ILocalUser user) throws XtentisException {
+        // get the universe and revision ID
+        UniversePOJO universe = user.getUniverse();
+        if (universe == null) {
+            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
+            LOG.error(err);
+            throw new XtentisException(err);
+        }
+        return universe;
     }
 }

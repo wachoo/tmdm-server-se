@@ -23,8 +23,11 @@ import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
+import com.amalto.core.util.XtentisException;
 
 
 /**
@@ -147,9 +150,9 @@ public class LoadServlet extends HttpServlet {
  
                 DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(datamodel));
                 String schemaString=dataModel.getSchema();
-                Document schema = Util.parse(schemaString);
+                Document schema = Util.parseXSD(schemaString);
                 XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, concept);
- 
+                
                 resultLogger.logTimeMeasureStep(timeMeasureTag, "Parse schema", TimeMeasure.step(timeMeasureTag,"Parse schema"));
                 //each item
                 XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
@@ -168,7 +171,7 @@ public class LoadServlet extends HttpServlet {
                                 continue;
 
                             Element root = Util.parse(xmldata).getDocumentElement();
-
+                            
                             // get key values
                             // support UUID or auto-increase temporarily
                             String[] ids = null;
@@ -194,12 +197,11 @@ public class LoadServlet extends HttpServlet {
                             if (schemaString != null && needValidate)
                                 Util.validate(itemPOJO.getProjection(), schemaString);
 
-                            itemPOJO.setPlanPK(null);
                             if (datamodel != null && datamodel.length() > 0)
                                 itemPOJO.setDataModelName(datamodel);
-                            itemPOJO.setItemIds(ids);
 
-                            itemPOJO.store();
+                            //When doing bulk load, disable cache
+                            itemPOJO.store(false);
                         } catch (Exception e) {
                             resultLogger.logErrorMessage(e.getLocalizedMessage());
                             if (transactionSupported)
