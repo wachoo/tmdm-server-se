@@ -937,7 +937,7 @@ public class TransformerV2CtrlBean implements SessionBean, TimedObject, Transfor
 						
 						try {
 							globalContext.putInPipeline(
-									"Items Projected to the Data Manager", 
+									"records saved in the database", 
 									new TypedContent(
 											pksAsLine.getBytes("UTF-8"),
 											"text/plain; charset=\"utf-8\""
