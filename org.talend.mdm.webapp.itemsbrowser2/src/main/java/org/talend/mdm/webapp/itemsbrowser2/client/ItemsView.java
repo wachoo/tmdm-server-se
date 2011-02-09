@@ -31,15 +31,16 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Container;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
+import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsView extends View {
 
@@ -166,7 +167,19 @@ public class ItemsView extends View {
         // build frame
         Log.info("Init tab-frame... ");
 
-        LayoutContainer container = new LayoutContainer();
+        Viewport container = new Viewport() {
+
+            public void onAttach() {
+                super.onAttach();
+                Widget w = this.getParent();
+                setSize(w.getOffsetWidth(), w.getOffsetHeight());
+            }
+
+            protected void onWindowResize(int width, int height) {
+                Widget w = this.getParent();
+                setSize(w.getOffsetWidth(), w.getOffsetHeight());
+            }
+        };
         container.setLayout(new FitLayout());
         container.setAutoWidth(true);
 
@@ -231,32 +244,30 @@ public class ItemsView extends View {
      * DOC HSHU Comment method "addWin".
      */
     private void addWin(Container c, String title) {
-        
-        //FIXME Do we need one window for one item?
-        
+
+        // FIXME Do we need one window for one item?
+
         Window window = new Window();
         window.setSize(500, 500);
         window.setPlain(true);
         window.setModal(false);
         window.setHeading(title);
         window.setLayout(new FitLayout());
-        
+
         window.add(c);
-        
+
         window.setClosable(true);
         window.setResizable(true);
         window.setMaximizable(true);
-        
+
         window.show();
-        
-        //random start point
+
+        // random start point
         window.center();
-        int left=window.getAbsoluteLeft();
-        int top=window.getAbsoluteTop();
-        int offset=Random.nextInt(35);
-        window.setPosition(left+offset, top+offset);
-        
-        
+        int left = window.getAbsoluteLeft();
+        int top = window.getAbsoluteTop();
+        int offset = Random.nextInt(35);
+        window.setPosition(left + offset, top + offset);
 
     }
 

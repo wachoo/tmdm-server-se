@@ -16,7 +16,7 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 				title : "Browse Records v4",
 				layout : "fit",
 				closable : true,
-				html : '<div id="talend_itemsbrowser2_ItemsBrowser2"></div>'
+				html : '<div id="talend_itemsbrowser2_ItemsBrowser2" style="height: 100%; overflow: auto;"></div>'
 
 			});
 
