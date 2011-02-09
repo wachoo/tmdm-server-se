@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.delegator;
 
 import java.io.ByteArrayInputStream;
@@ -35,6 +47,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -123,6 +136,8 @@ import com.sun.org.apache.xpath.internal.XPathAPI;
 
 public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
+    private static Logger LOG = Logger.getLogger(IXtentisWSDelegator.class);
+    
     /***************************************************************************
      * 
      * S E R V I C E S
@@ -295,8 +310,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             array.setWsDataModelPKs(wsList.toArray(new WSDataModelPK[l.size()]));
             return array;
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
@@ -651,8 +668,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             return VO2WS(Util.getViewCtrlLocal().getView(new ViewPOJOPK(wsViewGet.getWsViewPK().getPk())));
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
@@ -665,8 +684,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             return new WSBoolean(Util.getViewCtrlLocal().existsView(new ViewPOJOPK(wsExistsView.getWsViewPK().getPk())) != null);
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
@@ -1144,50 +1165,56 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
                 matchesStr = "ora:matches";
             }
-            String query = "let $allres := collection(\""
-                    + collectionpath
-                    + "\")/ii"
-                    + ((wsGetItemPKsByCriteria.getContentKeywords() == null || useFTSearch) ? "" : "[" + matchesStr
-                            + "(./p/* , '" + wsGetItemPKsByCriteria.getContentKeywords() + "')]")
-                    + (wsGetItemPKsByCriteria.getFromDate().longValue() <= 0 ? "" : "[./t >= "
-                            + wsGetItemPKsByCriteria.getFromDate().longValue() + "]")
-                    + (wsGetItemPKsByCriteria.getToDate().longValue() <= 0 ? "" : "[./t <= "
-                            + wsGetItemPKsByCriteria.getToDate().longValue() + "]")
-                    + (wsGetItemPKsByCriteria.getKeysKeywords() == null ? "" : "[" + matchesStr + "(./i , '"
-                            + wsGetItemPKsByCriteria.getKeysKeywords() + "')]");
-            String concept = wsGetItemPKsByCriteria.getConceptName() != null ? "p/" + wsGetItemPKsByCriteria.getConceptName()
-                    : ".";
-            if (useFTSearch && wsGetItemPKsByCriteria.getContentKeywords() != null) {
-                if (MDMConfiguration.isExistDb())
-                    query += "[ft:query(" + concept + ",\"" + wsGetItemPKsByCriteria.getContentKeywords() + "\")]";
+            
+            StringBuilder query = new StringBuilder();
+            query.append("let $allres := collection(\"");
+            query.append(collectionpath);
+            query.append("\")/ii");
+            
+            String wsContentKeywords = wsGetItemPKsByCriteria.getContentKeywords();
+            if(!useFTSearch && wsContentKeywords != null)
+                    query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");
+            
+            Long fromDate = wsGetItemPKsByCriteria.getFromDate().longValue();
+            if(fromDate > 0)
+                query.append("[./t >= ").append(fromDate).append("]");
+            
+            Long toDate = wsGetItemPKsByCriteria.getToDate().longValue();
+            if(toDate > 0)
+                query.append("[./t <= ").append(toDate).append("]");
+            
+            String keyKeywords = wsGetItemPKsByCriteria.getKeysKeywords();       
+            if(keyKeywords != null)
+                query.append("[").append(matchesStr).append("(./i , '").append(keyKeywords).append("')]");
+            
+            String wsConceptName = wsGetItemPKsByCriteria.getConceptName();
+            if (useFTSearch && wsContentKeywords!= null) {
+                if (MDMConfiguration.isExistDb()) {
+                    String concept = wsConceptName != null ? "p/" + wsConceptName : ".";
+                    query.append("[ft:query(").append(concept).append(",\"").append(wsContentKeywords).append("\")]");
+                }
                 else {
-                    query += "[. contains text \"" + wsGetItemPKsByCriteria.getContentKeywords() + "\"] ";
+                    query.append("[. contains text \"").append(wsContentKeywords).append("\"] ");
                 }
             }
-            query += (wsGetItemPKsByCriteria.getConceptName() == null ? "" : "[./n eq '"
-                    + wsGetItemPKsByCriteria.getConceptName() + "']");
-            String xquery = query;
-            xquery = xquery + "\nfor $ii in $allres\n" + "return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>\n";
+            
+            if(wsConceptName != null)
+                query.append("[./n eq '").append(wsConceptName).append("']");
+            
             int start = wsGetItemPKsByCriteria.getSkip();
             int limit = wsGetItemPKsByCriteria.getMaxItems();
-            String sub = "\nlet $res := for $ii in subsequence($allres, " + (start + 1) + "," + limit + ")\n";
-            String ret = "return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>\n";
-            query += sub + ret;
+            
+            query.append("\nlet $res := for $ii in subsequence($allres, ").append(start + 1).append(",").append(limit).append(")\n");
+            query.append("return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>\n");
 
             // Determine Query based on number of results an counts
-            String rquery = null;
-            rquery = query + "return insert-before($res,0,<totalCount>{count($allres)}</totalCount>) ";
+            query.append("return insert-before($res,0,<totalCount>{count($allres)}</totalCount>)");
+            
+            if(LOG.isDebugEnabled())
+                LOG.debug(query);
 
             DataClusterPOJOPK dcpk = new DataClusterPOJOPK(dataClusterName);
-            Collection<String> results = null;
-            if (EDBType.QIZX.getName().equals(MDMConfiguration.getDBType().getName())) {
-                System.out.println(xquery);
-                results = Util.getXmlServerCtrlLocal().runQuery(revisionID, (dcpk == null ? null : dcpk.getUniqueId()), xquery,
-                        null, start, limit, true);
-            } else {
-                System.out.println(rquery);
-                results = Util.getItemCtrl2Local().runQuery(revisionID, dcpk, rquery, null);
-            }
+            Collection<String> results = Util.getItemCtrl2Local().runQuery(revisionID, dcpk, query.toString(), null);
 
             XPath xpath = XPathFactory.newInstance().newXPath();
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -1220,8 +1247,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
@@ -1244,12 +1273,16 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     wsGetItem.getWsItemPK().getConceptName(), wsGetItem.getWsItemPK().getIds(), pojo.getInsertionTime(),
                     pojo.getTaskId(), pojo.getProjectionAsString());
         } catch (XtentisException e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
@@ -1502,12 +1535,16 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             return new WSItemPK(new WSDataClusterPK(itemPOJOPK.getDataClusterPOJOPK().getUniqueId()),
                     itemPOJOPK.getConceptName(), itemPOJOPK.getIds());
         } catch (XtentisException e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
 
@@ -1546,12 +1583,16 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             }
             return itempk;
         } catch (XtentisException e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
@@ -1586,12 +1627,16 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 }
             }
         } catch (XtentisException e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
 
@@ -1681,8 +1726,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
             String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
 
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                    "[putItem-of-putItemWithReport] in dataCluster:" + dataClusterPK);
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("[putItem-of-putItemWithReport] in dataCluster:" + dataClusterPK);
+            }
+            
             WSItemPK wsi = putItem(wsPutItem, dataModel, schema, ids, conceptKey);
 
             // create resultUpdateReport
@@ -1721,8 +1768,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
             if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
                 // CREATE action
-                org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                        "[pushUpdateReport-of-putItemWithReport] with concept:" + concept + " operation:" + operationType);
+                if(LOG.isDebugEnabled()) {
+                    LOG.debug("[pushUpdateReport-of-putItemWithReport] with concept:" + concept + " operation:" + operationType);
+                }
                 UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType,
                         source, System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, revisionID,
                         updateReportItemsMap);
@@ -1984,7 +2032,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     public WSString serviceAction(WSServiceAction wsServiceAction) throws RemoteException {
-        org.apache.log4j.Logger.getLogger(this.getClass()).debug("serviceAction() " + wsServiceAction.getJndiName());
+        if(LOG.isDebugEnabled()) {
+            LOG.debug("serviceAction() " + wsServiceAction.getJndiName());
+        }
         try {
             Object service = com.amalto.core.util.Util.retrieveComponent(null, wsServiceAction.getJndiName());
             String result = "";
@@ -2004,10 +2054,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             }
             return new WSString(result);
         } catch (com.amalto.core.util.XtentisException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
@@ -2270,8 +2320,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             MenuPOJO pojo = ctrl.getMenu(new MenuPOJOPK(wsGetMenu.getWsMenuPK().getPk()));
             return POJO2WS(pojo);
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -2286,8 +2338,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             MenuPOJO pojo = ctrl.existsMenu(new MenuPOJOPK(wsExistsMenu.getWsMenuPK().getPk()));
             return new WSBoolean(pojo != null);
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -2323,8 +2377,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             MenuPOJOPK pk = ctrl.putMenu(WS2POJO(wsMenu.getWsMenu()));
             return new WSMenuPK(pk.getUniqueId());
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -2465,42 +2521,36 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     }
 
     protected WSBackgroundJob POJO2WS(BackgroundJobPOJO pojo) throws Exception {
-        try {
-            WSBackgroundJob s = new WSBackgroundJob();
-            s.setId(pojo.getId());
-            s.setDescription(pojo.getDescription());
-            switch (pojo.getStatus()) {
-            case 0:
-                s.setStatus(BackgroundJobStatusType.COMPLETED);
-                break;
-            case 1:
-                s.setStatus(BackgroundJobStatusType.RUNNING);
-                break;
-            case 2:
-                s.setStatus(BackgroundJobStatusType.SUSPENDED);
-                break;
-            case 3:
-                s.setStatus(BackgroundJobStatusType.STOPPED);
-                break;
-            case 4:
-                s.setStatus(BackgroundJobStatusType.CANCEL_REQUESTED);
-                break;
-            case 5:
-                s.setStatus(BackgroundJobStatusType.SCHEDULED);
-                break;
-            default:
-                throw new Exception("Unknow BackgroundJob Status: " + pojo.getStatus());
-            }
-            s.setMessage(pojo.getMessage());
-            s.setPercentage(pojo.getPercentage());
-            s.setTimestamp(pojo.getTimestamp());
-            s.setPipeline(pojo.getWsPipeline());
-            return s;
-        } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
-            throw (e);
+        WSBackgroundJob s = new WSBackgroundJob();
+        s.setId(pojo.getId());
+        s.setDescription(pojo.getDescription());
+        switch (pojo.getStatus()) {
+        case 0:
+            s.setStatus(BackgroundJobStatusType.COMPLETED);
+            break;
+        case 1:
+            s.setStatus(BackgroundJobStatusType.RUNNING);
+            break;
+        case 2:
+            s.setStatus(BackgroundJobStatusType.SUSPENDED);
+            break;
+        case 3:
+            s.setStatus(BackgroundJobStatusType.STOPPED);
+            break;
+        case 4:
+            s.setStatus(BackgroundJobStatusType.CANCEL_REQUESTED);
+            break;
+        case 5:
+            s.setStatus(BackgroundJobStatusType.SCHEDULED);
+            break;
+        default:
+            throw new Exception("Unknow BackgroundJob Status: " + pojo.getStatus());
         }
+        s.setMessage(pojo.getMessage());
+        s.setPercentage(pojo.getPercentage());
+        s.setTimestamp(pojo.getTimestamp());
+        s.setPipeline(pojo.getWsPipeline());
+        return s;
     }
 
     protected BackgroundJobPOJO WS2POJO(WSBackgroundJob ws) throws Exception {
@@ -2542,8 +2592,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             ILocalUser user = LocalUser.getLocalUser();
             return POJO2WS(user.getUniverse());
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -3299,12 +3351,15 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             ctrl.execute(context, WS2POJO(wsExecuteTransformerV2.getWsTypedContent()), new TransformerCallBack() {
 
                 public void contentIsReady(TransformerContext context) throws XtentisException {
-                    org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                            "XtentisWSBean.executeTransformerV2.contentIsReady() ");
+                    if(LOG.isDebugEnabled()) {
+                        LOG.debug("XtentisWSBean.executeTransformerV2.contentIsReady() ");
+                    }
                 }
 
                 public void done(TransformerContext context) throws XtentisException {
-                    org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.done() ");
+                    if(LOG.isDebugEnabled()) {
+                        LOG.debug("XtentisWSBean.executeTransformerV2.done() ");
+                    }
                     context.put(RUNNING, Boolean.FALSE);
                 }
             });
@@ -3329,13 +3384,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     new TransformerCallBack() {
 
                         public void contentIsReady(TransformerContext context) throws XtentisException {
-                            org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                                    "XtentisWSBean.executeTransformerV2AsJob.contentIsReady() ");
+                            if(LOG.isDebugEnabled())
+                                LOG.debug("XtentisWSBean.executeTransformerV2AsJob.contentIsReady() ");
                         }
 
                         public void done(TransformerContext context) throws XtentisException {
-                            org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                                    "XtentisWSBean.executeTransformerV2AsJob.done() ");
+                            if(LOG.isDebugEnabled())
+                                LOG.debug("XtentisWSBean.executeTransformerV2AsJob.done() ");
                         }
                     });
             return new WSBackgroundJobPK(bgPK.getUniqueId());
@@ -3744,8 +3799,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
             return POJO2WS(ctrl.getRoutingOrder(WS2POJO(wsGetRoutingOrder.getWsRoutingOrderPK())));
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -3759,8 +3816,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
             return POJO2WS(ctrl.existsRoutingOrder(WS2POJO(wsExistsRoutingOrder.getWsRoutingOrderPK())));
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -3774,8 +3833,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
             return POJO2WS(ctrl.removeRoutingOrder(WS2POJO(wsDeleteRoutingOrder.getWsRoutingOrderPK())));
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -3793,8 +3854,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             ctrl.executeAsynchronously(ro);
             return POJO2WS(ro.getAbstractRoutingOrderPOJOPK());
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -3811,8 +3874,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     .getRoutingOrder(WS2POJO(wsExecuteRoutingOrderSynchronously.getRoutingOrderV2PK()));
             return new WSString(ctrl.executeSynchronously(ro));
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -3839,8 +3904,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
             return pks;
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -3864,8 +3931,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2PK[list.size()]));
             return wsPKArray;
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -3890,8 +3959,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2[list.size()]));
             return wsPKArray;
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -3899,81 +3970,64 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     protected WSRoutingOrderV2PK POJO2WS(AbstractRoutingOrderV2POJOPK pojo) throws Exception {
         if (pojo == null)
             return null;
-        try {
-            WSRoutingOrderV2PK ws = new WSRoutingOrderV2PK();
-            ws.setName(pojo.getName());
-            switch (pojo.getStatus()) {
-            case AbstractRoutingOrderV2POJO.ACTIVE:
-                ws.setStatus(WSRoutingOrderV2Status.ACTIVE);
-                break;
-            case AbstractRoutingOrderV2POJO.COMPLETED:
-                ws.setStatus(WSRoutingOrderV2Status.COMPLETED);
-                break;
-            case AbstractRoutingOrderV2POJO.FAILED:
-                ws.setStatus(WSRoutingOrderV2Status.FAILED);
-                break;
-            }
-            return ws;
-        } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
-            throw (e);
+        WSRoutingOrderV2PK ws = new WSRoutingOrderV2PK();
+        ws.setName(pojo.getName());
+        switch (pojo.getStatus()) {
+        case AbstractRoutingOrderV2POJO.ACTIVE:
+            ws.setStatus(WSRoutingOrderV2Status.ACTIVE);
+            break;
+        case AbstractRoutingOrderV2POJO.COMPLETED:
+            ws.setStatus(WSRoutingOrderV2Status.COMPLETED);
+            break;
+        case AbstractRoutingOrderV2POJO.FAILED:
+            ws.setStatus(WSRoutingOrderV2Status.FAILED);
+            break;
         }
+        return ws;
     }
 
     protected AbstractRoutingOrderV2POJOPK WS2POJO(WSRoutingOrderV2PK s) throws Exception {
         if (s == null)
             return null;
-        try {
-            AbstractRoutingOrderV2POJOPK pojo = null;
-            if (s.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
-                pojo = new ActiveRoutingOrderV2POJOPK(s.getName());
-            } else if (s.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
-                pojo = new CompletedRoutingOrderV2POJOPK(s.getName());
-            } else if (s.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
-                pojo = new FailedRoutingOrderV2POJOPK(s.getName());
-            }
-            return pojo;
-        } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
-            throw (e);
+
+        AbstractRoutingOrderV2POJOPK pojo = null;
+        if (s.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
+            pojo = new ActiveRoutingOrderV2POJOPK(s.getName());
+        } else if (s.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
+            pojo = new CompletedRoutingOrderV2POJOPK(s.getName());
+        } else if (s.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
+            pojo = new FailedRoutingOrderV2POJOPK(s.getName());
         }
+        return pojo;
     }
 
     protected WSRoutingOrderV2 POJO2WS(AbstractRoutingOrderV2POJO pojo) throws Exception {
         if (pojo == null)
             return null;
-        try {
-            WSRoutingOrderV2 ws = new WSRoutingOrderV2();
-            ws.setMessage(pojo.getMessage());
-            ws.setName(pojo.getName());
-            ws.setServiceJNDI(pojo.getServiceJNDI());
-            ws.setServiceParameters(pojo.getServiceParameters());
-            switch (pojo.getStatus()) {
-            case AbstractRoutingOrderV2POJO.ACTIVE:
-                ws.setStatus(WSRoutingOrderV2Status.ACTIVE);
-                break;
-            case AbstractRoutingOrderV2POJO.COMPLETED:
-                ws.setStatus(WSRoutingOrderV2Status.COMPLETED);
-                break;
-            case AbstractRoutingOrderV2POJO.FAILED:
-                ws.setStatus(WSRoutingOrderV2Status.FAILED);
-                break;
-            }
-            ws.setTimeCreated(pojo.getTimeCreated());
-            ws.setTimeLastRunCompleted(pojo.getTimeLastRunCompleted());
-            ws.setTimeLastRunStarted(pojo.getTimeLastRunStarted());
-            ws.setTimeScheduled(pojo.getTimeScheduled());
-            ws.setWsItemPK(POJO2WS(pojo.getItemPOJOPK()));
-            ws.setBindingUniverseName(pojo.getBindingUniverseName());
-            ws.setBindingUserToken(pojo.getBindingUserToken());
-            return ws;
-        } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
-            throw (e);
+        WSRoutingOrderV2 ws = new WSRoutingOrderV2();
+        ws.setMessage(pojo.getMessage());
+        ws.setName(pojo.getName());
+        ws.setServiceJNDI(pojo.getServiceJNDI());
+        ws.setServiceParameters(pojo.getServiceParameters());
+        switch (pojo.getStatus()) {
+        case AbstractRoutingOrderV2POJO.ACTIVE:
+            ws.setStatus(WSRoutingOrderV2Status.ACTIVE);
+            break;
+        case AbstractRoutingOrderV2POJO.COMPLETED:
+            ws.setStatus(WSRoutingOrderV2Status.COMPLETED);
+            break;
+        case AbstractRoutingOrderV2POJO.FAILED:
+            ws.setStatus(WSRoutingOrderV2Status.FAILED);
+            break;
         }
+        ws.setTimeCreated(pojo.getTimeCreated());
+        ws.setTimeLastRunCompleted(pojo.getTimeLastRunCompleted());
+        ws.setTimeLastRunStarted(pojo.getTimeLastRunStarted());
+        ws.setTimeScheduled(pojo.getTimeScheduled());
+        ws.setWsItemPK(POJO2WS(pojo.getItemPOJOPK()));
+        ws.setBindingUniverseName(pojo.getBindingUniverseName());
+        ws.setBindingUserToken(pojo.getBindingUserToken());
+        return ws;
     }
 
     /***************************************************************************
@@ -3994,8 +4048,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             }
             return new WSRoutingRulePKArray(list.toArray(new WSRoutingRulePK[list.size()]));
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
@@ -4019,8 +4075,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 // done below;
             }
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
 
@@ -4039,8 +4097,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 return WSRoutingEngineV2Status.DEAD;
             }
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
+            if(LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
 
