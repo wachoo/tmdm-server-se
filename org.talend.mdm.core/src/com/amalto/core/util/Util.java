@@ -218,14 +218,14 @@ public class Util {
      * Retrieves the XML Server wrapper<br>
      * Deprecated: use a direct lookup a shown below. <code>
      * XmlServerSLWrapperLocal server = null;
-			try {
-				server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-			} catch (Exception e) {
-				String err = "Unable to access the XML Server wrapper";
-				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-				throw new RuntimeException(err);
-			}
-	 *</code>
+            try {
+                server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+            } catch (Exception e) {
+                String err = "Unable to access the XML Server wrapper";
+                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+                throw new RuntimeException(err);
+            }
+     *</code>
      * 
      * @deprecated - use a direct look up in your class. Not a call to this static method
      */
@@ -1033,9 +1033,9 @@ public class Util {
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException {
         try {
             String schema = nodeToString(xsd);
-            XSDKey key = xsdkeyCache.get(schema + "#" + businessConceptName);
-            if (key != null)
-                return key;
+            XSDKey key1 = xsdkeyCache.get(schema + "#" + businessConceptName);
+            if (key1 != null)
+                return key1;
             String[] selectors = null;
             String[] fields = null;
             selectors = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName
@@ -1051,7 +1051,7 @@ public class Util {
                 DocumentBuilder builder;
                 builder = factory.newDocumentBuilder();
                 NodeList list = null;
-                
+                XSDKey key = null;
                 for (int xsdType = 0; xsdType < 2; xsdType++) {
                     if (xsdType == 0)
                         list = Util.getNodeList(xsd, "./xsd:import");
@@ -1084,12 +1084,8 @@ public class Util {
                     }
                 }
                 return key;
-            } else {
-                key = new XSDKey(selectors[0], fields);
-                xsdkeyCache.put(schema + "#" + businessConceptName, key);
-                return key;
-            }
-            
+            } else
+                return new XSDKey(selectors[0], fields);
         } catch (Exception e) {
             String err = "Unable to get the keys for the Business Concept " + businessConceptName + ": "
                     + e.getLocalizedMessage();
