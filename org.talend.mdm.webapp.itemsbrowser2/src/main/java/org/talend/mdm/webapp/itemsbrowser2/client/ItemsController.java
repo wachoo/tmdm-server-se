@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import java.util.List;
