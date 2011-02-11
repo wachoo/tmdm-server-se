@@ -51,8 +51,8 @@ public class UpdateReportDWR {
                 String dataCluster = configuration.getCluster();
                 String dataModel = configuration.getModel();
 
-                WSWhereCondition clusterwc = new WSWhereCondition("/Update/DataCluster", WSWhereOperator.EQUALS,
-                        dataCluster.trim(), WSStringPredicate.NONE, false);
+                WSWhereCondition clusterwc = new WSWhereCondition("/Update/DataCluster", WSWhereOperator.EQUALS, dataCluster
+                        .trim(), WSStringPredicate.NONE, false);
 
                 WSWhereCondition modelwc = new WSWhereCondition("/Update/DataModel", WSWhereOperator.EQUALS, dataModel.trim(),
                         WSStringPredicate.NONE, false);
@@ -99,8 +99,9 @@ public class UpdateReportDWR {
                 String startDate = (String) criteria.get("startDate");
                 SimpleDateFormat dataFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date date = dataFmt.parse(startDate);
-                WSWhereCondition wc = new WSWhereCondition("/Update/TimeInMillis", WSWhereOperator.GREATER_THAN_OR_EQUAL,
-                        date.getTime() + "", WSStringPredicate.NONE, false);
+                WSWhereCondition wc = new WSWhereCondition("/Update/TimeInMillis", WSWhereOperator.GREATER_THAN_OR_EQUAL, date
+                        .getTime()
+                        + "", WSStringPredicate.NONE, false);
                 WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
                 conditions.add(wsWhereItem);
             }
@@ -109,8 +110,9 @@ public class UpdateReportDWR {
                 String endDate = (String) criteria.get("endDate");
                 SimpleDateFormat dataFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date date = dataFmt.parse(endDate);
-                WSWhereCondition wc = new WSWhereCondition("/Update/TimeInMillis", WSWhereOperator.LOWER_THAN_OR_EQUAL,
-                        date.getTime() + "", WSStringPredicate.NONE, false);
+                WSWhereCondition wc = new WSWhereCondition("/Update/TimeInMillis", WSWhereOperator.LOWER_THAN_OR_EQUAL, date
+                        .getTime()
+                        + "", WSStringPredicate.NONE, false);
                 WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
                 conditions.add(wsWhereItem);
             }
@@ -131,11 +133,15 @@ public class UpdateReportDWR {
         if (totalString != null && totalString.getValue() != null && totalString.getValue().length() > 0)
             totalSize = Integer.parseInt(totalString.getValue());
 
-        String[] results = Util
-                .getPort()
-                .xPathsSearch(
-                        new WSXPathsSearch(wsDataClusterPK, null, new WSStringArray(new String[] { conceptName }), wi, -1, start,
-                                limit, "/Update/TimeInMillis", "descending")).getStrings();
+        if (limit == 0) {
+            if (totalSize == 0)
+                limit = 20;
+            else
+                limit = totalSize;
+        }
+        String[] results = Util.getPort().xPathsSearch(
+                new WSXPathsSearch(wsDataClusterPK, null, new WSStringArray(new String[] { conceptName }), wi, -1, start, limit,
+                        "/Update/TimeInMillis", "descending")).getStrings();
 
         logger.debug("Total:" + totalSize + ";Start:" + start + ";Limit:" + limit + ";Length:"
                 + (results == null ? 0 : results.length));

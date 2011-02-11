@@ -324,28 +324,9 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 					text : amalto.updatereport.UpdateReportLocal.get("search")
 				},{	
 					handler: function() {					
-							var curcriteria = this.criteria;
-							if (curcriteria != ""){
-								curcriteria = curcriteria.replace(/concept:/g,'Entity:');
-								curcriteria = curcriteria.replace(/key:/g, 'Key:');
-								curcriteria = curcriteria.replace(/source:/g, 'Source:');
-								curcriteria = curcriteria.replace(/operationType:/g, 'Operation Type:');
-								curcriteria = curcriteria.replace(/startDate:/g, 'Start Date:');
-								curcriteria = curcriteria.replace(/endDate:/g, 'End Date:');
-							}
-					        var vExportContent = this.gridPanel1.getExcelXml(false, curcriteria);
-					        if (Ext.isIE6 || Ext.isIE7 || Ext.isSafari || Ext.isSafari2 || Ext.isSafari3) {
-					        	var fd=Ext.get('frmDummy');
-					            if (!fd) {
-					                fd=Ext.DomHelper.append(Ext.getBody(),{tag:'form',method:'post',id:'frmDummy',action:'/updatereport/secure/updateReportDetails',name:'frmDummy',cls:'x-hidden',cn:[
-					                    {tag:'input',name:'exportContent',id:'exportContent',type:'hidden'}
-					                ]},true);
-					            }
-					            fd.child('#exportContent').set({value:vExportContent});
-					            fd.dom.submit();
-					        } else {
-					            document.location = 'data:application/vnd.ms-excel;base64,' + Base64.encode(vExportContent);
-					        }}.createDelegate(this),
+							var curcriteria = this.getRequestParam();
+							window.location.href="/updatereport/secure/updateReportDetails?params="+ curcriteria + "&language=" + language;	
+					}.createDelegate(this),
 					text : amalto.updatereport.UpdateReportLocal.get("export")
 			}]
 			}],

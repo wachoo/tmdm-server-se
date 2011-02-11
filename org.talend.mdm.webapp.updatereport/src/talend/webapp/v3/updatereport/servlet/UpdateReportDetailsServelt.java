@@ -1,8 +1,12 @@
 package talend.webapp.v3.updatereport.servlet;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -10,12 +14,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import talend.webapp.v3.updatereport.bean.DataChangeLog;
+import talend.webapp.v3.updatereport.dwr.UpdateReportDWR;
+
+import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
@@ -44,7 +57,7 @@ public class UpdateReportDetailsServelt extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         String ids = req.getParameter("ids");
-        String export = req.getParameter("exportContent");
+        String export = req.getParameter("params");
 
         String jsonTree = "";
         JSONObject json = new JSONObject();
@@ -180,27 +193,81 @@ public class UpdateReportDetailsServelt extends HttpServlet {
 
                     json.put("head", rootGroup);
                     jsonTree = ((JSONArray) json.get("head")).toString();
+                    PrintWriter out = resp.getWriter();
+                    out.println(jsonTree);
+                    out.close();
                 }
             } catch (XtentisWebappException e) {
                 e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        } else if (export != null) {
+            // export to excel
+            org.apache.log4j.Logger.getLogger(this.getClass()).info("SERVLET Reporting export for excel ");
+
+            DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+            resp.reset();
+            resp.setContentType("application/vnd.ms-excel");
+            String theReportFile = "Journal_" + df.format(new Date()) + ".xls";
+            resp.setHeader("Content-Disposition", "attachment; filename=\"" + theReportFile + "\"");
+
+            HSSFWorkbook wb = new HSSFWorkbook();
+            HSSFSheet sheet = wb.createSheet("new sheet");
+            sheet.setDefaultColumnWidth((short) 20);
+
+            UpdateReportDWR report = new UpdateReportDWR();
+            try {
+                ListRange list = report.getUpdateReportList(0, 0, null, null, export);
+
+                // create a cell style
+                HSSFCellStyle cs = wb.createCellStyle();
+                HSSFFont f = wb.createFont();
+                f.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+                cs.setFont(f);
+                HSSFRow row = sheet.createRow((short) 0);
+                String[][] cols = new String[2][];
+                cols[0] = new String[] { "Data Container", "Data Model", "Entity", "Key", "Revision ID", "Operation Type",
+                        "Operation Time", "Source", "User Name" };
+                cols[1] = new String[] { "Data Container", "Data Model", "Entité", "Clé", "ID de révision", "Type d\'opération",
+                        "Date d\'opération", "Source", "Utilisateur" };
+                String language = req.getParameter("language") != null ? req.getParameter("language") : "en";
+                if (language.equals("en"))
+                    for (int i = 0; i < cols[0].length; i++) {
+                        row.createCell((short) i).setCellValue(cols[0][i]);
+                        row.getCell((short) i).setCellStyle(cs);
+                    }
+                else
+                    for (int i = 0; i < cols[1].length; i++) {
+                        row.createCell((short) i).setCellValue(cols[1][i]);
+                        row.getCell((short) i).setCellStyle(cs);
+                    }
+
+                // populate sheet
+                int i = 1;
+                for (Object oo : list.getData()) {
+                    row = sheet.createRow((short) i++);
+                    DataChangeLog log = (DataChangeLog) oo;
+                    // set each cell value
+                    row.createCell((short) 0).setCellValue(log.getDataCluster());
+                    row.createCell((short) 1).setCellValue(log.getDataModel());
+                    row.createCell((short) 2).setCellValue(log.getConcept());
+                    row.createCell((short) 3).setCellValue(log.getKey());
+                    row.createCell((short) 4).setCellValue(log.getRevisionID());
+                    row.createCell((short) 5).setCellValue(log.getOperationType());
+                    row.createCell((short) 6).setCellValue(log.getTimeInMillis());
+                    row.createCell((short) 7).setCellValue(log.getSource());
+                    row.createCell((short) 8).setCellValue(log.getUserName());
+                }
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            // Write the output
+            OutputStream out = resp.getOutputStream();
+            wb.write(out);
+            out.close();
         }
-
-        PrintWriter out = resp.getWriter();
-        if (export != null && export.length() > 0) {
-            resp.setHeader("Pragma", "public");
-            resp.setHeader("Expires", "0");
-            resp.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
-            resp.setHeader("Content-Type", "application/force-download");
-            resp.setHeader("Content-Type", "application/vnd.ms-excel");
-            resp.setHeader("Content-Disposition", "attachment;filename=MyReport.xls");
-            out.println(export);
-        } else
-            out.println(jsonTree);
-        out.close();
-
     }
 
     private String cleanOutput(String output) {
