@@ -32,9 +32,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSVersioningHistoryEntry.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSAutoIncrement");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSAutoIncrement_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSAutoIncrement.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDELMDMJob");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSDELMDMJob_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSDELMDMJob.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSGetSynchronizationPlanItemsAlgorithms");
@@ -79,11 +79,6 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSSynchronizationPlanItemsSynchronizations.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowUnDeploy");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowUnDeploy_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowUnDeploy.class, type, serializer);
-        }
-        {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSRoutingOrderV2PKArray");
             CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSRoutingOrderV2PKArray_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSRoutingOrderV2PKArray.class, type, serializer);
@@ -109,14 +104,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSTransformerV2PKArray.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSResolveSynchronizationItem");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSResolveSynchronizationItem_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSResolveSynchronizationItem.class, type, serializer);
-        }
-        {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowGetTaskList");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowGetTaskList_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowGetTaskList.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowDeploy");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowDeploy_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowDeploy.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSSynchronizationPlanStatus");
@@ -124,9 +114,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSSynchronizationPlanStatus.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowDeleteProcessInstancesRequest");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowDeleteProcessInstancesRequest_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowDeleteProcessInstancesRequest.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSProcessInstanceArray");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSProcessInstanceArray_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSProcessInstanceArray.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSPutUniverse");
@@ -205,9 +195,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSUpdateMetadataItem.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSRemoveDroppedItem");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSRemoveDroppedItem_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSRemoveDroppedItem.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDroppedItem");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSDroppedItem_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSDroppedItem.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSRoutingOrderV2Array");
@@ -285,9 +275,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSPutDBDataCluster.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowDeploy");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowDeploy_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowDeploy.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowProcessDefinitionUUID");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUID_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUID.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSRolePK");
@@ -300,9 +290,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSAssignTask");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSAssignTask_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSAssignTask.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowDeleteProcessInstancesRequest");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowDeleteProcessInstancesRequest_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowDeleteProcessInstancesRequest.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSGetItems");
@@ -360,9 +350,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSExistsDBDataCluster.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDroppedItemPKArray");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSDroppedItemPKArray_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSDroppedItemPKArray.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSFindAllDroppedItemsPKs");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSGetTransformerV2PKs");
@@ -370,14 +360,19 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSGetTransformerV2PKs.class, type, serializer);
         }
         {
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSAutoIncrement");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSAutoIncrement_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSAutoIncrement.class, type, serializer);
+        }
+        {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDeleteDataModel");
             CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSDeleteDataModel_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSDeleteDataModel.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowGetProcessInstances");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowGetProcessInstances_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowGetProcessInstances.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSProcessTaskInstanceArray");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSProcessTaskInstanceArray_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSProcessTaskInstanceArray.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSGetTransformer");
@@ -410,9 +405,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSVersioningUniverseVersions.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSProcessTaskInstance");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSProcessTaskInstance_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSProcessTaskInstance.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowGetTaskList");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowGetTaskList_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowGetTaskList.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSUniverse-itemsRevisionIDs");
@@ -451,14 +446,14 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSRecoverDroppedItem");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSRecoverDroppedItem_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSRecoverDroppedItem.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSResolveSynchronizationItem");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSResolveSynchronizationItem_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSResolveSynchronizationItem.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDELMDMJob");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSDELMDMJob_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSDELMDMJob.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSMDMJob");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSMDMJob_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSMDMJob.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSRole-specification-instance");
@@ -506,9 +501,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSExistsTransformerV2.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowGetProcessDefinitions");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowGetProcessDefinitions_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowGetProcessDefinitions.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSCheckServiceConfigResponse");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSCheckServiceConfigResponse_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSCheckServiceConfigResponse.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSSynchronizationGetItemXML");
@@ -556,9 +551,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSTransformerPK.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSLoadDroppedItem");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSLoadDroppedItem_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSLoadDroppedItem.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDroppedItemPKArray");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSDroppedItemPKArray_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSDroppedItemPKArray.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDeleteDataCluster");
@@ -587,9 +582,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSExistsTransformerPluginV2.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowProcessDefinitionUUID");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUID_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUID.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowProcessDefinitionUUIDArray");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUIDArray_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUIDArray.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSStringArray");
@@ -653,9 +648,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSExistsRoutingOrderV2.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSHashMap");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSHashMap_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSHashMap.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSSuspendTask");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSSuspendTask_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSSuspendTask.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSPutSynchronizationPlan");
@@ -705,9 +700,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSItemPKArray.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSUnassignTask");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSUnassignTask_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSUnassignTask.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSProcessInstance");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSProcessInstance_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSProcessInstance.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSTransformerContext-projectedItemPKs");
@@ -840,9 +835,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSItemPK.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowProcessDefinitionUUIDArray");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUIDArray_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowProcessDefinitionUUIDArray.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowGetProcessDefinitions");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowGetProcessDefinitions_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowGetProcessDefinitions.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSXPathsSearch");
@@ -930,9 +925,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSCount.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSCheckServiceConfigRequest");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSCheckServiceConfigRequest_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSCheckServiceConfigRequest.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSMDMConfig");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSMDMConfig_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSMDMConfig.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSSynchronizationPlanAction");
@@ -990,9 +985,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSDeleteSynchronizationItem.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSProcessInstance");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSProcessInstance_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSProcessInstance.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowGetProcessInstances");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowGetProcessInstances_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowGetProcessInstances.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSRoutingOrderV2PK");
@@ -1010,9 +1005,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSViewSearch.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSSuspendTask");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSSuspendTask_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSSuspendTask.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSAssignTask");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSAssignTask_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSAssignTask.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDeleteTransformer");
@@ -1035,14 +1030,14 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSDataClusterPKArray.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSSetTaskPriority");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSSetTaskPriority_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSSetTaskPriority.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSUnassignTask");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSUnassignTask_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSUnassignTask.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSStartProcessInstance-variable-entry");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSStartProcessInstanceVariableEntry_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSStartProcessInstanceVariableEntry.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSStartProcessInstance");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSStartProcessInstance_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSStartProcessInstance.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSGetRolePKs");
@@ -1169,9 +1164,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSSynchronizationPlanXtentisObjectsSynchronizations.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDroppedItem");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSDroppedItem_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSDroppedItem.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSLoadDroppedItem");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSLoadDroppedItem_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSLoadDroppedItem.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSConnectorInteraction");
@@ -1225,9 +1220,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSGetItem.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSPUTMDMJob");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSPUTMDMJob_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSPUTMDMJob.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSMDMJobArray");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSMDMJobArray_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSMDMJobArray.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSSynchronizationGetUnsynchronizedObjectsIDs");
@@ -1235,9 +1230,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSSynchronizationGetUnsynchronizedObjectsIDs.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSStartProcessInstance");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSStartProcessInstance_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSStartProcessInstance.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSSetTaskPriority");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSSetTaskPriority_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSSetTaskPriority.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSGetObjectsForSynchronizationPlans");
@@ -1300,9 +1295,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSTransformerPluginV2SListItem.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSFindAllDroppedItemsPKs");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSRecoverDroppedItem");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSRecoverDroppedItem_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSRecoverDroppedItem.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSGetMenuPKs");
@@ -1326,9 +1321,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSSynchronizationPlanPKArray.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSMDMJobArray");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSMDMJobArray_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSMDMJobArray.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSStartProcessInstance-variable-entry");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSStartProcessInstanceVariableEntry_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSStartProcessInstanceVariableEntry.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSItem");
@@ -1453,9 +1448,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSBoolean.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSProcessInstanceArray");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSProcessInstanceArray_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSProcessInstanceArray.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSProcessTaskInstance");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSProcessTaskInstance_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSProcessTaskInstance.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSRunQuery");
@@ -1473,9 +1468,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSBusinessConceptPK.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSMDMJob");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSMDMJob_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSMDMJob.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSMDMNULL");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSMDMNULL_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSMDMNULL.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSTypedContent");
@@ -1483,9 +1478,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSTypedContent.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSCategoryData");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSCategoryData_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSCategoryData.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSPUTMDMJob");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSPUTMDMJob_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSPUTMDMJob.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSPutTransformer");
@@ -1533,9 +1528,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSServiceGetDocument.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSMDMNULL");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSMDMNULL_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSMDMNULL.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSHashMap");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSHashMap_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSHashMap.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSLogout");
@@ -1583,9 +1578,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSExistsDataCluster.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSProcessTaskInstanceArray");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSProcessTaskInstanceArray_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSProcessTaskInstanceArray.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSWorkflowUnDeploy");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSWorkflowUnDeploy_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSWorkflowUnDeploy.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSExistsSynchronizationPlan");
@@ -1613,9 +1608,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSExistsStoredProcedure.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSCheckServiceConfigResponse");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSCheckServiceConfigResponse_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSCheckServiceConfigResponse.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSCheckServiceConfigRequest");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSCheckServiceConfigRequest_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSCheckServiceConfigRequest.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSProcessBytesUsingTransformer-wsOutputDecisionTable-decisions");
@@ -1646,6 +1641,11 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDeleteItem");
             CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSDeleteItem_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSDeleteItem.class, type, serializer);
+        }
+        {
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSCategoryData");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSCategoryData_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSCategoryData.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSDataCluster");
@@ -1689,9 +1689,9 @@ public class XtentisService_SerializerRegistry implements SerializerConstants {
             registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSRoutingOrderV2.class, type, serializer);
         }
         {
-            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSMDMConfig");
-            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSMDMConfig_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
-            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSMDMConfig.class, type, serializer);
+            QName type = new QName("urn-com-amalto-xtentis-webservice", "WSRemoveDroppedItem");
+            CombinedSerializer serializer = new com.amalto.webapp.util.webservices.WSRemoveDroppedItem_LiteralSerializer(type, "", DONT_ENCODE_TYPE);
+            registerSerializer(mapping2,com.amalto.webapp.util.webservices.WSRemoveDroppedItem.class, type, serializer);
         }
         {
             QName type = new QName("urn-com-amalto-xtentis-webservice", "WSPutItemWithReportArray");

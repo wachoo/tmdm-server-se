@@ -9,13 +9,15 @@ package com.amalto.webapp.util.webservices;
 public class WSItemPKsByCriteriaResponseResults {
     protected long date;
     protected com.amalto.webapp.util.webservices.WSItemPK wsItemPK;
+    protected java.lang.String taskId;
     
     public WSItemPKsByCriteriaResponseResults() {
     }
     
-    public WSItemPKsByCriteriaResponseResults(long date, com.amalto.webapp.util.webservices.WSItemPK wsItemPK) {
+    public WSItemPKsByCriteriaResponseResults(long date, com.amalto.webapp.util.webservices.WSItemPK wsItemPK, java.lang.String taskId) {
         this.date = date;
         this.wsItemPK = wsItemPK;
+        this.taskId = taskId;
     }
     
     public long getDate() {
@@ -32,5 +34,13 @@ public class WSItemPKsByCriteriaResponseResults {
     
     public void setWsItemPK(com.amalto.webapp.util.webservices.WSItemPK wsItemPK) {
         this.wsItemPK = wsItemPK;
+    }
+    
+    public java.lang.String getTaskId() {
+        return taskId;
+    }
+    
+    public void setTaskId(java.lang.String taskId) {
+        this.taskId = taskId;
     }
 }

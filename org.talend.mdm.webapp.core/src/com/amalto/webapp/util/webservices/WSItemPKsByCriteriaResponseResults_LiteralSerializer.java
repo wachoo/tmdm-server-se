@@ -25,6 +25,9 @@ public class WSItemPKsByCriteriaResponseResults_LiteralSerializer extends Litera
     private static final QName ns1_wsItemPK_QNAME = new QName("", "wsItemPK");
     private static final QName ns2_WSItemPK_TYPE_QNAME = new QName("urn-com-amalto-xtentis-webservice", "WSItemPK");
     private CombinedSerializer ns2_myWSItemPK_LiteralSerializer;
+    private static final QName ns1_taskId_QNAME = new QName("", "taskId");
+    private static final QName ns3_string_TYPE_QNAME = SchemaConstants.QNAME_TYPE_STRING;
+    private CombinedSerializer ns3_myns3_string__java_lang_String_String_Serializer;
     
     public WSItemPKsByCriteriaResponseResults_LiteralSerializer(QName type, String encodingStyle) {
         this(type, encodingStyle, false);
@@ -37,6 +40,7 @@ public class WSItemPKsByCriteriaResponseResults_LiteralSerializer extends Litera
     public void initialize(InternalTypeMappingRegistry registry) throws Exception {
         ns3_myns3__long__long_Long_Serializer = (CombinedSerializer)registry.getSerializer("", long.class, ns3_long_TYPE_QNAME);
         ns2_myWSItemPK_LiteralSerializer = (CombinedSerializer)registry.getSerializer("", com.amalto.webapp.util.webservices.WSItemPK.class, ns2_WSItemPK_TYPE_QNAME);
+        ns3_myns3_string__java_lang_String_String_Serializer = (CombinedSerializer)registry.getSerializer("", java.lang.String.class, ns3_string_TYPE_QNAME);
     }
     
     public Object doDeserialize(XMLReader reader,
@@ -80,6 +84,22 @@ public class WSItemPKsByCriteriaResponseResults_LiteralSerializer extends Litera
         else {
             throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
         }
+        elementName = reader.getName();
+        if (reader.getState() == XMLReader.START) {
+            if (elementName.equals(ns1_taskId_QNAME)) {
+                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_taskId_QNAME, reader, context);
+                if (member == null) {
+                    throw new DeserializationException("literal.unexpectedNull");
+                }
+                instance.setTaskId((java.lang.String)member);
+                reader.nextElementContent();
+            } else {
+                throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_taskId_QNAME, reader.getName() });
+            }
+        }
+        else {
+            throw new DeserializationException("literal.expectedElementName", reader.getName().toString());
+        }
         
         XMLReaderUtil.verifyReaderState(reader, XMLReader.END);
         return (Object)instance;
@@ -100,5 +120,9 @@ public class WSItemPKsByCriteriaResponseResults_LiteralSerializer extends Litera
             throw new SerializationException("literal.unexpectedNull");
         }
         ns2_myWSItemPK_LiteralSerializer.serialize(instance.getWsItemPK(), ns1_wsItemPK_QNAME, null, writer, context);
+        if (instance.getTaskId() == null) {
+            throw new SerializationException("literal.unexpectedNull");
+        }
+        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getTaskId(), ns1_taskId_QNAME, null, writer, context);
     }
 }

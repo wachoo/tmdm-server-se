@@ -137,7 +137,7 @@ import com.sun.org.apache.xpath.internal.XPathAPI;
 public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     private static Logger LOG = Logger.getLogger(IXtentisWSDelegator.class);
-    
+
     /***************************************************************************
      * 
      * S E R V I C E S
@@ -310,7 +310,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             array.setWsDataModelPKs(wsList.toArray(new WSDataModelPK[l.size()]));
             return array;
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -668,7 +668,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             return VO2WS(Util.getViewCtrlLocal().getView(new ViewPOJOPK(wsViewGet.getWsViewPK().getPk())));
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -684,7 +684,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             return new WSBoolean(Util.getViewCtrlLocal().existsView(new ViewPOJOPK(wsExistsView.getWsViewPK().getPk())) != null);
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -1165,52 +1165,52 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
                 matchesStr = "ora:matches";
             }
-            
+
             StringBuilder query = new StringBuilder();
             query.append("let $allres := collection(\"");
             query.append(collectionpath);
             query.append("\")/ii");
-            
+
             String wsContentKeywords = wsGetItemPKsByCriteria.getContentKeywords();
-            if(!useFTSearch && wsContentKeywords != null)
-                    query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");
-            
+            if (!useFTSearch && wsContentKeywords != null)
+                query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");
+
             Long fromDate = wsGetItemPKsByCriteria.getFromDate().longValue();
-            if(fromDate > 0)
+            if (fromDate > 0)
                 query.append("[./t >= ").append(fromDate).append("]");
-            
+
             Long toDate = wsGetItemPKsByCriteria.getToDate().longValue();
-            if(toDate > 0)
+            if (toDate > 0)
                 query.append("[./t <= ").append(toDate).append("]");
-            
-            String keyKeywords = wsGetItemPKsByCriteria.getKeysKeywords();       
-            if(keyKeywords != null)
+
+            String keyKeywords = wsGetItemPKsByCriteria.getKeysKeywords();
+            if (keyKeywords != null)
                 query.append("[").append(matchesStr).append("(./i , '").append(keyKeywords).append("')]");
-            
+
             String wsConceptName = wsGetItemPKsByCriteria.getConceptName();
-            if (useFTSearch && wsContentKeywords!= null) {
+            if (useFTSearch && wsContentKeywords != null) {
                 if (MDMConfiguration.isExistDb()) {
                     String concept = wsConceptName != null ? "p/" + wsConceptName : ".";
                     query.append("[ft:query(").append(concept).append(",\"").append(wsContentKeywords).append("\")]");
-                }
-                else {
+                } else {
                     query.append("[. contains text \"").append(wsContentKeywords).append("\"] ");
                 }
             }
-            
-            if(wsConceptName != null)
+
+            if (wsConceptName != null)
                 query.append("[./n eq '").append(wsConceptName).append("']");
-            
+
             int start = wsGetItemPKsByCriteria.getSkip();
             int limit = wsGetItemPKsByCriteria.getMaxItems();
-            
-            query.append("\nlet $res := for $ii in subsequence($allres, ").append(start + 1).append(",").append(limit).append(")\n");
-            query.append("return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>\n");
+
+            query.append("\nlet $res := for $ii in subsequence($allres, ").append(start + 1).append(",").append(limit)
+                    .append(")\n");
+            query.append("return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n");
 
             // Determine Query based on number of results an counts
             query.append("return insert-before($res,0,<totalCount>{count($allres)}</totalCount>)");
-            
-            if(LOG.isDebugEnabled())
+
+            if (LOG.isDebugEnabled())
                 LOG.debug(query);
 
             DataClusterPOJOPK dcpk = new DataClusterPOJOPK(dataClusterName);
@@ -1225,7 +1225,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 String result = (String) iter.next();
                 if (i == 0) {
                     res[i++] = new WSItemPKsByCriteriaResponseResults(System.currentTimeMillis(), new WSItemPK(
-                            wsGetItemPKsByCriteria.getWsDataClusterPK(), result, null));
+                            wsGetItemPKsByCriteria.getWsDataClusterPK(), result, null), "");
                     continue;
                 }
                 // result = _highlightLeft.matcher(result).replaceAll("");
@@ -1233,6 +1233,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 Element r = documentBuilder.parse(new InputSource(new StringReader(result))).getDocumentElement();
                 long t = new Long(xpath.evaluate("t", r)).longValue();
                 String conceptName = xpath.evaluate("n", r);
+                String taskId = xpath.evaluate("taskId", r);
 
                 NodeList idsList = (NodeList) xpath.evaluate("./ids/i", r, XPathConstants.NODESET);
                 String[] ids = new String[idsList.getLength()];
@@ -1240,14 +1241,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     ids[j] = (idsList.item(j).getFirstChild() == null ? "" : idsList.item(j).getFirstChild().getNodeValue());
                 }
                 res[i++] = new WSItemPKsByCriteriaResponseResults(t, new WSItemPK(wsGetItemPKsByCriteria.getWsDataClusterPK(),
-                        conceptName, ids));
+                        conceptName, ids), taskId);
             }
             return new WSItemPKsByCriteriaResponse(res);
 
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -1273,13 +1274,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     wsGetItem.getWsItemPK().getConceptName(), wsGetItem.getWsItemPK().getIds(), pojo.getInsertionTime(),
                     pojo.getTaskId(), pojo.getProjectionAsString());
         } catch (XtentisException e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -1535,13 +1536,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             return new WSItemPK(new WSDataClusterPK(itemPOJOPK.getDataClusterPOJOPK().getUniqueId()),
                     itemPOJOPK.getConceptName(), itemPOJOPK.getIds());
         } catch (XtentisException e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -1583,13 +1584,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             }
             return itempk;
         } catch (XtentisException e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -1627,13 +1628,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 }
             }
         } catch (XtentisException e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -1726,10 +1727,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
             String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
 
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("[putItem-of-putItemWithReport] in dataCluster:" + dataClusterPK);
             }
-            
+
             WSItemPK wsi = putItem(wsPutItem, dataModel, schema, ids, conceptKey);
 
             // create resultUpdateReport
@@ -1768,7 +1769,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
             if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
                 // CREATE action
-                if(LOG.isDebugEnabled()) {
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("[pushUpdateReport-of-putItemWithReport] with concept:" + concept + " operation:" + operationType);
                 }
                 UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType,
@@ -2032,7 +2033,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     public WSString serviceAction(WSServiceAction wsServiceAction) throws RemoteException {
-        if(LOG.isDebugEnabled()) {
+        if (LOG.isDebugEnabled()) {
             LOG.debug("serviceAction() " + wsServiceAction.getJndiName());
         }
         try {
@@ -2320,7 +2321,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             MenuPOJO pojo = ctrl.getMenu(new MenuPOJOPK(wsGetMenu.getWsMenuPK().getPk()));
             return POJO2WS(pojo);
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -2338,7 +2339,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             MenuPOJO pojo = ctrl.existsMenu(new MenuPOJOPK(wsExistsMenu.getWsMenuPK().getPk()));
             return new WSBoolean(pojo != null);
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -2377,7 +2378,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             MenuPOJOPK pk = ctrl.putMenu(WS2POJO(wsMenu.getWsMenu()));
             return new WSMenuPK(pk.getUniqueId());
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -2592,7 +2593,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             ILocalUser user = LocalUser.getLocalUser();
             return POJO2WS(user.getUniverse());
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -3351,13 +3352,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             ctrl.execute(context, WS2POJO(wsExecuteTransformerV2.getWsTypedContent()), new TransformerCallBack() {
 
                 public void contentIsReady(TransformerContext context) throws XtentisException {
-                    if(LOG.isDebugEnabled()) {
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug("XtentisWSBean.executeTransformerV2.contentIsReady() ");
                     }
                 }
 
                 public void done(TransformerContext context) throws XtentisException {
-                    if(LOG.isDebugEnabled()) {
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug("XtentisWSBean.executeTransformerV2.done() ");
                     }
                     context.put(RUNNING, Boolean.FALSE);
@@ -3384,12 +3385,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     new TransformerCallBack() {
 
                         public void contentIsReady(TransformerContext context) throws XtentisException {
-                            if(LOG.isDebugEnabled())
+                            if (LOG.isDebugEnabled())
                                 LOG.debug("XtentisWSBean.executeTransformerV2AsJob.contentIsReady() ");
                         }
 
                         public void done(TransformerContext context) throws XtentisException {
-                            if(LOG.isDebugEnabled())
+                            if (LOG.isDebugEnabled())
                                 LOG.debug("XtentisWSBean.executeTransformerV2AsJob.done() ");
                         }
                     });
@@ -3799,7 +3800,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
             return POJO2WS(ctrl.getRoutingOrder(WS2POJO(wsGetRoutingOrder.getWsRoutingOrderPK())));
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -3816,7 +3817,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
             return POJO2WS(ctrl.existsRoutingOrder(WS2POJO(wsExistsRoutingOrder.getWsRoutingOrderPK())));
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -3833,7 +3834,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             RoutingOrderV2CtrlLocal ctrl = Util.getRoutingOrderV2CtrlLocal();
             return POJO2WS(ctrl.removeRoutingOrder(WS2POJO(wsDeleteRoutingOrder.getWsRoutingOrderPK())));
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -3854,7 +3855,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             ctrl.executeAsynchronously(ro);
             return POJO2WS(ro.getAbstractRoutingOrderPOJOPK());
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -3874,7 +3875,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     .getRoutingOrder(WS2POJO(wsExecuteRoutingOrderSynchronously.getRoutingOrderV2PK()));
             return new WSString(ctrl.executeSynchronously(ro));
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -3904,7 +3905,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
             return pks;
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -3931,7 +3932,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2PK[list.size()]));
             return wsPKArray;
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -3959,7 +3960,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             wsPKArray.setWsRoutingOrder(list.toArray(new WSRoutingOrderV2[list.size()]));
             return wsPKArray;
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -4048,7 +4049,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             }
             return new WSRoutingRulePKArray(list.toArray(new WSRoutingRulePK[list.size()]));
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -4075,7 +4076,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 // done below;
             }
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
@@ -4097,7 +4098,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 return WSRoutingEngineV2Status.DEAD;
             }
         } catch (Exception e) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
                 LOG.debug(err, e);
             }
