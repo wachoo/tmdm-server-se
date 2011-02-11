@@ -49,6 +49,7 @@ entity, element, description in view, etc
 26.Trigger 
 27.Record journal
 28.System data type
-customer and system, as UUID,AUTO_INCREMENT,ect.
+customer and SimpleTypes, as UUID,AUTO_INCREMENT,URL, PICTURE, Boolean,ect.
 29.Record operation
 save /save and close/delete/logic delete/duplicated/journal/refresh
+30.multi-occurence nodes
