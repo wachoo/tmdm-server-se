@@ -354,6 +354,25 @@ public class ItemsBrowserDWR {
             }
         }
     }
+    
+    
+    /**
+     * DOC HSHU Comment method "reloadItem".
+     * @throws Exception 
+     */
+    public void reloadItem(String concept, String[] ids, int docIndex) throws Exception {
+        
+        Configuration config = Configuration.getInstance();
+        String dataClusterPK = config.getCluster();
+        
+        WSItem wsItem = Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+        Document document = Util.parse(wsItem.getContent());
+        
+        WebContext ctx = WebContextFactory.get();
+        ctx.getSession().setAttribute("itemDocument" + docIndex + "_wsItem", wsItem);
+        ctx.getSession().setAttribute("itemDocument" + docIndex, document);
+        
+    }
 
     /**
      * start to parse the xsd. set the maps : idToParticle, idToXpath and the list : nodeAutorization in the session

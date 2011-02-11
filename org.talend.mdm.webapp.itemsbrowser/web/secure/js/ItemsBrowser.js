@@ -2541,8 +2541,17 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     				saveItemWithoutQuit(ids,dataObject,treeIndex,refreshCB);
     			};			
     			tbDetail.refreshItemHandler = function() {
+    				
+    				var ids1;
+                    if(ids.length==0)
+                        ids1 = itemPK2;
+                    else
+                        ids1 = ids;
     			    
-    				reloadNode(node1.index,treeIndex);
+    				ItemsBrowserInterface.reloadItem(dataObject, ids1, treeIndex, function(){
+                        reloadNode(node1.index,treeIndex);
+                    });
+    				
     			    
     				/*
     			    var node2 = new YAHOO.widget.HTMLNode(nameTmp, root, false, true);
