@@ -6,8 +6,12 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BulkloadClient {
+	private static final String LOAD_ERR="An error occured:";
+	private static final Pattern LOAD_ERR_PATTERN=Pattern.compile("(.*?)<h1>"+LOAD_ERR+"(.*?)</h1>(.*?)");
 	String url;
 	String username;
 	String password;
@@ -90,7 +94,7 @@ public class BulkloadClient {
 	public void setOptions(BulkloadOptions options) {
 		this.options = options;
 	}
-	public void load(List<String > items) {
+	public void load(List<String > items) throws Exception{
 		doLoad(items);
 	}
 	/**
@@ -102,35 +106,38 @@ public class BulkloadClient {
 		doLoad(items);
 	}
 	
-	private void doLoad(List<String> items) {
+	private void doLoad(List<String> items)throws Exception {
 		if(items.size()>options.getArraySize()) {
 			int loop=items.size()/options.getArraySize();
 			int left=items.size()-options.getArraySize()*loop;
 			for(int i=0; i<loop; i++) {
 				List<String> subItems=items.subList(i*options.getArraySize(), (i+1)*options.getArraySize());
-				try {
-					BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), subItems, username, password,universe);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				String result=BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), subItems, username, password,universe);
+				if(result!=null && result.indexOf(LOAD_ERR)!=-1){						
+					Matcher m=LOAD_ERR_PATTERN.matcher(result);
+					if(m.matches()){
+						throw new Exception(m.group(2));
+					}
 				}
 			}
 			if(left>0) {
 				List<String> subItems=items.subList(loop*options.getArraySize(), loop*options.getArraySize()+left);
-				try {
-					BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), subItems, username, password,universe);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				String result=BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), subItems, username, password,universe);
+				if(result!=null && result.indexOf(LOAD_ERR)!=-1){						
+					Matcher m=LOAD_ERR_PATTERN.matcher(result);
+					if(m.matches()){
+						throw new Exception(m.group(2));
+					}
 				}
 			}
-		}else {
-			try {
-				BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), items, username, password,universe);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		}else {			
+			String result=BulkloadClientUtil.bulkload(url, cluster, concept, datamodel, options.isValidate(), options.isSmartpk(), items, username, password,universe);
+			if(result!=null && result.indexOf(LOAD_ERR)!=-1){						
+				Matcher m=LOAD_ERR_PATTERN.matcher(result);
+				if(m.matches()){
+					throw new Exception(m.group(2));
+				}
+			}			
 		}
 	}
 	

@@ -131,7 +131,7 @@ public class BulkloadClientUtil {
 	}
 	
 	
-	public static boolean bulkload(String URL, String cluster,String concept,String datamodel, boolean validate, boolean smartpk, List<String> itemdata,
+	public static String bulkload(String URL, String cluster,String concept,String datamodel, boolean validate, boolean smartpk, List<String> itemdata,
 			String username, String password,String universe) throws Exception {
 		HttpClient client = new HttpClient();
 		HttpClientParams params = new HttpClientParams();
@@ -175,7 +175,7 @@ public class BulkloadClientUtil {
 		}
 
 		if (statusCode >= 400)
-			return false;
+			return null;
 		String str = "";
 		try {
 			str = postMethod.getResponseBodyAsString();
@@ -185,7 +185,7 @@ public class BulkloadClientUtil {
 		System.out.println(str);
 
 		postMethod.releaseConnection();
-		return true;
+		return str;
 	}
 
 }
