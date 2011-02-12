@@ -630,9 +630,11 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 Element r = Util.parse(result).getDocumentElement();
                 long t = new Long(Util.getFirstTextNode(r, "t")).longValue();
                 String conceptName = Util.getFirstTextNode(r, "n");
+                String taskId = Util.getFirstTextNode(r, "taskId");
+                taskId = taskId == null ? "" : taskId;
                 String[] ids = Util.getTextNodes(r, "ids/i");
                 res[i++] = new WSItemPKsByCriteriaResponseResults(t, new WSItemPK(wsGetItemPKsByCriteria.getWsDataClusterPK(),
-                        conceptName, ids));
+                        conceptName, ids), taskId);
             }
             return new WSItemPKsByCriteriaResponse(res);
 
