@@ -145,6 +145,7 @@ public class ItemsBrowserDWR {
     private static final String DOC_STATUS_NEW = "DOC_STATUS_NEW";
 
     private static final String DOC_STATUS_EDIT = "DOC_STATUS_EDIT";
+    private static final String AUTO_INCREMENT="(Auto)";
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "com.amalto.webapp.v3.itemsbrowser.dwr.messages", ItemsBrowserDWR.class.getClassLoader()); //$NON-NLS-1$
@@ -3180,7 +3181,7 @@ public class ItemsBrowserDWR {
 
             if (node.getMinOccurs() >= 1 || (node.getMinOccurs() == 0 && value.trim().length() != 0)) {
                 if (re.getName().equals("pattern")) {
-                    if (!Pattern.compile(re.getValue()).matcher(value).matches()) {
+                    if (!AUTO_INCREMENT.equals(value) && !Pattern.compile(re.getValue()).matcher(value).matches()) {
                         errorMessage = errorMessage == null ? value + " don't match the field's pattern: " + re.getValue()
                                 : errorMessage;
                         isValidation = false;
