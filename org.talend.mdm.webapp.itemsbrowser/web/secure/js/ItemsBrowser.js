@@ -2547,7 +2547,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                         ids1 = itemPK2;
                     else
                         ids1 = ids;
-    			    
+					if(!ids1){
+						ids1=keys[treeIndex];
+						//reset ids
+						ids=ids1.join('.');
+					}
     				ItemsBrowserInterface.reloadItem(dataObject, ids1, treeIndex, function(){
                         reloadNode(node1.index,treeIndex);
                     });
