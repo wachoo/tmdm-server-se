@@ -1,7 +1,6 @@
 package org.talend.mdm.webapp.itemsbrowser2.server.mockup;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 
@@ -35,8 +34,7 @@ public class FakeData {
     private static final String[] customers_viewables = new String[] {
         "customer/id",
         "customer/name",
-        "customer/mail",
-        "customer/address"};
+        "customer/mail"};
     
     private static final String[] states_viewables = new String[] {
         "state/id",
@@ -71,10 +69,17 @@ public class FakeData {
     public static ArrayList<ItemBean> getFakeCustomerItems() {
         return customer_items;
     }
-
     
+    public static String getFakeCustomerItem(String id) {
+        return customers[Integer.valueOf(id)];
+    }
+
     public static ArrayList<ItemBean> getFakeStateItems() {
         return state_items;
+    }
+    
+    public static String getFakeStateItem(String id) {
+        return states[Integer.valueOf(id)];
     }
 
     public static String[] getEntityViewables(String viewName) {

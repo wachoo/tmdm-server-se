@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -27,7 +28,7 @@ public class ItemsController extends Controller {
         registerEventTypes(ItemsEvents.InitSearchContainer);
         registerEventTypes(ItemsEvents.GetView);
         registerEventTypes(ItemsEvents.ViewItems);
-        registerEventTypes(ItemsEvents.ViewItemsForm);
+        registerEventTypes(ItemsEvents.ViewItemForm);
         registerEventTypes(ItemsEvents.Error);
     }
     
@@ -48,11 +49,30 @@ public class ItemsController extends Controller {
             onGetView(event);
         }else if (event.getType() == ItemsEvents.ViewItems) {
             onViewItems(event);
-        }else if (event.getType() == ItemsEvents.ViewItemsForm) {
-            forwardToView(itemsView, event);
+        }else if (event.getType() == ItemsEvents.ViewItemForm) {
+            onViewItemForm(event);
         }else if (type == ItemsEvents.Error) {
             onError(event);
         }
+    }
+    
+    protected void onViewItemForm(final AppEvent event) {
+        
+        ItemBean item = event.getData();
+        final String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
+        //TODO get whole item & data model from backend and then gen ItemFormBean
+        service.setForm(item, new AsyncCallback<ItemFormBean>() {
+            public void onSuccess(ItemFormBean result) {
+              AppEvent ae = new AppEvent(event.getType(), result);
+              ae.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
+              forwardToView(itemsView, ae);
+            }
+
+            public void onFailure(Throwable caught) {
+              Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+            }
+        });
+
     }
     
     protected void onGetView(final AppEvent event) {

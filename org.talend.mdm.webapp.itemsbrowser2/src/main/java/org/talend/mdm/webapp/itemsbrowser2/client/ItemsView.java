@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.mockup.ClientFakeData;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsFormPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsListPanel;
@@ -33,9 +34,9 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Random;
@@ -86,8 +87,8 @@ public class ItemsView extends View {
             onGetView(event);
         } else if (event.getType() == ItemsEvents.ViewItems) {
             onViewItems(event);
-        } else if (event.getType() == ItemsEvents.ViewItemsForm) {
-            onViewItemsForm(event);
+        } else if (event.getType() == ItemsEvents.ViewItemForm) {
+            onViewItemForm(event);
         }
     }
 
@@ -144,17 +145,17 @@ public class ItemsView extends View {
         return itemBeans;
     }
 
-    protected void onViewItemsForm(AppEvent event) {
-        ItemBean item = event.getData();
+    protected void onViewItemForm(AppEvent event) {
+        ItemFormBean itemForm = event.getData();
         String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
         if (itemsFormTarget.equals(ItemsView.TARGET_IN_SEARCH_TAB)) {
-            itemsSearchContainer.getItemsFormPanel().showItem(item, true);
+            itemsSearchContainer.getItemsFormPanel().showItem(itemForm, true);
         } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_TAB)) {
-            ItemsFormPanel itemsFormPanel = new ItemsFormPanel(item);
+            ItemsFormPanel itemsFormPanel = new ItemsFormPanel(itemForm);
             addTab(itemsFormPanel, itemsFormPanel.getDisplayTitle(), itemsFormPanel.getDisplayTitle(), true);
             itemsFormPanel.showItem();
         } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_WINDOW)) {
-            ItemsFormPanel itemsFormPanel = new ItemsFormPanel(item);
+            ItemsFormPanel itemsFormPanel = new ItemsFormPanel(itemForm);
             addWin(itemsFormPanel, itemsFormPanel.getDisplayTitle());
             itemsFormPanel.showItem();
         }

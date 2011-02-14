@@ -144,7 +144,7 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     private void showItem(ItemBean item,String itemsFormTarget) {
-        AppEvent evt = new AppEvent(ItemsEvents.ViewItemsForm, item);
+        AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);
         evt.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
         Dispatcher.forwardEvent(evt);
     }

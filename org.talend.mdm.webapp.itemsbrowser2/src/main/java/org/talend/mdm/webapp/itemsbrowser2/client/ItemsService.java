@@ -3,6 +3,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client;
 import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.google.gwt.core.client.GWT;
@@ -28,4 +29,6 @@ public interface ItemsService extends RemoteService {
     List<ItemBean> getEntityItems(String entityName);
     
     ViewBean getView(String viewName);
+    
+    ItemFormBean setForm(ItemBean item);
 }

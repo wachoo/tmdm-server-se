@@ -26,6 +26,6 @@ public class ItemsEvents {
   
   public static final EventType ViewItems = new EventType();
   
-  public static final EventType ViewItemsForm = new EventType();
+  public static final EventType ViewItemForm = new EventType();
   
 }
