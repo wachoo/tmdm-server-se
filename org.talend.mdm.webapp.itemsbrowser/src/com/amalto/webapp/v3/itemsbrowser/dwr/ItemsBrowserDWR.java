@@ -194,7 +194,7 @@ public class ItemsBrowserDWR {
             bc.add(businessConcept[i]);
         }
         WSViewPK[] wsViewsPK = Util.getPort().getViewPKs(new WSGetViewPKs("Browse_items.*")).getWsViewPK(); //$NON-NLS-1$
-        String[] names = new String[wsViewsPK.length];
+        
         TreeMap<String, String> views = new TreeMap<String, String>();
         Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL); //$NON-NLS-1$ //$NON-NLS-2$
         for (int i = 0; i < wsViewsPK.length; i++) {
@@ -220,9 +220,17 @@ public class ItemsBrowserDWR {
             View view = new View(viewPK, language);
             WSConceptKey key = Util.getPort().getBusinessConceptKey(
                     new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
-
-            view.setKeys(key.getFields());
-            ctx.getSession().setAttribute("foreignKeys", key.getFields()); //$NON-NLS-1$
+            
+            String[] keys = key.getFields();
+            keys = Arrays.copyOf(keys, keys.length);
+            for (int i = 0; i < keys.length; i++) {
+                if (".".equals(key.getSelector())) //$NON-NLS-1$
+                    keys[i] = "/" + concept + "/" + keys[i]; //$NON-NLS-1$  //$NON-NLS-2$
+                else
+                    keys[i] = key.getSelector() + keys[i];
+            }
+            view.setKeys(keys);
+            ctx.getSession().setAttribute("foreignKeys", keys); //$NON-NLS-1$
             view.setMetaDataTypes(getMetaDataTypes(view));
             return view;
         } catch (RemoteException e) {

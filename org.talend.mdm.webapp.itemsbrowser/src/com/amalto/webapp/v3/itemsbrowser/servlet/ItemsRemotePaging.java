@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.webapp.v3.itemsbrowser.servlet;
 
 import java.io.IOException;
@@ -12,16 +24,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.directwebremoting.WebContext;
-import org.directwebremoting.WebContextFactory;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSViewSearch;
@@ -37,21 +45,22 @@ import com.amalto.webapp.v3.itemsbrowser.bean.View;
 
 public class ItemsRemotePaging  extends HttpServlet{
 
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private static Pattern highlightLeft = Pattern.compile("\\s*__h");
-	private static Pattern highlightRight = Pattern.compile("h__\\s*");
-	private static Pattern emptyTags = Pattern.compile("\\s*<(.*?)\\/>\\s*");
-	private static Pattern openingTags = Pattern.compile("\\s*<([^\\/].*?[^\\/])>\\s*");
-	private static Pattern closingTags = Pattern.compile("\\s*</(.*?)>\\s*");
+    private static final Logger LOG = Logger.getLogger(ItemsRemotePaging.class);
 
-	
+    private static final long serialVersionUID = 1L;
+
+    private static Pattern highlightLeft = Pattern.compile("\\s*__h");
+
+    private static Pattern highlightRight = Pattern.compile("h__\\s*");
+
+    private static Pattern emptyTags = Pattern.compile("\\s*<(.*?)\\/>\\s*");
+
+    private static Pattern openingTags = Pattern.compile("\\s*<([^\\/].*?[^\\/])>\\s*");
+
+    private static Pattern closingTags = Pattern.compile("\\s*</(.*?)>\\s*");
+
 	public ItemsRemotePaging() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -61,18 +70,19 @@ public class ItemsRemotePaging  extends HttpServlet{
 	
 	@Override
    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		org.apache.log4j.Logger.getLogger(this.getClass()).trace("Remote paging for items");
+	    if(LOG.isTraceEnabled())
+	        LOG.trace("Remote paging for items");
 		
 		request.setCharacterEncoding("UTF-8");		
 		response.setContentType("text/html; charset=UTF-8");
 
 		Configuration config = null;
 		try {
-			org.apache.log4j.Logger.getLogger(this.getClass()).trace("doPost() session items "+request.getSession().getId());
+		    if(LOG.isTraceEnabled())
+		        LOG.trace("doPost() session items "+request.getSession().getId());
 			config = (Configuration)request.getSession().getAttribute("configuration");
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			LOG.error(e1.getMessage(), e1);
 		}
 		if(config.getCluster()==null || config.getCluster().trim().length()==0){
 			PrintWriter writer = response.getWriter();
@@ -95,17 +105,17 @@ public class ItemsRemotePaging  extends HttpServlet{
 		String criteria = request.getParameter("criteria");
 		String concept = viewName.replaceAll("Browse_items_","").replaceAll("#.*","");
 		
-		org.apache.log4j.Logger.getLogger(this.getClass()).debug("doPost() \n" +
-				"start : "+start+"\n"+
-				"limit : "+limit+"\n"+
-				"criteria : "+criteria+"\n"+
-				"viewName : "+viewName+"\n"+
-				"sortCol : "+(sortCol==null?"":sortCol)+"\n"+
-				"sortDir : "+(sortDir==null?"":sortDir));
+		if(LOG.isDebugEnabled()) {
+		    LOG.debug("doPost() \n" +
+		            "start : "+start+"\n"+
+		            "limit : "+limit+"\n"+
+		            "criteria : "+criteria+"\n"+
+		            "viewName : "+viewName+"\n"+
+		            "sortCol : "+(sortCol==null?"":sortCol)+"\n"+
+		            "sortDir : "+(sortDir==null?"":sortDir));
+		}
 		
 		JSONObject json = new JSONObject();
-		String[] results;
-		ArrayList<String[]> itemsBrowserContent = new ArrayList<String[]>();
 		
 		try {
 			int max = 50;
@@ -116,16 +126,17 @@ public class ItemsRemotePaging  extends HttpServlet{
 				skip = Integer.parseInt(start);
 			View view = new View(viewName); 
 			
-
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-					"doPost() case : new remote items call");
+			if(LOG.isDebugEnabled())
+			    LOG.debug("doPost() case : new remote items call");
+			
 			WSWhereItem wi = Util.buildWhereItems(criteria);
-
-			org.apache.log4j.Logger.getLogger(this.getClass()).trace("doPost() starting to search");
+            
+			if(LOG.isTraceEnabled())
+			    LOG.trace("doPost() starting to search");
 			
 			int totalSize=0;
 			
-			results = Util.getPort().viewSearch(
+			String[] results = Util.getPort().viewSearch(
 					new WSViewSearch(
 						new WSDataClusterPK(config.getCluster()),
 						new WSViewPK(view.getViewPK()),
@@ -137,9 +148,12 @@ public class ItemsRemotePaging  extends HttpServlet{
 						sortDir
 				)
 			).getStrings();
-			org.apache.log4j.Logger.getLogger(this.getClass()).trace("doPost() end of search");
+			if(LOG.isTraceEnabled())
+			    LOG.trace("doPost() end of search");
 			
 
+			ArrayList<String[]> itemsBrowserContent = new ArrayList<String[]>();
+			
 			for (int i = 0; i < results.length; i++) {
 				//aiming modify
 			   //yin guo fix bug 0010867. the totalCountOnfirstRow is true.
@@ -180,8 +194,9 @@ public class ItemsRemotePaging  extends HttpServlet{
 			}				
 
 			int totalCount = totalSize;
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-					"doPost() Total result = "+totalCount);
+			
+			if(LOG.isDebugEnabled())
+			    LOG.debug("doPost() Total result = "+totalCount);
 			/**
 			 * sort the collections		
 			 */
@@ -192,9 +207,9 @@ public class ItemsRemotePaging  extends HttpServlet{
 								
 			//get part we are interested
 			if(max>totalCount) max=totalCount;
-			if(max>(totalCount-skip)) {max=totalCount-skip;}	
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-					"doPost() starting to build json object");
+			if(max>(totalCount-skip)) {max=totalCount-skip;}
+			if(LOG.isDebugEnabled())
+			    LOG.debug("doPost() starting to build json object");
 			json.put("TotalCount",totalCount);
 			ArrayList<JSONObject> rows = new ArrayList<JSONObject>();
 
@@ -210,7 +225,8 @@ public class ItemsRemotePaging  extends HttpServlet{
 			json.put("items",rows);
 			//aiming add 'success' to let the search result can display after get the results
 			json.put("success", true);
-			org.apache.log4j.Logger.getLogger(this.getClass()).debug(json);
+			if(LOG.isDebugEnabled())
+			    LOG.debug(json);
 			
 			
 		} catch (Exception e) {
