@@ -575,6 +575,7 @@ amalto.welcome.Welcome = function () {
 				 }
 				 else {
 					 taskMessageLB.setText(TASKS_DESCRIPTION[language]);
+					 Ext.getCmp("tasksField").setVisible(true);
 				 }
 			 }
 		 });
