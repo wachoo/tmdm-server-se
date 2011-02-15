@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.util;
 
 import java.io.BufferedReader;
@@ -33,12 +45,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -71,6 +83,7 @@ import org.apache.commons.jxpath.Pointer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
@@ -168,14 +181,31 @@ public class Util {
     /**
      * Home Caches spped up execution but make deployment debugging
      */
-    public final static boolean USE_HOME_CACHES = "true".equals(System.getProperty("com.amalto.use.home.caches"));
+    public final static boolean USE_HOME_CACHES = Boolean.getBoolean("com.amalto.use.home.caches"); //$NON-NLS-1$
 
+    private static final Logger LOG = Logger.getLogger(Util.class);
+
+    private static final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    
+    private static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage"; //$NON-NLS-1$
+    private static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema"; //$NON-NLS-1$
+    private static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource"; //$NON-NLS-1$
+    
+    private static LRUCache<String, Document> xmlCache = new LRUCache<String, Document>(20);
+    
+    private static DocumentBuilderFactory nonValidatingDocumentBuilderFactory;
+
+    
+    static {
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",  DocumentBuilderFactoryImpl.class.getName()); //$NON-NLS-1$
+    }
+    
     /**
      * helper class
      */
     public static List<String> getRuntimeServiceJndiList(boolean withPrefix) {
         List<String> serviceJndiList = new ArrayList<String>();
-        String serviceJndiPrefix = "amalto/local/service";
+        String serviceJndiPrefix = "amalto/local/service"; //$NON-NLS-1$
         try {
             InitialContext ctx = new InitialContext();
             NamingEnumeration<NameClassPair> list = ctx.list(serviceJndiPrefix);
@@ -185,7 +215,7 @@ public class Util {
                 nc = list.next();
 
                 if (withPrefix) {
-                    serviceJndiList.add(serviceJndiPrefix + "/" + nc.getName());
+                    serviceJndiList.add(serviceJndiPrefix + "/" + nc.getName());  //$NON-NLS-1$
                 } else {
                     serviceJndiList.add(nc.getName());
                 }
@@ -200,65 +230,18 @@ public class Util {
         return getRuntimeServiceJndiList(true);
     }
 
-    /*********************************************************************
-     * Xml server Access Stuff
-     *********************************************************************/
-
-    /*
-     * public static XmlServerSFWrapperLocal getXmlServerSFWrapperLocal() throws EJBException{ InitialContext
-     * initialContext = null; String jndiName = "java:comp/env/ejb/XmlServerSFWrapperLocal"; try { initialContext= new
-     * InitialContext(); XmlServerSFWrapperLocalHome home =
-     * (XmlServerSFWrapperLocalHome)initialContext.lookup(jndiName); return home.create(); } catch(Exception e) { String
-     * err = "Unable to lookup \""+jndiName+"\"" + ": " + e.getClass().getName() + ": "+ e.getLocalizedMessage();
-     * org.apache.log4j.Category.getInstance(Util.class).error(err); throw new EJBException(err); } finally { try
-     * {initialContext.close();} catch(Exception e){}; } }
-     */
-
-    /**
-     * Retrieves the XML Server wrapper<br>
-     * Deprecated: use a direct lookup a shown below. <code>
-     * XmlServerSLWrapperLocal server = null;
-            try {
-                server  =  ((XmlServerSLWrapperLocalHome)new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-            } catch (Exception e) {
-                String err = "Unable to access the XML Server wrapper";
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-                throw new RuntimeException(err);
-            }
-     *</code>
-     * 
-     * @deprecated - use a direct look up in your class. Not a call to this static method
-     */
-    // public static XmlServerSLWrapperLocal getXmlServerSLWrapperLocal() throws EJBException{
-    // InitialContext initialContext = null;
-    // String jndiName = "amalto/local/xmldb/xmlserverslwrapper";
-    // try {
-    // initialContext= new InitialContext();
-    // XmlServerSLWrapperLocalHome home = (XmlServerSLWrapperLocalHome)initialContext.lookup(jndiName);
-    // return home.create();
-    // } catch(Exception e) {
-    // String err = "Unable to lookup \""+jndiName+"\""
-    // + ": " + e.getClass().getName() + ": "+ e.getLocalizedMessage();
-    // throw new EJBException(err);
-    // } finally {
-    // try {initialContext.close();} catch(Exception e){};
-    // }
-    // }
+    
 
     /*********************************************************************
      * Parsing Stuff
      *********************************************************************/
 
-    // static LRUCache<String, Document> xmlCache=new LRUCache<String, Document>(4000);
     public static Document parse(String xmlString) throws ParserConfigurationException, IOException, SAXException {
-        // Document doc=xmlCache.get(xmlString);
-        // if(doc!=null) return doc;
         Document doc = parse(xmlString, null);
-        // xmlCache.put(xmlString, doc);
         return doc;
     }
 
-    static LRUCache<String, Document> xmlCache = new LRUCache<String, Document>(20);
+    
 
     public static Document parseXSD(String xsd) throws ParserConfigurationException, IOException, SAXException {
         Document doc = xmlCache.get(xsd);
@@ -268,33 +251,39 @@ public class Util {
         xmlCache.put(xsd, doc);
         return doc;
     }
+    
+    private static synchronized DocumentBuilderFactory getDocumentBuilderFactory() {
+        if (nonValidatingDocumentBuilderFactory == null) {
+            nonValidatingDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+            nonValidatingDocumentBuilderFactory.setNamespaceAware(true);
+            nonValidatingDocumentBuilderFactory.setValidating(false);
+            nonValidatingDocumentBuilderFactory.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
+        }
+        return nonValidatingDocumentBuilderFactory;
+    }
 
     public static Document parse(String xmlString, String schema) throws ParserConfigurationException, IOException, SAXException {
-
-        // parse
-        Document d = null;
-        SAXErrorHandler seh = new SAXErrorHandler();
-
-        // initialize the sax parser which uses Xerces
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        // Schema validation based on schemaURL
-        factory.setNamespaceAware(true);
-        factory.setValidating((schema != null));
-        factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
-        if (schema != null) {
-            factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                    new InputSource(new StringReader(schema)));
+        DocumentBuilderFactory factory;
+        if(schema != null) {
+            factory = DocumentBuilderFactory.newInstance();
+            // Schema validation based on schemaURL
+            factory.setNamespaceAware(true);
+            factory.setValidating((schema != null));
+            factory.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
+            factory.setAttribute(JAXP_SCHEMA_SOURCE, new InputSource(new StringReader(schema)));
+        } else {
+            factory = getDocumentBuilderFactory();
         }
-        DocumentBuilder builder;
-        builder = factory.newDocumentBuilder();
+        
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        SAXErrorHandler seh = new SAXErrorHandler();
         builder.setErrorHandler(seh);
-        d = builder.parse(new InputSource(new StringReader(xmlString)));
+        Document d = builder.parse(new InputSource(new StringReader(xmlString)));
 
-        // check if dcument parsed correctly against the schema
+        // check if document parsed correctly against the schema
         if (schema != null) {
             String errors = seh.getErrors();
-            if (!errors.equals("")) {
+            if (errors.length() != 0) {
                 String err = "Document did not parse against schema: \n" + errors + "\n"
                         + xmlString.substring(0, Math.min(100, xmlString.length()));
                 throw new SAXException(err);
@@ -345,10 +334,9 @@ public class Util {
         schema = schema.replaceFirst("<\\?xml.*\\?>", "");
         schema = schema.replace("\r\n", "\n");
 
-        factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
+        factory.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
         if (schema != null) {
-            factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                    new InputSource(new StringReader(schema)));
+            factory.setAttribute(JAXP_SCHEMA_SOURCE, new InputSource(new StringReader(schema)));
         }
 
         DocumentBuilder builder;
@@ -1033,9 +1021,9 @@ public class Util {
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException {
         try {
             String schema = nodeToString(xsd);
-            XSDKey key1 = xsdkeyCache.get(schema + "#" + businessConceptName);
-            if (key1 != null)
-                return key1;
+            XSDKey key = xsdkeyCache.get(schema + "#" + businessConceptName);
+            if (key != null)
+                return key;
             String[] selectors = null;
             String[] fields = null;
             selectors = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName
@@ -1051,7 +1039,7 @@ public class Util {
                 DocumentBuilder builder;
                 builder = factory.newDocumentBuilder();
                 NodeList list = null;
-                XSDKey key = null;
+                
                 for (int xsdType = 0; xsdType < 2; xsdType++) {
                     if (xsdType == 0)
                         list = Util.getNodeList(xsd, "./xsd:import");
@@ -1084,8 +1072,12 @@ public class Util {
                     }
                 }
                 return key;
-            } else
-                return new XSDKey(selectors[0], fields);
+            } else {
+                key = new XSDKey(selectors[0], fields);
+                xsdkeyCache.put(schema + "#" + businessConceptName, key);
+                return key;
+            }
+            
         } catch (Exception e) {
             String err = "Unable to get the keys for the Business Concept " + businessConceptName + ": "
                     + e.getLocalizedMessage();
@@ -1740,20 +1732,22 @@ public class Util {
      * @return the xml string
      * @throws TransformerException
      */
-    public static String nodeToString(Node n, boolean omitXMLDeclaration) throws TransformerException {
+    public static String nodeToString(Node n, boolean omitXMLDeclaration) throws TransformerException {      
         StringWriter sw = new StringWriter();
-        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        Transformer transformer = transformerFactory.newTransformer();
         if (omitXMLDeclaration)
             transformer.setOutputProperty("omit-xml-declaration", "yes");
         else
             transformer.setOutputProperty("omit-xml-declaration", "no");
-        transformer.setOutputProperty("indent", "yes");
+        if(LOG.isDebugEnabled())
+            transformer.setOutputProperty("indent", "yes");
         transformer.transform(new DOMSource(n), new StreamResult(sw));
         if (sw == null)
             return null;
-        return sw.toString().replaceAll("\r\n", "\n");
+        String s = sw.toString().replaceAll("\r\n", "\n");
+        return s;
     }
-
+    
     /**
      * DOC HSHU Comment method "removeAllAttributes".
      * 
@@ -3179,7 +3173,7 @@ public class Util {
                             if (!valuesHolder.contains("enumeration")) {
                                 String basicName = simpType.getBaseType().getName();
                                 String simpTypeName = simpType.getName();
-                                if (simpType.getTargetNamespace().equals("http://www.w3.org/2001/XMLSchema")) {
+                                if (simpType.getTargetNamespace().equals(W3C_XML_SCHEMA)) {
                                     simpTypeName = "xsd:" + simpTypeName;
                                 } else
                                     simpTypeName = "xsd:" + basicName;

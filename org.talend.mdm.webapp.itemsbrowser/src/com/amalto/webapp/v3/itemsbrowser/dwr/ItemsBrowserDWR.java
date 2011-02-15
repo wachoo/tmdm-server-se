@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.webapp.v3.itemsbrowser.dwr;
 
 import java.io.IOException;
@@ -142,10 +154,11 @@ public class ItemsBrowserDWR {
 
     private static final Logger LOG = Logger.getLogger(ItemsBrowserDWR.class);
 
-    private static final String DOC_STATUS_NEW = "DOC_STATUS_NEW";
+    private static final String DOC_STATUS_NEW = "DOC_STATUS_NEW"; //$NON-NLS-1$
 
-    private static final String DOC_STATUS_EDIT = "DOC_STATUS_EDIT";
-    private static final String AUTO_INCREMENT="(Auto)";
+    private static final String DOC_STATUS_EDIT = "DOC_STATUS_EDIT"; //$NON-NLS-1$
+    
+    private static final String AUTO_INCREMENT="(Auto)"; //$NON-NLS-1$
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "com.amalto.webapp.v3.itemsbrowser.dwr.messages", ItemsBrowserDWR.class.getClassLoader()); //$NON-NLS-1$
@@ -163,8 +176,7 @@ public class ItemsBrowserDWR {
      * @throws Exception
      */
     public Map<String, String> getViewsList(String language) throws RemoteException, Exception {
-        // Configuration config = Configuration.getInstance();
-        Configuration config = Configuration.getInstance(true);
+       Configuration config = Configuration.getInstance(true);
         String model = config.getModel();
         String dataCluster = config.getCluster();
 
@@ -181,20 +193,19 @@ public class ItemsBrowserDWR {
         for (int i = 0; i < businessConcept.length; i++) {
             bc.add(businessConcept[i]);
         }
-        WSViewPK[] wsViewsPK = Util.getPort().getViewPKs(new WSGetViewPKs("Browse_items.*")).getWsViewPK();
+        WSViewPK[] wsViewsPK = Util.getPort().getViewPKs(new WSGetViewPKs("Browse_items.*")).getWsViewPK(); //$NON-NLS-1$
         String[] names = new String[wsViewsPK.length];
         TreeMap<String, String> views = new TreeMap<String, String>();
-        Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);
+        Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL); //$NON-NLS-1$ //$NON-NLS-2$
         for (int i = 0; i < wsViewsPK.length; i++) {
             WSView wsview = Util.getPort().getView(new WSGetView(wsViewsPK[i]));
-            String concept = wsview.getName().replaceAll("Browse_items_", "").replaceAll("#.*", "");
-            names[i] = wsViewsPK[i].getPk();
+            String concept = wsview.getName().replaceAll("Browse_items_", "").replaceAll("#.*", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             if ( // wsviews[i].getWsDataClusterPK().getPk().equals(cluster)
             // && wsviews[i].getWsDataModelPK().getPk().equals(model) &&
             bc.contains(concept)) {
-                String viewDesc = p.matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName())
-                        .replaceAll("$1");
-                views.put(wsview.getName(), viewDesc.equals("") ? wsview.getName() : viewDesc);
+                String viewDesc = p.matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName()) //$NON-NLS-1$
+                        .replaceAll("$1"); //$NON-NLS-1$
+                views.put(wsview.getName(), viewDesc.equals("") ? wsview.getName() : viewDesc); //$NON-NLS-1$
             }
         }
         return CommonDWR.getMapSortedByValue(views);
@@ -209,15 +220,9 @@ public class ItemsBrowserDWR {
             View view = new View(viewPK, language);
             WSConceptKey key = Util.getPort().getBusinessConceptKey(
                     new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
-            String[] keys = key.getFields();
-            for (int i = 0; i < keys.length; i++) {
-                if (".".equals(key.getSelector()))
-                    keys[i] = "/" + concept + "/" + keys[i];
-                else
-                    keys[i] = key.getSelector() + keys[i];
-            }
+
             view.setKeys(key.getFields());
-            ctx.getSession().setAttribute("foreignKeys", key.getFields());
+            ctx.getSession().setAttribute("foreignKeys", key.getFields()); //$NON-NLS-1$
             view.setMetaDataTypes(getMetaDataTypes(view));
             return view;
         } catch (RemoteException e) {
@@ -230,23 +235,6 @@ public class ItemsBrowserDWR {
     }
 
     /**
-     * return a list of searchable elements of a browse items list
-     * 
-     * @param viewPK
-     * @param language
-     * @return a map xpath->label
-     */
-    /*
-     * public HashMap<String,String> getSearchables(String viewPK,String language){ try{ String[] searchables = new
-     * View(viewPK,language).getSearchables(); HashMap<String,String> labelSearchables = new HashMap<String,String>();
-     * HashMap<String,String> xpathToLabel = CommonDWR.getFieldsByBrowseItemsView(viewPK,language,true); Configuration
-     * config = Configuration.getInstance(); String concept = CommonDWR.getConceptFromBrowseItemView( viewPK);
-     * xpathToLabel.put(concept,CommonDWR.getConceptLabel(config.getModel(),concept,language)); for (int i = 0; i <
-     * searchables.length; i++) { labelSearchables.put(searchables[i],xpathToLabel.get(searchables[i])); } return
-     * labelSearchables.put; } catch(Exception e){ return null; } }
-     */
-
-    /**
      * return a list of viewable elements o a browse items list used for column header of a grid
      * 
      * @param viewPK
@@ -256,7 +244,7 @@ public class ItemsBrowserDWR {
 
     public String[] getViewables(String viewPK, String language) {
         WebContext ctx = WebContextFactory.get();
-        ctx.getSession().setAttribute("viewNameItems", null);
+        ctx.getSession().setAttribute("viewNameItems", null); //$NON-NLS-1$
         try {
             Configuration config = Configuration.getInstance();
             String[] viewables = new View(viewPK, language).getViewables();
@@ -264,7 +252,7 @@ public class ItemsBrowserDWR {
             HashMap<String, String> xpathToLabel = CommonDWR.getFieldsByDataModel(config.getModel(),
                     CommonDWR.getConceptFromBrowseItemView(viewPK), language, true);
             for (int i = 0; i < viewables.length; i++) {
-                String labelViewable = "";
+                String labelViewable = ""; //$NON-NLS-1$
                 String path = viewables[i];
                 String label = xpathToLabel.get(viewables[i]);
                 if (label == null) {
@@ -299,9 +287,8 @@ public class ItemsBrowserDWR {
         XSElementDecl decl = map.get(concept);
         if (decl == null) {
             String err = "Concept '" + concept + "' is not found in model '" + dataModelPK + "'";
-            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+            LOG.error(err);
             return null;
-            // throw new RemoteException(err);
         }
         XSAnnotation xsa = decl.getAnnotation();
         TreeNode rootNode = new TreeNode();
@@ -311,7 +298,7 @@ public class ItemsBrowserDWR {
         try {
             updateRootNodeByPKInfo(config.getCluster(), concept, ids, rootNode, docIndex);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
 
         return rootNode;
@@ -388,7 +375,7 @@ public class ItemsBrowserDWR {
         WebContext ctx = WebContextFactory.get();
         try {
             if (ids == null) {
-                String[] idsExist = (String[]) ctx.getSession().getAttribute("treeIdxToIDS" + docIndex);
+                String[] idsExist = (String[]) ctx.getSession().getAttribute("treeIdxToIDS" + docIndex); //$NON-NLS-1$
                 if (idsExist != null && idsExist.length > 0) {
                     ids = idsExist;
                 }
@@ -406,20 +393,20 @@ public class ItemsBrowserDWR {
 
             // set status
             if (ids != null) {
-                ctx.getSession().setAttribute("itemDocument" + docIndex + "_status", DOC_STATUS_EDIT);
+                ctx.getSession().setAttribute("itemDocument" + docIndex + "_status", DOC_STATUS_EDIT); //$NON-NLS-1$ //$NON-NLS-2$
             } else {
-                ctx.getSession().setAttribute("itemDocument" + docIndex + "_status", DOC_STATUS_NEW);
+                ctx.getSession().setAttribute("itemDocument" + docIndex + "_status", DOC_STATUS_NEW); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
             // get item
             if (ids != null) {
 
                 WSItem wsItem = null;
-                if (ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem") == null)
+                if (ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem") == null) //$NON-NLS-1$ //$NON-NLS-2$
                     wsItem = Util.getPort()
                             .getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
                 else {
-                    wsItem = (WSItem) ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem");
+                    wsItem = (WSItem) ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem");//$NON-NLS-1$ //$NON-NLS-2$
                 }
 
                 try {
@@ -429,24 +416,24 @@ public class ItemsBrowserDWR {
                 }
 
                 Document document = null;
-                if (ctx.getSession().getAttribute("itemDocument" + docIndex) == null) {
+                if (ctx.getSession().getAttribute("itemDocument" + docIndex) == null) { //$NON-NLS-1$
                     document = Util.parse(wsItem.getContent());
                 } else {
-                    document = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
+                    document = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
                 }
 
-                ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", document);
+                ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", document); //$NON-NLS-1$ //$NON-NLS-2$
                 // update the node according to schema
                 // if("sequence".equals(com.amalto.core.util.Util.getConceptModelType(concept, xsd))) {
                 Node newNode = com.amalto.core.util.Util.updateNodeBySchema(concept, xsd, document.getDocumentElement());
                 document = newNode.getOwnerDocument();
                 // }
                 if (foreignKey)
-                    ctx.getSession().setAttribute("itemDocumentFK", document);
+                    ctx.getSession().setAttribute("itemDocumentFK", document); //$NON-NLS-1$
                 else {
                     // remember the last insert time
-                    ctx.getSession().setAttribute("itemDocument" + docIndex + "_wsItem", wsItem);
-                    ctx.getSession().setAttribute("itemDocument" + docIndex, document);
+                    ctx.getSession().setAttribute("itemDocument" + docIndex + "_wsItem", wsItem); //$NON-NLS-1$ //$NON-NLS-2$
+                    ctx.getSession().setAttribute("itemDocument" + docIndex, document); //$NON-NLS-1$
                 }
             } else if (!refresh) {
                 createItem(concept, docIndex);
@@ -457,7 +444,7 @@ public class ItemsBrowserDWR {
 
                 DisplayRulesUtil displayRulesUtil = new DisplayRulesUtil(xsed);
                 String rulesStyle = displayRulesUtil.genStyle();
-                Document itemDocument = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
+                Document itemDocument = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
                 org.dom4j.Document transformedDocument = XmlUtil.styleDocument(itemDocument, rulesStyle);
 
                 // yes we can override document directly, but I think this way is more safety
@@ -485,42 +472,41 @@ public class ItemsBrowserDWR {
                     }
                 }
 
-                ctx.getSession().setAttribute("displayRules" + docIndex, dspRules);
+                ctx.getSession().setAttribute("displayRules" + docIndex, dspRules); //$NON-NLS-1$
 
             } catch (Exception e) {
-                e.printStackTrace();
-                throw new XtentisWebappException("Exception happened during parsing display rules! ");
+                throw new XtentisWebappException("Exception happened during parsing display rules! ", e);
             }
 
-            ctx.getSession().setAttribute("xpathToPolymType" + docIndex, new HashMap<String, String>());
-            ctx.getSession().setAttribute("xpathToPolymFKType" + docIndex, new HashMap<String, String>());
+            ctx.getSession().setAttribute("xpathToPolymType" + docIndex, new HashMap<String, String>()); //$NON-NLS-1$
+            ctx.getSession().setAttribute("xpathToPolymFKType" + docIndex, new HashMap<String, String>()); //$NON-NLS-1$
 
             HashMap<Integer, XSParticle> idToParticle;
-            if (ctx.getSession().getAttribute("idToParticle") == null) {
+            if (ctx.getSession().getAttribute("idToParticle") == null) { //$NON-NLS-1$
                 idToParticle = new HashMap<Integer, XSParticle>();
             } else {
-                idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle");
+                idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
             }
             idToParticle.put(nodeId, xsct.getContentType().asParticle());
-            ctx.getSession().setAttribute("idToParticle", idToParticle);
+            ctx.getSession().setAttribute("idToParticle", idToParticle); //$NON-NLS-1$
 
             HashMap<Integer, String> idToXpath;
-            if (ctx.getSession().getAttribute("idToXpath") == null) {
+            if (ctx.getSession().getAttribute("idToXpath") == null) { //$NON-NLS-1$
                 idToXpath = new HashMap<Integer, String>();
             } else {
-                idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");
+                idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
             }
             idToXpath.put(nodeId, "/" + concept);
-            ctx.getSession().setAttribute("idToXpath", idToXpath);
+            ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
 
             HashMap<String, XSParticle> xpathToParticle = new HashMap<String, XSParticle>();
             xpathToParticle.put("/" + concept, xsct.getContentType().asParticle());
-            ctx.getSession().setAttribute("xpathToParticle", xpathToParticle);
+            ctx.getSession().setAttribute("xpathToParticle", xpathToParticle); //$NON-NLS-1$
 
             ArrayList<String> nodeAutorization = new ArrayList<String>();
-            ctx.getSession().setAttribute("nodeAutorization", nodeAutorization);
+            ctx.getSession().setAttribute("nodeAutorization", nodeAutorization); //$NON-NLS-1$
 
-            return ids != null ? Util.joinStrings(ids, ".") : null;
+            return ids != null ? Util.joinStrings(ids, ".") : null; //$NON-NLS-1$
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -1088,7 +1074,7 @@ public class ItemsBrowserDWR {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
             throw new XtentisWebappException("Exception happened during parsing dynamic label! ");
         }
     }
@@ -1106,7 +1092,7 @@ public class ItemsBrowserDWR {
                 nodes = nodesList.toArray(new TreeNode[nodesList.size()]);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
             throw new XtentisWebappException("Exception happened during parsing display rules! ");
         }
         return nodes;
@@ -1180,12 +1166,6 @@ public class ItemsBrowserDWR {
             d = (Document) ctx.getSession().getAttribute("itemDocumentFK");
 
         boolean choice = false;
-        // ArrayList<String> roles = new ArrayList<String>();
-        // try {
-        // roles = Util.getAjaxSubject().getRoles();
-        // } catch (PolicyContextException e1) {
-        // e1.printStackTrace();
-        // }
 
         XSParticle[] xsp = null;
         if (idToParticle == null)
@@ -1243,7 +1223,6 @@ public class ItemsBrowserDWR {
         try {
 
             Node node = Util.getNodeList(d, idToXpath.get(siblingId)).item(0);
-            // System.out.println(Util.getNodeList(d,idToXpath.get(siblingId)).getLength()+" "+idToXpath.get(siblingId));
             Node nodeClone = node.cloneNode(true);
             clearChildrenValue(nodeClone);
             // simulate an "insertAfter()" which actually doesn't exist
@@ -1274,9 +1253,6 @@ public class ItemsBrowserDWR {
             idToXpath.put(newId, siblingXpath + "[" + (siblingIndex + 1) + "]");
             ctx.getSession().setAttribute("idToXpath", idToXpath);
 
-            // updateNode(siblingIndex+1, "", siblingIndex+1);
-
-            // System.out.println("clone:"+newId+" "+siblingXpath+"["+id+"]");
             UpdateReportItem ri = new UpdateReportItem(idToXpath.get(newId), "", "");
             updatedPath.put(siblingXpath + "[" + (siblingIndex + 1) + "]", ri);
             ctx.getSession().setAttribute("updatedPath" + docIndex, updatedPath);
@@ -1292,7 +1268,6 @@ public class ItemsBrowserDWR {
             LOG.error(e.getMessage(), e);
             return "Error";
         }
-        // System.out.println("xml"+CommonDWR.getXMLStringFromDocument(d));
 
     }
 
@@ -1302,7 +1277,6 @@ public class ItemsBrowserDWR {
         for (int i = 0; i < keys.length; i++) {
             try {
                 Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
-                // Document d2 = checkNode(keys[i], d);
                 String oldValue = Util.getFirstTextNode(d, keys[i]);
                 if (oldValue == null)
                     Util.getNodeList(d, keys[i]).item(0).appendChild(d.createTextNode(""));
@@ -1365,11 +1339,7 @@ public class ItemsBrowserDWR {
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");
         ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization");
-        /*
-         * for (Iterator iter = nodeAutorization.iterator(); iter.hasNext();) { String element = (String) iter.next();
-         * System.out.println("autorisation "+element); }
-         */
-
+        
         // TODO
 
         /*
@@ -1446,16 +1416,13 @@ public class ItemsBrowserDWR {
         for (int i = 0; i < xsp.length; i++) {
             String element = xsp[i].getTerm().asElementDecl().getName();
             if (nodeToBeCreated.equals(element)) {
-                // System.out.println("found");
                 if (i == xsp.length - 1) {
-                    // System.out.println("case append child 1");
                     Node parent = Util.getNodeList(d, xpathParent).item(0);
                     parent.appendChild(el);
                     return d;
                 }
                 for (int j = 0; j < xsp.length - i - 1; j++) {
                     elementAfter = xpathParent + "/" + xsp[i + j + 1].getTerm().asElementDecl().getName();
-                    // System.out.println("element after : "+elementAfter);
                     Node node = Util.getNodeList(d, elementAfter).item(0);
                     if (node != null) {
                         node.getParentNode().insertBefore(el, node);
@@ -1465,7 +1432,6 @@ public class ItemsBrowserDWR {
 
                 // TODO
                 {
-                    System.out.println("case append child 2");
                     Node parent = Util.getNodeList(d, xpathParent).item(0);
                     parent.appendChild(el);
                 }
@@ -1656,19 +1622,12 @@ public class ItemsBrowserDWR {
         WebContext ctx = WebContextFactory.get();
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
-        /*
-         * try { System.out.println("Document:"+Util.nodeToString(d)); } catch (Exception e1) { // TODO Auto-generated
-         * catch block e1.printStackTrace(); }
-         */
+        
         try {
 
-            // System.out.println("remove:"+id+" "+idToXpath.get(id));
-            // String xml = CommonDWR.getXMLStringFromDocument(d);
             Util.getNodeList(d, idToXpath.get(id)).item(0).getParentNode()
                     .removeChild(Util.getNodeList(d, idToXpath.get(id)).item(0));
 
-            // String xml1 = CommonDWR.getXMLStringFromDocument(d);
-            // add by ymli
             HashMap<String, UpdateReportItem> updatedPath;
             if (ctx.getSession().getAttribute("updatedPath" + docIndex) != null) {
                 updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex);
@@ -1677,7 +1636,6 @@ public class ItemsBrowserDWR {
             }
             UpdateReportItem ri = new UpdateReportItem(idToXpath.get(id), oldValue, "");
 
-            // editUpdatedPath(updatedPath,idToXpath.get(id));
             editXpathInidToXpath(id, idToXpath, updatedPath);
             // add by ymli. fix the bug:0010576. edit the path
             String path = idToXpath.get(id);
@@ -2588,8 +2546,6 @@ public class ItemsBrowserDWR {
 
         WSWhereCondition wc = new WSWhereCondition(filterXpaths, getOperator(filterOperators), filterValues,
                 WSStringPredicate.NONE, false);
-        // System.out.println("iterator :"+i+"field - getErrors- : " + fields[i] + " " + operator[i]);
-        // System.out.println("Xpath field - getErrors- : " + giveXpath(fields[i]) + " - values : "+ regexs[i]);
         ArrayList<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
         WSWhereItem item = new WSWhereItem(wc, null, null);
         conditions.add(item);
@@ -2998,8 +2954,6 @@ public class ItemsBrowserDWR {
             }
         }
 
-        // System.out.println("PossibleConcept: "+possibleConcept);
-
         if (ownerConcept != null && ownerConcept.equals(possibleConcept))
             return true;
 
@@ -3016,7 +2970,7 @@ public class ItemsBrowserDWR {
             // create updateReport
             LOG.info("Creating update-report for " + itemAlias + "'s action. ");
             String updateReport = createUpdateReport(ids, concept, "ACTION", null);
-            // System.out.println(updateReport);
+            
             WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
             WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),
                     "text/xml; charset=utf-8");
@@ -3102,9 +3056,7 @@ public class ItemsBrowserDWR {
             return value;
         Object object = Util.getTypeValue(lang, typeName, value);
         if (object instanceof Calendar || object instanceof Time || object == null)
-            // if(Util.getTypeValue(typeName, value)==null)
             return value;
-        // return com.amalto.core.util.Util.printWithFormat(new Locale(lang), format,object);
         return object.toString();
     }
 
