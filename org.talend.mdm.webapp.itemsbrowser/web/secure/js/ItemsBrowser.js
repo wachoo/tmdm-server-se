@@ -2551,10 +2551,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						ids1=keys[treeIndex];
 						//reset ids
 						ids=ids1.join('.');
-					}
+					}					
+					if(!ids1 && ids1.length>0){
     				ItemsBrowserInterface.reloadItem(dataObject, ids1, treeIndex, function(){
                         reloadNode(node1.index,treeIndex);
                     });
+                    }
     				
     			    
     				/*
