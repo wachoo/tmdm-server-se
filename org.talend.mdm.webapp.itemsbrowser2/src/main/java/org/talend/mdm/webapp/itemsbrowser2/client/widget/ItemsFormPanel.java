@@ -65,11 +65,11 @@ public class ItemsFormPanel extends ContentPanel {
 
     public void showItem(ItemFormBean _itemForm, boolean override) {
         if(override)setItemFormBean(_itemForm);
-        if (_itemForm != null) {
+        if (itemFormBean != null) {
 
             content.removeAll();
             
-            for (Iterator<ItemFormLineBean> iterator = _itemForm.iteratorLine(); iterator.hasNext();) {
+            for (Iterator<ItemFormLineBean> iterator = itemFormBean.iteratorLine(); iterator.hasNext();) {
                 ItemFormLineBean itemFormLine = (ItemFormLineBean) iterator.next();
                 content.add(itemFormLine.genField(), formData);
             }
