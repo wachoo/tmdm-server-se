@@ -113,11 +113,16 @@ public class ItemPOJOPK implements Serializable,Comparable{
 	  * @return the unique id String
 	  */
 	 public String getUniqueID() {
-    	String fname = this.getDataClusterPOJOPK().getUniqueId()+"."+getConceptName();
-    	for (int i = 0; i < getIds().length; i++) {
-    		fname+="."+(getIds()[i]==null? "" : getIds()[i].trim()); //trim added due to exist bu triming the ids
-		}
-    	return fname;
+        StringBuilder uniqueIdBuilder = new StringBuilder();
+        uniqueIdBuilder.append(dataClusterPK.getUniqueId());
+        uniqueIdBuilder.append('.');
+        uniqueIdBuilder.append(getConceptName());
+        for (int i = 0; i < ids.length; i++) {
+            uniqueIdBuilder.append('.');
+            if (ids[i] != null)
+                uniqueIdBuilder.append(ids[i].trim()); // trim added due to exist bu triming the ids
+        }
+        return uniqueIdBuilder.toString();
 	  }
 
 	@Override

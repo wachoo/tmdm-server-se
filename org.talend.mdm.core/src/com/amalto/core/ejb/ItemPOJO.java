@@ -1,8 +1,19 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.ejb;
 
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -798,22 +809,50 @@ public class ItemPOJO implements Serializable {
      * Note: dmn&dmr tags are used for binding data model
      * 
      */
+    @SuppressWarnings("nls")
     public String serialize() throws XtentisException {
-        String item = "<ii>" + "	<c>" + StringEscapeUtils.escapeXml(getDataClusterPOJOPK().getUniqueId()) + "</c>" + "	<n>"
-                + StringEscapeUtils.escapeXml(getConceptName()) + "</n>" + "	<dmn>"
-                + (getDataModelName() == null ? "" : StringEscapeUtils.escapeXml(getDataModelName())) + "</dmn>" + "	<dmr>"
-                + (getDataModelRevision() == null ? "" : StringEscapeUtils.escapeXml(getDataModelRevision())) + "</dmr>"
-                + "	<sp>" + (getPlanPK() == null ? "" : StringEscapeUtils.escapeXml(getPlanPK().getUniqueId())) + "</sp>";
+        StringBuilder xmlBuilder = new StringBuilder();
+        xmlBuilder.append("<ii><c>");
+        xmlBuilder.append(StringEscapeUtils.escapeXml(dataClusterPOJOPK.getUniqueId()));
+        xmlBuilder.append("</c><n>");
+        xmlBuilder.append(StringEscapeUtils.escapeXml(conceptName));
+        xmlBuilder.append("</n>");
+        if (dataModelName != null) {
+            xmlBuilder.append("<dm>");
+            xmlBuilder.append(StringEscapeUtils.escapeXml(dataModelName));
+            xmlBuilder.append("</dm>");
+        }
+        if (dataModelRevision != null) {
+            xmlBuilder.append("<dmr>");
+            xmlBuilder.append(StringEscapeUtils.escapeXml(dataModelRevision));
+            xmlBuilder.append("</dmr>");
+        }
+        if (planPK != null) {
+            xmlBuilder.append("<sp>");
+            xmlBuilder.append(StringEscapeUtils.escapeXml(planPK.getUniqueId()));
+            xmlBuilder.append("</sp>");
+        }
         String[] ids = getItemIds();
         for (int i = 0; i < ids.length; i++) {
-            item += "	<i>" + (ids[i] == null ? "" : StringEscapeUtils.escapeXml(ids[i].trim())) + "</i>";
+            if (ids[i] != null) {
+                xmlBuilder.append("<i>");
+                xmlBuilder.append(StringEscapeUtils.escapeXml(ids[i].trim()));
+                xmlBuilder.append("</i>");
+            }
         }
-        item += "<taskId>" + getTaskId() + "</taskId>";
-        item += "	<t>" + getInsertionTime() + "</t>";
-        item += "	<p>" + getProjectionAsString() + "</p>";
-        item += "</ii>";
+        if (taskId != null) {
+            xmlBuilder.append("<taskId>");
+            xmlBuilder.append(taskId);
+            xmlBuilder.append("</taskId>");
+        }
+        xmlBuilder.append("<t>");
+        xmlBuilder.append(insertionTime);
+        xmlBuilder.append("</t>");
+        xmlBuilder.append("<p>");
+        xmlBuilder.append(getProjectionAsString());
+        xmlBuilder.append("</p></ii>");
 
-        return item;
+        return xmlBuilder.toString();
     }
 
     /**
@@ -901,8 +940,7 @@ public class ItemPOJO implements Serializable {
         }
     }
 
-    public static String getFilename(ItemPOJOPK itemPOJOPK) throws UnsupportedEncodingException {
-        // return (new BASE64Encoder()).encode(getKeyAsString(itemPOJOPK).getBytes("utf-8"));
+    public static String getFilename(ItemPOJOPK itemPOJOPK) {
         return itemPOJOPK.getUniqueID();
     }
 
