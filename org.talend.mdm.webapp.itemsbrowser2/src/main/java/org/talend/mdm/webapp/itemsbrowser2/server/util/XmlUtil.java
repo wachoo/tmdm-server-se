@@ -29,8 +29,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -45,6 +44,7 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.SAXValidator;
 import org.dom4j.io.XMLWriter;
 import org.dom4j.util.XMLErrorHandler;
+import org.talend.mdm.webapp.itemsbrowser2.server.dwr.ItemsBrowser2DWR;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.AttributeProcess;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.DocumentCreate;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.ElementProcess;
@@ -55,7 +55,7 @@ import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.NodeProcess;
  */
 public final class XmlUtil {
 
-    private static final Log logger = LogFactory.getLog(XmlUtil.class);
+    private static final Logger logger = Logger.getLogger(ItemsBrowser2DWR.class);
 
     public static Document parse(URL url) throws DocumentException {
         SAXReader reader = new SAXReader();

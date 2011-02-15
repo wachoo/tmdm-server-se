@@ -2,8 +2,7 @@ package org.talend.mdm.webapp.itemsbrowser2.server;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -11,6 +10,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
+import org.talend.mdm.webapp.itemsbrowser2.server.dwr.ItemsBrowser2DWR;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeCustomerConcept;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.XmlUtil;
@@ -26,7 +26,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 @SuppressWarnings("serial")
 public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsService {
 
-    private static final Log logger = LogFactory.getLog(ItemsServiceImpl.class);
+    private static final Logger LOG = Logger.getLogger(ItemsBrowser2DWR.class);
 
     public String greetServer(String input) throws IllegalArgumentException {
         // Verify that the input is valid.
@@ -128,7 +128,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             });
 
         } catch (DocumentException e) {
-            logger.error(e);
+            LOG.error(e);
         }
 
         return itemFormBean;
