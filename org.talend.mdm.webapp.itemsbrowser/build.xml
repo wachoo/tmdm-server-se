@@ -3,7 +3,7 @@
 
   <property name="version.props" value="version.properties" />
 
-  <property name="jboss.dir" value="c:/opt/jboss_tem" />
+  <property name="jboss.dir" value="/home/pascal/dev/jboss/jboss-4.2.2.GA-mdm" />
   <property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
   <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
   <property name="jboss.instance.lib" value="${jboss.instance.dir}/lib" />
@@ -44,6 +44,7 @@
       <pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
       <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar" />
       <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-jxpath-1.3.jar" />
+      <pathelement path="${tom.location}/talend.mdm.libraries/lib/xercesImpl-2.9.1.jar" />
     </path>
 
     <path id="compile.classpath">
