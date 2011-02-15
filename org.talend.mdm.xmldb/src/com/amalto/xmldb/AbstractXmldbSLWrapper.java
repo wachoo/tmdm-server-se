@@ -73,7 +73,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
         transformer.transform(new DOMSource(n), new StreamResult(sw));
         return sw.toString().replaceAll("\r\n", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
     }
-
+    
     public void clearCache() {
     }
 
@@ -85,9 +85,8 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             LinkedHashMap<String, String> conceptPatternsToClusterName, String fullPath, IWhereItem whereItem)
             throws XmlServerException {
 
+        StringBuilder xquery = new StringBuilder();
         try {
-            String xquery = null;
-
             // if the where Item is null, try to make a simplified x path query
             if (whereItem == null) {
                 // get the concept
@@ -95,18 +94,21 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                 // determine cluster
                 String clusterName = QueryBuilder.getClusterName(conceptPatternsToRevisionID, conceptPatternsToClusterName,
                         fullPath);
-
+               
                 // Replace for QueryBuilder
-                // xquery = "count("+getXQueryCollectionName(revisionID, clusterName)+"/ii/p/"+fullPath+")";
-                xquery = "count(" + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p/" + fullPath + ")";
+                xquery.append("count("); //$NON-NLS-1$
+                xquery.append(QueryBuilder.getXQueryCollectionName(revisionID, clusterName));
+                xquery.append("/ii/p/"); //$NON-NLS-1$
+                xquery.append(fullPath);
+                xquery.append(")"); //$NON-NLS-1$
             } else {
-                xquery = "let $zcount := ";
-                xquery += getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, null, new ArrayList<String>(
-                        Arrays.asList(new String[] { fullPath })), whereItem, null, null, 0, -1);
-                xquery += "\n return count($zcount)";
+                xquery.append("let $zcount := "); //$NON-NLS-1$
+                xquery.append(getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, null, new ArrayList<String>(
+                        Arrays.asList(new String[] { fullPath })), whereItem, null, null, 0, -1));
+                xquery.append("\n return count($zcount)"); //$NON-NLS-1$
             }
 
-            ArrayList<String> results = runQuery(null, null, xquery, null);
+            ArrayList<String> results = runQuery(null, null, xquery.toString(), null);
 
             return Long.parseLong(results.get(0));
 
@@ -122,13 +124,11 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             throws XmlServerException {
 
         try {
-            String xquery = null;
+            StringBuilder xquery = new StringBuilder();
 
             // if the where Item is null, try to make a simplified x path query
             if (whereItem == null) {
                 // get the concept
-                // Replace for QueryBuilder
-                // String rootElementName = getRootElementNameFromPath(objectFullPath);
                 String rootElementName = QueryBuilder.getRootElementNameFromPath(objectFullPath);
                 // determine revision
                 String revisionID = objectRootElementNameToRevisionID.get(rootElementName);
@@ -136,16 +136,19 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                 String clusterName = objectRootElementNameToClusterName.get(rootElementName);
 
                 // Replace for QueryBuilder
-                // xquery = "count("+getXQueryCollectionName(revisionID, clusterName)+"/"+objectFullPath+")";
-                xquery = "count(" + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/" + objectFullPath + ")";
+                xquery.append("count("); //$NON-NLS-1$
+                xquery.append(QueryBuilder.getXQueryCollectionName(revisionID, clusterName));
+                xquery.append("/"); //$NON-NLS-1$
+                xquery.append(objectFullPath);
+                xquery.append(")"); //$NON-NLS-1$ 
             } else {
-                xquery = "let $zcount := ";
-                xquery += getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, null,
-                        new ArrayList<String>(Arrays.asList(new String[] { objectFullPath })), whereItem, null, null, 0, -1);
-                xquery += "\n return count($zcount)";
+                xquery.append("let $zcount := "); //$NON-NLS-1$
+                xquery.append(getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, null,
+                        new ArrayList<String>(Arrays.asList(new String[] { objectFullPath })), whereItem, null, null, 0, -1));
+                xquery.append("\n return count($zcount)"); //$NON-NLS-1$
             }
 
-            ArrayList<String> results = runQuery(null, null, xquery, null);
+            ArrayList<String> results = runQuery(null, null, xquery.toString(), null);
 
             return Long.parseLong(results.get(0));
 
@@ -162,29 +165,28 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
 
         try {
 
-            String query = "";
-            StringBuffer xq = new StringBuffer();
-            StringBuffer xqFor = new StringBuffer();
-            StringBuffer xqWhere = new StringBuffer();
-            StringBuffer xqOrderby = new StringBuffer();
-            StringBuffer xqReturn = new StringBuffer();
+            StringBuilder xq = new StringBuilder();
+            StringBuilder xqFor = new StringBuilder();
+            StringBuilder xqWhere = new StringBuilder();
+            StringBuilder xqOrderby = new StringBuilder();
+            StringBuilder xqReturn = new StringBuilder();
 
             // for
-            xqFor.append("for ");
+            xqFor.append("for "); //$NON-NLS-1$
             String revisionID = CommonUtil.getConceptRevisionID(itemsRevisionIDs, defaultRevisionID, conceptName);// revision
             // issue
             // String revisionID=null;
             String collectionPath = CommonUtil.getPath(revisionID, clusterName);
-            xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/")
-                    .append(conceptName).append(" ");
+            xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+                    .append(conceptName).append(" "); //$NON-NLS-1$
 
             // where
-            xqWhere.append("where (1=1)");
+            xqWhere.append("where (1=1)"); //$NON-NLS-1$
 
             if (FKXpath != null) {
-                fatherPK = (fatherPK == null ? "" : StringEscapeUtils.escapeXml(fatherPK));
-                xqWhere.append(" and ($").append(FKXpath).append(" = '").append(fatherPK).append("'").append(" or $")
-                        .append(FKXpath).append("=concat('[','").append(fatherPK).append("',']')) ");
+                fatherPK = (fatherPK == null ? "" : StringEscapeUtils.escapeXml(fatherPK)); //$NON-NLS-1$
+                xqWhere.append(" and ($").append(FKXpath).append(" = '").append(fatherPK).append("'").append(" or $") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        .append(FKXpath).append("=concat('[','").append(fatherPK).append("',']')) "); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
             // build from WhereItem
@@ -193,49 +195,49 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                 LinkedHashMap<String, String> pivots = new LinkedHashMap<String, String>();
                 pivots.put(conceptName, conceptName);
 
-                String appendWhere = buildWhere(" ", pivots, whereItem, false);
+                String appendWhere = buildWhere(" ", pivots, whereItem, false); //$NON-NLS-1$
                 ;
-                if (appendWhere != null && appendWhere.length() > 0 && !appendWhere.trim().equals("")) {
-                    xqWhere.append(" and ");
+                if (appendWhere != null && appendWhere.length() > 0 && appendWhere.trim().length() != 0) {
+                    xqWhere.append(" and "); //$NON-NLS-1$
                     xqWhere.append(appendWhere);
                 }
 
-                xqWhere.append(" ");
+                xqWhere.append(" "); //$NON-NLS-1$
 
             }
 
             // order by
 
             // return
-            xqReturn.append("return ");
-            xqReturn.append("<result>");
+            xqReturn.append("return "); //$NON-NLS-1$
+            xqReturn.append("<result>"); //$NON-NLS-1$
 
-            xqReturn.append("<result-key>");
+            xqReturn.append("<result-key>"); //$NON-NLS-1$
 
             if (PKXpaths.length == 1) {
-                xqReturn.append("{$").append(PKXpaths[0]).append("/text()}");
+                xqReturn.append("{$").append(PKXpaths[0]).append("/text()}"); //$NON-NLS-1$ //$NON-NLS-2$
             } else if (PKXpaths.length > 1) {
-                xqReturn.append("{concat(");
+                xqReturn.append("{concat("); //$NON-NLS-1$
                 for (int l = 0; l < PKXpaths.length; l++) {
                     if (l > 0)
-                        xqReturn.append(",");
-                    xqReturn.append("'['").append(",$").append(PKXpaths[l]).append("/text()").append(",']'");
+                        xqReturn.append(","); //$NON-NLS-1$
+                    xqReturn.append("'['").append(",$").append(PKXpaths[l]).append("/text()").append(",']'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 }
-                xqReturn.append(")}");
+                xqReturn.append(")}"); //$NON-NLS-1$
             }
-            xqReturn.append("</result-key>");
+            xqReturn.append("</result-key>"); //$NON-NLS-1$
 
-            xqReturn.append("<result-label>");
-            xqReturn.append("{$").append(labelXpath).append("/text()}");
-            xqReturn.append("</result-label>");
+            xqReturn.append("<result-label>"); //$NON-NLS-1$
+            xqReturn.append("{$").append(labelXpath).append("/text()}"); //$NON-NLS-1$
+            xqReturn.append("</result-label>"); //$NON-NLS-1$
 
-            xqReturn.append("</result>  ");
+            xqReturn.append("</result>  "); //$NON-NLS-1$
 
             xq.append(xqFor).append(xqWhere).append(xqOrderby).append(xqReturn);
-            query = xq.toString();
+            String query = xq.toString();
 
             if (start >= 0 && limit > 0) {
-                query = "let $list := \n" + query + "\n return subsequence($list," + (start + 1) + "," + limit + ")";
+                query = "let $list := \n" + query + "\n return subsequence($list," + (start + 1) + "," + limit + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             }
 
             return query;
@@ -248,7 +250,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
     }
 
     public String getDocumentAsString(String revisionID, String clusterName, String uniqueID) throws XmlServerException {
-        return getDocumentAsString(revisionID, clusterName, uniqueID, "UTF-16");
+        return getDocumentAsString(revisionID, clusterName, uniqueID, "UTF-16"); //$NON-NLS-1$
     }
 
     public String getItemsQuery(LinkedHashMap<String, String> conceptPatternsToRevisionID,
@@ -274,12 +276,12 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
 
         try {
 
-            String query = "";
-            StringBuffer xq = new StringBuffer();
-            StringBuffer xqFor = new StringBuffer();
-            StringBuffer xqWhere = new StringBuffer();
-            StringBuffer xqOrderby = new StringBuffer();
-            StringBuffer xqReturn = new StringBuffer();
+            
+            StringBuilder xq = new StringBuilder();
+            StringBuilder xqFor = new StringBuilder();
+            StringBuilder xqWhere = new StringBuilder();
+            StringBuilder xqOrderby = new StringBuilder();
+            StringBuilder xqReturn = new StringBuilder();
 
             HashSet<String> conceptMap = new HashSet<String>();
             String[] pivotPaths = new String[pivotWithKeys.size()];
@@ -289,47 +291,47 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             for (Iterator<String> iterator = pivotWithKeys.keySet().iterator(); iterator.hasNext(); i++) {
                 String pivot = iterator.next();
                 pivotPaths[i] = pivot;
-                String[] tmp = pivot.split("/");// TODO maybe care about other cases, like '//'
+                String[] tmp = pivot.split("/");  //$NON-NLS-1$ // TODO maybe care about other cases, like '//'
                 if (tmp.length > 0)
                     conceptMap.add(tmp[0]);
             }
             // for
             if (conceptMap.size() > 0) {
-                xqFor.append("for ");
+                xqFor.append("for "); //$NON-NLS-1$
                 int j = 0;
                 for (Iterator<String> iterator = conceptMap.iterator(); iterator.hasNext(); j++) {
                     String conceptName = iterator.next();
                     String revisionID = CommonUtil.getConceptRevisionID(itemsRevisionIDs, defaultRevisionID, conceptName);
 
                     String collectionPath = CommonUtil.getPath(revisionID, clusterName);
-                    xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/")
+                    xqFor.append("$").append(conceptName).append(" in collection(\"").append(collectionPath).append("\")/ii/p/") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             .append(conceptName);
 
                     if (j < conceptMap.size() - 1) {
-                        xqFor.append(", ");
+                        xqFor.append(", "); //$NON-NLS-1$
                     } else {
-                        xqFor.append(" ");
+                        xqFor.append(" "); //$NON-NLS-1$
                     }
                 }
             }
 
             // where
             if (pivotPaths.length > 0) {
-                xqWhere.append("where (1=1) "); // ctoum 20100110
+                xqWhere.append("where (1=1) ");  //$NON-NLS-1$ // ctoum 20100110
                 if (pivotPaths.length > 1) {
                     for (int k = 0; k < pivotPaths.length - 1; k++) {
                         String[] k1keys = pivotWithKeys.get(pivotPaths[k + 1]);
                         if (k1keys.length == 1) {
-                            xqWhere.append(" and ($").append(pivotPaths[k]).append("=$").append(k1keys[0]).append(" or $")
-                                    .append(pivotPaths[k]).append("=concat('[',$").append(k1keys[0]).append(",']')) ");
+                            xqWhere.append(" and ($").append(pivotPaths[k]).append("=$").append(k1keys[0]).append(" or $") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                    .append(pivotPaths[k]).append("=concat('[',$").append(k1keys[0]).append(",']')) "); //$NON-NLS-1$ //$NON-NLS-2$
                         } else if (k1keys.length > 1) {
-                            xqWhere.append(" and $").append(pivotPaths[k]).append("=concat(");
+                            xqWhere.append(" and $").append(pivotPaths[k]).append("=concat("); //$NON-NLS-1$ //$NON-NLS-2$
                             for (int l = 0; l < k1keys.length; l++) {
                                 if (l > 0)
-                                    xqWhere.append(",");
-                                xqWhere.append("'['").append(",$").append(k1keys[l]).append(",']'");
+                                    xqWhere.append(","); //$NON-NLS-1$
+                                xqWhere.append("'['").append(",$").append(k1keys[l]).append(",']'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             }
-                            xqWhere.append(") ");
+                            xqWhere.append(") "); //$NON-NLS-1$
                         }
                     }
                 }
@@ -339,78 +341,78 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             if (whereItem != null) {
                 // ctoum 20100110
                 if (xqWhere.length() > 0) {
-                    xqWhere.append(" and ");
+                    xqWhere.append(" and "); //$NON-NLS-1$
                 }
                 LinkedHashMap<String, String> pivots = new LinkedHashMap<String, String>();
                 pivots.put(mainPivotName, mainPivotName);
-                xqWhere.append(buildWhere(" ", pivots, whereItem, false));
-                xqWhere.append(" ");
+                xqWhere.append(buildWhere(" ", pivots, whereItem, false)); //$NON-NLS-1$
+                xqWhere.append(" "); //$NON-NLS-1$
 
             }
 
             // order by
             if (pivotPaths.length > 0) {
-                xqOrderby.append("order by ");
+                xqOrderby.append("order by "); //$NON-NLS-1$
                 for (int m = pivotPaths.length - 1; m > -1; m--) {
                     if (m < pivotPaths.length - 1)
-                        xqOrderby.append(",");
+                        xqOrderby.append(","); //$NON-NLS-1$
                     // see 0016991, using the first element as pivot
-                    xqOrderby.append("$").append(pivotPaths[m] + "[0]").append(" ");
+                    xqOrderby.append("$").append(pivotPaths[m] + "[0]").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     // add direction
                     if (pivotDirections != null && pivotDirections.length > 0)
-                        xqOrderby.append(pivotDirections[m] == null ? "" : " " + pivotDirections[m] + " ");
+                        xqOrderby.append(pivotDirections[m] == null ? "" : " " + pivotDirections[m] + " "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
 
                 for (int m = 0; m < indexPaths.length; m++) {
                     // see 0016991, using the first element as pivot
-                    xqOrderby.append(",").append("$").append(indexPaths[m] + "[0]").append(" ");
+                    xqOrderby.append(",").append("$").append(indexPaths[m] + "[0]").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     // add direction
                     if (indexDirections != null && indexDirections.length > 0)
-                        xqOrderby.append(indexDirections[m] == null ? "" : " " + indexDirections[m] + " ");
+                        xqOrderby.append(indexDirections[m] == null ? "" : " " + indexDirections[m] + " "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             }
 
             // return
             if (pivotPaths.length > 0) {
-                xqReturn.append("return ");
-                xqReturn.append("<result>");
+                xqReturn.append("return "); //$NON-NLS-1$
+                xqReturn.append("<result>"); //$NON-NLS-1$
 
-                xqReturn.append("<result-pivot>");
+                xqReturn.append("<result-pivot>"); //$NON-NLS-1$
                 for (int n = pivotPaths.length - 1; n > -1; n--) {
-                    xqReturn.append("{if ($").append(pivotPaths[n]).append(") then $").append(pivotPaths[n]).append(" else <")
-                            .append(parseNodeNameFromXpath(pivotPaths[n])).append("/>}");
+                    xqReturn.append("{if ($").append(pivotPaths[n]).append(") then $").append(pivotPaths[n]).append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            .append(parseNodeNameFromXpath(pivotPaths[n])).append("/>}"); //$NON-NLS-1$
                 }
-                xqReturn.append("</result-pivot>");
+                xqReturn.append("</result-pivot>"); //$NON-NLS-1$
 
-                xqReturn.append("<result-title>");
+                xqReturn.append("<result-title>"); //$NON-NLS-1$
                 for (int n = 0; n < indexPaths.length; n++) {
-                    xqReturn.append("{if ($").append(indexPaths[n]).append(") then $").append(indexPaths[n]).append(" else <")
-                            .append(parseNodeNameFromXpath(indexPaths[n])).append("/>}");
+                    xqReturn.append("{if ($").append(indexPaths[n]).append(") then $").append(indexPaths[n]).append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            .append(parseNodeNameFromXpath(indexPaths[n])).append("/>}"); //$NON-NLS-1$
                 }
-                xqReturn.append("</result-title>");
+                xqReturn.append("</result-title>"); //$NON-NLS-1$
 
-                xqReturn.append("<result-key>");
+                xqReturn.append("<result-key>"); //$NON-NLS-1$
                 String[] mainKeys = pivotWithKeys.get(pivotPaths[0]);
                 for (int n = 0; n < mainKeys.length; n++) {
-                    xqReturn.append("{if ($").append(mainKeys[n]).append(") then $").append(mainKeys[n]).append(" else <")
-                            .append(parseNodeNameFromXpath(mainKeys[n])).append("/>}");
+                    xqReturn.append("{if ($").append(mainKeys[n]).append(") then $").append(mainKeys[n]).append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            .append(parseNodeNameFromXpath(mainKeys[n])).append("/>}"); //$NON-NLS-1$
                 }
-                xqReturn.append("</result-key>");
+                xqReturn.append("</result-key>"); //$NON-NLS-1$
 
-                xqReturn.append("</result>  ");
+                xqReturn.append("</result>  "); //$NON-NLS-1$
             }
 
             xq.append(xqFor).append(xqWhere).append(xqOrderby).append(xqReturn);
-            query = xq.toString();
+            String query = xq.toString();
 
             if (start >= 0 && limit > 0) {
-                query = "let $list := \n" + query + "\n return subsequence($list," + (start + 1) + "," + limit + ")";
+                query = "let $list := \n" + query + "\n return subsequence($list," + (start + 1) + "," + limit + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             }
 
             // replace (1=1) and to ""
-            query = query.replaceAll("\\(1=1\\) and", "");
+            query = query.replaceAll("\\(1=1\\) and", ""); //$NON-NLS-1$ //$NON-NLS-2$
             // replace () and to ""
-            query = query.replaceAll("\\(\\) and", "");
+            query = query.replaceAll("\\(\\) and", ""); //$NON-NLS-1$ //$NON-NLS-2$
             return query;
 
         } catch (Exception e) {
@@ -437,17 +439,17 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                     if (++i > 1)
                         if (item instanceof WhereCondition) {
                             if (WhereCondition.PRE_OR.equals(((WhereCondition) item).getStringPredicate())) {
-                                where = where + " or (";
+                                where = where + " or ("; //$NON-NLS-1$
                             } else {
-                                where = where + " and (";
+                                where = where + " and ("; //$NON-NLS-1$
                             }
                         } else if (((WhereLogicOperator) whereItem).getType() == WhereLogicOperator.AND)
-                            where += " and (";
+                            where += " and ("; //$NON-NLS-1$
                         else
-                            where += " or (";
+                            where += " or ("; //$NON-NLS-1$
                     else
-                        where += "(";
-                    where = buildWhere(where, pivots, item, useValueComparisons) + ")";
+                        where += "("; //$NON-NLS-1$
+                    where = buildWhere(where, pivots, item, useValueComparisons) + ")"; //$NON-NLS-1$
                 }// for
                 return where;
 
@@ -474,16 +476,15 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
 
             // all this is EXIST specific
 
-            String where = "";
             String operator = wc.getOperator();
 
             // numeric detection
             boolean isNum = false;
             boolean isXpathFunction = QueryBuilder.isValidatedFunction(wc.getRightValueOrPath());
             // handle case of String starting with a zero e.g. 00441065 or ending with . e.g. 12345.
-            if (!(wc.getRightValueOrPath().matches(".*\\D") || wc.getRightValueOrPath().startsWith("0")
-                    || wc.getRightValueOrPath().endsWith(".") || wc.getRightValueOrPath().startsWith("+") || wc
-                    .getRightValueOrPath().startsWith("-"))) {
+            if (!(wc.getRightValueOrPath().matches(".*\\D") || wc.getRightValueOrPath().startsWith("0") //$NON-NLS-1$ //$NON-NLS-2$
+                    || wc.getRightValueOrPath().endsWith(".") || wc.getRightValueOrPath().startsWith("+") || wc //$NON-NLS-1$ //$NON-NLS-2$
+                    .getRightValueOrPath().startsWith("-"))) { //$NON-NLS-1$
                 try {
                     Double.parseDouble(wc.getRightValueOrPath().trim());
                     isNum = true;
@@ -497,25 +498,26 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                     .getRightValueOrPath());
             // aiming modify convert "" & " " to *
             if (encoded != null && encoded.trim().length() == 0) {
-                encoded = "*";
+                encoded = "*"; //$NON-NLS-1$
             }
             // handle empty case
-            if (encoded != null && encoded.equals("null")) {
-                encoded = "";
+            if (encoded != null && encoded.equals("null")) { //$NON-NLS-1$
+                encoded = ""; //$NON-NLS-1$
             }
             // change * to .*
-            encoded = encoded.replaceAll("\\.\\*|\\*", "\\.\\*");
-            if (".*".equals(encoded))
-                return "";
+            encoded = encoded.replaceAll("\\.\\*|\\*", "\\.\\*"); //$NON-NLS-1$ //$NON-NLS-2$
+            if (".*".equals(encoded)) //$NON-NLS-1$
+                return ""; //$NON-NLS-1$
+            String where;
             String factorPivots = getPathFromPivots(wc.getLeftPath(), pivots);
             if (operator.equals(WhereCondition.CONTAINS)) {
                 String predicate = wc.getStringPredicate();
                 // check if the left path is an attribute or an element
                 String path = wc.getLeftPath();
-                if (path.endsWith("/"))
+                if (path.endsWith("/")) //$NON-NLS-1$
                     path = path.substring(0, wc.getLeftPath().length() - 1);
-                String[] nodes = path.split("/");
-                boolean isAttribute = nodes[nodes.length - 1].startsWith("@");
+                String[] nodes = path.split("/"); //$NON-NLS-1$
+                boolean isAttribute = nodes[nodes.length - 1].startsWith("@"); //$NON-NLS-1$
                 if ((predicate == null) || predicate.equals(WhereCondition.PRE_NONE)) {
                     if (isAttribute) {
                         where = queryBuilder.getMatchesMethod(factorPivots, encoded);
@@ -529,7 +531,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                         where = queryBuilder.buildContains(factorPivots, encoded, isXpathFunction);
                     }
                 } else if (predicate.equals(WhereCondition.PRE_EXACTLY)) {
-                    where = factorPivots + " eq \"" + encoded + "\"";
+                    where = factorPivots + " eq \"" + encoded + "\""; //$NON-NLS-1$ //$NON-NLS-2$
                 } else if (predicate.equals(WhereCondition.PRE_STRICTAND)) {
                     // where = "near("+factorPivots+", \""+encoded+"\",1)";
                     where = queryBuilder.getMatchesMethod(factorPivots, encoded);
@@ -538,7 +540,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                         where = queryBuilder.getMatchesMethod(factorPivots, encoded);
                     } else {
                         if (isXpathFunction) {
-                            where = " contains(" + factorPivots + " , " + encoded + ") ";
+                            where = " contains(" + factorPivots + " , " + encoded + ") "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         } else {
                             where = queryBuilder.getMatchesMethod(factorPivots, encoded);
 
@@ -546,108 +548,110 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                     }
                 } else if (predicate.equals(WhereCondition.PRE_NOT)) {
                     if (isAttribute) {
-                        where = "not " + queryBuilder.getMatchesMethod(factorPivots, encoded);
+                        where = "not " + queryBuilder.getMatchesMethod(factorPivots, encoded); //$NON-NLS-1$
                     } else {
                         if (isXpathFunction) {
-                            where = "not(" + " contains(" + factorPivots + " , " + encoded + ") " + ")";
+                            where = "not(" + " contains(" + factorPivots + " , " + encoded + ") " + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                         } else {
-                            where = "not(" + queryBuilder.getMatchesMethod(factorPivots, encoded) + ")";
+                            where = "not(" + queryBuilder.getMatchesMethod(factorPivots, encoded) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
-                }
+                } else
+                    where = null;
 
             } else if (operator.equals(WhereCondition.STRICTCONTAINS)) {
                 // where = "near("+factorPivots+", \""+encoded+"\",1)";
                 where = queryBuilder.getMatchesMethod(factorPivots, encoded);
             } else if (operator.equals(WhereCondition.STARTSWITH)) {
                 if (isXpathFunction) {
-                    where = "starts-with(" + factorPivots + ", " + encoded + ") ";
+                    where = "starts-with(" + factorPivots + ", " + encoded + ") "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
                     // where = "near("+factorPivots+", \""+encoded+"*\",1)";
                     where = queryBuilder.getMatchesMethod(factorPivots, encoded);
                 }
             } else if (operator.equals(WhereCondition.CONTAINS_TEXT_OF)) {
                 // where = getPathFromPivots(wc.getRightValueOrPath(),pivots)+" = "+factorPivots; //JOIN error
-                String factorRightPivot = XPathUtils.factor(encoded, pivots) + "";
-                where = "contains(" + factorPivots + ", " + factorRightPivot + "/text()) ";
+                String factorRightPivot = XPathUtils.factor(encoded, pivots) + ""; //$NON-NLS-1$
+                where = "contains(" + factorPivots + ", " + factorRightPivot + "/text()) "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
             } else if (operator.equals(WhereCondition.EQUALS)) {
-                String useOpe = "eq";
+                String useOpe = "eq"; //$NON-NLS-1$
                 if (!useValueComparisons)
                     useOpe = WhereCondition.EQUALS;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded;
+                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else if (isXpathFunction) {
-                    where = factorPivots + " " + useOpe + " " + encoded;
+                    where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
-                    where = factorPivots + " " + useOpe + " \"" + encoded + "\"";
+                    where = factorPivots + " " + useOpe + " \"" + encoded + "\""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.NOT_EQUALS)) {
-                String useOpe = "ne";
+                String useOpe = "ne"; //$NON-NLS-1$
                 if (!useValueComparisons)
                     useOpe = WhereCondition.NOT_EQUALS;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded;
+                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else if (isXpathFunction) {
-                    where = factorPivots + " " + useOpe + " " + encoded;
+                    where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
-                    where = factorPivots + " " + useOpe + " \"" + encoded + "\"";
+                    where = factorPivots + " " + useOpe + " \"" + encoded + "\""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN)) {
-                String useOpe = "gt";
+                String useOpe = "gt"; //$NON-NLS-1$
                 if (!useValueComparisons)
                     useOpe = WhereCondition.GREATER_THAN;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded;
+                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else if (isXpathFunction) {
-                    where = factorPivots + " " + useOpe + " " + encoded;
+                    where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
-                    where = factorPivots + " " + useOpe + " \"" + encoded + "\"";
+                    where = factorPivots + " " + useOpe + " \"" + encoded + "\""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN_OR_EQUAL)) {
-                String useOpe = "ge";
+                String useOpe = "ge"; //$NON-NLS-1$
                 if (!useValueComparisons)
                     useOpe = WhereCondition.GREATER_THAN_OR_EQUAL;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded;
+                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else if (isXpathFunction) {
-                    where = factorPivots + " " + useOpe + " " + encoded;
+                    where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
-                    where = factorPivots + " " + useOpe + " \"" + encoded + "\"";
+                    where = factorPivots + " " + useOpe + " \"" + encoded + "\""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN)) {
-                String useOpe = "lt";
+                String useOpe = "lt"; //$NON-NLS-1$
                 if (!useValueComparisons)
                     useOpe = WhereCondition.LOWER_THAN;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded;
+                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else if (isXpathFunction) {
-                    where = factorPivots + " " + useOpe + " " + encoded;
+                    where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
-                    where = factorPivots + " " + useOpe + " \"" + encoded + "\"";
+                    where = factorPivots + " " + useOpe + " \"" + encoded + "\""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN_OR_EQUAL)) {
-                String useOpe = "le";
+                String useOpe = "le"; //$NON-NLS-1$
                 if (!useValueComparisons)
                     useOpe = WhereCondition.LOWER_THAN_OR_EQUAL;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded;
+                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else if (isXpathFunction) {
-                    where = factorPivots + " " + useOpe + " " + encoded;
+                    where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
-                    where = factorPivots + " " + useOpe + " \"" + encoded + "\"";
+                    where = factorPivots + " " + useOpe + " \"" + encoded + "\""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.EMPTY_NULL)) {
                 String predicate = wc.getStringPredicate();
                 if (predicate.equals(WhereCondition.PRE_NOT)) {
-                    where = factorPivots + "[text()]";
+                    where = factorPivots + "[text()]"; //$NON-NLS-1$
                 } else {
                     // ticket 18359, query empty node or node doesn't exist
-                    where = "not(" + factorPivots + ") or " + factorPivots + "[not(text())]";
+                    where = "not(" + factorPivots + ") or " + factorPivots + "[not(text())]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
             } else if (operator.equals(WhereCondition.NO_OPERATOR)) {
                 where = factorPivots;
-            }
+            } else
+                where = null;
 
             return where;
 
@@ -670,25 +674,25 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
     private String getPathFromPivots(String bename, HashMap<String, String> pivots) throws XmlServerException {
         try {
             if (LOG.isTraceEnabled())
-                LOG.trace("getPathFromPivots() " + bename + " - " + pivots.keySet());
-            if (bename.startsWith("/"))
+                LOG.trace("getPathFromPivots() " + bename + " - " + pivots.keySet()); //$NON-NLS-1$ //$NON-NLS-2$
+            if (bename.startsWith("/")) //$NON-NLS-1$
                 bename = bename.substring(1);
-            String beRoot = bename.split("/")[0];
+            String beRoot = bename.split("/")[0]; //$NON-NLS-1$
             // find pivot
             Set<String> ps = pivots.keySet();
             String newPath = null;
             for (Iterator<String> iterator = ps.iterator(); iterator.hasNext();) {
                 String pivot = iterator.next();
-                String pivotRoot = pivot.split("/")[0];
+                String pivotRoot = pivot.split("/")[0]; //$NON-NLS-1$
                 // aiming modify pivotRoot maybe ConceptName[condition], fix bug 0008980
                 if (!beRoot.equals(pivotRoot)) {
-                    Pattern p = Pattern.compile("(.*?)\\[.*\\]");
+                    Pattern p = Pattern.compile("(.*?)\\[.*\\]"); //$NON-NLS-1$
                     Matcher m = p.matcher(pivotRoot);
                     if (m.matches()) {
                         if (m.group(1).equals(beRoot)) {
                             int pos = bename.indexOf('/');
                             if (pos != -1) {
-                                newPath = "$" + pivots.get(pivot) + bename.substring(pos);
+                                newPath = '$' + pivots.get(pivot) + bename.substring(pos);
                                 break;
                             }
                         }
@@ -697,15 +701,15 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                 // end
                 if (beRoot.equals(pivotRoot)) {
                     // found
-                    newPath = "$" + pivots.get(pivot) + getPathFromPivot(pivot, bename);
+                    newPath = '$' + pivots.get(pivot) + getPathFromPivot(pivot, bename);
                     break;
                 }
             }
             if (newPath == null) {
                 // add pivot
-                String var = "pivot" + pivots.size();
+                String var = "pivot" + pivots.size(); //$NON-NLS-1$
                 pivots.put(bename, var);
-                newPath = "$" + var;
+                newPath = '$' + var;
             }
             return newPath;
         } catch (Exception e) {
@@ -727,39 +731,39 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             if ((pivot == null) || (path == null))
                 return null;
 
-            if (pivot.startsWith("/"))
+            if (pivot.startsWith("/")) //$NON-NLS-1$
                 pivot = pivot.substring(1);
-            if (pivot.endsWith("/"))
+            if (pivot.endsWith("/")) //$NON-NLS-1$
                 pivot = pivot.substring(0, pivot.length() - 1);
-            if (path.startsWith("/"))
+            if (path.startsWith("/")) //$NON-NLS-1$
                 path = path.substring(1);
-            if (path.endsWith("/"))
+            if (path.endsWith("/")) //$NON-NLS-1$
                 path = path.substring(0, path.length() - 1);
 
-            String[] pivotPaths = pivot.split("/");
-            String[] pathPaths = path.split("/");
+            String[] pivotPaths = pivot.split("/"); //$NON-NLS-1$
+            String[] pathPaths = path.split("/"); //$NON-NLS-1$
 
             if (!pivotPaths[0].equals(pathPaths[0]))
                 return null;
 
-            String newPath = "";
+            String newPath = ""; //$NON-NLS-1$
             int matching = 0;
             for (int i = 1; i < pivotPaths.length; i++) {
                 if (i < pathPaths.length)
                     if (pivotPaths[i].equals(pathPaths[i]))
                         matching++;
                     else
-                        newPath += "/..";
+                        newPath += "/.."; //$NON-NLS-1$
                 else
-                    newPath += "/..";
+                    newPath += "/.."; //$NON-NLS-1$
             }
             for (int i = matching + 1; i < pathPaths.length; i++) {
-                newPath += "/" + pathPaths[i];
+                newPath += '/' + pathPaths[i];
             }
 
             // fix for eXist bug that has *sometimes* difficulties with "grand parents" (../..)
             // e.g. x/../../y --> x/.././../y
-            newPath = newPath.replaceAll("\\.\\./\\.\\.", ".././..");
+            newPath = newPath.replaceAll("\\.\\./\\.\\.", ".././.."); //$NON-NLS-1$ //$NON-NLS-2$
 
             return newPath;
 
@@ -772,10 +776,10 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
 
     private String parseNodeNameFromXpath(String input) {
         if (input == null)
-            return "";
+            return ""; //$NON-NLS-1$
 
         String output = input;
-        int pos = input.lastIndexOf("/");
+        int pos = input.lastIndexOf("/"); //$NON-NLS-1$
         if (pos != -1) {
             output = input.substring(pos + 1);
         }
