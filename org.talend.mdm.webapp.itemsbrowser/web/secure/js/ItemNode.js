@@ -157,7 +157,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		if(itemData.description!=null)descInfo='<img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'+itemData.description+'"/>';
 		var polymSelector = "";
 		if(itemData.polymiorphism&&itemData.subTypes.length>0){
-            var options = '<option value=""></option>';
+            var options = '<option value="'+itemData.typeName+'"></option>';
             for(var k=0; k<itemData.subTypes.length; k++) {
                  if(itemData.subTypes[k]==itemData.realType) var selected = "selected";
                  else var selected = "";
