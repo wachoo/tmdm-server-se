@@ -1,10 +1,7 @@
 package com.amalto.webapp.core.dwr;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,11 +13,7 @@ import javax.security.jacc.PolicyContextException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.io.FileUtils;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
@@ -31,9 +24,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.util.SecurityEntityResolver;
 import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.util.SAXErrorHandler;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -46,10 +37,6 @@ import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
-import com.sun.xml.xsom.XSSchema;
-import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.parser.XSOMParser;
-import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
 /**
  * 
@@ -282,6 +269,32 @@ public class CommonDWR {
     	return xpathToLabel; 
 	}
 	
+	public static boolean isElementHidden(XSParticle xsp){
+		 try {
+			ArrayList<String> roles = Util.getAjaxSubject().getRoles();
+			XSAnnotation xsa = xsp.getTerm().asElementDecl().getAnnotation();
+			if (xsa != null && xsa.getAnnotation() != null) {
+                Element el = (Element) xsa.getAnnotation();
+                NodeList annotList = el.getChildNodes();
+                for (int k = 0; k < annotList.getLength(); k++) {
+                    if ("appinfo".equals(annotList.item(k).getLocalName())) {
+                        Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                        if (source == null)
+                            continue;
+                        String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue();
+                        if ("X_Hide".equals(appinfoSource)) {
+                            if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+			}
+		} catch (PolicyContextException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 	private static void getChildren(XSParticle xsp, String xpathParent, String x_Label, boolean includeComplex,boolean includeFKReference,HashMap<String,String> xpathToLabel){
 		//aiming added see 0009563
 		if(xsp.getTerm().asModelGroup()!=null){ //is complex type
@@ -293,6 +306,11 @@ public class CommonDWR {
 		if(xsp.getTerm().asElementDecl()==null) return;
 		//end
 		if(xsp.getTerm().asElementDecl().getType().isComplexType()==false || includeComplex==true){
+			//Hidden the NO_ACCESS elment
+			if(isElementHidden(xsp)){
+				return ;
+			}
+			
 			String toPutKey=xpathParent+"/"+xsp.getTerm().asElementDecl().getName();
 			if(includeFKReference){
 				String foreignkeyPath=getForeignkeyPath(xsp.getTerm().asElementDecl());
