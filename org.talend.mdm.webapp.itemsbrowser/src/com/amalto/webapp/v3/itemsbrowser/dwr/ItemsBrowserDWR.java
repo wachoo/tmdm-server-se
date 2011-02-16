@@ -367,6 +367,7 @@ public class ItemsBrowserDWR {
         WebContext ctx = WebContextFactory.get();
         ctx.getSession().setAttribute("itemDocument" + docIndex + "_wsItem", wsItem);
         ctx.getSession().setAttribute("itemDocument" + docIndex, document);
+        ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", document);
         
     }
 
