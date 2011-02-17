@@ -3705,6 +3705,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             if(isSwitch)xpath4GetForeignKeyPolymTypeList=originalXpathForeignKey;
             else xpath4GetForeignKeyPolymTypeList=xpathForeignKey;
             
+            var showTypeCombo=false;
+            
+            DWREngine.setAsync(false);
+            ItemsBrowserInterface.isPolymForeignKey(xpath4GetForeignKeyPolymTypeList,function(result){showTypeCombo=result;});
+            DWREngine.setAsync(true);
+            
             var typeStore = new Ext.data.Store({
                 proxy: new Ext.ux.data.ImprovedDWRProxy({
                         dwrFunction: ItemsBrowserInterface.getForeignKeyPolymTypeList,
@@ -3733,7 +3739,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     typeAhead: true,
                     triggerAction: 'all',
                     forceSelection:true,
-                    resizable:true
+                    resizable:true,
+                    hidden:!showTypeCombo,
+                    hideLabel:!showTypeCombo
             });
 
             typeCombo.setValue(lastSelectedType);

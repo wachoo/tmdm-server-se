@@ -2221,6 +2221,36 @@ public class ItemsBrowserDWR {
         return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey,
                 parseForeignKeyFilter(dataObject, fkFilter, docIndex, nodeId), true);
     }
+    
+    
+    /**
+     * DOC HSHU Comment method "isPolymForeignKey".
+     * @throws Exception 
+     */
+    public boolean isPolymForeignKey(String xpathForeignKey) throws Exception {
+        
+        boolean isPolymForeignKey=false;
+        
+        if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
+            
+            if (xpathForeignKey.startsWith("/"))
+                xpathForeignKey = xpathForeignKey.substring(1);
+            String fkEntity = "";
+            if (xpathForeignKey.indexOf("/") != -1) {
+                fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));
+            } else {
+                fkEntity = xpathForeignKey;
+            }
+            String fkEntityType = SchemaWebAgent.getInstance().getBusinessConcept(fkEntity).getCorrespondTypeName();
+            List<ReusableType> subtypes = SchemaWebAgent.getInstance().getMySubtypes(fkEntityType, true);
+            
+            if(subtypes!=null&&subtypes.size()>0)isPolymForeignKey=true;
+
+        }
+        
+        return isPolymForeignKey;
+
+    }
 
     /**
      * DOC HSHU Comment method "getForeignKeyPolymTypeList".
