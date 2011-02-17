@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.itemsbrowser2.shared;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +65,7 @@ public class ViewBean implements Serializable {
 
     }
 
-    public ViewBean(String viewPK, String language) throws RemoteException, Exception {
+    public ViewBean(String viewPK, String language) {
         this.viewPK = viewPK;
         WSUtil.setWSView(viewPK);
         this.description = WSUtil.getDescription();
@@ -75,7 +74,7 @@ public class ViewBean implements Serializable {
         this.searchables = WSUtil.getSearchables(viewPK, language);
     }
 
-    public ViewBean(String viewPK) throws RemoteException, Exception {
+    public ViewBean(String viewPK) {
         this.viewPK = viewPK;
         WSUtil.setWSView(viewPK);
         this.description = WSUtil.getDescription();
