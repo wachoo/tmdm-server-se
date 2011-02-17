@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.talend.mdm.webapp.itemsbrowser2.server.util.WSUtil;
-
 /**
  * DOC HSHU class global comment. Detailled comment
  */
@@ -59,26 +57,6 @@ public class ViewBean implements Serializable {
         entity = viewName.substring(pos + 1);
         return entity;
 
-    }
-
-    public ViewBean() {
-
-    }
-
-    public ViewBean(String viewPK, String language) {
-        this.viewPK = viewPK;
-        WSUtil.setWSView(viewPK);
-        this.description = WSUtil.getDescription();
-        this.descriptionLocalized = WSUtil.getDescription().replaceAll(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", "$1");
-        this.viewables = WSUtil.getViewables();
-        this.searchables = WSUtil.getSearchables(viewPK, language);
-    }
-
-    public ViewBean(String viewPK) {
-        this.viewPK = viewPK;
-        WSUtil.setWSView(viewPK);
-        this.description = WSUtil.getDescription();
-        this.viewables = WSUtil.getViewables();
     }
 
     private String viewPK;
