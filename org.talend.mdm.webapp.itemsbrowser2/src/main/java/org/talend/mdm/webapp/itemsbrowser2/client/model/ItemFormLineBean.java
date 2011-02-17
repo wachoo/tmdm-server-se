@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
+
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.data.BaseModel;
@@ -33,8 +35,9 @@ public class ItemFormLineBean extends BaseModel {
      * 
      */
     private static final long serialVersionUID = 6830378208452308947L;
-
-    public static final String FIELD_TYPE_TEXTFIELD = "FIELD_TYPE_TEXTFIELD";
+    
+    public static final String FIELD_TYPE_STRING = "string";
+    public static final String FIELD_TYPE_URL = "URL";
 
     private String fieldType;
 
@@ -88,16 +91,28 @@ public class ItemFormLineBean extends BaseModel {
      */
     public Widget genField() {
 
-        Field field = null;
+        Widget field = null;
 
-        if (fieldType.equals(FIELD_TYPE_TEXTFIELD)) {
+        if (fieldType.equals(FIELD_TYPE_STRING)) {
             field = genTextField();
+        } else if (fieldType.equals(FIELD_TYPE_URL)) {
+        	field = getMapField();
         } else {
-
+        	field = genTextField();
         }
 
         return field;
 
+    }
+    class MyText extends TextField<String>{
+		
+	}
+    
+    private Field getMapField(){
+    	MapBean mapBean = new MapBean("URL", fieldValue);
+    	UrlField field = new UrlField(mapBean);
+    	field.setFieldLabel(fieldLabel);
+    	return field;
     }
 
     private TextField genTextField() {
