@@ -1427,6 +1427,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			if($('itemsSearchValue' + actulID).style.display == "inline")
 			{
 				searchValue = DWRUtil.getValue('itemsSearchValue' + actulID);
+				searchValue = searchValue.replace(/\[/g, "\\[");
+				searchValue = searchValue.replace(/\]/g, "\\]");
 			}
 			else if($('itemsForeignKeyValues' + actulID).style.display == "inline")
 			{
@@ -1437,7 +1439,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				   searchValue = fkField.el.dom.value;
 				   if(fkField.getValue().length > 0)
 				   {
-					   searchValue = fkField.getValue();
+					   searchValue = _criterias.length == 1 ? fkField.getValue().replace(/\[|\]/g, "") : fkField.getValue();
 				   }
 				   else if(searchValue == fkField.getTextOrg())
 				   {
