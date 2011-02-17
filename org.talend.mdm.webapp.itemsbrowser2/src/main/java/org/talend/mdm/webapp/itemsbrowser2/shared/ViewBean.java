@@ -62,6 +62,10 @@ public class ViewBean implements Serializable {
 
     }
 
+    public ViewBean() {
+
+    }
+
     public ViewBean(String viewPK, String language) throws RemoteException, Exception {
         this.viewPK = viewPK;
         WSUtil.setWSView(viewPK);
