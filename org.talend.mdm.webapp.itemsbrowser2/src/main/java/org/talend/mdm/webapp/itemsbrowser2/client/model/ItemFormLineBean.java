@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ComponentPlugin;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -85,7 +86,7 @@ public class ItemFormLineBean extends BaseModel {
     /**
      * DOC HSHU Comment method "genField".
      */
-    public Field genField() {
+    public Widget genField() {
 
         Field field = null;
 
