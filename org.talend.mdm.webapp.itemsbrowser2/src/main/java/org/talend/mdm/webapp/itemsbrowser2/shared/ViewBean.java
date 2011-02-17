@@ -22,17 +22,8 @@ import java.util.Map;
  */
 public class ViewBean implements Serializable {
 
-    private String viewName;
 
     private List<String> viewableXpaths;
-
-    public String getViewName() {
-        return viewName;
-    }
-
-    public void setViewName(String viewName) {
-        this.viewName = viewName;
-    }
 
     public List<String> getViewableXpaths() {
         return viewableXpaths;
