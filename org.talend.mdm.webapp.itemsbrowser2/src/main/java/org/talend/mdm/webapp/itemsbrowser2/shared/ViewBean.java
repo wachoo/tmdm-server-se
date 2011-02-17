@@ -13,19 +13,22 @@
 package org.talend.mdm.webapp.itemsbrowser2.shared;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.talend.mdm.webapp.itemsbrowser2.server.util.WSUtil;
 
 /**
- * DOC HSHU  class global comment. Detailled comment
+ * DOC HSHU class global comment. Detailled comment
  */
-public class ViewBean implements Serializable{
-    
+public class ViewBean implements Serializable {
+
     private String viewName;
-    
+
     private List<String> viewableXpaths;
-    
+
     public String getViewName() {
         return viewName;
     }
@@ -39,22 +42,110 @@ public class ViewBean implements Serializable{
     }
 
     public void addViewableXpath(String xpath) {
-        if(this.viewableXpaths==null)viewableXpaths=new ArrayList<String>();
+        if (this.viewableXpaths == null)
+            viewableXpaths = new ArrayList<String>();
         viewableXpaths.add(xpath);
     }
-    
+
     /**
      * DOC HSHU Comment method "getEntityNameFromViewName".
      */
     public static String getEntityFromViewName(String viewName) {
-        
-        String entity=null;
-        if(viewName==null)return entity;
-        
-        int pos=viewName.lastIndexOf("_");
-        entity=viewName.substring(pos+1);
+
+        String entity = null;
+        if (viewName == null)
+            return entity;
+
+        int pos = viewName.lastIndexOf("_");
+        entity = viewName.substring(pos + 1);
         return entity;
 
+    }
+
+    public ViewBean(String viewPK, String language) throws RemoteException, Exception {
+        this.viewPK = viewPK;
+        WSUtil.setWSView(viewPK);
+        this.description = WSUtil.getDescription();
+        this.descriptionLocalized = WSUtil.getDescription().replaceAll(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", "$1");
+        this.viewables = WSUtil.getViewables();
+        this.searchables = WSUtil.getSearchables(viewPK, language);
+    }
+
+    public ViewBean(String viewPK) throws RemoteException, Exception {
+        this.viewPK = viewPK;
+        WSUtil.setWSView(viewPK);
+        this.description = WSUtil.getDescription();
+        this.viewables = WSUtil.getViewables();
+    }
+
+    private String viewPK;
+
+    private String description;
+
+    private String descriptionLocalized;
+
+    private String[] viewables;
+
+    private Map<String, String> searchables;
+
+    private Map<String, ArrayList<String>> metaDataTypes;
+
+    private String[] keys;
+
+    public String[] getKeys() {
+        return keys;
+    }
+
+    public void setKeys(String[] keys) {
+        this.keys = keys;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Map<String, String> getSearchables() {
+        return searchables;
+    }
+
+    public void setSearchables(Map<String, String> searchables) {
+        this.searchables = searchables;
+    }
+
+    public Map<String, ArrayList<String>> getMetaDataTypes() {
+        return metaDataTypes;
+    }
+
+    public void setMetaDataTypes(Map<String, ArrayList<String>> metaDataTypes) {
+        this.metaDataTypes = metaDataTypes;
+    }
+
+    public String[] getViewables() {
+        return viewables;
+    }
+
+    public void setViewables(String[] viewables) {
+        this.viewables = viewables;
+    }
+
+    public String getViewPK() {
+        return viewPK;
+    }
+
+    public void setViewPK(String viewPK) {
+        this.viewPK = viewPK;
+    }
+
+    public String getDescriptionLocalized() {
+        return descriptionLocalized;
+    }
+
+    public void setDescriptionLocalized(String descriptionLocalized) {
+        this.descriptionLocalized = descriptionLocalized;
     }
 
 }
