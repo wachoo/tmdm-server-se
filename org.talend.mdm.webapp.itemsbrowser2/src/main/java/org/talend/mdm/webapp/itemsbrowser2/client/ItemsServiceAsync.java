@@ -17,7 +17,7 @@ public interface ItemsServiceAsync {
 
     void getEntityItems(String entityName, AsyncCallback<List<ItemBean>> callback);
 
-    void getView(String viewName, AsyncCallback<ViewBean> callback);
+    void getView(String viewPk, AsyncCallback<ViewBean> callback);
 
     void setForm(ItemBean item, AsyncCallback<ItemFormBean> callback);
 }

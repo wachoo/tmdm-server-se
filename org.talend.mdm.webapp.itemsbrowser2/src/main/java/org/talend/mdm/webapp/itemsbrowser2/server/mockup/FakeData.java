@@ -1,6 +1,8 @@
 package org.talend.mdm.webapp.itemsbrowser2.server.mockup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 
@@ -35,6 +37,21 @@ public class FakeData {
         "customer/id",
         "customer/name",
         "customer/mail"};
+    
+    private static final Map<String, String> customers_viewables_label = new HashMap<String, String>();
+    static {
+    	customers_viewables_label.put("customer/id", "ID identify");
+    	customers_viewables_label.put("customer/name", "Name");
+    	customers_viewables_label.put("customer/mail", "E-mail");
+    }
+    
+    private static final Map<String, String> customers_viewables_type = new HashMap<String, String>();
+    static {
+    	customers_viewables_type.put("customer/id", "decimal");
+    	customers_viewables_type.put("customer/name", "string");
+    	customers_viewables_type.put("customer/mail", "string");
+    }
+    
     
     private static final String[] states_viewables = new String[] {
         "state/id",
@@ -83,8 +100,9 @@ public class FakeData {
     }
 
     public static String[] getEntityViewables(String viewName) {
-        
-        if(viewName.equals("Browse_items_customer"))return customers_viewables;
+        if(viewName.equals("Browse_items_customer")){
+        	return customers_viewables;
+        }
         else if(viewName.equals("Browse_items_state"))return states_viewables;
         
         return null;

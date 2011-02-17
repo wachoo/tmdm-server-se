@@ -1,5 +1,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -13,11 +15,18 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
 import org.talend.mdm.webapp.itemsbrowser2.server.dwr.ItemsBrowser2DWR;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeCustomerConcept;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
+import org.talend.mdm.webapp.itemsbrowser2.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.XmlUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.ElementProcess;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FieldVerifier;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
+import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.dwr.CommonDWR;
+import com.amalto.webapp.util.webservices.WSGetView;
+import com.amalto.webapp.util.webservices.WSView;
+import com.amalto.webapp.util.webservices.WSViewPK;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
@@ -42,6 +51,10 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                 + userAgent;
     }
 
+    public ArrayList<ItemBean> getFakeCustomerItems() {
+    	return null;
+    }
+    
     /*
      * (non-Jsdoc)
      * 
@@ -61,19 +74,63 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     /**
      * DOC HSHU Comment method "getView".
      */
-    public ViewBean getView(String viewName) {
+    public ViewBean getView(String viewPk) {
         ViewBean viewBean = new ViewBean();
-        viewBean.setViewName(viewName);
+        viewBean.setViewPK(viewPk);
         // TODO mockup
-        if (viewName.equals(FakeData.DEFAULT_VIEW)) {
-
-            String[] viewables = FakeData.getEntityViewables(viewName);
+        if (viewPk.equals(FakeData.DEFAULT_VIEW)) {
+        	String[] viewables = null;
+        	if (GWT.isScript()){
+        		viewables = getViewables(viewPk, "en");
+        	} else {
+        		viewables = FakeData.getEntityViewables(viewPk);
+        	}
             for (String viewable : viewables) {
                 viewBean.addViewableXpath(viewable);
             }
-
         }
         return viewBean;
+    }
+    
+    public String[] getViewables(String viewPK, String language) {
+        try {
+        	WSView wsView = null;
+        	try{
+        		wsView = com.amalto.webapp.core.util.Util.getPort().getView(new WSGetView(new WSViewPK(viewPK)));
+        	} catch (Exception e){
+        		System.out.println(e.getMessage());
+        	}
+            String[] viewables = wsView.getViewableBusinessElements();
+            // TODO temp test
+            System.out.println(viewables.length);
+            String[] labelViewables = new String[viewables.length];
+            Configuration config = Configuration.getInstance();
+            HashMap<String, String> xpathToLabel = CommonDWR.getFieldsByDataModel(config.getModel(),
+                    CommonDWR.getConceptFromBrowseItemView(viewPK), language, true);
+            
+            for (int i = 0; i < viewables.length; i++) {
+                String labelViewable = "";
+                String path = viewables[i];
+                String label = xpathToLabel.get(viewables[i]);
+                if (label == null) {
+                    labelViewable = path;
+                } else {
+                    if (DynamicLabelUtil.isDynamicLabel(label)) {
+                        String field = com.amalto.webapp.core.util.Util.getFieldFromPath(path);// get field
+                        labelViewable = (field == null ? path : field);
+                    } else {
+                        labelViewable = label;
+                    }
+                }
+                labelViewables[i] = labelViewable;
+            }
+            return labelViewables;
+        } catch (Exception e) {
+        	e.printStackTrace();
+            LOG.error(e.getMessage(), e);
+            return null;
+        }
+
     }
 
     /**

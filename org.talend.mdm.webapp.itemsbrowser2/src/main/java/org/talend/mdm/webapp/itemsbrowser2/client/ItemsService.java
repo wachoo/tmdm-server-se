@@ -28,7 +28,7 @@ public interface ItemsService extends RemoteService {
     
     List<ItemBean> getEntityItems(String entityName);
     
-    ViewBean getView(String viewName);
+    ViewBean getView(String viewPk);
     
     ItemFormBean setForm(ItemBean item);
 }

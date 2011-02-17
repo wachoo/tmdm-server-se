@@ -94,7 +94,7 @@ public class ItemsController extends Controller {
     protected void onViewItems(final AppEvent event) {
         Log.info("Get items... ");
         ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
-        String entity=ViewBean.getEntityFromViewName(viewBean.getViewName());
+        String entity=ViewBean.getEntityFromViewName(viewBean.getViewPK());
         service.getEntityItems(entity, new AsyncCallback<List<ItemBean>>() {
             public void onSuccess(List<ItemBean> result) {
               AppEvent ae = new AppEvent(event.getType(), result);
