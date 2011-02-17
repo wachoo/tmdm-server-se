@@ -109,7 +109,7 @@ public class ItemFormLineBean extends BaseModel {
 	}
     
     private Field getMapField(){
-    	MapBean mapBean = new MapBean("URL", fieldValue);
+    	UrlBean mapBean = new UrlBean("URL", fieldValue);
     	UrlField field = new UrlField(mapBean);
     	field.setFieldLabel(fieldLabel);
     	return field;
