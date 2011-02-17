@@ -1,6 +1,6 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.MapBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.UrlBean;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.core.El;
@@ -20,7 +20,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
 
-public class UrlField extends Field<MapBean>{
+public class UrlField extends Field<UrlBean>{
 	protected El wrap = new El(DOM.createSpan());
 	protected El input = new El(DOM.createAnchor());
 	protected El handler = new El(DOM.createImg());
@@ -28,16 +28,16 @@ public class UrlField extends Field<MapBean>{
 	private EditWindow editWin = new EditWindow();
 	public UrlField(){}
 	
-	public UrlField(MapBean value){
-		propertyEditor = new PropertyEditor<MapBean>() {
+	public UrlField(UrlBean value){
+		propertyEditor = new PropertyEditor<UrlBean>() {
 			
 			@Override
-			public String getStringValue(MapBean value) {
+			public String getStringValue(UrlBean value) {
 				return value.toString();
 			}
 			
 			@Override
-			public MapBean convertStringValue(String value) {
+			public UrlBean convertStringValue(String value) {
 				return UrlField.this.value;
 			}
 		};
@@ -73,7 +73,7 @@ public class UrlField extends Field<MapBean>{
 	}-*/;
 	
 	@Override
-	public void setValue(MapBean value) {
+	public void setValue(UrlBean value) {
 		super.setValue(value);
 		input.dom.setAttribute("href", value.getAddress());
 		input.dom.setInnerText(value.getName());
@@ -86,7 +86,7 @@ public class UrlField extends Field<MapBean>{
 			public void componentSelected(ButtonEvent ce) {
 				Button button = ce.getButton();
 				if (button == saveButton){
-					MapBean value = UrlField.this.getValue();
+					UrlBean value = UrlField.this.getValue();
 					value.setName(firstName.getValue());
 					value.setAddress(url.getValue());
 					UrlField.this.setValue(value);
@@ -124,7 +124,7 @@ public class UrlField extends Field<MapBean>{
 			addButton(cancelButton);
 		}
 		
-		public void setValue(MapBean value){
+		public void setValue(UrlBean value){
 			firstName.setValue(value.getName());
 			url.setValue(value.getAddress());
 		}
