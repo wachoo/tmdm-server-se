@@ -5,8 +5,10 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -20,6 +22,10 @@ public interface ItemsServiceAsync {
 
     void setForm(ItemBean item, AsyncCallback<ItemFormBean> callback);
 
+	void queryItemBean(QueryModel config,
+			AsyncCallback<PagingLoadResult<ItemBean>> callback);
+
+	
     void getViewsList(String language, AsyncCallback<Map<String, String>> callback);
 
     void getView(String viewPk, AsyncCallback<ViewBean> callback);

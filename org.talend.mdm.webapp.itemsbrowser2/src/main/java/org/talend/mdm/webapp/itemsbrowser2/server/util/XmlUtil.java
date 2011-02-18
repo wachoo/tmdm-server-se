@@ -50,6 +50,8 @@ import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.DocumentCreate;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.ElementProcess;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.NodeProcess;
 
+import com.google.gwt.xml.client.NodeList;
+
 /**
  * DOC Starkey class global comment. Detailled comment
  */
@@ -359,4 +361,23 @@ public final class XmlUtil {
         return isValidated;
     }
 
+    public static String getTextValueFromXpath(Document doc, String xpath) {
+
+        //FIXME
+        String label="";
+        if(xpath.indexOf("/")!=-1)label=xpath.substring(xpath.lastIndexOf("/")+1);
+        Element elem=doc.getRootElement();
+        Iterator iter = elem.elementIterator();
+        while (iter.hasNext()){
+        	Element el = (Element) iter.next();
+        	if (el.getName().endsWith(label)){
+        		Element firstEl = (Element)elem.elements().get(0);
+        		return firstEl.getText();
+        	}
+        		
+        }
+        
+        return null;
+
+    }
 }
