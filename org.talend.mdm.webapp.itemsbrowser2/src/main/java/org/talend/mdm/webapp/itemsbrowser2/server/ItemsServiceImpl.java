@@ -16,6 +16,8 @@ import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.XmlHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.dwr.ItemsBrowser2DWR;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeCustomerConcept;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
@@ -23,7 +25,7 @@ import org.talend.mdm.webapp.itemsbrowser2.server.util.XmlUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.ElementProcess;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FieldVerifier;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
-
+import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
@@ -33,6 +35,9 @@ import com.amalto.webapp.util.webservices.WSView;
 import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSViewSearch;
 import com.amalto.webapp.util.webservices.WSWhereItem;
+import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
@@ -42,7 +47,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsService {
 
     private static final Logger LOG = Logger.getLogger(ItemsBrowser2DWR.class);
-
+    
     public String greetServer(String input) throws IllegalArgumentException {
         // Verify that the input is valid.
         if (!FieldVerifier.isValidName(input)) {
@@ -70,11 +75,11 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         List<ItemBean> items = null;
 
         if (entityName.equals("customer"))
-            if (Itemsbrowser2.IS_SCRIPT) {
-                items = getItemBeans("Browse_items_Agency");
-            } else {
-                items = FakeData.getFakeCustomerItems();
-            }
+        	if (Itemsbrowser2.IS_SCRIPT){
+        		items = (List<ItemBean>) getItemBeans("DStar", "Browse_items_Agency", "Agency FULLTEXTSEARCH *", 0, 20)[0];
+        	} else {
+        		items = FakeData.getFakeCustomerItems();
+        	}
 
         else if (entityName.equals("state"))
             items = FakeData.getFakeStateItems();
@@ -82,45 +87,66 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return items;
     }
 
-    private List<ItemBean> getItemBeans(String viewPk) {
+    private Object[] getItemBeans(String dataClusterPK, String viewPk, String criteria, int skip, int max) {
 
-        viewPk = "Browse_items_Agency";
+    	String sortDir = null;
+    	String sortCol = null;
+    	
+    	int totalSize = 0;
 
-        String sortDir = null;
-        String sortCol = null;
-        int max = 20;
-        int skip = 0;
+    	List<ItemBean> itemBeans = new ArrayList<ItemBean>();
+    	
+    	try {
+	    	WSWhereItem wi = com.amalto.webapp.core.util.Util.buildWhereItems(criteria);
+	
+	    	String[] results = com.amalto.webapp.core.util.Util.getPort().viewSearch(
+						new WSViewSearch(
+							new WSDataClusterPK(dataClusterPK),
+							new WSViewPK(viewPk),
+							wi,
+							-1,
+							skip,
+							max,
+							sortCol,
+							sortDir
+					)
+				).getStrings();
+	    	ViewBean viewBean = getView(FakeData.DEFAULT_VIEW);
+	    	for (int i = 0; i < results.length; i++) {
+	
+			   if(i == 0) {
+				   totalSize = Integer.parseInt(com.amalto.webapp.core.util.Util.parse(results[i]).
+					         getDocumentElement().getTextContent());
+			      continue;
+			   }
+	
+				//aiming modify when there is null value in fields, the viewable fields sequence is the same as the childlist of result
+				if(!results[i].startsWith("<result>")){
+					results[i]="<result>" + results[i] + "</result>";
+				}
+				ItemBean itemBean = new ItemBean("customer", String.valueOf(i), results[i]);
+				dynamicAssemble(itemBean, viewBean);
+				itemBeans.add(itemBean);
+	    	}
+    	} catch (Exception e){
+    		e.printStackTrace();
+    		LOG.error(e.getMessage(), e);
+    	}
+    	return new Object[]{itemBeans, totalSize};
 
-        List<ItemBean> itemBeans = new ArrayList<ItemBean>();
-
-        try {
-            WSWhereItem wi = com.amalto.webapp.core.util.Util.buildWhereItems("Agency FULLTEXTSEARCH *");
-
-            String[] results = com.amalto.webapp.core.util.Util.getPort().viewSearch(
-                    new WSViewSearch(new WSDataClusterPK("DStar"), new WSViewPK(viewPk), wi, -1, skip, max, sortCol, sortDir))
-                    .getStrings();
-
-            for (int i = 0; i < results.length; i++) {
-
-                if (i == 0) {
-                    continue;
-                }
-
-                // aiming modify when there is null value in fields, the viewable fields sequence is the same as the
-                // childlist of result
-                if (!results[i].startsWith("<result>")) {
-                    results[i] = "<result>" + results[i] + "</result>";
-                }
-                ItemBean itemBean = new ItemBean("customer", String.valueOf(i), results[i]);
-                itemBeans.add(itemBean);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOG.error(e.getMessage(), e);
-        }
-        return itemBeans;
     }
 
+    public void dynamicAssemble(ItemBean itemBean, ViewBean viewBean) throws DocumentException {
+        if (itemBean.getItemXml() != null) {
+            Document docXml = XmlUtil.parseText(itemBean.getItemXml());
+            List<String> viewables = viewBean.getViewableXpaths();
+            for (String viewable : viewables) {
+                String value = XmlUtil.getTextValueFromXpath(docXml, viewable);
+                itemBean.set(viewable, value);
+            }
+        }
+    }
+    
     /**
      * DOC HSHU Comment method "getView".
      */
@@ -190,6 +216,9 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     public ItemFormBean setForm(ItemBean item) {
 
         final ItemFormBean itemFormBean = new ItemFormBean();
+        if (item == null){
+        	return itemFormBean;
+        }
         itemFormBean.setName(item.getConcept() + " " + item.getIds());
 
         // get item
@@ -237,6 +266,15 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
         return itemFormBean;
     }
+
+	@Override
+	public PagingLoadResult<ItemBean> queryItemBean(QueryModel config) {
+		PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
+		Object[] result = getItemBeans(config.getDataClusterPK(), config.getViewPK(), config.getCriteria(), pagingLoad.getOffset(), pagingLoad.getLimit());
+		List<ItemBean> itemBeans = (List<ItemBean>) result[0];
+		int totalSize = (Integer) result[1];
+		return new BasePagingLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
+	}
 
     public Map<String, String> getViewsList(String language) {
         try {

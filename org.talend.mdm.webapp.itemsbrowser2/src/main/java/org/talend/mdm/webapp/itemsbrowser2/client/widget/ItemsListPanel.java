@@ -13,11 +13,20 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModel;
+import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -41,23 +50,39 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ItemsListPanel extends ContentPanel {
 
+	ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
+	
+	RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {  
+		@Override  
+		public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBean>> callback) {
+			QueryModel qm = new QueryModel();
+			qm.setDataClusterPK("DStar");
+			qm.setViewPK("Browse_items_Agency");
+			qm.setCriteria("Agency FULLTEXTSEARCH *");
+			qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
+			service.queryItemBean(qm, callback);
+		}  
+	}; 
+	PagingLoader<PagingLoadResult<ModelData>> loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);  
+	
+	final ListStore<ItemBean> store = new ListStore<ItemBean>(loader);  
+	
     private Grid<ItemBean> grid;
-
-    private ListStore<ItemBean> store;
-
-    private ItemsServiceAsync service = Registry.get(Itemsbrowser2.ITEMS_SERVICE);
+    private final static int PAGE_SIZE = 10;
+    PagingToolBar pagingBar = new PagingToolBar(PAGE_SIZE);  
 
     public ItemsListPanel() {
+    	pagingBar.bind(loader);
         setLayout(new FitLayout());
-
         setHeaderVisible(false);
-
+        this.setBottomComponent(pagingBar);
         addToolBar();
 
     }
@@ -141,8 +166,6 @@ public class ItemsListPanel extends ContentPanel {
 
         ColumnModel cm = new ColumnModel(columnConfigList);
 
-        store = new ListStore<ItemBean>();
-
         grid = new Grid<ItemBean>(store, cm);
         grid.getView().setForceFit(true);
         grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
@@ -157,6 +180,7 @@ public class ItemsListPanel extends ContentPanel {
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 ItemBean m = se.getSelectedItem();
                 showItem(m, ItemsView.TARGET_IN_SEARCH_TAB);
+
             }
         });
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {
@@ -166,6 +190,26 @@ public class ItemsListPanel extends ContentPanel {
                 showItem(item, ItemsView.TARGET_IN_NEW_TAB);
             }
         });
+	    grid.addListener(Events.Attach, new Listener<GridEvent<ItemBean>>() {  
+		      public void handleEvent(GridEvent<ItemBean> be) {  
+		        PagingLoadConfig config = new BasePagingLoadConfig();  
+		        config.setOffset(0);  
+		        config.setLimit(PAGE_SIZE);  
+		        Map<String, Object> state = grid.getState();  
+		        if (state.containsKey("offset")) {  
+		          int offset = (Integer)state.get("offset");  
+		          int limit = (Integer)state.get("limit");  
+		          config.setOffset(offset);  
+		          config.setLimit(limit);  
+		        }  
+		        if (state.containsKey("sortField")) {  
+		          config.setSortField((String)state.get("sortField"));  
+		          config.setSortDir(SortDir.valueOf((String)state.get("sortDir")));  
+		        }  
+		        loader.load(config);  
+		      }  
+	    }); 
+	    grid.setLoadMask(true);
 
         hookContextMenu();
 

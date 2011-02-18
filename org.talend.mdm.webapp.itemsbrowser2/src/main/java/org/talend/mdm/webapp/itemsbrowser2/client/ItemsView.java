@@ -107,7 +107,7 @@ public class ItemsView extends View {
         }
 
         itemsSearchContainer.getItemsListPanel().updateGrid(ccList);
-        Dispatcher.forwardEvent(ItemsEvents.ViewItems, null);
+        //Dispatcher.forwardEvent(ItemsEvents.ViewItems, null);
     }
 
     private String getViewLabelFromViewable(String xpath) {

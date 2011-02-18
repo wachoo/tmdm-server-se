@@ -5,8 +5,10 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -29,6 +31,8 @@ public interface ItemsService extends RemoteService {
 
     List<ItemBean> getEntityItems(String entityName);
 
+    PagingLoadResult<ItemBean> queryItemBean(final QueryModel config);
+    
     ViewBean getView(String viewPk);
 
     ItemFormBean setForm(ItemBean item);
