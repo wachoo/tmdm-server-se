@@ -1,6 +1,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
@@ -17,7 +18,9 @@ public interface ItemsServiceAsync {
 
     void getEntityItems(String entityName, AsyncCallback<List<ItemBean>> callback);
 
-    void getView(String viewPk, AsyncCallback<ViewBean> callback);
-
     void setForm(ItemBean item, AsyncCallback<ItemFormBean> callback);
+
+    void getViewsList(String language, AsyncCallback<Map<String, String>> callback);
+
+    void getView(String viewPk, AsyncCallback<ViewBean> callback);
 }

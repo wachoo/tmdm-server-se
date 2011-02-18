@@ -29,12 +29,15 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.DatePicker;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -46,7 +49,7 @@ public class SimpleCriterionPanel extends HorizontalPanel {
 
     private ComboBox<BaseModel> operatorComboBox;
 
-    private TextBox valueTextBox;
+    private TextField valueTextBox;
 
     private ComboBox<BaseModel> valueComboBox;
 
@@ -56,31 +59,22 @@ public class SimpleCriterionPanel extends HorizontalPanel {
 
     private Map<String, ArrayList<String>> itemsPredicates = new HashMap<String, ArrayList<String>>();
 
-    public SimpleCriterionPanel(final MultipleCriteriaPanel ancestor, final Panel parent, final ViewBean view) {
+    private ListStore<BaseModel> list = new ListStore<BaseModel>();
+
+    private ListStore<BaseModel> operatorlist = new ListStore<BaseModel>();
+
+    public SimpleCriterionPanel(final MultipleCriteriaPanel ancestor, final Panel parent) {
         super();
-        this.view = view;
         setSpacing(3);
 
-        if (view.getMetaDataTypes() != null)
-            for (String key : view.getMetaDataTypes().keySet()) {
-                itemsPredicates.put(key, view.getMetaDataTypes().get(key));
-            }
-
         keyComboBox = new ComboBox<BaseModel>();
-        ListStore<BaseModel> list = new ListStore<BaseModel>();
-        BaseModel fields = new BaseModel();
-        if (view.getSearchables() != null)
-            for (String key : view.getSearchables().keySet()) {
-                fields.set(key, view.getSearchables().get(key));
-            }
-        else
-            fields.set("", "");
-        list.add(fields);
+        keyComboBox.setDisplayField("name");
+        keyComboBox.setValueField("value");
         keyComboBox.setStore(list);
+        keyComboBox.setTriggerAction(TriggerAction.ALL);
 
         keyComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
-            @Override
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
                 // TODO Auto-generated method stub
                 adaptOperatorAndValue();
@@ -91,19 +85,21 @@ public class SimpleCriterionPanel extends HorizontalPanel {
         add(keyComboBox);
 
         operatorComboBox = new ComboBox<BaseModel>();
+        operatorComboBox.setStore(operatorlist);
         add(operatorComboBox);
 
-        valueTextBox = new TextBox();
+        valueTextBox = new TextField();
+        valueTextBox.setVisible(false);
         add(valueTextBox);
 
         valueComboBox = new ComboBox<BaseModel>();
         valueComboBox.setStore(getEmptyStore());
+        valueComboBox.setVisible(false);
         add(valueComboBox);
 
         valuePicker = new DatePicker();
+        valuePicker.setVisible(false);
         add(valuePicker);
-
-        adaptOperatorAndValue();
 
         if (ancestor != null)
             add(new Image(Icons.INSTANCE.remove()) {
@@ -124,7 +120,6 @@ public class SimpleCriterionPanel extends HorizontalPanel {
             Button searchBut = new Button("Search");
             searchBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                @Override
                 public void componentSelected(ButtonEvent ce) {
                     // TODO
                 }
@@ -136,9 +131,16 @@ public class SimpleCriterionPanel extends HorizontalPanel {
             Button advancedBut = new Button("Advanced Search");
             advancedBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                @Override
                 public void componentSelected(ButtonEvent ce) {
                     // TODO
+                    // show advanced Search panel
+                    Window winAdvanced = new Window();
+                    winAdvanced.setBodyBorder(false);
+                    winAdvanced.setFrame(false);
+                    winAdvanced.setLayout(new FitLayout());
+                    winAdvanced.setModal(true);
+                    winAdvanced.add(new AdvancedSearchPanel());
+                    winAdvanced.show();
                 }
 
             });
@@ -147,22 +149,50 @@ public class SimpleCriterionPanel extends HorizontalPanel {
 
     }
 
+    public void updateFields(ViewBean view) {
+        // field combobox
+        BaseModel field;
+        if (view.getSearchables() != null)
+            for (String key : view.getSearchables().keySet()) {
+                field = new BaseModel();
+                field.set("name", view.getSearchables().get(key));
+                field.set("value", key);
+                list.add(field);
+            }
+        else {
+            field = new BaseModel();
+            field.set("", "");
+            list.add(field);
+        }
+
+        if (view.getMetaDataTypes() != null)
+            for (String key : view.getMetaDataTypes().keySet()) {
+                itemsPredicates.put(key, view.getMetaDataTypes().get(key));
+            }
+
+        adaptOperatorAndValue();
+    }
+
     private void setOperatorComboBox(List<String> cons) {
-        ListStore<BaseModel> list = new ListStore<BaseModel>();
-        BaseModel fields = new BaseModel();
+        BaseModel field;
 
         for (String curOper : cons) {
-            fields.set(curOper, curOper);
+            field = new BaseModel();
+            field.set("name", curOper);
+            field.set("value", curOper);
+            operatorlist.add(field);
         }
-        list.add(fields);
+
+        operatorComboBox.setDisplayField("name");
+        operatorComboBox.setValueField("value");
         operatorComboBox.setStore(list);
+        operatorComboBox.setTriggerAction(TriggerAction.ALL);
     }
 
     private void adaptOperatorAndValue() {
         int delimeter = getKey().indexOf("/");
         if (delimeter == -1) {
-            String viewName = "Browse_items_Agency";
-            String conceptName = viewName.replaceAll("Browse_items_", "").replaceAll("/#.*/", "");
+            String conceptName = view.getViewPK();
 
             if (getKey().equals(conceptName)) {
                 setOperatorComboBox(Constants.fulltextOperators);
@@ -171,7 +201,7 @@ public class SimpleCriterionPanel extends HorizontalPanel {
             valueComboBox.setVisible(false);
             valuePicker.setVisible(false);
             valueTextBox.setVisible(true);
-            valueTextBox.setText("*");
+            valueTextBox.setValue("*");
             return;
         }
 
@@ -181,7 +211,7 @@ public class SimpleCriterionPanel extends HorizontalPanel {
             valueComboBox.setVisible(false);
             valuePicker.setVisible(false);
             valueTextBox.setVisible(true);
-            valueTextBox.setText("*");
+            valueTextBox.setValue("*");
         } else if (predicateValues == "xsd:date" || predicateValues == "xsd:time" || predicateValues == "xsd:dateTime") {
             setOperatorComboBox(Constants.dateOperators);
             valueComboBox.setVisible(false);
@@ -215,13 +245,13 @@ public class SimpleCriterionPanel extends HorizontalPanel {
             valueComboBox.setVisible(false);
             valuePicker.setVisible(false);
             valueTextBox.setVisible(true);
-            valueTextBox.setText("*");
+            valueTextBox.setValue("*");
         } else {
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(false);
             valuePicker.setVisible(false);
             valueTextBox.setVisible(true);
-            valueTextBox.setText("*");
+            valueTextBox.setValue("*");
         }
 
     }
@@ -246,7 +276,6 @@ public class SimpleCriterionPanel extends HorizontalPanel {
     // }
 
     private String getKey() {
-        // TODO
         return "Agency";
         // return keyComboBox.getSelectedText();
     }

@@ -1,6 +1,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
@@ -15,7 +16,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  */
 @RemoteServiceRelativePath("ItemsService")
 public interface ItemsService extends RemoteService {
-    
+
     public static class Util {
 
         public static ItemsServiceAsync getInstance() {
@@ -25,10 +26,12 @@ public interface ItemsService extends RemoteService {
     }
 
     String greetServer(String name) throws IllegalArgumentException;
-    
+
     List<ItemBean> getEntityItems(String entityName);
-    
+
     ViewBean getView(String viewPk);
-    
+
     ItemFormBean setForm(ItemBean item);
+
+    Map<String, String> getViewsList(String language);
 }

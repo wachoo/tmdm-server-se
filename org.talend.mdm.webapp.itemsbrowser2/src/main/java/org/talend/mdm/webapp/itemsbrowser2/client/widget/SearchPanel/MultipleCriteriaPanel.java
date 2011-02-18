@@ -18,13 +18,13 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -171,7 +171,8 @@ public class MultipleCriteriaPanel extends SimplePanel {
     }
 
     private SimpleCriterionPanel addSimpleCriterionPanel() {
-        final SimpleCriterionPanel newPanel = new SimpleCriterionPanel(MultipleCriteriaPanel.this, rightPanel, view);
+        final SimpleCriterionPanel newPanel = new SimpleCriterionPanel(MultipleCriteriaPanel.this, rightPanel);
+        newPanel.updateFields(view);
         final int index = (rightPanel.getWidgetCount() == 0 ? 0 : rightPanel.getWidgetCount() - 1);
         rightPanel.insert(newPanel, index);
         redraw();
