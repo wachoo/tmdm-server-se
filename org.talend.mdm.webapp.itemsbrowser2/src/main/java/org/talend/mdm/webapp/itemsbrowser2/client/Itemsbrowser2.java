@@ -9,6 +9,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -21,7 +22,7 @@ public class Itemsbrowser2 implements EntryPoint {
     
     public static final String USER_SESSION = "UserSession"; //$NON-NLS-1$
     
-    public static boolean IS_SCRIPT = true;
+    public static boolean IS_SCRIPT = GWT.isScript();
     
     /**
      * This is the entry point method.
