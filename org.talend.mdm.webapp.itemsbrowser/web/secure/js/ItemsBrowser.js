@@ -2500,6 +2500,25 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                                
                                displayItems.call(); 
                                 
+                               var url = "/itemsbrowser/secure/RefreshProperties?output_report=true&process=" + selectedProcess + "&id=" + tbDetail.treeIndex;    
+                               var panelID = "mimepanel" + tbDetail.treeIndex ;
+                               
+                               var mimepanel = new Ext.Panel( {   
+                               id : panelID,   
+                               title : "output_report of " + selectedProcess + " " + tbDetail.ids,
+                               closable:true,
+                               fitToFrame: true,                   
+                               html: '<iframe id="frame1" src=' + url+ ' frameborder="0" width="100%" height="100%"></iframe>'  
+                               });
+                               
+                               var tabPanel = amalto.core.getTabPanel();
+                               var contentPanel=tabPanel.getItem(panelID);
+                               if (contentPanel == undefined){
+                               	tabPanel.add(mimepanel);
+                               }
+                               tabPanel.show();
+                               tabPanel.doLayout();
+                               amalto.core.doLayout(); 
                            }else{
                            Ext.MessageBox.alert('Status', "Process failed! ");  
                            }

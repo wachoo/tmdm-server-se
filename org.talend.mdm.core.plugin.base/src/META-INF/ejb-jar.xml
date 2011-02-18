@@ -51,6 +51,20 @@
       </session>
 
       <session >
+         <description><![CDATA[Description for MIMEContentPlugin]]></description>
+         <display-name>Name for MIMEContentPlugin</display-name>
+
+         <ejb-name>MIMEContentPlugin</ejb-name>
+
+         <local-home>com.amalto.core.plugin.base.mimecontent.ejb.local.MIMEContentPluginLocalHome</local-home>
+         <local>com.amalto.core.plugin.base.mimecontent.ejb.local.MIMEContentPluginLocal</local>
+         <ejb-class>com.amalto.core.plugin.base.mimecontent.ejb.local.MIMEContentPluginSession</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+      </session>
+
+      <session >
          <description><![CDATA[Description for ProjectPlugin]]></description>
          <display-name>Name for ProjectPlugin</display-name>
 
@@ -396,6 +410,47 @@
       <method >
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
          <ejb-name>CodecPlugin</ejb-name>
+         <method-intf>LocalHome</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>MIMEContentPlugin</ejb-name>
+         <method-intf>Remote</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <role-name>administration</role-name>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>MIMEContentPlugin</ejb-name>
+         <method-intf>Home</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>MIMEContentPlugin</ejb-name>
+         <method-intf>Local</method-intf>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+      <unchecked/>
+      <method >
+         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <ejb-name>MIMEContentPlugin</ejb-name>
          <method-intf>LocalHome</method-intf>
          <method-name>*</method-name>
       </method>

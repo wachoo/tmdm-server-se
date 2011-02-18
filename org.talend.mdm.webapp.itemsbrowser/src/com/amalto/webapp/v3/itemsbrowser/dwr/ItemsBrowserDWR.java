@@ -157,8 +157,8 @@ public class ItemsBrowserDWR {
     private static final String DOC_STATUS_NEW = "DOC_STATUS_NEW"; //$NON-NLS-1$
 
     private static final String DOC_STATUS_EDIT = "DOC_STATUS_EDIT"; //$NON-NLS-1$
-    
-    private static final String AUTO_INCREMENT="(Auto)"; //$NON-NLS-1$
+
+    private static final String AUTO_INCREMENT = "(Auto)"; //$NON-NLS-1$
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "com.amalto.webapp.v3.itemsbrowser.dwr.messages", ItemsBrowserDWR.class.getClassLoader()); //$NON-NLS-1$
@@ -176,7 +176,7 @@ public class ItemsBrowserDWR {
      * @throws Exception
      */
     public Map<String, String> getViewsList(String language) throws RemoteException, Exception {
-       Configuration config = Configuration.getInstance(true);
+        Configuration config = Configuration.getInstance(true);
         String model = config.getModel();
         String dataCluster = config.getCluster();
 
@@ -194,7 +194,7 @@ public class ItemsBrowserDWR {
             bc.add(businessConcept[i]);
         }
         WSViewPK[] wsViewsPK = Util.getPort().getViewPKs(new WSGetViewPKs("Browse_items.*")).getWsViewPK(); //$NON-NLS-1$
-        
+
         TreeMap<String, String> views = new TreeMap<String, String>();
         Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL); //$NON-NLS-1$ //$NON-NLS-2$
         for (int i = 0; i < wsViewsPK.length; i++) {
@@ -220,7 +220,7 @@ public class ItemsBrowserDWR {
             View view = new View(viewPK, language);
             WSConceptKey key = Util.getPort().getBusinessConceptKey(
                     new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
-            
+
             String[] keys = key.getFields();
             keys = Arrays.copyOf(keys, keys.length);
             for (int i = 0; i < keys.length; i++) {
@@ -350,25 +350,25 @@ public class ItemsBrowserDWR {
             }
         }
     }
-    
-    
+
     /**
      * DOC HSHU Comment method "reloadItem".
-     * @throws Exception 
+     * 
+     * @throws Exception
      */
     public void reloadItem(String concept, String[] ids, int docIndex) throws Exception {
-        
+
         Configuration config = Configuration.getInstance();
         String dataClusterPK = config.getCluster();
-        
+
         WSItem wsItem = Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
         Document document = Util.parse(wsItem.getContent());
-        
+
         WebContext ctx = WebContextFactory.get();
         ctx.getSession().setAttribute("itemDocument" + docIndex + "_wsItem", wsItem);
         ctx.getSession().setAttribute("itemDocument" + docIndex, document);
         ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", document);
-        
+
     }
 
     /**
@@ -1348,7 +1348,7 @@ public class ItemsBrowserDWR {
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");
         ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization");
-        
+
         // TODO
 
         /*
@@ -1631,7 +1631,7 @@ public class ItemsBrowserDWR {
         WebContext ctx = WebContextFactory.get();
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
-        
+
         try {
 
             Util.getNodeList(d, idToXpath.get(id)).item(0).getParentNode()
@@ -2221,18 +2221,18 @@ public class ItemsBrowserDWR {
         return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey,
                 parseForeignKeyFilter(dataObject, fkFilter, docIndex, nodeId), true);
     }
-    
-    
+
     /**
      * DOC HSHU Comment method "isPolymForeignKey".
-     * @throws Exception 
+     * 
+     * @throws Exception
      */
     public boolean isPolymForeignKey(String xpathForeignKey) throws Exception {
-        
-        boolean isPolymForeignKey=false;
-        
+
+        boolean isPolymForeignKey = false;
+
         if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
-            
+
             if (xpathForeignKey.startsWith("/"))
                 xpathForeignKey = xpathForeignKey.substring(1);
             String fkEntity = "";
@@ -2243,11 +2243,12 @@ public class ItemsBrowserDWR {
             }
             String fkEntityType = SchemaWebAgent.getInstance().getBusinessConcept(fkEntity).getCorrespondTypeName();
             List<ReusableType> subtypes = SchemaWebAgent.getInstance().getMySubtypes(fkEntityType, true);
-            
-            if(subtypes!=null&&subtypes.size()>0)isPolymForeignKey=true;
+
+            if (subtypes != null && subtypes.size() > 0)
+                isPolymForeignKey = true;
 
         }
-        
+
         return isPolymForeignKey;
 
     }
@@ -3009,7 +3010,7 @@ public class ItemsBrowserDWR {
             // create updateReport
             LOG.info("Creating update-report for " + itemAlias + "'s action. ");
             String updateReport = createUpdateReport(ids, concept, "ACTION", null);
-            
+
             WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
             WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),
                     "text/xml; charset=utf-8");
@@ -3034,6 +3035,16 @@ public class ItemsBrowserDWR {
                 LOG.info("Executing transformer for " + itemAlias + "'s action. ");
                 WSTransformerContextPipelinePipelineItem[] entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2)
                         .getPipeline().getPipelineItem();
+                if (entries.length > 0) {
+                    WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
+                    if (item.getVariable().equals("output_report")) {
+                        byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
+                        WebContext ctx = WebContextFactory.get();
+                        ctx.getSession().setAttribute(transformerPK + docIndex, bytes);
+                        ctx.getSession().setAttribute(transformerPK + docIndex + "mimetype",
+                                item.getWsTypedContent().getContentType().getBytes());
+                    }
+                }
             } else {
                 // return false;
                 throw new Exception("The target process is not existed! ");
