@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="lib/z.saxon9-xqj.jar"/>
 	<classpathentry kind="lib" path="lib/z.saxon9-dom4j.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry kind="lib" path="lib/z.itext2.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
