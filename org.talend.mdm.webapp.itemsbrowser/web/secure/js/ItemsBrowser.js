@@ -2573,7 +2573,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						//reset ids
 						ids=ids1.join('.');
 					}					
-					if(!ids1 && ids1.length>0){
+					if(ids1 && ids1.length>0){
     				ItemsBrowserInterface.reloadItem(dataObject, ids1, treeIndex, function(){
                         reloadNode(node1.index,treeIndex);
                     });
