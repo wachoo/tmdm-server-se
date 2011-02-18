@@ -93,9 +93,9 @@ public class ItemFormLineBean extends BaseModel {
 
         Widget field = null;
 
-        if (fieldType.equals(FIELD_TYPE_TEXTFIELD)) {
+        if (FIELD_TYPE_TEXTFIELD.equals(fieldType)) {
             field = genTextField();
-        } else if (fieldType.equals(FIELD_TYPE_URL)) {
+        } else if (FIELD_TYPE_URL.equals(fieldType)) {
         	field = getMapField();
         } else {
         	field = genTextField();

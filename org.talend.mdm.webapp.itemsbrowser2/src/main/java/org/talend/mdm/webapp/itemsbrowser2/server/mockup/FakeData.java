@@ -18,11 +18,11 @@ public class FakeData {
     private static ArrayList<ItemBean> state_items = new ArrayList<ItemBean>();
     
     private static final String[] customers = new String[] {
-        "<customer><id>0</id><name>markboland05</name><mail>mark@example.com</mail><address>[0]</address></customer>",
-        "<customer><id>1</id><name>Hollie Voss</name><mail>hollie@example.com</mail><address>[1]</address></customer>",
-        "<customer><id>2</id><name>boticario</name><mail>boticario@example.com</mail><address>[2]</address></customer>",
-        "<customer><id>3</id><name>Emerson Milton</name><mail>healy@example.com</mail><address>[3]</address></customer>",
-        "<customer><id>4</id><name>Healy Colette</name><mail>emerson@example.com</mail><address>[4]</address></customer>"};
+        "<customer><id>0</id><name>markboland05</name><mail>mark@example.com</mail><address>[0]</address><url><![CDATA[http://maps.google.com/maps?q=39.364966,-74.43903&ll=39.364966,-74.43903&z=9]]></url></customer>",
+        "<customer><id>1</id><name>Hollie Voss</name><mail>hollie@example.com</mail><address>[1]</address><url><![CDATA[http://maps.google.com/maps?q=39.364966,-74.43903&ll=39.364966,-74.43903&z=9]]></url></customer>",
+        "<customer><id>2</id><name>boticario</name><mail>boticario@example.com</mail><address>[2]</address><url><![CDATA[http://maps.google.com/maps?q=39.364966,-74.43903&ll=39.364966,-74.43903&z=9]]></url></customer>",
+        "<customer><id>3</id><name>Emerson Milton</name><mail>healy@example.com</mail><address>[3]</address><url><![CDATA[http://maps.google.com/maps?q=39.364966,-74.43903&ll=39.364966,-74.43903&z=9]]></url></customer>",
+        "<customer><id>4</id><name>Healy Colette</name><mail>emerson@example.com</mail><address>[4]</address><url><![CDATA[http://maps.google.com/maps?q=39.364966,-74.43903&ll=39.364966,-74.43903&z=9]]></url></customer>"};
     
     private static final String[] states = new String[] {
         "<state><id>0</id><name>Alabama</name><desc>The Heart of Dixie</desc></state>",
@@ -36,22 +36,29 @@ public class FakeData {
     private static final String[] customers_viewables = new String[] {
         "customer/id",
         "customer/name",
-        "customer/mail"};
+        "customer/mail",
+        "customer/url"};
     
     private static final Map<String, String> customers_viewables_label = new HashMap<String, String>();
     static {
     	customers_viewables_label.put("customer/id", "ID identify");
     	customers_viewables_label.put("customer/name", "Name");
     	customers_viewables_label.put("customer/mail", "E-mail");
+    	customers_viewables_label.put("customer/url", "Url");
     }
     
     private static final Map<String, String> customers_viewables_type = new HashMap<String, String>();
     static {
-    	customers_viewables_type.put("customer/id", "decimal");
-    	customers_viewables_type.put("customer/name", "string");
-    	customers_viewables_type.put("customer/mail", "string");
+    	customers_viewables_type.put("id", "string");
+    	customers_viewables_type.put("name", "string");
+    	customers_viewables_type.put("mail", "string");
+    	customers_viewables_type.put("address", "string");
+    	customers_viewables_type.put("url", "URL");
     }
     
+    public static String getTypeByViewable(String viewable){
+    	return customers_viewables_type.get(viewable);
+    }
     
     private static final String[] states_viewables = new String[] {
         "state/id",
