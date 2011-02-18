@@ -13,7 +13,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Constants;
-import org.talend.mdm.webapp.itemsbrowser2.client.search.Icons;
+import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.BaseModel;

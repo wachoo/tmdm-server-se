@@ -11,7 +11,7 @@
 //
 // ============================================================================
 
-package org.talend.mdm.webapp.itemsbrowser2.client.search;
+package org.talend.mdm.webapp.itemsbrowser2.client.resources.icon;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
