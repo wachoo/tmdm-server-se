@@ -36,7 +36,7 @@ public class ItemFormLineBean extends BaseModel {
      */
     private static final long serialVersionUID = 6830378208452308947L;
     
-    public static final String FIELD_TYPE_STRING = "string";
+    public static final String FIELD_TYPE_TEXTFIELD = "string";
     public static final String FIELD_TYPE_URL = "URL";
 
     private String fieldType;
@@ -93,7 +93,7 @@ public class ItemFormLineBean extends BaseModel {
 
         Widget field = null;
 
-        if (fieldType.equals(FIELD_TYPE_STRING)) {
+        if (fieldType.equals(FIELD_TYPE_TEXTFIELD)) {
             field = genTextField();
         } else if (fieldType.equals(FIELD_TYPE_URL)) {
         	field = getMapField();
