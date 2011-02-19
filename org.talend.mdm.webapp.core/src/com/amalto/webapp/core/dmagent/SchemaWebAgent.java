@@ -14,7 +14,9 @@ package com.amalto.webapp.core.dmagent;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelBean;
@@ -292,6 +294,41 @@ public class SchemaWebAgent extends SchemaManager {
         }
 
         return revision;
+    }
+    
+    
+    /**
+     * DOC HSHU Comment method "getReferenceEntities".
+     * @throws Exception 
+     */
+    public List<String> getReferenceEntities(String entityName) throws Exception {
+        List<String> references=new ArrayList<String>();
+        DataModelID dataModelID = getMyDataModelTicket();
+        //check business concepts
+        List<BusinessConcept> businessConcepts = getBusinessConcepts(dataModelID);
+        for (BusinessConcept businessConcept : businessConcepts) {
+            if(!businessConcept.isParsed())businessConcept.load();
+            String bcName=businessConcept.getName();
+            Map<String, String> foreignKeyMap=businessConcept.getForeignKeyMap();
+            Collection<String> fkPaths = foreignKeyMap.values();
+            for (String fkPath : fkPaths) {
+        
+                if(isFkPoint2Entity(fkPath,entityName)) {
+                    if(!references.contains(bcName))references.add(bcName);
+                }
+                       
+            }
+        }
+        
+        return references;
+
+    }
+
+    private boolean isFkPoint2Entity(String fkPath,String entityName) {
+        if(fkPath==null||fkPath.length()==0)return false;
+        if(fkPath.startsWith("/"))fkPath=fkPath.substring(1);
+        if(fkPath.startsWith(entityName+"/")||fkPath.equals(entityName))return true;
+        else return false;
     }
 
 }

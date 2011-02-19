@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSModelGroup;
 import com.sun.xml.xsom.XSParticle;
 
 /**
@@ -28,6 +29,8 @@ import com.sun.xml.xsom.XSParticle;
 public class BusinessConcept {
     
     private static final boolean Lazy_Load = true;
+    
+    private boolean parsed = false;
 
     public static final String APPINFO_X_HIDE = "X_Hide";
 
@@ -36,6 +39,8 @@ public class BusinessConcept {
     public static final String APPINFO_X_DEFAULT_VALUE_RULE = "X_Default_Value_Rule";
 
     public static final String APPINFO_X_VISIBLE_RULE = "X_Visible_Rule";
+    
+    public static final String APPINFO_X_FOREIGNKEY = "X_ForeignKey";
 
     private XSElementDecl e;
 
@@ -46,6 +51,8 @@ public class BusinessConcept {
     private Map<String,String> defaultValueRulesMap;
     
     private Map<String,String> visibleRulesMap;
+    
+    private Map<String,String> foreignKeyMap;
 
     // TODO: translate it from technique to business logic
     // annotations{label,access rules,foreign keys,workflow,schematron,lookup fields...}
@@ -77,9 +84,16 @@ public class BusinessConcept {
      * DOC HSHU Comment method "load".
      */
     public void load() {
-        beforeLoad();
-        travelXSElement(getE(), "/" + getName());
-
+        if(!parsed) {
+            beforeLoad();
+            travelXSElement(getE(), "/" + getName());
+            parsed=true;
+        }
+    }
+    
+    
+    public boolean isParsed() {
+        return parsed;
     }
 
     /**
@@ -90,6 +104,7 @@ public class BusinessConcept {
         //prepare map
         defaultValueRulesMap=new HashMap<String, String>();
         visibleRulesMap=new HashMap<String, String>();
+        foreignKeyMap=new HashMap<String, String>();
     }
     
     
@@ -101,6 +116,11 @@ public class BusinessConcept {
     
     public Map<String, String> getVisibleRulesMap() {
         return visibleRulesMap;
+    }
+    
+    
+    public Map<String, String> getForeignKeyMap() {
+        return foreignKeyMap;
     }
 
     /**
@@ -115,11 +135,14 @@ public class BusinessConcept {
             parseAnnotation(currentXPath, e);
 
             if (e.getType().isComplexType()) {
-                XSParticle[] subParticles = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup().getChildren();
-                if (subParticles != null) {
-                    for (int i = 0; i < subParticles.length; i++) {
-                        XSParticle xsParticle = subParticles[i];
-                        travelParticle(xsParticle,currentXPath);
+                XSModelGroup group=e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup();
+                if(group!=null) {
+                    XSParticle[] subParticles = group.getChildren();
+                    if (subParticles != null) {
+                        for (int i = 0; i < subParticles.length; i++) {
+                            XSParticle xsParticle = subParticles[i];
+                            travelParticle(xsParticle,currentXPath);
+                        }
                     }
                 }
             }
@@ -155,6 +178,10 @@ public class BusinessConcept {
                             defaultValueRulesMap.put(currentXPath, appinfoSourceValue);
                         } else if (appinfoSource.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
                             visibleRulesMap.put(currentXPath, appinfoSourceValue);
+                        } else if (appinfoSource.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
+                            visibleRulesMap.put(currentXPath, appinfoSourceValue);
+                        } else if (appinfoSource.equals(BusinessConcept.APPINFO_X_FOREIGNKEY)) {
+                            foreignKeyMap.put(currentXPath, appinfoSourceValue);
                         }
                     }
 
