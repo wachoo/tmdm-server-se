@@ -23,6 +23,9 @@ public class RefreshPropertiesServlet extends HttpServlet {
                 String id = req.getParameter("id");
                 byte[] mimecontbytes = (byte[]) req.getSession().getAttribute(process + id);
                 byte[] mimetypebytes = (byte[]) req.getSession().getAttribute(process + id + "mimetype");
+                if (mimecontbytes == null || mimetypebytes == null) {
+                    return;
+                }
                 String mimetype = new String(mimetypebytes);
                 mimetype = mimetype.split(";")[0];
                 resp.setContentType(mimetype);
