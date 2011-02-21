@@ -12,12 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
-import java.io.Serializable;
-
 /**
  * DOC Administrator class global comment. Detailled comment
  */
-public class SimpleCriterion implements Criteria, Serializable {
+public class SimpleCriterion implements Criteria {
 
     /**
      * 
@@ -30,6 +28,10 @@ public class SimpleCriterion implements Criteria, Serializable {
 
     private String value;
 
+    public SimpleCriterion() {
+        super();
+    }
+
     public SimpleCriterion(String key, String operator, String value) {
         super();
         this.key = key;
@@ -38,7 +40,7 @@ public class SimpleCriterion implements Criteria, Serializable {
     }
 
     public String toString() {
-        return key + "" + operator + "" + value;
+        return key + " " + operator + " " + value;
     }
 
     public String getKey() {

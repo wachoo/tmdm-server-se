@@ -43,3 +43,19 @@
 .x-menu-item {
     padding: 3px 21px 3px 27px !important;
 }
+
+.separation-left {
+    border: solid #3287B9;
+    border-right-width: 0px;
+    border-left-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+}
+
+.separation-right {
+    border: solid #3287B9;
+    border-right-width: 1px;
+    border-left-width: 0px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+}

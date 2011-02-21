@@ -14,7 +14,9 @@ package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * DOC stephane class global comment. Detailled comment
@@ -28,19 +30,51 @@ public class Constants implements Serializable {
 
     public static List<String> groupOperators = Arrays.asList(new String[] { "and", "or" });
 
-    public static List<String> fullOperators = Arrays.asList(new String[] { "contains the word(s)", "is equal to",
-            "is not equal to", "is greater than", "is greater or equals", "is lower than", "is lower or equals",
-            "contains a word starting with", "contains the sentence" });
+    public static Map<String, String> fullOperators = new HashMap<String, String>();
 
-    public static List<String> fulltextOperators = Arrays.asList(new String[] { "Full text search" });
+    public static Map<String, String> fulltextOperators = new HashMap<String, String>();
 
-    public static List<String> dateOperators = Arrays.asList(new String[] { "equals", "is before", "is after" });
+    public static Map<String, String> dateOperators = new HashMap<String, String>();
 
-    public static List<String> numOperators = Arrays.asList(new String[] { "is equal to", "is not equal to", "is greater than",
-            "is greater or equals", "is lower than", "is lower or equals" });
+    public static Map<String, String> numOperators = new HashMap<String, String>();
 
-    public static List<String> booleanOperators = Arrays.asList(new String[] { "is equal to true", "is equal to false" });
+    public static Map<String, String> booleanOperators = new HashMap<String, String>();
 
-    public static List<String> enumOperators = Arrays.asList(new String[] { "is equal to", "is lower than", "is greater than",
-            "is lower or equals", "is greater or equals" });
+    public static Map<String, String> enumOperators = new HashMap<String, String>();
+
+    static {
+
+        fullOperators.put("CONTAINS", "contains the word(s)");
+        fullOperators.put("EQUALS", "is equal to");
+        fullOperators.put("NOT_EQUALS", "is not equal to");
+        fullOperators.put("GREATER_THAN", "is greater than");
+        fullOperators.put("GREATER_THAN_OR_EQUAL", "is greater or equals");
+        fullOperators.put("LOWER_THAN", "is lower than");
+        fullOperators.put("LOWER_THAN_OR_EQUAL", "is lower or equals");
+        fullOperators.put("STARTSWITH", "contains a word starting with");
+        fullOperators.put("STRICTCONTAINS", "contains the sentence");
+
+        fulltextOperators.put("FULLTEXTSEARCH", "Full text search");
+
+        dateOperators.put("EQUALS", "equals");
+        dateOperators.put("LOWER_THAN", "is before");
+        dateOperators.put("GREATER_THAN", "is after");
+
+        numOperators.put("EQUALS", "is equal to");
+        numOperators.put("NOT_EQUALS", "is not equal to");
+        numOperators.put("GREATER_THAN", "is greater than");
+        numOperators.put("GREATER_THAN_OR_EQUAL", "is greater or equals");
+        numOperators.put("LOWER_THAN", "is lower than");
+        numOperators.put("LOWER_THAN_OR_EQUAL", "is lower or equals");
+
+        booleanOperators.put("EQUALSTRUE", "is equal to true");
+        booleanOperators.put("EQUALSFALSE", "is equal to false");
+
+        enumOperators.put("EQUALS", "is equal to");
+        enumOperators.put("LOWER_THAN", "is lower than");
+        enumOperators.put("GREATER_THAN", "is greater than");
+        enumOperators.put("LOWER_THAN_OR_EQUAL", "is lower or equals");
+        enumOperators.put("GREATER_THAN_OR_EQUAL", "is greater or equals");
+    }
+
 }

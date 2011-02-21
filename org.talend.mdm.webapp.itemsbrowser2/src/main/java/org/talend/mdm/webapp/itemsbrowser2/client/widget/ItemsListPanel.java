@@ -14,11 +14,11 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -40,6 +41,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -57,29 +59,42 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ItemsListPanel extends ContentPanel {
 
-	ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
-	
-	RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {  
-		@Override  
-		public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBean>> callback) {
-			QueryModel qm = new QueryModel();
-			qm.setDataClusterPK("DStar");
-			qm.setViewPK("Browse_items_Agency");
-			qm.setCriteria("Agency FULLTEXTSEARCH *");
-			qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
-			service.queryItemBean(qm, callback);
-		}  
-	}; 
-	PagingLoader<PagingLoadResult<ModelData>> loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);  
-	
-	final ListStore<ItemBean> store = new ListStore<ItemBean>(loader);  
-	
+    private QueryModel qm = null;
+
+    private ItemsListPanel instance = this;
+
+    ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
+
+    RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
+
+        @Override
+        public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBean>> callback) {
+            /*
+             * QueryModel qm = new QueryModel(); qm.setDataClusterPK("DStar"); qm.setViewPK("Browse_items_Agency");
+             * qm.setCriteria("Agency FULLTEXTSEARCH *");
+             */
+            QueryModel qm = instance.getQueryModel();
+            qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
+            service.queryItemBean(qm, callback);
+        }
+    };
+
+    PagingLoader<PagingLoadResult<ModelData>> loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
+
+    final ListStore<ItemBean> store = new ListStore<ItemBean>(loader);
+
     private Grid<ItemBean> grid;
+
     private final static int PAGE_SIZE = 10;
-    PagingToolBar pagingBar = new PagingToolBar(PAGE_SIZE);  
+
+    PagingToolBar pagingBar = new PagingToolBar(PAGE_SIZE);
+
+    final Button searchBut = new Button("Search");
+
+    final Button advancedBut = new Button("Advanced Search");
 
     public ItemsListPanel() {
-    	pagingBar.bind(loader);
+        pagingBar.bind(loader);
         setLayout(new FitLayout());
         setHeaderVisible(false);
         this.setBottomComponent(pagingBar);
@@ -103,6 +118,7 @@ public class ItemsListPanel extends ContentPanel {
         HorizontalPanel entityPanel = new HorizontalPanel();
         final ListStore<BaseModel> list = new ListStore<BaseModel>();
         ComboBox<BaseModel> entityCombo = new ComboBox<BaseModel>();
+        entityCombo.setWidth(100);
         entityCombo.setEmptyText("Select an Entity...");
         entityCombo.setStore(list);
         entityCombo.setDisplayField("name");
@@ -115,6 +131,7 @@ public class ItemsListPanel extends ContentPanel {
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
+                instance.getQueryModel().setViewPK(se.getSelectedItem().get("value").toString());
                 // TODO Auto-generated method stub
                 service.getView(se.getSelectedItem().get("value").toString(), new AsyncCallback<ViewBean>() {
 
@@ -126,6 +143,8 @@ public class ItemsListPanel extends ContentPanel {
                     public void onSuccess(ViewBean arg0) {
                         // TODO Auto-generated method stub
                         simplePanel.updateFields(arg0);
+                        searchBut.setEnabled(true);
+                        advancedBut.setEnabled(true);
                     }
 
                 });
@@ -136,6 +155,62 @@ public class ItemsListPanel extends ContentPanel {
         toolBar.add(entityPanel);
 
         toolBar.add(simplePanel);
+
+        // add simple search button
+        searchBut.setEnabled(false);
+        searchBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            public void componentSelected(ButtonEvent ce) {
+                // TODO
+                instance.getQueryModel().setCriteria(simplePanel.getCriterion());
+                PagingLoadConfig config = new BasePagingLoadConfig();
+                config.setOffset(0);
+                config.setLimit(PAGE_SIZE);
+                loader.load(config);
+            }
+
+        });
+        toolBar.add(searchBut);
+
+        // add advanced search button
+        advancedBut.setEnabled(false);
+        advancedBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            public void componentSelected(ButtonEvent ce) {
+                // show advanced Search panel
+                final Window winAdvanced = new Window();
+                winAdvanced.setBodyBorder(false);
+                winAdvanced.setClosable(false);
+                winAdvanced.setModal(true);
+                winAdvanced.setWidth(450);
+                AdvancedSearchPanel advancedSearch = new AdvancedSearchPanel(simplePanel.getView());
+
+                winAdvanced.add(advancedSearch);
+                Button searchBtn = new Button("Search");
+                searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                    public void componentSelected(ButtonEvent ce) {
+                        // TODO Auto-generated method stub
+                        winAdvanced.close();
+                    }
+
+                });
+                winAdvanced.addButton(searchBtn);
+
+                Button cancelBtn = new Button("Cancel");
+                cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                    public void componentSelected(ButtonEvent ce) {
+                        winAdvanced.close();
+                    }
+
+                });
+                winAdvanced.addButton(cancelBtn);
+                winAdvanced.show();
+            }
+
+        });
+        toolBar.add(advancedBut);
 
         service.getViewsList("en", new AsyncCallback<Map<String, String>>() {
 
@@ -190,26 +265,27 @@ public class ItemsListPanel extends ContentPanel {
                 showItem(item, ItemsView.TARGET_IN_NEW_TAB);
             }
         });
-	    grid.addListener(Events.Attach, new Listener<GridEvent<ItemBean>>() {  
-		      public void handleEvent(GridEvent<ItemBean> be) {  
-		        PagingLoadConfig config = new BasePagingLoadConfig();  
-		        config.setOffset(0);  
-		        config.setLimit(PAGE_SIZE);  
-		        Map<String, Object> state = grid.getState();  
-		        if (state.containsKey("offset")) {  
-		          int offset = (Integer)state.get("offset");  
-		          int limit = (Integer)state.get("limit");  
-		          config.setOffset(offset);  
-		          config.setLimit(limit);  
-		        }  
-		        if (state.containsKey("sortField")) {  
-		          config.setSortField((String)state.get("sortField"));  
-		          config.setSortDir(SortDir.valueOf((String)state.get("sortDir")));  
-		        }  
-		        loader.load(config);  
-		      }  
-	    }); 
-	    grid.setLoadMask(true);
+        grid.addListener(Events.Attach, new Listener<GridEvent<ItemBean>>() {
+
+            public void handleEvent(GridEvent<ItemBean> be) {
+                // PagingLoadConfig config = new BasePagingLoadConfig();
+                // config.setOffset(0);
+                // config.setLimit(PAGE_SIZE);
+                // Map<String, Object> state = grid.getState();
+                // if (state.containsKey("offset")) {
+                // int offset = (Integer) state.get("offset");
+                // int limit = (Integer) state.get("limit");
+                // config.setOffset(offset);
+                // config.setLimit(limit);
+                // }
+                // if (state.containsKey("sortField")) {
+                // config.setSortField((String) state.get("sortField"));
+                // config.setSortDir(SortDir.valueOf((String) state.get("sortDir")));
+                // }
+                // loader.load(config);
+            }
+        });
+        grid.setLoadMask(true);
 
         hookContextMenu();
 
@@ -276,5 +352,18 @@ public class ItemsListPanel extends ContentPanel {
         field.set("value", "Created On");
         list.add(field);
         return list;
+    }
+
+    public void setQueryModel(QueryModel qm) {
+        this.qm = qm;
+    }
+
+    public QueryModel getQueryModel() {
+        if (this.qm == null) {
+            this.qm = new QueryModel();
+            // TODO how to get DStar
+            this.qm.setDataClusterPK("DStar");
+        }
+        return this.qm;
     }
 }

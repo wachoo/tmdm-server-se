@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Constants;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -106,20 +107,21 @@ public class MultipleCriteriaPanel extends SimplePanel {
     private Panel getOperatorPanel() {
         Panel toReturn = new SimplePanel();
 
-        operatorComboBox = new ComboBox() {
+        operatorComboBox = new ComboBox();
+        ListStore<BaseModel> list = new ListStore<BaseModel>();
+        BaseModel field = null;
 
-            {
-                ListStore<BaseModel> list = new ListStore<BaseModel>();
-                BaseModel fields = new BaseModel();
+        for (String curOper : Constants.groupOperators) {
+            field = new BaseModel();
+            field.set("name", curOper);
+            field.set("value", curOper);
+            list.add(field);
+        }
 
-                for (String curOper : Constants.groupOperators) {
-                    fields.set(curOper, curOper);
-                }
-                list.add(fields);
-                operatorComboBox.setStore(list);
-                setWidth("75px");
-            }
-        };
+        operatorComboBox.setDisplayField("name");
+        operatorComboBox.setValueField("value");
+        operatorComboBox.setStore(list);
+        operatorComboBox.setWidth("75px");
         toReturn.add(operatorComboBox);
         toReturn.setWidth("80px");
         return toReturn;
@@ -202,22 +204,22 @@ public class MultipleCriteriaPanel extends SimplePanel {
         rightPanel.remove(toRemove);
     }
 
-    // public MultipleCriteria getCriteria() {
-    // MultipleCriteria toReturn = new MultipleCriteria(operatorComboBox.getValue(operatorComboBox.getSelectedIndex()));
-    //
-    // for (int i = 0; i < rightPanel.getWidgetCount(); i++) {
-    // Widget widget = rightPanel.getWidget(i);
-    // if (widget instanceof SimpleCriterionPanel) {
-    // SimpleCriterionPanel criterionPanel = (SimpleCriterionPanel) widget;
-    // toReturn.add(criterionPanel.getCriterion());
-    // } else if (widget instanceof MultipleCriteriaPanel) {
-    // MultipleCriteriaPanel filterPanel = (MultipleCriteriaPanel) widget;
-    // toReturn.add(filterPanel.getCriteria());
-    // }
-    // }
-    //
-    // return toReturn;
-    // }
+    public MultipleCriteria getCriteria() {
+        MultipleCriteria toReturn = new MultipleCriteria(operatorComboBox.getValue().get("value").toString());
+
+        for (int i = 0; i < rightPanel.getWidgetCount(); i++) {
+            Widget widget = rightPanel.getWidget(i);
+            if (widget instanceof SimpleCriterionPanel) {
+                SimpleCriterionPanel criterionPanel = (SimpleCriterionPanel) widget;
+                toReturn.add(criterionPanel.getCriterion());
+            } else if (widget instanceof MultipleCriteriaPanel) {
+                MultipleCriteriaPanel filterPanel = (MultipleCriteriaPanel) widget;
+                toReturn.add(filterPanel.getCriteria());
+            }
+        }
+
+        return toReturn;
+    }
 
     public void clear() {
         for (int i = 0; i < rightPanel.getWidgetCount(); i++) {

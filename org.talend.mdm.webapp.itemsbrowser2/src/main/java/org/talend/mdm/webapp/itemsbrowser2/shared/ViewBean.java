@@ -22,7 +22,6 @@ import java.util.Map;
  */
 public class ViewBean implements Serializable {
 
-
     private List<String> viewableXpaths;
 
     public List<String> getViewableXpaths() {
@@ -60,7 +59,7 @@ public class ViewBean implements Serializable {
 
     private Map<String, String> searchables;
 
-    private Map<String, ArrayList<String>> metaDataTypes;
+    private Map<String, String> metaDataTypes;
 
     private String[] keys;
 
@@ -88,11 +87,11 @@ public class ViewBean implements Serializable {
         this.searchables = searchables;
     }
 
-    public Map<String, ArrayList<String>> getMetaDataTypes() {
+    public Map<String, String> getMetaDataTypes() {
         return metaDataTypes;
     }
 
-    public void setMetaDataTypes(Map<String, ArrayList<String>> metaDataTypes) {
+    public void setMetaDataTypes(Map<String, String> metaDataTypes) {
         this.metaDataTypes = metaDataTypes;
     }
 

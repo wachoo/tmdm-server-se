@@ -20,9 +20,18 @@ import java.util.List;
  */
 public class MultipleCriteria implements Criteria {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     private String operator;
 
     private List<Criteria> children = new ArrayList<Criteria>();
+
+    public MultipleCriteria() {
+        super();
+    }
 
     public MultipleCriteria(String operator) {
         super();

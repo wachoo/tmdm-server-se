@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -16,12 +16,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -44,20 +48,31 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.SAXValidator;
 import org.dom4j.io.XMLWriter;
 import org.dom4j.util.XMLErrorHandler;
-import org.talend.mdm.webapp.itemsbrowser2.server.dwr.ItemsBrowser2DWR;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.AttributeProcess;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.DocumentCreate;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.ElementProcess;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.NodeProcess;
+import org.xml.sax.SAXException;
 
-import com.google.gwt.xml.client.NodeList;
+import com.sun.xml.xsom.XSAnnotation;
+import com.sun.xml.xsom.XSComplexType;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSSchema;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.parser.XSOMParser;
+import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
 /**
  * DOC Starkey class global comment. Detailled comment
  */
 public final class XmlUtil {
 
-    private static final Logger logger = Logger.getLogger(ItemsBrowser2DWR.class);
+    private static final Logger logger = Logger.getLogger(XmlUtil.class);
+
+    private static Map<String, String> xpathToLabel = new HashMap<String, String>();
+
+    private static Map<String, String> xpathToType = new HashMap<String, String>();
 
     public static Document parse(URL url) throws DocumentException {
         SAXReader reader = new SAXReader();
@@ -83,11 +98,11 @@ public final class XmlUtil {
         Document document = parse(is);
         return document;
     }
-    
-    
+
     /**
      * DOC HSHU Comment method "parse".
-     * @throws DocumentException 
+     * 
+     * @throws DocumentException
      */
     public static Document parseText(String text) throws DocumentException {
         return DocumentHelper.parseText(text);
@@ -363,21 +378,145 @@ public final class XmlUtil {
 
     public static String getTextValueFromXpath(Document doc, String xpath) {
 
-        //FIXME
-        String label="";
-        if(xpath.indexOf("/")!=-1)label=xpath.substring(xpath.lastIndexOf("/")+1);
-        Element elem=doc.getRootElement();
+        // FIXME
+        String label = "";
+        if (xpath.indexOf("/") != -1)
+            label = xpath.substring(xpath.lastIndexOf("/") + 1);
+        Element elem = doc.getRootElement();
         Iterator iter = elem.elementIterator();
-        while (iter.hasNext()){
-        	Element el = (Element) iter.next();
-        	if (el.getName().endsWith(label)){
-        		Element firstEl = (Element)elem.elements().get(0);
-        		return firstEl.getText();
-        	}
-        		
+        while (iter.hasNext()) {
+            Element el = (Element) iter.next();
+            if (el.getName().endsWith(label)) {
+                Element firstEl = (Element) elem.elements().get(0);
+                return firstEl.getText();
+            }
+
         }
-        
+
         return null;
 
+    }
+
+    private static String getLabel(XSElementDecl xsed, String x_Label) {
+        String label = "";
+        try {
+            XSAnnotation xsa = xsed.getAnnotation();
+
+            org.w3c.dom.Element elem = (org.w3c.dom.Element) xsa.getAnnotation();
+            if (elem != null) {
+                org.w3c.dom.NodeList list = elem.getChildNodes();
+                for (int k = 0; k < list.getLength(); k++) {
+                    if ("appinfo".equals(list.item(k).getLocalName())) {
+                        org.w3c.dom.Node source = list.item(k).getAttributes().getNamedItem("source");
+                        if (source == null)
+                            continue;
+                        String appinfoSource = source.getNodeValue();
+                        if (x_Label.equals(appinfoSource)) {
+                            label = list.item(k).getFirstChild().getNodeValue();
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return "";
+        }
+        return label;
+    }
+
+    private static void getChildren(XSParticle xsp, String xpathParent, String x_Label, boolean includeComplex,
+            boolean includeFKReference) {
+        // aiming added see 0009563
+        if (xsp.getTerm().asModelGroup() != null) { // is complex type
+            XSParticle[] xsps = xsp.getTerm().asModelGroup().getChildren();
+            for (int i = 0; i < xsps.length; i++) {
+                getChildren(xsps[i], xpathParent, x_Label, includeComplex, includeFKReference);
+            }
+        }
+        if (xsp.getTerm().asElementDecl() == null)
+            return;
+        // end
+        if (xsp.getTerm().asElementDecl().getType().isComplexType() == false || includeComplex == true) {
+            // Hidden the NO_ACCESS elment
+
+            // TODO getroles
+            // if (isElementHidden(xsp)) {
+            // return;
+            // }
+
+            String toPutKey = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
+            if (includeFKReference) {
+                String foreignkeyPath = getLabel(xsp.getTerm().asElementDecl(), "X_ForeignKey");
+                if (foreignkeyPath != null)
+                    toPutKey += "@FK_" + foreignkeyPath;
+            }
+
+            // FIXME:USE XPATH WITHOUT CONCEPT AS LABEL, MAYBE CAUSE SOME BUGS ON OLD INVOKING PLACES
+            String xlabel = "";
+            if (getLabel(xsp.getTerm().asElementDecl(), x_Label).equals("")) {
+                xlabel = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
+                if (xlabel.indexOf("/") != -1) {
+                    xlabel = xlabel.substring(xlabel.indexOf("/") + 1);
+                }
+            } else {
+                xlabel = getLabel(xsp.getTerm().asElementDecl(), x_Label);
+            }
+
+            xpathToLabel.put(toPutKey, xlabel);
+            xpathToType.put(toPutKey, xsp.getTerm().asElementDecl().getType().getName());
+        }
+        if (xsp.getTerm().asElementDecl().getType().isComplexType() == true) {
+            XSParticle particle = xsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
+            if (particle != null) {
+                XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
+                for (int i = 0; i < xsps.length; i++) {
+                    getChildren(xsps[i], xpathParent + "/" + xsp.getTerm().asElementDecl().getName(), x_Label, includeComplex,
+                            includeFKReference);
+                }
+            }
+        }
+    }
+
+    public static void parseXSD(String xsd, String viewPk) {
+        try {
+            XSOMParser reader = new XSOMParser();
+            reader.setAnnotationParser(new DomAnnotationParserFactory());
+
+            reader.parse(new StringReader(xsd));
+
+            XSSchemaSet xss = reader.getResult();
+            Collection xssList = xss.getSchemas();
+            XSComplexType xsct = null;
+            String x_Label = "X_Label_" + "en".toUpperCase();
+            for (Iterator iter = xssList.iterator(); iter.hasNext();) {
+                XSSchema schema = (XSSchema) iter.next();
+                XSElementDecl element = schema.getElementDecls().get(viewPk);
+                if (element != null) {
+                    xsct = (XSComplexType) (element.getType());
+                    String label = getLabel(element, x_Label);
+                    xpathToLabel.put(viewPk, label.equals("") ? element.getName() : label);
+                    xpathToType.put(viewPk, xsct.getName());
+                    break;
+                }
+            }
+
+            XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+
+            for (int j = 0; j < xsp.length; j++) {
+                getChildren(xsp[j], "" + viewPk, x_Label, true, false);
+            }
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    public static Map<String, String> getXpathToLabel() {
+        return xpathToLabel;
+    }
+
+    public static Map<String, String> getXpathToType() {
+        return xpathToType;
     }
 }

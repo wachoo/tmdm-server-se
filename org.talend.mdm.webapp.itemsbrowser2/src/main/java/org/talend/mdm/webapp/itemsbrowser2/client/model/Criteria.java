@@ -12,9 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
+import java.io.Serializable;
+
 /**
  * DOC Administrator class global comment. Detailled comment
  */
-public interface Criteria {
+public interface Criteria extends Serializable {
 
 }
