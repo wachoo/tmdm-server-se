@@ -2443,7 +2443,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         			journalItem(ids, dataObject);
         		};
         		
-        		if(rootNode.taskId != "null") {
+        		if(rootNode.taskId != "null" && "" != rootNode.taskId) {
     				tbDetail.baseOptions |= O_TASK;
     			};
         		
