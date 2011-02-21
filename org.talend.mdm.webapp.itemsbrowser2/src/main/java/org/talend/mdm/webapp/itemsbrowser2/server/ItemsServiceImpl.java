@@ -105,7 +105,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             String[] results = com.amalto.webapp.core.util.Util.getPort().viewSearch(
                     new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max, sortCol,
                             sortDir)).getStrings();
-            ViewBean viewBean = getView(FakeData.DEFAULT_VIEW);
+            ViewBean viewBean = getView(viewPk);
             for (int i = 0; i < results.length; i++) {
 
                 if (i == 0) {

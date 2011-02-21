@@ -44,7 +44,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
 
     private ComboBox<BaseModel> operatorComboBox;
 
-    private TextField valueTextBox;
+    private TextField<String> valueTextBox;
 
     private ComboBox<BaseModel> valueComboBox;
 
@@ -89,7 +89,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         operatorComboBox.setTriggerAction(TriggerAction.ALL);
         add(operatorComboBox);
 
-        valueTextBox = new TextField();
+        valueTextBox = new TextField<String>();
         add(valueTextBox);
 
         valueComboBox = new ComboBox<BaseModel>();
