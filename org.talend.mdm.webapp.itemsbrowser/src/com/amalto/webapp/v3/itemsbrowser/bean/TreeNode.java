@@ -23,6 +23,9 @@ public class TreeNode implements Cloneable {
         super();
         if (!Util.isEnterprise()) {
             readOnly = false;
+            creatable=true;
+            logicalDeletable=true;
+            physicalDeletable=true;
         }
     }
 
@@ -94,8 +97,39 @@ public class TreeNode implements Cloneable {
     private ArrayList<String> subTypes;
 
     private String realType;
+    
+    //extra access
+	boolean creatable;
+	boolean logicalDeletable;
+	boolean physicalDeletable;
+	
+    public boolean isCreatable() {
+		return creatable;
+	}
 
-    public boolean isPolymiorphism() {
+	public void setCreatable(boolean creatable) {
+		this.creatable = creatable;
+	}
+
+	public boolean isLogicalDeletable() {
+		return logicalDeletable;
+	}
+
+	public void setLogicalDeletable(boolean logicalDeletable) {
+		this.logicalDeletable = logicalDeletable;
+	}
+
+
+
+	public boolean isPhysicalDeletable() {
+		return physicalDeletable;
+	}
+
+	public void setPhysicalDeletable(boolean physicalDeletable) {
+		this.physicalDeletable = physicalDeletable;
+	}
+
+	public boolean isPolymiorphism() {
         return polymiorphism;
     }
 
@@ -200,8 +234,19 @@ public class TreeNode implements Cloneable {
                             if (matcher.matches() && matcher.group(1).toLowerCase().equals(language)) {
                                 setDisplayFomats(matcher.group(1).toLowerCase(), annotList.item(k).getFirstChild().getNodeValue());
                             }
+                        }else if ("X_Create".equals(appinfoSource)) {
+                            if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
+                                setCreatable(true);
+                            }
+                        }else if ("X_LogicalDelete".equals(appinfoSource)) {
+                            if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
+                                setLogicalDeletable(true);
+                            }
+                        }else if ("X_PhysicalDelete".equals(appinfoSource)) {
+                            if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
+                                setPhysicalDeletable(true);
+                            }
                         }
-
                     }
 
                     if ("documentation".equals(annotList.item(k).getLocalName())) {

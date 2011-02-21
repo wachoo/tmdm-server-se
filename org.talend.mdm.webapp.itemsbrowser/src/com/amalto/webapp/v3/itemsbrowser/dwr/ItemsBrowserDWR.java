@@ -286,7 +286,7 @@ public class ItemsBrowserDWR {
     public TreeNode getRootNode(String concept, String language) throws RemoteException, Exception {
         return getRootNode2(concept, null, -1, language);
     }
-
+    
     public TreeNode getRootNode2(String concept, String[] ids, int docIndex, String language) throws RemoteException, Exception {
 
         Configuration config = Configuration.getInstance();
