@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
+import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -38,6 +39,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -74,7 +76,8 @@ public class AdvancedSearchPanel extends ContentPanel {
 
         final FormData formData = new FormData("-10");
 
-        final Button filterButton = new Button("...");
+        final Button filterButton = new Button();
+        filterButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
         filterButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             public void componentSelected(ButtonEvent ce) {
@@ -156,9 +159,11 @@ public class AdvancedSearchPanel extends ContentPanel {
 
         };
         expressionTextField.setFieldLabel("Search Expression");
+        expressionTextField.setWidth("65%");
         content.add(expressionTextField, formData);
 
         ComboBox<BaseModel> cb = new ComboBox<BaseModel>();
+        cb.setEditable(false);
         cb.setWidth(120);
         cb.setFieldLabel("Add more criteria");
         ListStore<BaseModel> list = new ListStore<BaseModel>();
@@ -188,21 +193,25 @@ public class AdvancedSearchPanel extends ContentPanel {
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
                 // TODO Auto-generated method stub
                 String selvalue = se.getSelectedItem().get("value");
-                if (selvalue.equals("createdby")) {
+                if (selvalue.equals("createdby") && content.getItemByItemId("createdbyField") == null) {
                     TextField<String> createdbyField = new TextField<String>();
                     createdbyField.setFieldLabel("Created By");
+                    createdbyField.setId("createdbyField");
                     content.insert(createdbyField, content.getItemCount() - 1, formData);
-                } else if (selvalue.equals("createdon")) {
+                } else if (selvalue.equals("createdon") && content.getItemByItemId("createdonField") == null) {
                     DateField createdonField = new DateField();
                     createdonField.setFieldLabel("Created On");
+                    createdonField.setId("createdonField");
                     content.insert(createdonField, content.getItemCount() - 1, formData);
-                } else if (selvalue.equals("modifiedby")) {
+                } else if (selvalue.equals("modifiedby") && content.getItemByItemId("modifedbyField") == null) {
                     TextField<String> modifiedbyField = new TextField<String>();
                     modifiedbyField.setFieldLabel("Modified By");
+                    modifiedbyField.setId("modifedbyField");
                     content.insert(modifiedbyField, content.getItemCount() - 1, formData);
-                } else if (selvalue.equals("modifiedon")) {
+                } else if (selvalue.equals("modifiedon") && content.getItemByItemId("modifiedonField") == null) {
                     DateField modifiedonField = new DateField();
                     modifiedonField.setFieldLabel("Modified On");
+                    modifiedonField.setId("modifiedonField");
                     content.insert(modifiedonField, content.getItemCount() - 1, formData);
                 }
                 content.layout(true);

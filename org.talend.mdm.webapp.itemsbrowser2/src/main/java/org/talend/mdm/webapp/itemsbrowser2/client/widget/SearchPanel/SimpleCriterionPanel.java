@@ -248,7 +248,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         return null;
     }
 
-    public SimpleCriterion getCriterion() {
+    public SimpleCriterion getCriteria() {
         return new SimpleCriterion(getKey(), getOperator(), getValue());
     }
 

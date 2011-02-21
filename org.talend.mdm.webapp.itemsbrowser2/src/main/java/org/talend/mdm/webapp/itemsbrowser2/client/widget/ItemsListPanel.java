@@ -41,7 +41,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -60,10 +59,13 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ItemsListPanel extends ContentPanel {
 
-	// add simple search criteria
-	boolean isSimple;
+    // add simple search criteria
+    boolean isSimple;
+
     SimpleCriterionPanel simplePanel;
-    AdvancedSearchPanel advancedSearch;
+
+    AdvancedSearchPanel advancedPanel;
+
     ComboBox<BaseModel> entityCombo = new ComboBox<BaseModel>();
 
     ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
@@ -72,15 +74,15 @@ public class ItemsListPanel extends ContentPanel {
 
         @Override
         public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBean>> callback) {
-             QueryModel qm = new QueryModel(); 
-             qm.setDataClusterPK("DStar"); 
-             qm.setViewPK(entityCombo.getValue().get("value").toString());
-             if(isSimple)
-            	 qm.setCriteria(simplePanel.getCriterion());
-             else 
-            	 qm.setCriteria(advancedSearch.getCriteria());
-             qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
-             service.queryItemBean(qm, callback);
+            QueryModel qm = new QueryModel();
+            qm.setDataClusterPK("DStar");
+            qm.setViewPK(entityCombo.getValue().get("value").toString());
+            if (isSimple)
+                qm.setCriteria(simplePanel.getCriteria());
+            else
+                qm.setCriteria(advancedPanel.getCriteria());
+            qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
+            service.queryItemBean(qm, callback);
         }
     };
 
@@ -90,10 +92,8 @@ public class ItemsListPanel extends ContentPanel {
 
     private Grid<ItemBean> grid;
 
-    
-
     ContentPanel gridContainer;
-    
+
     private final static int PAGE_SIZE = 10;
 
     final Button searchBut = new Button("Search");
@@ -122,7 +122,7 @@ public class ItemsListPanel extends ContentPanel {
         // add entity combo
         HorizontalPanel entityPanel = new HorizontalPanel();
         final ListStore<BaseModel> list = new ListStore<BaseModel>();
-        
+
         entityCombo.setWidth(100);
         entityCombo.setEmptyText("Select an Entity...");
         entityCombo.setStore(list);
@@ -130,12 +130,10 @@ public class ItemsListPanel extends ContentPanel {
         entityCombo.setValueField("value");
         entityCombo.setTriggerAction(TriggerAction.ALL);
 
-        
-
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
-            	String viewPk = se.getSelectedItem().get("value").toString();
+                String viewPk = se.getSelectedItem().get("value").toString();
                 // TODO Auto-generated method stub
                 service.getView(viewPk, new AsyncCallback<ViewBean>() {
 
@@ -167,9 +165,9 @@ public class ItemsListPanel extends ContentPanel {
 
             public void componentSelected(ButtonEvent ce) {
                 // TODO
-            	isSimple = true;
-            	String viewPk = entityCombo.getValue().get("value");
-            	Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
+                isSimple = true;
+                String viewPk = entityCombo.getValue().get("value");
+                Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
             }
 
         });
@@ -185,17 +183,17 @@ public class ItemsListPanel extends ContentPanel {
                 winAdvanced.setBodyBorder(false);
                 winAdvanced.setClosable(false);
                 winAdvanced.setModal(true);
-                winAdvanced.setWidth(450);
-                advancedSearch = new AdvancedSearchPanel(simplePanel.getView());
+                winAdvanced.setWidth(toolBar.getWidth());
+                advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
 
-                winAdvanced.add(advancedSearch);
+                winAdvanced.add(advancedPanel);
                 Button searchBtn = new Button("Search");
                 searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     public void componentSelected(ButtonEvent ce) {
-                    	isSimple = false;
-                    	String viewPk = entityCombo.getValue().get("value");
-                    	Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
+                        isSimple = false;
+                        String viewPk = entityCombo.getValue().get("value");
+                        Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
                         winAdvanced.close();
                     }
 
@@ -212,6 +210,7 @@ public class ItemsListPanel extends ContentPanel {
                 });
                 winAdvanced.addButton(cancelBtn);
                 winAdvanced.show();
+                winAdvanced.alignTo(toolBar.getElement(), "tl", new int[] { 0, 40 });
             }
 
         });
@@ -240,7 +239,7 @@ public class ItemsListPanel extends ContentPanel {
     public void updateGrid(List<ColumnConfig> columnConfigList) {
 
         if (gridContainer != null)
-        	remove(gridContainer);
+            remove(gridContainer);
 
         ColumnModel cm = new ColumnModel(columnConfigList);
         gridContainer = new ContentPanel(new FitLayout());
@@ -274,10 +273,10 @@ public class ItemsListPanel extends ContentPanel {
         grid.addListener(Events.Attach, new Listener<GridEvent<ItemBean>>() {
 
             public void handleEvent(GridEvent<ItemBean> be) {
-                 PagingLoadConfig config = new BasePagingLoadConfig();
-                 config.setOffset(0);
-                 config.setLimit(PAGE_SIZE);
-                 loader.load(config);
+                PagingLoadConfig config = new BasePagingLoadConfig();
+                config.setOffset(0);
+                config.setLimit(PAGE_SIZE);
+                loader.load(config);
             }
         });
         grid.setLoadMask(true);
@@ -285,7 +284,7 @@ public class ItemsListPanel extends ContentPanel {
         hookContextMenu();
 
         add(gridContainer);
-        
+
         this.doLayout();
 
     }
@@ -335,17 +334,4 @@ public class ItemsListPanel extends ContentPanel {
         evt.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
         Dispatcher.forwardEvent(evt);
     }
-
-//    public void setQueryModel(QueryModel qm) {
-//        this.qm = qm;
-//    }
-//
-//    public QueryModel getQueryModel() {
-//        if (this.qm == null) {
-//            this.qm = new QueryModel();
-//            // TODO how to get DStar
-//            this.qm.setDataClusterPK("DStar");
-//        }
-//        return this.qm;
-//    }
 }

@@ -32,4 +32,7 @@ public interface Icons extends ClientBundle {
 
     @Source("remove.png")
     ImageResource remove();
+
+    @Source("edit.png")
+    ImageResource Edit();
 }
