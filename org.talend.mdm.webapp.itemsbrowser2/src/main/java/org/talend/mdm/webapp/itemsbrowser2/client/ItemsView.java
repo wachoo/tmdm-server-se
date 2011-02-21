@@ -218,8 +218,8 @@ public class ItemsView extends View {
         Registry.register(ITEMS_SEARCH_CONTAINER, itemsSearchContainer);
 
         // FIXME
-        String defaultViewName = ClientFakeData.DEFAULT_VIEW;
-        Dispatcher.forwardEvent(ItemsEvents.GetView, defaultViewName);
+//        String defaultViewName = ClientFakeData.DEFAULT_VIEW;
+//        Dispatcher.forwardEvent(ItemsEvents.GetView, defaultViewName);
 
     }
 
