@@ -148,7 +148,6 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
      */
     public ViewBean getView(String viewPk) {
         try {
-
             ViewBean vb = new ViewBean();
             vb.setViewPK(viewPk);
             // TODO mockup
@@ -156,7 +155,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             String[] viewables = null;
             if (Itemsbrowser2.IS_SCRIPT) {
                 // test arguments Browse_items_Agency
-                viewables = getViewables("Browse_items_Agency", "en");
+                viewables = getViewables(viewPk, "en");
             } else {
                 viewables = FakeData.getEntityViewables(viewPk);
             }
@@ -173,8 +172,6 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             // TODO
             String model = "DStar";
             String concept = getConceptFromBrowseItemView(viewPk);
-            viewPk = "Browse_items_Agency";
-            concept = "Agency";
 
             Map<String, String> metaDataTypes = null;
             if (Itemsbrowser2.IS_SCRIPT) {

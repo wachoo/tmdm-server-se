@@ -137,6 +137,7 @@ public class ItemsListPanel extends ContentPanel {
 
                     public void onFailure(Throwable arg0) {
                         // TODO Auto-generated method stub
+                        // MessageBox.prompt("faluire", arg0.getMessage());
 
                     }
 

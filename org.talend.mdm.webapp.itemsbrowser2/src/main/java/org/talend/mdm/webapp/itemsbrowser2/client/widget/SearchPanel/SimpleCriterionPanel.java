@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.ClickListener;
@@ -97,6 +98,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         add(valueComboBox);
 
         valueDate = new DateField();
+        valueDate.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));
         valueDate.setVisible(false);
         add(valueDate);
 
@@ -145,7 +147,6 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         }
 
         keyComboBox.setValue(list.getAt(0));
-        adaptOperatorAndValue();
     }
 
     private void setOperatorComboBox(Map<String, String> cons) {
@@ -189,7 +190,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             setOperatorComboBox(Constants.dateOperators);
             valueComboBox.setVisible(false);
             valueDate.setVisible(true);
-            valueTextBox.setVisible(true);
+            valueTextBox.setVisible(false);
         } else if (predicateValues.equals("double") || predicateValues.equals("float") || predicateValues.equals("integer")
                 || predicateValues.equals("decimal") || predicateValues.equals("byte") || predicateValues.equals("int")
                 || predicateValues.equals("long") || predicateValues.equals("negativeInteger")
@@ -201,6 +202,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueComboBox.setVisible(false);
             valueDate.setVisible(false);
             valueTextBox.setVisible(true);
+            valueTextBox.setValue("*");
         } else if (predicateValues.equals("boolean")) {
             // TODO
             // var booleanPredicates = ["true" , "false"];
