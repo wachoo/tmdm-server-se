@@ -61,8 +61,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class ItemsListPanel extends ContentPanel {
 
 	// add simple search criteria
-    SimpleCriterionPanel simplePanel = new SimpleCriterionPanel(null, null);
-
+	boolean isSimple;
+    SimpleCriterionPanel simplePanel;
+    AdvancedSearchPanel advancedSearch;
     ComboBox<BaseModel> entityCombo = new ComboBox<BaseModel>();
 
     ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
@@ -74,7 +75,10 @@ public class ItemsListPanel extends ContentPanel {
              QueryModel qm = new QueryModel(); 
              qm.setDataClusterPK("DStar"); 
              qm.setViewPK(entityCombo.getValue().get("value").toString());
-             qm.setCriteria(simplePanel.getCriterion());
+             if(isSimple)
+            	 qm.setCriteria(simplePanel.getCriterion());
+             else 
+            	 qm.setCriteria(advancedSearch.getCriteria());
              qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
              service.queryItemBean(qm, callback);
         }
@@ -154,7 +158,7 @@ public class ItemsListPanel extends ContentPanel {
         });
         entityPanel.add(entityCombo);
         toolBar.add(entityPanel);
-
+        simplePanel = new SimpleCriterionPanel(null, null);
         toolBar.add(simplePanel);
 
         // add simple search button
@@ -163,6 +167,7 @@ public class ItemsListPanel extends ContentPanel {
 
             public void componentSelected(ButtonEvent ce) {
                 // TODO
+            	isSimple = true;
             	String viewPk = entityCombo.getValue().get("value");
             	Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
             }
@@ -181,13 +186,16 @@ public class ItemsListPanel extends ContentPanel {
                 winAdvanced.setClosable(false);
                 winAdvanced.setModal(true);
                 winAdvanced.setWidth(450);
-                final AdvancedSearchPanel advancedSearch = new AdvancedSearchPanel(simplePanel.getView());
+                advancedSearch = new AdvancedSearchPanel(simplePanel.getView());
 
                 winAdvanced.add(advancedSearch);
                 Button searchBtn = new Button("Search");
                 searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     public void componentSelected(ButtonEvent ce) {
+                    	isSimple = false;
+                    	String viewPk = entityCombo.getValue().get("value");
+                    	Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
                         winAdvanced.close();
                     }
 
