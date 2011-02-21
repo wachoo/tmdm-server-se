@@ -165,8 +165,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
     private void adaptOperatorAndValue() {
         int delimeter = getKey().indexOf("/");
         if (delimeter == -1) {
-            String conceptName = view.getViewPK();
-
+            String conceptName = view.getViewPK().replaceAll("Browse_items_", "").replaceAll("#.*", "");
             if (getKey().equals(conceptName)) {
                 setOperatorComboBox(Constants.fulltextOperators);
             }
@@ -230,25 +229,6 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         }
 
     }
-
-    // private void adaptFields() {
-    // Field field = view.getSearchables().get(getKey());
-    // switch (field.getCriterionType()) {
-    // case LIST:
-    // valueListBox.setVisible(true);
-    // valueTextBox.setVisible(false);
-    //
-    // valueListBox.clear();
-    // for (KeyValue s : field.getAvailables()) {
-    // valueListBox.addItem(s.getLabel(), s.getId());
-    // }
-    // break;
-    // case TEXT:
-    // valueListBox.setVisible(false);
-    // valueTextBox.setVisible(true);
-    // break;
-    // }
-    // }
 
     private String getKey() {
         return keyComboBox.getValue().get("value");

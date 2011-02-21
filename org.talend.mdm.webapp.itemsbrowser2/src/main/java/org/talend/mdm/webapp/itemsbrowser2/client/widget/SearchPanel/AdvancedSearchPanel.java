@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -47,8 +48,15 @@ public class AdvancedSearchPanel extends ContentPanel {
 
     private TextField<String> expressionTextField;
 
-    final private void setExpress(String advancedExpress) {
-        expressionTextField.setValue(advancedExpress);
+    private Criteria criteria = null;
+
+    final private void setCriteria(Criteria c) {
+        this.criteria = c;
+        expressionTextField.setValue(c.toString());
+    }
+
+    public Criteria getCriteria() {
+        return this.criteria;
     }
 
     public AdvancedSearchPanel(ViewBean viewbean) {
@@ -93,7 +101,7 @@ public class AdvancedSearchPanel extends ContentPanel {
 
                     public void componentSelected(ButtonEvent ce) {
                         // TODO Auto-generated method stub
-                        setExpress(multiCriteria.getCriteria().toString());
+                        setCriteria(multiCriteria.getCriteria());
                         winFilter.close();
                     }
 

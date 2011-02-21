@@ -205,7 +205,8 @@ public class MultipleCriteriaPanel extends SimplePanel {
     }
 
     public MultipleCriteria getCriteria() {
-        MultipleCriteria toReturn = new MultipleCriteria(operatorComboBox.getValue().get("value").toString());
+        MultipleCriteria toReturn = new MultipleCriteria(operatorComboBox.getValue() == null ? "" : operatorComboBox.getValue()
+                .get("value").toString());
 
         for (int i = 0; i < rightPanel.getWidgetCount(); i++) {
             Widget widget = rightPanel.getWidget(i);

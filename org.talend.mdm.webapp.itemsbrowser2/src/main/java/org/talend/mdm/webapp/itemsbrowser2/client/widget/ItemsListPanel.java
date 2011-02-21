@@ -164,10 +164,11 @@ public class ItemsListPanel extends ContentPanel {
             public void componentSelected(ButtonEvent ce) {
                 // TODO
                 instance.getQueryModel().setCriteria(simplePanel.getCriterion());
-                PagingLoadConfig config = new BasePagingLoadConfig();
-                config.setOffset(0);
-                config.setLimit(PAGE_SIZE);
-                loader.load(config);
+                loader.load();
+                // PagingLoadConfig config = new BasePagingLoadConfig();
+                // config.setOffset(0);
+                // config.setLimit(PAGE_SIZE);
+                // loader.load(config);
             }
 
         });
@@ -184,7 +185,7 @@ public class ItemsListPanel extends ContentPanel {
                 winAdvanced.setClosable(false);
                 winAdvanced.setModal(true);
                 winAdvanced.setWidth(450);
-                AdvancedSearchPanel advancedSearch = new AdvancedSearchPanel(simplePanel.getView());
+                final AdvancedSearchPanel advancedSearch = new AdvancedSearchPanel(simplePanel.getView());
 
                 winAdvanced.add(advancedSearch);
                 Button searchBtn = new Button("Search");
@@ -192,6 +193,12 @@ public class ItemsListPanel extends ContentPanel {
 
                     public void componentSelected(ButtonEvent ce) {
                         // TODO Auto-generated method stub
+                        instance.getQueryModel().setCriteria(advancedSearch.getCriteria());
+                        loader.load();
+                        // PagingLoadConfig config = new BasePagingLoadConfig();
+                        // config.setOffset(0);
+                        // config.setLimit(PAGE_SIZE);
+                        // loader.load(config);
                         winAdvanced.close();
                     }
 
@@ -217,7 +224,6 @@ public class ItemsListPanel extends ContentPanel {
 
             public void onFailure(Throwable arg0) {
                 // TODO Auto-generated method stub
-                // MessageBox.prompt("1212", arg0.getMessage());
             }
 
             public void onSuccess(Map<String, String> arg0) {
@@ -269,9 +275,9 @@ public class ItemsListPanel extends ContentPanel {
         grid.addListener(Events.Attach, new Listener<GridEvent<ItemBean>>() {
 
             public void handleEvent(GridEvent<ItemBean> be) {
-                // PagingLoadConfig config = new BasePagingLoadConfig();
-                // config.setOffset(0);
-                // config.setLimit(PAGE_SIZE);
+                PagingLoadConfig config = new BasePagingLoadConfig();
+                config.setOffset(0);
+                config.setLimit(PAGE_SIZE);
                 // Map<String, Object> state = grid.getState();
                 // if (state.containsKey("offset")) {
                 // int offset = (Integer) state.get("offset");
@@ -283,7 +289,7 @@ public class ItemsListPanel extends ContentPanel {
                 // config.setSortField((String) state.get("sortField"));
                 // config.setSortDir(SortDir.valueOf((String) state.get("sortDir")));
                 // }
-                // loader.load(config);
+                loader.load(config);
             }
         });
         grid.setLoadMask(true);
@@ -340,19 +346,6 @@ public class ItemsListPanel extends ContentPanel {
         AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);
         evt.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
         Dispatcher.forwardEvent(evt);
-    }
-
-    private ListStore<BaseModel> getEmptyStore() {
-        ListStore<BaseModel> list = new ListStore<BaseModel>();
-        BaseModel field = new BaseModel();
-        field.set("name", "createdby");
-        field.set("value", "Created By");
-        list.add(field);
-        field = new BaseModel();
-        field.set("name", "createdon");
-        field.set("value", "Created On");
-        list.add(field);
-        return list;
     }
 
     public void setQueryModel(QueryModel qm) {
