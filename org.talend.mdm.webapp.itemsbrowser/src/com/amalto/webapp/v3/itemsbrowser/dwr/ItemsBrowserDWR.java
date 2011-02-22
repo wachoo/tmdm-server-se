@@ -286,7 +286,7 @@ public class ItemsBrowserDWR {
     public TreeNode getRootNode(String concept, String language) throws RemoteException, Exception {
         return getRootNode2(concept, null, -1, language);
     }
-    
+
     public TreeNode getRootNode2(String concept, String[] ids, int docIndex, String language) throws RemoteException, Exception {
 
         Configuration config = Configuration.getInstance();
@@ -498,13 +498,16 @@ public class ItemsBrowserDWR {
     }
 
     private void updateDspRules(int docIndex, Document itemDocument) throws Exception {
-        
+
         WebContext ctx = WebContextFactory.get();
-        if(ctx.getSession().getAttribute("itemDocument_displayRulesUtil" + docIndex)==null)return;
-        
-        BusinessConcept businessConcept = (BusinessConcept) ctx.getSession().getAttribute("itemDocument_businessConcept" + docIndex);
-        DisplayRulesUtil displayRulesUtil = (DisplayRulesUtil) ctx.getSession().getAttribute("itemDocument_displayRulesUtil" + docIndex);
-        
+        if (ctx.getSession().getAttribute("itemDocument_displayRulesUtil" + docIndex) == null)
+            return;
+
+        BusinessConcept businessConcept = (BusinessConcept) ctx.getSession().getAttribute(
+                "itemDocument_businessConcept" + docIndex);
+        DisplayRulesUtil displayRulesUtil = (DisplayRulesUtil) ctx.getSession().getAttribute(
+                "itemDocument_displayRulesUtil" + docIndex);
+
         String rulesStyle = displayRulesUtil.genStyle();
         org.dom4j.Document transformedDocument = XmlUtil.styleDocument(itemDocument, rulesStyle);
 
@@ -1168,7 +1171,7 @@ public class ItemsBrowserDWR {
                     }
                 }
             }
-            //update dsp rules
+            // update dsp rules
             updateDspRules(docIndex, d);
 
             // update polym-map
@@ -1358,7 +1361,7 @@ public class ItemsBrowserDWR {
         return updateNode2(xpath, StringEscapeUtils.unescapeHtml(content), docIndex);
     }
 
-    public static String updateNode2(String xpath, String content, int docIndex) {
+    public synchronized static String updateNode2(String xpath, String content, int docIndex) {
         WebContext ctx = WebContextFactory.get();
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");

@@ -3337,7 +3337,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					tbDetail.items.get('saveBTN').enable();
 			        tbDetail.items.get('saveAndQBTN').enable();
 			        
-					if(callbackOnSuccess)callbackOnSuccess();
+					if(callbackOnSuccess && result.status != 1)callbackOnSuccess();
 					
 					if(result.description==null || result.description==""){
 						return;
