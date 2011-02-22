@@ -358,17 +358,61 @@ public class ItemsBrowserDWR {
      */
     public void reloadItem(String concept, String[] ids, int docIndex) throws Exception {
 
+        WebContext ctx = WebContextFactory.get();
         Configuration config = Configuration.getInstance();
         String dataClusterPK = config.getCluster();
 
-        WSItem wsItem = Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
-        Document document = Util.parse(wsItem.getContent());
+        WSExistsItem extItem = new WSExistsItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids));
+        if (Util.getPort().existsItem(extItem).is_true()) {
+            WSItem wsItem = Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+            ctx.getSession().setAttribute("itemDocument" + docIndex + "_wsItem", wsItem);
+        }
 
-        WebContext ctx = WebContextFactory.get();
-        ctx.getSession().setAttribute("itemDocument" + docIndex + "_wsItem", wsItem);
-        ctx.getSession().setAttribute("itemDocument" + docIndex, document);
+        Document document = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
+        // ctx.getSession().setAttribute("itemDocument" + docIndex, document);
         ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", document);
 
+        String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(config.getModel()))).getXsdSchema();
+        Map<String, XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(xsd);
+        XSElementDecl xsed = map.get(concept);
+        BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(concept);
+        businessConcept.load();
+        DisplayRulesUtil displayRulesUtil = new DisplayRulesUtil(xsed);
+
+        String ruleStyles = displayRulesUtil.genStyle();
+        org.dom4j.Document transformedDocument = XmlUtil.styleDocument(document, ruleStyles);
+
+        Map<String, String> defaultValueRules = businessConcept.getDefaultValueRulesMap();
+        Map<String, String> visibleRules = businessConcept.getVisibleRulesMap();
+
+        setDisplayRules(defaultValueRules, visibleRules, displayRulesUtil, transformedDocument, docIndex);
+    }
+
+    private void setDisplayRules(Map<String, String> defaultValueRules, Map<String, String> visibleRules,
+            DisplayRulesUtil displayRulesUtil, org.dom4j.Document transformedDocument, int docIndex) {
+        WebContext ctx = WebContextFactory.get();
+        List<DisplayRule> dspRules = new ArrayList<DisplayRule>();
+        if (defaultValueRules.size() > 0) {
+            for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
+                String xpath = (String) iterator.next();
+                String value = displayRulesUtil.evalDefaultValueRuleResult(transformedDocument, xpath);
+                if (value != null) {
+                    dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE, xpath, value));
+                }
+            }
+        }
+
+        if (visibleRules.size() > 0) {
+            for (Iterator<String> iterator = visibleRules.keySet().iterator(); iterator.hasNext();) {
+                String xpath = (String) iterator.next();
+                String value = displayRulesUtil.evalVisibleRuleResult(transformedDocument, xpath);
+                if (value != null) {
+                    dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_VISIBLE_RULE, xpath, value));
+                }
+            }
+        }
+
+        ctx.getSession().setAttribute("displayRules" + docIndex, dspRules); //$NON-NLS-1$
     }
 
     /**
@@ -461,27 +505,7 @@ public class ItemsBrowserDWR {
                 Map<String, String> defaultValueRules = businessConcept.getDefaultValueRulesMap();
                 Map<String, String> visibleRules = businessConcept.getVisibleRulesMap();
 
-                if (defaultValueRules.size() > 0) {
-                    for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
-                        String xpath = (String) iterator.next();
-                        String value = displayRulesUtil.evalDefaultValueRuleResult(transformedDocument, xpath);
-                        if (value != null) {
-                            dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE, xpath, value));
-                        }
-                    }
-                }
-
-                if (visibleRules.size() > 0) {
-                    for (Iterator<String> iterator = visibleRules.keySet().iterator(); iterator.hasNext();) {
-                        String xpath = (String) iterator.next();
-                        String value = displayRulesUtil.evalVisibleRuleResult(transformedDocument, xpath);
-                        if (value != null) {
-                            dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_VISIBLE_RULE, xpath, value));
-                        }
-                    }
-                }
-
-                ctx.getSession().setAttribute("displayRules" + docIndex, dspRules); //$NON-NLS-1$
+                setDisplayRules(defaultValueRules, visibleRules, displayRulesUtil, transformedDocument, docIndex);
 
             } catch (Exception e) {
                 throw new XtentisWebappException("Exception happened during parsing display rules! ", e);
