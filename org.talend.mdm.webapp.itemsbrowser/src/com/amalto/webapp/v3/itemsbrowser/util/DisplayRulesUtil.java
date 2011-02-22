@@ -25,6 +25,7 @@ import org.w3c.dom.NodeList;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.v3.itemsbrowser.bean.DisplayRule;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
+import com.amalto.webapp.v3.itemsbrowser.dwr.ItemsBrowserDWR;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
 
@@ -226,7 +227,7 @@ public class DisplayRulesUtil{
 
     }
     
-    public static void filterByDisplayRules(List<TreeNode> nodesList, TreeNode node, List<DisplayRule> dspRules) throws ParseException {
+    public static void filterByDisplayRules(List<TreeNode> nodesList, TreeNode node, List<DisplayRule> dspRules, int docIndex) throws ParseException {
 
             String xpath=node.getBindingPath();
             xpath=XmlUtil.normalizeXpath(xpath);
@@ -234,8 +235,10 @@ public class DisplayRulesUtil{
                 String xpathInRule=XmlUtil.normalizeXpath(displayRule.getXpath());
                 if(displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
                     if(xpath.equals(xpathInRule)){
-                        if(node.getValue()==null||node.getValue().trim().equals(""))
-                           node.setValue(displayRule.getValue());
+                        if(node.getValue()==null||node.getValue().trim().equals("")) {
+                            node.setValue(displayRule.getValue());
+                            ItemsBrowserDWR.updateNode2(xpath, node.getValue(), docIndex);
+                        }  
                     }
                 }else if(displayRule.getType().equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
                     if(xpath.startsWith(xpathInRule)){

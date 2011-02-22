@@ -1108,7 +1108,7 @@ public class ItemsBrowserDWR {
             if (nodes != null) {
                 List<TreeNode> nodesList = new ArrayList(Arrays.asList(nodes));
                 for (int i = 0; i < nodes.length; i++) {
-                    DisplayRulesUtil.filterByDisplayRules(nodesList, nodes[i], dspRules);
+                    DisplayRulesUtil.filterByDisplayRules(nodesList, nodes[i], dspRules, docIndex);
                 }
 
                 nodes = nodesList.toArray(new TreeNode[nodesList.size()]);
