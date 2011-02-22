@@ -200,6 +200,28 @@ public class ItemsListPanel extends ContentPanel {
                 });
                 winAdvanced.addButton(searchBtn);
 
+                Button bookmarkBtn = new Button("Bookmark this Search");
+                bookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                    public void componentSelected(ButtonEvent ce) {
+                        // TODO Auto-generated method stub
+
+                    }
+
+                });
+                winAdvanced.addButton(bookmarkBtn);
+
+                Button managebookBtn = new Button("Manage Bookmarks");
+                managebookBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                    public void componentSelected(ButtonEvent ce) {
+                        // TODO Auto-generated method stub
+
+                    }
+
+                });
+                winAdvanced.addButton(managebookBtn);
+
                 Button cancelBtn = new Button("Cancel");
                 cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 

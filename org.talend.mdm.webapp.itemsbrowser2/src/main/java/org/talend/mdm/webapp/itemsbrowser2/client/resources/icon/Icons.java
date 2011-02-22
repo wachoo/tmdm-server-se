@@ -35,4 +35,7 @@ public interface Icons extends ClientBundle {
 
     @Source("edit.png")
     ImageResource Edit();
+
+    @Source("valid.png")
+    ImageResource Valid();
 }

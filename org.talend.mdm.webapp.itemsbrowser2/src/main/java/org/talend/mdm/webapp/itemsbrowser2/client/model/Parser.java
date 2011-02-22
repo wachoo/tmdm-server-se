@@ -97,15 +97,15 @@ public class Parser implements Serializable {
         return i;
     }
 
-    protected static SimpleCriterion parseSimpleFilter(String input, int beginIndex, int endIndex) {
+    protected static SimpleCriterion parseSimpleFilter(String input, int beginIndex, int endIndex) throws ParserException {
         String value = input.substring(beginIndex, endIndex);
         String realOp = getOperator(value);
         if (realOp != null) {
             String[] split = value.split(realOp);
-            final SimpleCriterion simpleCriterion = new SimpleCriterion(split[0], realOp, split[1]);
+            final SimpleCriterion simpleCriterion = new SimpleCriterion(split[0].trim(), realOp, split[1].trim());
             return simpleCriterion;
         }
-        return null;
+        throw new ParserException("Cannot find correct operator in " + value);
     }
 
     private static String getOperator(String value) {
@@ -161,7 +161,7 @@ public class Parser implements Serializable {
                 return i;
             }
         }
-        throw new ParserException("Cannot find closing " + END_BLOCK + " at position " + i); // should be already
+        throw new ParserException("Cannot find closing " + END_BLOCK + " at position " + i);
     }
 
     protected static void checkBlocks(String input) throws ParserException {

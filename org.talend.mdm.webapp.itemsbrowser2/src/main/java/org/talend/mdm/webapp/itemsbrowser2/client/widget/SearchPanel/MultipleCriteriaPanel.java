@@ -46,9 +46,11 @@ public class MultipleCriteriaPanel extends SimplePanel {
 
     private Panel separationRightPanel;
 
-    private ComboBox operatorComboBox;
+    private ComboBox<BaseModel> operatorComboBox;
 
     private ViewBean view;
+
+    private ListStore<BaseModel> list;
 
     public MultipleCriteriaPanel(MultipleCriteriaPanel parent, ViewBean view) {
         super();
@@ -109,8 +111,8 @@ public class MultipleCriteriaPanel extends SimplePanel {
     private Panel getOperatorPanel() {
         Panel toReturn = new SimplePanel();
 
-        operatorComboBox = new ComboBox();
-        ListStore<BaseModel> list = new ListStore<BaseModel>();
+        operatorComboBox = new ComboBox<BaseModel>();
+        list = new ListStore<BaseModel>();
         BaseModel field = null;
 
         for (String curOper : Constants.groupOperators) {
@@ -240,7 +242,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
         if (criteria instanceof MultipleCriteria) {
             MultipleCriteria multipleCriteria = (MultipleCriteria) criteria;
 
-            operatorComboBox.setValue(multipleCriteria.getOperator());
+            operatorComboBox.setValue(list.findModel("value", multipleCriteria.getOperator()));
             for (Criteria current : multipleCriteria.getChildren()) {
                 if (current instanceof SimpleCriterion) {
                     SimpleCriterionPanel newPanel = addSimpleCriterionPanel();

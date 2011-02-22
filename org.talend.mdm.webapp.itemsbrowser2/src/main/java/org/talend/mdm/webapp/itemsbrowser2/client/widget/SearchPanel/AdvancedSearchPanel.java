@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.model.Parser;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ParserException;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -27,6 +29,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -107,7 +110,36 @@ public class AdvancedSearchPanel extends ContentPanel {
                 });
                 winFilter.addButton(searchBtn);
                 winFilter.show();
+                String curField = expressionTextField.getValue();
+                if (curField != null && !curField.equals("")) {
+                    try {
+                        multiCriteria.setCriteria(Parser.parse(curField));
+                    } catch (ParserException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
                 DOM.setStyleAttribute(winFilter.getBody().dom, "backgroundColor", "white");
+            }
+        });
+
+        final Button validButton = new Button();
+        validButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Valid()));
+        validButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            public void componentSelected(ButtonEvent ce) {
+                // TODO Auto-generated method stub
+                try {
+                    String curField = expressionTextField.getValue();
+                    if (curField != null && !curField.equals("")) {
+                        Parser.parse(curField);
+                        MessageBox.info("Info", "Valid expression", null);
+                    }
+                } catch (ParserException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    MessageBox.alert("Error", "Invalid expression:" + e.getMessage(), null);
+                }
             }
         });
 
@@ -134,23 +166,27 @@ public class AdvancedSearchPanel extends ContentPanel {
 
                 filterButton.addStyleName("x-form-file-btn");
                 filterButton.render(wrap.dom);
-
+                // validButton.addStyleName("x-form-file-btn");
+                // validButton.render(wrap.dom);
                 super.onRender(target, index);
             }
 
             protected void onResize(int width, int height) {
                 super.onResize(width, height);
                 input.setWidth(width - filterButton.getWidth() - 3, true);
+                // input.setWidth(width - filterButton.getWidth() - validButton.getWidth() - 3, true);
             }
 
             protected void doAttachChildren() {
                 super.doAttachChildren();
                 ComponentHelper.doAttach(filterButton);
+                // ComponentHelper.doAttach(validButton);
             }
 
             protected void doDetachChildren() {
                 super.doDetachChildren();
                 ComponentHelper.doDetach(filterButton);
+                // ComponentHelper.doDetach(validButton);
             }
 
         };
