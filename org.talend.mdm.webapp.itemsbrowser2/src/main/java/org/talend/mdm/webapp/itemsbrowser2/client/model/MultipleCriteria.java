@@ -45,7 +45,7 @@ public class MultipleCriteria implements Criteria {
 
         for (Criteria c : children) {
             if (!first)
-                sb.append("" + operator + "");
+                sb.append(" " + operator + " ");
 
             sb.append(Parser.BEGIN_BLOCK + c.toString() + Parser.END_BLOCK);
             first = false;

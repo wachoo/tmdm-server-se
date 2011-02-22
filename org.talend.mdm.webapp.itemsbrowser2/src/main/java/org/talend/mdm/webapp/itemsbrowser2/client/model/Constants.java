@@ -28,7 +28,7 @@ public class Constants implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    public static List<String> groupOperators = Arrays.asList(new String[] { "and", "or" });
+    public static List<String> groupOperators = Arrays.asList(new String[] { "AND", "OR" });
 
     public static Map<String, String> fullOperators = new HashMap<String, String>();
 

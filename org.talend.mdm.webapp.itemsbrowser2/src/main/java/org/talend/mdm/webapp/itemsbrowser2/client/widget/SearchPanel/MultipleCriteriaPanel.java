@@ -13,7 +13,9 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Constants;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -233,24 +235,24 @@ public class MultipleCriteriaPanel extends SimplePanel {
         }
     }
 
-    // public void setCriteria(Criteria criteria) {
-    // clear();
-    // if (criteria instanceof MultipleCriteria) {
-    // MultipleCriteria multipleCriteria = (MultipleCriteria) criteria;
-    //
-    // operatorComboBox.setSelected(multipleCriteria.getOperator());
-    // for (Criteria current : multipleCriteria.getChildren()) {
-    // if (current instanceof SimpleCriterion) {
-    // SimpleCriterionPanel newPanel = addSimpleCriterionPanel();
-    // newPanel.setCriterion((SimpleCriterion) current);
-    // } else if (current instanceof MultipleCriteria) {
-    // MultipleCriteriaPanel newPanel = addMultipleCriteriaPanel();
-    // newPanel.setCriteria((MultipleCriteria) current);
-    // }
-    // }
-    // } else if (criteria instanceof SimpleCriterion) {
-    // SimpleCriterionPanel newPanel = addSimpleCriterionPanel();
-    // newPanel.setCriterion((SimpleCriterion) criteria);
-    // }
-    // }
+    public void setCriteria(Criteria criteria) {
+        clear();
+        if (criteria instanceof MultipleCriteria) {
+            MultipleCriteria multipleCriteria = (MultipleCriteria) criteria;
+
+            operatorComboBox.setValue(multipleCriteria.getOperator());
+            for (Criteria current : multipleCriteria.getChildren()) {
+                if (current instanceof SimpleCriterion) {
+                    SimpleCriterionPanel newPanel = addSimpleCriterionPanel();
+                    newPanel.setCriterion((SimpleCriterion) current);
+                } else if (current instanceof MultipleCriteria) {
+                    MultipleCriteriaPanel newPanel = addMultipleCriteriaPanel();
+                    newPanel.setCriteria((MultipleCriteria) current);
+                }
+            }
+        } else if (criteria instanceof SimpleCriterion) {
+            SimpleCriterionPanel newPanel = addSimpleCriterionPanel();
+            newPanel.setCriterion((SimpleCriterion) criteria);
+        }
+    }
 }

@@ -13,7 +13,7 @@ public class QueryModel extends BaseModel {
 
     String viewPK;
 
-    Criteria criteria;
+    String criteria;
 
     public QueryModel() {
 
@@ -43,11 +43,11 @@ public class QueryModel extends BaseModel {
         this.viewPK = viewPK;
     }
 
-    public Criteria getCriteria() {
+    public String getCriteria() {
         return criteria;
     }
 
-    public void setCriteria(Criteria criteria) {
+    public void setCriteria(String criteria) {
         this.criteria = criteria;
     }
 }

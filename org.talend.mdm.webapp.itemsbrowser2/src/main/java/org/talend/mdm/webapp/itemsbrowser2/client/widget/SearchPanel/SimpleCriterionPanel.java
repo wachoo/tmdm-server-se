@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -242,7 +243,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         if (valueComboBox.isVisible())
             return valueComboBox.getValue().get("value");
         if (valueDate.isVisible())
-            return valueDate.getValue().toGMTString();
+            return valueDate.getValue().toString();
         if (valueTextBox.isVisible())
             return valueTextBox.getValue().toString();
         return null;
@@ -252,21 +253,22 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         return new SimpleCriterion(getKey(), getOperator(), getValue());
     }
 
-    // public void setCriterion(SimpleCriterion criterion) {
-    // keyComboBox.setSelected(criterion.getKey());
-    // adaptOperatorAndValue();
-    // operatorListBox.setSelected(criterion.getOperator());
-    //
-    // Field field = configuration.get(getKey());
-    // switch (field.getCriterionType()) {
-    // case LIST:
-    // valueListBox.setSelected(criterion.getValue());
-    // break;
-    // case TEXT:
-    // valueTextBox.setText(criterion.getValue());
-    // break;
-    // }
-    // }
+    public void setCriterion(SimpleCriterion criterion) {
+        try {
+            keyComboBox.setValue(list.findModel("value", criterion.getKey()));
+            adaptOperatorAndValue();
+            operatorComboBox.setValue(operatorlist.findModel("value", criterion.getOperator()));
+            if (valueComboBox.isVisible())
+                valueComboBox.setValue(valuelist.findModel("value", criterion.getValue()));
+            if (valueDate.isVisible())
+                valueDate.setValue(new Date(criterion.getValue()));
+            if (valueTextBox.isVisible())
+                valueTextBox.setValue(criterion.getValue());
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
     private ListStore<BaseModel> getEmptyStore() {
         ListStore<BaseModel> list = new ListStore<BaseModel>();

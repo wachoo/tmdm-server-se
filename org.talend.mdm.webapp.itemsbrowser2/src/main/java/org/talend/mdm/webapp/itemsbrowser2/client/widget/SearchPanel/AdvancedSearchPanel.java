@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -50,15 +49,12 @@ public class AdvancedSearchPanel extends ContentPanel {
 
     private TextField<String> expressionTextField;
 
-    private Criteria criteria = null;
-
-    final private void setCriteria(Criteria c) {
-        this.criteria = c;
-        expressionTextField.setValue(c.toString());
+    final private void setCriteria(String c) {
+        expressionTextField.setValue(c);
     }
 
-    public Criteria getCriteria() {
-        return this.criteria;
+    public String getCriteria() {
+        return expressionTextField.getValue();
     }
 
     public AdvancedSearchPanel(ViewBean viewbean) {
@@ -104,7 +100,7 @@ public class AdvancedSearchPanel extends ContentPanel {
 
                     public void componentSelected(ButtonEvent ce) {
                         // TODO Auto-generated method stub
-                        setCriteria(multiCriteria.getCriteria());
+                        setCriteria(multiCriteria.getCriteria().toString());
                         winFilter.close();
                     }
 

@@ -78,7 +78,7 @@ public class ItemsListPanel extends ContentPanel {
             qm.setDataClusterPK("DStar");
             qm.setViewPK(entityCombo.getValue().get("value").toString());
             if (isSimple)
-                qm.setCriteria(simplePanel.getCriteria());
+                qm.setCriteria(simplePanel.getCriteria().toString());
             else
                 qm.setCriteria(advancedPanel.getCriteria());
             qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);

@@ -12,10 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
+import java.io.Serializable;
+
 /**
  * DOC stephane class global comment. Detailled comment
  */
-public class Parser {
+public class Parser implements Serializable {
 
     public static final char BEGIN_BLOCK = '(';
 
@@ -62,7 +64,7 @@ public class Parser {
                 int refProf = -1;
                 for (String current : Constants.groupOperators) {
                     final int fromIndex = endBlockIndex - 1;
-                    final String searched = END_BLOCK + current + BEGIN_BLOCK;
+                    final String searched = END_BLOCK + " " + current + " " + BEGIN_BLOCK;
                     int indexOf = input.indexOf(searched, fromIndex);
                     if (indexOf >= beginIndex && indexOf <= endIndex) {
                         int foundProf = count(input.substring(beginIndex, indexOf), '(');
@@ -97,15 +99,51 @@ public class Parser {
 
     protected static SimpleCriterion parseSimpleFilter(String input, int beginIndex, int endIndex) {
         String value = input.substring(beginIndex, endIndex);
+        String realOp = getOperator(value);
+        if (realOp != null) {
+            String[] split = value.split(realOp);
+            final SimpleCriterion simpleCriterion = new SimpleCriterion(split[0], realOp, split[1]);
+            return simpleCriterion;
+        }
+        return null;
+    }
 
-        // for (String currentOp : Constants.simpleOperators) {
-        // if (value.contains(currentOp)) {
-        // String[] split = value.split(currentOp);
-        // final SimpleCriterion simpleCriterion = new SimpleCriterion(split[0], currentOp, split[1]);
-        // return simpleCriterion;
-        // }
-        // }
+    private static String getOperator(String value) {
+        for (String currentOp : Constants.fullOperators.keySet()) {
+            if (value.contains(currentOp)) {
+                return currentOp;
+            }
+        }
 
+        for (String currentOp : Constants.fulltextOperators.keySet()) {
+            if (value.contains(currentOp)) {
+                return currentOp;
+            }
+        }
+
+        for (String currentOp : Constants.dateOperators.keySet()) {
+            if (value.contains(currentOp)) {
+                return currentOp;
+            }
+        }
+
+        for (String currentOp : Constants.numOperators.keySet()) {
+            if (value.contains(currentOp)) {
+                return currentOp;
+            }
+        }
+
+        for (String currentOp : Constants.booleanOperators.keySet()) {
+            if (value.contains(currentOp)) {
+                return currentOp;
+            }
+        }
+
+        for (String currentOp : Constants.enumOperators.keySet()) {
+            if (value.contains(currentOp)) {
+                return currentOp;
+            }
+        }
         return null;
     }
 
@@ -147,16 +185,17 @@ public class Parser {
             throw new ParserException("to many " + BEGIN_BLOCK + " at position " + i);
         }
     }
-    //
-    // public static void main(String[] args) {
-    // try {
-    // System.out.println("Criteria => " + parse("((version>3.1))"));
-    // System.out.println("Criteria => " + parse("((version>3.1)or(type=business_process))"));
-    // System.out
-    // .println("Criteria => " + parse("((version>3.1)or(type=process)or(((author=nuno)and(status=Production))))"));
-    // } catch (ParserException e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
-    // }
+
+    public static void main(String[] args) {
+        try {
+            System.out.println("Criteria => " + parse("((Agency/Id CONTAINS *) AND (Agency FULLTEXTSEARCH *))"));
+            // System.out.println("Criteria => " + parse("((version>3.1)or(type=business_process))"));
+            System.out
+                    .println("Criteria => "
+                            + parse("((version CONTAINS 3.1) OR (type EQUALS process) OR (((author EQUALS nuno) OR (status LOWER_THAN_OR_EQUAL Production))))"));
+        } catch (ParserException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 }
