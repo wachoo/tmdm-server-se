@@ -1203,8 +1203,14 @@ public class Util {
         XSOMParser reader = new XSOMParser();
         reader.setAnnotationParser(new DomAnnotationParserFactory());
         reader.setEntityResolver(new SecurityEntityResolver());
+        SAXErrorHandler seh=new SAXErrorHandler();
+        reader.setErrorHandler(seh);
         reader.parse(new StringReader(xsd));
         XSSchemaSet xss = reader.getResult();
+        String errors = seh.getErrors();
+        if(errors.length()>0){
+        	throw new SAXException("DataModel parsing error--->"+errors);
+        }
         Collection xssList = xss.getSchemas();
         Map<String, XSElementDecl> mapForAll = new HashMap<String, XSElementDecl>();
         Map<String, XSElementDecl> map = null;

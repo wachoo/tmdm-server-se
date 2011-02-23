@@ -159,7 +159,7 @@ public class DataModelCtrlBean implements SessionBean{
         try {
         	if(pk==null ||pk.getUniqueId()==null)  throw new XtentisException("The Data Model can't be empty!");
         	DataModelPOJO sp =  ObjectPOJO.load(DataModelPOJO.class,pk);
-        	if (sp == null && pk.getUniqueId()!=null) {
+        	if (sp == null && pk.getUniqueId()!=null && !"null".equals(pk.getUniqueId())) {
         		String err= "The Data Model "+pk.getUniqueId()+" does not exist.";
         		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
         		throw new XtentisException(err);
