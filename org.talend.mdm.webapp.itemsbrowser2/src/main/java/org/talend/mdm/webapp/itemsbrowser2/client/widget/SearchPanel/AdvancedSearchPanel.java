@@ -52,12 +52,19 @@ public class AdvancedSearchPanel extends ContentPanel {
 
     private TextField<String> expressionTextField;
 
-    final private void setCriteria(String c) {
+    private ComboBox<BaseModel> cb;
+
+    final public void setCriteria(String c) {
         expressionTextField.setValue(c);
     }
 
     public String getCriteria() {
         return expressionTextField.getValue();
+    }
+
+    public void cleanCriteria() {
+        expressionTextField.setValue("");
+        cb.select(-1);
     }
 
     public AdvancedSearchPanel(ViewBean viewbean) {
@@ -73,7 +80,7 @@ public class AdvancedSearchPanel extends ContentPanel {
         content.setLabelWidth(120);
         content.setAutoHeight(true);
 
-        final FormData formData = new FormData("-10");
+        final FormData formData = new FormData("-20");
 
         final Button filterButton = new Button();
         filterButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
@@ -164,29 +171,28 @@ public class AdvancedSearchPanel extends ContentPanel {
 
                 setElement(wrap.dom, target, index);
 
-                filterButton.addStyleName("x-form-file-btn");
+                filterButton.addStyleName("x-form-filter-btn");
                 filterButton.render(wrap.dom);
-                // validButton.addStyleName("x-form-file-btn");
-                // validButton.render(wrap.dom);
+                validButton.addStyleName("x-form-valid-btn");
+                validButton.render(wrap.dom);
                 super.onRender(target, index);
             }
 
             protected void onResize(int width, int height) {
                 super.onResize(width, height);
-                input.setWidth(width - filterButton.getWidth() - 3, true);
-                // input.setWidth(width - filterButton.getWidth() - validButton.getWidth() - 3, true);
+                input.setWidth(width - filterButton.getWidth() - validButton.getWidth() - 6, true);
             }
 
             protected void doAttachChildren() {
                 super.doAttachChildren();
                 ComponentHelper.doAttach(filterButton);
-                // ComponentHelper.doAttach(validButton);
+                ComponentHelper.doAttach(validButton);
             }
 
             protected void doDetachChildren() {
                 super.doDetachChildren();
                 ComponentHelper.doDetach(filterButton);
-                // ComponentHelper.doDetach(validButton);
+                ComponentHelper.doDetach(validButton);
             }
 
         };
@@ -194,7 +200,7 @@ public class AdvancedSearchPanel extends ContentPanel {
         expressionTextField.setWidth("65%");
         content.add(expressionTextField, formData);
 
-        ComboBox<BaseModel> cb = new ComboBox<BaseModel>();
+        cb = new ComboBox<BaseModel>();
         cb.setEditable(false);
         cb.setWidth(120);
         cb.setFieldLabel("Add more criteria");

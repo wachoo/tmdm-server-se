@@ -81,6 +81,13 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/z.xsom.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>org.talend.mdm.commmon</groupId>
+            <artifactId>org.talend.mdm.commmon</artifactId>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../org.talend.mdm.commmon/z.mdm.common.lib.jar</systemPath>
+        </dependency>
 		<dependency>
 			<groupId>org.talend.mdm.webapp.core</groupId>
 			<artifactId>org.talend.mdm.webapp.core</artifactId>

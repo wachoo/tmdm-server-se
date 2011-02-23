@@ -2,6 +2,7 @@ package org.talend.mdm.webapp.itemsbrowser2.server;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,8 +17,10 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.BrowseItem;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
@@ -31,15 +34,30 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.FieldVerifier;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.util.webservices.WSBoolean;
+import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSDeleteItem;
+import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
+import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
+import com.amalto.webapp.util.webservices.WSItemPK;
+import com.amalto.webapp.util.webservices.WSPutItem;
+import com.amalto.webapp.util.webservices.WSStringArray;
+import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSView;
 import com.amalto.webapp.util.webservices.WSViewPK;
 import com.amalto.webapp.util.webservices.WSViewSearch;
+import com.amalto.webapp.util.webservices.WSWhereAnd;
+import com.amalto.webapp.util.webservices.WSWhereCondition;
 import com.amalto.webapp.util.webservices.WSWhereItem;
+import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.amalto.webapp.util.webservices.WSWhereOr;
+import com.amalto.webapp.util.webservices.WSXPathsSearch;
+import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -333,7 +351,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return new BasePagingLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
     }
 
-    public Map<String, String> getViewsList(String language) {
+    public List<BaseModel> getViewsList(String language) {
         try {
             Map<String, String> viewMap = null;
             if (Itemsbrowser2.IS_SCRIPT) {
@@ -351,19 +369,29 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                             .replaceAll("$1");
                     views.put(wsview.getName(), viewDesc.equals("") ? wsview.getName() : viewDesc);
                 }
-                return getMapSortedByValue(views);
+                viewMap = getMapSortedByValue(views);
             } else {
                 viewMap = new HashMap<String, String>();
                 viewMap.put("Browse_items_Agency", "Agency");
                 viewMap.put("Browse_items_Agent", "Agent");
-                return viewMap;
             }
+
+            List<BaseModel> list = new ArrayList<BaseModel>();
+            for (String key : viewMap.keySet()) {
+                BaseModel bm = new BaseModel();
+                bm.set("name", viewMap.get(key));
+                bm.set("value", key);
+                list.add(bm);
+            }
+            return list;
         } catch (XtentisWebappException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return null;
     }
@@ -391,4 +419,217 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return sortedMap;
     }
 
+    /*********************************************************************
+     * Bookmark management
+     *********************************************************************/
+
+    public boolean isExistCriteria(String dataObjectLabel, String id) {
+        try {
+            WSItemPK wsItemPK = new WSItemPK();
+            wsItemPK.setConceptName("BrowseItem");
+
+            WSDataClusterPK wsDataClusterPK = new WSDataClusterPK();
+            wsDataClusterPK.setPk(XSystemObjects.DC_SEARCHTEMPLATE.getName());
+            wsItemPK.setWsDataClusterPK(wsDataClusterPK);
+
+            String[] ids = new String[1];
+            ids[0] = id;
+            wsItemPK.setIds(ids);
+
+            WSExistsItem wsExistsItem = new WSExistsItem(wsItemPK);
+            WSBoolean wsBoolean = com.amalto.webapp.core.util.Util.getPort().existsItem(wsExistsItem);
+            return wsBoolean.is_true();
+        } catch (XtentisWebappException e) {
+            // TODO Auto-generated catch block
+            LOG.error(e.getMessage(), e);
+            return false;
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            LOG.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public String saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) {
+        String returnString = "OK";
+        try {
+            String owner = com.amalto.webapp.core.util.Util.getLoginUserName();
+            BrowseItem searchTemplate = new BrowseItem();
+            searchTemplate.setViewPK(viewPK);
+            searchTemplate.setCriteriaName(templateName);
+            searchTemplate.setShared(isShared);
+            searchTemplate.setOwner(owner);
+            searchTemplate.setCriteria(criteriaString);
+
+            WSItemPK pk = com.amalto.webapp.core.util.Util.getPort().putItem(
+                    new WSPutItem(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), searchTemplate
+                            .marshal2String(), new WSDataModelPK(XSystemObjects.DM_SEARCHTEMPLATE.getName()), false));
+
+            if (pk != null)
+                returnString = "OK";
+            else
+                returnString = null;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            returnString = e.getMessage();
+        } finally {
+            return returnString;
+        }
+    }
+
+    public PagingLoadResult<BaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load) {
+        List<String> results = Arrays.asList(getSearchTemplateNames(view, isShared, load.getOffset(), load.getLimit()));
+        List<BaseModel> list = new ArrayList<BaseModel>();
+        for (String result : results) {
+            BaseModel bm = new BaseModel();
+            bm.set("name", result);
+            bm.set("value", result);
+            list.add(bm);
+        }
+        int totalSize = Integer.parseInt(countSearchTemplate(view));
+        return new BasePagingLoadResult<BaseModel>(list, load.getOffset(), totalSize);
+    }
+
+    public List<BaseModel> getviewItemsCriterias(String view) {
+        String[] results = getSearchTemplateNames(view, true, 0, 0);
+        List<BaseModel> list = new ArrayList<BaseModel>();
+
+        for (String result : results) {
+            BaseModel bm = new BaseModel();
+            bm.set("name", result);
+            bm.set("value", result);
+            list.add(bm);
+        }
+        return list;
+    }
+
+    private String[] getSearchTemplateNames(String view, boolean isShared, int start, int limit) {
+        try {
+            int localStart = 0;
+            int localLimit = 0;
+            if (start == limit && limit == 0) {
+                localStart = 0;
+                localLimit = Integer.MAX_VALUE;
+            } else {
+                localStart = start;
+                localLimit = limit;
+
+            }
+            WSWhereItem wi = new WSWhereItem();
+
+            WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,
+                    WSStringPredicate.NONE, false);
+
+            WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,
+                    com.amalto.webapp.core.util.Util.getLoginUserName(), WSStringPredicate.NONE, false);
+            WSWhereCondition wc4;
+            WSWhereOr or = new WSWhereOr();
+            if (isShared) {
+                wc4 = new WSWhereCondition("BrowseItem/Shared", WSWhereOperator.EQUALS, "true", WSStringPredicate.OR, false);
+
+                or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null), new WSWhereItem(wc4, null, null) });
+            } else {
+                or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null) });
+            }
+
+            WSWhereAnd and = new WSWhereAnd(new WSWhereItem[] { new WSWhereItem(wc1, null, null),
+
+            new WSWhereItem(null, null, or) });
+
+            wi = new WSWhereItem(null, and, null);
+
+            String[] results = com.amalto.webapp.core.util.Util.getPort().xPathsSearch(
+                    new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
+                            new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order
+                            // by
+                            null // direction
+                    )).getStrings();
+
+            for (int i = 0; i < results.length; i++) {
+                results[i] = results[i].replaceAll("<CriteriaName>(.*)</CriteriaName>", "$1");
+            }
+            return results;
+
+        } catch (XtentisWebappException e) {
+            LOG.error(e.getMessage(), e);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    private String countSearchTemplate(String view) {
+        try {
+            WSWhereItem wi = new WSWhereItem();
+
+            // Configuration config = Configuration.getInstance();
+            WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,
+                    WSStringPredicate.NONE, false);
+            /*
+             * WSWhereCondition wc2 = new WSWhereCondition( "hierarchical-report/data-model", WSWhereOperator.EQUALS,
+             * config.getModel(), WSStringPredicate.NONE, false);
+             */
+            WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,
+                    com.amalto.webapp.core.util.Util.getLoginUserName(), WSStringPredicate.NONE, false);
+
+            WSWhereOr or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null) });
+
+            WSWhereAnd and = new WSWhereAnd(new WSWhereItem[] { new WSWhereItem(wc1, null, null),
+            /* new WSWhereItem(wc2, null, null), */
+            new WSWhereItem(null, null, or) });
+
+            wi = new WSWhereItem(null, and, null);
+            return com.amalto.webapp.core.util.Util.getPort().count(
+                    new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))
+                    .getValue();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return "0";
+        }
+    }
+
+    public String deleteSearchTemplate(String id) {
+        try {
+            String[] ids = { id };
+            String concept = "BrowseItem";
+            String dataClusterPK = XSystemObjects.DC_SEARCHTEMPLATE.getName();
+            if (ids != null) {
+                WSItemPK wsItem = com.amalto.webapp.core.util.Util.getPort().deleteItem(
+                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+
+                if (wsItem == null)
+                    return "ERROR - deleteTemplate is NULL";
+                return "OK";
+            } else {
+                return "OK";
+            }
+        } catch (Exception e) {
+            return "ERROR -" + e.getLocalizedMessage();
+        }
+    }
+
+    public String getCriteriaByBookmark(String bookmark) {
+        try {
+            String criteria = "";
+            String result = com.amalto.webapp.core.util.Util.getPort().getItem(
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem",
+                            new String[] { bookmark }))).getContent().trim();
+            if (result != null) {
+                criteria = result.substring(result.indexOf("<WhereCriteria>") + 10, result.indexOf("</WhereCriteria>"));
+
+            }
+            return criteria;
+        } catch (XtentisWebappException e) {
+            LOG.error(e.getMessage(), e);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    @Override
+    public String getUserModel() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
