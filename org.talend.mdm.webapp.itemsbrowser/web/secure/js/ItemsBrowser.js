@@ -2111,7 +2111,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:DUPLICATE_TOOLTIP[language],iconCls : 'item_bt_duplicate', text: BUTTON_DUPLICATE[language], className: 'tb-button tb-button-nude', handler: toolbar.duplicateItemHandler});
+			toolbar.addButton( {tooltip:DUPLICATE_TOOLTIP[language],disabled:!_rootNode.creatable, iconCls : 'item_bt_duplicate', text: BUTTON_DUPLICATE[language], className: 'tb-button tb-button-nude', handler: toolbar.duplicateItemHandler});
 			nbButtons++;
 		}
 		
