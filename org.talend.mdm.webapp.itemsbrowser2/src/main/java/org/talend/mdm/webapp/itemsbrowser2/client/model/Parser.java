@@ -185,17 +185,4 @@ public class Parser implements Serializable {
             throw new ParserException("to many " + BEGIN_BLOCK + " at position " + i);
         }
     }
-
-    public static void main(String[] args) {
-        try {
-            System.out.println("Criteria => " + parse("((Agency/Id CONTAINS *) AND (Agency FULLTEXTSEARCH *))"));
-            // System.out.println("Criteria => " + parse("((version>3.1)or(type=business_process))"));
-            System.out
-                    .println("Criteria => "
-                            + parse("((version CONTAINS 3.1) OR (type EQUALS process) OR (((author EQUALS nuno) OR (status LOWER_THAN_OR_EQUAL Production))))"));
-        } catch (ParserException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
 }

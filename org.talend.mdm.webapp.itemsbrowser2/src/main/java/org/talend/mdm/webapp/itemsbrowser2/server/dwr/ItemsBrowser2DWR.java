@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server.dwr;
 
 import org.apache.log4j.Logger;
@@ -20,13 +32,13 @@ public class ItemsBrowser2DWR {
         super();
     }
 
-    public String getCluster(){
+    public String getCluster() {
         try {
             Configuration config = Configuration.getInstance();
             return config.getCluster();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
             return null;
-        }       
+        }
     }
 }

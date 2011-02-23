@@ -17,6 +17,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ParserException;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.core.El;
@@ -122,8 +123,7 @@ public class AdvancedSearchPanel extends ContentPanel {
                     try {
                         multiCriteria.setCriteria(Parser.parse(curField));
                     } catch (ParserException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        Log.error(e.getMessage(), e);
                     }
                 }
                 DOM.setStyleAttribute(winFilter.getBody().dom, "backgroundColor", "white");
@@ -134,8 +134,8 @@ public class AdvancedSearchPanel extends ContentPanel {
         validButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Valid()));
         validButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
-                // TODO Auto-generated method stub
                 try {
                     String curField = expressionTextField.getValue();
                     if (curField != null && !curField.equals("")) {
@@ -143,8 +143,7 @@ public class AdvancedSearchPanel extends ContentPanel {
                         MessageBox.info("Info", "Valid expression", null);
                     }
                 } catch (ParserException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    Log.error(e.getMessage(), e);
                     MessageBox.alert("Error", "Invalid expression:" + e.getMessage(), null);
                 }
             }

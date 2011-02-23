@@ -80,7 +80,7 @@ public final class XmlUtil {
         return document;
     }
 
-    public static Document parse(File file) throws MalformedURLException, DocumentException {
+    public static Document parse(File file) throws DocumentException {
         SAXReader reader = new SAXReader();
         Document document = reader.read(file);
         return document;
@@ -93,8 +93,7 @@ public final class XmlUtil {
     }
 
     public static Document parse(String fileName) throws DocumentException {
-        InputStream is = null;
-        is = XmlUtil.class.getResourceAsStream("/" + fileName);
+        InputStream is = XmlUtil.class.getResourceAsStream("/" + fileName); //$NON-NLS-1$
         Document document = parse(is);
         return document;
     }
@@ -113,7 +112,7 @@ public final class XmlUtil {
         iterate(root, elementProcess);
     }
 
-    public static void iterate(Element parentElement, ElementProcess elementProcess) throws DocumentException {
+    public static void iterate(Element parentElement, ElementProcess elementProcess) {
         // iterate through child elements of element
         for (Iterator i = parentElement.elementIterator(); i.hasNext();) {
             Element element = (Element) i.next();
@@ -130,7 +129,7 @@ public final class XmlUtil {
 
     }
 
-    public static void iterate(Element parentElement, String elementName, ElementProcess elementProcess) throws DocumentException {
+    public static void iterate(Element parentElement, String elementName, ElementProcess elementProcess) {
 
         // iterate through child elements of element with element specific element
         // name
@@ -197,11 +196,11 @@ public final class XmlUtil {
         return list;
     }
 
-    public static List findLinks(Document document) throws DocumentException {
+    public static List<String> findLinks(Document document) {
 
-        List<String> urls = new ArrayList();
+        List<String> urls = new ArrayList<String>();
 
-        List list = document.selectNodes("//a/@href");
+        List list = document.selectNodes("//a/@href"); //$NON-NLS-1$
 
         for (Iterator iter = list.iterator(); iter.hasNext();) {
             Attribute attribute = (Attribute) iter.next();
@@ -213,19 +212,17 @@ public final class XmlUtil {
     }
 
     public static Document createDocument(DocumentCreate documentCreate) {
-
         Document document = DocumentHelper.createDocument();
-
         documentCreate.create(document);
-
-        logger.info("New Document has bean created");
+        if (logger.isDebugEnabled())
+            logger.info("New Document has bean created"); ////$NON-NLS-1$
 
         return document;
     }
 
     public static void write(Document document, String filePath, String printMode, String encoding) throws IOException {
 
-        OutputFormat format = null;
+        OutputFormat format;
 
         if (printMode.toLowerCase().equals("pretty")) {
             // Pretty print the document
@@ -233,44 +230,31 @@ public final class XmlUtil {
         } else if (printMode.toLowerCase().equals("compact")) {
             // Compact format
             format = OutputFormat.createCompactFormat();
-        }
+        } else
+            format = null;
 
         format.setEncoding(encoding);
 
         // lets write to a file
         XMLWriter writer = new XMLWriter(new FileOutputStream(filePath), format);
-
-        // XMLWriter logger = new XMLWriter( System.out, format );
-
         writer.write(document);
-
-        logger.info("New xml file has bean exported on " + filePath);
-
-        // logger.write( document );
-
-        // logger.close();
-
         writer.close();
+
+        if (logger.isDebugEnabled())
+            logger.debug("New xml file has bean exported on " + filePath); //$NON-NLS-1$
+
     }
 
     public static String toXml(Document document) {
-
-        String text = document.asXML();
-
-        return text;
+        return document.asXML();
     }
 
     public static Document fromXml(String text) throws DocumentException {
-
-        Document document = DocumentHelper.parseText(text);
-
-        return document;
+        return DocumentHelper.parseText(text);
     }
 
     public static void print(Document document) {
-
         String text = toXml(document);
-
         logger.info(text);
     }
 
@@ -288,32 +272,28 @@ public final class XmlUtil {
         // return the transformed document
         Document transformedDoc = result.getDocument();
 
-        logger.info("The xml file style transformed successfully ");
-
+        if (logger.isDebugEnabled())
+            logger.debug("The xml file style transformed successfully "); //$NON-NLS-1$
         return transformedDoc;
     }
 
     public static String format(Document document, OutputFormat format, String encoding) {
 
         StringWriter writer = new StringWriter();
-
         format.setEncoding(encoding);
-
         format.setNewLineAfterDeclaration(false);
-        // format.setSuppressDeclaration(suppressDeclaration);
 
         XMLWriter xmlwriter = new XMLWriter(writer, format);
 
         try {
-
             xmlwriter.write(document);
 
         } catch (Exception e) {
 
-            logger.error(e);
+            logger.error(e.getMessage(), e);
         }
 
-        return writer.toString().replaceAll("<\\?xml.*?\\?>", "").trim();
+        return writer.toString().replaceAll("<\\?xml.*?\\?>", "").trim(); //$NON-NLS-1$
 
     }
 
@@ -345,14 +325,11 @@ public final class XmlUtil {
 
             SAXParser parser = factory.newSAXParser();
 
-            SAXReader xmlReader = new SAXReader();
-
             Document xmlDocument = DocumentHelper.parseText(inputXml);
-            ;
 
             // [url]http://sax.sourceforge.net/?selected=get-set[/url]
-            parser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
-            parser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "file:" + xsdFileName);
+            parser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema"); //$NON-NLS-1$ //$NON-NLS-2$
+            parser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "file:" + xsdFileName); //$NON-NLS-1$
 
             SAXValidator validator = new SAXValidator(parser.getXMLReader());
 
@@ -366,7 +343,8 @@ public final class XmlUtil {
                 writer.write(errorHandler.getErrors());
             } else {
                 isValidated = true;
-                logger.info("XML file validation successfully! ");
+                if (logger.isDebugEnabled())
+                    logger.debug("XML file validation succeeded! "); //$NON-NLS-1$
             }
         } catch (Exception ex) {
             isValidated = false;
@@ -436,12 +414,6 @@ public final class XmlUtil {
             return;
         // end
         if (xsp.getTerm().asElementDecl().getType().isComplexType() == false || includeComplex == true) {
-            // Hidden the NO_ACCESS elment
-
-            // TODO getroles
-            // if (isElementHidden(xsp)) {
-            // return;
-            // }
 
             String toPutKey = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
             if (includeFKReference) {
@@ -505,8 +477,6 @@ public final class XmlUtil {
                 getChildren(xsp[j], "" + viewPk, x_Label, true, false);
             }
         } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
             logger.error(e.getMessage(), e);
         }
     }

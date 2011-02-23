@@ -77,16 +77,6 @@ public class XmlHelper {
      * DOC HSHU Comment method "getTextValueFromXpath".
      */
     public static String getTextValueFromXpath(Document doc, String xpath) {
-       
-        /* TODO use jaxen4gwt
-           try {
-            BaseXPath xp = new GWTXPath("//b[@a='x']/text()");
-            List nodeList = xp.selectNodes(doc);
-            Window.alert(((Text) nodeList.get(0)).getData());
-           } catch (JaxenException e) {
-            e.printStackTrace();
-           }
-        */
         
         //FIXME
         String label="";

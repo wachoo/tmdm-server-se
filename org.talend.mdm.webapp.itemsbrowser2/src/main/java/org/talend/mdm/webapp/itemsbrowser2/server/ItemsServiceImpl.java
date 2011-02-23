@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
 import java.io.Serializable;
@@ -122,9 +134,11 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         try {
             WSWhereItem wi = com.amalto.webapp.core.util.Util.buildWhereItems(criteria);
 
-            String[] results = com.amalto.webapp.core.util.Util.getPort().viewSearch(
-                    new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max, sortCol,
-                            sortDir)).getStrings();
+            String[] results = com.amalto.webapp.core.util.Util
+                    .getPort()
+                    .viewSearch(
+                            new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max,
+                                    sortCol, sortDir)).getStrings();
             ViewBean viewBean = getView(viewPk);
             for (int i = 0; i < results.length; i++) {
 
@@ -145,7 +159,6 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                 itemBeans.add(itemBean);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             LOG.error(e.getMessage(), e);
         }
         return new Object[] { itemBeans, totalSize };
@@ -218,11 +231,9 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
             return vb;
         } catch (XtentisWebappException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return null;
     }
@@ -254,7 +265,6 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
             return labelSearchables;
         } catch (Exception e) {
-            e.printStackTrace();
             LOG.error(e.getMessage(), e);
             return null;
         }
@@ -271,7 +281,6 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             String[] viewables = wsView.getViewableBusinessElements();
             return viewables;
         } catch (Exception e) {
-            e.printStackTrace();
             LOG.error(e.getMessage(), e);
             return null;
         }
@@ -298,15 +307,13 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
         // go through item
         try {
-        	
-        	
-        	final String viewPk = view.getViewPK().substring("Browse_items_".length());
-        	final Map<String, String> metaDataType = view.getMetaDataTypes();
-        	
+
+            final String viewPk = view.getViewPK().substring("Browse_items_".length());
+            final Map<String, String> metaDataType = view.getMetaDataTypes();
+
             Document itemDoc = XmlUtil.parseText(itemXml);
             XmlUtil.iterate(itemDoc, new ElementProcess() {
 
-                @Override
                 public void process(Element element) {
 
                     ItemFormLineBean itemFormLineBean = new ItemFormLineBean();
@@ -316,7 +323,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                     // TODO check with complete schema
                     String label = element.getName();
                     String value = element.getText();
-                    
+
                     String fieldType = metaDataType.get(viewPk + "/" + label);
                     itemFormLineBean.setFieldType(fieldType);
                     itemFormLineBean.setFieldLabel(label);
@@ -341,11 +348,10 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return itemFormBean;
     }
 
-    @Override
     public PagingLoadResult<ItemBean> queryItemBean(QueryModel config) {
         PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
-        Object[] result = getItemBeans(config.getDataClusterPK(), config.getViewPK(), config.getCriteria().toString(), pagingLoad
-                .getOffset(), pagingLoad.getLimit());
+        Object[] result = getItemBeans(config.getDataClusterPK(), config.getViewPK(), config.getCriteria().toString(),
+                pagingLoad.getOffset(), pagingLoad.getLimit());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
         return new BasePagingLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
@@ -385,12 +391,8 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             }
             return list;
         } catch (XtentisWebappException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
             LOG.error(e.getMessage(), e);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
             LOG.error(e.getMessage(), e);
         }
         return null;
@@ -538,12 +540,12 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
             wi = new WSWhereItem(null, and, null);
 
-            String[] results = com.amalto.webapp.core.util.Util.getPort().xPathsSearch(
-                    new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
+            String[] results = com.amalto.webapp.core.util.Util.getPort()
+                    .xPathsSearch(new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
                             new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order
                             // by
                             null // direction
-                    )).getStrings();
+                            )).getStrings();
 
             for (int i = 0; i < results.length; i++) {
                 results[i] = results[i].replaceAll("<CriteriaName>(.*)</CriteriaName>", "$1");
@@ -579,8 +581,8 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             new WSWhereItem(null, null, or) });
 
             wi = new WSWhereItem(null, and, null);
-            return com.amalto.webapp.core.util.Util.getPort().count(
-                    new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))
+            return com.amalto.webapp.core.util.Util.getPort()
+                    .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))
                     .getValue();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -611,9 +613,11 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     public String getCriteriaByBookmark(String bookmark) {
         try {
             String criteria = "";
-            String result = com.amalto.webapp.core.util.Util.getPort().getItem(
-                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem",
-                            new String[] { bookmark }))).getContent().trim();
+            String result = com.amalto.webapp.core.util.Util
+                    .getPort()
+                    .getItem(
+                            new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
+                                    "BrowseItem", new String[] { bookmark }))).getContent().trim();
             if (result != null) {
                 criteria = result.substring(result.indexOf("<WhereCriteria>") + 10, result.indexOf("</WhereCriteria>"));
 
@@ -627,9 +631,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return null;
     }
 
-    @Override
     public String getUserModel() {
-        // TODO Auto-generated method stub
         return null;
     }
 }

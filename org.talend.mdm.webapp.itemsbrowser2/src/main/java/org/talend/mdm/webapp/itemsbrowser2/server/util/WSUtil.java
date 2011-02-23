@@ -1,9 +1,23 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server.util;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dwr.CommonDWR;
@@ -17,17 +31,17 @@ import com.amalto.webapp.util.webservices.WSViewPK;
 
 public class WSUtil {
 
+    private static final Logger LOG = Logger.getLogger(WSUtil.class);
+
     private static WSView wsView;
 
     public static void setWSView(String viewPK) {
         try {
             wsView = getWSView(viewPK);
         } catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } catch (XtentisWebappException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
     }
 
@@ -45,12 +59,12 @@ public class WSUtil {
             String[] searchables = wsView.getSearchableBusinessElements();
             Map<String, String> labelSearchables = new LinkedHashMap<String, String>();
             HashMap<String, String> xpathToLabel = new HashMap<String, String>();
-            if (viewPK.contains("Browse_items_")) {
+            if (viewPK.contains("Browse_items_")) { //$NON-NLS-1$
                 String concept = CommonDWR.getConceptFromBrowseItemView(viewPK);
                 xpathToLabel = CommonDWR.getFieldsByDataModel(config.getModel(), concept, language, true);
             } else {
-                String[] concepts = Util.getPort().getBusinessConcepts(
-                        new WSGetBusinessConcepts(new WSDataModelPK(config.getModel()))).getStrings();
+                String[] concepts = Util.getPort()
+                        .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(config.getModel()))).getStrings();
                 for (int i = 0; i < concepts.length; i++) {
                     xpathToLabel.putAll(CommonDWR.getFieldsByDataModel(config.getModel(), concepts[i], language, true));
                 }
@@ -64,7 +78,7 @@ public class WSUtil {
 
             return labelSearchables;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
             return null;
         }
     }

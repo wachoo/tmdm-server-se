@@ -19,41 +19,40 @@ import org.apache.log4j.Logger;
 
 public class UploadServlet extends HttpServlet {
 
-	private static final Logger LOG = Logger.getLogger(UploadServlet.class);
-	
-	public UploadServlet(){
-		super();
-	}
-	
-	public void doPost (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		ServletFileUpload upload = new ServletFileUpload ();
-        FileItemIterator iter;  
-        try {
-			iter = upload.getItemIterator (request);
-			while (iter.hasNext ()) {
-				FileItemStream item = iter.next ();  
-  
-                if ("uploadedfile".equals (item.getFieldName ())) {
-                	BufferedInputStream bin = new BufferedInputStream (item.openStream ());  
-                    String filePath = getServletContext ().getRealPath ("/imageserver/upload/temp.gif");  
-                    
-                    File file = new File (filePath);  
+    private static final Logger LOG = Logger.getLogger(UploadServlet.class);
 
-                    BufferedOutputStream bout = new BufferedOutputStream (new FileOutputStream (file));  
-                    byte[] b = new byte[8 * 1024];  
-  
-                    int i = bin.read (b);  
-                    while (i > 0) {  
-                        bout.write (b, 0, i);  
-                        i = bin.read (b);  
-                    }  
-                    bout.flush ();  
-                    bout.close ();  
+    public UploadServlet() {
+        super();
+    }
+
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        ServletFileUpload upload = new ServletFileUpload();
+        FileItemIterator iter;
+        try {
+            iter = upload.getItemIterator(request);
+            while (iter.hasNext()) {
+                FileItemStream item = iter.next();
+
+                if ("uploadedfile".equals(item.getFieldName())) {
+                    BufferedInputStream bin = new BufferedInputStream(item.openStream());
+                    String filePath = getServletContext().getRealPath("/imageserver/upload/temp.gif");
+
+                    File file = new File(filePath);
+
+                    BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(file));
+                    byte[] b = new byte[8 * 1024];
+
+                    int i = bin.read(b);
+                    while (i > 0) {
+                        bout.write(b, 0, i);
+                        i = bin.read(b);
+                    }
+                    bout.flush();
+                    bout.close();
                 }
-			}
-		} catch (FileUploadException e) {
-			LOG.error(e.getMessage(), e);
-			e.printStackTrace();
-		}  
-	}
+            }
+        } catch (FileUploadException e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
 }
