@@ -1,8 +1,15 @@
-/*
- * Ext GWT - Ext for GWT Copyright(c) 2007-2009, Ext JS, LLC. licensing@extjs.com
- * 
- * http://extjs.com/license
- */
+// ============================================================================
+//
+// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import java.util.ArrayList;
@@ -50,11 +57,11 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -148,18 +155,16 @@ public class ItemsListPanel extends ContentPanel {
 
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
+            @Override
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
                 String viewPk = se.getSelectedItem().get("value").toString();
-                // TODO Auto-generated method stub
                 service.getView(viewPk, new AsyncCallback<ViewBean>() {
 
                     public void onFailure(Throwable arg0) {
-                        // TODO Auto-generated method stub
 
                     }
 
                     public void onSuccess(ViewBean arg0) {
-                        // TODO Auto-generated method stub
                         simplePanel.updateFields(arg0);
                         searchBut.setEnabled(true);
                         advancedBut.setEnabled(true);
@@ -178,8 +183,8 @@ public class ItemsListPanel extends ContentPanel {
         searchBut.setEnabled(false);
         searchBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
-                // TODO
                 isSimple = true;
                 String viewPk = entityCombo.getValue().get("value");
                 Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
@@ -226,15 +231,11 @@ public class ItemsListPanel extends ContentPanel {
                 service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(),
                         new AsyncCallback<List<BaseModel>>() {
 
-                            @Override
                             public void onFailure(Throwable arg0) {
-                                // TODO Auto-generated method stub
 
                             }
 
-                            @Override
                             public void onSuccess(List<BaseModel> arg0) {
-                                // TODO Auto-generated method stub
                                 bookStore.removeAll();
                                 bookStore.add(arg0);
                             }
@@ -243,22 +244,16 @@ public class ItemsListPanel extends ContentPanel {
 
                 cbBookmark.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
-                    @Override
                     public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
-                        // TODO Auto-generated method stub
                         if (se.getSelectedItem() != null) {
                             service.getCriteriaByBookmark(se.getSelectedItem().get("value").toString(),
                                     new AsyncCallback<String>() {
 
-                                        @Override
                                         public void onFailure(Throwable arg0) {
-                                            // TODO Auto-generated method stub
 
                                         }
 
-                                        @Override
                                         public void onSuccess(String arg0) {
-                                            // TODO Auto-generated method stub
                                             advancedPanel.setCriteria(arg0);
                                         }
 
@@ -313,29 +308,21 @@ public class ItemsListPanel extends ContentPanel {
                                 service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue()
                                         .toString(), new AsyncCallback<Boolean>() {
 
-                                    @Override
                                     public void onFailure(Throwable arg0) {
-                                        // TODO Auto-generated method stub
                                         MessageBox.alert("Status", "This Bookmark already exist,please enter other name!", null);
                                     }
 
-                                    @Override
                                     public void onSuccess(Boolean arg0) {
-                                        // TODO Auto-generated method stub
                                         if (!arg0) {
                                             service.saveCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield
                                                     .getValue().toString(), cb.getValue(), advancedPanel.getCriteria(),
                                                     new AsyncCallback<String>() {
 
-                                                        @Override
                                                         public void onFailure(Throwable arg0) {
-                                                            // TODO Auto-generated method stub
                                                             MessageBox.alert("Save", "Save Bookmark failed!", null);
                                                         }
 
-                                                        @Override
                                                         public void onSuccess(String arg0) {
-                                                            // TODO Auto-generated method stub
                                                             if (arg0.equals("OK")) {
                                                                 MessageBox.alert("Save", "Save Bookmark Successfully!", null);
                                                                 winBookmark.close();
@@ -366,7 +353,6 @@ public class ItemsListPanel extends ContentPanel {
                 managebookBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     public void componentSelected(ButtonEvent ce) {
-                        // TODO Auto-generated method stub
                         final Window winBookmark = new Window();
                         winBookmark.setHeading("Manage Search Bookmarks");
                         winBookmark.setAutoHeight(true);
@@ -412,9 +398,7 @@ public class ItemsListPanel extends ContentPanel {
                                 image.setResource(Icons.INSTANCE.remove());
                                 image.addClickListener(new ClickListener() {
 
-                                    @Override
                                     public void onClick(Widget arg0) {
-                                        // TODO Auto-generated method stub
                                         MessageBox.confirm("Confirm", "Do you really want to remove this Bookmark?",
                                                 new Listener<MessageBoxEvent>() {
 
@@ -515,8 +499,8 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer.setBottomComponent(pagingBar);
         grid = new Grid<ItemBean>(store, cm);
         grid.getView().setForceFit(true);
-        if (cm.getColumnCount() > 0){
-        	grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
+        if (cm.getColumnCount() > 0) {
+            grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
         }
         grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
 
