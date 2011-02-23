@@ -414,8 +414,9 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
     		if(contents.length==0 && exp.getOperator()==RoutingRuleExpressionPOJO.IS_NULL){
     			return true;
     		}
+    		boolean flag=false;
     		for(String content: contents) {
-    			boolean flag=false;
+    		    if(flag)break;
 	    		switch (exp.getOperator()) {
 		    		case RoutingRuleExpressionPOJO.CONTAINS:
 		    			if (content!=null && content.indexOf(exp.getValue())>-1)
@@ -470,16 +471,15 @@ public class RoutingEngineV2CtrlBean implements SessionBean, TimedObject {
 		    			break;
 		    		default:
 		    			continue;
-		    		
 	    		}
-	    		return flag;
     		}
+    		return flag;
     	} catch (TransformerException e) {
     		String err = "Subscription rule expression match: unable extract xpath '"+exp.getXpath()+"' from Item '"+itemPOJO.getItemPOJOPK().getUniqueID()+"': "+e.getLocalizedMessage();
     		org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
     		throw new XtentisException(err);
-    	}
-    	return false;
+    		
+    	}	
     	
     }
     
