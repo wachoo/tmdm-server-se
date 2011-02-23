@@ -5,53 +5,41 @@
  */
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
+import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Composite;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.user.client.ui.Widget;
 
-public class ItemsFormPanel extends ContentPanel {
+public class ItemsFormPanel extends Composite {
 
-    private FormPanel content;
-
-    private FormData formData;
-
-    private ItemFormBean itemFormBean;
-
-    public ItemsFormPanel() {
-
-        setHeaderVisible(false);
-        setLayout(new FitLayout());
-
-        content = new FormPanel();
-        content.setFrame(false);
-        content.setBodyBorder(false);
-        content.setHeaderVisible(false);
-        content.setScrollMode(Scroll.AUTO);
-
-        add(content);
-
-        formData = new FormData("-20");
-
-    }
-   
-
-    public ItemsFormPanel(ItemFormBean itemFormBean) {
-        this();
-        this.itemFormBean = itemFormBean;
-    }
-    
-    
+	ItemFormBean itemFormBean;
+	
+	FormPanel content = new FormPanel();
+	
+	public ItemsFormPanel(){
+		content.setFrame(true);
+		content.setHeaderVisible(false);
+		this.initComponent(content);
+	}
+	
+	 public ItemsFormPanel(ItemFormBean itemFormBean) {
+		this();
+		this.itemFormBean = itemFormBean;
+	 }
+	
     public void setItemFormBean(ItemFormBean itemFormBean) {
         this.itemFormBean = itemFormBean;
     }
-
 
     public String getDisplayTitle() {
         String title="Item's form";
@@ -59,26 +47,52 @@ public class ItemsFormPanel extends ContentPanel {
         return title;
     }
     
-    public void showItem() {
+	private Widget buildItemGroup(ItemFormLineBean lineBean){
+		FieldSet fs = new FieldSet();
+		fs.setHeading(lineBean.getFieldLabel());
+		fs.setCollapsible(true);
+		
+		FormLayout layout = new FormLayout();  
+	    layout.setLabelWidth(75);  
+	    fs.setLayout(layout);  
+		
+		List<ItemFormLineBean> children = lineBean.getChildren();
+		for (ItemFormLineBean child : children){
+			Widget field = buildItem(child);
+			fs.add(field);
+		}
+		return fs;
+	}
+	
+	private Widget buildItem(ItemFormLineBean lineBean){
+		
+		List<ItemFormLineBean> children = lineBean.getChildren();
+		if (children != null && children.size() > 0){
+			return buildItemGroup(lineBean);
+		} else {
+			Field<Serializable> field = FieldCreator.createField(lineBean.getFieldType());
+			field.setFieldLabel(lineBean.getFieldLabel());
+			field.setValue(lineBean.getFieldValue());
+			return field;
+		}
+	}
+	
+	public void showItem() {
         showItem(null,false);
     }
 
     public void showItem(ItemFormBean _itemForm, boolean override) {
-        if(override)setItemFormBean(_itemForm);
-        if (itemFormBean != null) {
+    	if(override)setItemFormBean(_itemForm);
 
-            content.removeAll();
-            
-            for (Iterator<ItemFormLineBean> iterator = itemFormBean.iteratorLine(); iterator.hasNext();) {
-                ItemFormLineBean itemFormLine = (ItemFormLineBean) iterator.next();
-                content.add(itemFormLine.genField(), formData);
-            }
-            
-            content.layout();
-
-        } else {
-            content.removeAll();
-        }
+    	content.removeAll();
+    	if (itemFormBean != null) {
+    		Iterator<ItemFormLineBean> lineIter = itemFormBean.iteratorLine();
+    		while (lineIter.hasNext()){
+    			ItemFormLineBean lineBean = lineIter.next();
+    			Widget w = buildItem(lineBean);
+				content.add(w);
+    		}
+    	}
+    	content.layout(true);
     }
-
 }

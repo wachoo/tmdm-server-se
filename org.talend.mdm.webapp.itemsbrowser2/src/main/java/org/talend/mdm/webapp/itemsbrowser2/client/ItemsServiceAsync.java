@@ -20,8 +20,7 @@ public interface ItemsServiceAsync {
 
     void getEntityItems(String entityName, AsyncCallback<List<ItemBean>> callback);
 
-    void setForm(ItemBean item, AsyncCallback<ItemFormBean> callback);
-
+	void setForm(ItemBean item, ViewBean view, AsyncCallback<ItemFormBean> callback);
 	void queryItemBean(QueryModel config,
 			AsyncCallback<PagingLoadResult<ItemBean>> callback);
 
@@ -29,4 +28,8 @@ public interface ItemsServiceAsync {
     void getViewsList(String language, AsyncCallback<Map<String, String>> callback);
 
     void getView(String viewPk, AsyncCallback<ViewBean> callback);
+
+
+
+
 }

@@ -387,8 +387,7 @@ public final class XmlUtil {
         while (iter.hasNext()) {
             Element el = (Element) iter.next();
             if (el.getName().endsWith(label)) {
-                Element firstEl = (Element) elem.elements().get(0);
-                return firstEl.getText();
+                return el.getText();
             }
 
         }

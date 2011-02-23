@@ -12,19 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.extjs.gxt.ui.client.core.El;
-import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.data.BaseModel;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ComponentPlugin;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -43,10 +35,13 @@ public class ItemFormLineBean extends BaseModel {
 
     private String fieldLabel;
 
-    private String fieldValue;
+    private Serializable fieldValue;
 
     private boolean hasForeignKey;
 
+    List<ItemFormLineBean> children = new ArrayList<ItemFormLineBean>();
+	ItemFormLineBean parent;
+    
     /**
      * DOC HSHU ItemFormBean constructor comment.
      */
@@ -70,11 +65,11 @@ public class ItemFormLineBean extends BaseModel {
         this.fieldLabel = fieldLabel;
     }
 
-    public String getFieldValue() {
+    public Serializable getFieldValue() {
         return fieldValue;
     }
 
-    public void setFieldValue(String fieldValue) {
+    public void setFieldValue(Serializable fieldValue) {
         this.fieldValue = fieldValue;
     }
 
@@ -86,64 +81,52 @@ public class ItemFormLineBean extends BaseModel {
         this.hasForeignKey = hasForeignKey;
     }
 
-    /**
-     * DOC HSHU Comment method "genField".
-     */
-    public Widget genField() {
+//    private TextField genTextField() {
+//
+//        ComponentPlugin plugin = new ComponentPlugin() {
+//
+//            public void init(Component component) {
+//                component.addListener(Events.Render, new Listener<ComponentEvent>() {
+//
+//                    public void handleEvent(ComponentEvent be) {
+//                        El elem = be.getComponent().el().findParent(".x-form-element", 3);
+//                        // should style in external CSS rather than directly
+//                        // TODO customize to link
+//                        elem.appendChild(XDOM.create("<div style='color: 615f5f;padding: 1 0 2 0px;'>"
+//                                + be.getComponent().getData("text") + "</div>"));
+//                    }
+//                });
+//            }
+//        };
+//
+//        TextField<D> field = new TextField<D>();
+//        
+//        field.setAllowBlank(false);
+//        field.setFieldLabel(fieldLabel);
+//        field.setValue(fieldValue);
+//        if (hasForeignKey) {
+//            field.addPlugin(plugin);
+//            field.setData("text", "Has Foreign Key");
+//        }
+//
+//        return field;
+//    }
 
-        Widget field = null;
-
-        if (FIELD_TYPE_TEXTFIELD.equals(fieldType)) {
-            field = genTextField();
-        } else if (FIELD_TYPE_URL.equals(fieldType)) {
-        	field = getMapField();
-        } else {
-        	field = genTextField();
-        }
-
-        return field;
-
-    }
-    class MyText extends TextField<String>{
-		
+	public List<ItemFormLineBean> getChildren() {
+		return children;
 	}
+
+	public void setChildren(List<ItemFormLineBean> children) {
+		this.children = children;
+	}
+
+	public ItemFormLineBean getParent() {
+		return parent;
+	}
+
+	public void setParent(ItemFormLineBean parent) {
+		this.parent = parent;
+	}
+
     
-    private Field getMapField(){
-    	UrlBean mapBean = new UrlBean("URL", fieldValue);
-    	UrlField field = new UrlField(mapBean);
-    	field.setFieldLabel(fieldLabel);
-    	return field;
-    }
-
-    private TextField genTextField() {
-
-        ComponentPlugin plugin = new ComponentPlugin() {
-
-            public void init(Component component) {
-                component.addListener(Events.Render, new Listener<ComponentEvent>() {
-
-                    public void handleEvent(ComponentEvent be) {
-                        El elem = be.getComponent().el().findParent(".x-form-element", 3);
-                        // should style in external CSS rather than directly
-                        // TODO customize to link
-                        elem.appendChild(XDOM.create("<div style='color: 615f5f;padding: 1 0 2 0px;'>"
-                                + be.getComponent().getData("text") + "</div>"));
-                    }
-                });
-            }
-        };
-
-        TextField<String> field = new TextField<String>();
-        
-        field.setAllowBlank(false);
-        field.setFieldLabel(fieldLabel);
-        field.setValue(fieldValue);
-        if (hasForeignKey) {
-            field.addPlugin(plugin);
-            field.setData("text", "Has Foreign Key");
-        }
-
-        return field;
-    }
-
 }

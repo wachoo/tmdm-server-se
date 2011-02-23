@@ -35,7 +35,7 @@ public interface ItemsService extends RemoteService {
     
     ViewBean getView(String viewPk);
 
-    ItemFormBean setForm(ItemBean item);
+    ItemFormBean setForm(ItemBean item, ViewBean view);
 
     Map<String, String> getViewsList(String language);
 }

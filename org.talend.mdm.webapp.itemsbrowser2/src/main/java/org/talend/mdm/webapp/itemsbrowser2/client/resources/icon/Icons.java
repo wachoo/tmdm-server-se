@@ -38,4 +38,13 @@ public interface Icons extends ClientBundle {
 
     @Source("valid.png")
     ImageResource Valid();
+    
+    @Source("add-element.gif")
+    ImageResource add_element();
+    
+    @Source("image_add.png")
+    ImageResource image_add();
+    
+    @Source("no_image.gif")
+    ImageResource no_image();
 }

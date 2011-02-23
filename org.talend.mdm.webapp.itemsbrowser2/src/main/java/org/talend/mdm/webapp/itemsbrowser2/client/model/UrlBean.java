@@ -1,29 +1,36 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
+import java.io.Serializable;
 
-public class UrlBean extends BaseModel {
+public class UrlBean implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String name;
+	private String address;
+	
 	public UrlBean(){}
 	
 	public UrlBean(String name, String address){
-		set("name", name);
-		set("address", address);
+		this.name = name;
+		this.address = address;
 	}
 	
 	public String getName(){
-		return get("name");
+		return name;
 	}
 	
 	public void setName(String name){
-		set("name", name);
+		this.name = name;
 	}
 	
 	public String getAddress(){
-		return get("address");
+		return address;
 	}
 	
 	public void setAddress(String address){
-		set("address", address);
+		this.address = address;
 	}
 }

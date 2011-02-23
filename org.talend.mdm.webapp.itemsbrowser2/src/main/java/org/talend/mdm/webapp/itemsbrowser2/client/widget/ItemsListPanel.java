@@ -270,6 +270,9 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer.setBottomComponent(pagingBar);
         grid = new Grid<ItemBean>(store, cm);
         grid.getView().setForceFit(true);
+        if (cm.getColumnCount() > 0){
+        	grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
+        }
         grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
 
             public void handleEvent(GridEvent<ItemBean> be) {

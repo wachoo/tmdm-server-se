@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.itemsbrowser2.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.mockup.ClientFakeData;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
@@ -31,6 +30,7 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -223,7 +223,7 @@ public class ItemsView extends View {
 
     }
 
-    private void addTab(Container c, String tabId, String tabName, boolean closable) {
+    private void addTab(Component c, String tabId, String tabName, boolean closable) {
         TabItem item = tabFrame.getItemByItemId(tabId);
 
         if (item == null) {
@@ -244,7 +244,7 @@ public class ItemsView extends View {
     /**
      * DOC HSHU Comment method "addWin".
      */
-    private void addWin(Container c, String title) {
+    private void addWin(Component c, String title) {
 
         // FIXME Do we need one window for one item?
 

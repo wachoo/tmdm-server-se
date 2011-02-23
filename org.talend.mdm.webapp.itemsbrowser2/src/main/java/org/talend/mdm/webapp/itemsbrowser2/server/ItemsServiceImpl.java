@@ -1,5 +1,6 @@
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeCustomerConcept;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
+import org.talend.mdm.webapp.itemsbrowser2.server.util.ModelCreator;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.XmlUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.ElementProcess;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FieldVerifier;
@@ -261,7 +263,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     /**
      * DOC HSHU Comment method "setForm".
      */
-    public ItemFormBean setForm(ItemBean item) {
+    public ItemFormBean setForm(ItemBean item, ViewBean view) {
 
         final ItemFormBean itemFormBean = new ItemFormBean();
         if (item == null) {
@@ -278,7 +280,11 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
         // go through item
         try {
-
+        	
+        	
+        	final String viewPk = view.getViewPK().substring("Browse_items_".length());
+        	final Map<String, String> metaDataType = view.getMetaDataTypes();
+        	
             Document itemDoc = XmlUtil.parseText(itemXml);
             XmlUtil.iterate(itemDoc, new ElementProcess() {
 
@@ -292,10 +298,12 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                     // TODO check with complete schema
                     String label = element.getName();
                     String value = element.getText();
-
-                    itemFormLineBean.setFieldType(ItemFormLineBean.FIELD_TYPE_TEXTFIELD);
+                    
+                    String fieldType = metaDataType.get(viewPk + "/" + label);
+                    itemFormLineBean.setFieldType(fieldType);
                     itemFormLineBean.setFieldLabel(label);
-                    itemFormLineBean.setFieldValue(value);
+                    Serializable model = ModelCreator.createModel(fieldType, value);
+                    itemFormLineBean.setFieldValue(model);
 
                     // check foreign key
                     List<String> paths = fakeCustomerConcept.getForeignKeyPaths();
