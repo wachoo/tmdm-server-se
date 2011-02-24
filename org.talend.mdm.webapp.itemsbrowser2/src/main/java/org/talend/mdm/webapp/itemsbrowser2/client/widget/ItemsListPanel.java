@@ -88,6 +88,8 @@ public class ItemsListPanel extends ContentPanel {
     // add simple search criteria
     boolean isSimple;
 
+    static String userModel = null;
+
     SimpleCriterionPanel simplePanel;
 
     AdvancedSearchPanel advancedPanel;
@@ -101,7 +103,7 @@ public class ItemsListPanel extends ContentPanel {
         @Override
         public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBean>> callback) {
             QueryModel qm = new QueryModel();
-            qm.setDataClusterPK("DStar");
+            qm.setDataClusterPK(userModel);
             qm.setViewPK(entityCombo.getValue().get("value").toString());
             if (isSimple)
                 qm.setCriteria(simplePanel.getCriteria().toString());
@@ -126,12 +128,11 @@ public class ItemsListPanel extends ContentPanel {
 
     final Button advancedBut = new Button("Advanced Search");
 
-    static String userModel = null;
-
     public ItemsListPanel() {
         setLayout(new FitLayout());
         setHeaderVisible(false);
 
+        // init user saved model
         service.getUserModel(new AsyncCallback<String>() {
 
             @Override

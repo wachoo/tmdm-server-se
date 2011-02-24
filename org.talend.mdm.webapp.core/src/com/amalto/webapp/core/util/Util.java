@@ -619,8 +619,8 @@ public class Util {
      * @throws Exception
      */
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws Exception {
-        XObject xo = XPathAPI.eval(contextNode, xPath,
-                (namespace == null) ? contextNode : Util.getRootElement("nsholder", namespace, prefix));
+        XObject xo = XPathAPI.eval(contextNode, xPath, (namespace == null) ? contextNode : Util.getRootElement("nsholder",
+                namespace, prefix));
         if (xo.getType() != XObject.CLASS_NODESET)
             return null;
         return xo.nodelist();
@@ -844,6 +844,19 @@ public class Util {
         Element user = (Element) Util.getNodeList(Util.parse(userString), "//User").item(0);
         return user;
         // return com.amalto.core.util.Util.getLoginProvisioningFromDB();
+    }
+
+    public static String getUserDataModel() throws Exception {
+        Element item = getLoginProvisioningFromDB();
+        NodeList nodeList = Util.getNodeList(item, "//property");
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            if ("model".equals(Util.getFirstTextNode(node, "name"))) {
+                Node fchild = Util.getNodeList(node, "value").item(0).getFirstChild();
+                return fchild.getNodeValue();
+            }
+        }
+        return null;
     }
 
     /*********************************************************************
@@ -1098,8 +1111,7 @@ public class Util {
                 int i = j;
                 while ((i > 0 && itemsBrowserContent.get(i - 1)[col].length() > 0 && temp[col].length() > 0 && Double
                         .parseDouble(itemsBrowserContent.get(i - 1)[col]) > Double.parseDouble(temp[col]))
-                        || i > 0
-                        && temp[col].length() == 0) {
+                        || i > 0 && temp[col].length() == 0) {
                     itemsBrowserContent.set(i, itemsBrowserContent.get(i - 1));
                     i--;
                 }

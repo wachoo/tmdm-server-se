@@ -52,11 +52,11 @@ import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
 import com.amalto.webapp.util.webservices.WSExistsItem;
+import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
-import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSStringArray;
@@ -202,7 +202,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
             String xsd;
             // TODO
-            String model = "DStar";
+            String model = getUserModel();
             String concept = getConceptFromBrowseItemView(viewPk);
 
             Map<String, String> metaDataTypes = null;
@@ -359,20 +359,30 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     public List<BaseModel> getViewsList(String language) {
         try {
             Map<String, String> viewMap = null;
+
             if (Itemsbrowser2.IS_SCRIPT) {
+                String model = getUserModel();
+                String[] businessConcept = com.amalto.webapp.core.util.Util.getPort().getBusinessConcepts(
+                        new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
+                ArrayList<String> bc = new ArrayList<String>();
+                for (int i = 0; i < businessConcept.length; i++) {
+                    bc.add(businessConcept[i]);
+                }
                 WSViewPK[] wsViewsPK;
                 wsViewsPK = com.amalto.webapp.core.util.Util.getPort().getViewPKs(new WSGetViewPKs("Browse_items.*"))
                         .getWsViewPK();
 
-                String[] names = new String[wsViewsPK.length];
                 TreeMap<String, String> views = new TreeMap<String, String>();
                 Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);
                 for (int i = 0; i < wsViewsPK.length; i++) {
                     WSView wsview = com.amalto.webapp.core.util.Util.getPort().getView(new WSGetView(wsViewsPK[i]));
-                    names[i] = wsViewsPK[i].getPk();
-                    String viewDesc = p.matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName())
-                            .replaceAll("$1");
-                    views.put(wsview.getName(), viewDesc.equals("") ? wsview.getName() : viewDesc);
+                    String concept = wsview.getName().replaceAll("Browse_items_", "").replaceAll("#.*", "");
+                    if (bc.contains(concept)) {
+                        String viewDesc = p.matcher(
+                                !wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName())
+                                .replaceAll("$1");
+                        views.put(wsview.getName(), viewDesc.equals("") ? wsview.getName() : viewDesc);
+                    }
                 }
                 viewMap = getMapSortedByValue(views);
             } else {
@@ -630,14 +640,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
     public String getUserModel() {
         try {
-            WSItem item = com.amalto.webapp.core.util.Util.getPort().getItem(
-                    new WSGetItem(new WSItemPK(new WSDataClusterPK("PROVISIONING"), "User",
-                            new String[] { com.amalto.webapp.core.util.Util.getLoginUserName() })));
-            String userString = item.getContent();
-
-            Element user = (Element) com.amalto.webapp.core.util.Util.getNodeList(
-                    com.amalto.webapp.core.util.Util.parse(userString), "//User").item(0);
-            return user.asXML();
+            return com.amalto.webapp.core.util.Util.getUserDataModel();
         } catch (Exception e) {
             return null;
         }
