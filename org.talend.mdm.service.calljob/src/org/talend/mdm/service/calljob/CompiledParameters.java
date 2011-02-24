@@ -124,7 +124,7 @@ public class CompiledParameters implements Serializable {
 		compiled.setUrl(url);
 
 		
-		Document parametersDoc = Util.parse(xml);
+		Document parametersDoc = params.getOwnerDocument();
 		List<ContextParam> paramsList=new ArrayList<ContextParam>();
 		NodeList paramList = Util.getNodeList(parametersDoc.getDocumentElement(), "//contextParam");
 		for (int i=0; i<paramList.getLength(); i++) {
