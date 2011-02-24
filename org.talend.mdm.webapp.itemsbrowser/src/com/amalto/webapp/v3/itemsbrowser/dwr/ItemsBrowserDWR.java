@@ -367,7 +367,7 @@ public class ItemsBrowserDWR {
         WebContext ctx = WebContextFactory.get();
         ctx.getSession().setAttribute("itemDocument" + docIndex + "_wsItem", wsItem);
         ctx.getSession().setAttribute("itemDocument" + docIndex, document);
-        ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", document);
+        ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", Util.copyDocument(document));
 
     }
 
@@ -432,7 +432,7 @@ public class ItemsBrowserDWR {
                     document = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
                 }
 
-                ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", document); //$NON-NLS-1$ //$NON-NLS-2$
+                ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", Util.copyDocument(document)); //$NON-NLS-1$ //$NON-NLS-2$
                 // update the node according to schema
                 // if("sequence".equals(com.amalto.core.util.Util.getConceptModelType(concept, xsd))) {
                 Node newNode = com.amalto.core.util.Util.updateNodeBySchema(concept, xsd, document.getDocumentElement());

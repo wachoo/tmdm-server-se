@@ -44,6 +44,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.rpc.Stub;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -549,6 +550,18 @@ public class Util {
         if ("&=".equals(operator))
             return com.amalto.webapp.util.webservices.WSWhereOperator.CONTAINS;
         return null;
+    }
+    
+
+    public static Document copyDocument(Document doc) throws Exception {
+        
+        TransformerFactory tfactory = TransformerFactory.newInstance();
+        Transformer tx   = tfactory.newTransformer();
+        DOMSource source = new DOMSource(doc);
+        DOMResult result = new DOMResult();
+        tx.transform(source,result);
+        return (Document)result.getNode();
+        
     }
 
     /**
