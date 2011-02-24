@@ -135,15 +135,10 @@ public class ItemsListPanel extends ContentPanel {
         // init user saved model
         service.getUserModel(new AsyncCallback<String>() {
 
-            @Override
             public void onFailure(Throwable arg0) {
-                // TODO Auto-generated method stub
-
             }
 
-            @Override
             public void onSuccess(String arg0) {
-                // TODO Auto-generated method stub
                 userModel = arg0;
             }
 
@@ -219,6 +214,7 @@ public class ItemsListPanel extends ContentPanel {
         advancedBut.setEnabled(false);
         advancedBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 // show advanced Search panel
                 final Window winAdvanced = new Window();
@@ -232,6 +228,7 @@ public class ItemsListPanel extends ContentPanel {
                 Button searchBtn = new Button("Search");
                 searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                    @Override
                     public void componentSelected(ButtonEvent ce) {
                         if (advancedPanel.getCriteria() == null || advancedPanel.getCriteria().equals(""))
                             MessageBox.alert("Warn", "Search expression could not be empty.", null);
@@ -248,6 +245,7 @@ public class ItemsListPanel extends ContentPanel {
 
                 RpcProxy<List<BaseModel>> cbproxy = new RpcProxy<List<BaseModel>>() {
 
+                    @Override
                     protected void load(Object loadConfig, AsyncCallback<List<BaseModel>> callback) {
                         service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(), callback);
                     }
@@ -265,6 +263,7 @@ public class ItemsListPanel extends ContentPanel {
 
                 cbBookmark.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
+                    @Override
                     public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
                         if (se.getSelectedItem() != null) {
                             service.getCriteriaByBookmark(se.getSelectedItem().get("value").toString(),
@@ -288,8 +287,8 @@ public class ItemsListPanel extends ContentPanel {
                 Button bookmarkBtn = new Button("Bookmark this Search");
                 bookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                    @Override
                     public void componentSelected(ButtonEvent ce) {
-                        // TODO Auto-generated method stub
                         final Window winBookmark = new Window();
                         winBookmark.setHeading("Bookmark");
                         winBookmark.setAutoHeight(true);
@@ -324,8 +323,8 @@ public class ItemsListPanel extends ContentPanel {
                         Button btn = new Button("OK");
                         btn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                            @Override
                             public void componentSelected(ButtonEvent ce) {
-                                // TODO Auto-generated method stub
                                 service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue()
                                         .toString(), new AsyncCallback<Boolean>() {
 
@@ -374,6 +373,7 @@ public class ItemsListPanel extends ContentPanel {
                 Button managebookBtn = new Button("Manage Bookmarks");
                 managebookBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                    @Override
                     public void componentSelected(ButtonEvent ce) {
                         final Window winBookmark = new Window();
                         winBookmark.setHeading("Manage Search Bookmarks");
@@ -416,7 +416,6 @@ public class ItemsListPanel extends ContentPanel {
                             @SuppressWarnings("deprecation")
                             public Object render(final BaseModel model, String property, ColumnData config, int rowIndex,
                                     int colIndex, ListStore<BaseModel> store, Grid<BaseModel> grid) {
-                                // TODO Auto-generated method stub
                                 Image image = new Image();
                                 image.setResource(Icons.INSTANCE.remove());
                                 image.addClickListener(new ClickListener() {
@@ -432,15 +431,10 @@ public class ItemsListPanel extends ContentPanel {
                                                             service.deleteSearchTemplate(model.get("value").toString(),
                                                                     new AsyncCallback<String>() {
 
-                                                                        @Override
                                                                         public void onFailure(Throwable arg0) {
-                                                                            // TODO Auto-generated method stub
-
                                                                         }
 
-                                                                        @Override
                                                                         public void onSuccess(String arg0) {
-                                                                            // TODO Auto-generated method stub
                                                                             loaderBookmark.load();
                                                                             cbloader.load();
                                                                         }
@@ -485,19 +479,10 @@ public class ItemsListPanel extends ContentPanel {
                 });
                 winAdvanced.addButton(managebookBtn);
 
-                // Button cleanBtn = new Button("Clean");
-                // cleanBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-                //
-                // public void componentSelected(ButtonEvent ce) {
-                // advancedPanel.cleanCriteria();
-                // }
-                //
-                // });
-                // winAdvanced.addButton(cleanBtn);
-
                 Button cancelBtn = new Button("Cancel");
                 cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                    @Override
                     public void componentSelected(ButtonEvent ce) {
                         winAdvanced.close();
                     }
@@ -514,7 +499,6 @@ public class ItemsListPanel extends ContentPanel {
         service.getViewsList("en", new AsyncCallback<List<BaseModel>>() {
 
             public void onFailure(Throwable arg0) {
-                // TODO Auto-generated method stub
             }
 
             public void onSuccess(List<BaseModel> arg0) {
@@ -550,6 +534,7 @@ public class ItemsListPanel extends ContentPanel {
         });
         grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
 
+            @Override
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 ItemBean m = se.getSelectedItem();
                 showItem(m, ItemsView.TARGET_IN_SEARCH_TAB);
@@ -591,6 +576,7 @@ public class ItemsListPanel extends ContentPanel {
         // openInWindow.setIcon(Resources.ICONS.add());
         openInWindow.addSelectionListener(new SelectionListener<MenuEvent>() {
 
+            @Override
             public void componentSelected(MenuEvent ce) {
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
                 showItem(m, ItemsView.TARGET_IN_NEW_WINDOW);
@@ -603,6 +589,7 @@ public class ItemsListPanel extends ContentPanel {
         // openInWindow.setIcon(Resources.ICONS.add());
         openInTab.addSelectionListener(new SelectionListener<MenuEvent>() {
 
+            @Override
             public void componentSelected(MenuEvent ce) {
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
                 showItem(m, ItemsView.TARGET_IN_NEW_TAB);
