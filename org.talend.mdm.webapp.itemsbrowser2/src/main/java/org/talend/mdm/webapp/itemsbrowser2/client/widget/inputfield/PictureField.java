@@ -7,35 +7,51 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FormEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.PropertyEditor;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.json.client.JSONBoolean;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
 public class PictureField extends Field<PictureBean> {
-	private static final String defaultImage = "./images/icons/no_image.gif";
+	private static final String DefaultImage = "/itemsbrowser2/images/icons/no_image.gif";
 	protected El wrap = new El(DOM.createSpan());
-	Image image = new Image(defaultImage);
+	Image image = new Image(DefaultImage);
 	protected El input = new El(image.getElement());
 	protected Element handler = new Image(Icons.INSTANCE.image_add()).getElement();
 	
 	private EditWindow editWin = new EditWindow();
 	
 	public PictureField(){
-		editWin.setHeading("Upload Picture");
-		editWin.setSize(400, 200);
 		regJs(handler);
+		propertyEditor = new PropertyEditor<PictureBean>() {
+			
+			@Override
+			public String getStringValue(PictureBean value) {
+				return value.toString();
+			}
+			
+			@Override
+			public PictureBean convertStringValue(String value) {
+				return PictureField.this.value;
+			}
+		};
 	}
 	@Override
 	protected void onRender(Element target, int index) {
@@ -65,54 +81,80 @@ public class PictureField extends Field<PictureBean> {
 	@Override
 	public void setValue(PictureBean value) {
 		super.setValue(value);
-		image.setUrl(value.getUrl());
-//		image.setWidth(value.getWidth() + "px");
-//		image.setHeight(value.getHeight() + "px");
+		if(value.getUrl() != null && !"".equals(value.getUrl())){
+			image.setUrl(value.getUrl());
+		}
 	}
 	
 	class EditWindow extends Window{
-		FormPanel editForm = new FormPanel();
-		SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
+		private FormPanel editForm = new FormPanel();
+		private FileUploadField file = new FileUploadField();  
+		private SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				Button button = ce.getButton();
 				if (button == uploadButton){
 					editForm.submit();
-					EditWindow.this.hide();
-				} else {
-					EditWindow.this.hide();
+				} else if (button == resetButton) {
+					editForm.reset();
 				}
 			}
 		};
 		
-		TextField<String> firstName = new TextField<String>();
-		TextField<String> url = new TextField<String>();
-		
-		Button uploadButton = new Button("Upload", listener);
-		Button resetButton = new Button("Reset", listener);
+		private Button uploadButton = new Button("Upload", listener);
+		private Button resetButton = new Button("Reset", listener);
 		
 		public EditWindow(){
 			super();
 			this.setLayout(new FitLayout());
-			
+			this.setHeading("Upload Picture");
+			this.setSize(350, 150);
 			FormData formData = new FormData("-10");  
+			editForm.setLayout(new FillLayout());
 			editForm.setEncoding (FormPanel.Encoding.MULTIPART);
 			editForm.setMethod(FormPanel.Method.POST);  
-			editForm.setAction("/UploadServlet.do");  
+			editForm.setAction("/imageserver/secure/ImageUploadServlet");
 			editForm.setHeaderVisible(false);
 			editForm.setBodyBorder(false);
-			
-			FileUploadField file = new FileUploadField();  
+
 		    file.setAllowBlank(false);  
-		    file.setName("uploadedfile");  
-		    file.setFieldLabel("File");  
+		    file.setName("imageFile");  
+		    file.setFieldLabel("File Name");  
 		    
 		    editForm.add(file, formData);
+		    editForm.addListener(Events.Submit, new Listener<FormEvent>() {
 
+				@Override
+				public void handleEvent(FormEvent be) {
+					String json = be.getResultHtml();
+					JSONObject jsObject = JSONParser.parse(json).isObject();
+					JSONBoolean success = jsObject.get("success").isBoolean();
+					JSONString message = jsObject.get("message").isString();
+					com.google.gwt.user.client.Window.alert(success.booleanValue() + ", " + message.stringValue());
+					if (success.booleanValue()){
+						image.setUrl("/imageserver/" + message.stringValue());
+						value.setUrl(message.stringValue());
+					} else {
+						image.setUrl(DefaultImage);
+						value.setUrl(null);
+					}
+					
+					EditWindow.this.hide();
+				}
+
+			});
+		    
 		    add(editForm);
+		    
 		    setButtonAlign(HorizontalAlignment.CENTER);
 			addButton(uploadButton);
 			addButton(resetButton);
+		}
+		
+		@Override
+		protected void onShow() {
+			super.onShow();
+			editForm.reset();
 		}
 	}
 }
