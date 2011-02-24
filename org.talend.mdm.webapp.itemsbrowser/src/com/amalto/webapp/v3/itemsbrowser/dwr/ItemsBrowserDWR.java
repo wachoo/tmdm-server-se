@@ -97,7 +97,6 @@ import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
-import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSTransformer;
@@ -1877,7 +1876,7 @@ public class ItemsBrowserDWR {
                     WSItemPK wsItem = Util.getPort().deleteItem(
                             new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
                     if (wsItem != null)
-                        pushUpdateReport(ids, concept, "DELETE", docIndex); //$NON-NLS-1$ // If docIndex is -1, it means the item is
+                        pushUpdateReport(ids, concept, "PHYSICAL_DELETE", docIndex); //$NON-NLS-1$ // If docIndex is -1, it means the item is
                     // deleted from the list.
                     else
                         message = "ERROR - Unable to delete item";
@@ -1955,7 +1954,7 @@ public class ItemsBrowserDWR {
                         new WSDropItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), path));
                 if (wsItem != null && xml != null)
                     if ("/".equalsIgnoreCase(path)) {
-                        pushUpdateReport(ids, concept, "DELETE", docIndex);
+                        pushUpdateReport(ids, concept, "LOGIC_DELETE", docIndex);
                     } else {// part delete consider as 'UPDATE'
                         xml = xml.replaceAll("<\\?xml.*?\\?>", "");
                         String xpath = path.replaceAll("/" + concept, "");
@@ -2402,41 +2401,21 @@ public class ItemsBrowserDWR {
             WebContext ctx = WebContextFactory.get();
             HashMap<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
             updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex);
-            if (!"DELETE".equals(operationType) && updatedPath == null) {
+            if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && updatedPath == null) {
                 return "ERROR_2";
             }
 
-            String xml2 = createUpdateReport(ids, concept, operationType, updatedPath);
+            String xml2 = Util.createUpdateReport(ids, concept, operationType, updatedPath);
 
             synchronizeUpdateState(ctx, docIndex);
-            return persistentUpdateReport(xml2, true);
+
+            if (LOG.isDebugEnabled())
+                LOG.debug("pushUpdateReport() " + xml2);
+
+            return Util.persistentUpdateReport(xml2, true);
 
         } else
             return "OK";
-    }
-
-    private static String persistentUpdateReport(String xml2, boolean routeAfterSaving) {
-        if (xml2 == null)
-            return "OK";
-        try {
-            WSItemPK itemPK = Util.getPort().putItem(
-                    new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false));
-            if (LOG.isDebugEnabled())
-                LOG.debug("pushUpdateReport() " + xml2);
-            try {
-                if (routeAfterSaving)
-                    Util.getPort().routeItemV2(new WSRouteItemV2(itemPK));
-            } catch (RemoteException e) {
-                LOG.warn("Can not route the item, maybe there is no Routing Rule defined for this item! ", e);
-            }
-            return "OK";
-        } catch (RemoteException e) {
-            LOG.error(e.getMessage(), e);
-            return "ERROR";
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
-            return "ERROR";
-        }
     }
 
     public static void synchronizeUpdateState(int docIndex) {
@@ -2448,66 +2427,6 @@ public class ItemsBrowserDWR {
         if (docIndex != -1)
             ctx.getSession().setAttribute("updatedPath" + docIndex, null);
         ctx.getSession().setAttribute("viewNameItems", null);
-    }
-
-    private static String createUpdateReport(String[] ids, String concept, String operationType,
-            HashMap<String, UpdateReportItem> updatedPath) throws Exception {
-        String username = "";
-        String revisionId = "";
-
-        String dataModelPK = "";
-        String dataClusterPK = "";
-        try {
-
-            Configuration config = Configuration.getInstance();
-            dataModelPK = config.getModel() == null ? "" : config.getModel();
-            dataClusterPK = config.getCluster() == null ? "" : config.getCluster();
-
-            username = Util.getLoginUserName();
-            String universename = Util.getLoginUniverse();
-            if (universename != null && universename.length() > 0)
-                revisionId = Util.getRevisionIdFromUniverse(universename, concept);
-
-        } catch (Exception e1) {
-            LOG.error(e1.getMessage(), e1);
-            throw e1;
-        }
-
-        String key = null;
-        if (ids != null) {
-            key = "";
-            for (int i = 0; i < ids.length; i++) {
-                key += ids[i];
-                if (i != ids.length - 1)
-                    key += ".";
-            }
-        }
-        key = key == null ? "null" : key;
-
-        String xml2 = "" + "<Update>" + "<UserName>" + username + "</UserName>" + "<Source>genericUI</Source>" + "<TimeInMillis>"
-                + System.currentTimeMillis() + "</TimeInMillis>" + "<OperationType>" + StringEscapeUtils.escapeXml(operationType)
-                + "</OperationType>" + "<RevisionID>" + revisionId + "</RevisionID>" + "<DataCluster>" + dataClusterPK
-                + "</DataCluster>" + "<DataModel>" + dataModelPK + "</DataModel>" + "<Concept>"
-                + StringEscapeUtils.escapeXml(concept) + "</Concept>" + "<Key>" + StringEscapeUtils.escapeXml(key) + "</Key>";
-        if ("UPDATE".equals(operationType)) {
-            Collection<UpdateReportItem> list = updatedPath.values();
-            boolean isUpdate = false;
-            for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {
-                UpdateReportItem item = iter.next();
-                String oldValue = item.getOldValue() == null ? "" : item.getOldValue();
-                String newValue = item.getNewValue() == null ? "" : item.getNewValue();
-                if (newValue.equals(oldValue))
-                    continue;
-                xml2 += "<Item>" + "   <path>" + StringEscapeUtils.escapeXml(item.getPath()) + "</path>" + "   <oldValue>"
-                        + StringEscapeUtils.escapeXml(oldValue) + "</oldValue>" + "   <newValue>"
-                        + StringEscapeUtils.escapeXml(newValue) + "</newValue>" + "</Item>";
-                isUpdate = true;
-            }
-            if (!isUpdate)
-                return null;
-        }
-        xml2 += "</Update>";
-        return xml2;
     }
 
     private void insertAfter(Node newNode, Node node) {
@@ -3027,7 +2946,7 @@ public class ItemsBrowserDWR {
             String itemAlias = concept + "." + Util.joinStrings(ids, ".");
             // create updateReport
             LOG.info("Creating update-report for " + itemAlias + "'s action. ");
-            String updateReport = createUpdateReport(ids, concept, "ACTION", null);
+            String updateReport = Util.createUpdateReport(ids, concept, "ACTION", null);
 
             WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
             WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),
@@ -3070,7 +2989,7 @@ public class ItemsBrowserDWR {
             // store
             LOG.info("Saving update-report for " + itemAlias + "'s action. ");
 
-            if (!persistentUpdateReport(updateReport, true).equals("OK")) {
+            if (!Util.persistentUpdateReport(updateReport, true).equals("OK")) {
                 // return false;
                 throw new Exception("Store Update-Report failed! ");
             }

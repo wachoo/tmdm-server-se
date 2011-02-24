@@ -51,6 +51,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.jxpath.AbstractFactory;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.exolab.castor.types.Date;
 import org.jboss.security.Base64Encoder;
@@ -74,6 +75,7 @@ import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.util.webservices.WSBase64KeyValue;
@@ -81,11 +83,14 @@ import com.amalto.webapp.util.webservices.WSConnectorResponseCode;
 import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
+import com.amalto.webapp.util.webservices.WSPutItem;
+import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSUniverse;
@@ -1577,6 +1582,85 @@ public class Util {
         } catch (Exception e) {
             Logger.getLogger(Util.class).error(e.getMessage(), e);
             return false;
+        }
+    }
+
+    public static String createUpdateReport(String[] ids, String concept, String operationType,
+            HashMap<String, UpdateReportItem> updatedPath) throws Exception {
+        String username = "";
+        String revisionId = "";
+
+        String dataModelPK = "";
+        String dataClusterPK = "";
+        try {
+
+            Configuration config = Configuration.getInstance();
+            dataModelPK = config.getModel() == null ? "" : config.getModel();
+            dataClusterPK = config.getCluster() == null ? "" : config.getCluster();
+
+            username = Util.getLoginUserName();
+            String universename = Util.getLoginUniverse();
+            if (universename != null && universename.length() > 0)
+                revisionId = Util.getRevisionIdFromUniverse(universename, concept);
+
+        } catch (Exception e1) {
+            throw e1;
+        }
+
+        String key = null;
+        if (ids != null) {
+            key = "";
+            for (int i = 0; i < ids.length; i++) {
+                key += ids[i];
+                if (i != ids.length - 1)
+                    key += ".";
+            }
+        }
+        key = key == null ? "null" : key;
+
+        String xml2 = "" + "<Update>" + "<UserName>" + username + "</UserName>" + "<Source>genericUI</Source>" + "<TimeInMillis>"
+                + System.currentTimeMillis() + "</TimeInMillis>" + "<OperationType>" + StringEscapeUtils.escapeXml(operationType)
+                + "</OperationType>" + "<RevisionID>" + revisionId + "</RevisionID>" + "<DataCluster>" + dataClusterPK
+                + "</DataCluster>" + "<DataModel>" + dataModelPK + "</DataModel>" + "<Concept>"
+                + StringEscapeUtils.escapeXml(concept) + "</Concept>" + "<Key>" + StringEscapeUtils.escapeXml(key) + "</Key>";
+        if ("UPDATE".equals(operationType)) {
+            Collection<UpdateReportItem> list = updatedPath.values();
+            boolean isUpdate = false;
+            for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {
+                UpdateReportItem item = iter.next();
+                String oldValue = item.getOldValue() == null ? "" : item.getOldValue();
+                String newValue = item.getNewValue() == null ? "" : item.getNewValue();
+                if (newValue.equals(oldValue))
+                    continue;
+                xml2 += "<Item>" + "   <path>" + StringEscapeUtils.escapeXml(item.getPath()) + "</path>" + "   <oldValue>"
+                        + StringEscapeUtils.escapeXml(oldValue) + "</oldValue>" + "   <newValue>"
+                        + StringEscapeUtils.escapeXml(newValue) + "</newValue>" + "</Item>";
+                isUpdate = true;
+            }
+            if (!isUpdate)
+                return null;
+        }
+        xml2 += "</Update>";
+        return xml2;
+    }
+
+    public static String persistentUpdateReport(String xml2, boolean routeAfterSaving) throws Exception {
+        if (xml2 == null)
+            return "OK";
+        try {
+            WSItemPK itemPK = Util.getPort().putItem(
+                    new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false));
+            try {
+                if (routeAfterSaving)
+                    Util.getPort().routeItemV2(new WSRouteItemV2(itemPK));
+            } catch (RemoteException e) {
+                throw e;
+            }
+            return "OK";
+        } catch (RemoteException e) {
+            throw e;
+        } catch (XtentisWebappException e) {
+            throw e;
         }
     }
 }
