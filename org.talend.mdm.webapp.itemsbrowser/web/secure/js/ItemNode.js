@@ -267,7 +267,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
                         options +='<option value="'+itemData.enumeration[k]+'" '+selected+'>'+itemData.enumeration[k]+'</option>';
                     }
                     var input = ' ' +
-                        '<select onchange="selectedIndex='+initIndex+'" id="'+itemData.nodeId+'Value" '+' class="inputTree'+readOnlyStyle+'" '+readOnly+' >' +
+                        '<select onchange="selectedIndex='+initIndex+'" id="'+itemData.nodeId+'Value" '+readOnly+' >' +
                         options+
                         '</select>';
 			}
@@ -296,7 +296,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			}
 			
 
-			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;font-size:13px">'+itemData.name+' '+mandatory+' '+descInfo+'</div>';
+			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;">'+itemData.name+' '+mandatory+' '+descInfo+'</div>';
 			if(itemData.typeName!=null&&itemData.typeName=="boolean"){
 				value=String(value=='true');
 				html[html.length] = '<input type="checkbox" id="'+itemData.nodeId+'Value" value="'+value+'" '
@@ -371,14 +371,14 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 
 		else { //complex type
 			
-			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;font-size:13px">'+itemData.name+' '+mandatory+' '+descInfo+'</div>' ;
-			html[html.length] = 	'<input type="text" size="72" class="dotted-line" READONLY /></div>' ;
+			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;">'+itemData.name+' '+mandatory+' '+descInfo+'</div>' ;
+//			html[html.length] = 	'<input type="text" size="72" class="dotted-line" READONLY /></div>' ;
 //			html[html.length] = 	'<span id="'+itemData.nodeId+'OpenDetails" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >' ;
 //			html[html.length] = 	' <img src="img/genericUI/open-detail2.gif" title="'+ XSDDET_TT[language] +'"/></span>';
 			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + '<br/>';
 			
 			if(itemData.polymiorphism&&itemData.subTypes.length>0)
-			   html[html.length] =     '<span style="width:180;float:left;font-size:13px">'+USE_EXTENSION_LABEL[language]+'</span>'+' '+polymSelector + '<br/>';
+			   html[html.length] =     '<span style="width:180;float:left;">'+USE_EXTENSION_LABEL[language]+'</span>'+' '+polymSelector + '<br/>';
 
 			html[html.length] = 	'<div class="detailLabel" id="'+itemData.nodeId+'XsdDetails" style="display:none">' ;
 			html[html.length] = 	'XML tag : '+itemData.xmlTag+'<br/> ' ;
