@@ -18,7 +18,9 @@
 					&lt;xsd:restriction base="xsd:string"&gt;
 						&lt;xsd:enumeration value="CREATE"/&gt;
 						&lt;xsd:enumeration value="UPDATE"/&gt;
-						&lt;xsd:enumeration value="DELETE"/&gt;
+						&lt;xsd:enumeration value="LOGIC_DELETE"/&gt;
+						&lt;xsd:enumeration value="PHYSICAL_DELETE"/&gt;
+						&lt;xsd:enumeration value="RESTORED"/&gt;
 						&lt;xsd:enumeration value="ACTION"/&gt;
 					&lt;/xsd:restriction&gt;
 				&lt;/xsd:simpleType&gt;
