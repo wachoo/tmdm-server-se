@@ -56,6 +56,7 @@ import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
+import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSStringArray;
@@ -134,11 +135,9 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         try {
             WSWhereItem wi = com.amalto.webapp.core.util.Util.buildWhereItems(criteria);
 
-            String[] results = com.amalto.webapp.core.util.Util
-                    .getPort()
-                    .viewSearch(
-                            new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max,
-                                    sortCol, sortDir)).getStrings();
+            String[] results = com.amalto.webapp.core.util.Util.getPort().viewSearch(
+                    new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max, sortCol,
+                            sortDir)).getStrings();
             ViewBean viewBean = getView(viewPk);
             for (int i = 0; i < results.length; i++) {
 
@@ -350,8 +349,8 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
     public PagingLoadResult<ItemBean> queryItemBean(QueryModel config) {
         PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
-        Object[] result = getItemBeans(config.getDataClusterPK(), config.getViewPK(), config.getCriteria().toString(),
-                pagingLoad.getOffset(), pagingLoad.getLimit());
+        Object[] result = getItemBeans(config.getDataClusterPK(), config.getViewPK(), config.getCriteria().toString(), pagingLoad
+                .getOffset(), pagingLoad.getLimit());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
         return new BasePagingLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
@@ -540,12 +539,12 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
             wi = new WSWhereItem(null, and, null);
 
-            String[] results = com.amalto.webapp.core.util.Util.getPort()
-                    .xPathsSearch(new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
+            String[] results = com.amalto.webapp.core.util.Util.getPort().xPathsSearch(
+                    new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
                             new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order
                             // by
                             null // direction
-                            )).getStrings();
+                    )).getStrings();
 
             for (int i = 0; i < results.length; i++) {
                 results[i] = results[i].replaceAll("<CriteriaName>(.*)</CriteriaName>", "$1");
@@ -581,8 +580,8 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             new WSWhereItem(null, null, or) });
 
             wi = new WSWhereItem(null, and, null);
-            return com.amalto.webapp.core.util.Util.getPort()
-                    .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))
+            return com.amalto.webapp.core.util.Util.getPort().count(
+                    new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))
                     .getValue();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -613,14 +612,12 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     public String getCriteriaByBookmark(String bookmark) {
         try {
             String criteria = "";
-            String result = com.amalto.webapp.core.util.Util
-                    .getPort()
-                    .getItem(
-                            new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
-                                    "BrowseItem", new String[] { bookmark }))).getContent().trim();
+            String result = com.amalto.webapp.core.util.Util.getPort().getItem(
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem",
+                            new String[] { bookmark }))).getContent().trim();
             if (result != null) {
-                criteria = result.substring(result.indexOf("<WhereCriteria>") + 10, result.indexOf("</WhereCriteria>"));
-
+                if (result.indexOf("<SearchCriteria>") != -1)
+                    criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));
             }
             return criteria;
         } catch (XtentisWebappException e) {
@@ -632,6 +629,18 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     }
 
     public String getUserModel() {
-        return null;
+        try {
+            WSItem item = com.amalto.webapp.core.util.Util.getPort().getItem(
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK("PROVISIONING"), "User",
+                            new String[] { com.amalto.webapp.core.util.Util.getLoginUserName() })));
+            String userString = item.getContent();
+
+            Element user = (Element) com.amalto.webapp.core.util.Util.getNodeList(
+                    com.amalto.webapp.core.util.Util.parse(userString), "//User").item(0);
+            return user.asXML();
+        } catch (Exception e) {
+            return null;
+        }
     }
+
 }

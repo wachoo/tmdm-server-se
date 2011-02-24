@@ -29,9 +29,12 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.ListLoadResult;
+import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -57,11 +60,11 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -123,11 +126,29 @@ public class ItemsListPanel extends ContentPanel {
 
     final Button advancedBut = new Button("Advanced Search");
 
+    static String userModel = null;
+
     public ItemsListPanel() {
         setLayout(new FitLayout());
         setHeaderVisible(false);
-        addToolBar();
 
+        service.getUserModel(new AsyncCallback<String>() {
+
+            @Override
+            public void onFailure(Throwable arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onSuccess(String arg0) {
+                // TODO Auto-generated method stub
+                userModel = arg0;
+            }
+
+        });
+
+        addToolBar();
     }
 
     private void addToolBar() {
@@ -211,36 +232,35 @@ public class ItemsListPanel extends ContentPanel {
                 searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     public void componentSelected(ButtonEvent ce) {
-                        isSimple = false;
-                        String viewPk = entityCombo.getValue().get("value");
-                        Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
-                        winAdvanced.close();
+                        if (advancedPanel.getCriteria() == null || advancedPanel.getCriteria().equals(""))
+                            MessageBox.alert("Warn", "Search expression could not be empty.", null);
+                        else {
+                            isSimple = false;
+                            String viewPk = entityCombo.getValue().get("value");
+                            Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
+                            winAdvanced.close();
+                        }
                     }
 
                 });
                 winAdvanced.addButton(searchBtn);
 
+                RpcProxy<List<BaseModel>> cbproxy = new RpcProxy<List<BaseModel>>() {
+
+                    protected void load(Object loadConfig, AsyncCallback<List<BaseModel>> callback) {
+                        service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(), callback);
+                    }
+                };
+
+                final ListLoader<ListLoadResult<BaseModel>> cbloader = new BaseListLoader<ListLoadResult<BaseModel>>(cbproxy);
+                final ListStore<BaseModel> bookStore = new ListStore<BaseModel>(cbloader);
                 ComboBox<BaseModel> cbBookmark = new ComboBox<BaseModel>();
-                final ListStore<BaseModel> bookStore = new ListStore<BaseModel>();
                 cbBookmark.setWidth(120);
                 cbBookmark.setEmptyText("Select a Bookmark");
                 cbBookmark.setStore(bookStore);
                 cbBookmark.setDisplayField("name");
                 cbBookmark.setValueField("value");
                 cbBookmark.setTriggerAction(TriggerAction.ALL);
-                service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(),
-                        new AsyncCallback<List<BaseModel>>() {
-
-                            public void onFailure(Throwable arg0) {
-
-                            }
-
-                            public void onSuccess(List<BaseModel> arg0) {
-                                bookStore.removeAll();
-                                bookStore.add(arg0);
-                            }
-
-                        });
 
                 cbBookmark.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
@@ -325,6 +345,7 @@ public class ItemsListPanel extends ContentPanel {
                                                         public void onSuccess(String arg0) {
                                                             if (arg0.equals("OK")) {
                                                                 MessageBox.alert("Save", "Save Bookmark Successfully!", null);
+                                                                cbloader.load();
                                                                 winBookmark.close();
                                                             } else
                                                                 MessageBox.alert("Save", "Save Bookmark failed!", null);
@@ -389,10 +410,11 @@ public class ItemsListPanel extends ContentPanel {
                         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
                         columns.add(new ColumnConfig("name", "Bookmarks", 200));
                         ColumnConfig colImg = new ColumnConfig("value", "Delete", 100);
-                        colImg.setRenderer(new GridCellRenderer() {
+                        colImg.setRenderer(new GridCellRenderer<BaseModel>() {
 
-                            public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
-                                    ListStore store, Grid grid) {
+                            @SuppressWarnings("deprecation")
+                            public Object render(final BaseModel model, String property, ColumnData config, int rowIndex,
+                                    int colIndex, ListStore<BaseModel> store, Grid<BaseModel> grid) {
                                 // TODO Auto-generated method stub
                                 Image image = new Image();
                                 image.setResource(Icons.INSTANCE.remove());
@@ -406,7 +428,23 @@ public class ItemsListPanel extends ContentPanel {
                                                         // TODO Auto-generated method stub
                                                         if (be.getButtonClicked().getText().equals("Yes")) {
                                                             // delete the bookmark
-                                                            // service.deleteSearchTemplate(, callback)
+                                                            service.deleteSearchTemplate(model.get("value").toString(),
+                                                                    new AsyncCallback<String>() {
+
+                                                                        @Override
+                                                                        public void onFailure(Throwable arg0) {
+                                                                            // TODO Auto-generated method stub
+
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onSuccess(String arg0) {
+                                                                            // TODO Auto-generated method stub
+                                                                            loaderBookmark.load();
+                                                                            cbloader.load();
+                                                                        }
+
+                                                                    });
                                                         }
                                                     }
                                                 });

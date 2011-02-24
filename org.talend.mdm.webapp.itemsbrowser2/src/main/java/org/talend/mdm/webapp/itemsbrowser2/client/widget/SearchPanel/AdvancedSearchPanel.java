@@ -196,7 +196,7 @@ public class AdvancedSearchPanel extends ContentPanel {
 
         };
         expressionTextField.setFieldLabel("Search Expression");
-        expressionTextField.setWidth("65%");
+        expressionTextField.setAllowBlank(false);
         content.add(expressionTextField, formData);
 
         cb = new ComboBox<BaseModel>();
@@ -255,7 +255,6 @@ public class AdvancedSearchPanel extends ContentPanel {
             }
 
         });
-
         content.add(cb, formData);
 
         add(content);

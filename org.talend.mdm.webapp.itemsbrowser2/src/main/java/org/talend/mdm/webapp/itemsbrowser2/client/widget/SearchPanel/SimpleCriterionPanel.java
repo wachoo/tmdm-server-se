@@ -205,16 +205,17 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*");
         } else if (predicateValues.equals("boolean")) {
-            // TODO
-            // var booleanPredicates = ["true" , "false"];
-            // var prefix = EQUAL_OPERS[language];
-            // for(var i = 0; i < booleanPredicates.length; i++)
-            // {
-            // booleanPredicates[i] = prefix + " " + booleanPredicates[i];
-            // }
             setOperatorComboBox(Constants.booleanOperators);
+            valueComboBox.setVisible(false);
+            valueDate.setVisible(false);
+            valueTextBox.setVisible(false);
         } else if (predicateValues.equals("foreign key")) {
+            setOperatorComboBox(Constants.fullOperators);
+            valueComboBox.setVisible(true);
+            valueDate.setVisible(false);
+            valueTextBox.setVisible(false);
         } else if (predicateValues.equals("enumeration")) {
+            // TODO
 
         } else if (predicateValues.equals("complex type")) {
             setOperatorComboBox(Constants.fullOperators);

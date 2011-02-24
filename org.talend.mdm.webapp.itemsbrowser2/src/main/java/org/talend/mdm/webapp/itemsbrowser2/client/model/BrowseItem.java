@@ -58,11 +58,16 @@ public class BrowseItem implements Serializable {
         super();
     }
 
+    private String getOldCriteria() {
+        return "<Criteria><Field>bookmark</Field><Operator>is</Operator><Value>null</Value></Criteria>";
+    }
+
     public String marshal2String() {
 
         String marshaledItem = "<BrowseItem>" + "<CriteriaName>" + this.CriteriaName + "</CriteriaName>" + "<ViewPK>"
                 + this.ViewPK + "</ViewPK>" + "<Owner>" + this.owner + "</Owner>" + "<Shared>" + this.shared + "</Shared>"
-                + "<WhereCriteria>" + this.criteria + "</WhereCriteria>" + "</BrowseItem>";
+                + "<WhereCriteria>" + getOldCriteria() + "</WhereCriteria><SearchCriteria>" + this.criteria
+                + "</SearchCriteria></BrowseItem>";
         return marshaledItem;
 
     }
