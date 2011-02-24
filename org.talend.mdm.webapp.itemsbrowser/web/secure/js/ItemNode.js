@@ -609,16 +609,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	},*/
 	
 	resetErrorMessage : function(nodeId) {
-		// var errorMessageDivId =nodeId+"ErrorMessage";
-		// if($(errorMessageDivId))$(errorMessageDivId).style.display = "none";
 		if ($(nodeId + "Value") != null) {
-			$(nodeId + "Value").style.border = "solid 1px";
-			if ($(nodeId + "Value").readOnly) {
-				$(nodeId + "Value").style.background = "#F4F4F4";
-			} else {
-				$(nodeId + "Value").style.background = "";
+			if($(nodeId + "Value").originalStyleChanged == true) {
+				$(nodeId + "Value").style.border = $(nodeId + "Value").originalStyleBorder;
+				$(nodeId + "Value").style.background = $(nodeId + "Value").originalStyleBackground;
+				
+				$(nodeId + "ValidateBadge").style.display = "none";
 			}
-			$(nodeId + "ValidateBadge").style.display = "none";
 		}
 	},
 	/**
@@ -665,21 +662,15 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
     },
     
 	displayErrorMessage: function(nodeId,msg){
-        //var errorMessageDivId = nodeId+"ErrorMessage";
-        //$(errorMessageDivId).style.display = "block";
-        //$(errorMessageDivId).innerHTML='<font color="red">'+msg+'</font>';
+		
+		$(nodeId + "Value").originalStyleChanged = true;
+		$(nodeId + "Value").originalStyleBorder = $(nodeId + "Value").style.border;
+		$(nodeId + "Value").originalStyleBackground = $(nodeId + "Value").style.background;
+		
 		$(nodeId+"Value").style.border = "1pt solid red";
-		$(nodeId+"Value").style.background = "#FFF2EC";
+		$(nodeId+"Value").style.background = "#FFF2EC";		
 		
 		$(nodeId+"ValidateBadge").style.display = "inline-block";
-		//new Ext.ToolTip({  
-		//target: nodeId+"ValidateBadge",  
-		//bodyStyle: 'background-color:#FFF2EC',
-		//html: msg,
-		//title:'Error',
-		//autoHide: false,  
-		//closable: false
-		//});
 		$(nodeId+"ValidateBadge").qtip=htmlEscape(msg);
 		$(nodeId+"ValidateBadge").qclass='x-form-invalid-tip';
 	},
