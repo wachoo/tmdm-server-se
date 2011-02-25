@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.webapp.v3.itemstrash.dwr;
 
 import java.io.StringReader;
@@ -83,7 +95,7 @@ public class ItemsTrashDWR {
             WSRemoveDroppedItem wsrdi = new WSRemoveDroppedItem(wddipk);
             WSDroppedItemPK wdipkd = Util.getPort().removeDroppedItem(wsrdi);
 
-            String xml = Util.createUpdateReport(ids1, conceptName, "PHYSICAL_DELETE", null);
+            String xml = Util.createUpdateReport(ids1, conceptName, "PHYSICAL_DELETE", null); //$NON-NLS-1$
             Util.persistentUpdateReport(xml, true);
             // return wdipkd;
         } catch (Exception e) {
@@ -106,7 +118,7 @@ public class ItemsTrashDWR {
             WSItemPK wsipk = Util.getPort().recoverDroppedItem(wsrdi);
 
             // put the restore into updatereport archive
-            String xml = Util.createUpdateReport(ids1, conceptName, "RESTORED", null);
+            String xml = Util.createUpdateReport(ids1, conceptName, "RESTORED", null); //$NON-NLS-1$
             Util.persistentUpdateReport(xml, true);
             // return wsipk;
         } catch (Exception e) {

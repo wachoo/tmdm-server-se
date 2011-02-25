@@ -2401,14 +2401,13 @@ public class ItemsBrowserDWR {
             WebContext ctx = WebContextFactory.get();
             HashMap<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
             updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex);
-            if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && updatedPath == null) {
+            if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && updatedPath == null) { //$NON-NLS-1$
                 return "ERROR_2";
             }
 
             String xml2 = Util.createUpdateReport(ids, concept, operationType, updatedPath);
 
             synchronizeUpdateState(ctx, docIndex);
-
             if (LOG.isDebugEnabled())
                 LOG.debug("pushUpdateReport() " + xml2);
 

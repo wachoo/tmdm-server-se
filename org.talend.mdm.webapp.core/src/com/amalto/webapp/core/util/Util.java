@@ -1,6 +1,15 @@
-/*
- * Created on 22 sept. 2005
- */
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.webapp.core.util;
 
 import java.io.BufferedReader;
@@ -556,17 +565,16 @@ public class Util {
             return com.amalto.webapp.util.webservices.WSWhereOperator.CONTAINS;
         return null;
     }
-    
 
     public static Document copyDocument(Document doc) throws Exception {
-        
+
         TransformerFactory tfactory = TransformerFactory.newInstance();
-        Transformer tx   = tfactory.newTransformer();
+        Transformer tx = tfactory.newTransformer();
         DOMSource source = new DOMSource(doc);
         DOMResult result = new DOMResult();
-        tx.transform(source,result);
-        return (Document)result.getNode();
-        
+        tx.transform(source, result);
+        return (Document) result.getNode();
+
     }
 
     /**
@@ -624,8 +632,8 @@ public class Util {
      * @throws Exception
      */
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws Exception {
-        XObject xo = XPathAPI.eval(contextNode, xPath, (namespace == null) ? contextNode : Util.getRootElement("nsholder",
-                namespace, prefix));
+        XObject xo = XPathAPI.eval(contextNode, xPath,
+                (namespace == null) ? contextNode : Util.getRootElement("nsholder", namespace, prefix));
         if (xo.getType() != XObject.CLASS_NODESET)
             return null;
         return xo.nodelist();
@@ -1116,7 +1124,8 @@ public class Util {
                 int i = j;
                 while ((i > 0 && itemsBrowserContent.get(i - 1)[col].length() > 0 && temp[col].length() > 0 && Double
                         .parseDouble(itemsBrowserContent.get(i - 1)[col]) > Double.parseDouble(temp[col]))
-                        || i > 0 && temp[col].length() == 0) {
+                        || i > 0
+                        && temp[col].length() == 0) {
                     itemsBrowserContent.set(i, itemsBrowserContent.get(i - 1));
                     i--;
                 }
@@ -1616,14 +1625,14 @@ public class Util {
                     key += ".";
             }
         }
-        key = key == null ? "null" : key;
+        key = key == null ? "null" : key; //$NON-NLS-1$
 
-        String xml2 = "" + "<Update>" + "<UserName>" + username + "</UserName>" + "<Source>genericUI</Source>" + "<TimeInMillis>"
-                + System.currentTimeMillis() + "</TimeInMillis>" + "<OperationType>" + StringEscapeUtils.escapeXml(operationType)
-                + "</OperationType>" + "<RevisionID>" + revisionId + "</RevisionID>" + "<DataCluster>" + dataClusterPK
+        String xml2 = "" + "<Update>" + "<UserName>" + username + "</UserName>" + "<Source>genericUI</Source>" + "<TimeInMillis>" //$NON-NLS-1$
+                + System.currentTimeMillis() + "</TimeInMillis>" + "<OperationType>" + StringEscapeUtils.escapeXml(operationType) //$NON-NLS-1$
+                + "</OperationType>" + "<RevisionID>" + revisionId + "</RevisionID>" + "<DataCluster>" + dataClusterPK //$NON-NLS-1$
                 + "</DataCluster>" + "<DataModel>" + dataModelPK + "</DataModel>" + "<Concept>"
-                + StringEscapeUtils.escapeXml(concept) + "</Concept>" + "<Key>" + StringEscapeUtils.escapeXml(key) + "</Key>";
-        if ("UPDATE".equals(operationType)) {
+                + StringEscapeUtils.escapeXml(concept) + "</Concept>" + "<Key>" + StringEscapeUtils.escapeXml(key) + "</Key>"; //$NON-NLS-1$
+        if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
             Collection<UpdateReportItem> list = updatedPath.values();
             boolean isUpdate = false;
             for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {
@@ -1632,15 +1641,15 @@ public class Util {
                 String newValue = item.getNewValue() == null ? "" : item.getNewValue();
                 if (newValue.equals(oldValue))
                     continue;
-                xml2 += "<Item>" + "   <path>" + StringEscapeUtils.escapeXml(item.getPath()) + "</path>" + "   <oldValue>"
-                        + StringEscapeUtils.escapeXml(oldValue) + "</oldValue>" + "   <newValue>"
-                        + StringEscapeUtils.escapeXml(newValue) + "</newValue>" + "</Item>";
+                xml2 += "<Item>" + "   <path>" + StringEscapeUtils.escapeXml(item.getPath()) + "</path>" + "   <oldValue>" //$NON-NLS-1$
+                        + StringEscapeUtils.escapeXml(oldValue) + "</oldValue>" + "   <newValue>" //$NON-NLS-1$
+                        + StringEscapeUtils.escapeXml(newValue) + "</newValue>" + "</Item>"; //$NON-NLS-1$
                 isUpdate = true;
             }
             if (!isUpdate)
                 return null;
         }
-        xml2 += "</Update>";
+        xml2 += "</Update>"; //$NON-NLS-1$
         return xml2;
     }
 
@@ -1649,7 +1658,7 @@ public class Util {
             return "OK";
         try {
             WSItemPK itemPK = Util.getPort().putItem(
-                    new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false));
+                    new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
             try {
                 if (routeAfterSaving)
                     Util.getPort().routeItemV2(new WSRouteItemV2(itemPK));
