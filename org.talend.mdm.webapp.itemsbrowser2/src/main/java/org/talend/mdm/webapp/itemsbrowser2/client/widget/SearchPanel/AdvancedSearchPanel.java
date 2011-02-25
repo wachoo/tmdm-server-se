@@ -30,16 +30,21 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.layout.ColumnData;
+import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -55,12 +60,37 @@ public class AdvancedSearchPanel extends ContentPanel {
 
     private ComboBox<BaseModel> cb;
 
+    final FormPanel content = new FormPanel();
+
     final public void setCriteria(String c) {
         expressionTextField.setValue(c);
     }
 
     public String getCriteria() {
-        return expressionTextField.getValue();
+        String express = expressionTextField.getValue();
+        String curCriteria = null, curDate = null;
+        if (content.getItemByItemId("modifiedon") != null) {
+            DateField fromfield = (DateField) ((LayoutContainer) ((LayoutContainer) content.getItemByItemId("modifiedon"))
+                    .getItem(0)).getItemByItemId("modifiedonField1");
+            DateField tofield = (DateField) ((LayoutContainer) ((LayoutContainer) content.getItemByItemId("modifiedon"))
+                    .getItem(1)).getItemByItemId("modifiedonField2");
+            if (fromfield.getValue() != null)
+                curDate = "../../t GREATER_THAN_OR_EQUAL \"" + fromfield.getValue().getTime() + "\"";
+            if (tofield.getValue() != null)
+                if (curDate != null)
+                    curDate += " AND ../../t LOWER_THAN_OR_EQUAL \"" + tofield.getValue().getTime() + "\"";
+                else
+                    curDate = "../../t LOWER_THAN_OR_EQUAL \"" + tofield.getValue().getTime() + "\"";
+
+            if (curDate != null)
+                curCriteria = (express == null) ? curDate : express.substring(0, express.lastIndexOf(")")) + " AND " + curDate
+                        + ")";
+            else
+                curCriteria = (express == null) ? curDate : express;
+        } else
+            curCriteria = express;
+
+        return curCriteria;
     }
 
     public void cleanCriteria() {
@@ -68,17 +98,52 @@ public class AdvancedSearchPanel extends ContentPanel {
         cb.select(-1);
     }
 
+    private LayoutContainer addCriteriaContainer(String id) {
+        LayoutContainer main = new LayoutContainer();
+        main.setLayout(new ColumnLayout());
+        main.setId("modifiedon");
+        if (id.equals("modifiedon")) {
+            LayoutContainer left = new LayoutContainer();
+            left.setStyleAttribute("paddingRight", "10px");
+            FormLayout layout = new FormLayout();
+            layout.setLabelWidth(110);
+            left.setLayout(layout);
+            DateField modifiedonField1 = new DateField();
+            modifiedonField1.setWidth(120);
+            modifiedonField1.setFieldLabel("Modified On");
+            modifiedonField1.setId("modifiedonField1");
+            modifiedonField1.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));
+            left.add(modifiedonField1);
+
+            LayoutContainer right = new LayoutContainer();
+            right.setStyleAttribute("paddingLeft", "10px");
+            layout = new FormLayout();
+            layout.setLabelWidth(110);
+            right.setLayout(layout);
+            DateField modifiedonField2 = new DateField();
+            modifiedonField2.setWidth(120);
+            modifiedonField2.setFieldLabel("To");
+            modifiedonField2.setId("modifiedonField2");
+            modifiedonField2.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));
+            right.add(modifiedonField2);
+
+            main.add(left, new ColumnData(.5));
+            main.add(right, new ColumnData(.5));
+        }
+
+        return main;
+    }
+
     public AdvancedSearchPanel(ViewBean viewbean) {
         this.view = viewbean;
         setHeaderVisible(false);
         setLayout(new FitLayout());
 
-        final FormPanel content = new FormPanel();
         content.setFrame(false);
         content.setBodyBorder(false);
         content.setHeaderVisible(false);
         content.setScrollMode(Scroll.AUTO);
-        content.setLabelWidth(120);
+        content.setLabelWidth(110);
         content.setAutoHeight(true);
 
         final FormData formData = new FormData("-20");
@@ -197,7 +262,7 @@ public class AdvancedSearchPanel extends ContentPanel {
         };
         expressionTextField.setFieldLabel("Search Expression");
         expressionTextField.setAllowBlank(false);
-        content.add(expressionTextField, formData);
+        content.add(expressionTextField, new FormData("80%"));
 
         cb = new ComboBox<BaseModel>();
         cb.setEditable(false);
@@ -205,17 +270,17 @@ public class AdvancedSearchPanel extends ContentPanel {
         cb.setFieldLabel("Add more criteria");
         ListStore<BaseModel> list = new ListStore<BaseModel>();
         BaseModel field = new BaseModel();
-        field.set("name", "Created By");
-        field.set("value", "createdby");
-        list.add(field);
-        field = new BaseModel();
-        field.set("name", "Created On");
-        field.set("value", "createdon");
-        list.add(field);
-        field = new BaseModel();
-        field.set("name", "Modified By");
-        field.set("value", "modifiedby");
-        list.add(field);
+        // field.set("name", "Created By");
+        // field.set("value", "createdby");
+        // list.add(field);
+        // field = new BaseModel();
+        // field.set("name", "Created On");
+        // field.set("value", "createdon");
+        // list.add(field);
+        // field = new BaseModel();
+        // field.set("name", "Modified By");
+        // field.set("value", "modifiedby");
+        // list.add(field);
         field = new BaseModel();
         field.set("name", "Modified On");
         field.set("value", "modifiedon");
@@ -230,32 +295,30 @@ public class AdvancedSearchPanel extends ContentPanel {
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
                 // TODO Auto-generated method stub
                 String selvalue = se.getSelectedItem().get("value");
-                if (selvalue.equals("createdby") && content.getItemByItemId("createdbyField") == null) {
-                    TextField<String> createdbyField = new TextField<String>();
-                    createdbyField.setFieldLabel("Created By");
-                    createdbyField.setId("createdbyField");
-                    content.insert(createdbyField, content.getItemCount() - 1, formData);
-                } else if (selvalue.equals("createdon") && content.getItemByItemId("createdonField") == null) {
-                    DateField createdonField = new DateField();
-                    createdonField.setFieldLabel("Created On");
-                    createdonField.setId("createdonField");
-                    content.insert(createdonField, content.getItemCount() - 1, formData);
-                } else if (selvalue.equals("modifiedby") && content.getItemByItemId("modifedbyField") == null) {
-                    TextField<String> modifiedbyField = new TextField<String>();
-                    modifiedbyField.setFieldLabel("Modified By");
-                    modifiedbyField.setId("modifedbyField");
-                    content.insert(modifiedbyField, content.getItemCount() - 1, formData);
-                } else if (selvalue.equals("modifiedon") && content.getItemByItemId("modifiedonField") == null) {
-                    DateField modifiedonField = new DateField();
-                    modifiedonField.setFieldLabel("Modified On");
-                    modifiedonField.setId("modifiedonField");
-                    content.insert(modifiedonField, content.getItemCount() - 1, formData);
+                // if (selvalue.equals("createdby") && content.getItemByItemId("createdbyField") == null) {
+                // TextField<String> createdbyField = new TextField<String>();
+                // createdbyField.setFieldLabel("Created By");
+                // createdbyField.setId("createdbyField");
+                // content.insert(createdbyField, content.getItemCount() - 1, formData);
+                // } else if (selvalue.equals("createdon") && content.getItemByItemId("createdonField") == null) {
+                // DateField createdonField = new DateField();
+                // createdonField.setFieldLabel("Created On");
+                // createdonField.setId("createdonField");
+                // content.insert(createdonField, content.getItemCount() - 1, formData);
+                // } else if (selvalue.equals("modifiedby") && content.getItemByItemId("modifedbyField") == null) {
+                // TextField<String> modifiedbyField = new TextField<String>();
+                // modifiedbyField.setFieldLabel("Modified By");
+                // modifiedbyField.setId("modifedbyField");
+                // content.insert(modifiedbyField, content.getItemCount() - 1, formData);
+                // } else
+                if (selvalue.equals("modifiedon") && content.getItemByItemId("modifiedonField1") == null) {
+                    content.insert(addCriteriaContainer("modifiedon"), content.getItemCount() - 1, new FormData("90%"));
                 }
                 content.layout(true);
             }
 
         });
-        content.add(cb, formData);
+        content.add(cb, new FormData("40%"));
 
         add(content);
 

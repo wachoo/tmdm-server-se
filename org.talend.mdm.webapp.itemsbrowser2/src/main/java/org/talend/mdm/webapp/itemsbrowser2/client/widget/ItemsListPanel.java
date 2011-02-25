@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
@@ -30,7 +31,6 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
-import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.ListLoadResult;
@@ -94,7 +94,7 @@ public class ItemsListPanel extends ContentPanel {
 
     AdvancedSearchPanel advancedPanel;
 
-    ComboBox<BaseModel> entityCombo = new ComboBox<BaseModel>();
+    ComboBox<ItemBaseModel> entityCombo = new ComboBox<ItemBaseModel>();
 
     ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
@@ -161,7 +161,7 @@ public class ItemsListPanel extends ContentPanel {
 
         // add entity combo
         HorizontalPanel entityPanel = new HorizontalPanel();
-        final ListStore<BaseModel> list = new ListStore<BaseModel>();
+        final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>();
 
         entityCombo.setWidth(100);
         entityCombo.setEmptyText("Select an Entity...");
@@ -170,10 +170,10 @@ public class ItemsListPanel extends ContentPanel {
         entityCombo.setValueField("value");
         entityCombo.setTriggerAction(TriggerAction.ALL);
 
-        entityCombo.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
+        entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
             @Override
-            public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
+            public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                 String viewPk = se.getSelectedItem().get("value").toString();
                 service.getView(viewPk, new AsyncCallback<ViewBean>() {
 
@@ -243,17 +243,18 @@ public class ItemsListPanel extends ContentPanel {
                 });
                 winAdvanced.addButton(searchBtn);
 
-                RpcProxy<List<BaseModel>> cbproxy = new RpcProxy<List<BaseModel>>() {
+                RpcProxy<List<ItemBaseModel>> cbproxy = new RpcProxy<List<ItemBaseModel>>() {
 
                     @Override
-                    protected void load(Object loadConfig, AsyncCallback<List<BaseModel>> callback) {
+                    protected void load(Object loadConfig, AsyncCallback<List<ItemBaseModel>> callback) {
                         service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(), callback);
                     }
                 };
 
-                final ListLoader<ListLoadResult<BaseModel>> cbloader = new BaseListLoader<ListLoadResult<BaseModel>>(cbproxy);
-                final ListStore<BaseModel> bookStore = new ListStore<BaseModel>(cbloader);
-                ComboBox<BaseModel> cbBookmark = new ComboBox<BaseModel>();
+                final ListLoader<ListLoadResult<ItemBaseModel>> cbloader = new BaseListLoader<ListLoadResult<ItemBaseModel>>(
+                        cbproxy);
+                final ListStore<ItemBaseModel> bookStore = new ListStore<ItemBaseModel>(cbloader);
+                ComboBox<ItemBaseModel> cbBookmark = new ComboBox<ItemBaseModel>();
                 cbBookmark.setWidth(120);
                 cbBookmark.setEmptyText("Select a Bookmark");
                 cbBookmark.setStore(bookStore);
@@ -261,10 +262,10 @@ public class ItemsListPanel extends ContentPanel {
                 cbBookmark.setValueField("value");
                 cbBookmark.setTriggerAction(TriggerAction.ALL);
 
-                cbBookmark.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
+                cbBookmark.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
                     @Override
-                    public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
+                    public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                         if (se.getSelectedItem() != null) {
                             service.getCriteriaByBookmark(se.getSelectedItem().get("value").toString(),
                                     new AsyncCallback<String>() {
@@ -389,20 +390,20 @@ public class ItemsListPanel extends ContentPanel {
                         winBookmark.add(content);
 
                         // display bookmark grid
-                        RpcProxy<PagingLoadResult<BaseModel>> proxyBookmark = new RpcProxy<PagingLoadResult<BaseModel>>() {
+                        RpcProxy<PagingLoadResult<ItemBaseModel>> proxyBookmark = new RpcProxy<PagingLoadResult<ItemBaseModel>>() {
 
-                            public void load(Object loadConfig, AsyncCallback<PagingLoadResult<BaseModel>> callback) {
+                            public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
                                 service.querySearchTemplates(entityCombo.getValue().get("value").toString(), false,
                                         (PagingLoadConfig) loadConfig, callback);
                             }
                         };
 
                         // loader
-                        final PagingLoader<PagingLoadResult<BaseModel>> loaderBookmark = new BasePagingLoader<PagingLoadResult<BaseModel>>(
+                        final PagingLoader<PagingLoadResult<ItemBaseModel>> loaderBookmark = new BasePagingLoader<PagingLoadResult<ItemBaseModel>>(
                                 proxyBookmark);
                         loaderBookmark.setRemoteSort(true);
 
-                        ListStore<BaseModel> store = new ListStore<BaseModel>(loaderBookmark);
+                        ListStore<ItemBaseModel> store = new ListStore<ItemBaseModel>(loaderBookmark);
                         store.setDefaultSort("name", SortDir.ASC);
 
                         final PagingToolBar toolBar = new PagingToolBar(PAGE_SIZE);
@@ -411,11 +412,11 @@ public class ItemsListPanel extends ContentPanel {
                         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
                         columns.add(new ColumnConfig("name", "Bookmarks", 200));
                         ColumnConfig colImg = new ColumnConfig("value", "Delete", 100);
-                        colImg.setRenderer(new GridCellRenderer<BaseModel>() {
+                        colImg.setRenderer(new GridCellRenderer<ItemBaseModel>() {
 
                             @SuppressWarnings("deprecation")
-                            public Object render(final BaseModel model, String property, ColumnData config, int rowIndex,
-                                    int colIndex, ListStore<BaseModel> store, Grid<BaseModel> grid) {
+                            public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
+                                    int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                                 Image image = new Image();
                                 image.setResource(Icons.INSTANCE.remove());
                                 image.addClickListener(new ClickListener() {
@@ -455,11 +456,11 @@ public class ItemsListPanel extends ContentPanel {
 
                         ColumnModel cm = new ColumnModel(columns);
 
-                        final Grid<BaseModel> bookmarkgrid = new Grid<BaseModel>(store, cm);
+                        final Grid<ItemBaseModel> bookmarkgrid = new Grid<ItemBaseModel>(store, cm);
                         bookmarkgrid.getView().setForceFit(true);
-                        bookmarkgrid.addListener(Events.Attach, new Listener<GridEvent<BaseModel>>() {
+                        bookmarkgrid.addListener(Events.Attach, new Listener<GridEvent<ItemBaseModel>>() {
 
-                            public void handleEvent(GridEvent<BaseModel> be) {
+                            public void handleEvent(GridEvent<ItemBaseModel> be) {
                                 PagingLoadConfig config = new BasePagingLoadConfig();
                                 config.setOffset(0);
                                 config.setLimit(PAGE_SIZE);
@@ -496,12 +497,12 @@ public class ItemsListPanel extends ContentPanel {
         });
         toolBar.add(advancedBut);
 
-        service.getViewsList("en", new AsyncCallback<List<BaseModel>>() {
+        service.getViewsList("en", new AsyncCallback<List<ItemBaseModel>>() {
 
             public void onFailure(Throwable arg0) {
             }
 
-            public void onSuccess(List<BaseModel> arg0) {
+            public void onSuccess(List<ItemBaseModel> arg0) {
                 list.removeAll();
                 list.add(arg0);
             }

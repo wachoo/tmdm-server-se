@@ -47,7 +47,7 @@ public class MultipleCriteria implements Criteria {
             if (!first)
                 sb.append(" " + operator + " ");
 
-            sb.append(Parser.BEGIN_BLOCK + c.toString() + Parser.END_BLOCK);
+            sb.append(c.toString());
             first = false;
         }
         sb.append(Parser.END_BLOCK);

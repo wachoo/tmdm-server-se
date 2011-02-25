@@ -36,6 +36,7 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.BrowseItem;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
@@ -74,7 +75,6 @@ import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
-import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -360,7 +360,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return new BasePagingLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
     }
 
-    public List<BaseModel> getViewsList(String language) {
+    public List<ItemBaseModel> getViewsList(String language) {
         try {
             Map<String, String> viewMap = null;
 
@@ -395,9 +395,9 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                 viewMap.put("Browse_items_Agent", "Agent");
             }
 
-            List<BaseModel> list = new ArrayList<BaseModel>();
+            List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
             for (String key : viewMap.keySet()) {
-                BaseModel bm = new BaseModel();
+                ItemBaseModel bm = new ItemBaseModel();
                 bm.set("name", viewMap.get(key));
                 bm.set("value", key);
                 list.add(bm);
@@ -492,25 +492,25 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         }
     }
 
-    public PagingLoadResult<BaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load) {
+    public PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load) {
         List<String> results = Arrays.asList(getSearchTemplateNames(view, isShared, load.getOffset(), load.getLimit()));
-        List<BaseModel> list = new ArrayList<BaseModel>();
+        List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
         for (String result : results) {
-            BaseModel bm = new BaseModel();
+            ItemBaseModel bm = new ItemBaseModel();
             bm.set("name", result);
             bm.set("value", result);
             list.add(bm);
         }
         int totalSize = Integer.parseInt(countSearchTemplate(view));
-        return new BasePagingLoadResult<BaseModel>(list, load.getOffset(), totalSize);
+        return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
     }
 
-    public List<BaseModel> getviewItemsCriterias(String view) {
+    public List<ItemBaseModel> getviewItemsCriterias(String view) {
         String[] results = getSearchTemplateNames(view, true, 0, 0);
-        List<BaseModel> list = new ArrayList<BaseModel>();
+        List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
 
         for (String result : results) {
-            BaseModel bm = new BaseModel();
+            ItemBaseModel bm = new ItemBaseModel();
             bm.set("name", result);
             bm.set("value", result);
             list.add(bm);

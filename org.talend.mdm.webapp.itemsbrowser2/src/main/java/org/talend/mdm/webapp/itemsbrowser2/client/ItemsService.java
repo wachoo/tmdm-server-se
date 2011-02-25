@@ -2,12 +2,12 @@ package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.core.client.GWT;
@@ -36,7 +36,7 @@ public interface ItemsService extends RemoteService {
 
     ViewBean getView(String viewPk);
 
-    List<BaseModel> getViewsList(String language);
+    List<ItemBaseModel> getViewsList(String language);
 
     boolean isExistCriteria(String dataObjectLabel, String id);
 
@@ -44,13 +44,13 @@ public interface ItemsService extends RemoteService {
 
     String getCriteriaByBookmark(String bookmark);
 
-    List<BaseModel> getviewItemsCriterias(String view);
+    List<ItemBaseModel> getviewItemsCriterias(String view);
 
     ItemFormBean setForm(ItemBean item, ViewBean view);
 
-    PagingLoadResult<BaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load);
+    PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load);
 
     String deleteSearchTemplate(String id);
-    
+
     String getCurrentDataModel() throws Exception;
 }
