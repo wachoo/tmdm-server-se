@@ -47,4 +47,8 @@ public interface Icons extends ClientBundle {
     
     @Source("no_image.gif")
     ImageResource no_image();
+    
+    @Source("clear-icon.gif")
+    ImageResource clear_icon();
+    
 }
