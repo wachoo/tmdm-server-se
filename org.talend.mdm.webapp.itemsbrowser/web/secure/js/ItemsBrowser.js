@@ -11,6 +11,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	loadResource("/itemsbrowser/secure/js/ImprovedDWRProxy.js", "");
 	
 	loadResource("/talendmdm/secure/js/widget/ForeignKeyField.js", "" );
+	
+	loadResource("/itemsbrowser/secure/js/SearchEntityPanel.js", "" );
+	
 	/********************************************************************
 	 * Localization
 	 ********************************************************************/
@@ -340,6 +343,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var BUTTON_CREATE_USER = {
 		'fr':'Créer un utilisateur',
 		'en':'Add a new user'
+	};
+	
+	var LINEAGE_BUTTON = {
+		'fr':'Ouvrir la tâche',
+		'en':'Lineages '
 	};
 	
 	var BUTTON_TASK = {
@@ -1939,6 +1947,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var O_ACTION        = 512;
 	var O_REFRESH       = 1024;
 	var O_TASK          = 2048;
+	var O_LINEAGE       = 4096;
 	
 	// modes
 	var M_TREE_VIEW		= 1;
@@ -1985,6 +1994,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				options |= (toolbar.baseOptions & O_ACTION);
 				options |= (toolbar.baseOptions & O_REFRESH);
 				options |= (toolbar.baseOptions & O_TASK);
+				options |= (toolbar.baseOptions & O_LINEAGE);
 				
 			break;
 			case M_PERSO_VIEW:
@@ -2141,8 +2151,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			nbButtons++;
 		}
 		
+		// Lineage button
+		if ((options&O_LINEAGE) == O_LINEAGE) {
+			if (nbButtons > 0){
+				toolbar.addSeparator();
+				nbButtons++;
+			}
+	
+			toolbar.addButton( {tooltip:TASK_TOOLTIP[language], iconCls : 'item_bt_task', text: LINEAGE_BUTTON[language], className: 'tb-button tb-button-nude', handler: toolbar.lineageItemHandler});
+			nbButtons++;
+		}
+		
 		// task
-		if ( (options&O_TASK)==O_TASK && amalto.updatereport) {
+		if ( (options&O_TASK)==O_TASK) {
 			if (nbButtons>0){
 				toolbar.addSeparator();
 				nbButtons++;
@@ -2451,6 +2472,21 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         		if(rootNode.taskId != "null" && "" != rootNode.taskId && rootNode.taskId != null) {
     				tbDetail.baseOptions |= O_TASK;
     			};
+        		
+    			DWREngine.setAsync(false);
+    			var lineagEntities; 
+    			ItemsBrowserInterface.getLineageEntity(dataObject, function(results) {
+    				lineagEntities = results;
+    			});
+    			
+    			if(lineagEntities != null && lineagEntities.length != 0 && lineagEntities != "") {
+    				tbDetail.baseOptions |= O_LINEAGE;
+    			}
+    			DWREngine.setAsync(true);
+    			
+    			tbDetail.lineageItemHandler = function() {
+        			lineageItem(lineagEntities);
+        		};
         		
         		tbDetail.taskItemHandler = function() {
         			taskItem(rootNode.taskId);
@@ -3478,6 +3514,29 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var itemPK = ids.split('@');
 		displayItemDetails4Duplicate(itemPK,dataObject,true);
 	    }
+	}
+	
+	function lineageItem(lineageEntities) {
+		//@temp, open the searchentitypanel on a fresh tab.
+//		ItemsBrowserInterface
+		var tabPanel = amalto.core.getTabPanel();
+		
+		var searchEntityPanel = tabPanel.getItem("searchEntityPanel");
+		
+		if(searchEntityPanel) {
+			tabPanel.remove(searchEntityPanel);
+			searchEntityPanel.destroy();
+		}
+		
+		searchEntityPanel = new amalto.itemsbrowser.SearchEntityPanel({
+			lineageEntities : lineageEntities
+		});
+		
+		tabPanel.add(searchEntityPanel);
+		
+		searchEntityPanel.show();
+		searchEntityPanel.doLayout();
+		amalto.core.doLayout();
 	}
 	
 	function taskItem(taskId) {

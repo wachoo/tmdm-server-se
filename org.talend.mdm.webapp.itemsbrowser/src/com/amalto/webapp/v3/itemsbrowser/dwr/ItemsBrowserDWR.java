@@ -17,6 +17,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -89,12 +90,15 @@ import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSGetItemPKsByCriteria;
+import com.amalto.webapp.util.webservices.WSGetItemPKsByFullCriteria;
 import com.amalto.webapp.util.webservices.WSGetTransformer;
 import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
+import com.amalto.webapp.util.webservices.WSItemPKsByCriteriaResponse;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
 import com.amalto.webapp.util.webservices.WSStringArray;
@@ -3520,6 +3524,71 @@ public class ItemsBrowserDWR {
         listRange.setData(comboItem.toArray());
         String countItem = countSearchTemplate(regex);
         listRange.setTotalSize(Integer.parseInt(countItem));
+        return listRange;
+    }
+
+    public List<String> getLineageEntity(String concept) throws Exception {
+        List<String> refs = SchemaWebAgent.getInstance().getReferenceEntities(concept);
+
+        return refs;
+    }
+
+    public ListRange getItems(int start, int limit, String sort, String dir, String regex) throws Exception {
+        ListRange listRange = new ListRange();
+        WSDataClusterPK wsDataClusterPK = new WSDataClusterPK();
+        String entity = null;
+        String contentWords = null;
+        String keys = null;
+        Long fromDate = new Long(-1);
+        Long toDate = new Long(-1);
+
+        if (regex != null && regex.length() > 0) {
+            JSONObject criteria = new JSONObject(regex);
+
+            Configuration configuration = Configuration.getInstance();
+            wsDataClusterPK.setPk(configuration.getCluster());
+            entity = !criteria.isNull("entity") ? (String) criteria.get("entity") : "";
+            keys = !criteria.isNull("key") ? (String) criteria.get("key") : "";
+            contentWords = !criteria.isNull("keyWords") ? (String) criteria.get("keyWords") : "";
+
+            if (!criteria.isNull("fromDate")) {
+                String startDate = (String) criteria.get("fromDate");
+                SimpleDateFormat dataFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                java.util.Date date = dataFmt.parse(startDate);
+                fromDate = date.getTime();
+            }
+
+            if (!criteria.isNull("toDate")) {
+                String endDate = (String) criteria.get("toDate");
+                SimpleDateFormat dataFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                java.util.Date date = dataFmt.parse(endDate);
+                toDate = date.getTime();
+            }
+        }
+
+        WSItemPKsByCriteriaResponse results = Util.getPort().getItemPKsByFullCriteria(
+                new WSGetItemPKsByFullCriteria(new WSGetItemPKsByCriteria(wsDataClusterPK, entity, contentWords, keys, fromDate,
+                        toDate, start, limit), false));
+
+        Map[] data = new Map[results.getResults().length - 1];
+        int totalSize = 0;
+        for (int i = 0; i < results.getResults().length; i++) {
+            if (i == 0) {
+                totalSize = Integer.parseInt(Util.parse(results.getResults()[i].getWsItemPK().getConceptName())
+                        .getDocumentElement().getTextContent());
+                continue;
+            }
+
+            Map<String, String> record = new HashMap<String, String>();
+            record.put("date", new java.util.Date(results.getResults()[i].getDate()).toString());
+            record.put("entity", results.getResults()[i].getWsItemPK().getConceptName());
+            record.put("key", results.getResults()[i].getWsItemPK().getIds()[0]);
+            data[i - 1] = record;
+        }
+
+        listRange.setTotalSize(totalSize);
+        listRange.setData(data);
+
         return listRange;
     }
 }
