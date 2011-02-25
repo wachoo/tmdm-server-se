@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -47,12 +47,9 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
-/**
- * DOC chliu  class global comment. Detailled comment
- */
 public class PictureField extends Field<PictureBean> {
 
-    private static final String DefaultImage = "/itemsbrowser2/images/icons/no_image.gif";
+    private static final String DefaultImage = "/itemsbrowser2/images/icons/no_image.gif"; //$NON-NLS-1$
 
     protected El wrap = new El(DOM.createSpan());
 
@@ -68,19 +65,19 @@ public class PictureField extends Field<PictureBean> {
 
     private Dialog dialog = new Dialog() {
 
+        @Override
         protected void onButtonPressed(Button button) {
             super.onButtonPressed(button);
             if (button == getButtonBar().getItemByItemId(YES)) {
-                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.POST, "/imageserver/secure/ImageDeleteServlet");
-                reqBuilder.setRequestData("");
+                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.POST, "/imageserver/secure/ImageDeleteServlet"); ////$NON-NLS-1$
+                reqBuilder.setRequestData(""); ////$NON-NLS-1$
                 reqBuilder.setCallback(new RequestCallback() {
 
-                    @Override
                     public void onResponseReceived(Request request, Response response) {
                         String json = response.getText();
                         JSONObject jsObject = JSONParser.parse(json).isObject();
-                        JSONBoolean success = jsObject.get("success").isBoolean();
-                        JSONString message = jsObject.get("message").isString();
+                        JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
+                        JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
                         boolean succeed = success.booleanValue();
                         MessageBox.alert(succeed ? "Success" : "Failed", message.stringValue(), null);
                         if (succeed) {
@@ -88,7 +85,6 @@ public class PictureField extends Field<PictureBean> {
                         }
                     }
 
-                    @Override
                     public void onError(Request request, Throwable exception) {
                         MessageBox.alert("Error", exception.getMessage(), null);
                     }
@@ -114,12 +110,10 @@ public class PictureField extends Field<PictureBean> {
 
         propertyEditor = new PropertyEditor<PictureBean>() {
 
-            @Override
             public String getStringValue(PictureBean value) {
                 return value.toString();
             }
 
-            @Override
             public PictureBean convertStringValue(String value) {
                 return PictureField.this.value;
             }
@@ -158,7 +152,7 @@ public class PictureField extends Field<PictureBean> {
     @Override
     public void setValue(PictureBean value) {
         super.setValue(value);
-        if (value != null && value.getUrl() != null && !"".equals(value.getUrl())) {
+        if (value != null && value.getUrl() != null && !"".equals(value.getUrl())) { //$NON-NLS-1$
             image.setUrl(value.toString());
         } else {
             image.setUrl(DefaultImage);
@@ -198,7 +192,7 @@ public class PictureField extends Field<PictureBean> {
             FormData formData = new FormData("-10");
             editForm.setEncoding(FormPanel.Encoding.MULTIPART);
             editForm.setMethod(FormPanel.Method.POST);
-            editForm.setAction("/imageserver/secure/ImageUploadServlet");
+            editForm.setAction("/imageserver/secure/ImageUploadServlet"); //$NON-NLS-1$
             editForm.setHeaderVisible(false);
             editForm.setBodyBorder(false);
 
@@ -209,15 +203,14 @@ public class PictureField extends Field<PictureBean> {
             editForm.add(file, formData);
             editForm.addListener(Events.Submit, new Listener<FormEvent>() {
 
-                @Override
                 public void handleEvent(FormEvent be) {
                     String json = be.getResultHtml();
                     JSONObject jsObject = JSONParser.parse(json).isObject();
-                    JSONBoolean success = jsObject.get("success").isBoolean();
-                    JSONString message = jsObject.get("message").isString();
-                    com.google.gwt.user.client.Window.alert(success.booleanValue() + ", " + message.stringValue());
+                    JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
+                    JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
+                    com.google.gwt.user.client.Window.alert(success.booleanValue() + ", " + message.stringValue()); //$NON-NLS-1$
                     if (success.booleanValue()) {
-                        image.setUrl("/imageserver/" + message.stringValue());
+                        image.setUrl("/imageserver/" + message.stringValue()); //$NON-NLS-1$
                         value.setUrl(message.stringValue());
                     } else {
                         image.setUrl(DefaultImage);
