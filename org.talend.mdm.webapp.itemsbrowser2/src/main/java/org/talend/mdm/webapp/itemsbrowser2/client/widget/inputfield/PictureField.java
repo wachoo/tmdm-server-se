@@ -23,16 +23,22 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.PropertyEditor;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -41,6 +47,9 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
+/**
+ * DOC chliu  class global comment. Detailled comment
+ */
 public class PictureField extends Field<PictureBean> {
 
     private static final String DefaultImage = "/itemsbrowser2/images/icons/no_image.gif";
@@ -51,18 +60,66 @@ public class PictureField extends Field<PictureBean> {
 
     protected El input = new El(image.getElement());
 
-    protected Element handler = new Image(Icons.INSTANCE.image_add()).getElement();
+    protected Element delHandler = new Image(Icons.INSTANCE.clear_icon()).getElement();
+
+    protected Element addHandler = new Image(Icons.INSTANCE.image_add()).getElement();
 
     private EditWindow editWin = new EditWindow();
 
+    private Dialog dialog = new Dialog() {
+
+        protected void onButtonPressed(Button button) {
+            super.onButtonPressed(button);
+            if (button == getButtonBar().getItemByItemId(YES)) {
+                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.POST, "/imageserver/secure/ImageDeleteServlet");
+                reqBuilder.setRequestData("");
+                reqBuilder.setCallback(new RequestCallback() {
+
+                    @Override
+                    public void onResponseReceived(Request request, Response response) {
+                        String json = response.getText();
+                        JSONObject jsObject = JSONParser.parse(json).isObject();
+                        JSONBoolean success = jsObject.get("success").isBoolean();
+                        JSONString message = jsObject.get("message").isString();
+                        boolean succeed = success.booleanValue();
+                        MessageBox.alert(succeed ? "Success" : "Failed", message.stringValue(), null);
+                        if (succeed) {
+                            setValue(null);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Request request, Throwable exception) {
+                        MessageBox.alert("Error", exception.getMessage(), null);
+                    }
+                });
+                try {
+                    reqBuilder.send();
+                } catch (RequestException e) {
+                    MessageBox.alert("RequestException", e.getMessage(), null);
+                }
+
+            } else if (button == getButtonBar().getItemByItemId(NO)) {
+
+            }
+        }
+    };
+
     public PictureField() {
-        regJs(handler);
+        regJs(delHandler);
+        regJs(addHandler);
+        dialog.setModal(true);
+        dialog.setBlinkModal(true);
+        dialog.setButtons(Dialog.YESNO);
+
         propertyEditor = new PropertyEditor<PictureBean>() {
 
+            @Override
             public String getStringValue(PictureBean value) {
                 return value.toString();
             }
 
+            @Override
             public PictureBean convertStringValue(String value) {
                 return PictureField.this.value;
             }
@@ -76,29 +133,35 @@ public class PictureField extends Field<PictureBean> {
 
         input.dom.getStyle().setMarginRight(5, Unit.PX);
         wrap.dom.appendChild(input.dom);
-        wrap.dom.appendChild(handler);
+        wrap.dom.appendChild(delHandler);
+        wrap.dom.appendChild(addHandler);
 
         setElement(wrap.dom, target, index);
-        regJs(handler);
         super.onRender(target, index);
     }
 
-    private void handlerClick() {
-        editWin.show();
+    private void handlerClick(Element el) {
+        if (el == addHandler) {
+            editWin.show();
+        } else if (el == delHandler) {
+            dialog.show();
+        }
     }
 
     private native void regJs(Element el)/*-{
         var instance = this;
         el.onclick = function(){
-        	instance.@org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField::handlerClick()();
+            instance.@org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField::handlerClick(Lcom/google/gwt/user/client/Element;)(this);
         };
     }-*/;
 
     @Override
     public void setValue(PictureBean value) {
         super.setValue(value);
-        if (value.getUrl() != null && !"".equals(value.getUrl())) {
-            image.setUrl(value.getUrl());
+        if (value != null && value.getUrl() != null && !"".equals(value.getUrl())) {
+            image.setUrl(value.toString());
+        } else {
+            image.setUrl(DefaultImage);
         }
     }
 
@@ -129,9 +192,10 @@ public class PictureField extends Field<PictureBean> {
             super();
             this.setLayout(new FitLayout());
             this.setHeading("Upload Picture");
-            this.setSize(350, 150);
+            this.setSize(380, 150);
+            this.setModal(true);
+            this.setBlinkModal(true);
             FormData formData = new FormData("-10");
-            editForm.setLayout(new FillLayout());
             editForm.setEncoding(FormPanel.Encoding.MULTIPART);
             editForm.setMethod(FormPanel.Method.POST);
             editForm.setAction("/imageserver/secure/ImageUploadServlet");
@@ -145,6 +209,7 @@ public class PictureField extends Field<PictureBean> {
             editForm.add(file, formData);
             editForm.addListener(Events.Submit, new Listener<FormEvent>() {
 
+                @Override
                 public void handleEvent(FormEvent be) {
                     String json = be.getResultHtml();
                     JSONObject jsObject = JSONParser.parse(json).isObject();

@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
 import java.io.Serializable;
@@ -11,11 +23,11 @@ public class PictureBean implements Serializable {
 	private String url;
 	private int width;
 	private int height;
-	private String preserveAspectRatio;
+	private boolean preserveAspectRatio;
 	
 	public PictureBean(){}
 	
-	public PictureBean(String url, int width, int height, String preserveAspectRatio){
+	public PictureBean(String url, int width, int height, boolean preserveAspectRatio){
 		this.url = url;
 		this.width = width;
 		this.height = height;
@@ -46,11 +58,15 @@ public class PictureBean implements Serializable {
 		this.height = height;
 	}
 
-	public String getPreserveAspectRatio() {
+	public boolean getPreserveAspectRatio() {
 		return preserveAspectRatio;
 	}
 
-	public void setPreserveAspectRatio(String preserveAspectRatio) {
+	public void setPreserveAspectRatio(boolean preserveAspectRatio) {
 		this.preserveAspectRatio = preserveAspectRatio;
+	}
+	
+	public String toString(){
+		return url + "?width=" + width + "&height=" + height + "&preserveAspectRatio=" + preserveAspectRatio;
 	}
 }

@@ -12,11 +12,11 @@ import java.util.List;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -29,6 +29,7 @@ public class ItemsFormPanel extends Composite {
 	public ItemsFormPanel(){
 		content.setFrame(true);
 		content.setHeaderVisible(false);
+		content.setScrollMode(Scroll.AUTO);
 		this.initComponent(content);
 	}
 	

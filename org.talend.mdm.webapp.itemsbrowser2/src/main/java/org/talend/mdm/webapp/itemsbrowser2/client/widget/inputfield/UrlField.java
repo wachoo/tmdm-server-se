@@ -33,6 +33,9 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
+/**
+ * DOC chliu  class global comment. Detailled comment
+ */
 public class UrlField extends Field<UrlBean> {
 
     protected El wrap = new El(DOM.createSpan());
