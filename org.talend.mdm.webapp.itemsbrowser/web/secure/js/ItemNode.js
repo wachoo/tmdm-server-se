@@ -251,7 +251,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						options +='<option value="'+itemData.enumeration[k]+'" '+selected+'>'+itemData.enumeration[k]+'</option>';
 					}
 					var input = ' ' +
-						'<select onchange="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');" id="'+itemData.nodeId+'Value">' +
+						'<select onchange="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');" class="selectTree" id="'+itemData.nodeId+'Value">' +
 					//'<select onchange="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');" id="'+itemData.nodeId+'Value">' +
 						options+
 						'</select>';
@@ -267,7 +267,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
                         options +='<option value="'+itemData.enumeration[k]+'" '+selected+'>'+itemData.enumeration[k]+'</option>';
                     }
                     var input = ' ' +
-                        '<select onchange="selectedIndex='+initIndex+'" id="'+itemData.nodeId+'Value" '+readOnly+' >' +
+                        '<select onchange="selectedIndex='+initIndex+'" id="'+itemData.nodeId+'Value" '+' class="selectTree'+readOnlyStyle+'" '+readOnly+' >' +
                         options+
                         '</select>';
 			}

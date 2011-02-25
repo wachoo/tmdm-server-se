@@ -61,12 +61,18 @@
 .inputTreeREADONLY,
 .inputTreeForeignKey {
   border: 1px solid #787878;
-  height: 24px;
+  height: 20px;
   overflow: hidden;
   padding: 2px 5px 2px 8px;
   width: 60%;
 }
 
+.selectTree {
+  border: 1px solid #787878;
+  overflow: hidden;
+}
+
+.selectTreeREADONLY,
 .inputTreeREADONLY,
 .inputTreeForeignKey {
   color:#777777;
