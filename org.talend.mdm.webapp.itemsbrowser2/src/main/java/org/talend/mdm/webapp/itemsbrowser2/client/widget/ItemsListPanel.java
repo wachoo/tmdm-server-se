@@ -133,7 +133,7 @@ public class ItemsListPanel extends ContentPanel {
         setHeaderVisible(false);
 
         // init user saved model
-        service.getUserModel(new AsyncCallback<String>() {
+        service.getCurrentDataModel(new AsyncCallback<String>() {
 
             public void onFailure(Throwable arg0) {
             }

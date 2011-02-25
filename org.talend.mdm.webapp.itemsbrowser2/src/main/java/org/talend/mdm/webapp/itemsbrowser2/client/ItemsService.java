@@ -38,8 +38,6 @@ public interface ItemsService extends RemoteService {
 
     List<BaseModel> getViewsList(String language);
 
-    String getUserModel();
-
     boolean isExistCriteria(String dataObjectLabel, String id);
 
     String saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString);
@@ -53,4 +51,6 @@ public interface ItemsService extends RemoteService {
     PagingLoadResult<BaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load);
 
     String deleteSearchTemplate(String id);
+    
+    String getCurrentDataModel() throws Exception;
 }

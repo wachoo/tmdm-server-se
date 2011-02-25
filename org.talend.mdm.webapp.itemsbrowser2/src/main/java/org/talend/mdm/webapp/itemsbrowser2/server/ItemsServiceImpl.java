@@ -25,6 +25,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -45,6 +48,7 @@ import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.ElementProcess;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FieldVerifier;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSCount;
@@ -202,7 +206,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
             String xsd;
             // TODO
-            String model = getUserModel();
+            String model = getCurrentDataModel();
             String concept = getConceptFromBrowseItemView(viewPk);
 
             Map<String, String> metaDataTypes = null;
@@ -361,7 +365,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             Map<String, String> viewMap = null;
 
             if (Itemsbrowser2.IS_SCRIPT) {
-                String model = getUserModel();
+                String model = getCurrentDataModel();
                 String[] businessConcept = com.amalto.webapp.core.util.Util.getPort().getBusinessConcepts(
                         new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
                 ArrayList<String> bc = new ArrayList<String>();
@@ -638,12 +642,11 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return null;
     }
 
-    public String getUserModel() {
-        try {
-            return com.amalto.webapp.core.util.Util.getUserDataModel();
-        } catch (Exception e) {
-            return null;
-        }
+    public String getCurrentDataModel() throws Exception {
+        HttpServletRequest request = this.getThreadLocalRequest();
+        HttpSession session = request.getSession();
+        Configuration config = Configuration.getInstance(session);
+        return config.getModel();
     }
 
 }

@@ -29,8 +29,6 @@ public interface ItemsServiceAsync {
 
     void getView(String viewPk, AsyncCallback<ViewBean> callback);
 
-    void getUserModel(AsyncCallback<String> callback);
-
     void isExistCriteria(String dataObjectLabel, String id, AsyncCallback<Boolean> callback);
 
     void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString, AsyncCallback<String> callback);
@@ -43,4 +41,6 @@ public interface ItemsServiceAsync {
     void getviewItemsCriterias(String view, AsyncCallback<List<BaseModel>> callback);
 
     void deleteSearchTemplate(String id, AsyncCallback<String> callback);
+
+    void getCurrentDataModel(AsyncCallback<String> callback);
 }
