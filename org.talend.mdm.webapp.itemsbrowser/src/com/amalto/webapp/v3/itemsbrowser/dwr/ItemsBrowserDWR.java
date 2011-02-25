@@ -2412,8 +2412,8 @@ public class ItemsBrowserDWR {
             String xml2 = Util.createUpdateReport(ids, concept, operationType, updatedPath);
 
             synchronizeUpdateState(ctx, docIndex);
-            if (LOG.isDebugEnabled())
-                LOG.debug("pushUpdateReport() " + xml2);
+
+            LOG.debug("pushUpdateReport() " + xml2);
 
             return Util.persistentUpdateReport(xml2, true);
 

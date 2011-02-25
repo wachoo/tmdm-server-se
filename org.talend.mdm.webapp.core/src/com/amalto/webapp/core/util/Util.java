@@ -1596,42 +1596,36 @@ public class Util {
 
     public static String createUpdateReport(String[] ids, String concept, String operationType,
             HashMap<String, UpdateReportItem> updatedPath) throws Exception {
-        String username = "";
-        String revisionId = "";
 
-        String dataModelPK = "";
-        String dataClusterPK = "";
-        try {
+        String revisionId = null;
 
-            Configuration config = Configuration.getInstance();
-            dataModelPK = config.getModel() == null ? "" : config.getModel();
-            dataClusterPK = config.getCluster() == null ? "" : config.getCluster();
+        Configuration config = Configuration.getInstance();
+        String dataModelPK = config.getModel() == null ? "" : config.getModel();
+        String dataClusterPK = config.getCluster() == null ? "" : config.getCluster();
 
-            username = Util.getLoginUserName();
-            String universename = Util.getLoginUniverse();
-            if (universename != null && universename.length() > 0)
-                revisionId = Util.getRevisionIdFromUniverse(universename, concept);
+        String username = Util.getLoginUserName();
+        String universename = Util.getLoginUniverse();
+        if (universename != null && universename.length() > 0)
+            revisionId = Util.getRevisionIdFromUniverse(universename, concept);
 
-        } catch (Exception e1) {
-            throw e1;
-        }
-
-        String key = null;
+        StringBuilder keyBuilder = new StringBuilder();
         if (ids != null) {
-            key = "";
             for (int i = 0; i < ids.length; i++) {
-                key += ids[i];
+                keyBuilder.append(ids[i]);
                 if (i != ids.length - 1)
-                    key += ".";
+                    keyBuilder.append(".");
             }
         }
-        key = key == null ? "null" : key; //$NON-NLS-1$
+        String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
 
-        String xml2 = "" + "<Update>" + "<UserName>" + username + "</UserName>" + "<Source>genericUI</Source>" + "<TimeInMillis>" //$NON-NLS-1$
-                + System.currentTimeMillis() + "</TimeInMillis>" + "<OperationType>" + StringEscapeUtils.escapeXml(operationType) //$NON-NLS-1$
-                + "</OperationType>" + "<RevisionID>" + revisionId + "</RevisionID>" + "<DataCluster>" + dataClusterPK //$NON-NLS-1$
-                + "</DataCluster>" + "<DataModel>" + dataModelPK + "</DataModel>" + "<Concept>"
-                + StringEscapeUtils.escapeXml(concept) + "</Concept>" + "<Key>" + StringEscapeUtils.escapeXml(key) + "</Key>"; //$NON-NLS-1$
+        StringBuilder sb = new StringBuilder();
+        sb.append("<Update><UserName>").append(username).append("</UserName><Source>genericUI</Source><TimeInMillis>") //$NON-NLS-1$
+                .append(System.currentTimeMillis()).append("</TimeInMillis><OperationType>") //$NON-NLS-1$
+                .append(StringEscapeUtils.escapeXml(operationType)).append("</OperationType><RevisionID>").append(revisionId) //$NON-NLS-1$
+                .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$
+                .append(dataModelPK).append("</DataModel><Concept>").append(StringEscapeUtils.escapeXml(concept)) //$NON-NLS-1$
+                .append("</Concept><Key>").append(StringEscapeUtils.escapeXml(key)).append("</Key>"); //$NON-NLS-1$
+
         if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
             Collection<UpdateReportItem> list = updatedPath.values();
             boolean isUpdate = false;
@@ -1641,35 +1635,28 @@ public class Util {
                 String newValue = item.getNewValue() == null ? "" : item.getNewValue();
                 if (newValue.equals(oldValue))
                     continue;
-                xml2 += "<Item>" + "   <path>" + StringEscapeUtils.escapeXml(item.getPath()) + "</path>" + "   <oldValue>" //$NON-NLS-1$
-                        + StringEscapeUtils.escapeXml(oldValue) + "</oldValue>" + "   <newValue>" //$NON-NLS-1$
-                        + StringEscapeUtils.escapeXml(newValue) + "</newValue>" + "</Item>"; //$NON-NLS-1$
+                sb.append("<Item>   <path>").append(StringEscapeUtils.escapeXml(item.getPath())).append("</path>   <oldValue>")//$NON-NLS-1$
+                        .append(StringEscapeUtils.escapeXml(oldValue)).append("</oldValue>   <newValue>")//$NON-NLS-1$
+                        .append(StringEscapeUtils.escapeXml(newValue)).append("</newValue></Item>");//$NON-NLS-1$
                 isUpdate = true;
             }
             if (!isUpdate)
                 return null;
         }
-        xml2 += "</Update>"; //$NON-NLS-1$
-        return xml2;
+        sb.append("</Update>");//$NON-NLS-1$
+        return sb.toString();
     }
 
     public static String persistentUpdateReport(String xml2, boolean routeAfterSaving) throws Exception {
         if (xml2 == null)
             return "OK";
-        try {
-            WSItemPK itemPK = Util.getPort().putItem(
-                    new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
-            try {
-                if (routeAfterSaving)
-                    Util.getPort().routeItemV2(new WSRouteItemV2(itemPK));
-            } catch (RemoteException e) {
-                throw e;
-            }
-            return "OK";
-        } catch (RemoteException e) {
-            throw e;
-        } catch (XtentisWebappException e) {
-            throw e;
-        }
+
+        WSItemPK itemPK = Util.getPort().putItem(
+                new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
+
+        if (routeAfterSaving)
+            Util.getPort().routeItemV2(new WSRouteItemV2(itemPK));
+
+        return "OK";
     }
 }
