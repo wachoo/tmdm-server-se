@@ -242,13 +242,15 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
     }
 
     private String getValue() {
+        String curValue = null;
         if (valueComboBox.isVisible())
-            return valueComboBox.getValue().get("value");
+            curValue = (valueComboBox.getValue() == null) ? "*" : valueComboBox.getValue().get("value").toString();
         if (valueDate.isVisible())
-            return valueDate.getValue().toString();
+            curValue = (valueDate.getValue() == null) ? "*" : valueDate.getValue().toString();
         if (valueTextBox.isVisible())
-            return valueTextBox.getValue().toString();
-        return null;
+            curValue = (valueTextBox.getValue() == null) ? "*" : valueTextBox.getValue().toString();
+
+        return curValue;
     }
 
     public SimpleCriterion getCriteria() {
