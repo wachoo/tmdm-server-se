@@ -313,6 +313,9 @@ public abstract class QueryBuilder {
             }
             if (".*".equals(encoded) && !operator.equals(WhereCondition.EMPTY_NULL))
                 return "";
+            // add modified on criteria
+            if (wc.getLeftPath().startsWith("../../"))
+                return wc.getLeftPath() + " " + wc.getOperator() + " " + wc.getRightValueOrPath();
             factorFirstPivotInMap(pivots, wc.getLeftPath());
             String factorPivots = XPathUtils.factor(wc.getLeftPath(), pivots) + "";
             // see 0015004, if rightPath contains '/', we consider it as xpathFunction
@@ -574,6 +577,9 @@ public abstract class QueryBuilder {
                 String expr = forInCollectionMap.get(root);
                 if (pivotWhereMap.get(root) != null && pivotWhereMap.get(root).length() > 0)
                     expr = expr + " [ " + pivotWhereMap.get(root) + " ] ";
+                else if (xqWhere.indexOf("../../t") > -1) {// add modified condition if there is no pivotWhereMap
+                    expr = expr + " [ " + xqWhere + " ] ";
+                }
                 if (partialXQLPackage.isUseGlobalOrderBy())
                     expr = partialXQLPackage.genOrderByWithFirstExpr(expr);
                 firstLets.append("let $_leres").append(i).append("_ := ").append(expr).append(" \n");
