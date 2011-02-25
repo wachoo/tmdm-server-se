@@ -23,7 +23,7 @@ import com.google.gwt.xml.client.Document;
 /**
  * DOC HSHU class global comment. Detailled comment
  */
-public class ItemBean extends BaseModel {
+public class ItemBean extends ItemBaseModel {
 
     /**
      * 

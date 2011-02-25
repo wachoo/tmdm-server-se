@@ -2,7 +2,9 @@ package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
 import java.io.Serializable;
 
-public class BrowseItem implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class BrowseItem implements Serializable, IsSerializable {
 
     private String CriteriaName;
 

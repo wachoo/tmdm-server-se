@@ -14,7 +14,9 @@ package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
 import java.io.Serializable;
 
-public class UrlBean implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class UrlBean implements Serializable, IsSerializable {
 
 	/**
 	 * 

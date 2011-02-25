@@ -2,7 +2,9 @@ package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
 import java.io.Serializable;
 
-public class Restriction implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class Restriction implements Serializable, IsSerializable {
 
 	private String name;
 	

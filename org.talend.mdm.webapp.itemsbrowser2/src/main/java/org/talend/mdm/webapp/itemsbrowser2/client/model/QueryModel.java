@@ -15,7 +15,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client.model;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 
-public class QueryModel extends BaseModel {
+public class QueryModel extends ItemBaseModel {
 
     private static final long serialVersionUID = 4315775494963149856L;
 

@@ -14,10 +14,12 @@ package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
 import java.io.Serializable;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * DOC stephane class global comment. Detailled comment
  */
-public class Parser implements Serializable {
+public class Parser implements Serializable, IsSerializable {
 
     public static final char BEGIN_BLOCK = '(';
 

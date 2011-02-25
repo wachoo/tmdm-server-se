@@ -17,10 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * DOC HSHU class global comment. Detailled comment
  */
-public class ViewBean implements Serializable {
+public class ViewBean implements Serializable, IsSerializable {
 
     private List<String> viewableXpaths;
 

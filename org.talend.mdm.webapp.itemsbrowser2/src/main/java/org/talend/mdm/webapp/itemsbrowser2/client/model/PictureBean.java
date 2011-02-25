@@ -14,7 +14,9 @@ package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
 import java.io.Serializable;
 
-public class PictureBean implements Serializable {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class PictureBean implements Serializable, IsSerializable {
 
 	/**
 	 * 

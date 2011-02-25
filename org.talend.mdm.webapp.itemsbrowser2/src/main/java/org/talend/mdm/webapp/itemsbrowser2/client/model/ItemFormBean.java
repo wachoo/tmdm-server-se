@@ -22,7 +22,7 @@ import com.extjs.gxt.ui.client.data.BaseModel;
 /**
  * DOC HSHU  class global comment. Detailled comment
  */
-public class ItemFormBean extends BaseModel{
+public class ItemFormBean extends ItemBaseModel{
 
     /**
      * 

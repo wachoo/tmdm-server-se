@@ -14,9 +14,11 @@ package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
 import java.io.Serializable;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * DOC Administrator class global comment. Detailled comment
  */
-public interface Criteria extends Serializable {
+public interface Criteria extends Serializable, IsSerializable {
 
 }
