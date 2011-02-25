@@ -2482,7 +2482,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     ItemsBrowserInterface.processItem(tbDetail.dataObject, tbDetail.ids, tbDetail.treeIndex, selectedProcess, {
                     	callback:function(result){
                            Ext.MessageBox.hide();
-                           if(result){
+                           if(result.indexOf("Ok") >= 0){
                                Ext.MessageBox.alert('Status', "Process done! ");
                                //FIXME mock refresh
                                itemTree.removeNode(itemTree.getRoot().children[0]);
@@ -2505,25 +2505,27 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                                
                                displayItems.call(); 
                                 
-                               var url = "/itemsbrowser/secure/RefreshProperties?output_report=true&process=" + selectedProcess + "&id=" + tbDetail.treeIndex;    
-                               var panelID = "mimepanel" + tbDetail.treeIndex ;
-                               
-                               var mimepanel = new Ext.Panel( {   
-                               id : panelID,   
-                               title : "output_report of " + selectedProcess + " " + tbDetail.ids,
-                               closable:true,
-                               fitToFrame: true,                   
-                               html: '<iframe id="frame1" src=' + url+ ' frameborder="0" width="100%" height="100%"></iframe>'  
-                               });
-                               
-                               var tabPanel = amalto.core.getTabPanel();
-                               var contentPanel=tabPanel.getItem(panelID);
-                               if (contentPanel == undefined){
-                               	tabPanel.add(mimepanel);
+                               if(result == "Ok"){
+                                   var url = "/itemsbrowser/secure/RefreshProperties?output_report=true&process=" + selectedProcess + "&id=" + tbDetail.treeIndex;    
+                                   var panelID = "mimepanel" + tbDetail.treeIndex ;
+                                   
+                                   var mimepanel = new Ext.Panel( {   
+                                   id : panelID,   
+                                   title : "output_report of " + selectedProcess + " " + tbDetail.ids,
+                                   closable:true,
+                                   fitToFrame: true,                   
+                                   html: '<iframe id="frame1" src=' + url+ ' frameborder="0" width="100%" height="100%"></iframe>'  
+                                   });
+                                   
+                                   var tabPanel = amalto.core.getTabPanel();
+                                   var contentPanel=tabPanel.getItem(panelID);
+                                   if (contentPanel == undefined){
+                                   	tabPanel.add(mimepanel);
+                                   }
+                                   tabPanel.show();
+                                   tabPanel.doLayout();
+                                   amalto.core.doLayout(); 
                                }
-                               tabPanel.show();
-                               tabPanel.doLayout();
-                               amalto.core.doLayout(); 
                            }else{
                            Ext.MessageBox.alert('Status', "Process failed! ");  
                            }

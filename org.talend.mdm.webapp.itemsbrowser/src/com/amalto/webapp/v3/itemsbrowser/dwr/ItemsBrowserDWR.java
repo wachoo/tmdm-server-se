@@ -2936,7 +2936,7 @@ public class ItemsBrowserDWR {
         return false;
     }
 
-    public boolean processItem(String concept, String[] ids, int docIndex, String transformerPK) throws Exception {
+    public String processItem(String concept, String[] ids, int docIndex, String transformerPK) throws Exception {
         try {
             if (ids.length == 0) {
                 WebContext ctx = WebContextFactory.get();
@@ -2967,6 +2967,7 @@ public class ItemsBrowserDWR {
             if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0)
                 throw new Exception("The Plugin Specs of this process is undefined! ");
 
+            boolean outputReport = false;
             if (isRunnableTransformerExist) {
                 LOG.info("Executing transformer for " + itemAlias + "'s action. ");
                 WSTransformerContextPipelinePipelineItem[] entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2)
@@ -2977,8 +2978,9 @@ public class ItemsBrowserDWR {
                         byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
                         WebContext ctx = WebContextFactory.get();
                         ctx.getSession().setAttribute(transformerPK + docIndex, bytes);
-                        ctx.getSession().setAttribute(transformerPK + docIndex + "mimetype",
+                        ctx.getSession().setAttribute(transformerPK + docIndex + "mimetype", //$NON-NLS-1$
                                 item.getWsTypedContent().getContentType().getBytes());
+                        outputReport = true;
                     }
                 }
             } else {
@@ -2992,6 +2994,8 @@ public class ItemsBrowserDWR {
                 // return false;
                 throw new Exception("Store Update-Report failed! ");
             }
+            if (!outputReport)
+                return "partialOk"; //$NON-NLS-1$
 
         } catch (Exception e) {
             String err = "Unable to launch Runnable Process! ";
@@ -3001,7 +3005,7 @@ public class ItemsBrowserDWR {
                 output = err;
             throw new Exception(output);
         }
-        return true;
+        return "Ok"; //$NON-NLS-1$
 
     }
 
