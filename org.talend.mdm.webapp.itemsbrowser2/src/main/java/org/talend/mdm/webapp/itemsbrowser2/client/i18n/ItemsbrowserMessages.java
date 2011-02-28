@@ -77,4 +77,38 @@ public interface ItemsbrowserMessages extends Messages {
     String search_modifiedto();
 
     String advsearch_subclause();
+
+    String criteria_AND();
+
+    String criteria_OR();
+
+    String criteria_CONTAINS();
+
+    String criteria_EQUALS();
+
+    String criteria_NOT_EQUALS();
+
+    String criteria_GREATER_THAN();
+
+    String criteria_GREATER_THAN_OR_EQUAL();
+
+    String criteria_LOWER_THAN();
+
+    String criteria_LOWER_THAN_OR_EQUAL();
+
+    String criteria_STARTSWITH();
+
+    String criteria_STRICTCONTAINS();
+
+    String criteria_FULLTEXTSEARCH();
+
+    String criteria_DATEEQUALS();
+
+    String criteria_DATELOWER_THAN();
+
+    String criteria_DATEGREATER_THAN();
+
+    String criteria_BOOLEQUALSTRUE();
+
+    String criteria_BOOLEQUALSFALSE();
 }

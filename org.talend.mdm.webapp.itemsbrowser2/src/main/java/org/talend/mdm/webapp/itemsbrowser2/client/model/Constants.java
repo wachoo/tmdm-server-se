@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -30,7 +32,8 @@ public class Constants implements Serializable, IsSerializable {
      */
     private static final long serialVersionUID = 1L;
 
-    public static List<String> groupOperators = Arrays.asList(new String[] { "AND", "OR" });
+    public static List<String> groupOperators = Arrays.asList(new String[] { MessagesFactory.getMessages().criteria_AND(),
+            MessagesFactory.getMessages().criteria_OR() });
 
     public static Map<String, String> fullOperators = new HashMap<String, String>();
 
@@ -46,37 +49,37 @@ public class Constants implements Serializable, IsSerializable {
 
     static {
 
-        fullOperators.put("CONTAINS", "contains the word(s)");
-        fullOperators.put("EQUALS", "is equal to");
-        fullOperators.put("NOT_EQUALS", "is not equal to");
-        fullOperators.put("GREATER_THAN", "is greater than");
-        fullOperators.put("GREATER_THAN_OR_EQUAL", "is greater or equals");
-        fullOperators.put("LOWER_THAN", "is lower than");
-        fullOperators.put("LOWER_THAN_OR_EQUAL", "is lower or equals");
-        fullOperators.put("STARTSWITH", "contains a word starting with");
-        fullOperators.put("STRICTCONTAINS", "contains the sentence");
+        fullOperators.put("CONTAINS", MessagesFactory.getMessages().criteria_CONTAINS());
+        fullOperators.put("EQUALS", MessagesFactory.getMessages().criteria_EQUALS());
+        fullOperators.put("NOT_EQUALS", MessagesFactory.getMessages().criteria_NOT_EQUALS());
+        fullOperators.put("GREATER_THAN", MessagesFactory.getMessages().criteria_GREATER_THAN());
+        fullOperators.put("GREATER_THAN_OR_EQUAL", MessagesFactory.getMessages().criteria_GREATER_THAN_OR_EQUAL());
+        fullOperators.put("LOWER_THAN", MessagesFactory.getMessages().criteria_LOWER_THAN());
+        fullOperators.put("LOWER_THAN_OR_EQUAL", MessagesFactory.getMessages().criteria_LOWER_THAN_OR_EQUAL());
+        fullOperators.put("STARTSWITH", MessagesFactory.getMessages().criteria_STARTSWITH());
+        fullOperators.put("STRICTCONTAINS", MessagesFactory.getMessages().criteria_STRICTCONTAINS());
 
-        fulltextOperators.put("FULLTEXTSEARCH", "Full text search");
+        fulltextOperators.put("FULLTEXTSEARCH", MessagesFactory.getMessages().criteria_FULLTEXTSEARCH());
 
-        dateOperators.put("EQUALS", "equals");
-        dateOperators.put("LOWER_THAN", "is before");
-        dateOperators.put("GREATER_THAN", "is after");
+        dateOperators.put("EQUALS", MessagesFactory.getMessages().criteria_DATEEQUALS());
+        dateOperators.put("LOWER_THAN", MessagesFactory.getMessages().criteria_DATELOWER_THAN());
+        dateOperators.put("GREATER_THAN", MessagesFactory.getMessages().criteria_DATEGREATER_THAN());
 
-        numOperators.put("EQUALS", "is equal to");
-        numOperators.put("NOT_EQUALS", "is not equal to");
-        numOperators.put("GREATER_THAN", "is greater than");
-        numOperators.put("GREATER_THAN_OR_EQUAL", "is greater or equals");
-        numOperators.put("LOWER_THAN", "is lower than");
-        numOperators.put("LOWER_THAN_OR_EQUAL", "is lower or equals");
+        numOperators.put("EQUALS", MessagesFactory.getMessages().criteria_EQUALS());
+        numOperators.put("NOT_EQUALS", MessagesFactory.getMessages().criteria_NOT_EQUALS());
+        numOperators.put("GREATER_THAN", MessagesFactory.getMessages().criteria_GREATER_THAN());
+        numOperators.put("GREATER_THAN_OR_EQUAL", MessagesFactory.getMessages().criteria_GREATER_THAN_OR_EQUAL());
+        numOperators.put("LOWER_THAN", MessagesFactory.getMessages().criteria_LOWER_THAN());
+        numOperators.put("LOWER_THAN_OR_EQUAL", MessagesFactory.getMessages().criteria_LOWER_THAN_OR_EQUAL());
 
-        booleanOperators.put("EQUALSTRUE", "is equal to true");
-        booleanOperators.put("EQUALSFALSE", "is equal to false");
+        booleanOperators.put("EQUALSTRUE", MessagesFactory.getMessages().criteria_BOOLEQUALSTRUE());
+        booleanOperators.put("EQUALSFALSE", MessagesFactory.getMessages().criteria_BOOLEQUALSFALSE());
 
-        enumOperators.put("EQUALS", "is equal to");
-        enumOperators.put("LOWER_THAN", "is lower than");
-        enumOperators.put("GREATER_THAN", "is greater than");
-        enumOperators.put("LOWER_THAN_OR_EQUAL", "is lower or equals");
-        enumOperators.put("GREATER_THAN_OR_EQUAL", "is greater or equals");
+        enumOperators.put("EQUALS", MessagesFactory.getMessages().criteria_EQUALS());
+        enumOperators.put("LOWER_THAN", MessagesFactory.getMessages().criteria_LOWER_THAN());
+        enumOperators.put("GREATER_THAN", MessagesFactory.getMessages().criteria_GREATER_THAN());
+        enumOperators.put("LOWER_THAN_OR_EQUAL", MessagesFactory.getMessages().criteria_LOWER_THAN_OR_EQUAL());
+        enumOperators.put("GREATER_THAN_OR_EQUAL", MessagesFactory.getMessages().criteria_GREATER_THAN_OR_EQUAL());
     }
 
 }
