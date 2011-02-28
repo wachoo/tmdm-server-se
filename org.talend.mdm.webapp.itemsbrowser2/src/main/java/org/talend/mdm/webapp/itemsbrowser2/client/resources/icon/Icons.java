@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -17,9 +17,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
-/**
- * @author sbessaies
- */
 public interface Icons extends ClientBundle {
 
     Icons INSTANCE = GWT.create(Icons.class);
@@ -38,17 +35,23 @@ public interface Icons extends ClientBundle {
 
     @Source("valid.png")
     ImageResource Valid();
-    
+
     @Source("add-element.gif")
     ImageResource add_element();
-    
+
     @Source("image_add.png")
     ImageResource image_add();
-    
+
     @Source("no_image.gif")
     ImageResource no_image();
-    
+
     @Source("clear-icon.gif")
     ImageResource clear_icon();
-    
+
+    @Source("save.png")
+    ImageResource Save();
+
+    @Source("display.png")
+    ImageResource Display();
+
 }

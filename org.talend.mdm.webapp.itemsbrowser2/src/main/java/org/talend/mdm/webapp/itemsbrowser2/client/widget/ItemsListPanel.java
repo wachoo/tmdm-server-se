@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
@@ -30,11 +31,8 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
-import com.extjs.gxt.ui.client.data.ListLoadResult;
-import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -76,9 +74,13 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
@@ -127,6 +129,12 @@ public class ItemsListPanel extends ContentPanel {
     final Button searchBut = new Button("Search");
 
     final Button advancedBut = new Button("Advanced Search");
+
+    final Button managebookBtn = new Button();
+
+    final Button bookmarkBtn = new Button();
+
+    final Window winAdvanced = new Window();
 
     public ItemsListPanel() {
         setLayout(new FitLayout());
@@ -185,6 +193,8 @@ public class ItemsListPanel extends ContentPanel {
                         simplePanel.updateFields(arg0);
                         searchBut.setEnabled(true);
                         advancedBut.setEnabled(true);
+                        managebookBtn.setEnabled(true);
+                        bookmarkBtn.setEnabled(true);
                     }
 
                 });
@@ -210,6 +220,8 @@ public class ItemsListPanel extends ContentPanel {
         });
         toolBar.add(searchBut);
 
+        toolBar.add(new SeparatorToolItem());
+
         // add advanced search button
         advancedBut.setEnabled(false);
         advancedBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -217,285 +229,298 @@ public class ItemsListPanel extends ContentPanel {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 // show advanced Search panel
-                final Window winAdvanced = new Window();
-                winAdvanced.setBodyBorder(false);
-                winAdvanced.setClosable(false);
-                winAdvanced.setModal(true);
-                winAdvanced.setWidth(toolBar.getWidth());
-                advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
-
-                winAdvanced.add(advancedPanel);
-                Button searchBtn = new Button("Search");
-                searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        if (advancedPanel.getCriteria() == null || advancedPanel.getCriteria().equals(""))
-                            MessageBox.alert("Warn", "Search expression could not be empty.", null);
-                        else {
-                            isSimple = false;
-                            String viewPk = entityCombo.getValue().get("value");
-                            Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
-                            winAdvanced.close();
-                        }
-                    }
-
-                });
-                winAdvanced.addButton(searchBtn);
-
-                RpcProxy<List<ItemBaseModel>> cbproxy = new RpcProxy<List<ItemBaseModel>>() {
-
-                    @Override
-                    protected void load(Object loadConfig, AsyncCallback<List<ItemBaseModel>> callback) {
-                        service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(), callback);
-                    }
-                };
-
-                final ListLoader<ListLoadResult<ItemBaseModel>> cbloader = new BaseListLoader<ListLoadResult<ItemBaseModel>>(
-                        cbproxy);
-                final ListStore<ItemBaseModel> bookStore = new ListStore<ItemBaseModel>(cbloader);
-                ComboBox<ItemBaseModel> cbBookmark = new ComboBox<ItemBaseModel>();
-                cbBookmark.setWidth(120);
-                cbBookmark.setEmptyText("Select a Bookmark");
-                cbBookmark.setStore(bookStore);
-                cbBookmark.setDisplayField("name");
-                cbBookmark.setValueField("value");
-                cbBookmark.setTriggerAction(TriggerAction.ALL);
-
-                cbBookmark.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
-
-                    @Override
-                    public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
-                        if (se.getSelectedItem() != null) {
-                            service.getCriteriaByBookmark(se.getSelectedItem().get("value").toString(),
-                                    new AsyncCallback<String>() {
-
-                                        public void onFailure(Throwable arg0) {
-
-                                        }
-
-                                        public void onSuccess(String arg0) {
-                                            advancedPanel.setCriteria(arg0);
-                                        }
-
-                                    });
-                        }
-                    }
-
-                });
-                winAdvanced.getButtonBar().add(cbBookmark);
-
-                Button bookmarkBtn = new Button("Bookmark this Search");
-                bookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        final Window winBookmark = new Window();
-                        winBookmark.setHeading("Bookmark");
-                        winBookmark.setAutoHeight(true);
-                        winBookmark.setAutoWidth(true);
-                        FormPanel content = new FormPanel();
-                        content.setFrame(false);
-                        content.setBodyBorder(false);
-                        content.setHeaderVisible(false);
-                        content.setButtonAlign(HorizontalAlignment.CENTER);
-                        content.setLabelWidth(100);
-                        content.setFieldWidth(200);
-                        final CheckBox cb = new CheckBox();
-                        cb.setFieldLabel("Shared");
-                        content.add(cb);
-
-                        final TextField bookmarkfield = new TextField();
-                        bookmarkfield.setFieldLabel("Boommark Name");
-                        Validator validator = new Validator() {
-
-                            public String validate(Field<?> field, String value) {
-                                if (field == bookmarkfield) {
-                                    if (bookmarkfield.getValue() == null || bookmarkfield.getValue().toString().trim().equals(""))
-                                        return "This field is required";
-                                }
-
-                                return null;
-                            }
-                        };
-                        bookmarkfield.setValidator(validator);
-                        content.add(bookmarkfield);
-
-                        Button btn = new Button("OK");
-                        btn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                            @Override
-                            public void componentSelected(ButtonEvent ce) {
-                                service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue()
-                                        .toString(), new AsyncCallback<Boolean>() {
-
-                                    public void onFailure(Throwable arg0) {
-                                        MessageBox.alert("Status", "This Bookmark already exist,please enter other name!", null);
-                                    }
-
-                                    public void onSuccess(Boolean arg0) {
-                                        if (!arg0) {
-                                            service.saveCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield
-                                                    .getValue().toString(), cb.getValue(), advancedPanel.getCriteria(),
-                                                    new AsyncCallback<String>() {
-
-                                                        public void onFailure(Throwable arg0) {
-                                                            MessageBox.alert("Save", "Save Bookmark failed!", null);
-                                                        }
-
-                                                        public void onSuccess(String arg0) {
-                                                            if (arg0.equals("OK")) {
-                                                                MessageBox.alert("Save", "Save Bookmark Successfully!", null);
-                                                                cbloader.load();
-                                                                winBookmark.close();
-                                                            } else
-                                                                MessageBox.alert("Save", "Save Bookmark failed!", null);
-                                                        }
-
-                                                    });
-                                        } else {
-                                            MessageBox.alert("Status", "This Bookmark already exist,please enter other name!",
-                                                    null);
-                                        }
-                                    }
-
-                                });
-                            }
-                        });
-                        winBookmark.addButton(btn);
-
-                        winBookmark.add(content);
-                        winBookmark.show();
-                    }
-
-                });
-                winAdvanced.addButton(bookmarkBtn);
-
-                Button managebookBtn = new Button("Manage Bookmarks");
-                managebookBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        final Window winBookmark = new Window();
-                        winBookmark.setHeading("Manage Search Bookmarks");
-                        winBookmark.setAutoHeight(true);
-                        winBookmark.setAutoWidth(true);
-                        FormPanel content = new FormPanel();
-                        FormData formData = new FormData("-10");
-                        content.setFrame(false);
-                        content.setLayout(new FitLayout());
-                        content.setBodyBorder(false);
-                        content.setHeaderVisible(false);
-                        content.setSize(300, 350);
-                        winBookmark.add(content);
-
-                        // display bookmark grid
-                        RpcProxy<PagingLoadResult<ItemBaseModel>> proxyBookmark = new RpcProxy<PagingLoadResult<ItemBaseModel>>() {
-
-                            public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
-                                service.querySearchTemplates(entityCombo.getValue().get("value").toString(), false,
-                                        (PagingLoadConfig) loadConfig, callback);
-                            }
-                        };
-
-                        // loader
-                        final PagingLoader<PagingLoadResult<ItemBaseModel>> loaderBookmark = new BasePagingLoader<PagingLoadResult<ItemBaseModel>>(
-                                proxyBookmark);
-                        loaderBookmark.setRemoteSort(true);
-
-                        ListStore<ItemBaseModel> store = new ListStore<ItemBaseModel>(loaderBookmark);
-                        store.setDefaultSort("name", SortDir.ASC);
-
-                        final PagingToolBar toolBar = new PagingToolBar(PAGE_SIZE);
-                        toolBar.bind(loaderBookmark);
-
-                        List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-                        columns.add(new ColumnConfig("name", "Bookmarks", 200));
-                        ColumnConfig colImg = new ColumnConfig("value", "Delete", 100);
-                        colImg.setRenderer(new GridCellRenderer<ItemBaseModel>() {
-
-                            @SuppressWarnings("deprecation")
-                            public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
-                                    int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
-                                Image image = new Image();
-                                image.setResource(Icons.INSTANCE.remove());
-                                image.addClickListener(new ClickListener() {
-
-                                    public void onClick(Widget arg0) {
-                                        MessageBox.confirm("Confirm", "Do you really want to remove this Bookmark?",
-                                                new Listener<MessageBoxEvent>() {
-
-                                                    public void handleEvent(MessageBoxEvent be) {
-                                                        // TODO Auto-generated method stub
-                                                        if (be.getButtonClicked().getText().equals("Yes")) {
-                                                            // delete the bookmark
-                                                            service.deleteSearchTemplate(model.get("value").toString(),
-                                                                    new AsyncCallback<String>() {
-
-                                                                        public void onFailure(Throwable arg0) {
-                                                                        }
-
-                                                                        public void onSuccess(String arg0) {
-                                                                            loaderBookmark.load();
-                                                                            cbloader.load();
-                                                                        }
-
-                                                                    });
-                                                        }
-                                                    }
-                                                });
-                                    }
-
-                                });
-                                return image;
-                            }
-
-                        });
-
-                        columns.add(colImg);
-
-                        ColumnModel cm = new ColumnModel(columns);
-
-                        final Grid<ItemBaseModel> bookmarkgrid = new Grid<ItemBaseModel>(store, cm);
-                        bookmarkgrid.getView().setForceFit(true);
-                        bookmarkgrid.addListener(Events.Attach, new Listener<GridEvent<ItemBaseModel>>() {
-
-                            public void handleEvent(GridEvent<ItemBaseModel> be) {
-                                PagingLoadConfig config = new BasePagingLoadConfig();
-                                config.setOffset(0);
-                                config.setLimit(PAGE_SIZE);
-                                loaderBookmark.load(config);
-                            }
-                        });
-
-                        bookmarkgrid.setLoadMask(true);
-                        bookmarkgrid.setBorders(false);
-
-                        content.setBottomComponent(toolBar);
-                        content.add(bookmarkgrid, formData);
-
-                        winBookmark.show();
-                    }
-
-                });
-                winAdvanced.addButton(managebookBtn);
-
-                Button cancelBtn = new Button("Cancel");
-                cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        winAdvanced.close();
-                    }
-
-                });
-                winAdvanced.addButton(cancelBtn);
-                winAdvanced.show();
-                winAdvanced.alignTo(toolBar.getElement(), "tl", new int[] { 0, 40 });
+                showAdvancedWin(toolBar, null);
             }
 
         });
         toolBar.add(advancedBut);
+
+        toolBar.add(new SeparatorToolItem());
+
+        // add bookmark management button
+        managebookBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Display()));
+        managebookBtn.setEnabled(false);
+        managebookBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                final Window winBookmark = new Window();
+                winBookmark.setHeading("Manage Search Bookmarks");
+                winBookmark.setAutoHeight(true);
+                winBookmark.setAutoWidth(true);
+                winBookmark.setModal(true);
+                FormPanel content = new FormPanel();
+                FormData formData = new FormData("-10");
+                content.setFrame(false);
+                content.setLayout(new FitLayout());
+                content.setBodyBorder(false);
+                content.setHeaderVisible(false);
+                content.setSize(400, 350);
+                winBookmark.add(content);
+
+                // display bookmark grid
+                RpcProxy<PagingLoadResult<ItemBaseModel>> proxyBookmark = new RpcProxy<PagingLoadResult<ItemBaseModel>>() {
+
+                    public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
+                        service.querySearchTemplates(entityCombo.getValue().get("value").toString(), false,
+                                (PagingLoadConfig) loadConfig, callback);
+                    }
+                };
+
+                // loader
+                final PagingLoader<PagingLoadResult<ItemBaseModel>> loaderBookmark = new BasePagingLoader<PagingLoadResult<ItemBaseModel>>(
+                        proxyBookmark);
+                loaderBookmark.setRemoteSort(true);
+
+                ListStore<ItemBaseModel> store = new ListStore<ItemBaseModel>(loaderBookmark);
+                store.setDefaultSort("name", SortDir.ASC);
+
+                final PagingToolBar pagetoolBar = new PagingToolBar(PAGE_SIZE);
+                pagetoolBar.bind(loaderBookmark);
+
+                List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+                columns.add(new ColumnConfig("name", "Bookmarks", 200));
+                ColumnConfig colEdit = new ColumnConfig("value", "Edit", 100);
+                colEdit.setRenderer(new GridCellRenderer<ItemBaseModel>() {
+
+                    @SuppressWarnings("deprecation")
+                    public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
+                            int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
+                        Image image = new Image();
+                        image.setResource(Icons.INSTANCE.Edit());
+                        image.addMouseOverHandler(new MouseOverHandler() {
+
+                            public void onMouseOver(MouseOverEvent arg0) {
+
+                            }
+                        });
+                        image.addClickListener(new ClickListener() {
+
+                            public void onClick(Widget arg0) {
+                                // edit the bookmark
+                                if (advancedPanel == null)
+                                    advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
+                                service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() {
+
+                                    public void onFailure(Throwable arg0) {
+
+                                    }
+
+                                    public void onSuccess(String arg0) {
+                                        showAdvancedWin(toolBar, arg0);
+                                        winBookmark.close();
+                                    }
+
+                                });
+                            }
+
+                        });
+                        return image;
+                    }
+
+                });
+                columns.add(colEdit);
+
+                ColumnConfig colDel = new ColumnConfig("value", "Delete", 100);
+                colDel.setRenderer(new GridCellRenderer<ItemBaseModel>() {
+
+                    @SuppressWarnings("deprecation")
+                    public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
+                            int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
+                        Image image = new Image();
+                        image.setResource(Icons.INSTANCE.remove());
+                        image.addClickListener(new ClickListener() {
+
+                            public void onClick(Widget arg0) {
+                                MessageBox.confirm("Confirm", "Do you really want to remove this Bookmark?",
+                                        new Listener<MessageBoxEvent>() {
+
+                                            public void handleEvent(MessageBoxEvent be) {
+                                                // TODO Auto-generated method stub
+                                                if (be.getButtonClicked().getText().equals("Yes")) {
+                                                    // delete the bookmark
+                                                    service.deleteSearchTemplate(model.get("value").toString(),
+                                                            new AsyncCallback<String>() {
+
+                                                                public void onFailure(Throwable arg0) {
+                                                                }
+
+                                                                public void onSuccess(String arg0) {
+                                                                    loaderBookmark.load();
+                                                                }
+
+                                                            });
+                                                }
+                                            }
+                                        });
+                            }
+
+                        });
+                        return image;
+                    }
+
+                });
+
+                columns.add(colDel);
+
+                ColumnModel cm = new ColumnModel(columns);
+
+                final Grid<ItemBaseModel> bookmarkgrid = new Grid<ItemBaseModel>(store, cm);
+                if (cm.getColumnCount() > 0) {
+                    bookmarkgrid.setAutoExpandColumn(cm.getColumn(0).getHeader());
+                }
+                bookmarkgrid.getView().setForceFit(true);
+                bookmarkgrid.addListener(Events.Attach, new Listener<GridEvent<ItemBaseModel>>() {
+
+                    public void handleEvent(GridEvent<ItemBaseModel> be) {
+                        PagingLoadConfig config = new BasePagingLoadConfig();
+                        config.setOffset(0);
+                        config.setLimit(PAGE_SIZE);
+                        loaderBookmark.load(config);
+                    }
+                });
+
+                bookmarkgrid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBaseModel>>() {
+
+                    public void handleEvent(final GridEvent<ItemBaseModel> be) {
+                        service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(),
+                                new AsyncCallback<List<ItemBaseModel>>() {
+
+                                    public void onFailure(Throwable arg0) {
+                                        // TODO Auto-generated method stub
+
+                                    }
+
+                                    public void onSuccess(List<ItemBaseModel> arg0) {
+                                        // only the shared bookmark could be search
+                                        Iterator i = arg0.iterator();
+                                        while (i.hasNext()) {
+                                            if (((ItemBaseModel) i.next()).get("value").equals(
+                                                    be.getModel().get("value").toString())) {
+                                                service.getCriteriaByBookmark(be.getModel().get("value").toString(),
+                                                        new AsyncCallback<String>() {
+
+                                                            public void onFailure(Throwable arg0) {
+
+                                                            }
+
+                                                            public void onSuccess(String arg0) {
+                                                                isSimple = false;
+                                                                if (advancedPanel == null)
+                                                                    advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
+                                                                advancedPanel.setCriteria(arg0);
+                                                                String viewPk = entityCombo.getValue().get("value");
+                                                                Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
+                                                                winBookmark.close();
+                                                            }
+
+                                                        });
+                                            }
+                                        }
+                                    }
+
+                                });
+                    }
+                });
+
+                bookmarkgrid.setLoadMask(true);
+                bookmarkgrid.setBorders(false);
+
+                content.setBottomComponent(pagetoolBar);
+                content.add(bookmarkgrid, formData);
+
+                winBookmark.show();
+            }
+
+        });
+        toolBar.add(managebookBtn);
+
+        // add bookmark save button
+        bookmarkBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        bookmarkBtn.setEnabled(false);
+        bookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                final Window winBookmark = new Window();
+                winBookmark.setHeading("Bookmark");
+                winBookmark.setAutoHeight(true);
+                winBookmark.setAutoWidth(true);
+                FormPanel content = new FormPanel();
+                content.setFrame(false);
+                content.setBodyBorder(false);
+                content.setHeaderVisible(false);
+                content.setButtonAlign(HorizontalAlignment.CENTER);
+                content.setLabelWidth(100);
+                content.setFieldWidth(200);
+                final CheckBox cb = new CheckBox();
+                cb.setFieldLabel("Shared");
+                content.add(cb);
+
+                final TextField bookmarkfield = new TextField();
+                bookmarkfield.setFieldLabel("Boommark Name");
+                Validator validator = new Validator() {
+
+                    public String validate(Field<?> field, String value) {
+                        if (field == bookmarkfield) {
+                            if (bookmarkfield.getValue() == null || bookmarkfield.getValue().toString().trim().equals(""))
+                                return "This field is required";
+                        }
+
+                        return null;
+                    }
+                };
+                bookmarkfield.setValidator(validator);
+                content.add(bookmarkfield);
+
+                Button btn = new Button("OK");
+                btn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                    @Override
+                    public void componentSelected(ButtonEvent ce) {
+                        service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue()
+                                .toString(), new AsyncCallback<Boolean>() {
+
+                            public void onFailure(Throwable arg0) {
+                                MessageBox.alert("Status", "This Bookmark already exist,please enter other name!", null);
+                            }
+
+                            public void onSuccess(Boolean arg0) {
+                                if (!arg0) {
+                                    service.saveCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue()
+                                            .toString(), cb.getValue(), isSimple ? simplePanel.getCriteria().toString()
+                                            : advancedPanel.getCriteria(), new AsyncCallback<String>() {
+
+                                        public void onFailure(Throwable arg0) {
+                                            MessageBox.alert("Save", "Save Bookmark failed!", null);
+                                        }
+
+                                        public void onSuccess(String arg0) {
+                                            if (arg0.equals("OK")) {
+                                                MessageBox.alert("Save", "Save Bookmark Successfully!", null);
+                                                // cbloader.load();
+                                                winBookmark.close();
+                                            } else
+                                                MessageBox.alert("Save", "Save Bookmark failed!", null);
+                                        }
+
+                                    });
+                                } else {
+                                    MessageBox.alert("Status", "This Bookmark already exist,please enter other name!", null);
+                                }
+                            }
+
+                        });
+                    }
+                });
+                winBookmark.addButton(btn);
+
+                winBookmark.add(content);
+                winBookmark.show();
+            }
+
+        });
+        toolBar.add(bookmarkBtn);
 
         service.getViewsList("en", new AsyncCallback<List<ItemBaseModel>>() {
 
@@ -509,6 +534,58 @@ public class ItemsListPanel extends ContentPanel {
         });
 
         setTopComponent(toolBar);
+    }
+
+    private void showAdvancedWin(ToolBar toolBar, String criteria) {
+        if (winAdvanced.getItemByItemId("advancedPanel") == null) {
+            winAdvanced.setId("advancedWin");
+            winAdvanced.setHeaderVisible(false);
+            winAdvanced.setClosable(false);
+            winAdvanced.setFrame(false);
+            winAdvanced.setWidth(toolBar.getWidth());
+            winAdvanced.setAutoHeight(true);
+            advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
+            advancedPanel.setItemId("advancedPanel");
+            advancedPanel.setButtonAlign(HorizontalAlignment.CENTER);
+
+            winAdvanced.add(advancedPanel);
+            Button searchBtn = new Button("Search");
+            searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    if (advancedPanel.getCriteria() == null || advancedPanel.getCriteria().equals(""))
+                        MessageBox.alert("Warn", "Search expression could not be empty.", null);
+                    else {
+                        isSimple = false;
+                        String viewPk = entityCombo.getValue().get("value");
+                        Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
+                        winAdvanced.close();
+                    }
+                }
+
+            });
+            advancedPanel.addButton(searchBtn);
+            Button cancelBtn = new Button("Cancel");
+            cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    winAdvanced.close();
+                }
+
+            });
+            advancedPanel.addButton(cancelBtn);
+            winAdvanced.show();
+            winAdvanced.alignTo(toolBar.getElement(), "tl", new int[] { 0, 35 });
+        } else if (!winAdvanced.isVisible())
+            winAdvanced.show();
+
+        // set criteria
+        if (criteria != null)
+            advancedPanel.setCriteria(criteria);
+        else
+            advancedPanel.cleanCriteria();
     }
 
     public void updateGrid(List<ColumnConfig> columnConfigList) {
