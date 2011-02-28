@@ -1971,9 +1971,8 @@ public class ItemsBrowserDWR {
         if (withValue) {
             Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
             String xPath = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
-            boolean isEdit = ((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")) //$NON-NLS-1$ //$NON-NLS-2$
-                    .equals(DOC_STATUS_EDIT);
-            if (isEdit && doc != null && Util.getNodeList(doc, xPath) != null && Util.getNodeList(doc, xPath).getLength() > 0) {
+            //boolean isEdit = ((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT); //$NON-NLS-1$ //$NON-NLS-2$
+            if (doc != null && Util.getNodeList(doc, xPath) != null && Util.getNodeList(doc, xPath).getLength() > 0) {
                 String textContent = Util.getFirstTextNode(doc, xPath);
                 if (textContent != null)
                     el.setTextContent(textContent);
