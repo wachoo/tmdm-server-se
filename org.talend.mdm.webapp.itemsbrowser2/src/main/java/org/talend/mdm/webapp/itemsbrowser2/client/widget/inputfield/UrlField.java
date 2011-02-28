@@ -12,12 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.UrlBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.core.XDOM;
+import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -36,7 +36,7 @@ import com.google.gwt.user.client.ui.Image;
 /**
  * DOC chliu  class global comment. Detailled comment
  */
-public class UrlField extends Field<UrlBean> {
+public class UrlField extends Field<String> {
 
     protected El wrap = new El(DOM.createSpan());
 
@@ -50,19 +50,19 @@ public class UrlField extends Field<UrlBean> {
         editWin.setHeading("Edit Url");
         editWin.setSize(600, 150);
         regJs(handler);
-        propertyEditor = new PropertyEditor<UrlBean>() {
+        propertyEditor = new PropertyEditor<String>() {
 
-            public String getStringValue(UrlBean value) {
+            public String getStringValue(String value) {
                 return value.toString();
             }
 
-            public UrlBean convertStringValue(String value) {
+            public String convertStringValue(String value) {
                 return UrlField.this.value;
             }
         };
     }
 
-    public UrlField(UrlBean value) {
+    public UrlField(String value) {
         this();
         setValue(value);
     }
@@ -95,10 +95,12 @@ public class UrlField extends Field<UrlBean> {
     }-*/;
 
     @Override
-    public void setValue(UrlBean value) {
+    public void setValue(String value) {
         super.setValue(value);
-        input.dom.setAttribute("href", value.getAddress());
-        input.dom.setInnerText(value.getName());
+        String[] addr = value.split("@@");
+        input.dom.setInnerText(addr[0]);
+        input.dom.setAttribute("href", addr[1]);
+        
 
     }
 
@@ -110,9 +112,7 @@ public class UrlField extends Field<UrlBean> {
             public void componentSelected(ButtonEvent ce) {
                 Button button = ce.getButton();
                 if (button == saveButton) {
-                    UrlBean value = UrlField.this.getValue();
-                    value.setName(firstName.getValue());
-                    value.setAddress(url.getValue());
+                    String value = firstName.getValue() + "@@" + url.getValue();
                     UrlField.this.setValue(value);
                     UrlField.this.editWin.hide();
                 } else {
@@ -150,9 +150,10 @@ public class UrlField extends Field<UrlBean> {
             addButton(cancelButton);
         }
 
-        public void setValue(UrlBean value) {
-            firstName.setValue(value.getName());
-            url.setValue(value.getAddress());
+        public void setValue(String value) {
+            String[] addr = value.split("@@");
+            firstName.setValue(addr[0]);
+            url.setValue(addr[1]);
         }
     }
 }

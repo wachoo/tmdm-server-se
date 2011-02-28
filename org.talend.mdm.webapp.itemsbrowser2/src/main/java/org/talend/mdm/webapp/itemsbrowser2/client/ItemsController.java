@@ -17,6 +17,7 @@ import java.util.List;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.PictureBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -74,6 +75,7 @@ public class ItemsController extends Controller {
         final String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
         ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
         // TODO get whole item & data model from backend and then gen ItemFormBean
+
         service.setForm(item, viewBean, new AsyncCallback<ItemFormBean>() {
 
             public void onSuccess(ItemFormBean result) {

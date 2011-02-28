@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
@@ -21,6 +22,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsFormPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsSearchContainer;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -31,12 +33,14 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Random;
@@ -99,10 +103,22 @@ public class ItemsView extends View {
         itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
         List<String> viewableXpaths = viewBean.getViewableXpaths();
+        Map<String, String> dataTypes = viewBean.getMetaDataTypes();
         for (String xpath : viewableXpaths) {
             // TODO convert xpath 2 label
             xpath = getViewLabelFromViewable(xpath);
+            String dataType = dataTypes.get(xpath);
+            Field<? extends Object> field = null;
+            if ("string".equals(dataType)){
+                field = new TextField<String>();    
+            } else if ("URL".equals(dataType)) {
+                field = new UrlField();
+            } else {
+                field = new TextField<String>();
+            }
             ColumnConfig cc = new ColumnConfig(xpath, xpath, 200);
+              
+            cc.setEditor(new CellEditor(field));
             ccList.add(cc);
         }
 

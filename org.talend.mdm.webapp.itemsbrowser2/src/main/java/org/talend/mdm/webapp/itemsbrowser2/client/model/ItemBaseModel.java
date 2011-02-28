@@ -21,9 +21,4 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class ItemBaseModel extends BaseModel implements IsSerializable {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
 }

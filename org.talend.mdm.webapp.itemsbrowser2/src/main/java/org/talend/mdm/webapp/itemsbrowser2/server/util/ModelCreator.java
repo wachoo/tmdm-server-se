@@ -16,7 +16,8 @@ import java.io.Serializable;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.PictureBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.UrlBean;
+
+import com.extjs.gxt.ui.client.data.BaseModel;
 
 /**
  * DOC chliu  class global comment. Detailled comment
@@ -44,7 +45,9 @@ public class ModelCreator {
 			model = (D) pictureBean;
 		} else if (dataType.equals(DataTypeConstants.URL)){
 			String[] url = value.split("@@");
-			UrlBean urlBean = new UrlBean(url[0], url[1]);
+			BaseModel urlBean = new BaseModel();
+			urlBean.set("name", url[0]);
+			urlBean.set("address", url[1]);
 			model = (D) urlBean;
 		} else {
 			model = (D) value;
