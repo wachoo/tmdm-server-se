@@ -59,17 +59,24 @@
 
 .inputTree,
 .inputTreeREADONLY,
-.inputTreeForeignKey {
-  border: 1px solid #787878;
+.inputTreeForeignKey,
+.selectTree, 
+.selectTreeREADONLY {
   height: 20px;
+  font: 12px tahoma,verdana,helvetica;
+  border: 1px solid #787878;
+}
+
+.inputTree,
+.inputTreeREADONLY,
+.inputTreeForeignKey {
+  padding: 2px 2px 2px 2px;
   overflow: hidden;
-  padding: 2px 5px 2px 8px;
   width: 60%;
 }
 
 .selectTree {
-  border: 1px solid #787878;
-  overflow: hidden;
+  background-color: #FFFFFF;
 }
 
 .selectTreeREADONLY,
@@ -97,9 +104,12 @@
 .right{float:right;}
 .buttonRightBottom{float:right;bottom:20px;right:20px}
 
+.ygtvitem {
+  margin-top: 4px;
+}
+
 .ygtvhtml div { 
   float: none!important;
-  margin-top: 8px;
   font-weight: bold;
   font-size: 12px;
   color: #7D7B7B;

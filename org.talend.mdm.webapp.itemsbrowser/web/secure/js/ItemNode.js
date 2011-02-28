@@ -164,7 +164,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
                  options +='<option value="'+itemData.subTypes[k]+'" '+selected+'>'+itemData.subTypes[k]+'</option>';
             }
             polymSelector = '<div style="display:inline">' +
-                        '<select onchange="amalto.itemsbrowser.ItemsBrowser.reloadNode(\''+itemData.nodeId+'\','+treeIndex+');" id="'+itemData.nodeId+'TypeSelector">' +
+                        '<select onchange="amalto.itemsbrowser.ItemsBrowser.reloadNode(\''+itemData.nodeId+'\','+treeIndex+');" class="selectTreeREADONLY" id="'+itemData.nodeId+'TypeSelector">' +
                         options+
                         '</select>'+
                         '</div>';
