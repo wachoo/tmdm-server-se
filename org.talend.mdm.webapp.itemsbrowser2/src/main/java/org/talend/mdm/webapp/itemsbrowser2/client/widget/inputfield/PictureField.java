@@ -69,8 +69,9 @@ public class PictureField extends Field<PictureBean> {
         protected void onButtonPressed(Button button) {
             super.onButtonPressed(button);
             if (button == getButtonBar().getItemByItemId(YES)) {
-                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.POST, "/imageserver/secure/ImageDeleteServlet"); ////$NON-NLS-1$
-                reqBuilder.setRequestData(""); ////$NON-NLS-1$
+                String uri = value.getUrl();
+                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.GET, "/imageserver/secure/ImageDeleteServlet?uri=" + uri);
+
                 reqBuilder.setCallback(new RequestCallback() {
 
                     public void onResponseReceived(Request request, Response response) {
@@ -104,6 +105,7 @@ public class PictureField extends Field<PictureBean> {
     public PictureField() {
         regJs(delHandler);
         regJs(addHandler);
+        dialog.setHeading("Confirm");
         dialog.setModal(true);
         dialog.setBlinkModal(true);
         dialog.setButtons(Dialog.YESNO);

@@ -173,8 +173,8 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             Document docXml = XmlUtil.parseText(itemBean.getItemXml());
             List<String> viewables = viewBean.getViewableXpaths();
             for (String viewable : viewables) {
-                String value = XmlUtil.getTextValueFromXpath(docXml, viewable);
-                itemBean.set(viewable, value);
+                String textValue = XmlUtil.getTextValueFromXpath(docXml, viewable);
+                itemBean.set(viewable, textValue);
             }
         }
     }
@@ -330,8 +330,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                     String fieldType = metaDataType.get(viewPk + "/" + label);
                     itemFormLineBean.setFieldType(fieldType);
                     itemFormLineBean.setFieldLabel(label);
-                    Serializable model = ModelCreator.createModel(fieldType, value);
-                    itemFormLineBean.setFieldValue(model);
+                    itemFormLineBean.setFieldValue(value);
 
                     // check foreign key
                     List<String> paths = fakeCustomerConcept.getForeignKeyPaths();
