@@ -190,6 +190,8 @@ public class TreeNode implements Cloneable {
                 NodeList annotList = el.getChildNodes();
                 ArrayList<String> pkInfoList = new ArrayList<String>();
                 ArrayList<String> fkInfoList = new ArrayList<String>();
+                boolean writable=false;
+                boolean creatable=false;
                 for (int k = 0; k < annotList.getLength(); k++) {
                     if ("appinfo".equals(annotList.item(k).getLocalName())) {
                         Node source = annotList.item(k).getAttributes().getNamedItem("source");
@@ -202,7 +204,8 @@ public class TreeNode implements Cloneable {
                             setLabelOtherLanguage(annotList.item(k).getFirstChild().getNodeValue());
                         } else if ("X_Write".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
-                                setReadOnly(false);
+                                //setReadOnly(false);
+                            	writable=true;
                             }
                         } else if ("X_Hide".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
@@ -237,6 +240,7 @@ public class TreeNode implements Cloneable {
                         }else if ("X_Create".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
                                 setCreatable(true);
+                                creatable=true;
                             }
                         }else if ("X_LogicalDelete".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
@@ -253,6 +257,7 @@ public class TreeNode implements Cloneable {
                         setDocumentation(annotList.item(k).getFirstChild().getNodeValue());
                     }
                 }
+                readOnly=!writable && !creatable;
                 setForeignKeyInfo(fkInfoList);
                 setPrimaryKeyInfo(pkInfoList);
             }
