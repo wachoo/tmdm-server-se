@@ -20,6 +20,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
@@ -52,6 +53,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -102,7 +104,6 @@ public class ItemsListPanel extends ContentPanel {
 
     RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
 
-        @Override
         public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBean>> callback) {
             QueryModel qm = new QueryModel();
             qm.setDataClusterPK(userModel);
@@ -126,9 +127,9 @@ public class ItemsListPanel extends ContentPanel {
 
     private final static int PAGE_SIZE = 10;
 
-    final Button searchBut = new Button("Search");
+    final Button searchBut = new Button(MessagesFactory.getMessages().search_btn());
 
-    final Button advancedBut = new Button("Advanced Search");
+    final Button advancedBut = new Button(MessagesFactory.getMessages().advsearch_btn());
 
     final Button managebookBtn = new Button();
 
@@ -172,7 +173,7 @@ public class ItemsListPanel extends ContentPanel {
         final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>();
 
         entityCombo.setWidth(100);
-        entityCombo.setEmptyText("Select an Entity...");
+        entityCombo.setEmptyText(MessagesFactory.getMessages().empty_entity());
         entityCombo.setStore(list);
         entityCombo.setDisplayField("name");
         entityCombo.setValueField("value");
@@ -180,7 +181,6 @@ public class ItemsListPanel extends ContentPanel {
 
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
-            @Override
             public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                 String viewPk = se.getSelectedItem().get("value").toString();
                 service.getView(viewPk, new AsyncCallback<ViewBean>() {
@@ -210,7 +210,6 @@ public class ItemsListPanel extends ContentPanel {
         searchBut.setEnabled(false);
         searchBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-            @Override
             public void componentSelected(ButtonEvent ce) {
                 isSimple = true;
                 String viewPk = entityCombo.getValue().get("value");
@@ -226,7 +225,6 @@ public class ItemsListPanel extends ContentPanel {
         advancedBut.setEnabled(false);
         advancedBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-            @Override
             public void componentSelected(ButtonEvent ce) {
                 // show advanced Search panel
                 showAdvancedWin(toolBar, null);
@@ -242,10 +240,9 @@ public class ItemsListPanel extends ContentPanel {
         managebookBtn.setEnabled(false);
         managebookBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-            @Override
             public void componentSelected(ButtonEvent ce) {
                 final Window winBookmark = new Window();
-                winBookmark.setHeading("Manage Search Bookmarks");
+                winBookmark.setHeading(MessagesFactory.getMessages().bookmarkmanagement_heading());
                 winBookmark.setAutoHeight(true);
                 winBookmark.setAutoWidth(true);
                 winBookmark.setModal(true);
@@ -279,8 +276,8 @@ public class ItemsListPanel extends ContentPanel {
                 pagetoolBar.bind(loaderBookmark);
 
                 List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-                columns.add(new ColumnConfig("name", "Bookmarks", 200));
-                ColumnConfig colEdit = new ColumnConfig("value", "Edit", 100);
+                columns.add(new ColumnConfig("name", MessagesFactory.getMessages().bookmark_heading(), 200));
+                ColumnConfig colEdit = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_edit(), 100);
                 colEdit.setRenderer(new GridCellRenderer<ItemBaseModel>() {
 
                     @SuppressWarnings("deprecation")
@@ -321,7 +318,7 @@ public class ItemsListPanel extends ContentPanel {
                 });
                 columns.add(colEdit);
 
-                ColumnConfig colDel = new ColumnConfig("value", "Delete", 100);
+                ColumnConfig colDel = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_del(), 100);
                 colDel.setRenderer(new GridCellRenderer<ItemBaseModel>() {
 
                     @SuppressWarnings("deprecation")
@@ -332,27 +329,26 @@ public class ItemsListPanel extends ContentPanel {
                         image.addClickListener(new ClickListener() {
 
                             public void onClick(Widget arg0) {
-                                MessageBox.confirm("Confirm", "Do you really want to remove this Bookmark?",
-                                        new Listener<MessageBoxEvent>() {
+                                MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                                        .bookmark_DelMsg(), new Listener<MessageBoxEvent>() {
 
-                                            public void handleEvent(MessageBoxEvent be) {
-                                                // TODO Auto-generated method stub
-                                                if (be.getButtonClicked().getText().equals("Yes")) {
-                                                    // delete the bookmark
-                                                    service.deleteSearchTemplate(model.get("value").toString(),
-                                                            new AsyncCallback<String>() {
+                                    public void handleEvent(MessageBoxEvent be) {
+                                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                            // delete the bookmark
+                                            service.deleteSearchTemplate(model.get("value").toString(),
+                                                    new AsyncCallback<String>() {
 
-                                                                public void onFailure(Throwable arg0) {
-                                                                }
+                                                        public void onFailure(Throwable arg0) {
+                                                        }
 
-                                                                public void onSuccess(String arg0) {
-                                                                    loaderBookmark.load();
-                                                                }
+                                                        public void onSuccess(String arg0) {
+                                                            loaderBookmark.load();
+                                                        }
 
-                                                            });
-                                                }
-                                            }
-                                        });
+                                                    });
+                                        }
+                                    }
+                                });
                             }
 
                         });
@@ -387,8 +383,6 @@ public class ItemsListPanel extends ContentPanel {
                                 new AsyncCallback<List<ItemBaseModel>>() {
 
                                     public void onFailure(Throwable arg0) {
-                                        // TODO Auto-generated method stub
-
                                     }
 
                                     public void onSuccess(List<ItemBaseModel> arg0) {
@@ -440,10 +434,9 @@ public class ItemsListPanel extends ContentPanel {
         bookmarkBtn.setEnabled(false);
         bookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-            @Override
             public void componentSelected(ButtonEvent ce) {
                 final Window winBookmark = new Window();
-                winBookmark.setHeading("Bookmark");
+                winBookmark.setHeading(MessagesFactory.getMessages().bookmark_heading());
                 winBookmark.setAutoHeight(true);
                 winBookmark.setAutoWidth(true);
                 FormPanel content = new FormPanel();
@@ -454,17 +447,17 @@ public class ItemsListPanel extends ContentPanel {
                 content.setLabelWidth(100);
                 content.setFieldWidth(200);
                 final CheckBox cb = new CheckBox();
-                cb.setFieldLabel("Shared");
+                cb.setFieldLabel(MessagesFactory.getMessages().bookmark_shared());
                 content.add(cb);
 
                 final TextField bookmarkfield = new TextField();
-                bookmarkfield.setFieldLabel("Boommark Name");
+                bookmarkfield.setFieldLabel(MessagesFactory.getMessages().bookmark_name());
                 Validator validator = new Validator() {
 
                     public String validate(Field<?> field, String value) {
                         if (field == bookmarkfield) {
                             if (bookmarkfield.getValue() == null || bookmarkfield.getValue().toString().trim().equals(""))
-                                return "This field is required";
+                                return MessagesFactory.getMessages().required_field();
                         }
 
                         return null;
@@ -473,16 +466,16 @@ public class ItemsListPanel extends ContentPanel {
                 bookmarkfield.setValidator(validator);
                 content.add(bookmarkfield);
 
-                Button btn = new Button("OK");
+                Button btn = new Button(MessagesFactory.getMessages().ok_btn());
                 btn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                    @Override
                     public void componentSelected(ButtonEvent ce) {
                         service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue()
                                 .toString(), new AsyncCallback<Boolean>() {
 
                             public void onFailure(Throwable arg0) {
-                                MessageBox.alert("Status", "This Bookmark already exist,please enter other name!", null);
+                                MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                        .bookmark_existMsg(), null);
                             }
 
                             public void onSuccess(Boolean arg0) {
@@ -492,21 +485,25 @@ public class ItemsListPanel extends ContentPanel {
                                             : advancedPanel.getCriteria(), new AsyncCallback<String>() {
 
                                         public void onFailure(Throwable arg0) {
-                                            MessageBox.alert("Save", "Save Bookmark failed!", null);
+                                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
+                                                    .getMessages().bookmark_saveFailed(), null);
                                         }
 
                                         public void onSuccess(String arg0) {
                                             if (arg0.equals("OK")) {
-                                                MessageBox.alert("Save", "Save Bookmark Successfully!", null);
+                                                MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory
+                                                        .getMessages().bookmark_saveSuccess(), null);
                                                 // cbloader.load();
                                                 winBookmark.close();
                                             } else
-                                                MessageBox.alert("Save", "Save Bookmark failed!", null);
+                                                MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
+                                                        .getMessages().bookmark_saveFailed(), null);
                                         }
 
                                     });
                                 } else {
-                                    MessageBox.alert("Status", "This Bookmark already exist,please enter other name!", null);
+                                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                            .bookmark_existMsg(), null);
                                 }
                             }
 
@@ -549,13 +546,13 @@ public class ItemsListPanel extends ContentPanel {
             advancedPanel.setButtonAlign(HorizontalAlignment.CENTER);
 
             winAdvanced.add(advancedPanel);
-            Button searchBtn = new Button("Search");
+            Button searchBtn = new Button(MessagesFactory.getMessages().search_btn());
             searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                @Override
                 public void componentSelected(ButtonEvent ce) {
                     if (advancedPanel.getCriteria() == null || advancedPanel.getCriteria().equals(""))
-                        MessageBox.alert("Warn", "Search expression could not be empty.", null);
+                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                .search_expression_notempty(), null);
                     else {
                         isSimple = false;
                         String viewPk = entityCombo.getValue().get("value");
@@ -566,10 +563,9 @@ public class ItemsListPanel extends ContentPanel {
 
             });
             advancedPanel.addButton(searchBtn);
-            Button cancelBtn = new Button("Cancel");
+            Button cancelBtn = new Button(MessagesFactory.getMessages().cancel_btn());
             cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                @Override
                 public void componentSelected(ButtonEvent ce) {
                     winAdvanced.close();
                 }
@@ -612,7 +608,6 @@ public class ItemsListPanel extends ContentPanel {
         });
         grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
 
-            @Override
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 ItemBean m = se.getSelectedItem();
                 showItem(m, ItemsView.TARGET_IN_SEARCH_TAB);
@@ -650,11 +645,10 @@ public class ItemsListPanel extends ContentPanel {
         Menu contextMenu = new Menu();
 
         MenuItem openInWindow = new MenuItem();
-        openInWindow.setText("Open Item in New Window");
+        openInWindow.setText(MessagesFactory.getMessages().openitem_window());
         // openInWindow.setIcon(Resources.ICONS.add());
         openInWindow.addSelectionListener(new SelectionListener<MenuEvent>() {
 
-            @Override
             public void componentSelected(MenuEvent ce) {
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
                 showItem(m, ItemsView.TARGET_IN_NEW_WINDOW);
@@ -663,11 +657,10 @@ public class ItemsListPanel extends ContentPanel {
         contextMenu.add(openInWindow);
 
         MenuItem openInTab = new MenuItem();
-        openInTab.setText("Open Item in New Tab");
+        openInTab.setText(MessagesFactory.getMessages().openitem_tab());
         // openInWindow.setIcon(Resources.ICONS.add());
         openInTab.addSelectionListener(new SelectionListener<MenuEvent>() {
 
-            @Override
             public void componentSelected(MenuEvent ce) {
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
                 showItem(m, ItemsView.TARGET_IN_NEW_TAB);

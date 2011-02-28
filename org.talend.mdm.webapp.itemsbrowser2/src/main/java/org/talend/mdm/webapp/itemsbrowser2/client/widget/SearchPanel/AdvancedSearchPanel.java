@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
 import java.util.Date;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Parser;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ParserException;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
@@ -153,7 +154,7 @@ public class AdvancedSearchPanel extends FormPanel {
             left.setLayout(layout);
             DateField modifiedonField1 = new DateField();
             modifiedonField1.setWidth(120);
-            modifiedonField1.setFieldLabel("Modified On");
+            modifiedonField1.setFieldLabel(MessagesFactory.getMessages().search_modifiedon());
             modifiedonField1.setId("modifiedonField1");
             modifiedonField1.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));
             left.add(modifiedonField1);
@@ -165,7 +166,7 @@ public class AdvancedSearchPanel extends FormPanel {
             right.setLayout(layout);
             DateField modifiedonField2 = new DateField();
             modifiedonField2.setWidth(120);
-            modifiedonField2.setFieldLabel("To");
+            modifiedonField2.setFieldLabel(MessagesFactory.getMessages().search_modifiedto());
             modifiedonField2.setId("modifiedonField2");
             modifiedonField2.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));
             right.add(modifiedonField2);
@@ -197,13 +198,10 @@ public class AdvancedSearchPanel extends FormPanel {
 
             public void componentSelected(ButtonEvent ce) {
                 final Window winFilter = new Window();
-                // winFilter.setBodyBorder(false);
-                // winFilter.setFrame(false);
-                winFilter.setHeading("Advanced Filter");
+                winFilter.setHeading(MessagesFactory.getMessages().advsearch_filter());
                 winFilter.setModal(true);
                 winFilter.setAutoHeight(true);
                 winFilter.setAutoWidth(true);
-                // winFilter.setWidth(400);
                 ContentPanel root = new ContentPanel();
                 root.addStyleName("filter-panel");
                 root.setAutoHeight(true);
@@ -214,11 +212,10 @@ public class AdvancedSearchPanel extends FormPanel {
                 root.add(multiCriteria);
                 winFilter.add(root);
 
-                Button searchBtn = new Button("OK");
+                Button searchBtn = new Button(MessagesFactory.getMessages().ok_btn());
                 searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     public void componentSelected(ButtonEvent ce) {
-                        // TODO Auto-generated method stub
                         setCriteria(multiCriteria.getCriteria().toString());
                         winFilter.close();
                     }
@@ -242,17 +239,19 @@ public class AdvancedSearchPanel extends FormPanel {
         validButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Valid()));
         validButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-            @Override
             public void componentSelected(ButtonEvent ce) {
                 try {
                     String curField = expressionTextField.getValue();
                     if (curField != null && !curField.equals("")) {
                         Parser.parse(curField);
-                        MessageBox.info("Info", "Valid expression", null);
+                        MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                .valid_expression(), null);
                     }
                 } catch (ParserException e) {
                     Log.error(e.getMessage(), e);
-                    MessageBox.alert("Error", "Invalid expression:" + e.getMessage(), null);
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                            .invalid_expression()
+                            + e.getMessage(), null);
                 }
             }
         });
@@ -303,7 +302,7 @@ public class AdvancedSearchPanel extends FormPanel {
             }
 
         };
-        expressionTextField.setFieldLabel("Search Expression");
+        expressionTextField.setFieldLabel(MessagesFactory.getMessages().search_expression());
         expressionTextField.setAllowBlank(false);
         this.add(expressionTextField, new FormData("80%"));
 
@@ -325,7 +324,7 @@ public class AdvancedSearchPanel extends FormPanel {
         // field.set("value", "modifiedby");
         // list.add(field);
         field = new BaseModel();
-        field.set("name", "Modified On");
+        field.set("name", MessagesFactory.getMessages().search_modifiedon());
         field.set("value", "modifiedon");
         list.add(field);
         cb.setDisplayField("name");
@@ -336,7 +335,6 @@ public class AdvancedSearchPanel extends FormPanel {
         cb.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
-                // TODO Auto-generated method stub
                 String selvalue = se.getSelectedItem().get("value");
                 // if (selvalue.equals("createdby") && instance.getItemByItemId("createdbyField") == null) {
                 // TextField<String> createdbyField = new TextField<String>();

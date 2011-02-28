@@ -76,7 +76,6 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         keyComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
-                // TODO Auto-generated method stub
                 adaptOperatorAndValue();
             }
 

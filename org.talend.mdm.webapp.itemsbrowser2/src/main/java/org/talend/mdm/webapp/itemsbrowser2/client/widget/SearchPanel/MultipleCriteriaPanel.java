@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Constants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
@@ -98,7 +99,6 @@ public class MultipleCriteriaPanel extends SimplePanel {
         // work, probably because panel isn't displayed yet).
         Timer timer = new Timer() {
 
-            @Override
             public void run() {
                 redraw();
             }
@@ -164,7 +164,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
         toReturn.add(image);
 
         final Image button = new Image(Icons.INSTANCE.chart_organisation_add());
-        button.setTitle("Add subclause");
+        button.setTitle(MessagesFactory.getMessages().advsearch_subclause());
         button.addClickListener(new ClickListener() {
 
             public void onClick(Widget sender) {
