@@ -107,6 +107,7 @@ public class AdvancedSearchPanel extends FormPanel {
                 instance.remove(instance.getItemByItemId("modifiedon"));
             }
             expressionTextField.setValue(c);
+            cb.setValue(null);
         }
     }
 
@@ -139,7 +140,6 @@ public class AdvancedSearchPanel extends FormPanel {
 
     public void cleanCriteria() {
         setCriteria("");
-        cb.select(-1);
     }
 
     private LayoutContainer addCriteriaContainer(String id) {
@@ -303,13 +303,14 @@ public class AdvancedSearchPanel extends FormPanel {
 
         };
         expressionTextField.setFieldLabel(MessagesFactory.getMessages().search_expression());
-        expressionTextField.setAllowBlank(false);
+        // expressionTextField.setAllowBlank(false);
         this.add(expressionTextField, new FormData("80%"));
 
         cb = new ComboBox<BaseModel>();
         cb.setEditable(false);
         cb.setWidth(120);
         cb.setFieldLabel("Add more criteria");
+        cb.setAllowBlank(true);
         ListStore<BaseModel> list = new ListStore<BaseModel>();
         BaseModel field = new BaseModel();
         // field.set("name", "Created By");
@@ -335,27 +336,29 @@ public class AdvancedSearchPanel extends FormPanel {
         cb.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
-                String selvalue = se.getSelectedItem().get("value");
-                // if (selvalue.equals("createdby") && instance.getItemByItemId("createdbyField") == null) {
-                // TextField<String> createdbyField = new TextField<String>();
-                // createdbyField.setFieldLabel("Created By");
-                // createdbyField.setId("createdbyField");
-                // instance.insert(createdbyField, this.getItemCount() - 1, formData);
-                // } else if (selvalue.equals("createdon") && instance.getItemByItemId("createdonField") == null) {
-                // DateField createdonField = new DateField();
-                // createdonField.setFieldLabel("Created On");
-                // createdonField.setId("createdonField");
-                // instance.insert(createdonField, this.getItemCount() - 1, formData);
-                // } else if (selvalue.equals("modifiedby") && instance.getItemByItemId("modifedbyField") == null) {
-                // TextField<String> modifiedbyField = new TextField<String>();
-                // modifiedbyField.setFieldLabel("Modified By");
-                // modifiedbyField.setId("modifedbyField");
-                // instance.insert(modifiedbyField, this.getItemCount() - 1, formData);
-                // } else
-                if (selvalue.equals("modifiedon") && instance.getItemByItemId("modifiedonField1") == null) {
-                    instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("90%"));
+                if (se.getSelectedItem() != null) {
+                    String selvalue = se.getSelectedItem().get("value");
+                    // if (selvalue.equals("createdby") && instance.getItemByItemId("createdbyField") == null) {
+                    // TextField<String> createdbyField = new TextField<String>();
+                    // createdbyField.setFieldLabel("Created By");
+                    // createdbyField.setId("createdbyField");
+                    // instance.insert(createdbyField, this.getItemCount() - 1, formData);
+                    // } else if (selvalue.equals("createdon") && instance.getItemByItemId("createdonField") == null) {
+                    // DateField createdonField = new DateField();
+                    // createdonField.setFieldLabel("Created On");
+                    // createdonField.setId("createdonField");
+                    // instance.insert(createdonField, this.getItemCount() - 1, formData);
+                    // } else if (selvalue.equals("modifiedby") && instance.getItemByItemId("modifedbyField") == null) {
+                    // TextField<String> modifiedbyField = new TextField<String>();
+                    // modifiedbyField.setFieldLabel("Modified By");
+                    // modifiedbyField.setId("modifedbyField");
+                    // instance.insert(modifiedbyField, this.getItemCount() - 1, formData);
+                    // } else
+                    if (selvalue.equals("modifiedon") && instance.getItemByItemId("modifiedonField1") == null) {
+                        instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("90%"));
+                    }
+                    instance.layout(true);
                 }
-                instance.layout(true);
             }
 
         });

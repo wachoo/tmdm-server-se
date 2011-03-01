@@ -12,8 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
@@ -21,17 +19,10 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
-import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSearchPanel;
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -39,66 +30,28 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.MouseOverEvent;
-import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.ClickListener;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsListPanel extends ContentPanel {
-
-    // add simple search criteria
-    boolean isSimple;
-
-    static String userModel = null;
-
-    SimpleCriterionPanel simplePanel;
-
-    AdvancedSearchPanel advancedPanel;
-
-    ComboBox<ItemBaseModel> entityCombo = new ComboBox<ItemBaseModel>();
 
     ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
@@ -106,12 +59,7 @@ public class ItemsListPanel extends ContentPanel {
 
         public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBean>> callback) {
             QueryModel qm = new QueryModel();
-            qm.setDataClusterPK(userModel);
-            qm.setViewPK(entityCombo.getValue().get("value").toString());
-            if (isSimple)
-                qm.setCriteria(simplePanel.getCriteria().toString());
-            else
-                qm.setCriteria(advancedPanel.getCriteria());
+            toolBar.setQueryModel(qm);
             qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
             service.queryItemBean(qm, callback);
         }
@@ -127,461 +75,17 @@ public class ItemsListPanel extends ContentPanel {
 
     private final static int PAGE_SIZE = 10;
 
-    final Button searchBut = new Button(MessagesFactory.getMessages().search_btn());
-
-    final Button advancedBut = new Button(MessagesFactory.getMessages().advsearch_btn());
-
-    final Button managebookBtn = new Button();
-
-    final Button bookmarkBtn = new Button();
-
-    final Window winAdvanced = new Window();
+    ItemsToolBar toolBar;
 
     public ItemsListPanel() {
         setLayout(new FitLayout());
         setHeaderVisible(false);
-
-        // init user saved model
-        service.getCurrentDataModel(new AsyncCallback<String>() {
-
-            public void onFailure(Throwable arg0) {
-            }
-
-            public void onSuccess(String arg0) {
-                userModel = arg0;
-            }
-
-        });
-
         addToolBar();
     }
 
     private void addToolBar() {
-        final ToolBar toolBar = new ToolBar();
-        Button create = new Button("Create");
-        create.setIcon(IconHelper.createStyle("icon-email-add"));
-        toolBar.add(create);
-
-        Button reply = new Button("Reply");
-        reply.setIcon(IconHelper.createStyle("icon-email-reply"));
-        toolBar.add(reply);
-
-        toolBar.add(new FillToolItem());
-
-        // add entity combo
-        HorizontalPanel entityPanel = new HorizontalPanel();
-        final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>();
-
-        entityCombo.setWidth(100);
-        entityCombo.setEmptyText(MessagesFactory.getMessages().empty_entity());
-        entityCombo.setStore(list);
-        entityCombo.setDisplayField("name");
-        entityCombo.setValueField("value");
-        entityCombo.setTriggerAction(TriggerAction.ALL);
-
-        entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
-
-            public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
-                String viewPk = se.getSelectedItem().get("value").toString();
-                service.getView(viewPk, new AsyncCallback<ViewBean>() {
-
-                    public void onFailure(Throwable arg0) {
-
-                    }
-
-                    public void onSuccess(ViewBean arg0) {
-                        simplePanel.updateFields(arg0);
-                        searchBut.setEnabled(true);
-                        advancedBut.setEnabled(true);
-                        managebookBtn.setEnabled(true);
-                        bookmarkBtn.setEnabled(true);
-                    }
-
-                });
-            }
-
-        });
-        entityPanel.add(entityCombo);
-        toolBar.add(entityPanel);
-        simplePanel = new SimpleCriterionPanel(null, null);
-        toolBar.add(simplePanel);
-
-        // add simple search button
-        searchBut.setEnabled(false);
-        searchBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            public void componentSelected(ButtonEvent ce) {
-                isSimple = true;
-                String viewPk = entityCombo.getValue().get("value");
-                Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
-            }
-
-        });
-        toolBar.add(searchBut);
-
-        toolBar.add(new SeparatorToolItem());
-
-        // add advanced search button
-        advancedBut.setEnabled(false);
-        advancedBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            public void componentSelected(ButtonEvent ce) {
-                // show advanced Search panel
-                showAdvancedWin(toolBar, null);
-            }
-
-        });
-        toolBar.add(advancedBut);
-
-        toolBar.add(new SeparatorToolItem());
-
-        // add bookmark management button
-        managebookBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Display()));
-        managebookBtn.setEnabled(false);
-        managebookBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            public void componentSelected(ButtonEvent ce) {
-                final Window winBookmark = new Window();
-                winBookmark.setHeading(MessagesFactory.getMessages().bookmarkmanagement_heading());
-                winBookmark.setAutoHeight(true);
-                winBookmark.setAutoWidth(true);
-                winBookmark.setModal(true);
-                FormPanel content = new FormPanel();
-                FormData formData = new FormData("-10");
-                content.setFrame(false);
-                content.setLayout(new FitLayout());
-                content.setBodyBorder(false);
-                content.setHeaderVisible(false);
-                content.setSize(400, 350);
-                winBookmark.add(content);
-
-                // display bookmark grid
-                RpcProxy<PagingLoadResult<ItemBaseModel>> proxyBookmark = new RpcProxy<PagingLoadResult<ItemBaseModel>>() {
-
-                    public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
-                        service.querySearchTemplates(entityCombo.getValue().get("value").toString(), false,
-                                (PagingLoadConfig) loadConfig, callback);
-                    }
-                };
-
-                // loader
-                final PagingLoader<PagingLoadResult<ItemBaseModel>> loaderBookmark = new BasePagingLoader<PagingLoadResult<ItemBaseModel>>(
-                        proxyBookmark);
-                loaderBookmark.setRemoteSort(true);
-
-                ListStore<ItemBaseModel> store = new ListStore<ItemBaseModel>(loaderBookmark);
-                store.setDefaultSort("name", SortDir.ASC);
-
-                final PagingToolBar pagetoolBar = new PagingToolBar(PAGE_SIZE);
-                pagetoolBar.bind(loaderBookmark);
-
-                List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-                columns.add(new ColumnConfig("name", MessagesFactory.getMessages().bookmark_heading(), 200));
-                ColumnConfig colEdit = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_edit(), 100);
-                colEdit.setRenderer(new GridCellRenderer<ItemBaseModel>() {
-
-                    @SuppressWarnings("deprecation")
-                    public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
-                            int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
-                        Image image = new Image();
-                        image.setResource(Icons.INSTANCE.Edit());
-                        image.addMouseOverHandler(new MouseOverHandler() {
-
-                            public void onMouseOver(MouseOverEvent arg0) {
-
-                            }
-                        });
-                        image.addClickListener(new ClickListener() {
-
-                            public void onClick(Widget arg0) {
-                                // edit the bookmark
-                                if (advancedPanel == null)
-                                    advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
-                                service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() {
-
-                                    public void onFailure(Throwable arg0) {
-
-                                    }
-
-                                    public void onSuccess(String arg0) {
-                                        showAdvancedWin(toolBar, arg0);
-                                        winBookmark.close();
-                                    }
-
-                                });
-                            }
-
-                        });
-                        return image;
-                    }
-
-                });
-                columns.add(colEdit);
-
-                ColumnConfig colDel = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_del(), 100);
-                colDel.setRenderer(new GridCellRenderer<ItemBaseModel>() {
-
-                    @SuppressWarnings("deprecation")
-                    public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
-                            int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
-                        Image image = new Image();
-                        image.setResource(Icons.INSTANCE.remove());
-                        image.addClickListener(new ClickListener() {
-
-                            public void onClick(Widget arg0) {
-                                MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
-                                        .bookmark_DelMsg(), new Listener<MessageBoxEvent>() {
-
-                                    public void handleEvent(MessageBoxEvent be) {
-                                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                            // delete the bookmark
-                                            service.deleteSearchTemplate(model.get("value").toString(),
-                                                    new AsyncCallback<String>() {
-
-                                                        public void onFailure(Throwable arg0) {
-                                                        }
-
-                                                        public void onSuccess(String arg0) {
-                                                            loaderBookmark.load();
-                                                        }
-
-                                                    });
-                                        }
-                                    }
-                                });
-                            }
-
-                        });
-                        return image;
-                    }
-
-                });
-
-                columns.add(colDel);
-
-                ColumnModel cm = new ColumnModel(columns);
-
-                final Grid<ItemBaseModel> bookmarkgrid = new Grid<ItemBaseModel>(store, cm);
-                if (cm.getColumnCount() > 0) {
-                    bookmarkgrid.setAutoExpandColumn(cm.getColumn(0).getHeader());
-                }
-                bookmarkgrid.getView().setForceFit(true);
-                bookmarkgrid.addListener(Events.Attach, new Listener<GridEvent<ItemBaseModel>>() {
-
-                    public void handleEvent(GridEvent<ItemBaseModel> be) {
-                        PagingLoadConfig config = new BasePagingLoadConfig();
-                        config.setOffset(0);
-                        config.setLimit(PAGE_SIZE);
-                        loaderBookmark.load(config);
-                    }
-                });
-
-                bookmarkgrid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBaseModel>>() {
-
-                    public void handleEvent(final GridEvent<ItemBaseModel> be) {
-                        service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(),
-                                new AsyncCallback<List<ItemBaseModel>>() {
-
-                                    public void onFailure(Throwable arg0) {
-                                    }
-
-                                    public void onSuccess(List<ItemBaseModel> arg0) {
-                                        // only the shared bookmark could be search
-                                        Iterator i = arg0.iterator();
-                                        while (i.hasNext()) {
-                                            if (((ItemBaseModel) i.next()).get("value").equals(
-                                                    be.getModel().get("value").toString())) {
-                                                service.getCriteriaByBookmark(be.getModel().get("value").toString(),
-                                                        new AsyncCallback<String>() {
-
-                                                            public void onFailure(Throwable arg0) {
-
-                                                            }
-
-                                                            public void onSuccess(String arg0) {
-                                                                isSimple = false;
-                                                                if (advancedPanel == null)
-                                                                    advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
-                                                                advancedPanel.setCriteria(arg0);
-                                                                String viewPk = entityCombo.getValue().get("value");
-                                                                Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
-                                                                winBookmark.close();
-                                                            }
-
-                                                        });
-                                            }
-                                        }
-                                    }
-
-                                });
-                    }
-                });
-
-                bookmarkgrid.setLoadMask(true);
-                bookmarkgrid.setBorders(false);
-
-                content.setBottomComponent(pagetoolBar);
-                content.add(bookmarkgrid, formData);
-
-                winBookmark.show();
-            }
-
-        });
-        toolBar.add(managebookBtn);
-
-        // add bookmark save button
-        bookmarkBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
-        bookmarkBtn.setEnabled(false);
-        bookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            public void componentSelected(ButtonEvent ce) {
-                final Window winBookmark = new Window();
-                winBookmark.setHeading(MessagesFactory.getMessages().bookmark_heading());
-                winBookmark.setAutoHeight(true);
-                winBookmark.setAutoWidth(true);
-                FormPanel content = new FormPanel();
-                content.setFrame(false);
-                content.setBodyBorder(false);
-                content.setHeaderVisible(false);
-                content.setButtonAlign(HorizontalAlignment.CENTER);
-                content.setLabelWidth(100);
-                content.setFieldWidth(200);
-                final CheckBox cb = new CheckBox();
-                cb.setFieldLabel(MessagesFactory.getMessages().bookmark_shared());
-                content.add(cb);
-
-                final TextField bookmarkfield = new TextField();
-                bookmarkfield.setFieldLabel(MessagesFactory.getMessages().bookmark_name());
-                Validator validator = new Validator() {
-
-                    public String validate(Field<?> field, String value) {
-                        if (field == bookmarkfield) {
-                            if (bookmarkfield.getValue() == null || bookmarkfield.getValue().toString().trim().equals(""))
-                                return MessagesFactory.getMessages().required_field();
-                        }
-
-                        return null;
-                    }
-                };
-                bookmarkfield.setValidator(validator);
-                content.add(bookmarkfield);
-
-                Button btn = new Button(MessagesFactory.getMessages().ok_btn());
-                btn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                    public void componentSelected(ButtonEvent ce) {
-                        service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue()
-                                .toString(), new AsyncCallback<Boolean>() {
-
-                            public void onFailure(Throwable arg0) {
-                                MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                        .bookmark_existMsg(), null);
-                            }
-
-                            public void onSuccess(Boolean arg0) {
-                                if (!arg0) {
-                                    service.saveCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue()
-                                            .toString(), cb.getValue(), isSimple ? simplePanel.getCriteria().toString()
-                                            : advancedPanel.getCriteria(), new AsyncCallback<String>() {
-
-                                        public void onFailure(Throwable arg0) {
-                                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
-                                                    .getMessages().bookmark_saveFailed(), null);
-                                        }
-
-                                        public void onSuccess(String arg0) {
-                                            if (arg0.equals("OK")) {
-                                                MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory
-                                                        .getMessages().bookmark_saveSuccess(), null);
-                                                // cbloader.load();
-                                                winBookmark.close();
-                                            } else
-                                                MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
-                                                        .getMessages().bookmark_saveFailed(), null);
-                                        }
-
-                                    });
-                                } else {
-                                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                            .bookmark_existMsg(), null);
-                                }
-                            }
-
-                        });
-                    }
-                });
-                winBookmark.addButton(btn);
-
-                winBookmark.add(content);
-                winBookmark.show();
-            }
-
-        });
-        toolBar.add(bookmarkBtn);
-
-        service.getViewsList("en", new AsyncCallback<List<ItemBaseModel>>() {
-
-            public void onFailure(Throwable arg0) {
-            }
-
-            public void onSuccess(List<ItemBaseModel> arg0) {
-                list.removeAll();
-                list.add(arg0);
-            }
-        });
-
+        toolBar = new ItemsToolBar();
         setTopComponent(toolBar);
-    }
-
-    private void showAdvancedWin(ToolBar toolBar, String criteria) {
-        if (winAdvanced.getItemByItemId("advancedPanel") == null) {
-            winAdvanced.setId("advancedWin");
-            winAdvanced.setHeaderVisible(false);
-            winAdvanced.setClosable(false);
-            winAdvanced.setFrame(false);
-            winAdvanced.setWidth(toolBar.getWidth());
-            winAdvanced.setAutoHeight(true);
-            advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
-            advancedPanel.setItemId("advancedPanel");
-            advancedPanel.setButtonAlign(HorizontalAlignment.CENTER);
-
-            winAdvanced.add(advancedPanel);
-            Button searchBtn = new Button(MessagesFactory.getMessages().search_btn());
-            searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                public void componentSelected(ButtonEvent ce) {
-                    if (advancedPanel.getCriteria() == null || advancedPanel.getCriteria().equals(""))
-                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                .search_expression_notempty(), null);
-                    else {
-                        isSimple = false;
-                        String viewPk = entityCombo.getValue().get("value");
-                        Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
-                        winAdvanced.close();
-                    }
-                }
-
-            });
-            advancedPanel.addButton(searchBtn);
-            Button cancelBtn = new Button(MessagesFactory.getMessages().cancel_btn());
-            cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                public void componentSelected(ButtonEvent ce) {
-                    winAdvanced.close();
-                }
-
-            });
-            advancedPanel.addButton(cancelBtn);
-            winAdvanced.show();
-            winAdvanced.alignTo(toolBar.getElement(), "tl", new int[] { 0, 35 });
-        } else if (!winAdvanced.isVisible())
-            winAdvanced.show();
-
-        // set criteria
-        if (criteria != null)
-            advancedPanel.setCriteria(criteria);
-        else
-            advancedPanel.cleanCriteria();
     }
 
     public void updateGrid(List<ColumnConfig> columnConfigList) {
