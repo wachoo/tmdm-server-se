@@ -71,23 +71,24 @@ public class ItemsController extends Controller {
 
     protected void onViewItemForm(final AppEvent event) {
 
-        ItemBean item = event.getData();
-        final String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
-        ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
-        // TODO get whole item & data model from backend and then gen ItemFormBean
-
-        service.setForm(item, viewBean, new AsyncCallback<ItemFormBean>() {
-
-            public void onSuccess(ItemFormBean result) {
-                AppEvent ae = new AppEvent(event.getType(), result);
-                ae.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
-                forwardToView(itemsView, ae);
-            }
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-            }
-        });
+//        ItemBean item = event.getData();
+//        final String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
+        forwardToView(itemsView, event);
+//        ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
+//        // TODO get whole item & data model from backend and then gen ItemFormBean
+//
+//        service.setForm(item, viewBean, new AsyncCallback<ItemFormBean>() {
+//
+//            public void onSuccess(ItemFormBean result) {
+//                AppEvent ae = new AppEvent(event.getType(), result);
+//                ae.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
+//                forwardToView(itemsView, ae);
+//            }
+//
+//            public void onFailure(Throwable caught) {
+//                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+//            }
+//        });
 
     }
 

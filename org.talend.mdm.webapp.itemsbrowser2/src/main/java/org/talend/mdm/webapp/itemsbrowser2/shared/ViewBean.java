@@ -61,7 +61,9 @@ public class ViewBean implements Serializable, IsSerializable {
 
     private Map<String, String> searchables;
 
-    private Map<String, String> metaDataTypes;
+//    private Map<String, String> metaDataTypes;
+    
+    private Map<String, TypeModel> metaDataTypes;
 
     private String[] keys;
 
@@ -89,14 +91,23 @@ public class ViewBean implements Serializable, IsSerializable {
         this.searchables = searchables;
     }
 
-    public Map<String, String> getMetaDataTypes() {
+//    public Map<String, String> getMetaDataTypes() {
+//        return metaDataTypes;
+//    }
+//
+//    public void setMetaDataTypes(Map<String, String> metaDataTypes) {
+//        this.metaDataTypes = metaDataTypes;
+//    }
+
+    
+    public Map<String, TypeModel> getMetaDataTypes() {
         return metaDataTypes;
     }
 
-    public void setMetaDataTypes(Map<String, String> metaDataTypes) {
+    public void setMetaDataTypes(Map<String, TypeModel> metaDataTypes) {
         this.metaDataTypes = metaDataTypes;
     }
-
+    
     public String[] getViewables() {
         return viewables;
     }

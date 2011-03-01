@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -43,10 +42,13 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeCustomerConcept;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
-import org.talend.mdm.webapp.itemsbrowser2.server.util.ModelCreator;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.XmlUtil;
+import org.talend.mdm.webapp.itemsbrowser2.server.util.XsdUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.ElementProcess;
+import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FieldVerifier;
+import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.amalto.webapp.core.bean.Configuration;
@@ -209,24 +211,25 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             String model = getCurrentDataModel();
             String concept = getConceptFromBrowseItemView(viewPk);
 
-            Map<String, String> metaDataTypes = null;
+            Map<String, TypeModel> metaDataTypes = null;
             if (Itemsbrowser2.IS_SCRIPT) {
                 xsd = com.amalto.webapp.core.util.Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model)))
                         .getXsdSchema();
-                XmlUtil.parseXSD(xsd, concept);
 
-                metaDataTypes = XmlUtil.getXpathToType();
+                XsdUtil.parseXSD(xsd, concept);
+                metaDataTypes = XsdUtil.getXpathToType();
+
             } else {
                 xsd = "<xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" attributeFormDefault=\"unqualified\" blockDefault=\"\" elementFormDefault=\"unqualified\" finalDefault=\"\">  \n  <xsd:import namespace=\"http://www.w3.org/2001/XMLSchema\"/>  \n  <xsd:element abstract=\"false\" name=\"Agent\" nillable=\"false\" type=\"AgentType\"> \n    <xsd:annotation> \n      <xsd:appinfo source=\"X_Label_EN\">D* Agent</xsd:appinfo>  \n      <xsd:appinfo source=\"X_Label_FR\">Agent D*</xsd:appinfo>  \n      <xsd:appinfo source=\"X_Schematron\">&lt;pattern name=\"Check id and dates\" &gt; &lt;rule context=\"Id\"&gt;&lt;assert test=\". = concat(substring(../Firstname,1,3),substring(../Lastname,1,2))\"&gt;&lt;![CDATA[[EN:The Id must follow the following rule: first 3 characters of first name + first 2 characters of last name.][FR:L'Id doit suivre la règle : 3 premiers caractères du prénom + 2 premier caractères du nom.]]]&gt;&lt;/assert&gt;&lt;/rule&gt; &lt;rule context=\".\"&gt;&lt;assert test=\"normalize-space(TermDate)=&amp;apos;&amp;apos; or translate(StartDate,&amp;apos;-&amp;apos;,&amp;apos;&amp;apos;) &amp;lt; translate(TermDate,&amp;apos;-&amp;apos;,&amp;apos;&amp;apos;)\"&gt;&lt;![CDATA[[EN:The start date must be before than the termination date.][FR:La date d'entrée doit être antérieure à la date de sortie.]]]&gt;&lt;/assert&gt;&lt;/rule&gt; &lt;/pattern&gt;</xsd:appinfo>  \n        \n      <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n      <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n    </xsd:annotation>  \n    <xsd:unique name=\"Agent\"> \n      <xsd:selector xpath=\".\"/>  \n      <xsd:field xpath=\"Id\"/> \n    </xsd:unique> \n  </xsd:element>  \n  <xsd:complexType abstract=\"false\" mixed=\"false\" name=\"AgentType\"> \n    <xsd:all maxOccurs=\"1\" minOccurs=\"1\"> \n      <xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"Picture\" nillable=\"false\" type=\"PICTURE\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Picture (optional)</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Photo (optionel)</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"1\" name=\"Id\" nillable=\"false\" type=\"xsd:string\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Identifier</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Identifiant</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Description_EN\">First 3 characters of first name + first 2 characters of last name.</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Description_FR\">3 premiers caractères du prénom + 2 premier caractères du nom.</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"1\" name=\"Firstname\" nillable=\"false\" type=\"xsd:string\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Firstname</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Prénom</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"1\" name=\"Lastname\" nillable=\"false\" type=\"xsd:string\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Lastname</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Nom</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"AgencyFK\" nillable=\"false\" type=\"xsd:string\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Agency</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Agence</xsd:appinfo>  \n          <xsd:appinfo source=\"X_ForeignKey\">Agency/Id</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo>  \n          <xsd:appinfo source=\"X_ForeignKeyInfo\">Agency/Name</xsd:appinfo>  \n          <xsd:appinfo source=\"X_ForeignKeyInfo\">Agency/City</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Retrieve_FKinfos\">true</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"1\" name=\"CommissionCode\" nillable=\"false\" type=\"CommissionCodes\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Facet_EN\">Valid codes are 1 to 4.</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Facet_FR\">Codes valides de 1 à 4</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_EN\">Commission Code</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Code Commission</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Description_EN\">Value between 1 (lowest) and 4 (highest) which determines the agent's commission rate.</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Description_FR\">Valeur entre 1 (plus basse) et 4 (plus haute) qui détermine la commissionnement de l'agent.</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"1\" name=\"StartDate\" nillable=\"false\" type=\"xsd:date\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Start date</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Date d'entrée</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"TermDate\" nillable=\"false\" type=\"xsd:date\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Termination Date</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Date de sortie</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"Status\" nillable=\"false\" type=\"AgentStatus\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Status</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Statut</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Facet_EN\">Valid values are: pending, approved, terminated</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Facet_FR\">Valeurs possibles: pending, approved, terminated</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element> \n    </xsd:all> \n  </xsd:complexType>  \n  <xsd:simpleType name=\"CommissionCodes\"> \n    <xsd:restriction base=\"xsd:string\"> \n      <xsd:enumeration value=\"1\"/>  \n      <xsd:enumeration value=\"2\"/>  \n      <xsd:enumeration value=\"3\"/>  \n      <xsd:enumeration value=\"4\"/> \n    </xsd:restriction> \n  </xsd:simpleType>  \n  <xsd:element abstract=\"false\" name=\"Agency\" nillable=\"false\" type=\"AgencyType\"> \n    <xsd:annotation> \n        \n      <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n      <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo>  \n      <xsd:appinfo source=\"X_Label_EN\">D* Agence</xsd:appinfo>  \n      <xsd:appinfo source=\"X_Label_FR\">Agence D*</xsd:appinfo> \n    </xsd:annotation>  \n    <xsd:unique name=\"Agency\"> \n      <xsd:selector xpath=\".\"/>  \n      <xsd:field xpath=\"Id\"/> \n    </xsd:unique> \n  </xsd:element>  \n  <xsd:complexType abstract=\"false\" mixed=\"false\" name=\"AgencyType\"> \n    <xsd:all maxOccurs=\"1\" minOccurs=\"1\"> \n      <xsd:element maxOccurs=\"1\" minOccurs=\"1\" name=\"Id\" nillable=\"false\" type=\"xsd:string\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Identifier</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Identifiant</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"1\" name=\"Name\" nillable=\"false\" type=\"xsd:string\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Name</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Nom</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"City\" nillable=\"false\" type=\"xsd:string\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">City</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Ville</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"State\" nillable=\"false\" type=\"xsd:string\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">State</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Etat</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"Zip\" nillable=\"false\" type=\"xsd:string\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Zip code</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Code postal</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"Region\" nillable=\"false\" type=\"xsd:string\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">Region</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Région</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element>  \n      <xsd:element maxOccurs=\"1\" minOccurs=\"0\" name=\"MoreInfo\" nillable=\"false\" type=\"URL\"> \n        <xsd:annotation> \n          <xsd:appinfo source=\"X_Label_EN\">More information</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Label_FR\">Plus d'info</xsd:appinfo>  \n            \n          <xsd:appinfo source=\"X_Write\">General_Manager</xsd:appinfo>  \n          <xsd:appinfo source=\"X_Write\">Manager_MWest</xsd:appinfo> \n        </xsd:annotation> \n      </xsd:element> \n    </xsd:all> \n  </xsd:complexType>  \n  <xsd:simpleType name=\"PICTURE\"> \n    <xsd:restriction base=\"xsd:string\"/> \n  </xsd:simpleType>  \n  <xsd:simpleType name=\"URL\"> \n    <xsd:restriction base=\"xsd:string\"/> \n  </xsd:simpleType>  \n  <xsd:simpleType name=\"AgentStatus\"> \n    <xsd:restriction base=\"xsd:string\"> \n      <xsd:enumeration value=\"approved\"/>  \n      <xsd:enumeration value=\"terminated\"/>  \n      <xsd:enumeration value=\"pending\"/>  \n      <xsd:enumeration value=\"rejected\"/> \n    </xsd:restriction> \n  </xsd:simpleType>  \n  <xsd:simpleType name=\"ComStatus\"> \n    <xsd:restriction base=\"xsd:string\"> \n      <xsd:enumeration value=\"pending\"/>  \n      <xsd:enumeration value=\"approved\"/>  \n      <xsd:enumeration value=\"rejected\"/> \n    </xsd:restriction> \n  </xsd:simpleType>  \n  <xsd:simpleType name=\"UUID\"> \n    <xsd:restriction base=\"xsd:string\"/> \n  </xsd:simpleType>  \n  <xsd:simpleType name=\"AUTO_INCREMENT\"> \n    <xsd:restriction base=\"xsd:string\"/> \n  </xsd:simpleType> \n</xsd:schema>\n";
-                metaDataTypes = new HashMap<String, String>();
-                metaDataTypes.put("Agency/State", "string");
-                metaDataTypes.put("Agency/City", "string");
-                metaDataTypes.put("Agency/Name", "string");
-                metaDataTypes.put("Agency/MoreInfo", "URL");
-                metaDataTypes.put("Agency/Id", "string");
-                metaDataTypes.put("Agency/Zip", "string");
-                metaDataTypes.put("Agency/Region", "string");
-                metaDataTypes.put("Agency", "AgencyType");
+                metaDataTypes = new HashMap<String, TypeModel>();
+                metaDataTypes.put("Agency/State", new SimpleTypeModel("string", "State", true, false, null));
+                metaDataTypes.put("Agency/City", new SimpleTypeModel("string", "City", true, false, null));
+                metaDataTypes.put("Agency/Name", new SimpleTypeModel("string", "Name", true, false, null));
+                metaDataTypes.put("Agency/MoreInfo", new SimpleTypeModel("URL", "More information", true, false, null));
+                metaDataTypes.put("Agency/Id", new SimpleTypeModel("string", "Identifier", true, false, null));
+                metaDataTypes.put("Agency/Zip", new SimpleTypeModel("string", "Zip code", true, false, null));
+                metaDataTypes.put("Agency/Region", new SimpleTypeModel("string", "Region", true, false, null));
+                metaDataTypes.put("Agency", new ComplexTypeModel("AgencyType", "D* Agence"));
             }
 
             vb.setMetaDataTypes(metaDataTypes);
@@ -243,27 +246,15 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
     private Map<String, String> getSearchables(String viewPk, String language) {
         try {
-            String[] searchables = { "Agency/Id", "Agency/Name", "Agency/City", "Agency/State", "Agency" };
-            Map<String, String> labelMapSrc = null;
-            if (Itemsbrowser2.IS_SCRIPT) {
-                searchables = com.amalto.webapp.core.util.Util.getPort().getView(new WSGetView(new WSViewPK(viewPk)))
-                        .getSearchableBusinessElements();
-                labelMapSrc = XmlUtil.getXpathToLabel();
-            } else {
-                labelMapSrc = new HashMap<String, String>();
-                labelMapSrc.put("Agency/State", "State");
-                labelMapSrc.put("Agency/Name", "Name");
-                labelMapSrc.put("Agency/MoreInfo", "More information");
-                labelMapSrc.put("Agency/City", "City");
-                labelMapSrc.put("Agency/Id", "Identifier");
-                labelMapSrc.put("Agency/Zip", "Zip code");
-                labelMapSrc.put("Agency/Region", "Region");
-                labelMapSrc.put("Agency", "D* Agence");
-            }
+
+            String[] searchables = com.amalto.webapp.core.util.Util.getPort().getView(new WSGetView(new WSViewPK(viewPk)))
+                .getSearchableBusinessElements();
+            Map<String, TypeModel> labelMapSrc = XsdUtil.getXpathToType();
+                
             Map<String, String> labelSearchables = new LinkedHashMap<String, String>();
 
             for (int i = 0; i < searchables.length; i++) {
-                labelSearchables.put(searchables[i], labelMapSrc.get(searchables[i]));
+                labelSearchables.put(searchables[i], labelMapSrc.get(searchables[i]).getLabel());
             }
 
             return labelSearchables;
@@ -312,7 +303,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         try {
 
             final String viewPk = view.getViewPK().substring("Browse_items_".length());
-            final Map<String, String> metaDataType = view.getMetaDataTypes();
+            final Map<String, TypeModel> metaDataType = view.getMetaDataTypes();
 
             Document itemDoc = XmlUtil.parseText(itemXml);
             XmlUtil.iterate(itemDoc, new ElementProcess() {
@@ -327,7 +318,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                     String label = element.getName();
                     String value = element.getText();
 
-                    String fieldType = metaDataType.get(viewPk + "/" + label);
+                    String fieldType = metaDataType.get(viewPk + "/" + label).getTypeName();
                     itemFormLineBean.setFieldType(fieldType);
                     itemFormLineBean.setFieldLabel(label);
                     itemFormLineBean.setFieldValue(value);
@@ -338,9 +329,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                         itemFormLineBean.setHasForeignKey(true);
 
                     itemFormBean.addLine(itemFormLineBean);
-
                 }
-
             });
 
         } catch (DocumentException e) {

@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 import java.io.Serializable;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.PictureBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
 

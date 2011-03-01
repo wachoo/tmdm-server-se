@@ -143,7 +143,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         if (view.getMetaDataTypes() != null) {
             itemsPredicates.clear();
             for (String key : view.getMetaDataTypes().keySet()) {
-                itemsPredicates.put(key, view.getMetaDataTypes().get(key));
+                itemsPredicates.put(key, view.getMetaDataTypes().get(key).getTypeName());
             }
         }
 

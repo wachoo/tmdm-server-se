@@ -97,9 +97,13 @@ public class UrlField extends Field<String> {
     @Override
     public void setValue(String value) {
         super.setValue(value);
-        String[] addr = value.split("@@");
-        input.dom.setInnerText(addr[0]);
-        input.dom.setAttribute("href", addr[1]);
+        if (value != null){
+            String[] addr = value.split("@@");
+            if (addr.length == 2){
+                input.dom.setInnerText(addr[0]);
+                input.dom.setAttribute("href", addr[1]);
+            }
+        }
         
 
     }
@@ -113,7 +117,11 @@ public class UrlField extends Field<String> {
                 Button button = ce.getButton();
                 if (button == saveButton) {
                     String value = firstName.getValue() + "@@" + url.getValue();
+                    String oldValue = UrlField.this.getValue();
                     UrlField.this.setValue(value);
+                    if (!value.equals(oldValue)){
+                        UrlField.this.fireChangeEvent(oldValue, value);
+                    }
                     UrlField.this.editWin.hide();
                 } else {
                     UrlField.this.editWin.hide();
@@ -151,9 +159,13 @@ public class UrlField extends Field<String> {
         }
 
         public void setValue(String value) {
-            String[] addr = value.split("@@");
-            firstName.setValue(addr[0]);
-            url.setValue(addr[1]);
+            if (value != null){
+                String[] addr = value.split("@@");
+                if (addr.length == 2){
+                    firstName.setValue(addr[0]);
+                    url.setValue(addr[1]);
+                }
+            }
         }
     }
 }

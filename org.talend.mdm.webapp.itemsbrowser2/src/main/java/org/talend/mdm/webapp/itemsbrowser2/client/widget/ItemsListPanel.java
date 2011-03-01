@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -33,6 +34,7 @@ import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -44,6 +46,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -70,6 +73,8 @@ public class ItemsListPanel extends ContentPanel {
     final ListStore<ItemBean> store = new ListStore<ItemBean>(loader);
 
     private Grid<ItemBean> grid;
+    
+    private RowEditor<ItemBean> re;
 
     ContentPanel gridContainer;
 
@@ -81,6 +86,11 @@ public class ItemsListPanel extends ContentPanel {
         setLayout(new FitLayout());
         setHeaderVisible(false);
         addToolBar();
+        loader.addLoadListener(new LoadListener(){
+            public void loaderLoad(LoadEvent le) {
+                grid.getSelectionModel().select(0, false);
+            }
+        });
     }
 
     private void addToolBar() {
@@ -89,7 +99,6 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     public void updateGrid(List<ColumnConfig> columnConfigList) {
-
         if (gridContainer != null)
             remove(gridContainer);
 
@@ -99,6 +108,7 @@ public class ItemsListPanel extends ContentPanel {
         pagingBar.bind(loader);
         gridContainer.setBottomComponent(pagingBar);
         grid = new Grid<ItemBean>(store, cm);
+        re = new RowEditor<ItemBean>();  
         grid.getView().setForceFit(true);
         if (cm.getColumnCount() > 0) {
             grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
@@ -113,15 +123,14 @@ public class ItemsListPanel extends ContentPanel {
         grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
 
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
-                ItemBean m = se.getSelectedItem();
-                showItem(m, ItemsView.TARGET_IN_SEARCH_TAB);
-
+                ItemBean item = se.getSelectedItem();
+                showItem(item, ItemsView.TARGET_IN_SEARCH_TAB);
             }
         });
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {
 
             public void handleEvent(GridEvent<ItemBean> be) {
-                ItemBean item = grid.getStore().getAt(be.getRowIndex());
+                ItemBean item = grid.getSelectionModel().getSelectedItem();
                 showItem(item, ItemsView.TARGET_IN_NEW_TAB);
             }
         });
@@ -135,6 +144,11 @@ public class ItemsListPanel extends ContentPanel {
             }
         });
         grid.setLoadMask(true);
+        grid.addPlugin(re);
+        grid.setAriaIgnore(true);
+        grid.setAriaDescribedBy("abcdefg");
+        grid.setAriaLabelledBy(this.getHeader().getId() + "-label");
+
         gridContainer.add(grid);
         hookContextMenu();
 

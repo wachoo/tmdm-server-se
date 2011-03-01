@@ -6,13 +6,21 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
+import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.binding.FormBinding;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -25,6 +33,8 @@ public class ItemsFormPanel extends Composite {
 	ItemFormBean itemFormBean;
 	
 	FormPanel content = new FormPanel();
+	
+	private FormBinding formBindings;  
 	
 	public ItemsFormPanel(){
 		content.setFrame(true);
@@ -78,22 +88,54 @@ public class ItemsFormPanel extends Composite {
 		}
 	}
 	
-	public void showItem() {
-        showItem(null,false);
+//	public void showItem() {
+//        showItem(null,false);
+//    }
+//
+//    public void showItem(ItemFormBean _itemForm, boolean override) {
+//    	if(override)setItemFormBean(_itemForm);
+//
+//    	content.removeAll();
+//    	if (itemFormBean != null) {
+//    		Iterator<ItemFormLineBean> lineIter = itemFormBean.iteratorLine();
+//    		while (lineIter.hasNext()){
+//    			ItemFormLineBean lineBean = lineIter.next();
+//    			Widget w = buildItem(lineBean);
+//				content.add(w);
+//    		}
+//    	}
+//    	content.layout(true);
+//    }
+    
+    public void paint(ViewBean viewBean){
+        content.removeAll();
+        List<String> viewableXpaths = viewBean.getViewableXpaths();
+        Map<String, TypeModel> dataTypes = viewBean.getMetaDataTypes();
+        Map<String, String> names = viewBean.getSearchables();
+        for (String xpath : viewableXpaths) {
+            String dataType = dataTypes.get(xpath).getTypeName();
+            Field<Serializable> f = FieldCreator.createField(dataType);
+            f.setFieldLabel(names.get(xpath));
+            f.setName(xpath);
+            content.add(f);
+        }
+        formBindings = new FormBinding(content, true);  
+        ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
+        ListStore<ItemBean> store = itemsSearchContainer.getItemsListPanel().getGrid().getStore();
+        formBindings.setStore(store);
+        content.layout(true);
+        
     }
-
-    public void showItem(ItemFormBean _itemForm, boolean override) {
-    	if(override)setItemFormBean(_itemForm);
-
-    	content.removeAll();
-    	if (itemFormBean != null) {
-    		Iterator<ItemFormLineBean> lineIter = itemFormBean.iteratorLine();
-    		while (lineIter.hasNext()){
-    			ItemFormLineBean lineBean = lineIter.next();
-    			Widget w = buildItem(lineBean);
-				content.add(w);
-    		}
-    	}
-    	content.layout(true);
+    
+    public void bind(ModelData modelData){
+        if (modelData != null){
+            formBindings.bind(modelData);
+        } else {
+            formBindings.unbind();
+        }
+    }
+    
+    public void unbind(){
+        formBindings.unbind();
     }
 }
