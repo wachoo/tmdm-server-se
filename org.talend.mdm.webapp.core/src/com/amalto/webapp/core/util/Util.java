@@ -632,8 +632,8 @@ public class Util {
      * @throws Exception
      */
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws Exception {
-        XObject xo = XPathAPI.eval(contextNode, xPath,
-                (namespace == null) ? contextNode : Util.getRootElement("nsholder", namespace, prefix));
+        XObject xo = XPathAPI.eval(contextNode, xPath, (namespace == null) ? contextNode : Util.getRootElement("nsholder",
+                namespace, prefix));
         if (xo.getType() != XObject.CLASS_NODESET)
             return null;
         return xo.nodelist();
@@ -1124,8 +1124,7 @@ public class Util {
                 int i = j;
                 while ((i > 0 && itemsBrowserContent.get(i - 1)[col].length() > 0 && temp[col].length() > 0 && Double
                         .parseDouble(itemsBrowserContent.get(i - 1)[col]) > Double.parseDouble(temp[col]))
-                        || i > 0
-                        && temp[col].length() == 0) {
+                        || i > 0 && temp[col].length() == 0) {
                     itemsBrowserContent.set(i, itemsBrowserContent.get(i - 1));
                     i--;
                 }
@@ -1198,11 +1197,11 @@ public class Util {
             String[] subCriterias = cria.split("[\\s]+AND[\\s]+");
             // add by ymli; fix the bug: 0011974. remove "(" at the left and ")" at the right
             for (String subCria : subCriterias) {
-                // if (subCria.startsWith("(")) {
-                // subCria = subCria.substring(1);
-                // }
-                // if(subCria.endsWith(")"))
-                // subCria = subCria.substring(0, subCria.length() - 1);
+                if (subCria.startsWith("(")) {
+                    subCria = subCria.substring(1);
+                }
+                if (subCria.endsWith(")"))
+                    subCria = subCria.substring(0, subCria.length() - 1);
                 WSWhereItem whereItem = buildWhereItem(subCria);
                 if (whereItem != null)
                     condition.add(whereItem);
