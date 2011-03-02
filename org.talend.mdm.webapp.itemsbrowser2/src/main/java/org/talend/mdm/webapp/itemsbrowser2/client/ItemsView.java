@@ -106,17 +106,16 @@ public class ItemsView extends View {
         itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
         List<String> viewableXpaths = viewBean.getViewableXpaths();
-        Map<String, String> names = viewBean.getSearchables();
         Map<String, TypeModel> dataTypes = viewBean.getMetaDataTypes();
         for (String xpath : viewableXpaths) {
             // TODO convert xpath 2 label
             xpath = getViewLabelFromViewable(xpath);
-            String dataType = dataTypes.get(xpath).getTypeName();
-            Field<Serializable> field = FieldCreator.createField(dataType);
+            TypeModel typeModel = dataTypes.get(xpath);
+            Field<Serializable> field = FieldCreator.createField(typeModel);
             
-            ColumnConfig cc = new ColumnConfig(xpath, names.get(xpath), 200);
+            ColumnConfig cc = new ColumnConfig(xpath, typeModel.getLabel(), 200);
             cc.setEditor(new CellEditor(field));
-            GridCellRenderer<ModelData> renderer = CellRendererCreator.createRenderer(dataType);
+            GridCellRenderer<ModelData> renderer = CellRendererCreator.createRenderer(typeModel);
             if (renderer != null){
                 cc.setRenderer(renderer);
             }

@@ -16,12 +16,31 @@ import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
  * DOC chliu  class global comment. Detailled comment
  */
 public class FacetModel implements Serializable, IsSerializable {
 
+    public static final String MIN_INCLUSIVE    =   "minInclusive";
+    public static final String MAX_INCLUSIVE    =   "maxInclusive";
+    public static final String MIN_EXCLUSIVE    =   "minExclusive";
+    public static final String MAX_EXCLUSIVE    =   "maxExclusive";
+    
+    public static final String LENGTH           =   "length";
+    public static final String MIN_LENGTH       =   "minLength";
+    public static final String MAX_LENGTH       =   "maxLength";
+    
+    public static final String TOTAL_DIGITS     =   "totalDigits";
+    public static final String FRACTION_DIGITS  =   "fractionDigits";
+    
+    public static final String ENUMERATION      =   "enumeration";
+    
+    public static final String PATTERN          =   "pattern";
+    
+    public static final String WHTE_SPACE       =   "whiteSpace";
+    
+    
+    
     private String name;
     
     private String value;

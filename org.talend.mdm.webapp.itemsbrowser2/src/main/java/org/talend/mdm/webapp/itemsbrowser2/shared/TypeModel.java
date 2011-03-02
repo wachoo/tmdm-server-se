@@ -53,4 +53,6 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     }
 
     public abstract boolean isSimpleType();
+    
+    public abstract boolean hasEnumeration();
 }

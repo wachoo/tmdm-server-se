@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -23,8 +24,8 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 public class CellRendererCreator {
 
-    public static GridCellRenderer<ModelData> createRenderer(String dataType){
-        if (dataType.equals(DataTypeConstants.URL)){
+    public static GridCellRenderer<ModelData> createRenderer(TypeModel dataType){
+        if (dataType.getTypeName().equals(DataTypeConstants.URL)){
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
                 @Override

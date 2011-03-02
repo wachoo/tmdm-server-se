@@ -58,35 +58,35 @@ public class ItemsFormPanel extends Composite {
         return title;
     }
     
-	private Widget buildItemGroup(ItemFormLineBean lineBean){
-		FieldSet fs = new FieldSet();
-		fs.setHeading(lineBean.getFieldLabel());
-		fs.setCollapsible(true);
-		
-		FormLayout layout = new FormLayout();  
-	    layout.setLabelWidth(75);  
-	    fs.setLayout(layout);  
-		
-		List<ItemFormLineBean> children = lineBean.getChildren();
-		for (ItemFormLineBean child : children){
-			Widget field = buildItem(child);
-			fs.add(field);
-		}
-		return fs;
-	}
+//	private Widget buildItemGroup(ItemFormLineBean lineBean){
+//		FieldSet fs = new FieldSet();
+//		fs.setHeading(lineBean.getFieldLabel());
+//		fs.setCollapsible(true);
+//		
+//		FormLayout layout = new FormLayout();  
+//	    layout.setLabelWidth(75);  
+//	    fs.setLayout(layout);  
+//		
+//		List<ItemFormLineBean> children = lineBean.getChildren();
+//		for (ItemFormLineBean child : children){
+//			Widget field = buildItem(child);
+//			fs.add(field);
+//		}
+//		return fs;
+//	}
 	
-	private Widget buildItem(ItemFormLineBean lineBean){
-		
-		List<ItemFormLineBean> children = lineBean.getChildren();
-		if (children != null && children.size() > 0){
-			return buildItemGroup(lineBean);
-		} else {
-			Field<Serializable> field = FieldCreator.createField(lineBean.getFieldType());
-			field.setFieldLabel(lineBean.getFieldLabel());
-			field.setValue(lineBean.getFieldValue());
-			return field;
-		}
-	}
+//	private Widget buildItem(ItemFormLineBean lineBean){
+//		
+//		List<ItemFormLineBean> children = lineBean.getChildren();
+//		if (children != null && children.size() > 0){
+//			return buildItemGroup(lineBean);
+//		} else {
+//			Field<Serializable> field = FieldCreator.createField(lineBean.getFieldType());
+//			field.setFieldLabel(lineBean.getFieldLabel());
+//			field.setValue(lineBean.getFieldValue());
+//			return field;
+//		}
+//	}
 	
 //	public void showItem() {
 //        showItem(null,false);
@@ -111,11 +111,9 @@ public class ItemsFormPanel extends Composite {
         content.removeAll();
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = viewBean.getMetaDataTypes();
-        Map<String, String> names = viewBean.getSearchables();
         for (String xpath : viewableXpaths) {
-            String dataType = dataTypes.get(xpath).getTypeName();
-            Field<Serializable> f = FieldCreator.createField(dataType);
-            f.setFieldLabel(names.get(xpath));
+            Field<Serializable> f = FieldCreator.createField(dataTypes.get(xpath));
+            f.setFieldLabel(dataTypes.get(xpath).getLabel());
             f.setName(xpath);
             content.add(f);
         }

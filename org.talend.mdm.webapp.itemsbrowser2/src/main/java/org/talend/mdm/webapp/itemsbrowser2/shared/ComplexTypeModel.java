@@ -53,4 +53,7 @@ public class ComplexTypeModel extends TypeModel {
         return false;
     }
 
+    public boolean hasEnumeration() {
+        return false;
+    }
 }

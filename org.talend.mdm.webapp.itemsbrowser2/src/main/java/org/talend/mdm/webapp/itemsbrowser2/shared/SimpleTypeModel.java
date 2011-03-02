@@ -66,4 +66,15 @@ public class SimpleTypeModel extends TypeModel {
         return true;
     }
 
+    public boolean hasEnumeration() {
+        if (facets == null){
+            return false;
+        }
+        for (FacetModel facet : facets){
+            if (facet.getName().equals("enumeration")){
+                return true;
+            }
+        }
+        return false;
+    }
 }
