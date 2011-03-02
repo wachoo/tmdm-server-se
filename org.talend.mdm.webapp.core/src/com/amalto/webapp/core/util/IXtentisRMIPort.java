@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -27,7 +28,13 @@ import javax.resource.cci.Connection;
 import javax.resource.cci.ConnectionFactory;
 import javax.resource.cci.Interaction;
 import javax.resource.cci.MappedRecord;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
+import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -37,6 +44,8 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import sun.misc.BASE64Decoder;
 
@@ -94,6 +103,8 @@ import com.amalto.webapp.util.webservices.*;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 
 public abstract class IXtentisRMIPort implements XtentisPort {
+
+    private static Logger LOG = Logger.getLogger(IXtentisRMIPort.class);
 
     /***************************************************************************
      * 
@@ -2379,8 +2390,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
     public WSItemPKsByCriteriaResponse getItemPKsByFullCriteria(WSGetItemPKsByFullCriteria wsGetItemPKsByFullCriteria)
             throws RemoteException {
-        // TODO Auto-generated method stub
-        return null;
+        return doGetItemPKsByCriteria(wsGetItemPKsByFullCriteria.getWsGetItemPKsByCriteria(),
+                wsGetItemPKsByFullCriteria.isUseFTSearch());
     }
 
     public WSCategoryData getMDMCategory(WSCategoryData wsCategoryDataRequest) throws RemoteException {
@@ -2430,4 +2441,135 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         }
     }
 
+    private WSItemPKsByCriteriaResponse doGetItemPKsByCriteria(WSGetItemPKsByCriteria wsGetItemPKsByCriteria, boolean useFTSearch)
+            throws RemoteException {
+        try {
+
+            String dataClusterName = wsGetItemPKsByCriteria.getWsDataClusterPK().getPk();
+
+            // Check if user is allowed to read the cluster
+            ILocalUser user = LocalUser.getLocalUser();
+            boolean authorized = false;
+            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+                authorized = true;
+            } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
+                authorized = true;
+            }
+            if (!authorized) {
+                throw new RemoteException("Unauthorized read access on data cluster '" + dataClusterName + "' by user '"
+                        + user.getUsername() + "'");
+            }
+
+            // If not all concepts are store in the same revision,
+            // force the concept to be specified by the user.
+            // It would be too demanding to get all the concepts in all revisions (?)
+            // The meat of this method should be ported to ItemCtrlBean
+            String revisionID = null;
+            if (wsGetItemPKsByCriteria.getConceptName() == null) {
+                if (user.getUniverse().getItemsRevisionIDs().size() > 0) {
+                    throw new RemoteException("User " + user.getUsername() + " is using items coming from multiple revisions."
+                            + " In that particular case, the concept must be specified");
+                } else {
+                    revisionID = user.getUniverse().getDefaultItemRevisionID();
+                }
+            } else {
+                revisionID = user.getUniverse().getConceptRevisionID(wsGetItemPKsByCriteria.getConceptName());
+            }
+
+            // FIXME: xQuery only
+            String collectionpath = CommonUtil.getPath(revisionID, dataClusterName);
+            String matchesStr = "matches";
+            if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+                matchesStr = "ora:matches";
+            }
+
+            StringBuilder query = new StringBuilder();
+            query.append("let $allres := collection(\"");
+            query.append(collectionpath);
+            query.append("\")/ii");
+
+            String wsContentKeywords = wsGetItemPKsByCriteria.getContentKeywords();
+            if (!useFTSearch && wsContentKeywords != null)
+                query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");
+
+            Long fromDate = wsGetItemPKsByCriteria.getFromDate().longValue();
+            if (fromDate > 0)
+                query.append("[./t >= ").append(fromDate).append("]");
+
+            Long toDate = wsGetItemPKsByCriteria.getToDate().longValue();
+            if (toDate > 0)
+                query.append("[./t <= ").append(toDate).append("]");
+
+            String keyKeywords = wsGetItemPKsByCriteria.getKeysKeywords();
+            if (keyKeywords != null)
+                query.append("[").append(matchesStr).append("(./i , '").append(keyKeywords).append("')]");
+
+            String wsConceptName = wsGetItemPKsByCriteria.getConceptName();
+            if (useFTSearch && wsContentKeywords != null) {
+                if (MDMConfiguration.isExistDb()) {
+                    String concept = wsConceptName != null ? "p/" + wsConceptName : ".";
+                    query.append("[ft:query(").append(concept).append(",\"").append(wsContentKeywords).append("\")]");
+                } else {
+                    query.append("[. contains text \"").append(wsContentKeywords).append("\"] ");
+                }
+            }
+
+            if (wsConceptName != null)
+                query.append("[./n eq '").append(wsConceptName).append("']");
+
+            int start = wsGetItemPKsByCriteria.getSkip();
+            int limit = wsGetItemPKsByCriteria.getMaxItems();
+
+            query.append("\nlet $res := for $ii in subsequence($allres, ").append(start + 1).append(",").append(limit)
+                    .append(")\n");
+            query.append("return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n");
+
+            // Determine Query based on number of results an counts
+            query.append("return insert-before($res,0,<totalCount>{count($allres)}</totalCount>)");
+
+            if (LOG.isDebugEnabled())
+                LOG.debug(query);
+
+            DataClusterPOJOPK dcpk = new DataClusterPOJOPK(dataClusterName);
+            Collection<String> results = Util.getItemCtrl2Local().runQuery(revisionID, dcpk, query.toString(), null);
+
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+
+            WSItemPKsByCriteriaResponseResults[] res = new WSItemPKsByCriteriaResponseResults[results.size()];
+            int i = 0;
+            for (Iterator iter = results.iterator(); iter.hasNext();) {
+                String result = (String) iter.next();
+                if (i == 0) {
+                    res[i++] = new WSItemPKsByCriteriaResponseResults(System.currentTimeMillis(), new WSItemPK(
+                            wsGetItemPKsByCriteria.getWsDataClusterPK(), result, null), "");
+                    continue;
+                }
+                // result = _highlightLeft.matcher(result).replaceAll("");
+                // result = _highlightRight.matcher(result).replaceAll("");
+                Element r = documentBuilder.parse(new InputSource(new StringReader(result))).getDocumentElement();
+                long t = new Long(xpath.evaluate("t", r)).longValue();
+                String conceptName = xpath.evaluate("n", r);
+                String taskId = xpath.evaluate("taskId", r);
+
+                NodeList idsList = (NodeList) xpath.evaluate("./ids/i", r, XPathConstants.NODESET);
+                String[] ids = new String[idsList.getLength()];
+                for (int j = 0; j < idsList.getLength(); j++) {
+                    ids[j] = (idsList.item(j).getFirstChild() == null ? "" : idsList.item(j).getFirstChild().getNodeValue());
+                }
+                res[i++] = new WSItemPKsByCriteriaResponseResults(t, new WSItemPK(wsGetItemPKsByCriteria.getWsDataClusterPK(),
+                        conceptName, ids), taskId);
+            }
+            return new WSItemPKsByCriteriaResponse(res);
+
+        } catch (XtentisException e) {
+            throw (new RemoteException(e.getLocalizedMessage()));
+        } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOG.debug(err, e);
+            }
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
+        }
+    }
 }
