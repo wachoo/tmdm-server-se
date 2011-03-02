@@ -64,23 +64,24 @@ public class AdvancedSearchPanel extends FormPanel {
 
     private AdvancedSearchPanel instance = this;
 
-    private static String ge = "GREATER_THAN_OR_EQUAL";
+    private static String ge = "GREATER_THAN_OR_EQUAL";//$NON-NLS-1$
 
-    private static String le = "LOWER_THAN_OR_EQUAL";
+    private static String le = "LOWER_THAN_OR_EQUAL";//$NON-NLS-1$
 
     final public void setCriteria(String c) {
-        if (c.indexOf("../../t") > -1) {// modified on condition
-            String express = c.substring(0, c.indexOf("../../t") - 5) + ")";
+        if (c.indexOf("../../t") > -1) {//$NON-NLS-1$
+            // modified on condition
+            String express = c.substring(0, c.indexOf("../../t") - 5) + ")";//$NON-NLS-1$  //$NON-NLS-2$
             expressionTextField.setValue(express);
-            String condition = c.substring(c.indexOf("../../t"), c.length() - 1);
-            if (instance.getItemByItemId("modifiedon") == null) {
-                instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("90%"));
+            String condition = c.substring(c.indexOf("../../t"), c.length() - 1); //$NON-NLS-1$
+            if (instance.getItemByItemId("modifiedon") == null) { //$NON-NLS-1$
+                instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("90%")); //$NON-NLS-1$  //$NON-NLS-2$
                 instance.layout(true);
             }
-            DateField fromfield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon"))
-                    .getItem(0)).getItemByItemId("modifiedonField1");
-            DateField tofield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon")).getItem(1))
-                    .getItemByItemId("modifiedonField2");
+            DateField fromfield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon")) //$NON-NLS-1$
+                    .getItem(0)).getItemByItemId("modifiedonField1"); //$NON-NLS-1$
+            DateField tofield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon")).getItem(1)) //$NON-NLS-1$
+                    .getItemByItemId("modifiedonField2"); //$NON-NLS-1$
             fromfield.setValue(null);
             tofield.setValue(null);
 
@@ -90,7 +91,7 @@ public class AdvancedSearchPanel extends FormPanel {
                 if (condition.indexOf(" ", index) == -1)
                     d.setTime(Long.valueOf(condition.substring(index)));
                 else
-                    d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(" ", index))));
+                    d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(" ", index)))); //$NON-NLS-1$
                 fromfield.setValue(d);
             }
             if (condition.indexOf(le) > -1) {
@@ -99,37 +100,42 @@ public class AdvancedSearchPanel extends FormPanel {
                 if (condition.indexOf(" ", index) == -1)
                     d.setTime(Long.valueOf(condition.substring(index)));
                 else
-                    d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(" ", index))));
+                    d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(" ", index)))); //$NON-NLS-1$
                 tofield.setValue(d);
             }
         } else {
-            if (instance.getItemByItemId("modifiedon") != null) {
-                instance.remove(instance.getItemByItemId("modifiedon"));
+            if (instance.getItemByItemId("modifiedon") != null) { //$NON-NLS-1$
+                instance.remove(instance.getItemByItemId("modifiedon")); //$NON-NLS-1$
             }
             expressionTextField.setValue(c);
             cb.setValue(null);
         }
     }
 
+    public String RemoveUnsafeCriteria() {
+        String curCriteria = getCriteria();
+        return curCriteria.replaceAll("[\\s]+) OR ([\\s]+", " OR ").replaceAll("[\\s]+) AND ([\\s]+", " AND ");
+    }
+
     public String getCriteria() {
         String express = expressionTextField.getValue();
         String curCriteria = null, curDate = null;
-        if (instance.getItemByItemId("modifiedon") != null) {
-            DateField fromfield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon"))
-                    .getItem(0)).getItemByItemId("modifiedonField1");
-            DateField tofield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon")).getItem(1))
-                    .getItemByItemId("modifiedonField2");
+        if (instance.getItemByItemId("modifiedon") != null) { //$NON-NLS-1$ 
+            DateField fromfield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon")) //$NON-NLS-1$
+                    .getItem(0)).getItemByItemId("modifiedonField1"); //$NON-NLS-1$
+            DateField tofield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon")).getItem(1)) //$NON-NLS-1$
+                    .getItemByItemId("modifiedonField2"); //$NON-NLS-1$
             if (fromfield.getValue() != null)
-                curDate = "../../t " + ge + " " + fromfield.getValue().getTime();
+                curDate = "../../t " + ge + " " + fromfield.getValue().getTime(); //$NON-NLS-1$  //$NON-NLS-2$
             if (tofield.getValue() != null)
                 if (curDate != null)
-                    curDate += " AND ../../t " + le + " " + tofield.getValue().getTime();
+                    curDate += " AND ../../t " + le + " " + tofield.getValue().getTime(); //$NON-NLS-1$  //$NON-NLS-2$
                 else
-                    curDate = "../../t " + le + " " + tofield.getValue().getTime();
+                    curDate = "../../t " + le + " " + tofield.getValue().getTime(); //$NON-NLS-1$  //$NON-NLS-2$
 
             if (curDate != null)
-                curCriteria = (express == null) ? curDate : express.substring(0, express.lastIndexOf(")")) + " AND " + curDate
-                        + ")";
+                curCriteria = (express == null) ? curDate : express.substring(0, express.lastIndexOf(")")) + " AND " + curDate //$NON-NLS-1$  //$NON-NLS-2$
+                        + ")"; //$NON-NLS-1$
             else
                 curCriteria = (express == null) ? curDate : express;
         } else
@@ -139,36 +145,36 @@ public class AdvancedSearchPanel extends FormPanel {
     }
 
     public void cleanCriteria() {
-        setCriteria("");
+        setCriteria(""); //$NON-NLS-1$
     }
 
     private LayoutContainer addCriteriaContainer(String id) {
         LayoutContainer main = new LayoutContainer();
         main.setLayout(new ColumnLayout());
-        main.setId("modifiedon");
-        if (id.equals("modifiedon")) {
+        main.setId("modifiedon"); //$NON-NLS-1$
+        if (id.equals("modifiedon")) { //$NON-NLS-1$
             LayoutContainer left = new LayoutContainer();
-            left.setStyleAttribute("paddingRight", "10px");
+            left.setStyleAttribute("paddingRight", "10px"); //$NON-NLS-1$  //$NON-NLS-2$
             FormLayout layout = new FormLayout();
             layout.setLabelWidth(110);
             left.setLayout(layout);
             DateField modifiedonField1 = new DateField();
             modifiedonField1.setWidth(120);
             modifiedonField1.setFieldLabel(MessagesFactory.getMessages().search_modifiedon());
-            modifiedonField1.setId("modifiedonField1");
-            modifiedonField1.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));
+            modifiedonField1.setId("modifiedonField1"); //$NON-NLS-1$
+            modifiedonField1.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd")); //$NON-NLS-1$
             left.add(modifiedonField1);
 
             LayoutContainer right = new LayoutContainer();
-            right.setStyleAttribute("paddingLeft", "10px");
+            right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$  //$NON-NLS-2$
             layout = new FormLayout();
             layout.setLabelWidth(110);
             right.setLayout(layout);
             DateField modifiedonField2 = new DateField();
             modifiedonField2.setWidth(120);
             modifiedonField2.setFieldLabel(MessagesFactory.getMessages().search_modifiedto());
-            modifiedonField2.setId("modifiedonField2");
-            modifiedonField2.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));
+            modifiedonField2.setId("modifiedonField2"); //$NON-NLS-1$
+            modifiedonField2.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd")); //$NON-NLS-1$
             right.add(modifiedonField2);
 
             main.add(left, new ColumnData(.5));
@@ -176,6 +182,10 @@ public class AdvancedSearchPanel extends FormPanel {
         }
 
         return main;
+    }
+
+    public void setView(ViewBean viewbean) {
+        this.view = viewbean;
     }
 
     public AdvancedSearchPanel(ViewBean viewbean) {
@@ -190,7 +200,7 @@ public class AdvancedSearchPanel extends FormPanel {
         this.setLabelWidth(110);
         this.setAutoHeight(true);
 
-        final FormData formData = new FormData("-20");
+        final FormData formData = new FormData("-20"); //$NON-NLS-1$
 
         final Button filterButton = new Button();
         filterButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
@@ -203,7 +213,7 @@ public class AdvancedSearchPanel extends FormPanel {
                 winFilter.setAutoHeight(true);
                 winFilter.setAutoWidth(true);
                 ContentPanel root = new ContentPanel();
-                root.addStyleName("filter-panel");
+                root.addStyleName("filter-panel"); //$NON-NLS-1$
                 root.setAutoHeight(true);
                 root.setHeaderVisible(false);
                 root.setBodyBorder(false);
@@ -224,14 +234,14 @@ public class AdvancedSearchPanel extends FormPanel {
                 winFilter.addButton(searchBtn);
                 winFilter.show();
                 String curField = expressionTextField.getValue();
-                if (curField != null && !curField.equals("")) {
+                if (curField != null && !curField.equals("")) { //$NON-NLS-1$
                     try {
                         multiCriteria.setCriteria(Parser.parse(curField));
                     } catch (ParserException e) {
                         Log.error(e.getMessage(), e);
                     }
                 }
-                DOM.setStyleAttribute(winFilter.getBody().dom, "backgroundColor", "white");
+                DOM.setStyleAttribute(winFilter.getBody().dom, "backgroundColor", "white"); //$NON-NLS-1$  //$NON-NLS-2$
             }
         });
 
@@ -242,7 +252,7 @@ public class AdvancedSearchPanel extends FormPanel {
             public void componentSelected(ButtonEvent ce) {
                 try {
                     String curField = expressionTextField.getValue();
-                    if (curField != null && !curField.equals("")) {
+                    if (curField != null && !curField.equals("")) { //$NON-NLS-1$
                         Parser.parse(curField);
                         MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                 .valid_expression(), null);
@@ -261,25 +271,25 @@ public class AdvancedSearchPanel extends FormPanel {
             protected void onRender(Element target, int index) {
                 // add button
                 El wrap = new El(DOM.createDiv());
-                wrap.addStyleName("x-form-field-wrap");
-                wrap.addStyleName("x-form-file-wrap");
+                wrap.addStyleName("x-form-field-wrap"); //$NON-NLS-1$
+                wrap.addStyleName("x-form-file-wrap"); //$NON-NLS-1$
 
                 input = new El(DOM.createInputText());
                 input.addStyleName(fieldStyle);
-                input.addStyleName("x-form-file-text");
+                input.addStyleName("x-form-file-text"); //$NON-NLS-1$
                 input.setId(XDOM.getUniqueId());
 
-                if (GXT.isIE && target.getTagName().equals("TD")) {
-                    input.setStyleAttribute("position", "static");
+                if (GXT.isIE && target.getTagName().equals("TD")) { //$NON-NLS-1$
+                    input.setStyleAttribute("position", "static"); //$NON-NLS-1$  //$NON-NLS-2$
                 }
 
                 wrap.appendChild(input.dom);
 
                 setElement(wrap.dom, target, index);
 
-                filterButton.addStyleName("x-form-filter-btn");
+                filterButton.addStyleName("x-form-filter-btn"); //$NON-NLS-1$
                 filterButton.render(wrap.dom);
-                validButton.addStyleName("x-form-valid-btn");
+                validButton.addStyleName("x-form-valid-btn"); //$NON-NLS-1$
                 validButton.render(wrap.dom);
                 super.onRender(target, index);
             }
@@ -304,12 +314,12 @@ public class AdvancedSearchPanel extends FormPanel {
         };
         expressionTextField.setFieldLabel(MessagesFactory.getMessages().search_expression());
         // expressionTextField.setAllowBlank(false);
-        this.add(expressionTextField, new FormData("80%"));
+        this.add(expressionTextField, new FormData("80%")); //$NON-NLS-1$
 
         cb = new ComboBox<BaseModel>();
         cb.setEditable(false);
         cb.setWidth(120);
-        cb.setFieldLabel("Add more criteria");
+        cb.setFieldLabel("Add more criteria"); //$NON-NLS-1$
         cb.setAllowBlank(true);
         ListStore<BaseModel> list = new ListStore<BaseModel>();
         BaseModel field = new BaseModel();
@@ -325,11 +335,11 @@ public class AdvancedSearchPanel extends FormPanel {
         // field.set("value", "modifiedby");
         // list.add(field);
         field = new BaseModel();
-        field.set("name", MessagesFactory.getMessages().search_modifiedon());
-        field.set("value", "modifiedon");
+        field.set("name", MessagesFactory.getMessages().search_modifiedon()); //$NON-NLS-1$
+        field.set("value", "modifiedon"); //$NON-NLS-1$  //$NON-NLS-2$
         list.add(field);
-        cb.setDisplayField("name");
-        cb.setValueField("value");
+        cb.setDisplayField("name"); //$NON-NLS-1$
+        cb.setValueField("value"); //$NON-NLS-1$
         cb.setStore(list);
         cb.setTriggerAction(TriggerAction.ALL);
 
@@ -337,7 +347,7 @@ public class AdvancedSearchPanel extends FormPanel {
 
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
                 if (se.getSelectedItem() != null) {
-                    String selvalue = se.getSelectedItem().get("value");
+                    String selvalue = se.getSelectedItem().get("value"); //$NON-NLS-1$
                     // if (selvalue.equals("createdby") && instance.getItemByItemId("createdbyField") == null) {
                     // TextField<String> createdbyField = new TextField<String>();
                     // createdbyField.setFieldLabel("Created By");
@@ -354,15 +364,15 @@ public class AdvancedSearchPanel extends FormPanel {
                     // modifiedbyField.setId("modifedbyField");
                     // instance.insert(modifiedbyField, this.getItemCount() - 1, formData);
                     // } else
-                    if (selvalue.equals("modifiedon") && instance.getItemByItemId("modifiedonField1") == null) {
-                        instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("90%"));
+                    if (selvalue.equals("modifiedon") && instance.getItemByItemId("modifiedonField1") == null) { //$NON-NLS-1$  //$NON-NLS-2$
+                        instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("90%")); //$NON-NLS-1$  //$NON-NLS-2$
                     }
                     instance.layout(true);
                 }
             }
 
         });
-        this.add(cb, new FormData("40%"));
+        this.add(cb, new FormData("40%")); //$NON-NLS-1$
 
     }
 }

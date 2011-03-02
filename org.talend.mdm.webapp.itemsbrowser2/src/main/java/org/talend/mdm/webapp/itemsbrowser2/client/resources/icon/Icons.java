@@ -54,4 +54,12 @@ public interface Icons extends ClientBundle {
     @Source("display.png")
     ImageResource Display();
 
+    @Source("create.png")
+    ImageResource Create();
+
+    @Source("delete.png")
+    ImageResource Delete();
+
+    @Source("send_to_trash.png")
+    ImageResource Send_to_trash();
 }

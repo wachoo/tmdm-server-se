@@ -39,21 +39,21 @@ public class MultipleCriteria implements Criteria {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("" + Parser.BEGIN_BLOCK);
+        StringBuffer sb = new StringBuffer("" + Parser.BEGIN_BLOCK); //$NON-NLS-1$
 
         boolean first = true;
 
         for (Criteria c : children) {
             if (!first)
-                sb.append(" " + operator + " ");
+                sb.append(" " + operator + " "); //$NON-NLS-1$  //$NON-NLS-2$
 
-            sb.append(c.toString());
+            sb.append(Parser.BEGIN_BLOCK + c.toString() + Parser.END_BLOCK);
             first = false;
         }
         sb.append(Parser.END_BLOCK);
         final String string = sb.toString();
-        if (string.equals("" + Parser.BEGIN_BLOCK + Parser.END_BLOCK))
-            return "";
+        if (string.equals("" + Parser.BEGIN_BLOCK + Parser.END_BLOCK)) //$NON-NLS-1$
+            return ""; //$NON-NLS-1$
         else
             return string;
     }

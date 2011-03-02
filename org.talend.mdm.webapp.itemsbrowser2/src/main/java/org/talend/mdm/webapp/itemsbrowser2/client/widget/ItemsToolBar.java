@@ -153,6 +153,8 @@ public class ItemsToolBar extends ToolBar {
 
                     public void onSuccess(ViewBean arg0) {
                         simplePanel.updateFields(arg0);
+                        if (advancedPanel != null)
+                            advancedPanel.setView(arg0);
                         searchBut.setEnabled(true);
                         advancedBut.setEnabled(true);
                         managebookBtn.setEnabled(true);
@@ -257,8 +259,9 @@ public class ItemsToolBar extends ToolBar {
 
                             public void onClick(Widget arg0) {
                                 // edit the bookmark
-                                if (advancedPanel == null)
+                                if (advancedPanel == null) {
                                     advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
+                                }
                                 service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() {
 
                                     public void onFailure(Throwable arg0) {
@@ -362,8 +365,9 @@ public class ItemsToolBar extends ToolBar {
 
                                                             public void onSuccess(String arg0) {
                                                                 isSimple = false;
-                                                                if (advancedPanel == null)
+                                                                if (advancedPanel == null) {
                                                                     advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
+                                                                }
                                                                 advancedPanel.setCriteria(arg0);
                                                                 String viewPk = entityCombo.getValue().get("value");
                                                                 Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
@@ -443,8 +447,7 @@ public class ItemsToolBar extends ToolBar {
                             public void onSuccess(Boolean arg0) {
                                 if (!arg0) {
                                     service.saveCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue()
-                                            .toString(), cb.getValue(), isSimple ? simplePanel.getCriteria().toString()
-                                            : advancedPanel.getCriteria(), new AsyncCallback<String>() {
+                                            .toString(), cb.getValue(), advancedPanel.getCriteria(), new AsyncCallback<String>() {
 
                                         public void onFailure(Throwable arg0) {
                                             MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
@@ -495,6 +498,7 @@ public class ItemsToolBar extends ToolBar {
 
     private void showAdvancedWin(ToolBar toolBar, String criteria) {
         if (winAdvanced.getItemByItemId("advancedPanel") == null) {
+            // avoid show this window multi-times
             winAdvanced.setId("advancedWin");
             winAdvanced.setHeaderVisible(false);
             winAdvanced.setClosable(false);
@@ -534,8 +538,9 @@ public class ItemsToolBar extends ToolBar {
             advancedPanel.addButton(cancelBtn);
             winAdvanced.show();
             winAdvanced.alignTo(toolBar.getElement(), "tl", new int[] { 0, 35 });
-        } else if (!winAdvanced.isVisible())
+        } else if (!winAdvanced.isVisible()) {
             winAdvanced.show();
+        }
 
         // set criteria
         if (criteria != null)

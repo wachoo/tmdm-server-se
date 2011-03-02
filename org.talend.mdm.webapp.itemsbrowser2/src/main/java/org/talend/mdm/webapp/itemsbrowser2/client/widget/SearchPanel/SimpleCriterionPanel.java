@@ -68,8 +68,8 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
 
         keyComboBox = new ComboBox<BaseModel>();
         keyComboBox.setWidth(100);
-        keyComboBox.setDisplayField("name");
-        keyComboBox.setValueField("value");
+        keyComboBox.setDisplayField("name"); //$NON-NLS-1$
+        keyComboBox.setValueField("value"); //$NON-NLS-1$
         keyComboBox.setStore(list);
         keyComboBox.setTriggerAction(TriggerAction.ALL);
 
@@ -84,8 +84,8 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         add(keyComboBox);
 
         operatorComboBox = new ComboBox<BaseModel>();
-        operatorComboBox.setDisplayField("name");
-        operatorComboBox.setValueField("value");
+        operatorComboBox.setDisplayField("name"); //$NON-NLS-1$
+        operatorComboBox.setValueField("value"); //$NON-NLS-1$
         operatorComboBox.setStore(operatorlist);
         operatorComboBox.setTriggerAction(TriggerAction.ALL);
         add(operatorComboBox);
@@ -99,7 +99,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         add(valueComboBox);
 
         valueDate = new DateField();
-        valueDate.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));
+        valueDate.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd")); //$NON-NLS-1$
         valueDate.setVisible(false);
         add(valueDate);
 
@@ -127,23 +127,23 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         // field combobox
         BaseModel field;
         list.removeAll();
-        if (view.getSearchables() != null)
-            for (String key : view.getSearchables().keySet()) {
+        if (this.view.getSearchables() != null)
+            for (String key : this.view.getSearchables().keySet()) {
                 field = new BaseModel();
-                field.set("name", view.getSearchables().get(key));
-                field.set("value", key);
+                field.set("name", this.view.getSearchables().get(key)); //$NON-NLS-1$
+                field.set("value", key); //$NON-NLS-1$
                 list.add(field);
             }
         else {
             field = new BaseModel();
-            field.set("", "");
+            field.set("", ""); //$NON-NLS-1$  //$NON-NLS-2$
             list.add(field);
         }
 
-        if (view.getMetaDataTypes() != null) {
+        if (this.view.getMetaDataTypes() != null) {
             itemsPredicates.clear();
-            for (String key : view.getMetaDataTypes().keySet()) {
-                itemsPredicates.put(key, view.getMetaDataTypes().get(key).getTypeName());
+            for (String key : this.view.getMetaDataTypes().keySet()) {
+                itemsPredicates.put(key, this.view.getMetaDataTypes().get(key).getTypeName());
             }
         }
 
@@ -156,17 +156,17 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         operatorlist.removeAll();
         for (String curOper : cons.keySet()) {
             field = new BaseModel();
-            field.set("name", cons.get(curOper));
-            field.set("value", curOper);
+            field.set("name", cons.get(curOper)); //$NON-NLS-1$
+            field.set("value", curOper); //$NON-NLS-1$
             operatorlist.add(field);
         }
         operatorComboBox.setValue(operatorlist.getAt(0));
     }
 
     private void adaptOperatorAndValue() {
-        int delimeter = getKey().indexOf("/");
+        int delimeter = getKey().indexOf("/"); //$NON-NLS-1$
         if (delimeter == -1) {
-            String conceptName = view.getViewPK().replaceAll("Browse_items_", "").replaceAll("#.*", "");
+            String conceptName = view.getViewPK().replaceAll("Browse_items_", "").replaceAll("#.*", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             if (getKey().equals(conceptName)) {
                 setOperatorComboBox(Constants.fulltextOperators);
             }
@@ -174,80 +174,80 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueComboBox.setVisible(false);
             valueDate.setVisible(false);
             valueTextBox.setVisible(true);
-            valueTextBox.setValue("*");
+            valueTextBox.setValue("*"); //$NON-NLS-1$
             return;
         }
 
         String predicateValues = itemsPredicates.get(getKey());
 
-        if (predicateValues.equals("string") || predicateValues.equals("normalizedString") || predicateValues.equals("token")) {
+        if (predicateValues.equals("string") || predicateValues.equals("normalizedString") || predicateValues.equals("token")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(false);
             valueDate.setVisible(false);
             valueTextBox.setVisible(true);
-            valueTextBox.setValue("*");
-        } else if (predicateValues.equals("date") || predicateValues.equals("time") || predicateValues.equals("dateTime")) {
+            valueTextBox.setValue("*"); //$NON-NLS-1$
+        } else if (predicateValues.equals("date") || predicateValues.equals("time") || predicateValues.equals("dateTime")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             setOperatorComboBox(Constants.dateOperators);
             valueComboBox.setVisible(false);
             valueDate.setVisible(true);
             valueTextBox.setVisible(false);
-        } else if (predicateValues.equals("double") || predicateValues.equals("float") || predicateValues.equals("integer")
-                || predicateValues.equals("decimal") || predicateValues.equals("byte") || predicateValues.equals("int")
-                || predicateValues.equals("long") || predicateValues.equals("negativeInteger")
-                || predicateValues.equals("nonNegativeInteger") || predicateValues.equals("nonPositiveInteger")
-                || predicateValues.equals("positiveInteger") || predicateValues.equals("short")
-                || predicateValues.equals("unsignedLong") || predicateValues.equals("unsignedInt")
-                || predicateValues.equals("unsignedShort") || predicateValues.equals("unsignedByte")) {
+        } else if (predicateValues.equals("double") || predicateValues.equals("float") || predicateValues.equals("integer") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                || predicateValues.equals("decimal") || predicateValues.equals("byte") || predicateValues.equals("int") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                || predicateValues.equals("long") || predicateValues.equals("negativeInteger") //$NON-NLS-1$ //$NON-NLS-2$
+                || predicateValues.equals("nonNegativeInteger") || predicateValues.equals("nonPositiveInteger") //$NON-NLS-1$ //$NON-NLS-2$
+                || predicateValues.equals("positiveInteger") || predicateValues.equals("short") //$NON-NLS-1$ //$NON-NLS-2$
+                || predicateValues.equals("unsignedLong") || predicateValues.equals("unsignedInt") //$NON-NLS-1$ //$NON-NLS-2$
+                || predicateValues.equals("unsignedShort") || predicateValues.equals("unsignedByte")) { //$NON-NLS-1$ //$NON-NLS-2$
             setOperatorComboBox(Constants.numOperators);
             valueComboBox.setVisible(false);
             valueDate.setVisible(false);
             valueTextBox.setVisible(true);
-            valueTextBox.setValue("*");
-        } else if (predicateValues.equals("boolean")) {
+            valueTextBox.setValue("*"); //$NON-NLS-1$
+        } else if (predicateValues.equals("boolean")) { //$NON-NLS-1$
             setOperatorComboBox(Constants.booleanOperators);
             valueComboBox.setVisible(false);
             valueDate.setVisible(false);
             valueTextBox.setVisible(false);
-        } else if (predicateValues.equals("foreign key")) {
+        } else if (predicateValues.equals("foreign key")) { //$NON-NLS-1$
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(true);
             valueDate.setVisible(false);
             valueTextBox.setVisible(false);
-        } else if (predicateValues.equals("enumeration")) {
+        } else if (predicateValues.equals("enumeration")) { //$NON-NLS-1$
             // TODO
 
-        } else if (predicateValues.equals("complex type")) {
+        } else if (predicateValues.equals("complex type")) { //$NON-NLS-1$
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(false);
             valueDate.setVisible(false);
             valueTextBox.setVisible(true);
-            valueTextBox.setValue("*");
+            valueTextBox.setValue("*"); //$NON-NLS-1$
         } else {
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(false);
             valueDate.setVisible(false);
             valueTextBox.setVisible(true);
-            valueTextBox.setValue("*");
+            valueTextBox.setValue("*"); //$NON-NLS-1$
         }
 
     }
 
     private String getKey() {
-        return keyComboBox.getValue().get("value");
+        return keyComboBox.getValue().get("value"); //$NON-NLS-1$
     }
 
     private String getOperator() {
-        return operatorComboBox.getValue().get("value");
+        return operatorComboBox.getValue().get("value"); //$NON-NLS-1$
     }
 
     private String getValue() {
         String curValue = null;
         if (valueComboBox.isVisible())
-            curValue = (valueComboBox.getValue() == null) ? "*" : valueComboBox.getValue().get("value").toString();
+            curValue = (valueComboBox.getValue() == null) ? "*" : valueComboBox.getValue().get("value").toString(); //$NON-NLS-1$ //$NON-NLS-2$
         if (valueDate.isVisible())
-            curValue = (valueDate.getValue() == null) ? "*" : valueDate.getValue().toString();
+            curValue = (valueDate.getValue() == null) ? "*" : valueDate.getValue().toString(); //$NON-NLS-1$
         if (valueTextBox.isVisible())
-            curValue = (valueTextBox.getValue() == null) ? "*" : valueTextBox.getValue().toString();
+            curValue = (valueTextBox.getValue() == null) ? "*" : valueTextBox.getValue().toString(); //$NON-NLS-1$
 
         return curValue;
     }
@@ -258,11 +258,11 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
 
     public void setCriterion(SimpleCriterion criterion) {
         try {
-            keyComboBox.setValue(list.findModel("value", criterion.getKey()));
+            keyComboBox.setValue(list.findModel("value", criterion.getKey())); //$NON-NLS-1$
             adaptOperatorAndValue();
-            operatorComboBox.setValue(operatorlist.findModel("value", criterion.getOperator()));
+            operatorComboBox.setValue(operatorlist.findModel("value", criterion.getOperator())); //$NON-NLS-1$
             if (valueComboBox.isVisible())
-                valueComboBox.setValue(valuelist.findModel("value", criterion.getValue()));
+                valueComboBox.setValue(valuelist.findModel("value", criterion.getValue())); //$NON-NLS-1$
             if (valueDate.isVisible())
                 valueDate.setValue(new Date(criterion.getValue()));
             if (valueTextBox.isVisible())
@@ -270,14 +270,6 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         } catch (Exception e) {
             Log.error(e.getMessage(), e);
         }
-    }
-
-    private ListStore<BaseModel> getEmptyStore() {
-        ListStore<BaseModel> list = new ListStore<BaseModel>();
-        BaseModel fields = new BaseModel();
-        fields.set("", "");
-        list.add(fields);
-        return list;
     }
 
     public ViewBean getView() {

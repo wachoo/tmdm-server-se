@@ -15,15 +15,16 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Constants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -47,11 +48,11 @@ public class MultipleCriteriaPanel extends SimplePanel {
 
     private Panel separationRightPanel;
 
-    private ComboBox<BaseModel> operatorComboBox;
+    private ComboBox<ItemBaseModel> operatorComboBox;
 
     private ViewBean view;
 
-    private ListStore<BaseModel> list;
+    private ListStore<ItemBaseModel> list;
 
     public MultipleCriteriaPanel(MultipleCriteriaPanel parent, ViewBean view) {
         super();
@@ -70,13 +71,13 @@ public class MultipleCriteriaPanel extends SimplePanel {
 
         main.add(getOperatorPanel());
 
-        separationLeftPanel = getSeparationPanel("left");
+        separationLeftPanel = getSeparationPanel("left"); //$NON-NLS-1$
         main.add(separationLeftPanel);
 
         getRightPanel();
         main.add(rightPanel);
 
-        separationRightPanel = getSeparationPanel("right");
+        separationRightPanel = getSeparationPanel("right"); //$NON-NLS-1$
         main.add(separationRightPanel);
 
         if (parent != null) {
@@ -111,32 +112,33 @@ public class MultipleCriteriaPanel extends SimplePanel {
     private Panel getOperatorPanel() {
         Panel toReturn = new SimplePanel();
 
-        operatorComboBox = new ComboBox<BaseModel>();
-        list = new ListStore<BaseModel>();
-        BaseModel field = null;
+        operatorComboBox = new ComboBox<ItemBaseModel>();
+        list = new ListStore<ItemBaseModel>();
+        ItemBaseModel field = null;
 
         for (String curOper : Constants.groupOperators) {
-            field = new BaseModel();
-            field.set("name", curOper);
-            field.set("value", curOper);
+            field = new ItemBaseModel();
+            field.set("name", curOper); //$NON-NLS-1$
+            field.set("value", curOper); //$NON-NLS-1$
             list.add(field);
         }
 
-        operatorComboBox.setDisplayField("name");
-        operatorComboBox.setValueField("value");
+        operatorComboBox.setDisplayField("name"); //$NON-NLS-1$
+        operatorComboBox.setValueField("value"); //$NON-NLS-1$
         operatorComboBox.setStore(list);
-        operatorComboBox.setWidth("75px");
+        operatorComboBox.setWidth("75px"); //$NON-NLS-1$        
+        operatorComboBox.setTriggerAction(TriggerAction.ALL);
         toReturn.add(operatorComboBox);
-        toReturn.setWidth("80px");
+        toReturn.setWidth("80px"); //$NON-NLS-1$
         return toReturn;
     }
 
     private Panel getSeparationPanel(String position) {
         Panel right = new SimplePanel();
-        right.add(new Label(" "));
-        right.setWidth("10px");
-        right.setHeight("97%");
-        right.addStyleName("separation-" + position);
+        right.add(new Label(" ")); //$NON-NLS-1$
+        right.setWidth("10px"); //$NON-NLS-1$
+        right.setHeight("97%"); //$NON-NLS-1$
+        right.addStyleName("separation-" + position); //$NON-NLS-1$
         return right;
     }
 
@@ -196,9 +198,9 @@ public class MultipleCriteriaPanel extends SimplePanel {
     protected void redraw() {
         final int offsetHeight = rightPanel.getOffsetHeight();
         if (separationLeftPanel != null)
-            separationLeftPanel.setHeight(offsetHeight + "px");
+            separationLeftPanel.setHeight(offsetHeight + "px"); //$NON-NLS-1$
         if (separationRightPanel != null)
-            separationRightPanel.setHeight(offsetHeight + "px");
+            separationRightPanel.setHeight(offsetHeight + "px"); //$NON-NLS-1$
 
         if (parent != null)
             parent.redraw();
@@ -209,8 +211,8 @@ public class MultipleCriteriaPanel extends SimplePanel {
     }
 
     public MultipleCriteria getCriteria() {
-        MultipleCriteria toReturn = new MultipleCriteria(operatorComboBox.getValue() == null ? "" : operatorComboBox.getValue()
-                .get("value").toString());
+        MultipleCriteria toReturn = new MultipleCriteria(operatorComboBox.getValue() == null ? "" : operatorComboBox.getValue() //$NON-NLS-1$
+                .get("value").toString()); //$NON-NLS-1$
 
         for (int i = 0; i < rightPanel.getWidgetCount(); i++) {
             Widget widget = rightPanel.getWidget(i);
@@ -242,7 +244,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
         if (criteria instanceof MultipleCriteria) {
             MultipleCriteria multipleCriteria = (MultipleCriteria) criteria;
 
-            operatorComboBox.setValue(list.findModel("value", multipleCriteria.getOperator()));
+            operatorComboBox.setValue(list.findModel("value", multipleCriteria.getOperator())); //$NON-NLS-1$
             for (Criteria current : multipleCriteria.getChildren()) {
                 if (current instanceof SimpleCriterion) {
                     SimpleCriterionPanel newPanel = addSimpleCriterionPanel();
