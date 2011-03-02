@@ -28,7 +28,6 @@ public class CellRendererCreator {
         if (dataType.getTypeName().equals(DataTypeConstants.URL)){
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
-                @Override
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ModelData> store, Grid<ModelData> grid) {
                     String value = model.get(property);

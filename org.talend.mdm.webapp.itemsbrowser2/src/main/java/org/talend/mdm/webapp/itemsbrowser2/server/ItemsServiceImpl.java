@@ -36,6 +36,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.BrowseItem;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
@@ -345,7 +346,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                 .getOffset(), pagingLoad.getLimit());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
-        return new BasePagingLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
+        return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
     }
 
     public List<ItemBaseModel> getViewsList(String language) {
@@ -490,7 +491,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             list.add(bm);
         }
         int totalSize = Integer.parseInt(countSearchTemplate(view));
-        return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
+        return new ItemBasePageLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
     }
 
     public List<ItemBaseModel> getviewItemsCriterias(String view) {
