@@ -632,9 +632,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     }
 
     public String getCurrentDataModel() throws Exception {
-        HttpServletRequest request = this.getThreadLocalRequest();
-        HttpSession session = request.getSession();
-        Configuration config = Configuration.getInstance(session);
+        Configuration config = Configuration.getInstance(true);
         return config.getModel();
     }
 
