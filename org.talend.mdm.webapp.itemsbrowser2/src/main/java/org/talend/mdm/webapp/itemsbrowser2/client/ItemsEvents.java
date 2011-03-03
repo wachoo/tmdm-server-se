@@ -15,17 +15,19 @@ package org.talend.mdm.webapp.itemsbrowser2.client;
 import com.extjs.gxt.ui.client.event.EventType;
 
 public class ItemsEvents {
-  
-  public static final EventType Error = new EventType();
-  
-  public static final EventType InitFrame = new EventType();
-  
-  public static final EventType InitSearchContainer = new EventType();
-  
-  public static final EventType GetView = new EventType();
-  
-  public static final EventType ViewItems = new EventType();
-  
-  public static final EventType ViewItemForm = new EventType();
-  
+
+    public static final EventType Error = new EventType();
+
+    public static final EventType InitFrame = new EventType();
+
+    public static final EventType InitSearchContainer = new EventType();
+
+    public static final EventType GetView = new EventType();
+
+    public static final EventType ViewItems = new EventType();
+
+    public static final EventType ViewItemForm = new EventType();
+
+    public static final EventType InitView = new EventType();
+
 }

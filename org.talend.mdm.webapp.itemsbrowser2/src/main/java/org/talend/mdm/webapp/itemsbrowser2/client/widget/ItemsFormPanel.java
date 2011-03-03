@@ -29,118 +29,138 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 
 public class ItemsFormPanel extends Composite {
 
-	ItemFormBean itemFormBean;
-	
-	FormPanel content = new FormPanel();
-	
-	private FormBinding formBindings;  
-	
-	public ItemsFormPanel(){
-		content.setFrame(true);
-		content.setHeaderVisible(false);
-		content.setScrollMode(Scroll.AUTO);
-		this.initComponent(content);
-	}
-	
-	 public ItemsFormPanel(ItemFormBean itemFormBean) {
-		this();
-		this.itemFormBean = itemFormBean;
-	 }
-	
+    ItemFormBean itemFormBean;
+
+    FormPanel content = new FormPanel();
+
+    private FormBinding formBindings;
+
+    public ItemsFormPanel() {
+        content.setFrame(true);
+        content.setHeaderVisible(false);
+        content.setScrollMode(Scroll.AUTO);
+        this.initComponent(content);
+    }
+
+    public ItemsFormPanel(ItemFormBean itemFormBean) {
+        this();
+        this.itemFormBean = itemFormBean;
+    }
+
     public void setItemFormBean(ItemFormBean itemFormBean) {
         this.itemFormBean = itemFormBean;
     }
 
     public String getDisplayTitle() {
-        String title="Item's form";
-        if(itemFormBean!=null)title=itemFormBean.getName();
+        String title = "Item's form";
+        if (itemFormBean != null)
+            title = itemFormBean.getName();
         return title;
     }
-    
-//	private Widget buildItemGroup(ItemFormLineBean lineBean){
-//		FieldSet fs = new FieldSet();
-//		fs.setHeading(lineBean.getFieldLabel());
-//		fs.setCollapsible(true);
-//		
-//		FormLayout layout = new FormLayout();  
-//	    layout.setLabelWidth(75);  
-//	    fs.setLayout(layout);  
-//		
-//		List<ItemFormLineBean> children = lineBean.getChildren();
-//		for (ItemFormLineBean child : children){
-//			Widget field = buildItem(child);
-//			fs.add(field);
-//		}
-//		return fs;
-//	}
-	
-//	private Widget buildItem(ItemFormLineBean lineBean){
-//		
-//		List<ItemFormLineBean> children = lineBean.getChildren();
-//		if (children != null && children.size() > 0){
-//			return buildItemGroup(lineBean);
-//		} else {
-//			Field<Serializable> field = FieldCreator.createField(lineBean.getFieldType());
-//			field.setFieldLabel(lineBean.getFieldLabel());
-//			field.setValue(lineBean.getFieldValue());
-//			return field;
-//		}
-//	}
-	
-//	public void showItem() {
-//        showItem(null,false);
-//    }
-//
-//    public void showItem(ItemFormBean _itemForm, boolean override) {
-//    	if(override)setItemFormBean(_itemForm);
-//
-//    	content.removeAll();
-//    	if (itemFormBean != null) {
-//    		Iterator<ItemFormLineBean> lineIter = itemFormBean.iteratorLine();
-//    		while (lineIter.hasNext()){
-//    			ItemFormLineBean lineBean = lineIter.next();
-//    			Widget w = buildItem(lineBean);
-//				content.add(w);
-//    		}
-//    	}
-//    	content.layout(true);
-//    }
-    
-    public void paint(ViewBean viewBean){
+
+    // private Widget buildItemGroup(ItemFormLineBean lineBean){
+    // FieldSet fs = new FieldSet();
+    // fs.setHeading(lineBean.getFieldLabel());
+    // fs.setCollapsible(true);
+    //		
+    // FormLayout layout = new FormLayout();
+    // layout.setLabelWidth(75);
+    // fs.setLayout(layout);
+    //		
+    // List<ItemFormLineBean> children = lineBean.getChildren();
+    // for (ItemFormLineBean child : children){
+    // Widget field = buildItem(child);
+    // fs.add(field);
+    // }
+    // return fs;
+    // }
+
+    // private Widget buildItem(ItemFormLineBean lineBean){
+    //		
+    // List<ItemFormLineBean> children = lineBean.getChildren();
+    // if (children != null && children.size() > 0){
+    // return buildItemGroup(lineBean);
+    // } else {
+    // Field<Serializable> field = FieldCreator.createField(lineBean.getFieldType());
+    // field.setFieldLabel(lineBean.getFieldLabel());
+    // field.setValue(lineBean.getFieldValue());
+    // return field;
+    // }
+    // }
+
+    // public void showItem() {
+    // showItem(null,false);
+    // }
+    //
+    // public void showItem(ItemFormBean _itemForm, boolean override) {
+    // if(override)setItemFormBean(_itemForm);
+    //
+    // content.removeAll();
+    // if (itemFormBean != null) {
+    // Iterator<ItemFormLineBean> lineIter = itemFormBean.iteratorLine();
+    // while (lineIter.hasNext()){
+    // ItemFormLineBean lineBean = lineIter.next();
+    // Widget w = buildItem(lineBean);
+    // content.add(w);
+    // }
+    // }
+    // content.layout(true);
+    // }
+
+    public void paint(ViewBean viewBean, boolean ifNew) {
         content.removeAll();
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = viewBean.getMetaDataTypes();
         List<SimpleComboBox> comboBoxes = new ArrayList<SimpleComboBox>();
-        for (String xpath : viewableXpaths) {
-            Field<Serializable> f = FieldCreator.createField(dataTypes.get(xpath));
-            f.setFieldLabel(dataTypes.get(xpath).getLabel());
-            f.setName(xpath);
-            content.add(f);
-            if (f instanceof SimpleComboBox){
-                comboBoxes.add((SimpleComboBox) f);
+        if (ifNew) {
+            for (String key : dataTypes.keySet()) {
+                Field<Serializable> f = FieldCreator.createField(dataTypes.get(key));
+                if (f != null) {
+                    f.setFieldLabel(dataTypes.get(key).getLabel());
+                    f.setName(key);
+                    content.add(f);
+                    if (f instanceof SimpleComboBox) {
+                        comboBoxes.add((SimpleComboBox) f);
+                    }
+                }
+            }
+
+        } else {
+            for (String xpath : viewableXpaths) {
+                Field<Serializable> f = FieldCreator.createField(dataTypes.get(xpath));
+                if (f != null) {
+                    f.setFieldLabel(dataTypes.get(xpath).getLabel());
+                    f.setName(xpath);
+                    content.add(f);
+                    if (f instanceof SimpleComboBox) {
+                        comboBoxes.add((SimpleComboBox) f);
+                    }
+                }
             }
         }
         formBindings = new FormBinding(content);
-        for (SimpleComboBox comboBox : comboBoxes){
+        for (SimpleComboBox comboBox : comboBoxes) {
             formBindings.addFieldBinding(new SimpleComboBoxFieldBinding(comboBox, comboBox.getName()));
         }
         formBindings.autoBind();
         ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
-        ListStore<ItemBean> store = itemsSearchContainer.getItemsListPanel().getGrid().getStore();
-        formBindings.setStore(store);
+        if (itemsSearchContainer.getItemsListPanel().getGrid() != null) {
+            ListStore<ItemBean> store = itemsSearchContainer.getItemsListPanel().getGrid().getStore();
+            formBindings.setStore(store);
+        }
         content.layout(true);
-        
+
     }
-    
-    public void bind(ModelData modelData){
-        if (modelData != null){
+
+    public void bind(ModelData modelData) {
+        if (modelData != null) {
             formBindings.bind(modelData);
         } else {
             formBindings.unbind();
         }
     }
-    
-    public void unbind(){
+
+    public void unbind() {
         formBindings.unbind();
     }
 }

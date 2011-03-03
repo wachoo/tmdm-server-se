@@ -13,19 +13,23 @@
 package org.talend.mdm.webapp.itemsbrowser2.shared;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
- * DOC chliu  class global comment. Detailled comment
+ * DOC chliu class global comment. Detailled comment
  */
 public abstract class TypeModel implements Serializable, IsSerializable {
-    
+
     private String typeName;
 
     private String label;
-    
+
+    private List<String> foreignKeyInfo;
+
+    private String foreignkey;
+
     public TypeModel() {
         super();
     }
@@ -43,7 +47,7 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     public void setTypeName(String typeName) {
         this.typeName = typeName;
     }
-    
+
     public String getLabel() {
         return label;
     }
@@ -52,7 +56,23 @@ public abstract class TypeModel implements Serializable, IsSerializable {
         this.label = label;
     }
 
+    public List<String> getForeignKeyInfo() {
+        return foreignKeyInfo;
+    }
+
+    public void setForeignKeyInfo(List<String> foreignKeyInfo) {
+        this.foreignKeyInfo = foreignKeyInfo;
+    }
+
+    public String getForeignkey() {
+        return foreignkey;
+    }
+
+    public void setForeignkey(String foreignkey) {
+        this.foreignkey = foreignkey;
+    }
+
     public abstract boolean isSimpleType();
-    
+
     public abstract boolean hasEnumeration();
 }

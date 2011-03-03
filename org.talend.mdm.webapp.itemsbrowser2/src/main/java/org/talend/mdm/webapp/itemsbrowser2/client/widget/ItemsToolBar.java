@@ -6,11 +6,14 @@ import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
+import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
@@ -32,9 +35,9 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -54,6 +57,8 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
@@ -90,6 +95,10 @@ public class ItemsToolBar extends ToolBar {
 
     final Window winAdvanced = new Window();
 
+    Button createBtn = new Button(MessagesFactory.getMessages().create_btn());
+
+    Button menu = new Button(MessagesFactory.getMessages().delete_btn());
+
     ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
     ItemsToolBar instance = this;
@@ -119,14 +128,45 @@ public class ItemsToolBar extends ToolBar {
             qm.setCriteria(advancedPanel.getCriteria());
     }
 
-    private void initToolBar() {
-        Button create = new Button("Create");
-        create.setIcon(IconHelper.createStyle("icon-email-add"));
-        add(create);
+    public void updateToolBar(ViewBean viewBean) {
+        simplePanel.updateFields(viewBean);
+        if (advancedPanel != null)
+            advancedPanel.setView(viewBean);
+        searchBut.setEnabled(true);
+        advancedBut.setEnabled(true);
+        managebookBtn.setEnabled(true);
+        bookmarkBtn.setEnabled(true);
+        createBtn.setEnabled(true);
+        menu.setEnabled(true);
+    }
 
-        Button reply = new Button("Reply");
-        reply.setIcon(IconHelper.createStyle("icon-email-reply"));
-        add(reply);
+    private void initToolBar() {
+        createBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Create()));
+        createBtn.setEnabled(false);
+        add(createBtn);
+        createBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            public void componentSelected(ButtonEvent ce) {
+                String concept = CommonUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());
+                ItemBean item = new ItemBean(concept, "", null);
+                AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);
+                evt.setData(ItemsView.ITEMS_FORM_TARGET, ItemsView.TARGET_IN_NEW_TAB);
+                Dispatcher.forwardEvent(evt);
+            }
+
+        });
+
+        menu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+        Menu sub = new Menu();
+        MenuItem delMenu = new MenuItem(MessagesFactory.getMessages().delete_btn());
+        delMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+        sub.add(delMenu);
+        MenuItem trashMenu = new MenuItem(MessagesFactory.getMessages().trash_btn());
+        trashMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
+        sub.add(trashMenu);
+        menu.setMenu(sub);
+        menu.setEnabled(false);
+        add(menu);
 
         add(new FillToolItem());
 
@@ -145,23 +185,7 @@ public class ItemsToolBar extends ToolBar {
 
             public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                 String viewPk = se.getSelectedItem().get("value").toString();
-                service.getView(viewPk, new AsyncCallback<ViewBean>() {
-
-                    public void onFailure(Throwable arg0) {
-
-                    }
-
-                    public void onSuccess(ViewBean arg0) {
-                        simplePanel.updateFields(arg0);
-                        if (advancedPanel != null)
-                            advancedPanel.setView(arg0);
-                        searchBut.setEnabled(true);
-                        advancedBut.setEnabled(true);
-                        managebookBtn.setEnabled(true);
-                        bookmarkBtn.setEnabled(true);
-                    }
-
-                });
+                Dispatcher.forwardEvent(ItemsEvents.InitView, viewPk);
             }
 
         });

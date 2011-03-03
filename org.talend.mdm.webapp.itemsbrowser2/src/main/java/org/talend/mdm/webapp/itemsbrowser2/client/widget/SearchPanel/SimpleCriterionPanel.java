@@ -19,6 +19,7 @@ import java.util.Map;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Constants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -166,8 +167,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
     private void adaptOperatorAndValue() {
         int delimeter = getKey().indexOf("/"); //$NON-NLS-1$
         if (delimeter == -1) {
-            String conceptName = view.getViewPK().replaceAll("Browse_items_", "").replaceAll("#.*", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-            if (getKey().equals(conceptName)) {
+            if (getKey().equals(CommonUtil.getConceptFromBrowseItemView(view.getViewPK()))) {
                 setOperatorComboBox(Constants.fulltextOperators);
             }
 

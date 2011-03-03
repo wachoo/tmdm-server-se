@@ -16,8 +16,6 @@ import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.PictureBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -43,6 +41,7 @@ public class ItemsController extends Controller {
         registerEventTypes(ItemsEvents.ViewItems);
         registerEventTypes(ItemsEvents.ViewItemForm);
         registerEventTypes(ItemsEvents.Error);
+        registerEventTypes(ItemsEvents.InitView);
     }
 
     @Override
@@ -66,34 +65,36 @@ public class ItemsController extends Controller {
             onViewItemForm(event);
         } else if (type == ItemsEvents.Error) {
             onError(event);
+        } else if (type == ItemsEvents.InitView) {
+            onInitView(event);
         }
     }
 
     protected void onViewItemForm(final AppEvent event) {
 
-//        ItemBean item = event.getData();
-//        final String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
+        // ItemBean item = event.getData();
+        // final String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
         forwardToView(itemsView, event);
-//        ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
-//        // TODO get whole item & data model from backend and then gen ItemFormBean
-//
-//        service.setForm(item, viewBean, new AsyncCallback<ItemFormBean>() {
-//
-//            public void onSuccess(ItemFormBean result) {
-//                AppEvent ae = new AppEvent(event.getType(), result);
-//                ae.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
-//                forwardToView(itemsView, ae);
-//            }
-//
-//            public void onFailure(Throwable caught) {
-//                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-//            }
-//        });
+        // ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
+        // // TODO get whole item & data model from backend and then gen ItemFormBean
+        //
+        // service.setForm(item, viewBean, new AsyncCallback<ItemFormBean>() {
+        //
+        // public void onSuccess(ItemFormBean result) {
+        // AppEvent ae = new AppEvent(event.getType(), result);
+        // ae.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
+        // forwardToView(itemsView, ae);
+        // }
+        //
+        // public void onFailure(Throwable caught) {
+        // Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+        // }
+        // });
 
     }
 
-    protected void onGetView(final AppEvent event) {
-        Log.info("Get view... ");
+    protected void onInitView(final AppEvent event) {
+        Log.info("Init view... ");
         String viewName = event.getData();
         service.getView(viewName, new AsyncCallback<ViewBean>() {
 
@@ -107,6 +108,13 @@ public class ItemsController extends Controller {
                 Dispatcher.forwardEvent(ItemsEvents.Error, caught);
             }
         });
+    }
+
+    protected void onGetView(final AppEvent event) {
+        Log.info("Get view... ");
+        ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
+        AppEvent ae = new AppEvent(event.getType(), viewBean);
+        forwardToView(itemsView, ae);
     }
 
     protected void onViewItems(final AppEvent event) {

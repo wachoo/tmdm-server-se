@@ -111,8 +111,14 @@ public interface ItemsbrowserMessages extends Messages {
     String criteria_BOOLEQUALSTRUE();
 
     String criteria_BOOLEQUALSFALSE();
-    
+
     String check_totalDigits();
-    
+
     String check_fractionDigits();
+
+    String create_btn();
+
+    String delete_btn();
+
+    String trash_btn();
 }

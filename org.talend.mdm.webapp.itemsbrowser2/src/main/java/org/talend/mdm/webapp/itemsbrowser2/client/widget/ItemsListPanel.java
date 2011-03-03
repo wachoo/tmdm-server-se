@@ -73,7 +73,7 @@ public class ItemsListPanel extends ContentPanel {
     final ListStore<ItemBean> store = new ListStore<ItemBean>(loader);
 
     private Grid<ItemBean> grid;
-    
+
     private RowEditor<ItemBean> re;
 
     ContentPanel gridContainer;
@@ -86,7 +86,8 @@ public class ItemsListPanel extends ContentPanel {
         setLayout(new FitLayout());
         setHeaderVisible(false);
         addToolBar();
-        loader.addLoadListener(new LoadListener(){
+        loader.addLoadListener(new LoadListener() {
+
             public void loaderLoad(LoadEvent le) {
                 grid.getSelectionModel().select(0, false);
             }
@@ -96,6 +97,10 @@ public class ItemsListPanel extends ContentPanel {
     private void addToolBar() {
         toolBar = new ItemsToolBar();
         setTopComponent(toolBar);
+    }
+
+    public ItemsToolBar getToolBar() {
+        return toolBar;
     }
 
     public void updateGrid(List<ColumnConfig> columnConfigList) {
@@ -108,7 +113,7 @@ public class ItemsListPanel extends ContentPanel {
         pagingBar.bind(loader);
         gridContainer.setBottomComponent(pagingBar);
         grid = new Grid<ItemBean>(store, cm);
-        re = new RowEditor<ItemBean>();  
+        re = new RowEditor<ItemBean>();
         grid.getView().setForceFit(true);
         if (cm.getColumnCount() > 0) {
             grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
