@@ -24,6 +24,10 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
+import com.extjs.gxt.ui.client.data.ChangeEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -40,7 +44,11 @@ public class FieldCreator {
 		
 		if (dataType.hasEnumeration()){
 		    SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
+		    comboBox.setFireChangeEventOnSetValue(true);
 		    comboBox.setAllowBlank(false);
+		    comboBox.setEditable(false);
+		    comboBox.setForceSelection(true);
+		    comboBox.setTriggerAction(TriggerAction.ALL);
 		    buildFacets(dataType, comboBox);
 		    field = (F) comboBox;
 		    

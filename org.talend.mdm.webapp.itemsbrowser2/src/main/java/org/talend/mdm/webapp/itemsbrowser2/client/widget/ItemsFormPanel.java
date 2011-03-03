@@ -6,27 +6,26 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.binding.FormBinding;
+import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.google.gwt.user.client.ui.Widget;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 
 public class ItemsFormPanel extends Composite {
 
@@ -111,13 +110,21 @@ public class ItemsFormPanel extends Composite {
         content.removeAll();
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = viewBean.getMetaDataTypes();
+        List<SimpleComboBox> comboBoxes = new ArrayList<SimpleComboBox>();
         for (String xpath : viewableXpaths) {
             Field<Serializable> f = FieldCreator.createField(dataTypes.get(xpath));
             f.setFieldLabel(dataTypes.get(xpath).getLabel());
             f.setName(xpath);
             content.add(f);
+            if (f instanceof SimpleComboBox){
+                comboBoxes.add((SimpleComboBox) f);
+            }
         }
-        formBindings = new FormBinding(content, true);  
+        formBindings = new FormBinding(content);
+        for (SimpleComboBox comboBox : comboBoxes){
+            formBindings.addFieldBinding(new SimpleComboBoxFieldBinding(comboBox, comboBox.getName()));
+        }
+        formBindings.autoBind();
         ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
         ListStore<ItemBean> store = itemsSearchContainer.getItemsListPanel().getGrid().getStore();
         formBindings.setStore(store);

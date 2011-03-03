@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.CellEditorCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.CellRendererCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.FieldCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsFormPanel;
@@ -112,9 +113,10 @@ public class ItemsView extends View {
             xpath = getViewLabelFromViewable(xpath);
             TypeModel typeModel = dataTypes.get(xpath);
             Field<Serializable> field = FieldCreator.createField(typeModel);
-            
+            field.setName(xpath);
+            CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
             ColumnConfig cc = new ColumnConfig(xpath, typeModel.getLabel(), 200);
-            cc.setEditor(new CellEditor(field));
+            cc.setEditor(cellEditor);
             GridCellRenderer<ModelData> renderer = CellRendererCreator.createRenderer(typeModel);
             if (renderer != null){
                 cc.setRenderer(renderer);

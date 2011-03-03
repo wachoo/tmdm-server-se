@@ -346,7 +346,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                 .getOffset(), pagingLoad.getLimit());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
-        return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
+        return new BasePagingLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
     }
 
     public List<ItemBaseModel> getViewsList(String language) {
@@ -491,7 +491,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             list.add(bm);
         }
         int totalSize = Integer.parseInt(countSearchTemplate(view));
-        return new ItemBasePageLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
+        return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
     }
 
     public List<ItemBaseModel> getviewItemsCriterias(String view) {

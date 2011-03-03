@@ -47,6 +47,7 @@ public class UrlField extends Field<String> {
     private EditWindow editWin = new EditWindow();
 
     public UrlField() {
+        setFireChangeEventOnSetValue(true);
         editWin.setHeading("Edit Url");
         editWin.setSize(600, 150);
         regJs(handler);
