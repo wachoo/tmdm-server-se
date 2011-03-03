@@ -138,7 +138,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         int totalSize = 0;
 
         List<ItemBean> itemBeans = new ArrayList<ItemBean>();
-
+        String concept = viewPk.substring("Browse_items_".length());
         try {
             WSWhereItem wi = com.amalto.webapp.core.util.Util.buildWhereItems(criteria);
 
@@ -159,7 +159,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
                 if (!results[i].startsWith("<result>")) {
                     results[i] = "<result>" + results[i] + "</result>";
                 }
-                ItemBean itemBean = new ItemBean("Agency", String.valueOf(i), results[i]);
+                ItemBean itemBean = new ItemBean(concept, String.valueOf(i), results[i]);
                 // ItemBean itemBean = new ItemBean("customer", String.valueOf(i), results[i]);
                 dynamicAssemble(itemBean, viewBean);
                 itemBeans.add(itemBean);
