@@ -64,7 +64,6 @@ public class PictureField extends Field<String> {
 
     private Dialog dialog = new Dialog() {
 
-        @Override
         protected void onButtonPressed(Button button) {
             super.onButtonPressed(button);
             if (button == getButtonBar().getItemByItemId(YES)) {
@@ -152,7 +151,7 @@ public class PictureField extends Field<String> {
         };
     }-*/;
 
-    @Override
+    
     public void setValue(String value) {
         super.setValue(value);
         if (value != null && value.length() != 0) { //$NON-NLS-1$
@@ -170,7 +169,6 @@ public class PictureField extends Field<String> {
 
         private SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
 
-            @Override
             public void componentSelected(ButtonEvent ce) {
                 Button button = ce.getButton();
                 if (button == uploadButton) {
@@ -230,7 +228,6 @@ public class PictureField extends Field<String> {
             addButton(resetButton);
         }
 
-        @Override
         protected void onShow() {
             super.onShow();
             editForm.reset();
