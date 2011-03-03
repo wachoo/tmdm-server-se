@@ -2606,17 +2606,19 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			};			
     			tbDetail.refreshItemHandler = function() {
     				
-    				var ids1;
+                    var ids1;
                     if(ids.length==0)
                         ids1 = itemPK2;
-                    else{
-						ids1=keys[treeIndex];
-						//reset ids
-						ids=ids1.join('.');
-					}					
+                    else
+                        ids1 = ids;
+                    if(!ids1){
+                        ids1=keys[treeIndex];
+                        //reset ids
+                        ids=ids1.join('.');
+                    }					
 					if(ids1 && ids1.length>0){
-    				ItemsBrowserInterface.reloadItem(dataObject, ids1, treeIndex, function(){
-                        //reloadNode(node1.index,treeIndex);
+    				ItemsBrowserInterface.reloadItem(dataObject, ids1, treeIndex, function(){    					
+                            reloadNode(node1.index,treeIndex);
                     });
                     }
     				

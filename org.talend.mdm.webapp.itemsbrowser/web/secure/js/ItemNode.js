@@ -128,7 +128,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		if(result[i].choice==true) {
 			choice = ' <input type="radio" name="'+index+'"/>';
 		}*/
-			
+	
 		var cloneNodeImg = '';
 		var removeNodeImg = '';
 		var type='text'; //default is text
@@ -393,7 +393,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
         this.html = html.join("");
         this.contentElId = "ygtvcontentel" + this.index;
         this.hasIcon = hasIcon;
-		this.data = this.html;
+		this.data = this.html
+        this.itemData = itemData;
         //this.logger = new YAHOO.widget.LogWriter(this.toString());
     },
 
@@ -735,6 +736,26 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 
     toString: function() {
         return "HTMLNode (" + this.index + ")";
+    },
+    
+    // overrides
+    getHtml: function() {
+
+        this.childrenRendered = false;
+
+        var style = ' style="display:';
+        if(this.itemData.visible == false){
+        	style +='none;"';
+        }
+        else{
+        	style +='show;"';
+        }
+        var sb = [];
+        sb[sb.length] = '<div class="ygtvitem" id="' + this.getElId() + '"' + style + '>';
+        sb[sb.length] = this.getNodeHtml();
+        sb[sb.length] = this.getChildrenHtml();
+        sb[sb.length] = '</div>';
+        return sb.join("");
     }
 
 });

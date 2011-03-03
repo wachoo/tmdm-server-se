@@ -969,7 +969,7 @@ public class ItemsBrowserDWR {
 
         if (maskKey && treeNode.isKey()) {
             String oldPath = treeNode.getValue();
-            treeNode.setValue(""); //$NON-NLS-1$
+            //treeNode.setValue(""); //$NON-NLS-1$
             if (treeNode.getTypeName().trim().toUpperCase().equals("UUID") //$NON-NLS-1$
                     || treeNode.getTypeName().trim().toUpperCase().equals("AUTO_INCREMENT")) { //$NON-NLS-1$
                 treeNode.setReadOnly(true);

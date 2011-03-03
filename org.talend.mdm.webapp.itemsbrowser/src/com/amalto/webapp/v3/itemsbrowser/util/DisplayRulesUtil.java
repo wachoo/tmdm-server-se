@@ -242,7 +242,8 @@ public class DisplayRulesUtil{
                     }
                 }else if(displayRule.getType().equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
                     if(xpath.startsWith(xpathInRule)){
-                        nodesList.remove(node);
+//                        nodesList.remove(node);
+                        node.setVisible(false);
                     }
                 }
             }
