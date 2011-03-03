@@ -17,7 +17,6 @@ import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.core.XDOM;
-import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -68,7 +67,6 @@ public class UrlField extends Field<String> {
         setValue(value);
     }
 
-    @Override
     protected void onRender(Element target, int index) {
         input.setId(XDOM.getUniqueId());
         input.makePositionable();
@@ -95,7 +93,6 @@ public class UrlField extends Field<String> {
         };
     }-*/;
 
-    @Override
     public void setValue(String value) {
         super.setValue(value);
         if (value != null){
@@ -105,24 +102,17 @@ public class UrlField extends Field<String> {
                 input.dom.setAttribute("href", addr[1]);
             }
         }
-        
-
     }
 
     class EditWindow extends Window {
 
         SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
 
-            @Override
             public void componentSelected(ButtonEvent ce) {
                 Button button = ce.getButton();
                 if (button == saveButton) {
                     String value = firstName.getValue() + "@@" + url.getValue();
-                    String oldValue = UrlField.this.getValue();
                     UrlField.this.setValue(value);
-                    if (!value.equals(oldValue)){
-                        UrlField.this.fireChangeEvent(oldValue, value);
-                    }
                     UrlField.this.editWin.hide();
                 } else {
                     UrlField.this.editWin.hide();

@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.PictureBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -47,7 +46,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
-public class PictureField extends Field<PictureBean> {
+public class PictureField extends Field<String> {
 
     private static final String DefaultImage = "/itemsbrowser2/images/icons/no_image.gif"; //$NON-NLS-1$
 
@@ -69,8 +68,8 @@ public class PictureField extends Field<PictureBean> {
         protected void onButtonPressed(Button button) {
             super.onButtonPressed(button);
             if (button == getButtonBar().getItemByItemId(YES)) {
-                String uri = value.getUrl();
-                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.GET, "/imageserver/secure/ImageDeleteServlet?uri=" + uri);
+                
+                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.GET, "/imageserver/secure/ImageDeleteServlet?uri=" + value);
 
                 reqBuilder.setCallback(new RequestCallback() {
 
@@ -84,6 +83,7 @@ public class PictureField extends Field<PictureBean> {
                         if (succeed) {
                             setValue(null);
                         }
+                        dialog.hide();
                     }
 
                     public void onError(Request request, Throwable exception) {
@@ -103,6 +103,7 @@ public class PictureField extends Field<PictureBean> {
     };
 
     public PictureField() {
+        setFireChangeEventOnSetValue(true);
         regJs(delHandler);
         regJs(addHandler);
         dialog.setHeading("Confirm");
@@ -110,13 +111,13 @@ public class PictureField extends Field<PictureBean> {
         dialog.setBlinkModal(true);
         dialog.setButtons(Dialog.YESNO);
 
-        propertyEditor = new PropertyEditor<PictureBean>() {
+        propertyEditor = new PropertyEditor<String>() {
 
-            public String getStringValue(PictureBean value) {
+            public String getStringValue(String value) {
                 return value.toString();
             }
 
-            public PictureBean convertStringValue(String value) {
+            public String convertStringValue(String value) {
                 return PictureField.this.value;
             }
         };
@@ -152,10 +153,10 @@ public class PictureField extends Field<PictureBean> {
     }-*/;
 
     @Override
-    public void setValue(PictureBean value) {
+    public void setValue(String value) {
         super.setValue(value);
-        if (value != null && value.getUrl() != null && !"".equals(value.getUrl())) { //$NON-NLS-1$
-            image.setUrl(value.toString());
+        if (value != null && value.length() != 0) { //$NON-NLS-1$
+            image.setUrl("/imageserver/" + value);
         } else {
             image.setUrl(DefaultImage);
         }
@@ -191,7 +192,7 @@ public class PictureField extends Field<PictureBean> {
             this.setSize(380, 150);
             this.setModal(true);
             this.setBlinkModal(true);
-            FormData formData = new FormData("-10");
+            FormData formData = new FormData();
             editForm.setEncoding(FormPanel.Encoding.MULTIPART);
             editForm.setMethod(FormPanel.Method.POST);
             editForm.setAction("/imageserver/secure/ImageUploadServlet"); //$NON-NLS-1$
@@ -212,11 +213,9 @@ public class PictureField extends Field<PictureBean> {
                     JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
                     com.google.gwt.user.client.Window.alert(success.booleanValue() + ", " + message.stringValue()); //$NON-NLS-1$
                     if (success.booleanValue()) {
-                        image.setUrl("/imageserver/" + message.stringValue()); //$NON-NLS-1$
-                        value.setUrl(message.stringValue());
+                        setValue(message.stringValue());
                     } else {
-                        image.setUrl(DefaultImage);
-                        value.setUrl(null);
+                        setValue(null);
                     }
 
                     EditWindow.this.hide();
