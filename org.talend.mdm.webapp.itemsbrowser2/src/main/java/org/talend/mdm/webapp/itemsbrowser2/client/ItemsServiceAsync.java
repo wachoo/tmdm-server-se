@@ -5,6 +5,7 @@ import java.util.List;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -43,4 +44,8 @@ public interface ItemsServiceAsync {
     void deleteSearchTemplate(String id, AsyncCallback<String> callback);
 
     void getCurrentDataModel(AsyncCallback<String> callback);
+
+    void saveItemBean(ItemBean item, AsyncCallback<ItemResult> callback);
+
+    void getCurrentDataCluster(AsyncCallback<String> callback);
 }

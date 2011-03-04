@@ -24,9 +24,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -36,10 +33,10 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.BrowseItem;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeCustomerConcept;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
@@ -53,6 +50,8 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.util.Messages;
+import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSCount;
@@ -67,6 +66,7 @@ import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
+import com.amalto.webapp.util.webservices.WSPutItemWithReport;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSView;
@@ -90,6 +90,9 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsService {
 
     private static final Logger LOG = Logger.getLogger(ItemsServiceImpl.class);
+
+    private static final Messages MESSAGES = MessagesFactory.getMessages(
+            "org.talend.mdm.webapp.itemsbrowser2.server.messages", ItemsServiceImpl.class.getClassLoader()); //$NON-NLS-1$
 
     public String greetServer(String input) throws IllegalArgumentException {
         // Verify that the input is valid.
@@ -249,9 +252,9 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         try {
 
             String[] searchables = com.amalto.webapp.core.util.Util.getPort().getView(new WSGetView(new WSViewPK(viewPk)))
-                .getSearchableBusinessElements();
+                    .getSearchableBusinessElements();
             Map<String, TypeModel> labelMapSrc = XsdUtil.getXpathToType();
-                
+
             Map<String, String> labelSearchables = new LinkedHashMap<String, String>();
 
             for (int i = 0; i < searchables.length; i++) {
@@ -338,6 +341,55 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         }
 
         return itemFormBean;
+    }
+
+    public ItemResult saveItemBean(ItemBean item) {
+        try {
+            String message = null;
+            int status = 0;
+            boolean ifNew = item.getIds().equals("") ? true : false;
+            String operationType;
+            if (ifNew)
+                operationType = "CREATE"; //$NON-NLS-1$
+            else
+                operationType = "UPDATE"; //$NON-NLS-1$ 
+
+            boolean isUpdateThisItem = true;
+            if (ifNew)
+                isUpdateThisItem = false;
+            // if update, check the item is modified by others?
+            WSItemPK wsi = null;
+            WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
+                    getCurrentDataCluster()), item.getItemXml(), new WSDataModelPK(getCurrentDataModel()), isUpdateThisItem),
+                    "genericUI", true); //$NON-NLS-1$
+            wsi = com.amalto.webapp.core.util.Util.getPort().putItemWithReport(wsPutItemWithReport);
+
+            if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + item.getConcept())) { //$NON-NLS-1$
+                // TODO
+            } else {
+                message = "The record was saved successfully."; //$NON-NLS-1$
+                status = ItemResult.SUCCESS;
+            }
+            return new ItemResult(status, message);
+        } catch (Exception e) {
+            ItemResult result;
+            // TODO Ugly isn't it ?
+            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {
+                String saveSUCCE = "Save item '" + item.getConcept() + "."
+                        + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".")
+                        + "' successfully, But " + e.getLocalizedMessage();
+                result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
+            } else {
+                String err = "Unable to save item '" + item.getConcept() + "."
+                        + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".") + "'"
+                        + e.getLocalizedMessage();
+                if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {
+                    err = e.getLocalizedMessage();
+                }
+                result = new ItemResult(ItemResult.FAILURE, err);
+            }
+            return result;
+        }
     }
 
     public PagingLoadResult<ItemBean> queryItemBean(QueryModel config) {
@@ -636,4 +688,8 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return config.getModel();
     }
 
+    public String getCurrentDataCluster() throws Exception {
+        Configuration config = Configuration.getInstance(true);
+        return config.getCluster();
+    }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -53,4 +54,8 @@ public interface ItemsService extends RemoteService {
     String deleteSearchTemplate(String id);
 
     String getCurrentDataModel() throws Exception;
+
+    String getCurrentDataCluster() throws Exception;
+
+    ItemResult saveItemBean(ItemBean item);
 }

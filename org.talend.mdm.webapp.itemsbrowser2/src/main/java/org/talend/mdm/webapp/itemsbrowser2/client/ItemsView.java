@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,6 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
@@ -124,7 +122,7 @@ public class ItemsView extends View {
             Component field = FieldCreator.createField(typeModel, null);
 
             CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
-            
+
             ColumnConfig cc = new ColumnConfig(xpath, typeModel.getLabel(), 200);
             cc.setEditor(cellEditor);
             GridCellRenderer<ModelData> renderer = CellRendererCreator.createRenderer(typeModel);
@@ -136,7 +134,7 @@ public class ItemsView extends View {
         }
 
         itemsSearchContainer.getItemsListPanel().updateGrid(ccList);
-        itemsSearchContainer.getItemsFormPanel().paint(viewBean, false);
+        itemsSearchContainer.getItemsFormPanel().paint(viewBean);
         // Dispatcher.forwardEvent(ItemsEvents.ViewItems, null);
     }
 
@@ -176,13 +174,10 @@ public class ItemsView extends View {
     }
 
     protected void onViewItemForm(AppEvent event) {
-        boolean ifNew = false;
         ItemBean itemBean = event.getData();
         String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
         if (itemBean != null) {
             String tabTitle = itemBean.getConcept() + itemBean.getIds();
-            if (itemBean.getIds().equals(""))
-                ifNew = true;
             if (itemsFormTarget.equals(ItemsView.TARGET_IN_SEARCH_TAB)) {
                 itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
                 itemsSearchContainer.getItemsFormPanel().bind(itemBean);
@@ -190,13 +185,13 @@ public class ItemsView extends View {
                 ItemsFormPanel itemsFormPanel = new ItemsFormPanel();
                 addTab(itemsFormPanel, tabTitle, tabTitle, true);
                 ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
-                itemsFormPanel.paint(viewBean, ifNew);
+                itemsFormPanel.paint(viewBean);
                 itemsFormPanel.bind(itemBean);
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_WINDOW)) {
                 ItemsFormPanel itemsFormPanel = new ItemsFormPanel();
                 addWin(itemsFormPanel, tabTitle);
                 ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
-                itemsFormPanel.paint(viewBean, ifNew);
+                itemsFormPanel.paint(viewBean);
                 itemsFormPanel.bind(itemBean);
             }
         }

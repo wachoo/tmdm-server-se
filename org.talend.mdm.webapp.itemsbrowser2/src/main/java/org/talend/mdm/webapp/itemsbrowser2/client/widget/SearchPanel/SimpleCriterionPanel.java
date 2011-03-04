@@ -172,7 +172,9 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             }
 
             valueComboBox.setVisible(false);
+            valueComboBox.setValue(null);
             valueDate.setVisible(false);
+            valueDate.setValue(null);
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*"); //$NON-NLS-1$
             return;
@@ -183,14 +185,18 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         if (predicateValues.equals("string") || predicateValues.equals("normalizedString") || predicateValues.equals("token")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(false);
+            valueComboBox.setValue(null);
             valueDate.setVisible(false);
+            valueDate.setValue(null);
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*"); //$NON-NLS-1$
         } else if (predicateValues.equals("date") || predicateValues.equals("time") || predicateValues.equals("dateTime")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             setOperatorComboBox(Constants.dateOperators);
             valueComboBox.setVisible(false);
+            valueComboBox.setValue(null);
             valueDate.setVisible(true);
             valueTextBox.setVisible(false);
+            valueTextBox.setValue(null);
         } else if (predicateValues.equals("double") || predicateValues.equals("float") || predicateValues.equals("integer") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 || predicateValues.equals("decimal") || predicateValues.equals("byte") || predicateValues.equals("int") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 || predicateValues.equals("long") || predicateValues.equals("negativeInteger") //$NON-NLS-1$ //$NON-NLS-2$
@@ -200,7 +206,9 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
                 || predicateValues.equals("unsignedShort") || predicateValues.equals("unsignedByte")) { //$NON-NLS-1$ //$NON-NLS-2$
             setOperatorComboBox(Constants.numOperators);
             valueComboBox.setVisible(false);
+            valueComboBox.setValue(null);
             valueDate.setVisible(false);
+            valueDate.setValue(null);
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*"); //$NON-NLS-1$
         } else if (predicateValues.equals("boolean")) { //$NON-NLS-1$
@@ -219,13 +227,17 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         } else if (predicateValues.equals("complex type")) { //$NON-NLS-1$
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(false);
+            valueComboBox.setValue(null);
             valueDate.setVisible(false);
+            valueDate.setValue(null);
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*"); //$NON-NLS-1$
         } else {
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(false);
+            valueComboBox.setValue(null);
             valueDate.setVisible(false);
+            valueDate.setValue(null);
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*"); //$NON-NLS-1$
         }
@@ -242,12 +254,12 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
 
     private String getValue() {
         String curValue = null;
-        if (valueComboBox.isVisible())
-            curValue = (valueComboBox.getValue() == null) ? "*" : valueComboBox.getValue().get("value").toString(); //$NON-NLS-1$ //$NON-NLS-2$
-        if (valueDate.isVisible())
-            curValue = (valueDate.getValue() == null) ? "*" : valueDate.getValue().toString(); //$NON-NLS-1$
-        if (valueTextBox.isVisible())
-            curValue = (valueTextBox.getValue() == null) ? "*" : valueTextBox.getValue().toString(); //$NON-NLS-1$
+        if (valueComboBox.getValue() != null)
+            return valueComboBox.getValue().get("value").toString(); //$NON-NLS-1$ 
+        if (valueDate.getValue() != null)
+            return valueDate.getValue().toString(); //$NON-NLS-1$
+        if (valueTextBox.getValue() != null)
+            return valueTextBox.getValue().toString(); //$NON-NLS-1$
 
         return curValue;
     }

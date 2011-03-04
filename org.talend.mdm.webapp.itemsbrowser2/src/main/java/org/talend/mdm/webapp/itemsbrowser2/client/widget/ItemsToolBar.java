@@ -77,7 +77,7 @@ public class ItemsToolBar extends ToolBar {
 
     boolean isSimple;
 
-    static String userModel = null;
+    static String userCluster = null;
 
     SimpleCriterionPanel simplePanel;
 
@@ -105,13 +105,13 @@ public class ItemsToolBar extends ToolBar {
 
     public ItemsToolBar() {
         // init user saved model
-        service.getCurrentDataModel(new AsyncCallback<String>() {
+        service.getCurrentDataCluster(new AsyncCallback<String>() {
 
             public void onFailure(Throwable arg0) {
             }
 
             public void onSuccess(String arg0) {
-                userModel = arg0;
+                userCluster = arg0;
             }
 
         });
@@ -120,7 +120,7 @@ public class ItemsToolBar extends ToolBar {
     }
 
     public void setQueryModel(QueryModel qm) {
-        qm.setDataClusterPK(userModel);
+        qm.setDataClusterPK(userCluster);
         qm.setViewPK(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
         if (isSimple)
             qm.setCriteria(simplePanel.getCriteria().toString());

@@ -6,6 +6,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,21 +14,21 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.XmlHelper;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Composite;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsFormPanel extends Composite {
 
@@ -111,7 +112,7 @@ public class ItemsFormPanel extends Composite {
     // content.layout(true);
     // }
 
-    public void paint(ViewBean viewBean, boolean ifNew) {
+    public void paint(ViewBean viewBean) {
         content.removeAll();
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = viewBean.getMetaDataTypes();
@@ -135,6 +136,25 @@ public class ItemsFormPanel extends Composite {
             formBindings.setStore(store);
         }
         content.layout(true);
+    }
+
+    public void refreshGrid() {
+        ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
+        if (itemsSearchContainer.getItemsListPanel().getGrid() != null) {
+            itemsSearchContainer.getItemsListPanel().getGrid().getView().refresh(false);
+        }
+    }
+
+    public ItemBean getNewItemBean() {
+        ItemBean item = (ItemBean) formBindings.getModel();
+        String concept = item.getConcept();
+        Map<String, String> fields = new HashMap<String, String>();
+        for (FieldBinding fb : formBindings.getBindings()) {
+            fields.put(fb.getField().getName().substring(fb.getField().getName().lastIndexOf("/") + 1),
+                    fb.getField().getValue() == null ? "" : fb.getField().getValue().toString());
+        }
+        item.setItemXml(XmlHelper.getFormatXML(concept, fields));
+        return item;
     }
 
     public void bind(ModelData modelData) {
