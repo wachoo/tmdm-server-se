@@ -12,7 +12,7 @@ import com.amalto.xmlserver.interfaces.WhereCondition;
 
 public class PartialXQLPackage {
 
-    private static final Pattern pPattern = Pattern.compile("\\$pivot\\d+");
+    private static final Pattern pPattern = Pattern.compile("\\$pivot\\d+");//$NON-NLS-1$
 
     private LinkedHashMap<String, String> forInCollectionMap = null;
 
@@ -51,32 +51,33 @@ public class PartialXQLPackage {
 
         if (pivotWhereMap.size() == 0) {
             boolean usingFTSearch = false;
-            if (xqWhere != null && (xqWhere.trim().toLowerCase().startsWith("ft:") || xqWhere.startsWith(" . contains text")))
+            if (xqWhere != null && (xqWhere.trim().toLowerCase().startsWith("ft:") || xqWhere.startsWith(" . contains text")))//$NON-NLS-1$ //$NON-NLS-2$ 
                 usingFTSearch = true;
             if (usingFTSearch) {
-                pivotWhereMap.put("$pivot0", xqWhere.trim());
+                pivotWhereMap.put("$pivot0", xqWhere.trim());//$NON-NLS-1$
             }
         } else if (pivotWhereMap.size() == 1) {
-            String replacedXQWhere = xqWhere.replaceAll("\\$pivot\\d+/", "");
+            String replacedXQWhere = xqWhere.replaceAll("\\$pivot\\d+/", "");//$NON-NLS-1$ //$NON-NLS-2$ 
             String pivotName = getPivotName(xqWhere);
             pivotWhereMap.put(pivotName, replacedXQWhere);
         } else if (pivotWhereMap.size() > 1) {
-            String[] whereItems = xqWhere.split("and");// FIXME:only support and under mix mode
+            String[] whereItems = xqWhere.split("and");//$NON-NLS-1$ // FIXME:only support and under mix mode
             for (int i = 0; i < whereItems.length; i++) {
                 String whereItem = whereItems[i].trim();
-                if (whereItem.indexOf(" " + WhereCondition.JOINS + " ") != -1) {
+                if (whereItem.indexOf(" " + WhereCondition.JOINS + " ") != -1) {//$NON-NLS-1$ //$NON-NLS-2$ 
                     joinKeys.add(whereItem);
                 } else {
                     String pivotName = getPivotName(whereItem);
-                    String replacedWhereItem = whereItem.replaceAll("\\$pivot\\d+/", "");
+                    String replacedWhereItem = whereItem.replaceAll("\\$pivot\\d+/", "");//$NON-NLS-1$ //$NON-NLS-2$ 
                     // remove unecessary brakets
 
-                    replacedWhereItem = replacedWhereItem.replaceAll("(\\s*?\\(+)(\\w+\\(.*?\\)|\\s*?\\w+.*?)(\\s*\\)+)", "$2");
-                    replacedWhereItem = replacedWhereItem.replaceAll("(\\w+\\(.*?\\))(\\)?)", "$1");// remove spare ")"
+                    replacedWhereItem = replacedWhereItem.replaceAll("(\\s*?\\(+)(\\w+\\(.*?\\)|\\s*?\\w+.*?)(\\s*\\)+)", "$2");//$NON-NLS-1$ //$NON-NLS-2$ 
+                    // remove spare ")"
+                    replacedWhereItem = replacedWhereItem.replaceAll("(\\w+\\(.*?\\))(\\)?)", "$1");//$NON-NLS-1$ //$NON-NLS-2$ 
                     if (pivotWhereMap.get(pivotName) == null) {
                         pivotWhereMap.put(pivotName, replacedWhereItem);
                     } else {
-                        pivotWhereMap.put(pivotName, pivotWhereMap.get(pivotName) + " and " + replacedWhereItem);
+                        pivotWhereMap.put(pivotName, pivotWhereMap.get(pivotName) + " and " + replacedWhereItem);//$NON-NLS-1$
                     }
                 }
             }
@@ -156,10 +157,10 @@ public class PartialXQLPackage {
 
     public String genOrderByWithFirstExpr(String expr) {
 
-        xqOrderBy = xqOrderBy.replace("$pivot0", "$r");
+        xqOrderBy = xqOrderBy.replace("$pivot0", "$r");//$NON-NLS-1$ //$NON-NLS-2$ 
 
         StringBuffer sb = new StringBuffer();
-        sb.append(" for $r in ").append(expr).append(" ").append(xqOrderBy).append(" return $r ");
+        sb.append(" for $r in ").append(expr).append(" ").append(xqOrderBy).append(" return $r ");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 
         return sb.toString();
     }
