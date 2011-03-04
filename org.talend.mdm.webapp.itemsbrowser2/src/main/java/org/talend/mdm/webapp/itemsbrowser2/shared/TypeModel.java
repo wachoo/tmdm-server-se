@@ -24,13 +24,17 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private String typeName;
 
+    private String xpath;
+    
     private String label;
+    
+    private int minOccurs;
+    
+    private int maxOccurs;
 
     private List<String> foreignKeyInfo;
 
     private String foreignkey;
-
-    private int minOccurs;
 
     public TypeModel() {
         super();
@@ -49,6 +53,14 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     public void setTypeName(String typeName) {
         this.typeName = typeName;
     }
+    
+    public String getXpath() {
+        return xpath;
+    }
+    
+    public void setXpath(String xpath) {
+        this.xpath = xpath;
+    }
 
     public String getLabel() {
         return label;
@@ -56,6 +68,22 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+    
+    public int getMinOccurs() {
+        return minOccurs;
+    }
+    
+    public void setMinOccurs(int minOccurs) {
+        this.minOccurs = minOccurs;
+    }
+    
+    public int getMaxOccurs() {
+        return maxOccurs;
+    }
+    
+    public void setMaxOccurs(int maxOccurs) {
+        this.maxOccurs = maxOccurs;
     }
 
     public List<String> getForeignKeyInfo() {
@@ -72,14 +100,6 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setForeignkey(String foreignkey) {
         this.foreignkey = foreignkey;
-    }
-
-    public int getMinOccurs() {
-        return minOccurs;
-    }
-
-    public void setMinOccurs(int minOccurs) {
-        this.minOccurs = minOccurs;
     }
 
     public abstract boolean isSimpleType();

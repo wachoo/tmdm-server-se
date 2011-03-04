@@ -121,9 +121,10 @@ public class ItemsView extends View {
             // TODO convert xpath 2 label
             xpath = getViewLabelFromViewable(xpath);
             TypeModel typeModel = dataTypes.get(xpath);
-            Field<Serializable> field = FieldCreator.createField(typeModel);
-            field.setName(xpath);
+            Component field = FieldCreator.createField(typeModel, null);
+
             CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
+            
             ColumnConfig cc = new ColumnConfig(xpath, typeModel.getLabel(), 200);
             cc.setEditor(cellEditor);
             GridCellRenderer<ModelData> renderer = CellRendererCreator.createRenderer(typeModel);

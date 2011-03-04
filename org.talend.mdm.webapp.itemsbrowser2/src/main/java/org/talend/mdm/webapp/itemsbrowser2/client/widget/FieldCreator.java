@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
@@ -20,27 +19,33 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
+import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetEnum;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
-
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
 
-    public static <D extends Serializable, F extends Field<D>> F createField(TypeModel dataType) {
-        F field = null;
+    public static Component createField(TypeModel dataType, List<SimpleComboBox> comboBoxes) {
+        Component field = null;
 
-        if (dataType.hasEnumeration()) {
+        if (dataType instanceof ComplexTypeModel){
+            FieldSet fieldSet = createFieldGroup((ComplexTypeModel) dataType, comboBoxes);
+            field = fieldSet;
+        } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
             comboBox.setFireChangeEventOnSetValue(true);
             if (dataType.getMinOccurs() > 0)
@@ -49,47 +54,81 @@ public class FieldCreator {
             comboBox.setForceSelection(true);
             comboBox.setTriggerAction(TriggerAction.ALL);
             buildFacets(dataType, comboBox);
-            field = (F) comboBox;
+            field = (Component) comboBox;
         } else if (dataType.getForeignkey() != null) {
             FKField fkField = new FKField();
-            field = (F) fkField;
+            field = (Component) fkField;
         } else if (dataType.getTypeName().equals(DataTypeConstants.STRING)) {
             TextField<String> textField = new TextField<String>();
             buildFacets(dataType, textField);
             if (dataType.getMinOccurs() > 0)
                 textField.setAllowBlank(false);
-            field = (F) textField;
+            field = (Component) textField;
+
         } else if (dataType.getTypeName().equals(DataTypeConstants.DECIMAL)) {
             NumberField numberField = new NumberField();
             numberField.setValidator(validator);
-
             buildFacets(dataType, numberField);
-            field = (F) numberField;
+            field = (Component) numberField;
         } else if (dataType.getTypeName().equals(DataTypeConstants.UUID)) {
 
         } else if (dataType.getTypeName().equals(DataTypeConstants.AUTO_INCREMENT)) {
 
         } else if (dataType.getTypeName().equals(DataTypeConstants.PICTURE)) {
             PictureField pictureField = new PictureField();
-            field = (F) pictureField;
+            field = (Component) pictureField;
         } else if (dataType.getTypeName().equals(DataTypeConstants.URL)) {
             UrlField urlField = new UrlField();
-            field = (F) urlField;
+            urlField.setFieldLabel(dataType.getLabel());
+            field = (Component) urlField;
         } else if (dataType.getTypeName().equals(DataTypeConstants.DATE)) {
             DateField dateField = new DateField();
             dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
             if (dataType.getMinOccurs() > 0)
                 dateField.setAllowBlank(false);
-            field = (F) dateField;
+            field = (Component) dateField;
         } else if (dataType instanceof SimpleTypeModel) {
             TextField<String> textField = new TextField<String>();
             buildFacets(dataType, textField);
-            field = (F) textField;
+            field = (Component) textField;
+        }
+
+        if (field instanceof Field){
+            ((Field) field).setFieldLabel(dataType.getLabel());
+            ((Field) field).setName(dataType.getXpath());
+            if (field instanceof SimpleComboBox && comboBoxes != null) {
+                comboBoxes.add((SimpleComboBox) field);
+            }
         }
 
         return field;
     }
 
+    private static FieldSet createFieldGroup(ComplexTypeModel typeModel, List<SimpleComboBox> comboBoxes){
+        FieldSet fieldSet = new FieldSet();
+        fieldSet.setHeading(typeModel.getLabel());
+        
+        FormLayout layout = new FormLayout();  
+        layout.setLabelWidth(75);  
+        fieldSet.setLayout(layout);  
+        
+        List<SimpleTypeModel> simples = typeModel.getSubSimpleTypes();
+        if (simples != null){
+            for (SimpleTypeModel simpleModel : simples){
+                Component field = createField(simpleModel, comboBoxes);
+                fieldSet.add(field);
+            }
+        }
+        List<ComplexTypeModel> complexes = typeModel.getSubComplexTypes();
+        if (complexes != null){
+            for (ComplexTypeModel complexModel : complexes){
+                FieldSet subSet = createFieldGroup(complexModel, comboBoxes);
+                fieldSet.add(subSet);
+            }
+        }
+        return fieldSet;
+    }
+    
     private static void buildFacets(TypeModel typeModel, Widget w) {
         List<FacetModel> facets = ((SimpleTypeModel) typeModel).getFacets();
         for (FacetModel facet : facets) {

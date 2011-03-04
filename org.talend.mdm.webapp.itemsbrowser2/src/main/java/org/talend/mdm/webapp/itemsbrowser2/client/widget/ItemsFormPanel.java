@@ -5,7 +5,6 @@
  */
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import java.util.Map;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -22,10 +22,12 @@ import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsFormPanel extends Composite {
 
@@ -113,33 +115,14 @@ public class ItemsFormPanel extends Composite {
         content.removeAll();
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = viewBean.getMetaDataTypes();
+        String concept = CommonUtil.getConceptFromBrowseItemView(viewBean.getViewPK());
         List<SimpleComboBox> comboBoxes = new ArrayList<SimpleComboBox>();
-        if (ifNew) {
-            for (String key : dataTypes.keySet()) {
-                Field<Serializable> f = FieldCreator.createField(dataTypes.get(key));
-                if (f != null) {
-                    f.setFieldLabel(dataTypes.get(key).getLabel());
-                    f.setName(key);
-                    content.add(f);
-                    if (f instanceof SimpleComboBox) {
-                        comboBoxes.add((SimpleComboBox) f);
-                    }
-                }
-            }
 
-        } else {
-            toolbar.updateToolBar();
-            for (String xpath : viewableXpaths) {
-                Field<Serializable> f = FieldCreator.createField(dataTypes.get(xpath));
-                if (f != null) {
-                    f.setFieldLabel(dataTypes.get(xpath).getLabel());
-                    f.setName(xpath);
-                    content.add(f);
-                    if (f instanceof SimpleComboBox) {
-                        comboBoxes.add((SimpleComboBox) f);
-                    }
-                }
-            }
+        TypeModel typeModel = dataTypes.get(concept);
+        toolbar.updateToolBar();
+        Component f = FieldCreator.createField(typeModel, comboBoxes);
+        if (f != null) {
+            content.add(f);
         }
         formBindings = new FormBinding(content);
         for (SimpleComboBox comboBox : comboBoxes) {

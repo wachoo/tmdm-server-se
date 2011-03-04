@@ -131,7 +131,6 @@ public class XsdUtil {
     }
 
     public static TypeModel parseElementDecl(String path, XSElementDecl eleDecl) {
-
         TypeModel typeModel = null;
         XSType type = eleDecl.getType();
         String fullPath = path + eleDecl.getName();
@@ -144,7 +143,7 @@ public class XsdUtil {
             xpathToType.put(fullPath, typeModel);
         }
         typeModel.setLabel(label);
-
+        typeModel.setXpath(fullPath);
         String fk = getLabel(eleDecl, "X_ForeignKey");
         if (fk != "")
             typeModel.setForeignkey(fk);
@@ -178,6 +177,7 @@ public class XsdUtil {
             return;
         TypeModel typeModel = parseElementDecl(path, eleDecl);
         typeModel.setMinOccurs(xsp.getMinOccurs());
+        typeModel.setMaxOccurs(xsp.getMaxOccurs());
         if (typeModel.isSimpleType()) {
             complexTypeModel.getSubSimpleTypes().add((SimpleTypeModel) typeModel);
         } else {
