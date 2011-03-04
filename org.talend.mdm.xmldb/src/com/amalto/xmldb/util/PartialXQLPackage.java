@@ -72,6 +72,7 @@ public class PartialXQLPackage {
                     // remove unecessary brakets
 
                     replacedWhereItem = replacedWhereItem.replaceAll("(\\s*?\\(+)(\\w+\\(.*?\\)|\\s*?\\w+.*?)(\\s*\\)+)", "$2");
+                    replacedWhereItem = replacedWhereItem.replaceAll("(\\w+\\(.*?\\))(\\)?)", "$1");// remove spare ")"
                     if (pivotWhereMap.get(pivotName) == null) {
                         pivotWhereMap.put(pivotName, replacedWhereItem);
                     } else {
