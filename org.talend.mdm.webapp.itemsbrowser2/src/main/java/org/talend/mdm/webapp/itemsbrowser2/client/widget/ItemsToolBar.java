@@ -121,7 +121,7 @@ public class ItemsToolBar extends ToolBar {
 
     public void setQueryModel(QueryModel qm) {
         qm.setDataClusterPK(userModel);
-        qm.setViewPK(entityCombo.getValue().get("value").toString());
+        qm.setViewPK(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
         if (isSimple)
             qm.setCriteria(simplePanel.getCriteria().toString());
         else
@@ -147,8 +147,8 @@ public class ItemsToolBar extends ToolBar {
         createBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             public void componentSelected(ButtonEvent ce) {
-                String concept = CommonUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());
-                ItemBean item = new ItemBean(concept, "", null);
+                String concept = CommonUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
+                ItemBean item = new ItemBean(concept, "", null);//$NON-NLS-1$
                 AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);
                 evt.setData(ItemsView.ITEMS_FORM_TARGET, ItemsView.TARGET_IN_NEW_TAB);
                 Dispatcher.forwardEvent(evt);
@@ -177,14 +177,14 @@ public class ItemsToolBar extends ToolBar {
         entityCombo.setWidth(100);
         entityCombo.setEmptyText(MessagesFactory.getMessages().empty_entity());
         entityCombo.setStore(list);
-        entityCombo.setDisplayField("name");
-        entityCombo.setValueField("value");
+        entityCombo.setDisplayField("name");//$NON-NLS-1$
+        entityCombo.setValueField("value");//$NON-NLS-1$
         entityCombo.setTriggerAction(TriggerAction.ALL);
 
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
             public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
-                String viewPk = se.getSelectedItem().get("value").toString();
+                String viewPk = se.getSelectedItem().get("value").toString();//$NON-NLS-1$
                 Dispatcher.forwardEvent(ItemsEvents.InitView, viewPk);
             }
 
@@ -200,7 +200,7 @@ public class ItemsToolBar extends ToolBar {
 
             public void componentSelected(ButtonEvent ce) {
                 isSimple = true;
-                String viewPk = entityCombo.getValue().get("value");
+                String viewPk = entityCombo.getValue().get("value");//$NON-NLS-1$
                 Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
             }
 
@@ -235,7 +235,7 @@ public class ItemsToolBar extends ToolBar {
                 winBookmark.setAutoWidth(true);
                 winBookmark.setModal(true);
                 FormPanel content = new FormPanel();
-                FormData formData = new FormData("-10");
+                FormData formData = new FormData("-10");//$NON-NLS-1$
                 content.setFrame(false);
                 content.setLayout(new FitLayout());
                 content.setBodyBorder(false);
@@ -247,7 +247,7 @@ public class ItemsToolBar extends ToolBar {
                 RpcProxy<PagingLoadResult<ItemBaseModel>> proxyBookmark = new RpcProxy<PagingLoadResult<ItemBaseModel>>() {
 
                     public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
-                        service.querySearchTemplates(entityCombo.getValue().get("value").toString(), false,
+                        service.querySearchTemplates(entityCombo.getValue().get("value").toString(), false, //$NON-NLS-1$
                                 (PagingLoadConfig) loadConfig, callback);
                     }
                 };
@@ -258,14 +258,14 @@ public class ItemsToolBar extends ToolBar {
                 loaderBookmark.setRemoteSort(true);
 
                 ListStore<ItemBaseModel> store = new ListStore<ItemBaseModel>(loaderBookmark);
-                store.setDefaultSort("name", SortDir.ASC);
+                store.setDefaultSort("name", SortDir.ASC); //$NON-NLS-1$
 
                 final PagingToolBar pagetoolBar = new PagingToolBar(PAGE_SIZE);
                 pagetoolBar.bind(loaderBookmark);
 
                 List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-                columns.add(new ColumnConfig("name", MessagesFactory.getMessages().bookmark_heading(), 200));
-                ColumnConfig colEdit = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_edit(), 100);
+                columns.add(new ColumnConfig("name", MessagesFactory.getMessages().bookmark_heading(), 200)); //$NON-NLS-1$
+                ColumnConfig colEdit = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_edit(), 100); //$NON-NLS-1$
                 colEdit.setRenderer(new GridCellRenderer<ItemBaseModel>() {
 
                     @SuppressWarnings("deprecation")
@@ -286,18 +286,18 @@ public class ItemsToolBar extends ToolBar {
                                 if (advancedPanel == null) {
                                     advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
                                 }
-                                service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() {
+                                service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() { //$NON-NLS-1$
 
-                                    public void onFailure(Throwable arg0) {
+                                            public void onFailure(Throwable arg0) {
 
-                                    }
+                                            }
 
-                                    public void onSuccess(String arg0) {
-                                        showAdvancedWin(instance, arg0);
-                                        winBookmark.close();
-                                    }
+                                            public void onSuccess(String arg0) {
+                                                showAdvancedWin(instance, arg0);
+                                                winBookmark.close();
+                                            }
 
-                                });
+                                        });
                             }
 
                         });
@@ -307,7 +307,7 @@ public class ItemsToolBar extends ToolBar {
                 });
                 columns.add(colEdit);
 
-                ColumnConfig colDel = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_del(), 100);
+                ColumnConfig colDel = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_del(), 100); //$NON-NLS-1$
                 colDel.setRenderer(new GridCellRenderer<ItemBaseModel>() {
 
                     @SuppressWarnings("deprecation")
@@ -324,7 +324,7 @@ public class ItemsToolBar extends ToolBar {
                                     public void handleEvent(MessageBoxEvent be) {
                                         if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                             // delete the bookmark
-                                            service.deleteSearchTemplate(model.get("value").toString(),
+                                            service.deleteSearchTemplate(model.get("value").toString(), //$NON-NLS-1$
                                                     new AsyncCallback<String>() {
 
                                                         public void onFailure(Throwable arg0) {
@@ -368,7 +368,7 @@ public class ItemsToolBar extends ToolBar {
                 bookmarkgrid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBaseModel>>() {
 
                     public void handleEvent(final GridEvent<ItemBaseModel> be) {
-                        service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(),
+                        service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(), //$NON-NLS-1$
                                 new AsyncCallback<List<ItemBaseModel>>() {
 
                                     public void onFailure(Throwable arg0) {
@@ -378,9 +378,9 @@ public class ItemsToolBar extends ToolBar {
                                         // only the shared bookmark could be search
                                         Iterator i = arg0.iterator();
                                         while (i.hasNext()) {
-                                            if (((ItemBaseModel) i.next()).get("value").equals(
-                                                    be.getModel().get("value").toString())) {
-                                                service.getCriteriaByBookmark(be.getModel().get("value").toString(),
+                                            if (((ItemBaseModel) i.next()).get("value").equals( //$NON-NLS-1$
+                                                    be.getModel().get("value").toString())) { //$NON-NLS-1$
+                                                service.getCriteriaByBookmark(be.getModel().get("value").toString(), //$NON-NLS-1$
                                                         new AsyncCallback<String>() {
 
                                                             public void onFailure(Throwable arg0) {
@@ -393,7 +393,7 @@ public class ItemsToolBar extends ToolBar {
                                                                     advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
                                                                 }
                                                                 advancedPanel.setCriteria(arg0);
-                                                                String viewPk = entityCombo.getValue().get("value");
+                                                                String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
                                                                 Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
                                                                 winBookmark.close();
                                                             }
@@ -446,7 +446,7 @@ public class ItemsToolBar extends ToolBar {
 
                     public String validate(Field<?> field, String value) {
                         if (field == bookmarkfield) {
-                            if (bookmarkfield.getValue() == null || bookmarkfield.getValue().toString().trim().equals(""))
+                            if (bookmarkfield.getValue() == null || bookmarkfield.getValue().toString().trim().equals("")) //$NON-NLS-1$
                                 return MessagesFactory.getMessages().required_field();
                         }
 
@@ -460,7 +460,7 @@ public class ItemsToolBar extends ToolBar {
                 btn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     public void componentSelected(ButtonEvent ce) {
-                        service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue()
+                        service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue() //$NON-NLS-1$
                                 .toString(), new AsyncCallback<Boolean>() {
 
                             public void onFailure(Throwable arg0) {
@@ -470,7 +470,7 @@ public class ItemsToolBar extends ToolBar {
 
                             public void onSuccess(Boolean arg0) {
                                 if (!arg0) {
-                                    service.saveCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue()
+                                    service.saveCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue() //$NON-NLS-1$
                                             .toString(), cb.getValue(), advancedPanel.getCriteria(), new AsyncCallback<String>() {
 
                                         public void onFailure(Throwable arg0) {
@@ -479,7 +479,7 @@ public class ItemsToolBar extends ToolBar {
                                         }
 
                                         public void onSuccess(String arg0) {
-                                            if (arg0.equals("OK")) {
+                                            if (arg0.equals("OK")) { //$NON-NLS-1$
                                                 MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory
                                                         .getMessages().bookmark_saveSuccess(), null);
                                                 // cbloader.load();
@@ -521,16 +521,16 @@ public class ItemsToolBar extends ToolBar {
     }
 
     private void showAdvancedWin(ToolBar toolBar, String criteria) {
-        if (winAdvanced.getItemByItemId("advancedPanel") == null) {
+        if (winAdvanced.getItemByItemId("advancedPanel") == null) { //$NON-NLS-1$
             // avoid show this window multi-times
-            winAdvanced.setId("advancedWin");
+            winAdvanced.setId("advancedWin"); //$NON-NLS-1$
             winAdvanced.setHeaderVisible(false);
             winAdvanced.setClosable(false);
             winAdvanced.setFrame(false);
             winAdvanced.setWidth(toolBar.getWidth());
             winAdvanced.setAutoHeight(true);
             advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
-            advancedPanel.setItemId("advancedPanel");
+            advancedPanel.setItemId("advancedPanel"); //$NON-NLS-1$
             advancedPanel.setButtonAlign(HorizontalAlignment.CENTER);
 
             winAdvanced.add(advancedPanel);
@@ -538,12 +538,12 @@ public class ItemsToolBar extends ToolBar {
             searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 public void componentSelected(ButtonEvent ce) {
-                    if (advancedPanel.getCriteria() == null || advancedPanel.getCriteria().equals(""))
+                    if (advancedPanel.getCriteria() == null || advancedPanel.getCriteria().equals("")) //$NON-NLS-1$
                         MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                                 .search_expression_notempty(), null);
                     else {
                         isSimple = false;
-                        String viewPk = entityCombo.getValue().get("value");
+                        String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
                         Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
                         winAdvanced.close();
                     }
@@ -561,7 +561,7 @@ public class ItemsToolBar extends ToolBar {
             });
             advancedPanel.addButton(cancelBtn);
             winAdvanced.show();
-            winAdvanced.alignTo(toolBar.getElement(), "tl", new int[] { 0, 35 });
+            winAdvanced.alignTo(toolBar.getElement(), "tl", new int[] { 0, 35 }); //$NON-NLS-1$
         } else if (!winAdvanced.isVisible()) {
             winAdvanced.show();
         }

@@ -62,4 +62,16 @@ public interface Icons extends ClientBundle {
 
     @Source("send_to_trash.png")
     ImageResource Send_to_trash();
+
+    @Source("duplicate.png")
+    ImageResource Duplicate();
+
+    @Source("journal.png")
+    ImageResource Journal();
+
+    @Source("save_and_close.png")
+    ImageResource SaveClose();
+
+    @Source("refresh.png")
+    ImageResource Refresh();
 }

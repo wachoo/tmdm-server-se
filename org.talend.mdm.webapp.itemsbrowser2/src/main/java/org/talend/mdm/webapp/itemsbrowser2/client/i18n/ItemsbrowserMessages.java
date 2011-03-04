@@ -121,4 +121,22 @@ public interface ItemsbrowserMessages extends Messages {
     String delete_btn();
 
     String trash_btn();
+
+    String save_btn();
+
+    String save_tip();
+
+    String savaClose_btn();
+
+    String saveClose_tip();
+
+    String duplicate_btn();
+
+    String duplicate_tip();
+
+    String journal_btn();
+
+    String jouranl_tip();
+
+    String refresh();
 }

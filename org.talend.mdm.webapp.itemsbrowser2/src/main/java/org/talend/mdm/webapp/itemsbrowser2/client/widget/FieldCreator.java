@@ -25,6 +25,8 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
+import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -41,7 +43,8 @@ public class FieldCreator {
         if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
             comboBox.setFireChangeEventOnSetValue(true);
-            comboBox.setAllowBlank(false);
+            if (dataType.getMinOccurs() > 0)
+                comboBox.setAllowBlank(false);
             comboBox.setEditable(false);
             comboBox.setForceSelection(true);
             comboBox.setTriggerAction(TriggerAction.ALL);
@@ -53,6 +56,8 @@ public class FieldCreator {
         } else if (dataType.getTypeName().equals(DataTypeConstants.STRING)) {
             TextField<String> textField = new TextField<String>();
             buildFacets(dataType, textField);
+            if (dataType.getMinOccurs() > 0)
+                textField.setAllowBlank(false);
             field = (F) textField;
         } else if (dataType.getTypeName().equals(DataTypeConstants.DECIMAL)) {
             NumberField numberField = new NumberField();
@@ -70,6 +75,12 @@ public class FieldCreator {
         } else if (dataType.getTypeName().equals(DataTypeConstants.URL)) {
             UrlField urlField = new UrlField();
             field = (F) urlField;
+        } else if (dataType.getTypeName().equals(DataTypeConstants.DATE)) {
+            DateField dateField = new DateField();
+            dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
+            if (dataType.getMinOccurs() > 0)
+                dateField.setAllowBlank(false);
+            field = (F) dateField;
         } else if (dataType instanceof SimpleTypeModel) {
             TextField<String> textField = new TextField<String>();
             buildFacets(dataType, textField);

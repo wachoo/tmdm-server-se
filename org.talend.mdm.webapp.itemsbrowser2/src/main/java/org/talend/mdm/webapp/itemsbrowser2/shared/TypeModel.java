@@ -30,6 +30,8 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private String foreignkey;
 
+    private int minOccurs;
+
     public TypeModel() {
         super();
     }
@@ -70,6 +72,14 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setForeignkey(String foreignkey) {
         this.foreignkey = foreignkey;
+    }
+
+    public int getMinOccurs() {
+        return minOccurs;
+    }
+
+    public void setMinOccurs(int minOccurs) {
+        this.minOccurs = minOccurs;
     }
 
     public abstract boolean isSimpleType();

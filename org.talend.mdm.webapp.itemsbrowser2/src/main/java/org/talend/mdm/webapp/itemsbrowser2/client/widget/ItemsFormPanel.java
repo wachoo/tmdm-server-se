@@ -33,12 +33,14 @@ public class ItemsFormPanel extends Composite {
 
     FormPanel content = new FormPanel();
 
+    RecordToolBar toolbar = new RecordToolBar();
+
     private FormBinding formBindings;
 
     public ItemsFormPanel() {
-        content.setFrame(true);
         content.setHeaderVisible(false);
         content.setScrollMode(Scroll.AUTO);
+        content.setTopComponent(toolbar);
         this.initComponent(content);
     }
 
@@ -126,6 +128,7 @@ public class ItemsFormPanel extends Composite {
             }
 
         } else {
+            toolbar.updateToolBar();
             for (String xpath : viewableXpaths) {
                 Field<Serializable> f = FieldCreator.createField(dataTypes.get(xpath));
                 if (f != null) {
@@ -149,7 +152,6 @@ public class ItemsFormPanel extends Composite {
             formBindings.setStore(store);
         }
         content.layout(true);
-
     }
 
     public void bind(ModelData modelData) {

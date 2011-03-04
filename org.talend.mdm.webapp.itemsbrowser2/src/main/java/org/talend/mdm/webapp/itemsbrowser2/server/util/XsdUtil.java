@@ -177,6 +177,7 @@ public class XsdUtil {
         if (eleDecl == null)
             return;
         TypeModel typeModel = parseElementDecl(path, eleDecl);
+        typeModel.setMinOccurs(xsp.getMinOccurs());
         if (typeModel.isSimpleType()) {
             complexTypeModel.getSubSimpleTypes().add((SimpleTypeModel) typeModel);
         } else {
