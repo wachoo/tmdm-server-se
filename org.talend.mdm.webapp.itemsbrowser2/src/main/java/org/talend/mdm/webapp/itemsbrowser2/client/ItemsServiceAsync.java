@@ -18,8 +18,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface ItemsServiceAsync {
 
-    void greetServer(String input, AsyncCallback<String> callback) throws IllegalArgumentException;
-
     void getEntityItems(String entityName, AsyncCallback<List<ItemBean>> callback);
 
     void setForm(ItemBean item, ViewBean view, AsyncCallback<ItemFormBean> callback);

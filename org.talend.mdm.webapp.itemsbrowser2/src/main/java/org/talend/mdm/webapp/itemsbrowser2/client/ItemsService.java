@@ -29,8 +29,6 @@ public interface ItemsService extends RemoteService {
         }
     }
 
-    String greetServer(String name) throws IllegalArgumentException;
-
     List<ItemBean> getEntityItems(String entityName);
 
     PagingLoadResult<ItemBean> queryItemBean(final QueryModel config);

@@ -11,6 +11,16 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
  */
 public class FakeData {
     
+    public static final String MDM_DEFAULT_ENDPOINTADDRESS="http://localhost:8080/talend/TalendPort";//$NON-NLS-1$
+    
+    public static final String MDM_DEFAULT_USERNAME="administrator";//$NON-NLS-1$
+    
+    public static final String MDM_DEFAULT_PASSWORD="administrator";//$NON-NLS-1$
+    
+    public static final String DATA_MODEL="DStar";//$NON-NLS-1$
+    
+    public static final String DATA_CLUSTER="DStar";//$NON-NLS-1$
+    
     public static final String DEFAULT_VIEW="Browse_items_customer";
     
     private static ArrayList<ItemBean> customer_items = new ArrayList<ItemBean>();
