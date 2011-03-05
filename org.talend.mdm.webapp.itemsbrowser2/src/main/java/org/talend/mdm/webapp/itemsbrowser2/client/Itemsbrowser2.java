@@ -1,13 +1,11 @@
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.boundary.InBoundService;
-import org.talend.mdm.webapp.itemsbrowser2.client.boundary.OutBoundService;
+import org.talend.mdm.webapp.itemsbrowser2.client.boundary.PubService;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -30,9 +28,9 @@ public class Itemsbrowser2 implements EntryPoint {
         //log setting
         Log.setUncaughtExceptionHandler();
         
-        //TODO: register bound service
-        registerInBoundServices();
-        //retrieveDataFromOutBound();
+        //register boundary service
+        registerPubServices();
+        //retrieveDataFromOuter();
         
         //register user session
         Registry.register(USER_SESSION, new UserSession());
@@ -51,7 +49,6 @@ public class Itemsbrowser2 implements EntryPoint {
         //first time do not render
         if(RootPanel.get(ItemsView.ROOT_DIV)!=null)onModuleRender();
         
-
     }
 
     public static void onModuleRender() {
@@ -60,13 +57,12 @@ public class Itemsbrowser2 implements EntryPoint {
         dispatcher.dispatch(ItemsEvents.InitFrame);
     }
 
-    private void registerInBoundServices() {
-        InBoundService.renderUI();
+    private void registerPubServices() {
+        PubService.renderUI();
     }
 
-    private void retrieveDataFromOutBound() {
-        String test=OutBoundService.getCurrentDataCluster();
-        Info.display("Info","Current data cluster: "+test);
+    private void retrieveDataFromOuter() {
+        //TODO retrieveDataFromOuter
     }
     
     /**

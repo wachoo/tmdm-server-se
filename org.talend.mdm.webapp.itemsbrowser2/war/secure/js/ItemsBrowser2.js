@@ -41,23 +41,11 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 	};
 
 
-	function getCurrentDataCluster() {
-		var cluster = "Unknown";
-		DWREngine.setAsync(false);
-		ItemsBrowser2Interface.getCluster(function(result) {
-					cluster = result;
-				});
-	    DWREngine.setAsync(true); 
-		return cluster;
-	}
-
 	return {
 
 		init : function() {
 			initUIAndData();
-		},
-		in_getCurrentDataCluster : function() {
-			return getCurrentDataCluster();
 		}
+		
 	}
 }();

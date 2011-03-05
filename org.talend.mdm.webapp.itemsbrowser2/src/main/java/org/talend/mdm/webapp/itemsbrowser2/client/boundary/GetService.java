@@ -12,29 +12,14 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.boundary;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
-
-
 /**
  * DOC HSHU class global comment. Detailled comment
  */
-public class InBoundService {
-
-    /**
-     * DOC HSHU Comment method "displayItemsForm".
-     */
-    public static void renderUIImpl() {
-        
-        Itemsbrowser2.onModuleRender();
-
-    }
-
-    public static native void renderUI() /*-{
-        
-        $wnd.org_talend_mdm_webapp_itemsbrowser2_InBoundService_renderUI = function () { 
-          @org.talend.mdm.webapp.itemsbrowser2.client.boundary.InBoundService::renderUIImpl()();
-        };
-         
+public class GetService {
+    
+    /* TODO: You get data from outer, this is an example
+    public static native String getCurrentDataCluster() /*-{
+        return $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.getCurrentDataCluster();
     }-*/;
     
 }

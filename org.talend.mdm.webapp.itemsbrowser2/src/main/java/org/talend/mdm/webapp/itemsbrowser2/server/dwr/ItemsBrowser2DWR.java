@@ -32,13 +32,5 @@ public class ItemsBrowser2DWR {
         super();
     }
 
-    public String getCluster() {
-        try {
-            Configuration config = Configuration.getInstance();
-            return config.getCluster();
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return null;
-        }
-    }
+    //TODO: customized your code here
 }
