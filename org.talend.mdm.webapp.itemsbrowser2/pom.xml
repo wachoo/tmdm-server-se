@@ -85,7 +85,7 @@
 			<artifactId>xsom</artifactId>
 			<version>20060306</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/lib/z.xsom.jar</systemPath>
+			<systemPath>${basedir}/../talend.mdm.libraries/lib/z.xsom.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>commons-jxpath</groupId>
