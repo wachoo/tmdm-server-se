@@ -3111,7 +3111,7 @@ public class ItemsBrowserDWR {
                     }
                 }
 
-                if (re.getName().equals("maxInclusive"))
+                if (re.getName().equals("maxInclusive")) {
                     if (!isNumeric(value)) {
                         errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
                         isValidation = false;
@@ -3121,6 +3121,19 @@ public class ItemsBrowserDWR {
                         isValidation = false;
                         break;
                     }
+                }
+
+                if (re.getName().equals("maxExclusive")) {
+                    if (!isNumeric(value)) {
+                        errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
+                        isValidation = false;
+                        break;
+                    } else if (Float.parseFloat(value) >= Float.parseFloat(re.getValue())) {
+                        errorMessage = errorMessage == null ? "the field maxEnclusive is " + re.getValue() : errorMessage;
+                        isValidation = false;
+                        break;
+                    }
+                }
             }
 
         }
