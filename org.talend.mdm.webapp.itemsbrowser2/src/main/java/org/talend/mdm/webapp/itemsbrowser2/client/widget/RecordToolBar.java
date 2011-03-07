@@ -1,14 +1,20 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
+import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -43,12 +49,58 @@ public class RecordToolBar extends ToolBar {
             Menu sub = new Menu();
             MenuItem delMenu = new MenuItem(MessagesFactory.getMessages().delete_btn());
             delMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+            delMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                public void componentSelected(MenuEvent ce) {
+                    final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
+                    service.deleteItemBean(parent.getItemBean(), new AsyncCallback<ItemResult>() {
+
+                        public void onFailure(Throwable arg0) {
+
+                        }
+
+                        public void onSuccess(ItemResult arg0) {
+                            if (arg0.getStatus() == ItemResult.SUCCESS) {
+                                parent.refreshGrid();
+                                MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
+                            } else if (arg0.getStatus() == ItemResult.FAILURE) {
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
+                            }
+                        }
+
+                    });
+                }
+            });
             sub.add(delMenu);
             MenuItem trashMenu = new MenuItem(MessagesFactory.getMessages().trash_btn());
             trashMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
+            trashMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                public void componentSelected(MenuEvent ce) {
+                    final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
+                    // TODO xpath
+                    service.logicalDeleteItem(parent.getItemBean(), "/", new AsyncCallback<ItemResult>() {
+
+                        public void onFailure(Throwable arg0) {
+
+                        }
+
+                        public void onSuccess(ItemResult arg0) {
+                            if (arg0.getStatus() == ItemResult.SUCCESS) {
+                                parent.refreshGrid();
+                                MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
+                            } else if (arg0.getStatus() == ItemResult.FAILURE) {
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
+                            }
+                        }
+
+                    });
+
+                }
+            });
             sub.add(trashMenu);
             menu.setMenu(sub);
-            menu.setEnabled(false);
+            // menu.setEnabled(false);
             add(menu);
 
             add(new SeparatorToolItem());
@@ -60,7 +112,12 @@ public class RecordToolBar extends ToolBar {
             duplicateBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 public void componentSelected(ButtonEvent ce) {
-
+                    final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
+                    ItemBean item = parent.getItemBean();
+                    item.setIds("");
+                    AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);
+                    evt.setData(ItemsView.ITEMS_FORM_TARGET, ItemsView.TARGET_IN_NEW_TAB);
+                    Dispatcher.forwardEvent(evt);
                 }
             });
 
@@ -73,7 +130,11 @@ public class RecordToolBar extends ToolBar {
             journalBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 public void componentSelected(ButtonEvent ce) {
+                    final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
 
+                    ItemBean item = parent.getItemBean();
+
+                    InvokeJournal(item.getIds(), item.getConcept());
                 }
             });
 
@@ -86,7 +147,8 @@ public class RecordToolBar extends ToolBar {
             journalBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 public void componentSelected(ButtonEvent ce) {
-
+                    final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
+                    parent.refreshGrid();
                 }
             });
         }
@@ -109,11 +171,9 @@ public class RecordToolBar extends ToolBar {
                     public void onSuccess(ItemResult arg0) {
                         if (arg0.getStatus() == ItemResult.SUCCESS) {
                             parent.refreshGrid();
-                            MessageBox.alert(MessagesFactory.getMessages().info_title(), "The record was saved successfully.",
-                                    null);
+                            MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
                         } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                            MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                    "An error might have occurred. The record was not saved.", null);
+                            MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
                         }
                     }
 
@@ -140,13 +200,11 @@ public class RecordToolBar extends ToolBar {
                     public void onSuccess(ItemResult arg0) {
                         if (arg0.getStatus() == ItemResult.SUCCESS) {
                             parent.refreshGrid();
-                            MessageBox.alert(MessagesFactory.getMessages().info_title(), "The record was saved successfully.",
-                                    null);
+                            MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
                             // close the current tab
                             ((TabItem) parent.getParent()).close();
                         } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                            MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                    "An error might have occurred. The record was not saved.", null);
+                            MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
                         }
                     }
 
@@ -154,4 +212,10 @@ public class RecordToolBar extends ToolBar {
             }
         });
     }
+
+    private native void InvokeJournal(String ids, String concept)/*-{
+        if(ids.indexOf("@")>0)ids=ids.replaceAll("@",".");
+        amalto.updatereport.UpdateReport.browseUpdateReportWithSearchCriteria(dataObject, ids, true);
+    }-*/;
+
 }

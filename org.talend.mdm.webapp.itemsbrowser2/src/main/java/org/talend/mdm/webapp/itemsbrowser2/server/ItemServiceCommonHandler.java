@@ -12,11 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.dom4j.Node;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.BrowseItem;
@@ -54,6 +53,7 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
+import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.util.Messages;
 import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -62,15 +62,19 @@ import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
+import com.amalto.webapp.util.webservices.WSDropItem;
+import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
+import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
+import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSView;
@@ -86,19 +90,17 @@ import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 
-
 /**
- * DOC HSHU  class global comment. Detailled comment
+ * DOC HSHU class global comment. Detailled comment
  * 
  * Customize MDM Jboss related methods here
  */
-public class ItemServiceCommonHandler extends ItemsServiceImpl{
-    
+public class ItemServiceCommonHandler extends ItemsServiceImpl {
+
     private static final Logger LOG = Logger.getLogger(ItemServiceCommonHandler.class);
-    
+
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.itemsbrowser2.server.messages", ItemsServiceImpl.class.getClassLoader()); //$NON-NLS-1$
-
 
     public ArrayList<ItemBean> getFakeCustomerItems() {
         return null;
@@ -141,6 +143,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl{
                     new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max, sortCol,
                             sortDir)).getStrings();
             ViewBean viewBean = getView(viewPk);
+            String ids = null;
             for (int i = 0; i < results.length; i++) {
 
                 if (i == 0) {
@@ -154,7 +157,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl{
                 if (!results[i].startsWith("<result>")) {
                     results[i] = "<result>" + results[i] + "</result>";
                 }
-                ItemBean itemBean = new ItemBean(concept, String.valueOf(i), results[i]);
+
+                Element root = XmlUtil.parseText(results[i].replaceAll("\n", "").replaceAll(" ", "").trim()).getRootElement();
+                while (root.nodeIterator().hasNext()) {
+                    Node next = (Node) root.nodeIterator().next();
+                    if (next.getName().equals("Id")) {
+                        ids = next.getText().trim();
+                        break;
+                    }
+                }
+                ItemBean itemBean = new ItemBean(concept, ids, results[i]);
                 // ItemBean itemBean = new ItemBean("customer", String.valueOf(i), results[i]);
                 dynamicAssemble(itemBean, viewBean);
                 itemBeans.add(itemBean);
@@ -174,7 +186,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl{
             for (String path : xpaths) {
                 String textValue = XmlUtil.getTextValueFromXpath(docXml, path);
                 TypeModel typeModel = types.get(path);
-                if (typeModel.getTypeName().equals(DataTypeConstants.DATE)){
+                if (typeModel.getTypeName().equals(DataTypeConstants.DATE)) {
                     Date date = CommonUtil.parseDate(textValue, "yyyy-MM-dd");
                     itemBean.set(path, date);
                 } else {
@@ -216,8 +228,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl{
 
             Map<String, TypeModel> metaDataTypes = null;
             if (Itemsbrowser2.IS_SCRIPT) {
-                xsd = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model)))
-                        .getXsdSchema();
+                xsd = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model))).getXsdSchema();
 
                 XsdUtil.parseXSD(xsd, concept);
                 metaDataTypes = XsdUtil.getXpathToType();
@@ -391,6 +402,169 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl{
         }
     }
 
+    public ItemResult deleteItemBean(ItemBean item) {
+        try {
+            String dataClusterPK = getCurrentDataCluster();
+            String concept = item.getConcept();
+            String[] ids = new String[] { item.getIds() };
+            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
+
+            String message = null;
+            String errorCode = null;
+            if (outputErrorMessage != null) {
+                Document doc = XmlUtil.parse(outputErrorMessage);
+                // TODO what if multiple error nodes ?
+                String xpath = "/descendant::error"; //$NON-NLS-1$
+                Node errorNode = doc.selectSingleNode(xpath);
+                if (errorNode instanceof Element) {
+                    Element errorElement = (Element) errorNode;
+                    errorCode = errorElement.attributeValue("code"); //$NON-NLS-1$
+                    message = errorElement.getText();
+                }
+            }
+
+            if (outputErrorMessage == null || "0".equals(errorCode)) { //$NON-NLS-1$               
+                WSItemPK wsItem = com.amalto.webapp.core.util.Util.getPort().deleteItem(
+                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+                if (wsItem != null)
+                    pushUpdateReport(ids, concept, "PHYSICAL_DELETE"); //$NON-NLS-1$ 
+                // deleted from the list.
+                else
+                    message = "ERROR - Unable to delete item";
+
+                if (message == null || message.length() == 0)
+                    message = "The record was deleted successfully."; //$NON-NLS-1$                
+            } else {
+                // Anything but 0 is unsuccessful
+                if (message == null || message.length() == 0)
+                    message = "An error might have occurred. The record was not deleted."; //$NON-NLS-1$
+                message = "ERROR_3" + message; //$NON-NLS-1$
+            }
+
+            if (message.indexOf("ERROR") > -1)
+                return new ItemResult(ItemResult.FAILURE, message);
+            else
+                return new ItemResult(ItemResult.SUCCESS, message);
+
+        } catch (Exception e) {
+            return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage()); //$NON-NLS-1$
+        }
+    }
+
+    public ItemResult logicalDeleteItem(ItemBean item, String path) {
+        try {
+            String dataClusterPK = getCurrentDataCluster();
+
+            String xml = null;
+            String concept = item.getConcept();
+            String[] ids = new String[] { item.getIds() };
+            WSItem item1 = com.amalto.webapp.core.util.Util.getPort().getItem(
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+            xml = item1.getContent();
+
+            WSDroppedItemPK wsItem = com.amalto.webapp.core.util.Util.getPort().dropItem(
+                    new WSDropItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), path));
+
+            if (wsItem != null && xml != null)
+                if ("/".equalsIgnoreCase(path)) { //$NON-NLS-1$
+                    pushUpdateReport(ids, concept, "LOGIC_DELETE"); //$NON-NLS-1$
+                }
+                // TODO updatereport
+
+                else
+                    return new ItemResult(ItemResult.FAILURE, "ERROR - dropItem is NULL");
+
+            return new ItemResult(ItemResult.SUCCESS, "OK");
+
+        } catch (Exception e) {
+            return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage());
+        }
+    }
+
+    private String pushUpdateReport(String[] ids, String concept, String operationType) throws Exception {
+        if (LOG.isTraceEnabled())
+            LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);
+
+        // TODO check updatedPath
+        HashMap<String, UpdateReportItem> updatedPath = null;
+        if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && updatedPath == null) { //$NON-NLS-1$
+            return "ERROR_2";
+        }
+
+        String xml2 = createUpdateReport(ids, concept, operationType, updatedPath);
+
+        if (LOG.isDebugEnabled())
+            LOG.debug("pushUpdateReport() " + xml2);
+
+        // TODO routeAfterSaving is true
+        return persistentUpdateReport(xml2, false);
+    }
+
+    private String createUpdateReport(String[] ids, String concept, String operationType,
+            HashMap<String, UpdateReportItem> updatedPath) throws Exception {
+
+        String revisionId = null;
+        String dataModelPK = getCurrentDataModel() == null ? "" : getCurrentDataModel();
+        String dataClusterPK = getCurrentDataCluster() == null ? "" : getCurrentDataCluster();
+
+        String username = com.amalto.webapp.core.util.Util.getLoginUserName();
+        String universename = com.amalto.webapp.core.util.Util.getLoginUniverse();
+        if (universename != null && universename.length() > 0)
+            revisionId = com.amalto.webapp.core.util.Util.getRevisionIdFromUniverse(universename, concept);
+
+        StringBuilder keyBuilder = new StringBuilder();
+        if (ids != null) {
+            for (int i = 0; i < ids.length; i++) {
+                keyBuilder.append(ids[i]);
+                if (i != ids.length - 1)
+                    keyBuilder.append(".");
+            }
+        }
+        String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
+
+        StringBuilder sb = new StringBuilder();
+        // TODO what is StringEscapeUtils.escapeXml used for
+        sb.append("<Update><UserName>").append(username).append("</UserName><Source>genericUI</Source><TimeInMillis>") //$NON-NLS-1$
+                .append(System.currentTimeMillis()).append("</TimeInMillis><OperationType>") //$NON-NLS-1$
+                .append(operationType).append("</OperationType><RevisionID>").append(revisionId) //$NON-NLS-1$
+                .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$
+                .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
+                .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$
+
+        if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
+            Collection<UpdateReportItem> list = updatedPath.values();
+            boolean isUpdate = false;
+            for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {
+                UpdateReportItem item = iter.next();
+                String oldValue = item.getOldValue() == null ? "" : item.getOldValue();
+                String newValue = item.getNewValue() == null ? "" : item.getNewValue();
+                if (newValue.equals(oldValue))
+                    continue;
+                sb.append("<Item>   <path>").append(item.getPath()).append("</path>   <oldValue>")//$NON-NLS-1$
+                        .append(oldValue).append("</oldValue>   <newValue>")//$NON-NLS-1$
+                        .append(newValue).append("</newValue></Item>");//$NON-NLS-1$
+                isUpdate = true;
+            }
+            if (!isUpdate)
+                return null;
+        }
+        sb.append("</Update>");//$NON-NLS-1$
+        return sb.toString();
+    }
+
+    private static String persistentUpdateReport(String xml2, boolean routeAfterSaving) throws Exception {
+        if (xml2 == null)
+            return "OK";
+
+        WSItemPK itemPK = com.amalto.webapp.core.util.Util.getPort().putItem(
+                new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
+
+        if (routeAfterSaving)
+            com.amalto.webapp.core.util.Util.getPort().routeItemV2(new WSRouteItemV2(itemPK));
+
+        return "OK";
+    }
+
     public PagingLoadResult<ItemBean> queryItemBean(QueryModel config) {
         PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
         Object[] result = getItemBeans(config.getDataClusterPK(), config.getViewPK(), config.getCriteria().toString(), pagingLoad
@@ -413,8 +587,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl{
                     bc.add(businessConcept[i]);
                 }
                 WSViewPK[] wsViewsPK;
-                wsViewsPK = CommonUtil.getPort().getViewPKs(new WSGetViewPKs("Browse_items.*"))
-                        .getWsViewPK();
+                wsViewsPK = CommonUtil.getPort().getViewPKs(new WSGetViewPKs("Browse_items.*")).getWsViewPK();
 
                 TreeMap<String, String> views = new TreeMap<String, String>();
                 Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);

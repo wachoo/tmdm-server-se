@@ -11,6 +11,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
@@ -31,6 +32,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -160,9 +162,61 @@ public class ItemsToolBar extends ToolBar {
         Menu sub = new Menu();
         MenuItem delMenu = new MenuItem(MessagesFactory.getMessages().delete_btn());
         delMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
+
+        // TODO duplicate with recordToolbar
+        delMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            public void componentSelected(MenuEvent ce) {
+                final ItemsListPanel list = (ItemsListPanel) instance.getParent();
+                if (list.getGrid() != null) {
+                    service.deleteItemBean(list.getGrid().getSelectionModel().getSelectedItem(), new AsyncCallback<ItemResult>() {
+
+                        public void onFailure(Throwable arg0) {
+
+                        }
+
+                        public void onSuccess(ItemResult arg0) {
+                            if (arg0.getStatus() == ItemResult.SUCCESS) {
+                                list.getStore().getLoader().load();
+                                MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
+                            } else if (arg0.getStatus() == ItemResult.FAILURE) {
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
+                            }
+                        }
+
+                    });
+                }
+            }
+        });
         sub.add(delMenu);
         MenuItem trashMenu = new MenuItem(MessagesFactory.getMessages().trash_btn());
         trashMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
+        trashMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            public void componentSelected(MenuEvent ce) {
+                final ItemsListPanel list = (ItemsListPanel) instance.getParent();
+                if (list.getGrid() != null) {
+                    service.logicalDeleteItem(list.getGrid().getSelectionModel().getSelectedItem(), "/",
+                            new AsyncCallback<ItemResult>() {
+
+                                public void onFailure(Throwable arg0) {
+
+                                }
+
+                                public void onSuccess(ItemResult arg0) {
+                                    if (arg0.getStatus() == ItemResult.SUCCESS) {
+                                        list.getStore().getLoader().load();
+                                        MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
+                                    } else if (arg0.getStatus() == ItemResult.FAILURE) {
+                                        MessageBox
+                                                .alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
+                                    }
+                                }
+
+                            });
+                }
+            }
+        });
         sub.add(trashMenu);
         menu.setMenu(sub);
         menu.setEnabled(false);

@@ -141,7 +141,7 @@ public class ItemsFormPanel extends Composite {
     public void refreshGrid() {
         ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
         if (itemsSearchContainer.getItemsListPanel().getGrid() != null) {
-            itemsSearchContainer.getItemsListPanel().getGrid().getView().refresh(false);
+            itemsSearchContainer.getItemsListPanel().getStore().getLoader().load();
         }
     }
 
@@ -155,6 +155,10 @@ public class ItemsFormPanel extends Composite {
         }
         item.setItemXml(XmlHelper.getFormatXML(concept, fields));
         return item;
+    }
+
+    public ItemBean getItemBean() {
+        return (ItemBean) formBindings.getModel();
     }
 
     public void bind(ModelData modelData) {

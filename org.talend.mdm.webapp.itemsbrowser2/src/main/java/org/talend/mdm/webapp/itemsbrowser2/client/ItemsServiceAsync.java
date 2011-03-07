@@ -46,4 +46,8 @@ public interface ItemsServiceAsync {
     void saveItemBean(ItemBean item, AsyncCallback<ItemResult> callback);
 
     void getCurrentDataCluster(AsyncCallback<String> callback);
+
+    void logicalDeleteItem(ItemBean item, String path, AsyncCallback<ItemResult> callback);
+
+    void deleteItemBean(ItemBean item, AsyncCallback<ItemResult> callback);
 }

@@ -168,4 +168,28 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return itemsServiceHandler.saveItemBean(item);
     }
 
+    /*
+     * (non-Jsdoc)
+     * 
+     * @see
+     * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#logicalDeleteItem(org.talend.mdm.webapp.itemsbrowser2
+     * .client .model.ItemBean, java.lang.String)
+     */
+    @Override
+    public ItemResult logicalDeleteItem(ItemBean item, String path) {
+        return itemsServiceHandler.logicalDeleteItem(item, path);
+    }
+
+    /*
+     * (non-Jsdoc)
+     * 
+     * @see
+     * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#deleteItemBean(org.talend.mdm.webapp.itemsbrowser2.client
+     * .model.ItemBean)
+     */
+    @Override
+    public ItemResult deleteItemBean(ItemBean item) {
+        return itemsServiceHandler.deleteItemBean(item);
+    }
+
 }
