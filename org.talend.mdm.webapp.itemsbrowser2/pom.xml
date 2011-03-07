@@ -75,12 +75,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>1.2</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>xsom</groupId>
 			<artifactId>xsom</artifactId>
 			<version>20060306</version>
@@ -158,6 +152,13 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/../talend.mdm.libraries/deploy/lib/z.saaj-impl.jar</systemPath>
 		</dependency>
+        <dependency>
+            <groupId>dwr</groupId>
+            <artifactId>dwr</artifactId>
+            <version>2.0.M3</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../talend.mdm.libraries/lib/z.dwr.jar</systemPath>
+        </dependency>
 
 	</dependencies>
 

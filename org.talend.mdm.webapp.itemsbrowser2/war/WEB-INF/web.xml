@@ -11,11 +11,6 @@
 		<servlet-class>org.talend.mdm.webapp.itemsbrowser2.server.ItemsServiceImpl</servlet-class>
 	</servlet>
 	
-	<servlet>
-		<servlet-name>UploadServlet</servlet-name>
-		<servlet-class>org.talend.mdm.webapp.itemsbrowser2.server.UploadServlet</servlet-class>
-	</servlet>
-	
 	<!-- DWR config
 	<servlet>
 		<servlet-name>dwr-invoker</servlet-name>
@@ -36,11 +31,6 @@
 	<servlet-mapping>
 		<servlet-name>itemsServlet</servlet-name>
 		<url-pattern>/itemsbrowser2/ItemsService</url-pattern>
-	</servlet-mapping>
-  
-	<servlet-mapping>
-		<servlet-name>UploadServlet</servlet-name>
-		<url-pattern>/UploadServlet.do</url-pattern>
 	</servlet-mapping>
   
 	<!-- Security  
