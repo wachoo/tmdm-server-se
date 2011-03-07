@@ -22,7 +22,6 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
-import com.amalto.webapp.util.webservices.XtentisPort;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -35,116 +34,138 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
 
     private static ItemsService itemsServiceHandler = ItemServiceHandlerFactory.createHandler();
 
-    /* (non-Jsdoc)
+    /*
+     * (non-Jsdoc)
+     * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getEntityItems(java.lang.String)
      */
-    @Override
     public List<ItemBean> getEntityItems(String entityName) {
         return itemsServiceHandler.getEntityItems(entityName);
     }
 
-    /* (non-Jsdoc)
-     * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#queryItemBean(org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel)
+    /*
+     * (non-Jsdoc)
+     * 
+     * @see
+     * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#queryItemBean(org.talend.mdm.webapp.itemsbrowser2.client
+     * .model.QueryModel)
      */
-    @Override
     public PagingLoadResult<ItemBean> queryItemBean(QueryModel config) {
         return itemsServiceHandler.queryItemBean(config);
     }
 
-    /* (non-Jsdoc)
+    /*
+     * (non-Jsdoc)
+     * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getView(java.lang.String)
      */
-    @Override
     public ViewBean getView(String viewPk) {
         return itemsServiceHandler.getView(viewPk);
     }
 
-    /* (non-Jsdoc)
+    /*
+     * (non-Jsdoc)
+     * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getViewsList(java.lang.String)
      */
-    @Override
     public List<ItemBaseModel> getViewsList(String language) {
         return itemsServiceHandler.getViewsList(language);
     }
 
-    /* (non-Jsdoc)
+    /*
+     * (non-Jsdoc)
+     * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#isExistCriteria(java.lang.String, java.lang.String)
      */
-    @Override
     public boolean isExistCriteria(String dataObjectLabel, String id) {
         return itemsServiceHandler.isExistCriteria(dataObjectLabel, id);
     }
 
-    /* (non-Jsdoc)
-     * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#saveCriteria(java.lang.String, java.lang.String, boolean, java.lang.String)
+    /*
+     * (non-Jsdoc)
+     * 
+     * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#saveCriteria(java.lang.String, java.lang.String,
+     * boolean, java.lang.String)
      */
-    @Override
     public String saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) {
         return itemsServiceHandler.saveCriteria(viewPK, templateName, isShared, criteriaString);
     }
 
-    /* (non-Jsdoc)
+    /*
+     * (non-Jsdoc)
+     * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getCriteriaByBookmark(java.lang.String)
      */
-    @Override
     public String getCriteriaByBookmark(String bookmark) {
         return itemsServiceHandler.getCriteriaByBookmark(bookmark);
     }
 
-    /* (non-Jsdoc)
+    /*
+     * (non-Jsdoc)
+     * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getviewItemsCriterias(java.lang.String)
      */
-    @Override
     public List<ItemBaseModel> getviewItemsCriterias(String view) {
         return itemsServiceHandler.getviewItemsCriterias(view);
     }
 
-    /* (non-Jsdoc)
-     * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#setForm(org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean, org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean)
+    /*
+     * (non-Jsdoc)
+     * 
+     * @see
+     * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#setForm(org.talend.mdm.webapp.itemsbrowser2.client.model
+     * .ItemBean, org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean)
      */
-    @Override
     public ItemFormBean setForm(ItemBean item, ViewBean view) {
         return itemsServiceHandler.setForm(item, view);
     }
 
-    /* (non-Jsdoc)
-     * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#querySearchTemplates(java.lang.String, boolean, com.extjs.gxt.ui.client.data.PagingLoadConfig)
+    /*
+     * (non-Jsdoc)
+     * 
+     * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#querySearchTemplates(java.lang.String, boolean,
+     * com.extjs.gxt.ui.client.data.PagingLoadConfig)
      */
-    @Override
     public PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load) {
         return itemsServiceHandler.querySearchTemplates(view, isShared, load);
     }
 
-    /* (non-Jsdoc)
+    /*
+     * (non-Jsdoc)
+     * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#deleteSearchTemplate(java.lang.String)
      */
-    @Override
     public String deleteSearchTemplate(String id) {
         return itemsServiceHandler.deleteSearchTemplate(id);
     }
 
-    /* (non-Jsdoc)
+    /*
+     * (non-Jsdoc)
+     * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getCurrentDataModel()
      */
-    @Override
     public String getCurrentDataModel() throws Exception {
         return itemsServiceHandler.getCurrentDataModel();
     }
 
-    /* (non-Jsdoc)
+    /*
+     * (non-Jsdoc)
+     * 
      * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getCurrentDataCluster()
      */
-    @Override
     public String getCurrentDataCluster() throws Exception {
         return itemsServiceHandler.getCurrentDataCluster();
     }
 
-    /* (non-Jsdoc)
-     * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#saveItemBean(org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean)
+    /*
+     * (non-Jsdoc)
+     * 
+     * @see
+     * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#saveItemBean(org.talend.mdm.webapp.itemsbrowser2.client
+     * .model.ItemBean)
      */
-    @Override
     public ItemResult saveItemBean(ItemBean item) {
         return itemsServiceHandler.saveItemBean(item);
     }
-    
+
 }
