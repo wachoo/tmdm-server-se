@@ -105,6 +105,7 @@ public class PictureField extends Field<String> {
         setFireChangeEventOnSetValue(true);
         regJs(delHandler);
         regJs(addHandler);
+
         dialog.setHeading("Confirm");
         dialog.setModal(true);
         dialog.setBlinkModal(true);
@@ -113,7 +114,7 @@ public class PictureField extends Field<String> {
         propertyEditor = new PropertyEditor<String>() {
 
             public String getStringValue(String value) {
-                return value.toString();
+                return value;
             }
 
             public String convertStringValue(String value) {
@@ -153,12 +154,21 @@ public class PictureField extends Field<String> {
 
     
     public void setValue(String value) {
-        super.setValue(value);
+        String oldValue = this.value;
+        this.value = value;
+
         if (value != null && value.length() != 0) { //$NON-NLS-1$
             image.setUrl("/imageserver/" + value);
         } else {
             image.setUrl(DefaultImage);
         }
+        if (isFireChangeEventOnSetValue()) {
+          fireChangeEvent(oldValue, value);
+        }
+    }
+    
+    public String getValue(){
+        return value;
     }
 
     class EditWindow extends Window {

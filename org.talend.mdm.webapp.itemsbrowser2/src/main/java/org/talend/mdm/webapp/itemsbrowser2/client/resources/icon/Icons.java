@@ -74,4 +74,10 @@ public interface Icons extends ClientBundle {
 
     @Source("refresh.png")
     ImageResource Refresh();
+    
+    @Source("drop-add.gif")
+    ImageResource drop_add();
+    
+    @Source("drop-no.gif")
+    ImageResource drop_no();
 }

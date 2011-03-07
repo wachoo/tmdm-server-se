@@ -12,14 +12,19 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
@@ -31,6 +36,7 @@ import org.dom4j.Element;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.BrowseItem;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
@@ -163,10 +169,17 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl{
     public void dynamicAssemble(ItemBean itemBean, ViewBean viewBean) throws DocumentException {
         if (itemBean.getItemXml() != null) {
             Document docXml = XmlUtil.parseText(itemBean.getItemXml());
-            List<String> viewables = viewBean.getViewableXpaths();
-            for (String viewable : viewables) {
-                String textValue = XmlUtil.getTextValueFromXpath(docXml, viewable);
-                itemBean.set(viewable, textValue);
+            Map<String, TypeModel> types = viewBean.getMetaDataTypes();
+            Set<String> xpaths = types.keySet();
+            for (String path : xpaths) {
+                String textValue = XmlUtil.getTextValueFromXpath(docXml, path);
+                TypeModel typeModel = types.get(path);
+                if (typeModel.getTypeName().equals(DataTypeConstants.DATE)){
+                    Date date = CommonUtil.parseDate(textValue, "yyyy-MM-dd");
+                    itemBean.set(path, date);
+                } else {
+                    itemBean.set(path, textValue);
+                }
             }
         }
     }
@@ -668,6 +681,4 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl{
         }
         return null;
     }
-    
-    
 }

@@ -12,6 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server.util;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.talend.mdm.webapp.itemsbrowser2.server.ItemsBrowserConfiguration;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
 
@@ -41,4 +46,12 @@ public class CommonUtil {
         }
     }
 
+    public static Date parseDate(String dateString, String pattern){
+        DateFormat df = new SimpleDateFormat(pattern);
+        try {
+            return df.parse(dateString);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
 }

@@ -19,12 +19,17 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.plugin.AddRemovePlugin;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetEnum;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
+
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ComponentPlugin;
+import com.extjs.gxt.ui.client.widget.Container;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
@@ -100,6 +105,12 @@ public class FieldCreator {
                 comboBoxes.add((SimpleComboBox) field);
             }
         }
+        
+        if (dataType instanceof SimpleTypeModel){
+            if (dataType.getMinOccurs() != 1 || dataType.getMaxOccurs() != 1){
+                bindPlugin((Field) field, dataType);
+            }
+        }
 
         return field;
     }
@@ -136,6 +147,31 @@ public class FieldCreator {
         }
     }
 
+    private static void bindPlugin(Field field, TypeModel dataType){
+        field.addPlugin(createFp(dataType));
+    }
+    
+    public static ComponentPlugin createFp(TypeModel dataType){
+        AddRemovePlugin plugin = new AddRemovePlugin(dataType);
+        plugin.setListener(new AddRemovePlugin.Add_Remove_Listener() {
+
+            public void onAdd(Field field, TypeModel dataType) {
+                
+                Component newField = createField(dataType, null);
+                LayoutContainer container = (LayoutContainer) field.getParent();
+                int index = container.getItems().indexOf(field);
+                container.insert(newField, index + 1);
+                container.layout();                
+                
+            }
+
+            public void onRemove(Field field, TypeModel dataType) {
+                field.removeFromParent();
+            }
+        });
+        return plugin;
+    }
+    
     static Validator validator = new Validator() {
 
         public String validate(Field<?> field, String value) {
