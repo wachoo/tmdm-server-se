@@ -29,8 +29,6 @@ import com.sun.xml.xsom.XSParticle;
 public class BusinessConcept {
     
     private static final boolean Lazy_Load = true;
-    
-    private boolean parsed = false;
 
     public static final String APPINFO_X_HIDE = "X_Hide";
 
@@ -84,18 +82,10 @@ public class BusinessConcept {
      * DOC HSHU Comment method "load".
      */
     public void load() {
-        if(!parsed) {
-            beforeLoad();
-            travelXSElement(getE(), "/" + getName());
-            parsed=true;
-        }
+         beforeLoad();
+         travelXSElement(getE(), "/" + getName());
     }
     
-    
-    public boolean isParsed() {
-        return parsed;
-    }
-
     /**
      * DOC HSHU Comment method "beforeLoad".
      * 

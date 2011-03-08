@@ -79,8 +79,12 @@ public class DisplayRulesUtil{
                 if(dspType.equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
                     
                     style.append("<xsl:choose> "); 
-                    style.append("<xsl:when test=\"not(text())\"> "); 
-                    style.append("<xsl:value-of select=\""+displayRule.getValue()+"\"/> "); 
+                    style.append("<xsl:when test=\"not(text())\"> ");
+                    if(isDspPath(displayRule.getValue())) {
+                        style.append("<xsl:value-of select=\""+displayRule.getValue()+"\"/> "); 
+                    }else {
+                        style.append("<xsl:text>"+displayRule.getValue()+"</xsl:text>"); 
+                    }
                     style.append("</xsl:when> "); 
                     style.append("<xsl:otherwise><xsl:value-of select=\".\"/></xsl:otherwise> "); 
                     style.append("</xsl:choose> ");
@@ -109,6 +113,20 @@ public class DisplayRulesUtil{
         }
         
         return style.toString();
+    }
+    
+    
+    /**
+     * DOC HSHU Comment method "isDspPath".
+     */
+    private boolean isDspPath(String input) {
+        boolean flag=false;
+        if(input==null||input.trim().equals(""))return flag;
+        if(input.startsWith("/")||input.startsWith("//")
+                ||input.startsWith(".")||input.startsWith(".."))//FIXME is this cover all cases?
+                      flag=true;
+        
+        return flag;
     }
     
     private void travelXSElement(XSElementDecl e) {

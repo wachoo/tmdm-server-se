@@ -313,7 +313,7 @@ public class SchemaWebAgent extends SchemaManager {
         //check business concepts
         List<BusinessConcept> businessConcepts = getBusinessConcepts(dataModelID);
         for (BusinessConcept businessConcept : businessConcepts) {
-            if(!businessConcept.isParsed())businessConcept.load();
+            businessConcept.load();
             String bcName=businessConcept.getName();
             Map<String, String> foreignKeyMap=businessConcept.getForeignKeyMap();
             Collection<String> fkPaths = foreignKeyMap.values();
