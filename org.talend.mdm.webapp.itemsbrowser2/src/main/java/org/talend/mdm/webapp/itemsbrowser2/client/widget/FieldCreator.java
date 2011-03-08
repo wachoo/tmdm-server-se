@@ -44,11 +44,11 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
 
-    public static Component createField(TypeModel dataType, List<SimpleComboBox> comboBoxes) {
+    public static Component createField(TypeModel dataType, List<SimpleComboBox> comboBoxes, boolean bindPlugin) {
         Component field = null;
 
         if (dataType instanceof ComplexTypeModel){
-            FieldSet fieldSet = createFieldGroup((ComplexTypeModel) dataType, comboBoxes);
+            FieldSet fieldSet = createFieldGroup((ComplexTypeModel) dataType, comboBoxes, bindPlugin);
             field = fieldSet;
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
@@ -107,15 +107,16 @@ public class FieldCreator {
         }
         
         if (dataType instanceof SimpleTypeModel){
-            if (dataType.getMinOccurs() != 1 || dataType.getMaxOccurs() != 1){
-                bindPlugin((Field) field, dataType);
+            if (dataType.getMaxOccurs() >= dataType.getMinOccurs() && dataType.getMinOccurs() > 0){
+                if (bindPlugin){
+                    bindPlugin((Field) field, dataType, bindPlugin);
+                }
             }
         }
-
         return field;
     }
 
-    private static FieldSet createFieldGroup(ComplexTypeModel typeModel, List<SimpleComboBox> comboBoxes){
+    private static FieldSet createFieldGroup(ComplexTypeModel typeModel, List<SimpleComboBox> comboBoxes, boolean bindPlugin){
         FieldSet fieldSet = new FieldSet();
         fieldSet.setHeading(typeModel.getLabel());
         
@@ -126,14 +127,14 @@ public class FieldCreator {
         List<SimpleTypeModel> simples = typeModel.getSubSimpleTypes();
         if (simples != null){
             for (SimpleTypeModel simpleModel : simples){
-                Component field = createField(simpleModel, comboBoxes);
+                Component field = createField(simpleModel, comboBoxes, bindPlugin);
                 fieldSet.add(field);
             }
         }
         List<ComplexTypeModel> complexes = typeModel.getSubComplexTypes();
         if (complexes != null){
             for (ComplexTypeModel complexModel : complexes){
-                FieldSet subSet = createFieldGroup(complexModel, comboBoxes);
+                FieldSet subSet = createFieldGroup(complexModel, comboBoxes, bindPlugin);
                 fieldSet.add(subSet);
             }
         }
@@ -147,17 +148,17 @@ public class FieldCreator {
         }
     }
 
-    private static void bindPlugin(Field field, TypeModel dataType){
-        field.addPlugin(createFp(dataType));
+    private static void bindPlugin(Field field, TypeModel dataType, boolean bindPlugin){
+        field.addPlugin(createFp(dataType, bindPlugin));
     }
     
-    public static ComponentPlugin createFp(TypeModel dataType){
+    public static ComponentPlugin createFp(TypeModel dataType, final boolean bindPlugin){
         AddRemovePlugin plugin = new AddRemovePlugin(dataType);
         plugin.setListener(new AddRemovePlugin.Add_Remove_Listener() {
 
             public void onAdd(Field field, TypeModel dataType) {
                 
-                Component newField = createField(dataType, null);
+                Component newField = createField(dataType, null, bindPlugin);
                 LayoutContainer container = (LayoutContainer) field.getParent();
                 int index = container.getItems().indexOf(field);
                 container.insert(newField, index + 1);

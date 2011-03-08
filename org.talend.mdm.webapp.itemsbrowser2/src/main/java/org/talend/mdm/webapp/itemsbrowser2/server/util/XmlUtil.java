@@ -355,23 +355,10 @@ public final class XmlUtil {
     }
 
     public static String getTextValueFromXpath(Document doc, String xpath) {
-
         // FIXME
-        String label = "";
-        if (xpath.indexOf("/") != -1)
-            label = xpath.substring(xpath.lastIndexOf("/") + 1);
-        Element elem = doc.getRootElement();
-        Iterator iter = elem.elementIterator();
-        while (iter.hasNext()) {
-            Element el = (Element) iter.next();
-            if (el.getName().endsWith(label)) {
-                return el.getText();
-            }
-
-        }
-
-        return null;
-
+        Element root = doc.getRootElement();
+        Node node = root.selectSingleNode(xpath);
+        return node.getText();
     }
 
     private static String getLabel(XSElementDecl xsed, String x_Label) {
@@ -465,7 +452,7 @@ public final class XmlUtil {
                 if (element != null) {
                     xsct = (XSComplexType) (element.getType());
                     String label = getLabel(element, x_Label);
-                    xpathToLabel.put(viewPk, label.equals("") ? element.getName() : label);
+                    xpathToLabel.put(viewPk, CommonUtil.isEmpty(label) ? element.getName() : label);
                     xpathToType.put(viewPk, xsct.getName());
                     break;
                 }

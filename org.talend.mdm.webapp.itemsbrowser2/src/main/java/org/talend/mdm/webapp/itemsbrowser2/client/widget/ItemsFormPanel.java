@@ -14,7 +14,6 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.XmlHelper;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -30,6 +29,10 @@ import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
 
 public class ItemsFormPanel extends Composite {
 
@@ -122,7 +125,7 @@ public class ItemsFormPanel extends Composite {
 
         TypeModel typeModel = dataTypes.get(concept);
         toolbar.updateToolBar();
-        Component f = FieldCreator.createField(typeModel, comboBoxes);
+        Component f = FieldCreator.createField(typeModel, comboBoxes, true);
         if (f != null) {
             content.add(f);
         }
@@ -149,13 +152,54 @@ public class ItemsFormPanel extends Composite {
     public ItemBean getNewItemBean() {
         ItemBean item = (ItemBean) formBindings.getModel();
         String concept = item.getConcept();
-        Map<String, String> fields = new HashMap<String, String>();
+
+        Document doc = XMLParser.createDocument();
+        Map<String, Element> elementSet = new HashMap<String, Element>();
         for (FieldBinding fb : formBindings.getBindings()) {
-            fields.put(fb.getField().getName().substring(fb.getField().getName().lastIndexOf("/") + 1),
-                    fb.getField().getValue() == null ? "" : fb.getField().getValue().toString());
+            Field field = fb.getField();
+            Object value = null;
+            if (field instanceof SimpleComboBox){
+                value = ((SimpleComboBox) field).getValue().get("value");
+            } else {
+                value = field.getValue();
+            }
+            createElements(field.getName(), value == null ? "" : value.toString(), elementSet, doc);
         }
-        item.setItemXml(XmlHelper.getFormatXML(concept, fields));
+        Element el = elementSet.get(concept);
+        doc.appendChild(el);
+        item.setItemXml(doc.toString());
+        Window.alert(item.getItemXml());
         return item;
+    }
+
+
+    private void createElements(String xpath, String value, Map<String, Element> elementSet, Document doc){
+        Element parent = null;
+        String[] xps = xpath.split("/");
+        StringBuffer sb = new StringBuffer();
+        boolean isFirst = true;
+        for (String xp : xps){
+            if (isFirst){
+                sb.append(xp);
+                isFirst = false;
+            } else {
+                sb.append("/" + xp);
+            }
+            Element tempEl = elementSet.get(sb.toString());
+            if (tempEl == null){
+                tempEl = (Element) doc.createElement(replace(xp));
+                elementSet.put(sb.toString(), tempEl);
+            }
+            if (parent != null){
+                parent.appendChild(tempEl);
+            }
+            parent = tempEl;
+        }
+        parent.appendChild(doc.createTextNode(value));
+    }
+    
+    private String replace(String elName){
+        return elName.replaceAll("\\[\\d+\\]", "");
     }
 
     public ItemBean getItemBean() {
@@ -169,11 +213,11 @@ public class ItemsFormPanel extends Composite {
             formBindings.unbind();
         }
     }
-
+    
     public void unbind() {
         formBindings.unbind();
     }
-
+    
     public void setReadOnly(ModelData modelData, String[] keys) {
         // primary key is readonly when updating
         if (!((ItemBean) modelData).getIds().equals(""))

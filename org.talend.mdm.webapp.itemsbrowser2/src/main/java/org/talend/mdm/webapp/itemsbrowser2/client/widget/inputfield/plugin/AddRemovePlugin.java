@@ -70,6 +70,8 @@ public class AddRemovePlugin implements ComponentPlugin {
     }
 
     private void adjust(){
+        if (!rendered)
+            return;
         int space = 2;
         if (!validated){
             space = 18;
@@ -97,9 +99,7 @@ public class AddRemovePlugin implements ComponentPlugin {
        
         field.addListener(Events.Resize, new Listener<BaseEvent>() {
             public void handleEvent(BaseEvent be) {
-                if (rendered){
-                    adjust();
-                }
+                adjust();
             }
         });
         field.addListener(Events.Valid, new Listener<BaseEvent>() {

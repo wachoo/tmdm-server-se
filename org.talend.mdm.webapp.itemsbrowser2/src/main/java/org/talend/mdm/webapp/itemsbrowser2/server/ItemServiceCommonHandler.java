@@ -103,7 +103,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.itemsbrowser2.server.messages", ItemsServiceImpl.class.getClassLoader()); //$NON-NLS-1$
-
+    
     public ArrayList<ItemBean> getFakeCustomerItems() {
         return null;
     }
@@ -186,18 +186,20 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             Map<String, TypeModel> types = viewBean.getMetaDataTypes();
             Set<String> xpaths = types.keySet();
             for (String path : xpaths) {
-                String textValue = XmlUtil.getTextValueFromXpath(docXml, path);
                 TypeModel typeModel = types.get(path);
-                if (typeModel.getTypeName().equals(DataTypeConstants.DATE)) {
-                    Date date = CommonUtil.parseDate(textValue, "yyyy-MM-dd");
-                    itemBean.set(path, date);
-                } else {
-                    itemBean.set(path, textValue);
+                if (typeModel.isSimpleType()){
+                    String textValue = XmlUtil.getTextValueFromXpath(docXml, path.substring(path.indexOf('/') + 1));
+                    if (typeModel.getTypeName().equals(DataTypeConstants.DATE)){
+                        Date date = CommonUtil.parseDate(textValue, "yyyy-MM-dd");
+                        itemBean.set(path, date);
+                    } else {
+                        itemBean.set(path, textValue);
+                    }
                 }
             }
         }
     }
-
+    
     /**
      * DOC HSHU Comment method "getView".
      */
