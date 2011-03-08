@@ -54,6 +54,13 @@ amalto.ItemsTrash.ItemsTrash=function(){
     };
 
     function toDelete(pk,partPath,revisionID,conceptName,ids,projection){
+        DWREngine.setAsync(false);
+        var canDelete=true;
+        ItemsTrashInterface.isEntityPhysicalDeletable(conceptName, function(result){
+        	canDelete=result;
+        });
+        DWREngine.setAsync(true);
+        if(!canDelete) return;
     	Ext.MessageBox.confirm("confirm",amalto.ItemsTrash.ItemsTrashLocal.get("delete_conform"),function de(e){
     		if(e.toLocaleString()=="yes"){
     				if(projection!=""){

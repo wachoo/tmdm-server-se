@@ -23,8 +23,12 @@ import org.talend.mdm.commmon.util.datamodel.management.DataModelBean;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataModel;
@@ -33,6 +37,8 @@ import com.amalto.webapp.util.webservices.WSGetCurrentUniverse;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSUniverse;
 import com.amalto.webapp.util.webservices.WSUniverseXtentisObjectsRevisionIDs;
+import com.sun.xml.xsom.XSAnnotation;
+import com.sun.xml.xsom.XSElementDecl;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -330,5 +336,42 @@ public class SchemaWebAgent extends SchemaManager {
         if(fkPath.startsWith(entityName+"/")||fkPath.equals(entityName))return true;
         else return false;
     }
+    
+    /**
+     * 
+     * @param concept
+     * @return
+     * @throws Exception
+     */
+    public boolean isEntityPhysicalDeletable(String concept)throws Exception{
+    	Configuration config = Configuration.getInstance();
+    	Map<String,XSElementDecl> conceptMap=CommonDWR.getConceptMap(config.getModel());
+        XSElementDecl decl = conceptMap.get(concept);
+        if (decl == null) {
+            //String err = "Concept '" + concept + "' is not found in model '" + config.getModel() + "'";
+            return false;
+        }
+        XSAnnotation xsa = decl.getAnnotation();
 
+        ArrayList<String> roles = Util.getAjaxSubject().getRoles();
+        if (xsa != null && xsa.getAnnotation() != null) {
+            Element el = (Element) xsa.getAnnotation();
+            NodeList annotList = el.getChildNodes();
+
+            for (int k = 0; k < annotList.getLength(); k++) {
+                if ("appinfo".equals(annotList.item(k).getLocalName())) {
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                    if (source == null)
+                        continue;
+                    String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue();
+                    if ("X_PhysicalDelete".equals(appinfoSource)) {
+                        if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
+                           return true;
+                        }
+                    }
+                }
+            }
+        }
+    	return false;
+    }
 }

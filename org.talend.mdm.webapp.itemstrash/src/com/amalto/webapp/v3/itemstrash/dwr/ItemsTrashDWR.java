@@ -23,6 +23,7 @@ import org.jboss.dom4j.io.SAXReader;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDroppedItem;
@@ -83,7 +84,9 @@ public class ItemsTrashDWR {
         }
 
     }
-
+    public boolean isEntityPhysicalDeletable(String conceptName) throws Exception{
+    	return SchemaWebAgent.getInstance().isEntityPhysicalDeletable(conceptName);
+    }
     public void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids)
             throws Exception {
         try {
