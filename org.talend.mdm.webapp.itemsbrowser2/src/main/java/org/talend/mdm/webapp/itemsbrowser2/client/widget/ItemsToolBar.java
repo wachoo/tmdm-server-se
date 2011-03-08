@@ -167,25 +167,38 @@ public class ItemsToolBar extends ToolBar {
         delMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             public void componentSelected(MenuEvent ce) {
-                final ItemsListPanel list = (ItemsListPanel) instance.getParent();
-                if (list.getGrid() != null) {
-                    service.deleteItemBean(list.getGrid().getSelectionModel().getSelectedItem(), new AsyncCallback<ItemResult>() {
+                MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(),
+                        new Listener<MessageBoxEvent>() {
 
-                        public void onFailure(Throwable arg0) {
+                            public void handleEvent(MessageBoxEvent be) {
+                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                    final ItemsListPanel list = (ItemsListPanel) instance.getParent();
+                                    if (list.getGrid() != null) {
+                                        service.deleteItemBean(list.getGrid().getSelectionModel().getSelectedItem(),
+                                                new AsyncCallback<ItemResult>() {
 
-                        }
+                                                    public void onFailure(Throwable arg0) {
 
-                        public void onSuccess(ItemResult arg0) {
-                            if (arg0.getStatus() == ItemResult.SUCCESS) {
-                                list.getStore().getLoader().load();
-                                MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
-                            } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
+                                                    }
+
+                                                    public void onSuccess(ItemResult arg0) {
+                                                        if (arg0.getStatus() == ItemResult.SUCCESS) {
+                                                            list.getStore().getLoader().load();
+                                                            MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0
+                                                                    .getDescription(), null);
+                                                        } else if (arg0.getStatus() == ItemResult.FAILURE) {
+                                                            MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0
+                                                                    .getDescription(), null);
+                                                        }
+                                                    }
+
+                                                });
+                                    }
+
+                                }
                             }
-                        }
+                        });
 
-                    });
-                }
             }
         });
         sub.add(delMenu);
@@ -194,27 +207,38 @@ public class ItemsToolBar extends ToolBar {
         trashMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             public void componentSelected(MenuEvent ce) {
-                final ItemsListPanel list = (ItemsListPanel) instance.getParent();
-                if (list.getGrid() != null) {
-                    service.logicalDeleteItem(list.getGrid().getSelectionModel().getSelectedItem(), "/",
-                            new AsyncCallback<ItemResult>() {
+                final MessageBox box = MessageBox.prompt(MessagesFactory.getMessages().path(), MessagesFactory.getMessages()
+                        .path_desc(), new Listener<MessageBoxEvent>() {
 
-                                public void onFailure(Throwable arg0) {
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
+                            final ItemsListPanel list = (ItemsListPanel) instance.getParent();
+                            if (list.getGrid() != null) {
+                                service.logicalDeleteItem(list.getGrid().getSelectionModel().getSelectedItem(), "/",
+                                        new AsyncCallback<ItemResult>() {
 
-                                }
+                                            public void onFailure(Throwable arg0) {
 
-                                public void onSuccess(ItemResult arg0) {
-                                    if (arg0.getStatus() == ItemResult.SUCCESS) {
-                                        list.getStore().getLoader().load();
-                                        MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
-                                    } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                                        MessageBox
-                                                .alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
-                                    }
-                                }
+                                            }
 
-                            });
-                }
+                                            public void onSuccess(ItemResult arg0) {
+                                                if (arg0.getStatus() == ItemResult.SUCCESS) {
+                                                    list.getStore().getLoader().load();
+                                                    MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0
+                                                            .getDescription(), null);
+                                                } else if (arg0.getStatus() == ItemResult.FAILURE) {
+                                                    MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0
+                                                            .getDescription(), null);
+                                                }
+                                            }
+
+                                        });
+
+                            }
+                        }
+                    }
+                });
+                box.getTextBox().setValue("/");
             }
         });
         sub.add(trashMenu);

@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Composite;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 
@@ -171,5 +172,18 @@ public class ItemsFormPanel extends Composite {
 
     public void unbind() {
         formBindings.unbind();
+    }
+
+    public void setReadOnly(ModelData modelData, String[] keys) {
+        // primary key is readonly when updating
+        if (!((ItemBean) modelData).getIds().equals(""))
+            for (Field<?> field : content.getFields()) {
+                for (String key : keys) {
+                    if (field.getName().equals(key)) {
+                        field.setEnabled(false);
+                        continue;
+                    }
+                }
+            }
     }
 }

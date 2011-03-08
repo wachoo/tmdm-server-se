@@ -139,4 +139,12 @@ public interface ItemsbrowserMessages extends Messages {
     String jouranl_tip();
 
     String refresh();
+
+    String save_confirm();
+
+    String delete_confirm();
+
+    String path();
+
+    String path_desc();
 }

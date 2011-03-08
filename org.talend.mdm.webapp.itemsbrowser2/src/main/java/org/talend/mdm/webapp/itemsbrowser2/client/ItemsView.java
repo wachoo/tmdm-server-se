@@ -176,23 +176,25 @@ public class ItemsView extends View {
     protected void onViewItemForm(AppEvent event) {
         ItemBean itemBean = event.getData();
         String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
+        ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
         if (itemBean != null) {
             String tabTitle = itemBean.getConcept() + itemBean.getIds();
             if (itemsFormTarget.equals(ItemsView.TARGET_IN_SEARCH_TAB)) {
                 itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
                 itemsSearchContainer.getItemsFormPanel().bind(itemBean);
+                itemsSearchContainer.getItemsFormPanel().setReadOnly(itemBean, viewBean.getKeys());
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_TAB)) {
                 ItemsFormPanel itemsFormPanel = new ItemsFormPanel();
                 addTab(itemsFormPanel, tabTitle, tabTitle, true);
-                ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
                 itemsFormPanel.paint(viewBean);
                 itemsFormPanel.bind(itemBean);
+                itemsFormPanel.setReadOnly(itemBean, viewBean.getKeys());
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_WINDOW)) {
                 ItemsFormPanel itemsFormPanel = new ItemsFormPanel();
                 addWin(itemsFormPanel, tabTitle);
-                ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
                 itemsFormPanel.paint(viewBean);
                 itemsFormPanel.bind(itemBean);
+                itemsFormPanel.setReadOnly(itemBean, viewBean.getKeys());
             }
         }
     }

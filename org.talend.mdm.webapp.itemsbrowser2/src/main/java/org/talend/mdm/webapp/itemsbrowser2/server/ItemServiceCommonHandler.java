@@ -58,6 +58,7 @@ import com.amalto.webapp.core.util.Messages;
 import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
+import com.amalto.webapp.util.webservices.WSConceptKey;
 import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -65,6 +66,7 @@ import com.amalto.webapp.util.webservices.WSDeleteItem;
 import com.amalto.webapp.util.webservices.WSDropItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSExistsItem;
+import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
@@ -248,6 +250,20 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
             vb.setMetaDataTypes(metaDataTypes);
             vb.setSearchables(getSearchables(viewPk, "en"));
+
+            WSConceptKey key = com.amalto.webapp.core.util.Util.getPort().getBusinessConceptKey(
+                    new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
+
+            String[] keys = key.getFields();
+            keys = Arrays.copyOf(keys, keys.length);
+            for (int i = 0; i < keys.length; i++) {
+                if (".".equals(key.getSelector())) //$NON-NLS-1$
+                //                    keys[i] = "/" + concept + "/" + keys[i]; //$NON-NLS-1$  //$NON-NLS-2$
+                    keys[i] = concept + "/" + keys[i]; //$NON-NLS-1$ 
+                else
+                    keys[i] = key.getSelector() + keys[i];
+            }
+            vb.setKeys(keys);
 
             return vb;
         } catch (XtentisWebappException e) {

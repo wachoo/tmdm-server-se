@@ -11,12 +11,16 @@ import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -52,23 +56,34 @@ public class RecordToolBar extends ToolBar {
             delMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                 public void componentSelected(MenuEvent ce) {
-                    final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
-                    service.deleteItemBean(parent.getItemBean(), new AsyncCallback<ItemResult>() {
+                    MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                            .delete_confirm(), new Listener<MessageBoxEvent>() {
 
-                        public void onFailure(Throwable arg0) {
+                        public void handleEvent(MessageBoxEvent be) {
+                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
+                                service.deleteItemBean(parent.getItemBean(), new AsyncCallback<ItemResult>() {
 
-                        }
+                                    public void onFailure(Throwable arg0) {
 
-                        public void onSuccess(ItemResult arg0) {
-                            if (arg0.getStatus() == ItemResult.SUCCESS) {
-                                parent.refreshGrid();
-                                MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
-                            } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
+                                    }
+
+                                    public void onSuccess(ItemResult arg0) {
+                                        if (arg0.getStatus() == ItemResult.SUCCESS) {
+                                            parent.refreshGrid();
+                                            MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(),
+                                                    null);
+                                        } else if (arg0.getStatus() == ItemResult.FAILURE) {
+                                            MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(),
+                                                    null);
+                                        }
+                                    }
+
+                                });
                             }
                         }
-
                     });
+
                 }
             });
             sub.add(delMenu);
@@ -77,25 +92,37 @@ public class RecordToolBar extends ToolBar {
             trashMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                 public void componentSelected(MenuEvent ce) {
-                    final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
-                    // TODO xpath
-                    service.logicalDeleteItem(parent.getItemBean(), "/", new AsyncCallback<ItemResult>() {
+                    final MessageBox box = MessageBox.prompt(MessagesFactory.getMessages().path(), MessagesFactory.getMessages()
+                            .path_desc(), new Listener<MessageBoxEvent>() {
 
-                        public void onFailure(Throwable arg0) {
+                        public void handleEvent(MessageBoxEvent be) {
+                            if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
+                                final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
+                                // TODO xpath
+                                service.logicalDeleteItem(parent.getItemBean(), be.getValue(), new AsyncCallback<ItemResult>() {
 
-                        }
+                                    public void onFailure(Throwable arg0) {
 
-                        public void onSuccess(ItemResult arg0) {
-                            if (arg0.getStatus() == ItemResult.SUCCESS) {
-                                parent.refreshGrid();
-                                MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
-                            } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
+                                    }
+
+                                    public void onSuccess(ItemResult arg0) {
+                                        if (arg0.getStatus() == ItemResult.SUCCESS) {
+                                            parent.refreshGrid();
+                                            MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(),
+                                                    null);
+                                        } else if (arg0.getStatus() == ItemResult.FAILURE) {
+                                            MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(),
+                                                    null);
+                                        }
+                                    }
+
+                                });
                             }
+
                         }
 
                     });
-
+                    box.getTextBox().setValue("/");
                 }
             });
             sub.add(trashMenu);
@@ -131,9 +158,7 @@ public class RecordToolBar extends ToolBar {
 
                 public void componentSelected(ButtonEvent ce) {
                     final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
-
                     ItemBean item = parent.getItemBean();
-
                     InvokeJournal(item.getIds(), item.getConcept());
                 }
             });
@@ -144,11 +169,20 @@ public class RecordToolBar extends ToolBar {
             refreshBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Refresh()));
             refreshBtn.setTitle(MessagesFactory.getMessages().refresh());
             add(refreshBtn);
-            journalBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            refreshBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 public void componentSelected(ButtonEvent ce) {
                     final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
-                    parent.refreshGrid();
+                    String viewType = null;
+                    ItemBean item = parent.getItemBean();
+                    AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);
+                    if (parent != null && parent.getParent() instanceof TabItem) {
+                        viewType = ItemsView.TARGET_IN_NEW_TAB;
+                    } else {
+                        viewType = ItemsView.TARGET_IN_SEARCH_TAB;
+                    }
+                    evt.setData(ItemsView.ITEMS_FORM_TARGET, viewType);
+                    Dispatcher.forwardEvent(evt);
                 }
             });
         }
@@ -162,22 +196,18 @@ public class RecordToolBar extends ToolBar {
 
             public void componentSelected(ButtonEvent ce) {
                 final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
-                service.saveItemBean(parent.getNewItemBean(), new AsyncCallback<ItemResult>() {
+                if (!parent.getNewItemBean().getIds().equals("")) {
+                    MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                            .save_confirm(), new Listener<MessageBoxEvent>() {
 
-                    public void onFailure(Throwable arg0) {
-
-                    }
-
-                    public void onSuccess(ItemResult arg0) {
-                        if (arg0.getStatus() == ItemResult.SUCCESS) {
-                            parent.refreshGrid();
-                            MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
-                        } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                            MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
+                        public void handleEvent(MessageBoxEvent be) {
+                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                saveItemBean(parent);
+                            }
                         }
-                    }
-
-                });
+                    });
+                } else
+                    saveItemBean(parent);
 
             }
         });
@@ -191,31 +221,56 @@ public class RecordToolBar extends ToolBar {
 
             public void componentSelected(ButtonEvent ce) {
                 final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
-                service.saveItemBean(parent.getNewItemBean(), new AsyncCallback<ItemResult>() {
+                if (!parent.getNewItemBean().getIds().equals("")) {
+                    MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
+                            .save_confirm(), new Listener<MessageBoxEvent>() {
 
-                    public void onFailure(Throwable arg0) {
-
-                    }
-
-                    public void onSuccess(ItemResult arg0) {
-                        if (arg0.getStatus() == ItemResult.SUCCESS) {
-                            parent.refreshGrid();
-                            MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
-                            // close the current tab
-                            ((TabItem) parent.getParent()).close();
-                        } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                            MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
+                        public void handleEvent(MessageBoxEvent be) {
+                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                saveItemBean(parent);
+                                if (parent.getParent() instanceof TabItem)
+                                    // close the current tab
+                                    ((TabItem) parent.getParent()).close();
+                                else
+                                    ((Window) parent.getParent()).close();
+                            }
                         }
-                    }
-
-                });
+                    });
+                } else {
+                    saveItemBean(parent);
+                    if (parent.getParent() instanceof TabItem)
+                        // close the current tab
+                        ((TabItem) parent.getParent()).close();
+                    else
+                        ((Window) parent.getParent()).close();
+                }
             }
         });
     }
 
+    private void saveItemBean(final ItemsFormPanel parent) {
+        service.saveItemBean(parent.getNewItemBean(), new AsyncCallback<ItemResult>() {
+
+            public void onFailure(Throwable arg0) {
+
+            }
+
+            public void onSuccess(ItemResult arg0) {
+                if (arg0.getStatus() == ItemResult.SUCCESS) {
+                    parent.refreshGrid();
+                    MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
+                } else if (arg0.getStatus() == ItemResult.FAILURE) {
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
+                }
+            }
+
+        });
+    }
+
     private native void InvokeJournal(String ids, String concept)/*-{
-        if(ids.indexOf("@")>0)ids=ids.replaceAll("@",".");
-        amalto.updatereport.UpdateReport.browseUpdateReportWithSearchCriteria(dataObject, ids, true);
+        if(ids.indexOf("@")>0)
+        ids=ids.replaceAll("@",".");       
+        $wnd.amalto.updatereport.UpdateReport.browseUpdateReportWithSearchCriteria(concept, ids, true);
     }-*/;
 
 }
