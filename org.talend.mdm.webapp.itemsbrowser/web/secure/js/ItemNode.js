@@ -123,11 +123,6 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
             'fr':'Utilisez Extension'
         };
 		var html = [];		
-		
-		/*var choice = '';
-		if(result[i].choice==true) {
-			choice = ' <input type="radio" name="'+index+'"/>';
-		}*/
 	
 		var cloneNodeImg = '';
 		var removeNodeImg = '';
@@ -138,9 +133,9 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				
 		if((itemData.maxOccurs<0 || itemData.maxOccurs>1) && tmpStatusItems){
 			cloneNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.cloneNode2(\''+itemData.nodeId+'\',false,'+treeIndex+')">' +
-					' <img src="img/genericUI/add-element.gif" title="'+ PLUSMUL_TT[language] +'"/></span>';
+					' <img src="img/genericUI/add.png" title="'+ PLUSMUL_TT[language] +'"/></span>';
 			removeNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.removeNode2(\''+itemData.nodeId+'\','+treeIndex+')">' +
-					' <img src="img/genericUI/remove-element.gif" title="'+ DELMUL_TT[language] +'"/></span>';
+					' <img src="img/genericUI/delete.png" title="'+ DELMUL_TT[language] +'"/></span>';
 		}
 		if(itemData.typeName!=null&&(itemData.typeName=="PICTURE" || itemData.typeName=="URL")){
 			type='hidden';
@@ -192,9 +187,6 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			if(itemData.foreignKey != null) {
 				//modify by ymli, if the parent or itself is writable, the foreign key can be set
 				
-				
-				
-				
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
 				
@@ -203,33 +195,24 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					//for a foreign key, direct edit is disabled.
 					readOnly = "READONLY";
 					readOnlyStyle = "ForeignKey";
-					foreignKeyImg = '' +
-					   '<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removeForeignKey(\''+itemData.nodeId+'\','+treeIndex+')">' +
-					   '<img title="' + DEL_TT[language] + '" src="img/genericUI/clear-icon.gif"/></span>';
 					foreignKeyImg += '' +
 						'<span style="cursor: pointer;" ' +
 						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+',false)" >' +
-						' <img src="img/genericUI/magnifier_plus.gif" title="' + MAGPLUS_TT[language] + '"/></span>';
+						' <img src="img/genericUI/link_edit.png" title="' + MAGPLUS_TT[language] + '"/></span>';
 				
-				var fkDataObject =  itemData.foreignKey.split("/")[0];	
-				foreignKeyImg += '' +
+					var fkDataObject =  itemData.foreignKey.split("/")[0];	
+					foreignKeyImg += '' +
 					'<span id = "' + fkDataObject +'" style="cursor: pointer;" ' +
 					'onclick="amalto.itemsbrowser.ItemsBrowser.displayItemDetails(' + null +',\'' + fkDataObject +'\')" >' +
-					' <img src="img/genericUI/add-element.gif" title="'+ PLUSFKS_TT[language] +'"/></span>';
-					
+					' <img src="img/genericUI/link_add.png" title="'+ PLUSFKS_TT[language] +'"/></span>';
+					foreignKeyImg += '' +
+					'<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removeForeignKey(\''+itemData.nodeId+'\','+treeIndex+')">' +
+					'<img title="' + DEL_TT[language] + '" src="img/genericUI/link_delete.png"/></span>';	
 				}   
 				foreignKeyImg += ''+
 						'<span style="cursor: pointer;" ' +
 						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+(itemData.usingforeignKey==null?itemData.foreignKey:itemData.usingforeignKey)+'\',\''+treeIndex+'\')" >' +
-						' <img src="img/genericUI/magnifier.gif" title="' + MAG_TT[language] + '"/></span>';
-						
-				//move this logical to the click-listener of the button 'Add Foreign Key'
-			    //This logical seems useless now
-//				ItemsBrowserInterface.getRootNode(fkDataObject, language, function(fkNode) {
-//					if(fkNode!=null && fkNode.readOnly != false && fkDataObject!=null) {
-//						$(fkDataObject).style.display = 'none';
-//					}
-//				}); 
+						' <img src="img/genericUI/link_go.png" title="' + MAG_TT[language] + '"/></span>';
 			}
 			
 			var value = "";
@@ -309,7 +292,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
 				var clearDate = '<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removeForeignKey(\''+itemData.nodeId+'\','+treeIndex+')">' +
-                       '<img title="'+ DEL_TT[language] +'" src="img/genericUI/clear-icon.gif"/></span>';
+                       '<img title="'+ DEL_TT[language] +'" src="img/genericUI/link_delete.png"/></span>';
 				if((itemData.readOnly == false && !isReadOnlyinItem) || tmpStatus)
 			   			html[html.length]  = clearDate +
 			   			'<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\',\''+itemData.displayFomats[1]+'\')">'+
@@ -326,9 +309,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
 				if((itemData.readOnly == false && !isReadOnlyinItem) ||tmpStatus){
+					html[html.length] ='<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showUploadFile(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\')">' +
+					'<img title="'+ SELPIC_TT[language] +'" src="img/genericUI/picture_add.png"/></span>'+'</div>';
 					html[html.length]='<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removePicture(\''+itemData.nodeId+'\','+treeIndex+')">' +
-					'<img title="'+ REMPIC_TT[language] +'" src="img/genericUI/clear-icon.gif"/></span>';									
-				    html[html.length] ='<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showUploadFile(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\')"><img title="'+ SELPIC_TT[language] +'" src="img/genericUI/image_add.png"/></span>'+'</div>';
+					'<img title="'+ REMPIC_TT[language] +'" src="img/genericUI/picture_delete.png"/></span>';
 				}			
 			}else if(itemData.typeName!=null&&(itemData.typeName=="URL")){//URL
 				   html[html.length] = ' ' +'<input type="hidden" id="'+itemData.nodeId+'Value" value="'+value+'"'+'/>';
@@ -342,15 +326,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				   
 				   if(!itemData.readOnly) {
 					   html[html.length] ='<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.showEditWindow('+itemData.nodeId+','+treeIndex+',\''+itemData.typeName+'\')">' +
-						' <img src="img/genericUI/add-element.gif"/></span>'+'</div>';
+						' <img src="img/genericUI/link_edit.png"/></span>'+'</div>';
 				   }
 			}else{
 			       html[html.length] = input +'</div>';
 			}
 			
 			html[html.length] = '<div style="display:inline"><span id="'+itemData.nodeId+'ValidateBadge" style="background-image:url(img/genericUI/validateBadge.gif);background-repeat:no-repeat;background-position:bottom;width:16px;height:16px;padding-left:4px;display:none"></span>'+'</div>' ;
-//			html[html.length] = '<span id="'+itemData.nodeId+'OpenDetails" style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >';
-//			html[html.length] = '<img src="img/genericUI/open-detail2.gif" title="'+ XSDDET_TT[language] +'"/></span>' ;
 			html[html.length] = 		cloneNodeImg+' '+removeNodeImg+' '+foreignKeyImg ;
 			
 			html[html.length] = '<div style="display:inline"><div id="'+itemData.nodeId+'ErrorMessage" style="padding-left:180px;display:none" ></div>';
@@ -372,9 +354,6 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		else { //complex type
 			
 			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;">'+itemData.name+' '+mandatory+' '+descInfo+'</div>' ;
-//			html[html.length] = 	'<input type="text" size="72" class="dotted-line" READONLY /></div>' ;
-//			html[html.length] = 	'<span id="'+itemData.nodeId+'OpenDetails" onclick="amalto.itemsbrowser.ItemsBrowser.displayXsdDetails(\''+itemData.nodeId+'\')" >' ;
-//			html[html.length] = 	' <img src="img/genericUI/open-detail2.gif" title="'+ XSDDET_TT[language] +'"/></span>';
 			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + '<br/>';
 			
 			if(itemData.polymiorphism&&itemData.subTypes.length>0)
@@ -395,7 +374,6 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
         this.hasIcon = hasIcon;
 		this.data = this.html
         this.itemData = itemData;
-        //this.logger = new YAHOO.widget.LogWriter(this.toString());
     },
 
     /**
@@ -406,208 +384,6 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
     getContentEl: function() {
         return document.getElementById(this.contentElId);
     },
-    
-  
-    
-/*    updateValue: function(value){
-    	
-    	this.resetErrorMessage(this.itemData.nodeId); 
-    	var localResult="";
-    	var id =this.itemData.nodeId;
-    	var index = this.index;
-        ItemsBrowserInterface.validateNode(id,value,function(result){
-        	localResult = result;
-            if(!(localResult=="null")){
-                this.displayErrorMessage(this.itemData.nodeId,localResult);
-                return false;
-            }
-           this.itemData.nodeId = index;
-           this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem);
-           return true;
-        });
-     
-    },*/
-    
-/*	
-	 * Return true if the new value is valid against the restrictions
-	 * and update the inner value of the node to the new value
-	 * otherwise return false 
-	 
-	updateValue111: function(value){
-		if(this.itemData.typeName=="boolean"){
-			value = Boolean(value);
-			alert(Boolean(value)+" "+!!value);
-		}
-		if(this.itemData.typeName!="string"
-		&& this.itemData.typeName!="" 
-		&& typeof(value)!=this.itemData.typeName){
-			alert("mauvais type "+typeof(value));
-		}
-		
-		var ERROR_MESSAGE_VALIDATEDOUBLE = {
-			'en' : ' is not a valid value for double ',
-			'fr' : ' is not a valid value for double '
-		}
-		
-		
-		
-		this.resetErrorMessage(this.itemData.nodeId);
-		
-		if(this.itemData.restrictions!=null){	
-			for(var i=0;i<this.itemData.restrictions.length;i++){
-				var errorMessage = this.itemData.facetErrorMsg[language];
-				//var checkParentminOIsReturn = null
-				this.result = null
-				//add by ymli; The item should not be empty if it is key.
-				if(value.length == 0 && this.itemData.key){
-					if (errorMessage == null){
-                   errorMessage = "The value does not comply with the facet defined in the model: "
-                            + "Key should not be empty";
-                    this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-                    return false;
-                }
-				}
-				
-				var check = this.checkMinOccurs(this.itemData,null);
-				var ancestor = this.checkAncestorMinOCcurs(this.itemData);
-				if(ancestor) check = true;
-				if(value.length==0 && (this.itemData.minOccurs>=1||ancestor) && check){//(this.itemData.parent==null || (this.itemData.parent!=null && this.itemData.parent.minOccurs>=1))){
-				if (errorMessage == null){
-					if(this.itemData.minOccurs>=1)
-				         errorMessage = "The value does not comply with the facet defined in the model: "
-							+ "minOccurs"
-							+": "
-							+this.itemData.minOccurs;
-				   else if(ancestor){
-				    	errorMessage = "This item is mandatory!";
-				    }			
-					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-					return false;
-				}
-			}
-			if(this.itemData.restrictions[i].name!="whiteSpace")
-				if (errorMessage == null)
-				   errorMessage = "The value does not comply with the facet defined in the model: "
-							+ this.itemData.restrictions[i].name
-							+ ":"
-							+ this.itemData.restrictions[i].value;
-					
-				if(this.itemData.minOccurs >=1 || (this.itemData.minOccurs == 0 && value != ""))
-				{
-					if(this.itemData.restrictions[i].name=="minLength" 
-					&& value.length<parseInt(this.itemData.restrictions[i].value)){
-						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-						return false;
-					}
-					if(this.itemData.restrictions[i].name=="maxLength" 
-					&& value.length>parseInt(this.itemData.restrictions[i].value)){
-						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-						return false;
-					}
-					if(this.itemData.restrictions[i].name=="length" && value.length!=parseInt(this.itemData.restrictions[i].value)){
-						this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-						return false;
-                        }
-					
-					if(this.itemData.restrictions[i].name=="minExclusive" )
-					{
-						if (isNaN(value))
-						{
-							errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-							return false;
-						}
-						else if (parseFloat(value)<=parseFloat(this.itemData.restrictions[i].value))
-						{
-						    this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-						    return false;
-						}
-					}
-					if(this.itemData.restrictions[i].name=="maxExclusive")
-					{
-						if (isNaN(value))
-						{
-							errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-							return false;
-						}
-						else if (parseFloat(value) >=parseFloat(this.itemData.restrictions[i].value))
-						{
-							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-							return false;
-						}
-	
-					}
-					if(this.itemData.restrictions[i].name=="minInclusive" ){
-						if (isNaN(value))
-						{
-							errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-							return false;
-						}
-						else if (parseFloat(value) < parseFloat(this.itemData.restrictions[i].value))
-						{
-							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-							return false;
-						}
-					}
-					if(this.itemData.restrictions[i].name=="maxInclusive"){
-						if (isNaN(value))
-						{
-							errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-							return false;
-						}
-						else if (parseFloat(value) > parseFloat(this.itemData.restrictions[i].value))
-						{
-							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-							return false;
-						}
-	
-					}
-					
-					
-				}
-				
-				// var checkParentminOIsReturn = null;
-				this.result = null;
-				var check = this.checkMinOccurs(this.itemData,null);
-				var ancestor = this.checkAncestorMinOCcurs(this.itemData);
-				if(ancestor) check = true;
-				if (this.itemData.readOnly==false && (this.itemData.minOccurs>=1||ancestor) && (value == null || value == ""||value.length==0) &&  check && this.itemData.choice == false)
-				{
-					this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-					return false;
-				}
-				if(this.itemData.minOccurs >=1 || (this.itemData.minOccurs == 0 && value != ""))
-				{
-					if(this.itemData.restrictions[i].name=="pattern"){
-						var patrn=new RegExp(this.itemData.restrictions[i].value);
-						if(!patrn.exec(value)){
-						//if(value.match(this.itemData.restrictions[i].value)==null){
-							var msg="\""+this.itemData.name+"\" de pattern est \""+this.itemData.restrictions[i].value+"\".";
-							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-							return false;
-						}
-					}
-					if(this.itemData.restrictions[i].name=="fractionDigits"){
-						if (isNaN(value))
-						{
-							errorMessage = this.itemData.name + " " + ERROR_MESSAGE_VALIDATEDOUBLE[language];
-							this.displayErrorMessage(this.itemData.nodeId,errorMessage);
-							return false;
-						}
-					}
-				}
-			}
-		}
-		//add by ymli.fix the bug:0010576		
-		this.itemData.nodeId = this.index
-				
-		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem);
-		return true;
-
-	},*/
 	
 	resetErrorMessage : function(nodeId) {
 		if ($(nodeId + "Value") != null) {
@@ -630,9 +406,6 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	 	if(checkParentminOIsReturn==null && this.result == null ){
 	 		var itemNode = node.parent;
     		if(itemNode==null){
-    			/*checkParentminOIsReturn = true;
-    			this.result=true;
-    			return true;*/
     			return false;
     		}
     		else if(itemNode!=null && itemNode.minOccurs==0){
@@ -680,19 +453,6 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		this.itemData.nodeId = nodeId;
 		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem);
 	},
-
-    /*
-     * retrieve the value from text field, and compare it to the restrictions
-     */
-/*    update: function(update){
-    	var itemNode = this.itemData.value;
-    	if (this.itemData.type == "complex")
-    	    return true;
-    	if($(this.itemData.nodeId + "Value")){   
-		itemNode = DWRUtil.getValue(this.itemData.nodeId + "Value");
-    	return this.updateValue(itemNode);
-    	} 
-    },*/
     
     // overrides YAHOO.widget.Node
     getNodeHtml: function() {
