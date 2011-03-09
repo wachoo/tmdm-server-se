@@ -3213,7 +3213,9 @@ public class ItemsBrowserDWR {
         } catch (XtentisWebappException e) {
             LOG.error(e.getMessage(), e);
         }
-        whereItem = whereItem.substring(0, whereItem.length() - 3);
+        if (!whereItem.isEmpty()) {
+            whereItem = whereItem.substring(0, whereItem.length() - 3);
+        }
         return whereItem;
     }
 
@@ -3331,7 +3333,7 @@ public class ItemsBrowserDWR {
              * config.getModel(), WSStringPredicate.NONE, false);
              */
             WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS, Util.getAjaxSubject()
-                    .getUsername(), WSStringPredicate.NONE, false);
+                    .getUsername(), WSStringPredicate.OR, false);
             WSWhereCondition wc4;
             WSWhereOr or = new WSWhereOr();
             if (isShared) {

@@ -681,6 +681,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		DWRUtil.setValue('itemsCriterias',"");
 		$('labelItemsCriteria').style.display = "none";
 		
+		DWRUtil.removeAllOptions('viewItemsCriteriaListSelect');
 	}
 	
 	function getViewsItemsListCB(result){
@@ -1201,7 +1202,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 		id = parseInt(id);
 		_criterias[id-1] = null;
-		_criterias.length=_criterias.length-1;
+//		_criterias.length=_criterias.length-1;
 		for (var subid = id-2; subid >= 0 ; subid--)
 		{
 			if (_criterias[subid] != undefined)
