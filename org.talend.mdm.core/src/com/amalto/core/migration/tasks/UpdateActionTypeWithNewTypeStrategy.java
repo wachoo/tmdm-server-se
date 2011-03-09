@@ -60,6 +60,10 @@ public class UpdateActionTypeWithNewTypeStrategy extends AbstractMigrationTask {
                     newOne.setAttribute("value", "PHYSICAL_DELETE"); //$NON-NLS-1$
                     parentNode.appendChild(newOne);
 
+                    Element antOne = schemaRoot.createElement("xsd:enumeration"); //$NON-NLS-1$
+                    antOne.setAttribute("value", "RESTORED"); //$NON-NLS-1$
+                    parentNode.appendChild(antOne);
+
                     String newSchema = "<schema>" + StringEscapeUtils.escapeXml(Util.nodeToString(schemaRoot)) + "</schema>"; //$NON-NLS-1$
                     Node oldChild = Util.getNodeList(doc, "./schema").item(0); //$NON-NLS-1$
                     Node elem = doc.importNode(Util.parse(newSchema).getDocumentElement(), true);
