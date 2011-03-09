@@ -223,11 +223,13 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueComboBox.setVisible(false);
             valueDate.setVisible(false);
             valueTextBox.setVisible(false);
+            valueTextBox.setValue(null);
         } else if (predicateValues.equals("foreign key")) { //$NON-NLS-1$
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(true);
             valueDate.setVisible(false);
             valueTextBox.setVisible(false);
+            valueTextBox.setValue(null);
         } else if (predicateValues.equals("complex type")) { //$NON-NLS-1$
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(false);
@@ -252,6 +254,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
                 valueComboBox.setVisible(true);
                 valueDate.setVisible(false);
                 valueTextBox.setVisible(false);
+                valueTextBox.setValue(null);
             }
         } else {
             setOperatorComboBox(Constants.fullOperators);

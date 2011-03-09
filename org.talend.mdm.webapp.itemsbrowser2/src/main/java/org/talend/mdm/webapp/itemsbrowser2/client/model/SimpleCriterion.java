@@ -40,7 +40,7 @@ public class SimpleCriterion implements Criteria {
     }
 
     public String toString() {
-        return key + " " + operator + " " + value;
+        return (key == null ? "" : key) + " " + (operator == null ? "" : operator) + " " + (value == null ? "" : value); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
     }
 
     public String getKey() {
