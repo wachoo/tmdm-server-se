@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -358,7 +357,7 @@ public final class XmlUtil {
         // FIXME
         Element root = doc.getRootElement();
         Node node = root.selectSingleNode(xpath);
-        return node.getText();
+        return node == null ? "" : node.getText();
     }
 
     private static String getLabel(XSElementDecl xsed, String x_Label) {

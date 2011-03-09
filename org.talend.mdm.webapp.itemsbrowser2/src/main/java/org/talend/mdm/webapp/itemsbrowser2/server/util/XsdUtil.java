@@ -135,6 +135,8 @@ public class XsdUtil {
         XSType type = eleDecl.getType();
         String fullPath = path + eleDecl.getName();
         String label = getLabel(eleDecl, "X_Label_EN");
+        if (label.equals(""))
+            label = eleDecl.getName();
         if (type.isSimpleType()) {
             typeModel = parseSimpleType(type.asSimpleType());
             xpathToType.put(fullPath, typeModel);

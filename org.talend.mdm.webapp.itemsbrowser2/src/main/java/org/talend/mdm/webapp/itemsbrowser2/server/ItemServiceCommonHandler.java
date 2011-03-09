@@ -103,7 +103,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.itemsbrowser2.server.messages", ItemsServiceImpl.class.getClassLoader()); //$NON-NLS-1$
-    
+
     public ArrayList<ItemBean> getFakeCustomerItems() {
         return null;
     }
@@ -137,7 +137,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         int totalSize = 0;
 
         List<ItemBean> itemBeans = new ArrayList<ItemBean>();
-        String concept = viewPk.substring("Browse_items_".length());
+        String concept = getConceptFromBrowseItemView(viewPk);
         try {
             WSWhereItem wi = com.amalto.webapp.core.util.Util.buildWhereItems(criteria);
 
@@ -145,6 +145,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max, sortCol,
                             sortDir)).getStrings();
             ViewBean viewBean = getView(viewPk);
+
+            // TODO change ids to array?
             String ids = null;
             for (int i = 0; i < results.length; i++) {
 
@@ -160,14 +162,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     results[i] = "<result>" + results[i] + "</result>";
                 }
 
-                Element root = XmlUtil.parseText(results[i].replaceAll("\n", "").replaceAll(" ", "").trim()).getRootElement();
-                while (root.nodeIterator().hasNext()) {
-                    Node next = (Node) root.nodeIterator().next();
-                    if (next.getName().equals("Id")) {
-                        ids = next.getText().trim();
-                        break;
-                    }
+                Document doc = XmlUtil.parseText(results[i]);
+                for (String key : viewBean.getKeys()) {
+                    ids = XmlUtil.queryNode(doc, key.replaceAll(concept, "result")).getText();
                 }
+
                 ItemBean itemBean = new ItemBean(concept, ids, results[i]);
                 // ItemBean itemBean = new ItemBean("customer", String.valueOf(i), results[i]);
                 dynamicAssemble(itemBean, viewBean);
@@ -187,9 +186,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             Set<String> xpaths = types.keySet();
             for (String path : xpaths) {
                 TypeModel typeModel = types.get(path);
-                if (typeModel.isSimpleType()){
+                if (typeModel.isSimpleType()) {
                     String textValue = XmlUtil.getTextValueFromXpath(docXml, path.substring(path.indexOf('/') + 1));
-                    if (typeModel.getTypeName().equals(DataTypeConstants.DATE)){
+                    if (typeModel.getTypeName().equals(DataTypeConstants.DATE)) {
                         Date date = CommonUtil.parseDate(textValue, "yyyy-MM-dd");
                         itemBean.set(path, date);
                     } else {
@@ -199,7 +198,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
         }
     }
-    
+
     /**
      * DOC HSHU Comment method "getView".
      */
@@ -260,7 +259,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             keys = Arrays.copyOf(keys, keys.length);
             for (int i = 0; i < keys.length; i++) {
                 if (".".equals(key.getSelector())) //$NON-NLS-1$
-                //                    keys[i] = "/" + concept + "/" + keys[i]; //$NON-NLS-1$  //$NON-NLS-2$
+                    //                    keys[i] = "/" + concept + "/" + keys[i]; //$NON-NLS-1$  //$NON-NLS-2$
                     keys[i] = concept + "/" + keys[i]; //$NON-NLS-1$ 
                 else
                     keys[i] = key.getSelector() + keys[i];
@@ -401,7 +400,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             return new ItemResult(status, message);
         } catch (Exception e) {
             ItemResult result;
-            // TODO Ugly isn't it ?
+            // TODO
             if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {
                 String saveSUCCE = "Save item '" + item.getConcept() + "."
                         + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".")

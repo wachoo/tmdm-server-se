@@ -14,12 +14,16 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Constants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
+import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -55,7 +59,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
 
     private ViewBean view;
 
-    private Map<String, String> itemsPredicates = new HashMap<String, String>();
+    private Map<String, TypeModel> itemsPredicates = new HashMap<String, TypeModel>();
 
     private ListStore<BaseModel> list = new ListStore<BaseModel>();
 
@@ -95,7 +99,10 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         add(valueTextBox);
 
         valueComboBox = new ComboBox<BaseModel>();
+        valueComboBox.setDisplayField("name"); //$NON-NLS-1$
+        valueComboBox.setValueField("value"); //$NON-NLS-1$
         valueComboBox.setStore(valuelist);
+        valueComboBox.setTriggerAction(TriggerAction.ALL);
         valueComboBox.setVisible(false);
         add(valueComboBox);
 
@@ -144,7 +151,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         if (this.view.getMetaDataTypes() != null) {
             itemsPredicates.clear();
             for (String key : this.view.getMetaDataTypes().keySet()) {
-                itemsPredicates.put(key, this.view.getMetaDataTypes().get(key).getTypeName());
+                itemsPredicates.put(key, this.view.getMetaDataTypes().get(key));
             }
         }
 
@@ -180,7 +187,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             return;
         }
 
-        String predicateValues = itemsPredicates.get(getKey());
+        String predicateValues = itemsPredicates.get(getKey()).getTypeName();
 
         if (predicateValues.equals("string") || predicateValues.equals("normalizedString") || predicateValues.equals("token")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             setOperatorComboBox(Constants.fullOperators);
@@ -221,9 +228,6 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueComboBox.setVisible(true);
             valueDate.setVisible(false);
             valueTextBox.setVisible(false);
-        } else if (predicateValues.equals("enumeration")) { //$NON-NLS-1$
-            // TODO
-
         } else if (predicateValues.equals("complex type")) { //$NON-NLS-1$
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(false);
@@ -232,6 +236,23 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueDate.setValue(null);
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*"); //$NON-NLS-1$
+        } else if (itemsPredicates.get(getKey()).isSimpleType()) {
+            SimpleTypeModel type = (SimpleTypeModel) itemsPredicates.get(getKey());
+            List<FacetModel> facets = type.getFacets();
+            if (facets != null && facets.get(0).getName().equals("enumeration")) { //$NON-NLS-1$   
+                valuelist.removeAll();
+                BaseModel field;
+                for (FacetModel facet : facets) {
+                    field = new BaseModel();
+                    field.set("name", facet.getValue()); //$NON-NLS-1$
+                    field.set("value", facet.getName()); //$NON-NLS-1$
+                    valuelist.add(field);
+                }
+                setOperatorComboBox(Constants.enumOperators);
+                valueComboBox.setVisible(true);
+                valueDate.setVisible(false);
+                valueTextBox.setVisible(false);
+            }
         } else {
             setOperatorComboBox(Constants.fullOperators);
             valueComboBox.setVisible(false);

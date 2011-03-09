@@ -1,5 +1,8 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
@@ -8,6 +11,8 @@ import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
+import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -141,8 +146,24 @@ public class RecordToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
                     ItemBean item = parent.getItemBean();
-                    item.setIds("");
-                    AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);
+                    ItemBean dupItem = new ItemBean(item.getConcept(), "", null);
+                    Map<String, Object> properties = new LinkedHashMap<String, Object>();
+                    ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
+                    boolean ifKey = false;
+                    for (String key : item.getProperties().keySet()) {
+                        ifKey = false;
+                        for (String subkey : viewBean.getKeys()) {
+                            if (subkey.equals(key)) {
+                                properties.put(key, "");
+                                ifKey = true;
+                                break;
+                            }
+                        }
+                        if (!ifKey)
+                            properties.put(key, item.getProperties().get(key));
+                    }
+                    dupItem.setProperties(properties);
+                    AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, dupItem);
                     evt.setData(ItemsView.ITEMS_FORM_TARGET, ItemsView.TARGET_IN_NEW_TAB);
                     Dispatcher.forwardEvent(evt);
                 }
