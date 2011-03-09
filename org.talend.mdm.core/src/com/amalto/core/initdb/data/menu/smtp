@@ -6,7 +6,7 @@
         </descriptions>
         <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
             <key xsi:type="java:java.lang.String">fr</key>
-            <value xsi:type="java:java.lang.String">Paramétrage du SMTP Service</value>
+            <value xsi:type="java:java.lang.String">Paramétrage du Service SMTP</value>
         </descriptions>
         <application>SmtpAdapter</application>
         <context>smtp</context>
