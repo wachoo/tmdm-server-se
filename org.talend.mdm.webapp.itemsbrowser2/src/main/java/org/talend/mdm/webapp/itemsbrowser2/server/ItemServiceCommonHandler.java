@@ -42,6 +42,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeCustomerConcept;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.CommonUtil;
@@ -141,9 +142,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         try {
             WSWhereItem wi = com.amalto.webapp.core.util.Util.buildWhereItems(criteria);
 
-            String[] results = CommonUtil.getPort().viewSearch(
-                    new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max, sortCol,
-                            sortDir)).getStrings();
+            String[] results = CommonUtil
+                    .getPort()
+                    .viewSearch(
+                            new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max,
+                                    sortCol, sortDir)).getStrings();
             ViewBean viewBean = getView(viewPk);
 
             // TODO change ids to array?
@@ -584,8 +587,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     public PagingLoadResult<ItemBean> queryItemBean(QueryModel config) {
         PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
-        Object[] result = getItemBeans(config.getDataClusterPK(), config.getViewPK(), config.getCriteria().toString(), pagingLoad
-                .getOffset(), pagingLoad.getLimit());
+        Object[] result = getItemBeans(config.getDataClusterPK(), config.getViewPK(), config.getCriteria().toString(),
+                pagingLoad.getOffset(), pagingLoad.getLimit());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
         return new BasePagingLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
@@ -595,35 +598,27 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         try {
             Map<String, String> viewMap = null;
 
-            if (Itemsbrowser2.IS_SCRIPT) {
-                String model = getCurrentDataModel();
-                String[] businessConcept = CommonUtil.getPort().getBusinessConcepts(
-                        new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
-                ArrayList<String> bc = new ArrayList<String>();
-                for (int i = 0; i < businessConcept.length; i++) {
-                    bc.add(businessConcept[i]);
-                }
-                WSViewPK[] wsViewsPK;
-                wsViewsPK = CommonUtil.getPort().getViewPKs(new WSGetViewPKs("Browse_items.*")).getWsViewPK();
-
-                TreeMap<String, String> views = new TreeMap<String, String>();
-                Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);
-                for (int i = 0; i < wsViewsPK.length; i++) {
-                    WSView wsview = CommonUtil.getPort().getView(new WSGetView(wsViewsPK[i]));
-                    String concept = wsview.getName().replaceAll("Browse_items_", "").replaceAll("#.*", "");
-                    if (bc.contains(concept)) {
-                        String viewDesc = p.matcher(
-                                !wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName())
-                                .replaceAll("$1");
-                        views.put(wsview.getName(), viewDesc.equals("") ? wsview.getName() : viewDesc);
-                    }
-                }
-                viewMap = getMapSortedByValue(views);
-            } else {
-                viewMap = new HashMap<String, String>();
-                viewMap.put("Browse_items_Agency", "Agency");
-                viewMap.put("Browse_items_Agent", "Agent");
+            String model = getCurrentDataModel();
+            String[] businessConcept = CommonUtil.getPort()
+                    .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
+            ArrayList<String> bc = new ArrayList<String>();
+            for (int i = 0; i < businessConcept.length; i++) {
+                bc.add(businessConcept[i]);
             }
+            WSViewPK[] wsViewsPK;
+            wsViewsPK = CommonUtil.getPort().getViewPKs(new WSGetViewPKs(ViewHelper.DEFAULT_VIEW_PREFIX + ".*")).getWsViewPK();
+
+            //Filter view list according to current datamodel
+            TreeMap<String, String> views = new TreeMap<String, String>();
+            for (int i = 0; i < wsViewsPK.length; i++) {
+                WSView wsview = CommonUtil.getPort().getView(new WSGetView(wsViewsPK[i]));//FIXME: Do we need get each view entity here? 
+                String concept = ViewHelper.getConceptFromDefaultViewName(wsview.getName());
+                if (bc.contains(concept)) {
+                    String viewDesc = ViewHelper.getViewLabel(language, wsview);
+                    views.put(wsview.getName(), viewDesc);
+                }
+            }
+            viewMap = getMapSortedByValue(views);
 
             List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
             for (String key : viewMap.keySet()) {
@@ -783,12 +778,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
             wi = new WSWhereItem(null, and, null);
 
-            String[] results = CommonUtil.getPort().xPathsSearch(
-                    new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
+            String[] results = CommonUtil.getPort()
+                    .xPathsSearch(new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
                             new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order
                             // by
                             null // direction
-                    )).getStrings();
+                            )).getStrings();
 
             for (int i = 0; i < results.length; i++) {
                 results[i] = results[i].replaceAll("<CriteriaName>(.*)</CriteriaName>", "$1");
@@ -824,8 +819,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             new WSWhereItem(null, null, or) });
 
             wi = new WSWhereItem(null, and, null);
-            return CommonUtil.getPort().count(
-                    new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))
+            return CommonUtil.getPort()
+                    .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))
                     .getValue();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -856,9 +851,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     public String getCriteriaByBookmark(String bookmark) {
         try {
             String criteria = "";
-            String result = CommonUtil.getPort().getItem(
-                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem",
-                            new String[] { bookmark }))).getContent().trim();
+            String result = CommonUtil
+                    .getPort()
+                    .getItem(
+                            new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
+                                    "BrowseItem", new String[] { bookmark }))).getContent().trim();
             if (result != null) {
                 if (result.indexOf("<SearchCriteria>") != -1)
                     criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));
