@@ -37,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
@@ -280,8 +281,9 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         String curValue = null;
         if (valueComboBox.getValue() != null)
             return valueComboBox.getValue().get("value").toString(); //$NON-NLS-1$ 
-        if (valueDate.getValue() != null)
-            return valueDate.getValue().toString(); //$NON-NLS-1$
+        if (valueDate.getValue() != null) {
+            return DateTimeFormat.getFormat("yyyy-MM-dd").format(valueDate.getValue()); //$NON-NLS-1$
+        }
         if (valueTextBox.getValue() != null)
             return valueTextBox.getValue().toString(); //$NON-NLS-1$
 

@@ -6,6 +6,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +27,11 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Composite;
+import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
@@ -158,12 +161,15 @@ public class ItemsFormPanel extends Composite {
         for (FieldBinding fb : formBindings.getBindings()) {
             Field field = fb.getField();
             Object value = null;
-            if (field instanceof SimpleComboBox){
-                value = ((SimpleComboBox) field).getValue().get("value");
+            if (field instanceof SimpleComboBox) {
+                value = ((SimpleComboBox) field).getValue().get("value"); //$NON-NLS-1$
+            }
+            if (field instanceof DateField) {
+                value = DateTimeFormat.getFormat("yyyy-MM-dd").format((Date) field.getValue()); //$NON-NLS-1$
             } else {
                 value = field.getValue();
             }
-            createElements(field.getName(), value == null ? "" : value.toString(), elementSet, doc);
+            createElements(field.getName(), value == null ? "" : value.toString(), elementSet, doc); //$NON-NLS-1$
         }
         Element el = elementSet.get(concept);
         doc.appendChild(el);
@@ -172,34 +178,33 @@ public class ItemsFormPanel extends Composite {
         return item;
     }
 
-
-    private void createElements(String xpath, String value, Map<String, Element> elementSet, Document doc){
+    private void createElements(String xpath, String value, Map<String, Element> elementSet, Document doc) {
         Element parent = null;
-        String[] xps = xpath.split("/");
+        String[] xps = xpath.split("/"); //$NON-NLS-1$
         StringBuffer sb = new StringBuffer();
         boolean isFirst = true;
-        for (String xp : xps){
-            if (isFirst){
+        for (String xp : xps) {
+            if (isFirst) {
                 sb.append(xp);
                 isFirst = false;
             } else {
-                sb.append("/" + xp);
+                sb.append("/" + xp); //$NON-NLS-1$
             }
             Element tempEl = elementSet.get(sb.toString());
-            if (tempEl == null){
+            if (tempEl == null) {
                 tempEl = (Element) doc.createElement(replace(xp));
                 elementSet.put(sb.toString(), tempEl);
             }
-            if (parent != null){
+            if (parent != null) {
                 parent.appendChild(tempEl);
             }
             parent = tempEl;
         }
         parent.appendChild(doc.createTextNode(value));
     }
-    
-    private String replace(String elName){
-        return elName.replaceAll("\\[\\d+\\]", "");
+
+    private String replace(String elName) {
+        return elName.replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public ItemBean getItemBean() {
@@ -213,14 +218,14 @@ public class ItemsFormPanel extends Composite {
             formBindings.unbind();
         }
     }
-    
+
     public void unbind() {
         formBindings.unbind();
     }
-    
+
     public void setReadOnly(ModelData modelData, String[] keys) {
         // primary key is readonly when updating
-        if (!((ItemBean) modelData).getIds().equals(""))
+        if (!((ItemBean) modelData).getIds().equals("")) //$NON-NLS-1$
             for (Field<?> field : content.getFields()) {
                 for (String key : keys) {
                     if (field.getName().equals(key)) {
