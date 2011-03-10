@@ -368,6 +368,7 @@ public class ItemsBrowserDWR {
         Document document = Util.parse(wsItem.getContent());
 
         WebContext ctx = WebContextFactory.get();
+        ctx.getSession().setAttribute("itemDocument" + docIndex + "_xmlstring", wsItem.getContent()); //$NON-NLS-1$ //$NON-NLS-2$
         ctx.getSession().setAttribute("itemDocument" + docIndex + "_wsItem", wsItem); //$NON-NLS-1$ //$NON-NLS-2$
         ctx.getSession().setAttribute("itemDocument" + docIndex, document); //$NON-NLS-1$
         ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", Util.copyDocument(document)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -707,6 +708,14 @@ public class ItemsBrowserDWR {
                 "xpathToParticle"); //$NON-NLS-1$
         ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization"); //$NON-NLS-1$
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
+        //reload the xmlstring
+        String xmlString=(String)ctx.getSession().getAttribute("itemDocument" + docIndex + "_xmlstring");
+        if(xmlString!=null){
+        	try {
+				d=Util.parse(xmlString);
+			} catch (Exception e) {				
+			}
+        }
         Document bakDoc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
         String[] keys = (String[]) ctx.getSession().getAttribute("foreignKeys"); //$NON-NLS-1$
 
@@ -722,7 +731,6 @@ public class ItemsBrowserDWR {
         TreeNode treeNode = new TreeNode();
 
         try {
-
             // judge polymiorphism
             String bindingType = xsp.getTerm().asElementDecl().getType().getName();
             List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(bindingType);
@@ -971,7 +979,7 @@ public class ItemsBrowserDWR {
             String oldPath = treeNode.getValue();
             //treeNode.setValue(""); //$NON-NLS-1$
             if (treeNode.getTypeName().trim().toUpperCase().equals("UUID") //$NON-NLS-1$
-                    || treeNode.getTypeName().trim().toUpperCase().equals("AUTO_INCREMENT")) { //$NON-NLS-1$
+                    || treeNode.getTypeName().trim().toUpperCase().equals("AUTO_INCREMENT") || (treeNode.getValue()!=null&& treeNode.getValue().trim().length()>0)) { //$NON-NLS-1$
                 treeNode.setReadOnly(true);
             } else {
                 treeNode.setReadOnly(false);
@@ -3032,16 +3040,18 @@ public class ItemsBrowserDWR {
         }
 
         boolean isValidation = true;// if true, return null,else return errorMessage
-        if (value.length() == 0 && node != null && (node.getMinOccurs() >= 1 || checkAncestorMinOCcurs(node))) {
+        if (value.length() == 0 && node != null && (node.getMinOccurs() >= 1)) {
             // by yguo, fix 0016045: Facet messages not taken into account
             if (node.getRestrictions() != null && node.getFacetErrorMsg() != null && node.getFacetErrorMsg().size() != 0) {
                 restrictions = node.getRestrictions();
                 errorMessage = (String) node.getFacetErrorMsg().get(language);
             }
-            if (node.getMinOccurs() >= 1)
+            if(checkAncestorMinOCcurs(node)){
+            if (node.getMinOccurs() >= 1 )
                 errorMessage = errorMessage == null ? "the field minOccurs is " + node.getMinOccurs() : errorMessage;
             else
                 errorMessage = errorMessage == null ? "this field is mandatory!" : errorMessage;
+            }
             // isValidation = false;
             return errorMessage;
         }
