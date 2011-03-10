@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSea
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SortDir;
@@ -47,11 +48,11 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -107,17 +108,7 @@ public class ItemsToolBar extends ToolBar {
 
     public ItemsToolBar() {
         // init user saved model
-        service.getCurrentDataCluster(new AsyncCallback<String>() {
-
-            public void onFailure(Throwable arg0) {
-            }
-
-            public void onSuccess(String arg0) {
-                userCluster = arg0;
-            }
-
-        });
-
+        userCluster = Itemsbrowser2.getSession().getAppHeader().getDatacluster();
         initToolBar();
     }
 

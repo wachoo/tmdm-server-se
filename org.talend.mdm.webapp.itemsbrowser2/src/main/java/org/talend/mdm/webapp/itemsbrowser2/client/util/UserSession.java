@@ -16,6 +16,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
+
 
 /**
  * DOC Starkey  class global comment. Detailled comment
@@ -29,7 +31,7 @@ public class UserSession implements Serializable{
 
     
     public static final String CURRENT_VIEW = "currentView"; //$NON-NLS-1$
-
+    public static final String APP_HEADER = "appHeader"; //$NON-NLS-1$
     
     private Map<String,Object> sessionMap = null;
     
@@ -55,4 +57,12 @@ public class UserSession implements Serializable{
     }
 
 
+    
+    /**
+     * Getter for appHeader.
+     * @return the AppHeader
+     */
+    public AppHeader getAppHeader() {
+        return (AppHeader) get(APP_HEADER);
+    }
 }

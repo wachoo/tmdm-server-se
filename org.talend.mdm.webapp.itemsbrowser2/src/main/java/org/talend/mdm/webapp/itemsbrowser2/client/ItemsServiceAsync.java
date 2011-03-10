@@ -7,6 +7,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -50,4 +51,7 @@ public interface ItemsServiceAsync {
     void logicalDeleteItem(ItemBean item, String path, AsyncCallback<ItemResult> callback);
 
     void deleteItemBean(ItemBean item, AsyncCallback<ItemResult> callback);
+
+    void getAppHeader(AsyncCallback<AppHeader> callback);
+
 }

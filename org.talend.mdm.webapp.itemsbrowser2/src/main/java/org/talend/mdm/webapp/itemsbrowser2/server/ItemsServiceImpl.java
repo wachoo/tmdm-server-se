@@ -20,6 +20,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -190,6 +191,14 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     @Override
     public ItemResult deleteItemBean(ItemBean item) {
         return itemsServiceHandler.deleteItemBean(item);
+    }
+    
+    
+    /**
+     * DOC HSHU Comment method "getAppHeader".
+     */
+    public AppHeader getAppHeader() throws Exception{
+        return itemsServiceHandler.getAppHeader();
     }
 
 }
