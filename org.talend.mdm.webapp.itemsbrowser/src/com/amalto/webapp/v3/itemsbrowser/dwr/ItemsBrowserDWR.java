@@ -2510,14 +2510,15 @@ public class ItemsBrowserDWR {
 
             WSConceptKey key = Util.getPort().getBusinessConceptKey(
                     new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
-            String[] keys = key.getFields();
+            String[] keys = new String[key.getFields().length];
+            keys = Arrays.copyOf(key.getFields(), key.getFields().length);
             for (int i = 0; i < keys.length; i++) {
                 if (".".equals(key.getSelector()))
                     keys[i] = "/" + concept + "/" + keys[i];
                 else
                     keys[i] = key.getSelector() + keys[i];
             }
-            ctx.getSession().setAttribute("foreignKeys", key.getFields());
+            ctx.getSession().setAttribute("foreignKeys", keys);
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
