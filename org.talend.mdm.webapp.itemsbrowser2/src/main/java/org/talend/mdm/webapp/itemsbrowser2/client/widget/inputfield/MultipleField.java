@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.FieldCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.plugin.FieldPlugin;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
@@ -20,7 +21,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 
-public class MultipleField extends Field<List<Serializable>> {
+public class MultipleField extends Field<List<Object>> {
 
     VerticalPanel vp = new VerticalPanel();
 
@@ -40,7 +41,7 @@ public class MultipleField extends Field<List<Serializable>> {
         int[] range = dataType.getRange();
         min = range[0];
         max = range[1];
-        value = new ArrayList<Serializable>();
+        value = new ArrayList<Object>();
         for (int i = 0;i < min; i++) {
             value.add("");
         }
@@ -75,9 +76,9 @@ public class MultipleField extends Field<List<Serializable>> {
     private void buildFields(){
         if (value != null){
             vp.clear();
-            for (Serializable item : value){
-                TextField textField = createField(item);
-                vp.add(textField);
+            for (Object item : value){
+                Field field = createField(item);
+                vp.add(field);
             }
         } else {
             vp.clear();
@@ -93,22 +94,22 @@ public class MultipleField extends Field<List<Serializable>> {
         }
     }
     
-    private TextField createField(Serializable item){
-        TextField<String> textField = new TextField<String>();
-        textField.addPlugin(createFp());
-        textField.setValue(item == null ? "null" : item.toString());
-        textField.addListener(Events.Change, changeListener);
-        return textField;
+    private Field createField(Object value){
+        Field field = (Field) FieldCreator.createField(dataType, null, false);
+        field.addPlugin(createFp());
+        field.setValue(value);
+        field.addListener(Events.Change, changeListener);
+        return field;
     }
     
-    public void setValue(List<Serializable> value) {
+    public void setValue(List<Object> value) {
         this.value = value;
         if (rendered){
             buildFields();
         }
     }
     
-    public List<Serializable> getValue() {
+    public List<Object> getValue() {
         return value;
     }
     
@@ -132,7 +133,7 @@ public class MultipleField extends Field<List<Serializable>> {
                     Window.alert("Maximum of " + max);
                     return;
                 }
-                TextField newField = createField("hi");
+                Field newField = createField(dataType.getTypeName().getDefaultValue());
                 int index = vp.getWidgetIndex(field);
                 vp.insert(newField, index + 1);
                 buildValue();

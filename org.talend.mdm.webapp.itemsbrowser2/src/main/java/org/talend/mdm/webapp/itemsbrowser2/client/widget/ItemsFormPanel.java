@@ -78,7 +78,7 @@ public class ItemsFormPanel extends Composite {
         String concept = CommonUtil.getConceptFromBrowseItemView(viewBean.getViewPK());
         TypeModel typeModel = dataTypes.get(concept);
         toolbar.updateToolBar();
-        Component f = FieldCreator.createField(typeModel, formBindings);
+        Component f = FieldCreator.createField(typeModel, formBindings, true);
         if (f != null) {
             content.add(f);
         }

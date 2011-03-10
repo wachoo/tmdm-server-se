@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
@@ -159,7 +160,7 @@ public class XsdUtil {
 
     public static SimpleTypeModel parseSimpleType(XSSimpleType simpleType) {
         SimpleTypeModel simpleTypeModel = new SimpleTypeModel();
-        simpleTypeModel.setTypeName(simpleType.getName());
+        simpleTypeModel.setTypeName(DataTypeConstants.getDataTypeByName(simpleType.getName()));
         if (simpleType.isRestriction()) {
             XSRestrictionSimpleType resType = simpleType.asRestriction();
             Collection<? extends XSFacet> facetes = resType.getDeclaredFacets();
@@ -198,7 +199,7 @@ public class XsdUtil {
 
     public static ComplexTypeModel parseComplexType(String path, XSComplexType complexType) {
         ComplexTypeModel complexTypeModel = new ComplexTypeModel();
-        complexTypeModel.setTypeName(complexType.getName());
+        complexTypeModel.setTypeName(DataTypeConstants.getDataTypeByName(complexType.getName()));
         XSParticle[] xsps = complexType.getContentType().asParticle().getTerm().asModelGroup().getChildren();
         if (xsps != null) {
             for (XSParticle xsp : xsps) {

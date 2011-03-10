@@ -15,6 +15,8 @@ package org.talend.mdm.webapp.itemsbrowser2.shared;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+
 
 /**
  * DOC chliu  class global comment. Detailled comment
@@ -29,7 +31,7 @@ public class ComplexTypeModel extends TypeModel {
         super();
     }
     
-    public ComplexTypeModel(String typeName, String label) {
+    public ComplexTypeModel(DataTypeConstants typeName, String label) {
         super(typeName, label);
     }
 

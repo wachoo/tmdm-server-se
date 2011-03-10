@@ -53,15 +53,15 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
 
-    public static Component createField(TypeModel dataType, FormBinding formBindings) {
+    public static Component createField(TypeModel dataType, FormBinding formBindings, boolean enableMultiple) {
         Field field = null;
 
         if (dataType instanceof ComplexTypeModel){
-            FieldSet fieldSet = createFieldGroup((ComplexTypeModel) dataType, formBindings);
+            FieldSet fieldSet = createFieldGroup((ComplexTypeModel) dataType, formBindings, enableMultiple);
             return fieldSet;
         } 
 
-        if (dataType.isMultiple()){
+        if (dataType.isMultiple() && enableMultiple){
             MultipleField multipleField = new MultipleField(dataType);
             field = multipleField;
         } else if (dataType.hasEnumeration()) {
@@ -130,7 +130,7 @@ public class FieldCreator {
     }
 
     
-    private static FieldSet createFieldGroup(ComplexTypeModel typeModel, FormBinding formBindings){
+    private static FieldSet createFieldGroup(ComplexTypeModel typeModel, FormBinding formBindings, boolean enableMultiple){
         FieldSet fieldSet = new FieldSet();
         fieldSet.setHeading(typeModel.getLabel());
         
@@ -141,14 +141,14 @@ public class FieldCreator {
         List<SimpleTypeModel> simples = typeModel.getSubSimpleTypes();
         if (simples != null){
             for (SimpleTypeModel simpleModel : simples){
-                Component field = createField(simpleModel, formBindings);
+                Component field = createField(simpleModel, formBindings, enableMultiple);
                 fieldSet.add(field);
             }
         }
         List<ComplexTypeModel> complexes = typeModel.getSubComplexTypes();
         if (complexes != null){
             for (ComplexTypeModel complexModel : complexes){
-                FieldSet subSet = createFieldGroup(complexModel, formBindings);
+                FieldSet subSet = createFieldGroup(complexModel, formBindings, enableMultiple);
                 fieldSet.add(subSet);
             }
         }
@@ -160,21 +160,6 @@ public class FieldCreator {
         for (FacetModel facet : facets) {
             FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
         }
-    }
-    
-    private static List<Field> getBrothers(Field field){
-        String label = field.getFieldLabel();
-        Container<Component> parent = (Container<Component>) field.getParent();
-        List<Field> fields = new ArrayList<Field>();
-        for (Component comp : parent.getItems()) {
-            if (comp instanceof Field) {
-                Field f = (Field) comp;
-                if (f.getFieldLabel().equals(field.getFieldLabel())){
-                    fields.add(f);
-                }
-            }
-        }
-        return fields;
     }
     
     static Validator validator = new Validator() {

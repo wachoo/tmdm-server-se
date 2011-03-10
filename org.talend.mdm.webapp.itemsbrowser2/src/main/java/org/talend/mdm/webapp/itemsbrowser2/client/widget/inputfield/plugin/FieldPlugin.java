@@ -2,6 +2,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.plugin;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 
+import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -37,6 +38,16 @@ public class FieldPlugin implements ComponentPlugin {
             public void handleEvent(BaseEvent be) {
                 add.render(field.el().getParent().dom);
                 remove.render(field.el().getParent().dom);
+                
+                add.setHideMode(HideMode.VISIBILITY);
+                add.setStyleAttribute("display", "block");
+                add.el().makePositionable(true);
+                
+                remove.setHideMode(HideMode.VISIBILITY);
+                remove.setStyleAttribute("display", "block");
+                remove.el().makePositionable(true);
+                
+                
                 adjust();
                 ComponentHelper.doAttach(add);
                 ComponentHelper.doAttach(remove);

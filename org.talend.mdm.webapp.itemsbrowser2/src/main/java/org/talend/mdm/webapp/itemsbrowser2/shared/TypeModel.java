@@ -15,6 +15,8 @@ package org.talend.mdm.webapp.itemsbrowser2.shared;
 import java.io.Serializable;
 import java.util.List;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -22,7 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public abstract class TypeModel implements Serializable, IsSerializable {
 
-    private String typeName;
+    private DataTypeConstants typeName;
 
     private String xpath;
     
@@ -40,17 +42,17 @@ public abstract class TypeModel implements Serializable, IsSerializable {
         super();
     }
 
-    public TypeModel(String typeName, String label) {
+    public TypeModel(DataTypeConstants typeName, String label) {
         super();
         this.typeName = typeName;
         this.label = label;
     }
 
-    public String getTypeName() {
+    public DataTypeConstants getTypeName() {
         return typeName;
     }
 
-    public void setTypeName(String typeName) {
+    public void setTypeName(DataTypeConstants typeName) {
         this.typeName = typeName;
     }
     

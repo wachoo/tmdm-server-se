@@ -1,10 +1,8 @@
 package org.talend.mdm.webapp.itemsbrowser2.shared;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.google.gwt.user.client.ui.Widget;
 
 
