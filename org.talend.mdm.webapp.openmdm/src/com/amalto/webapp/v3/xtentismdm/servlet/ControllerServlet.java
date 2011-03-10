@@ -19,15 +19,24 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import com.amalto.core.util.Util;
+import com.amalto.webapp.core.util.GxtFactory;
 
 
 
 public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericControllerServlet{
+    
+    /**
+     * 
+     */
+    private static final String GXT_PROPERTIES = "gxt.properties";
+    
+    /** a reference to the factory used to create GXT instances */
+    private GxtFactory gxtFactory;
 	
-
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+		this.gxtFactory = new GxtFactory(GXT_PROPERTIES);
 	}
 	
 	@Override
@@ -88,6 +97,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 					"<html>\n" +
 					"<head>\n" +
 					"<title>Talend MDM</title>\n" +
+					"<meta name=\"gwt:property\" content=\"locale="+language+"\" >\n" +
 					super.getCommonImport();
 			html += super.getJavascriptImportsHtml();
 			html +="<script type=\"text/javascript\" src=\"/welcome/secure/js/Welcome.js\"></script>\n";
