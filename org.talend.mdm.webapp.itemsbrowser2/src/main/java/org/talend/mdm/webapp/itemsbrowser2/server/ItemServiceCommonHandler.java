@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +38,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.BrowseItem;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
@@ -191,12 +193,20 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             for (String path : xpaths) {
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
-                    String textValue = XmlUtil.getTextValueFromXpath(docXml, path.substring(path.indexOf('/') + 1));
+                    List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.indexOf('/') + 1));
+                    Node value = (Node) nodes.get(0);
                     if (typeModel.getTypeName().equals(DataTypeConstants.DATE)) {
-                        Date date = CommonUtil.parseDate(textValue, "yyyy-MM-dd");
+                        
+                        Date date = CommonUtil.parseDate(value.getText(), "yyyy-MM-dd");
                         itemBean.set(path, date);
+                    } else if (typeModel.isMultiple()){
+                        List<Serializable> list = new ArrayList<Serializable>();
+                        for (Object node : nodes){
+                            list.add(((Node)node).getText());
+                        }
+                        itemBean.set(path, list);
                     } else {
-                        itemBean.set(path, textValue);
+                        itemBean.set(path, value.getText());
                     }
                 }
             }
@@ -586,13 +596,13 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return "OK";
     }
 
-    public PagingLoadResult<ItemBean> queryItemBean(QueryModel config) {
+    public ItemBasePageLoadResult<ItemBean> queryItemBean(QueryModel config) {
         PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
         Object[] result = getItemBeans(config.getDataClusterPK(), config.getViewPK(), config.getCriteria().toString(),
                 pagingLoad.getOffset(), pagingLoad.getLimit());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
-        return new BasePagingLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
+        return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
     }
 
     public List<ItemBaseModel> getViewsList(String language) {

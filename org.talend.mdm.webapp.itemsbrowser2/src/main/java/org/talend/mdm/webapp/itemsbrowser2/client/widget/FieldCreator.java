@@ -12,11 +12,15 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.FKField;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.MultipleField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.plugin.AddRemovePlugin;
@@ -26,6 +30,10 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
+import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.binding.FieldBinding;
+import com.extjs.gxt.ui.client.binding.FormBinding;
+import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ComponentPlugin;
 import com.extjs.gxt.ui.client.widget.Container;
@@ -40,16 +48,22 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
 
-    public static Component createField(TypeModel dataType, List<SimpleComboBox> comboBoxes, boolean bindPlugin) {
-        Component field = null;
+    public static Component createField(TypeModel dataType, FormBinding formBindings) {
+        Field field = null;
 
         if (dataType instanceof ComplexTypeModel){
-            FieldSet fieldSet = createFieldGroup((ComplexTypeModel) dataType, comboBoxes, bindPlugin);
-            field = fieldSet;
+            FieldSet fieldSet = createFieldGroup((ComplexTypeModel) dataType, formBindings);
+            return fieldSet;
+        } 
+
+        if (dataType.isMultiple()){
+            MultipleField multipleField = new MultipleField(dataType);
+            field = multipleField;
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
             comboBox.setFireChangeEventOnSetValue(true);
@@ -59,64 +73,64 @@ public class FieldCreator {
             comboBox.setForceSelection(true);
             comboBox.setTriggerAction(TriggerAction.ALL);
             buildFacets(dataType, comboBox);
-            field = (Component) comboBox;
+            field = comboBox;
         } else if (dataType.getForeignkey() != null) {
             FKField fkField = new FKField();
-            field = (Component) fkField;
+            field = fkField;
         } else if (dataType.getTypeName().equals(DataTypeConstants.STRING)) {
             TextField<String> textField = new TextField<String>();
             buildFacets(dataType, textField);
             if (dataType.getMinOccurs() > 0)
                 textField.setAllowBlank(false);
-            field = (Component) textField;
+            field = textField;
 
         } else if (dataType.getTypeName().equals(DataTypeConstants.DECIMAL)) {
             NumberField numberField = new NumberField();
             numberField.setValidator(validator);
             buildFacets(dataType, numberField);
-            field = (Component) numberField;
+            field = numberField;
         } else if (dataType.getTypeName().equals(DataTypeConstants.UUID)) {
 
         } else if (dataType.getTypeName().equals(DataTypeConstants.AUTO_INCREMENT)) {
 
         } else if (dataType.getTypeName().equals(DataTypeConstants.PICTURE)) {
             PictureField pictureField = new PictureField();
-            field = (Component) pictureField;
+            field =  pictureField;
         } else if (dataType.getTypeName().equals(DataTypeConstants.URL)) {
             UrlField urlField = new UrlField();
             urlField.setFieldLabel(dataType.getLabel());
-            field = (Component) urlField;
+            field =  urlField;
         } else if (dataType.getTypeName().equals(DataTypeConstants.DATE)) {
             DateField dateField = new DateField();
             dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
             if (dataType.getMinOccurs() > 0)
                 dateField.setAllowBlank(false);
-            field = (Component) dateField;
+            field =  dateField;
         } else if (dataType instanceof SimpleTypeModel) {
             TextField<String> textField = new TextField<String>();
             buildFacets(dataType, textField);
-            field = (Component) textField;
+            field =  textField;
         }
 
-        if (field instanceof Field){
-            ((Field) field).setFieldLabel(dataType.getLabel());
-            ((Field) field).setName(dataType.getXpath());
-            if (field instanceof SimpleComboBox && comboBoxes != null) {
-                comboBoxes.add((SimpleComboBox) field);
-            }
-        }
+
+        field.setFieldLabel(dataType.getLabel());
+        field.setName(dataType.getXpath());
         
-        if (dataType instanceof SimpleTypeModel){
-            if (dataType.getMaxOccurs() >= dataType.getMinOccurs() && dataType.getMinOccurs() > 0){
-                if (bindPlugin){
-                    bindPlugin((Field) field, dataType, bindPlugin);
-                }
+        if (formBindings != null){
+            FieldBinding binding = null;
+            if (field instanceof SimpleComboBox){
+                binding = new SimpleComboBoxFieldBinding((SimpleComboBox) field, field.getName());
+            } else {
+                binding = new FieldBinding(field, field.getName());
             }
+            formBindings.addFieldBinding(binding);
         }
+
         return field;
     }
 
-    private static FieldSet createFieldGroup(ComplexTypeModel typeModel, List<SimpleComboBox> comboBoxes, boolean bindPlugin){
+    
+    private static FieldSet createFieldGroup(ComplexTypeModel typeModel, FormBinding formBindings){
         FieldSet fieldSet = new FieldSet();
         fieldSet.setHeading(typeModel.getLabel());
         
@@ -127,14 +141,14 @@ public class FieldCreator {
         List<SimpleTypeModel> simples = typeModel.getSubSimpleTypes();
         if (simples != null){
             for (SimpleTypeModel simpleModel : simples){
-                Component field = createField(simpleModel, comboBoxes, bindPlugin);
+                Component field = createField(simpleModel, formBindings);
                 fieldSet.add(field);
             }
         }
         List<ComplexTypeModel> complexes = typeModel.getSubComplexTypes();
         if (complexes != null){
             for (ComplexTypeModel complexModel : complexes){
-                FieldSet subSet = createFieldGroup(complexModel, comboBoxes, bindPlugin);
+                FieldSet subSet = createFieldGroup(complexModel, formBindings);
                 fieldSet.add(subSet);
             }
         }
@@ -147,30 +161,20 @@ public class FieldCreator {
             FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
         }
     }
-
-    private static void bindPlugin(Field field, TypeModel dataType, boolean bindPlugin){
-        field.addPlugin(createFp(dataType, bindPlugin));
-    }
     
-    public static ComponentPlugin createFp(TypeModel dataType, final boolean bindPlugin){
-        AddRemovePlugin plugin = new AddRemovePlugin(dataType);
-        plugin.setListener(new AddRemovePlugin.Add_Remove_Listener() {
-
-            public void onAdd(Field field, TypeModel dataType) {
-                
-                Component newField = createField(dataType, null, bindPlugin);
-                LayoutContainer container = (LayoutContainer) field.getParent();
-                int index = container.getItems().indexOf(field);
-                container.insert(newField, index + 1);
-                container.layout();                
-                
+    private static List<Field> getBrothers(Field field){
+        String label = field.getFieldLabel();
+        Container<Component> parent = (Container<Component>) field.getParent();
+        List<Field> fields = new ArrayList<Field>();
+        for (Component comp : parent.getItems()) {
+            if (comp instanceof Field) {
+                Field f = (Field) comp;
+                if (f.getFieldLabel().equals(field.getFieldLabel())){
+                    fields.add(f);
+                }
             }
-
-            public void onRemove(Field field, TypeModel dataType) {
-                field.removeFromParent();
-            }
-        });
-        return plugin;
+        }
+        return fields;
     }
     
     static Validator validator = new Validator() {

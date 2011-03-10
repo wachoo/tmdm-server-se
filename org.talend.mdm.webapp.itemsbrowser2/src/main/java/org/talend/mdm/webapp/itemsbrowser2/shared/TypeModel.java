@@ -102,6 +102,34 @@ public abstract class TypeModel implements Serializable, IsSerializable {
         this.foreignkey = foreignkey;
     }
 
+    public int[] getRange(){
+        int min = 0;
+        int max = 0;
+        if (getMinOccurs() <=0){
+            min = 1;
+        } else {
+            min = getMinOccurs();
+        }
+        
+        if (getMaxOccurs() == -1){
+            max = Integer.MAX_VALUE;
+        } else if (getMaxOccurs() >= min){
+            max = getMaxOccurs();
+        }
+        return new int[]{min, max};
+    }
+
+    public boolean isMultiple(){
+        int[] range = getRange();
+        int min = range[0];
+        int max = range[1];
+        boolean multiple = false;
+        if (max > min && min >= 1){
+            multiple = true;
+        }
+        return multiple;
+    }
+
     public abstract boolean isSimpleType();
 
     public abstract boolean hasEnumeration();

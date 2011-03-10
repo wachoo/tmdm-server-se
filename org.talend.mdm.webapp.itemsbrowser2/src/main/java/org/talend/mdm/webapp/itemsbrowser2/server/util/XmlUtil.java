@@ -359,6 +359,11 @@ public final class XmlUtil {
         Node node = root.selectSingleNode(xpath);
         return node == null ? "" : node.getText();
     }
+    
+    public static List getValuesFromXPath(Document doc, String xpath){
+        Element root = doc.getRootElement();
+        return root.selectNodes(xpath);
+    }
 
     private static String getLabel(XSElementDecl xsed, String x_Label) {
         String label = "";

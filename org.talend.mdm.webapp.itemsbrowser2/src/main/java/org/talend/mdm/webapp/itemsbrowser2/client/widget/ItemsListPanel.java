@@ -19,11 +19,13 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -60,11 +62,20 @@ public class ItemsListPanel extends ContentPanel {
 
     RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
 
-        public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBean>> callback) {
+        public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBean>> callback) {
             QueryModel qm = new QueryModel();
             toolBar.setQueryModel(qm);
             qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
-            service.queryItemBean(qm, callback);
+            service.queryItemBean(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
+                public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
+                    
+                    callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result.getTotalLength()));
+                }
+
+                public void onFailure(Throwable caught) {
+                    callback.onFailure(caught);
+                }
+            });
         }
     };
 

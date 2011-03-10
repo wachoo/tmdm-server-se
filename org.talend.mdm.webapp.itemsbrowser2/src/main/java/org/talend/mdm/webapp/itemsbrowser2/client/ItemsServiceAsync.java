@@ -3,6 +3,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client;
 import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
@@ -23,7 +24,7 @@ public interface ItemsServiceAsync {
 
     void setForm(ItemBean item, ViewBean view, AsyncCallback<ItemFormBean> callback);
 
-    void queryItemBean(QueryModel config, AsyncCallback<PagingLoadResult<ItemBean>> callback);
+    void queryItemBean(QueryModel config, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback);
 
     void getViewsList(String language, AsyncCallback<List<ItemBaseModel>> callback);
 

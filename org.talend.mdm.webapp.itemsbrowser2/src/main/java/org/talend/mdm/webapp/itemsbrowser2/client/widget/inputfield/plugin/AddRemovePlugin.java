@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.plugin;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
+import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -32,11 +33,12 @@ import com.google.gwt.user.client.ui.Image;
 public class AddRemovePlugin implements ComponentPlugin {
 
     public interface Add_Remove_Listener {
-        void onAdd(Field field, TypeModel dataType);
-        void onRemove(Field field, TypeModel dataType);
+        void onAdd(Field field, TypeModel dataType, FormBinding formBindings);
+        void onRemove(Field field, TypeModel dataType, FormBinding formBindings);
     }
     
     TypeModel dataType;
+    FormBinding formBindings;
     
     Add_Remove_Listener listener;
     
@@ -47,8 +49,9 @@ public class AddRemovePlugin implements ComponentPlugin {
     boolean rendered;
     boolean validated = true;
     
-    public AddRemovePlugin(TypeModel dataType){
+    public AddRemovePlugin(TypeModel dataType, FormBinding formBindings){
         this.dataType = dataType;
+        this.formBindings = formBindings;
     }
     
     public void init(Component component) {
@@ -84,7 +87,7 @@ public class AddRemovePlugin implements ComponentPlugin {
         add.addListener(Events.OnClick, new Listener<BaseEvent>() {
             public void handleEvent(BaseEvent be) {
                 if (listener != null){
-                    listener.onAdd(field, dataType);
+                    listener.onAdd(field, dataType, formBindings);
                 }
                 
             }
@@ -92,7 +95,7 @@ public class AddRemovePlugin implements ComponentPlugin {
         remove.addListener(Events.OnClick, new Listener<BaseEvent>() {
             public void handleEvent(BaseEvent be) {
                 if (listener != null){
-                    listener.onRemove(field, dataType);
+                    listener.onRemove(field, dataType, formBindings);
                 }
             }
         });

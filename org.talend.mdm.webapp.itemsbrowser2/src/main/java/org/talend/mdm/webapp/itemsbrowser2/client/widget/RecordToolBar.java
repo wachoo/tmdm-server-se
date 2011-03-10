@@ -270,7 +270,8 @@ public class RecordToolBar extends ToolBar {
     }
 
     private void saveItemBean(final ItemsFormPanel parent) {
-        service.saveItemBean(parent.getNewItemBean(), new AsyncCallback<ItemResult>() {
+        ItemBean itemBean = parent.getNewItemBean();
+        service.saveItemBean(itemBean, new AsyncCallback<ItemResult>() {
 
             public void onFailure(Throwable arg0) {
 
@@ -278,7 +279,7 @@ public class RecordToolBar extends ToolBar {
 
             public void onSuccess(ItemResult arg0) {
                 if (arg0.getStatus() == ItemResult.SUCCESS) {
-                    parent.refreshGrid();
+                    parent.commitItemBean();
                     MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
                 } else if (arg0.getStatus() == ItemResult.FAILURE) {
                     MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);

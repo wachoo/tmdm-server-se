@@ -119,7 +119,7 @@ public class ItemsView extends View {
             // TODO convert xpath 2 label
             xpath = getViewLabelFromViewable(xpath);
             TypeModel typeModel = dataTypes.get(xpath);
-            Component field = FieldCreator.createField(typeModel, null, false);
+            Component field = FieldCreator.createField(typeModel, null);
 
             CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
 

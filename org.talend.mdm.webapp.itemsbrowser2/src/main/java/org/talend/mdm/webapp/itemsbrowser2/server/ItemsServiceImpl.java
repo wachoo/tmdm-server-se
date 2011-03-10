@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
@@ -51,7 +52,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
      * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#queryItemBean(org.talend.mdm.webapp.itemsbrowser2.client
      * .model.QueryModel)
      */
-    public PagingLoadResult<ItemBean> queryItemBean(QueryModel config) {
+    public ItemBasePageLoadResult<ItemBean> queryItemBean(QueryModel config) {
         return itemsServiceHandler.queryItemBean(config);
     }
 
