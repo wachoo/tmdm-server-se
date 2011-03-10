@@ -2776,15 +2776,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         
         //node.itemData.nodeId = id;
         //edit by ymli: fix the bug:0013463
-		//if(node.updateValue(value)==false){
-        if(updateValue(id,treeIndex)==false){
-             ItemsBrowserInterface.updateNode(id, value, treeIndex, function() {
-                        // amalto.core.ready();
-            
-			$('errorDesc' + treeIndex).style.display = "block";
-                       });
-            allUpdate = true;
-            
+        ItemsBrowserInterface.updateNode(id, value, treeIndex,function(result){
+        	amalto.core.ready(result);
+        	$('errorDesc' + treeIndex).style.display = "block";
+        });
+        if(updateValue(id,treeIndex)==false){                        			
+            allUpdate = true;           
         } 
        
        else
@@ -2799,26 +2796,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	             $('errorDesc' + treeIndex).style.display = "none";
             }
         }
-                
- 
-        ItemsBrowserInterface.updateNode(id,value,treeIndex,function(result){
-            amalto.core.ready(result);
-        	 //remove by ymli; fix the bug:0013463
-           /* if(allUpdate == false)
-            {           
-                ItemsBrowserInterface.validateItem(treeIndex, {
-                    
-                    callback:function(result){ 
-                        if(result!=""){
-                            showExceptionMsg(result, null, treeIndex);
-                        }
-                    }
-                });
-            } */  
-            });
-      	
-     
-        
+               
 	}
 	
 	function reloadNode(id, treeIndex){

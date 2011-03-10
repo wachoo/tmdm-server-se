@@ -103,7 +103,7 @@ public class TreeNode implements Cloneable {
 	boolean logicalDeletable;
 	boolean physicalDeletable;
 	
-    public boolean isCreatable() {
+	public boolean isCreatable() {
 		return creatable;
 	}
 
