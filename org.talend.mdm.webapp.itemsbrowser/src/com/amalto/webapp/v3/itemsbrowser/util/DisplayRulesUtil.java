@@ -71,30 +71,30 @@ public class DisplayRulesUtil{
             XSElementDecl self=tmp.getSelfElement();
             List<XSElementDecl> children=tmp.getChildrenElements();
             
-            style.append("<xsl:template match=\""+self.getName()+"\">")
-                 .append("<xsl:copy>");
+            style.append("<xsl:template match=\""+self.getName()+"\">") //$NON-NLS-1$ //$NON-NLS-2$
+                 .append("<xsl:copy>"); //$NON-NLS-1$ 
             
             List<DisplayRule> dspRules = getRules(self);
             for (DisplayRule displayRule : dspRules) {
                 String dspType=displayRule.getType();
                 if(dspType.equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
                     
-                    style.append("<xsl:choose> "); 
-                    style.append("<xsl:when test=\"not(text())\"> ");
+                    style.append("<xsl:choose> "); //$NON-NLS-1$ //$NON-NLS-2$
+                    style.append("<xsl:when test=\"not(text())\"> "); //$NON-NLS-1$
                     if(isLiteralData(displayRule.getValue())) {
-                        style.append("<xsl:text>"+Util.stripLeadingAndTrailingQuotes(displayRule.getValue())+"</xsl:text>");
+                        style.append("<xsl:text>"+Util.stripLeadingAndTrailingQuotes(displayRule.getValue())+"</xsl:text>"); //$NON-NLS-1$ //$NON-NLS-2$
                     }else {
-                        style.append("<xsl:value-of select=\""+displayRule.getValue()+"\"/> ");
+                        style.append("<xsl:value-of select=\""+displayRule.getValue()+"\"/> "); //$NON-NLS-1$ //$NON-NLS-2$
                     }
-                    style.append("</xsl:when> "); 
-                    style.append("<xsl:otherwise><xsl:value-of select=\".\"/></xsl:otherwise> "); 
-                    style.append("</xsl:choose> ");
+                    style.append("</xsl:when> ");  //$NON-NLS-1$
+                    style.append("<xsl:otherwise><xsl:value-of select=\".\"/></xsl:otherwise> ");  //$NON-NLS-1$
+                    style.append("</xsl:choose> "); //$NON-NLS-1$
                     
                 }else if(dspType.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
                     
-                    style.append("<xsl:if test=\"not("+displayRule.getValue()+")\"> "); 
-                    style.append("<xsl:attribute name=\"t:visible\">false</xsl:attribute> "); 
-                    style.append("</xsl:if> ");
+                    style.append("<xsl:if test=\"not("+displayRule.getValue()+")\"> "); //$NON-NLS-1$ //$NON-NLS-2$
+                    style.append("<xsl:attribute name=\"t:visible\">false</xsl:attribute> "); //$NON-NLS-1$ 
+                    style.append("</xsl:if> "); //$NON-NLS-1$ 
                     
                 }
             }
@@ -102,14 +102,14 @@ public class DisplayRulesUtil{
             if(children!=null&&children.size()>0) {
                 for (XSElementDecl child : children) {
                     if(child.getType().isComplexType()||hasRules(child))
-                      style.append("<xsl:apply-templates select=\""+child.getName()+"\"/>");
+                      style.append("<xsl:apply-templates select=\""+child.getName()+"\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
                     else 
-                      style.append("<xsl:copy-of select=\""+child.getName()+"\"/>");
+                      style.append("<xsl:copy-of select=\""+child.getName()+"\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
                 } 
             }
             
-            style.append("</xsl:copy>")
-                 .append("</xsl:template>");
+            style.append("</xsl:copy>") //$NON-NLS-1$ 
+                 .append("</xsl:template>"); //$NON-NLS-1$ 
            
         }
         
@@ -122,10 +122,10 @@ public class DisplayRulesUtil{
      */
     private boolean isLiteralData(String input) {
         
-        if(input==null||input.trim().equals(""))
+        if(input==null||input.trim().equals("")) //$NON-NLS-1$ 
             return false;
         //detect literal  
-        if(input.startsWith("\"")&&input.endsWith("\""))
+        if(input.startsWith("\"")&&input.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
             return true;
 
         return false;

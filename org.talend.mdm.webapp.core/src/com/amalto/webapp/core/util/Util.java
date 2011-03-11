@@ -1661,13 +1661,13 @@ public class Util {
     
     public static String stripLeadingAndTrailingQuotes(String str){
         
-        if(str==null)return "";
+        if(str==null)return ""; //$NON-NLS-1$
         
-        if (str.startsWith("\""))
+        if (str.startsWith("\"")) //$NON-NLS-1$
         {
             str = str.substring(1, str.length());
         }
-        if (str.endsWith("\""))
+        if (str.endsWith("\"")) //$NON-NLS-1$
         {
             str = str.substring(0, str.length() - 1);
         }
