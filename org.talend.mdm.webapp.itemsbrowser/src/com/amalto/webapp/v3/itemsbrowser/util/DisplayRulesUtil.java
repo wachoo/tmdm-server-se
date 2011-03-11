@@ -22,6 +22,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.v3.itemsbrowser.bean.DisplayRule;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
@@ -80,10 +81,10 @@ public class DisplayRulesUtil{
                     
                     style.append("<xsl:choose> "); 
                     style.append("<xsl:when test=\"not(text())\"> ");
-                    if(isDspPath(displayRule.getValue())) {
-                        style.append("<xsl:value-of select=\""+displayRule.getValue()+"\"/> "); 
+                    if(isLiteralData(displayRule.getValue())) {
+                        style.append("<xsl:text>"+Util.stripLeadingAndTrailingQuotes(displayRule.getValue())+"</xsl:text>");
                     }else {
-                        style.append("<xsl:text>"+displayRule.getValue()+"</xsl:text>"); 
+                        style.append("<xsl:value-of select=\""+displayRule.getValue()+"\"/> ");
                     }
                     style.append("</xsl:when> "); 
                     style.append("<xsl:otherwise><xsl:value-of select=\".\"/></xsl:otherwise> "); 
@@ -119,14 +120,15 @@ public class DisplayRulesUtil{
     /**
      * DOC HSHU Comment method "isDspPath".
      */
-    private boolean isDspPath(String input) {
-        boolean flag=false;
-        if(input==null||input.trim().equals(""))return flag;
-        if(input.startsWith("/")||input.startsWith("//")
-                ||input.startsWith(".")||input.startsWith(".."))//FIXME is this cover all cases?
-                      flag=true;
+    private boolean isLiteralData(String input) {
         
-        return flag;
+        if(input==null||input.trim().equals(""))
+            return false;
+        //detect literal  
+        if(input.startsWith("\"")&&input.endsWith("\""))
+            return true;
+
+        return false;
     }
     
     private void travelXSElement(XSElementDecl e) {

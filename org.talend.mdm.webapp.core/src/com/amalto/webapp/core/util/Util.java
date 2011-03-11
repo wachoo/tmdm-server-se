@@ -1658,4 +1658,19 @@ public class Util {
 
         return "OK";
     }
+    
+    public static String stripLeadingAndTrailingQuotes(String str){
+        
+        if(str==null)return "";
+        
+        if (str.startsWith("\""))
+        {
+            str = str.substring(1, str.length());
+        }
+        if (str.endsWith("\""))
+        {
+            str = str.substring(0, str.length() - 1);
+        }
+        return str;
+    }
 }
