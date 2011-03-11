@@ -93,23 +93,23 @@ public class ItemsView extends View {
             onInitSearchContainer(event);
         } else if (event.getType() == ItemsEvents.GetView) {
             onGetView(event);
+        } else if (event.getType() == ItemsEvents.SearchView) {
+            onSearchView(event);
         } else if (event.getType() == ItemsEvents.ViewItems) {
             onViewItems(event);
         } else if (event.getType() == ItemsEvents.ViewItemForm) {
             onViewItemForm(event);
-        } else if (event.getType() == ItemsEvents.InitView) {
-            onInitView(event);
-        }
+        } 
     }
 
-    protected void onInitView(final AppEvent event) {
+    protected void onGetView(final AppEvent event) {
         ViewBean viewBean = event.getData();
 
         itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
         itemsSearchContainer.getItemsListPanel().getToolBar().updateToolBar(viewBean);
     }
 
-    protected void onGetView(final AppEvent event) {
+    protected void onSearchView(final AppEvent event) {
         ViewBean viewBean = event.getData();
 
         // TODO update columns

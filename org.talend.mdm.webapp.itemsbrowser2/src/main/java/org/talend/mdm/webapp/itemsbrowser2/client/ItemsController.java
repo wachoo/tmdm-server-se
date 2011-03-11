@@ -37,11 +37,11 @@ public class ItemsController extends Controller {
     public ItemsController() {
         registerEventTypes(ItemsEvents.InitFrame);
         registerEventTypes(ItemsEvents.InitSearchContainer);
-        registerEventTypes(ItemsEvents.GetView);
+        registerEventTypes(ItemsEvents.SearchView);
         registerEventTypes(ItemsEvents.ViewItems);
         registerEventTypes(ItemsEvents.ViewItemForm);
         registerEventTypes(ItemsEvents.Error);
-        registerEventTypes(ItemsEvents.InitView);
+        registerEventTypes(ItemsEvents.GetView);
     }
 
     @Override
@@ -57,16 +57,16 @@ public class ItemsController extends Controller {
             forwardToView(itemsView, event);
         } else if (type == ItemsEvents.InitSearchContainer) {
             forwardToView(itemsView, event);
-        } else if (event.getType() == ItemsEvents.GetView) {
+        } else if (type == ItemsEvents.GetView) {
             onGetView(event);
+        } else if (event.getType() == ItemsEvents.SearchView) {
+            onSearchView(event);
         } else if (event.getType() == ItemsEvents.ViewItems) {
             onViewItems(event);
         } else if (event.getType() == ItemsEvents.ViewItemForm) {
             onViewItemForm(event);
         } else if (type == ItemsEvents.Error) {
             onError(event);
-        } else if (type == ItemsEvents.InitView) {
-            onInitView(event);
         }
     }
 
@@ -93,8 +93,8 @@ public class ItemsController extends Controller {
 
     }
 
-    protected void onInitView(final AppEvent event) {
-        Log.info("Init view... ");
+    protected void onGetView(final AppEvent event) {
+        Log.info("Get view... ");
         String viewName = event.getData();
         service.getView(viewName, new AsyncCallback<ViewBean>() {
 
@@ -110,8 +110,8 @@ public class ItemsController extends Controller {
         });
     }
 
-    protected void onGetView(final AppEvent event) {
-        Log.info("Get view... ");
+    protected void onSearchView(final AppEvent event) {
+        Log.info("Do view-search... ");
         ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
         AppEvent ae = new AppEvent(event.getType(), viewBean);
         forwardToView(itemsView, ae);

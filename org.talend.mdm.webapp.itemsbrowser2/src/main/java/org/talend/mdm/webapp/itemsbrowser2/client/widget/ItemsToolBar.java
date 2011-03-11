@@ -260,7 +260,7 @@ public class ItemsToolBar extends ToolBar {
 
             public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                 String viewPk = se.getSelectedItem().get("value").toString();//$NON-NLS-1$
-                Dispatcher.forwardEvent(ItemsEvents.InitView, viewPk);
+                Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
             }
 
         });
@@ -276,7 +276,7 @@ public class ItemsToolBar extends ToolBar {
             public void componentSelected(ButtonEvent ce) {
                 isSimple = true;
                 String viewPk = entityCombo.getValue().get("value");//$NON-NLS-1$
-                Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
+                Dispatcher.forwardEvent(ItemsEvents.SearchView, viewPk);
             }
 
         });
@@ -469,7 +469,7 @@ public class ItemsToolBar extends ToolBar {
                                                                 }
                                                                 advancedPanel.setCriteria(arg0);
                                                                 String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
-                                                                Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
+                                                                Dispatcher.forwardEvent(ItemsEvents.SearchView, viewPk);
                                                                 winBookmark.close();
                                                             }
 
@@ -619,7 +619,7 @@ public class ItemsToolBar extends ToolBar {
                     else {
                         isSimple = false;
                         String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
-                        Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
+                        Dispatcher.forwardEvent(ItemsEvents.SearchView, viewPk);
                         winAdvanced.close();
                     }
                 }
