@@ -10,16 +10,30 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.itemsbrowser2.client.mockup;
+package org.talend.mdm.webapp.itemsbrowser2.client.util;
+
+import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
+import org.talend.mdm.webapp.itemsbrowser2.client.mockup.ClientFakeData;
+import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 
 
 /**
  * DOC HSHU  class global comment. Detailled comment
  */
-public class ClientFakeData {
+public class Locale {
     
-    public static final String DEFAULT_VIEW="Browse_items_customer";
     
-    public static final String DEFAULT_LANGUAUE="en";
+    /**
+     * DOC HSHU Comment method "getUsingLanguage".
+     */
+    public static String getLanguage(AppHeader appHeader) {
+        
+        if(appHeader.isStandAloneMode()){
+            return ClientFakeData.DEFAULT_LANGUAUE;
+        }else {
+            return GetService.getLanguage();
+        }
+
+    }
 
 }

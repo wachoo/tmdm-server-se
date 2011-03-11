@@ -39,13 +39,19 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 
 		
 	};
+	
+	function getCurrentLanguage() {
+        return language;
+    }
 
 
 	return {
 
 		init : function() {
 			initUIAndData();
-		}
-		
+		},
+		getLanguage : function() {
+            return getCurrentLanguage();
+        }
 	}
 }();

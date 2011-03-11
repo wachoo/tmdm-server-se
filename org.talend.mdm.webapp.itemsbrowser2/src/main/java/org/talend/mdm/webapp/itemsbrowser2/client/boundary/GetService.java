@@ -17,9 +17,9 @@ package org.talend.mdm.webapp.itemsbrowser2.client.boundary;
  */
 public class GetService {
     
-    /* TODO: You get data from outer, this is an example
-    public static native String getCurrentDataCluster() /*-{
-        return $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.getCurrentDataCluster();
+    /* Get languaue from outer, this is an example */
+    public static native String getLanguage() /*-{
+        return $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.getLanguage();
     }-*/;
     
 }

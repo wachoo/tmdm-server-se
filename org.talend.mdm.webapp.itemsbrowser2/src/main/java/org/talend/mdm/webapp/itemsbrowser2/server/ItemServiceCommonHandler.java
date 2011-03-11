@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
@@ -52,8 +51,6 @@ import org.talend.mdm.webapp.itemsbrowser2.server.util.XmlUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.XsdUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.ElementProcess;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
-import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -873,7 +870,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         header.setDatacluster(getCurrentDataCluster());
         header.setDatamodel(getCurrentDataModel());
         header.setStandAloneMode(ItemsBrowserConfiguration.isStandalone());
-        LOG.info(header);
         return header;
+        
     }
 }
