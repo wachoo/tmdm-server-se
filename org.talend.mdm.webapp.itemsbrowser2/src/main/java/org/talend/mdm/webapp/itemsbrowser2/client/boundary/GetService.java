@@ -16,10 +16,14 @@ package org.talend.mdm.webapp.itemsbrowser2.client.boundary;
  * DOC HSHU class global comment. Detailled comment
  */
 public class GetService {
-    
+
     /* Get languaue from outer, this is an example */
     public static native String getLanguage() /*-{
         return $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.getLanguage();
     }-*/;
-    
+
+    public static native void openItemBrowser(String ids, String conceptName) /*-{
+        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(ids, conceptName);
+    }-*/;
+
 }

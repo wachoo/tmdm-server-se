@@ -191,20 +191,22 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
                     List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.indexOf('/') + 1));
-                    Node value = (Node) nodes.get(0);
-                    if (typeModel.getTypeName().equals(DataTypeConstants.DATE)) {
-                        
-                        Date date = CommonUtil.parseDate(value.getText(), "yyyy-MM-dd");
-                        itemBean.set(path, date);
-                    } else if (typeModel.isMultiple()){
-                        List<Serializable> list = new ArrayList<Serializable>();
-                        for (Object node : nodes){
-                            list.add(((Node)node).getText());
+                    if(nodes.size()>0) {
+                        Node value = (Node) nodes.get(0);
+                        if (typeModel.getTypeName().equals(DataTypeConstants.DATE)) {
+                            
+                            Date date = CommonUtil.parseDate(value.getText(), "yyyy-MM-dd");
+                            itemBean.set(path, date);
+                        } else if (typeModel.isMultiple()){
+                            List<Serializable> list = new ArrayList<Serializable>();
+                            for (Object node : nodes){
+                                list.add(((Node)node).getText());
+                            }
+                            itemBean.set(path, list);
+                        } else {
+                            itemBean.set(path, value.getText());
                         }
-                        itemBean.set(path, list);
-                    } else {
-                        itemBean.set(path, value.getText());
-                    }
+                    } 
                 }
             }
         }

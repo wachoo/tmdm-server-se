@@ -18,6 +18,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
@@ -147,7 +148,8 @@ public class ItemsListPanel extends ContentPanel {
 
             public void handleEvent(GridEvent<ItemBean> be) {
                 ItemBean item = grid.getSelectionModel().getSelectedItem();
-                showItem(item, ItemsView.TARGET_IN_NEW_TAB);
+                //showItem(item, ItemsView.TARGET_IN_NEW_TAB);
+                GetService.openItemBrowser(item.getIds(), item.getConcept());
             }
         });
         grid.addListener(Events.Attach, new Listener<GridEvent<ItemBean>>() {

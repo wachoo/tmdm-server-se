@@ -20,30 +20,32 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 
 			});
 
-			
-			
 			tabPanel.add(itemsBrowser2Panel);
-			
+
 			itemsBrowser2Panel.show();
-            itemsBrowser2Panel.doLayout();
-            amalto.core.doLayout();
-			
+			itemsBrowser2Panel.doLayout();
+			amalto.core.doLayout();
+
 			org_talend_mdm_webapp_itemsbrowser2_InBoundService_renderUI();
-				
-		}else{
-			
+
+		} else {
+
 			itemsBrowser2Panel.show();
-            itemsBrowser2Panel.doLayout();
-            amalto.core.doLayout();
+			itemsBrowser2Panel.doLayout();
+			amalto.core.doLayout();
 		}
 
-		
 	};
-	
-	function getCurrentLanguage() {
-        return language;
-    }
 
+	function getCurrentLanguage() {
+		return language;
+	};
+
+	function openItemBrowser(ids, conceptName) {
+		amalto.itemsbrowser.ItemsBrowser.editItemDetails(ids, conceptName,
+				function() {
+				});
+	};
 
 	return {
 
@@ -51,7 +53,10 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 			initUIAndData();
 		},
 		getLanguage : function() {
-            return getCurrentLanguage();
-        }
+			return getCurrentLanguage();
+		},
+		openItemBrowser : function(ids, conceptName) {
+			openItemBrowser(ids, conceptName);
+		}
 	}
 }();
