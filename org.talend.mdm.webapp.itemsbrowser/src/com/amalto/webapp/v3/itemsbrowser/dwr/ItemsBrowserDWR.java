@@ -3195,7 +3195,9 @@ public class ItemsBrowserDWR {
     	int pos=xpath.lastIndexOf("/");
     	String parentPath=xpath.substring(0,pos);
     	for(Entry<String, TreeNode> entry: xpathToTreeNode.entrySet()){
-    		if(entry.getKey().startsWith(parentPath) && !entry.getKey().equals(xpath)){
+    		pos=entry.getKey().lastIndexOf("/");
+    		String pPath=entry.getKey().substring(0,pos);
+    		if(pPath.equals(parentPath) && !entry.getKey().equals(xpath)){
     			String v=entry.getValue().getValue();
     			if(v!=null && v.trim().length()>0)
     				return false;
