@@ -457,7 +457,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en':'Browse the audit trail for this record'
 	};
 	var TASK_TOOLTIP={
-		'fr':'Ouvre la tâche de cet enregistrement',
+		'fr':'Liste les enregistrements pointant sur cet enregistrement',
 		'en':'List records pointing to this record'
 	};
 	var ACTION_TOOLTIP={
