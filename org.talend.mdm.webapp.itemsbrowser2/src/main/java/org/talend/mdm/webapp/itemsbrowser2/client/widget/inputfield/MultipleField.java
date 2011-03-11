@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.FieldCreator;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.plugin.FieldPlugin;
+import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -95,7 +96,7 @@ public class MultipleField extends Field<List<Object>> {
     }
     
     private Field createField(Object value){
-        Field field = (Field) FieldCreator.createField(dataType, null, false);
+        Field field = (Field) FieldCreator.createField((SimpleTypeModel)dataType, null, false);
         field.addPlugin(createFp());
         field.setValue(value);
         field.addListener(Events.Change, changeListener);

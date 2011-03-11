@@ -14,6 +14,8 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldSetCreator;
+import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -25,10 +27,10 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -73,14 +75,14 @@ public class ItemsFormPanel extends Composite {
     public void paint(ViewBean viewBean) {
         content.removeAll();
         formBindings = new FormBinding(content);
-        List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = viewBean.getMetaDataTypes();
         String concept = CommonUtil.getConceptFromBrowseItemView(viewBean.getViewPK());
         TypeModel typeModel = dataTypes.get(concept);
         toolbar.updateToolBar();
-        Component f = FieldCreator.createField(typeModel, formBindings, true);
-        if (f != null) {
-            content.add(f);
+        
+        FieldSet fildSet = FieldSetCreator.createFieldGroup((ComplexTypeModel) typeModel, formBindings, true);
+        if (fildSet != null) {
+            content.add(fildSet);
         }
 
         ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);

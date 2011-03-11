@@ -10,34 +10,26 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.itemsbrowser2.client.widget;
+package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.MultipleField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.plugin.AddRemovePlugin;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetEnum;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ComponentPlugin;
-import com.extjs.gxt.ui.client.widget.Container;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
@@ -48,18 +40,12 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
 
-    public static Component createField(TypeModel dataType, FormBinding formBindings, boolean enableMultiple) {
+    public static Field createField(SimpleTypeModel dataType, FormBinding formBindings, boolean enableMultiple) {
         Field field = null;
-
-        if (dataType instanceof ComplexTypeModel){
-            FieldSet fieldSet = createFieldGroup((ComplexTypeModel) dataType, formBindings, enableMultiple);
-            return fieldSet;
-        } 
 
         if (dataType.isMultiple() && enableMultiple){
             MultipleField multipleField = new MultipleField(dataType);
@@ -129,32 +115,6 @@ public class FieldCreator {
         return field;
     }
 
-    
-    private static FieldSet createFieldGroup(ComplexTypeModel typeModel, FormBinding formBindings, boolean enableMultiple){
-        FieldSet fieldSet = new FieldSet();
-        fieldSet.setHeading(typeModel.getLabel());
-        
-        FormLayout layout = new FormLayout();  
-        layout.setLabelWidth(75);  
-        fieldSet.setLayout(layout);  
-        
-        List<SimpleTypeModel> simples = typeModel.getSubSimpleTypes();
-        if (simples != null){
-            for (SimpleTypeModel simpleModel : simples){
-                Component field = createField(simpleModel, formBindings, enableMultiple);
-                fieldSet.add(field);
-            }
-        }
-        List<ComplexTypeModel> complexes = typeModel.getSubComplexTypes();
-        if (complexes != null){
-            for (ComplexTypeModel complexModel : complexes){
-                FieldSet subSet = createFieldGroup(complexModel, formBindings, enableMultiple);
-                fieldSet.add(subSet);
-            }
-        }
-        return fieldSet;
-    }
-    
     private static void buildFacets(TypeModel typeModel, Widget w) {
         List<FacetModel> facets = ((SimpleTypeModel) typeModel).getFacets();
         for (FacetModel facet : facets) {

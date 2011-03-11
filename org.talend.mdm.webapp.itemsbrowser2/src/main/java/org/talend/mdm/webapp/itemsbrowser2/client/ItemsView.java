@@ -20,10 +20,11 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.CellEditorCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.CellRendererCreator;
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.FieldCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsFormPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsSearchContainer;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldCreator;
+import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -38,9 +39,10 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
@@ -119,12 +121,15 @@ public class ItemsView extends View {
             // TODO convert xpath 2 label
             xpath = getViewLabelFromViewable(xpath);
             TypeModel typeModel = dataTypes.get(xpath);
-            Component field = FieldCreator.createField(typeModel, null, false);
-
-            CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
-
             ColumnConfig cc = new ColumnConfig(xpath, typeModel.getLabel(), 200);
-            cc.setEditor(cellEditor);
+            if (typeModel instanceof SimpleTypeModel){
+                Field field = FieldCreator.createField((SimpleTypeModel)typeModel, null, false);
+                CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
+                if (cellEditor != null){
+                    cc.setEditor(cellEditor);
+                }
+            }
+
             GridCellRenderer<ModelData> renderer = CellRendererCreator.createRenderer(typeModel);
             if (renderer != null) {
                 cc.setRenderer(renderer);
