@@ -3194,10 +3194,10 @@ public class ItemsBrowserDWR {
     private boolean isSiblingNodeEmpty(HashMap<String, TreeNode> xpathToTreeNode, TreeNode node) {
 
         String xpath = node.getBindingPath();
-        int pos = xpath.lastIndexOf("/");
+        int pos = xpath.lastIndexOf("/");//$NON-NLS-1$
         String parentPath = xpath.substring(0, pos);
         for (Entry<String, TreeNode> entry : xpathToTreeNode.entrySet()) {
-            pos = entry.getKey().lastIndexOf("/");
+            pos = entry.getKey().lastIndexOf("/");//$NON-NLS-1$
             String pPath = entry.getKey().substring(0, pos);
             if (pPath.equals(parentPath) && !entry.getKey().equals(xpath)) {
                 String v = entry.getValue().getValue();
