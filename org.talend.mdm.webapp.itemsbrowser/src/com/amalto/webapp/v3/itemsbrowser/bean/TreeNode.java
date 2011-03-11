@@ -23,9 +23,9 @@ public class TreeNode implements Cloneable {
         super();
         if (!Util.isEnterprise()) {
             readOnly = false;
-            creatable=true;
-            logicalDeletable=true;
-            physicalDeletable=true;
+            denyCreatable=false;
+            denyLogicalDeletable=false;
+            denyPhysicalDeletable=false;
         }
     }
 
@@ -99,34 +99,34 @@ public class TreeNode implements Cloneable {
     private String realType;
     
     //extra access
-	boolean creatable;
-	boolean logicalDeletable;
-	boolean physicalDeletable;
+	boolean denyCreatable;
+	boolean denyLogicalDeletable;
+	boolean denyPhysicalDeletable;
 	
-	public boolean isCreatable() {
-		return creatable;
+
+
+	public boolean isDenyCreatable() {
+		return denyCreatable;
 	}
 
-	public void setCreatable(boolean creatable) {
-		this.creatable = creatable;
+	public void setDenyCreatable(boolean denyCreatable) {
+		this.denyCreatable = denyCreatable;
 	}
 
-	public boolean isLogicalDeletable() {
-		return logicalDeletable;
+	public boolean isDenyLogicalDeletable() {
+		return denyLogicalDeletable;
 	}
 
-	public void setLogicalDeletable(boolean logicalDeletable) {
-		this.logicalDeletable = logicalDeletable;
+	public void setDenyLogicalDeletable(boolean denyLogicalDeletable) {
+		this.denyLogicalDeletable = denyLogicalDeletable;
 	}
 
-
-
-	public boolean isPhysicalDeletable() {
-		return physicalDeletable;
+	public boolean isDenyPhysicalDeletable() {
+		return denyPhysicalDeletable;
 	}
 
-	public void setPhysicalDeletable(boolean physicalDeletable) {
-		this.physicalDeletable = physicalDeletable;
+	public void setDenyPhysicalDeletable(boolean denyPhysicalDeletable) {
+		this.denyPhysicalDeletable = denyPhysicalDeletable;
 	}
 
 	public boolean isPolymiorphism() {
@@ -191,7 +191,7 @@ public class TreeNode implements Cloneable {
                 ArrayList<String> pkInfoList = new ArrayList<String>();
                 ArrayList<String> fkInfoList = new ArrayList<String>();
                 boolean writable=false;
-                boolean creatable=false;
+                boolean denycreatable=false;
                 for (int k = 0; k < annotList.getLength(); k++) {
                     if ("appinfo".equals(annotList.item(k).getLocalName())) {
                         Node source = annotList.item(k).getAttributes().getNamedItem("source");
@@ -237,18 +237,18 @@ public class TreeNode implements Cloneable {
                             if (matcher.matches() && matcher.group(1).toLowerCase().equals(language)) {
                                 setDisplayFomats(matcher.group(1).toLowerCase(), annotList.item(k).getFirstChild().getNodeValue());
                             }
-                        }else if ("X_Create".equals(appinfoSource)) {
+                        }else if ("X_Deny_Create".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
-                                setCreatable(true);
-                                creatable=true;
+                                setDenyCreatable(true);
+                                denycreatable=true;
                             }
-                        }else if ("X_LogicalDelete".equals(appinfoSource)) {
+                        }else if ("X_Deny_LogicalDelete".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
-                                setLogicalDeletable(true);
+                                setDenyLogicalDeletable(true);
                             }
-                        }else if ("X_PhysicalDelete".equals(appinfoSource)) {
+                        }else if ("X_Deny_PhysicalDelete".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
-                                setPhysicalDeletable(true);
+                                setDenyPhysicalDeletable(true);
                             }
                         }
                     }
@@ -257,7 +257,7 @@ public class TreeNode implements Cloneable {
                         setDocumentation(annotList.item(k).getFirstChild().getNodeValue());
                     }
                 }
-                readOnly=!writable && !creatable;
+                readOnly=!writable && denycreatable;
                 setForeignKeyInfo(fkInfoList);
                 setPrimaryKeyInfo(pkInfoList);
             }

@@ -1037,13 +1037,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 //			if(!rootNode.readOnly) $('item-new-btn').disabled = false;
 //			else $('item-new-btn').disabled = true;
 			//$('item-new-btn').disabled=rootNode.readOnly;
-			$('item-new-btn').disabled=!rootNode.creatable;
+			$('item-new-btn').disabled=rootNode.denyCreatable;
 			$('item-save-btn').disabled=rootNode.readOnly;
 			$('item-manage-btn').disabled=rootNode.readOnly;
 			//if($('btn-logicaldelete'))$('btn-logicaldelete').disabled=$('item-new-btn').disabled;
 			//if($('btn-delete'))$('btn-delete').disabled=$('item-new-btn').disabled;			
-			if($('btn-logicaldelete'))$('btn-logicaldelete').disabled=!rootNode.logicalDeletable;
-			if($('btn-delete'))$('btn-delete').disabled=!rootNode.physicalDeletable;
+			if($('btn-logicaldelete'))$('btn-logicaldelete').disabled=rootNode.denyLogicalDeletable;
+			if($('btn-delete'))$('btn-delete').disabled=rootNode.denyPhysicalDeletable;
 		});
 		//empty grid when another view is selected
 		if(_gridItems){    
@@ -1726,7 +1726,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	        		//hidden :true,
 	        		xtype:'button',
 	        		iconCls : 'item_bt_delete',
-	        		disabled: !_rootNode.physicalDeletable, //$('item-new-btn').disabled,
+	        		disabled: _rootNode.denyPhysicalDeletable, //$('item-new-btn').disabled,
 	        		tooltip:PHYSICALLY_DELETE_TOOLTIP[language],
 		        	listeners:{
 		        		'click':function(){
@@ -1799,7 +1799,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	        		id:'btn-logicaldelete',
 	        		xtype:'button',
 	        		iconCls : 'item_bt_sendTrash',
-	        		disabled:!_rootNode.logicalDeletable,
+	        		disabled:_rootNode.denyLogicalDeletable,
 	        		tooltip:LOGICALLY_DELETE_TOOLTIP[language],
 	        		listeners:{
 		        		'click':function(){
@@ -2083,7 +2083,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			deleteBTN = {text: BUTTON_DELETE[language], disabled:!_rootNode.physicalDeletable, iconCls : 'item_bt_delete', handler: toolbar.deleteItemHandler};
+			deleteBTN = {text: BUTTON_DELETE[language], disabled:_rootNode.denyPhysicalDeletable, iconCls : 'item_bt_delete', handler: toolbar.deleteItemHandler};
 			nbButtons++;
 		}
 		
@@ -2096,7 +2096,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			logicalDelBTN = {text: BUTTON_LOGICAL_DEL[language], disabled:!_rootNode.logicalDeletable, iconCls : 'item_bt_sendTrash', handler: toolbar.logicalDelItemHandler};
+			logicalDelBTN = {text: BUTTON_LOGICAL_DEL[language], disabled:_rootNode.denyLogicalDeletable, iconCls : 'item_bt_sendTrash', handler: toolbar.logicalDelItemHandler};
 			nbButtons++;
 		}
 		
@@ -2122,7 +2122,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:DUPLICATE_TOOLTIP[language],disabled:!_rootNode.creatable, iconCls : 'item_bt_duplicate', text: BUTTON_DUPLICATE[language], className: 'tb-button tb-button-nude', handler: toolbar.duplicateItemHandler});
+			toolbar.addButton( {tooltip:DUPLICATE_TOOLTIP[language],disabled:_rootNode.denyCreatable, iconCls : 'item_bt_duplicate', text: BUTTON_DUPLICATE[language], className: 'tb-button tb-button-nude', handler: toolbar.duplicateItemHandler});
 			nbButtons++;
 		}
 		
