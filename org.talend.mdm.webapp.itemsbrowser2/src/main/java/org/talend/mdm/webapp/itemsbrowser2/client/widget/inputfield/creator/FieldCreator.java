@@ -14,13 +14,12 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator;
 
 import java.util.List;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.MultipleField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
-import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.validator.NumberFieldValidator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetEnum;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
@@ -29,17 +28,13 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
@@ -72,7 +67,7 @@ public class FieldCreator {
 
         } else if (dataType.getTypeName().equals(DataTypeConstants.DECIMAL)) {
             NumberField numberField = new NumberField();
-            numberField.setValidator(validator);
+            numberField.setValidator(NumberFieldValidator.getInstance());
             buildFacets(dataType, numberField);
             field = numberField;
         } else if (dataType.getTypeName().equals(DataTypeConstants.UUID)) {
@@ -121,30 +116,5 @@ public class FieldCreator {
             FacetEnum.setFacetValue(facet.getName(), w, facet.getValue());
         }
     }
-    
-    static Validator validator = new Validator() {
 
-        public String validate(Field<?> field, String value) {
-            String msg = "";
-            String totalDigits = field.getElement().getAttribute(FacetEnum.TOTAL_DIGITS.getFacetName());
-            if (totalDigits != null && !totalDigits.equals("")) {
-                if (value.replace(".", "").length() > Integer.parseInt(totalDigits)) {
-
-                    msg += MessagesFactory.getMessages().check_totalDigits() + totalDigits + "\n";
-                }
-            }
-
-            String fractionDigits = field.getElement().getAttribute(FacetEnum.FRACTION_DIGITS.getFacetName());
-            if (fractionDigits != null && !fractionDigits.equals("")) {
-                String[] digits = value.split(".");
-                if (digits[1].length() > Integer.parseInt(fractionDigits)) {
-                    msg += MessagesFactory.getMessages().check_fractionDigits() + fractionDigits;
-                }
-            }
-            if (msg.length() > 0)
-                return msg;
-            else
-                return null;
-        }
-    };
 }

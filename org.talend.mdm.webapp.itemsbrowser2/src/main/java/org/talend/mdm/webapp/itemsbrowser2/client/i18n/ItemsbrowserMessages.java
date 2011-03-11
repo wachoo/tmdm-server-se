@@ -115,6 +115,10 @@ public interface ItemsbrowserMessages extends Messages {
     String check_totalDigits();
 
     String check_fractionDigits();
+    
+    String check_minExclusive();
+    
+    String check_maxExclusive();
 
     String create_btn();
 

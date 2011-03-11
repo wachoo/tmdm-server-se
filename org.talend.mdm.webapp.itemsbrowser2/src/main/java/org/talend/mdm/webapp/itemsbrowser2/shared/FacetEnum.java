@@ -47,9 +47,11 @@ public enum FacetEnum {
         } else if (facet.equals(MIN_EXCLUSIVE.getFacetName())){
             NumberField field = (NumberField) w;
             field.setMinValue(Integer.parseInt(value));
+            field.getElement().setAttribute(MIN_EXCLUSIVE.getFacetName(), value);
         } else if (facet.equals(MAX_EXCLUSIVE.getFacetName())){
             NumberField field = (NumberField) w;
             field.setMaxValue(Integer.parseInt(value));
+            field.getElement().setAttribute(MAX_EXCLUSIVE.getFacetName(), value);
         } else if (facet.equals(LENGTH.getFacetName())){
             TextField<String> field = (TextField<String>) w;
             if (Integer.parseInt(value) > 0){
