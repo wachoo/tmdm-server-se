@@ -41,7 +41,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
 import org.apache.log4j.Logger;
 import org.apache.xerces.dom.ElementNSImpl;
 import org.apache.xerces.dom.TextImpl;
@@ -710,13 +709,13 @@ public class ItemsBrowserDWR {
                 "xpathToParticle"); //$NON-NLS-1$
         ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization"); //$NON-NLS-1$
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
-        //reload the xmlstring
-        String xmlString=(String)ctx.getSession().getAttribute("itemDocument" + docIndex + "_xmlstring");
-        if(xmlString!=null){
-        	try {
-				d=Util.parse(xmlString);
-			} catch (Exception e) {				
-			}
+        // reload the xmlstring
+        String xmlString = (String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_xmlstring");
+        if (xmlString != null) {
+            try {
+                d = Util.parse(xmlString);
+            } catch (Exception e) {
+            }
         }
         Document bakDoc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
         String[] keys = (String[]) ctx.getSession().getAttribute("foreignKeys"); //$NON-NLS-1$
@@ -980,7 +979,7 @@ public class ItemsBrowserDWR {
             String oldPath = treeNode.getValue();
             //treeNode.setValue(""); //$NON-NLS-1$
             if (treeNode.getTypeName().trim().toUpperCase().equals("UUID") //$NON-NLS-1$
-                    || treeNode.getTypeName().trim().toUpperCase().equals("AUTO_INCREMENT") || (treeNode.getValue()!=null&& treeNode.getValue().trim().length()>0)) { //$NON-NLS-1$
+                    || treeNode.getTypeName().trim().toUpperCase().equals("AUTO_INCREMENT") || (treeNode.getValue() != null && treeNode.getValue().trim().length() > 0)) { //$NON-NLS-1$
                 treeNode.setReadOnly(true);
             } else {
                 treeNode.setReadOnly(false);
@@ -1382,15 +1381,17 @@ public class ItemsBrowserDWR {
             UpdateReportItem item = new UpdateReportItem(xpath, oldValue, content);
             updatedPath.put(xpath, item);
             ctx.getSession().setAttribute("updatedPath" + docIndex, updatedPath); //$NON-NLS-1$
-            //update the treeNode
-            HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute("xpathToTreeNode");
-            TreeNode node=null;
+            // update the treeNode
+            HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute(
+                    "xpathToTreeNode");
+            TreeNode node = null;
             if (xpath != null)
                 node = xpathToTreeNode.get(xpath);
             if (xpath.lastIndexOf("]") == xpath.length() - 1 && node == null) {
                 node = xpathToTreeNode.get(xpath.replaceAll("\\[\\d+\\]$", "[1]"));
             }
-            if(node!=null)node.setValue(content);
+            if (node != null)
+                node.setValue(content);
             return "Node updated";
         } catch (Exception e2) {
             LOG.error(e2.getMessage(), e2);
@@ -3057,15 +3058,15 @@ public class ItemsBrowserDWR {
                 restrictions = node.getRestrictions();
                 errorMessage = (String) node.getFacetErrorMsg().get(language);
             }
-            boolean ancestor=checkAncestorMinOCcurs(node);
-            if(ancestor ||(!ancestor &&!isSiblingNodeEmpty(xpathToTreeNode,node))){
-	            if (node.getMinOccurs() >= 1 )
-	                errorMessage = errorMessage == null ? "the field minOccurs is " + node.getMinOccurs() : errorMessage;
-	            else
-	                errorMessage = errorMessage == null ? "this field is mandatory!" : errorMessage;
+            boolean ancestor = checkAncestorMinOCcurs(node);
+            if (ancestor || (!ancestor && !isSiblingNodeEmpty(xpathToTreeNode, node))) {
+                if (node.getMinOccurs() >= 1)
+                    errorMessage = errorMessage == null ? "the field minOccurs is " + node.getMinOccurs() : errorMessage;
+                else
+                    errorMessage = errorMessage == null ? "this field is mandatory!" : errorMessage;
             }
             // isValidation = false;
-            return errorMessage==null?"null":errorMessage;
+            return errorMessage == null ? "null" : errorMessage;
         }
 
         if (node != null) {
@@ -3185,26 +3186,28 @@ public class ItemsBrowserDWR {
 
     /**
      * check node's sibling node is empty or not
+     * 
      * @param xpathToTreeNode
      * @param node
      * @return
      */
-    private boolean isSiblingNodeEmpty(HashMap<String, TreeNode> xpathToTreeNode,TreeNode node) {
+    private boolean isSiblingNodeEmpty(HashMap<String, TreeNode> xpathToTreeNode, TreeNode node) {
 
-    	String xpath=node.getBindingPath();
-    	int pos=xpath.lastIndexOf("/");
-    	String parentPath=xpath.substring(0,pos);
-    	for(Entry<String, TreeNode> entry: xpathToTreeNode.entrySet()){
-    		pos=entry.getKey().lastIndexOf("/");
-    		String pPath=entry.getKey().substring(0,pos);
-    		if(pPath.equals(parentPath) && !entry.getKey().equals(xpath)){
-    			String v=entry.getValue().getValue();
-    			if(v!=null && v.trim().length()>0)
-    				return false;
-    		}
-    	}
-    	return true;
+        String xpath = node.getBindingPath();
+        int pos = xpath.lastIndexOf("/");
+        String parentPath = xpath.substring(0, pos);
+        for (Entry<String, TreeNode> entry : xpathToTreeNode.entrySet()) {
+            pos = entry.getKey().lastIndexOf("/");
+            String pPath = entry.getKey().substring(0, pos);
+            if (pPath.equals(parentPath) && !entry.getKey().equals(xpath)) {
+                String v = entry.getValue().getValue();
+                if (v != null && v.trim().length() > 0)
+                    return false;
+            }
+        }
+        return true;
     }
+
     /**
      * @author ymli get the Conditions' name available
      * @return
@@ -3237,8 +3240,9 @@ public class ItemsBrowserDWR {
                 String Operator = "";
                 String Value = "";
                 String Join = " ";
+                int criteriaLenth = criteria[criteria.length - 1].trim().isEmpty() ? criteria.length - 1 : criteria.length;
                 // String item="";
-                for (int i = 0; i < criteria.length - 1; i++) {
+                for (int i = 0; i < criteriaLenth; i++) {
                     // Matcher m = Field.matcher(criteria[i]);
                     Field = criteria[i].substring(criteria[i].indexOf("<Field>") + 7, criteria[i].indexOf("</Field>"));
                     Operator = criteria[i].substring(criteria[i].indexOf("<Operator>") + 10, criteria[i].indexOf("</Operator>"));
