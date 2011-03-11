@@ -458,7 +458,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	var TASK_TOOLTIP={
 		'fr':'Ouvre la tâche de cet enregistrement',
-		'en':'Browse the task for this record'
+		'en':'List records pointing to this record'
 	};
 	var ACTION_TOOLTIP={
         'fr':'Lancer le process',
