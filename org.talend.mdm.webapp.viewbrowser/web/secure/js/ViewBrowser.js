@@ -127,7 +127,7 @@ amalto.viewbrowser.ViewBrowser = function () {
 		DWRUtil.setValue('criterias','<span id="criteria1"><select id="viewfield1"><option value="">Any field</option></select>' +
 						'<select id="viewoperator1"></select>' +
 						'<input id="value1" type="text" value="*" onkeypress="DWRUtil.onReturn(event, amalto.viewbrowser.ViewBrowser.displayView);" /> ' +
-						'<span onClick="amalto.viewbrowser.ViewBrowser.addCriteria(\'criteria1\');"><img src="img/genericUI/add-element.gif"/></span>'+
+						'<span onClick="amalto.viewbrowser.ViewBrowser.addCriteria(\'criteria1\');"><img src="img/genericUI/add.png"/></span>'+
 						'<br/></span>');	
 	
 		DWRUtil.addOptions('viewoperator1',OPERATORS[language]);
@@ -159,8 +159,8 @@ amalto.viewbrowser.ViewBrowser = function () {
 						'<select id="viewfield{id}"></select>' +
 						'<select id="viewoperator{id}"></select>' +
 						'<input id="value{id}" type="text"  value="*" onkeypress="DWRUtil.onReturn(event, amalto.viewbrowser.ViewBrowser.displayView);"/>  ' +
-						'<span onClick="amalto.viewbrowser.ViewBrowser.addCriteria(\'criteria{id}\');"><img src="img/genericUI/add-element.gif"/></span> ' +
-						'<span onClick="amalto.viewbrowser.ViewBrowser.removeCriteria(\'{id}\');"><img src="img/genericUI/remove-element.gif"/></span> ' +
+						'<span onClick="amalto.viewbrowser.ViewBrowser.addCriteria(\'criteria{id}\');"><img src="img/genericUI/add.png"/></span> ' +
+						'<span onClick="amalto.viewbrowser.ViewBrowser.removeCriteria(\'{id}\');"><img src="img/genericUI/delete.png"/></span> ' +
 						'<br/></span>');
 		//criteria[criteriaCount]=criteriaCount;
 		var id2 = parseInt(criteriaCount+1);
