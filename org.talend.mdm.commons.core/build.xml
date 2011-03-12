@@ -35,7 +35,7 @@
 		<property file="${version.props}" />
 
 		<copy file="RELEASE.NOTES" tofile="RELEASE-${major}.${minor}.${rev}_${build.number}.NOTES"/>
-		<jar destfile="${jar}-${major}.${minor}.${rev}_${build.number}.jar">
+		<jar destfile="${jar}.jar">
 			<zipfileset dir=".">
 				<include name="version.properties" />
 				<include name="RELEASE-${major}.${minor}.${rev}_${build.number}.NOTES" />
@@ -84,8 +84,8 @@
 		<property file="${version.props}" />
 		<echo>Deploying ${major}.${minor}.${rev}-${build.number}</echo>
 		<copy
-			file="${jar}-${major}.${minor}.${rev}_${build.number}.jar"
-			tofile="${jboss.instance.lib}/${jar}-${major}.${minor}.${rev}_${build.number}.jar"/>
+			file="${jar}.jar"
+			tofile="${jboss.instance.lib}/${jar}.jar"/>
 		    <!--<copy
 			file="${war}-${major}.${minor}.${rev}_${build.number}.war"
 			tofile="${jboss.deploy.dir}/${war}-${major}.${minor}.${rev}_${build.number}.war"/>
