@@ -2252,6 +2252,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		DWREngine.setAsync(false); 
         ItemsBrowserInterface.prepareSessionForItemDetails(dataObject,language,function(status){});
 		DWREngine.setAsync(true);
+		
+		 ItemsBrowserInterface.getRootNode(dataObject,language, function(rootNode){
+            _rootNode=rootNode;
+        });
+        
 	    displayItemDetails2(itemPK2, dataObject, false, refreshCB);
 	    
 	}

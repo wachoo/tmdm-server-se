@@ -2519,7 +2519,7 @@ public class ItemsBrowserDWR {
                 else
                     keys[i] = key.getSelector() + keys[i];
             }
-            ctx.getSession().setAttribute("foreignKeys", keys);
+            ctx.getSession().setAttribute("foreignKeys", keys); //$NON-NLS-1$
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
