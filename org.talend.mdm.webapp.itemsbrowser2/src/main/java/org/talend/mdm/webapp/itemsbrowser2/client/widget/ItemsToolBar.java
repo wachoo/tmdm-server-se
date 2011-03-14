@@ -50,11 +50,11 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -147,7 +147,7 @@ public class ItemsToolBar extends ToolBar {
 
                 EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().getCurrentEntityModel();
                 ItemBean item = ItemCreator.createDefaultItemBean(concept, entityModel);
-                
+
                 AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);
                 evt.setData(ItemsView.ITEMS_FORM_TARGET, ItemsView.TARGET_IN_NEW_TAB);
                 Dispatcher.forwardEvent(evt);
@@ -211,7 +211,7 @@ public class ItemsToolBar extends ToolBar {
                         if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
                             final ItemsListPanel list = (ItemsListPanel) instance.getParent();
                             if (list.getGrid() != null) {
-                                service.logicalDeleteItem(list.getGrid().getSelectionModel().getSelectedItem(), "/",
+                                service.logicalDeleteItem(list.getGrid().getSelectionModel().getSelectedItem(), "/", //$NON-NLS-1$
                                         new AsyncCallback<ItemResult>() {
 
                                             public void onFailure(Throwable arg0) {
@@ -235,7 +235,7 @@ public class ItemsToolBar extends ToolBar {
                         }
                     }
                 });
-                box.getTextBox().setValue("/");
+                box.getTextBox().setValue("/"); //$NON-NLS-1$
             }
         });
         sub.add(trashMenu);
@@ -249,7 +249,7 @@ public class ItemsToolBar extends ToolBar {
         HorizontalPanel entityPanel = new HorizontalPanel();
         final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>();
 
-        entityCombo.setWidth(100);
+        entityCombo.setAutoWidth(true);
         entityCombo.setEmptyText(MessagesFactory.getMessages().empty_entity());
         entityCombo.setStore(list);
         entityCombo.setDisplayField("name");//$NON-NLS-1$
@@ -583,16 +583,17 @@ public class ItemsToolBar extends ToolBar {
         });
         add(bookmarkBtn);
 
-        service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), new AsyncCallback<List<ItemBaseModel>>() {
+        service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
+                new AsyncCallback<List<ItemBaseModel>>() {
 
-            public void onFailure(Throwable arg0) {
-            }
+                    public void onFailure(Throwable arg0) {
+                    }
 
-            public void onSuccess(List<ItemBaseModel> arg0) {
-                list.removeAll();
-                list.add(arg0);
-            }
-        });
+                    public void onSuccess(List<ItemBaseModel> arg0) {
+                        list.removeAll();
+                        list.add(arg0);
+                    }
+                });
     }
 
     private void showAdvancedWin(ToolBar toolBar, String criteria) {

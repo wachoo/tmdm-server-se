@@ -73,7 +73,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         setSpacing(3);
 
         keyComboBox = new ComboBox<BaseModel>();
-        keyComboBox.setWidth(100);
+        keyComboBox.setAutoWidth(true);
         keyComboBox.setDisplayField("name"); //$NON-NLS-1$
         keyComboBox.setValueField("value"); //$NON-NLS-1$
         keyComboBox.setStore(list);
@@ -90,6 +90,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         add(keyComboBox);
 
         operatorComboBox = new ComboBox<BaseModel>();
+        operatorComboBox.setAutoWidth(true);
         operatorComboBox.setDisplayField("name"); //$NON-NLS-1$
         operatorComboBox.setValueField("value"); //$NON-NLS-1$
         operatorComboBox.setStore(operatorlist);
@@ -100,6 +101,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         add(valueTextBox);
 
         valueComboBox = new ComboBox<BaseModel>();
+        valueComboBox.setAutoWidth(true);
         valueComboBox.setDisplayField("name"); //$NON-NLS-1$
         valueComboBox.setValueField("value"); //$NON-NLS-1$
         valueComboBox.setStore(valuelist);
