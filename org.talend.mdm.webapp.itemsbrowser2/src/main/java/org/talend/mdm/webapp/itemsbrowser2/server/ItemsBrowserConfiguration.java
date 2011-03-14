@@ -9,7 +9,7 @@ public class ItemsBrowserConfiguration {
 
     private static final Logger logger = Logger.getLogger(ItemsBrowserConfiguration.class);
 
-    private static final String CONFIG_PROPERTIES_PATH = "../itembrowser2.properties";
+    private static final String CONFIG_PROPERTIES_PATH = "../itembrowser2.properties"; //$NON-NLS-1$
 
     private static Properties properties;
 
@@ -50,7 +50,7 @@ public class ItemsBrowserConfiguration {
             properties = getProperties();
             value = properties.getProperty(strKey);
         } catch (IOException e) {
-            logger.error("Error happened when you loading properties! ", e);//$NON-NLS-1$
+            logger.error("Error happened when you loading properties! ", e);
         }
 
         return value;
@@ -65,13 +65,13 @@ public class ItemsBrowserConfiguration {
 
         String mode = getPropertyValue("mode");//$NON-NLS-1$
 
-        if (mode != null && mode.equals("standalone"))
-            flag = true;//$NON-NLS-1$
+        if (mode != null && mode.equals("standalone")) //$NON-NLS-1$
+            flag = true;
 
         return flag;
 
     }
-    
+
     /**
      * DOC HSHU Comment method "getMode".
      */
@@ -81,12 +81,11 @@ public class ItemsBrowserConfiguration {
 
         String formHook = getPropertyValue("formHook");//$NON-NLS-1$
 
-        if (formHook != null && formHook.equals("default"))
-            flag = true;//$NON-NLS-1$
+        if (formHook != null && formHook.equals("default")) //$NON-NLS-1$
+            flag = true;
 
         return flag;
 
     }
-    
 
 }
