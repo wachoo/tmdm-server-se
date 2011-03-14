@@ -143,6 +143,10 @@ public interface ItemsbrowserMessages extends Messages {
     String jouranl_tip();
 
     String refresh();
+    
+    String page_size_label();
+    
+    String page_size_notice();
 
     String save_confirm();
 

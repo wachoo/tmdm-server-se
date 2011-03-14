@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -45,6 +46,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -52,7 +54,8 @@ import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -89,7 +92,7 @@ public class ItemsListPanel extends ContentPanel {
     ContentPanel gridContainer;
 
     private final static int PAGE_SIZE = 10;
-
+   
     ItemsToolBar toolBar;
 
     public ItemsListPanel() {
@@ -119,7 +122,8 @@ public class ItemsListPanel extends ContentPanel {
 
         ColumnModel cm = new ColumnModel(columnConfigList);
         gridContainer = new ContentPanel(new FitLayout());
-        PagingToolBar pagingBar = new PagingToolBar(PAGE_SIZE);
+        final PagingToolBarEx pagingBar = new PagingToolBarEx(PAGE_SIZE);
+
         pagingBar.bind(loader);
         gridContainer.setBottomComponent(pagingBar);
         grid = new Grid<ItemBean>(store, cm);
@@ -139,7 +143,9 @@ public class ItemsListPanel extends ContentPanel {
 
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 ItemBean item = se.getSelectedItem();
-                showItem(item, ItemsView.TARGET_IN_SEARCH_TAB);
+                if (item != null){
+                    showItem(item, ItemsView.TARGET_IN_SEARCH_TAB);
+                }
             }
         });
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {
@@ -154,7 +160,8 @@ public class ItemsListPanel extends ContentPanel {
             public void handleEvent(GridEvent<ItemBean> be) {
                 PagingLoadConfig config = new BasePagingLoadConfig();
                 config.setOffset(0);
-                config.setLimit(PAGE_SIZE);
+                int pageSize = (Integer) pagingBar.getPageSize();
+                config.setLimit(pageSize);
                 loader.load(config);
             }
         });
@@ -201,6 +208,17 @@ public class ItemsListPanel extends ContentPanel {
             }
         });
         contextMenu.add(openInTab);
+        
+//        MenuItem editRow = new MenuItem();
+//        editRow.setText("edit");
+//        editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
+//
+//            public void componentSelected(MenuEvent ce) {
+//                grid.getStore().indexOf(grid.getSelectionModel().getSelectedItem());
+//                re.startEditing(0, true);
+//            }
+//        });
+//        contextMenu.add(editRow);
 
         grid.setContextMenu(contextMenu);
 
