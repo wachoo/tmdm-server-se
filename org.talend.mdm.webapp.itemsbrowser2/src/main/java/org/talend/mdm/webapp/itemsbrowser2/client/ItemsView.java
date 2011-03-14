@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.CellEditorCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.CellRendererCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
@@ -148,18 +149,24 @@ public class ItemsView extends View {
                 itemsSearchContainer.getItemsFormPanel().paint(entityModel);
                 itemsSearchContainer.getItemsFormPanel().bind(itemBean);
                 itemsSearchContainer.getItemsFormPanel().setReadOnly(itemBean, entityModel.getKeys());
+                //TODO handle legacy form
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_TAB)) {
-                ItemsFormPanel itemsFormPanel = new ItemsFormPanel();
-                addTab(itemsFormPanel, tabTitle, tabTitle, true);
-                itemsFormPanel.paint(entityModel);
-                itemsFormPanel.bind(itemBean);
-                itemsFormPanel.setReadOnly(itemBean, entityModel.getKeys());
+                if(Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()) {
+                    ItemsFormPanel itemsFormPanel = new ItemsFormPanel();
+                    addTab(itemsFormPanel, tabTitle, tabTitle, true);
+                    itemsFormPanel.paint(entityModel);
+                    itemsFormPanel.bind(itemBean);
+                    itemsFormPanel.setReadOnly(itemBean, entityModel.getKeys());
+                }else {
+                    GetService.openItemBrowser(itemBean.getIds(), itemBean.getConcept());
+                }
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_WINDOW)) {
                 ItemsFormPanel itemsFormPanel = new ItemsFormPanel();
                 addWin(itemsFormPanel, tabTitle);
                 itemsFormPanel.paint(entityModel);
                 itemsFormPanel.bind(itemBean);
                 itemsFormPanel.setReadOnly(itemBean, entityModel.getKeys());
+                //TODO handle legacy form
             }
         }
     }

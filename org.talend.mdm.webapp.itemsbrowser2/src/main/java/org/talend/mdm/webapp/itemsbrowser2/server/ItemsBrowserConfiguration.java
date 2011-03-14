@@ -72,5 +72,21 @@ public class ItemsBrowserConfiguration {
 
     }
     
+    /**
+     * DOC HSHU Comment method "getMode".
+     */
+    public static boolean isUsingDefaultForm() {
+
+        boolean flag = false;
+
+        String formHook = getPropertyValue("formHook");//$NON-NLS-1$
+
+        if (formHook != null && formHook.equals("default"))
+            flag = true;//$NON-NLS-1$
+
+        return flag;
+
+    }
+    
 
 }

@@ -68,23 +68,27 @@ public class ItemsController extends Controller {
     }
 
     protected void onViewItemForm(final AppEvent event) {
-        Log.info("View item's form... ");
+        // Log.info("View item's form... ");
         // in the controller of ViewItemForm event re-parse model, get-full item
         final ItemBean itemBean = event.getData();
-        EntityModel entityModel = Itemsbrowser2.getSession().getCurrentEntityModel();
-        service.getItem(itemBean, entityModel, new AsyncCallback<ItemBean>() {
+        
+        if(Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()) {
+            EntityModel entityModel = Itemsbrowser2.getSession().getCurrentEntityModel();
+            service.getItem(itemBean, entityModel, new AsyncCallback<ItemBean>() {
 
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-            }
+                public void onFailure(Throwable caught) {
+                    Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                }
 
-            public void onSuccess(ItemBean _itemBean) {
-                itemBean.copy(_itemBean);
-                forwardToView(itemsView, event);
-            }
+                public void onSuccess(ItemBean _itemBean) {
+                    itemBean.copy(_itemBean);
+                    forwardToView(itemsView, event);
+                }
 
-        });
-
+            });
+        }else {
+            forwardToView(itemsView, event);
+        }
     }
 
     protected void onGetView(final AppEvent event) {

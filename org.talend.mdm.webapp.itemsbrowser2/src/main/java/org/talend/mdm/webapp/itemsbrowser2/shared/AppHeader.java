@@ -20,6 +20,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class AppHeader implements IsSerializable {
 
     private boolean isStandAloneMode = false;
+    
+    private boolean isUsingDefaultForm = false;
 
     private String datamodel = null;
 
@@ -38,6 +40,14 @@ public class AppHeader implements IsSerializable {
 
     public void setStandAloneMode(boolean isStandAloneMode) {
         this.isStandAloneMode = isStandAloneMode;
+    }
+    
+    public boolean isUsingDefaultForm() {
+        return isUsingDefaultForm;
+    }
+
+    public void setUsingDefaultForm(boolean isUsingDefaultForm) {
+        this.isUsingDefaultForm = isUsingDefaultForm;
     }
 
     public String getDatamodel() {

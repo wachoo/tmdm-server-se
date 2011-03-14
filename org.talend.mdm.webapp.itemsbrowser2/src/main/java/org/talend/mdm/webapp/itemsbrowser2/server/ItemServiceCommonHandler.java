@@ -718,6 +718,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         header.setDatacluster(getCurrentDataCluster());
         header.setDatamodel(getCurrentDataModel());
         header.setStandAloneMode(ItemsBrowserConfiguration.isStandalone());
+        header.setUsingDefaultForm(ItemsBrowserConfiguration.isUsingDefaultForm());
         return header;
         
     }
