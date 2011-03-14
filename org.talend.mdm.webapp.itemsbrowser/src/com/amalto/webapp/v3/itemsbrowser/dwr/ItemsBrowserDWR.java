@@ -312,7 +312,8 @@ public class ItemsBrowserDWR {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-
+        //reset the foreignKeys
+        prepareSessionForItemDetails(concept,language);
         return rootNode;
 
     }
