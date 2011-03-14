@@ -374,4 +374,43 @@ public class SchemaWebAgent extends SchemaManager {
         }
     	return false;
     }
+    
+    
+    /**
+     * 
+     * @param concept
+     * @return
+     * @throws Exception
+     */
+    public boolean isEntityDenyCreatable(String concept)throws Exception{
+    	Configuration config = Configuration.getInstance();
+    	Map<String,XSElementDecl> conceptMap=CommonDWR.getConceptMap(config.getModel());
+        XSElementDecl decl = conceptMap.get(concept);
+        if (decl == null) {
+            //String err = "Concept '" + concept + "' is not found in model '" + config.getModel() + "'";
+            return false;
+        }
+        XSAnnotation xsa = decl.getAnnotation();
+
+        ArrayList<String> roles = Util.getAjaxSubject().getRoles();
+        if (xsa != null && xsa.getAnnotation() != null) {
+            Element el = (Element) xsa.getAnnotation();
+            NodeList annotList = el.getChildNodes();
+
+            for (int k = 0; k < annotList.getLength(); k++) {
+                if ("appinfo".equals(annotList.item(k).getLocalName())) {
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                    if (source == null)
+                        continue;
+                    String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue();
+                    if ("X_Deny_Create".equals(appinfoSource)) {
+                        if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
+                           return true;
+                        }
+                    }
+                }
+            }
+        }
+    	return false;
+    }    
 }

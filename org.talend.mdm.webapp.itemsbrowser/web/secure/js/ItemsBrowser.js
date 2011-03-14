@@ -2286,6 +2286,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		};
 		//end
 		
+		//see 0019470 check user's denyCreatable
+		var isCreatable=true;
+		DWREngine.setAsync(false);
+		ItemsBrowserInterface.isEntityCreatable(dataObject,function(result){
+			isCreatable=result;
+		});
+		DWREngine.setAsync(true);
+		if(!isCreatable) return;
+		
 		var ids = "";
 		
 		

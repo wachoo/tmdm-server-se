@@ -3594,4 +3594,8 @@ public class ItemsBrowserDWR {
 
         return listRange;
     }
+    
+    public boolean isEntityCreatable(String conceptName)throws Exception{
+    	return !SchemaWebAgent.getInstance().isEntityDenyCreatable(conceptName);
+    }
 }
