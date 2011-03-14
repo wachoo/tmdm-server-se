@@ -169,12 +169,12 @@ public class Configuration {
         Configuration configuration = new Configuration();
 
         Element user = null;
-        String userxml = Util.getAjaxSubject().getXml();
         try {
             user = Util.getLoginProvisioningFromDB();
         } catch (Exception e) {
         }
         if (user == null) {
+            String userxml = Util.getAjaxSubject().getXml();
             user = (Element) Util.getNodeList(Util.parse(userxml), "//" + "User").item(0);
         }
 

@@ -265,7 +265,7 @@ public class CommonDWR {
     	//FIXME
     	//Why we need to update session attribute in this place?
     	//decouple please
-    	ctx.getSession().setAttribute("xpathToLabel",xpathToLabel);
+    	if(ctx!=null&&ctx.getSession()!=null)ctx.getSession().setAttribute("xpathToLabel",xpathToLabel);
     	return xpathToLabel; 
 	}
 	

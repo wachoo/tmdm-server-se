@@ -269,7 +269,7 @@ public class SchemaWebAgent extends SchemaManager {
      * @throws XtentisWebappException
      */
     private DataModelID getMyDataModelTicket() throws Exception {
-        Configuration config = Configuration.getInstance();
+        Configuration config = Configuration.getInstance(true);
         String dataModelPK = config.getModel();
         String dataModelRevision = getMyDatamodelRevision();
         DataModelID dataModelID = new DataModelID(dataModelPK, dataModelRevision);
