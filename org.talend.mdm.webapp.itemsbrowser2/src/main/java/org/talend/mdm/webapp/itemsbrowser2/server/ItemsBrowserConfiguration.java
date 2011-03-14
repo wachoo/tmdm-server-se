@@ -43,7 +43,7 @@ public class ItemsBrowserConfiguration {
      * @param strKey
      * @return
      */
-    private static String getPropertyValue(String strKey) {
+    public static String getPropertyValue(String strKey) {
         String value = null;
 
         try {
