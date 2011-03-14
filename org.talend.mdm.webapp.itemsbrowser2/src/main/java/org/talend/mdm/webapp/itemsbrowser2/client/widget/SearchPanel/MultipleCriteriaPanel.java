@@ -13,7 +13,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.Constants;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.OperatorConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
@@ -116,7 +116,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
         list = new ListStore<ItemBaseModel>();
         ItemBaseModel field = null;
 
-        for (String curOper : Constants.groupOperators) {
+        for (String curOper : OperatorConstants.groupOperators) {
             field = new ItemBaseModel();
             field.set("name", curOper); //$NON-NLS-1$
             field.set("value", curOper); //$NON-NLS-1$

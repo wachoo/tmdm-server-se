@@ -15,6 +15,8 @@ package org.talend.mdm.webapp.itemsbrowser2.client.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.util.Parser;
+
 /**
  * DOC Administrator class global comment. Detailled comment
  */

@@ -94,6 +94,11 @@
 			<version>1.3</version>
 			<systemPath>${basedir}/../talend.mdm.libraries/lib/z.commons-jxpath-1.3.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>com.thaiopensource</groupId>
+			<artifactId>trang</artifactId>
+			<version>20091111</version>
+		</dependency>
 
 		<!-- Of course we need web-core -->
 		<dependency>
@@ -102,6 +107,15 @@
 			<version>${project.version}</version>
 			<scope>system</scope>
 			<systemPath>${basedir}/../org.talend.mdm.webapp.core/z.mdm.webapp.core.jar</systemPath>
+		</dependency>
+
+		<!-- Common env -->
+		<dependency>
+			<groupId>org.talend.mdm.commons.core</groupId>
+			<artifactId>org.talend.mdm.commons.core</artifactId>
+			<version>${project.version}</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../org.talend.mdm.commons.core/z.mdm.common.commons.core.jar</systemPath>
 		</dependency>
 
 		<!-- If you need to use our SchemaPool, you need this dependency also -->

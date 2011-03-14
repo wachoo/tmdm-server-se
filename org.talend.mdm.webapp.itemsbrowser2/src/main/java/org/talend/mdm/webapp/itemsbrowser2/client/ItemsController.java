@@ -12,11 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
-import java.util.List;
-
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -37,11 +37,10 @@ public class ItemsController extends Controller {
     public ItemsController() {
         registerEventTypes(ItemsEvents.InitFrame);
         registerEventTypes(ItemsEvents.InitSearchContainer);
+        registerEventTypes(ItemsEvents.GetView);
         registerEventTypes(ItemsEvents.SearchView);
-        registerEventTypes(ItemsEvents.ViewItems);
         registerEventTypes(ItemsEvents.ViewItemForm);
         registerEventTypes(ItemsEvents.Error);
-        registerEventTypes(ItemsEvents.GetView);
     }
 
     @Override
@@ -61,8 +60,6 @@ public class ItemsController extends Controller {
             onGetView(event);
         } else if (event.getType() == ItemsEvents.SearchView) {
             onSearchView(event);
-        } else if (event.getType() == ItemsEvents.ViewItems) {
-            onViewItems(event);
         } else if (event.getType() == ItemsEvents.ViewItemForm) {
             onViewItemForm(event);
         } else if (type == ItemsEvents.Error) {
@@ -71,36 +68,40 @@ public class ItemsController extends Controller {
     }
 
     protected void onViewItemForm(final AppEvent event) {
+        Log.info("View item's form... ");
+        // in the controller of ViewItemForm event re-parse model, get-full item
+        final ItemBean itemBean = event.getData();
+        EntityModel entityModel = Itemsbrowser2.getSession().getCurrentEntityModel();
+        service.getItem(itemBean, entityModel, new AsyncCallback<ItemBean>() {
 
-        // ItemBean item = event.getData();
-        // final String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
-        forwardToView(itemsView, event);
-        // ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
-        // // TODO get whole item & data model from backend and then gen ItemFormBean
-        //
-        // service.setForm(item, viewBean, new AsyncCallback<ItemFormBean>() {
-        //
-        // public void onSuccess(ItemFormBean result) {
-        // AppEvent ae = new AppEvent(event.getType(), result);
-        // ae.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
-        // forwardToView(itemsView, ae);
-        // }
-        //
-        // public void onFailure(Throwable caught) {
-        // Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-        // }
-        // });
+            public void onFailure(Throwable caught) {
+                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+            }
+
+            public void onSuccess(ItemBean _itemBean) {
+                itemBean.copy(_itemBean);
+                forwardToView(itemsView, event);
+            }
+
+        });
 
     }
 
     protected void onGetView(final AppEvent event) {
         Log.info("Get view... ");
         String viewName = event.getData();
-        service.getView(viewName, new AsyncCallback<ViewBean>() {
+        service.getView(viewName, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), new AsyncCallback<ViewBean>() {
 
-            public void onSuccess(ViewBean result) {
-                Itemsbrowser2.getSession().put(UserSession.CURRENT_VIEW, result);
-                AppEvent ae = new AppEvent(event.getType(), result);
+            public void onSuccess(ViewBean view) {
+
+                // Init CURRENT_VIEW
+                Itemsbrowser2.getSession().put(UserSession.CURRENT_VIEW, view);
+
+                // Init CURRENT_ENTITY_MODEL
+                Itemsbrowser2.getSession().put(UserSession.CURRENT_ENTITY_MODEL, view.getBindingEntityModel());
+
+                // forward
+                AppEvent ae = new AppEvent(event.getType(), view);
                 forwardToView(itemsView, ae);
             }
 
@@ -112,26 +113,9 @@ public class ItemsController extends Controller {
 
     protected void onSearchView(final AppEvent event) {
         Log.info("Do view-search... ");
-        ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
+        ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().getCurrentView();
         AppEvent ae = new AppEvent(event.getType(), viewBean);
         forwardToView(itemsView, ae);
-    }
-
-    protected void onViewItems(final AppEvent event) {
-        Log.info("Get items... ");
-        ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
-        String entity = ViewBean.getEntityFromViewName(viewBean.getViewPK());
-        service.getEntityItems(entity, new AsyncCallback<List<ItemBean>>() {
-
-            public void onSuccess(List<ItemBean> result) {
-                AppEvent ae = new AppEvent(event.getType(), result);
-                forwardToView(itemsView, ae);
-            }
-
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-            }
-        });
     }
 
     protected void onError(AppEvent ae) {

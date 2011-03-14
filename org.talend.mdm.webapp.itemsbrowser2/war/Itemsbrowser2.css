@@ -27,18 +27,6 @@
   padding: 12px;
 }
 
-.icon-email {
-  background-image: url(./images/icons/email.png) !important;
-}
-
-.icon-email-add {
-  background-image: url(./images/icons/email_add.gif) !important;
-}
-
-.icon-email-reply {
-  background-image: url(./images/icons/email_go.png) !important;
-}
-
 /* solve menu item css problems, extjs and gxt */
 .x-menu-item {
     padding: 3px 21px 3px 27px !important;

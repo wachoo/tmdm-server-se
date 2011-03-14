@@ -8,6 +8,7 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -21,12 +22,11 @@ public class Itemsbrowser2 implements EntryPoint {
 
     public static final String USER_SESSION = "UserSession"; //$NON-NLS-1$
 
-    public static boolean IS_SCRIPT = true;
-
     /**
      * This is the entry point method.
      */
     public void onModuleLoad() {
+      
         // log setting
         Log.setUncaughtExceptionHandler();
 

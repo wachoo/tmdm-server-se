@@ -16,14 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.creator.CellEditorCreator;
+import org.talend.mdm.webapp.itemsbrowser2.client.creator.CellRendererCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.CellEditorCreator;
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.CellRendererCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsFormPanel;
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldCreator;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
@@ -35,7 +34,6 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -95,8 +93,6 @@ public class ItemsView extends View {
             onGetView(event);
         } else if (event.getType() == ItemsEvents.SearchView) {
             onSearchView(event);
-        } else if (event.getType() == ItemsEvents.ViewItems) {
-            onViewItems(event);
         } else if (event.getType() == ItemsEvents.ViewItemForm) {
             onViewItemForm(event);
         } 
@@ -111,15 +107,14 @@ public class ItemsView extends View {
 
     protected void onSearchView(final AppEvent event) {
         ViewBean viewBean = event.getData();
+        EntityModel entityModel = viewBean.getBindingEntityModel();
 
         // TODO update columns
         itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
         List<String> viewableXpaths = viewBean.getViewableXpaths();
-        Map<String, TypeModel> dataTypes = viewBean.getMetaDataTypes();
+        Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         for (String xpath : viewableXpaths) {
-            // TODO convert xpath 2 label
-            xpath = getViewLabelFromViewable(xpath);
             TypeModel typeModel = dataTypes.get(xpath);
             ColumnConfig cc = new ColumnConfig(xpath, typeModel.getLabel(), 200);
             if (typeModel instanceof SimpleTypeModel){
@@ -138,68 +133,33 @@ public class ItemsView extends View {
             ccList.add(cc);
         }
 
-        itemsSearchContainer.getItemsListPanel().updateGrid(ccList);
-        itemsSearchContainer.getItemsFormPanel().paint(viewBean);
-        // Dispatcher.forwardEvent(ItemsEvents.ViewItems, null);
-    }
-
-    private String getViewLabelFromViewable(String xpath) {
-        // TODO getViewLabelFromViewable
-        return xpath;
-    }
-
-    protected void onViewItems(AppEvent event) {
-        if (event.getType() == ItemsEvents.ViewItems) {
-
-            List<ItemBean> itemBeans = dynamicAssembleItems(event);
-
-            ItemsListPanel itemsListPanel = itemsSearchContainer.getItemsListPanel();
-
-            ListStore<ItemBean> store = itemsListPanel.getStore();
-            store.removeAll();
-
-            store.add(itemBeans);
-
-            if (itemBeans.size() > 0) {
-                itemsListPanel.getGrid().getSelectionModel().select(((ItemBean) itemBeans.get(0)), false);
-            } else {
-                // itemsListPanel.showItem(null);
-            }
-            return;
-        }
-    }
-
-    private List<ItemBean> dynamicAssembleItems(AppEvent event) {
-        List<ItemBean> itemBeans = event.getData();
-        for (ItemBean itemBean : itemBeans) {
-            ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
-            itemBean.dynamicAssemble(viewBean);
-        }
-        return itemBeans;
+        itemsSearchContainer.getItemsListPanel().updateGrid(ccList);        
+        //TODO in the view of ViewItemForm binding
     }
 
     protected void onViewItemForm(AppEvent event) {
         ItemBean itemBean = event.getData();
         String itemsFormTarget = event.getData(ItemsView.ITEMS_FORM_TARGET);
-        ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
+        EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().getCurrentEntityModel();
         if (itemBean != null) {
             String tabTitle = itemBean.getConcept() + itemBean.getIds();
             if (itemsFormTarget.equals(ItemsView.TARGET_IN_SEARCH_TAB)) {
                 itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
+                itemsSearchContainer.getItemsFormPanel().paint(entityModel);
                 itemsSearchContainer.getItemsFormPanel().bind(itemBean);
-                itemsSearchContainer.getItemsFormPanel().setReadOnly(itemBean, viewBean.getKeys());
+                itemsSearchContainer.getItemsFormPanel().setReadOnly(itemBean, entityModel.getKeys());
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_TAB)) {
                 ItemsFormPanel itemsFormPanel = new ItemsFormPanel();
                 addTab(itemsFormPanel, tabTitle, tabTitle, true);
-                itemsFormPanel.paint(viewBean);
+                itemsFormPanel.paint(entityModel);
                 itemsFormPanel.bind(itemBean);
-                itemsFormPanel.setReadOnly(itemBean, viewBean.getKeys());
+                itemsFormPanel.setReadOnly(itemBean, entityModel.getKeys());
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_WINDOW)) {
                 ItemsFormPanel itemsFormPanel = new ItemsFormPanel();
                 addWin(itemsFormPanel, tabTitle);
-                itemsFormPanel.paint(viewBean);
+                itemsFormPanel.paint(entityModel);
                 itemsFormPanel.bind(itemBean);
-                itemsFormPanel.setReadOnly(itemBean, viewBean.getKeys());
+                itemsFormPanel.setReadOnly(itemBean, entityModel.getKeys());
             }
         }
     }
@@ -258,10 +218,6 @@ public class ItemsView extends View {
         addTab(itemsSearchContainer, "Search Tab", "Search Tab", false);
 
         Registry.register(ITEMS_SEARCH_CONTAINER, itemsSearchContainer);
-
-        // FIXME
-        // String defaultViewName = ClientFakeData.DEFAULT_VIEW;
-        // Dispatcher.forwardEvent(ItemsEvents.GetView, defaultViewName);
 
     }
 

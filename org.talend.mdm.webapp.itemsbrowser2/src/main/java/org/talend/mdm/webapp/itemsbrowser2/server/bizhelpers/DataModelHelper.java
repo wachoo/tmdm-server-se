@@ -10,23 +10,32 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.itemsbrowser2.server.util;
+package org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers;
 
 import java.io.StringReader;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.itemsbrowser2.server.ItemsBrowserConfiguration;
+import org.talend.mdm.webapp.itemsbrowser2.server.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
-import org.xml.sax.SAXException;
 
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.util.webservices.WSConceptKey;
+import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
+import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
@@ -41,11 +50,9 @@ import com.sun.xml.xsom.XSType;
 import com.sun.xml.xsom.parser.XSOMParser;
 import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
-public class XsdUtil {
+public class DataModelHelper {
 
-    private static final Logger logger = Logger.getLogger(XsdUtil.class);
-
-    private static Map<String, TypeModel> xpathToType = new LinkedHashMap<String, TypeModel>();
+    private static final Logger logger = Logger.getLogger(DataModelHelper.class);
 
     private static List<String> getLabels(XSElementDecl xsed, String x_Label) {
         List<String> labels;
@@ -101,25 +108,48 @@ public class XsdUtil {
         return label;
     }
 
-    public static void parseXSD(String xsd, String viewPk) {
+    /**
+     * DOC HSHU Comment method "getBusinessConcept".
+     * 
+     * @throws Exception
+     */
+    private static XSElementDecl getBusinessConcept(String model, String concept) {
+        XSElementDecl eleDecl = null;
         try {
-            XSOMParser reader = new XSOMParser();
-            reader.setAnnotationParser(new DomAnnotationParserFactory());
-            reader.parse(new StringReader(xsd));
-            XSSchemaSet xss = reader.getResult();
-
-            // clean hasmap
-            xpathToType.clear();
-            XSElementDecl eleDecl = getElementDeclByName(viewPk, xss);
-            if (eleDecl != null) {
-                parseElementDecl("", eleDecl);
+            if (!ItemsBrowserConfiguration.isStandalone()) {
+                eleDecl = SchemaWebAgent.getInstance().getBusinessConcept(concept).getE();
+            } else {
+                String xsd = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model))).getXsdSchema();
+                XSOMParser reader = new XSOMParser();
+                reader.setAnnotationParser(new DomAnnotationParserFactory());
+                reader.parse(new StringReader(xsd));
+                XSSchemaSet xss = reader.getResult();
+                eleDecl = getElementDeclByName(concept, xss);
             }
-        } catch (SAXException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
+        }
+        return eleDecl;
+    }
+
+    /**
+     * DOC HSHU Comment method "parseSchema".
+     * 
+     * @param model
+     * @param concept
+     */
+    public static void parseSchema(String model, String concept, EntityModel entityModel) {
+        entityModel.setConceptName(concept);
+        //set pk
+        entityModel.setKeys(getBusinessConceptKeys(model,concept));
+        //analyst model
+        XSElementDecl eleDecl = getBusinessConcept(model, concept);
+        if (eleDecl != null) {
+            parseElementDecl("", eleDecl, entityModel);
         }
     }
 
-    public static XSElementDecl getElementDeclByName(String eleName, XSSchemaSet xss) {
+    private static XSElementDecl getElementDeclByName(String eleName, XSSchemaSet xss) {
         Collection<XSSchema> schemas = xss.getSchemas();
         for (XSSchema xsa : schemas) {
             Map<String, XSElementDecl> elems = xsa.getElementDecls();
@@ -131,7 +161,7 @@ public class XsdUtil {
         return null;
     }
 
-    public static TypeModel parseElementDecl(String path, XSElementDecl eleDecl) {
+    private static TypeModel parseElementDecl(String path, XSElementDecl eleDecl, EntityModel entityModel) {
         TypeModel typeModel = null;
         XSType type = eleDecl.getType();
         String fullPath = path + eleDecl.getName();
@@ -140,10 +170,10 @@ public class XsdUtil {
             label = eleDecl.getName();
         if (type.isSimpleType()) {
             typeModel = parseSimpleType(type.asSimpleType());
-            xpathToType.put(fullPath, typeModel);
+            entityModel.getMetaDataTypes().put(fullPath, typeModel);
         } else if (type.isComplexType()) {
-            typeModel = parseComplexType(fullPath + "/", type.asComplexType());
-            xpathToType.put(fullPath, typeModel);
+            typeModel = parseComplexType(fullPath + "/", type.asComplexType(), entityModel);
+            entityModel.getMetaDataTypes().put(fullPath, typeModel);
         }
         typeModel.setLabel(label);
         typeModel.setXpath(fullPath);
@@ -158,7 +188,7 @@ public class XsdUtil {
         return typeModel;
     }
 
-    public static SimpleTypeModel parseSimpleType(XSSimpleType simpleType) {
+    private static SimpleTypeModel parseSimpleType(XSSimpleType simpleType) {
         SimpleTypeModel simpleTypeModel = new SimpleTypeModel();
         simpleTypeModel.setTypeName(DataTypeConstants.getDataTypeByName(simpleType.getName()));
         if (simpleType.isRestriction()) {
@@ -173,12 +203,12 @@ public class XsdUtil {
         return simpleTypeModel;
     }
 
-    public static void parseParticle(ComplexTypeModel complexTypeModel, String path, XSParticle xsp) {
+    private static void parseParticle(ComplexTypeModel complexTypeModel, String path, XSParticle xsp, EntityModel entityModel) {
 
         XSElementDecl eleDecl = xsp.getTerm().asElementDecl();
         if (eleDecl == null)
             return;
-        TypeModel typeModel = parseElementDecl(path, eleDecl);
+        TypeModel typeModel = parseElementDecl(path, eleDecl, entityModel);
         typeModel.setMinOccurs(xsp.getMinOccurs());
         typeModel.setMaxOccurs(xsp.getMaxOccurs());
         if (typeModel.isSimpleType()) {
@@ -191,26 +221,50 @@ public class XsdUtil {
         if (xsGroup != null) {
             XSParticle[] xsps = xsGroup.getChildren();
             for (XSParticle p : xsps) {
-                parseParticle(complexTypeModel, path, p);
+                parseParticle(complexTypeModel, path, p, entityModel);
             }
         }
 
     }
 
-    public static ComplexTypeModel parseComplexType(String path, XSComplexType complexType) {
+    private static ComplexTypeModel parseComplexType(String path, XSComplexType complexType, EntityModel entityModel) {
         ComplexTypeModel complexTypeModel = new ComplexTypeModel();
         complexTypeModel.setTypeName(DataTypeConstants.getDataTypeByName(complexType.getName()));
         XSParticle[] xsps = complexType.getContentType().asParticle().getTerm().asModelGroup().getChildren();
         if (xsps != null) {
             for (XSParticle xsp : xsps) {
-                parseParticle(complexTypeModel, path, xsp);
+                parseParticle(complexTypeModel, path, xsp, entityModel);
             }
         }
         return complexTypeModel;
     }
 
-    public static Map<String, TypeModel> getXpathToType() {
-        return xpathToType;
+    /**
+     * DOC HSHU Comment method "getBusinessConceptKey".
+     * 
+     * @throws XtentisWebappException
+     * @throws RemoteException
+     */
+    private static String[] getBusinessConceptKeys(String model, String concept) {
+        
+        String[] keys = null;
+        try {
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                    new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
+
+            keys = key.getFields();
+            keys = Arrays.copyOf(keys, keys.length);
+            for (int i = 0; i < keys.length; i++) {
+                if (".".equals(key.getSelector())) //$NON-NLS-1$
+                    keys[i] = concept + "/" + keys[i]; //$NON-NLS-1$ 
+                else
+                    keys[i] = key.getSelector() + keys[i];
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return keys;
+        
     }
 
 }

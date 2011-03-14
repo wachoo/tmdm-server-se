@@ -21,13 +21,13 @@ public class ItemsEvents {
     public static final EventType InitFrame = new EventType();
 
     public static final EventType InitSearchContainer = new EventType();
+    
+    public static final EventType GetView = new EventType();
 
     public static final EventType SearchView = new EventType();
 
-    public static final EventType ViewItems = new EventType();
-
     public static final EventType ViewItemForm = new EventType();
 
-    public static final EventType GetView = new EventType();
+
 
 }

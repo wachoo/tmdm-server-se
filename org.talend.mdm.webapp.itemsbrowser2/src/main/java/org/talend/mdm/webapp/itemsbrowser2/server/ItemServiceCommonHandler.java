@@ -33,24 +33,20 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.BrowseItem;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormLineBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.SearchTemplate;
+import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ViewHelper;
-import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeCustomerConcept;
-import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.CommonUtil;
+import org.talend.mdm.webapp.itemsbrowser2.server.util.DateUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.XmlUtil;
-import org.talend.mdm.webapp.itemsbrowser2.server.util.XsdUtil;
-import org.talend.mdm.webapp.itemsbrowser2.server.util.callback.ElementProcess;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -59,7 +55,6 @@ import com.amalto.webapp.core.util.Messages;
 import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
-import com.amalto.webapp.util.webservices.WSConceptKey;
 import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -67,9 +62,7 @@ import com.amalto.webapp.util.webservices.WSDeleteItem;
 import com.amalto.webapp.util.webservices.WSDropItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSExistsItem;
-import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
@@ -105,32 +98,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.itemsbrowser2.server.messages", ItemsServiceImpl.class.getClassLoader()); //$NON-NLS-1$
 
-    public ArrayList<ItemBean> getFakeCustomerItems() {
-        return null;
-    }
 
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getEntityItems(java.lang.String)
-     */
-    public List<ItemBean> getEntityItems(String entityName) {
-        List<ItemBean> items = null;
-
-        // if (entityName.equals("customer"))
-        if (Itemsbrowser2.IS_SCRIPT) {
-            items = (List<ItemBean>) getItemBeans("DStar", "Browse_items_Agency", "Agency FULLTEXTSEARCH *", 0, 20)[0];
-        } else {
-            items = FakeData.getFakeCustomerItems();
-        }
-        //
-        // else if (entityName.equals("state"))
-        // items = FakeData.getFakeStateItems();
-
-        return items;
-    }
-
-    private Object[] getItemBeans(String dataClusterPK, String viewPk, String criteria, int skip, int max) {
+    private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip, int max) {
 
         String sortDir = null;
         String sortCol = null;
@@ -138,16 +107,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         int totalSize = 0;
 
         List<ItemBean> itemBeans = new ArrayList<ItemBean>();
-        String concept = getConceptFromBrowseItemView(viewPk);
+        String concept = ViewHelper.getConceptFromDefaultViewName(viewBean.getViewPK());
         try {
+            
             WSWhereItem wi = com.amalto.webapp.core.util.Util.buildWhereItems(criteria);
 
             String[] results = CommonUtil
                     .getPort()
                     .viewSearch(
-                            new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewPk), wi, -1, skip, max,
+                            new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1, skip, max,
                                     sortCol, sortDir)).getStrings();
-            ViewBean viewBean = getView(viewPk);
 
             // TODO change ids to array?
             String ids = null;
@@ -166,15 +135,15 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 }
 
                 Document doc = XmlUtil.parseText(results[i]);
-                for (String key : viewBean.getKeys()) {
+                for (String key : entityModel.getKeys()) {
                     ids = XmlUtil.queryNode(doc, key.replaceAll(concept, "result")).getText();
                 }
 
                 ItemBean itemBean = new ItemBean(concept, ids, results[i]);
-                // ItemBean itemBean = new ItemBean("customer", String.valueOf(i), results[i]);
-                dynamicAssemble(itemBean, viewBean);
+                dynamicAssemble(itemBean, entityModel);
                 itemBeans.add(itemBean);
             }
+            
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
@@ -182,10 +151,10 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     }
 
-    public void dynamicAssemble(ItemBean itemBean, ViewBean viewBean) throws DocumentException {
+    public void dynamicAssemble(ItemBean itemBean, EntityModel entityModel) throws DocumentException {
         if (itemBean.getItemXml() != null) {
             Document docXml = XmlUtil.parseText(itemBean.getItemXml());
-            Map<String, TypeModel> types = viewBean.getMetaDataTypes();
+            Map<String, TypeModel> types = entityModel.getMetaDataTypes();
             Set<String> xpaths = types.keySet();
             for (String path : xpaths) {
                 TypeModel typeModel = types.get(path);
@@ -194,8 +163,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     if(nodes.size()>0) {
                         Node value = (Node) nodes.get(0);
                         if (typeModel.getTypeName().equals(DataTypeConstants.DATE)) {
-                            
-                            Date date = CommonUtil.parseDate(value.getText(), "yyyy-MM-dd");
+                            Date date = DateUtil.convertStringToDate("yyyy-MM-dd",value.getText());
                             itemBean.set(path, date);
                         } else if (typeModel.isMultiple()){
                             List<Serializable> list = new ArrayList<Serializable>();
@@ -215,57 +183,35 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     /**
      * DOC HSHU Comment method "getView".
      */
-    public ViewBean getView(String viewPk) {
+    public ViewBean getView(String viewPk, String language) {
         try {
             ViewBean vb = new ViewBean();
             vb.setViewPK(viewPk);
-            // TODO mockup
-
+            
+            //get WSView
+            WSView wsView = CommonUtil.getPort().getView(new WSGetView(new WSViewPK(viewPk)));
+            
+            //bind entity model
+            String model = getCurrentDataModel();
+            String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
+            EntityModel entityModel = new EntityModel();
+            DataModelHelper.parseSchema(model, concept, entityModel);
+            vb.setBindingEntityModel(entityModel);
+            
+            //viewables
             String[] viewables = null;
-            if (Itemsbrowser2.IS_SCRIPT) {
-                // test arguments Browse_items_Agency
-                viewables = getViewables(viewPk, "en");
-            } else {
-                viewables = FakeData.getEntityViewables(viewPk);
-            }
-
-            // /////
+            viewables = ViewHelper.getViewables(wsView);
+            //FIXME remove viewableXpath
             if (viewables != null) {
                 for (String viewable : viewables) {
                     vb.addViewableXpath(viewable);
                 }
             }
             vb.setViewables(viewables);
-
-            String xsd;
-            // TODO
-            String model = getCurrentDataModel();
-            String concept = getConceptFromBrowseItemView(viewPk);
-
-            Map<String, TypeModel> metaDataTypes = null;
- 
-            xsd = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model))).getXsdSchema();
-
-            XsdUtil.parseXSD(xsd, concept);
-            metaDataTypes = XsdUtil.getXpathToType();
-
-            vb.setMetaDataTypes(metaDataTypes);
-            vb.setSearchables(getSearchables(viewPk, "en"));
-
-            WSConceptKey key = com.amalto.webapp.core.util.Util.getPort().getBusinessConceptKey(
-                    new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
-
-            String[] keys = key.getFields();
-            keys = Arrays.copyOf(keys, keys.length);
-            for (int i = 0; i < keys.length; i++) {
-                if (".".equals(key.getSelector())) //$NON-NLS-1$
-                    //                    keys[i] = "/" + concept + "/" + keys[i]; //$NON-NLS-1$  //$NON-NLS-2$
-                    keys[i] = concept + "/" + keys[i]; //$NON-NLS-1$ 
-                else
-                    keys[i] = key.getSelector() + keys[i];
-            }
-            vb.setKeys(keys);
-
+            
+            //searchables
+            vb.setSearchables(ViewHelper.getSearchables(wsView, model, language, entityModel));
+            
             return vb;
         } catch (XtentisWebappException e) {
             LOG.error(e.getMessage(), e);
@@ -273,101 +219,6 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             LOG.error(e.getMessage(), e);
         }
         return null;
-    }
-
-    private Map<String, String> getSearchables(String viewPk, String language) {
-        try {
-
-            String[] searchables = CommonUtil.getPort().getView(new WSGetView(new WSViewPK(viewPk)))
-                    .getSearchableBusinessElements();
-            Map<String, TypeModel> labelMapSrc = XsdUtil.getXpathToType();
-
-            Map<String, String> labelSearchables = new LinkedHashMap<String, String>();
-
-            for (int i = 0; i < searchables.length; i++) {
-                labelSearchables.put(searchables[i], labelMapSrc.get(searchables[i]).getLabel());
-            }
-
-            return labelSearchables;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return null;
-        }
-    }
-
-    public String[] getViewables(String viewPK, String language) {
-        try {
-            WSView wsView = null;
-            try {
-                wsView = CommonUtil.getPort().getView(new WSGetView(new WSViewPK(viewPK)));
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-            String[] viewables = wsView.getViewableBusinessElements();
-            return viewables;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return null;
-        }
-
-    }
-
-    /**
-     * DOC HSHU Comment method "setForm".
-     */
-    public ItemFormBean setForm(ItemBean item, ViewBean view) {
-
-        final ItemFormBean itemFormBean = new ItemFormBean();
-        if (item == null) {
-            return itemFormBean;
-        }
-        itemFormBean.setName(item.getConcept() + " " + item.getIds());
-
-        // get item
-        // TODO: add data cluster to the criteria
-        String itemXml = item.getItemXml();
-
-        // get datamodel
-        final FakeCustomerConcept fakeCustomerConcept = new FakeCustomerConcept();
-
-        // go through item
-        try {
-
-            final String viewPk = view.getViewPK().substring("Browse_items_".length());
-            final Map<String, TypeModel> metaDataType = view.getMetaDataTypes();
-
-            Document itemDoc = XmlUtil.parseText(itemXml);
-            XmlUtil.iterate(itemDoc, new ElementProcess() {
-
-                public void process(Element element) {
-
-                    ItemFormLineBean itemFormLineBean = new ItemFormLineBean();
-
-                    String path = element.getUniquePath();
-
-                    // TODO check with complete schema
-                    String label = element.getName();
-                    String value = element.getText();
-
-                    String fieldType = metaDataType.get(viewPk + "/" + label).getTypeName().getTypeName();
-                    itemFormLineBean.setFieldType(fieldType);
-                    itemFormLineBean.setFieldLabel(label);
-                    itemFormLineBean.setFieldValue(value);
-
-                    // check foreign key
-                    List<String> paths = fakeCustomerConcept.getForeignKeyPaths();
-                    if (paths.contains(path))
-                        itemFormLineBean.setHasForeignKey(true);
-
-                    itemFormBean.addLine(itemFormLineBean);
-                }
-            });
-
-        } catch (DocumentException e) {
-            LOG.error(e);
-        }
-
-        return itemFormBean;
     }
 
     public ItemResult saveItemBean(ItemBean item) {
@@ -441,7 +292,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
 
             if (outputErrorMessage == null || "0".equals(errorCode)) { //$NON-NLS-1$               
-                WSItemPK wsItem = com.amalto.webapp.core.util.Util.getPort().deleteItem(
+                WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
                 if (wsItem != null)
                     pushUpdateReport(ids, concept, "PHYSICAL_DELETE"); //$NON-NLS-1$ 
@@ -475,11 +326,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             String xml = null;
             String concept = item.getConcept();
             String[] ids = new String[] { item.getIds() };
-            WSItem item1 = com.amalto.webapp.core.util.Util.getPort().getItem(
+            WSItem item1 = CommonUtil.getPort().getItem(
                     new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
             xml = item1.getContent();
 
-            WSDroppedItemPK wsItem = com.amalto.webapp.core.util.Util.getPort().dropItem(
+            WSDroppedItemPK wsItem = CommonUtil.getPort().dropItem(
                     new WSDropItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), path));
 
             if (wsItem != null && xml != null)
@@ -573,19 +424,18 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         if (xml2 == null)
             return "OK";
 
-        WSItemPK itemPK = com.amalto.webapp.core.util.Util.getPort().putItem(
+        WSItemPK itemPK = CommonUtil.getPort().putItem(
                 new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
 
         if (routeAfterSaving)
-            com.amalto.webapp.core.util.Util.getPort().routeItemV2(new WSRouteItemV2(itemPK));
+            CommonUtil.getPort().routeItemV2(new WSRouteItemV2(itemPK));
 
         return "OK";
     }
 
-    public ItemBasePageLoadResult<ItemBean> queryItemBean(QueryModel config) {
+    public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {
         PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
-        Object[] result = getItemBeans(config.getDataClusterPK(), config.getViewPK(), config.getCriteria().toString(),
-                pagingLoad.getOffset(), pagingLoad.getLimit());
+        Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria().toString(), pagingLoad.getOffset(), pagingLoad.getLimit());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
         return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
@@ -633,11 +483,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return null;
     }
 
-    private String getConceptFromBrowseItemView(String viewPK) {
-        String concept = viewPK.replaceAll("Browse_items_", "");
-        concept = concept.replaceAll("#.*", "");
-        return concept;
-    }
+
 
     private static LinkedHashMap<String, String> getMapSortedByValue(Map<String, String> map) {
         TreeSet<Map.Entry> set = new TreeSet<Map.Entry>(new Comparator() {
@@ -691,7 +537,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         String returnString = "OK";
         try {
             String owner = com.amalto.webapp.core.util.Util.getLoginUserName();
-            BrowseItem searchTemplate = new BrowseItem();
+            SearchTemplate searchTemplate = new SearchTemplate();
             searchTemplate.setViewPK(viewPK);
             searchTemplate.setCriteriaName(templateName);
             searchTemplate.setShared(isShared);
@@ -874,5 +720,23 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         header.setStandAloneMode(ItemsBrowserConfiguration.isStandalone());
         return header;
         
+    }
+    
+    public ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception{
+        String dataCluster=getCurrentDataCluster();
+        String dataModel=getCurrentDataModel();
+        String concept=itemBean.getConcept();
+        //get item
+        WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
+        String[] ids = itemBean.getIds() == null ? null : itemBean.getIds().split("\\.");
+        WSItem wsItem = CommonUtil.getPort().getItem(
+                new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
+        itemBean.setItemXml(wsItem.getContent());
+        //parse schema
+        DataModelHelper.parseSchema(dataModel, concept, entityModel);
+        //dynamic Assemble
+        dynamicAssemble(itemBean, entityModel);
+        
+        return itemBean;
     }
 }

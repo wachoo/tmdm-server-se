@@ -11,8 +11,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
-import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -148,11 +147,11 @@ public class RecordToolBar extends ToolBar {
                     ItemBean item = parent.getItemBean();
                     ItemBean dupItem = new ItemBean(item.getConcept(), "", null);
                     Map<String, Object> properties = new LinkedHashMap<String, Object>();
-                    ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
+                    EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().getCurrentEntityModel();
                     boolean ifKey = false;
                     for (String key : item.getProperties().keySet()) {
                         ifKey = false;
-                        for (String subkey : viewBean.getKeys()) {
+                        for (String subkey : entityModel.getKeys()) {
                             if (subkey.equals(key)) {
                                 properties.put(key, "");
                                 ifKey = true;

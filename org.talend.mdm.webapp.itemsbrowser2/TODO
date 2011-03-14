@@ -1,16 +1,13 @@
 -[frame]
---fix gxt css override problem
---fix viewport auto height problem
+--fix auto height problem
+--check gxt css override problem
 
 -[build]
 --add to build chain
   before build uncomment some configurations in web.xml
---dependency management 
-  web-core.jar 
  
 -[function]
 --add permalink support
---add search toolbar
 --add breadcrumb
 
 -[mdm function]

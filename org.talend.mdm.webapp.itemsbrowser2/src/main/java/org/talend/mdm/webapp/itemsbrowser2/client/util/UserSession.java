@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 
 /**
@@ -31,6 +33,7 @@ public class UserSession implements Serializable{
 
     
     public static final String CURRENT_VIEW = "currentView"; //$NON-NLS-1$
+    public static final String CURRENT_ENTITY_MODEL = "currentEntityModel"; //$NON-NLS-1$
     public static final String APP_HEADER = "appHeader"; //$NON-NLS-1$
     
     private Map<String,Object> sessionMap = null;
@@ -64,5 +67,21 @@ public class UserSession implements Serializable{
      */
     public AppHeader getAppHeader() {
         return (AppHeader) get(APP_HEADER);
+    }
+    
+    /**
+     * DOC HSHU Comment method "getCurrentView".
+     * @return
+     */
+    public ViewBean getCurrentView() {
+        return (ViewBean) get(CURRENT_VIEW);
+    }
+    
+    /**
+     * DOC HSHU Comment method "getCurrentEntityModel".
+     * @return
+     */
+    public EntityModel getCurrentEntityModel() {
+        return (EntityModel) get(CURRENT_ENTITY_MODEL);
     }
 }

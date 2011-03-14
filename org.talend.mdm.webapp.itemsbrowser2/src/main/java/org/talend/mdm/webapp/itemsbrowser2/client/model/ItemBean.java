@@ -12,13 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
-import java.util.List;
+import java.util.Collection;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.util.XmlHelper;
-import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
-
-import com.extjs.gxt.ui.client.data.BaseModel;
-import com.google.gwt.xml.client.Document;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -50,19 +45,6 @@ public class ItemBean extends ItemBaseModel {
         this.ids = ids;
         this.itemXml = itemXml;
 
-    }
-
-    public void dynamicAssemble(ViewBean viewBean) {
-        if (this.itemXml != null) {
-            Document docXml = XmlHelper.parse(itemXml);
-
-            List<String> viewables = viewBean.getViewableXpaths();
-            for (String viewable : viewables) {
-                String value = XmlHelper.getTextValueFromXpath(docXml, viewable);
-                set(viewable, value);
-            }
-
-        }
     }
 
     public String getConcept() {
@@ -105,6 +87,21 @@ public class ItemBean extends ItemBaseModel {
     @Override
     public String toString() {
         return "ItemBean [concept=" + concept + ", ids=" + ids + ", itemXml=" + itemXml + "]";
+    }
+    
+    
+    /**
+     * DOC HSHU Comment method "copy".
+     */
+    public void copy(ItemBean itemBean) {
+        //FIXME is this ugly?
+        setConcept(itemBean.getConcept());
+        setIds(itemBean.getIds());
+        setItemXml(itemBean.getItemXml());
+        Collection<String> names = itemBean.getPropertyNames();
+        for (String name : names) {
+            this.set(name, itemBean.get(name));
+        }
     }
 
 }

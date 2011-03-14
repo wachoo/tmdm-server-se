@@ -5,10 +5,10 @@ import java.util.List;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -20,15 +20,11 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface ItemsServiceAsync {
 
-    void getEntityItems(String entityName, AsyncCallback<List<ItemBean>> callback);
-
-    void setForm(ItemBean item, ViewBean view, AsyncCallback<ItemFormBean> callback);
-
-    void queryItemBean(QueryModel config, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback);
+    void queryItemBeans(QueryModel config, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback);
 
     void getViewsList(String language, AsyncCallback<List<ItemBaseModel>> callback);
 
-    void getView(String viewPk, AsyncCallback<ViewBean> callback);
+    void getView(String viewPk, String language, AsyncCallback<ViewBean> callback);
 
     void isExistCriteria(String dataObjectLabel, String id, AsyncCallback<Boolean> callback);
 
@@ -54,5 +50,7 @@ public interface ItemsServiceAsync {
     void deleteItemBean(ItemBean item, AsyncCallback<ItemResult> callback);
 
     void getAppHeader(AsyncCallback<AppHeader> callback);
+
+    void getItem(ItemBean itemBean, EntityModel entityModel, AsyncCallback<ItemBean> callback);
 
 }

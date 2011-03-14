@@ -5,10 +5,10 @@ import java.util.List;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -31,11 +31,9 @@ public interface ItemsService extends RemoteService {
         }
     }
 
-    List<ItemBean> getEntityItems(String entityName);
+    ItemBasePageLoadResult<ItemBean> queryItemBeans(final QueryModel config);
 
-    ItemBasePageLoadResult<ItemBean> queryItemBean(final QueryModel config);
-
-    ViewBean getView(String viewPk);
+    ViewBean getView(String viewPk,String language);
 
     List<ItemBaseModel> getViewsList(String language);
 
@@ -46,8 +44,6 @@ public interface ItemsService extends RemoteService {
     String getCriteriaByBookmark(String bookmark);
 
     List<ItemBaseModel> getviewItemsCriterias(String view);
-
-    ItemFormBean setForm(ItemBean item, ViewBean view);
 
     PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load);
 
@@ -64,4 +60,6 @@ public interface ItemsService extends RemoteService {
     ItemResult logicalDeleteItem(ItemBean item, String path);
     
     AppHeader getAppHeader() throws Exception;
+    
+    ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception;
 }

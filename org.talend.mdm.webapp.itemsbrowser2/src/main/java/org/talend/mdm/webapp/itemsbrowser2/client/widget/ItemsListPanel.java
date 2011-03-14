@@ -67,9 +67,8 @@ public class ItemsListPanel extends ContentPanel {
             QueryModel qm = new QueryModel();
             toolBar.setQueryModel(qm);
             qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
-            service.queryItemBean(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
+            service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
-                    
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result.getTotalLength()));
                 }
 
@@ -186,6 +185,7 @@ public class ItemsListPanel extends ContentPanel {
         openInWindow.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             public void componentSelected(MenuEvent ce) {
+                //TODO check dirty status
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
                 showItem(m, ItemsView.TARGET_IN_NEW_WINDOW);
             }

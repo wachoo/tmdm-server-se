@@ -14,10 +14,10 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
 import java.util.Date;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.exception.ParserException;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.Parser;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ParserException;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.Parser;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -38,11 +38,11 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;

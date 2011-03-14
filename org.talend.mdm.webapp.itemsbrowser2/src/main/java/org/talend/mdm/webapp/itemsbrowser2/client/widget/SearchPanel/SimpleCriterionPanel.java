@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.Constants;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.OperatorConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
@@ -149,10 +149,10 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             list.add(field);
         }
 
-        if (this.view.getMetaDataTypes() != null) {
+        if (this.view.getBindingEntityModel().getMetaDataTypes() != null) {
             itemsPredicates.clear();
-            for (String key : this.view.getMetaDataTypes().keySet()) {
-                itemsPredicates.put(key, this.view.getMetaDataTypes().get(key));
+            for (String key : this.view.getBindingEntityModel().getMetaDataTypes().keySet()) {
+                itemsPredicates.put(key, this.view.getBindingEntityModel().getMetaDataTypes().get(key));
             }
         }
 
@@ -176,7 +176,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         int delimeter = getKey().indexOf("/"); //$NON-NLS-1$
         if (delimeter == -1) {
             if (getKey().equals(CommonUtil.getConceptFromBrowseItemView(view.getViewPK()))) {
-                setOperatorComboBox(Constants.fulltextOperators);
+                setOperatorComboBox(OperatorConstants.fulltextOperators);
             }
 
             valueComboBox.setVisible(false);
@@ -191,7 +191,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         String predicateValues = itemsPredicates.get(getKey()).getTypeName().getTypeName();
 
         if (predicateValues.equals("string") || predicateValues.equals("normalizedString") || predicateValues.equals("token")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            setOperatorComboBox(Constants.fullOperators);
+            setOperatorComboBox(OperatorConstants.fullOperators);
             valueComboBox.setVisible(false);
             valueComboBox.setValue(null);
             valueDate.setVisible(false);
@@ -199,7 +199,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*"); //$NON-NLS-1$
         } else if (predicateValues.equals("date") || predicateValues.equals("time") || predicateValues.equals("dateTime")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            setOperatorComboBox(Constants.dateOperators);
+            setOperatorComboBox(OperatorConstants.dateOperators);
             valueComboBox.setVisible(false);
             valueComboBox.setValue(null);
             valueDate.setVisible(true);
@@ -212,7 +212,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
                 || predicateValues.equals("positiveInteger") || predicateValues.equals("short") //$NON-NLS-1$ //$NON-NLS-2$
                 || predicateValues.equals("unsignedLong") || predicateValues.equals("unsignedInt") //$NON-NLS-1$ //$NON-NLS-2$
                 || predicateValues.equals("unsignedShort") || predicateValues.equals("unsignedByte")) { //$NON-NLS-1$ //$NON-NLS-2$
-            setOperatorComboBox(Constants.numOperators);
+            setOperatorComboBox(OperatorConstants.numOperators);
             valueComboBox.setVisible(false);
             valueComboBox.setValue(null);
             valueDate.setVisible(false);
@@ -220,19 +220,19 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*"); //$NON-NLS-1$
         } else if (predicateValues.equals("boolean")) { //$NON-NLS-1$
-            setOperatorComboBox(Constants.booleanOperators);
+            setOperatorComboBox(OperatorConstants.booleanOperators);
             valueComboBox.setVisible(false);
             valueDate.setVisible(false);
             valueTextBox.setVisible(false);
             valueTextBox.setValue(null);
         } else if (predicateValues.equals("foreign key")) { //$NON-NLS-1$
-            setOperatorComboBox(Constants.fullOperators);
+            setOperatorComboBox(OperatorConstants.fullOperators);
             valueComboBox.setVisible(true);
             valueDate.setVisible(false);
             valueTextBox.setVisible(false);
             valueTextBox.setValue(null);
         } else if (predicateValues.equals("complex type")) { //$NON-NLS-1$
-            setOperatorComboBox(Constants.fullOperators);
+            setOperatorComboBox(OperatorConstants.fullOperators);
             valueComboBox.setVisible(false);
             valueComboBox.setValue(null);
             valueDate.setVisible(false);
@@ -251,14 +251,14 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
                     field.set("value", facet.getName()); //$NON-NLS-1$
                     valuelist.add(field);
                 }
-                setOperatorComboBox(Constants.enumOperators);
+                setOperatorComboBox(OperatorConstants.enumOperators);
                 valueComboBox.setVisible(true);
                 valueDate.setVisible(false);
                 valueTextBox.setVisible(false);
                 valueTextBox.setValue(null);
             }
         } else {
-            setOperatorComboBox(Constants.fullOperators);
+            setOperatorComboBox(OperatorConstants.fullOperators);
             valueComboBox.setVisible(false);
             valueComboBox.setValue(null);
             valueDate.setVisible(false);

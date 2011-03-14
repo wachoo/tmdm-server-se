@@ -25,7 +25,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * DOC stephane class global comment. Detailled comment
  */
-public class Constants implements Serializable, IsSerializable {
+public class OperatorConstants implements Serializable, IsSerializable {
 
     /**
      * 

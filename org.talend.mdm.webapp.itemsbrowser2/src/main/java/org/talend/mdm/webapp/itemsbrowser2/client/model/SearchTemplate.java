@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class BrowseItem implements Serializable, IsSerializable {
+public class SearchTemplate implements IsSerializable {
 
     private String CriteriaName;
 
@@ -56,7 +56,7 @@ public class BrowseItem implements Serializable, IsSerializable {
         this.criteria = criteria;
     }
 
-    public BrowseItem() {
+    public SearchTemplate() {
         super();
     }
 

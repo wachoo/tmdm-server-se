@@ -1,4 +1,4 @@
-package org.talend.mdm.webapp.itemsbrowser2.client.widget;
+package org.talend.mdm.webapp.itemsbrowser2.client.creator;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.form.Field;

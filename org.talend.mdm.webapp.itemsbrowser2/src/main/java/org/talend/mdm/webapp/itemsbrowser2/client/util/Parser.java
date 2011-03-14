@@ -10,9 +10,15 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.itemsbrowser2.client.model;
+package org.talend.mdm.webapp.itemsbrowser2.client.util;
 
 import java.io.Serializable;
+
+import org.talend.mdm.webapp.itemsbrowser2.client.exception.ParserException;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.OperatorConstants;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -64,7 +70,7 @@ public class Parser implements Serializable, IsSerializable {
 
             if (toReturn == null) {
                 int refProf = -1;
-                for (String current : Constants.groupOperators) {
+                for (String current : OperatorConstants.groupOperators) {
                     final int fromIndex = endBlockIndex - 1;
                     final String searched = END_BLOCK + " " + current + " " + BEGIN_BLOCK;
                     int indexOf = input.indexOf(searched, fromIndex);
@@ -111,37 +117,37 @@ public class Parser implements Serializable, IsSerializable {
     }
 
     private static String getOperator(String value) {
-        for (String currentOp : Constants.fullOperators.keySet()) {
+        for (String currentOp : OperatorConstants.fullOperators.keySet()) {
             if (value.contains(currentOp)) {
                 return currentOp;
             }
         }
 
-        for (String currentOp : Constants.fulltextOperators.keySet()) {
+        for (String currentOp : OperatorConstants.fulltextOperators.keySet()) {
             if (value.contains(currentOp)) {
                 return currentOp;
             }
         }
 
-        for (String currentOp : Constants.dateOperators.keySet()) {
+        for (String currentOp : OperatorConstants.dateOperators.keySet()) {
             if (value.contains(currentOp)) {
                 return currentOp;
             }
         }
 
-        for (String currentOp : Constants.numOperators.keySet()) {
+        for (String currentOp : OperatorConstants.numOperators.keySet()) {
             if (value.contains(currentOp)) {
                 return currentOp;
             }
         }
 
-        for (String currentOp : Constants.booleanOperators.keySet()) {
+        for (String currentOp : OperatorConstants.booleanOperators.keySet()) {
             if (value.contains(currentOp)) {
                 return currentOp;
             }
         }
 
-        for (String currentOp : Constants.enumOperators.keySet()) {
+        for (String currentOp : OperatorConstants.enumOperators.keySet()) {
             if (value.contains(currentOp)) {
                 return currentOp;
             }

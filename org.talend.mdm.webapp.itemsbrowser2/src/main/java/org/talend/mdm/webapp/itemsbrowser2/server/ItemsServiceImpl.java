@@ -18,10 +18,10 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -39,30 +39,16 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     /*
      * (non-Jsdoc)
      * 
-     * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getEntityItems(java.lang.String)
-     */
-    public List<ItemBean> getEntityItems(String entityName) {
-        return itemsServiceHandler.getEntityItems(entityName);
-    }
-
-    /*
-     * (non-Jsdoc)
-     * 
      * @see
      * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#queryItemBean(org.talend.mdm.webapp.itemsbrowser2.client
      * .model.QueryModel)
      */
-    public ItemBasePageLoadResult<ItemBean> queryItemBean(QueryModel config) {
-        return itemsServiceHandler.queryItemBean(config);
+    public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {
+        return itemsServiceHandler.queryItemBeans(config);
     }
 
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getView(java.lang.String)
-     */
-    public ViewBean getView(String viewPk) {
-        return itemsServiceHandler.getView(viewPk);
+    public ViewBean getView(String viewPk, String language) {
+        return itemsServiceHandler.getView(viewPk, language);
     }
 
     /*
@@ -109,17 +95,6 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
      */
     public List<ItemBaseModel> getviewItemsCriterias(String view) {
         return itemsServiceHandler.getviewItemsCriterias(view);
-    }
-
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see
-     * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#setForm(org.talend.mdm.webapp.itemsbrowser2.client.model
-     * .ItemBean, org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean)
-     */
-    public ItemFormBean setForm(ItemBean item, ViewBean view) {
-        return itemsServiceHandler.setForm(item, view);
     }
 
     /*
@@ -191,13 +166,21 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     public ItemResult deleteItemBean(ItemBean item) {
         return itemsServiceHandler.deleteItemBean(item);
     }
-    
-    
+
     /**
      * DOC HSHU Comment method "getAppHeader".
      */
-    public AppHeader getAppHeader() throws Exception{
+    public AppHeader getAppHeader() throws Exception {
         return itemsServiceHandler.getAppHeader();
+    }
+
+    /**
+     * DOC HSHU Comment method "getItem".
+     * 
+     * @throws Exception
+     */
+    public ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception {
+        return itemsServiceHandler.getItem(itemBean,entityModel);   
     }
 
 }

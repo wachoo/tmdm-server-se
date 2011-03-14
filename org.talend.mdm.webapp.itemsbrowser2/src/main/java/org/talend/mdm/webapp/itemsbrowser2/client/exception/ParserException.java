@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.itemsbrowser2.client.model;
+package org.talend.mdm.webapp.itemsbrowser2.client.exception;
 
 /**
  * DOC stephane class global comment. Detailled comment

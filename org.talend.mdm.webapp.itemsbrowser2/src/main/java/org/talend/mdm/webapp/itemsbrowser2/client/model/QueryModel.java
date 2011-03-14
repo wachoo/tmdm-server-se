@@ -12,7 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
+
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 
 public class QueryModel extends ItemBaseModel {
@@ -23,7 +25,9 @@ public class QueryModel extends ItemBaseModel {
 
     String dataClusterPK;
 
-    String viewPK;
+    ViewBean view;
+    
+    EntityModel model;
 
     String criteria;
 
@@ -47,12 +51,20 @@ public class QueryModel extends ItemBaseModel {
         this.dataClusterPK = dataClusterPK;
     }
 
-    public String getViewPK() {
-        return viewPK;
+    public ViewBean getView() {
+        return view;
     }
 
-    public void setViewPK(String viewPK) {
-        this.viewPK = viewPK;
+    public void setView(ViewBean view) {
+        this.view = view;
+    }
+    
+    public EntityModel getModel() {
+        return model;
+    }
+
+    public void setModel(EntityModel model) {
+        this.model = model;
     }
 
     public String getCriteria() {

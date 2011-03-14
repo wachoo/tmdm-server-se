@@ -26,31 +26,6 @@ public class ViewBean implements Serializable, IsSerializable {
 
     private List<String> viewableXpaths;
 
-    public List<String> getViewableXpaths() {
-        return viewableXpaths;
-    }
-
-    public void addViewableXpath(String xpath) {
-        if (this.viewableXpaths == null)
-            viewableXpaths = new ArrayList<String>();
-        viewableXpaths.add(xpath);
-    }
-
-    /**
-     * DOC HSHU Comment method "getEntityNameFromViewName".
-     */
-    public static String getEntityFromViewName(String viewName) {
-
-        String entity = null;
-        if (viewName == null)
-            return entity;
-
-        int pos = viewName.lastIndexOf("_");
-        entity = viewName.substring(pos + 1);
-        return entity;
-
-    }
-
     private String viewPK;
 
     private String description;
@@ -60,19 +35,18 @@ public class ViewBean implements Serializable, IsSerializable {
     private String[] viewables;
 
     private Map<String, String> searchables;
-
-//    private Map<String, String> metaDataTypes;
     
-    private Map<String, TypeModel> metaDataTypes;
+    private EntityModel bindingEntityModel;
+    
 
-    private String[] keys;
-
-    public String[] getKeys() {
-        return keys;
+    public List<String> getViewableXpaths() {
+        return viewableXpaths;
     }
 
-    public void setKeys(String[] keys) {
-        this.keys = keys;
+    public void addViewableXpath(String xpath) {
+        if (this.viewableXpaths == null)
+            viewableXpaths = new ArrayList<String>();
+        viewableXpaths.add(xpath);
     }
 
     public String getDescription() {
@@ -91,23 +65,6 @@ public class ViewBean implements Serializable, IsSerializable {
         this.searchables = searchables;
     }
 
-//    public Map<String, String> getMetaDataTypes() {
-//        return metaDataTypes;
-//    }
-//
-//    public void setMetaDataTypes(Map<String, String> metaDataTypes) {
-//        this.metaDataTypes = metaDataTypes;
-//    }
-
-    
-    public Map<String, TypeModel> getMetaDataTypes() {
-        return metaDataTypes;
-    }
-
-    public void setMetaDataTypes(Map<String, TypeModel> metaDataTypes) {
-        this.metaDataTypes = metaDataTypes;
-    }
-    
     public String[] getViewables() {
         return viewables;
     }
@@ -131,5 +88,16 @@ public class ViewBean implements Serializable, IsSerializable {
     public void setDescriptionLocalized(String descriptionLocalized) {
         this.descriptionLocalized = descriptionLocalized;
     }
+
+    
+    public EntityModel getBindingEntityModel() {
+        return bindingEntityModel;
+    }
+
+    
+    public void setBindingEntityModel(EntityModel bindingEntityModel) {
+        this.bindingEntityModel = bindingEntityModel;
+    }
+    
 
 }

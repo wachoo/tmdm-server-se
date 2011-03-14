@@ -72,7 +72,5 @@ public class ItemsBrowserConfiguration {
 
     }
     
-    public static void main(String[] args) {
-        System.out.println(ItemsBrowserConfiguration.isStandalone());
-    }
+
 }

@@ -18,8 +18,6 @@ package org.talend.mdm.webapp.itemsbrowser2.client.mockup;
  */
 public class ClientFakeData {
     
-    public static final String DEFAULT_VIEW="Browse_items_customer";
-    
-    public static final String DEFAULT_LANGUAUE="en";
+    public static final String DEFAULT_LANGUAUE="en"; //$NON-NLS-1$
 
 }

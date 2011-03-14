@@ -14,8 +14,6 @@ package org.talend.mdm.webapp.itemsbrowser2.server.dwr;
 
 import org.apache.log4j.Logger;
 
-import com.amalto.webapp.core.bean.Configuration;
-
 /**
  * cluster
  * 

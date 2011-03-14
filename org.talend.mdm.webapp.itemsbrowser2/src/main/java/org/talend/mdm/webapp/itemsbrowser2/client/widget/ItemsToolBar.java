@@ -8,7 +8,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
-import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
+import org.talend.mdm.webapp.itemsbrowser2.client.creator.ItemCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
@@ -17,12 +17,11 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SortDir;
@@ -117,7 +116,8 @@ public class ItemsToolBar extends ToolBar {
 
     public void setQueryModel(QueryModel qm) {
         qm.setDataClusterPK(userCluster);
-        qm.setViewPK(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
+        qm.setView(Itemsbrowser2.getSession().getCurrentView());
+        qm.setModel(Itemsbrowser2.getSession().getCurrentEntityModel());
         if (isSimple)
             qm.setCriteria(simplePanel.getCriteria().toString());
         else
@@ -145,8 +145,8 @@ public class ItemsToolBar extends ToolBar {
             public void componentSelected(ButtonEvent ce) {
                 String concept = CommonUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
 
-                ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().get(UserSession.CURRENT_VIEW);
-                ItemBean item = CommonUtil.createDefaultItemBean(concept, viewBean);
+                EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().getCurrentEntityModel();
+                ItemBean item = ItemCreator.createDefaultItemBean(concept, entityModel);
                 
                 AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);
                 evt.setData(ItemsView.ITEMS_FORM_TARGET, ItemsView.TARGET_IN_NEW_TAB);

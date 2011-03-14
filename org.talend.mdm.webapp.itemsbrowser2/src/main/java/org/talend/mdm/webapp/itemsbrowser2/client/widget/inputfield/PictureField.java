@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.PropertyEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -47,8 +48,10 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
 public class PictureField extends Field<String> {
-
-    private static final String DefaultImage = "/itemsbrowser2/images/icons/no_image.gif"; //$NON-NLS-1$
+    
+    private static final String CONTEXT_PATH = GWT.getModuleBaseURL().replaceFirst(GWT.getModuleName() + "/", ""); //$NON-NLS-1$
+    
+    private static final String DefaultImage = CONTEXT_PATH + "images/icons/no_image.gif"; //$NON-NLS-1$
 
     protected El wrap = new El(DOM.createSpan());
 

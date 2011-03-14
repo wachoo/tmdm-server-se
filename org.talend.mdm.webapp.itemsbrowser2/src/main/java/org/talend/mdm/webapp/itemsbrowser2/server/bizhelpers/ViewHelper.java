@@ -12,44 +12,85 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 import com.amalto.webapp.util.webservices.WSView;
 
-
-
 /**
- * DOC HSHU  class global comment. Detailled comment
- * TODO In the further, we can migrate helper classes to spring beans
+ * DOC HSHU class global comment. Detailled comment TODO In the further, we can migrate helper classes to spring beans
  */
 public class ViewHelper {
     
+    private static final Logger logger = Logger.getLogger(ViewHelper.class);
+
     public static final String DEFAULT_VIEW_PREFIX = "Browse_items";
-    
-    
+
     /**
      * DOC HSHU Comment method "getConceptFromDefaultViewName".
      */
     public static String getConceptFromDefaultViewName(String viewName) {
-        
+
         String concept = viewName.replaceAll(ViewHelper.DEFAULT_VIEW_PREFIX + "_", "").replaceAll("#.*", "");
         return concept;
 
     }
-    
+
     /**
      * DOC HSHU Comment method "getViewLabel".
+     * 
      * @param language
      * @param wsview
      * @return
      */
     public static String getViewLabel(String language, WSView wsview) {
-        
+
         Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);
         String viewDesc = p.matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName()).replaceAll("$1");
         viewDesc = viewDesc.equals("") ? wsview.getName() : viewDesc;
         return viewDesc;
-        
+
+    }
+
+    /**
+     * DOC HSHU Comment method "getViewables".
+     * @param wsView
+     * @return
+     */
+    public static String[] getViewables(WSView wsView) {
+        return wsView.getViewableBusinessElements();
+    }
+
+    
+    /**
+     * DOC HSHU Comment method "getSearchables".
+     * @param wsView
+     * @param dataModel
+     * @param language
+     * @return
+     */
+    public static Map<String, String> getSearchables(WSView wsView, String dataModel, String language, EntityModel entityModel) {
+        try {
+            String[] searchables = wsView.getSearchableBusinessElements();
+            Map<String, String> labelSearchables = new LinkedHashMap<String, String>();
+            
+            if (wsView.getName().contains(DEFAULT_VIEW_PREFIX+"_")) { //$NON-NLS-1$
+                Map<String, TypeModel> labelMapSrc = entityModel.getMetaDataTypes();
+                for (int i = 0; i < searchables.length; i++) {
+                    labelSearchables.put(searchables[i], labelMapSrc.get(searchables[i]).getLabel());
+                }
+            }
+            
+            return labelSearchables;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
     }
 
 }

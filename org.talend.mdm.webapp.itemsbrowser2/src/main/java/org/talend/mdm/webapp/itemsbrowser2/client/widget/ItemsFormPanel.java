@@ -12,12 +12,10 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemFormBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldSetCreator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -41,8 +39,6 @@ import com.google.gwt.xml.client.XMLParser;
 
 public class ItemsFormPanel extends Composite {
 
-    ItemFormBean itemFormBean;
-
     FormPanel content = new FormPanel();
 
     RecordToolBar toolbar = new RecordToolBar();
@@ -56,27 +52,12 @@ public class ItemsFormPanel extends Composite {
         this.initComponent(content);
     }
 
-    public ItemsFormPanel(ItemFormBean itemFormBean) {
-        this();
-        this.itemFormBean = itemFormBean;
-    }
 
-    public void setItemFormBean(ItemFormBean itemFormBean) {
-        this.itemFormBean = itemFormBean;
-    }
-
-    public String getDisplayTitle() {
-        String title = "Item's form";
-        if (itemFormBean != null)
-            title = itemFormBean.getName();
-        return title;
-    }
-
-    public void paint(ViewBean viewBean) {
+    public void paint(EntityModel entityModel) {
         content.removeAll();
         formBindings = new FormBinding(content);
-        Map<String, TypeModel> dataTypes = viewBean.getMetaDataTypes();
-        String concept = CommonUtil.getConceptFromBrowseItemView(viewBean.getViewPK());
+        Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
+        String concept = entityModel.getConceptName();
         TypeModel typeModel = dataTypes.get(concept);
         toolbar.updateToolBar();
         
