@@ -85,7 +85,7 @@ public class ItemsTrashDWR {
 
     }
     public boolean isEntityPhysicalDeletable(String conceptName) throws Exception{
-    	return SchemaWebAgent.getInstance().isEntityPhysicalDeletable(conceptName);
+    	return !SchemaWebAgent.getInstance().isEntityDenyPhysicalDeletable(conceptName);
     }
     public void removeDroppedItem(String itemPk, String partPath, String revisionId, String conceptName, String ids)
             throws Exception {

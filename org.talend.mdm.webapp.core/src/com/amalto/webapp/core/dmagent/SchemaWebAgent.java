@@ -343,7 +343,7 @@ public class SchemaWebAgent extends SchemaManager {
      * @return
      * @throws Exception
      */
-    public boolean isEntityPhysicalDeletable(String concept)throws Exception{
+    public boolean isEntityDenyPhysicalDeletable(String concept)throws Exception{
     	Configuration config = Configuration.getInstance();
     	Map<String,XSElementDecl> conceptMap=CommonDWR.getConceptMap(config.getModel());
         XSElementDecl decl = conceptMap.get(concept);
@@ -364,7 +364,7 @@ public class SchemaWebAgent extends SchemaManager {
                     if (source == null)
                         continue;
                     String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue();
-                    if ("X_PhysicalDelete".equals(appinfoSource)) {
+                    if ("X_Deny_PhysicalDelete".equals(appinfoSource)) {
                         if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
                            return true;
                         }
