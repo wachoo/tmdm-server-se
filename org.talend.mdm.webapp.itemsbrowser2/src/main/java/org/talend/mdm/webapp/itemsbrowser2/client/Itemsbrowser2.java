@@ -8,7 +8,6 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -42,9 +41,21 @@ public class Itemsbrowser2 implements EntryPoint {
         String moduleRelativeURL = ITEMS_SERVICE;
         endpoint.setServiceEntryPoint(moduleRelativeURL);
         Registry.register(ITEMS_SERVICE, service);
+        
+        // add controller to dispatcher
+        Dispatcher dispatcher = Dispatcher.get();
+        dispatcher.addController(new ItemsController());
 
+        // first time do not render
+        if (RootPanel.get(ItemsView.ROOT_DIV) != null)
+            onModuleRender();
+
+
+    }
+
+    public static void onModuleRender() {
         // init app-header
-        service.getAppHeader(new AsyncCallback<AppHeader>() {
+        getItemService().getAppHeader(new AsyncCallback<AppHeader>() {
 
             public void onFailure(Throwable caught) {
                 Dispatcher.forwardEvent(ItemsEvents.Error, caught);
@@ -53,24 +64,26 @@ public class Itemsbrowser2 implements EntryPoint {
             public void onSuccess(AppHeader header) {
 
                 getSession().put(UserSession.APP_HEADER, header);
-
-                // add controller to dispatcher
+                
                 Dispatcher dispatcher = Dispatcher.get();
-                dispatcher.addController(new ItemsController());
-
-                // first time do not render
-                if (RootPanel.get(ItemsView.ROOT_DIV) != null)
-                    onModuleRender();
+                // dispatch a event
+                dispatcher.dispatch(ItemsEvents.InitFrame);
+                
             }
 
         });
 
     }
-
-    public static void onModuleRender() {
-        Dispatcher dispatcher = Dispatcher.get();
-        // dispatch a event
-        dispatcher.dispatch(ItemsEvents.InitFrame);
+    
+    
+    /**
+     * DOC HSHU Comment method "getItemService".
+     */
+    private static ItemsServiceAsync getItemService() {
+     
+        ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
+        return service;
+        
     }
 
     private void registerPubServices() {
