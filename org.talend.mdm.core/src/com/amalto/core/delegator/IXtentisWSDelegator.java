@@ -230,14 +230,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         WSMDMConfig mdmConfig = new WSMDMConfig();
         Properties property = MDMConfiguration.getConfiguration();
         try {
-            mdmConfig.setServerName(property.getProperty("xmldb.server.name"));
-            mdmConfig.setServerPort(property.getProperty("xmldb.server.port"));
-            mdmConfig.setUserName(property.getProperty("xmldb.administrator.username"));
-            mdmConfig.setPassword(property.getProperty("xmldb.administrator.password"));
-            mdmConfig.setXdbDriver(property.getProperty("xmldb.driver"));
-            mdmConfig.setXdbID(property.getProperty("xmldb.dbid"));
-            mdmConfig.setXdbUrl(property.getProperty("xmldb.dburl"));
-            mdmConfig.setIsupurl(property.getProperty("xmldb.isupurl"));
+            mdmConfig.setServerName(property.getProperty("xmldb.server.name")); //$NON-NLS-1$
+            mdmConfig.setServerPort(property.getProperty("xmldb.server.port")); //$NON-NLS-1$
+            mdmConfig.setUserName(property.getProperty("xmldb.administrator.username")); //$NON-NLS-1$
+            mdmConfig.setPassword(property.getProperty("xmldb.administrator.password")); //$NON-NLS-1$
+            mdmConfig.setXdbDriver(property.getProperty("xmldb.driver")); //$NON-NLS-1$
+            mdmConfig.setXdbID(property.getProperty("xmldb.dbid")); //$NON-NLS-1$
+            mdmConfig.setXdbUrl(property.getProperty("xmldb.dburl")); //$NON-NLS-1$
+            mdmConfig.setIsupurl(property.getProperty("xmldb.isupurl")); //$NON-NLS-1$
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
@@ -274,23 +274,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
-
-    /**
-     * *ejb.interface-method view-type = "service-endpoint" *ejb.permission role-name = "authenticated" view-type =
-     * "service-endpoint"
-     * 
-     */
-    /*
-     * public WSDataModelArray getDataModels(WSRegexDataModels regexp) throws RemoteException { try {
-     * 
-     * WSDataModelArray array = new WSDataModelArray(); DataModelPOJO[] dataModels =
-     * Util.getDataModelCtrlLocalHome().create().getAllDataModels(); ArrayList<WSDataModel> l = new
-     * ArrayList<WSDataModel>(); String regex = ( (regexp.getRegex()==null) || ("".equals(regexp.getRegex())) ||
-     * ("*".equals(regexp.getRegex())) ? ".*":regexp.getRegex() ); for (int i = 0; i < dataModels.length; i++) { if
-     * (dataModels[i].getName().matches(regex)) l.add(VO2WS(dataModels[i])); } array.setWsDataModels(l.toArray(new
-     * WSDataModel[l.size()])); return array; } catch (Exception e) { throw new RemoteException((e.getCause() == null ?
-     * e.getLocalizedMessage() : e.getCause().getLocalizedMessage())); } }
-     */
 
     /**
      * @ejb.interface-method view-type = "service-endpoint"
@@ -362,6 +345,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      * 
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
+    @SuppressWarnings("nls")
     public WSString putBusinessConcept(WSPutBusinessConcept wsPutBusinessConcept) throws RemoteException {
         WSBusinessConcept bc = wsPutBusinessConcept.getBusinessConcept();
         try {
@@ -518,8 +502,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             WSDataClusterPKArray array = new WSDataClusterPKArray();
             ArrayList<WSDataClusterPK> l = new ArrayList<WSDataClusterPK>();
             Collection<DataClusterPOJOPK> vos = Util.getDataClusterCtrlLocal().getDataClusterPKs(regexp.getRegex());
-            for (Iterator iter = vos.iterator(); iter.hasNext();) {
-                DataClusterPOJOPK pk = (DataClusterPOJOPK) iter.next();
+            for (Iterator<DataClusterPOJOPK> iter = vos.iterator(); iter.hasNext();) {
+                DataClusterPOJOPK pk = iter.next();
                 l.add(new WSDataClusterPK(pk.getUniqueId()));
             }
             array.setWsDataClusterPKs(l.toArray(new WSDataClusterPK[l.size()]));
@@ -562,8 +546,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSBoolean putDBDataCluster(WSPutDBDataCluster wsDataCluster) throws RemoteException {
         try {
             Util.getXmlServerCtrlLocal().createCluster(wsDataCluster.getRevisionID(), wsDataCluster.getName());
-            DataClusterPOJO pojo = new DataClusterPOJO(wsDataCluster.getName(), "", "");
-            ObjectPOJOPK pk = pojo.store(wsDataCluster.getRevisionID());
+            DataClusterPOJO pojo = new DataClusterPOJO(wsDataCluster.getName(), "", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            pojo.store(wsDataCluster.getRevisionID());
             return new WSBoolean(true);
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
@@ -652,7 +636,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         DataClusterPOJO vo = new DataClusterPOJO();
         vo.setName(ws.getName());
         vo.setDescription(ws.getDescription());
-        vo.setVocabulary("");
+        vo.setVocabulary(""); //$NON-NLS-1$
         return vo;
     }
 
@@ -699,7 +683,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSViewPKArray getViewPKs(WSGetViewPKs regexp) throws RemoteException {
         try {
             WSViewPKArray array = new WSViewPKArray();
-            String regex = ((regexp.getRegex() == null) || ("".equals(regexp.getRegex())) || ("*".equals(regexp.getRegex())) ? ".*"
+            String regex = ((regexp.getRegex() == null) || ("".equals(regexp.getRegex())) || ("*".equals(regexp.getRegex())) ? ".*" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     : regexp.getRegex());
             Collection<ViewPOJOPK> pks = Util.getViewCtrlLocal().getViewPKs(regex);
 
@@ -910,7 +894,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     }
 
     protected WhereCondition WS2VO(WSWhereCondition ws, WhereConditionFilter wcf) throws Exception {
-
+        assert ws.getOperator() != null;
+        
         String operator = WhereCondition.CONTAINS;
         if (ws.getOperator().equals(WSWhereOperator.CONTAINS)) {
             operator = WhereCondition.CONTAINS;
@@ -936,8 +921,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             operator = WhereCondition.NO_OPERATOR;
         } else if (ws.getOperator().equals(WSWhereOperator.EMPTY_NULL)) {
             operator = WhereCondition.EMPTY_NULL;
+        } else if (ws.getOperator().equals(WSWhereOperator.FULLTEXTSEARCH)) {
+            operator = WhereCondition.FULLTEXTSEARCH;
+        } else if (ws.getOperator().equals(WSWhereOperator.CONTAINS_TEXT_OF)) {
+            operator = WhereCondition.CONTAINS_TEXT_OF;
         }
 
+        assert ws.getStringPredicate() != null;
+        
         String predicate = WhereCondition.PRE_AND;
         if (ws.getStringPredicate().equals(WSStringPredicate.NONE)) {
             predicate = WhereCondition.PRE_NONE;
