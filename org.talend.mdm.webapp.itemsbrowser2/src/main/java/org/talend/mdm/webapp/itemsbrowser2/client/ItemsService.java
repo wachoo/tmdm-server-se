@@ -56,6 +56,8 @@ public interface ItemsService extends RemoteService {
     ItemResult saveItemBean(ItemBean item);
 
     ItemResult deleteItemBean(ItemBean item);
+    
+    List<ItemResult> deleteItemBeans(List<ItemBean> items);
 
     ItemResult logicalDeleteItem(ItemBean item, String path);
     

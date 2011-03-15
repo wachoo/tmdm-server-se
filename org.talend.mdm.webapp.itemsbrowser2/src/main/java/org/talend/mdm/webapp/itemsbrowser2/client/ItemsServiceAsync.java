@@ -48,9 +48,13 @@ public interface ItemsServiceAsync {
     void logicalDeleteItem(ItemBean item, String path, AsyncCallback<ItemResult> callback);
 
     void deleteItemBean(ItemBean item, AsyncCallback<ItemResult> callback);
+    
+    void deleteItemBeans(List<ItemBean> items, AsyncCallback<List<ItemResult>> callback);
 
     void getAppHeader(AsyncCallback<AppHeader> callback);
 
     void getItem(ItemBean itemBean, EntityModel entityModel, AsyncCallback<ItemBean> callback);
+
+    
 
 }

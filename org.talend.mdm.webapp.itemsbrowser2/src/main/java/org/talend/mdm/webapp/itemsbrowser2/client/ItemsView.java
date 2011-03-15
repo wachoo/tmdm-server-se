@@ -30,6 +30,7 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -43,9 +44,11 @@ import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
+import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -113,6 +116,9 @@ public class ItemsView extends View {
         // TODO update columns
         itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
+        CheckBoxSelectionModel<ItemBean> sm = new CheckBoxSelectionModel<ItemBean>();  
+        sm.setSelectionMode(SelectionMode.MULTI);  
+        ccList.add(sm.getColumn());
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         for (String xpath : viewableXpaths) {
@@ -134,7 +140,7 @@ public class ItemsView extends View {
             ccList.add(cc);
         }
 
-        itemsSearchContainer.getItemsListPanel().updateGrid(ccList);        
+        itemsSearchContainer.getItemsListPanel().updateGrid(sm, ccList);        
         //TODO in the view of ViewItemForm binding
     }
 
@@ -210,6 +216,7 @@ public class ItemsView extends View {
 
         // FIXME can not auto-fill
         container.setStyleAttribute("height", "100%");
+        RootPanel.get(ROOT_DIV).getElement().getStyle().setHeight(100, Unit.PCT);
         RootPanel.get(ROOT_DIV).add(container);
         tabFrame.setHeight(container.getOffsetHeight());
 

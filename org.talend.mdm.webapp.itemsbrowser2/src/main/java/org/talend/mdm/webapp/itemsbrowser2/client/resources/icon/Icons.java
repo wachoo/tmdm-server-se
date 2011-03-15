@@ -80,4 +80,10 @@ public interface Icons extends ClientBundle {
     
     @Source("drop-no.gif")
     ImageResource drop_no();
+    
+    @Source("opentab.png")
+    ImageResource openTab();
+    
+    @Source("openwin.png")
+    ImageResource openWin();
 }

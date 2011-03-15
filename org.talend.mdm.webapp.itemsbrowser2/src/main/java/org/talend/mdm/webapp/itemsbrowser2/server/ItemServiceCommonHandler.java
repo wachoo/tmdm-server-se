@@ -318,6 +318,15 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage()); //$NON-NLS-1$
         }
     }
+    
+    public List<ItemResult> deleteItemBeans(List<ItemBean> items) {
+        List<ItemResult> itemResultes = new ArrayList<ItemResult>();
+        for (ItemBean item: items){
+            ItemResult itemResult = deleteItemBean(item);
+            itemResultes.add(itemResult);
+        }
+        return itemResultes;
+    }
 
     public ItemResult logicalDeleteItem(ItemBean item, String path) {
         try {

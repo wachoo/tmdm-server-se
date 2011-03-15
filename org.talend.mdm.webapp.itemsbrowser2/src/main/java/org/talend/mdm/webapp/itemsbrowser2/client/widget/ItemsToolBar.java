@@ -171,25 +171,44 @@ public class ItemsToolBar extends ToolBar {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                     final ItemsListPanel list = (ItemsListPanel) instance.getParent();
                                     if (list.getGrid() != null) {
-                                        service.deleteItemBean(list.getGrid().getSelectionModel().getSelectedItem(),
-                                                new AsyncCallback<ItemResult>() {
+//                                        service.deleteItemBean(list.getGrid().getSelectionModel().getSelectedItem(),
+//                                                new AsyncCallback<ItemResult>() {
+//
+//                                                    public void onFailure(Throwable arg0) {
+//
+//                                                    }
+//
+//                                                    public void onSuccess(ItemResult arg0) {
+//                                                        if (arg0.getStatus() == ItemResult.SUCCESS) {
+//                                                            list.getStore().getLoader().load();
+//                                                            MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0
+//                                                                    .getDescription(), null);
+//                                                        } else if (arg0.getStatus() == ItemResult.FAILURE) {
+//                                                            MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0
+//                                                                    .getDescription(), null);
+//                                                        }
+//                                                    }
+//
+//                                                });
+                                        service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(), new AsyncCallback<List<ItemResult>>(){
 
-                                                    public void onFailure(Throwable arg0) {
+                                            public void onFailure(Throwable caught) {
 
+                                            }
+
+                                            public void onSuccess(List<ItemResult> resultes) {
+                                                StringBuffer succeed = new StringBuffer(MessagesFactory.getMessages().info_title() + "\n");
+                                                StringBuffer failure = new StringBuffer(MessagesFactory.getMessages().error_title() + "\n");
+                                                for (ItemResult result : resultes){
+                                                    if (result.getStatus() == ItemResult.SUCCESS){
+                                                        succeed.append(result.getDescription() + "\n");
+                                                    } else {
+                                                        failure.append(result.getDescription() + "\n");
                                                     }
-
-                                                    public void onSuccess(ItemResult arg0) {
-                                                        if (arg0.getStatus() == ItemResult.SUCCESS) {
-                                                            list.getStore().getLoader().load();
-                                                            MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0
-                                                                    .getDescription(), null);
-                                                        } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                                                            MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0
-                                                                    .getDescription(), null);
-                                                        }
-                                                    }
-
-                                                });
+                                                }
+                                                MessageBox.alert("", succeed.toString() + failure.toString(), null);
+                                            }
+                                        });                                    
                                     }
 
                                 }
@@ -627,7 +646,7 @@ public class ItemsToolBar extends ToolBar {
 
             });
             advancedPanel.addButton(searchBtn);
-            Button cancelBtn = new Button(MessagesFactory.getMessages().cancel_btn());
+            Button cancelBtn = new Button(MessagesFactory.getMessages().close_btn());
             cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 public void componentSelected(ButtonEvent ce) {

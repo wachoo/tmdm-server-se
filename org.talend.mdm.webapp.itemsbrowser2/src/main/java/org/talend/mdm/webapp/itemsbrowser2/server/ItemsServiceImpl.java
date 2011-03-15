@@ -167,6 +167,10 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return itemsServiceHandler.deleteItemBean(item);
     }
 
+    public List<ItemResult> deleteItemBeans(List<ItemBean> items) {
+        return itemsServiceHandler.deleteItemBeans(items);
+    }
+    
     /**
      * DOC HSHU Comment method "getAppHeader".
      */
@@ -182,5 +186,6 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     public ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception {
         return itemsServiceHandler.getItem(itemBean,entityModel);   
     }
+
 
 }

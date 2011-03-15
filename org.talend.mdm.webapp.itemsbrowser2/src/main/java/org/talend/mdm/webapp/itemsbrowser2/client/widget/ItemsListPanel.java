@@ -22,6 +22,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -47,6 +48,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -58,6 +60,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class ItemsListPanel extends ContentPanel {
 
@@ -116,18 +119,24 @@ public class ItemsListPanel extends ContentPanel {
         return toolBar;
     }
 
-    public void updateGrid(List<ColumnConfig> columnConfigList) {
+    public void updateGrid(CheckBoxSelectionModel<ItemBean> sm, List<ColumnConfig> columnConfigList) {
         if (gridContainer != null)
             remove(gridContainer);
 
         ColumnModel cm = new ColumnModel(columnConfigList);
         gridContainer = new ContentPanel(new FitLayout());
+        gridContainer.setHeaderVisible(false);
         final PagingToolBarEx pagingBar = new PagingToolBarEx(PAGE_SIZE);
 
         pagingBar.bind(loader);
         gridContainer.setBottomComponent(pagingBar);
         grid = new Grid<ItemBean>(store, cm);
-        re = new RowEditor<ItemBean>();
+        grid.setSelectionModel(sm);
+        re = new RowEditor<ItemBean>(){
+            protected void onRowClick(GridEvent<ItemBean> e) {
+                // cancel click Editor  
+            }
+        };
         grid.getView().setForceFit(true);
         if (cm.getColumnCount() > 0) {
             grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
@@ -167,6 +176,7 @@ public class ItemsListPanel extends ContentPanel {
         });
         grid.setLoadMask(true);
         grid.addPlugin(re);
+        grid.addPlugin(sm);
         grid.setAriaIgnore(true);
         grid.setAriaDescribedBy("abcdefg");
         grid.setAriaLabelledBy(this.getHeader().getId() + "-label");
@@ -186,7 +196,7 @@ public class ItemsListPanel extends ContentPanel {
 
         MenuItem openInWindow = new MenuItem();
         openInWindow.setText(MessagesFactory.getMessages().openitem_window());
-        // openInWindow.setIcon(Resources.ICONS.add());
+        openInWindow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openWin()));
         openInWindow.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             public void componentSelected(MenuEvent ce) {
@@ -199,7 +209,7 @@ public class ItemsListPanel extends ContentPanel {
 
         MenuItem openInTab = new MenuItem();
         openInTab.setText(MessagesFactory.getMessages().openitem_tab());
-        // openInWindow.setIcon(Resources.ICONS.add());
+        openInTab.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
         openInTab.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             public void componentSelected(MenuEvent ce) {
@@ -209,16 +219,17 @@ public class ItemsListPanel extends ContentPanel {
         });
         contextMenu.add(openInTab);
         
-//        MenuItem editRow = new MenuItem();
-//        editRow.setText("edit");
-//        editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
-//
-//            public void componentSelected(MenuEvent ce) {
-//                grid.getStore().indexOf(grid.getSelectionModel().getSelectedItem());
-//                re.startEditing(0, true);
-//            }
-//        });
-//        contextMenu.add(editRow);
+        MenuItem editRow = new MenuItem();
+        editRow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
+        editRow.setText(MessagesFactory.getMessages().edititem());
+        editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            public void componentSelected(MenuEvent ce) {
+                int rowIndex = grid.getStore().indexOf(grid.getSelectionModel().getSelectedItem());
+                re.startEditing(rowIndex, true);
+            }
+        });
+        contextMenu.add(editRow);
 
         grid.setContextMenu(contextMenu);
 
