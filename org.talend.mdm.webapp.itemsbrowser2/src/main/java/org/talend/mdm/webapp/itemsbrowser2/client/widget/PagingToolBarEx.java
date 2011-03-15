@@ -17,7 +17,6 @@ import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
-import com.extjs.gxt.ui.client.event.KeyEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
@@ -26,7 +25,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.user.client.Window;
 
 
 public class PagingToolBarEx extends PagingToolBar {
@@ -52,10 +50,7 @@ public class PagingToolBarEx extends PagingToolBar {
 
             public void handleEvent(FieldEvent fe) {
                 if (fe.getKeyCode() == KeyCodes.KEY_ENTER) {
-                    if (sizeField.isValid() && sizeField.getValue() != null){
-                        setPageSize((int)Double.parseDouble(sizeField.getValue()+""));
-                        first();
-                    }
+                    blur(sizeField);
                 }
             }
         });
@@ -64,6 +59,12 @@ public class PagingToolBarEx extends PagingToolBar {
         this.insert(sizeLabel, this.getItemCount() - 2);
         this.insert(sizeField, this.getItemCount() - 2);
     }
+    
+    private native void blur(NumberField field)/*-{
+        var input = field.@com.extjs.gxt.ui.client.widget.form.NumberField::input;
+        var el = input.@com.extjs.gxt.ui.client.core.El::dom;
+        el.blur();
+    }-*/;
     
     Validator validator = new Validator() {
         

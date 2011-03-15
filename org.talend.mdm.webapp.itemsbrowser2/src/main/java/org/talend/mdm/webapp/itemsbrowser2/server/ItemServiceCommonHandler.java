@@ -41,6 +41,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SearchTemplate;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.DataModelHelper;
+import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.DateUtil;
@@ -82,6 +83,7 @@ import com.amalto.webapp.util.webservices.WSWhereItem;
 import com.amalto.webapp.util.webservices.WSWhereOperator;
 import com.amalto.webapp.util.webservices.WSWhereOr;
 import com.amalto.webapp.util.webservices.WSXPathsSearch;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -99,10 +101,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             "org.talend.mdm.webapp.itemsbrowser2.server.messages", ItemsServiceImpl.class.getClassLoader()); //$NON-NLS-1$
 
 
-    private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip, int max) {
-
-        String sortDir = null;
-        String sortCol = null;
+    private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip, int max, String sortDir, String sortCol) {
 
         int totalSize = 0;
 
@@ -446,7 +445,15 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {
         PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
-        Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria().toString(), pagingLoad.getOffset(), pagingLoad.getLimit());
+        String sortDir = null;
+        if (SortDir.ASC.equals(pagingLoad.getSortDir())){
+            sortDir = ItemHelper.SEARCH_DIRECTION_ASC;
+        }
+        if (SortDir.DESC.equals(pagingLoad.getSortDir())){
+            sortDir = ItemHelper.SEARCH_DIRECTION_DESC;
+        }
+        Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(),
+                config.getCriteria().toString(), pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
         return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
