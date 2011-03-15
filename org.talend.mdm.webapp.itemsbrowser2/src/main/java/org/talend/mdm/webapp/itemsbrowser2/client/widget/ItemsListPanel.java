@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -72,6 +73,8 @@ public class ItemsListPanel extends ContentPanel {
             QueryModel qm = new QueryModel();
             toolBar.setQueryModel(qm);
             qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
+            int pageSize = (Integer) pagingBar.getPageSize();
+            qm.getPagingLoadConfig().setLimit(pageSize);
             service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result.getTotalLength()));
@@ -95,13 +98,16 @@ public class ItemsListPanel extends ContentPanel {
     ContentPanel gridContainer;
 
     private final static int PAGE_SIZE = 10;
-   
+
+    PagingToolBarEx pagingBar = null;
+    
     ItemsToolBar toolBar;
 
     public ItemsListPanel() {
         setLayout(new FitLayout());
         setHeaderVisible(false);
         addToolBar();
+        loader.setRemoteSort(true);
         loader.addLoadListener(new LoadListener() {
 
             public void loaderLoad(LoadEvent le) {
@@ -125,13 +131,16 @@ public class ItemsListPanel extends ContentPanel {
 
         ColumnModel cm = new ColumnModel(columnConfigList);
         gridContainer = new ContentPanel(new FitLayout());
+        gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
-        final PagingToolBarEx pagingBar = new PagingToolBarEx(PAGE_SIZE);
-
+        pagingBar = new PagingToolBarEx(PAGE_SIZE);
+        pagingBar.setHideMode(HideMode.VISIBILITY);
+        pagingBar.setVisible(false);
         pagingBar.bind(loader);
         gridContainer.setBottomComponent(pagingBar);
         grid = new Grid<ItemBean>(store, cm);
         grid.setSelectionModel(sm);
+        grid.setStateful(true);
         re = new RowEditor<ItemBean>(){
             protected void onRowClick(GridEvent<ItemBean> e) {
                 // cancel click Editor  
@@ -172,6 +181,7 @@ public class ItemsListPanel extends ContentPanel {
                 int pageSize = (Integer) pagingBar.getPageSize();
                 config.setLimit(pageSize);
                 loader.load(config);
+                pagingBar.setVisible(true);
             }
         });
         grid.setLoadMask(true);
@@ -187,7 +197,6 @@ public class ItemsListPanel extends ContentPanel {
         add(gridContainer);
 
         this.doLayout();
-
     }
 
     private void hookContextMenu() {
