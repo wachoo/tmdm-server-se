@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.itemsbrowser2.server;
 import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
@@ -22,6 +23,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -170,7 +172,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     public List<ItemResult> deleteItemBeans(List<ItemBean> items) {
         return itemsServiceHandler.deleteItemBeans(items);
     }
-    
+
     /**
      * DOC HSHU Comment method "getAppHeader".
      */
@@ -184,8 +186,11 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
      * @throws Exception
      */
     public ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception {
-        return itemsServiceHandler.getItem(itemBean,entityModel);   
+        return itemsServiceHandler.getItem(itemBean, entityModel);
     }
 
+    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK) {
+        return itemsServiceHandler.getForeignKeyList(config, model, dataClusterPK);
+    }
 
 }

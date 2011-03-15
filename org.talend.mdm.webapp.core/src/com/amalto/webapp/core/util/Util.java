@@ -308,7 +308,7 @@ public class Util {
         return null;
     }
 
-    private static WSWhereItem getConditionFromFKFilter(String fkFilter) {
+    public static WSWhereItem getConditionFromFKFilter(String fkFilter) {
         if (fkFilter == null || fkFilter.length() == 0)
             return null;
         if (fkFilter.equals("null"))
@@ -1462,7 +1462,7 @@ public class Util {
 
     }
 
-    private static String getInjectedXpath(String fkFilter) {
+    public static String getInjectedXpath(String fkFilter) {
         String injectedXpath = null;
         injectedXpath = fkFilter.substring(6);
         return injectedXpath;
@@ -1658,11 +1658,12 @@ public class Util {
 
         return "OK";
     }
-    
-    public static String stripLeadingAndTrailingQuotes(String str){
-        
-        if(str==null)return ""; //$NON-NLS-1$
-        
+
+    public static String stripLeadingAndTrailingQuotes(String str) {
+
+        if (str == null)
+            return ""; //$NON-NLS-1$
+
         if (str.startsWith("\"")) //$NON-NLS-1$
         {
             str = str.substring(1, str.length());

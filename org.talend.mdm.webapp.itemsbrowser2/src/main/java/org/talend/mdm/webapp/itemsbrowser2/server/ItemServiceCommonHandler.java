@@ -34,6 +34,7 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
@@ -57,6 +58,7 @@ import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSCount;
+import com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
@@ -65,6 +67,7 @@ import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSExistsItem;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
 import com.amalto.webapp.util.webservices.WSItem;
@@ -100,22 +103,20 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.itemsbrowser2.server.messages", ItemsServiceImpl.class.getClassLoader()); //$NON-NLS-1$
 
-
-    private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip, int max, String sortDir, String sortCol) {
+    private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
+            int max, String sortDir, String sortCol) {
 
         int totalSize = 0;
 
         List<ItemBean> itemBeans = new ArrayList<ItemBean>();
         String concept = ViewHelper.getConceptFromDefaultViewName(viewBean.getViewPK());
         try {
-            
+
             WSWhereItem wi = com.amalto.webapp.core.util.Util.buildWhereItems(criteria);
 
-            String[] results = CommonUtil
-                    .getPort()
-                    .viewSearch(
-                            new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1, skip, max,
-                                    sortCol, sortDir)).getStrings();
+            String[] results = CommonUtil.getPort().viewSearch(
+                    new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1, skip, max,
+                            sortCol, sortDir)).getStrings();
 
             // TODO change ids to array?
             List<String> idsArray = new ArrayList<String>();
@@ -136,15 +137,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 Document doc = XmlUtil.parseText(results[i]);
                 idsArray.clear();
                 for (String key : entityModel.getKeys()) {
-                    String id=XmlUtil.queryNode(doc, key.replaceAll(concept, "result")).getText();
-                    if(id!=null)idsArray.add(id);
+                    String id = XmlUtil.queryNode(doc, key.replaceAll(concept, "result")).getText();
+                    if (id != null)
+                        idsArray.add(id);
                 }
 
                 ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), results[i]);
                 dynamicAssemble(itemBean, entityModel);
                 itemBeans.add(itemBean);
             }
-            
+
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
@@ -161,21 +163,21 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
                     List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.indexOf('/') + 1));
-                    if(nodes.size()>0) {
+                    if (nodes.size() > 0) {
                         Node value = (Node) nodes.get(0);
                         if (typeModel.getTypeName().equals(DataTypeConstants.DATE)) {
-                            Date date = DateUtil.convertStringToDate("yyyy-MM-dd",value.getText());
+                            Date date = DateUtil.convertStringToDate("yyyy-MM-dd", value.getText());
                             itemBean.set(path, date);
-                        } else if (typeModel.isMultiple()){
+                        } else if (typeModel.isMultiple()) {
                             List<Serializable> list = new ArrayList<Serializable>();
-                            for (Object node : nodes){
-                                list.add(((Node)node).getText());
+                            for (Object node : nodes) {
+                                list.add(((Node) node).getText());
                             }
                             itemBean.set(path, list);
                         } else {
                             itemBean.set(path, value.getText());
                         }
-                    } 
+                    }
                 }
             }
         }
@@ -188,31 +190,31 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         try {
             ViewBean vb = new ViewBean();
             vb.setViewPK(viewPk);
-            
-            //get WSView
+
+            // get WSView
             WSView wsView = CommonUtil.getPort().getView(new WSGetView(new WSViewPK(viewPk)));
-            
-            //bind entity model
+
+            // bind entity model
             String model = getCurrentDataModel();
             String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel);
             vb.setBindingEntityModel(entityModel);
-            
-            //viewables
+
+            // viewables
             String[] viewables = null;
             viewables = ViewHelper.getViewables(wsView);
-            //FIXME remove viewableXpath
+            // FIXME remove viewableXpath
             if (viewables != null) {
                 for (String viewable : viewables) {
                     vb.addViewableXpath(viewable);
                 }
             }
             vb.setViewables(viewables);
-            
-            //searchables
+
+            // searchables
             vb.setSearchables(ViewHelper.getSearchables(wsView, model, language, entityModel));
-            
+
             return vb;
         } catch (XtentisWebappException e) {
             LOG.error(e.getMessage(), e);
@@ -319,10 +321,10 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage()); //$NON-NLS-1$
         }
     }
-    
+
     public List<ItemResult> deleteItemBeans(List<ItemBean> items) {
         List<ItemResult> itemResultes = new ArrayList<ItemResult>();
-        for (ItemBean item: items){
+        for (ItemBean item : items) {
             ItemResult itemResult = deleteItemBean(item);
             itemResultes.add(itemResult);
         }
@@ -446,14 +448,14 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {
         PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
         String sortDir = null;
-        if (SortDir.ASC.equals(pagingLoad.getSortDir())){
+        if (SortDir.ASC.equals(pagingLoad.getSortDir())) {
             sortDir = ItemHelper.SEARCH_DIRECTION_ASC;
         }
-        if (SortDir.DESC.equals(pagingLoad.getSortDir())){
+        if (SortDir.DESC.equals(pagingLoad.getSortDir())) {
             sortDir = ItemHelper.SEARCH_DIRECTION_DESC;
         }
-        Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(),
-                config.getCriteria().toString(), pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField());
+        Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria()
+                .toString(), pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
         return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
@@ -464,8 +466,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             Map<String, String> viewMap = null;
 
             String model = getCurrentDataModel();
-            String[] businessConcept = CommonUtil.getPort()
-                    .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
+            String[] businessConcept = CommonUtil.getPort().getBusinessConcepts(
+                    new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
             ArrayList<String> bc = new ArrayList<String>();
             for (int i = 0; i < businessConcept.length; i++) {
                 bc.add(businessConcept[i]);
@@ -473,10 +475,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             WSViewPK[] wsViewsPK;
             wsViewsPK = CommonUtil.getPort().getViewPKs(new WSGetViewPKs(ViewHelper.DEFAULT_VIEW_PREFIX + ".*")).getWsViewPK();
 
-            //Filter view list according to current datamodel
+            // Filter view list according to current datamodel
             TreeMap<String, String> views = new TreeMap<String, String>();
             for (int i = 0; i < wsViewsPK.length; i++) {
-                WSView wsview = CommonUtil.getPort().getView(new WSGetView(wsViewsPK[i]));//FIXME: Do we need get each view entity here? 
+                WSView wsview = CommonUtil.getPort().getView(new WSGetView(wsViewsPK[i]));// FIXME: Do we need get each
+                // view entity here?
                 String concept = ViewHelper.getConceptFromDefaultViewName(wsview.getName());
                 if (bc.contains(concept)) {
                     String viewDesc = ViewHelper.getViewLabel(language, wsview);
@@ -501,8 +504,6 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return null;
     }
 
-
-
     private static LinkedHashMap<String, String> getMapSortedByValue(Map<String, String> map) {
         TreeSet<Map.Entry> set = new TreeSet<Map.Entry>(new Comparator() {
 
@@ -518,6 +519,132 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         }
 
         return sortedMap;
+    }
+
+    /*********************************************************************
+     * Foreign key
+     *********************************************************************/
+
+    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK) {
+        String xpathForeignKey = model.getForeignkey();
+        // to verify
+        String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        // TODO use real data
+        String fkFilter = ""; //$NON-NLS-1$
+        String value = ".*"; //$NON-NLS-1$
+
+        if (xpathForeignKey == null)
+            return null;
+
+        List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>();
+        String[] results = null;
+        String count = null;
+
+        try {
+            String initxpathForeignKey = ""; //$NON-NLS-1$
+            initxpathForeignKey = com.amalto.webapp.core.util.Util.getForeignPathFromPath(xpathForeignKey);
+
+            WSWhereCondition whereCondition = com.amalto.webapp.core.util.Util.getConditionFromPath(xpathForeignKey);
+            WSWhereItem whereItem = null;
+            if (whereCondition != null) {
+                whereItem = new WSWhereItem(whereCondition, null, null);
+            }
+
+            // get FK filter
+            WSWhereItem fkFilterWi = null;
+            fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(fkFilter);
+            if (fkFilterWi != null)
+                whereItem = fkFilterWi;
+            initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
+
+            xpathInfoForeignKey = xpathInfoForeignKey == null ? "" : xpathInfoForeignKey; //$NON-NLS-1$
+            // foreign key set by business concept
+            if (initxpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
+                String conceptName = initxpathForeignKey;
+                // determine if we have xPath Infos: e.g. labels to display
+                String[] xpathInfos = new String[1];
+                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null)
+                    xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
+                else
+                    xpathInfos[0] = conceptName;
+                value = value == null ? "" : value; //$NON-NLS-1$
+
+                // build query - add a content condition on the pivot if we search for a particular value
+                String filteredConcept = conceptName;
+
+                if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
+                    List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
+                    if (whereItem != null)
+                        condition.add(whereItem);
+                    WSWhereItem wc = null;
+                    String strConcept = conceptName + "/. CONTAINS "; //$NON-NLS-1$
+
+                    // if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
+                    // strConcept = conceptName + "//* CONTAINS ";
+                    // }
+                    wc = com.amalto.webapp.core.util.Util.buildWhereItem(strConcept + value);
+                    condition.add(wc);
+                    WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
+                    WSWhereItem whand = new WSWhereItem(null, and, null);
+                    if (whand != null)
+                        whereItem = whand;
+                }
+
+                // add the xPath Infos Path
+                ArrayList<String> xPaths = new ArrayList<String>();
+                for (int i = 0; i < xpathInfos.length; i++) {
+                    xPaths.add(xpathInfos[i].replaceFirst(conceptName, filteredConcept));
+                }
+                // add the key paths last, since there may be multiple keys
+                xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
+                // order by
+                String orderbyPath = null;
+                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
+                    orderbyPath = xpathInfos[0].replaceFirst(conceptName, filteredConcept);
+                } else {
+
+                }
+
+                // Run the query
+                if (!com.amalto.webapp.core.util.Util.isCustomFilter(fkFilter)) {
+
+                    results = CommonUtil.getPort().xPathsSearch(
+                            new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
+                                    .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config.getLimit(),
+                                    orderbyPath, null)).getStrings();
+                    count = CommonUtil.getPort().count(
+                            new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
+
+                } else {
+
+                    String injectedXpath = com.amalto.webapp.core.util.Util.getInjectedXpath(fkFilter);
+                    results = CommonUtil.getPort().getItemsByCustomFKFilters(
+                            new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName, new WSStringArray(
+                                    xPaths.toArray(new String[xPaths.size()])), injectedXpath, config.getOffset(), config
+                                    .getLimit(), orderbyPath, null)).getStrings();
+
+                    count = CommonUtil.getPort().countItemsByCustomFKFilters(
+                            new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName, injectedXpath))
+                            .getValue();
+                }
+            }
+
+            if (results != null) {
+                for (String result : results) {
+                    ForeignKeyBean bean = new ForeignKeyBean();
+                    bean.setId(XmlUtil.getTextValueFromXpath(XmlUtil.parseText(result), "i")); //$NON-NLS-1$
+                    bean.setItemXml(result);
+                    fkBeans.add(bean);
+                }
+            }
+
+            return new ItemBasePageLoadResult<ForeignKeyBean>(fkBeans, config.getOffset(), Integer.valueOf(count));
+        } catch (XtentisWebappException e) {
+            LOG.error(e.getMessage(), e);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     /*********************************************************************
@@ -639,12 +766,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
             wi = new WSWhereItem(null, and, null);
 
-            String[] results = CommonUtil.getPort()
-                    .xPathsSearch(new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
+            String[] results = CommonUtil.getPort().xPathsSearch(
+                    new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
                             new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order
                             // by
                             null // direction
-                            )).getStrings();
+                    )).getStrings();
 
             for (int i = 0; i < results.length; i++) {
                 results[i] = results[i].replaceAll("<CriteriaName>(.*)</CriteriaName>", "$1");
@@ -680,8 +807,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             new WSWhereItem(null, null, or) });
 
             wi = new WSWhereItem(null, and, null);
-            return CommonUtil.getPort()
-                    .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))
+            return CommonUtil.getPort().count(
+                    new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))
                     .getValue();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -712,11 +839,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     public String getCriteriaByBookmark(String bookmark) {
         try {
             String criteria = "";
-            String result = CommonUtil
-                    .getPort()
-                    .getItem(
-                            new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
-                                    "BrowseItem", new String[] { bookmark }))).getContent().trim();
+            String result = CommonUtil.getPort().getItem(
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem",
+                            new String[] { bookmark }))).getContent().trim();
             if (result != null) {
                 if (result.indexOf("<SearchCriteria>") != -1)
                     criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));
@@ -729,33 +854,32 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         }
         return null;
     }
-    
+
     public AppHeader getAppHeader() throws Exception {
-        
-        AppHeader header=new AppHeader();
+
+        AppHeader header = new AppHeader();
         header.setDatacluster(getCurrentDataCluster());
         header.setDatamodel(getCurrentDataModel());
         header.setStandAloneMode(ItemsBrowserConfiguration.isStandalone());
         header.setUsingDefaultForm(ItemsBrowserConfiguration.isUsingDefaultForm());
         return header;
-        
+
     }
-    
-    public ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception{
-        String dataCluster=getCurrentDataCluster();
-        String dataModel=getCurrentDataModel();
-        String concept=itemBean.getConcept();
-        //get item
+
+    public ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception {
+        String dataCluster = getCurrentDataCluster();
+        String dataModel = getCurrentDataModel();
+        String concept = itemBean.getConcept();
+        // get item
         WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
         String[] ids = itemBean.getIds() == null ? null : itemBean.getIds().split("\\.");
-        WSItem wsItem = CommonUtil.getPort().getItem(
-                new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
+        WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
         itemBean.setItemXml(wsItem.getContent());
-        //parse schema
+        // parse schema
         DataModelHelper.parseSchema(dataModel, concept, entityModel);
-        //dynamic Assemble
+        // dynamic Assemble
         dynamicAssemble(itemBean, entityModel);
-        
+
         return itemBean;
     }
 }
