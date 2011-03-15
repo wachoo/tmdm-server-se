@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server.util;
 
+import java.util.List;
+
 import org.talend.mdm.webapp.itemsbrowser2.server.ItemsBrowserConfiguration;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
 
@@ -48,4 +50,23 @@ public class CommonUtil {
             return true;
         return false;
     }
+    
+    /**
+     * Join an arraylist of strings into a single string using a separator
+     * 
+     * @param strings
+     * @param separator
+     * @return a single string or null
+     */
+    public static String joinStrings(List<String> strings, String separator) {
+        if (strings == null)
+            return null;
+        String res = "";
+        for (int i = 0; i < strings.size(); i++) {
+            res += (i > 0) ? separator : "";
+            res += strings.get(i);
+        }
+        return res;
+    }
+
 }

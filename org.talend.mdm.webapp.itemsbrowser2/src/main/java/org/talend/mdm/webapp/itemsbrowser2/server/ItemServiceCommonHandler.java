@@ -119,7 +119,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                                     sortCol, sortDir)).getStrings();
 
             // TODO change ids to array?
-            String ids = null;
+            List<String> idsArray = new ArrayList<String>();
             for (int i = 0; i < results.length; i++) {
 
                 if (i == 0) {
@@ -135,11 +135,13 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 }
 
                 Document doc = XmlUtil.parseText(results[i]);
+                idsArray.clear();
                 for (String key : entityModel.getKeys()) {
-                    ids = XmlUtil.queryNode(doc, key.replaceAll(concept, "result")).getText();
+                    String id=XmlUtil.queryNode(doc, key.replaceAll(concept, "result")).getText();
+                    if(id!=null)idsArray.add(id);
                 }
 
-                ItemBean itemBean = new ItemBean(concept, ids, results[i]);
+                ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), results[i]);
                 dynamicAssemble(itemBean, entityModel);
                 itemBeans.add(itemBean);
             }
