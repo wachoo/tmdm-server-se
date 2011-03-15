@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 
+import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -25,15 +26,21 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.Element;
 
 
 public class PagingToolBarEx extends PagingToolBar {
-
+    El inputEl;
     public PagingToolBarEx(int pageSize) {
         super(pageSize);
         LabelToolItem sizeLabel = new LabelToolItem(MessagesFactory.getMessages().page_size_label());
         
-        final NumberField sizeField = new NumberField();
+        final NumberField sizeField = new NumberField(){
+            protected void onRender(Element target, int index) {
+                super.onRender(target, index);
+                inputEl = this.input;
+            }
+        };
         sizeField.setWidth(30);
         sizeField.setValue(pageSize);
         sizeField.setValidator(validator);
@@ -50,7 +57,7 @@ public class PagingToolBarEx extends PagingToolBar {
 
             public void handleEvent(FieldEvent fe) {
                 if (fe.getKeyCode() == KeyCodes.KEY_ENTER) {
-                    blur(sizeField);
+                    blur(inputEl.dom);
                 }
             }
         });
@@ -60,9 +67,7 @@ public class PagingToolBarEx extends PagingToolBar {
         this.insert(sizeField, this.getItemCount() - 2);
     }
     
-    private native void blur(NumberField field)/*-{
-        var input = field.@com.extjs.gxt.ui.client.widget.form.NumberField::input;
-        var el = input.@com.extjs.gxt.ui.client.core.El::dom;
+    private native void blur(Element el)/*-{
         el.blur();
     }-*/;
     
