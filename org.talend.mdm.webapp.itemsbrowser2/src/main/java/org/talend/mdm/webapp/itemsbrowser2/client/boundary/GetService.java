@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.boundary;
 
+import com.google.gwt.user.client.Element;
+
 /**
  * DOC HSHU class global comment. Detailled comment
  */
@@ -23,7 +25,8 @@ public class GetService {
     }-*/;
 
     public static native void openItemBrowser(String ids, String conceptName) /*-{
-        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(ids, conceptName);
+        var idsArray = ids.split(".");
+        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(idsArray, conceptName);
     }-*/;
 
 }
