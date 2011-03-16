@@ -110,6 +110,14 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     
     private List<String> subTypes;
     */
+    
+    
+    /**
+     * DOC HSHU TypeModel constructor comment.
+     */
+    public TypeModel() {
+        
+    }
 
     public TypeModel(String name ,DataType type) {
         super();

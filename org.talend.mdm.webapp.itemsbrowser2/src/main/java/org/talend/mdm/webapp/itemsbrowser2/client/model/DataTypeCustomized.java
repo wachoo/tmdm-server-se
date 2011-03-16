@@ -18,6 +18,14 @@ package org.talend.mdm.webapp.itemsbrowser2.client.model;
 public class DataTypeCustomized implements DataType {
 
     private String typeName = null;
+    
+    
+    /**
+     * DOC HSHU DataTypeCustomized constructor comment.
+     */
+    public DataTypeCustomized() {
+
+    }
 
     public DataTypeCustomized(String typeName) {
         this.typeName = typeName;

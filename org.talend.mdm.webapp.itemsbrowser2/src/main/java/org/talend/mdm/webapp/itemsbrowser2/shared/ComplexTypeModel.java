@@ -25,6 +25,14 @@ public class ComplexTypeModel extends TypeModel {
 
     private List<TypeModel> subTypes = new ArrayList<TypeModel>();
     
+    
+    /**
+     * DOC HSHU ComplexTypeModel constructor comment.
+     */
+    public ComplexTypeModel() {
+        super();
+    }
+    
     public ComplexTypeModel(String name,DataType dataType) {
         super(name,dataType);
     }

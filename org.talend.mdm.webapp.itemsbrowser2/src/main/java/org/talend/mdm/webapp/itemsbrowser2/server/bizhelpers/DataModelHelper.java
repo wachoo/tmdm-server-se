@@ -17,6 +17,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +28,7 @@ import org.talend.mdm.webapp.itemsbrowser2.server.ItemsBrowserConfiguration;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.w3c.dom.Element;
@@ -40,8 +42,10 @@ import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSFacet;
 import com.sun.xml.xsom.XSModelGroup;
 import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSRestrictionSimpleType;
 import com.sun.xml.xsom.XSSchema;
 import com.sun.xml.xsom.XSSchemaSet;
 import com.sun.xml.xsom.parser.XSOMParser;
@@ -166,7 +170,24 @@ public class DataModelHelper {
         } else if (e.getType().isSimpleType()) {
             typeModel = new SimpleTypeModel(e.getName(), DataTypeCreator.getDataType(e.getType().getName()));
             currentXsp = e.getType().asSimpleType().asParticle();
-
+            
+            //enumeration&&facet
+            XSRestrictionSimpleType restirctionType = e.getType().asSimpleType().asRestriction();
+            ArrayList<FacetModel> restrictions = new ArrayList<FacetModel>();
+            if (restirctionType != null) {
+                Iterator<XSFacet> it = restirctionType.iterateDeclaredFacets();
+                while (it.hasNext()) {
+                    XSFacet xsf = it.next();
+                    if ("enumeration".equals(xsf.getName())) { //$NON-NLS-1$
+                        //TODO
+                    } else {
+                        FacetModel r = new FacetModel(xsf.getName(), xsf.getValue().toString());
+                        restrictions.add(r);
+                    }
+                }//end while
+                ((SimpleTypeModel)typeModel).setFacets(restrictions);
+            }//end if
+            
         } else {
             // return null
         }

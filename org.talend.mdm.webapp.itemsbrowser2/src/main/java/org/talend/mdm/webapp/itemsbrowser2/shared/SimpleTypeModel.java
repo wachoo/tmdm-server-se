@@ -23,10 +23,18 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * DOC chliu  class global comment. Detailled comment
  */
-public class SimpleTypeModel extends TypeModel implements IsSerializable {
+public class SimpleTypeModel extends TypeModel{
 
     
     private List<FacetModel> facets;
+    
+    
+    /**
+     * DOC HSHU SimpleTypeModel constructor comment.
+     */
+    public SimpleTypeModel() {
+        super();
+    }
 
     public SimpleTypeModel(String name,DataType typeName) {
         super(name,typeName);

@@ -12,11 +12,13 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
  * DOC HSHU  class global comment. Detailled comment
  */
-public interface DataType {
+public interface DataType extends IsSerializable{
     
     String getTypeName();
     

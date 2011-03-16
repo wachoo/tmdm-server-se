@@ -27,6 +27,14 @@ public class FacetModel implements Serializable, IsSerializable {
     
     private String value;
     
+    
+    /**
+     * DOC HSHU FacetModel constructor comment.
+     */
+    public FacetModel() {
+
+    }
+    
     public FacetModel(String name, String value){
         this.name = name;
         this.value = value;
