@@ -58,6 +58,8 @@ public class ItemsView extends View {
 
     private TabPanel tabFrame = null;
 
+    public static Window window = null;
+
     private ItemsSearchContainer itemsSearchContainer = null;
 
     public static final String ROOT_DIV = "talend_itemsbrowser2_ItemsBrowser2";//$NON-NLS-1$
@@ -100,7 +102,7 @@ public class ItemsView extends View {
             onSearchView(event);
         } else if (event.getType() == ItemsEvents.ViewItemForm) {
             onViewItemForm(event);
-        } 
+        }
     }
 
     protected void onGetView(final AppEvent event) {
@@ -117,18 +119,20 @@ public class ItemsView extends View {
         // TODO update columns
         itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
-        CheckBoxSelectionModel<ItemBean> sm = new CheckBoxSelectionModel<ItemBean>();  
-        sm.setSelectionMode(SelectionMode.MULTI);  
+        CheckBoxSelectionModel<ItemBean> sm = new CheckBoxSelectionModel<ItemBean>();
+        sm.setSelectionMode(SelectionMode.MULTI);
         ccList.add(sm.getColumn());
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         for (String xpath : viewableXpaths) {
             TypeModel typeModel = dataTypes.get(xpath);
-            ColumnConfig cc = new ColumnConfig(xpath, typeModel.getLabel(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader())), 200);
-            if (typeModel instanceof SimpleTypeModel){
-                Field field = FieldCreator.createField((SimpleTypeModel)typeModel, null, false, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
+            ColumnConfig cc = new ColumnConfig(xpath, typeModel.getLabel(Locale.getLanguage(Itemsbrowser2.getSession()
+                    .getAppHeader())), 200);
+            if (typeModel instanceof SimpleTypeModel) {
+                Field field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
+                        Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
                 CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
-                if (cellEditor != null){
+                if (cellEditor != null) {
                     cc.setEditor(cellEditor);
                 }
             }
@@ -141,8 +145,8 @@ public class ItemsView extends View {
             ccList.add(cc);
         }
 
-        itemsSearchContainer.getItemsListPanel().updateGrid(sm, ccList);        
-        //TODO in the view of ViewItemForm binding
+        itemsSearchContainer.getItemsListPanel().updateGrid(sm, ccList);
+        // TODO in the view of ViewItemForm binding
     }
 
     protected void onViewItemForm(AppEvent event) {
@@ -153,27 +157,27 @@ public class ItemsView extends View {
             String tabTitle = itemBean.getConcept() + itemBean.getIds();
             if (itemsFormTarget.equals(ItemsView.TARGET_IN_SEARCH_TAB)) {
                 itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
-                itemsSearchContainer.getItemsFormPanel().paint(entityModel);
+                // itemsSearchContainer.getItemsFormPanel().paint(entityModel);
                 itemsSearchContainer.getItemsFormPanel().bind(itemBean);
-                itemsSearchContainer.getItemsFormPanel().setReadOnly(itemBean, entityModel.getKeys());
-                //TODO handle legacy form
+                // itemsSearchContainer.getItemsFormPanel().setReadOnly(itemBean, entityModel.getKeys());
+                // TODO handle legacy form
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_TAB)) {
-                if(Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()) {
+                if (Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()) {
                     ItemsFormPanel itemsFormPanel = new ItemsFormPanel();
                     addTab(itemsFormPanel, tabTitle, tabTitle, true);
-                    itemsFormPanel.paint(entityModel);
-                    itemsFormPanel.bind(itemBean);
-                    itemsFormPanel.setReadOnly(itemBean, entityModel.getKeys());
-                }else {
+                    // itemsFormPanel.paint(entityModel);
+                    // itemsFormPanel.bind(itemBean);
+                    // itemsFormPanel.setReadOnly(itemBean, entityModel.getKeys());
+                } else {
                     GetService.openItemBrowser(itemBean.getIds(), itemBean.getConcept());
                 }
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_WINDOW)) {
                 ItemsFormPanel itemsFormPanel = new ItemsFormPanel();
-                addWin(itemsFormPanel, tabTitle);
-                itemsFormPanel.paint(entityModel);
-                itemsFormPanel.bind(itemBean);
-                itemsFormPanel.setReadOnly(itemBean, entityModel.getKeys());
-                //TODO handle legacy form
+                addWin(itemsFormPanel, tabTitle, itemBean.getIds(), itemBean.getConcept());
+                // itemsFormPanel.paint(entityModel);
+                // itemsFormPanel.bind(itemBean);
+                // itemsFormPanel.setReadOnly(itemBean, entityModel.getKeys());
+                // TODO handle legacy form
             }
         }
     }
@@ -257,11 +261,11 @@ public class ItemsView extends View {
     /**
      * DOC HSHU Comment method "addWin".
      */
-    private void addWin(Component c, String title) {
+    private void addWin(Component c, String title, String itemPK2, String dataObject) {
 
         // FIXME Do we need one window for one item?
 
-        Window window = new Window();
+        window = new Window();
         window.setSize(500, 500);
         window.setPlain(true);
         window.setModal(false);
@@ -282,7 +286,9 @@ public class ItemsView extends View {
         int top = window.getAbsoluteTop();
         int offset = Random.nextInt(35);
         window.setPosition(left + offset, top + offset);
-
+        window.setId("formWindowContainer");
+        GetService.regCallback();
+        GetService.renderFormWindow(itemPK2, dataObject, false, "", window.getBody().dom);
     }
 
 }

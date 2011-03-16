@@ -2247,6 +2247,600 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    
 	}
 	
+	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow) {
+		
+		DWREngine.setAsync(false); 
+		ItemsBrowserInterface.getRootNode(dataObject,language, function(rootNode){
+			_rootNode=rootNode;
+		});
+        ItemsBrowserInterface.prepareSessionForItemDetails(dataObject,language,function(status){});
+		DWREngine.setAsync(true);
+		loadResource("/itemsbrowser/secure/js/ItemNode.js", "amalto.itemsbrowser.ItemNode" );
+		//alert("display items "+DWRUtil.toDescriptiveString(itemPK2,2)+" "+ dataObject);
+		amalto.core.working();
+		itemNodes = [];
+		treeCount++;	
+		var treeIndex = treeCount;
+		var tabPanel = amalto.core.getTabPanel();
+		var contentPanel=tabPanel.getItem('itemDetailsdiv'+treeIndex);
+		//see  	 0013478 prevent 2 tabs from being opened on the same record. 
+		var itemContentPanel;
+		tabPanel.items.each(function(item){
+			if(item.itemid==itemPK2+"."+dataObject){
+				itemContentPanel=item;
+				return;
+			}
+		});
+		if(itemContentPanel && isDuplicate==false) {
+			if(itemContentPanel.itemid==itemPK2+"."+dataObject){
+				itemContentPanel.show();
+				return;
+			}
+		};
+		//end
+		
+		var ids = "";
+		
+		
+		if(itemPK2==null) {
+			newItem[treeIndex] = true;
+		}
+		else {
+			newItem[treeIndex] = false;
+			for(var i=0; i<itemPK2.length; i++) {
+				ids += (ids==""?"":"@"); 
+				ids += itemPK2[i];			
+			}
+		}
+		
+		//add for duplicate case
+		if(isDuplicate){
+		   newItem[treeIndex] = true;
+		}
+	
+	
+		lastUpdatedInputFlag[treeIndex] = null;
+		updateFlag[treeIndex] = 0;
+	
+		keys[treeIndex] = [];
+		map[treeIndex] = [];
+		if(dataObject==null) dataObject=_dataObject;
+		ItemsBrowserInterface.getRootNode2(dataObject,itemPK2,treeIndex,language, function(rootNode){
+			
+			if(contentPanel == undefined){
+					
+				var smartView = '';
+				if(newItem[treeIndex]==false ) {
+					smartView = '<iframe width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='+ids+'&concept='+dataObject+'&language='+language+'">';
+				}	
+	
+				//update the div structure
+				var errorHtml = '<div id="errorDesc'  + treeIndex + '" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:25px;padding-top:5px"><img src="img/genericUI/errorstate.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
+                         + errorDesc[language] + '</span></div>' +
+                    '<div id="errorDetail' + treeIndex + '" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:65px"></div></br>';
+				
+				var html =
+					'<div>' +
+					'		<span id="itemDetails'+treeIndex+'" class="itemTree"></span>' +
+					'		<span id="smartView'+treeIndex+'" style="display=none;">'+smartView+'</span>' +
+					'</div>' ;
+										
+
+				var tbDetail = new Ext.Toolbar({id:treeIndex+'_item-tb'});
+				
+				tbDetail.baseOptions = 0;
+				tbDetail.ids = ids;
+				tbDetail.dataObject = dataObject;
+				tbDetail.treeIndex = treeIndex;
+					
+				var myTitle = "";
+				if(_dataObject!=null) myTitle=_dataObject;
+		
+				if(dataObject!=null) myTitle = dataObject;	
+
+		        if(rootNode.primaryKeyInfo!=null&&rootNode.primaryKeyInfo.length>0){
+		        	if(rootNode.name!=null)	myTitle += " "+rootNode.name;
+		        }else{
+		        	if(rootNode.name!=null)	myTitle = rootNode.name;
+		        	if(itemPK2!=null) {
+						for(var i=0; i<itemPK2.length; i++) {
+							myTitle +=" "+itemPK2[i];
+						}	
+					}
+		        }	
+				
+				//get item readonly
+				var itempk=itemPK2;
+				if(isDuplicate){
+					itempk=null;
+				}
+				
+				ItemsBrowserInterface.isReadOnlyinItem(dataObject,itempk, function(result){
+					isReadOnlyinItem=result;
+				});
+    			if(dataObject==null) dataObject=_dataObject;	
+    			
+    			var addOptions;
+    			
+    			var itemTree= new YAHOO.widget.TreeView("itemDetails"+treeIndex);
+    			itemTreeList[treeIndex] = itemTree;    			
+    			//add for duplicate case
+				if(isDuplicate){
+					
+				   var fnLoadData = function(oNode, fnCallback) {
+    				ItemsBrowserInterface.getChildrenWithKeyMask(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,true,Ext.get(oNode.index+"TypeSelector")==null?null:DWRUtil.getValue(oNode.index+"TypeSelector"),function(result){
+    					if(result==null) {
+    						fnCallback();
+    						return;
+    					}
+    	
+    					for(var i=0; i<result.length; i++) {
+    						var readOnly = (result[i].readOnly==true || (result[i].key==true && newItem[treeIndex]==false));
+    						if (!readOnly)
+    						{
+    							if (!(tbDetail.baseOptions&O_SAVE))
+    							{
+    								//case new
+    								tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT; 
+    								initToolBar(tbDetail, tbDetail.currentMode);
+    							}
+    						}    						
+    						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
+    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+    						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
+    						if(result[i].type=="simple") tmp.setDynamicLoad();
+    						else tmp.setDynamicLoad(fnLoadData, 1);
+    						itemNodes[i] = tmp;
+    						var length = map[treeIndex].length;
+    						map[treeIndex][length + i] = tmp;
+    					}
+    					fnCallback();
+        			});
+        		  };
+        		  
+				}else{
+					
+					var fnLoadData = function(oNode, fnCallback) {
+    				ItemsBrowserInterface.getChildren(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,Ext.get(oNode.index+"TypeSelector")==null?null:DWRUtil.getValue(oNode.index+"TypeSelector"),function(result){
+    					if(result==null) {
+    						fnCallback();
+    						return;
+    					}
+    	
+    					for(var i=0; i<result.length; i++) {
+    						var readOnly = (result[i].readOnly==true || (result[i].key==true && newItem[treeIndex]==false));
+    						if (!readOnly)
+    						{
+    							//var tbDetail = tabPanel.getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
+    							if (!(tbDetail.baseOptions&O_SAVE))
+    							{
+    								//case new
+    								tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT; 
+    								initToolBar(tbDetail, tbDetail.currentMode);
+    							}
+    						}
+    	
+    						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
+    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+    						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
+    						if(result[i].type=="simple") tmp.setDynamicLoad();
+    						else tmp.setDynamicLoad(fnLoadData, 1);
+    						itemNodes[i] = tmp;
+    						var length = map[treeIndex].length;
+    						map[treeIndex][length + i] = tmp;
+    					}
+    					fnCallback();
+        			});
+        		  };
+				
+				}
+    				
+    			
+    			
+        		var root = itemTree.getRoot();	
+        		var nameTmp = dataObject;
+        		var descInfo = "";
+        		var selectedProcess=null;
+        		if(rootNode.name!=null) nameTmp = '<div style="width:180;float:left;font-size:22px;font-weight:bold">'+rootNode.name+'</div>';
+        		if(rootNode.description!=null&&rootNode.description!="")descInfo=' <img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'+rootNode.description+'"/>';
+        		nameTmp=nameTmp+descInfo;
+        		var node1 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
+        		
+        	
+        		tbDetail.deleteItemHandler = function() {
+        			//@temp yguo, deleteItem and close 
+        			var tmp = "";
+        			var itemPK = ids.split('@');
+        			for(var i=0; i<itemPK.length; i++) {
+        				tmp += " "+itemPK[i];
+        			}
+        			Ext.MessageBox.confirm("confirm",MSG_CONFIRM_DELETE_ITEM[language]+ " ?",function re(en){
+        			if(en=="yes"){
+        				ItemsBrowserInterface.getUriArray(dataObject, itemPK, function(picUriArray){
+        					var uriArray = [];
+        					uriArray=picUriArray;
+        					for (var index = 0; index < uriArray.length; index++) {
+        						var picUri=uriArray[index];
+        					if(picUri!=""){
+        						 var pos=picUri.indexOf('?');
+        		 				 var uri=picUri.substring("/imageserver/".length,pos); 
+        					     Ext.Ajax.request({  
+        					       	 url:'/imageserver/secure/ImageDeleteServlet?uri='+uri,
+        					         method: 'post',  
+        					         callback: function(options, success, response) {  
+        					         }  
+        					     });    
+        					  }
+        				   }
+        				});
+        				ItemsBrowserInterface.deleteItem(dataObject, itemPK,treeIndex, function(result){
+        					if(result.lastIndexOf("ERROR")>-1){
+        						var err1=result.substring(7);
+        						Ext.MessageBox.show({msg:err1, buttons:{"ok":"CANCEL"}, icon:Ext.MessageBox.ERROR});
+        						return;
+        					}
+        					else if(result.lastIndexOf)
+        					
+        					if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.INFO});		
+        					window.callGxt();
+        				});		
+        			}});
+        			
+        			//@temp yguo, close the window
+        		};
+        		
+        		tbDetail.logicalDelItemHandler = function() {
+        			var tmp = "";
+        			var itemPK = ids.split('@');
+        			
+        			Ext.Msg.show({
+        			   title: MSG_CONFIRM_TITLE_LOGICAL_DELETE_ITEM[language],
+        			   msg:  MSG_CONFIRM_LOGICAL_DELETE_ITEM[language],
+        			   buttons: Ext.Msg.OKCANCEL,
+        			   fn: doLogicalDel,
+        			   prompt:true,
+        			   value: '/',
+        			   width:300
+        			});
+        			
+        			function doLogicalDel(btn, path){
+        		       if (btn == 'cancel') {
+        					return;
+        				}
+        		       
+        		       	var tmp = "";
+        				var itemPK = ids.split('@');
+        				for(var i=0; i<itemPK.length; i++) {
+        					tmp += " "+itemPK[i];
+        				}
+        				ItemsBrowserInterface.logicalDeleteItem(dataObject, itemPK, path, treeIndex, function(result){
+        					if(result.lastIndexOf("ERROR")>-1){
+        						var err1=result.substring(7);
+        						//Ext.MessageBox.alert("ERROR", err1);
+        						$('errorDetail' + treeIndex).style.display = "block";
+        						$('errorDetail' + treeIndex).innerHTML ="<br/>"+err1+"<br/>";					
+        						return;
+        					}			
+
+        					amalto.core.ready(result);
+        					if(result){
+        						Ext.MessageBox.alert('Status', result, function() {
+        							window.callGxt();
+        						});				
+        					}
+        				});
+        			};
+        			
+        			//@temp yguo, deleteItem and close 
+        		};
+        		
+        		tbDetail.duplicateItemHandler = function() {
+        			duplicateItem(ids, dataObject);
+        		};
+        		
+        		tbDetail.journalItemHandler = function() {
+        			journalItem(ids, dataObject);
+        		};
+        		
+        		if(rootNode.taskId != "null" && "" != rootNode.taskId && rootNode.taskId != null) {
+    				tbDetail.baseOptions |= O_TASK;
+    			};
+        		
+    			DWREngine.setAsync(false);
+    			var lineagEntities; 
+    			ItemsBrowserInterface.getLineageEntity(dataObject, function(results) {
+    				lineagEntities = results;
+    			});
+    			
+    			if(lineagEntities != null && lineagEntities.length != 0 && lineagEntities != "") {
+    				tbDetail.baseOptions |= O_LINEAGE;
+    			}
+    			DWREngine.setAsync(true);
+    			
+    			tbDetail.lineageItemHandler = function() {
+        			lineageItem(lineagEntities);
+        		};
+        		
+        		tbDetail.taskItemHandler = function() {
+        			taskItem(rootNode.taskId);
+        		};
+        		
+        		tbDetail.processItemHandler = function() {
+                    
+                    selectedProcess = Ext.getCmp('processCombo'+tbDetail.treeIndex).value;
+                    if(selectedProcess==null||selectedProcess==''){
+                       Ext.MessageBox.alert("Warnning", "Please select a process first! ");
+                       return;
+                    }
+                    
+                    DWREngine.setAsync(false);
+                    var timeoutConfig;
+                    ItemsBrowserInterface.getProperty('runnable.process.timeout', function(result) {
+                    	timeoutConfig = result;
+                    });
+                    DWREngine.setAsync(true);
+                    //TODO:add a confirm here( do save)
+                    
+                    Ext.MessageBox.show({
+                           msg: 'Processing, please wait...',
+                           progressText: 'Processing...',
+                           width:300,
+                           wait:true,
+                           waitConfig: {interval:200}
+                        });
+                    ItemsBrowserInterface.processItem(tbDetail.dataObject, tbDetail.ids, tbDetail.treeIndex, selectedProcess, {
+                    	callback:function(result){
+                           Ext.MessageBox.hide();
+                           if(result.indexOf("Ok") >= 0){
+                               Ext.MessageBox.alert('Status', "Process done! ");
+                               //FIXME mock refresh
+                               itemTree.removeNode(itemTree.getRoot().children[0]);
+                               node1 = new YAHOO.widget.HTMLNode(nameTmp,root,false, true);
+                               var viewName =  getSelectedViewName(dataObject);
+                               ItemsBrowserInterface.setTree(dataObject,viewName, itemPK2, node1.index, false, treeIndex, false, function(result){                             
+                                    node1.setDynamicLoad(fnLoadData,1);
+                                    node1.expand();
+                                    itemTree.draw();
+                               });
+    
+                               //amalto.core.getTabPanel().remove('itemDetailsdiv'+ treeIndex);
+                               //displayItemDetails(itemPK2,dataObject);
+                                                          
+                               var itempanel = amalto.core.getTabPanel().activeTab;
+                               if (itempanel) {
+                                    //It is already up to date
+                                    itempanel.isdirty = false;
+                               }
+                               
+                               displayItems.call(); 
+                                
+                               if(result == "Ok"){
+                                   var url = "/itemsbrowser/secure/RefreshProperties?output_report=true&process=" + selectedProcess + "&id=" + tbDetail.treeIndex;    
+                                   var panelID = "mimepanel" + tbDetail.treeIndex ;
+                                   
+                                   var mimepanel = new Ext.Panel( {   
+                                   id : panelID,   
+                                   title : "output_report of " + selectedProcess + " " + tbDetail.ids,
+                                   closable:true,
+                                   fitToFrame: true,                   
+                                   html: '<iframe id="frame1" src=' + url+ ' frameborder="0" width="100%" height="100%"></iframe>'  
+                                   });
+                                   
+                                   var tabPanel = amalto.core.getTabPanel();
+                                   var contentPanel=tabPanel.getItem(panelID);
+                                   if (contentPanel == undefined){
+                                   	tabPanel.add(mimepanel);
+                                   }
+                                   tabPanel.show();
+                                   tabPanel.doLayout();
+                                   amalto.core.doLayout(); 
+                               }
+                           }else{
+                           Ext.MessageBox.alert('Status', "Process failed! ");  
+                           }
+                        },
+                        timeout:timeoutConfig,
+                        errorHandler:function(errorString, exception) {  
+                              alert('Error:'+ errorString);
+                              Ext.MessageBox.hide();
+                        }  
+                    });
+                };
+
+        		ItemsBrowserInterface.checkSmartViewExists(dataObject, language, function(result){
+        			
+        			var mode = M_TREE_VIEW;
+        			//var tb = tabPanel.getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
+        			var tb = tbDetail;
+        			if(result==true && newItem[treeIndex]==false) {
+        				
+        				mode = M_PERSO_VIEW;
+        				
+        				tbDetail.displayTreeHandler = function(){	
+        					getTree(ids,''+dataObject,treeIndex);
+        				};				
+        				
+        				tbDetail.printHandler = function(){			
+        					printSmartView(ids, dataObject);
+        				};
+        	
+        				tb.baseOptions |= O_PRINT | O_PERSO_VIEW;
+        	
+        				$('smartView'+treeIndex).style.display='block';
+        				$('itemDetails'+treeIndex).style.display='none';
+        			}
+        	
+        			initToolBar(tb, mode);
+        			
+        		});
+    	       
+    			tbDetail.saveItemHandler = function(){			
+    				//@temp yguo, 
+    				saveForGXT(ids,dataObject,treeIndex,function(){
+    					
+    				});
+    			};			
+    			tbDetail.refreshItemHandler = function() {
+    				
+                    var ids1;
+                    if(ids.length==0)
+                        ids1 = itemPK2;
+                    else
+                        ids1 = ids;
+                    if(!ids1 || keys[treeIndex].length>0){
+                        ids1=keys[treeIndex];
+                        //reset ids
+                        ids=ids1.join('.');
+                    }					
+					if(ids1 && ids1.length>0){
+    				ItemsBrowserInterface.reloadItem(dataObject, ids1, treeIndex, function(){    					
+                            reloadNode(node1.index,treeIndex);
+                    });
+                    }
+    			};
+    			
+    			tbDetail.saveItemAndQuitHandler = function(){	
+    				saveForGXT(ids,dataObject,treeIndex, function() {
+    					//@TEMP YGUO, CLOSE THE WINDOW
+    					window.callGxt();
+    				});
+    				
+    			};
+    		
+    			//case edit and no editable
+    			if(rootNode.readOnly==false && newItem[treeIndex]==false) {
+    				tbDetail.baseOptions |= O_DELETE|O_LOGICAL_DEL|O_DUPLICATE|O_JOURNAL|O_ACTION|O_REFRESH;	
+    				
+    			}
+    			//add by ymli; fix the bug:0012534
+    			else
+    	           tbDetail.baseOptions |=O_ACTION;
+    			
+                 var viewName =  getSelectedViewName(dataObject);
+    			//add for duplicate case
+				if(isDuplicate){
+					ItemsBrowserInterface.setTree(dataObject, viewName,itemPK2, node1.index, false, treeIndex, false, function(result){
+    				node1.setDynamicLoad(fnLoadData,1);
+    				node1.expand();
+    				itemTree.draw();
+    				ItemsBrowserInterface.updateKeyNodesToEmptyInItemDocument(treeIndex);
+    			    });
+				}else{
+					ItemsBrowserInterface.setTree(dataObject,viewName, itemPK2, node1.index, false, treeIndex, false, function(result){
+    				node1.setDynamicLoad(fnLoadData,1);
+    				node1.expand();
+    				itemTree.draw();
+    			    });
+				}
+    			
+				var errorContentPanel = new Ext.Panel({
+				    id:'errorDetailsdiv'+treeIndex, 
+                    headerAsText:false,
+                    autoScroll:false,
+                    html:errorHtml,
+                    border:false,
+                    closable:false
+				});
+				
+				var treeDetailPanel = new Ext.Panel({
+                    id:'treeDetailsdiv'+treeIndex, 
+                     headerAsText:false,
+                    style:"overflow:auto;height:93%;",
+                    autoScroll:true,
+                    html:html,
+                    border:false,
+                    closable:false
+                });
+    		
+                contentPanel = new Ext.Panel({
+                    id:'itemDetailsdiv'+treeIndex, 
+                    title: myTitle, 
+                    //activeTab: 0,
+                    //tabPosition:'bottom',
+                    //layout:'border',
+                    //height:500,
+                    tbar: tbDetail,
+                    //autoScroll:true,
+                    closable:true,
+                    items:[errorContentPanel,treeDetailPanel],
+                    bbar : new Ext.Toolbar([{
+                        text : EDIT_ITEM_TOOLTIP[language],
+                        xtype : "tbtext"
+                    }])                 
+                });
+			}
+			formWindow.innerHTML = "";
+			contentPanel.render(formWindow);
+			//record the item id
+			contentPanel.itemid=itemPK2+"."+dataObject;
+			
+		    amalto.core.doLayout();	    
+		});
+		
+		amalto.core.ready();
+	}
+	
+	function saveForGXT(itemPK,dataObject,treeIndex, callbackOnSuccess) {
+		ItemsBrowserInterface.saveItem(itemPK,dataObject, newItem[treeIndex], treeIndex,{
+			callback:function(result){ 
+				amalto.core.ready(result);
+				if(result.status == 2) { //unchanged
+					amalto.core.ready(ALERT_NO_CHANGE[language]);
+				}
+				else if(result.status == 1) { //failure
+				    if(result.description!=null){
+				    	if(result.description.indexOf('ERROR_3:')==0){
+					      // add for before saving transformer check
+                          amalto.core.ready(result.substring(8));
+                          Ext.MessageBox.alert("Status",result.description.substring(8));
+                        }else if(result.description.indexOf('Unable to save item')==0){
+                	        amalto.core.ready();
+    				        showExceptionMsg(result.description, null, treeIndex);
+                        }else if(result.description.indexOf('Save item')==0){
+                	        amalto.core.ready();
+    				        showExceptionMsg(result.description, null, treeIndex);
+                        }
+				    }
+				}
+				else if(result.status == 0) { 
+					//@temp yguo check 
+					$('errorDetail'+ treeIndex).style.display = "none";
+				}
+				
+				if(result.description==null || result.description==""){
+					return;
+				}else{
+					if(result.status == 1) {
+						var err1=result.description;
+					    if(err1.lastIndexOf("ERROR")>-1)
+						    var err1=result.description.substring(8);
+						if(err1==null || err1==""){
+						    return;
+						}else{
+						    err1 = dropOnErrorMsg(err1);
+						    Ext.MessageBox.show({
+						        msg:err1,
+						        buttons:{"ok":"CANCEL"},
+						        icon:Ext.MessageBox.ERROR
+						     });
+						    return;
+						}
+					}else{
+						var msg2show=result.description;
+						Ext.MessageBox.show({
+						    msg:msg2show,
+						    buttons:{"ok":"OK"},
+						    icon:Ext.MessageBox.INFO
+						 });
+						if(callbackOnSuccess && result.status != 1)callbackOnSuccess();
+						return;
+					}
+				}
+				amalto.core.ready();
+			}
+        });
+	}
+	
 	function displayItemDetails4Reference(itemPK2, dataObject, refreshCB){
 		
 		DWREngine.setAsync(false); 
@@ -4269,7 +4863,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		editItemDetails:function(itemPK,dataObject,refreshCB){displayItemDetails4Reference(itemPK,dataObject,refreshCB);},
 		getSiblingsLength:function(node){getSiblingsLength(node);},
 		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);},
-		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);}
+		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);},
+		renderFormWindow:function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow){renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow);}
 		/*getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
 		setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}*/
  	};

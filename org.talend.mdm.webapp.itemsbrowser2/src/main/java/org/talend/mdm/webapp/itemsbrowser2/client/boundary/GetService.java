@@ -12,12 +12,25 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.boundary;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
+
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 
 /**
  * DOC HSHU class global comment. Detailled comment
  */
 public class GetService {
+
+    public static void closeViewWindow() {
+        ItemsView.window.close();
+    }
+
+    public static native void regCallback()/*-{
+        $wnd.callGxt = function(){
+        @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::closeViewWindow()();
+        };
+    }-*/;
 
     /* Get languaue from outer, this is an example */
     public static native String getLanguage() /*-{
@@ -28,4 +41,8 @@ public class GetService {
         $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(ids, conceptName);
     }-*/;
 
+    public static native void renderFormWindow(String ids, String concept, boolean isDuplicate, String refreshCB,
+            Element formWindow) /*-{
+        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderFormWindow(ids, concept, isDuplicate, refreshCB, formWindow);
+    }-*/;
 }

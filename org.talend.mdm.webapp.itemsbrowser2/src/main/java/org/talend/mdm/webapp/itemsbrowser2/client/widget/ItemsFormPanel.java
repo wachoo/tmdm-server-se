@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldSetCreator;
@@ -54,7 +55,6 @@ public class ItemsFormPanel extends Composite {
         this.initComponent(content);
     }
 
-
     public void paint(EntityModel entityModel) {
         content.removeAll();
         formBindings = new FormBinding(content);
@@ -62,8 +62,9 @@ public class ItemsFormPanel extends Composite {
         String concept = entityModel.getConceptName();
         TypeModel typeModel = dataTypes.get(concept);
         toolbar.updateToolBar();
-        
-        FieldSet fildSet = FieldSetCreator.createFieldGroup((ComplexTypeModel) typeModel, formBindings, true, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
+
+        FieldSet fildSet = FieldSetCreator.createFieldGroup((ComplexTypeModel) typeModel, formBindings, true,
+                Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
         if (fildSet != null) {
             content.add(fildSet);
         }
@@ -82,16 +83,16 @@ public class ItemsFormPanel extends Composite {
             itemsSearchContainer.getItemsListPanel().getStore().getLoader().load();
         }
     }
-    
-    public void commitItemBean(){
+
+    public void commitItemBean() {
         formBindings.getModel();
         Store store = formBindings.getStore();
         if (store != null) {
             Record record = store.getRecord(formBindings.getModel());
-            if (record != null){
+            if (record != null) {
                 record.commit(false);
             }
-        } 
+        }
     }
 
     public ItemBean getNewItemBean() {
@@ -112,11 +113,11 @@ public class ItemsFormPanel extends Composite {
                 value = field.getValue();
             }
 
-            if (value instanceof List){
+            if (value instanceof List) {
                 String key = field.getName();
                 String parentPath = key.substring(0, key.lastIndexOf('/'));
                 String elName = key.substring(key.lastIndexOf('/') + 1);
-                createElements(parentPath, elName, (List)value, elementSet, doc);
+                createElements(parentPath, elName, (List) value, elementSet, doc);
             } else {
                 createElements(field.getName(), value == null ? "" : value.toString(), elementSet, doc);
             }
@@ -128,10 +129,9 @@ public class ItemsFormPanel extends Composite {
         return item;
     }
 
-
-    private String createElementString(String elName, List values, Document doc){
+    private String createElementString(String elName, List values, Document doc) {
         StringBuffer buffer = new StringBuffer();
-        for (Object o : values){
+        for (Object o : values) {
             Element el = doc.createElement(elName);
             el.appendChild(doc.createTextNode(o.toString()));
             buffer.append(el.toString());
@@ -139,7 +139,7 @@ public class ItemsFormPanel extends Composite {
         return buffer.toString();
     }
 
-    private void createElements(String xpath, String value, Map<String, Element> elementSet, Document doc){
+    private void createElements(String xpath, String value, Map<String, Element> elementSet, Document doc) {
         Element parent = null;
         String[] xps = xpath.split("/"); //$NON-NLS-1$
         StringBuffer sb = new StringBuffer();
@@ -163,33 +163,33 @@ public class ItemsFormPanel extends Composite {
         }
         parent.appendChild(doc.createTextNode(value));
     }
-    
-    public void createElements(String xpath, String elName, List value, Map<String, Element> elementSet, Document doc){
+
+    public void createElements(String xpath, String elName, List value, Map<String, Element> elementSet, Document doc) {
         Element parent = null;
         String[] xps = xpath.split("/");
         StringBuffer sb = new StringBuffer();
         boolean isFirst = true;
-        for (String xp : xps){
-            if (isFirst){
+        for (String xp : xps) {
+            if (isFirst) {
                 sb.append(xp);
                 isFirst = false;
             } else {
                 sb.append("/" + xp);
             }
             Element tempEl = elementSet.get(sb.toString());
-            if (tempEl == null){
+            if (tempEl == null) {
                 tempEl = (Element) doc.createElement(xp);
                 elementSet.put(sb.toString(), tempEl);
             }
-            if (parent != null){
+            if (parent != null) {
                 parent.appendChild(tempEl);
             }
             parent = tempEl;
         }
-        for (Object o : value){
+        for (Object o : value) {
             Element el = doc.createElement(elName);
             el.appendChild(doc.createTextNode(o.toString()));
-            parent.appendChild(el); 
+            parent.appendChild(el);
         }
     }
 
@@ -198,11 +198,13 @@ public class ItemsFormPanel extends Composite {
     }
 
     public void bind(ModelData modelData) {
-        if (modelData != null) {
-            formBindings.bind(modelData);
-        } else {
-            formBindings.unbind();
-        }
+        ItemBean bean = (ItemBean) modelData;
+        GetService.renderFormWindow(bean.getIds(), bean.getConcept(), false, "", content.getBody().dom);
+        // if (modelData != null) {
+        // formBindings.bind(modelData);
+        // } else {
+        // formBindings.unbind();
+        // }
     }
 
     public void unbind() {

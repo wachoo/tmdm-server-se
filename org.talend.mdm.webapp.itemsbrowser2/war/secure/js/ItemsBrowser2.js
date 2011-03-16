@@ -48,6 +48,11 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 				});
 	};
 
+	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow) {
+		var ids = itemPK2.split(".");
+		amalto.itemsbrowser.ItemsBrowser.renderFormWindow(ids, dataObject, isDuplicate, refreshCB, formWindow); 
+	};
+	
 	return {
 
 		init : function() {
@@ -58,6 +63,9 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 		},
 		openItemBrowser : function(ids, conceptName) {
 			openItemBrowser(ids, conceptName);
+		},
+		renderFormWindow : function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow) {
+			renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow);
 		}
 	}
 }();
