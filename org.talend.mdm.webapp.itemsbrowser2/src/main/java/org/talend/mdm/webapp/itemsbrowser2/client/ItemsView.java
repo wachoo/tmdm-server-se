@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +80,7 @@ public class ItemsView extends View {
     public ItemsView(Controller controller) {
         super(controller);
     }
-
+ 
     /*
      * (non-Jsdoc)
      * 
@@ -124,13 +125,16 @@ public class ItemsView extends View {
         ccList.add(sm.getColumn());
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
+        List<String> keys = Arrays.asList(entityModel.getKeys());
         for (String xpath : viewableXpaths) {
             TypeModel typeModel = dataTypes.get(xpath);
+
             ColumnConfig cc = new ColumnConfig(xpath, typeModel.getLabel(Locale.getLanguage(Itemsbrowser2.getSession()
                     .getAppHeader())), 200);
             if (typeModel instanceof SimpleTypeModel) {
                 Field field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
                         Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
+
                 CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
                 if (cellEditor != null) {
                     cc.setEditor(cellEditor);
@@ -147,6 +151,7 @@ public class ItemsView extends View {
 
         itemsSearchContainer.getItemsListPanel().updateGrid(sm, ccList);
         // TODO in the view of ViewItemForm binding
+
     }
 
     protected void onViewItemForm(AppEvent event) {

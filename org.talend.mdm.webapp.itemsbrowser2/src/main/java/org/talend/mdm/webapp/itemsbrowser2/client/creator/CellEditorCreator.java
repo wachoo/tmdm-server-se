@@ -1,6 +1,9 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.creator;
 
-import com.extjs.gxt.ui.client.data.ModelData;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.celleditor.ComboBoxCellEditor;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.celleditor.DateFieldCellEditor;
+
+import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
@@ -12,21 +15,11 @@ public class CellEditorCreator {
     public static CellEditor createCellEditor(Widget field){
         if (field instanceof SimpleComboBox){
             final SimpleComboBox comboBox = (SimpleComboBox) field;
-            CellEditor editor = new CellEditor(comboBox) {
-                public Object preProcessValue(Object value) {  
-                  if (value == null) {  
-                    return value;  
-                  }  
-                  return comboBox.findModel(value.toString());  
-                }  
-                public Object postProcessValue(Object value) {  
-                  if (value == null) {  
-                    return value;  
-                  }  
-                  return ((ModelData) value).get("value");  
-                }  
-              };
-              return editor;
+            return new ComboBoxCellEditor(comboBox);
+        }
+        
+        if (field instanceof DateField){
+            return new DateFieldCellEditor((DateField) field);
         }
         
         if (field instanceof Field){

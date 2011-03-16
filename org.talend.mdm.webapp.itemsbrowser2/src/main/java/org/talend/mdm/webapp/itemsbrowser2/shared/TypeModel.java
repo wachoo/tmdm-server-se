@@ -115,10 +115,11 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     /**
      * DOC HSHU TypeModel constructor comment.
      */
-    public TypeModel() {
-        
-    }
 
+    public TypeModel(){
+        super();
+    }
+    
     public TypeModel(String name ,DataType type) {
         super();
         this.name = name;

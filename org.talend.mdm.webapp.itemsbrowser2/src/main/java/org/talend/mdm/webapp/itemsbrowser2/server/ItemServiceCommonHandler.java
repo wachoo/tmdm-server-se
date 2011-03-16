@@ -165,10 +165,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.indexOf('/') + 1));
                     if (nodes.size() > 0) {
                         Node value = (Node) nodes.get(0);
-                        if (typeModel.getType().equals(DataTypeConstants.DATE)) {
-                            Date date = DateUtil.convertStringToDate("yyyy-MM-dd", value.getText());
-                            itemBean.set(path, date);
-                        } else if (typeModel.isMultiOccurrence()) {
+                         if (typeModel.isMultiOccurrence()) {
                             List<Serializable> list = new ArrayList<Serializable>();
                             for (Object node : nodes) {
                                 list.add(((Node) node).getText());

@@ -23,8 +23,9 @@ public class DataTypeCustomized implements DataType {
     /**
      * DOC HSHU DataTypeCustomized constructor comment.
      */
-    public DataTypeCustomized() {
 
+    public DataTypeCustomized(){
+        super();
     }
 
     public DataTypeCustomized(String typeName) {

@@ -14,6 +14,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.DateUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldSetCreator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
@@ -34,7 +35,6 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
@@ -105,10 +105,12 @@ public class ItemsFormPanel extends Composite {
             Field field = fb.getField();
             Object value = null;
             if (field instanceof SimpleComboBox) {
-                value = ((SimpleComboBox) field).getValue().get("value"); //$NON-NLS-1$
-            }
-            if (field instanceof DateField) {
-                value = DateTimeFormat.getFormat("yyyy-MM-dd").format((Date) field.getValue()); //$NON-NLS-1$
+                ModelData model = ((SimpleComboBox) field).getValue();
+                if (model != null){
+                    value = model.get("value"); //$NON-NLS-1$    
+                }
+            } else if (field instanceof DateField) {
+                value = DateUtil.convertDateToString((Date) field.getValue());
             } else {
                 value = field.getValue();
             }

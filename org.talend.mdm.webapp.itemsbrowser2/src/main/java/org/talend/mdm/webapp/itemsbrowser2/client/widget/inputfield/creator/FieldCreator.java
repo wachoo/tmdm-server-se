@@ -19,12 +19,14 @@ import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.MultipleField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.converter.DateConverter;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.validator.NumberFieldValidator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetEnum;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
+import com.extjs.gxt.ui.client.binding.Converter;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
@@ -100,6 +102,9 @@ public class FieldCreator {
             FieldBinding binding = null;
             if (field instanceof SimpleComboBox) {
                 binding = new SimpleComboBoxFieldBinding((SimpleComboBox) field, field.getName());
+            } else if (field instanceof DateField) {
+                binding = new FieldBinding(field, field.getName());
+                binding.setConverter(new DateConverter());
             } else {
                 binding = new FieldBinding(field, field.getName());
             }

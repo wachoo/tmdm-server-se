@@ -35,7 +35,7 @@ public class SimpleTypeModel extends TypeModel{
     public SimpleTypeModel() {
         super();
     }
-
+    
     public SimpleTypeModel(String name,DataType typeName) {
         super(name,typeName);
     }
