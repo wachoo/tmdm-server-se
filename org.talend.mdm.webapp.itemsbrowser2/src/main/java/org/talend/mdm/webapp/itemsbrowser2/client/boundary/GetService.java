@@ -25,8 +25,7 @@ public class GetService {
     }-*/;
 
     public static native void openItemBrowser(String ids, String conceptName) /*-{
-        var idsArray = ids.split(".");
-        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(idsArray, conceptName);
+        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(ids, conceptName);
     }-*/;
 
 }
