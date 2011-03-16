@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
+import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldSetCreator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
@@ -61,7 +63,7 @@ public class ItemsFormPanel extends Composite {
         TypeModel typeModel = dataTypes.get(concept);
         toolbar.updateToolBar();
         
-        FieldSet fildSet = FieldSetCreator.createFieldGroup((ComplexTypeModel) typeModel, formBindings, true);
+        FieldSet fildSet = FieldSetCreator.createFieldGroup((ComplexTypeModel) typeModel, formBindings, true, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
         if (fildSet != null) {
             content.add(fildSet);
         }

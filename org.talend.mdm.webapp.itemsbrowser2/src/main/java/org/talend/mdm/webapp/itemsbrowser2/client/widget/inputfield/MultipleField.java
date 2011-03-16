@@ -36,9 +36,11 @@ public class MultipleField extends Field<List<Object>> {
     };
     int min, max;
     TypeModel dataType;
+    String language;
     
-    public MultipleField(TypeModel dataType){
+    public MultipleField(TypeModel dataType,String language){
         this.dataType = dataType;
+        this.language = language;
         int[] range = dataType.getRange();
         min = range[0];
         max = range[1];
@@ -96,7 +98,7 @@ public class MultipleField extends Field<List<Object>> {
     }
     
     private Field createField(Object value){
-        Field field = (Field) FieldCreator.createField((SimpleTypeModel)dataType, null, false);
+        Field field = (Field) FieldCreator.createField((SimpleTypeModel)dataType, null, false, language);
         field.addPlugin(createFp());
         field.setValue(value);
         field.addListener(Events.Change, changeListener);
@@ -134,7 +136,7 @@ public class MultipleField extends Field<List<Object>> {
                     Window.alert("Maximum of " + max);
                     return;
                 }
-                Field newField = createField(dataType.getTypeName().getDefaultValue());
+                Field newField = createField(dataType.getType().getDefaultValue());
                 int index = vp.getWidgetIndex(field);
                 vp.insert(newField, index + 1);
                 buildValue();

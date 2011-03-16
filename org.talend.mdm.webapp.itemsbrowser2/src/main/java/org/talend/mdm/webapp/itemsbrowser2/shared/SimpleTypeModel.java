@@ -12,48 +12,24 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.shared;
 
+import java.io.Serializable;
 import java.util.List;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.DataType;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 
 /**
  * DOC chliu  class global comment. Detailled comment
  */
-public class SimpleTypeModel extends TypeModel {
+public class SimpleTypeModel extends TypeModel implements IsSerializable {
 
-    private boolean primitive;
-    
-    private boolean restriction;
     
     private List<FacetModel> facets;
 
-    public SimpleTypeModel() {
-        super();
-    }
-
-    public SimpleTypeModel(DataTypeConstants typeName, String label, boolean primitive,
-            boolean restriction, List<FacetModel> facets) {
-        super(typeName, label);
-        this.primitive = primitive;
-        this.restriction = restriction;
-        this.facets = facets;
-    }
-
-    public boolean isPrimitive() {
-        return primitive;
-    }
-
-    public void setPrimitive(boolean primitive) {
-        this.primitive = primitive;
-    }
-
-    public boolean isRestriction() {
-        return restriction;
-    }
-
-    public void setRestriction(boolean restriction) {
-        this.restriction = restriction;
+    public SimpleTypeModel(String name,DataType typeName) {
+        super(name,typeName);
     }
 
     public List<FacetModel> getFacets() {

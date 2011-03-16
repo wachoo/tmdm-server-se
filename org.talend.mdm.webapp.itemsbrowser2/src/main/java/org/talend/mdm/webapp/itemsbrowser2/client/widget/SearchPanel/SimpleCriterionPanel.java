@@ -190,7 +190,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             return;
         }
 
-        String predicateValues = itemsPredicates.get(getKey()).getTypeName().getTypeName();
+        String predicateValues = itemsPredicates.get(getKey()).getType().getTypeName();
 
         if (predicateValues.equals("string") || predicateValues.equals("normalizedString") || predicateValues.equals("token")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             setOperatorComboBox(OperatorConstants.fullOperators);

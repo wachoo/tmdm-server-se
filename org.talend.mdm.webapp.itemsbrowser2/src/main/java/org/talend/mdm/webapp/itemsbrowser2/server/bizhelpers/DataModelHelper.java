@@ -17,18 +17,21 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.itemsbrowser2.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.itemsbrowser2.server.ItemsBrowserConfiguration;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -36,17 +39,11 @@ import com.amalto.webapp.util.webservices.WSConceptKey;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
-import com.sun.xml.xsom.XSAnnotation;
-import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
-import com.sun.xml.xsom.XSFacet;
 import com.sun.xml.xsom.XSModelGroup;
 import com.sun.xml.xsom.XSParticle;
-import com.sun.xml.xsom.XSRestrictionSimpleType;
 import com.sun.xml.xsom.XSSchema;
 import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.XSSimpleType;
-import com.sun.xml.xsom.XSType;
 import com.sun.xml.xsom.parser.XSOMParser;
 import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
@@ -54,58 +51,21 @@ public class DataModelHelper {
 
     private static final Logger logger = Logger.getLogger(DataModelHelper.class);
 
-    private static List<String> getLabels(XSElementDecl xsed, String x_Label) {
-        List<String> labels;
-        try {
-            labels = new ArrayList<String>();
-            XSAnnotation xsa = xsed.getAnnotation();
-
-            org.w3c.dom.Element elem = (org.w3c.dom.Element) xsa.getAnnotation();
-            if (elem != null) {
-                org.w3c.dom.NodeList list = elem.getChildNodes();
-                for (int k = 0; k < list.getLength(); k++) {
-                    if ("appinfo".equals(list.item(k).getLocalName())) {
-                        org.w3c.dom.Node source = list.item(k).getAttributes().getNamedItem("source");
-                        if (source == null)
-                            continue;
-                        String appinfoSource = source.getNodeValue();
-                        if (x_Label.equals(appinfoSource)) {
-                            labels.add(list.item(k).getFirstChild().getNodeValue());
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            return null;
+    /**
+     * DOC HSHU Comment method "parseSchema".
+     * 
+     * @param model
+     * @param concept
+     */
+    public static void parseSchema(String model, String concept, EntityModel entityModel) {
+        entityModel.setConceptName(concept);
+        // set pk
+        entityModel.setKeys(getBusinessConceptKeys(model, concept));
+        // analyst model
+        XSElementDecl eleDecl = getBusinessConcept(model, concept);
+        if (eleDecl != null) {
+            travelXSElement(eleDecl, eleDecl.getName(), entityModel, null);
         }
-        return labels;
-    }
-
-    private static String getLabel(XSElementDecl xsed, String x_Label) {
-        String label = "";
-        try {
-            XSAnnotation xsa = xsed.getAnnotation();
-
-            org.w3c.dom.Element elem = (org.w3c.dom.Element) xsa.getAnnotation();
-            if (elem != null) {
-                org.w3c.dom.NodeList list = elem.getChildNodes();
-                for (int k = 0; k < list.getLength(); k++) {
-                    if ("appinfo".equals(list.item(k).getLocalName())) {
-                        org.w3c.dom.Node source = list.item(k).getAttributes().getNamedItem("source");
-                        if (source == null)
-                            continue;
-                        String appinfoSource = source.getNodeValue();
-                        if (x_Label.equals(appinfoSource)) {
-                            label = list.item(k).getFirstChild().getNodeValue();
-                            break;
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            return "";
-        }
-        return label;
     }
 
     /**
@@ -133,22 +93,12 @@ public class DataModelHelper {
     }
 
     /**
-     * DOC HSHU Comment method "parseSchema".
+     * DOC HSHU Comment method "getElementDeclByName".
      * 
-     * @param model
-     * @param concept
+     * @param eleName
+     * @param xss
+     * @return
      */
-    public static void parseSchema(String model, String concept, EntityModel entityModel) {
-        entityModel.setConceptName(concept);
-        //set pk
-        entityModel.setKeys(getBusinessConceptKeys(model,concept));
-        //analyst model
-        XSElementDecl eleDecl = getBusinessConcept(model, concept);
-        if (eleDecl != null) {
-            parseElementDecl("", eleDecl, entityModel);
-        }
-    }
-
     private static XSElementDecl getElementDeclByName(String eleName, XSSchemaSet xss) {
         Collection<XSSchema> schemas = xss.getSchemas();
         for (XSSchema xsa : schemas) {
@@ -161,83 +111,132 @@ public class DataModelHelper {
         return null;
     }
 
-    private static TypeModel parseElementDecl(String path, XSElementDecl eleDecl, EntityModel entityModel) {
-        TypeModel typeModel = null;
-        XSType type = eleDecl.getType();
-        String fullPath = path + eleDecl.getName();
-        String label = getLabel(eleDecl, "X_Label_EN");
-        if (label.equals(""))
-            label = eleDecl.getName();
-        if (type.isSimpleType()) {
-            typeModel = parseSimpleType(type.asSimpleType());
-            entityModel.getMetaDataTypes().put(fullPath, typeModel);
-        } else if (type.isComplexType()) {
-            typeModel = parseComplexType(fullPath + "/", type.asComplexType(), entityModel);
-            entityModel.getMetaDataTypes().put(fullPath, typeModel);
+    /**
+     * DOC HSHU Comment method "travelXSElement". go through XSElement
+     * 
+     * @param e
+     * @param currentXPath
+     */
+    private static void travelXSElement(XSElementDecl e, String currentXPath, EntityModel entityModel, ComplexTypeModel parentTypeModel) {
+        if (e != null) {
+
+            TypeModel typeModel = null;
+            
+            // parse element
+            typeModel = parseElement(currentXPath, e, typeModel);
+
+            // parse annotation
+            if (typeModel != null)
+                parseAnnotation(currentXPath, e, typeModel);
+
+            // set parent typeModel
+            if (parentTypeModel != null)
+                parentTypeModel.addSubType(typeModel);
+
+            if (typeModel instanceof ComplexTypeModel)
+                parentTypeModel = (ComplexTypeModel) typeModel;
+
+            // add to entityModel
+            if (typeModel != null)
+                entityModel.getMetaDataTypes().put(currentXPath, typeModel);
+
+            // recursion travel
+            if (e.getType().isComplexType()) {
+                XSModelGroup group = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup();
+                if (group != null) {
+                    XSParticle[] subParticles = group.getChildren();
+                    if (subParticles != null) {
+                        for (int i = 0; i < subParticles.length; i++) {
+                            XSParticle xsParticle = subParticles[i];
+                            travelParticle(xsParticle, currentXPath, entityModel, parentTypeModel);
+                        }
+                    }
+                }
+            }
+
         }
-        typeModel.setLabel(label);
-        typeModel.setXpath(fullPath);
-        String fk = getLabel(eleDecl, "X_ForeignKey");
-        if (fk != "")
-            typeModel.setForeignkey(fk);
+    }
 
-        List<String> fkInfo = getLabels(eleDecl, "X_ForeignKeyInfo");
-        if (fkInfo != null)
-            typeModel.setForeignKeyInfo(fkInfo);
+    private static TypeModel parseElement(String currentXPath, XSElementDecl e, TypeModel typeModel) {
+        XSParticle currentXsp = null;
+        if (e.getType().isComplexType()) {
+            typeModel = new ComplexTypeModel(e.getName(), DataTypeCreator.getDataType(e.getType().getName()));
+            currentXsp = e.getType().asComplexType().getContentType().asParticle();
 
+        } else if (e.getType().isSimpleType()) {
+            typeModel = new SimpleTypeModel(e.getName(), DataTypeCreator.getDataType(e.getType().getName()));
+            currentXsp = e.getType().asSimpleType().asParticle();
+
+        } else {
+            // return null
+        }
+        if (typeModel != null) {
+            typeModel.setXpath(currentXPath);
+            if (currentXsp != null) {
+                typeModel.setMinOccurs(currentXsp.getMinOccurs());
+                typeModel.setMaxOccurs(currentXsp.getMaxOccurs());
+            }
+            typeModel.setNillable(e.isNillable());
+        }
         return typeModel;
     }
-
-    private static SimpleTypeModel parseSimpleType(XSSimpleType simpleType) {
-        SimpleTypeModel simpleTypeModel = new SimpleTypeModel();
-        simpleTypeModel.setTypeName(DataTypeConstants.getDataTypeByName(simpleType.getName()));
-        if (simpleType.isRestriction()) {
-            XSRestrictionSimpleType resType = simpleType.asRestriction();
-            Collection<? extends XSFacet> facetes = resType.getDeclaredFacets();
-            List<FacetModel> fms = new ArrayList<FacetModel>();
-            for (XSFacet facet : facetes) {
-                fms.add(new FacetModel(facet.getName(), facet.getValue().toString()));
+    
+    private static void travelParticle(XSParticle xsParticle, String currentXPath, EntityModel entityModel,ComplexTypeModel parentTypeModel) {
+        if (xsParticle.getTerm().asModelGroup() != null) {
+            XSParticle[] xsps = xsParticle.getTerm().asModelGroup().getChildren();
+            for (int j = 0; j < xsps.length; j++) {
+                travelParticle(xsps[j],currentXPath,entityModel,parentTypeModel);
             }
-            simpleTypeModel.setFacets(fms);
+        }else if(xsParticle.getTerm().asElementDecl()!=null) {
+            XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
+            travelXSElement(subElement, currentXPath + "/" + subElement.getName(),entityModel,parentTypeModel);
         }
-        return simpleTypeModel;
     }
 
-    private static void parseParticle(ComplexTypeModel complexTypeModel, String path, XSParticle xsp, EntityModel entityModel) {
+    private static void parseAnnotation(String currentXPath, XSElementDecl e, TypeModel typeModel) {
+        if (e.getAnnotation() != null && e.getAnnotation().getAnnotation() != null) {
+            Element annotations = (Element) e.getAnnotation().getAnnotation();
+            NodeList annotList = annotations.getChildNodes();
+            ArrayList<String> fkInfoList = new ArrayList<String>();
+            for (int k = 0; k < annotList.getLength(); k++) {
+                if ("appinfo".equals(annotList.item(k).getLocalName())) {
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                    if (source == null)
+                        continue;
+                    String appinfoSource = source.getNodeValue();
+                    if (annotList.item(k) != null && annotList.item(k).getFirstChild() != null) {
+                        String appinfoSourceValue = annotList.item(k).getFirstChild().getNodeValue();
+                        if (appinfoSource.contains("X_Label")) {
+                            typeModel.addLabel(getLangFromLabelAnnotation(appinfoSource), appinfoSourceValue);
+                        } else if ("X_ForeignKey".equals(appinfoSource)) {
+                            typeModel.setForeignkey(appinfoSourceValue);
+                        } else if ("X_ForeignKeyInfo".equals(appinfoSource)) {
+                            fkInfoList.add(annotList.item(k).getFirstChild().getNodeValue());
+                        }
+                        //TODO
+                    }
 
-        XSElementDecl eleDecl = xsp.getTerm().asElementDecl();
-        if (eleDecl == null)
-            return;
-        TypeModel typeModel = parseElementDecl(path, eleDecl, entityModel);
-        typeModel.setMinOccurs(xsp.getMinOccurs());
-        typeModel.setMaxOccurs(xsp.getMaxOccurs());
-        if (typeModel.isSimpleType()) {
-            complexTypeModel.getSubSimpleTypes().add((SimpleTypeModel) typeModel);
-        } else {
-            complexTypeModel.getSubComplexTypes().add((ComplexTypeModel) typeModel);
+                }
+            }//end for
+            typeModel.setForeignKeyInfo(fkInfoList);
         }
-
-        XSModelGroup xsGroup = xsp.getTerm().asModelGroup();
-        if (xsGroup != null) {
-            XSParticle[] xsps = xsGroup.getChildren();
-            for (XSParticle p : xsps) {
-                parseParticle(complexTypeModel, path, p, entityModel);
-            }
+    }
+    
+    
+    /**
+     * DOC HSHU Comment method "getLangFromLabelAnnotation".
+     */
+    private static String getLangFromLabelAnnotation(String label) {
+        String lang="EN";
+        Pattern p = Pattern.compile("X_Label_(.+)");
+        Matcher matcher = p.matcher(label);
+        while(matcher.find()){
+            lang=matcher.group(1);
         }
-
+        if(lang!=null)lang=lang.toLowerCase();
+        return lang;
     }
 
-    private static ComplexTypeModel parseComplexType(String path, XSComplexType complexType, EntityModel entityModel) {
-        ComplexTypeModel complexTypeModel = new ComplexTypeModel();
-        complexTypeModel.setTypeName(DataTypeConstants.getDataTypeByName(complexType.getName()));
-        XSParticle[] xsps = complexType.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-        if (xsps != null) {
-            for (XSParticle xsp : xsps) {
-                parseParticle(complexTypeModel, path, xsp, entityModel);
-            }
-        }
-        return complexTypeModel;
-    }
 
     /**
      * DOC HSHU Comment method "getBusinessConceptKey".
@@ -246,7 +245,7 @@ public class DataModelHelper {
      * @throws RemoteException
      */
     private static String[] getBusinessConceptKeys(String model, String concept) {
-        
+
         String[] keys = null;
         try {
             WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
@@ -264,7 +263,7 @@ public class DataModelHelper {
             logger.error(e.getMessage(), e);
         }
         return keys;
-        
+
     }
 
 }

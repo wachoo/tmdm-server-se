@@ -39,11 +39,11 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
 
-    public static Field createField(SimpleTypeModel dataType, FormBinding formBindings, boolean enableMultiple) {
+    public static Field createField(SimpleTypeModel dataType, FormBinding formBindings, boolean enableMultiple, String language) {
         Field field = null;
 
-        if (dataType.isMultiple() && enableMultiple){
-            MultipleField multipleField = new MultipleField(dataType);
+        if (dataType.isMultiOccurrence() && enableMultiple){
+            MultipleField multipleField = new MultipleField(dataType,language);
             field = multipleField;
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
@@ -58,30 +58,30 @@ public class FieldCreator {
         } else if (dataType.getForeignkey() != null) {
             FKField fkField = new FKField();
             field = fkField;
-        } else if (dataType.getTypeName().equals(DataTypeConstants.STRING)) {
+        } else if (dataType.getType().equals(DataTypeConstants.STRING)) {
             TextField<String> textField = new TextField<String>();
             buildFacets(dataType, textField);
             if (dataType.getMinOccurs() > 0)
                 textField.setAllowBlank(false);
             field = textField;
 
-        } else if (dataType.getTypeName().equals(DataTypeConstants.DECIMAL)) {
+        } else if (dataType.getType().equals(DataTypeConstants.DECIMAL)) {
             NumberField numberField = new NumberField();
             numberField.setValidator(NumberFieldValidator.getInstance());
             buildFacets(dataType, numberField);
             field = numberField;
-        } else if (dataType.getTypeName().equals(DataTypeConstants.UUID)) {
+        } else if (dataType.getType().equals(DataTypeConstants.UUID)) {
 
-        } else if (dataType.getTypeName().equals(DataTypeConstants.AUTO_INCREMENT)) {
+        } else if (dataType.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
 
-        } else if (dataType.getTypeName().equals(DataTypeConstants.PICTURE)) {
+        } else if (dataType.getType().equals(DataTypeConstants.PICTURE)) {
             PictureField pictureField = new PictureField();
             field =  pictureField;
-        } else if (dataType.getTypeName().equals(DataTypeConstants.URL)) {
+        } else if (dataType.getType().equals(DataTypeConstants.URL)) {
             UrlField urlField = new UrlField();
-            urlField.setFieldLabel(dataType.getLabel());
+            urlField.setFieldLabel(dataType.getLabel(language));
             field =  urlField;
-        } else if (dataType.getTypeName().equals(DataTypeConstants.DATE)) {
+        } else if (dataType.getType().equals(DataTypeConstants.DATE)) {
             DateField dateField = new DateField();
             dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
             if (dataType.getMinOccurs() > 0)
@@ -94,7 +94,7 @@ public class FieldCreator {
         }
 
 
-        field.setFieldLabel(dataType.getLabel());
+        field.setFieldLabel(dataType.getLabel(language));
         field.setName(dataType.getXpath());
         
         if (formBindings != null){

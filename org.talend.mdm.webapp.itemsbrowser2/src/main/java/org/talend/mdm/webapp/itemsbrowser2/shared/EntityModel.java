@@ -26,7 +26,7 @@ public class EntityModel implements IsSerializable {
 
     private String[] keys;
 
-    private Map<String, TypeModel> metaDataTypes;
+    private Map<String, TypeModel> metaDataTypes;//TODO: Change to SortedMap
 
     /**
      * DOC HSHU EntityModel constructor comment.

@@ -82,7 +82,7 @@ public class ViewHelper {
             if (wsView.getName().contains(DEFAULT_VIEW_PREFIX+"_")) { //$NON-NLS-1$
                 Map<String, TypeModel> labelMapSrc = entityModel.getMetaDataTypes();
                 for (int i = 0; i < searchables.length; i++) {
-                    labelSearchables.put(searchables[i], labelMapSrc.get(searchables[i]).getLabel());
+                    labelSearchables.put(searchables[i], labelMapSrc.get(searchables[i]).getLabel(language));
                 }
             }
             

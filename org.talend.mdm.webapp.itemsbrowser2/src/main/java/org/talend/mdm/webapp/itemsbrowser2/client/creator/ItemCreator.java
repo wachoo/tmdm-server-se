@@ -45,9 +45,9 @@ public class ItemCreator {
             TypeModel typeModel = types.get(path);
             if (typeModel.isSimpleType()) {
 
-                if (typeModel.getTypeName().equals(DataTypeConstants.DATE)) {
+                if (typeModel.getType().equals(DataTypeConstants.DATE)) {
                     itemBean.set(path, new Date());
-                } else if (typeModel.isMultiple()) {
+                } else if (typeModel.isMultiOccurrence()) {
                     List<Serializable> list = new ArrayList<Serializable>();
                     int[] range = typeModel.getRange();
                     int min = range[0];

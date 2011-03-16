@@ -13,9 +13,11 @@
 package org.talend.mdm.webapp.itemsbrowser2.shared;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.DataType;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -24,15 +26,20 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public abstract class TypeModel implements Serializable, IsSerializable {
 
-    private DataTypeConstants typeName;
+    
+    private String name;
+
+    private DataType type;
 
     private String xpath;
     
-    private String label;
+    private Map<String,String> labelMap;
     
     private int minOccurs;
     
     private int maxOccurs;
+    
+    private boolean nillable = true;
 
     private List<String> foreignKeyInfo;
 
@@ -104,40 +111,60 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     private List<String> subTypes;
     */
 
-    public TypeModel() {
+    public TypeModel(String name ,DataType type) {
         super();
+        this.name = name;
+        this.type = type;
+        this.labelMap = new HashMap<String, String>();
     }
 
-    public TypeModel(DataTypeConstants typeName, String label) {
-        super();
+    public DataType getType() {
+        return type;
+    }
+
+    /*
+    public void setType(DataType typeName) {
         this.typeName = typeName;
-        this.label = label;
+    }*/
+    
+    public String getName() {
+        return name;
     }
 
-    public DataTypeConstants getTypeName() {
-        return typeName;
-    }
-
-    public void setTypeName(DataTypeConstants typeName) {
-        this.typeName = typeName;
-    }
+    /*
+    public void setName(String name) {
+        this.name = name;
+    }*/
     
     public String getXpath() {
         return xpath;
     }
     
+
     public void setXpath(String xpath) {
         this.xpath = xpath;
     }
 
-    public String getLabel() {
-        return label;
+    public String getLabel(String language) {
+        return getLabelMap().get(language);
     }
 
-    public void setLabel(String label) {
-        this.label = label;
+    
+    public Map<String, String> getLabelMap() {
+        return labelMap;
     }
     
+    
+    /**
+     * Sets the labelMap.
+     * @param labelMap the labelMap to set
+     */
+    public void addLabel(String language,String label) {
+        labelMap = getLabelMap();
+        labelMap.put(language, label);
+    }
+
+
     public int getMinOccurs() {
         return minOccurs;
     }
@@ -152,6 +179,14 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     
     public void setMaxOccurs(int maxOccurs) {
         this.maxOccurs = maxOccurs;
+    }
+    
+    public boolean isNillable() {
+        return nillable;
+    }
+    
+    public void setNillable(boolean nillable) {
+        this.nillable = nillable;
     }
 
     public List<String> getForeignKeyInfo() {
@@ -187,7 +222,7 @@ public abstract class TypeModel implements Serializable, IsSerializable {
         return new int[]{min, max};
     }
 
-    public boolean isMultiple(){
+    public boolean isMultiOccurrence(){
         int[] range = getRange();
         int min = range[0];
         int max = range[1];

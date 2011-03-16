@@ -2,22 +2,33 @@ package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
 import java.util.Date;
 
-public enum DataTypeConstants {
+public enum DataTypeConstants implements DataType {
 
-    STRING("string", ""),
+    // TODO support more types
+    BOOLEAN("boolean", false),
+    DATE("date", new Date()),
+    DATETIME("dateTime", new Date()),
     DECIMAL("decimal", 0.0),
+    DOUBLE("double", 0.0),
+    FLOAT("float", 0.0),
+    INT("int", 0),
+    INTEGER("integer", 0),
+    LONG("long", 0),
+    SHORT("short", 0),
+    STRING("string", ""),
+
     UUID("UUID", ""),
     AUTO_INCREMENT("AUTO_INCREMENT", ""),
     PICTURE("PICTURE", "http://"),
     URL("URL", "http://"),
-    DATE("date", new Date()),
-    
+
     UNKNOW("unknow", "");
-    
+
     String typeName;
+
     Object defaultValue;
-    
-    DataTypeConstants(String typeName, Object defaultValue){
+
+    DataTypeConstants(String typeName, Object defaultValue) {
         this.typeName = typeName;
         this.defaultValue = defaultValue;
     }
@@ -30,13 +41,4 @@ public enum DataTypeConstants {
         return defaultValue;
     }
 
-    public static DataTypeConstants getDataTypeByName(String typeName){
-        DataTypeConstants[] values = DataTypeConstants.values();
-        for (DataTypeConstants value : values){
-            if (value.getTypeName().equals(typeName)){
-                return value;
-            }
-        }
-        return UNKNOW;
-    }
 }

@@ -15,7 +15,7 @@ package org.talend.mdm.webapp.itemsbrowser2.shared;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.DataType;
 
 
 /**
@@ -23,33 +23,26 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
  */
 public class ComplexTypeModel extends TypeModel {
 
-    List<ComplexTypeModel> subComplexTypes = new ArrayList<ComplexTypeModel>();
+    private List<TypeModel> subTypes = new ArrayList<TypeModel>();
     
-    List<SimpleTypeModel> subSimpleTypes = new ArrayList<SimpleTypeModel>();
+    public ComplexTypeModel(String name,DataType dataType) {
+        super(name,dataType);
+    }
+
+    public List<TypeModel> getSubTypes() {
+        return subTypes;
+    }
+
     
-    public ComplexTypeModel() {
-        super();
+    /**
+     * DOC HSHU Comment method "addSubType".
+     */
+    public void addSubType(TypeModel subType) {
+        
+        if(this.subTypes!=null)subTypes.add(subType);
+
     }
     
-    public ComplexTypeModel(DataTypeConstants typeName, String label) {
-        super(typeName, label);
-    }
-
-    public List<ComplexTypeModel> getSubComplexTypes() {
-        return subComplexTypes;
-    }
-
-    public void setSubComplexTypes(List<ComplexTypeModel> subComplexTypes) {
-        this.subComplexTypes = subComplexTypes;
-    }
-
-    public List<SimpleTypeModel> getSubSimpleTypes() {
-        return subSimpleTypes;
-    }
-
-    public void setSubSimpleTypes(List<SimpleTypeModel> subSimpleTypes) {
-        this.subSimpleTypes = subSimpleTypes;
-    }
 
     public boolean isSimpleType() {
         return false;

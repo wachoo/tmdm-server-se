@@ -25,7 +25,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 public class CellRendererCreator {
 
     public static GridCellRenderer<ModelData> createRenderer(TypeModel dataType){
-        if (dataType.getTypeName().equals(DataTypeConstants.URL)){
+        if (dataType.getType().equals(DataTypeConstants.URL)){
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
