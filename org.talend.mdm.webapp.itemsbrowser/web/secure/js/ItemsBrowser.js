@@ -2804,7 +2804,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				}
 				else if(result.status == 0) { 
 					//@temp yguo check 
-					$('errorDetail'+ treeIndex).style.display = "none";
+					$('errorDesc'+ treeIndex).style.display = "block";
+					$('errorDesc'+ treeIndex).style.display = "none";
 				}
 				
 				if(result.description==null || result.description==""){
