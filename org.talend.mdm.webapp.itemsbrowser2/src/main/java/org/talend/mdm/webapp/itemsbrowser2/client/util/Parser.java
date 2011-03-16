@@ -118,37 +118,37 @@ public class Parser implements Serializable, IsSerializable {
 
     private static String getOperator(String value) {
         for (String currentOp : OperatorConstants.fullOperators.keySet()) {
-            if (value.contains(currentOp)) {
+            if (value.equals(currentOp)) {
                 return currentOp;
             }
         }
 
         for (String currentOp : OperatorConstants.fulltextOperators.keySet()) {
-            if (value.contains(currentOp)) {
+            if (value.equals(currentOp)) {
                 return currentOp;
             }
         }
 
         for (String currentOp : OperatorConstants.dateOperators.keySet()) {
-            if (value.contains(currentOp)) {
+            if (value.equals(currentOp)) {
                 return currentOp;
             }
         }
 
         for (String currentOp : OperatorConstants.numOperators.keySet()) {
-            if (value.contains(currentOp)) {
+            if (value.equals(currentOp)) {
                 return currentOp;
             }
         }
 
         for (String currentOp : OperatorConstants.booleanOperators.keySet()) {
-            if (value.contains(currentOp)) {
+            if (value.equals(currentOp)) {
                 return currentOp;
             }
         }
 
         for (String currentOp : OperatorConstants.enumOperators.keySet()) {
-            if (value.contains(currentOp)) {
+            if (value.equals(currentOp)) {
                 return currentOp;
             }
         }

@@ -17,16 +17,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
+import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.OperatorConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -56,7 +61,11 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
 
     private ComboBox<BaseModel> valueComboBox;
 
+    private FKField fkField;
+
     private DateField valueDate;
+
+    private DateField valueDateTime;
 
     private ViewBean view;
 
@@ -67,6 +76,8 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
     private ListStore<BaseModel> operatorlist = new ListStore<BaseModel>();
 
     private ListStore<BaseModel> valuelist = new ListStore<BaseModel>();
+
+    private ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
     public SimpleCriterionPanel(final MultipleCriteriaPanel ancestor, final Panel parent) {
         super();
@@ -113,6 +124,15 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         valueDate.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd")); //$NON-NLS-1$
         valueDate.setVisible(false);
         add(valueDate);
+
+        valueDateTime = new DateField();
+        valueDateTime.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm")); //$NON-NLS-1$
+        valueDateTime.setVisible(false);
+        add(valueDateTime);
+
+        fkField = new FKField();
+        fkField.setVisible(false);
+        add(fkField);
 
         if (ancestor != null)
             add(new Image(Icons.INSTANCE.remove()) {
@@ -185,6 +205,10 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueComboBox.setValue(null);
             valueDate.setVisible(false);
             valueDate.setValue(null);
+            valueDateTime.setVisible(false);
+            valueDateTime.setValue(null);
+            fkField.setVisible(false);
+            fkField.setRawValue(null);
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*"); //$NON-NLS-1$
             return;
@@ -193,18 +217,53 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         String predicateValues = itemsPredicates.get(getKey()).getType().getTypeName();
 
         if (predicateValues.equals("string") || predicateValues.equals("normalizedString") || predicateValues.equals("token")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            if (itemsPredicates.get(getKey()).isSimpleType()) {
+                SimpleTypeModel type = (SimpleTypeModel) itemsPredicates.get(getKey());
+                if (type.getForeignkey() != null) {
+                    setOperatorComboBox(OperatorConstants.fullOperators);
+                    fkField.Update(getKey(), this);
+                    fkField.setVisible(true);
+                    valueComboBox.setVisible(false);
+                    valueDate.setVisible(false);
+                    valueDate.setValue(null);
+                    valueDateTime.setVisible(false);
+                    valueDateTime.setValue(null);
+                    valueTextBox.setVisible(false);
+                    valueTextBox.setValue(null);
+                    return;
+                }
+            }
             setOperatorComboBox(OperatorConstants.fullOperators);
             valueComboBox.setVisible(false);
             valueComboBox.setValue(null);
             valueDate.setVisible(false);
             valueDate.setValue(null);
+            valueDateTime.setVisible(false);
+            valueDateTime.setValue(null);
+            fkField.setVisible(false);
+            fkField.setValue(null);
             valueTextBox.setVisible(true);
-            valueTextBox.setValue("*"); //$NON-NLS-1$
-        } else if (predicateValues.equals("date") || predicateValues.equals("time") || predicateValues.equals("dateTime")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            valueTextBox.setValue("*"); //$NON-NLS-1$     
+        } else if (predicateValues.equals("date")) { //$NON-NLS-1$ 
             setOperatorComboBox(OperatorConstants.dateOperators);
             valueComboBox.setVisible(false);
             valueComboBox.setValue(null);
             valueDate.setVisible(true);
+            valueDateTime.setVisible(false);
+            valueDateTime.setValue(null);
+            fkField.setVisible(false);
+            fkField.setValue(null);
+            valueTextBox.setVisible(false);
+            valueTextBox.setValue(null);
+        } else if (predicateValues.equals("time") || predicateValues.equals("dateTime")) { //$NON-NLS-1$ //$NON-NLS-2$
+            setOperatorComboBox(OperatorConstants.dateOperators);
+            valueComboBox.setVisible(false);
+            valueComboBox.setValue(null);
+            valueDate.setVisible(false);
+            valueDate.setValue(null);
+            valueDateTime.setVisible(true);
+            fkField.setVisible(false);
+            fkField.setValue(null);
             valueTextBox.setVisible(false);
             valueTextBox.setValue(null);
         } else if (predicateValues.equals("double") || predicateValues.equals("float") || predicateValues.equals("integer") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -219,18 +278,32 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueComboBox.setValue(null);
             valueDate.setVisible(false);
             valueDate.setValue(null);
-            valueTextBox.setVisible(true);
-            valueTextBox.setValue("*"); //$NON-NLS-1$
+            valueDateTime.setVisible(false);
+            valueDateTime.setValue(null);
+            fkField.setVisible(false);
+            fkField.setValue(null);
+            valueTextBox.setVisible(false);
+            valueTextBox.setValue(null);
         } else if (predicateValues.equals("boolean")) { //$NON-NLS-1$
             setOperatorComboBox(OperatorConstants.booleanOperators);
             valueComboBox.setVisible(false);
             valueDate.setVisible(false);
+            valueDate.setValue(null);
+            valueDateTime.setVisible(false);
+            valueDateTime.setValue(null);
+            fkField.setVisible(false);
+            fkField.setValue(null);
             valueTextBox.setVisible(false);
             valueTextBox.setValue(null);
         } else if (predicateValues.equals("foreign key")) { //$NON-NLS-1$
+            // TODO check data model type value
             setOperatorComboBox(OperatorConstants.fullOperators);
+            fkField.setVisible(true);
             valueComboBox.setVisible(true);
             valueDate.setVisible(false);
+            valueDate.setValue(null);
+            valueDateTime.setVisible(false);
+            valueDateTime.setValue(null);
             valueTextBox.setVisible(false);
             valueTextBox.setValue(null);
         } else if (predicateValues.equals("complex type")) { //$NON-NLS-1$
@@ -239,6 +312,10 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueComboBox.setValue(null);
             valueDate.setVisible(false);
             valueDate.setValue(null);
+            valueDateTime.setVisible(false);
+            valueDateTime.setValue(null);
+            fkField.setVisible(false);
+            fkField.setValue(null);
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*"); //$NON-NLS-1$
         } else if (itemsPredicates.get(getKey()).isSimpleType()) {
@@ -256,6 +333,11 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
                 setOperatorComboBox(OperatorConstants.enumOperators);
                 valueComboBox.setVisible(true);
                 valueDate.setVisible(false);
+                valueDate.setValue(null);
+                valueDateTime.setVisible(false);
+                valueDateTime.setValue(null);
+                fkField.setVisible(false);
+                fkField.setValue(null);
                 valueTextBox.setVisible(false);
                 valueTextBox.setValue(null);
             }
@@ -265,6 +347,10 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             valueComboBox.setValue(null);
             valueDate.setVisible(false);
             valueDate.setValue(null);
+            valueDateTime.setVisible(false);
+            valueDateTime.setValue(null);
+            fkField.setVisible(false);
+            fkField.setValue(null);
             valueTextBox.setVisible(true);
             valueTextBox.setValue("*"); //$NON-NLS-1$
         }
@@ -283,11 +369,14 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         String curValue = null;
         if (valueComboBox.getValue() != null)
             return valueComboBox.getValue().get("value").toString(); //$NON-NLS-1$ 
-        if (valueDate.getValue() != null) {
+        if (valueDate.getValue() != null)
             return DateTimeFormat.getFormat("yyyy-MM-dd").format(valueDate.getValue()); //$NON-NLS-1$
-        }
+        if (valueDateTime.getValue() != null)
+            return DateTimeFormat.getFormat("yyyy-MM-dd HH:mm").format(valueDate.getValue()); //$NON-NLS-1$
         if (valueTextBox.getValue() != null)
             return valueTextBox.getValue().toString(); //$NON-NLS-1$
+        if (fkField.getValue() != null)
+            return fkField.getOriginalValue().getId();
 
         return curValue;
     }
@@ -305,10 +394,23 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
                 valueComboBox.setValue(valuelist.findModel("value", criterion.getValue())); //$NON-NLS-1$
             if (valueDate.isVisible())
                 valueDate.setValue(new Date(criterion.getValue()));
+            if (valueDateTime.isVisible())
+                valueDateTime.setValue(new Date(criterion.getValue()));
             if (valueTextBox.isVisible())
                 valueTextBox.setValue(criterion.getValue());
+            // retrieve fk text
+            if (fkField.isVisible()) {
+                // service.getForeignKeyList(config, model, dataClusterPK, callback)
+            }
         } catch (Exception e) {
             Log.error(e.getMessage(), e);
+        }
+    }
+
+    public void setCriteriaFK(ForeignKeyBean fk) {
+        if (fkField.isVisible()) {
+            fkField.setOriginalValue(fk);
+            fkField.setValue(fk);
         }
     }
 

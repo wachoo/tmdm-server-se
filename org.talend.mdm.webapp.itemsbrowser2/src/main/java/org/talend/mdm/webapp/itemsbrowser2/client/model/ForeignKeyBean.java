@@ -4,8 +4,6 @@ public class ForeignKeyBean extends ItemBaseModel {
 
     private String id;
 
-    private String itemXml;
-
     public String getId() {
         return id;
     }
@@ -14,12 +12,15 @@ public class ForeignKeyBean extends ItemBaseModel {
         this.id = id;
     }
 
-    public String getItemXml() {
-        return itemXml;
-    }
-
-    public void setItemXml(String itemXml) {
-        this.itemXml = itemXml;
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (String key : this.getProperties().keySet()) {
+            if (!key.equals("i")) {
+                sb.append(this.getProperties().get(key));
+                sb.append("-");
+            }
+        }
+        return sb.toString().substring(0, sb.toString().length() - 1);
     }
 
 }

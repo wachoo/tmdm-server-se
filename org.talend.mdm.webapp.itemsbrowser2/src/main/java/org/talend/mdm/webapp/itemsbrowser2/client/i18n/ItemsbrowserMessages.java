@@ -33,7 +33,7 @@ public interface ItemsbrowserMessages extends Messages {
     String cancel_btn();
 
     String close_btn();
-    
+
     String empty_entity();
 
     String required_field();
@@ -43,7 +43,7 @@ public interface ItemsbrowserMessages extends Messages {
     String openitem_window();
 
     String openitem_tab();
-    
+
     String edititem();
 
     String bookmark_heading();
@@ -119,9 +119,9 @@ public interface ItemsbrowserMessages extends Messages {
     String check_totalDigits();
 
     String check_fractionDigits();
-    
+
     String check_minExclusive();
-    
+
     String check_maxExclusive();
 
     String create_btn();
@@ -147,9 +147,9 @@ public interface ItemsbrowserMessages extends Messages {
     String jouranl_tip();
 
     String refresh();
-    
+
     String page_size_label();
-    
+
     String page_size_notice();
 
     String save_confirm();
@@ -159,4 +159,6 @@ public interface ItemsbrowserMessages extends Messages {
     String path();
 
     String path_desc();
+
+    String fk_RelatedRecord();
 }

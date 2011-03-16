@@ -633,7 +633,10 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 for (String result : results) {
                     ForeignKeyBean bean = new ForeignKeyBean();
                     bean.setId(XmlUtil.getTextValueFromXpath(XmlUtil.parseText(result), "i")); //$NON-NLS-1$
-                    bean.setItemXml(result);
+                    if (result != null) {
+                        Element root = XmlUtil.parseText(result).getRootElement();
+                        initFKBean(root, bean);
+                    }
                     fkBeans.add(bean);
                 }
             }
@@ -645,6 +648,14 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             LOG.error(e.getMessage(), e);
         }
         return null;
+    }
+
+    private void initFKBean(Element ele, ForeignKeyBean bean) {
+        for (Object subEle : ele.elements()) {
+            Element curEle = (Element) subEle;
+            bean.set(curEle.getName(), curEle.getTextTrim());
+            initFKBean(curEle, bean);
+        }
     }
 
     /*********************************************************************

@@ -15,7 +15,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator;
 import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.FKField;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.MultipleField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
@@ -28,13 +28,13 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
@@ -42,8 +42,8 @@ public class FieldCreator {
     public static Field createField(SimpleTypeModel dataType, FormBinding formBindings, boolean enableMultiple, String language) {
         Field field = null;
 
-        if (dataType.isMultiOccurrence() && enableMultiple){
-            MultipleField multipleField = new MultipleField(dataType,language);
+        if (dataType.isMultiOccurrence() && enableMultiple) {
+            MultipleField multipleField = new MultipleField(dataType, language);
             field = multipleField;
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
@@ -76,30 +76,29 @@ public class FieldCreator {
 
         } else if (dataType.getType().equals(DataTypeConstants.PICTURE)) {
             PictureField pictureField = new PictureField();
-            field =  pictureField;
+            field = pictureField;
         } else if (dataType.getType().equals(DataTypeConstants.URL)) {
             UrlField urlField = new UrlField();
             urlField.setFieldLabel(dataType.getLabel(language));
-            field =  urlField;
+            field = urlField;
         } else if (dataType.getType().equals(DataTypeConstants.DATE)) {
             DateField dateField = new DateField();
             dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
             if (dataType.getMinOccurs() > 0)
                 dateField.setAllowBlank(false);
-            field =  dateField;
+            field = dateField;
         } else if (dataType instanceof SimpleTypeModel) {
             TextField<String> textField = new TextField<String>();
             buildFacets(dataType, textField);
-            field =  textField;
+            field = textField;
         }
-
 
         field.setFieldLabel(dataType.getLabel(language));
         field.setName(dataType.getXpath());
-        
-        if (formBindings != null){
+
+        if (formBindings != null) {
             FieldBinding binding = null;
-            if (field instanceof SimpleComboBox){
+            if (field instanceof SimpleComboBox) {
                 binding = new SimpleComboBoxFieldBinding((SimpleComboBox) field, field.getName());
             } else {
                 binding = new FieldBinding(field, field.getName());
