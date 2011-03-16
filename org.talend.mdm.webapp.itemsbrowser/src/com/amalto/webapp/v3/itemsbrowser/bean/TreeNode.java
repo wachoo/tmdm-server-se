@@ -257,7 +257,7 @@ public class TreeNode implements Cloneable {
                         setDocumentation(annotList.item(k).getFirstChild().getNodeValue());
                     }
                 }
-                readOnly=!writable && denycreatable;
+                readOnly=!writable;
                 setForeignKeyInfo(fkInfoList);
                 setPrimaryKeyInfo(pkInfoList);
             }
