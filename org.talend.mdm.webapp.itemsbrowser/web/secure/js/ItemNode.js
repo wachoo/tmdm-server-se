@@ -146,7 +146,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		var check = this.checkMinOccurs(itemData,null);
 		var ancestor = this.checkAncestorMinOCcurs(itemData);
 		if(ancestor) check = true;
-		if(itemData.key||(itemData.readOnly==false && (itemData.minOccurs>=1 && ancestor) )) mandatory='<span style="color:red">*</span>';
+		if(itemData.key||(itemData.readOnly==false && (itemData.minOccurs>=1 ) )) mandatory='<span style="color:red">*</span>';
 		// (itemData.parent==null || (itemData.parent!=null && itemData.parent.minOccurs>=1))
 		var descInfo = "";
 		if(itemData.description!=null)descInfo='<img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'+itemData.description+'"/>';
