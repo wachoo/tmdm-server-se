@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.itemsbrowser2.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
@@ -83,7 +84,12 @@ public class ViewHelper {
                 Map<String, TypeModel> labelMapSrc = entityModel.getMetaDataTypes();
                 for (int i = 0; i < searchables.length; i++) {
                     String searchableLabel = labelMapSrc.get(searchables[i]).getLabel(language);
-                    searchableLabel = (searchableLabel==null?labelMapSrc.get(searchables[i]).getName():searchableLabel);
+                    if(searchableLabel==null) {
+                        searchableLabel=labelMapSrc.get(searchables[i]).getName();
+                    }else {
+                        if(DynamicLabelUtil.isDynamicLabel(searchableLabel)) 
+                            searchableLabel=labelMapSrc.get(searchables[i]).getName();
+                    }
                     labelSearchables.put(searchables[i], searchableLabel);
                 }
             }
