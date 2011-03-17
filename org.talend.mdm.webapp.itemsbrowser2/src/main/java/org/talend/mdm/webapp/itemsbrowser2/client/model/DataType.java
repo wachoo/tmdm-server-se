@@ -23,5 +23,7 @@ public interface DataType extends IsSerializable{
     String getTypeName();
     
     Object getDefaultValue();
+    
+    String getBaseTypeName();
 
 }

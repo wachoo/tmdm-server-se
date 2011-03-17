@@ -16,46 +16,24 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.DataType;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeCustomized;
 
-
 /**
- * DOC HSHU  class global comment. Detailled comment
+ * DOC HSHU class global comment. Detailled comment
  */
 public class DataTypeCreator {
-    
+
     public static DataType getDataType(String typeName, String baseTypeName) {
-        
-        if(typeName==null||typeName.trim().length()==0)return DataTypeConstants.UNKNOW;
-        
+
+        if (typeName == null || typeName.trim().length() == 0)
+            return DataTypeConstants.UNKNOW;
+
         DataTypeConstants[] values = DataTypeConstants.values();
         for (DataTypeConstants value : values) {
             if (value.getTypeName().equals(typeName)) {
                 return value;
             }
         }
-        
-        return new DataTypeCustomized(typeName,baseTypeName);
-    }
-    
-    
-    /**
-     * DOC HSHU Comment method "checkBaseType".
-     */
-    public static DataType checkBaseType(DataTypeCustomized dataTypeCustomized) {
-        
-        if(dataTypeCustomized==null)return null;
-        
-        String baseTypeName=dataTypeCustomized.getBaseTypeName();
-        if(baseTypeName==null)return dataTypeCustomized;
-        
-        DataTypeConstants[] values = DataTypeConstants.values();
-        for (DataTypeConstants value : values) {
-            if (value.getTypeName().equals(baseTypeName)) {
-                return value;
-            }
-        }
-        
-        return dataTypeCustomized;
 
+        return new DataTypeCustomized(typeName, baseTypeName);
     }
 
 }
