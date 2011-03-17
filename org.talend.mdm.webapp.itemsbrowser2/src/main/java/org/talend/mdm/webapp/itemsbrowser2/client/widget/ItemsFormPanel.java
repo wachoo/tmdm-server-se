@@ -54,7 +54,9 @@ public class ItemsFormPanel extends Composite {
     public ItemsFormPanel() {
         content.setHeaderVisible(false);
         content.setScrollMode(Scroll.AUTO);
-        content.setTopComponent(toolbar);
+        if (Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()) {
+            content.setTopComponent(toolbar);
+        }
         this.initComponent(content);
     }
 

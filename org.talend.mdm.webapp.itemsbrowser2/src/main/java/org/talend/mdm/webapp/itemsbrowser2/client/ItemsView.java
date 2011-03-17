@@ -51,6 +51,7 @@ import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -168,6 +169,8 @@ public class ItemsView extends View {
                     itemsSearchContainer.getItemsFormPanel().setReadOnly(itemBean, entityModel.getKeys());
 
                 } else {
+                    itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setHeight(1300, Unit.PX);
+                    itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setOverflow(Overflow.AUTO);
                     GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, "", itemsSearchContainer
                             .getItemsFormPanel().getContent().getBody().dom);
                 }

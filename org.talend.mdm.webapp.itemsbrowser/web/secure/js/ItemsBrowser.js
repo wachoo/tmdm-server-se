@@ -2755,12 +2755,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 contentPanel = new Ext.Panel({
                     id:'itemDetailsdiv'+treeIndex, 
                     title: myTitle, 
-                    //activeTab: 0,
-                    //tabPosition:'bottom',
-                    //layout:'border',
-                    //height:500,
                     tbar: tbDetail,
-                    //autoScroll:true,
+                    header:false,
                     closable:true,
                     items:[errorContentPanel,treeDetailPanel],
                     bbar : new Ext.Toolbar([{
