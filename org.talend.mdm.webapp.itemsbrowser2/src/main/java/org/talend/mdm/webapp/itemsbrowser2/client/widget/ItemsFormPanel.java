@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
-import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.DateUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
@@ -43,6 +42,10 @@ import com.google.gwt.xml.client.XMLParser;
 public class ItemsFormPanel extends Composite {
 
     FormPanel content = new FormPanel();
+
+    public FormPanel getContent() {
+        return content;
+    }
 
     RecordToolBar toolbar = new RecordToolBar();
 
@@ -106,7 +109,7 @@ public class ItemsFormPanel extends Composite {
             Object value = null;
             if (field instanceof SimpleComboBox) {
                 ModelData model = ((SimpleComboBox) field).getValue();
-                if (model != null){
+                if (model != null) {
                     value = model.get("value"); //$NON-NLS-1$    
                 }
             } else if (field instanceof DateField) {
@@ -200,13 +203,11 @@ public class ItemsFormPanel extends Composite {
     }
 
     public void bind(ModelData modelData) {
-        ItemBean bean = (ItemBean) modelData;
-        GetService.renderFormWindow(bean.getIds(), bean.getConcept(), false, "", content.getBody().dom);
-        // if (modelData != null) {
-        // formBindings.bind(modelData);
-        // } else {
-        // formBindings.unbind();
-        // }
+        if (modelData != null) {
+            formBindings.bind(modelData);
+        } else {
+            formBindings.unbind();
+        }
     }
 
     public void unbind() {
