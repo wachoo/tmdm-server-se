@@ -72,8 +72,7 @@ public class OperatorConstants implements Serializable, IsSerializable {
         numOperators.put("LOWER_THAN", MessagesFactory.getMessages().criteria_LOWER_THAN()); //$NON-NLS-1$
         numOperators.put("LOWER_THAN_OR_EQUAL", MessagesFactory.getMessages().criteria_LOWER_THAN_OR_EQUAL()); //$NON-NLS-1$
 
-        booleanOperators.put("equals true", MessagesFactory.getMessages().criteria_BOOLEQUALSTRUE()); //$NON-NLS-1$
-        booleanOperators.put("equals false", MessagesFactory.getMessages().criteria_BOOLEQUALSFALSE()); //$NON-NLS-1$
+        booleanOperators.put("EQUALS", MessagesFactory.getMessages().criteria_EQUALS()); //$NON-NLS-1$       
 
         enumOperators.put("EQUALS", MessagesFactory.getMessages().criteria_EQUALS()); //$NON-NLS-1$
         enumOperators.put("LOWER_THAN", MessagesFactory.getMessages().criteria_LOWER_THAN()); //$NON-NLS-1$

@@ -161,4 +161,6 @@ public interface ItemsbrowserMessages extends Messages {
     String path_desc();
 
     String fk_RelatedRecord();
+
+    String loading();
 }

@@ -146,15 +146,17 @@ public class FKRelRecordWindow extends Window {
         pageToolBar.bind(loader);
 
         // change label display
-        List<String> foreignKeyInfo = Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes().get(fkKey)
-                .getForeignKeyInfo();
+        boolean retrieveFKinfos = Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes().get(fkKey)
+                .isRetrieveFKinfos();
         String foreignKey = Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes().get(fkKey).getForeignkey();
-        if (foreignKeyInfo != null)
+        if (retrieveFKinfos) {
+            List<String> foreignKeyInfo = Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes().get(fkKey)
+                    .getForeignKeyInfo();
             for (String info : foreignKeyInfo) {
                 columns.add(new ColumnConfig(CommonUtil.getElementFromXpath(info), CommonUtil.getElementFromXpath(info),
                         COLUMN_WIDTH));
             }
-        else
+        } else
             columns.add(new ColumnConfig(CommonUtil.getElementFromXpath(foreignKey), CommonUtil.getElementFromXpath(foreignKey),
                     COLUMN_WIDTH));
 

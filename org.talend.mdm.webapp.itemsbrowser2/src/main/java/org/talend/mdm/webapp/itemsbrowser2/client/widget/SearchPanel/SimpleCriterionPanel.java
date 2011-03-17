@@ -14,20 +14,15 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.OperatorConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
-import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.SearchFieldCreator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -38,12 +33,12 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
-import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
-import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
@@ -58,15 +53,9 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
 
     private ComboBox<BaseModel> operatorComboBox;
 
-    private TextField<String> valueTextBox;
+    private Field field;
 
-    private ComboBox<BaseModel> valueComboBox;
-
-    private FKField fkField;
-
-    private DateField valueDate;
-
-    private DateField valueDateTime;
+    private LayoutContainer content = new LayoutContainer();
 
     private ViewBean view;
 
@@ -109,31 +98,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         operatorComboBox.setTriggerAction(TriggerAction.ALL);
         add(operatorComboBox);
 
-        valueTextBox = new TextField<String>();
-        add(valueTextBox);
-
-        valueComboBox = new ComboBox<BaseModel>();
-        valueComboBox.setAutoWidth(true);
-        valueComboBox.setDisplayField("name"); //$NON-NLS-1$
-        valueComboBox.setValueField("value"); //$NON-NLS-1$
-        valueComboBox.setStore(valuelist);
-        valueComboBox.setTriggerAction(TriggerAction.ALL);
-        valueComboBox.setVisible(false);
-        add(valueComboBox);
-
-        valueDate = new DateField();
-        valueDate.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd")); //$NON-NLS-1$
-        valueDate.setVisible(false);
-        add(valueDate);
-
-        valueDateTime = new DateField();
-        valueDateTime.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm")); //$NON-NLS-1$
-        valueDateTime.setVisible(false);
-        add(valueDateTime);
-
-        fkField = new FKField();
-        fkField.setVisible(false);
-        add(fkField);
+        add(content);
 
         if (ancestor != null)
             add(new Image(Icons.INSTANCE.remove()) {
@@ -196,166 +161,16 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
     }
 
     private void adaptOperatorAndValue() {
-        int delimeter = getKey().indexOf("/"); //$NON-NLS-1$
-        if (delimeter == -1) {
-            if (getKey().equals(ViewUtil.getConceptFromBrowseItemView(view.getViewPK()))) {
-                setOperatorComboBox(OperatorConstants.fulltextOperators);
-            }
-
-            valueComboBox.setVisible(false);
-            valueComboBox.setValue(null);
-            valueDate.setVisible(false);
-            valueDate.setValue(null);
-            valueDateTime.setVisible(false);
-            valueDateTime.setValue(null);
-            fkField.setVisible(false);
-            fkField.setRawValue(null);
-            valueTextBox.setVisible(true);
-            valueTextBox.setValue("*"); //$NON-NLS-1$
-            return;
+        content.removeAll();
+        field = null;
+        field = SearchFieldCreator.createField(itemsPredicates.get(getKey()));
+        if (field != null) {
+            if (field instanceof FKField)
+                ((FKField) field).Update(getKey(), this);
+            content.add(field);
         }
-
-        String predicateValues = itemsPredicates.get(getKey()).getType().getTypeName();
-
-        if (predicateValues.equals("string") || predicateValues.equals("normalizedString") || predicateValues.equals("token")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            if (itemsPredicates.get(getKey()).isSimpleType()) {
-                SimpleTypeModel type = (SimpleTypeModel) itemsPredicates.get(getKey());
-                if (type.getForeignkey() != null) {
-                    setOperatorComboBox(OperatorConstants.fullOperators);
-                    fkField.Update(getKey(), this);
-                    fkField.setVisible(true);
-                    valueComboBox.setVisible(false);
-                    valueDate.setVisible(false);
-                    valueDate.setValue(null);
-                    valueDateTime.setVisible(false);
-                    valueDateTime.setValue(null);
-                    valueTextBox.setVisible(false);
-                    valueTextBox.setValue(null);
-                    return;
-                }
-            }
-            setOperatorComboBox(OperatorConstants.fullOperators);
-            valueComboBox.setVisible(false);
-            valueComboBox.setValue(null);
-            valueDate.setVisible(false);
-            valueDate.setValue(null);
-            valueDateTime.setVisible(false);
-            valueDateTime.setValue(null);
-            fkField.setVisible(false);
-            fkField.setValue(null);
-            valueTextBox.setVisible(true);
-            valueTextBox.setValue("*"); //$NON-NLS-1$     
-        } else if (predicateValues.equals("date")) { //$NON-NLS-1$ 
-            setOperatorComboBox(OperatorConstants.dateOperators);
-            valueComboBox.setVisible(false);
-            valueComboBox.setValue(null);
-            valueDate.setVisible(true);
-            valueDateTime.setVisible(false);
-            valueDateTime.setValue(null);
-            fkField.setVisible(false);
-            fkField.setValue(null);
-            valueTextBox.setVisible(false);
-            valueTextBox.setValue(null);
-        } else if (predicateValues.equals("time") || predicateValues.equals("dateTime")) { //$NON-NLS-1$ //$NON-NLS-2$
-            setOperatorComboBox(OperatorConstants.dateOperators);
-            valueComboBox.setVisible(false);
-            valueComboBox.setValue(null);
-            valueDate.setVisible(false);
-            valueDate.setValue(null);
-            valueDateTime.setVisible(true);
-            fkField.setVisible(false);
-            fkField.setValue(null);
-            valueTextBox.setVisible(false);
-            valueTextBox.setValue(null);
-        } else if (predicateValues.equals("double") || predicateValues.equals("float") || predicateValues.equals("integer") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                || predicateValues.equals("decimal") || predicateValues.equals("byte") || predicateValues.equals("int") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                || predicateValues.equals("long") || predicateValues.equals("negativeInteger") //$NON-NLS-1$ //$NON-NLS-2$
-                || predicateValues.equals("nonNegativeInteger") || predicateValues.equals("nonPositiveInteger") //$NON-NLS-1$ //$NON-NLS-2$
-                || predicateValues.equals("positiveInteger") || predicateValues.equals("short") //$NON-NLS-1$ //$NON-NLS-2$
-                || predicateValues.equals("unsignedLong") || predicateValues.equals("unsignedInt") //$NON-NLS-1$ //$NON-NLS-2$
-                || predicateValues.equals("unsignedShort") || predicateValues.equals("unsignedByte")) { //$NON-NLS-1$ //$NON-NLS-2$
-            setOperatorComboBox(OperatorConstants.numOperators);
-            valueComboBox.setVisible(false);
-            valueComboBox.setValue(null);
-            valueDate.setVisible(false);
-            valueDate.setValue(null);
-            valueDateTime.setVisible(false);
-            valueDateTime.setValue(null);
-            fkField.setVisible(false);
-            fkField.setValue(null);
-            valueTextBox.setVisible(false);
-            valueTextBox.setValue(null);
-        } else if (predicateValues.equals("boolean")) { //$NON-NLS-1$
-            setOperatorComboBox(OperatorConstants.booleanOperators);
-            valueComboBox.setVisible(false);
-            valueDate.setVisible(false);
-            valueDate.setValue(null);
-            valueDateTime.setVisible(false);
-            valueDateTime.setValue(null);
-            fkField.setVisible(false);
-            fkField.setValue(null);
-            valueTextBox.setVisible(false);
-            valueTextBox.setValue(null);
-        } else if (predicateValues.equals("foreign key")) { //$NON-NLS-1$
-            // TODO check data model type value
-            setOperatorComboBox(OperatorConstants.fullOperators);
-            fkField.setVisible(true);
-            valueComboBox.setVisible(true);
-            valueDate.setVisible(false);
-            valueDate.setValue(null);
-            valueDateTime.setVisible(false);
-            valueDateTime.setValue(null);
-            valueTextBox.setVisible(false);
-            valueTextBox.setValue(null);
-        } else if (predicateValues.equals("complex type")) { //$NON-NLS-1$
-            setOperatorComboBox(OperatorConstants.fullOperators);
-            valueComboBox.setVisible(false);
-            valueComboBox.setValue(null);
-            valueDate.setVisible(false);
-            valueDate.setValue(null);
-            valueDateTime.setVisible(false);
-            valueDateTime.setValue(null);
-            fkField.setVisible(false);
-            fkField.setValue(null);
-            valueTextBox.setVisible(true);
-            valueTextBox.setValue("*"); //$NON-NLS-1$
-        } else if (itemsPredicates.get(getKey()).isSimpleType()) {
-            SimpleTypeModel type = (SimpleTypeModel) itemsPredicates.get(getKey());
-            List<FacetModel> facets = type.getFacets();
-            if (facets != null && facets.get(0).getName().equals("enumeration")) { //$NON-NLS-1$   
-                valuelist.removeAll();
-                BaseModel field;
-                for (FacetModel facet : facets) {
-                    field = new BaseModel();
-                    field.set("name", facet.getValue()); //$NON-NLS-1$
-                    field.set("value", facet.getName()); //$NON-NLS-1$
-                    valuelist.add(field);
-                }
-                setOperatorComboBox(OperatorConstants.enumOperators);
-                valueComboBox.setVisible(true);
-                valueDate.setVisible(false);
-                valueDate.setValue(null);
-                valueDateTime.setVisible(false);
-                valueDateTime.setValue(null);
-                fkField.setVisible(false);
-                fkField.setValue(null);
-                valueTextBox.setVisible(false);
-                valueTextBox.setValue(null);
-            }
-        } else {
-            setOperatorComboBox(OperatorConstants.fullOperators);
-            valueComboBox.setVisible(false);
-            valueComboBox.setValue(null);
-            valueDate.setVisible(false);
-            valueDate.setValue(null);
-            valueDateTime.setVisible(false);
-            valueDateTime.setValue(null);
-            fkField.setVisible(false);
-            fkField.setValue(null);
-            valueTextBox.setVisible(true);
-            valueTextBox.setValue("*"); //$NON-NLS-1$
-        }
-
+        setOperatorComboBox(SearchFieldCreator.cons);
+        content.layout();
     }
 
     private String getKey() {
@@ -367,19 +182,19 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
     }
 
     private String getValue() {
-        String curValue = null;
-        if (valueComboBox.getValue() != null)
-            return valueComboBox.getValue().get("value").toString(); //$NON-NLS-1$ 
-        if (valueDate.getValue() != null)
-            return DateTimeFormat.getFormat("yyyy-MM-dd").format(valueDate.getValue()); //$NON-NLS-1$
-        if (valueDateTime.getValue() != null)
-            return DateTimeFormat.getFormat("yyyy-MM-dd HH:mm").format(valueDate.getValue()); //$NON-NLS-1$
-        if (valueTextBox.getValue() != null)
-            return valueTextBox.getValue().toString(); //$NON-NLS-1$
-        if (fkField.getValue() != null)
-            return fkField.getOriginalValue().getId();
 
-        return curValue;
+        if (field != null) {
+            if (field instanceof FKField)
+                return ((FKField) field).getOriginalValue().getId();
+            else if (field instanceof DateField) {
+                return ((DateField) field).getPropertyEditor().getFormat().format(((DateField) field).getValue());
+            } else if (field instanceof RadioGroup) {
+                return ((RadioGroup) field).getValue().getValue().toString();
+            }
+            return field.getValue().toString();
+        }
+
+        return null;
     }
 
     public SimpleCriterion getCriteria() {
@@ -391,17 +206,12 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
             keyComboBox.setValue(list.findModel("value", criterion.getKey())); //$NON-NLS-1$
             adaptOperatorAndValue();
             operatorComboBox.setValue(operatorlist.findModel("value", criterion.getOperator())); //$NON-NLS-1$
-            if (valueComboBox.isVisible())
-                valueComboBox.setValue(valuelist.findModel("value", criterion.getValue())); //$NON-NLS-1$
-            if (valueDate.isVisible())
-                valueDate.setValue(new Date(criterion.getValue()));
-            if (valueDateTime.isVisible())
-                valueDateTime.setValue(new Date(criterion.getValue()));
-            if (valueTextBox.isVisible())
-                valueTextBox.setValue(criterion.getValue());
-            // retrieve fk text
-            if (fkField.isVisible()) {
-                // service.getForeignKeyList(config, model, dataClusterPK, callback)
+            if (field != null) {
+                if (field instanceof DateField) {
+                    ((DateField) field).setValue(new Date(criterion.getValue()));
+                } else {
+                    field.setValue(criterion.getValue());
+                }
             }
         } catch (Exception e) {
             Log.error(e.getMessage(), e);
@@ -409,9 +219,10 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
     }
 
     public void setCriteriaFK(ForeignKeyBean fk) {
-        if (fkField.isVisible()) {
-            fkField.setOriginalValue(fk);
-            fkField.setValue(fk);
+        if (field != null) {
+            if (field instanceof FKField) {
+                ((FKField) field).setValue(fk);
+            }
         }
     }
 
