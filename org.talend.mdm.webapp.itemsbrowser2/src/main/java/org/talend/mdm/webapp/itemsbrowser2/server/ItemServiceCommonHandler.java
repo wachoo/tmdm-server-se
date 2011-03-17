@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,9 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.scb.gwt.web.server.i18n.GWTI18N;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
@@ -51,8 +54,6 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.amalto.webapp.core.bean.UpdateReportItem;
-import com.amalto.webapp.core.util.Messages;
-import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSCount;
@@ -98,8 +99,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     private static final Logger LOG = Logger.getLogger(ItemServiceCommonHandler.class);
 
-    private static final Messages MESSAGES = MessagesFactory.getMessages(
-            "org.talend.mdm.webapp.itemsbrowser2.server.messages", ItemsServiceImpl.class.getClassLoader()); //$NON-NLS-1$
+    public static ItemsbrowserMessages MESSAGES = null;//FIXME check NPE
+    
 
     private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
             int max, String sortDir, String sortCol) {
@@ -183,6 +184,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      */
     public ViewBean getView(String viewPk, String language) {
         try {
+            
             ViewBean vb = new ViewBean();
             vb.setViewPK(viewPk);
 
@@ -869,6 +871,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         header.setStandAloneMode(ItemsBrowserConfiguration.isStandalone());
         header.setUsingDefaultForm(ItemsBrowserConfiguration.isUsingDefaultForm());
         return header;
+
+    }
+    
+    
+    /**
+     * DOC HSHU Comment method "initMessage".
+     * @throws IOException 
+     */
+    public void initMessages(String language) throws IOException {
+        MESSAGES = GWTI18N.create(ItemsbrowserMessages.class,language);
 
     }
 

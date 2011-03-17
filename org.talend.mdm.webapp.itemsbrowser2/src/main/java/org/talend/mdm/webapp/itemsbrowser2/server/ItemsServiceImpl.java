@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
@@ -178,6 +179,10 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
      */
     public AppHeader getAppHeader() throws Exception {
         return itemsServiceHandler.getAppHeader();
+    }
+    
+    public void initMessages(String language) throws IOException {
+        itemsServiceHandler.initMessages(language);
     }
 
     /**

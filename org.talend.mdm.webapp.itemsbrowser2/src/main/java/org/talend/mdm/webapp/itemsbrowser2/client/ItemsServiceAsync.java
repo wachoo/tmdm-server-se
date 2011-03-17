@@ -54,10 +54,13 @@ public interface ItemsServiceAsync {
     void deleteItemBeans(List<ItemBean> items, AsyncCallback<List<ItemResult>> callback);
 
     void getAppHeader(AsyncCallback<AppHeader> callback);
+    
+    void initMessages(String language, AsyncCallback<Void> callback);
 
     void getItem(ItemBean itemBean, EntityModel entityModel, AsyncCallback<ItemBean> callback);
 
     void getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK,
             AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback);
+
 
 }

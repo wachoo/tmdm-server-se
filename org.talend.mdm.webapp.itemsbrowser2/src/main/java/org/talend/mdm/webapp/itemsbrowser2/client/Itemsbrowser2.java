@@ -1,6 +1,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.boundary.PubService;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 
@@ -25,7 +26,7 @@ public class Itemsbrowser2 implements EntryPoint {
      * This is the entry point method.
      */
     public void onModuleLoad() {
-      
+
         // log setting
         Log.setUncaughtExceptionHandler();
 
@@ -41,7 +42,7 @@ public class Itemsbrowser2 implements EntryPoint {
         String moduleRelativeURL = ITEMS_SERVICE;
         endpoint.setServiceEntryPoint(moduleRelativeURL);
         Registry.register(ITEMS_SERVICE, service);
-        
+
         // add controller to dispatcher
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new ItemsController());
@@ -50,10 +51,10 @@ public class Itemsbrowser2 implements EntryPoint {
         if (RootPanel.get(ItemsView.ROOT_DIV) != null)
             onModuleRender();
 
-
     }
 
     public static void onModuleRender() {
+        
         // init app-header
         getItemService().getAppHeader(new AsyncCallback<AppHeader>() {
 
@@ -64,26 +65,38 @@ public class Itemsbrowser2 implements EntryPoint {
             public void onSuccess(AppHeader header) {
 
                 getSession().put(UserSession.APP_HEADER, header);
-                
-                Dispatcher dispatcher = Dispatcher.get();
-                // dispatch a event
-                dispatcher.dispatch(ItemsEvents.InitFrame);
-                
+
+                // init messages on server side
+                getItemService().initMessages(Locale.getLanguage(header), new AsyncCallback<Void>() {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                    }
+
+                    @Override
+                    public void onSuccess(Void arg) {
+                        Dispatcher dispatcher = Dispatcher.get();
+                        // dispatch a event
+                        dispatcher.dispatch(ItemsEvents.InitFrame);
+                    }
+
+                });
+
             }
 
         });
 
     }
-    
-    
+
     /**
      * DOC HSHU Comment method "getItemService".
      */
     private static ItemsServiceAsync getItemService() {
-     
+
         ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
         return service;
-        
+
     }
 
     private void registerPubServices() {
