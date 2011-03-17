@@ -6,14 +6,16 @@
 package com.amalto.core.webservice;
 
 
-public class WSUnassignTask {
+public class WSResumeTask {
     protected java.lang.String taskUUID;
+    protected boolean assignTask;
     
-    public WSUnassignTask() {
+    public WSResumeTask() {
     }
     
-    public WSUnassignTask(java.lang.String taskUUID) {
+    public WSResumeTask(java.lang.String taskUUID, boolean assignTask) {
         this.taskUUID = taskUUID;
+        this.assignTask = assignTask;
     }
     
     public java.lang.String getTaskUUID() {
@@ -22,5 +24,13 @@ public class WSUnassignTask {
     
     public void setTaskUUID(java.lang.String taskUUID) {
         this.taskUUID = taskUUID;
+    }
+    
+    public boolean isAssignTask() {
+        return assignTask;
+    }
+    
+    public void setAssignTask(boolean assignTask) {
+        this.assignTask = assignTask;
     }
 }
