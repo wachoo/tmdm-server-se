@@ -111,7 +111,9 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     }
 
     public String getLabel(String language) {
-        return getLabelMap().get(language);
+        String label=getLabelMap().get(language);
+        if(label==null)return getName();
+        return label;
     }
 
     public Map<String, String> getLabelMap() {

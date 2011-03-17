@@ -22,6 +22,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.creator.CellEditorCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.CellRendererCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsFormPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldCreator;
@@ -129,8 +130,7 @@ public class ItemsView extends View {
         for (String xpath : viewableXpaths) {
             TypeModel typeModel = dataTypes.get(xpath);
 
-            ColumnConfig cc = new ColumnConfig(xpath, typeModel.getLabel(Locale.getLanguage(Itemsbrowser2.getSession()
-                    .getAppHeader())), 200);
+            ColumnConfig cc = new ColumnConfig(xpath, ViewUtil.getViewableLabel(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel), 200);
             if (typeModel instanceof SimpleTypeModel) {
                 Field field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
                         Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));

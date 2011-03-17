@@ -24,6 +24,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.OperatorConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.shared.FacetModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
@@ -197,7 +198,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
     private void adaptOperatorAndValue() {
         int delimeter = getKey().indexOf("/"); //$NON-NLS-1$
         if (delimeter == -1) {
-            if (getKey().equals(CommonUtil.getConceptFromBrowseItemView(view.getViewPK()))) {
+            if (getKey().equals(ViewUtil.getConceptFromBrowseItemView(view.getViewPK()))) {
                 setOperatorComboBox(OperatorConstants.fulltextOperators);
             }
 

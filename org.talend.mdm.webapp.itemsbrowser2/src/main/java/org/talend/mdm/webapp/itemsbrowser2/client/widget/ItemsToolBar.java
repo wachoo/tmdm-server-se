@@ -15,8 +15,8 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
@@ -50,11 +50,11 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -143,7 +143,7 @@ public class ItemsToolBar extends ToolBar {
         createBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             public void componentSelected(ButtonEvent ce) {
-                String concept = CommonUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
+                String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
 
                 EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().getCurrentEntityModel();
                 ItemBean item = ItemCreator.createDefaultItemBean(concept, entityModel);
