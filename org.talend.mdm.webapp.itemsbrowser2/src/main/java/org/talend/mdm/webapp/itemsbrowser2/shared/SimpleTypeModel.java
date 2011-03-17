@@ -12,32 +12,36 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.shared;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataType;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-
 /**
- * DOC chliu  class global comment. Detailled comment
+ * DOC chliu class global comment. Detailled comment
  */
-public class SimpleTypeModel extends TypeModel{
+public class SimpleTypeModel extends TypeModel {
 
-    
+    private List<String> enumeration;
+
     private List<FacetModel> facets;
-    
-    
+
     /**
      * DOC HSHU SimpleTypeModel constructor comment.
      */
     public SimpleTypeModel() {
         super();
     }
-    
-    public SimpleTypeModel(String name,DataType typeName) {
-        super(name,typeName);
+
+    public SimpleTypeModel(String name, DataType typeName) {
+        super(name, typeName);
+    }
+
+    public List<String> getEnumeration() {
+        return enumeration;
+    }
+
+    public void setEnumeration(List<String> enumeration) {
+        this.enumeration = enumeration;
     }
 
     public List<FacetModel> getFacets() {
@@ -53,14 +57,10 @@ public class SimpleTypeModel extends TypeModel{
     }
 
     public boolean hasEnumeration() {
-        if (facets == null){
-            return false;
-        }
-        for (FacetModel facet : facets){
-            if (facet.getName().equals("enumeration")){
-                return true;
-            }
-        }
+
+        if (enumeration != null && enumeration.size() > 0)
+            return true;
+
         return false;
     }
 }

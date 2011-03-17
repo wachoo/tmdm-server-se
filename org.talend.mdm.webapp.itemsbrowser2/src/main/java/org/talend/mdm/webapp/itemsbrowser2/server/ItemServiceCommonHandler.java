@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -33,7 +32,6 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
@@ -43,9 +41,9 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SearchTemplate;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ItemHelper;
+import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.RoleHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.CommonUtil;
-import org.talend.mdm.webapp.itemsbrowser2.server.util.DateUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.XmlUtil;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
@@ -195,7 +193,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             String model = getCurrentDataModel();
             String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
             EntityModel entityModel = new EntityModel();
-            DataModelHelper.parseSchema(model, concept, entityModel);
+            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
             vb.setBindingEntityModel(entityModel);
 
             // viewables
@@ -884,7 +882,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
         itemBean.setItemXml(wsItem.getContent());
         // parse schema
-        DataModelHelper.parseSchema(dataModel, concept, entityModel);
+        DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
         // dynamic Assemble
         dynamicAssemble(itemBean, entityModel);
 

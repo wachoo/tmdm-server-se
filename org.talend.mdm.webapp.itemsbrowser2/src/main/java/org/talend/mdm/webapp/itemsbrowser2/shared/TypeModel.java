@@ -26,105 +26,64 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public abstract class TypeModel implements Serializable, IsSerializable {
 
-    
     private String name;
 
     private DataType type;
 
     private String xpath;
-    
-    private Map<String,String> labelMap;
-    
+
+    private Map<String, String> labelMap;
+
+    private Map<String, String> descriptionMap;
+
+    private boolean readOnly = true;
+
+    private boolean visible = true;
+
     private int minOccurs;
-    
+
     private int maxOccurs;
-    
+
     private boolean nillable = true;
+
+    private boolean retrieveFKinfos = false;
+
+    private String foreignkey;
 
     private List<String> foreignKeyInfo;
 
-    private String foreignkey;
-    
-    /* compare with tree node to check properties
-    private TreeNode parent;
-    
-    private String name;
-    
-    private String description;
-    
-    private String value;
-    
-    private String valueInfo;
-    
-    private boolean expandable;
-    
-    private String type;
-    
-    private int nodeId;
-    
-    private String taskId;
-    
-    private String typeName;
-    
-    private String xmlTag;
-    
-    private String documentation;
-    
-    private String labelOtherLanguage;
-    
-    private boolean readOnly = true;
-    
-    private int maxOccurs;
-    
-    private int minOccurs;
-    
-    private boolean nullable = true;
-    
-    private boolean choice;
-    
-    private boolean retrieveFKinfos = false;
-    
     private String fkFilter;
-    
-    private String foreignKey;
-    
-    private String usingforeignKey;
-    
-    private boolean visible;
-    
-    private boolean key = false;
-    
-    private int keyIndex = -1;
-    
-    private String realValue;
-    
-    private String bindingPath;
-    
-    private boolean polymiorphise;
-    
-    private String realType;
-    
-    private List<Restriction> restrictions;
-    
-    private List<String> enumeration;
-    
-    private List<String> subTypes;
-    */
-    
-    
+
+    private List<String> primaryKeyInfo;
+
+    private Map<String, String> facetErrorMsgs;
+
+    private Map<String, String> displayFomats;
+
+    private boolean denyCreatable = false;
+
+    private boolean denyLogicalDeletable = false;
+
+    private boolean denyPhysicalDeleteable = false;
+
     /**
      * DOC HSHU TypeModel constructor comment.
      */
 
-    public TypeModel(){
+    public TypeModel() {
         super();
     }
-    
-    public TypeModel(String name ,DataType type) {
+
+    public TypeModel(String name, DataType type) {
         super();
         this.name = name;
         this.type = type;
         this.labelMap = new HashMap<String, String>();
+        this.descriptionMap = new HashMap<String, String>();
+        // FIXME do we need init here?
+        this.facetErrorMsgs = new HashMap<String, String>();
+        this.displayFomats = new HashMap<String, String>();
+
     }
 
     public DataType getType() {
@@ -132,23 +91,20 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     }
 
     /*
-    public void setType(DataType typeName) {
-        this.typeName = typeName;
-    }*/
-    
+     * public void setType(DataType typeName) { this.typeName = typeName; }
+     */
+
     public String getName() {
         return name;
     }
 
     /*
-    public void setName(String name) {
-        this.name = name;
-    }*/
-    
+     * public void setName(String name) { this.name = name; }
+     */
+
     public String getXpath() {
         return xpath;
     }
-    
 
     public void setXpath(String xpath) {
         this.xpath = xpath;
@@ -158,52 +114,67 @@ public abstract class TypeModel implements Serializable, IsSerializable {
         return getLabelMap().get(language);
     }
 
-    
     public Map<String, String> getLabelMap() {
         return labelMap;
     }
-    
-    
+
     /**
      * Sets the labelMap.
+     * 
      * @param labelMap the labelMap to set
      */
-    public void addLabel(String language,String label) {
+    public void addLabel(String language, String label) {
         labelMap = getLabelMap();
         labelMap.put(language, label);
     }
 
+    public Map<String, String> getDescriptionMap() {
+        return descriptionMap;
+    }
+
+    public void addDescription(String language, String label) {
+        descriptionMap = getDescriptionMap();
+        descriptionMap.put(language, label);
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 
     public int getMinOccurs() {
         return minOccurs;
     }
-    
+
     public void setMinOccurs(int minOccurs) {
         this.minOccurs = minOccurs;
     }
-    
+
     public int getMaxOccurs() {
         return maxOccurs;
     }
-    
+
     public void setMaxOccurs(int maxOccurs) {
         this.maxOccurs = maxOccurs;
     }
-    
+
     public boolean isNillable() {
         return nillable;
     }
-    
+
     public void setNillable(boolean nillable) {
         this.nillable = nillable;
-    }
-
-    public List<String> getForeignKeyInfo() {
-        return foreignKeyInfo;
-    }
-
-    public void setForeignKeyInfo(List<String> foreignKeyInfo) {
-        this.foreignKeyInfo = foreignKeyInfo;
     }
 
     public String getForeignkey() {
@@ -214,29 +185,103 @@ public abstract class TypeModel implements Serializable, IsSerializable {
         this.foreignkey = foreignkey;
     }
 
-    public int[] getRange(){
+    public boolean isRetrieveFKinfos() {
+        return retrieveFKinfos;
+    }
+
+    public void setRetrieveFKinfos(boolean retrieveFKinfos) {
+        this.retrieveFKinfos = retrieveFKinfos;
+    }
+
+    public List<String> getForeignKeyInfo() {
+        return foreignKeyInfo;
+    }
+
+    public void setForeignKeyInfo(List<String> foreignKeyInfo) {
+        this.foreignKeyInfo = foreignKeyInfo;
+    }
+
+    public String getFkFilter() {
+        return fkFilter;
+    }
+
+    public void setFkFilter(String fkFilter) {
+        this.fkFilter = fkFilter;
+    }
+
+    public List<String> getPrimaryKeyInfo() {
+        return primaryKeyInfo;
+    }
+
+    public void setPrimaryKeyInfo(List<String> primaryKeyInfo) {
+        this.primaryKeyInfo = primaryKeyInfo;
+    }
+
+    public Map<String, String> getFacetErrorMsgs() {
+        return facetErrorMsgs;
+    }
+
+    public void addFacetErrorMsg(String language, String label) {
+        facetErrorMsgs = getFacetErrorMsgs();
+        facetErrorMsgs.put(language, label);
+    }
+
+    public Map<String, String> getDisplayFomats() {
+        return displayFomats;
+    }
+
+    public void addDisplayFomat(String language, String label) {
+        displayFomats = getDisplayFomats();
+        displayFomats.put(language, label);
+    }
+
+    public boolean isDenyCreatable() {
+        return denyCreatable;
+    }
+
+    public void setDenyCreatable(boolean denyCreatable) {
+        this.denyCreatable = denyCreatable;
+    }
+
+    public boolean isDenyLogicalDeletable() {
+        return denyLogicalDeletable;
+    }
+
+    public void setDenyLogicalDeletable(boolean denyLogicalDeletable) {
+        this.denyLogicalDeletable = denyLogicalDeletable;
+    }
+
+    public boolean isDenyPhysicalDeleteable() {
+        return denyPhysicalDeleteable;
+    }
+
+    public void setDenyPhysicalDeleteable(boolean denyPhysicalDeleteable) {
+        this.denyPhysicalDeleteable = denyPhysicalDeleteable;
+    }
+
+    public int[] getRange() {
         int min = 0;
         int max = 0;
-        if (getMinOccurs() <=0){
+        if (getMinOccurs() <= 0) {
             min = 1;
         } else {
             min = getMinOccurs();
         }
-        
-        if (getMaxOccurs() == -1){
+
+        if (getMaxOccurs() == -1) {
             max = Integer.MAX_VALUE;
-        } else if (getMaxOccurs() >= min){
+        } else if (getMaxOccurs() >= min) {
             max = getMaxOccurs();
         }
-        return new int[]{min, max};
+        return new int[] { min, max };
     }
 
-    public boolean isMultiOccurrence(){
+    public boolean isMultiOccurrence() {
         int[] range = getRange();
         int min = range[0];
         int max = range[1];
         boolean multiple = false;
-        if (max > min && min >= 1){
+        if (max > min && min >= 1) {
             multiple = true;
         }
         return multiple;

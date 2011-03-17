@@ -15,5 +15,7 @@ public class FakeData {
     public static final String DATA_MODEL = "DStar";//$NON-NLS-1$
 
     public static final String DATA_CLUSTER = "DStar";//$NON-NLS-1$
+    
+    public static final String DEFAULT_ROLE = "System_Admin";//$NON-NLS-1$
 
 }

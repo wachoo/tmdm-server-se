@@ -18,10 +18,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.DataTypeCreator;
 import org.talend.mdm.webapp.itemsbrowser2.server.ItemsBrowserConfiguration;
@@ -61,14 +63,14 @@ public class DataModelHelper {
      * @param model
      * @param concept
      */
-    public static void parseSchema(String model, String concept, EntityModel entityModel) {
+    public static void parseSchema(String model, String concept, EntityModel entityModel, List<String> roles) {
         entityModel.setConceptName(concept);
         // set pk
         entityModel.setKeys(getBusinessConceptKeys(model, concept));
         // analyst model
         XSElementDecl eleDecl = getBusinessConcept(model, concept);
         if (eleDecl != null) {
-            travelXSElement(eleDecl, eleDecl.getName(), entityModel, null);
+            travelXSElement(eleDecl, eleDecl.getName(), entityModel, null, roles);
         }
     }
 
@@ -103,7 +105,7 @@ public class DataModelHelper {
      * @param xss
      * @return
      */
-    private static XSElementDecl getElementDeclByName(String eleName, XSSchemaSet xss) {
+    public static XSElementDecl getElementDeclByName(String eleName, XSSchemaSet xss) {
         Collection<XSSchema> schemas = xss.getSchemas();
         for (XSSchema xsa : schemas) {
             Map<String, XSElementDecl> elems = xsa.getElementDecls();
@@ -121,7 +123,7 @@ public class DataModelHelper {
      * @param e
      * @param currentXPath
      */
-    private static void travelXSElement(XSElementDecl e, String currentXPath, EntityModel entityModel, ComplexTypeModel parentTypeModel) {
+    public static void travelXSElement(XSElementDecl e, String currentXPath, EntityModel entityModel, ComplexTypeModel parentTypeModel, List<String> roles) {
         if (e != null) {
 
             TypeModel typeModel = null;
@@ -131,7 +133,7 @@ public class DataModelHelper {
 
             // parse annotation
             if (typeModel != null)
-                parseAnnotation(currentXPath, e, typeModel);
+                parseAnnotation(currentXPath, e, typeModel, roles);
 
             // set parent typeModel
             if (parentTypeModel != null)
@@ -152,7 +154,7 @@ public class DataModelHelper {
                     if (subParticles != null) {
                         for (int i = 0; i < subParticles.length; i++) {
                             XSParticle xsParticle = subParticles[i];
-                            travelParticle(xsParticle, currentXPath, entityModel, parentTypeModel);
+                            travelParticle(xsParticle, currentXPath, entityModel, parentTypeModel,roles);
                         }
                     }
                 }
@@ -164,27 +166,29 @@ public class DataModelHelper {
     private static TypeModel parseElement(String currentXPath, XSElementDecl e, TypeModel typeModel) {
         XSParticle currentXsp = null;
         if (e.getType().isComplexType()) {
-            typeModel = new ComplexTypeModel(e.getName(), DataTypeCreator.getDataType(e.getType().getName()));
+            typeModel = new ComplexTypeModel(e.getName(), DataTypeCreator.getDataType(e.getType().getName(),e.getType().getBaseType().getName()));
             currentXsp = e.getType().asComplexType().getContentType().asParticle();
 
         } else if (e.getType().isSimpleType()) {
-            typeModel = new SimpleTypeModel(e.getName(), DataTypeCreator.getDataType(e.getType().getName()));
+            typeModel = new SimpleTypeModel(e.getName(), DataTypeCreator.getDataType(e.getType().getName(),e.getType().getBaseType().getName()));
             currentXsp = e.getType().asSimpleType().asParticle();
             
             //enumeration&&facet
             XSRestrictionSimpleType restirctionType = e.getType().asSimpleType().asRestriction();
             ArrayList<FacetModel> restrictions = new ArrayList<FacetModel>();
+            ArrayList<String> enumeration = new ArrayList<String>();
             if (restirctionType != null) {
                 Iterator<XSFacet> it = restirctionType.iterateDeclaredFacets();
                 while (it.hasNext()) {
                     XSFacet xsf = it.next();
                     if ("enumeration".equals(xsf.getName())) { //$NON-NLS-1$
-                        //TODO
+                        enumeration.add(xsf.getValue().toString());
                     } else {
                         FacetModel r = new FacetModel(xsf.getName(), xsf.getValue().toString());
                         restrictions.add(r);
                     }
                 }//end while
+                ((SimpleTypeModel)typeModel).setEnumeration(enumeration);
                 ((SimpleTypeModel)typeModel).setFacets(restrictions);
             }//end if
             
@@ -202,22 +206,23 @@ public class DataModelHelper {
         return typeModel;
     }
     
-    private static void travelParticle(XSParticle xsParticle, String currentXPath, EntityModel entityModel,ComplexTypeModel parentTypeModel) {
+    private static void travelParticle(XSParticle xsParticle, String currentXPath, EntityModel entityModel,ComplexTypeModel parentTypeModel,List<String> roles) {
         if (xsParticle.getTerm().asModelGroup() != null) {
             XSParticle[] xsps = xsParticle.getTerm().asModelGroup().getChildren();
             for (int j = 0; j < xsps.length; j++) {
-                travelParticle(xsps[j],currentXPath,entityModel,parentTypeModel);
+                travelParticle(xsps[j],currentXPath,entityModel,parentTypeModel,roles);
             }
         }else if(xsParticle.getTerm().asElementDecl()!=null) {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
-            travelXSElement(subElement, currentXPath + "/" + subElement.getName(),entityModel,parentTypeModel);
+            travelXSElement(subElement, currentXPath + "/" + subElement.getName(),entityModel,parentTypeModel,roles);
         }
     }
 
-    private static void parseAnnotation(String currentXPath, XSElementDecl e, TypeModel typeModel) {
+    private static void parseAnnotation(String currentXPath, XSElementDecl e, TypeModel typeModel, List<String> roles) {
         if (e.getAnnotation() != null && e.getAnnotation().getAnnotation() != null) {
             Element annotations = (Element) e.getAnnotation().getAnnotation();
             NodeList annotList = annotations.getChildNodes();
+            ArrayList<String> pkInfoList = new ArrayList<String>();
             ArrayList<String> fkInfoList = new ArrayList<String>();
             for (int k = 0; k < annotList.getLength(); k++) {
                 if ("appinfo".equals(annotList.item(k).getLocalName())) {
@@ -229,27 +234,86 @@ public class DataModelHelper {
                         String appinfoSourceValue = annotList.item(k).getFirstChild().getNodeValue();
                         if (appinfoSource.contains("X_Label")) {
                             typeModel.addLabel(getLangFromLabelAnnotation(appinfoSource), appinfoSourceValue);
+                        } else if (appinfoSource.contains("X_Description")) {
+                            String description = appinfoSourceValue;
+                            String encodedDESP = description != null ? StringEscapeUtils.escapeHtml(description): "";//Do we need escape?
+                            typeModel.addDescription(getLangFromDescAnnotation(appinfoSource), encodedDESP);
+                        } else if ("X_Write".equals(appinfoSource)) {
+                            if (roles.contains(appinfoSourceValue)) {
+                                typeModel.setReadOnly(false);
+                            }
+                        } else if ("X_Hide".equals(appinfoSource)) {
+                            if (roles.contains(appinfoSourceValue)) {
+                                typeModel.setVisible(false);
+                            }
                         } else if ("X_ForeignKey".equals(appinfoSource)) {
                             typeModel.setForeignkey(appinfoSourceValue);
+                        } else if ("X_Retrieve_FKinfos".equals(appinfoSource)) {
+                            typeModel.setRetrieveFKinfos("true".equals(appinfoSourceValue));
                         } else if ("X_ForeignKeyInfo".equals(appinfoSource)) {
-                            fkInfoList.add(annotList.item(k).getFirstChild().getNodeValue());
+                            fkInfoList.add(appinfoSourceValue);
+                        } else if ("X_ForeignKey_Filter".equals(appinfoSource)) {
+                            typeModel.setFkFilter(appinfoSourceValue);
+                        } else if ("X_PrimaryKeyInfo".equals(appinfoSource)) {
+                            pkInfoList.add(appinfoSourceValue);
+                        } else if (appinfoSource.indexOf("X_Facet_") != -1) {
+                            typeModel.addFacetErrorMsg(getLangFromFacetAnnotation(appinfoSource), appinfoSourceValue);
+                        } else if (appinfoSource.indexOf("X_Display_Format_") != -1) {
+                            typeModel.addDisplayFomat(getLangFromDisplayAnnotation(appinfoSource), appinfoSourceValue);
+                        } else if ("X_Deny_Create".equals(appinfoSource)) {
+                            if (roles.contains(appinfoSourceValue)) {
+                                typeModel.setDenyCreatable(true);
+                            }
+                        } else if ("X_Deny_LogicalDelete".equals(appinfoSource)) {
+                            if (roles.contains(appinfoSourceValue)) {
+                                typeModel.setDenyLogicalDeletable(true);
+                            }
+                        } else if ("X_Deny_PhysicalDelete".equals(appinfoSource)) {
+                            if (roles.contains(appinfoSourceValue)) {
+                                typeModel.setDenyPhysicalDeleteable(true);
+                            }
                         }
-                        //TODO
+
                     }
 
                 }
             }//end for
             typeModel.setForeignKeyInfo(fkInfoList);
+            typeModel.setPrimaryKeyInfo(pkInfoList);
         }
-    }
-    
+    } 
+
     
     /**
      * DOC HSHU Comment method "getLangFromLabelAnnotation".
      */
     private static String getLangFromLabelAnnotation(String label) {
+        String format="X_Label_(.+)";
+        String lang = getLangFromAnnotation(label, format);
+        return lang;
+    }
+    
+    private static String getLangFromDescAnnotation(String label) {
+        String format="X_Description_(.+)";
+        String lang = getLangFromAnnotation(label, format);
+        return lang;
+    }
+    
+    private static String getLangFromFacetAnnotation(String label) {
+        String format="X_Facet_(.+)";
+        String lang = getLangFromAnnotation(label, format);
+        return lang;
+    }
+    
+    private static String getLangFromDisplayAnnotation(String label) {
+        String format="X_Display_(.+)";
+        String lang = getLangFromAnnotation(label, format);
+        return lang;
+    }
+
+    private static String getLangFromAnnotation(String label, String format) {
         String lang="EN";
-        Pattern p = Pattern.compile("X_Label_(.+)");
+        Pattern p = Pattern.compile(format);
         Matcher matcher = p.matcher(label);
         while(matcher.find()){
             lang=matcher.group(1);
