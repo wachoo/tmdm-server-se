@@ -109,7 +109,7 @@
 }
 
 .ygtvhtml div { 
-  float: none!important;
+  /*float: none!important*/;
   font-weight: bold;
   font-size: 12px;
   color: #7D7B7B;
