@@ -30,14 +30,14 @@ public class ViewHelper {
     
     private static final Logger logger = Logger.getLogger(ViewHelper.class);
 
-    public static final String DEFAULT_VIEW_PREFIX = "Browse_items";
+    public static final String DEFAULT_VIEW_PREFIX = "Browse_items";//$NON-NLS-1$
 
     /**
      * DOC HSHU Comment method "getConceptFromDefaultViewName".
      */
     public static String getConceptFromDefaultViewName(String viewName) {
 
-        String concept = viewName.replaceAll(ViewHelper.DEFAULT_VIEW_PREFIX + "_", "").replaceAll("#.*", "");
+        String concept = viewName.replaceAll(ViewHelper.DEFAULT_VIEW_PREFIX + "_", "").replaceAll("#.*", "");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         return concept;
 
     }
@@ -51,9 +51,9 @@ public class ViewHelper {
      */
     public static String getViewLabel(String language, WSView wsview) {
 
-        Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);
-        String viewDesc = p.matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName()).replaceAll("$1");
-        viewDesc = viewDesc.equals("") ? wsview.getName() : viewDesc;
+        Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$ //$NON-NLS-2$ 
+        String viewDesc = p.matcher(!wsview.getDescription().equals("") ? wsview.getDescription() : wsview.getName()).replaceAll("$1");//$NON-NLS-1$ //$NON-NLS-2$ 
+        viewDesc = viewDesc.equals("") ? wsview.getName() : viewDesc; //$NON-NLS-1$ 
         return viewDesc;
 
     }

@@ -111,28 +111,28 @@ public class FieldCreator {
                     DataTypeConstants.INT.getTypeName().equals(baseType)||
                     DataTypeConstants.LONG.getTypeName().equals(baseType)){
             NumberField numberField = new NumberField();
-            numberField.setData("numberType", "integer");//$NON-NLS-1$
+            numberField.setData("numberType", "integer");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setPropertyEditorType(Integer.class);
             numberField.setValidator(NumberFieldValidator.getInstance());
             field = numberField;
         } else if (DataTypeConstants.FLOAT.getTypeName().equals(baseType) ||
                     DataTypeConstants.DOUBLE.getTypeName().equals(baseType)){
             NumberField numberField = new NumberField();
-            numberField.setData("numberType", "double");//$NON-NLS-1$
+            numberField.setData("numberType", "double");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setPropertyEditorType(Double.class);
             numberField.setValidator(NumberFieldValidator.getInstance());
             field = numberField;
         } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)){
             NumberField numberField = new NumberField();
-            numberField.setData("numberType", "decimal");//$NON-NLS-1$
+            numberField.setData("numberType", "decimal");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setValidator(NumberFieldValidator.getInstance());
             numberField.setPropertyEditorType(Double.class);
             field = numberField;
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)){
             SimpleComboBox<Boolean> booleanField = new SimpleComboBox<Boolean>();
-            booleanField.setDisplayField("text");
-            booleanField.getStore().add(new SimpleComboValue<Boolean>(){{this.setValue(true);this.set("text", "TRUE");}});
-            booleanField.getStore().add(new SimpleComboValue<Boolean>(){{this.setValue(false);this.set("text", "FALSE");}});
+            booleanField.setDisplayField("text");//$NON-NLS-1$
+            booleanField.getStore().add(new SimpleComboValue<Boolean>(){{this.setValue(true);this.set("text", "TRUE");}});//$NON-NLS-1$ //$NON-NLS-2$
+            booleanField.getStore().add(new SimpleComboValue<Boolean>(){{this.setValue(false);this.set("text", "FALSE");}});//$NON-NLS-1$ //$NON-NLS-2$
             field = booleanField;
         } else if (DataTypeConstants.DATE.getTypeName().equals(baseType)){
             DateField dateField = new DateField();
@@ -153,7 +153,7 @@ public class FieldCreator {
         }
         field.setReadOnly(dataType.isReadOnly());
         field.setEnabled(!dataType.isReadOnly());
-        field.setData("facetErrorMsgs", dataType.getFacetErrorMsgs().get(language));
+        field.setData("facetErrorMsgs", dataType.getFacetErrorMsgs().get(language));//$NON-NLS-1$
         buildFacets(dataType, field);
         return field;
     }

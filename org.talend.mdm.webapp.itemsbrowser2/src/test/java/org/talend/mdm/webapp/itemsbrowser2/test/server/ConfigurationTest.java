@@ -20,8 +20,8 @@ public class ConfigurationTest extends TestCase {
 
     public void testGetProperty() throws Exception {
 
-        String modeValue=ItemsBrowserConfiguration.getPropertyValue("mode");
-        assertTrue("Property value is illegal! ", modeValue.equals("standalone")||modeValue.equals("jboss"));
+        String modeValue=ItemsBrowserConfiguration.getPropertyValue("mode");//$NON-NLS-1$
+        assertTrue("Property value is illegal! ", modeValue.equals("standalone")||modeValue.equals("jboss"));//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         
     }
 }

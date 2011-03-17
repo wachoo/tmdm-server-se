@@ -61,15 +61,15 @@ public class SearchTemplate implements IsSerializable {
     }
 
     private String getOldCriteria() {
-        return "<Criteria><Field>bookmark</Field><Operator>is</Operator><Value>null</Value></Criteria>";
+        return "<Criteria><Field>bookmark</Field><Operator>is</Operator><Value>null</Value></Criteria>";//$NON-NLS-1$
     }
 
     public String marshal2String() {
 
-        String marshaledItem = "<BrowseItem>" + "<CriteriaName>" + this.CriteriaName + "</CriteriaName>" + "<ViewPK>"
-                + this.ViewPK + "</ViewPK>" + "<Owner>" + this.owner + "</Owner>" + "<Shared>" + this.shared + "</Shared>"
-                + "<WhereCriteria>" + getOldCriteria() + "</WhereCriteria><SearchCriteria>" + this.criteria
-                + "</SearchCriteria></BrowseItem>";
+        String marshaledItem = "<BrowseItem>" + "<CriteriaName>" + this.CriteriaName + "</CriteriaName>" + "<ViewPK>" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                + this.ViewPK + "</ViewPK>" + "<Owner>" + this.owner + "</Owner>" + "<Shared>" + this.shared + "</Shared>"//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                + "<WhereCriteria>" + getOldCriteria() + "</WhereCriteria><SearchCriteria>" + this.criteria//$NON-NLS-1$ //$NON-NLS-2$ 
+                + "</SearchCriteria></BrowseItem>";//$NON-NLS-1$
         return marshaledItem;
 
     }

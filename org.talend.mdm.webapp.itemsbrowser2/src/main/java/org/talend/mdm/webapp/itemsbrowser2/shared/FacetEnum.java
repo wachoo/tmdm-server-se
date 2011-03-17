@@ -11,23 +11,23 @@ import com.google.gwt.user.client.ui.Widget;
 
 public enum FacetEnum {
     
-    MIN_INCLUSIVE("minInclusive"),
-    MAX_INCLUSIVE("maxInclusive"),
-    MIN_EXCLUSIVE("minExclusive"),
-    MAX_EXCLUSIVE("maxExclusive"),
+    MIN_INCLUSIVE("minInclusive"),//$NON-NLS-1$
+    MAX_INCLUSIVE("maxInclusive"),//$NON-NLS-1$
+    MIN_EXCLUSIVE("minExclusive"),//$NON-NLS-1$
+    MAX_EXCLUSIVE("maxExclusive"),//$NON-NLS-1$
     
-    LENGTH("length"),
-    MIN_LENGTH("minLength"),
-    MAX_LENGTH("maxLength"),
+    LENGTH("length"),//$NON-NLS-1$
+    MIN_LENGTH("minLength"),//$NON-NLS-1$
+    MAX_LENGTH("maxLength"),//$NON-NLS-1$
     
-    TOTAL_DIGITS("totalDigits"),
-    FRACTION_DIGITS("fractionDigits"),
+    TOTAL_DIGITS("totalDigits"),//$NON-NLS-1$
+    FRACTION_DIGITS("fractionDigits"),//$NON-NLS-1$
     
-    ENUMERATION("enumeration"),
+    ENUMERATION("enumeration"),//$NON-NLS-1$
     
-    PATTERN("pattern"),
+    PATTERN("pattern"),//$NON-NLS-1$
     
-    WHTE_SPACE("whiteSpace");
+    WHTE_SPACE("whiteSpace");//$NON-NLS-1$
     
     private String facetName;
     

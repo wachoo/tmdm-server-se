@@ -205,10 +205,10 @@ public final class XmlUtil {
 
         OutputFormat format;
 
-        if (printMode.toLowerCase().equals("pretty")) {
+        if (printMode.toLowerCase().equals("pretty")) {//$NON-NLS-1$
             // Pretty print the document
             format = OutputFormat.createPrettyPrint();
-        } else if (printMode.toLowerCase().equals("compact")) {
+        } else if (printMode.toLowerCase().equals("compact")) {//$NON-NLS-1$
             // Compact format
             format = OutputFormat.createCompactFormat();
         } else
@@ -320,7 +320,7 @@ public final class XmlUtil {
 
             if (errorHandler.getErrors().hasContent()) {
                 isValidated = false;
-                logger.warn("XML file validation failed! ");
+                logger.warn("XML file validation failed! ");//$NON-NLS-1$
                 writer.write(errorHandler.getErrors());
             } else {
                 isValidated = true;
@@ -329,7 +329,7 @@ public final class XmlUtil {
             }
         } catch (Exception ex) {
             isValidated = false;
-            logger.error("Failed to validate XML file through '" + xsdFileName, ex);
+            logger.error("Failed to validate XML file through '" + xsdFileName, ex);//$NON-NLS-1$
         }
 
         return isValidated;

@@ -61,9 +61,9 @@ public class CommonUtil {
     public static String joinStrings(List<String> strings, String separator) {
         if (strings == null)
             return null;
-        String res = "";
+        String res = ""; //$NON-NLS-1$ 
         for (int i = 0; i < strings.size(); i++) {
-            res += (i > 0) ? separator : "";
+            res += (i > 0) ? separator : ""; //$NON-NLS-1$ 
             res += strings.get(i);
         }
         return res;

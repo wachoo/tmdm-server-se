@@ -37,7 +37,7 @@ public class ItemCreator {
      * @return
      */
     public static ItemBean createDefaultItemBean(String concept, EntityModel entityModel) {
-        ItemBean itemBean = new ItemBean(concept, "", null);
+        ItemBean itemBean = new ItemBean(concept, "", null);//$NON-NLS-1$
 
         Map<String, TypeModel> types = entityModel.getMetaDataTypes();
         Set<String> xpaths = types.keySet();
@@ -52,11 +52,11 @@ public class ItemCreator {
                     int[] range = typeModel.getRange();
                     int min = range[0];
                     for (int i = 0; i < min; i++) {
-                        list.add("");
+                        list.add("");//$NON-NLS-1$
                     }
                     itemBean.set(path, list);
                 } else {
-                    itemBean.set(path, "");
+                    itemBean.set(path, "");//$NON-NLS-1$
                 }
             }
         }

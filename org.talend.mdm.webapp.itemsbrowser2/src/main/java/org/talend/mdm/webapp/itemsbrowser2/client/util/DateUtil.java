@@ -7,9 +7,9 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 
 public class DateUtil {
 
-    private static String datePattern = "yyyy-MM-dd";
+    private static String datePattern = "yyyy-MM-dd";//$NON-NLS-1$
 
-    private static String timePattern = "HH:mm";
+    private static String timePattern = "HH:mm";//$NON-NLS-1$
     
     public static final Date convertStringToDate(String aMask, String strDate)  {
         if (strDate != null && strDate.trim().length() != 0){

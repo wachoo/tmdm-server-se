@@ -101,7 +101,7 @@ public class ItemsController extends Controller {
     }
 
     protected void onGetView(final AppEvent event) {
-        Log.info("Get view... ");
+        Log.info("Get view... ");//$NON-NLS-1$
         String viewName = event.getData();
         service.getView(viewName, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), new AsyncCallback<ViewBean>() {
 
@@ -125,7 +125,7 @@ public class ItemsController extends Controller {
     }
 
     protected void onSearchView(final AppEvent event) {
-        Log.info("Do view-search... ");
+        Log.info("Do view-search... ");//$NON-NLS-1$
         ViewBean viewBean = (ViewBean) Itemsbrowser2.getSession().getCurrentView();
         AppEvent ae = new AppEvent(event.getType(), viewBean);
         forwardToView(itemsView, ae);

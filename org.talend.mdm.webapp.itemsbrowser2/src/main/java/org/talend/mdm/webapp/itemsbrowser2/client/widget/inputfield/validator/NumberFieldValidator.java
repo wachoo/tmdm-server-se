@@ -22,22 +22,22 @@ public class NumberFieldValidator implements Validator {
     private NumberFieldValidator(){}
     
     public String validate(Field<?> field, String value) {
-        String defaultMessage = "";
+        String defaultMessage = "";//$NON-NLS-1$ 
         boolean succeed = true;
         String totalDigits = field.getData(FacetEnum.TOTAL_DIGITS.getFacetName());
         if (totalDigits != null && !totalDigits.equals("")) {
-            if (value.replace(".", "").length() > Integer.parseInt(totalDigits)) {
+            if (value.replace(".", "").length() > Integer.parseInt(totalDigits)) {//$NON-NLS-1$ //$NON-NLS-2$ 
                 succeed = false;
-                defaultMessage += MessagesFactory.getMessages().check_totalDigits() + totalDigits + "\n";
+                defaultMessage += MessagesFactory.getMessages().check_totalDigits() + totalDigits + "\n";//$NON-NLS-1$
             }
         }
 
         String fractionDigits = field.getData(FacetEnum.FRACTION_DIGITS.getFacetName());
         if (fractionDigits != null && !fractionDigits.equals("")) {
-            String[] digits = value.split(".");
+            String[] digits = value.split(".");//$NON-NLS-1$
             if (digits[1].length() > Integer.parseInt(fractionDigits)) {
                 succeed = false;
-                defaultMessage += MessagesFactory.getMessages().check_fractionDigits() + fractionDigits + "\n";
+                defaultMessage += MessagesFactory.getMessages().check_fractionDigits() + fractionDigits + "\n";//$NON-NLS-1$
             }
         }
         String minInclusive = field.getData(FacetEnum.MIN_INCLUSIVE.getFacetName());
@@ -46,27 +46,27 @@ public class NumberFieldValidator implements Validator {
             double numberValue = Double.parseDouble(value);
             if (numberValue < min){
                 succeed = false;
-                defaultMessage += MessagesFactory.getMessages().check_minInclusive() + min + "\n";
+                defaultMessage += MessagesFactory.getMessages().check_minInclusive() + min + "\n";//$NON-NLS-1$
             }
         }
         
         String maxInclusive = field.getData(FacetEnum.MAX_INCLUSIVE.getFacetName());
-        if (maxInclusive != null && !maxInclusive.equals("")){
+        if (maxInclusive != null && !maxInclusive.equals("")){//$NON-NLS-1$
             double max = Double.parseDouble(maxInclusive);
             double numberValue = Double.parseDouble(value);
             if (numberValue > max){
                 succeed = false;
-                defaultMessage += MessagesFactory.getMessages().check_maxInclusive() + max + "\n";
+                defaultMessage += MessagesFactory.getMessages().check_maxInclusive() + max + "\n";//$NON-NLS-1$
             }
         }
         
         String minExclusive = field.getData(FacetEnum.MIN_EXCLUSIVE.getFacetName());
-        if (minExclusive != null && !minExclusive.equals("")){
+        if (minExclusive != null && !minExclusive.equals("")){//$NON-NLS-1$
             double min = Double.parseDouble(minExclusive);
             double numberValue = Double.parseDouble(value);
             if (numberValue <= min){
                 succeed = false;
-                defaultMessage += MessagesFactory.getMessages().check_minExclusive() + min + "\n";
+                defaultMessage += MessagesFactory.getMessages().check_minExclusive() + min + "\n";//$NON-NLS-1$
             }
         }
         
@@ -76,13 +76,13 @@ public class NumberFieldValidator implements Validator {
             double numberValue = Double.parseDouble(value);
             if (numberValue >= max){
                 succeed = false;
-                defaultMessage += MessagesFactory.getMessages().check_minExclusive() + max + "\n";
+                defaultMessage += MessagesFactory.getMessages().check_minExclusive() + max + "\n";//$NON-NLS-1$
             }
         }
         
         if (!succeed){
-            String error = field.getData("facetErrorMsgs");
-            if (error == null || error.equals("")){
+            String error = field.getData("facetErrorMsgs");//$NON-NLS-1$
+            if (error == null || error.equals("")){//$NON-NLS-1$
                 return defaultMessage;
             } 
             return error;

@@ -21,6 +21,6 @@ public class ComboBoxCellEditor extends CellEditor {
         if (value == null) {
             return value;
         }
-        return ((ModelData) value).get("value");
+        return ((ModelData) value).get("value");//$NON-NLS-1$
     }
 }

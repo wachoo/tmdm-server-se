@@ -48,7 +48,7 @@ public class PagingToolBarEx extends PagingToolBar {
 
             public void handleEvent(BaseEvent be) {
                 if (sizeField.isValid() && sizeField.getValue() != null){
-                    setPageSize((int)Double.parseDouble(sizeField.getValue()+""));
+                    setPageSize((int)Double.parseDouble(sizeField.getValue()+""));//$NON-NLS-1$
                     first();
                 }
             }
@@ -74,7 +74,7 @@ public class PagingToolBarEx extends PagingToolBar {
     Validator validator = new Validator() {
         
         public String validate(Field<?> field, String value) {
-            String valueStr = value == null? "": value.toString();
+            String valueStr = value == null? "": value.toString();//$NON-NLS-1$
             boolean success = true;
             try{
                 int num = Integer.parseInt(valueStr);

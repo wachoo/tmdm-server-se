@@ -71,13 +71,13 @@ public class ItemsView extends View {
 
     public static final String ITEMS_SEARCH_CONTAINER = "itemsSearchContainer";//$NON-NLS-1$
 
-    public static final String ITEMS_FORM_TARGET = "items_form_target";
+    public static final String ITEMS_FORM_TARGET = "items_form_target";//$NON-NLS-1$
 
-    public static final String TARGET_IN_NEW_WINDOW = "target_in_new_window";
+    public static final String TARGET_IN_NEW_WINDOW = "target_in_new_window";//$NON-NLS-1$
 
-    public static final String TARGET_IN_NEW_TAB = "target_in_new_tab";
+    public static final String TARGET_IN_NEW_TAB = "target_in_new_tab";//$NON-NLS-1$
 
-    public static final String TARGET_IN_SEARCH_TAB = "target_in_search_tab";
+    public static final String TARGET_IN_SEARCH_TAB = "target_in_search_tab";//$NON-NLS-1$
 
     public ItemsView(Controller controller) {
         super(controller);
@@ -209,9 +209,9 @@ public class ItemsView extends View {
                     int top = window.getAbsoluteTop();
                     int offset = Random.nextInt(35);
                     window.setPosition(left + offset, top + offset);
-                    window.setId("formWindowContainer");
+                    window.setId("formWindowContainer");//$NON-NLS-1$
                     GetService.regCallback();
-                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, "", window.getBody().dom);
+                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, "", window.getBody().dom);//$NON-NLS-1$
                 }
                 // TODO handle legacy form
             }
@@ -256,7 +256,7 @@ public class ItemsView extends View {
         Registry.register(TAB_FRAME, tabFrame);
 
         // FIXME can not auto-fill
-        container.setStyleAttribute("height", "100%");
+        container.setStyleAttribute("height", "100%");//$NON-NLS-1$ //$NON-NLS-2$
         RootPanel.get(ROOT_DIV).getElement().getStyle().setHeight(100, Unit.PCT);
         RootPanel.get(ROOT_DIV).add(container);
         tabFrame.setHeight(container.getOffsetHeight());
@@ -267,10 +267,10 @@ public class ItemsView extends View {
     protected void onInitSearchContainer(AppEvent ae) {
 
         // create search panel
-        Log.info("Init items-search-container... ");
+        Log.info("Init items-search-container... ");//$NON-NLS-1$
         itemsSearchContainer = new ItemsSearchContainer();
 
-        addTab(itemsSearchContainer, "Search Tab", "Search Tab", false);
+        addTab(itemsSearchContainer, "Search Tab", "Search Tab", false);//$NON-NLS-1$
 
         Registry.register(ITEMS_SEARCH_CONTAINER, itemsSearchContainer);
 
@@ -286,7 +286,7 @@ public class ItemsView extends View {
             item.setText(tabName);
             item.setClosable(closable);
             item.add(c);
-            item.addStyleName("pad-text");
+            item.addStyleName("pad-text");//$NON-NLS-1$
             tabFrame.add(item);
         }
 

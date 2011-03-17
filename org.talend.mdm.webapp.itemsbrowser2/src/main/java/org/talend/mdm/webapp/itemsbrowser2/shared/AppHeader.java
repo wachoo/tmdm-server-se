@@ -68,7 +68,7 @@ public class AppHeader implements IsSerializable {
 
     @Override
     public String toString() {
-        return "AppHeader [datamodel=" + datamodel + ", datacluster=" + datacluster + ", isStandAloneMode=" + isStandAloneMode + "]";
+        return "AppHeader [datamodel=" + datamodel + ", datacluster=" + datacluster + ", isStandAloneMode=" + isStandAloneMode + "]";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
     }
 
 }

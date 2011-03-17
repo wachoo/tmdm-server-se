@@ -129,19 +129,19 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
                 // aiming modify when there is null value in fields, the viewable fields sequence is the same as the
                 // childlist of result
-                if (!results[i].startsWith("<result>")) {
-                    results[i] = "<result>" + results[i] + "</result>";
+                if (!results[i].startsWith("<result>")) { //$NON-NLS-1$
+                    results[i] = "<result>" + results[i] + "</result>"; //$NON-NLS-1$ //$NON-NLS-2$
                 }
 
                 Document doc = XmlUtil.parseText(results[i]);
                 idsArray.clear();
                 for (String key : entityModel.getKeys()) {
-                    String id = XmlUtil.queryNode(doc, key.replaceAll(concept, "result")).getText();
+                    String id = XmlUtil.queryNode(doc, key.replaceAll(concept, "result")).getText();//$NON-NLS-1$ 
                     if (id != null)
                         idsArray.add(id);
                 }
 
-                ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), results[i]);
+                ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), results[i]);//$NON-NLS-1$ 
                 dynamicAssemble(itemBean, entityModel);
                 itemBeans.add(itemBean);
             }
@@ -161,7 +161,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             for (String path : xpaths) {
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
-                    List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.indexOf('/') + 1));
+                    List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.indexOf('/') + 1));//$NON-NLS-1$ 
                     if (nodes.size() > 0) {
                         Node value = (Node) nodes.get(0);
                          if (typeModel.isMultiOccurrence()) {
@@ -252,16 +252,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         } catch (Exception e) {
             ItemResult result;
             // TODO
-            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {
-                String saveSUCCE = "Save item '" + item.getConcept() + "."
-                        + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".")
-                        + "' successfully, But " + e.getLocalizedMessage();
+            if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {//$NON-NLS-1$ 
+                String saveSUCCE = "Save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$ 
+                        + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".")//$NON-NLS-1$ 
+                        + "' successfully, But " + e.getLocalizedMessage();//$NON-NLS-1$ 
                 result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
             } else {
-                String err = "Unable to save item '" + item.getConcept() + "."
-                        + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".") + "'"
+                String err = "Unable to save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$ 
+                        + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".") + "'"//$NON-NLS-1$ //$NON-NLS-2$ 
                         + e.getLocalizedMessage();
-                if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {
+                if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
                     err = e.getLocalizedMessage();
                 }
                 result = new ItemResult(ItemResult.FAILURE, err);
@@ -298,7 +298,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     pushUpdateReport(ids, concept, "PHYSICAL_DELETE"); //$NON-NLS-1$ 
                 // deleted from the list.
                 else
-                    message = "ERROR - Unable to delete item";
+                    message = "ERROR - Unable to delete item"; //$NON-NLS-1$ 
 
                 if (message == null || message.length() == 0)
                     message = "The record was deleted successfully."; //$NON-NLS-1$                
@@ -309,7 +309,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 message = "ERROR_3" + message; //$NON-NLS-1$
             }
 
-            if (message.indexOf("ERROR") > -1)
+            if (message.indexOf("ERROR") > -1)//$NON-NLS-1$ 
                 return new ItemResult(ItemResult.FAILURE, message);
             else
                 return new ItemResult(ItemResult.SUCCESS, message);
@@ -349,29 +349,29 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 // TODO updatereport
 
                 else
-                    return new ItemResult(ItemResult.FAILURE, "ERROR - dropItem is NULL");
+                    return new ItemResult(ItemResult.FAILURE, "ERROR - dropItem is NULL");//$NON-NLS-1$ 
 
-            return new ItemResult(ItemResult.SUCCESS, "OK");
+            return new ItemResult(ItemResult.SUCCESS, "OK");//$NON-NLS-1$ 
 
         } catch (Exception e) {
-            return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage());
+            return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage());//$NON-NLS-1$ 
         }
     }
 
     private String pushUpdateReport(String[] ids, String concept, String operationType) throws Exception {
         if (LOG.isTraceEnabled())
-            LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);
+            LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$ 
 
         // TODO check updatedPath
         HashMap<String, UpdateReportItem> updatedPath = null;
-        if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && updatedPath == null) { //$NON-NLS-1$
-            return "ERROR_2";
+        if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && updatedPath == null) { //$NON-NLS-1$ //$NON-NLS-2$
+            return "ERROR_2";//$NON-NLS-1$ 
         }
 
         String xml2 = createUpdateReport(ids, concept, operationType, updatedPath);
 
         if (LOG.isDebugEnabled())
-            LOG.debug("pushUpdateReport() " + xml2);
+            LOG.debug("pushUpdateReport() " + xml2);//$NON-NLS-1$ 
 
         // TODO routeAfterSaving is true
         return persistentUpdateReport(xml2, false);
@@ -381,8 +381,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             HashMap<String, UpdateReportItem> updatedPath) throws Exception {
 
         String revisionId = null;
-        String dataModelPK = getCurrentDataModel() == null ? "" : getCurrentDataModel();
-        String dataClusterPK = getCurrentDataCluster() == null ? "" : getCurrentDataCluster();
+        String dataModelPK = getCurrentDataModel() == null ? "" : getCurrentDataModel();//$NON-NLS-1$ 
+        String dataClusterPK = getCurrentDataCluster() == null ? "" : getCurrentDataCluster();//$NON-NLS-1$ 
 
         String username = com.amalto.webapp.core.util.Util.getLoginUserName();
         String universename = com.amalto.webapp.core.util.Util.getLoginUniverse();
@@ -401,12 +401,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
         StringBuilder sb = new StringBuilder();
         // TODO what is StringEscapeUtils.escapeXml used for
-        sb.append("<Update><UserName>").append(username).append("</UserName><Source>genericUI</Source><TimeInMillis>") //$NON-NLS-1$
+        sb.append("<Update><UserName>").append(username).append("</UserName><Source>genericUI</Source><TimeInMillis>") //$NON-NLS-1$ //$NON-NLS-2$ 
                 .append(System.currentTimeMillis()).append("</TimeInMillis><OperationType>") //$NON-NLS-1$
                 .append(operationType).append("</OperationType><RevisionID>").append(revisionId) //$NON-NLS-1$
-                .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$
+                .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$ //$NON-NLS-2$ 
                 .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
-                .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$
+                .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$ 
 
         if ("UPDATE".equals(operationType)) { //$NON-NLS-1$
             Collection<UpdateReportItem> list = updatedPath.values();
@@ -417,7 +417,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 String newValue = item.getNewValue() == null ? "" : item.getNewValue();
                 if (newValue.equals(oldValue))
                     continue;
-                sb.append("<Item>   <path>").append(item.getPath()).append("</path>   <oldValue>")//$NON-NLS-1$
+                sb.append("<Item>   <path>").append(item.getPath()).append("</path>   <oldValue>")//$NON-NLS-1$ //$NON-NLS-2$
                         .append(oldValue).append("</oldValue>   <newValue>")//$NON-NLS-1$
                         .append(newValue).append("</newValue></Item>");//$NON-NLS-1$
                 isUpdate = true;
@@ -431,15 +431,15 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     private static String persistentUpdateReport(String xml2, boolean routeAfterSaving) throws Exception {
         if (xml2 == null)
-            return "OK";
+            return "OK";//$NON-NLS-1$
 
         WSItemPK itemPK = CommonUtil.getPort().putItem(
-                new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
+                new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$ //$NON-NLS-2$
 
         if (routeAfterSaving)
             CommonUtil.getPort().routeItemV2(new WSRouteItemV2(itemPK));
 
-        return "OK";
+        return "OK";//$NON-NLS-1$ 
     }
 
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {
@@ -470,7 +470,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 bc.add(businessConcept[i]);
             }
             WSViewPK[] wsViewsPK;
-            wsViewsPK = CommonUtil.getPort().getViewPKs(new WSGetViewPKs(ViewHelper.DEFAULT_VIEW_PREFIX + ".*")).getWsViewPK();
+            wsViewsPK = CommonUtil.getPort().getViewPKs(new WSGetViewPKs(ViewHelper.DEFAULT_VIEW_PREFIX + ".*")).getWsViewPK();//$NON-NLS-1$ 
 
             // Filter view list according to current datamodel
             TreeMap<String, String> views = new TreeMap<String, String>();
@@ -488,8 +488,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
             for (String key : viewMap.keySet()) {
                 ItemBaseModel bm = new ItemBaseModel();
-                bm.set("name", viewMap.get(key));
-                bm.set("value", key);
+                bm.set("name", viewMap.get(key));//$NON-NLS-1$ 
+                bm.set("value", key);//$NON-NLS-1$ 
                 list.add(bm);
             }
             return list;
@@ -662,7 +662,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     public boolean isExistCriteria(String dataObjectLabel, String id) {
         try {
             WSItemPK wsItemPK = new WSItemPK();
-            wsItemPK.setConceptName("BrowseItem");
+            wsItemPK.setConceptName("BrowseItem");//$NON-NLS-1$ 
 
             WSDataClusterPK wsDataClusterPK = new WSDataClusterPK();
             wsDataClusterPK.setPk(XSystemObjects.DC_SEARCHTEMPLATE.getName());
@@ -687,7 +687,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     }
 
     public String saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) {
-        String returnString = "OK";
+        String returnString = "OK";//$NON-NLS-1$ 
         try {
             String owner = com.amalto.webapp.core.util.Util.getLoginUserName();
             SearchTemplate searchTemplate = new SearchTemplate();
@@ -702,7 +702,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                             .marshal2String(), new WSDataModelPK(XSystemObjects.DM_SEARCHTEMPLATE.getName()), false));
 
             if (pk != null)
-                returnString = "OK";
+                returnString = "OK";//$NON-NLS-1$ 
             else
                 returnString = null;
         } catch (Exception e) {
@@ -718,8 +718,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
         for (String result : results) {
             ItemBaseModel bm = new ItemBaseModel();
-            bm.set("name", result);
-            bm.set("value", result);
+            bm.set("name", result);//$NON-NLS-1$ 
+            bm.set("value", result);//$NON-NLS-1$ 
             list.add(bm);
         }
         int totalSize = Integer.parseInt(countSearchTemplate(view));
@@ -732,8 +732,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
         for (String result : results) {
             ItemBaseModel bm = new ItemBaseModel();
-            bm.set("name", result);
-            bm.set("value", result);
+            bm.set("name", result);//$NON-NLS-1$ 
+            bm.set("value", result);//$NON-NLS-1$ 
             list.add(bm);
         }
         return list;
@@ -753,15 +753,15 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
             WSWhereItem wi = new WSWhereItem();
 
-            WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,
+            WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,//$NON-NLS-1$ 
                     WSStringPredicate.NONE, false);
 
-            WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,
+            WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,//$NON-NLS-1$ 
                     com.amalto.webapp.core.util.Util.getLoginUserName(), WSStringPredicate.NONE, false);
             WSWhereCondition wc4;
             WSWhereOr or = new WSWhereOr();
             if (isShared) {
-                wc4 = new WSWhereCondition("BrowseItem/Shared", WSWhereOperator.EQUALS, "true", WSStringPredicate.OR, false);
+                wc4 = new WSWhereCondition("BrowseItem/Shared", WSWhereOperator.EQUALS, "true", WSStringPredicate.OR, false);//$NON-NLS-1$ //$NON-NLS-2$ 
 
                 or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null), new WSWhereItem(wc4, null, null) });
             } else {
@@ -776,13 +776,13 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
             String[] results = CommonUtil.getPort().xPathsSearch(
                     new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
-                            new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order
+                            new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order //$NON-NLS-1$ 
                             // by
                             null // direction
                     )).getStrings();
 
             for (int i = 0; i < results.length; i++) {
-                results[i] = results[i].replaceAll("<CriteriaName>(.*)</CriteriaName>", "$1");
+                results[i] = results[i].replaceAll("<CriteriaName>(.*)</CriteriaName>", "$1");//$NON-NLS-1$ //$NON-NLS-2$ 
             }
             return results;
 
@@ -799,13 +799,13 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             WSWhereItem wi = new WSWhereItem();
 
             // Configuration config = Configuration.getInstance();
-            WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,
+            WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,//$NON-NLS-1$ 
                     WSStringPredicate.NONE, false);
             /*
              * WSWhereCondition wc2 = new WSWhereCondition( "hierarchical-report/data-model", WSWhereOperator.EQUALS,
              * config.getModel(), WSStringPredicate.NONE, false);
              */
-            WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,
+            WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,//$NON-NLS-1$ 
                     com.amalto.webapp.core.util.Util.getLoginUserName(), WSStringPredicate.NONE, false);
 
             WSWhereOr or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null) });
@@ -816,7 +816,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
             wi = new WSWhereItem(null, and, null);
             return CommonUtil.getPort().count(
-                    new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))
+                    new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$ 
                     .getValue();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -827,32 +827,32 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     public String deleteSearchTemplate(String id) {
         try {
             String[] ids = { id };
-            String concept = "BrowseItem";
+            String concept = "BrowseItem";//$NON-NLS-1$ 
             String dataClusterPK = XSystemObjects.DC_SEARCHTEMPLATE.getName();
             if (ids != null) {
                 WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
 
                 if (wsItem == null)
-                    return "ERROR - deleteTemplate is NULL";
-                return "OK";
+                    return "ERROR - deleteTemplate is NULL";//$NON-NLS-1$ 
+                return "OK";//$NON-NLS-1$ 
             } else {
-                return "OK";
+                return "OK";//$NON-NLS-1$ 
             }
         } catch (Exception e) {
-            return "ERROR -" + e.getLocalizedMessage();
+            return "ERROR -" + e.getLocalizedMessage();//$NON-NLS-1$ 
         }
     }
 
     public String getCriteriaByBookmark(String bookmark) {
         try {
-            String criteria = "";
+            String criteria = "";//$NON-NLS-1$ 
             String result = CommonUtil.getPort().getItem(
-                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem",
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem",//$NON-NLS-1$ 
                             new String[] { bookmark }))).getContent().trim();
             if (result != null) {
-                if (result.indexOf("<SearchCriteria>") != -1)
-                    criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));
+                if (result.indexOf("<SearchCriteria>") != -1)//$NON-NLS-1$ 
+                    criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$ 
             }
             return criteria;
         } catch (XtentisWebappException e) {
@@ -890,7 +890,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         String concept = itemBean.getConcept();
         // get item
         WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
-        String[] ids = itemBean.getIds() == null ? null : itemBean.getIds().split("\\.");
+        String[] ids = itemBean.getIds() == null ? null : itemBean.getIds().split("\\.");//$NON-NLS-1$ 
         WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
         itemBean.setItemXml(wsItem.getContent());
         // parse schema

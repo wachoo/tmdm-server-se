@@ -188,8 +188,8 @@ public class ItemsListPanel extends ContentPanel {
         grid.addPlugin(re);
         grid.addPlugin(sm);
         grid.setAriaIgnore(true);
-        grid.setAriaDescribedBy("abcdefg");
-        grid.setAriaLabelledBy(this.getHeader().getId() + "-label");
+        grid.setAriaDescribedBy("abcdefg");//$NON-NLS-1$
+        grid.setAriaLabelledBy(this.getHeader().getId() + "-label");//$NON-NLS-1$
 
         gridContainer.add(grid);
         hookContextMenu();

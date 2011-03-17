@@ -200,15 +200,15 @@ public class ItemsToolBar extends ToolBar {
                                                     public void onSuccess(List<ItemResult> resultes) {
                                                         StringBuffer succeed = new StringBuffer(MessagesFactory.getMessages()
                                                                 .info_title()
-                                                                + "\n");
+                                                                + "\n");//$NON-NLS-1$
                                                         StringBuffer failure = new StringBuffer(MessagesFactory.getMessages()
                                                                 .error_title()
-                                                                + "\n");
+                                                                + "\n");//$NON-NLS-1$
                                                         for (ItemResult result : resultes) {
                                                             if (result.getStatus() == ItemResult.SUCCESS) {
-                                                                succeed.append(result.getDescription() + "\n");
+                                                                succeed.append(result.getDescription() + "\n");//$NON-NLS-1$
                                                             } else {
-                                                                failure.append(result.getDescription() + "\n");
+                                                                failure.append(result.getDescription() + "\n");//$NON-NLS-1$
                                                             }
                                                         }
                                                         MessageBox.alert("", succeed.toString() + failure.toString(), null);
@@ -368,7 +368,7 @@ public class ItemsToolBar extends ToolBar {
                 ColumnConfig colEdit = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_edit(), 100); //$NON-NLS-1$
                 colEdit.setRenderer(new GridCellRenderer<ItemBaseModel>() {
 
-                    @SuppressWarnings("deprecation")
+                    @SuppressWarnings("deprecation")//$NON-NLS-1$
                     public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();

@@ -29,17 +29,17 @@ public class BreadCrumb extends Composite {
         Hyperlink h = new Hyperlink(name, link);
 
         pWidget.add(h);
-        pWidget.add(new HTML("&nbsp;&#187;&nbsp;"));
+        pWidget.add(new HTML("&nbsp;&#187;&nbsp;"));//$NON-NLS-1$
 
         initWidget(pWidget);
     }
 
     public BreadCrumb(String name) {
 
-        HTML h = new HTML("<a>" + name + "</a>");
+        HTML h = new HTML("<a>" + name + "</a>");//$NON-NLS-1$ //$NON-NLS-2$
 
         pWidget.add(h);
-        pWidget.add(new HTML("&nbsp;&#187;&nbsp;"));
+        pWidget.add(new HTML("&nbsp;&#187;&nbsp;"));//$NON-NLS-1$
 
         initWidget(pWidget);
     }

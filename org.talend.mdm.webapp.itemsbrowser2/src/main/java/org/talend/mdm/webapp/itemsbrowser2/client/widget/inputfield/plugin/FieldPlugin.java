@@ -40,11 +40,11 @@ public class FieldPlugin implements ComponentPlugin {
                 remove.render(field.el().getParent().dom);
                 
                 add.setHideMode(HideMode.VISIBILITY);
-                add.setStyleAttribute("display", "block");
+                add.setStyleAttribute("display", "block");//$NON-NLS-1$ //$NON-NLS-2$
                 add.el().makePositionable(true);
                 
                 remove.setHideMode(HideMode.VISIBILITY);
-                remove.setStyleAttribute("display", "block");
+                remove.setStyleAttribute("display", "block");//$NON-NLS-1$ //$NON-NLS-2$
                 remove.el().makePositionable(true);
                 
                 
@@ -61,8 +61,8 @@ public class FieldPlugin implements ComponentPlugin {
         if (!validated){
             space = 18;
         }
-        add.el().alignTo(field.getElement(), "tl-tr", new int[] {space + 2, 3});
-        remove.el().alignTo(field.getElement(), "tl-tr", new int[] {space + 18, 3});
+        add.el().alignTo(field.getElement(), "tl-tr", new int[] {space + 2, 3});//$NON-NLS-1$ 
+        remove.el().alignTo(field.getElement(), "tl-tr", new int[] {space + 18, 3});//$NON-NLS-1$
     }
     
     private void initEvent(){

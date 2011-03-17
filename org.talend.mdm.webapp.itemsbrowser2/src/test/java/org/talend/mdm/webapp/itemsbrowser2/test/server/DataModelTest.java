@@ -43,8 +43,8 @@ public class DataModelTest extends TestCase{
     
     public void testParseSchema() throws Exception {
 
-        String xsd = getXsdInput("Product.xsd");
-        String concept = "Product";
+        String xsd = getXsdInput("Product.xsd");//$NON-NLS-1$
+        String concept = "Product";//$NON-NLS-1$
         
         XSOMParser reader = new XSOMParser();
         reader.setAnnotationParser(new DomAnnotationParserFactory());
@@ -62,8 +62,8 @@ public class DataModelTest extends TestCase{
         
         //check result
         Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
-        TypeModel typeModel=metaDataTypes.get("Product/Family");
-        assertEquals("ProductFamily/Id", typeModel.getForeignkey());
+        TypeModel typeModel=metaDataTypes.get("Product/Family");//$NON-NLS-1$
+        assertEquals("ProductFamily/Id", typeModel.getForeignkey());//$NON-NLS-1$
     }
     
     private String getXsdInput(String file) throws IOException {

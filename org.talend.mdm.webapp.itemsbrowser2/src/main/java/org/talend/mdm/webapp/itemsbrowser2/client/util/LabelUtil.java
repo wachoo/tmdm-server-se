@@ -18,9 +18,9 @@ package org.talend.mdm.webapp.itemsbrowser2.client.util;
  */
 public class LabelUtil {
 
-    private static final String RESERVED_WORD_START_FLAG = "{";
+    private static final String RESERVED_WORD_START_FLAG = "{";//$NON-NLS-1$
 
-    private static final String RESERVED_WORD_END_FLAG = "}";
+    private static final String RESERVED_WORD_END_FLAG = "}";//$NON-NLS-1$
 
     /**
      * DOC HSHU Comment method "isDynamicLabel".

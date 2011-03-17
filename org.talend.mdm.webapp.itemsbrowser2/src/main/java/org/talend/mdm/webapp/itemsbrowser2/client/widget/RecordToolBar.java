@@ -48,11 +48,11 @@ public class RecordToolBar extends ToolBar {
     }
 
     public void updateToolBar() {
-        if (instance.getItemByItemId("delete_Record") == null) {
+        if (instance.getItemByItemId("delete_Record") == null) {//$NON-NLS-1$
             add(new SeparatorToolItem());
 
             Button menu = new Button(MessagesFactory.getMessages().delete_btn());
-            menu.setId("delete_Record");
+            menu.setId("delete_Record");//$NON-NLS-1$
             menu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
             Menu sub = new Menu();
             MenuItem delMenu = new MenuItem(MessagesFactory.getMessages().delete_btn());
@@ -145,7 +145,7 @@ public class RecordToolBar extends ToolBar {
                 public void componentSelected(ButtonEvent ce) {
                     final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
                     ItemBean item = parent.getItemBean();
-                    ItemBean dupItem = new ItemBean(item.getConcept(), "", null);
+                    ItemBean dupItem = new ItemBean(item.getConcept(), "", null);//$NON-NLS-1$
                     Map<String, Object> properties = new LinkedHashMap<String, Object>();
                     EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().getCurrentEntityModel();
                     boolean ifKey = false;
@@ -153,7 +153,7 @@ public class RecordToolBar extends ToolBar {
                         ifKey = false;
                         for (String subkey : entityModel.getKeys()) {
                             if (subkey.equals(key)) {
-                                properties.put(key, "");
+                                properties.put(key, "");//$NON-NLS-1$
                                 ifKey = true;
                                 break;
                             }
@@ -289,8 +289,8 @@ public class RecordToolBar extends ToolBar {
     }
 
     private native void InvokeJournal(String ids, String concept)/*-{
-        if(ids.indexOf("@")>0)
-        ids=ids.replaceAll("@",".");       
+        if(ids.indexOf("@")>0)//$NON-NLS-1$
+        ids=ids.replaceAll("@",".");//$NON-NLS-1$       
         $wnd.amalto.updatereport.UpdateReport.browseUpdateReportWithSearchCriteria(concept, ids, true);
     }-*/;
 

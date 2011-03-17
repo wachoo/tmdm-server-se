@@ -47,7 +47,7 @@ public class UrlField extends Field<String> {
 
     public UrlField() {
         setFireChangeEventOnSetValue(true);
-        editWin.setHeading("Edit Url");
+        editWin.setHeading("Edit Url");//$NON-NLS-1$
         editWin.setSize(600, 150);
         regJs(handler);
         propertyEditor = new PropertyEditor<String>() {
@@ -71,7 +71,7 @@ public class UrlField extends Field<String> {
         input.setId(XDOM.getUniqueId());
         input.makePositionable();
 
-        input.dom.setAttribute("target", "_blank");
+        input.dom.setAttribute("target", "_blank");//$NON-NLS-1$ //$NON-NLS-2$
         input.dom.getStyle().setMarginRight(5, Unit.PX);
         wrap.dom.appendChild(input.dom);
         wrap.dom.appendChild(handler);
@@ -96,7 +96,7 @@ public class UrlField extends Field<String> {
     public void setValue(String value) {
         super.setValue(value);
         if (value != null){
-            String[] addr = value.split("@@");
+            String[] addr = value.split("@@");//$NON-NLS-1$
             if (addr.length == 2){
                 input.dom.setInnerText(addr[0]);
                 input.dom.setAttribute("href", addr[1]);
@@ -111,7 +111,7 @@ public class UrlField extends Field<String> {
             public void componentSelected(ButtonEvent ce) {
                 Button button = ce.getButton();
                 if (button == saveButton) {
-                    String value = firstName.getValue() + "@@" + url.getValue();
+                    String value = firstName.getValue() + "@@" + url.getValue();//$NON-NLS-1$
                     UrlField.this.setValue(value);
                     UrlField.this.editWin.hide();
                 } else {
@@ -124,21 +124,21 @@ public class UrlField extends Field<String> {
 
         TextField<String> url = new TextField<String>();
 
-        Button saveButton = new Button("Save", listener);
+        Button saveButton = new Button("Save", listener);//$NON-NLS-1$
 
-        Button cancelButton = new Button("Cancel", listener);
+        Button cancelButton = new Button("Cancel", listener);//$NON-NLS-1$
 
         public EditWindow() {
             super();
             this.setLayout(new FitLayout());
-            FormData formData = new FormData("-10");
+            FormData formData = new FormData("-10");//$NON-NLS-1$
             FormPanel editForm = new FormPanel();
             editForm.setHeaderVisible(false);
             editForm.setBodyBorder(false);
-            firstName.setFieldLabel("Name");
+            firstName.setFieldLabel("Name");//$NON-NLS-1$
             firstName.setAllowBlank(false);
             editForm.add(firstName, formData);
-            url.setFieldLabel("Url");
+            url.setFieldLabel("Url");//$NON-NLS-1$
             url.setAllowBlank(false);
             editForm.add(url, formData);
 
@@ -151,7 +151,7 @@ public class UrlField extends Field<String> {
 
         public void setValue(String value) {
             if (value != null){
-                String[] addr = value.split("@@");
+                String[] addr = value.split("@@");//$NON-NLS-1$
                 if (addr.length == 2){
                     firstName.setValue(addr[0]);
                     url.setValue(addr[1]);

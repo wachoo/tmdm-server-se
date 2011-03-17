@@ -226,49 +226,49 @@ public class DataModelHelper {
             ArrayList<String> fkInfoList = new ArrayList<String>();
             for (int k = 0; k < annotList.getLength(); k++) {
                 if ("appinfo".equals(annotList.item(k).getLocalName())) {
-                    Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source");//$NON-NLS-1$
                     if (source == null)
                         continue;
                     String appinfoSource = source.getNodeValue();
                     if (annotList.item(k) != null && annotList.item(k).getFirstChild() != null) {
                         String appinfoSourceValue = annotList.item(k).getFirstChild().getNodeValue();
-                        if (appinfoSource.contains("X_Label")) {
+                        if (appinfoSource.contains("X_Label")) {//$NON-NLS-1$
                             typeModel.addLabel(getLangFromLabelAnnotation(appinfoSource), appinfoSourceValue);
-                        } else if (appinfoSource.contains("X_Description")) {
+                        } else if (appinfoSource.contains("X_Description")) {//$NON-NLS-1$
                             String description = appinfoSourceValue;
                             String encodedDESP = description != null ? StringEscapeUtils.escapeHtml(description): "";//Do we need escape?
                             typeModel.addDescription(getLangFromDescAnnotation(appinfoSource), encodedDESP);
-                        } else if ("X_Write".equals(appinfoSource)) {
+                        } else if ("X_Write".equals(appinfoSource)) {//$NON-NLS-1$
                             if (roles.contains(appinfoSourceValue)) {
                                 typeModel.setReadOnly(false);
                             }
-                        } else if ("X_Hide".equals(appinfoSource)) {
+                        } else if ("X_Hide".equals(appinfoSource)) {//$NON-NLS-1$
                             if (roles.contains(appinfoSourceValue)) {
                                 typeModel.setVisible(false);
                             }
-                        } else if ("X_ForeignKey".equals(appinfoSource)) {
+                        } else if ("X_ForeignKey".equals(appinfoSource)) {//$NON-NLS-1$
                             typeModel.setForeignkey(appinfoSourceValue);
-                        } else if ("X_Retrieve_FKinfos".equals(appinfoSource)) {
+                        } else if ("X_Retrieve_FKinfos".equals(appinfoSource)) {//$NON-NLS-1$
                             typeModel.setRetrieveFKinfos("true".equals(appinfoSourceValue));
-                        } else if ("X_ForeignKeyInfo".equals(appinfoSource)) {
+                        } else if ("X_ForeignKeyInfo".equals(appinfoSource)) {//$NON-NLS-1$
                             fkInfoList.add(appinfoSourceValue);
-                        } else if ("X_ForeignKey_Filter".equals(appinfoSource)) {
+                        } else if ("X_ForeignKey_Filter".equals(appinfoSource)) {//$NON-NLS-1$
                             typeModel.setFkFilter(appinfoSourceValue);
-                        } else if ("X_PrimaryKeyInfo".equals(appinfoSource)) {
+                        } else if ("X_PrimaryKeyInfo".equals(appinfoSource)) {//$NON-NLS-1$
                             pkInfoList.add(appinfoSourceValue);
-                        } else if (appinfoSource.indexOf("X_Facet_") != -1) {
+                        } else if (appinfoSource.indexOf("X_Facet_") != -1) {//$NON-NLS-1$
                             typeModel.addFacetErrorMsg(getLangFromFacetAnnotation(appinfoSource), appinfoSourceValue);
-                        } else if (appinfoSource.indexOf("X_Display_Format_") != -1) {
+                        } else if (appinfoSource.indexOf("X_Display_Format_") != -1) {//$NON-NLS-1$
                             typeModel.addDisplayFomat(getLangFromDisplayAnnotation(appinfoSource), appinfoSourceValue);
-                        } else if ("X_Deny_Create".equals(appinfoSource)) {
+                        } else if ("X_Deny_Create".equals(appinfoSource)) {//$NON-NLS-1$
                             if (roles.contains(appinfoSourceValue)) {
                                 typeModel.setDenyCreatable(true);
                             }
-                        } else if ("X_Deny_LogicalDelete".equals(appinfoSource)) {
+                        } else if ("X_Deny_LogicalDelete".equals(appinfoSource)) {//$NON-NLS-1$
                             if (roles.contains(appinfoSourceValue)) {
                                 typeModel.setDenyLogicalDeletable(true);
                             }
-                        } else if ("X_Deny_PhysicalDelete".equals(appinfoSource)) {
+                        } else if ("X_Deny_PhysicalDelete".equals(appinfoSource)) {//$NON-NLS-1$
                             if (roles.contains(appinfoSourceValue)) {
                                 typeModel.setDenyPhysicalDeleteable(true);
                             }
@@ -288,31 +288,31 @@ public class DataModelHelper {
      * DOC HSHU Comment method "getLangFromLabelAnnotation".
      */
     private static String getLangFromLabelAnnotation(String label) {
-        String format="X_Label_(.+)";
+        String format="X_Label_(.+)";//$NON-NLS-1$
         String lang = getLangFromAnnotation(label, format);
         return lang;
     }
     
     private static String getLangFromDescAnnotation(String label) {
-        String format="X_Description_(.+)";
+        String format="X_Description_(.+)";//$NON-NLS-1$
         String lang = getLangFromAnnotation(label, format);
         return lang;
     }
     
     private static String getLangFromFacetAnnotation(String label) {
-        String format="X_Facet_(.+)";
+        String format="X_Facet_(.+)";//$NON-NLS-1$
         String lang = getLangFromAnnotation(label, format);
         return lang;
     }
     
     private static String getLangFromDisplayAnnotation(String label) {
-        String format="X_Display_(.+)";
+        String format="X_Display_(.+)";//$NON-NLS-1$
         String lang = getLangFromAnnotation(label, format);
         return lang;
     }
 
     private static String getLangFromAnnotation(String label, String format) {
-        String lang="EN";
+        String lang="EN";//$NON-NLS-1$
         Pattern p = Pattern.compile(format);
         Matcher matcher = p.matcher(label);
         while(matcher.find()){

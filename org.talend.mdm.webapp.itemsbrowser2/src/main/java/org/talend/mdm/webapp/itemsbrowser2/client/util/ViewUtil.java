@@ -21,8 +21,8 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 public class ViewUtil {
     
     public static String getConceptFromBrowseItemView(String viewPK) {
-        String concept = viewPK.replaceAll("Browse_items_", "");
-        concept = concept.replaceAll("#.*", "");
+        String concept = viewPK.replaceAll("Browse_items_", "");//$NON-NLS-1$ //$NON-NLS-2$
+        concept = concept.replaceAll("#.*", "");//$NON-NLS-1$ //$NON-NLS-2$
         return concept;
     }
     

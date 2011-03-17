@@ -80,9 +80,9 @@ public class XmlHelper {
     public static String getTextValueFromXpath(Document doc, String xpath) {
 
         // FIXME
-        String label = "";
-        if (xpath.indexOf("/") != -1)
-            label = xpath.substring(xpath.lastIndexOf("/") + 1);
+        String label = "";//$NON-NLS-1$
+        if (xpath.indexOf("/") != -1)//$NON-NLS-1$
+            label = xpath.substring(xpath.lastIndexOf("/") + 1);//$NON-NLS-1$
         Element elem = doc.getDocumentElement();
         NodeList nodelist = elem.getChildNodes();
         for (int i = 0; i < nodelist.getLength(); i++) {

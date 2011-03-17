@@ -88,7 +88,7 @@ public class AdvancedSearchPanel extends FormPanel {
             if (condition.indexOf(ge) > -1) {
                 Date d = new Date();
                 int index = condition.indexOf(ge) + ge.length() + 1;
-                if (condition.indexOf(" ", index) == -1)
+                if (condition.indexOf(" ", index) == -1)//$NON-NLS-1$
                     d.setTime(Long.valueOf(condition.substring(index)));
                 else
                     d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(" ", index)))); //$NON-NLS-1$
@@ -114,7 +114,7 @@ public class AdvancedSearchPanel extends FormPanel {
 
     public String RemoveUnsafeCriteria() {
         String curCriteria = getCriteria();
-        return curCriteria.replaceAll("[\\s]+) OR ([\\s]+", " OR ").replaceAll("[\\s]+) AND ([\\s]+", " AND ");
+        return curCriteria.replaceAll("[\\s]+) OR ([\\s]+", " OR ").replaceAll("[\\s]+) AND ([\\s]+", " AND ");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     public String getCriteria() {

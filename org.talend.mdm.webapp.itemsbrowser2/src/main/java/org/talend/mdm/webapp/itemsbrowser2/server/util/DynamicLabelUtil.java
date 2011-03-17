@@ -27,11 +27,11 @@ import com.amalto.webapp.core.util.XmlUtil;
  */
 public class DynamicLabelUtil extends XmlUtil{
     
-    private static final Pattern MULTI_OCCURRENCE_PATTERN = Pattern.compile("(.+)\\[(\\d+)\\]$");
+    private static final Pattern MULTI_OCCURRENCE_PATTERN = Pattern.compile("(.+)\\[(\\d+)\\]$");//$NON-NLS-1$
 
-    private static final String RESERVED_WORD_START_FLAG = "{";
+    private static final String RESERVED_WORD_START_FLAG = "{";//$NON-NLS-1$
 
-    private static final String RESERVED_WORD_END_FLAG = "}";
+    private static final String RESERVED_WORD_END_FLAG = "}";//$NON-NLS-1$
 
 
     /**
@@ -50,20 +50,20 @@ public class DynamicLabelUtil extends XmlUtil{
      */
     public static String genStyle(String currentXpath, String dynamicLabel) {
         // parse currentXpath
-        if (currentXpath.startsWith("/"))
+        if (currentXpath.startsWith("/"))//$NON-NLS-1$
             currentXpath = currentXpath.substring(1);
         // Parse dynamic label
         dynamicLabel = parseDynamicLabel(dynamicLabel);
 
         StringBuffer sb = new StringBuffer();
-        sb.append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">");
-        sb.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>");
-        sb.append("<xsl:template match=\"/\">");
-        sb.append("<result-lable>");
+        sb.append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">");//$NON-NLS-1$
+        sb.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>");//$NON-NLS-1$
+        sb.append("<xsl:template match=\"/\">");//$NON-NLS-1$
+        sb.append("<result-lable>");//$NON-NLS-1$
         genForEachLoop(currentXpath, dynamicLabel, sb);
-        sb.append("</result-lable>");
-        sb.append("</xsl:template>");
-        sb.append("</xsl:stylesheet>");
+        sb.append("</result-lable>");//$NON-NLS-1$
+        sb.append("</xsl:template>");//$NON-NLS-1$
+        sb.append("</xsl:stylesheet>");//$NON-NLS-1$
 
         return sb.toString();
 
@@ -76,7 +76,7 @@ public class DynamicLabelUtil extends XmlUtil{
      */
     private static String parseDynamicLabel(String dynamicLabel) {
         
-        if(dynamicLabel == null)return "";
+        if(dynamicLabel == null)return "";//$NON-NLS-1$
         //dynamicLabel = dynamicLabel.replace(RESERVED_WORD_START_FLAG, "<xsl:value-of select=\"");
         //dynamicLabel = dynamicLabel.replace(RESERVED_WORD_END_FLAG, "\"/>");
 
@@ -89,11 +89,11 @@ public class DynamicLabelUtil extends XmlUtil{
             int pos2=leftPart.indexOf(RESERVED_WORD_END_FLAG);
             if(pos2==-1)break;//incomplete
             String middlePart=leftPart.substring(0,pos2);
-            middlePart=middlePart.replace("\"", "'");//filter inner content
+            middlePart=middlePart.replace("\"", "'");//filter inner content //$NON-NLS-1$ //$NON-NLS-2$
             
             String lastPart=leftPart.substring(pos2+1);
             
-            dynamicLabel=firstPart+"<xsl:value-of select=\""+middlePart+"\"/>"+lastPart;
+            dynamicLabel=firstPart+"<xsl:value-of select=\""+middlePart+"\"/>"+lastPart; //$NON-NLS-1$ //$NON-NLS-2$
             
         }
         
@@ -112,8 +112,8 @@ public class DynamicLabelUtil extends XmlUtil{
         List<String> startTagList=new ArrayList<String>();
         List<String> endTagList=new ArrayList<String>();
         
-        String pathSnatch="";
-        String[] paths=currentXpath.split("/");
+        String pathSnatch="";//$NON-NLS-1$
+        String[] paths=currentXpath.split("/");//$NON-NLS-1$
         
         boolean reachTheEnd=false;
         boolean writeForEachLine=false;
@@ -141,7 +141,7 @@ public class DynamicLabelUtil extends XmlUtil{
                 isMultiOccurrence=false;
             }
             
-            if(pathSnatch.length()>0)pathSnatch+="/"+path;
+            if(pathSnatch.length()>0)pathSnatch+="/"+path;//$NON-NLS-1$
             else pathSnatch+=path;
                 
             if(isMultiOccurrence||reachTheEnd)writeForEachLine=true;
@@ -149,17 +149,17 @@ public class DynamicLabelUtil extends XmlUtil{
             
             if(writeForEachLine) {
                 
-                startTagList.add("<xsl:for-each select=\""+pathSnatch+"\">");
-                endTagList.add("</xsl:for-each>");
+                startTagList.add("<xsl:for-each select=\""+pathSnatch+"\">");//$NON-NLS-1$ //$NON-NLS-2$
+                endTagList.add("</xsl:for-each>");//$NON-NLS-1$ 
                 
                 if(isMultiOccurrence&&occNum.length()>0) {
                     //writeIfLine
-                    startTagList.add("<xsl:if test=\"position()="+occNum+"\">");
-                    endTagList.add("</xsl:if>");  
+                    startTagList.add("<xsl:if test=\"position()="+occNum+"\">");//$NON-NLS-1$ //$NON-NLS-2$
+                    endTagList.add("</xsl:if>");//$NON-NLS-1$
                 }
                 
                 //reset pathSnatch
-                pathSnatch="";
+                pathSnatch="";//$NON-NLS-1$
             }
             
         }
@@ -179,7 +179,7 @@ public class DynamicLabelUtil extends XmlUtil{
      */
     public static String getParsedLabel(Document transformedDoc) {
         if(transformedDoc==null)return null;
-        Node node = transformedDoc.selectSingleNode("/result-lable");
+        Node node = transformedDoc.selectSingleNode("/result-lable");//$NON-NLS-1$
         return node == null ? null : node.getText();
     }
 

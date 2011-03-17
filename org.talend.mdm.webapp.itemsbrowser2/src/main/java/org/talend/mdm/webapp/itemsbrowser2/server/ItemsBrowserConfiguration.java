@@ -50,7 +50,7 @@ public class ItemsBrowserConfiguration {
             properties = getProperties();
             value = properties.getProperty(strKey);
         } catch (IOException e) {
-            logger.error("Error happened when you loading properties! ", e);
+            logger.error("Error happened when you loading properties! ", e);//$NON-NLS-1$
         }
 
         return value;

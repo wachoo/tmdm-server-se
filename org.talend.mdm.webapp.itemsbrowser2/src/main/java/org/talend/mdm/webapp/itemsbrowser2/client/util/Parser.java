@@ -27,9 +27,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class Parser implements Serializable, IsSerializable {
 
-    public static final char BEGIN_BLOCK = '(';
+    public static final char BEGIN_BLOCK = '(';//$NON-NLS-1$
 
-    public static final char END_BLOCK = ')';
+    public static final char END_BLOCK = ')';//$NON-NLS-1$
 
     public static Criteria parse(String input) throws ParserException {
         checkBlocks(input);
@@ -39,7 +39,7 @@ public class Parser implements Serializable, IsSerializable {
     protected static Criteria parse(String input, int beginIndex, int endIndex) throws ParserException {
         char firstChar = input.charAt(beginIndex);
         if (firstChar == ' ') {
-            throw new ParserException("Illegal ' '" + " at position " + beginIndex);
+            throw new ParserException("Illegal ' '" + " at position " + beginIndex);//$NON-NLS-1$ //$NON-NLS-2$
         } else if (firstChar == BEGIN_BLOCK) {
             return parseGroupFilter(input, beginIndex, endIndex);
         } else {
@@ -72,7 +72,7 @@ public class Parser implements Serializable, IsSerializable {
                 int refProf = -1;
                 for (String current : OperatorConstants.groupOperators) {
                     final int fromIndex = endBlockIndex - 1;
-                    final String searched = END_BLOCK + " " + current + " " + BEGIN_BLOCK;
+                    final String searched = END_BLOCK + " " + current + " " + BEGIN_BLOCK;//$NON-NLS-1$ //$NON-NLS-2$
                     int indexOf = input.indexOf(searched, fromIndex);
                     if (indexOf >= beginIndex && indexOf <= endIndex) {
                         int foundProf = count(input.substring(beginIndex, indexOf), '(');
@@ -113,7 +113,7 @@ public class Parser implements Serializable, IsSerializable {
             final SimpleCriterion simpleCriterion = new SimpleCriterion(split[0].trim(), realOp, split[1].trim());
             return simpleCriterion;
         }
-        throw new ParserException("Cannot find correct operator in " + value);
+        throw new ParserException("Cannot find correct operator in " + value);//$NON-NLS-1$
     }
 
     private static String getOperator(String value) {
@@ -169,7 +169,7 @@ public class Parser implements Serializable, IsSerializable {
                 return i;
             }
         }
-        throw new ParserException("Cannot find closing " + END_BLOCK + " at position " + i);
+        throw new ParserException("Cannot find closing " + END_BLOCK + " at position " + i);//$NON-NLS-1$ //$NON-NLS-2$
     }
 
     protected static void checkBlocks(String input) throws ParserException {
@@ -183,14 +183,14 @@ public class Parser implements Serializable, IsSerializable {
                 level--;
             }
             if (level < 0) {
-                throw new ParserException("to many " + END_BLOCK + " at position " + i);
+                throw new ParserException("to many " + END_BLOCK + " at position " + i);//$NON-NLS-1$ //$NON-NLS-2$
             }
         }
         if (level < 0) {
-            throw new ParserException("to many " + END_BLOCK + " at position " + i);
+            throw new ParserException("to many " + END_BLOCK + " at position " + i);//$NON-NLS-1$ //$NON-NLS-2$
         }
         if (level > 0) {
-            throw new ParserException("to many " + BEGIN_BLOCK + " at position " + i);
+            throw new ParserException("to many " + BEGIN_BLOCK + " at position " + i);//$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 }

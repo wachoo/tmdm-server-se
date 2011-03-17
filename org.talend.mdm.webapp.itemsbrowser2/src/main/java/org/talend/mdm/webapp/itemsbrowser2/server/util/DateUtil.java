@@ -31,9 +31,9 @@ public final class DateUtil {
 
     private static final Logger log = Logger.getLogger(ItemsBrowser2DWR.class);
 
-    private static String datePattern = "yyyy-MM-dd";
+    private static String datePattern = "yyyy-MM-dd";//$NON-NLS-1$
 
-    private static String timePattern = "HH:mm";
+    private static String timePattern = "HH:mm";//$NON-NLS-1$
 
     /**
      * Return default date format (yyyy/MM/dd)
@@ -73,7 +73,7 @@ public final class DateUtil {
      */
     public static final Date convertStringToDate(String aMask, String strDate)  {
         if (log.isDebugEnabled()) {
-            log.debug("converting '" + strDate + "' to date with mask '" + aMask + "'");
+            log.debug("converting '" + strDate + "' to date with mask '" + aMask + "'");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
         Date date = null;
         try {
@@ -127,10 +127,10 @@ public final class DateUtil {
      */
     public static final String getDateTime(String aMask, Date aDate) {
         SimpleDateFormat df = null;
-        String returnValue = "";
+        String returnValue = "";//$NON-NLS-1$
 
         if (aDate == null) {
-            log.error("aDate is null!");
+            log.error("aDate is null!");//$NON-NLS-1$
         } else {
             df = new SimpleDateFormat(aMask);
             returnValue = df.format(aDate);
@@ -177,7 +177,7 @@ public final class DateUtil {
             num = num - 1;
         }
 
-        return num + "";
+        return num + "";//$NON-NLS-1$
 
     }
 

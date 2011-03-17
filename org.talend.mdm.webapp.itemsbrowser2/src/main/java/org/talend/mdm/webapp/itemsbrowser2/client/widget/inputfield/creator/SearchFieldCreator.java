@@ -93,23 +93,23 @@ public class SearchFieldCreator {
                     || typeModel.getType().getBaseTypeName().equals(DataTypeConstants.PICTURE.getBaseTypeName())
                     || typeModel.getType().getBaseTypeName().equals(DataTypeConstants.URL.getBaseTypeName())) {
                 TextField<String> textField = new TextField<String>();
-                textField.setValue("*");
+                textField.setValue("*");//$NON-NLS-1$
                 field = textField;
                 cons = OperatorConstants.fullOperators;
             } else {
                 TextField<String> textField = new TextField<String>();
-                textField.setValue("*");
+                textField.setValue("*");//$NON-NLS-1$
                 field = textField;
                 cons = OperatorConstants.fullOperators;
             }
         } else if (typeModel instanceof ComplexTypeModel) {
             TextField<String> textField = new TextField<String>();
-            textField.setValue("*");
+            textField.setValue("*");//$NON-NLS-1$
             field = textField;
             cons = OperatorConstants.fulltextOperators;
         } else {
             TextField<String> textField = new TextField<String>();
-            textField.setValue("*");
+            textField.setValue("*");//$NON-NLS-1$
             field = textField;
             cons = OperatorConstants.fullOperators;
         }

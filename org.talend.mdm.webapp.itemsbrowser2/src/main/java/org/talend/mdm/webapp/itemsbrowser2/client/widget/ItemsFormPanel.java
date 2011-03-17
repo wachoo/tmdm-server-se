@@ -122,11 +122,11 @@ public class ItemsFormPanel extends Composite {
 
             if (value instanceof List) {
                 String key = field.getName();
-                String parentPath = key.substring(0, key.lastIndexOf('/'));
-                String elName = key.substring(key.lastIndexOf('/') + 1);
+                String parentPath = key.substring(0, key.lastIndexOf('/'));//$NON-NLS-1$
+                String elName = key.substring(key.lastIndexOf('/') + 1);//$NON-NLS-1$
                 createElements(parentPath, elName, (List) value, elementSet, doc);
             } else {
-                createElements(field.getName(), value == null ? "" : value.toString(), elementSet, doc);
+                createElements(field.getName(), value == null ? "" : value.toString(), elementSet, doc);//$NON-NLS-1$
             }
         }
         Element el = elementSet.get(concept);
@@ -173,7 +173,7 @@ public class ItemsFormPanel extends Composite {
 
     public void createElements(String xpath, String elName, List value, Map<String, Element> elementSet, Document doc) {
         Element parent = null;
-        String[] xps = xpath.split("/");
+        String[] xps = xpath.split("/");//$NON-NLS-1$
         StringBuffer sb = new StringBuffer();
         boolean isFirst = true;
         for (String xp : xps) {
@@ -181,7 +181,7 @@ public class ItemsFormPanel extends Composite {
                 sb.append(xp);
                 isFirst = false;
             } else {
-                sb.append("/" + xp);
+                sb.append("/" + xp);//$NON-NLS-1$
             }
             Element tempEl = elementSet.get(sb.toString());
             if (tempEl == null) {

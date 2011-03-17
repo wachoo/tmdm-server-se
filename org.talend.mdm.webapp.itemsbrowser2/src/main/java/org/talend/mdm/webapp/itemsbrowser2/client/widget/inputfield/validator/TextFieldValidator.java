@@ -21,35 +21,35 @@ public class TextFieldValidator implements Validator {
     private TextFieldValidator(){}
     
     public String validate(Field<?> field, String value) {
-        String defaultMessage = "";
+        String defaultMessage = "";//$NON-NLS-1$
         boolean succeed = true;
         String length = field.getData(FacetEnum.LENGTH.getFacetName());
-        if (length != null && !length.equals("")) {
+        if (length != null && !length.equals("")) {//$NON-NLS-1$
             if (value.length() != Integer.parseInt(length)){
                 succeed = false;
-                defaultMessage += MessagesFactory.getMessages().check_length() + length + "\n";
+                defaultMessage += MessagesFactory.getMessages().check_length() + length + "\n";//$NON-NLS-1$
             }
         }
         
         String minLength = field.getData(FacetEnum.MIN_LENGTH.getFacetName());
-        if (minLength != null && !minLength.equals("")) {
+        if (minLength != null && !minLength.equals("")) {//$NON-NLS-1$
             if (value.length() < Integer.parseInt(minLength)){
                 succeed = false;
-                defaultMessage += MessagesFactory.getMessages().check_minLength() + minLength + "\n";
+                defaultMessage += MessagesFactory.getMessages().check_minLength() + minLength + "\n";//$NON-NLS-1$
             }
         }
         
         String maxLength = field.getData(FacetEnum.MAX_LENGTH.getFacetName());
-        if (maxLength != null && !maxLength.equals("")) {
+        if (maxLength != null && !maxLength.equals("")) {//$NON-NLS-1$
             if (value.length() > Integer.parseInt(maxLength)){
                 succeed = false;
-                defaultMessage += MessagesFactory.getMessages().check_maxLength() + maxLength + "\n";
+                defaultMessage += MessagesFactory.getMessages().check_maxLength() + maxLength + "\n";//$NON-NLS-1$
             }
         }
         
         if (!succeed){
-            String error = field.getData("facetErrorMsgs");
-            if (error == null || error.equals("")){
+            String error = field.getData("facetErrorMsgs");//$NON-NLS-1$
+            if (error == null || error.equals("")){//$NON-NLS-1$
                 return defaultMessage;
             } 
             return error;

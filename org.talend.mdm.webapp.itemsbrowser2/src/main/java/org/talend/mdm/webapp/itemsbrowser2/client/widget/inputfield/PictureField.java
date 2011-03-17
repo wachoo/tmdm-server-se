@@ -71,7 +71,7 @@ public class PictureField extends Field<String> {
             super.onButtonPressed(button);
             if (button == getButtonBar().getItemByItemId(YES)) {
                 
-                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.GET, "/imageserver/secure/ImageDeleteServlet?uri=" + value);
+                RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.GET, "/imageserver/secure/ImageDeleteServlet?uri=" + value);//$NON-NLS-1$
 
                 reqBuilder.setCallback(new RequestCallback() {
 
@@ -81,7 +81,7 @@ public class PictureField extends Field<String> {
                         JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
                         JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
                         boolean succeed = success.booleanValue();
-                        MessageBox.alert(succeed ? "Success" : "Failed", message.stringValue(), null);
+                        MessageBox.alert(succeed ? "Success" : "Failed", message.stringValue(), null);//$NON-NLS-1$ //$NON-NLS-2$
                         if (succeed) {
                             setValue(null);
                         }
@@ -89,13 +89,13 @@ public class PictureField extends Field<String> {
                     }
 
                     public void onError(Request request, Throwable exception) {
-                        MessageBox.alert("Error", exception.getMessage(), null);
+                        MessageBox.alert("Error", exception.getMessage(), null);//$NON-NLS-1$
                     }
                 });
                 try {
                     reqBuilder.send();
                 } catch (RequestException e) {
-                    MessageBox.alert("RequestException", e.getMessage(), null);
+                    MessageBox.alert("RequestException", e.getMessage(), null);//$NON-NLS-1$
                 }
 
             } else if (button == getButtonBar().getItemByItemId(NO)) {
@@ -109,7 +109,7 @@ public class PictureField extends Field<String> {
         regJs(delHandler);
         regJs(addHandler);
 
-        dialog.setHeading("Confirm");
+        dialog.setHeading("Confirm");//$NON-NLS-1$
         dialog.setModal(true);
         dialog.setBlinkModal(true);
         dialog.setButtons(Dialog.YESNO);
@@ -161,7 +161,7 @@ public class PictureField extends Field<String> {
         this.value = value;
 
         if (value != null && value.length() != 0) { //$NON-NLS-1$
-            image.setUrl("/imageserver/" + value);
+            image.setUrl("/imageserver/" + value);//$NON-NLS-1$
         } else {
             image.setUrl(DefaultImage);
         }
@@ -192,14 +192,14 @@ public class PictureField extends Field<String> {
             }
         };
 
-        private Button uploadButton = new Button("Upload", listener);
+        private Button uploadButton = new Button("Upload", listener);//$NON-NLS-1$
 
-        private Button resetButton = new Button("Reset", listener);
+        private Button resetButton = new Button("Reset", listener);//$NON-NLS-1$
 
         public EditWindow() {
             super();
             this.setLayout(new FitLayout());
-            this.setHeading("Upload Picture");
+            this.setHeading("Upload Picture");//$NON-NLS-1$
             this.setSize(380, 150);
             this.setModal(true);
             this.setBlinkModal(true);
@@ -211,8 +211,8 @@ public class PictureField extends Field<String> {
             editForm.setBodyBorder(false);
 
             file.setAllowBlank(false);
-            file.setName("imageFile");
-            file.setFieldLabel("File Name");
+            file.setName("imageFile");//$NON-NLS-1$
+            file.setFieldLabel("File Name");//$NON-NLS-1$
 
             editForm.add(file, formData);
             editForm.addListener(Events.Submit, new Listener<FormEvent>() {

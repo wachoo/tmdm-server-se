@@ -83,7 +83,7 @@ public class SpinnerField extends NumberField {
 
     protected El spinner_down;
 
-    protected String triggerStyle = "x-form-spinner-arrow";
+    protected String triggerStyle = "x-form-spinner-arrow";//$NON-NLS-1$
 
     protected boolean mimicing;
 
@@ -212,9 +212,9 @@ public class SpinnerField extends NumberField {
         if (rendered) {
             El fromEl = getInputEl();
             if (!readOnly) {
-                fromEl.dom.setPropertyBoolean("readOnly", !editable);
+                fromEl.dom.setPropertyBoolean("readOnly", !editable);//$NON-NLS-1$
             }
-            fromEl.setStyleName("x-triggerfield-noedit", !editable);
+            fromEl.setStyleName("x-triggerfield-noedit", !editable);//$NON-NLS-1$
         }
     }
 
@@ -246,7 +246,7 @@ public class SpinnerField extends NumberField {
         if (rendered) {
             el().setStyleName(readOnlyFieldStyle, readOnly);
             if (editable || (readOnly && !editable)) {
-                getInputEl().dom.setPropertyBoolean("readOnly", readOnly);
+                getInputEl().dom.setPropertyBoolean("readOnly", readOnly);//$NON-NLS-1$
             }
         }
     }
@@ -259,7 +259,7 @@ public class SpinnerField extends NumberField {
     @Override
     protected void afterRender() {
         super.afterRender();
-        addStyleOnOver(spinner_up.dom, "x-form-trigger-over");
+        addStyleOnOver(spinner_up.dom, "x-form-trigger-over");//$NON-NLS-1$
         removeStyleName(fieldStyle);
     }
 
@@ -296,20 +296,20 @@ public class SpinnerField extends NumberField {
     @Override
     protected void onDisable() {
         super.onDisable();
-        addStyleName("x-item-disabled");
+        addStyleName("x-item-disabled");//$NON-NLS-1$
     }
 
     @Override
     protected void onEnable() {
         super.onEnable();
-        removeStyleName("x-item-disabled");
+        removeStyleName("x-item-disabled");//$NON-NLS-1$
     }
 
     @Override
     protected void onFocus(ComponentEvent ce) {
         super.onFocus(ce);
         if (!mimicing) {
-            addStyleName("x-spinner-wrap-focus");
+            addStyleName("x-spinner-wrap-focus");//$NON-NLS-1$
             mimicing = true;
             focusEventPreview.add();
         }
@@ -359,16 +359,16 @@ public class SpinnerField extends NumberField {
 
         input = new El(DOM.createInputText());
 
-        addStyleName("x-form-field-wrap");
+        addStyleName("x-form-field-wrap");//$NON-NLS-1$
 
         input.addStyleName(fieldStyle);
 
         spinner_up = new El(DOM.createImg());
-        spinner_up.dom.setClassName("x-form-spinner-up " + triggerStyle);
+        spinner_up.dom.setClassName("x-form-spinner-up " + triggerStyle);//$NON-NLS-1$
         spinner_up.dom.setPropertyString("src", GXT.BLANK_IMAGE_URL);
 
         spinner_down = new El(DOM.createImg());
-        spinner_down.dom.setClassName("x-form-spinner-down " + triggerStyle);
+        spinner_down.dom.setClassName("x-form-spinner-down " + triggerStyle);//$NON-NLS-1$
         spinner_down.dom.setPropertyString("src", GXT.BLANK_IMAGE_URL);
 
         el().appendChild(input.dom);
@@ -406,7 +406,7 @@ public class SpinnerField extends NumberField {
         mimicing = false;
         focusEventPreview.remove();
         beforeBlur();
-        removeStyleName("x-spinner-wrap-focus");
+        removeStyleName("x-spinner-wrap-focus");//$NON-NLS-1$
         super.onBlur(ce);
     }
 
@@ -424,7 +424,7 @@ public class SpinnerField extends NumberField {
 
         private int count = 0;
 
-        @SuppressWarnings("unused")
+        @SuppressWarnings("unused")//$NON-NLS-1$
         public ComponentEvent getComponentEvent() {
             return componentEvent;
         }
@@ -433,7 +433,7 @@ public class SpinnerField extends NumberField {
             this.componentEvent = componentEvent;
         }
 
-        @SuppressWarnings("unused")
+        @SuppressWarnings("unused")//$NON-NLS-1$
         public EventType getEventType() {
             return eventType;
         }
@@ -442,7 +442,7 @@ public class SpinnerField extends NumberField {
             this.eventType = eventType;
         }
 
-        @SuppressWarnings("unused")
+        @SuppressWarnings("unused")//$NON-NLS-1$
         public SpinnerField getSpinnerField() {
             return spinnerField;
         }

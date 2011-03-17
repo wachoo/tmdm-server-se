@@ -79,8 +79,8 @@ public class AddRemovePlugin implements ComponentPlugin {
         if (!validated){
             space = 18;
         }
-        add.el().alignTo(field.getElement(), "tl-tr", new int[] {space + 2, 3});
-        remove.el().alignTo(field.getElement(), "tl-tr", new int[] {space + 18, 3});
+        add.el().alignTo(field.getElement(), "tl-tr", new int[] {space + 2, 3});//$NON-NLS-1$
+        remove.el().alignTo(field.getElement(), "tl-tr", new int[] {space + 18, 3});//$NON-NLS-1$
     }
     
     private void initEvent(){

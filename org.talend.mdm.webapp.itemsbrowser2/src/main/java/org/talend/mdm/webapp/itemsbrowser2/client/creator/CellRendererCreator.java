@@ -32,10 +32,10 @@ public class CellRendererCreator {
                         ListStore<ModelData> store, Grid<ModelData> grid) {
                     String value = model.get(property);
                     if (value != null){
-                        String[] url = value.split("@@");
-                        return "<a href='" + url[1] + "'>" + url[0] + "</a>";
+                        String[] url = value.split("@@");//$NON-NLS-1$
+                        return "<a href='" + url[1] + "'>" + url[0] + "</a>";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     }
-                    return "null";
+                    return "null";//$NON-NLS-1$
                 }
             };
             return renderer;

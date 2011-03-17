@@ -78,7 +78,7 @@ public class ItemBean extends ItemBaseModel {
         String pk = concept;
 
         if (ids != null) {
-            pk += " " + ids;
+            pk += " " + ids;//$NON-NLS-1$ 
         }
 
         return pk;
@@ -86,7 +86,7 @@ public class ItemBean extends ItemBaseModel {
 
     @Override
     public String toString() {
-        return "ItemBean [concept=" + concept + ", ids=" + ids + ", itemXml=" + itemXml + "]";
+        return "ItemBean [concept=" + concept + ", ids=" + ids + ", itemXml=" + itemXml + "]";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$  
     }
     
     
