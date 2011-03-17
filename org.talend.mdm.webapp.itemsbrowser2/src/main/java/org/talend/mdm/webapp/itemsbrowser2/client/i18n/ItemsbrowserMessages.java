@@ -119,10 +119,20 @@ public interface ItemsbrowserMessages extends Messages {
     String check_totalDigits();
 
     String check_fractionDigits();
+    
+    String check_minInclusive();
+    
+    String check_maxInclusive();
 
     String check_minExclusive();
 
     String check_maxExclusive();
+    
+    String check_length();
+    
+    String check_minLength();
+    
+    String check_maxLength();
 
     String create_btn();
 

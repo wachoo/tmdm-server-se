@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
+import java.util.Collection;
+
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
@@ -81,10 +83,17 @@ public class ItemsController extends Controller {
                 }
 
                 public void onSuccess(ItemBean _itemBean) {
-                    itemBean.copy(_itemBean);
+                    itemBean.setConcept(itemBean.getConcept());
+                    itemBean.setIds(itemBean.getIds());
+                    itemBean.setItemXml(itemBean.getItemXml());
+                    Collection<String> names = _itemBean.getPropertyNames();
+                    for (String name : names) {
+                        if (!itemBean.getPropertyNames().contains(name)){
+                            itemBean.set(name, _itemBean.get(name));    
+                        }
+                    }
                     forwardToView(itemsView, event);
                 }
-
             });
         }else {
             forwardToView(itemsView, event);

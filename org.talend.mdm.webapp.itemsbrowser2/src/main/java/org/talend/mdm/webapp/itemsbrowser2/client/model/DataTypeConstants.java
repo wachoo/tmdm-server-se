@@ -40,7 +40,6 @@ public enum DataTypeConstants implements DataType {
     public Object getDefaultValue() {
         return defaultValue;
     }
-
     /* (non-Jsdoc)
      * @see org.talend.mdm.webapp.itemsbrowser2.client.model.DataType#getBaseTypeName()
      */
