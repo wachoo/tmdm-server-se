@@ -106,6 +106,8 @@ public class ItemsToolBar extends ToolBar {
 
     ItemsToolBar instance = this;
 
+    List<ItemBaseModel> userCriteriasList;
+
     public ItemsToolBar() {
         // init user saved model
         userCluster = Itemsbrowser2.getSession().getAppHeader().getDatacluster();
@@ -152,6 +154,7 @@ public class ItemsToolBar extends ToolBar {
             else
                 menu.getMenu().getItem(1).setEnabled(true);
         }
+        updateUserCriteriasList();
     }
 
     private void initToolBar() {
@@ -314,7 +317,10 @@ public class ItemsToolBar extends ToolBar {
 
             public void componentSelected(ButtonEvent ce) {
                 // show advanced Search panel
-                showAdvancedWin(instance, null);
+                if (isSimple)
+                    showAdvancedWin(instance, simplePanel == null ? null : simplePanel.getCriteria().toString());
+                else
+                    showAdvancedWin(instance, advancedPanel == null ? null : advancedPanel.getCriteria());
             }
 
         });
@@ -346,7 +352,7 @@ public class ItemsToolBar extends ToolBar {
                 RpcProxy<PagingLoadResult<ItemBaseModel>> proxyBookmark = new RpcProxy<PagingLoadResult<ItemBaseModel>>() {
 
                     public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
-                        service.querySearchTemplates(entityCombo.getValue().get("value").toString(), false, //$NON-NLS-1$
+                        service.querySearchTemplates(entityCombo.getValue().get("value").toString(), true, //$NON-NLS-1$
                                 (PagingLoadConfig) loadConfig, callback);
                     }
                 };
@@ -354,7 +360,6 @@ public class ItemsToolBar extends ToolBar {
                 // loader
                 final PagingLoader<PagingLoadResult<ItemBaseModel>> loaderBookmark = new BasePagingLoader<PagingLoadResult<ItemBaseModel>>(
                         proxyBookmark);
-                loaderBookmark.setRemoteSort(true);
 
                 ListStore<ItemBaseModel> store = new ListStore<ItemBaseModel>(loaderBookmark);
                 store.setDefaultSort("name", SortDir.ASC); //$NON-NLS-1$
@@ -372,28 +377,31 @@ public class ItemsToolBar extends ToolBar {
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();
                         image.setResource(Icons.INSTANCE.Edit());
-                        image.addClickListener(new ClickListener() {
+                        if (!ifManage(model))
+                            image.addStyleName("x-item-disabled");
+                        else
+                            image.addClickListener(new ClickListener() {
 
-                            public void onClick(Widget arg0) {
-                                // edit the bookmark
-                                if (advancedPanel == null) {
-                                    advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
+                                public void onClick(Widget arg0) {
+                                    // edit the bookmark
+                                    if (advancedPanel == null) {
+                                        advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
+                                    }
+                                    service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() { //$NON-NLS-1$
+
+                                                public void onFailure(Throwable caught) {
+                                                    Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                                                }
+
+                                                public void onSuccess(String arg0) {
+                                                    showAdvancedWin(instance, arg0);
+                                                    winBookmark.close();
+                                                }
+
+                                            });
                                 }
-                                service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() { //$NON-NLS-1$
 
-                                            public void onFailure(Throwable caught) {
-                                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                            }
-
-                                            public void onSuccess(String arg0) {
-                                                showAdvancedWin(instance, arg0);
-                                                winBookmark.close();
-                                            }
-
-                                        });
-                            }
-
-                        });
+                            });
                         return image;
                     }
 
@@ -408,30 +416,55 @@ public class ItemsToolBar extends ToolBar {
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();
                         image.setResource(Icons.INSTANCE.remove());
+                        if (!ifManage(model))
+                            image.addStyleName("x-item-disabled");
+                        else
+                            image.addClickListener(new ClickListener() {
+
+                                public void onClick(Widget arg0) {
+                                    MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory
+                                            .getMessages().bookmark_DelMsg(), new Listener<MessageBoxEvent>() {
+
+                                        public void handleEvent(MessageBoxEvent be) {
+                                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                                // delete the bookmark
+                                                service.deleteSearchTemplate(model.get("value").toString(), //$NON-NLS-1$
+                                                        new AsyncCallback<String>() {
+
+                                                            public void onFailure(Throwable caught) {
+                                                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                                                            }
+
+                                                            public void onSuccess(String arg0) {
+                                                                loaderBookmark.load();
+                                                            }
+
+                                                        });
+                                            }
+                                        }
+                                    });
+                                }
+
+                            });
+                        return image;
+                    }
+
+                });
+
+                columns.add(colDel);
+
+                ColumnConfig colSearch = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_search(), 100); //$NON-NLS-1$
+                colSearch.setRenderer(new GridCellRenderer<ItemBaseModel>() {
+
+                    @SuppressWarnings("deprecation")
+                    public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
+                            int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
+                        Image image = new Image();
+                        image.setResource(Icons.INSTANCE.dosearch());
                         image.addClickListener(new ClickListener() {
 
                             public void onClick(Widget arg0) {
-                                MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
-                                        .bookmark_DelMsg(), new Listener<MessageBoxEvent>() {
-
-                                    public void handleEvent(MessageBoxEvent be) {
-                                        if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                            // delete the bookmark
-                                            service.deleteSearchTemplate(model.get("value").toString(), //$NON-NLS-1$
-                                                    new AsyncCallback<String>() {
-
-                                                        public void onFailure(Throwable caught) {
-                                                            Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                                        }
-
-                                                        public void onSuccess(String arg0) {
-                                                            loaderBookmark.load();
-                                                        }
-
-                                                    });
-                                        }
-                                    }
-                                });
+                                doSearch(model, winBookmark);
                             }
 
                         });
@@ -439,8 +472,7 @@ public class ItemsToolBar extends ToolBar {
                     }
 
                 });
-
-                columns.add(colDel);
+                columns.add(colSearch);
 
                 ColumnModel cm = new ColumnModel(columns);
 
@@ -462,43 +494,7 @@ public class ItemsToolBar extends ToolBar {
                 bookmarkgrid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBaseModel>>() {
 
                     public void handleEvent(final GridEvent<ItemBaseModel> be) {
-                        service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(), //$NON-NLS-1$
-                                new AsyncCallback<List<ItemBaseModel>>() {
-
-                                    public void onFailure(Throwable caught) {
-                                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                    }
-
-                                    public void onSuccess(List<ItemBaseModel> arg0) {
-                                        // only the shared bookmark could be search
-                                        Iterator i = arg0.iterator();
-                                        while (i.hasNext()) {
-                                            if (((ItemBaseModel) i.next()).get("value").equals( //$NON-NLS-1$
-                                                    be.getModel().get("value").toString())) { //$NON-NLS-1$
-                                                service.getCriteriaByBookmark(be.getModel().get("value").toString(), //$NON-NLS-1$
-                                                        new AsyncCallback<String>() {
-
-                                                            public void onFailure(Throwable caught) {
-                                                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                                            }
-
-                                                            public void onSuccess(String arg0) {
-                                                                isSimple = false;
-                                                                if (advancedPanel == null) {
-                                                                    advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
-                                                                }
-                                                                advancedPanel.setCriteria(arg0);
-                                                                String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
-                                                                Dispatcher.forwardEvent(ItemsEvents.SearchView, viewPk);
-                                                                winBookmark.close();
-                                                            }
-
-                                                        });
-                                            }
-                                        }
-                                    }
-
-                                });
+                        doSearch(be.getModel(), winBookmark);
                     }
                 });
 
@@ -579,7 +575,7 @@ public class ItemsToolBar extends ToolBar {
                                             if (arg0.equals("OK")) { //$NON-NLS-1$
                                                 MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory
                                                         .getMessages().bookmark_saveSuccess(), null);
-                                                // cbloader.load();
+                                                updateUserCriteriasList();
                                                 winBookmark.close();
                                             } else
                                                 MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
@@ -617,6 +613,57 @@ public class ItemsToolBar extends ToolBar {
                         list.add(arg0);
                     }
                 });
+    }
+
+    private void updateUserCriteriasList() {
+        service.getUserCriterias(entityCombo.getValue().get("value").toString(), //$NON-NLS-1$
+                new AsyncCallback<List<ItemBaseModel>>() {
+
+                    public void onFailure(Throwable caught) {
+                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                    }
+
+                    public void onSuccess(List<ItemBaseModel> list) {
+                        userCriteriasList = list;
+                    }
+
+                });
+    }
+
+    private boolean ifManage(ItemBaseModel model) {
+        // only the shared bookmark could be managed
+        Iterator i = userCriteriasList.iterator();
+        while (i.hasNext()) {
+            if (((ItemBaseModel) i.next()).get("value").equals( //$NON-NLS-1$
+                    model.get("value").toString())) { //$NON-NLS-1$    
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void doSearch(final ItemBaseModel model, final Window winBookmark) {
+        service.getCriteriaByBookmark(model.get("value").toString(), //$NON-NLS-1$
+                new AsyncCallback<String>() {
+
+                    public void onFailure(Throwable caught) {
+                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                    }
+
+                    public void onSuccess(String arg0) {
+                        isSimple = false;
+                        if (advancedPanel == null) {
+                            advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
+                        }
+                        advancedPanel.setCriteria(arg0);
+                        String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
+                        Dispatcher.forwardEvent(ItemsEvents.SearchView, viewPk);
+                        winBookmark.close();
+                    }
+
+                });
+
     }
 
     private void showAdvancedWin(ToolBar toolBar, String criteria) {
