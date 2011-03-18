@@ -221,6 +221,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
     public void setCriteriaFK(ForeignKeyBean fk) {
         if (field != null) {
             if (field instanceof FKField) {
+                ((FKField) field).setOriginalValue(fk);
                 ((FKField) field).setValue(fk);
             }
         }

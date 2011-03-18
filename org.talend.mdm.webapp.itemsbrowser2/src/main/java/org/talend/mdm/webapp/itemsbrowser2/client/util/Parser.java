@@ -17,8 +17,8 @@ import java.io.Serializable;
 import org.talend.mdm.webapp.itemsbrowser2.client.exception.ParserException;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
-import org.talend.mdm.webapp.itemsbrowser2.client.model.OperatorConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
+import org.talend.mdm.webapp.itemsbrowser2.shared.OperatorValueConstants;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -70,7 +70,7 @@ public class Parser implements Serializable, IsSerializable {
 
             if (toReturn == null) {
                 int refProf = -1;
-                for (String current : OperatorConstants.groupOperators) {
+                for (String current : OperatorValueConstants.groupOperatorVales) {
                     final int fromIndex = endBlockIndex - 1;
                     final String searched = END_BLOCK + " " + current + " " + BEGIN_BLOCK;//$NON-NLS-1$ //$NON-NLS-2$
                     int indexOf = input.indexOf(searched, fromIndex);
@@ -117,39 +117,51 @@ public class Parser implements Serializable, IsSerializable {
     }
 
     private static String getOperator(String value) {
-        for (String currentOp : OperatorConstants.fullOperators.keySet()) {
+        for (String currentOp : OperatorValueConstants.fullOperatorValues) {
             if (value.contains(currentOp)) {
-                return currentOp;
+                String[] tmpSplit = value.split(currentOp);
+                if (tmpSplit[0].lastIndexOf(" ") == tmpSplit[0].length() - 1 && tmpSplit[1].indexOf(" ") == 0) //$NON-NLS-1$ //$NON-NLS-2$
+                    return currentOp;
             }
         }
 
-        for (String currentOp : OperatorConstants.fulltextOperators.keySet()) {
+        for (String currentOp : OperatorValueConstants.fulltextOperatorValues) {
             if (value.contains(currentOp)) {
-                return currentOp;
+                String[] tmpSplit = value.split(currentOp);
+                if (tmpSplit[0].lastIndexOf(" ") == tmpSplit[0].length() - 1 && tmpSplit[1].indexOf(" ") == 0) //$NON-NLS-1$ //$NON-NLS-2$
+                    return currentOp;
             }
         }
 
-        for (String currentOp : OperatorConstants.dateOperators.keySet()) {
+        for (String currentOp : OperatorValueConstants.dateOperatorValues) {
             if (value.contains(currentOp)) {
-                return currentOp;
+                String[] tmpSplit = value.split(currentOp);
+                if (tmpSplit[0].lastIndexOf(" ") == tmpSplit[0].length() - 1 && tmpSplit[1].indexOf(" ") == 0) //$NON-NLS-1$ //$NON-NLS-2$
+                    return currentOp;
             }
         }
 
-        for (String currentOp : OperatorConstants.numOperators.keySet()) {
+        for (String currentOp : OperatorValueConstants.numOperatorValues) {
             if (value.contains(currentOp)) {
-                return currentOp;
+                String[] tmpSplit = value.split(currentOp);
+                if (tmpSplit[0].lastIndexOf(" ") == tmpSplit[0].length() - 1 && tmpSplit[1].indexOf(" ") == 0) //$NON-NLS-1$ //$NON-NLS-2$
+                    return currentOp;
             }
         }
 
-        for (String currentOp : OperatorConstants.booleanOperators.keySet()) {
+        for (String currentOp : OperatorValueConstants.booleanOperatorValues) {
             if (value.contains(currentOp)) {
-                return currentOp;
+                String[] tmpSplit = value.split(currentOp);
+                if (tmpSplit[0].lastIndexOf(" ") == tmpSplit[0].length() - 1 && tmpSplit[1].indexOf(" ") == 0) //$NON-NLS-1$ //$NON-NLS-2$
+                    return currentOp;
             }
         }
 
-        for (String currentOp : OperatorConstants.enumOperators.keySet()) {
+        for (String currentOp : OperatorValueConstants.enumOperatorValues) {
             if (value.contains(currentOp)) {
-                return currentOp;
+                String[] tmpSplit = value.split(currentOp);
+                if (tmpSplit[0].lastIndexOf(" ") == tmpSplit[0].length() - 1 && tmpSplit[1].indexOf(" ") == 0) //$NON-NLS-1$ //$NON-NLS-2$
+                    return currentOp;
             }
         }
         return null;

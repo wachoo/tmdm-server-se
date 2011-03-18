@@ -42,6 +42,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SearchTemplate;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.Parser;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.RoleHelper;
@@ -99,8 +100,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     private static final Logger LOG = Logger.getLogger(ItemServiceCommonHandler.class);
 
-    public static ItemsbrowserMessages MESSAGES = null;//FIXME check NPE
-    
+    public static ItemsbrowserMessages MESSAGES = null;// FIXME check NPE
 
     private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
             int max, String sortDir, String sortCol) {
@@ -110,9 +110,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         List<ItemBean> itemBeans = new ArrayList<ItemBean>();
         String concept = ViewHelper.getConceptFromDefaultViewName(viewBean.getViewPK());
         try {
-
-            WSWhereItem wi = com.amalto.webapp.core.util.Util.buildWhereItems(criteria);
-
+            WSWhereItem wi = CommonUtil.buildWhereItems(Parser.parse(criteria));
             String[] results = CommonUtil.getPort().viewSearch(
                     new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1, skip, max,
                             sortCol, sortDir)).getStrings();
@@ -164,7 +162,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.indexOf('/') + 1));//$NON-NLS-1$ 
                     if (nodes.size() > 0) {
                         Node value = (Node) nodes.get(0);
-                         if (typeModel.isMultiOccurrence()) {
+                        if (typeModel.isMultiOccurrence()) {
                             List<Serializable> list = new ArrayList<Serializable>();
                             for (Object node : nodes) {
                                 list.add(((Node) node).getText());
@@ -184,7 +182,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      */
     public ViewBean getView(String viewPk, String language) {
         try {
-            
+
             ViewBean vb = new ViewBean();
             vb.setViewPK(viewPk);
 
@@ -526,7 +524,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         String xpathForeignKey = model.getForeignkey();
         // to verify
         String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        // TODO use real data
+        // in search panel, the fkFilter is empty
         String fkFilter = ""; //$NON-NLS-1$
         String value = ".*"; //$NON-NLS-1$
 
@@ -589,9 +587,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
                 // add the xPath Infos Path
                 ArrayList<String> xPaths = new ArrayList<String>();
-                for (int i = 0; i < xpathInfos.length; i++) {
-                    xPaths.add(xpathInfos[i].replaceFirst(conceptName, filteredConcept));
-                }
+                if (model.isRetrieveFKinfos())
+                    // add the xPath Infos Path
+                    for (int i = 0; i < xpathInfos.length; i++) {
+                        xPaths.add(xpathInfos[i].replaceFirst(conceptName, filteredConcept));
+                    }
                 // add the key paths last, since there may be multiple keys
                 xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
                 // order by
@@ -629,10 +629,13 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             if (results != null) {
                 for (String result : results) {
                     ForeignKeyBean bean = new ForeignKeyBean();
-                    bean.setId(XmlUtil.getTextValueFromXpath(XmlUtil.parseText(result), "i")); //$NON-NLS-1$
+                    bean.setId(XmlUtil.getTextValueFromXpath(XmlUtil.parseText(result), "../i")); //$NON-NLS-1$
                     if (result != null) {
                         Element root = XmlUtil.parseText(result).getRootElement();
-                        initFKBean(root, bean);
+                        if (root.getName().equals("result"))//$NON-NLS-1$
+                            initFKBean(root, bean);
+                        else
+                            bean.set(root.getName(), root.getTextTrim());
                     }
                     fkBeans.add(bean);
                 }
@@ -873,14 +876,14 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return header;
 
     }
-    
-    
+
     /**
      * DOC HSHU Comment method "initMessage".
-     * @throws IOException 
+     * 
+     * @throws IOException
      */
     public void initMessages(String language) throws IOException {
-        MESSAGES = GWTI18N.create(ItemsbrowserMessages.class,language);
+        MESSAGES = GWTI18N.create(ItemsbrowserMessages.class, language);
 
     }
 

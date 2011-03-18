@@ -157,8 +157,7 @@ public class FKRelRecordWindow extends Window {
                         COLUMN_WIDTH));
             }
         } else
-            columns.add(new ColumnConfig(CommonUtil.getElementFromXpath(foreignKey), CommonUtil.getElementFromXpath(foreignKey),
-                    COLUMN_WIDTH));
+            columns.add(new ColumnConfig("i", CommonUtil.getElementFromXpath(foreignKey), COLUMN_WIDTH)); //$NON-NLS-1$
 
         ColumnModel cm = new ColumnModel(columns);
         relatedRecordGrid = new Grid<ForeignKeyBean>(store, cm);
