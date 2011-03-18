@@ -47,5 +47,23 @@ public class RoleHelper {
         return roles;
 
     }
+    
+    
+    /**
+     * DOC HSHU Comment method "getCurrentUserName".
+     */
+    public static String getCurrentUserName() {
+        String userName= "";//$NON-NLS-1$
+        if (!ItemsBrowserConfiguration.isStandalone()) {
+            try {
+                userName = Util.getLoginUserName();
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            } 
+        } else {
+            userName = FakeData.DEFAULT_USER;
+        }
+        return userName;
+    }
 
 }
