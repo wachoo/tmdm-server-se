@@ -15,7 +15,6 @@ import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.DateUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.DateTimeField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldSetCreator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
@@ -69,8 +68,8 @@ public class ItemsFormPanel extends Composite {
         TypeModel typeModel = dataTypes.get(concept);
         toolbar.updateToolBar();
 
-        FieldSet fildSet = FieldSetCreator.createFieldGroup((ComplexTypeModel) typeModel, formBindings, true,
-                Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
+        FieldSet fildSet = FieldSetCreator.createFieldGroup((ComplexTypeModel) typeModel, formBindings, true, Locale
+                .getLanguage(Itemsbrowser2.getSession().getAppHeader()));
         if (fildSet != null) {
             content.add(fildSet);
         }
@@ -107,31 +106,40 @@ public class ItemsFormPanel extends Composite {
 
         Document doc = XMLParser.createDocument();
         Map<String, Element> elementSet = new HashMap<String, Element>();
-        for (FieldBinding fb : formBindings.getBindings()) {
-            Field field = fb.getField();
-            Object value = null;
-            if (field instanceof SimpleComboBox) {
-                ModelData model = ((SimpleComboBox) field).getValue();
-                if (model != null) {
-                    value = model.get("value"); //$NON-NLS-1$    
-                }
-            } else if (field instanceof DateField) {
-                value = DateUtil.convertDateToString((Date) field.getValue());
-            } else if (field instanceof DateTimeField) {
-                value = DateUtil.convertDateToString((Date) field.getValue());
-            } else {
-                value = field.getValue();
-            }
 
-            if (value instanceof List) {
-                String key = field.getName();
-                String parentPath = key.substring(0, key.lastIndexOf('/'));//$NON-NLS-1$
-                String elName = key.substring(key.lastIndexOf('/') + 1);//$NON-NLS-1$
-                createElements(parentPath, elName, (List) value, elementSet, doc);
-            } else {
-                createElements(field.getName(), value == null ? "" : value.toString(), elementSet, doc);//$NON-NLS-1$
+        Map<String, TypeModel> metaType = Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes();
+        for (String index : metaType.keySet()) {
+            TypeModel typeModel = metaType.get(index);
+
+            for (FieldBinding fb : formBindings.getBindings()) {
+                Field field = fb.getField();
+
+                if (typeModel.getXpath().equals(field.getName())) {
+                    Object value = null;
+                    if (field instanceof SimpleComboBox) {
+                        ModelData model = ((SimpleComboBox) field).getValue();
+                        if (model != null) {
+                            value = model.get("value"); //$NON-NLS-1$    
+                        }
+                    } else if (field instanceof DateField) {
+                        value = DateUtil.convertDateToString((Date) field.getValue());
+                    } else {
+                        value = field.getValue();
+                    }
+
+                    if (value instanceof List) {
+                        String key = field.getName();
+                        String parentPath = key.substring(0, key.lastIndexOf('/'));//$NON-NLS-1$
+                        String elName = key.substring(key.lastIndexOf('/') + 1);//$NON-NLS-1$
+                        createElements(parentPath, elName, (List) value, elementSet, doc);
+                    } else {
+                        createElements(field.getName(), value == null ? "" : value.toString(), elementSet, doc);//$NON-NLS-1$
+                    }
+                    break;
+                }
             }
         }
+
         Element el = elementSet.get(concept);
         doc.appendChild(el);
         item.setItemXml(doc.toString());
