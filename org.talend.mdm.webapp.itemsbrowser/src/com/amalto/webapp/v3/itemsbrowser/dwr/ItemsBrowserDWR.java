@@ -1065,8 +1065,6 @@ public class ItemsBrowserDWR {
     public TreeNode[] getChildren(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
             String selectedExtendType) throws Exception {
         TreeNode[] nodes = getChildrenWithKeyMask(id, nodeCount, language, foreignKey, docIndex, false, selectedExtendType);
-        handleDynamicLable(nodes, docIndex);// FIXME: performance maybe a problem
-        nodes = handleDisplayRules(nodes, docIndex);
         return nodes;
     }
 
@@ -1120,7 +1118,7 @@ public class ItemsBrowserDWR {
     }
 
     public TreeNode[] getChildrenWithKeyMask(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
-            boolean maskKey, String selectedExtendType) throws ParseException {
+            boolean maskKey, String selectedExtendType) throws Exception {
 
         WebContext ctx = WebContextFactory.get();
         HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
@@ -1218,7 +1216,12 @@ public class ItemsBrowserDWR {
         if (xpathToTreeNode != null) {
             ctx.getSession().setAttribute("xpathToTreeNode", xpathToTreeNode); //$NON-NLS-1$
         }
-        return list.toArray(new TreeNode[list.size()]);
+        
+        TreeNode[] rtnNodes=list.toArray(new TreeNode[list.size()]);
+        
+        handleDynamicLable(rtnNodes, docIndex);// FIXME: performance maybe a problem
+        rtnNodes = handleDisplayRules(rtnNodes, docIndex);
+        return rtnNodes;
     }
 
     private void clearChildrenValue(Node node) {
