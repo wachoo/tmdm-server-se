@@ -76,7 +76,7 @@ public class Parser implements Serializable, IsSerializable {
                     final String searched = END_BLOCK + " " + current + " " + BEGIN_BLOCK;//$NON-NLS-1$//$NON-NLS-2$
                     int indexOf = input.indexOf(searched, fromIndex);
                     if (indexOf >= beginIndex && indexOf <= endIndex) {
-                        int foundProf = count(input.substring(beginIndex, indexOf), '(');//$NON-NLS-1$
+                        int foundProf = count(input.substring(beginIndex, indexOf), BEGIN_BLOCK);
                         if (foundProf < refProf || refProf == -1) {
                             refProf = foundProf;
                             toReturn = new MultipleCriteria(current);
