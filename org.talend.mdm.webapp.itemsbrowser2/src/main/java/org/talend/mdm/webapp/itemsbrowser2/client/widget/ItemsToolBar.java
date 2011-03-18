@@ -68,8 +68,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.event.dom.client.MouseOverEvent;
-import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.ClickListener;
@@ -132,8 +130,28 @@ public class ItemsToolBar extends ToolBar {
         advancedBut.setEnabled(true);
         managebookBtn.setEnabled(true);
         bookmarkBtn.setEnabled(true);
-        createBtn.setEnabled(true);
-        menu.setEnabled(true);
+
+        createBtn.setEnabled(false);
+        menu.setEnabled(false);
+        String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
+        if (!viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyCreatable())
+            createBtn.setEnabled(true);
+        boolean denyLogicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyLogicalDeletable();
+        boolean denyPhysicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyPhysicalDeleteable();
+
+        if (denyLogicalDelete && denyPhysicalDelete)
+            menu.setEnabled(false);
+        else {
+            menu.setEnabled(true);
+            if (denyPhysicalDelete)
+                menu.getMenu().getItem(0).setEnabled(false);
+            else
+                menu.getMenu().getItem(0).setEnabled(true);
+            if (denyLogicalDelete)
+                menu.getMenu().getItem(1).setEnabled(false);
+            else
+                menu.getMenu().getItem(1).setEnabled(true);
+        }
     }
 
     private void initToolBar() {
@@ -171,30 +189,11 @@ public class ItemsToolBar extends ToolBar {
                                 if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
                                     final ItemsListPanel list = (ItemsListPanel) instance.getParent();
                                     if (list.getGrid() != null) {
-                                        // service.deleteItemBean(list.getGrid().getSelectionModel().getSelectedItem(),
-                                        // new AsyncCallback<ItemResult>() {
-                                        //
-                                        // public void onFailure(Throwable arg0) {
-                                        //
-                                        // }
-                                        //
-                                        // public void onSuccess(ItemResult arg0) {
-                                        // if (arg0.getStatus() == ItemResult.SUCCESS) {
-                                        // list.getStore().getLoader().load();
-                                        // MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0
-                                        // .getDescription(), null);
-                                        // } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                                        // MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0
-                                        // .getDescription(), null);
-                                        // }
-                                        // }
-                                        //
-                                        // });
                                         service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(),
                                                 new AsyncCallback<List<ItemResult>>() {
 
                                                     public void onFailure(Throwable caught) {
-
+                                                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                                     }
 
                                                     public void onSuccess(List<ItemResult> resultes) {
@@ -211,7 +210,7 @@ public class ItemsToolBar extends ToolBar {
                                                                 failure.append(result.getDescription() + "\n");//$NON-NLS-1$
                                                             }
                                                         }
-                                                        MessageBox.alert("", succeed.toString() + failure.toString(), null);
+                                                        MessageBox.alert("", succeed.toString() + failure.toString(), null); //$NON-NLS-1$
                                                     }
                                                 });
                                     }
@@ -238,8 +237,8 @@ public class ItemsToolBar extends ToolBar {
                                 service.logicalDeleteItem(list.getGrid().getSelectionModel().getSelectedItem(), "/", //$NON-NLS-1$
                                         new AsyncCallback<ItemResult>() {
 
-                                            public void onFailure(Throwable arg0) {
-
+                                            public void onFailure(Throwable caught) {
+                                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                             }
 
                                             public void onSuccess(ItemResult arg0) {
@@ -373,12 +372,6 @@ public class ItemsToolBar extends ToolBar {
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();
                         image.setResource(Icons.INSTANCE.Edit());
-                        image.addMouseOverHandler(new MouseOverHandler() {
-
-                            public void onMouseOver(MouseOverEvent arg0) {
-
-                            }
-                        });
                         image.addClickListener(new ClickListener() {
 
                             public void onClick(Widget arg0) {
@@ -388,8 +381,8 @@ public class ItemsToolBar extends ToolBar {
                                 }
                                 service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() { //$NON-NLS-1$
 
-                                            public void onFailure(Throwable arg0) {
-
+                                            public void onFailure(Throwable caught) {
+                                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                             }
 
                                             public void onSuccess(String arg0) {
@@ -427,7 +420,8 @@ public class ItemsToolBar extends ToolBar {
                                             service.deleteSearchTemplate(model.get("value").toString(), //$NON-NLS-1$
                                                     new AsyncCallback<String>() {
 
-                                                        public void onFailure(Throwable arg0) {
+                                                        public void onFailure(Throwable caught) {
+                                                            Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                                         }
 
                                                         public void onSuccess(String arg0) {
@@ -471,7 +465,8 @@ public class ItemsToolBar extends ToolBar {
                         service.getviewItemsCriterias(entityCombo.getValue().get("value").toString(), //$NON-NLS-1$
                                 new AsyncCallback<List<ItemBaseModel>>() {
 
-                                    public void onFailure(Throwable arg0) {
+                                    public void onFailure(Throwable caught) {
+                                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                     }
 
                                     public void onSuccess(List<ItemBaseModel> arg0) {
@@ -483,8 +478,8 @@ public class ItemsToolBar extends ToolBar {
                                                 service.getCriteriaByBookmark(be.getModel().get("value").toString(), //$NON-NLS-1$
                                                         new AsyncCallback<String>() {
 
-                                                            public void onFailure(Throwable arg0) {
-
+                                                            public void onFailure(Throwable caught) {
+                                                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                                             }
 
                                                             public void onSuccess(String arg0) {
@@ -563,7 +558,8 @@ public class ItemsToolBar extends ToolBar {
                         service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue() //$NON-NLS-1$
                                 .toString(), new AsyncCallback<Boolean>() {
 
-                            public void onFailure(Throwable arg0) {
+                            public void onFailure(Throwable caught) {
+                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                 MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                                         .bookmark_existMsg(), null);
                             }
@@ -573,7 +569,8 @@ public class ItemsToolBar extends ToolBar {
                                     service.saveCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue() //$NON-NLS-1$
                                             .toString(), cb.getValue(), advancedPanel.getCriteria(), new AsyncCallback<String>() {
 
-                                        public void onFailure(Throwable arg0) {
+                                        public void onFailure(Throwable caught) {
+                                            Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                             MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
                                                     .getMessages().bookmark_saveFailed(), null);
                                         }
@@ -611,7 +608,8 @@ public class ItemsToolBar extends ToolBar {
         service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
                 new AsyncCallback<List<ItemBaseModel>>() {
 
-                    public void onFailure(Throwable arg0) {
+                    public void onFailure(Throwable caught) {
+                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                     }
 
                     public void onSuccess(List<ItemBaseModel> arg0) {
