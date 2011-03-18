@@ -25,7 +25,7 @@ public class NumberFieldValidator implements Validator {
         String defaultMessage = "";//$NON-NLS-1$ 
         boolean succeed = true;
         String totalDigits = field.getData(FacetEnum.TOTAL_DIGITS.getFacetName());
-        if (totalDigits != null && !totalDigits.equals("")) {
+        if (totalDigits != null && !totalDigits.equals("")) {//$NON-NLS-1$
             if (value.replace(".", "").length() > Integer.parseInt(totalDigits)) {//$NON-NLS-1$ //$NON-NLS-2$ 
                 succeed = false;
                 defaultMessage += MessagesFactory.getMessages().check_totalDigits() + totalDigits + "\n";//$NON-NLS-1$
@@ -33,7 +33,7 @@ public class NumberFieldValidator implements Validator {
         }
 
         String fractionDigits = field.getData(FacetEnum.FRACTION_DIGITS.getFacetName());
-        if (fractionDigits != null && !fractionDigits.equals("")) {
+        if (fractionDigits != null && !fractionDigits.equals("")) {//$NON-NLS-1$
             String[] digits = value.split(".");//$NON-NLS-1$
             if (digits[1].length() > Integer.parseInt(fractionDigits)) {
                 succeed = false;
@@ -41,7 +41,7 @@ public class NumberFieldValidator implements Validator {
             }
         }
         String minInclusive = field.getData(FacetEnum.MIN_INCLUSIVE.getFacetName());
-        if (minInclusive != null && !minInclusive.equals("")){
+        if (minInclusive != null && !minInclusive.equals("")){//$NON-NLS-1$
             double min = Double.parseDouble(minInclusive);
             double numberValue = Double.parseDouble(value);
             if (numberValue < min){
@@ -71,7 +71,7 @@ public class NumberFieldValidator implements Validator {
         }
         
         String maxExclusive = field.getData(FacetEnum.MAX_EXCLUSIVE.getFacetName());
-        if (maxExclusive != null && !maxExclusive.equals("")){
+        if (maxExclusive != null && !maxExclusive.equals("")){//$NON-NLS-1$
             double max = Double.parseDouble(maxExclusive);
             double numberValue = Double.parseDouble(value);
             if (numberValue >= max){

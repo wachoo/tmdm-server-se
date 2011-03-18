@@ -274,7 +274,7 @@ public final class XmlUtil {
             logger.error(e.getMessage(), e);
         }
 
-        return writer.toString().replaceAll("<\\?xml.*?\\?>", "").trim(); //$NON-NLS-1$
+        return writer.toString().replaceAll("<\\?xml.*?\\?>", "").trim(); //$NON-NLS-1$ //$NON-NLS-2$
 
     }
 
@@ -310,7 +310,7 @@ public final class XmlUtil {
 
             // [url]http://sax.sourceforge.net/?selected=get-set[/url]
             parser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema"); //$NON-NLS-1$ //$NON-NLS-2$
-            parser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "file:" + xsdFileName); //$NON-NLS-1$
+            parser.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "file:" + xsdFileName); //$NON-NLS-1$ //$NON-NLS-2$
 
             SAXValidator validator = new SAXValidator(parser.getXMLReader());
 
@@ -339,7 +339,7 @@ public final class XmlUtil {
         // FIXME
         Element root = doc.getRootElement();
         Node node = root.selectSingleNode(xpath);
-        return node == null ? "" : node.getText();
+        return node == null ? "" : node.getText();//$NON-NLS-1$
     }
     
     public static List getValuesFromXPath(Document doc, String xpath){

@@ -214,7 +214,7 @@ public class DataModelHelper {
             }
         }else if(xsParticle.getTerm().asElementDecl()!=null) {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
-            travelXSElement(subElement, currentXPath + "/" + subElement.getName(),entityModel,parentTypeModel,roles);
+            travelXSElement(subElement, currentXPath + "/" + subElement.getName(),entityModel,parentTypeModel,roles);//$NON-NLS-1$
         }
     }
 
@@ -225,7 +225,7 @@ public class DataModelHelper {
             ArrayList<String> pkInfoList = new ArrayList<String>();
             ArrayList<String> fkInfoList = new ArrayList<String>();
             for (int k = 0; k < annotList.getLength(); k++) {
-                if ("appinfo".equals(annotList.item(k).getLocalName())) {
+                if ("appinfo".equals(annotList.item(k).getLocalName())) {//$NON-NLS-1$
                     Node source = annotList.item(k).getAttributes().getNamedItem("source");//$NON-NLS-1$
                     if (source == null)
                         continue;
@@ -236,7 +236,7 @@ public class DataModelHelper {
                             typeModel.addLabel(getLangFromLabelAnnotation(appinfoSource), appinfoSourceValue);
                         } else if (appinfoSource.contains("X_Description")) {//$NON-NLS-1$
                             String description = appinfoSourceValue;
-                            String encodedDESP = description != null ? StringEscapeUtils.escapeHtml(description): "";//Do we need escape?
+                            String encodedDESP = description != null ? StringEscapeUtils.escapeHtml(description): "";//$NON-NLS-1$ //Do we need escape?
                             typeModel.addDescription(getLangFromDescAnnotation(appinfoSource), encodedDESP);
                         } else if ("X_Write".equals(appinfoSource)) {//$NON-NLS-1$
                             if (roles.contains(appinfoSourceValue)) {
@@ -249,7 +249,7 @@ public class DataModelHelper {
                         } else if ("X_ForeignKey".equals(appinfoSource)) {//$NON-NLS-1$
                             typeModel.setForeignkey(appinfoSourceValue);
                         } else if ("X_Retrieve_FKinfos".equals(appinfoSource)) {//$NON-NLS-1$
-                            typeModel.setRetrieveFKinfos("true".equals(appinfoSourceValue));
+                            typeModel.setRetrieveFKinfos("true".equals(appinfoSourceValue));//$NON-NLS-1$
                         } else if ("X_ForeignKeyInfo".equals(appinfoSource)) {//$NON-NLS-1$
                             fkInfoList.add(appinfoSourceValue);
                         } else if ("X_ForeignKey_Filter".equals(appinfoSource)) {//$NON-NLS-1$

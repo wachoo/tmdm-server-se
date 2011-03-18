@@ -20,6 +20,7 @@ import java.util.Map;
 import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.CellEditorCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.CellRendererCreator;
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
@@ -171,7 +172,7 @@ public class ItemsView extends View {
                 } else {
                     itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setHeight(1300, Unit.PX);
                     itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setOverflow(Overflow.AUTO);
-                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, "", itemsSearchContainer
+                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, "", itemsSearchContainer //$NON-NLS-1$
                             .getItemsFormPanel().getContent().getBody().dom);
                 }
                 // TODO handle legacy form
@@ -222,7 +223,7 @@ public class ItemsView extends View {
 
         // create search panel
         // build frame
-        Log.info("Init tab-frame... ");
+        Log.info("Init tab-frame... ");//$NON-NLS-1$
 
         Viewport container = new Viewport() {
 
@@ -270,7 +271,7 @@ public class ItemsView extends View {
         Log.info("Init items-search-container... ");//$NON-NLS-1$
         itemsSearchContainer = new ItemsSearchContainer();
 
-        addTab(itemsSearchContainer, "Search Tab", "Search Tab", false);//$NON-NLS-1$
+        addTab(itemsSearchContainer, "Search Tab", MessagesFactory.getMessages().search_tab_name(), false);//$NON-NLS-1$
 
         Registry.register(ITEMS_SEARCH_CONTAINER, itemsSearchContainer);
 

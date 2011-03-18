@@ -52,7 +52,7 @@ public class SearchFieldCreator {
                 spinnerField.setStepValue(Integer.valueOf(1));
                 spinnerField.setValue(Integer.valueOf(1));
                 spinnerField.setPropertyEditorType(Integer.class);
-                spinnerField.setFormat(NumberFormat.getFormat("0"));
+                spinnerField.setFormat(NumberFormat.getFormat("0"));//$NON-NLS-1$
                 field = spinnerField;
                 cons = OperatorConstants.numOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.DOUBLE.getBaseTypeName())
@@ -63,7 +63,7 @@ public class SearchFieldCreator {
                 spinnerField.setStepValue(.1d);
                 spinnerField.setValue(Double.valueOf(0));
                 spinnerField.setPropertyEditorType(Double.class);
-                spinnerField.setFormat(NumberFormat.getFormat("00.0"));
+                spinnerField.setFormat(NumberFormat.getFormat("00.0"));//$NON-NLS-1$
                 field = spinnerField;
                 cons = OperatorConstants.numOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.DATE.getBaseTypeName())) {

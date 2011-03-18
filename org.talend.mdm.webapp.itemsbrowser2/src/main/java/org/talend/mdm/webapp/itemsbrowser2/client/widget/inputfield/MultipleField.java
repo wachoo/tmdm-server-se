@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.plugin.FieldPlugin;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
@@ -46,7 +47,7 @@ public class MultipleField extends Field<List<Object>> {
         max = range[1];
         value = new ArrayList<Object>();
         for (int i = 0;i < min; i++) {
-            value.add("");
+            value.add("");//$NON-NLS-1$
         }
     }
     
@@ -122,7 +123,7 @@ public class MultipleField extends Field<List<Object>> {
             
             public void onRemove(Field field) {
                 if (!validateRange(value.size() - 1)){
-                    Window.alert("At least " + min);
+                    Window.alert(MessagesFactory.getMessages().multiOccurrence_minimize(min));
                     return;
                 }
                 field.removeListener(Events.Change, changeListener);
@@ -133,7 +134,7 @@ public class MultipleField extends Field<List<Object>> {
             
             public void onAdd(Field field) {
                 if (!validateRange(value.size() + 1)){
-                    Window.alert("Maximum of " + max);
+                    Window.alert(MessagesFactory.getMessages().multiOccurrence_maximize(max));
                     return;
                 }
                 Field newField = createField(dataType.getType().getDefaultValue());

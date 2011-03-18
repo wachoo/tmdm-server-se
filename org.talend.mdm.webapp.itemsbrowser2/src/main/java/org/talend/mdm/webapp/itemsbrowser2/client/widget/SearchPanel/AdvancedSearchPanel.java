@@ -88,8 +88,8 @@ public class AdvancedSearchPanel extends FormPanel {
             if (condition.indexOf(ge) > -1) {
                 Date d = new Date();
                 int index = condition.indexOf(ge) + ge.length() + 1;
-                if (condition.indexOf(" ", index) == -1)//$NON-NLS-1$
-                    d.setTime(Long.valueOf(condition.substring(index)));
+                if (condition.indexOf(" ", index) == -1) //$NON-NLS-1$
+                    d.setTime(Long.valueOf(condition.substring(index)));//$NON-NLS-1$
                 else
                     d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(" ", index)))); //$NON-NLS-1$
                 fromfield.setValue(d);
@@ -97,7 +97,7 @@ public class AdvancedSearchPanel extends FormPanel {
             if (condition.indexOf(le) > -1) {
                 Date d = new Date();
                 int index = condition.indexOf(le) + le.length() + 1;
-                if (condition.indexOf(" ", index) == -1)
+                if (condition.indexOf(" ", index) == -1)//$NON-NLS-1$
                     d.setTime(Long.valueOf(condition.substring(index)));
                 else
                     d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(" ", index)))); //$NON-NLS-1$
@@ -114,7 +114,7 @@ public class AdvancedSearchPanel extends FormPanel {
 
     public String RemoveUnsafeCriteria() {
         String curCriteria = getCriteria();
-        return curCriteria.replaceAll("[\\s]+) OR ([\\s]+", " OR ").replaceAll("[\\s]+) AND ([\\s]+", " AND ");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return curCriteria.replaceAll("[\\s]+) OR ([\\s]+", " OR ").replaceAll("[\\s]+) AND ([\\s]+", " AND ");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     }
 
     public String getCriteria() {
@@ -319,7 +319,7 @@ public class AdvancedSearchPanel extends FormPanel {
         cb = new ComboBox<BaseModel>();
         cb.setEditable(false);
         cb.setWidth(120);
-        cb.setFieldLabel("Add more criteria"); //$NON-NLS-1$
+        cb.setFieldLabel(MessagesFactory.getMessages().advsearch_morelabel()); 
         cb.setAllowBlank(true);
         ListStore<BaseModel> list = new ListStore<BaseModel>();
         BaseModel field = new BaseModel();

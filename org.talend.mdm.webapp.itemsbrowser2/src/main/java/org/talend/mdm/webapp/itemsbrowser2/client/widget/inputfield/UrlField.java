@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield;
 
+import javax.xml.soap.MessageFactory;
+
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -47,7 +50,7 @@ public class UrlField extends Field<String> {
 
     public UrlField() {
         setFireChangeEventOnSetValue(true);
-        editWin.setHeading("Edit Url");//$NON-NLS-1$
+        editWin.setHeading(MessagesFactory.getMessages().url_field_title());//$NON-NLS-1$
         editWin.setSize(600, 150);
         regJs(handler);
         propertyEditor = new PropertyEditor<String>() {
@@ -99,7 +102,7 @@ public class UrlField extends Field<String> {
             String[] addr = value.split("@@");//$NON-NLS-1$
             if (addr.length == 2){
                 input.dom.setInnerText(addr[0]);
-                input.dom.setAttribute("href", addr[1]);
+                input.dom.setAttribute("href", addr[1]);//$NON-NLS-1$
             }
         }
     }
@@ -124,9 +127,9 @@ public class UrlField extends Field<String> {
 
         TextField<String> url = new TextField<String>();
 
-        Button saveButton = new Button("Save", listener);//$NON-NLS-1$
+        Button saveButton = new Button(MessagesFactory.getMessages().save_btn(), listener);
 
-        Button cancelButton = new Button("Cancel", listener);//$NON-NLS-1$
+        Button cancelButton = new Button(MessagesFactory.getMessages().cancel_btn(), listener);
 
         public EditWindow() {
             super();

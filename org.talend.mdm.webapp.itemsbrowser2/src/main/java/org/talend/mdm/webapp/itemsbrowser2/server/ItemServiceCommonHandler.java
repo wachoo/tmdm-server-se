@@ -223,7 +223,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         try {
             String message = null;
             int status = 0;
-            boolean ifNew = item.getIds().equals("") ? true : false;
+            boolean ifNew = item.getIds().equals("") ? true : false;//$NON-NLS-1$
             String operationType;
             if (ifNew)
                 operationType = "CREATE"; //$NON-NLS-1$
@@ -392,7 +392,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             for (int i = 0; i < ids.length; i++) {
                 keyBuilder.append(ids[i]);
                 if (i != ids.length - 1)
-                    keyBuilder.append(".");
+                    keyBuilder.append("."); //$NON-NLS-1$
             }
         }
         String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
@@ -411,8 +411,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             boolean isUpdate = false;
             for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {
                 UpdateReportItem item = iter.next();
-                String oldValue = item.getOldValue() == null ? "" : item.getOldValue();
-                String newValue = item.getNewValue() == null ? "" : item.getNewValue();
+                String oldValue = item.getOldValue() == null ? "" : item.getOldValue();//$NON-NLS-1$
+                String newValue = item.getNewValue() == null ? "" : item.getNewValue();//$NON-NLS-1$
                 if (newValue.equals(oldValue))
                     continue;
                 sb.append("<Item>   <path>").append(item.getPath()).append("</path>   <oldValue>")//$NON-NLS-1$ //$NON-NLS-2$
@@ -558,7 +558,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 String conceptName = initxpathForeignKey;
                 // determine if we have xPath Infos: e.g. labels to display
                 String[] xpathInfos = new String[1];
-                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null)
+                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null)//$NON-NLS-1$
                     xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
                 else
                     xpathInfos[0] = conceptName;
@@ -823,7 +823,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     .getValue();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            return "0";
+            return "0";//$NON-NLS-1$ 
         }
     }
 

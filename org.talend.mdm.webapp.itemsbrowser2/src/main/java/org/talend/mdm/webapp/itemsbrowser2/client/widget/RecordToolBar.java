@@ -126,7 +126,7 @@ public class RecordToolBar extends ToolBar {
                         }
 
                     });
-                    box.getTextBox().setValue("/");
+                    box.getTextBox().setValue("/");//$NON-NLS-1$
                 }
             });
             sub.add(trashMenu);
@@ -216,7 +216,7 @@ public class RecordToolBar extends ToolBar {
 
             public void componentSelected(ButtonEvent ce) {
                 final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
-                if (!parent.getNewItemBean().getIds().equals("")) {
+                if (!parent.getNewItemBean().getIds().equals("")) {//$NON-NLS-1$
                     MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                             .save_confirm(), new Listener<MessageBoxEvent>() {
 
@@ -241,7 +241,7 @@ public class RecordToolBar extends ToolBar {
 
             public void componentSelected(ButtonEvent ce) {
                 final ItemsFormPanel parent = (ItemsFormPanel) instance.getParent().getParent();
-                if (!parent.getNewItemBean().getIds().equals("")) {
+                if (!parent.getNewItemBean().getIds().equals("")) {//$NON-NLS-1$
                     MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                             .save_confirm(), new Listener<MessageBoxEvent>() {
 

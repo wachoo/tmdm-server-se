@@ -52,7 +52,7 @@ public final class DateUtil {
      */
     public static final String getDate(Date aDate) {
         SimpleDateFormat df = null;
-        String returnValue = "";
+        String returnValue = "";//$NON-NLS-1$
 
         if (aDate != null) {
             df = new SimpleDateFormat(datePattern);

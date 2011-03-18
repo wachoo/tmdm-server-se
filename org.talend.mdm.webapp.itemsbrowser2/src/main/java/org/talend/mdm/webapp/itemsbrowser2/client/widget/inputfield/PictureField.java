@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -49,7 +50,7 @@ import com.google.gwt.user.client.ui.Image;
 
 public class PictureField extends Field<String> {
     
-    private static final String CONTEXT_PATH = GWT.getModuleBaseURL().replaceFirst(GWT.getModuleName() + "/", ""); //$NON-NLS-1$
+    private static final String CONTEXT_PATH = GWT.getModuleBaseURL().replaceFirst(GWT.getModuleName() + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
     
     private static final String DefaultImage = CONTEXT_PATH + "images/icons/no_image.gif"; //$NON-NLS-1$
 
@@ -81,7 +82,7 @@ public class PictureField extends Field<String> {
                         JSONBoolean success = jsObject.get("success").isBoolean(); //$NON-NLS-1$
                         JSONString message = jsObject.get("message").isString(); //$NON-NLS-1$
                         boolean succeed = success.booleanValue();
-                        MessageBox.alert(succeed ? "Success" : "Failed", message.stringValue(), null);//$NON-NLS-1$ //$NON-NLS-2$
+                        MessageBox.alert(succeed ? MessagesFactory.getMessages().message_success() : MessagesFactory.getMessages().message_fail(), message.stringValue(), null);
                         if (succeed) {
                             setValue(null);
                         }
@@ -89,7 +90,7 @@ public class PictureField extends Field<String> {
                     }
 
                     public void onError(Request request, Throwable exception) {
-                        MessageBox.alert("Error", exception.getMessage(), null);//$NON-NLS-1$
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), exception.getMessage(), null);
                     }
                 });
                 try {
@@ -109,7 +110,7 @@ public class PictureField extends Field<String> {
         regJs(delHandler);
         regJs(addHandler);
 
-        dialog.setHeading("Confirm");//$NON-NLS-1$
+        dialog.setHeading(MessagesFactory.getMessages().confirm_title());
         dialog.setModal(true);
         dialog.setBlinkModal(true);
         dialog.setButtons(Dialog.YESNO);
@@ -160,7 +161,7 @@ public class PictureField extends Field<String> {
         String oldValue = this.value;
         this.value = value;
 
-        if (value != null && value.length() != 0) { //$NON-NLS-1$
+        if (value != null && value.length() != 0) { 
             image.setUrl("/imageserver/" + value);//$NON-NLS-1$
         } else {
             image.setUrl(DefaultImage);
@@ -192,14 +193,14 @@ public class PictureField extends Field<String> {
             }
         };
 
-        private Button uploadButton = new Button("Upload", listener);//$NON-NLS-1$
+        private Button uploadButton = new Button(MessagesFactory.getMessages().button_upload(), listener);//$NON-NLS-1$
 
-        private Button resetButton = new Button("Reset", listener);//$NON-NLS-1$
+        private Button resetButton = new Button(MessagesFactory.getMessages().button_reset(), listener);//$NON-NLS-1$
 
         public EditWindow() {
             super();
             this.setLayout(new FitLayout());
-            this.setHeading("Upload Picture");//$NON-NLS-1$
+            this.setHeading(MessagesFactory.getMessages().picture_field_title());
             this.setSize(380, 150);
             this.setModal(true);
             this.setBlinkModal(true);
@@ -212,7 +213,7 @@ public class PictureField extends Field<String> {
 
             file.setAllowBlank(false);
             file.setName("imageFile");//$NON-NLS-1$
-            file.setFieldLabel("File Name");//$NON-NLS-1$
+            file.setFieldLabel(MessagesFactory.getMessages().picture_field_label());
 
             editForm.add(file, formData);
             editForm.addListener(Events.Submit, new Listener<FormEvent>() {

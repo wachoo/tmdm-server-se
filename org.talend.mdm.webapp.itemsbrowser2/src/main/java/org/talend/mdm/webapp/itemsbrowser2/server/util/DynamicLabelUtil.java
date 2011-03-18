@@ -122,7 +122,7 @@ public class DynamicLabelUtil extends XmlUtil{
         for (int i = 0; i < paths.length; i++) {
             
             String path=paths[i];
-            String occNum="";
+            String occNum="";//$NON-NLS-1$
             
             if(i==(paths.length-1))reachTheEnd=true;
             else reachTheEnd=false;

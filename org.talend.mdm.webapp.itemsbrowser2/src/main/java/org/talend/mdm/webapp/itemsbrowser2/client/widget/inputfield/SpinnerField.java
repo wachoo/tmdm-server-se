@@ -365,11 +365,11 @@ public class SpinnerField extends NumberField {
 
         spinner_up = new El(DOM.createImg());
         spinner_up.dom.setClassName("x-form-spinner-up " + triggerStyle);//$NON-NLS-1$
-        spinner_up.dom.setPropertyString("src", GXT.BLANK_IMAGE_URL);
+        spinner_up.dom.setPropertyString("src", GXT.BLANK_IMAGE_URL);//$NON-NLS-1$
 
         spinner_down = new El(DOM.createImg());
         spinner_down.dom.setClassName("x-form-spinner-down " + triggerStyle);//$NON-NLS-1$
-        spinner_down.dom.setPropertyString("src", GXT.BLANK_IMAGE_URL);
+        spinner_down.dom.setPropertyString("src", GXT.BLANK_IMAGE_URL);//$NON-NLS-1$
 
         el().appendChild(input.dom);
         el().appendChild(spinner_up.dom);

@@ -75,6 +75,8 @@ public interface ItemsbrowserMessages extends Messages {
     String valid_expression();
 
     String invalid_expression();
+    
+    String search_tab_name();
 
     String search_modifiedon();
 
@@ -173,4 +175,33 @@ public interface ItemsbrowserMessages extends Messages {
     String fk_RelatedRecord();
 
     String loading();
+    
+    String exception_parse_illegalChar(int beginIndex);
+    
+    String exception_parse_unknownOperator(String value);
+    
+    String exception_parse_missEndBlock(char endBlock,int i);
+    
+    String exception_parse_tooManyEndBlock(char endBlock,int i);
+    
+    String multiOccurrence_minimize(int value);
+    
+    String multiOccurrence_maximize(int value);
+    
+    String message_success();
+    
+    String message_fail();
+    
+    String button_upload();
+    
+    String button_reset();
+    
+    String picture_field_title();
+    
+    String picture_field_label();
+    
+    String url_field_title();
+    
+    String advsearch_morelabel();
+    
 }
