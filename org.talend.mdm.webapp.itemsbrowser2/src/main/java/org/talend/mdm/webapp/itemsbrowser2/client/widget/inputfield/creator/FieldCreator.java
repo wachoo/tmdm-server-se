@@ -20,7 +20,9 @@ import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.DateTimeFiel
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.MultipleField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.converter.BooleanConverter;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.converter.DateConverter;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.converter.DateTimeConverter;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.converter.NumberConverter;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.validator.NumberFieldValidator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.validator.TextFieldValidator;
@@ -84,17 +86,21 @@ public class FieldCreator {
 
         if (formBindings != null) {
             FieldBinding binding = null;
-            String baseType = dataType.getType().getBaseTypeName(); 
-            if (field instanceof SimpleComboBox && !DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)) {
+            if (field instanceof SimpleComboBox) {
                 binding = new SimpleComboBoxFieldBinding((SimpleComboBox) field, field.getName());
+                String baseType = dataType.getType().getBaseTypeName();
+                if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)){
+                    binding.setConverter(new BooleanConverter());
+                }
             } else if (field instanceof DateField) {
                 binding = new FieldBinding(field, field.getName());
                 binding.setConverter(new DateConverter());
+            } else if (field instanceof DateTimeField) {
+                binding = new FieldBinding(field, field.getName());
+                binding.setConverter(new DateTimeConverter());
             } else if (field instanceof NumberField){
                 binding = new FieldBinding(field, field.getName());
                 binding.setConverter(new NumberConverter(field));
-            } else if (field instanceof NumberField){
-                
             } else {
                 binding = new FieldBinding(field, field.getName());
             }
@@ -140,7 +146,7 @@ public class FieldCreator {
             field = dateField;
         } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)){
             DateTimeField dateTimeField = new DateTimeField();
-            dateTimeField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$
+            dateTimeField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
             field = dateTimeField;
         } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)){
             TextField<String> textField = new TextField<String>();
@@ -151,6 +157,7 @@ public class FieldCreator {
             textField.setValidator(TextFieldValidator.getInstance());
             field = textField;textField.setMessages(null);
         }
+        field.setWidth(400);
         field.setReadOnly(dataType.isReadOnly());
         field.setEnabled(!dataType.isReadOnly());
         field.setData("facetErrorMsgs", dataType.getFacetErrorMsgs().get(language));//$NON-NLS-1$

@@ -15,6 +15,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.DateUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.DateTimeField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.FieldSetCreator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
@@ -115,6 +116,8 @@ public class ItemsFormPanel extends Composite {
                     value = model.get("value"); //$NON-NLS-1$    
                 }
             } else if (field instanceof DateField) {
+                value = DateUtil.convertDateToString((Date) field.getValue());
+            } else if (field instanceof DateTimeField) {
                 value = DateUtil.convertDateToString((Date) field.getValue());
             } else {
                 value = field.getValue();

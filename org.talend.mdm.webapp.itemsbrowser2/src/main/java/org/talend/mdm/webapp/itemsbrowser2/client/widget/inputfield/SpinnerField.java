@@ -106,6 +106,11 @@ public class SpinnerField extends NumberField {
         ensureVisibilityOnSizing = true;
     }
 
+    public void setHeight(int height) {
+        super.setHeight(height);
+        spinner_up.setHeight(height / 2);
+        spinner_down.setHeight(height / 2);
+    }
     public Number getStepValue() {
         return stepValue;
     }
@@ -145,7 +150,6 @@ public class SpinnerField extends NumberField {
         return monitorTab;
     }
 
-    @Override
     public void onComponentEvent(ComponentEvent ce) {
         super.onComponentEvent(ce);
         int type = ce.getEventTypeInt();
@@ -240,7 +244,6 @@ public class SpinnerField extends NumberField {
         this.triggerStyle = triggerStyle;
     }
 
-    @Override
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
         if (rendered) {
@@ -251,12 +254,10 @@ public class SpinnerField extends NumberField {
         }
     }
 
-    @Override
     protected Size adjustInputSize() {
         return new Size(spinner_up.getWidth(), 0);
     }
 
-    @Override
     protected void afterRender() {
         super.afterRender();
         addStyleOnOver(spinner_up.dom, "x-form-trigger-over");//$NON-NLS-1$
@@ -272,7 +273,6 @@ public class SpinnerField extends NumberField {
         }
     }
 
-    @Override
     protected void onKeyDown(FieldEvent fe) {
         super.onKeyDown(fe);
         if (monitorTab && fe.getKeyCode() == KeyCodes.KEY_TAB) {
@@ -280,11 +280,9 @@ public class SpinnerField extends NumberField {
         }
     }
 
-    @Override
     protected void onBlur(ComponentEvent ce) {
     }
 
-    @Override
     protected void onClick(ComponentEvent ce) {
         if (!readOnly && !editable && getInputEl().dom.isOrHasChild(ce.getTarget())) {
             onTriggerClick(ce);
@@ -293,19 +291,16 @@ public class SpinnerField extends NumberField {
         super.onClick(ce);
     }
 
-    @Override
     protected void onDisable() {
         super.onDisable();
         addStyleName("x-item-disabled");//$NON-NLS-1$
     }
 
-    @Override
     protected void onEnable() {
         super.onEnable();
         removeStyleName("x-item-disabled");//$NON-NLS-1$
     }
 
-    @Override
     protected void onFocus(ComponentEvent ce) {
         super.onFocus(ce);
         if (!mimicing) {
@@ -337,7 +332,6 @@ public class SpinnerField extends NumberField {
         }
     }
 
-    @Override
     protected void onRender(Element target, int index) {
 
         focusEventPreview = new BaseEventPreview() {
@@ -387,7 +381,6 @@ public class SpinnerField extends NumberField {
         }
     }
 
-    @Override
     protected void onResize(int width, int height) {
         super.onResize(width, height);
         if (GXT.isIE && !hideTrigger) {
@@ -451,13 +444,11 @@ public class SpinnerField extends NumberField {
             this.spinnerField = spinnerField;
         }
 
-        @Override
         public void cancel() {
             super.cancel();
             count = 0;
         }
 
-        @Override
         public void run() {
             count++;
             if (eventType == SpinnerUpClick)

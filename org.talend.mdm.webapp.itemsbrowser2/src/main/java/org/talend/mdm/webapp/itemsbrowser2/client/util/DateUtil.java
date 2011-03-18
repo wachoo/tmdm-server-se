@@ -9,7 +9,9 @@ public class DateUtil {
 
     private static String datePattern = "yyyy-MM-dd";//$NON-NLS-1$
 
-    private static String timePattern = "HH:mm";//$NON-NLS-1$
+    public static String timePattern = "HH:mm:ss";//$NON-NLS-1$
+    
+    public static String dateTimePattern = "yyyy-MM-ddTHH:mm:ss";
     
     public static final Date convertStringToDate(String aMask, String strDate)  {
         if (strDate != null && strDate.trim().length() != 0){

@@ -1,8 +1,10 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.creator;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.DateTimeField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.celleditor.BooleanFieldCellEditor;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.celleditor.ComboBoxCellEditor;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.celleditor.DateFieldCellEditor;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.celleditor.DateTimeFieldCellEditor;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.celleditor.NumberFieldCellEditor;
 
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -26,6 +28,10 @@ public class CellEditorCreator {
             return new DateFieldCellEditor((DateField) field);
         }
         
+        if (field instanceof DateTimeField){
+            return new DateTimeFieldCellEditor((DateTimeField) field);
+        }
+            
         if (field instanceof NumberField){
             return new NumberFieldCellEditor((NumberField) field);
         }

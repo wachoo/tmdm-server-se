@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.itemsbrowser2.client.i18n;
 
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.client.Messages;
 
 
 public class MessagesFactory {

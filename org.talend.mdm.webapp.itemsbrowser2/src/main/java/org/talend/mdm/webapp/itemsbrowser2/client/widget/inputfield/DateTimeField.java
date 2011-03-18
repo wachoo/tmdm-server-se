@@ -3,6 +3,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield;
 import java.util.Date;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
@@ -49,8 +50,11 @@ public class DateTimeField extends Field<Date> {
         dateField.setHideLabel(true);
         hp.add(dateField);
         hh.setWidth(40);
+        hh.setFireChangeEventOnSetValue(false);
         mm.setWidth(40);
+        mm.setFireChangeEventOnSetValue(false);
         ss.setWidth(40);
+        ss.setFireChangeEventOnSetValue(false);
         hh.setMinValue(0);
         hh.setMaxValue(23);
         mm.setMinValue(0);
@@ -63,36 +67,16 @@ public class DateTimeField extends Field<Date> {
         hp.add(mm);
         hp.add(new Label(":"));
         hp.add(ss);
-        
-        dateField.addListener(Events.Change, new Listener<BaseEvent>() {
-            public void handleEvent(BaseEvent be) {
-                DateTimeField.this.setValue(dateField.getValue());
-            }
-        });
-        
-        Listener<BaseEvent> changeListener = new Listener<BaseEvent>() {
-
-            public void handleEvent(BaseEvent be) {
-                Date v = DateTimeField.this.getValue();
-                Date newDate = new Date(v.getTime());
-                DateTimeField.this.setValue(newDate);
-            }
-        };
-        
-        hh.addListener(Events.Change, changeListener);
-        mm.addListener(Events.Change, changeListener);
-        ss.addListener(Events.Change, changeListener);
-        
     }
     
     protected void onRender(Element target, int index) {
         setElement(hp.getElement(), target, index);
         super.onRender(target, index);
     }
-    
+    Date oldValue;
     public void setValue(Date value) {
         
-        Date oldValue = this.value;
+        oldValue = this.value;
         this.value = value;
         dateField.setValue(value);
         if (value != null){
@@ -139,5 +123,10 @@ public class DateTimeField extends Field<Date> {
         hh.setHeight(height);
         mm.setHeight(height);
         ss.setHeight(height);
+    }
+    
+    protected void onBlur(ComponentEvent be) {
+        super.onBlur(be);
+        fireChangeEvent(oldValue, value);
     }
 }
