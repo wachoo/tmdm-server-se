@@ -590,6 +590,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	var itemsCriteriaParentId = "1";
 	
+	var navigator;
+	
+	var breadCrumbPL;
+	
 	function browseItems(){
 		showItemsPanel();
 		//populate list
@@ -2237,8 +2241,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	//var itemTree;
 	var itemTreeFK;
 	
-	function displayItemDetails(itemPK2, dataObject){
-	    displayItemDetails2(itemPK2, dataObject, false ,displayItems);
+	function displayItemDetails(itemPK2, dataObject, isBreadCrumb,parentLink){
+	    displayItemDetails2(itemPK2, dataObject, false ,displayItems,isBreadCrumb,parentLink);
 	}
 	
 	function displayItemDetails4Duplicate(itemPK2, dataObject){
@@ -2256,6 +2260,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         ItemsBrowserInterface.prepareSessionForItemDetails(dataObject,language,function(status){});
 		DWREngine.setAsync(true);
 		loadResource("/itemsbrowser/secure/js/ItemNode.js", "amalto.itemsbrowser.ItemNode" );
+		loadResource("/itemsbrowser/secure/js/BreadCrumb.js", "amalto.itemsbrowser.BreadCrumb" );
 		//alert("display items "+DWRUtil.toDescriptiveString(itemPK2,2)+" "+ dataObject);
 		amalto.core.working();
 		itemNodes = [];
@@ -2314,6 +2319,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					smartView = '<iframe width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='+ids+'&concept='+dataObject+'&language='+language+'">';
 				}	
 	
+				var breadCrumbHtml = '<div id="breadCrumbHtml"></div>';
+				
 				//update the div structure
 				var errorHtml = '<div id="errorDesc'  + treeIndex + '" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:25px;padding-top:5px"><img src="img/genericUI/errorstate.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
                          + errorDesc[language] + '</span></div>' +
@@ -2422,6 +2429,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     	
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
     									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+    						tmp.setTitle(myTitle);
+    						tmp.setIds(ids);
+    						tmp.setConceptName(dataObject);
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
@@ -2733,6 +2743,30 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			    });
 				}
     			
+				var linkpaths = new Array();
+				
+				/*for(var index = 0; index < 5; index++) {
+					linkpaths[index] = index;
+					if(index != 0) {
+						navigator.addItem(new Ext.Toolbar.Button({text: ">>"}));
+					}
+					
+					navigator.addItem(new Ext.Toolbar.Button({text: "nav" + index}));
+				}*/
+				
+				/*var breadCrumbPL = new amalto.itemsbrowser.BreadCrumb({
+					paths:linkpaths
+				});*/
+				
+				breadCrumbPL = new Ext.Panel({
+				    id:'breadCrumbPL', 
+                    headerAsText:false,
+                    autoScroll:false,
+                    html:breadCrumbHtml,
+                    border:false,
+                    closable:false
+				});
+				
 				var errorContentPanel = new Ext.Panel({
 				    id:'errorDetailsdiv'+treeIndex, 
                     headerAsText:false,
@@ -2758,7 +2792,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     tbar: tbDetail,
                     header:false,
                     closable:true,
-                    items:[errorContentPanel,treeDetailPanel],
+                    items:[breadCrumbPL,errorContentPanel,treeDetailPanel],
                     bbar : new Ext.Toolbar([{
                         text : EDIT_ITEM_TOOLTIP[language],
                         xtype : "tbtext"
@@ -2768,6 +2802,22 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			formWindow.innerHTML = "";
 			contentPanel.render(formWindow);
 			//record the item id
+			var navigator = new Ext.Toolbar({id:'breadCrumbNav',title:""});
+			navigator.render("breadCrumbHtml");
+			
+			for(var index = 0; index < 5; index++) {
+				linkpaths[index] = index;
+				if(index != 0) {
+					navigator.addItem(new Ext.Toolbar.Button({text: ">>"}));
+				}
+				
+				navigator.addItem(new Ext.Toolbar.Button({text: "nav" + index}));
+			}
+		
+			/*var breadCrumbPL = new amalto.itemsbrowser.BreadCrumb({
+				paths:linkpaths
+			});*/
+			
 			contentPanel.itemid=itemPK2+"."+dataObject;
 			
 		    amalto.core.doLayout();	    
@@ -2852,7 +2902,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    
 	}
 	
-	function displayItemDetails2(itemPK2, dataObject, isDuplicate, refreshCB){
+	function displayItemDetails2(itemPK2, dataObject, isDuplicate, refreshCB, isBreadCrumb,parentLink){
 		loadResource("/itemsbrowser/secure/js/ItemNode.js", "amalto.itemsbrowser.ItemNode" );
 		//alert("display items "+DWRUtil.toDescriptiveString(itemPK2,2)+" "+ dataObject);
 		amalto.core.working();
@@ -2922,6 +2972,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					smartView = '<iframe width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='+ids+'&concept='+dataObject+'&language='+language+'">';
 				}	
 	
+				var breadCrumbHtml = '<div id="breadCrumbHtml'  + treeIndex + '"></div>';
+				
 				//update the div structure
 				var errorHtml = '<div id="errorDesc'  + treeIndex + '" style="display:none;color:red;font-weight:bold;font-size:11px;padding-left:25px;padding-top:5px"><img src="img/genericUI/errorstate.gif" style="vertical-align:middle"/><span style="padding-left:10px;text-align:center;vertical-align:middle;">'
                          + errorDesc[language] + '</span></div>' +
@@ -3032,9 +3084,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     								initToolBar(tbDetail, tbDetail.currentMode);
     							}
     						}
-    	
+    						var parentLink = [];
+    						parentLink["title"] = myTitle;
+    						parentLink["ids"] = ids;
+    						parentLink["conceptName"] = dataObject;
+    						
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
-    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem,parentLink);
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
@@ -3285,6 +3341,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			    });
 				}
     			
+				var breadCrumbPL = new Ext.Panel({
+				    id:'breadCrumbPL' + treeIndex, 
+                    headerAsText:false,
+                    autoScroll:false,
+                    html:breadCrumbHtml,
+                    border:false,
+                    closable:false
+				});
+				
 				var errorContentPanel = new Ext.Panel({
 				    id:'errorDetailsdiv'+treeIndex, 
                     headerAsText:false,
@@ -3325,6 +3390,16 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						xtype : "tbtext"
 					}])					
     			});*/
+				
+				var itemsPL = [];
+				
+				if(isBreadCrumb) {
+					itemsPL = [breadCrumbPL, errorContentPanel,treeDetailPanel];
+				}
+				else {
+					itemsPL = [errorContentPanel,treeDetailPanel];
+				}
+				
                 contentPanel = new Ext.Panel({
                     id:'itemDetailsdiv'+treeIndex, 
                     title: myTitle, 
@@ -3333,9 +3408,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     //layout:'border',
                     //height:500,
                     tbar: tbDetail,
-                    //autoScroll:true,
                     closable:true,
-                    items:[errorContentPanel,treeDetailPanel],
+                    items:itemsPL,
                     bbar : new Ext.Toolbar([{
                         text : EDIT_ITEM_TOOLTIP[language],
                         xtype : "tbtext"
@@ -3349,6 +3423,57 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			
 			contentPanel.show();
 			contentPanel.doLayout();
+			
+			var linkpaths;
+			
+			if(isBreadCrumb) {
+				var linkpath = [];
+				linkpath["title"] = myTitle;
+				linkpath["ids"] = itemPK2;
+				linkpath["conceptName"] = dataObject;
+				if(linkpaths == undefined) {
+					linkpaths = new Array();
+				}
+				
+				var parentTreeIndex = parentLink["treeIndex"];
+				var parentTabPL = amalto.core.getTabPanel().getItem('itemDetailsdiv'+parentTreeIndex);
+				var parentPL = parentTabPL.getComponent("breadCrumbPL" + parentTreeIndex);
+				var currentTabPL = amalto.core.getTabPanel().getItem('itemDetailsdiv'+treeIndex);
+				var currentPL = currentTabPL.getComponent("breadCrumbPL" + treeIndex);
+				
+				if(parentPL != undefined) {
+					var parentNav = parentPL.getComponent('breadCrumbNav' + parentTreeIndex);
+					var newNav = new Ext.Toolbar({id:'breadCrumbNav' + treeIndex});
+					currentPL.add(newNav);
+					currentPL.show();
+					currentPL.doLayout();
+
+					for(var index = 0; index < parentNav.items.getCount(); index++) {
+						var item = parentNav.items.get(index);
+						if(item.getXType() == 'tbbutton') {
+							var text = item.getText();
+							newNav.addButton(new Ext.Toolbar.Button({text: text, handler:item.handler}));
+						}
+					}
+					
+					newNav.show();
+					
+					newNav.addText(">>");
+					newNav.addButton(new Ext.Toolbar.Button({text: parentLink["title"], handler:function() {
+						displayItemDetails(parentLink["ids"], parentLink["conceptName"]);
+					}}));
+				}
+				else {
+					navigator = new Ext.Toolbar({id:'breadCrumbNav' + treeIndex});
+					currentPL.add(navigator);
+					currentPL.show();
+					currentPL.doLayout();
+					navigator.addButton(new Ext.Toolbar.Button({text: parentLink["title"], handler:function() {
+						displayItemDetails(parentLink["ids"], parentLink["conceptName"]);
+					}}));
+				}
+			}
+			
 		    amalto.core.doLayout();	    
 		});
 		
@@ -4565,7 +4690,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var fnLoadData2;
 	
 		
-	function browseForeignKey(nodeId, foreignKeyXpath, treeIndex){
+	function browseForeignKey(nodeId, foreignKeyXpath, treeIndex,title,ids,conceptName){
 		var itemTree = itemTreeList[treeIndex];
 		var node = itemTree.getNodeByIndex(nodeId);
 		var keyValue = node.itemData.value;
@@ -4606,8 +4731,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		if(itemPK =="")
 			Ext.Msg.alert("Warning","The concept does not exist.");
-		else
-			displayItemDetails(itemPK,dataObject);
+		else{
+			var parentLink =[];
+			parentLink["title"] = title;
+			parentLink["ids"] = ids;
+			parentLink["conceptName"] = conceptName;
+			parentLink["treeIndex"] = treeIndex;
+			//@temp yguo, build linkpath map
+			displayItemDetails(itemPK, dataObject, true, parentLink);
+		}
 	}
 	
 	/* seems this function is useless
@@ -4846,7 +4978,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		updateNode:function(id,treeIndex,format,typeName){updateNode(id, treeIndex,format,typeName);},
 		reloadNode:function(id,treeIndex){reloadNode(id, treeIndex);},
 		setlastUpdatedInputFlagPublic:function(id,treeIndex){setlastUpdatedInputFlag(id,treeIndex);},
-		browseForeignKey:function(nodeId, foreignKeyXpath, foreignKeyInfo){browseForeignKey(nodeId, foreignKeyXpath, foreignKeyInfo);},
+		browseForeignKey:function(nodeId, foreignKeyXpath, foreignKeyInfo, title, ids, concept){browseForeignKey(nodeId, foreignKeyXpath, foreignKeyInfo,title,ids,concept);},
 		showDatePicker:function(nodeId,treeIndex,nodeType,displayFormats){showDatePicker(nodeId,treeIndex,nodeType,displayFormats);},
 		showUploadFile: function (nodeId, treeIndex, nodeType){showUploadFile(nodeId, treeIndex, nodeType);},
 		removePicture: function (nodeId, treeIndex){removePicture(nodeId, treeIndex);},

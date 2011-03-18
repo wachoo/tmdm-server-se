@@ -14,11 +14,11 @@
  
 //amalto.namespace("amalto.itemsbrowser");
 
-amalto.itemsbrowser.ItemNode = function(itemData, newItem, treeIndex, oParent, expanded, hasIcon,isReadOnlyinItem) {
+amalto.itemsbrowser.ItemNode = function(itemData, newItem, treeIndex, oParent, expanded, hasIcon,isReadOnlyinItem,parentLink) {
     //if (oData) 
     {
         this.init(null, oParent, expanded);
-        this.initContent(itemData, newItem,treeIndex, hasIcon,isReadOnlyinItem);
+        this.initContent(itemData, newItem,treeIndex, hasIcon,isReadOnlyinItem,parentLink);
         this.itemData = itemData;
         this.newItem = newItem;
         this.treeIndex = treeIndex;
@@ -65,7 +65,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
      * @param {boolean} hasIcon determines if the node will be rendered with an
      * icon or not
      */
-    initContent: function(itemData, newItem,treeIndex, hasIcon,isReadOnlyinItem) {	
+    initContent: function(itemData, newItem,treeIndex, hasIcon,isReadOnlyinItem,parentLink) {	
 		/********************************************************************
 		 * Localization
 		 ********************************************************************/
@@ -209,9 +209,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					'<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removeForeignKey(\''+itemData.nodeId+'\','+treeIndex+')">' +
 					'<img title="' + DEL_TT[language] + '" src="img/genericUI/link_delete.png"/></span>';	
 				}   
+				if(parentLink == null) {
+					parentLink = [];
+				}
+				
 				foreignKeyImg += ''+
 						'<span style="cursor: pointer;" ' +
-						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+(itemData.usingforeignKey==null?itemData.foreignKey:itemData.usingforeignKey)+'\',\''+treeIndex+'\')" >' +
+						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+(itemData.usingforeignKey==null?itemData.foreignKey:itemData.usingforeignKey)+'\',\''+treeIndex+'\',\''+parentLink["title"]+'\',\''+parentLink["ids"]+'\',\''+parentLink["conceptName"]+'\')" >' +
 						' <img src="img/genericUI/link_go.png" title="' + MAG_TT[language] + '"/></span>';
 			}
 			
