@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.shared;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -32,7 +33,7 @@ public class EntityModel implements IsSerializable {
      * DOC HSHU EntityModel constructor comment.
      */
     public EntityModel() {
-        this.metaDataTypes = new HashMap<String, TypeModel>();
+        this.metaDataTypes = new LinkedHashMap<String, TypeModel>();//Can I use linked hashMap?
     }
 
     public String getConceptName() {
