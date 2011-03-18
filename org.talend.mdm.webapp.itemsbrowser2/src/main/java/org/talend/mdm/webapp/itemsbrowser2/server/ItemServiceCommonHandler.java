@@ -729,8 +729,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
     }
 
-    public List<ItemBaseModel> getviewItemsCriterias(String view) {
-        String[] results = getSearchTemplateNames(view, true, 0, 0);
+    public List<ItemBaseModel> getUserCriterias(String view) {
+        String[] results = getSearchTemplateNames(view, false, 0, 0);
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
 
         for (String result : results) {
@@ -760,11 +760,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     WSStringPredicate.NONE, false);
 
             WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,//$NON-NLS-1$ 
-                    com.amalto.webapp.core.util.Util.getLoginUserName(), WSStringPredicate.NONE, false);
+                    RoleHelper.getCurrentUserName(), WSStringPredicate.OR, false);
             WSWhereCondition wc4;
             WSWhereOr or = new WSWhereOr();
             if (isShared) {
-                wc4 = new WSWhereCondition("BrowseItem/Shared", WSWhereOperator.EQUALS, "true", WSStringPredicate.OR, false);//$NON-NLS-1$ //$NON-NLS-2$ 
+                wc4 = new WSWhereCondition("BrowseItem/Shared", WSWhereOperator.EQUALS, "true", WSStringPredicate.NONE, false);//$NON-NLS-1$ //$NON-NLS-2$ 
 
                 or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null), new WSWhereItem(wc4, null, null) });
             } else {

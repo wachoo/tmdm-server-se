@@ -92,4 +92,7 @@ public interface Icons extends ClientBundle {
 
     @Source("link_edit.png")
     ImageResource link();
+
+    @Source("dosearch.png")
+    ImageResource dosearch();
 }

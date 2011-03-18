@@ -6,6 +6,7 @@ import java.util.Map;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.OperatorConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.DateTimeField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.SpinnerField;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
@@ -72,8 +73,8 @@ public class SearchFieldCreator {
                 field = dateField;
                 cons = OperatorConstants.dateOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.DATETIME.getBaseTypeName())) {
-                DateField dateField = new DateField();
-                dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm"));//$NON-NLS-1$            
+                DateTimeField dateField = new DateTimeField();
+                dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$            
                 field = dateField;
                 cons = OperatorConstants.dateOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.BOOLEAN.getBaseTypeName())) {
@@ -81,7 +82,7 @@ public class SearchFieldCreator {
                 radio.setBoxLabel("True"); //$NON-NLS-1$ 
                 radio.setValue(true);
                 Radio radio2 = new Radio();
-                radio2.setBoxLabel("False");//$NON-NLS-1$ 
+                radio2.setBoxLabel("False");//$NON-NLS-1$
                 RadioGroup radioGroup = new RadioGroup();
                 radioGroup.add(radio);
                 radioGroup.add(radio2);

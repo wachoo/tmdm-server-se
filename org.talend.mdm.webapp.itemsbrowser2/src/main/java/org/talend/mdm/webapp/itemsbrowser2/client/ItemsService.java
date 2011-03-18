@@ -46,7 +46,7 @@ public interface ItemsService extends RemoteService {
 
     String getCriteriaByBookmark(String bookmark);
 
-    List<ItemBaseModel> getviewItemsCriterias(String view);
+    List<ItemBaseModel> getUserCriterias(String view);
 
     PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load);
 
@@ -65,7 +65,7 @@ public interface ItemsService extends RemoteService {
     ItemResult logicalDeleteItem(ItemBean item, String path);
 
     AppHeader getAppHeader() throws Exception;
-    
+
     void initMessages(String language) throws IOException;
 
     ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception;
