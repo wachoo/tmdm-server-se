@@ -132,7 +132,8 @@ public class ItemsView extends View {
         for (String xpath : viewableXpaths) {
             TypeModel typeModel = dataTypes.get(xpath);
 
-            ColumnConfig cc = new ColumnConfig(xpath, ViewUtil.getViewableLabel(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel), 200);
+            ColumnConfig cc = new ColumnConfig(xpath, ViewUtil.getViewableLabel(
+                    Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel), 200);
             if (typeModel instanceof SimpleTypeModel) {
                 Field field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
                         Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
@@ -173,7 +174,7 @@ public class ItemsView extends View {
                     itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setHeight(1300, Unit.PX);
                     itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setOverflow(Overflow.AUTO);
                     GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, "", itemsSearchContainer //$NON-NLS-1$
-                            .getItemsFormPanel().getContent().getBody().dom);
+                            .getItemsFormPanel().getContent().getBody().dom, true);
                 }
                 // TODO handle legacy form
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_TAB)) {
@@ -212,7 +213,7 @@ public class ItemsView extends View {
                     window.setPosition(left + offset, top + offset);
                     window.setId("formWindowContainer");//$NON-NLS-1$
                     GetService.regCallback();
-                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, "", window.getBody().dom);//$NON-NLS-1$
+                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, "", window.getBody().dom, false);//$NON-NLS-1$
                 }
                 // TODO handle legacy form
             }

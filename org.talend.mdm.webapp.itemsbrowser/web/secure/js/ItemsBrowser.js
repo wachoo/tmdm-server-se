@@ -590,7 +590,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 	var itemsCriteriaParentId = "1";
 	
-	var navigator;
+	var breadCrumbNavigator;
 	
 	var breadCrumbPL;
 	
@@ -2251,7 +2251,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    
 	}
 	
-	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow) {
+	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail) {
 		
 		DWREngine.setAsync(false); 
 		ItemsBrowserInterface.getRootNode(dataObject,language, function(rootNode){
@@ -2388,8 +2388,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     							if (!(tbDetail.baseOptions&O_SAVE))
     							{
     								//case new
-    								tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT; 
-    								initToolBar(tbDetail, tbDetail.currentMode);
+    								tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT;
+    								if(!isDetail) {
+    									initToolBar(tbDetail, tbDetail.currentMode);
+    								}
     							}
     						}    						
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
@@ -2429,9 +2431,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     	
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
     									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
-    						tmp.setTitle(myTitle);
-    						tmp.setIds(ids);
-    						tmp.setConceptName(dataObject);
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
@@ -2743,30 +2742,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			    });
 				}
     			
-				var linkpaths = new Array();
-				
-				/*for(var index = 0; index < 5; index++) {
-					linkpaths[index] = index;
-					if(index != 0) {
-						navigator.addItem(new Ext.Toolbar.Button({text: ">>"}));
-					}
-					
-					navigator.addItem(new Ext.Toolbar.Button({text: "nav" + index}));
-				}*/
-				
-				/*var breadCrumbPL = new amalto.itemsbrowser.BreadCrumb({
-					paths:linkpaths
-				});*/
-				
-				breadCrumbPL = new Ext.Panel({
-				    id:'breadCrumbPL', 
-                    headerAsText:false,
-                    autoScroll:false,
-                    html:breadCrumbHtml,
-                    border:false,
-                    closable:false
-				});
-				
 				var errorContentPanel = new Ext.Panel({
 				    id:'errorDetailsdiv'+treeIndex, 
                     headerAsText:false,
@@ -2785,14 +2760,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     border:false,
                     closable:false
                 });
-    		
+				
                 contentPanel = new Ext.Panel({
                     id:'itemDetailsdiv'+treeIndex, 
                     title: myTitle, 
                     tbar: tbDetail,
                     header:false,
                     closable:true,
-                    items:[breadCrumbPL,errorContentPanel,treeDetailPanel],
+                    items:[errorContentPanel,treeDetailPanel],
                     bbar : new Ext.Toolbar([{
                         text : EDIT_ITEM_TOOLTIP[language],
                         xtype : "tbtext"
@@ -2802,22 +2777,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			formWindow.innerHTML = "";
 			contentPanel.render(formWindow);
 			//record the item id
-			var navigator = new Ext.Toolbar({id:'breadCrumbNav',title:""});
-			navigator.render("breadCrumbHtml");
-			
-			for(var index = 0; index < 5; index++) {
-				linkpaths[index] = index;
-				if(index != 0) {
-					navigator.addItem(new Ext.Toolbar.Button({text: ">>"}));
-				}
-				
-				navigator.addItem(new Ext.Toolbar.Button({text: "nav" + index}));
-			}
-		
-			/*var breadCrumbPL = new amalto.itemsbrowser.BreadCrumb({
-				paths:linkpaths
-			});*/
-			
 			contentPanel.itemid=itemPK2+"."+dataObject;
 			
 		    amalto.core.doLayout();	    
@@ -3424,53 +3383,54 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			contentPanel.show();
 			contentPanel.doLayout();
 			
-			var linkpaths;
-			
 			if(isBreadCrumb) {
-				var linkpath = [];
-				linkpath["title"] = myTitle;
-				linkpath["ids"] = itemPK2;
-				linkpath["conceptName"] = dataObject;
-				if(linkpaths == undefined) {
-					linkpaths = new Array();
-				}
-				
 				var parentTreeIndex = parentLink["treeIndex"];
 				var parentTabPL = amalto.core.getTabPanel().getItem('itemDetailsdiv'+parentTreeIndex);
-				var parentPL = parentTabPL.getComponent("breadCrumbPL" + parentTreeIndex);
 				var currentTabPL = amalto.core.getTabPanel().getItem('itemDetailsdiv'+treeIndex);
 				var currentPL = currentTabPL.getComponent("breadCrumbPL" + treeIndex);
-				
-				if(parentPL != undefined) {
-					var parentNav = parentPL.getComponent('breadCrumbNav' + parentTreeIndex);
-					var newNav = new Ext.Toolbar({id:'breadCrumbNav' + treeIndex});
-					currentPL.add(newNav);
-					currentPL.show();
-					currentPL.doLayout();
 
-					for(var index = 0; index < parentNav.items.getCount(); index++) {
-						var item = parentNav.items.get(index);
-						if(item.getXType() == 'tbbutton') {
-							var text = item.getText();
-							newNav.addButton(new Ext.Toolbar.Button({text: text, handler:item.handler}));
+				if(parentTabPL != undefined) {
+					var parentPL = parentTabPL.getComponent("breadCrumbPL" + parentTreeIndex);
+					
+					if(parentPL != undefined && parentPL.items != undefined) {
+						var parentNav = parentPL.getComponent('breadCrumbNav' + parentTreeIndex);
+						var newNav = new Ext.Toolbar({id:'breadCrumbNav' + treeIndex});
+						currentPL.add(newNav);
+						currentPL.show();
+						currentPL.doLayout();
+	
+						for(var index = 0; index < parentNav.items.getCount(); index++) {
+							var item = parentNav.items.get(index);
+							if(item.getXType() == 'tbbutton') {
+								var text = item.getText();
+								newNav.addButton(new Ext.Toolbar.Button({text: text, handler:item.handler}));
+							}
 						}
+						
+						newNav.show();
+						
+						newNav.addText(">>");
+						newNav.addButton(new Ext.Toolbar.Button({text: parentLink["title"], handler:function() {
+							displayItemDetails(parentLink["ids"], parentLink["conceptName"]);
+						}}));
 					}
-					
-					newNav.show();
-					
-					newNav.addText(">>");
-					newNav.addButton(new Ext.Toolbar.Button({text: parentLink["title"], handler:function() {
-						displayItemDetails(parentLink["ids"], parentLink["conceptName"]);
-					}}));
+					else {
+						breadCrumbNavigator = new Ext.Toolbar({id:'breadCrumbNav' + treeIndex});
+						currentPL.add(breadCrumbNavigator);
+						currentPL.show();
+						currentPL.doLayout();
+						breadCrumbNavigator.addButton(new Ext.Toolbar.Button({text: parentLink["title"], handler:function() {
+							displayItemDetails(parentLink["ids"], parentLink["conceptName"]);
+						}}));
+					}
 				}
-				else {
-					navigator = new Ext.Toolbar({id:'breadCrumbNav' + treeIndex});
-					currentPL.add(navigator);
+				else if(currentPL != undefined) {
+					//@temp yguo, open fk from detail panel and window panel
+					/*breadCrumbNavigator = new Ext.Toolbar({id:'breadCrumbNav' + treeIndex});
+					currentPL.add(breadCrumbNavigator);
 					currentPL.show();
 					currentPL.doLayout();
-					navigator.addButton(new Ext.Toolbar.Button({text: parentLink["title"], handler:function() {
-						displayItemDetails(parentLink["ids"], parentLink["conceptName"]);
-					}}));
+					breadCrumbNavigator.addButton(new Ext.Toolbar.Button({text: "Detail panel"}));*/
 				}
 			}
 			
@@ -4993,7 +4953,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		getSiblingsLength:function(node){getSiblingsLength(node);},
 		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);},
 		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);},
-		renderFormWindow:function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow){renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow);}
+		renderFormWindow:function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail){renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow,isDetail);}
 		/*getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
 		setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}*/
  	};

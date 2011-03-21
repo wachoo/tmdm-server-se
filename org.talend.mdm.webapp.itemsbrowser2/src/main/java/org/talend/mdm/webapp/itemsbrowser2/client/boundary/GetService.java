@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.itemsbrowser2.client.boundary;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -42,7 +41,7 @@ public class GetService {
     }-*/;
 
     public static native void renderFormWindow(String ids, String concept, boolean isDuplicate, String refreshCB,
-            Element formWindow) /*-{
-        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderFormWindow(ids, concept, isDuplicate, refreshCB, formWindow);
+            Element formWindow, boolean isDetail) /*-{
+        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderFormWindow(ids, concept, isDuplicate, refreshCB, formWindow, isDetail);
     }-*/;
 }
