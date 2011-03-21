@@ -89,7 +89,7 @@ public class FKRelRecordWindow extends Window {
 
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
                 service.getForeignKeyList((PagingLoadConfig) loadConfig, Itemsbrowser2.getSession().getCurrentEntityModel()
-                        .getMetaDataTypes().get(fkKey), Itemsbrowser2.getSession().getAppHeader().getDatacluster(),
+                        .getMetaDataTypes().get(fkKey), Itemsbrowser2.getSession().getAppHeader().getDatacluster(), false,
                         new AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
                             public void onFailure(Throwable caught) {

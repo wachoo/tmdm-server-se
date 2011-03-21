@@ -18,6 +18,7 @@ import java.util.List;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.Parser;
 import org.talend.mdm.webapp.itemsbrowser2.server.ItemsBrowserConfiguration;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
 
@@ -84,7 +85,22 @@ public class CommonUtil {
         return res;
     }
 
-    public static WSWhereItem buildWhereItems(Criteria criteria) throws Exception {
+    public static WSWhereItem buildWhereItems(String criteria) throws Exception {
+        WSWhereItem wi = null;
+        if (criteria.indexOf("../../t") > -1) {
+            WSWhereItem criteriaCondition = buildWhereItemsByCriteria(Parser.parse(criteria.substring(0, criteria
+                    .indexOf("../../t") - 5) + ")"));//$NON-NLS-1$  //$NON-NLS-2$   
+            WSWhereItem modifiedCondition = buildWhereItem(criteria.substring(criteria.indexOf("../../t"), criteria.length() - 1)); //$NON-NLS-1$)
+
+            WSWhereAnd and = new WSWhereAnd();
+            and.setWhereItems(new WSWhereItem[] { criteriaCondition, modifiedCondition });
+            wi = new WSWhereItem(null, and, null);
+        } else
+            wi = buildWhereItemsByCriteria(Parser.parse(criteria));
+        return wi;
+    }
+
+    public static WSWhereItem buildWhereItemsByCriteria(Criteria criteria) throws Exception {
         WSWhereItem wi = null;
         ArrayList<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
         if (criteria instanceof MultipleCriteria) {
@@ -97,7 +113,7 @@ public class CommonUtil {
                         WSWhereItem item = buildWhereItem(current.toString());
                         conditions.add(item);
                     } else if (current instanceof MultipleCriteria) {
-                        WSWhereItem item = buildWhereItems(current);
+                        WSWhereItem item = buildWhereItemsByCriteria(current);
                         conditions.add(item);
                     }
                 }
@@ -111,7 +127,7 @@ public class CommonUtil {
                         WSWhereItem item = buildWhereItem(current.toString());
                         conditions.add(item);
                     } else if (current instanceof MultipleCriteria) {
-                        WSWhereItem item = buildWhereItems(current);
+                        WSWhereItem item = buildWhereItemsByCriteria(current);
                         conditions.add(item);
                     }
                 }

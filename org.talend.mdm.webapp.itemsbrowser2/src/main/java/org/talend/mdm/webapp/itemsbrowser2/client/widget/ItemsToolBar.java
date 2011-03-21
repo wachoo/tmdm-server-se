@@ -697,6 +697,15 @@ public class ItemsToolBar extends ToolBar {
 
             });
             advancedPanel.addButton(searchBtn);
+            Button resetBtn = new Button(MessagesFactory.getMessages().button_reset());
+            resetBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                public void componentSelected(ButtonEvent ce) {
+                    advancedPanel.cleanCriteria();
+                }
+
+            });
+            advancedPanel.addButton(resetBtn);
             Button cancelBtn = new Button(MessagesFactory.getMessages().close_btn());
             cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 

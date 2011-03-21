@@ -59,7 +59,7 @@ public interface ItemsServiceAsync {
 
     void getItem(ItemBean itemBean, EntityModel entityModel, AsyncCallback<ItemBean> callback);
 
-    void getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK,
+    void getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK, boolean ifFKFilter,
             AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback);
 
 }

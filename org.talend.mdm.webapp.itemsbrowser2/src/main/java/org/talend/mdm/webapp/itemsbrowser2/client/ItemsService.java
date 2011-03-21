@@ -70,5 +70,6 @@ public interface ItemsService extends RemoteService {
 
     ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception;
 
-    ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK);
+    ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK,
+            boolean ifFKFilter);
 }

@@ -42,7 +42,6 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SearchTemplate;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.Parser;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.RoleHelper;
@@ -110,7 +109,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         List<ItemBean> itemBeans = new ArrayList<ItemBean>();
         String concept = ViewHelper.getConceptFromDefaultViewName(viewBean.getViewPK());
         try {
-            WSWhereItem wi = CommonUtil.buildWhereItems(Parser.parse(criteria));
+            WSWhereItem wi = CommonUtil.buildWhereItems(criteria);
             String[] results = CommonUtil.getPort().viewSearch(
                     new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1, skip, max,
                             sortCol, sortDir)).getStrings();
@@ -520,13 +519,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      * Foreign key
      *********************************************************************/
 
-    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK) {
+    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
+            String dataClusterPK, boolean ifFKFilter) {
         String xpathForeignKey = model.getForeignkey();
         // to verify
         String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         // in search panel, the fkFilter is empty
         String fkFilter = ""; //$NON-NLS-1$
-        String value = ".*"; //$NON-NLS-1$
+        if (ifFKFilter)
+            fkFilter = model.getFkFilter();
+        String value = ".*"; //$NON-NLS-1$        
 
         if (xpathForeignKey == null)
             return null;

@@ -194,8 +194,8 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return itemsServiceHandler.getItem(itemBean, entityModel);
     }
 
-    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK) {
-        return itemsServiceHandler.getForeignKeyList(config, model, dataClusterPK);
+    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
+            String dataClusterPK, boolean ifFKFilter) {
+        return itemsServiceHandler.getForeignKeyList(config, model, dataClusterPK, ifFKFilter);
     }
-
 }
