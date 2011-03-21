@@ -2413,18 +2413,35 @@ public class ItemsBrowserDWR {
         else
             node.getParentNode().appendChild(newNode);
     }
-
+    
     public static boolean checkIfTransformerExists(String concept, String language) {
+        return checkIfTransformerExists(concept,language,null);
+    }
+
+    public static boolean checkIfTransformerExists(String concept, String language, String optname) {
         try {
-            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();
+            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
             for (int i = 0; i < wst.length; i++) {
                 if (language != null) {
-                    if (wst[i].getPk().equals("Smart_view_" + concept + "_" + language.toUpperCase())) {
-                        return true;
+                    if(optname==null) {
+                        if (wst[i].getPk().equals("Smart_view_" + concept + "_" + language.toUpperCase())) {//$NON-NLS-1$ //$NON-NLS-2$
+                            return true;
+                        }
+                    }else {
+                        if (wst[i].getPk().equals("Smart_view_" + concept + "_" + language.toUpperCase()+ "#"+ optname)) {//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            return true;
+                        }
                     }
+                    
                 } else {
-                    if (wst[i].getPk().equals("Smart_view_" + concept)) {
-                        return true;
+                    if(optname==null) {
+                        if (wst[i].getPk().equals("Smart_view_" + concept)) {//$NON-NLS-1$ 
+                            return true;
+                        }
+                    }else {
+                        if (wst[i].getPk().equals("Smart_view_" + concept + "#"+ optname)) {//$NON-NLS-1$ //$NON-NLS-2$ 
+                            return true;
+                        }
                     }
                 }
             }
@@ -2839,7 +2856,68 @@ public class ItemsBrowserDWR {
         return document;
 
     }
+    
+    public ListRange getSmartViewList(int start, int limit, String sort, String dir, String regex) throws Exception {
+        ListRange listRange = new ListRange();
+        try {
 
+            if (regex == null || regex.length() == 0)
+                return listRange;
+            
+            String[] inputParams = regex.split("&");//$NON-NLS-1$
+            String concept = inputParams[0];
+            String language = inputParams[1];
+            Pattern smp = Pattern.compile("Smart_view_"+concept+"(_([^#]+))?(#(.+))?");//$NON-NLS-1$//$NON-NLS-2$
+
+            // get process
+            List<ComboItemBean> comboItems = new ArrayList<ComboItemBean>();
+            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
+            for (int i = 0; i < wst.length; i++) {
+                if (wst[i].getPk().startsWith("Smart_view_"+concept)) {//$NON-NLS-1$
+                    
+                    String smValue=wst[i].getPk();
+                    String smText="";//$NON-NLS-1$
+                    
+                    String iso=null;
+                    String optName=null;
+                    Matcher matcher = smp.matcher(wst[i].getPk());
+                    while(matcher.find()){
+                        iso=matcher.group(2);
+                        optName=matcher.group(4);
+                    }
+                    
+                    boolean isExist=false;
+                    if(iso==null&&language!=null&&language.toUpperCase().equals("EN")&&optName==null) {//$NON-NLS-1$
+                        smText=MESSAGES.getMessage("smart.view.default.option");
+                        isExist=true;
+                    }else if(iso!=null&&language!=null&&language.toUpperCase().equals(iso.toUpperCase())&&optName==null) {
+                        smText=MESSAGES.getMessage("smart.view.default.option");
+                        isExist=true;
+                    }else if(iso==null&&language!=null&&language.toUpperCase().equals("EN")&&optName!=null) {//$NON-NLS-1$
+                        smText=optName;
+                        isExist=true;
+                    }else if(iso!=null&&language!=null&&language.toUpperCase().equals(iso.toUpperCase())&&optName!=null) {
+                        smText=optName;
+                        isExist=true;
+                    }else {
+                        //do nothing
+                    }
+                    if(isExist)comboItems.add(new ComboItemBean(smValue, smText));
+                }
+            }
+
+            listRange.setData(comboItems.toArray());
+            listRange.setTotalSize(comboItems.size());
+
+        } catch (Exception e) {
+            String err = "Unable to get Smart view List! ";//$NON-NLS-1$
+            LOG.error(e.getMessage(), e);
+            throw new Exception(err);
+        }
+        return listRange;
+    }
+    
+    
     public ListRange getRunnableProcessList(int start, int limit, String sort, String dir, String regex) throws Exception {
         ListRange listRange = new ListRange();
         try {

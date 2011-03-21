@@ -38,35 +38,38 @@ public class SmartViewServlet extends HttpServlet {
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		response.setCharacterEncoding("UTF-8");		
-		response.setHeader("Cache-Control", "no-cache, must-revalidate");
-		response.setHeader("Expires", "Mon, 26 Jul 1997 05:00:00 GMT");
+		response.setCharacterEncoding("UTF-8");//$NON-NLS-1$ 
+		response.setHeader("Cache-Control", "no-cache, must-revalidate");//$NON-NLS-1$
+		response.setHeader("Expires", "Mon, 26 Jul 1997 05:00:00 GMT");//$NON-NLS-1$
 		
-		String idsString= request.getParameter("ids");
-		String concept = request.getParameter("concept");
+		String idsString= request.getParameter("ids");//$NON-NLS-1$
+		String concept = request.getParameter("concept");//$NON-NLS-1$
 		if(concept==null || idsString==null) return;
-		String[] ids = idsString.split("@");
-		String language = (request.getParameter("language")!=null?request.getParameter("language").toUpperCase():"EN");
+		String[] ids = idsString.split("@");//$NON-NLS-1$
+		String language = (request.getParameter("language")!=null?request.getParameter("language").toUpperCase():"EN");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String optname = request.getParameter("optname");//$NON-NLS-1$
 		
-		boolean transfo_lang = ItemsBrowserDWR.checkIfTransformerExists(concept,language);
+		boolean transfo_lang = ItemsBrowserDWR.checkIfTransformerExists(concept,language,optname);
 		
-		boolean transfo_no_lang = ItemsBrowserDWR.checkIfTransformerExists(concept,null);
-		String content="";
-		String contentType = "text/html";
+		boolean transfo_no_lang = ItemsBrowserDWR.checkIfTransformerExists(concept,null,optname);
+		String content="";//$NON-NLS-1$
+		String contentType = "text/html";//$NON-NLS-1$
 		String transformer=null;
 		if(transfo_lang) {
-			transformer = "Smart_view_"+concept+"_"+language.toUpperCase();
+			transformer = "Smart_view_"+concept+"_"+language.toUpperCase();//$NON-NLS-1$ //$NON-NLS-2$
+			if(optname!=null&&optname.length()>0)transformer+="#"+optname;//$NON-NLS-1$
 		}else if(transfo_no_lang){
-			transformer = "Smart_view_"+concept;
+			transformer = "Smart_view_"+concept;//$NON-NLS-1$
+			if(optname!=null&&optname.length()>0)transformer+="#"+optname;//$NON-NLS-1$
 		}
-		
+
 		if(transformer!=null) {		
-    		String dataClusterPK = "";
+    		String dataClusterPK = "";//$NON-NLS-1$
     		try {
-    			Configuration conf = (Configuration)(request.getSession().getAttribute("configuration"));
+    			Configuration conf = (Configuration)(request.getSession().getAttribute("configuration"));//$NON-NLS-1$
     			dataClusterPK = conf.getCluster();
     		} catch (Exception e) {
-    			String err = "Unable to read the configuration";
+    			String err = "Unable to read the configuration";//$NON-NLS-1$
     			org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
     			throw new ServletException(err, e);
     		}
@@ -83,12 +86,12 @@ public class SmartViewServlet extends HttpServlet {
     			//Scan the entries - in priority, taka the content of the 'html' entry, 
     			//else take the content of the _DEFAULT_ entry
     			for (int i = 0; i < entries.length; i++) {
-    				if ("_DEFAULT_".equals(entries[i].getVariable())) {
-    					content = new String(entries[i].getWsTypedContent().getWsBytes().getBytes(), "UTF-8");
+    				if ("_DEFAULT_".equals(entries[i].getVariable())) {//$NON-NLS-1$
+    					content = new String(entries[i].getWsTypedContent().getWsBytes().getBytes(), "UTF-8");//$NON-NLS-1$
     					contentType = entries[i].getWsTypedContent().getContentType();
     				}
-    				if ("html".equals(entries[i].getVariable())) {
-    					content = new String(entries[i].getWsTypedContent().getWsBytes().getBytes(), "UTF-8");
+    				if ("html".equals(entries[i].getVariable())) {//$NON-NLS-1$
+    					content = new String(entries[i].getWsTypedContent().getWsBytes().getBytes(), "UTF-8");//$NON-NLS-1$
     					contentType = entries[i].getWsTypedContent().getContentType();
     					break;
     				}
@@ -114,14 +117,14 @@ public class SmartViewServlet extends HttpServlet {
     //				}
     //			}
     		} catch (Exception e) {
-    			String err = "Unable to run the transformer '"+transformer+"'";
+    			String err = "Unable to run the transformer '"+transformer+"'";//$NON-NLS-1$ //$NON-NLS-2$
     			org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
     			throw new ServletException(err, e);
     		} 
 		}
 		
-		if (contentType.startsWith("application/xhtml+xml"))
-			response.setContentType("text/html");
+		if (contentType.startsWith("application/xhtml+xml"))//$NON-NLS-1$
+			response.setContentType("text/html");//$NON-NLS-1$
 		else
 			response.setContentType(contentType);
 		PrintWriter out = response.getWriter();

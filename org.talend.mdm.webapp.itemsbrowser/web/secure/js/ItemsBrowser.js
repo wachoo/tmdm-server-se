@@ -1953,6 +1953,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var O_REFRESH       = 1024;
 	var O_TASK          = 2048;
 	var O_LINEAGE       = 4096;
+	var O_SMARTVIEW_SWITCH = 8192;
 	
 	// modes
 	var M_TREE_VIEW		= 1;
@@ -2005,6 +2006,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			case M_PERSO_VIEW:
 				options |= O_TREE_VIEW;
 				options |= (toolbar.baseOptions & O_PRINT);
+				options |= (toolbar.baseOptions & O_SMARTVIEW_SWITCH);
 				//options |= (toolbar.baseOptions & O_DELETE);
 			break;
 		}
@@ -2036,7 +2038,72 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			toolbar.addButton({text: BUTTON_PERSONALIZED_VIEW[language],  handler:toolbar.displaySmartViewHandler });
 			nbButtons++;
 		}
-	// print
+		// smart view
+        if ( (options&O_SMARTVIEW_SWITCH)==O_SMARTVIEW_SWITCH )
+        {
+        
+            if (nbButtons>0)
+            {
+                toolbar.addSeparator();
+                nbButtons++;
+            }
+            
+            // add a combobox to the toolbar           
+            var smartViewStore = new Ext.data.Store({
+                 proxy: new Ext.data.DWRProxy(ItemsBrowserInterface.getSmartViewList , true),
+                 reader:new Ext.data.ListRangeReader({
+                      totalProperty: 'totalSize',
+                      id: 'value',
+                      root: 'data'
+                  }, Ext.data.Record.create([
+                            {name: 'value',mapping:'value',type:'string'},
+                            {name: 'text',mapping:'text',type:'string'}
+                           ])
+                   )
+                });
+                
+            smartViewStore.on('beforeload', 
+                    function(button, event) {
+                      var dataObjectValue=toolbar.dataObject;
+                      var input=dataObjectValue+"&"+language;
+                      Ext.apply(smartViewStore.baseParams,{
+                                  start: 0, 
+                                  limit: 0,
+                                  regex: input
+                                });
+                                
+                    }
+             );
+               
+            var combo = new Ext.form.ComboBox({
+                id :  "smartViewCombo"+toolbar.treeIndex,
+                name : "smartViewCombo"+toolbar.treeIndex,
+                editable : false,
+                store: smartViewStore,
+                displayField:'text',
+                valueField:'value',
+                typeAhead: true,
+                triggerAction: 'all',
+                forceSelection:true,
+                resizable:true,
+                listeners : {                     
+                               'select' : function(combo,record,index) {
+                                
+                                                      var optName=null;
+                                                      if(record.data.value.indexOf('#')!=-1)optName=record.data.text;
+                                                      var frameUrl='/itemsbrowser/secure/SmartViewServlet?ids='+toolbar.ids+'&concept='+toolbar.dataObject+'&language='+language;
+                                                      if(optName!=null)frameUrl+=('&optname='+optName);
+                                                      document.getElementById("smartViewFrame"+toolbar.treeIndex).src=frameUrl;
+                                                      
+                                          }
+                             }
+
+            });
+            
+            toolbar.addField(combo);
+            nbButtons++;
+        }
+	    // print
 		if ( (options&O_PRINT)==O_PRINT )
 		{
 			if (nbButtons>0)
@@ -2670,10 +2737,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         				};				
         				
         				tbDetail.printHandler = function(){			
-        					printSmartView(ids, dataObject);
+        					printSmartView(ids, dataObject, treeIndex);
         				};
         	
-        				tb.baseOptions |= O_PRINT | O_PERSO_VIEW;
+        				tb.baseOptions |= O_PRINT | O_PERSO_VIEW| O_SMARTVIEW_SWITCH;
         	
         				$('smartView'+treeIndex).style.display='block';
         				$('itemDetails'+treeIndex).style.display='none';
@@ -2928,7 +2995,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					
 				var smartView = '';
 				if(newItem[treeIndex]==false ) {
-					smartView = '<iframe width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='+ids+'&concept='+dataObject+'&language='+language+'">';
+					smartView = '<iframe id="smartViewFrame'+treeIndex+'" width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='+ids+'&concept='+dataObject+'&language='+language+'">';
 				}	
 	
 				var breadCrumbHtml = '<div id="breadCrumbHtml'  + treeIndex + '"></div>';
@@ -3210,10 +3277,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         				};				
         				
         				tbDetail.printHandler = function(){			
-        					printSmartView(ids, dataObject);
+        					printSmartView(ids, dataObject, treeIndex);
         				};
         	
-        				tb.baseOptions |= O_PRINT | O_PERSO_VIEW;
+        				tb.baseOptions |= O_PRINT | O_PERSO_VIEW | O_SMARTVIEW_SWITCH;
         	
         				$('smartView'+treeIndex).style.display='block';
         				$('itemDetails'+treeIndex).style.display='none';
@@ -4779,7 +4846,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		};
 		
 		tbDetail.printHandler = function() {			
-			printSmartView(ids,dataObject);
+			printSmartView(ids,dataObject,treeIndex);
 		};
 		
 		$('smartView'+treeIndex).style.display='block';
@@ -4805,8 +4872,17 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	
-	function printSmartView(ids,dataObject){
-		window.open('/itemsbrowser/secure/SmartViewServlet?ids='+ids+'&concept='+dataObject+'&language='+language,'Print','toolbar=no,location=no,directories=no,menubar=yes,scrollbars=yes,resizable=yes');
+	function printSmartView(ids,dataObject,treeIndex){
+		var optname = null;
+		var selectedSmartView = Ext.getCmp('smartViewCombo'+treeIndex).value;
+		if(selectedSmartView!=undefined&&selectedSmartView!=null){
+			if(selectedSmartView.indexOf('#')!=-1)
+			    optname=DWRUtil.getValue('smartViewCombo'+treeIndex);
+		}
+		
+		var url = '/itemsbrowser/secure/SmartViewServlet?ids='+ids+'&concept='+dataObject+'&language='+language;
+		if(optname!=null)url+='&optname='+optname;
+		window.open(url,'Print','toolbar=no,location=no,directories=no,menubar=yes,scrollbars=yes,resizable=yes');
 	}
 	
 	function saveConfig(ids, dataObject, treeIndex, callbackOnSuccess){
