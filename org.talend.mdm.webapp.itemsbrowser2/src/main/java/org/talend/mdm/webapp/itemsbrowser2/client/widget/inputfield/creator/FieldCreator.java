@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.DateTimeField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.MultipleField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.PictureField;
@@ -23,6 +24,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.UrlField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.converter.BooleanConverter;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.converter.DateConverter;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.converter.DateTimeConverter;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.converter.FKConverter;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.converter.NumberConverter;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.validator.NumberFieldValidator;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.validator.TextFieldValidator;
@@ -54,6 +56,7 @@ public class FieldCreator {
             field = multipleField;
         } else if (dataType.getForeignkey() != null) {
             FKField fkField = new FKField();
+            fkField.Update(dataType.getXpath(), fkField);
             field = fkField;
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
@@ -63,7 +66,7 @@ public class FieldCreator {
             comboBox.setEditable(false);
             comboBox.setForceSelection(true);
             comboBox.setTriggerAction(TriggerAction.ALL);
-            buildFacets(dataType, comboBox);
+            setEnumerationValues(dataType, comboBox);
             field = comboBox;
         } else if (dataType.getType().equals(DataTypeConstants.UUID)) {
 
@@ -78,7 +81,6 @@ public class FieldCreator {
             field = urlField;
         } else  {
             field = createCustomField(dataType, language);
-            buildFacets(dataType, field);
         }
 
         field.setFieldLabel(dataType.getLabel(language));
@@ -101,6 +103,9 @@ public class FieldCreator {
             } else if (field instanceof NumberField){
                 binding = new FieldBinding(field, field.getName());
                 binding.setConverter(new NumberConverter(field));
+            } else if (field instanceof FKField){
+                binding = new FieldBinding(field, field.getName());
+                binding.setConverter(new FKConverter());
             } else {
                 binding = new FieldBinding(field, field.getName());
             }
@@ -135,7 +140,7 @@ public class FieldCreator {
             numberField.setPropertyEditorType(Double.class);
             field = numberField;
         } else if (DataTypeConstants.BOOLEAN.getTypeName().equals(baseType)){
-            SimpleComboBox<Boolean> booleanField = new SimpleComboBox<Boolean>();
+            BooleanField booleanField = new BooleanField();
             booleanField.setDisplayField("text");//$NON-NLS-1$
             booleanField.getStore().add(new SimpleComboValue<Boolean>(){{this.setValue(true);this.set("text", "TRUE");}});//$NON-NLS-1$ //$NON-NLS-2$
             booleanField.getStore().add(new SimpleComboValue<Boolean>(){{this.setValue(false);this.set("text", "FALSE");}});//$NON-NLS-1$ //$NON-NLS-2$
@@ -172,7 +177,7 @@ public class FieldCreator {
         }
     }
 
-    public static void setEnumerationValues(TypeModel typeModel, Widget w){
+    private static void setEnumerationValues(TypeModel typeModel, Widget w){
         List<String> enumeration = ((SimpleTypeModel) typeModel).getEnumeration();
         if (enumeration != null && enumeration.size() > 0){
             SimpleComboBox<String> field = (SimpleComboBox<String>) w;

@@ -22,6 +22,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.SearchFieldCreator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
@@ -47,7 +48,7 @@ import com.google.gwt.user.client.ui.Widget;
 /**
  * DOC stephane class global comment. Detailled comment
  */
-public class SimpleCriterionPanel<T> extends HorizontalPanel {
+public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCriteriaFK {
 
     private ComboBox<BaseModel> keyComboBox;
 

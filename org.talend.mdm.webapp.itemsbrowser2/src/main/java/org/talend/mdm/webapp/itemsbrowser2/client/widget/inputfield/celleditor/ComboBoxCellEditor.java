@@ -12,15 +12,20 @@ public class ComboBoxCellEditor extends CellEditor {
 
     public Object preProcessValue(Object value) {
         if (value == null) {
-            return value;
+            return null;
         }
         return ((SimpleComboBox) getField()).findModel(value.toString());
     }
 
     public Object postProcessValue(Object value) {
         if (value == null) {
-            return value;
+            return "";
         }
-        return ((ModelData) value).get("value");//$NON-NLS-1$
+        Object v = ((ModelData) value).get("value");//$NON-NLS-1$
+        if (v == null){
+            return "";
+        } else {
+            return v;
+        }
     }
 }

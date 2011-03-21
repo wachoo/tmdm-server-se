@@ -1,5 +1,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.celleditor;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.BooleanField;
+
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
@@ -7,7 +9,7 @@ import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 
 public class BooleanFieldCellEditor extends CellEditor {
 
-    public BooleanFieldCellEditor(SimpleComboBox field) {
+    public BooleanFieldCellEditor(BooleanField field) {
         super(field);
     }
 
@@ -15,13 +17,19 @@ public class BooleanFieldCellEditor extends CellEditor {
         if (value == null) {
             return value;
         }
-        return ((SimpleComboBox) getField()).findModel(value.toString());
+        Boolean v = Boolean.parseBoolean(value.toString());
+        return ((SimpleComboBox) getField()).findModel(v);
     }
 
     public Object postProcessValue(Object value) {
         if (value == null) {
             return value;
         }
-        return ((ModelData) value).get("value");//$NON-NLS-1$
+        Object v = ((ModelData) value).get("value");//$NON-NLS-1$
+        if (v == null){
+            return "";
+        } else {
+            return v;
+        }
     }
 }

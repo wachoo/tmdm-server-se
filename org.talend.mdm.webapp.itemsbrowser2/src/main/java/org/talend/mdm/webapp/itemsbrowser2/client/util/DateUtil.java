@@ -34,6 +34,6 @@ public class DateUtil {
             DateTimeFormat df = DateTimeFormat.getFormat(aMask);
             return df.format(aDate);
         }
-        return null;
+        return "";
     }
 }

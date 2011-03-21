@@ -35,7 +35,6 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -48,7 +47,6 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -57,8 +55,6 @@ import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -141,11 +137,7 @@ public class ItemsListPanel extends ContentPanel {
         grid = new Grid<ItemBean>(store, cm);
         grid.setSelectionModel(sm);
         grid.setStateful(true);
-        re = new RowEditor<ItemBean>(){
-            protected void onRowClick(GridEvent<ItemBean> e) {
-                // cancel click Editor  
-            }
-        };
+        re = new SaveRowEditor();
         grid.getView().setForceFit(true);
         if (cm.getColumnCount() > 0) {
             grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
@@ -257,4 +249,5 @@ public class ItemsListPanel extends ContentPanel {
         evt.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
         Dispatcher.forwardEvent(evt);
     }
+
 }

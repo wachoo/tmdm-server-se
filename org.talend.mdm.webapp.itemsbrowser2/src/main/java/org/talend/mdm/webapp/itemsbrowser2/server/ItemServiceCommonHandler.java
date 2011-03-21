@@ -631,7 +631,14 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             if (results != null) {
                 for (String result : results) {
                     ForeignKeyBean bean = new ForeignKeyBean();
-                    bean.setId(XmlUtil.getTextValueFromXpath(XmlUtil.parseText(result), "../i")); //$NON-NLS-1$
+                    String id = "";
+                    List<Node> nodes = XmlUtil.getValuesFromXPath(XmlUtil.parseText(result), "i"); //$NON-NLS-1$
+                    if (nodes != null){
+                        for (Node node : nodes){
+                            id += "[" + (node.getText() == null ? "" : node.getText()) + "]";
+                        }
+                    }
+                    bean.setId(id); //$NON-NLS-1$
                     if (result != null) {
                         Element root = XmlUtil.parseText(result).getRootElement();
                         if (root.getName().equals("result"))//$NON-NLS-1$

@@ -70,7 +70,7 @@ public class FKRelRecordWindow extends Window {
 
     private String fkKey;
 
-    private final SimpleCriterionPanel simpleCriterionPanel;
+    private ReturnCriteriaFK returnCriteriaFK;
 
     private ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
@@ -78,9 +78,27 @@ public class FKRelRecordWindow extends Window {
 
     private int pageSize = 20;
 
-    public FKRelRecordWindow(String fkKey, SimpleCriterionPanel panel) {
+    public FKRelRecordWindow() {}
+    
+    public FKRelRecordWindow(String fkKey, ReturnCriteriaFK returnCriteriaFK) {
         this.fkKey = fkKey;
-        this.simpleCriterionPanel = panel;
+        this.returnCriteriaFK = returnCriteriaFK;
+    }
+
+    public String getFkKey() {
+        return fkKey;
+    }
+
+    public void setFkKey(String fkKey) {
+        this.fkKey = fkKey;
+    }
+
+    public ReturnCriteriaFK getReturnCriteriaFK() {
+        return returnCriteriaFK;
+    }
+
+    public void setReturnCriteriaFK(ReturnCriteriaFK returnCriteriaFK) {
+        this.returnCriteriaFK = returnCriteriaFK;
     }
 
     protected void onRender(Element parent, int pos) {
@@ -177,7 +195,7 @@ public class FKRelRecordWindow extends Window {
         relatedRecordGrid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ForeignKeyBean>>() {
 
             public void handleEvent(final GridEvent<ForeignKeyBean> be) {
-                simpleCriterionPanel.setCriteriaFK(be.getModel());
+                returnCriteriaFK.setCriteriaFK(be.getModel());
                 close();
             }
         });
