@@ -87,13 +87,14 @@ public class CommonUtil {
 
     public static WSWhereItem buildWhereItems(String criteria) throws Exception {
         WSWhereItem wi = null;
-        if (criteria.indexOf("../../t") > -1) {
-            WSWhereItem criteriaCondition = buildWhereItemsByCriteria(Parser.parse(criteria.substring(0, criteria
-                    .indexOf("../../t") - 5) + ")"));//$NON-NLS-1$  //$NON-NLS-2$   
-            WSWhereItem modifiedCondition = buildWhereItem(criteria.substring(criteria.indexOf("../../t"), criteria.length() - 1)); //$NON-NLS-1$)
+        if (criteria.indexOf("../../t") > -1) { //$NON-NLS-1$
+            ArrayList<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
+            if (criteria.indexOf("../../t") - 5 > -1) //$NON-NLS-1$
+                conditions.add(buildWhereItemsByCriteria(Parser
+                        .parse(criteria.substring(0, criteria.indexOf("../../t") - 5) + ")")));//$NON-NLS-1$  //$NON-NLS-2$   
+            conditions.add(buildWhereItem(criteria.substring(criteria.indexOf("../../t"), criteria.length() - 1))); //$NON-NLS-1$
 
-            WSWhereAnd and = new WSWhereAnd();
-            and.setWhereItems(new WSWhereItem[] { criteriaCondition, modifiedCondition });
+            WSWhereAnd and = new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
             wi = new WSWhereItem(null, and, null);
         } else
             wi = buildWhereItemsByCriteria(Parser.parse(criteria));
