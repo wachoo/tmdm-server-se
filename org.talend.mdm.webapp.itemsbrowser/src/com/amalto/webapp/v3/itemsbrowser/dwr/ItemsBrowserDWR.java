@@ -312,8 +312,8 @@ public class ItemsBrowserDWR {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-        //reset the foreignKeys
-        prepareSessionForItemDetails(concept,language);
+        // reset the foreignKeys
+        prepareSessionForItemDetails(concept, language);
         return rootNode;
 
     }
@@ -1216,9 +1216,9 @@ public class ItemsBrowserDWR {
         if (xpathToTreeNode != null) {
             ctx.getSession().setAttribute("xpathToTreeNode", xpathToTreeNode); //$NON-NLS-1$
         }
-        
-        TreeNode[] rtnNodes=list.toArray(new TreeNode[list.size()]);
-        
+
+        TreeNode[] rtnNodes = list.toArray(new TreeNode[list.size()]);
+
         handleDynamicLable(rtnNodes, docIndex);// FIXME: performance maybe a problem
         rtnNodes = handleDisplayRules(rtnNodes, docIndex);
         return rtnNodes;
@@ -1989,20 +1989,36 @@ public class ItemsBrowserDWR {
         // end
 
         WebContext ctx = WebContextFactory.get();
-        Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
-        Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
-        if (withValue) {
-            Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
-            String xPath = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
-            //boolean isEdit = ((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT); //$NON-NLS-1$ //$NON-NLS-2$
-            if (doc != null && Util.getNodeList(doc, xPath) != null && Util.getNodeList(doc, xPath).getLength() > 0) {
-                String textContent = Util.getFirstTextNode(doc, xPath);
-                if (textContent != null)
-                    el.setTextContent(textContent);
+        Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$ _backup
+
+        Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
+        String xPath = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
+        //boolean isEdit = ((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT); //$NON-NLS-1$ //$NON-NLS-2$
+        Node parentNode = Util.getNodeList(d, xpathParent).item(0);
+        if (doc != null) {
+            NodeList nodes = Util.getNodeList(doc, xPath);
+            // String textContent = Util.getFirstTextNode(doc, xPath);
+            if (nodes != null && nodes.getLength() > 0) {
+                for (int i = 0; i < nodes.getLength(); i++) {
+                    Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
+                    Node node = nodes.item(i);
+                    String textContent = node.getTextContent();
+                    if (textContent != null && withValue)
+                        el.setTextContent(textContent);
+
+                    parentNode.appendChild(el);
+                }
             }
+        } else {
+            Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
+            parentNode.appendChild(el);
+            if (xsp.getTerm().asElementDecl().getType() != null)
+                if (xsp.getTerm().asElementDecl().getType().isComplexType() == false
+                        && xsp.getTerm().asElementDecl().getType().asSimpleType().getName().equals("boolean")) { //$NON-NLS-1$
+                    el.setTextContent("false"); //$NON-NLS-1$
+                }
         }
-        Node node = Util.getNodeList(d, xpathParent).item(0);
-        node.appendChild(el);
+
         if (xsp.getTerm().asElementDecl().getType().isComplexType() == true) {
             XSParticle particle = xsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
             if (particle != null) {
@@ -2014,9 +2030,6 @@ public class ItemsBrowserDWR {
             }
         } else if (xsp.getTerm().asElementDecl().getType().asSimpleType().getName() != null) {
             // simple Type and check out the bool type
-            if (xsp.getTerm().asElementDecl().getType().asSimpleType().getName().equals("boolean")) { //$NON-NLS-1$
-                el.setTextContent("false"); //$NON-NLS-1$
-            }
 
         }
     }
@@ -3597,8 +3610,8 @@ public class ItemsBrowserDWR {
 
         return listRange;
     }
-    
-    public boolean isEntityCreatable(String conceptName)throws Exception{
-    	return !SchemaWebAgent.getInstance().isEntityDenyCreatable(conceptName);
+
+    public boolean isEntityCreatable(String conceptName) throws Exception {
+        return !SchemaWebAgent.getInstance().isEntityDenyCreatable(conceptName);
     }
 }
