@@ -79,7 +79,7 @@ public class AdvancedSearchPanel extends FormPanel {
             expressionTextField.setValue(express);
             String condition = c.indexOf(")") > -1 ? c.substring(c.indexOf(modifiedON), c.length() - 1) : c.substring(c.indexOf(modifiedON), c.length()); //$NON-NLS-1$
             if (instance.getItemByItemId("modifiedon") == null) { //$NON-NLS-1$
-                instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("50%")); //$NON-NLS-1$  //$NON-NLS-2$
+                instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("60%")); //$NON-NLS-1$  //$NON-NLS-2$
                 instance.layout(true);
             }
             DateField fromfield = (DateField) ((LayoutContainer) ((LayoutContainer) this.getItemByItemId("modifiedon")) //$NON-NLS-1$
@@ -368,7 +368,7 @@ public class AdvancedSearchPanel extends FormPanel {
                     // instance.insert(modifiedbyField, this.getItemCount() - 1, formData);
                     // } else
                     if (selvalue.equals("modifiedon") && instance.getItemByItemId("modifiedonField1") == null) { //$NON-NLS-1$  //$NON-NLS-2$
-                        instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("50%")); //$NON-NLS-1$  //$NON-NLS-2$
+                        instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("60%")); //$NON-NLS-1$  //$NON-NLS-2$
                     }
                     instance.layout(true);
                 }

@@ -84,6 +84,7 @@ public class SearchFieldCreator {
                 Radio radio2 = new Radio();
                 radio2.setBoxLabel("False");//$NON-NLS-1$
                 RadioGroup radioGroup = new RadioGroup();
+                radioGroup.setStyleAttribute("padding-left", "10px");
                 radioGroup.add(radio);
                 radioGroup.add(radio2);
                 field = radioGroup;
