@@ -50,11 +50,11 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -201,11 +201,9 @@ public class ItemsToolBar extends ToolBar {
 
                                                     public void onSuccess(List<ItemResult> resultes) {
                                                         StringBuffer succeed = new StringBuffer(MessagesFactory.getMessages()
-                                                                .info_title()
-                                                                + "\n");//$NON-NLS-1$
+                                                                .info_title() + "\n");//$NON-NLS-1$
                                                         StringBuffer failure = new StringBuffer(MessagesFactory.getMessages()
-                                                                .error_title()
-                                                                + "\n");//$NON-NLS-1$
+                                                                .error_title() + "\n");//$NON-NLS-1$
                                                         for (ItemResult result : resultes) {
                                                             if (result.getStatus() == ItemResult.SUCCESS) {
                                                                 succeed.append(result.getDescription() + "\n");//$NON-NLS-1$
@@ -247,11 +245,11 @@ public class ItemsToolBar extends ToolBar {
                                             public void onSuccess(ItemResult arg0) {
                                                 if (arg0.getStatus() == ItemResult.SUCCESS) {
                                                     list.getStore().getLoader().load();
-                                                    MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0
-                                                            .getDescription(), null);
+                                                    MessageBox.alert(MessagesFactory.getMessages().info_title(),
+                                                            arg0.getDescription(), null);
                                                 } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                                                    MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0
-                                                            .getDescription(), null);
+                                                    MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                                            arg0.getDescription(), null);
                                                 }
                                             }
 
@@ -282,6 +280,7 @@ public class ItemsToolBar extends ToolBar {
         entityCombo.setDisplayField("name");//$NON-NLS-1$
         entityCombo.setValueField("value");//$NON-NLS-1$
         entityCombo.setTriggerAction(TriggerAction.ALL);
+        entityCombo.setId("EntityComboBox");
 
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 

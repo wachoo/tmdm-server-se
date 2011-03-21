@@ -35,10 +35,10 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
@@ -79,6 +79,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         keyComboBox.setValueField("value"); //$NON-NLS-1$
         keyComboBox.setStore(list);
         keyComboBox.setTriggerAction(TriggerAction.ALL);
+        keyComboBox.setId("SimpleKeyComboBox");
 
         keyComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
@@ -96,6 +97,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         operatorComboBox.setValueField("value"); //$NON-NLS-1$
         operatorComboBox.setStore(operatorlist);
         operatorComboBox.setTriggerAction(TriggerAction.ALL);
+        operatorComboBox.setId("SimpleOperatorComboBox");
         add(operatorComboBox);
 
         add(content);
@@ -165,6 +167,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel {
         field = null;
         field = SearchFieldCreator.createField(itemsPredicates.get(getKey()));
         if (field != null) {
+            field.setId("SimpleSearchValueFiled");
             if (field instanceof FKField)
                 ((FKField) field).Update(getKey(), this);
             content.add(field);
