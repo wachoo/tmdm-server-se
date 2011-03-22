@@ -25,14 +25,12 @@ import com.amalto.webapp.core.bean.Configuration;
 public class ItemServiceHandler extends ItemServiceCommonHandler implements ItemsService{
     
     public String getCurrentDataModel() throws Exception {
-        Configuration config = Configuration.getInstance(true);
-        //FIXME: leverage session to improve performance 
+        Configuration config = Configuration.getConfiguration();
         return config.getModel();
     }
     
     public String getCurrentDataCluster() throws Exception {
-        Configuration config = Configuration.getInstance(true);
-        //FIXME: leverage session to improve performance 
+        Configuration config = Configuration.getConfiguration();
         return config.getCluster();
     }
 }

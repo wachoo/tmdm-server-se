@@ -152,6 +152,21 @@ public class Configuration {
 
         return configuration;
     }
+    
+    
+    /**
+     * DOC HSHU Comment method "getConfiguration".
+     */
+    public static Configuration getConfiguration() throws Exception {
+        Configuration configuration = null;
+        WebContext ctx = WebContextFactory.get();
+        if (ctx != null&&ctx.getSession().getAttribute("configuration")!=null) {
+            configuration = (Configuration) ctx.getSession().getAttribute("configuration");
+        }else {
+            configuration = loadConfigurationFromDB();
+        }
+        return configuration;
+    }
 
     private static Configuration load(HttpSession session) throws Exception {
         Configuration configuration = loadConfigurationFromDB();
