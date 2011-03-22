@@ -3652,7 +3652,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var siblingLength = 0;
 		if(node.parent != null){
 			for(var i = 0;i < node.parent.children.length;i++){
-				if(node.parent.children[i].itemData.name == node.itemData.name)
+				if(node.parent.children[i].itemData.xmlTag == node.itemData.xmlTag)
 					siblingLength++;
 			}
 		}
