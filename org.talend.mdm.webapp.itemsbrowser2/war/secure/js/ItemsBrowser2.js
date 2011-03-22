@@ -3,6 +3,13 @@ amalto.namespace("amalto.itemsbrowser2");
 amalto.itemsbrowser2.ItemsBrowser2 = function() {
 
 	var itemsBrowser2Panel;
+	
+	var resizeViewPort = function(component , adjWidth, adjHeight, rawWidth, rawHeight){
+		if (org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort){
+			org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort();
+		}
+	};
+	
 
 	function initUIAndData() {
 		// init UI
@@ -19,6 +26,8 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 				html : '<div id="talend_itemsbrowser2_ItemsBrowser2" style="height: 100%; overflow: auto;"></div>'
 
 			});
+
+			tabPanel.on("resize", resizeViewPort);
 
 			tabPanel.add(itemsBrowser2Panel);
 

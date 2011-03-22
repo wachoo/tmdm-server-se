@@ -65,6 +65,8 @@ public class ItemsView extends View {
     public static Window window = null;
 
     private ItemsSearchContainer itemsSearchContainer = null;
+    
+    private Viewport container;
 
     public static final String ROOT_DIV = "talend_itemsbrowser2_ItemsBrowser2";//$NON-NLS-1$
 
@@ -226,7 +228,7 @@ public class ItemsView extends View {
         // build frame
         Log.info("Init tab-frame... ");//$NON-NLS-1$
 
-        Viewport container = new Viewport() {
+        container = new Viewport() {
 
             public void onAttach() {
                 super.onAttach();
@@ -241,7 +243,6 @@ public class ItemsView extends View {
         };
         container.setLayout(new FitLayout());
         container.setAutoWidth(true);
-
         // build tab
         tabFrame = new TabPanel();
         tabFrame.setMinTabWidth(115);
@@ -262,10 +263,23 @@ public class ItemsView extends View {
         RootPanel.get(ROOT_DIV).getElement().getStyle().setHeight(100, Unit.PCT);
         RootPanel.get(ROOT_DIV).add(container);
         tabFrame.setHeight(container.getOffsetHeight());
+        regResizeViewPort();
 
         Dispatcher.forwardEvent(ItemsEvents.InitSearchContainer);
     }
 
+    private native void regResizeViewPort()/*-{
+        var instance = this;
+        $wnd.org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort = function(){
+            instance.@org.talend.mdm.webapp.itemsbrowser2.client.ItemsView::onResizeViewPort()();
+        };
+    }-*/;
+    
+    private void onResizeViewPort(){
+        Widget w = container.getParent();
+        container.setSize(w.getOffsetWidth(), w.getOffsetHeight());
+    }
+    
     protected void onInitSearchContainer(AppEvent ae) {
 
         // create search panel
