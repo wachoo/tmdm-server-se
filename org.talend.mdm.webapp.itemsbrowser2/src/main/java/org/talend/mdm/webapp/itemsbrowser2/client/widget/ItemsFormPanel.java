@@ -147,7 +147,7 @@ public class ItemsFormPanel extends Composite {
         Element el = elementSet.get(concept);
         doc.appendChild(el);
         item.setItemXml(doc.toString());
-        Window.alert(item.getItemXml());
+        //Window.alert(item.getItemXml());
         return item;
     }
 
