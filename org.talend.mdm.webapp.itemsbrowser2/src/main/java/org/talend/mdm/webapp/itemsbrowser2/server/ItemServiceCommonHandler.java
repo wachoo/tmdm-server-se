@@ -222,25 +222,43 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         try {
             String message = null;
             int status = 0;
-            boolean ifNew = item.getIds().equals("") ? true : false;//$NON-NLS-1$
-            String operationType;
-            if (ifNew)
-                operationType = "CREATE"; //$NON-NLS-1$
-            else
-                operationType = "UPDATE"; //$NON-NLS-1$ 
 
-            boolean isUpdateThisItem = true;
-            if (ifNew)
-                isUpdateThisItem = false;
             // if update, check the item is modified by others?
             WSItemPK wsi = null;
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
-                    getCurrentDataCluster()), item.getItemXml(), new WSDataModelPK(getCurrentDataModel()), isUpdateThisItem),
+                    getCurrentDataCluster()), item.getItemXml(), new WSDataModelPK(getCurrentDataModel()), true),
                     "genericUI", true); //$NON-NLS-1$
             wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
 
             if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + item.getConcept())) { //$NON-NLS-1$
-                // TODO
+                String outputErrorMessage = wsPutItemWithReport.getSource();
+                String errorCode = null;
+                if (outputErrorMessage != null) {
+                    org.w3c.dom.Document doc = com.amalto.webapp.core.util.Util.parse(outputErrorMessage);
+                    // TODO what if multiple error nodes ?
+                    String xpath = "/descendant::error"; //$NON-NLS-1$
+                    org.w3c.dom.NodeList checkList=com.amalto.webapp.core.util.Util.getNodeList(doc, xpath);
+                    org.w3c.dom.Node errorNode = null;
+                    if (checkList!=null&&checkList.getLength()>0)errorNode=checkList.item(0);
+                    if (errorNode!=null && errorNode instanceof org.w3c.dom.Element) {
+                        org.w3c.dom.Element errorElement = (org.w3c.dom.Element) errorNode;
+                        errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                        org.w3c.dom.Node child = errorElement.getFirstChild();
+                        if (child instanceof org.w3c.dom.Text)
+                            message = ((org.w3c.dom.Text) child).getTextContent();
+                    }
+                }
+
+                if ("0".equals(errorCode)) { //$NON-NLS-1$
+                    if (message == null || message.length() == 0)
+                        message = MESSAGES.save_process_validation_success();
+                    status = ItemResult.SUCCESS;
+                } else {
+                    // Anything but 0 is unsuccessful
+                    if (message == null || message.length() == 0)
+                        message = MESSAGES.save_process_validation_failure();
+                    status = ItemResult.FAILURE;
+                }
             } else {
                 message = "The record was saved successfully."; //$NON-NLS-1$
                 status = ItemResult.SUCCESS;

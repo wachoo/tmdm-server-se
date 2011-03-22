@@ -54,7 +54,7 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
             Element el = elementSet.get(itemBean.getConcept());
             doc.appendChild(el);
             itemBean.setItemXml(doc.toString());
-            Window.alert(itemBean.getItemXml());
+            //Window.alert(itemBean.getItemXml());
             
             service.saveItemBean(itemBean, new AsyncCallback<ItemResult>() {
 
