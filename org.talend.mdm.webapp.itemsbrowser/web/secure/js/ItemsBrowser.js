@@ -2826,10 +2826,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     closable:false
                 });
 				
-				if(isDetail) {
-					tbDetail = "";
-				}
-				
                 contentPanel = new Ext.Panel({
                     id:'itemDetailsdiv'+treeIndex, 
                     title: myTitle, 
@@ -2845,6 +2841,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			}
 			formWindow.innerHTML = "";
 			contentPanel.render(formWindow);
+			
+			if(isDetail) {
+				contentPanel.remove(tbDetail);
+			}
+			
 			//record the item id
 			contentPanel.itemid=itemPK2+"."+dataObject;
 			
