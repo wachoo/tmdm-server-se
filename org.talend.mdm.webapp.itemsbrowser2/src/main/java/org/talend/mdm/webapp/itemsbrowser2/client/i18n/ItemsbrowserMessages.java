@@ -88,6 +88,8 @@ public interface ItemsbrowserMessages extends Messages {
 
     String advsearch_subclause();
 
+    String advsearch_bookmark();
+
     String criteria_AND();
 
     String criteria_OR();
