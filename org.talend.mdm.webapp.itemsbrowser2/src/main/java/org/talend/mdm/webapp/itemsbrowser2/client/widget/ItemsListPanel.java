@@ -206,7 +206,6 @@ public class ItemsListPanel extends ContentPanel {
                 showItem(m, ItemsView.TARGET_IN_NEW_WINDOW);
             }
         });
-        contextMenu.add(openInWindow);
 
         MenuItem openInTab = new MenuItem();
         openInTab.setText(MessagesFactory.getMessages().openitem_tab());
@@ -218,7 +217,7 @@ public class ItemsListPanel extends ContentPanel {
                 showItem(m, ItemsView.TARGET_IN_NEW_TAB);
             }
         });
-        contextMenu.add(openInTab);
+        
         
         MenuItem editRow = new MenuItem();
         editRow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
@@ -230,7 +229,10 @@ public class ItemsListPanel extends ContentPanel {
                 re.startEditing(rowIndex, true);
             }
         });
+        
         contextMenu.add(editRow);
+        contextMenu.add(openInTab);
+        contextMenu.add(openInWindow);
 
         grid.setContextMenu(contextMenu);
 
