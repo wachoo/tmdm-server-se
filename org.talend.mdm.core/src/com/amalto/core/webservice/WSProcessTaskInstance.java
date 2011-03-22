@@ -17,11 +17,12 @@ public class WSProcessTaskInstance {
     protected java.lang.String processInstanceNb;
     protected java.lang.String processInstanceUUID;
     protected java.lang.String processDefineUUID;
+    protected java.lang.String priority;
     
     public WSProcessTaskInstance() {
     }
     
-    public WSProcessTaskInstance(java.lang.String uuid, java.lang.String status, java.lang.String candidates, java.lang.String name, java.lang.String readyDate, java.lang.String processName, java.lang.String processVersion, java.lang.String processInstanceNb, java.lang.String processInstanceUUID, java.lang.String processDefineUUID) {
+    public WSProcessTaskInstance(java.lang.String uuid, java.lang.String status, java.lang.String candidates, java.lang.String name, java.lang.String readyDate, java.lang.String processName, java.lang.String processVersion, java.lang.String processInstanceNb, java.lang.String processInstanceUUID, java.lang.String processDefineUUID, java.lang.String priority) {
         this.uuid = uuid;
         this.status = status;
         this.candidates = candidates;
@@ -32,6 +33,7 @@ public class WSProcessTaskInstance {
         this.processInstanceNb = processInstanceNb;
         this.processInstanceUUID = processInstanceUUID;
         this.processDefineUUID = processDefineUUID;
+        this.priority = priority;
     }
     
     public java.lang.String getUuid() {
@@ -112,5 +114,13 @@ public class WSProcessTaskInstance {
     
     public void setProcessDefineUUID(java.lang.String processDefineUUID) {
         this.processDefineUUID = processDefineUUID;
+    }
+    
+    public java.lang.String getPriority() {
+        return priority;
+    }
+    
+    public void setPriority(java.lang.String priority) {
+        this.priority = priority;
     }
 }
