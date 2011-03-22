@@ -2454,11 +2454,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						{
     							if (!(tbDetail.baseOptions&O_SAVE))
     							{
-    								//case new
-    								tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT;
-    								if(!isDetail) {
-    									initToolBar(tbDetail, tbDetail.currentMode);
-    								}
+									//case new
+									tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT;
+									initToolBar(tbDetail, tbDetail.currentMode);
     							}
     						}    						
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
@@ -2490,9 +2488,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     							//var tbDetail = tabPanel.getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
     							if (!(tbDetail.baseOptions&O_SAVE))
     							{
-    								//case new
-    								tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT; 
-    								initToolBar(tbDetail, tbDetail.currentMode);
+									//case new
+									tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT; 
+									initToolBar(tbDetail, tbDetail.currentMode);
     							}
     						}
     	
@@ -2827,6 +2825,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     border:false,
                     closable:false
                 });
+				
+				if(isDetail) {
+					tbDetail = "";
+				}
 				
                 contentPanel = new Ext.Panel({
                     id:'itemDetailsdiv'+treeIndex, 

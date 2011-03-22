@@ -56,6 +56,10 @@ public class ItemsFormPanel extends Composite {
         content.setScrollMode(Scroll.AUTO);
         if (Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()) {
             content.setTopComponent(toolbar);
+
+        } else {
+            content.setHeaderVisible(true);
+            content.setCollapsible(true);
         }
         this.initComponent(content);
     }
@@ -68,8 +72,8 @@ public class ItemsFormPanel extends Composite {
         TypeModel typeModel = dataTypes.get(concept);
         toolbar.updateToolBar();
 
-        FieldSet fildSet = FieldSetCreator.createFieldGroup((ComplexTypeModel) typeModel, formBindings, true, Locale
-                .getLanguage(Itemsbrowser2.getSession().getAppHeader()));
+        FieldSet fildSet = FieldSetCreator.createFieldGroup((ComplexTypeModel) typeModel, formBindings, true,
+                Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
         if (fildSet != null) {
             content.add(fildSet);
         }
