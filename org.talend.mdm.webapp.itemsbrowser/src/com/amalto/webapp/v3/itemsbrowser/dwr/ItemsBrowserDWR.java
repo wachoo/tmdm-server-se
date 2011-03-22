@@ -3271,12 +3271,10 @@ public class ItemsBrowserDWR {
      * @return
      */
     private boolean checkAncestorMinOCcurs(TreeNode node) {
-        if (node.getParent() == null && node.getMinOccurs() >= 1)
+        if (node.getParent() != null && node.getMinOccurs() >= 1 && node.getParent().getMinOccurs()>=1)
             return true;
-        else if (node.getParent() == null && node.getMinOccurs() == 0)
-            return false;
-        else
-            return checkAncestorMinOCcurs(node.getParent());
+        else 
+        	return false;
     }
 
     /**
