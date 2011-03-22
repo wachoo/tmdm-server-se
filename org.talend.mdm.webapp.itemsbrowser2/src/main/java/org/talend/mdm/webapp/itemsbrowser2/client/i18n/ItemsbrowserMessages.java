@@ -84,6 +84,8 @@ public interface ItemsbrowserMessages extends Messages {
 
     String search_modifiedto();
 
+    String advsearch_lessinfo();
+
     String advsearch_subclause();
 
     String criteria_AND();

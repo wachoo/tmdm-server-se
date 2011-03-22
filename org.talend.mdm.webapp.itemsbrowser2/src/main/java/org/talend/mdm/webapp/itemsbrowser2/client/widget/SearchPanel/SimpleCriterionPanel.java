@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
@@ -35,11 +36,14 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
@@ -80,7 +84,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         keyComboBox.setValueField("value"); //$NON-NLS-1$
         keyComboBox.setStore(list);
         keyComboBox.setTriggerAction(TriggerAction.ALL);
-        keyComboBox.setId("SimpleKeyComboBox");
+        keyComboBox.setId("SimpleKeyComboBox"); //$NON-NLS-1$
 
         keyComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
@@ -98,7 +102,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         operatorComboBox.setValueField("value"); //$NON-NLS-1$
         operatorComboBox.setStore(operatorlist);
         operatorComboBox.setTriggerAction(TriggerAction.ALL);
-        operatorComboBox.setId("SimpleOperatorComboBox");
+        operatorComboBox.setId("SimpleOperatorComboBox"); //$NON-NLS-1$
         add(operatorComboBox);
 
         add(content);
@@ -189,11 +193,13 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
         if (field != null) {
             if (field instanceof FKField)
-                return ((FKField) field).getOriginalValue().getId();
+                return ((FKField) field).getValue().getId();
             else if (field instanceof DateField) {
                 return ((DateField) field).getPropertyEditor().getFormat().format(((DateField) field).getValue());
             } else if (field instanceof RadioGroup) {
-                return ((RadioGroup) field).getValue().getValue().toString();
+                return ((RadioGroup) field).getValue().getValueAttribute();
+            } else if (field instanceof SimpleComboBox) {
+                return ((SimpleComboBox) field).getValue().get("value"); //$NON-NLS-1$
             }
             return field.getValue().toString();
         }
@@ -202,7 +208,14 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
     }
 
     public SimpleCriterion getCriteria() {
-        return new SimpleCriterion(getKey(), getOperator(), getValue());
+        try {
+            return new SimpleCriterion(getKey(), getOperator(), getValue());
+        } catch (Exception e) {
+            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().advsearch_lessinfo(),
+                    null);
+            Log.error(e.getMessage(), e);
+            return null;
+        }
     }
 
     public void setCriterion(SimpleCriterion criterion) {
@@ -213,6 +226,19 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
             if (field != null) {
                 if (field instanceof DateField) {
                     ((DateField) field).setValue(new Date(criterion.getValue()));
+                } else if (field instanceof SimpleComboBox) {
+                    ((SimpleComboBox) field).setValue(((SimpleComboBox) field).findModel(criterion.getValue()));
+                } else if (field instanceof RadioGroup) {
+                    for (Field f : ((RadioGroup) field).getAll()) {
+                        if (((Radio) f).getValueAttribute().equals(criterion.getValue())) {
+                            ((Radio) f).setValue(true);
+                            return;
+                        }
+                    }
+                } else if (field instanceof FKField) {
+                    ForeignKeyBean fk = new ForeignKeyBean();
+                    fk.setId(criterion.getValue());
+                    ((FKField) field).setValue(fk);
                 } else {
                     field.setValue(criterion.getValue());
                 }
@@ -225,7 +251,6 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
     public void setCriteriaFK(ForeignKeyBean fk) {
         if (field != null) {
             if (field instanceof FKField) {
-                ((FKField) field).setOriginalValue(fk);
                 ((FKField) field).setValue(fk);
             }
         }

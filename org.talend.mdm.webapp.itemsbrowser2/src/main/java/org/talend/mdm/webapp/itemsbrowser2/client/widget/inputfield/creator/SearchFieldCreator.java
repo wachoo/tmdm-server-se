@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.ui.Widget;
 
 public class SearchFieldCreator {
 
@@ -35,13 +36,13 @@ public class SearchFieldCreator {
                 cons = OperatorConstants.fullOperators;
             } else if (typeModel.hasEnumeration()) {
                 SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
-                buildFacets(typeModel, comboBox);
                 comboBox.setFireChangeEventOnSetValue(true);
                 if (typeModel.getMinOccurs() > 0)
                     comboBox.setAllowBlank(false);
                 comboBox.setEditable(false);
                 comboBox.setForceSelection(true);
                 comboBox.setTriggerAction(TriggerAction.ALL);
+                setEnumerationValues(typeModel, comboBox);
                 field = comboBox;
                 cons = OperatorConstants.enumOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.INT.getBaseTypeName())
@@ -80,9 +81,11 @@ public class SearchFieldCreator {
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.BOOLEAN.getBaseTypeName())) {
                 Radio radio = new Radio();
                 radio.setBoxLabel("True"); //$NON-NLS-1$ 
+                radio.setValueAttribute("true");
                 radio.setValue(true);
                 Radio radio2 = new Radio();
                 radio2.setBoxLabel("False");//$NON-NLS-1$
+                radio2.setValueAttribute("false");
                 RadioGroup radioGroup = new RadioGroup();
                 radioGroup.setStyleAttribute("padding-left", "10px");
                 radioGroup.add(radio);
@@ -119,10 +122,14 @@ public class SearchFieldCreator {
         return field;
     }
 
-    private static void buildFacets(TypeModel typeModel, SimpleComboBox cb) {
-        List<String> facets = ((SimpleTypeModel) typeModel).getEnumeration();
-        for (String facet : facets) {
-            cb.add(facet);
+    private static void setEnumerationValues(TypeModel typeModel, Widget w) {
+        List<String> enumeration = ((SimpleTypeModel) typeModel).getEnumeration();
+        if (enumeration != null && enumeration.size() > 0) {
+            SimpleComboBox<String> field = (SimpleComboBox<String>) w;
+            for (String value : enumeration) {
+                field.add(value);
+            }
         }
     }
+
 }

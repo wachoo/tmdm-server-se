@@ -133,7 +133,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 Document doc = XmlUtil.parseText(results[i]);
                 idsArray.clear();
                 for (String key : entityModel.getKeys()) {
-                    String id = XmlUtil.queryNode(doc, key.replaceAll(concept, "result")).getText();//$NON-NLS-1$ 
+                    String id = XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")).getText();//$NON-NLS-1$ //$NON-NLS-2$ 
                     if (id != null)
                         idsArray.add(id);
                 }
@@ -632,9 +632,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 for (String result : results) {
                     ForeignKeyBean bean = new ForeignKeyBean();
                     String id = "";
-                    List<Node> nodes = XmlUtil.getValuesFromXPath(XmlUtil.parseText(result), "i"); //$NON-NLS-1$
-                    if (nodes != null){
-                        for (Node node : nodes){
+                    List<Node> nodes = XmlUtil.getValuesFromXPath(XmlUtil.parseText(result), "//i"); //$NON-NLS-1$
+                    if (nodes != null) {
+                        for (Node node : nodes) {
                             id += "[" + (node.getText() == null ? "" : node.getText()) + "]";
                         }
                     }
