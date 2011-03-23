@@ -213,9 +213,6 @@ public class ItemsToolBar extends ToolBar {
                                                             }
                                                         }
                                                         list.getStore().getLoader().load();
-                                                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                                                                MessagesFactory.getMessages().delete_record_success(), null);
-
                                                     }
                                                 });
                                     }
@@ -255,8 +252,6 @@ public class ItemsToolBar extends ToolBar {
                                                     }
                                                 }
                                                 list.getStore().getLoader().load();
-                                                MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory
-                                                        .getMessages().delete_record_success(), null);
                                             }
 
                                         });
@@ -387,7 +382,7 @@ public class ItemsToolBar extends ToolBar {
                     public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();
-                        image.setResource(Icons.INSTANCE.Edit());                        
+                        image.setResource(Icons.INSTANCE.Edit());
                         if (!ifManage(model))
                             image.addStyleName("x-item-disabled");//$NON-NLS-1$
                         else
