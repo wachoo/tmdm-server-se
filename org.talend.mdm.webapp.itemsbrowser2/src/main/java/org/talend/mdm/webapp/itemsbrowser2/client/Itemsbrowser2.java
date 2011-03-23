@@ -69,12 +69,10 @@ public class Itemsbrowser2 implements EntryPoint {
                 // init messages on server side
                 getItemService().initMessages(Locale.getLanguage(header), new AsyncCallback<Void>() {
 
-                    @Override
                     public void onFailure(Throwable caught) {
                         Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                     }
 
-                    @Override
                     public void onSuccess(Void arg) {
                         Dispatcher dispatcher = Dispatcher.get();
                         // dispatch a event
