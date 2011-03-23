@@ -2538,7 +2538,7 @@ public class ItemsBrowserDWR {
         try {
 
             WebContext ctx = WebContextFactory.get();
-            Configuration config = Configuration.getInstance(true);
+            Configuration config = Configuration.getInstance();
             String model = config.getModel();
 
             CommonDWR.getFieldsByDataModel(model, concept, language, true);
