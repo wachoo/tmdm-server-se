@@ -200,20 +200,18 @@ public class ItemsToolBar extends ToolBar {
                                                     }
 
                                                     public void onSuccess(List<ItemResult> resultes) {
-                                                        StringBuffer succeed = new StringBuffer(MessagesFactory.getMessages()
-                                                                .info_title()
-                                                                + "\n");//$NON-NLS-1$
-                                                        StringBuffer failure = new StringBuffer(MessagesFactory.getMessages()
-                                                                .error_title()
-                                                                + "\n");//$NON-NLS-1$
                                                         for (ItemResult result : resultes) {
-                                                            if (result.getStatus() == ItemResult.SUCCESS) {
-                                                                succeed.append(result.getDescription() + "\n");//$NON-NLS-1$
-                                                            } else {
-                                                                failure.append(result.getDescription() + "\n");//$NON-NLS-1$
+                                                            if (result.getStatus() == ItemResult.FAILURE) {
+                                                                MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                                                        MessagesFactory.getMessages().delete_record_failure(),
+                                                                        null);
+                                                                return;
                                                             }
                                                         }
-                                                        MessageBox.alert("", succeed.toString() + failure.toString(), null); //$NON-NLS-1$
+                                                        list.getStore().getLoader().load();
+                                                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
+                                                                MessagesFactory.getMessages().delete_record_success(), null);
+
                                                     }
                                                 });
                                     }

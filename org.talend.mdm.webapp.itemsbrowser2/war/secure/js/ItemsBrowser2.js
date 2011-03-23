@@ -51,7 +51,9 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 	};
 
 	function openItemBrowser(ids, conceptName) {
-		var isdArray = ids.split(".");
+		var isdArray;
+		if (ids != null && ids != "")			
+			isdArray = ids.split(".");
 		amalto.itemsbrowser.ItemsBrowser.editItemDetails(isdArray, conceptName,
 				function() {
 				});

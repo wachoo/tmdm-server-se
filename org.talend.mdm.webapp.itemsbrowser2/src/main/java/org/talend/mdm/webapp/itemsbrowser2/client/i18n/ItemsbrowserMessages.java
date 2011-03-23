@@ -209,9 +209,13 @@ public interface ItemsbrowserMessages extends Messages {
     String url_field_title();
 
     String advsearch_morelabel();
-    
+
     String save_process_validation_success();
-    
+
     String save_process_validation_failure();
+
+    String delete_record_failure();
+
+    String delete_record_success();
 
 }
