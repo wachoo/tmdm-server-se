@@ -237,10 +237,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     org.w3c.dom.Document doc = com.amalto.webapp.core.util.Util.parse(outputErrorMessage);
                     // TODO what if multiple error nodes ?
                     String xpath = "/descendant::error"; //$NON-NLS-1$
-                    org.w3c.dom.NodeList checkList=com.amalto.webapp.core.util.Util.getNodeList(doc, xpath);
+                    org.w3c.dom.NodeList checkList = com.amalto.webapp.core.util.Util.getNodeList(doc, xpath);
                     org.w3c.dom.Node errorNode = null;
-                    if (checkList!=null&&checkList.getLength()>0)errorNode=checkList.item(0);
-                    if (errorNode!=null && errorNode instanceof org.w3c.dom.Element) {
+                    if (checkList != null && checkList.getLength() > 0)
+                        errorNode = checkList.item(0);
+                    if (errorNode != null && errorNode instanceof org.w3c.dom.Element) {
                         org.w3c.dom.Element errorElement = (org.w3c.dom.Element) errorNode;
                         errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
                         org.w3c.dom.Node child = errorElement.getFirstChild();
@@ -338,6 +339,15 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         List<ItemResult> itemResultes = new ArrayList<ItemResult>();
         for (ItemBean item : items) {
             ItemResult itemResult = deleteItemBean(item);
+            itemResultes.add(itemResult);
+        }
+        return itemResultes;
+    }
+
+    public List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path) {
+        List<ItemResult> itemResultes = new ArrayList<ItemResult>();
+        for (ItemBean item : items) {
+            ItemResult itemResult = logicalDeleteItem(item, path);
             itemResultes.add(itemResult);
         }
         return itemResultes;

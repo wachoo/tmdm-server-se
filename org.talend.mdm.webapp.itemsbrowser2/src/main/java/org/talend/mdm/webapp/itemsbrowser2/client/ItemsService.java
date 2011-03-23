@@ -64,6 +64,8 @@ public interface ItemsService extends RemoteService {
 
     ItemResult logicalDeleteItem(ItemBean item, String path);
 
+    List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path);
+
     AppHeader getAppHeader() throws Exception;
 
     void initMessages(String language) throws IOException;

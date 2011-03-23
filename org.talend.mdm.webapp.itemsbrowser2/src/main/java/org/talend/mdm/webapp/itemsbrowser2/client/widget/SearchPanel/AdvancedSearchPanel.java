@@ -300,7 +300,9 @@ public class AdvancedSearchPanel extends FormPanel {
 
             protected void onResize(int width, int height) {
                 super.onResize(width, height);
-                input.setWidth(width - filterButton.getWidth() - validButton.getWidth() - 6, true);
+                filterButton.setSize(25, 25);
+                validButton.setSize(25, 25);
+                input.setWidth(width - 50 - 6, true);
             }
 
             protected void doAttachChildren() {
@@ -317,7 +319,6 @@ public class AdvancedSearchPanel extends FormPanel {
 
         };
         expressionTextField.setFieldLabel(MessagesFactory.getMessages().search_expression());
-        // expressionTextField.setAllowBlank(false);
         this.add(expressionTextField, new FormData("70%")); //$NON-NLS-1$
 
         cb = new ComboBox<BaseModel>();
@@ -326,17 +327,6 @@ public class AdvancedSearchPanel extends FormPanel {
         cb.setAllowBlank(true);
         ListStore<BaseModel> list = new ListStore<BaseModel>();
         BaseModel field = new BaseModel();
-        // field.set("name", "Created By");
-        // field.set("value", "createdby");
-        // list.add(field);
-        // field = new BaseModel();
-        // field.set("name", "Created On");
-        // field.set("value", "createdon");
-        // list.add(field);
-        // field = new BaseModel();
-        // field.set("name", "Modified By");
-        // field.set("value", "modifiedby");
-        // list.add(field);
         field = new BaseModel();
         field.set("name", MessagesFactory.getMessages().search_modifiedon()); //$NON-NLS-1$
         field.set("value", "modifiedon"); //$NON-NLS-1$  //$NON-NLS-2$
@@ -350,23 +340,7 @@ public class AdvancedSearchPanel extends FormPanel {
 
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
                 if (se.getSelectedItem() != null) {
-                    String selvalue = se.getSelectedItem().get("value"); //$NON-NLS-1$
-                    // if (selvalue.equals("createdby") && instance.getItemByItemId("createdbyField") == null) {
-                    // TextField<String> createdbyField = new TextField<String>();
-                    // createdbyField.setFieldLabel("Created By");
-                    // createdbyField.setId("createdbyField");
-                    // instance.insert(createdbyField, this.getItemCount() - 1, formData);
-                    // } else if (selvalue.equals("createdon") && instance.getItemByItemId("createdonField") == null) {
-                    // DateField createdonField = new DateField();
-                    // createdonField.setFieldLabel("Created On");
-                    // createdonField.setId("createdonField");
-                    // instance.insert(createdonField, this.getItemCount() - 1, formData);
-                    // } else if (selvalue.equals("modifiedby") && instance.getItemByItemId("modifedbyField") == null) {
-                    // TextField<String> modifiedbyField = new TextField<String>();
-                    // modifiedbyField.setFieldLabel("Modified By");
-                    // modifiedbyField.setId("modifedbyField");
-                    // instance.insert(modifiedbyField, this.getItemCount() - 1, formData);
-                    // } else
+                    String selvalue = se.getSelectedItem().get("value"); //$NON-NLS-1$                   
                     if (selvalue.equals("modifiedon") && instance.getItemByItemId("modifiedonField1") == null) { //$NON-NLS-1$  //$NON-NLS-2$
                         instance.insert(addCriteriaContainer("modifiedon"), instance.getItemCount() - 1, new FormData("60%")); //$NON-NLS-1$  //$NON-NLS-2$
                     }

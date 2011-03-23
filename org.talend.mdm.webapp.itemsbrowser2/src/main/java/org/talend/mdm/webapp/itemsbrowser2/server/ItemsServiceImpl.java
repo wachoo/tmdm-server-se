@@ -159,6 +159,10 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return itemsServiceHandler.logicalDeleteItem(item, path);
     }
 
+    public List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path) {
+        return itemsServiceHandler.logicalDeleteItems(items, path);
+    }
+
     /*
      * (non-Jsdoc)
      * 

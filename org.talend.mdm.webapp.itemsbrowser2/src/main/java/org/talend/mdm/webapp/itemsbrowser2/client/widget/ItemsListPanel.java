@@ -72,8 +72,10 @@ public class ItemsListPanel extends ContentPanel {
             int pageSize = (Integer) pagingBar.getPageSize();
             qm.getPagingLoadConfig().setLimit(pageSize);
             service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
+
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
-                    callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result.getTotalLength()));
+                    callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
+                            .getTotalLength()));
                 }
 
                 public void onFailure(Throwable caught) {
@@ -96,7 +98,7 @@ public class ItemsListPanel extends ContentPanel {
     private final static int PAGE_SIZE = 10;
 
     PagingToolBarEx pagingBar = null;
-    
+
     ItemsToolBar toolBar;
 
     public ItemsListPanel() {
@@ -115,6 +117,7 @@ public class ItemsListPanel extends ContentPanel {
     private void addToolBar() {
         toolBar = new ItemsToolBar();
         setTopComponent(toolBar);
+        add(toolBar.getAdvancedPanel());
     }
 
     public ItemsToolBar getToolBar() {
@@ -153,7 +156,7 @@ public class ItemsListPanel extends ContentPanel {
 
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 ItemBean item = se.getSelectedItem();
-                if (item != null){
+                if (item != null) {
                     showItem(item, ItemsView.TARGET_IN_SEARCH_TAB);
                 }
             }
@@ -184,6 +187,7 @@ public class ItemsListPanel extends ContentPanel {
         grid.setAriaLabelledBy(this.getHeader().getId() + "-label");//$NON-NLS-1$
 
         gridContainer.add(grid);
+        gridContainer.setHeight(this.getHeight() - toolBar.getHeight() - toolBar.getAdvancedPanel().getHeight());
         hookContextMenu();
 
         add(gridContainer);
@@ -201,7 +205,7 @@ public class ItemsListPanel extends ContentPanel {
         openInWindow.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             public void componentSelected(MenuEvent ce) {
-                //TODO check dirty status
+                // TODO check dirty status
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
                 showItem(m, ItemsView.TARGET_IN_NEW_WINDOW);
             }
@@ -217,8 +221,7 @@ public class ItemsListPanel extends ContentPanel {
                 showItem(m, ItemsView.TARGET_IN_NEW_TAB);
             }
         });
-        
-        
+
         MenuItem editRow = new MenuItem();
         editRow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
         editRow.setText(MessagesFactory.getMessages().edititem());
@@ -229,7 +232,7 @@ public class ItemsListPanel extends ContentPanel {
                 re.startEditing(rowIndex, true);
             }
         });
-        
+
         contextMenu.add(editRow);
         contextMenu.add(openInTab);
         contextMenu.add(openInWindow);

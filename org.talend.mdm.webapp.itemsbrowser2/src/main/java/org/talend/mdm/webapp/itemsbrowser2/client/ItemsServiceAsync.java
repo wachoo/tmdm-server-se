@@ -62,4 +62,6 @@ public interface ItemsServiceAsync {
     void getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK, boolean ifFKFilter,
             AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback);
 
+    void logicalDeleteItems(List<ItemBean> items, String path, AsyncCallback<List<ItemResult>> callback);
+
 }

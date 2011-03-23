@@ -78,35 +78,37 @@ public class ItemsToolBar extends ToolBar {
 
     private final static int PAGE_SIZE = 10;
 
-    boolean isSimple;
+    private boolean isSimple;
 
-    static String userCluster = null;
+    private static String userCluster = null;
 
-    SimpleCriterionPanel simplePanel;
+    private SimpleCriterionPanel simplePanel;
 
-    AdvancedSearchPanel advancedPanel;
+    private AdvancedSearchPanel advancedPanel;
 
-    ComboBox<ItemBaseModel> entityCombo = new ComboBox<ItemBaseModel>();
+    private ComboBox<ItemBaseModel> entityCombo = new ComboBox<ItemBaseModel>();
 
-    final Button searchBut = new Button(MessagesFactory.getMessages().search_btn());
+    private final Button searchBut = new Button(MessagesFactory.getMessages().search_btn());
 
-    final Button advancedBut = new Button(MessagesFactory.getMessages().advsearch_btn());
+    private final Button advancedBut = new Button(MessagesFactory.getMessages().advsearch_btn());
 
-    final Button managebookBtn = new Button();
+    private final Button managebookBtn = new Button();
 
-    final Button bookmarkBtn = new Button();
+    private final Button bookmarkBtn = new Button();
 
-    final Window winAdvanced = new Window();
+    private final Window winAdvanced = new Window();
 
-    Button createBtn = new Button(MessagesFactory.getMessages().create_btn());
+    private Button createBtn = new Button(MessagesFactory.getMessages().create_btn());
 
-    Button menu = new Button(MessagesFactory.getMessages().delete_btn());
+    private Button menu = new Button(MessagesFactory.getMessages().delete_btn());
 
-    ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
+    private ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
-    ItemsToolBar instance = this;
+    private ItemsToolBar instance = this;
 
-    List<ItemBaseModel> userCriteriasList;
+    private List<ItemBaseModel> userCriteriasList;
+
+    private boolean advancedPanelVisible = false;
 
     public ItemsToolBar() {
         // init user saved model
@@ -126,8 +128,10 @@ public class ItemsToolBar extends ToolBar {
 
     public void updateToolBar(ViewBean viewBean) {
         simplePanel.updateFields(viewBean);
-        if (advancedPanel != null)
+        if (advancedPanel != null) {
             advancedPanel.setView(viewBean);
+            advancedPanel.cleanCriteria();
+        }
         searchBut.setEnabled(true);
         advancedBut.setEnabled(true);
         managebookBtn.setEnabled(true);
@@ -199,8 +203,8 @@ public class ItemsToolBar extends ToolBar {
                                                         Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                                     }
 
-                                                    public void onSuccess(List<ItemResult> resultes) {
-                                                        for (ItemResult result : resultes) {
+                                                    public void onSuccess(List<ItemResult> results) {
+                                                        for (ItemResult result : results) {
                                                             if (result.getStatus() == ItemResult.FAILURE) {
                                                                 MessageBox.alert(MessagesFactory.getMessages().error_title(),
                                                                         MessagesFactory.getMessages().delete_record_failure(),
@@ -235,22 +239,24 @@ public class ItemsToolBar extends ToolBar {
                         if (be.getButtonClicked().getItemId().equals(Dialog.OK)) {
                             final ItemsListPanel list = (ItemsListPanel) instance.getParent();
                             if (list.getGrid() != null) {
-                                service.logicalDeleteItem(list.getGrid().getSelectionModel().getSelectedItem(), "/", //$NON-NLS-1$
-                                        new AsyncCallback<ItemResult>() {
+                                service.logicalDeleteItems(list.getGrid().getSelectionModel().getSelectedItems(), "/", //$NON-NLS-1$
+                                        new AsyncCallback<List<ItemResult>>() {
 
                                             public void onFailure(Throwable caught) {
                                                 Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                             }
 
-                                            public void onSuccess(ItemResult arg0) {
-                                                if (arg0.getStatus() == ItemResult.SUCCESS) {
-                                                    list.getStore().getLoader().load();
-                                                    MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0
-                                                            .getDescription(), null);
-                                                } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                                                    MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0
-                                                            .getDescription(), null);
+                                            public void onSuccess(List<ItemResult> results) {
+                                                for (ItemResult result : results) {
+                                                    if (result.getStatus() == ItemResult.FAILURE) {
+                                                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                                                MessagesFactory.getMessages().delete_record_failure(), null);
+                                                        return;
+                                                    }
                                                 }
+                                                list.getStore().getLoader().load();
+                                                MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory
+                                                        .getMessages().delete_record_success(), null);
                                             }
 
                                         });
@@ -303,6 +309,7 @@ public class ItemsToolBar extends ToolBar {
                 isSimple = true;
                 String viewPk = entityCombo.getValue().get("value");//$NON-NLS-1$
                 Dispatcher.forwardEvent(ItemsEvents.SearchView, viewPk);
+                resizeAfterSearch();
             }
 
         });
@@ -316,10 +323,14 @@ public class ItemsToolBar extends ToolBar {
 
             public void componentSelected(ButtonEvent ce) {
                 // show advanced Search panel
+                advancedPanelVisible = !advancedPanelVisible;
+                advancedPanel.setVisible(advancedPanelVisible);
+
+                if (((ItemsListPanel) instance.getParent()).gridContainer != null)
+                    ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance.getParent().getOffsetHeight()
+                            - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
                 if (isSimple)
-                    showAdvancedWin(instance, simplePanel == null ? null : simplePanel.getCriteria().toString());
-                else
-                    showAdvancedWin(instance, advancedPanel == null ? null : advancedPanel.getCriteria());
+                    advancedPanel.setCriteria(simplePanel.getCriteria().toString());
             }
 
         });
@@ -376,7 +387,7 @@ public class ItemsToolBar extends ToolBar {
                     public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();
-                        image.setResource(Icons.INSTANCE.Edit());
+                        image.setResource(Icons.INSTANCE.Edit());                        
                         if (!ifManage(model))
                             image.addStyleName("x-item-disabled");//$NON-NLS-1$
                         else
@@ -394,8 +405,20 @@ public class ItemsToolBar extends ToolBar {
                                                 }
 
                                                 public void onSuccess(String arg0) {
-                                                    showAdvancedWin(instance, arg0);
+                                                    // set criteria
+                                                    if (arg0 != null)
+                                                        advancedPanel.setCriteria(arg0);
+                                                    else
+                                                        advancedPanel.cleanCriteria();
+                                                    advancedPanelVisible = true;
+                                                    advancedPanel.setVisible(advancedPanelVisible);
+                                                    if (((ItemsListPanel) instance.getParent()).gridContainer != null)
+                                                        ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance
+                                                                .getParent().getOffsetHeight()
+                                                                - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
                                                     winBookmark.close();
+                                                    // showAdvancedWin(instance, arg0);
+                                                    // winBookmark.close();
                                                 }
 
                                             });
@@ -522,6 +545,8 @@ public class ItemsToolBar extends ToolBar {
 
         });
         add(bookmarkBtn);
+
+        initAdvancedPanel();
 
         service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
                 new AsyncCallback<List<ItemBaseModel>>() {
@@ -676,20 +701,25 @@ public class ItemsToolBar extends ToolBar {
         winBookmark.show();
     }
 
-    private void showAdvancedWin(ToolBar toolBar, String criteria) {
-        if (winAdvanced.getItemByItemId("advancedPanel") == null) { //$NON-NLS-1$
-            // avoid show this window multi-times
-            winAdvanced.setId("advancedWin"); //$NON-NLS-1$
-            winAdvanced.setHeaderVisible(false);
-            winAdvanced.setClosable(false);
-            winAdvanced.setFrame(false);
-            winAdvanced.setWidth(toolBar.getWidth());
-            winAdvanced.setAutoHeight(true);
+    public FormPanel getAdvancedPanel() {
+        return advancedPanel;
+    }
+
+    private void resizeAfterSearch() {
+        advancedPanelVisible = false;
+        advancedPanel.setVisible(advancedPanelVisible);
+        // resize result grid
+        if (((ItemsListPanel) instance.getParent()).gridContainer != null)
+            ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance.getParent().getOffsetHeight()
+                    - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
+    }
+
+    private void initAdvancedPanel() {
+        if (advancedPanel == null) {
             advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
             advancedPanel.setItemId("advancedPanel"); //$NON-NLS-1$
             advancedPanel.setButtonAlign(HorizontalAlignment.CENTER);
 
-            winAdvanced.add(advancedPanel);
             Button searchBtn = new Button(MessagesFactory.getMessages().search_btn());
             searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -701,21 +731,12 @@ public class ItemsToolBar extends ToolBar {
                         isSimple = false;
                         String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
                         Dispatcher.forwardEvent(ItemsEvents.SearchView, viewPk);
-                        winAdvanced.close();
+                        resizeAfterSearch();
                     }
                 }
 
             });
             advancedPanel.addButton(searchBtn);
-            Button resetBtn = new Button(MessagesFactory.getMessages().button_reset());
-            resetBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                public void componentSelected(ButtonEvent ce) {
-                    advancedPanel.cleanCriteria();
-                }
-
-            });
-            advancedPanel.addButton(resetBtn);
 
             Button advancedBookmarkBtn = new Button(MessagesFactory.getMessages().advsearch_bookmark());
             advancedBookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -727,25 +748,20 @@ public class ItemsToolBar extends ToolBar {
             });
             advancedPanel.addButton(advancedBookmarkBtn);
 
-            Button cancelBtn = new Button(MessagesFactory.getMessages().close_btn());
+            Button cancelBtn = new Button(MessagesFactory.getMessages().button_reset());
             cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 public void componentSelected(ButtonEvent ce) {
-                    winAdvanced.close();
+                    advancedPanel.cleanCriteria();
+
+                    if (((ItemsListPanel) instance.getParent()).gridContainer != null)
+                        ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance.getParent().getOffsetHeight()
+                                - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
                 }
 
             });
             advancedPanel.addButton(cancelBtn);
-            winAdvanced.show();
-            winAdvanced.alignTo(toolBar.getElement(), "tl", new int[] { 0, 35 }); //$NON-NLS-1$
-        } else if (!winAdvanced.isVisible()) {
-            winAdvanced.show();
+            advancedPanel.setVisible(false);
         }
-
-        // set criteria
-        if (criteria != null)
-            advancedPanel.setCriteria(criteria);
-        else
-            advancedPanel.cleanCriteria();
     }
 }
