@@ -12,8 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield;
 
-import javax.xml.soap.MessageFactory;
-
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 

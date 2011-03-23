@@ -337,7 +337,6 @@ public class DataModelHelper {
                     new WSGetBusinessConceptKey(new WSDataModelPK(model), concept));
 
             keys = key.getFields();
-            keys = Arrays.copyOf(keys, keys.length);
             for (int i = 0; i < keys.length; i++) {
                 if (".".equals(key.getSelector())) //$NON-NLS-1$
                     keys[i] = concept + "/" + keys[i]; //$NON-NLS-1$ 
