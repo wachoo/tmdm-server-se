@@ -69,9 +69,13 @@ public class FieldCreator {
             setEnumerationValues(dataType, comboBox);
             field = comboBox;
         } else if (dataType.getType().equals(DataTypeConstants.UUID)) {
-
+            TextField<String> uuidField = new TextField<String>();
+            uuidField.setEnabled(false);
+            field = uuidField;
         } else if (dataType.getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
-
+            TextField<String> autoIncrementField = new TextField<String>();
+            autoIncrementField.setEnabled(false);
+            field = autoIncrementField;
         } else if (dataType.getType().equals(DataTypeConstants.PICTURE)) {
             PictureField pictureField = new PictureField();
             field = pictureField;

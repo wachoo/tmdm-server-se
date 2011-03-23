@@ -2,22 +2,20 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield;
 
 import java.util.Date;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.PropertyEditor;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 
 public class DateTimeField extends Field<Date> {
     
+    SimplePanel sp = new SimplePanel();
     HorizontalPanel hp = new HorizontalPanel();
     DateField dateField = new DateField();
     SpinnerField hh = new SpinnerField(){
@@ -46,6 +44,7 @@ public class DateTimeField extends Field<Date> {
     };
     
     public DateTimeField(){
+        hp.getElement().setAttribute("teststring", "aaaa");
         this.setFireChangeEventOnSetValue(true);
         dateField.setHideLabel(true);
         hp.add(dateField);
@@ -61,16 +60,16 @@ public class DateTimeField extends Field<Date> {
         mm.setMaxValue(59);
         ss.setMinValue(0);
         ss.setMaxValue(59);
-        hp.add(new FillToolItem());
         hp.add(hh);
         hp.add(new Label(":"));//$NON-NLS-1$
         hp.add(mm);
         hp.add(new Label(":"));//$NON-NLS-1$
         hp.add(ss);
+        sp.add(hp);
     }
     
     protected void onRender(Element target, int index) {
-        setElement(hp.getElement(), target, index);
+        setElement(sp.getElement(), target, index);
         super.onRender(target, index);
     }
     Date oldValue;

@@ -3,6 +3,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client.util;
 import java.util.Date;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.Window;
 
 
 public class DateUtil {
@@ -31,8 +32,9 @@ public class DateUtil {
     
     public static final String getDateTime(String aMask, Date aDate) {
         if (aDate != null){
-            DateTimeFormat df = DateTimeFormat.getFormat(aMask);
-            return df.format(aDate);
+            DateTimeFormat df = DateTimeFormat.getFormat(datePattern);
+            DateTimeFormat tf = DateTimeFormat.getFormat(timePattern);
+            return df.format(aDate) + "T" + tf.format(aDate);//$NON-NLS-1$
         }
         return "";//$NON-NLS-1$
     }
