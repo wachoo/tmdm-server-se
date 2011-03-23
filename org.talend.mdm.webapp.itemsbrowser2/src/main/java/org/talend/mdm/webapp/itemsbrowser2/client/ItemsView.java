@@ -65,7 +65,7 @@ public class ItemsView extends View {
     public static Window window = null;
 
     private ItemsSearchContainer itemsSearchContainer = null;
-    
+
     private Viewport container;
 
     public static final String ROOT_DIV = "talend_itemsbrowser2_ItemsBrowser2";//$NON-NLS-1$
@@ -173,7 +173,8 @@ public class ItemsView extends View {
                     itemsSearchContainer.getItemsFormPanel().setReadOnly(itemBean, entityModel.getKeys());
 
                 } else {
-                    itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setHeight(1300, Unit.PX);
+                    // itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setHeight(1300,
+                    // Unit.PX);
                     itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setOverflow(Overflow.AUTO);
                     GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, "", itemsSearchContainer //$NON-NLS-1$
                             .getItemsFormPanel().getContent().getBody().dom, true);
@@ -267,20 +268,20 @@ public class ItemsView extends View {
 
         Dispatcher.forwardEvent(ItemsEvents.InitSearchContainer);
     }
-    
-    //FIXME： can we refact this method to PubService
+
+    // FIXME： can we refact this method to PubService
     private native void regResizeViewPort()/*-{
         var instance = this;
         $wnd.org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort = function(){
-            instance.@org.talend.mdm.webapp.itemsbrowser2.client.ItemsView::onResizeViewPort()();
+        instance.@org.talend.mdm.webapp.itemsbrowser2.client.ItemsView::onResizeViewPort()();
         };
     }-*/;
-    
-    private void onResizeViewPort(){
+
+    private void onResizeViewPort() {
         Widget w = container.getParent();
         container.setSize(w.getOffsetWidth(), w.getOffsetHeight());
     }
-    
+
     protected void onInitSearchContainer(AppEvent ae) {
 
         // create search panel

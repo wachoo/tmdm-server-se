@@ -12,45 +12,41 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
-
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 
-
 /**
- * DOC HSHU  class global comment. Detailled comment
+ * DOC HSHU class global comment. Detailled comment
  */
 public class ItemsSearchContainer extends LayoutContainer {
-    
+
     private ItemsListPanel itemsListPanel;
-    
+
     private ItemsFormPanel itemsFormPanel;
 
     public ItemsSearchContainer() {
-        
+
         setLayout(new BorderLayout());
-        
+
         itemsListPanel = new ItemsListPanel();
         add(itemsListPanel, new BorderLayoutData(LayoutRegion.CENTER));
-        
+
         itemsFormPanel = new ItemsFormPanel();
-        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, .5f, 200, 1000);
-        southData.setSplit(true);  
+        itemsFormPanel.setHeaderVisible(false);
+        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH);
+        southData.setSplit(true);
         southData.setMargins(new Margins(5, 0, 0, 0));
         add(itemsFormPanel, southData);
-        
+
     }
 
     public ItemsListPanel getItemsListPanel() {
         return itemsListPanel;
     }
 
-    
     public ItemsFormPanel getItemsFormPanel() {
         return itemsFormPanel;
     }

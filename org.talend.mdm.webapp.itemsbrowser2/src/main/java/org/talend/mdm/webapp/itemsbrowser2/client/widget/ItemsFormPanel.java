@@ -28,18 +28,17 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.widget.Composite;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
 
-public class ItemsFormPanel extends Composite {
+public class ItemsFormPanel extends ContentPanel {
 
     FormPanel content = new FormPanel();
 
@@ -57,11 +56,14 @@ public class ItemsFormPanel extends Composite {
         if (Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()) {
             content.setTopComponent(toolbar);
 
-        } else {
-            content.setHeaderVisible(true);
-            content.setCollapsible(true);
         }
-        this.initComponent(content);
+        content.setHeaderVisible(false);
+        add(content);
+    }
+
+    protected void onResize(int width, int height) {
+        // TODO Auto-generated method stub
+        super.onResize(width, height);
     }
 
     public void paint(EntityModel entityModel) {
@@ -147,7 +149,7 @@ public class ItemsFormPanel extends Composite {
         Element el = elementSet.get(concept);
         doc.appendChild(el);
         item.setItemXml(doc.toString());
-        //Window.alert(item.getItemXml());
+        // Window.alert(item.getItemXml());
         return item;
     }
 
