@@ -2007,6 +2007,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				options |= O_TREE_VIEW;
 				options |= (toolbar.baseOptions & O_PRINT);
 				options |= (toolbar.baseOptions & O_SMARTVIEW_SWITCH);
+				options |= (toolbar.baseOptions & O_DUPLICATE);
+				options |= (toolbar.baseOptions & O_JOURNAL);
+				options |= (toolbar.baseOptions & O_ACTION);
+				options |= (toolbar.baseOptions & O_REFRESH);
 				//options |= (toolbar.baseOptions & O_DELETE);
 			break;
 		}
