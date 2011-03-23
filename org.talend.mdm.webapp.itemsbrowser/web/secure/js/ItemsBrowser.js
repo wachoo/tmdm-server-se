@@ -246,7 +246,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	
 	var  MSG_CONFIRM_TITLE_LOGICAL_DELETE_ITEM =    {
-	    'fr' : 'path : ',
+	    'fr' : 'chemin : ',
 	    'en' : 'path: '
 	};
 	
@@ -255,7 +255,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'en' : 'This record exists. Do you want to overwrite it?'
 	};
 	var MSG_CONFIRM_OVERRIDE_ITEM = {
-			'fr' : 'This object was also modified by somebody else. If you save now, you will overwrite his or her changes. Are you sure you want to do that?',
+			'fr' : 'Cet enregistrement a été modifié par une autre personne. Si vous le sauvegardez maintenant, vous écraserez ses changements. Voulez-vous continuer ?',
 			'en' : 'This object was also modified by somebody else. If you save now, you will overwrite his or her changes. Are you sure you want to do that?'
 	};	
 	
@@ -456,9 +456,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		'fr':'Ouvre le journal d\'audit de cet enregistrement',
 		'en':'Browse the audit trail for this record'
 	};
-	var TASK_TOOLTIP={
+	var LINEAGE_TOOLTIP={
 		'fr':'Liste les enregistrements pointant sur cet enregistrement',
 		'en':'List records pointing to this record'
+	};
+	var TASK_TOOLTIP={
+		'fr':'Ouvre la tâche de cet enregistrement', 
+		'en':'Browse the task for this record'
 	};
 	var ACTION_TOOLTIP={
         'fr':'Lancer le process',
@@ -518,13 +522,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	
 	var SELECT_TYPE_MESSAGE={
-            'fr': 'Sélectionnez le type',
-            'en': 'Select a type'
+        'fr': 'Sélectionnez le type',
+        'en': 'Select a type'
     };
 	
 	var NO_TASK_MSG = {
-		'en':'No task related to this record!',
-		'fr':'No task related to this record!'
+		'fr':'Aucune tâche n\'est reliée à cet enregistrement!',
+		'en':'No task related to this record!'
 	};
 	
 	/*****************
@@ -2234,7 +2238,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				nbButtons++;
 			}
 	
-			toolbar.addButton( {tooltip:TASK_TOOLTIP[language], iconCls : 'item_bt_task', text: LINEAGE_BUTTON[language], className: 'tb-button tb-button-nude', handler: toolbar.lineageItemHandler});
+			toolbar.addButton( {tooltip:LINEAGE_TOOLTIP[language], iconCls : 'item_bt_task', text: LINEAGE_BUTTON[language], className: 'tb-button tb-button-nude', handler: toolbar.lineageItemHandler});
 			nbButtons++;
 		}
 		
