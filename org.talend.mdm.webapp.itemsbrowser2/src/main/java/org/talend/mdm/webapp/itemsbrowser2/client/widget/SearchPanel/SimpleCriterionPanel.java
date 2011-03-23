@@ -172,7 +172,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         field = null;
         field = SearchFieldCreator.createField(itemsPredicates.get(getKey()));
         if (field != null) {
-            field.setId("SimpleSearchValueFiled");
+            field.setId("SimpleSearchValueFiled"); //$NON-NLS-1$
             if (field instanceof FKField)
                 ((FKField) field).Update(getKey(), this);
             content.add(field);

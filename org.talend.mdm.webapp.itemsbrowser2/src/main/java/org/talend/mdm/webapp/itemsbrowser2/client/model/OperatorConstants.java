@@ -32,8 +32,7 @@ public class OperatorConstants implements Serializable, IsSerializable {
      */
     private static final long serialVersionUID = 1L;
 
-    public static List<String> groupOperators = Arrays.asList(new String[] { MessagesFactory.getMessages().criteria_AND(),
-            MessagesFactory.getMessages().criteria_OR() });
+    public static List<String> groupOperators = Arrays.asList(new String[] { "AND", "OR" });
 
     public static Map<String, String> fullOperators = new LinkedHashMap<String, String>();
 

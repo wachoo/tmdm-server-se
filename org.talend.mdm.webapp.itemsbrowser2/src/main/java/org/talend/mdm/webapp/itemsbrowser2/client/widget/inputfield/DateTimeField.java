@@ -63,9 +63,9 @@ public class DateTimeField extends Field<Date> {
         ss.setMaxValue(59);
         hp.add(new FillToolItem());
         hp.add(hh);
-        hp.add(new Label(":"));
+        hp.add(new Label(":"));//$NON-NLS-1$
         hp.add(mm);
-        hp.add(new Label(":"));
+        hp.add(new Label(":"));//$NON-NLS-1$
         hp.add(ss);
     }
     

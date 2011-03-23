@@ -81,13 +81,13 @@ public class SearchFieldCreator {
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.BOOLEAN.getBaseTypeName())) {
                 Radio radio = new Radio();
                 radio.setBoxLabel("True"); //$NON-NLS-1$ 
-                radio.setValueAttribute("true");
+                radio.setValueAttribute("true"); //$NON-NLS-1$ 
                 radio.setValue(true);
                 Radio radio2 = new Radio();
                 radio2.setBoxLabel("False");//$NON-NLS-1$
-                radio2.setValueAttribute("false");
+                radio2.setValueAttribute("false");//$NON-NLS-1$
                 RadioGroup radioGroup = new RadioGroup();
-                radioGroup.setStyleAttribute("padding-left", "10px");
+                radioGroup.setStyleAttribute("padding-left", "10px");//$NON-NLS-1$ //$NON-NLS-2$
                 radioGroup.add(radio);
                 radioGroup.add(radio2);
                 field = radioGroup;

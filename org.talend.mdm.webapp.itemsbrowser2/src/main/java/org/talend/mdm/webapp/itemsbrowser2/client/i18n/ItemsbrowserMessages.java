@@ -90,10 +90,6 @@ public interface ItemsbrowserMessages extends Messages {
 
     String advsearch_bookmark();
 
-    String criteria_AND();
-
-    String criteria_OR();
-
     String criteria_CONTAINS();
 
     String criteria_EQUALS();

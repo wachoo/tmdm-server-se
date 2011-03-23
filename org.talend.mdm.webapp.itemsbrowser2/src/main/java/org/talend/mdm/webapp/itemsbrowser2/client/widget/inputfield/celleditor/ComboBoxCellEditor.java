@@ -19,11 +19,11 @@ public class ComboBoxCellEditor extends CellEditor {
 
     public Object postProcessValue(Object value) {
         if (value == null) {
-            return "";
+            return "";//$NON-NLS-1$
         }
         Object v = ((ModelData) value).get("value");//$NON-NLS-1$
         if (v == null){
-            return "";
+            return "";//$NON-NLS-1$
         } else {
             return v;
         }

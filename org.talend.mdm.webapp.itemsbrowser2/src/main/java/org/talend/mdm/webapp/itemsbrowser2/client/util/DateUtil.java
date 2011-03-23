@@ -11,7 +11,7 @@ public class DateUtil {
 
     public static String timePattern = "HH:mm:ss";//$NON-NLS-1$
     
-    public static String dateTimePattern = "yyyy-MM-ddTHH:mm:ss";
+    public static String dateTimePattern = "yyyy-MM-ddTHH:mm:ss";//$NON-NLS-1$
     
     public static final Date convertStringToDate(String aMask, String strDate)  {
         if (strDate != null && strDate.trim().length() != 0){
@@ -34,6 +34,6 @@ public class DateUtil {
             DateTimeFormat df = DateTimeFormat.getFormat(aMask);
             return df.format(aDate);
         }
-        return "";
+        return "";//$NON-NLS-1$
     }
 }

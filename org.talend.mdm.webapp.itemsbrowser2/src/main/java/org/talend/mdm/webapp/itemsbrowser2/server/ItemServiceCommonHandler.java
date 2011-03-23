@@ -649,11 +649,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             if (results != null) {
                 for (String result : results) {
                     ForeignKeyBean bean = new ForeignKeyBean();
-                    String id = "";
+                    String id = ""; //$NON-NLS-1$
                     List<Node> nodes = XmlUtil.getValuesFromXPath(XmlUtil.parseText(result), "//i"); //$NON-NLS-1$
                     if (nodes != null) {
                         for (Node node : nodes) {
-                            id += "[" + (node.getText() == null ? "" : node.getText()) + "]";
+                            id += "[" + (node.getText() == null ? "" : node.getText()) + "]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
                         }
                     }
                     bean.setId(id); //$NON-NLS-1$

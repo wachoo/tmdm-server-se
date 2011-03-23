@@ -280,7 +280,7 @@ public class ItemsToolBar extends ToolBar {
         entityCombo.setDisplayField("name");//$NON-NLS-1$
         entityCombo.setValueField("value");//$NON-NLS-1$
         entityCombo.setTriggerAction(TriggerAction.ALL);
-        entityCombo.setId("EntityComboBox");
+        entityCombo.setId("EntityComboBox");//$NON-NLS-1$
 
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
@@ -378,7 +378,7 @@ public class ItemsToolBar extends ToolBar {
                         Image image = new Image();
                         image.setResource(Icons.INSTANCE.Edit());
                         if (!ifManage(model))
-                            image.addStyleName("x-item-disabled");
+                            image.addStyleName("x-item-disabled");//$NON-NLS-1$
                         else
                             image.addClickListener(new ClickListener() {
 
@@ -417,7 +417,7 @@ public class ItemsToolBar extends ToolBar {
                         Image image = new Image();
                         image.setResource(Icons.INSTANCE.remove());
                         if (!ifManage(model))
-                            image.addStyleName("x-item-disabled");
+                            image.addStyleName("x-item-disabled"); //$NON-NLS-1$
                         else
                             image.addClickListener(new ClickListener() {
 
