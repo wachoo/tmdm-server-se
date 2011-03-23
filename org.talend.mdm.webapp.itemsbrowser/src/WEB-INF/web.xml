@@ -30,7 +30,12 @@
         <servlet-name>RefreshProperties</servlet-name>
         <servlet-class>com.amalto.webapp.v3.itemsbrowser.servlet.RefreshPropertiesServlet</servlet-class>
     </servlet>
-      
+    <servlet>
+        <servlet-name>ExportingServlet</servlet-name>
+        <display-name>ExportingServlet</display-name>
+        <servlet-class>com.amalto.webapp.v3.itemsbrowser.servlet.ExportingServlet</servlet-class>
+    </servlet> 
+    
     <servlet-mapping>
         <servlet-name>RefreshProperties</servlet-name>
         <url-pattern>/secure/RefreshProperties</url-pattern>
@@ -51,6 +56,10 @@
         <servlet-name>SmartViewServlet</servlet-name>
         <url-pattern>/secure/SmartViewServlet</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ExportingServlet</servlet-name>
+        <url-pattern>/secure/ExportingServlet</url-pattern>
+    </servlet-mapping>   
        
     <security-constraint>    
         <web-resource-collection>

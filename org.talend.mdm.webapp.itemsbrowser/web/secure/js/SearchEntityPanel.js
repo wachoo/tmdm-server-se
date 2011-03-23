@@ -162,6 +162,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 							store: this.lineageEntities,
 							xtype : "combo",
 							allowBlank : false,
+							editable: false,
 							triggerAction : 'all',
 							listeners : {
                                'specialkey' : function(field, event) {
@@ -251,6 +252,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 					handler: function() {					
 							var curcriteria = this.getRequestParam();
 							//@yguo, should export the grid 
+							this.exporting(curcriteria);
 					}.createDelegate(this),
 					text : "export"
 			}]
@@ -259,6 +261,12 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 			closable:true,
 			border:false
 		});	
+	},
+	
+	exporting:function(myParams){
+		var cluster = DWRUtil.getValue('datacluster-select');
+		
+		window.location.href="/itemsbrowser/secure/ExportingServlet?cluster=" + cluster + "&params=" + myParams;	
 	},
     
 	initListData : function(itemsBroswer){
