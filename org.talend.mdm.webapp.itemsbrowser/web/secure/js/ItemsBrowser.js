@@ -346,8 +346,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	
 	var LINEAGE_BUTTON = {
-		'fr':'Ouvrir la tâche',
-		'en':'Lineages '
+		'fr':'Relations',
+		'en':'Relations'
 	};
 	
 	var BUTTON_TASK = {
