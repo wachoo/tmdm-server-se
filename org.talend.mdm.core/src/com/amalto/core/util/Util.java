@@ -1021,7 +1021,9 @@ public class Util {
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException {
         try {
             String schema = nodeToString(xsd);
-            XSDKey key = xsdkeyCache.get(schema + "#" + businessConceptName);
+            //FIXME: sometimes this bug 'Concept/.../Conpcet/Id' happens in the cache, so I have to remove getFromCache first! 
+            //XSDKey key = xsdkeyCache.get(schema + "#" + businessConceptName);
+            XSDKey key = null;
             if (key != null)
                 return key;
             String[] selectors = null;
