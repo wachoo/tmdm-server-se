@@ -28,6 +28,8 @@ public interface ItemsbrowserMessages extends Messages {
 
     String search_btn();
 
+    String search_initMsg();
+
     String advsearch_btn();
 
     String cancel_btn();

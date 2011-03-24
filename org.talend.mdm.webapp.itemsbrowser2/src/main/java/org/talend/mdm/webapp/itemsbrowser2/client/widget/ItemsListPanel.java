@@ -47,6 +47,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -95,6 +96,8 @@ public class ItemsListPanel extends ContentPanel {
 
     ContentPanel gridContainer;
 
+    private ContentPanel panel;
+
     private final static int PAGE_SIZE = 10;
 
     PagingToolBarEx pagingBar = null;
@@ -105,6 +108,7 @@ public class ItemsListPanel extends ContentPanel {
         setLayout(new FitLayout());
         setHeaderVisible(false);
         addToolBar();
+        initPanel();
         loader.setRemoteSort(true);
         loader.addLoadListener(new LoadListener() {
 
@@ -112,6 +116,17 @@ public class ItemsListPanel extends ContentPanel {
                 grid.getSelectionModel().select(0, false);
             }
         });
+    }
+
+    private void initPanel() {
+        panel = new ContentPanel();
+        panel.setStyleAttribute("color", "#8F8FBD"); //$NON-NLS-1$ //$NON-NLS-2$
+        panel.setStyleAttribute("margin", "20px"); //$NON-NLS-1$ //$NON-NLS-2$
+        panel.setBodyBorder(false);
+        panel.setBorders(false);
+        panel.add(new Label(MessagesFactory.getMessages().search_initMsg()));
+        panel.setHeaderVisible(false);
+        add(panel);
     }
 
     private void addToolBar() {
@@ -125,8 +140,10 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     public void updateGrid(CheckBoxSelectionModel<ItemBean> sm, List<ColumnConfig> columnConfigList) {
-        if (gridContainer != null)
+        if (gridContainer != null && this.findItem(gridContainer.getElement()) != null)
             remove(gridContainer);
+        if (panel != null && this.findItem(panel.getElement()) != null)
+            remove(panel);
 
         ColumnModel cm = new ColumnModel(columnConfigList);
         gridContainer = new ContentPanel(new FitLayout());

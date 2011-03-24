@@ -25,8 +25,11 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.ListLoadResult;
+import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
@@ -271,8 +274,16 @@ public class ItemsToolBar extends ToolBar {
         add(new FillToolItem());
 
         // add entity combo
+        RpcProxy<List<ItemBaseModel>> Entityproxy = new RpcProxy<List<ItemBaseModel>>() {
+
+            public void load(Object loadConfig, AsyncCallback<List<ItemBaseModel>> callback) {
+                service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), callback);
+            }
+        };
+        ListLoader<ListLoadResult<ItemBaseModel>> Entityloader = new BaseListLoader<ListLoadResult<ItemBaseModel>>(Entityproxy);
+
         HorizontalPanel entityPanel = new HorizontalPanel();
-        final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>();
+        final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>(Entityloader);
 
         entityCombo.setAutoWidth(true);
         entityCombo.setEmptyText(MessagesFactory.getMessages().empty_entity());
@@ -280,8 +291,9 @@ public class ItemsToolBar extends ToolBar {
         entityCombo.setStore(list);
         entityCombo.setDisplayField("name");//$NON-NLS-1$
         entityCombo.setValueField("value");//$NON-NLS-1$
+        entityCombo.setForceSelection(true);
         entityCombo.setTriggerAction(TriggerAction.ALL);
-        entityCombo.setId("EntityComboBox");//$NON-NLS-1$
+        entityCombo.setId("EntityComboBox");//$NON-NLS-1$  
 
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
@@ -542,19 +554,6 @@ public class ItemsToolBar extends ToolBar {
         add(bookmarkBtn);
 
         initAdvancedPanel();
-
-        service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
-                new AsyncCallback<List<ItemBaseModel>>() {
-
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                    }
-
-                    public void onSuccess(List<ItemBaseModel> arg0) {
-                        list.removeAll();
-                        list.add(arg0);
-                    }
-                });
     }
 
     private void updateUserCriteriasList() {
