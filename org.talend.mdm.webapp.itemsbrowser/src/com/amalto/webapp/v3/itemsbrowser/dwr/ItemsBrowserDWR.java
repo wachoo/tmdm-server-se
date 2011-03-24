@@ -389,12 +389,13 @@ public class ItemsBrowserDWR {
             boolean refresh) throws Exception {
         WebContext ctx = WebContextFactory.get();
         try {
-            if (ids == null) {
-                String[] idsExist = (String[]) ctx.getSession().getAttribute("treeIdxToIDS" + docIndex); //$NON-NLS-1$
-                if (idsExist != null && idsExist.length > 0) {
-                    ids = idsExist;
-                }
-            }
+        	//fix bug 0019565, maybe the following code cause the pb
+//            if (ids == null) {
+//                String[] idsExist = (String[]) ctx.getSession().getAttribute("treeIdxToIDS" + docIndex); //$NON-NLS-1$
+//                if (idsExist != null && idsExist.length > 0) {
+//                    ids = idsExist;
+//                }
+//            }
             Configuration config = Configuration.getInstance();
             String dataModelPK = config.getModel();
             String dataClusterPK = config.getCluster();

@@ -1869,7 +1869,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						    	for(var i=0; i<_viewItems2.keys.length; i++) {
 						    		itemPK[i] = g.getStore().getAt(rowIndex).get(_viewItems2.keys[i]);
 						    	}
-						    	displayItemDetails(itemPK,_dataObject2);
+						    	if(itemPK && itemPK.length>0){
+						    		displayItemDetails(itemPK,_dataObject2);
+						    	}
 		                	}
 	    	},
 			tbar: new Ext.PagingToolbar({
