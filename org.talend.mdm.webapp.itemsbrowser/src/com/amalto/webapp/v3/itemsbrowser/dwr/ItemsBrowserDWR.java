@@ -2868,13 +2868,14 @@ public class ItemsBrowserDWR {
             String[] inputParams = regex.split("&");//$NON-NLS-1$
             String concept = inputParams[0];
             String language = inputParams[1];
-            Pattern smp = Pattern.compile("Smart_view_" + concept + "(_([^#]+))?(#(.+))?");//$NON-NLS-1$//$NON-NLS-2$
+            String smRegex = "Smart_view_" + concept + "(_([^#]+))?(#(.+))?";//$NON-NLS-1$//$NON-NLS-2$
+            Pattern smp = Pattern.compile(smRegex);//$NON-NLS-1$//$NON-NLS-2$
 
             // get process
             List<ComboItemBean> comboItems = new ArrayList<ComboItemBean>();
             WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
             for (int i = 0; i < wst.length; i++) {
-                if (wst[i].getPk().startsWith("Smart_view_" + concept)) {//$NON-NLS-1$
+                if (wst[i].getPk().matches(smRegex)) {
 
                     String smValue = wst[i].getPk();
                     String smText = "";//$NON-NLS-1$
