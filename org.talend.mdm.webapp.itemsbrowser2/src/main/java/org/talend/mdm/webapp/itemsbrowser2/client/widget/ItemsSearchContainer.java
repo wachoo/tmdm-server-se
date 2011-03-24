@@ -30,6 +30,7 @@ public class ItemsSearchContainer extends LayoutContainer {
     public ItemsSearchContainer() {
 
         setLayout(new BorderLayout());
+        setBorders(false);
 
         itemsListPanel = new ItemsListPanel();
         add(itemsListPanel, new BorderLayoutData(LayoutRegion.CENTER));
@@ -38,6 +39,7 @@ public class ItemsSearchContainer extends LayoutContainer {
         itemsFormPanel.setHeaderVisible(false);
         BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH);
         southData.setSplit(true);
+        //southData.setCollapsible(true);
         southData.setMargins(new Margins(5, 0, 0, 0));
         add(itemsFormPanel, southData);
 

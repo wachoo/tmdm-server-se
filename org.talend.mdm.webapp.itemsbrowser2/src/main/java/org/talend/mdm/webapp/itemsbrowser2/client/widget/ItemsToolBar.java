@@ -116,6 +116,7 @@ public class ItemsToolBar extends ToolBar {
     public ItemsToolBar() {
         // init user saved model
         userCluster = Itemsbrowser2.getSession().getAppHeader().getDatacluster();
+        this.setBorders(false);
         initToolBar();
     }
 

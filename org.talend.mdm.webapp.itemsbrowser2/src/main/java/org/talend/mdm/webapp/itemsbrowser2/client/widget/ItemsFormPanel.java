@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.DateUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
@@ -34,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
@@ -57,7 +59,8 @@ public class ItemsFormPanel extends ContentPanel {
             content.setTopComponent(toolbar);
 
         }
-        content.setHeaderVisible(false);
+        content.setBodyBorder(false);
+        content.add(new HTML("<div class=\"promptMsg\">"+MessagesFactory.getMessages().prompt_message()+"</div>"));
         add(content);
     }
 

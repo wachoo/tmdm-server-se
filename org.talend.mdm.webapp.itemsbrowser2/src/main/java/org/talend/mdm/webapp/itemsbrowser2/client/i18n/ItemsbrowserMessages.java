@@ -215,5 +215,7 @@ public interface ItemsbrowserMessages extends Messages {
     String delete_record_failure();
 
     String delete_record_success();
+    
+    String prompt_message();
 
 }

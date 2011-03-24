@@ -305,6 +305,7 @@ public class ItemsView extends View {
             item.setClosable(closable);
             item.add(c);
             item.addStyleName("pad-text");//$NON-NLS-1$
+            item.setBorders(false);
             tabFrame.add(item);
         }
 
