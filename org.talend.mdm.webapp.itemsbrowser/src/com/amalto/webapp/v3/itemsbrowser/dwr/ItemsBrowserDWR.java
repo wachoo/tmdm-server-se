@@ -3273,10 +3273,10 @@ public class ItemsBrowserDWR {
      * @return
      */
     private boolean checkAncestorMinOCcurs(TreeNode node) {
-        if (node.getParent() != null && node.getMinOccurs() >= 1 && node.getParent().getMinOccurs()>=1)
+        if (node.getParent() != null && node.getMinOccurs() >= 1 && node.getParent().getMinOccurs() >= 1)
             return true;
-        else 
-        	return false;
+        else
+            return false;
     }
 
     /**
@@ -3646,7 +3646,8 @@ public class ItemsBrowserDWR {
             wsDataClusterPK.setPk(configuration.getCluster());
             entity = !criteria.isNull("entity") ? (String) criteria.get("entity") : "";
             keys = !criteria.isNull("key") && !"*".equals(criteria.get("key")) ? (String) criteria.get("key") : "";
-            contentWords = !criteria.isNull("keyWords") ? (String) criteria.get("keyWords") : "";
+            contentWords = !criteria.isNull("keyWords") && !"*".equals(criteria.get("keyWords")) ? (String) criteria
+                    .get("keyWords") : "";
 
             if (!criteria.isNull("fromDate")) {
                 String startDate = (String) criteria.get("fromDate");
