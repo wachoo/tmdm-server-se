@@ -1,0 +1,54 @@
+
+.itemsbrowser2{
+	height: 100%;
+	overflow: auto;
+}
+.x-form-check{
+	background:url('/core/secure/ext-2.2/resources/images/default/form/checkbox.gif') no-repeat 0 0 !important;
+}
+.x-form-radio {
+	background: url("/core/secure/ext-2.2/resources/images/default/form/radio.gif") no-repeat scroll 0 0 transparent !important;
+}
+
+.x-form-check-focus .x-form-check,.x-form-check-over .x-form-check,.x-form-check-focus .x-form-radio,.x-form-check-over .x-form-radio{
+	background-position:-13px 0 !important;
+}
+.x-form-check-down .x-form-check,.x-form-check-down .x-form-radio{
+	background-position:-26px 0 !important;
+}
+.x-form-check-checked .x-form-check-focus .x-form-check,.x-form-check-checked .x-form-check-over .x-form-check{
+	background-position:-13px -13px !important;
+}
+.x-form-check-checked .x-form-check-down .x-form-check{
+	background-position:-26px -13px !important;
+}
+.x-form-check-checked .x-form-check,.x-form-check-checked .x-form-radio{
+	background-position:0 -13px !important;
+}
+
+
+/***********************************/
+
+.itemsbrowser2 .x-form-check {
+    background: none repeat scroll 0 0 transparent !important;
+}
+
+.itemsbrowser2 .x-form-radio {
+	background: none repeat scroll 0 0 transparent !important;
+}
+
+.itemsbrowser2 .x-form-check-focus .x-form-check,.x-form-check-over .x-form-check,.x-form-check-focus .x-form-radio,.x-form-check-over .x-form-radio{
+	background-position:-13px 0 !important;
+}
+.itemsbrowser2 .x-form-check-down .x-form-check,.x-form-check-down .x-form-radio{
+	background-position:-26px 0 !important;
+}
+.itemsbrowser2 .x-form-check-checked .x-form-check-focus .x-form-check,.x-form-check-checked .x-form-check-over .x-form-check{
+	background-position:-13px -13px !important;
+}
+.itemsbrowser2 .x-form-check-checked .x-form-check-down .x-form-check{
+	background-position:-26px -13px !important;
+}
+.itemsbrowser2 .x-form-check-checked .x-form-check,.x-form-check-checked .x-form-radio{
+	background-position:0 -13px !important;
+}
