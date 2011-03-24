@@ -2502,8 +2502,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     							}
     						}
     	
+    						var parentLink = [];
+    						parentLink["title"] = myTitle;
+    						parentLink["ids"] = ids;
+    						parentLink["conceptName"] = dataObject;
+    						
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
-    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem, parentLink);
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
@@ -3503,13 +3508,23 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					}
 				}
 				else if(currentPL != undefined) {
-					//@temp yguo, open fk from detail panel and window panel
-					/*breadCrumbNavigator = new Ext.Toolbar({id:'breadCrumbNav' + treeIndex});
+					breadCrumbNavigator = new Ext.Toolbar({id:'breadCrumbNav' + treeIndex});
 					currentPL.add(breadCrumbNavigator);
 					currentPL.show();
 					currentPL.doLayout();
-					breadCrumbNavigator.addButton(new Ext.Toolbar.Button({text: "Detail panel"}));*/
+					breadCrumbNavigator.addButton(new Ext.Toolbar.Button({text: parentLink["title"], handler:function() {
+						displayItemDetails(parentLink["ids"], parentLink["conceptName"]);
+					}}));
 				}
+			}
+			else if(currentPL != undefined) {
+				breadCrumbNavigator = new Ext.Toolbar({id:'breadCrumbNav' + treeIndex});
+				currentPL.add(breadCrumbNavigator);
+				currentPL.show();
+				currentPL.doLayout();
+				breadCrumbNavigator.addButton(new Ext.Toolbar.Button({text: parentLink["title"], handler:function() {
+					displayItemDetails(parentLink["ids"], parentLink["conceptName"]);
+				}}));
 			}
 			
 		    amalto.core.doLayout();	    
