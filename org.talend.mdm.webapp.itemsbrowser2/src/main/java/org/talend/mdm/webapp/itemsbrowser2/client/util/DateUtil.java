@@ -27,10 +27,10 @@ public class DateUtil {
     }
     
     public static final String convertDateToString(Date aDate) {
-        return getDateTime(datePattern, aDate);
+        return getDateTime(aDate);
     }
     
-    public static final String getDateTime(String aMask, Date aDate) {
+    public static final String getDateTime(Date aDate) {
         if (aDate != null){
             DateTimeFormat df = DateTimeFormat.getFormat(datePattern);
             DateTimeFormat tf = DateTimeFormat.getFormat(timePattern);

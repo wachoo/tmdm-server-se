@@ -14,6 +14,6 @@ public class DateTimeConverter extends Converter {
     }
 
     public Object convertFieldValue(Object value) {
-        return DateUtil.getDateTime(DateUtil.dateTimePattern, (Date)value);
+        return DateUtil.getDateTime((Date)value);
     }
 }

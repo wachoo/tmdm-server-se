@@ -36,7 +36,6 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -44,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
@@ -155,7 +155,7 @@ public class FieldCreator {
             field = dateField;
         } else if (DataTypeConstants.DATETIME.getTypeName().equals(baseType)){
             DateTimeField dateTimeField = new DateTimeField();
-            dateTimeField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$
+            dateTimeField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"));//$NON-NLS-1$
             field = dateTimeField;
         } else if (DataTypeConstants.STRING.getTypeName().equals(baseType)){
             TextField<String> textField = new TextField<String>();

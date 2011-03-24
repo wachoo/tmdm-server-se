@@ -20,6 +20,6 @@ public class DateTimeFieldCellEditor extends CellEditor {
 
     public Object postProcessValue(Object value) {
         
-        return DateUtil.getDateTime(DateUtil.dateTimePattern, (Date) value);
+        return DateUtil.getDateTime((Date) value);
     }
 }

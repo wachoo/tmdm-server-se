@@ -29,13 +29,12 @@ public class CellEditorCreator {
             }
         }
         
-        if (field instanceof DateField){
-            return new DateFieldCellEditor((DateField) field);
-        }
-        
         if (field instanceof DateTimeField){
             return new DateTimeFieldCellEditor((DateTimeField) field);
+        } else if (field instanceof DateField){
+            return new DateFieldCellEditor((DateField) field);
         }
+
         if (field instanceof NumberField){
             return new NumberFieldCellEditor((NumberField) field);
         }
