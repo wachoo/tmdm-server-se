@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
+import org.directwebremoting.WebContext;
+import org.directwebremoting.WebContextFactory;
 
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.util.Menu;
@@ -23,6 +25,7 @@ import com.amalto.webapp.util.webservices.WSByteArray;
 import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
 import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
 import com.amalto.webapp.util.webservices.WSTransformerContext;
+import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
 import com.amalto.webapp.util.webservices.WSTransformerPK;
 import com.amalto.webapp.util.webservices.WSTransformerV2PK;
 import com.amalto.webapp.util.webservices.WSTypedContent;
@@ -173,7 +176,18 @@ public class WelcomeDWR {
             WSTypedContent typedContent = new WSTypedContent(null, new WSByteArray(content.getBytes("UTF-8")),//$NON-NLS-1$
                     "text/xml; charset=UTF-8");//$NON-NLS-1$
             WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, typedContent);
-            Util.getPort().executeTransformerV2(wsExecuteTransformerV2);
+            WSTransformerContextPipelinePipelineItem[] entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2)
+                    .getPipeline().getPipelineItem();
+            if (entries.length > 0) {
+                WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
+                if (item.getVariable().equals("output_report")) { //$NON-NLS-1$
+                    byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
+                    WebContext ctx = WebContextFactory.get();
+                    ctx.getSession().setAttribute(transformerPK, bytes);
+                    ctx.getSession().setAttribute(transformerPK + "mimetype", //$NON-NLS-1$
+                            item.getWsTypedContent().getContentType().getBytes());
+                }
+            }
         } catch (RemoteException e) {
             LOG.error(e.getMessage(), e);
             sucess = false;

@@ -12,6 +12,14 @@
 			<param-value>true</param-value>
 		</init-param>
 	</servlet>
+    <servlet>
+        <servlet-name>OutputReport</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.welcome.servlet.OuputReportServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OutputReport</servlet-name>
+        <url-pattern>/secure/OutputReport</url-pattern>
+    </servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>dwr-invoker</servlet-name>
 		<url-pattern>/secure/dwr/*</url-pattern>
