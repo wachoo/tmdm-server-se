@@ -60,7 +60,6 @@ public class ItemsFormPanel extends ContentPanel {
 
         }
         content.setBodyBorder(false);
-        content.add(new HTML("<div class=\"promptMsg\">"+MessagesFactory.getMessages().prompt_message()+"</div>"));
         add(content);
     }
 

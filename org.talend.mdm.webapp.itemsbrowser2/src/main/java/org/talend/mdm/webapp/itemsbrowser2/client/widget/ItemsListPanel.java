@@ -47,6 +47,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -120,12 +121,11 @@ public class ItemsListPanel extends ContentPanel {
 
     private void initPanel() {
         panel = new ContentPanel();
-        panel.setStyleAttribute("color", "#8F8FBD"); //$NON-NLS-1$ //$NON-NLS-2$
-        panel.setStyleAttribute("margin", "20px"); //$NON-NLS-1$ //$NON-NLS-2$
+        Html promptMsg = new Html("<div class=\"promptMsg\">"+MessagesFactory.getMessages().search_initMsg()+"</div>");//$NON-NLS-1$ //$NON-NLS-2$
         panel.setBodyBorder(false);
         panel.setBorders(false);
-        panel.add(new Label(MessagesFactory.getMessages().search_initMsg()));
         panel.setHeaderVisible(false);
+        panel.add(promptMsg);
         add(panel);
     }
 
