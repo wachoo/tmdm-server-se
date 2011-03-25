@@ -18,6 +18,6 @@ public class DateFieldCellEditor extends CellEditor {
     }
 
     public Object postProcessValue(Object value) {
-        return DateUtil.convertDateToString((Date) value);
+        return DateUtil.getDate((Date) value);
     }
 }
