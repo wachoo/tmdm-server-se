@@ -3728,17 +3728,25 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			Ext.MessageBox.alert("Status",siblingNode.itemData.maxOccurs+" "+siblingNode.itemData.name+"(s) at most");
 			return;
 		}
-		var nodeCount = YAHOO.widget.TreeView.nodeCount;
-		//add by yguo. fix bug clone node then browseForeignKey. the value of node equals siblingNode's value.
-		siblingNode.itemData.value = "";
-		var newNode = new amalto.itemsbrowser.ItemNode(cloneObject(siblingNode.itemData),true,treeIndex,siblingNode.parent,true,true,isReadOnlyinItem);
+		var nodeCount = YAHOO.widget.TreeView.nodeCount;	
 		
+		DWREngine.setAsync(false);
+		ItemsBrowserInterface.updateNodeDspValue(treeIndex,siblingNode.index, function(result){
+			if (result != null)
+				siblingNode.itemData.value = result;
+			else
+				//add by yguo. fix bug clone node then browseForeignKey. the value of node equals siblingNode's value.
+				siblingNode.itemData.value = "";
+		});
+		DWREngine.setAsync(true);
+		var newNode = new amalto.itemsbrowser.ItemNode(cloneObject(siblingNode.itemData),true,treeIndex,siblingNode.parent,true,true,isReadOnlyinItem);		
 		newNode.updateNodeId(nodeCount);
 		//remove by ymli; fix the bug:0013463
 		//newNode.updateValue(" ");
 		ItemsBrowserInterface.cloneNode(siblingId,newNode.index, treeIndex,function(result){
 			amalto.core.ready(result);
 		});
+		
 		newNode.insertAfter(siblingNode);
 		//newNode.appendTo(siblingNode.parent);
 		itemTree.getRoot().childrenRendered=false;
@@ -3766,7 +3774,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		siblingNode.parent.refresh();
 		//itemTree.getRoot().refresh();
 		amalto.core.ready();
-		if($(nodeCount+"Value"))$(nodeCount+"Value").value = "";
+		//removed by lzhang, if need, (line 3722 siblingNode.itemData.value = "") has done this
+		//if($(nodeCount+"Value"))$(nodeCount+"Value").value = "";
+		
 		//add by ymli. set the values of the siblingNodes. fix the bug:0010576
 		for(var t=0;t<values.length;t++){
 			var value = values[t];
