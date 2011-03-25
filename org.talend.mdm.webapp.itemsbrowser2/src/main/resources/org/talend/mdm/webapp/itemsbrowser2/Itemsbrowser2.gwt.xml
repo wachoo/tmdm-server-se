@@ -2,7 +2,6 @@
 <module rename-to='itemsbrowser2'>
 	<stylesheet src='../resources/css/gxt-all.css'/>
 	<stylesheet src='../Itemsbrowser2.css'/>
-	<stylesheet src='../gxt_ext_hook.css'/>
 	<!-- Inherit the core Web Toolkit stuff.                        -->
 	<inherits name='com.google.gwt.user.User'/>
 
