@@ -314,10 +314,15 @@ public class ItemsToolBar extends ToolBar {
         searchBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             public void componentSelected(ButtonEvent ce) {
-                isSimple = true;
-                String viewPk = entityCombo.getValue().get("value");//$NON-NLS-1$
-                Dispatcher.forwardEvent(ItemsEvents.SearchView, viewPk);
-                resizeAfterSearch();
+                if (simplePanel.getCriteria() != null) {
+                    isSimple = true;
+                    String viewPk = entityCombo.getValue().get("value");//$NON-NLS-1$
+                    Dispatcher.forwardEvent(ItemsEvents.SearchView, viewPk);
+                    resizeAfterSearch();
+                } else {
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                            .advsearch_lessinfo(), null);
+                }
             }
 
         });
@@ -671,8 +676,8 @@ public class ItemsToolBar extends ToolBar {
 
                                 public void onSuccess(String arg0) {
                                     if (arg0.equals("OK")) { //$NON-NLS-1$
-                                        MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory
-                                                .getMessages().bookmark_saveSuccess(), null);
+                                        MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                                .bookmark_saveSuccess(), null);
                                         updateUserCriteriasList();
                                         winBookmark.close();
                                     } else

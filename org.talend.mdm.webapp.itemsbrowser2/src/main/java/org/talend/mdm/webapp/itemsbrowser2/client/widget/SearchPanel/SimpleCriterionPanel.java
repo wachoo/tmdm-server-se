@@ -18,7 +18,6 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
-import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
@@ -36,7 +35,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -211,9 +209,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         try {
             return new SimpleCriterion(getKey(), getOperator(), getValue());
         } catch (Exception e) {
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().advsearch_lessinfo(),
-                    null);
-            Log.error(e.getMessage(), e);
+            Log.error(e.getMessage());
             return null;
         }
     }
