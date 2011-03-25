@@ -2834,7 +2834,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				var treeDetailPanel = new Ext.Panel({
                     id:'treeDetailsdiv'+treeIndex, 
                      headerAsText:false,
-                    style:"overflow:auto;height:93%;",
+                    style:"overflow:no;",
                     autoScroll:true,
                     html:html,
                     border:false,
@@ -2846,6 +2846,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     title: myTitle, 
                     tbar: tbDetail,
                     header:false,
+                    style:"height:99%;",
                     closable:true,
                     items:[errorContentPanel,treeDetailPanel],
                     bbar : new Ext.Toolbar([{
@@ -2856,10 +2857,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			}
 			formWindow.innerHTML = "";
 			contentPanel.render(formWindow);
-			
-			if(isDetail) {
-				contentPanel.remove(tbDetail);
-			}
 			
 			//record the item id
 			contentPanel.itemid=itemPK2+"."+dataObject;
