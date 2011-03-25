@@ -131,12 +131,12 @@ public class ItemsView extends View {
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         List<String> keys = Arrays.asList(entityModel.getKeys());
-        for (String xpath : viewableXpaths) {
+        for (String xpath : viewableXpaths) { 
             TypeModel typeModel = dataTypes.get(xpath);
 
             ColumnConfig cc = new ColumnConfig(xpath, ViewUtil.getViewableLabel(
                     Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel), 200);
-            if (typeModel instanceof SimpleTypeModel) {
+            if (typeModel instanceof SimpleTypeModel && !keys.contains(xpath)) {
                 Field field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
                         Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
 
@@ -269,7 +269,7 @@ public class ItemsView extends View {
         Dispatcher.forwardEvent(ItemsEvents.InitSearchContainer);
     }
 
-    // FIXME： can we refact this method to PubService
+    // FIXME锛� can we refact this method to PubService
     private native void regResizeViewPort()/*-{
         var instance = this;
         $wnd.org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort = function(){
