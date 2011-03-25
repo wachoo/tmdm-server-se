@@ -2345,22 +2345,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var treeIndex = treeCount;
 		var tabPanel = amalto.core.getTabPanel();
 		var contentPanel=tabPanel.getItem('itemDetailsdiv'+treeIndex);
-		//see  	 0013478 prevent 2 tabs from being opened on the same record. 
-		var itemContentPanel;
-		tabPanel.items.each(function(item){
-			if(item.itemid==itemPK2+"."+dataObject){
-				itemContentPanel=item;
-				return;
-			}
-		});
-		if(itemContentPanel && isDuplicate==false) {
-			if(itemContentPanel.itemid==itemPK2+"."+dataObject){
-				itemContentPanel.show();
-				return;
-			}
-		};
-		//end
-		
 		var ids = "";
 		
 		
