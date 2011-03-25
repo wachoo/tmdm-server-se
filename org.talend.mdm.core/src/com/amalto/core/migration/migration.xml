@@ -7,4 +7,6 @@
 <com.amalto.core.migration.tasks.AutoIncrementTask4/>
 <com.amalto.core.migration.tasks.UpdateOldRolesWithNewRoleSchemeTask/>
 <com.amalto.core.migration.tasks.UpdateActionTypeWithNewTypeStrategy/>
+<com.amalto.core.migration.tasks.UpdateSearchTemplateModel/>
+
 </Root>
