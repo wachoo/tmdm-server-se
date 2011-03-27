@@ -635,70 +635,61 @@ public abstract class QueryBuilder {
     }
 
     protected String buildWhereJoin(List<String> joinKeys) {
-        int c = 0;
-        // StringBuffer sb=new StringBuffer();
-        // String fk="";//FIXME only support one Foreignkey
         LinkedHashMap<String, ArrayList<String>> fkMaps = new LinkedHashMap<String, ArrayList<String>>();
-        // String keyvalue="";
         for (String joinkey : joinKeys) {
-            String[] items = joinkey.split("\\b(or|and)\\b");
+            String[] items = joinkey.split("\\b(or|and)\\b"); //$NON-NLS-1$
             for (String item : items) {
                 String key = item.trim();
-                if (key.matches("\\((.*?)\\)"))
-                    key = key.replaceFirst("\\((.*?)\\)", "$1");
+                if (key.matches("\\((.*?)\\)")) //$NON-NLS-1$
+                    key = key.replaceFirst("\\((.*?)\\)", "$1"); //$NON-NLS-1$ //$NON-NLS-2$
                 String[] splits = key.split(WhereCondition.JOINS);
                 if (splits.length == 2) {
-                    String fk = splits[0].trim().replace("(", "").replace(")", "");
-                    String rightV = splits[1].trim().replace("(", "").replace(")", "");
+                    String fk = splits[0].trim().replace("(", "").replace(")", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    String rightV = splits[1].trim().replace("(", "").replace(")", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
                     ArrayList<String> value = fkMaps.get(fk);
                     if (value == null) {
                         value = new ArrayList<String>();
                         fkMaps.put(fk, value);
                     }
-                    StringBuffer sb1 = new StringBuffer();
-                    String var = "$joinkey" + c;
-                    sb1.append(var + "#" + "let " + var).append(" := concat(\"[\",").append(rightV).append(",\"]\")\n");
+                    StringBuilder sb1 = new StringBuilder();
+                    sb1.append("concat(\"[\",").append(rightV).append(",\"]\")\n"); //$NON-NLS-1$ //$NON-NLS-2$
                     value.add(sb1.toString());
-                    c++;
                 }
             }
         }
-        StringBuffer let = new StringBuffer();
+
         StringBuffer where = new StringBuffer();
         if (fkMaps.size() > 0)
-            where.append(" where ");
+            where.append(" where "); //$NON-NLS-1$
         int count = 0;
         for (Entry<String, ArrayList<String>> entry : fkMaps.entrySet()) {
-            String fk = entry.getKey() + "[not(.) or not(text()) or .]"; // see 0015254: Resolve FK info on search
+            where.append(entry.getKey());
+            // see 0015254: Resolve FK info on search
+            where.append("[not(.) or not(text()) or .]"); //$NON-NLS-1$
             // results
-            ArrayList<String> vars = new ArrayList<String>();
-            for (String v : entry.getValue()) {
-                int pos = v.indexOf("#");
-                let.append(v.substring(pos + 1));
-                vars.add(v.substring(0, pos));
-            }
-            String keyvalue = "";
+            ArrayList<String> vars = entry.getValue();
+            String keyvalue;
             if (vars.size() == 1) {
                 keyvalue = vars.get(0);
             } else {
-                keyvalue = "concat(";
+                keyvalue = "concat("; //$NON-NLS-1$
                 for (int k = 0; k < vars.size(); k++) {
                     if (k < vars.size() - 1) {
-                        keyvalue += vars.get(k) + ",";
+                        keyvalue += vars.get(k) + ',';
                     } else {
                         keyvalue += vars.get(k);
                     }
                 }
-                keyvalue += ")";
+                keyvalue += ')';
             }
 
-            where.append(fk).append("=").append(keyvalue);
+            where.append('=').append(keyvalue);
             if (count < fkMaps.size() - 1) {
-                where.append(" and ");
+                where.append(" and "); //$NON-NLS-1$
             }
             count++;
         }
-        return let.toString() + where.toString();
+        return where.toString();
     }
 
     /***********************************************************************
