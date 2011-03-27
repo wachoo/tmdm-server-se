@@ -551,12 +551,22 @@ public abstract class QueryBuilder {
 
             StringBuffer rawQueryStringBuffer = new StringBuffer();
             rawQueryStringBuffer.append(xqFor);
+            
             // add joinkeys
             partialXQLPackage.resetPivotWhereMap();
-            String joinstring = getJoinString(partialXQLPackage.getJoinKeys());
-            partialXQLPackage.setUseJoin(!("".equals(joinstring)));
-            // rawQueryStringBuffer.append("".equals(xqWhere)? "" : "\nwhere "+xqWhere);
-            rawQueryStringBuffer.append("".equals(joinstring) ? "" : "\n" + joinstring);
+            List<String> joinKeys = partialXQLPackage.getJoinKeys();
+            String joinString;
+            if(joinKeys.size() != 0) {
+                joinString = buildWhereJoin(joinKeys);
+                if(joinString.length() == 0)
+                    joinString = null;
+            }
+            else
+                joinString = null;
+            partialXQLPackage.setUseJoin(joinString != null);
+            if(joinString != null)
+                rawQueryStringBuffer.append('\n').append(joinString);
+            
             if (!partialXQLPackage.isUseGlobalOrderBy())
                 rawQueryStringBuffer.append("".equals(xqOrderBy) ? "" : "\n" + xqOrderBy);
             rawQueryStringBuffer.append("\nreturn " + xqReturn);
@@ -624,13 +634,7 @@ public abstract class QueryBuilder {
         return countExpr.toString();
     }
 
-    /**
-     * get the foreign key join string
-     * 
-     * @param joinKeys
-     * @return
-     */
-    protected static String getJoinString(List<String> joinKeys) {
+    protected String buildWhereJoin(List<String> joinKeys) {
         int c = 0;
         // StringBuffer sb=new StringBuffer();
         // String fk="";//FIXME only support one Foreignkey
