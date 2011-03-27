@@ -625,10 +625,10 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             query += sub + ret;
 
             // Determine Query based on number of results an counts
-            String rquery = null;
-            rquery = query + "return insert-before($res,0,<totalCount>{count($allres)}</totalCount>) ";
+            String rquery = query + "return (<totalCount>{count($allres)}</totalCount>, $res) "; //$NON-NLS-1$
 
-            System.out.println(rquery);
+            if(LOG.isDebugEnabled())
+              LOG.debug(rquery);
 
             DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsGetItemPKsByCriteria.getWsDataClusterPK().getPk());
             Collection<String> results = com.amalto.core.util.Util.getItemCtrl2Local().runQuery(revisionID, dcpk, rquery, null);
@@ -2525,7 +2525,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             query.append("return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n");
 
             // Determine Query based on number of results an counts
-            query.append("return insert-before($res,0,<totalCount>{count($allres)}</totalCount>)");
+            query.append("return (<totalCount>{count($allres)}</totalCount>, $res)"); //$NON-NLS-1$
 
             if (LOG.isDebugEnabled())
                 LOG.debug(query);

@@ -837,15 +837,15 @@ public abstract class QueryBuilder {
 
             if (!partialXQLPackage.isUseSubsequenceFirst()) {
                 if (withTotalCountOnFirstRow) {
-                    query = "let $_page_ := \n" + rawQuery + "\n return insert-before(subsequence($_page_," + (start + 1) + ","
-                            + limit + "),0,<totalCount>{" + getCountExpr(partialXQLPackage) + "}</totalCount>)";
+                    query = "let $_page_ := \n" + rawQuery + "\n return (<totalCount>{" + getCountExpr(partialXQLPackage)
+                            + "}</totalCount>, subsequence($_page_," + (start + 1) + ","   + limit + "))";
                 } else {
                     query = "let $_page_ := \n" + rawQuery + "\n return subsequence($_page_," + (start + 1) + "," + limit + ")";
                 }
             } else {
                 if (withTotalCountOnFirstRow) {
-                    query = "let $_page_ := \n" + rawQuery + "\n return insert-before($_page_,0,<totalCount>{"
-                            + getCountExpr(partialXQLPackage) + "}</totalCount>)";
+                    query = "let $_page_ := \n" + rawQuery + "\n return (<totalCount>{" + getCountExpr(partialXQLPackage)
+                            + "}</totalCount>, $_page_)";
                 } else {
                     query = rawQuery;
                 }
@@ -853,8 +853,8 @@ public abstract class QueryBuilder {
 
         } else {
             if (withTotalCountOnFirstRow) {
-                query = "let $_page_ := \n" + rawQuery + "\n return insert-before($_page_,0,<totalCount>{"
-                        + getCountExpr(partialXQLPackage) + "}</totalCount>)";
+                query = "let $_page_ := \n" + rawQuery + "\n return (<totalCount>{"
+                        + getCountExpr(partialXQLPackage) + "}</totalCount>, $_page_)";
             } else {
                 query = rawQuery;
             }
