@@ -4524,7 +4524,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var originalXpathForeignKey;
 	var lastSelectedType;
 	var foreignKeyTypeCounter;
-	function chooseForeignKey(nodeId, xpathForeignKey, xpathInfoForeignKey, fkFilter, treeIndex , isSwitch) {
+	function chooseForeignKey(nodeId, xpathForeignKey, xpathInfoForeignKey, fkFilter, treeIndex , isSwitch, conceptName) {
 		amalto.core.working('Running...');
 	    amalto.core.ready();
 	    if(!isSwitch){
@@ -4532,8 +4532,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	       lastSelectedType="";
 	       foreignKeyTypeCounter=0;
 	    }
-	    var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
-	    var dataObject=tbDetail.dataObject;
+	    var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex);
+	    var dataObject=tbDetail && tbDetail.getTopToolbar() ? tbDetail.getTopToolbar().dataObject : conceptName;
 		ItemsBrowserInterface.countForeignKey_filter(dataObject,xpathForeignKey,fkFilter,treeIndex,nodeId, function(count){
 			//Display a pop-up window to search for foreign keys
 			if(foreignKeyWindow){
@@ -5037,7 +5037,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		showDatePicker:function(nodeId,treeIndex,nodeType,displayFormats){showDatePicker(nodeId,treeIndex,nodeType,displayFormats);},
 		showUploadFile: function (nodeId, treeIndex, nodeType){showUploadFile(nodeId, treeIndex, nodeType);},
 		removePicture: function (nodeId, treeIndex){removePicture(nodeId, treeIndex);},
-		chooseForeignKey:function(nodeId,xpath,xpathInfo,fkFilter,treeIndex,isSwitch){chooseForeignKey(nodeId,xpath,xpathInfo,fkFilter,treeIndex,isSwitch);},
+		chooseForeignKey:function(nodeId,xpath,xpathInfo,fkFilter,treeIndex,isSwitch, conceptName){chooseForeignKey(nodeId,xpath,xpathInfo,fkFilter,treeIndex,isSwitch,conceptName);},
 		cloneNode2:function(siblingId,hasIcon,treeIndex){cloneNode2(siblingId,hasIcon,treeIndex);},
 		removeNode2:function(id,treeIndex){removeNode2(id,treeIndex);},
 		displayXsdDetails:function(id){displayXsdDetails(id);},

@@ -195,9 +195,11 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					//for a foreign key, direct edit is disabled.
 					readOnly = "READONLY";
 					readOnlyStyle = "ForeignKey";
+					var swit = "false";
+					
 					foreignKeyImg += '' +
 						'<span style="cursor: pointer;" ' +
-						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+',false)" >' +
+						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+',\''+swit+'\',\''+parentLink["conceptName"]+'\')" >' +
 						' <img src="img/genericUI/link_edit.png" title="' + MAGPLUS_TT[language] + '"/></span>';
 				
 					var fkDataObject =  itemData.foreignKey.split("/")[0];	
