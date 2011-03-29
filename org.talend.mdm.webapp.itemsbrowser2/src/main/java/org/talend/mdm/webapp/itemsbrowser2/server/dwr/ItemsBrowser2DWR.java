@@ -14,6 +14,8 @@ package org.talend.mdm.webapp.itemsbrowser2.server.dwr;
 
 import org.apache.log4j.Logger;
 
+import com.amalto.webapp.core.util.Webapp;
+
 /**
  * cluster
  * 
@@ -30,5 +32,10 @@ public class ItemsBrowser2DWR {
         super();
     }
 
+    public boolean isAvailable() throws Exception {
+        // The real purpose of this method is to make security filter work
+        return true;
+    }
+    
     //TODO: customized your code here
 }
