@@ -13,10 +13,14 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.google.gwt.user.client.Window;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -34,6 +38,12 @@ public class ItemsSearchContainer extends LayoutContainer {
 
         itemsListPanel = new ItemsListPanel();
         add(itemsListPanel, new BorderLayoutData(LayoutRegion.CENTER));
+        itemsListPanel.addListener(Events.Resize, new Listener<BaseEvent>() {
+
+            public void handleEvent(BaseEvent be) {
+                itemsListPanel.layoutGrid();
+            }
+        });
 
         itemsFormPanel = new ItemsFormPanel();
         itemsFormPanel.setHeaderVisible(false);

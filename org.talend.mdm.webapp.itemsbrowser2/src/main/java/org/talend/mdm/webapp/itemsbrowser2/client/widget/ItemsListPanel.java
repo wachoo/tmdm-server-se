@@ -48,7 +48,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -58,6 +57,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
@@ -110,6 +112,7 @@ public class ItemsListPanel extends ContentPanel {
         setHeaderVisible(false);
         addToolBar();
         initPanel();
+
         loader.setRemoteSort(true);
         loader.addLoadListener(new LoadListener() {
 
@@ -212,6 +215,14 @@ public class ItemsListPanel extends ContentPanel {
         this.doLayout();
     }
 
+    public void layoutGrid() {
+        this.layout(true);
+        if (gridContainer != null){
+            Element parent = DOM.getParent(gridContainer.getElement());
+            gridContainer.setSize(parent.getOffsetWidth(), parent.getOffsetHeight());
+        }
+    }
+    
     private void hookContextMenu() {
 
         Menu contextMenu = new Menu();
