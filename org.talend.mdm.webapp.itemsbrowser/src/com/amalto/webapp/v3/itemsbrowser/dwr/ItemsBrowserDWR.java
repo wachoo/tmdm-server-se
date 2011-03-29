@@ -2020,7 +2020,7 @@ public class ItemsBrowserDWR {
                     Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
                     Node node = nodes.item(i);
                     String textContent = node.getTextContent();
-                    if (textContent != null && withValue)
+                    if (xsp.getTerm().asElementDecl().getType().isSimpleType()&&textContent != null && withValue)
                         el.setTextContent(textContent);
 
                     parentNode.appendChild(el);
