@@ -1199,7 +1199,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             query.append("return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n");
 
             // Determine Query based on number of results an counts
-            query.append("return insert-before($res,0,<totalCount>{count($allres)}</totalCount>)");
+            query.append("return (<totalCount>{count($allres)}</totalCount>, $res)");
 
             if (LOG.isDebugEnabled())
                 LOG.debug(query);
@@ -1315,26 +1315,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
-
-    // protected WSItem POJO2WS(ItemPOJO item) throws Exception{
-    // return new WSItem(
-    // new WSDataClusterPK(item.getDataClusterPOJOPK().getUniqueId()),
-    // item.getConceptName(),
-    // item.getItemIds(),
-    // item.getInsertionTime(),
-    // item.getProjectionAsString()
-    // );
-    // }
-    //
-    // protected ItemPOJO WS2POJO(WSItem wsItem) throws Exception{
-    // return new ItemPOJO(
-    // new DataClusterPOJOPK(wsItem.getWsDataClusterPK().getPk()),
-    // wsItem.getConceptName(),
-    // wsItem.getIds(),
-    // wsItem.getInsertionTime(),
-    // wsItem.getContent()
-    // );
-    // }
 
     protected WSItemPK POJO2WS(ItemPOJOPK itemPK) throws Exception {
         return new WSItemPK(new WSDataClusterPK(itemPK.getDataClusterPOJOPK().getUniqueId()), itemPK.getConceptName(),
