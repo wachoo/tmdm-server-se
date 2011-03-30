@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
+import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
@@ -17,7 +19,7 @@ import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
@@ -55,7 +57,6 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
             doc.appendChild(el);
             itemBean.setItemXml(doc.toString());
             //Window.alert(itemBean.getItemXml());
-            
             service.saveItemBean(itemBean, new AsyncCallback<ItemResult>() {
 
                 public void onFailure(Throwable arg0) {
@@ -71,6 +72,7 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
                                 record.commit(false);
                             }
                         }
+                        refreshForm(itemBean);
                         MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
                     } else if (arg0.getStatus() == ItemResult.FAILURE) {
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
@@ -80,6 +82,15 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
         }
     }
 
+    private void refreshForm(ItemBean itemBean){
+        if (!Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()){
+            ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
+            itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setOverflow(Overflow.AUTO);
+            GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, "", itemsSearchContainer //$NON-NLS-1$
+                    .getItemsFormPanel().getContent().getBody().dom, true);
+        }
+    }
+    
     private void createElements(String xpath, String value, Map<String, Element> elementSet, Document doc) {
         Element parent = null;
         String[] xps = xpath.split("/"); //$NON-NLS-1$
