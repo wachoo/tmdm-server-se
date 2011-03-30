@@ -389,13 +389,13 @@ public class ItemsBrowserDWR {
             boolean refresh) throws Exception {
         WebContext ctx = WebContextFactory.get();
         try {
-        	//fix bug 0019565, maybe the following code cause the pb
-//            if (ids == null) {
-//                String[] idsExist = (String[]) ctx.getSession().getAttribute("treeIdxToIDS" + docIndex); //$NON-NLS-1$
-//                if (idsExist != null && idsExist.length > 0) {
-//                    ids = idsExist;
-//                }
-//            }
+            // fix bug 0019565, maybe the following code cause the pb
+            // if (ids == null) {
+            //                String[] idsExist = (String[]) ctx.getSession().getAttribute("treeIdxToIDS" + docIndex); //$NON-NLS-1$
+            // if (idsExist != null && idsExist.length > 0) {
+            // ids = idsExist;
+            // }
+            // }
             Configuration config = Configuration.getInstance();
             String dataModelPK = config.getModel();
             String dataClusterPK = config.getCluster();
@@ -515,13 +515,24 @@ public class ItemsBrowserDWR {
         DisplayRulesUtil displayRulesUtil = (DisplayRulesUtil) ctx.getSession().getAttribute(
                 "itemDocument_displayRulesUtil" + docIndex); //$NON-NLS-1$
 
-        String rulesStyle = displayRulesUtil.genStyle();
-        org.dom4j.Document transformedDocument = XmlUtil.styleDocument(itemDocument, rulesStyle);
-
         // yes we can override document directly, but I think this way is more safety
         List<DisplayRule> dspRules = new ArrayList<DisplayRule>();
         Map<String, String> defaultValueRules = businessConcept.getDefaultValueRulesMap();
         Map<String, String> visibleRules = businessConcept.getVisibleRulesMap();
+
+        // added by lzhang, clean document to get the default value
+        Document tmpDocument = Util.copyDocument(itemDocument);
+        if (defaultValueRules.size() > 0) {
+            for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
+                String xPath = (String) iterator.next();
+                if (Util.getNodeList(tmpDocument, xPath).getLength() > 0
+                        && Util.getNodeList(tmpDocument, xPath).item(0).getFirstChild() != null)
+                    Util.getNodeList(tmpDocument, xPath).item(0).getFirstChild().setNodeValue("");
+            }
+        }
+
+        String rulesStyle = displayRulesUtil.genStyle();
+        org.dom4j.Document transformedDocument = XmlUtil.styleDocument(tmpDocument, rulesStyle);
 
         if (defaultValueRules.size() > 0) {
             for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
@@ -1099,22 +1110,6 @@ public class ItemsBrowserDWR {
         }
     }
 
-    // added by lzhang, update treenode value if it has DspRules
-    public String updateNodeDspValue(int docIndex, int newId) {
-        WebContext ctx = WebContextFactory.get();
-        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
-                "displayRules" + docIndex);
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
-        String sourcePath = idToXpath.get(newId).replaceAll("\\[\\d+\\]$", "");
-        for (DisplayRule displayRule : dspRules) {
-            if (sourcePath.equals(displayRule.getXpath())) {
-                updateNode2(idToXpath.get(newId), StringEscapeUtils.unescapeHtml(displayRule.getValue()), docIndex);
-                return displayRule.getValue();
-            }
-        }
-        return null;
-    }
-
     private TreeNode[] handleDisplayRules(TreeNode[] nodes, int docIndex) throws XtentisWebappException {
         try {
             List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
@@ -1251,6 +1246,21 @@ public class ItemsBrowserDWR {
         }
     }
 
+    // added by lzhang, update treenode value if it has DspRules
+    public String updateNodeDspValue(int docIndex, int newId) {
+        WebContext ctx = WebContextFactory.get();
+        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
+                "displayRules" + docIndex); //$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
+        String sourcePath = idToXpath.get(newId).replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        for (DisplayRule displayRule : dspRules) {
+            if (sourcePath.equals(displayRule.getXpath())) {
+                return displayRule.getValue();
+            }
+        }
+        return null;
+    }
+
     public String cloneNode(int siblingId, int newId, int docIndex) throws Exception {
 
         WebContext ctx = WebContextFactory.get();
@@ -1268,6 +1278,12 @@ public class ItemsBrowserDWR {
             Node node = Util.getNodeList(d, idToXpath.get(siblingId)).item(0);
             Node nodeClone = node.cloneNode(true);
             clearChildrenValue(nodeClone);
+
+            // added by lzhang, DWR synchronize to update the DSPValue
+            String dspValue = updateNodeDspValue(docIndex, siblingId);
+            if (dspValue != null)
+                nodeClone.getFirstChild().setNodeValue(dspValue);
+
             // simulate an "insertAfter()" which actually doesn't exist
             insertAfter(nodeClone, node);
             ctx.getSession().setAttribute("itemDocument" + docIndex, node.getOwnerDocument());
@@ -1731,6 +1747,9 @@ public class ItemsBrowserDWR {
                 }
             }
 
+            // added by lzhang, make sure there is no empty node which has DSP value
+            d = filledByDspValue(d, docIndex);
+
             String xml = CommonDWR.getXMLStringFromDocument(d);
             xml = xml.replaceAll("<\\?xml.*?\\?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
             xml = xml.replaceAll("\\(Auto\\)", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1826,6 +1845,19 @@ public class ItemsBrowserDWR {
             }
             return result;
         }
+    }
+
+    private static Document filledByDspValue(Document d, int docIndex) throws Exception {
+        WebContext ctx = WebContextFactory.get();
+        if (ctx.getSession().getAttribute("itemDocument_displayRulesUtil" + docIndex) == null) //$NON-NLS-1$
+            return d;
+        DisplayRulesUtil displayRulesUtil = (DisplayRulesUtil) ctx.getSession().getAttribute(
+                "itemDocument_displayRulesUtil" + docIndex); //$NON-NLS-1$
+
+        String rulesStyle = displayRulesUtil.genStyle();
+        org.dom4j.Document transformedDocument = XmlUtil.styleDocument(d, rulesStyle);
+
+        return Util.parse(transformedDocument.asXML());
     }
 
     public String deleteItem(String concept, String[] ids, int docIndex) {
