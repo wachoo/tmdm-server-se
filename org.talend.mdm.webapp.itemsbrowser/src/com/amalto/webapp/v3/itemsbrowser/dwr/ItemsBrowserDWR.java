@@ -469,7 +469,7 @@ public class ItemsBrowserDWR {
             }
 
             ctx.getSession().setAttribute("xpathToPolymType" + docIndex, new HashMap<String, String>()); //$NON-NLS-1$
-            ctx.getSession().setAttribute("xpathToPolymFKType" + docIndex, new HashMap<String, String>()); //$NON-NLS-1$
+            ctx.getSession().setAttribute("xpathToPolymFKType" + docIndex, new HashMap<String, String>()); //$NON-NLS-1$           
 
             HashMap<Integer, XSParticle> idToParticle;
             if (ctx.getSession().getAttribute("idToParticle") == null) { //$NON-NLS-1$
@@ -1726,6 +1726,9 @@ public class ItemsBrowserDWR {
                 throw new Exception("Data Container can't be empty!");
             Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
 
+            // added by lzhang, make sure there is no empty node which has DSP value
+            d = filledByDspValue(dataModelPK, concept, d, docIndex);
+
             // filter item xml
             HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
                     "xpathToPolymType" + docIndex); //$NON-NLS-1$
@@ -1746,9 +1749,6 @@ public class ItemsBrowserDWR {
                     ((Element) Util.getNodeList(d, xpath).item(0)).setAttribute("tmdm:type", xpathToPolymFKType.get(xpath)); //$NON-NLS-2$
                 }
             }
-
-            // added by lzhang, make sure there is no empty node which has DSP value
-            d = filledByDspValue(d, docIndex);
 
             String xml = CommonDWR.getXMLStringFromDocument(d);
             xml = xml.replaceAll("<\\?xml.*?\\?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1847,15 +1847,42 @@ public class ItemsBrowserDWR {
         }
     }
 
-    private static Document filledByDspValue(Document d, int docIndex) throws Exception {
+    private static Document filledByDspValue(String dataModelPK, String concept, Document d, int docIndex) throws Exception {
         WebContext ctx = WebContextFactory.get();
-        if (ctx.getSession().getAttribute("itemDocument_displayRulesUtil" + docIndex) == null) //$NON-NLS-1$
-            return d;
-        DisplayRulesUtil displayRulesUtil = (DisplayRulesUtil) ctx.getSession().getAttribute(
-                "itemDocument_displayRulesUtil" + docIndex); //$NON-NLS-1$
+        String realSchemaStyle = null;
 
-        String rulesStyle = displayRulesUtil.genStyle();
-        org.dom4j.Document transformedDocument = XmlUtil.styleDocument(d, rulesStyle);
+        HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
+                "xpathToPolymType" + docIndex); //$NON-NLS-1$
+        if (xpathToPolymType != null && xpathToPolymType.size() > 0) {
+            // added by lzhang, use runtime real schema
+            String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
+            Document xsdDoc = Util.parse(xsd);
+            for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
+                String xpath = (String) iterator.next();
+                String basePath = "//xsd:element[@name=\"" + xpath.substring(xpath.lastIndexOf("/") + 1) + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                for (int index = 0; index < Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().getLength(); index++) {
+                    if (Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().item(index).getNodeName().equals("type")) { //$NON-NLS-1$
+                        Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().item(index).getFirstChild().setNodeValue(
+                                xpathToPolymType.get(xpath));
+                        break;
+                    }
+                }
+            }
+
+            Map<String, XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(CommonDWR.getXMLStringFromDocument(xsdDoc));
+            XSElementDecl xsed = map.get(concept);
+            DisplayRulesUtil displayRulesUtil = new DisplayRulesUtil(xsed);
+            realSchemaStyle = displayRulesUtil.genStyle();
+        }
+
+        if (realSchemaStyle == null) {
+            DisplayRulesUtil displayRulesUtil = (DisplayRulesUtil) ctx.getSession().getAttribute(
+                    "itemDocument_displayRulesUtil" + docIndex); //$NON-NLS-1$
+            realSchemaStyle = displayRulesUtil.genStyle();
+        }
+
+        // added by lzhang, make sure there is no empty node which has DSP value
+        org.dom4j.Document transformedDocument = XmlUtil.styleDocument(d, realSchemaStyle);
 
         return Util.parse(transformedDocument.asXML());
     }
@@ -2052,7 +2079,7 @@ public class ItemsBrowserDWR {
                     Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
                     Node node = nodes.item(i);
                     String textContent = node.getTextContent();
-                    if (xsp.getTerm().asElementDecl().getType().isSimpleType()&&textContent != null && withValue)
+                    if (xsp.getTerm().asElementDecl().getType().isSimpleType() && textContent != null && withValue)
                         el.setTextContent(textContent);
 
                     parentNode.appendChild(el);
