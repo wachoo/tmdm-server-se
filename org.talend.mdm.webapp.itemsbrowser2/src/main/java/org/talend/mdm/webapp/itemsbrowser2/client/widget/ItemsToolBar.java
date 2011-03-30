@@ -227,7 +227,7 @@ public class ItemsToolBar extends ToolBar {
 
             }
         });
-        sub.add(delMenu);
+        
         MenuItem trashMenu = new MenuItem(MessagesFactory.getMessages().trash_btn());
         trashMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
         trashMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
@@ -267,7 +267,10 @@ public class ItemsToolBar extends ToolBar {
                 box.getTextBox().setValue("/"); //$NON-NLS-1$
             }
         });
+        
         sub.add(trashMenu);
+        sub.add(delMenu);
+        
         menu.setMenu(sub);
         menu.setEnabled(false);
         add(menu);
