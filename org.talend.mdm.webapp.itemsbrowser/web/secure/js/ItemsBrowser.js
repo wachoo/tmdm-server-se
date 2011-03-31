@@ -2631,7 +2631,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			DWREngine.setAsync(true);
     			
     			tbDetail.lineageItemHandler = function() {
-        			lineageItem(lineagEntities);
+        			lineageItem(lineagEntities, ids);
         		};
         		
         		tbDetail.taskItemHandler = function() {
@@ -3173,7 +3173,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			DWREngine.setAsync(true);
     			
     			tbDetail.lineageItemHandler = function() {
-        			lineageItem(lineagEntities);
+        			lineageItem(lineagEntities, ids);
         		};
         		
         		tbDetail.taskItemHandler = function() {
@@ -4272,7 +4272,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    }
 	}
 	
-	function lineageItem(lineageEntities) {
+	function lineageItem(lineageEntities, ids) {
 		//@temp, open the searchentitypanel on a fresh tab.
 //		ItemsBrowserInterface
 		var tabPanel = amalto.core.getTabPanel();
@@ -4285,7 +4285,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		}
 		
 		searchEntityPanel = new amalto.itemsbrowser.SearchEntityPanel({
-			lineageEntities : lineageEntities
+			lineageEntities : lineageEntities,
+			ids : ids
 		});
 		
 		tabPanel.add(searchEntityPanel);

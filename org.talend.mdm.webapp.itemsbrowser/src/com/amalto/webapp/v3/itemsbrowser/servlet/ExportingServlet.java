@@ -6,6 +6,8 @@ import java.rmi.RemoteException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.servlet.ServletException;
@@ -18,7 +20,9 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
@@ -86,6 +90,7 @@ public class ExportingServlet extends HttpServlet {
             String keys = null;
             Long fromDate = new Long(-1);
             Long toDate = new Long(-1);
+            String fkvalue = null;
 
             if (parametersValues != null && parametersValues.length() > 0) {
                 JSONObject criteria = new JSONObject(parametersValues);
@@ -93,6 +98,8 @@ public class ExportingServlet extends HttpServlet {
                 wsDataClusterPK.setPk(cluster);
                 entity = !criteria.isNull("entity") ? (String) criteria.get("entity") : "";
                 keys = !criteria.isNull("key") && !"*".equals(criteria.get("key")) ? (String) criteria.get("key") : "";
+                fkvalue = !criteria.isNull("fkvalue") && !"*".equals(criteria.get("fkvalue")) ? (String) criteria.get("fkvalue")
+                        : "";
                 contentWords = !criteria.isNull("keyWords") ? (String) criteria.get("keyWords") : "";
 
                 if (!criteria.isNull("fromDate")) {
@@ -110,9 +117,29 @@ public class ExportingServlet extends HttpServlet {
                 }
             }
 
+            // @temp yguo , xpath and value
+            BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(entity);
+            Map<String, String> foreignKeyMap = businessConcept.getForeignKeyMap();
+            Set<String> foreignKeyXpath = foreignKeyMap.keySet();
+            String xpath = null;
+
+            for (String path : foreignKeyXpath) {
+                if (path.indexOf(entity) != -1) {
+                    xpath = path.substring(1);
+                    break;
+                }
+            }
+
+            StringBuilder keysb = new StringBuilder();
+            keysb.append(keys);
+            keysb.append("@");
+            keysb.append(xpath);
+            keysb.append("@");
+            keysb.append(fkvalue);
+
             WSItemPKsByCriteriaResponse results = Util.getPort().getItemPKsByFullCriteria(
-                    new WSGetItemPKsByFullCriteria(new WSGetItemPKsByCriteria(wsDataClusterPK, entity, contentWords, keys,
-                            fromDate, toDate, 0, Integer.MAX_VALUE), false));
+                    new WSGetItemPKsByFullCriteria(new WSGetItemPKsByCriteria(wsDataClusterPK, entity, contentWords, keysb
+                            .toString(), fromDate, toDate, 0, Integer.MAX_VALUE), false));
 
             // create a cell style
             HSSFCellStyle cs = wb.createCellStyle();

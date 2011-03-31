@@ -3,6 +3,7 @@ amalto.namespace("amalto.itemsbrowser");
 amalto.itemsbrowser.SearchEntityPanel = function(config) {	
 	Ext.applyIf(this, config);	
 	var lineageEntities = config.lineageEntities;
+	var ids = config.ids;
 	this.initUIComponents();
 	amalto.itemsbrowser.SearchEntityPanel.superclass.constructor.call(this);
 	var entityCB = Ext.getCmp("entityCB");
@@ -88,10 +89,12 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 			listeners:
    	   	    {
    	    			'rowdblclick' : function(grid,rowIndex, e ){
-   	    				var record=grid.getStore().getAt(rowIndex);
-   	    				var ids = record.data.ids;
-   	    				var tabPanel = amalto.core.getTabPanel();
-   	    				//@yguo, should do something
+   	    				var record = grid.getStore().getAt(rowIndex);
+   	    				var ids = record.data.key;
+   	    				var entity = record.data.entity;
+   	    				//@yguo, should be open the record
+   	    				amalto.itemsbrowser.ItemsBrowser.editItemDetails(ids, entity,
+							function() {});
 						amalto.core.doLayout();
    	    				
    	    				
@@ -251,7 +254,17 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 				},{	
 					handler: function() {					
 							var curcriteria = this.getRequestParam();
-							//@yguo, should export the grid 
+							var fkvalue = this.ids;
+				   	    	
+				   			if(fkvalue != "") {
+				   				curcriteria += ",fkvalue:'[" + fkvalue +"]'";
+				   			}
+				   			
+				   			if(curcriteria != ""){
+				   				curcriteria = curcriteria.substring(1)
+				   				curcriteria = "{" + curcriteria + "}";
+				   			}
+				   			
 							this.exporting(curcriteria);
 					}.createDelegate(this),
 					text : "export"
@@ -317,7 +330,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
     getRequestParam : function(){
     	var requestParam="";
 
-		var entity = DWRUtil.getValue('entity');
+    	var entity = DWRUtil.getValue('entity');
 		if(entity!="")requestParam+=",entity:'"+entity+"'";
 		var key = DWRUtil.getValue('key');
 		if(key!="")requestParam+=",key:'"+key+"'";
@@ -328,18 +341,24 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 		var toDate = DWRUtil.getValue('toDate');
 		if(toDate!="")requestParam+=",toDate:'"+toDate+"'";
 		if(this.isItemsBrowser == true) requestParam += ",itemsBrowser:'" + this.isItemsBrowser +"'";
-
-		if(requestParam!=""){
-		requestParam=requestParam.substring(1)
-		requestParam="{"+requestParam+"}";
-		}
 		
 		return requestParam;
-    },
+    }.createDelegate(this),
     
     onBeforeloadStore : function(){    	    	
-   	   	 	this.criteria=this.getRequestParam();
-   	   	 	//alert(criteria);
+   	   	 	this.criteria = this.getRequestParam();
+   	   	 	//@temp yguo, get the key  
+   	    	var fkvalue = this.ids;
+   	    	
+   			if(fkvalue != "") {
+   				this.criteria += ",fkvalue:'[" + fkvalue +"]'";
+   			}
+   			
+   			if(this.criteria != ""){
+   				this.criteria = this.criteria.substring(1)
+   				this.criteria = "{" + this.criteria + "}";
+   			}
+   			
             Ext.apply(this.store1.baseParams,{
               regex: this.criteria
             });
