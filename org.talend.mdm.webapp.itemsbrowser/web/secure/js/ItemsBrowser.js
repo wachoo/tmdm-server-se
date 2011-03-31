@@ -2452,9 +2452,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 									tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT;
 									initToolBar(tbDetail, tbDetail.currentMode);
     							}
-    						}    						
+    						}
+    						
+    						var parentLink = [];
+    						parentLink["title"] = myTitle;
+    						parentLink["ids"] = ids;
+    						parentLink["conceptName"] = dataObject;
+    						
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
-    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem,parentLink);
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
@@ -3073,9 +3079,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     								tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT; 
     								initToolBar(tbDetail, tbDetail.currentMode);
     							}
-    						}    						
+    						}    		
+    						
+    						var parentLink = [];
+    						parentLink["title"] = myTitle;
+    						parentLink["ids"] = ids;
+    						parentLink["conceptName"] = dataObject;
+    						
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
-    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem,parentLink);
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
