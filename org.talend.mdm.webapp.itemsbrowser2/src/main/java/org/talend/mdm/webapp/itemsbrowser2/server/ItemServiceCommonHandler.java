@@ -139,7 +139,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 }
 
                 ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), results[i]);//$NON-NLS-1$ 
-                dynamicAssemble(itemBean, entityModel);
+                dynamicAssembleByResultOrder(itemBean, viewBean);
                 itemBeans.add(itemBean);
             }
 
@@ -150,6 +150,31 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     }
 
+    public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean) throws DocumentException {
+        if (itemBean.getItemXml() != null) {
+            Document docXml = XmlUtil.parseText(itemBean.getItemXml());
+            HashMap<String, Integer> countMap = new HashMap<String, Integer>();
+            for (String path : viewBean.getViewableXpaths()) {
+                String leafPath = path.substring(path.lastIndexOf('/') + 1); //$NON-NLS-1$ 
+                List nodes = XmlUtil.getValuesFromXPath(docXml, leafPath);
+                if (nodes.size() > 1) {
+                    // result has same name nodes
+                    if (countMap.containsKey(leafPath)) {
+                        int count = Integer.valueOf(countMap.get(leafPath).toString());
+                        itemBean.set(path, ((Node) nodes.get(count)).getText());
+                        countMap.put(leafPath, count + 1);
+                    } else {
+                        itemBean.set(path, ((Node) nodes.get(0)).getText());
+                        countMap.put(leafPath, 1);
+                    }
+                } else if (nodes.size() == 1) {
+                    Node value = (Node) nodes.get(0);
+                    itemBean.set(path, value.getText());
+                }
+            }
+        }
+    }
+
     public void dynamicAssemble(ItemBean itemBean, EntityModel entityModel) throws DocumentException {
         if (itemBean.getItemXml() != null) {
             Document docXml = XmlUtil.parseText(itemBean.getItemXml());
@@ -158,7 +183,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             for (String path : xpaths) {
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
-                    List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.indexOf('/') + 1));//$NON-NLS-1$ 
+                    List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.lastIndexOf('/') + 1));//$NON-NLS-1$ 
                     if (nodes.size() > 0) {
                         Node value = (Node) nodes.get(0);
                         if (typeModel.isMultiOccurrence()) {

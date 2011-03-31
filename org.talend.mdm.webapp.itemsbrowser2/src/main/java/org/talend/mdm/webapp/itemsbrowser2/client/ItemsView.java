@@ -43,9 +43,9 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
@@ -131,14 +131,14 @@ public class ItemsView extends View {
         List<String> viewableXpaths = viewBean.getViewableXpaths();
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         List<String> keys = Arrays.asList(entityModel.getKeys());
-        for (String xpath : viewableXpaths) { 
+        for (String xpath : viewableXpaths) {
             TypeModel typeModel = dataTypes.get(xpath);
 
-            ColumnConfig cc = new ColumnConfig(xpath, ViewUtil.getViewableLabel(
-                    Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel), 200);
+            ColumnConfig cc = new ColumnConfig(xpath, typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale
+                    .getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel), 200);
             if (typeModel instanceof SimpleTypeModel && !keys.contains(xpath)) {
-                Field field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
-                        Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
+                Field field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage(Itemsbrowser2
+                        .getSession().getAppHeader()));
 
                 CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
                 if (cellEditor != null) {
@@ -146,9 +146,11 @@ public class ItemsView extends View {
                 }
             }
 
-            GridCellRenderer<ModelData> renderer = CellRendererCreator.createRenderer(typeModel);
-            if (renderer != null) {
-                cc.setRenderer(renderer);
+            if (typeModel != null) {
+                GridCellRenderer<ModelData> renderer = CellRendererCreator.createRenderer(typeModel);
+                if (renderer != null) {
+                    cc.setRenderer(renderer);
+                }
             }
 
             ccList.add(cc);
