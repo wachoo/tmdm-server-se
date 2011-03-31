@@ -197,6 +197,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					readOnlyStyle = "ForeignKey";
 					var swit = "false";
 					
+					if(parentLink == undefined) {
+						parentLink = [];
+					}
+					
 					foreignKeyImg += '' +
 						'<span style="cursor: pointer;" ' +
 						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+',\''+swit+'\',\''+parentLink["conceptName"]+'\')" >' +
@@ -210,10 +214,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					foreignKeyImg += '' +
 					'<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removeForeignKey(\''+itemData.nodeId+'\','+treeIndex+')">' +
 					'<img title="' + DEL_TT[language] + '" src="img/genericUI/link_delete.png"/></span>';	
-				}   
-				if(parentLink == null) {
-					parentLink = [];
-				}
+				}  
 				
 				foreignKeyImg += ''+
 						'<span style="cursor: pointer;" ' +
