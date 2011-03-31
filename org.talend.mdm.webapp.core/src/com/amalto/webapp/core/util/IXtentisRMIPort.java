@@ -627,8 +627,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // Determine Query based on number of results an counts
             String rquery = query + "return (<totalCount>{count($allres)}</totalCount>, $res) "; //$NON-NLS-1$
 
-            if(LOG.isDebugEnabled())
-              LOG.debug(rquery);
+            if (LOG.isDebugEnabled())
+                LOG.debug(rquery);
 
             DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsGetItemPKsByCriteria.getWsDataClusterPK().getPk());
             Collection<String> results = com.amalto.core.util.Util.getItemCtrl2Local().runQuery(revisionID, dcpk, rquery, null);
@@ -2489,6 +2489,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             query.append("\")/ii");
 
             String wsContentKeywords = wsGetItemPKsByCriteria.getContentKeywords();
+
             if (!useFTSearch && wsContentKeywords != null)
                 query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");
 
@@ -2501,8 +2502,19 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 query.append("[./t <= ").append(toDate).append("]");
 
             String keyKeywords = wsGetItemPKsByCriteria.getKeysKeywords();
+
+            int valueIndex = keyKeywords.lastIndexOf("@");
+            String fkvaule = keyKeywords.substring(valueIndex + 1);
+            int keyIndex = keyKeywords.indexOf("@");
+            String fkxpath = keyKeywords.substring(keyIndex + 1, valueIndex);
+            String key = keyKeywords.substring(0, keyIndex);
+
             if (keyKeywords != null)
-                query.append("[").append(matchesStr).append("(./i , '").append(keyKeywords).append("')]");
+                query.append("[").append(matchesStr).append("(./i , '").append(key).append("')]");
+
+            if (!"".equals(fkxpath) && fkxpath != null && !"".equals(fkvaule) && fkvaule != null) {
+                query.append("[").append("./p/" + "/" + fkxpath + " eq '").append(fkvaule).append("']");
+            }
 
             String wsConceptName = wsGetItemPKsByCriteria.getConceptName();
             if (useFTSearch && wsContentKeywords != null) {
