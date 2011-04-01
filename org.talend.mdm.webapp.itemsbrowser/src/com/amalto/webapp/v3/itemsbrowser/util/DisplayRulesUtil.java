@@ -97,7 +97,7 @@ public class DisplayRulesUtil {
 
                     style.append("<xsl:if test=\"not(" + displayRule.getValue() + ")\"> "); //$NON-NLS-1$ //$NON-NLS-2$
                     style.append("<xsl:attribute name=\"t:visible\">false</xsl:attribute> "); //$NON-NLS-1$ 
-                    style.append("</xsl:if> "); //$NON-NLS-1$ 
+                    style.append("</xsl:if><xsl:value-of select=\".\"/>"); //$NON-NLS-1$ 
 
                 }
             }
