@@ -218,7 +218,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				
 				foreignKeyImg += ''+
 						'<span style="cursor: pointer;" ' +
-						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+(itemData.usingforeignKey==null?itemData.foreignKey:itemData.usingforeignKey)+'\',\''+treeIndex+'\',\''+parentLink["title"]+'\',\''+parentLink["ids"]+'\',\''+parentLink["conceptName"]+'\')" >' +
+						'onclick="amalto.itemsbrowser.ItemsBrowser.browseForeignKey('+itemData.nodeId+',\''+(itemData.usingforeignKey==null?itemData.foreignKey:itemData.usingforeignKey)+'\',\''+treeIndex+'\',\''+parentLink["title"]+'\',\''+parentLink["ids"]+'\',\''+parentLink["conceptName"]+'\',\''+parentLink["isWindow"]+'\')" >' +
 						' <img src="img/genericUI/link_go.png" title="' + MAG_TT[language] + '"/></span>';
 			}
 			

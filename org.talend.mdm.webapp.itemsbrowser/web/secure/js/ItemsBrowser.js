@@ -2498,10 +2498,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						parentLink["title"] = myTitle;
     						parentLink["ids"] = ids;
     						parentLink["conceptName"] = dataObject;
+    						parentLink["isWindow"] = !isDetail;
     						
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
     									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem, parentLink);
-    						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
     						itemNodes[i] = tmp;
@@ -2942,6 +2942,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var treeIndex = treeCount;
 		var tabPanel = amalto.core.getTabPanel();
 		var contentPanel=tabPanel.getItem('itemDetailsdiv'+treeIndex);
+		var parentLink = parentLink;
 		//see  	 0013478 prevent 2 tabs from being opened on the same record. 
 		var itemContentPanel;
 		tabPanel.items.each(function(item){
@@ -3121,13 +3122,21 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     								initToolBar(tbDetail, tbDetail.currentMode);
     							}
     						}
-    						var parentLink = [];
-    						parentLink["title"] = myTitle;
-    						parentLink["ids"] = ids;
-    						parentLink["conceptName"] = dataObject;
+    						
+							var currentLink = [];
+							currentLink["title"] = myTitle;
+							currentLink["ids"] = ids;
+							currentLink["conceptName"] = dataObject;
+    						
+							if(parentLink == undefined || "false" == parentLink["isWindow"]) {
+								currentLink["isWindow"] = false;
+    						}
+							else {
+								currentLink["isWindow"] = true;
+							}
     						
     						var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,
-    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem,parentLink);
+    									itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem,currentLink);
     						//new Ext.form.TextField({applyTo:result[i].nodeId+'Value'});
     						if(result[i].type=="simple") tmp.setDynamicLoad();
     						else tmp.setDynamicLoad(fnLoadData, 1);
@@ -3453,15 +3462,40 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     }])                 
                 });
 			}
-			tabPanel.add(contentPanel); 
+			
+			if(parentLink != undefined && parentLink["isWindow"] == "true") {
+				var fkWindow = new Ext.Window({
+			        width: 500,
+			        height:400,
+			        minWidth: 500,
+			        minHeight: 400,
+			        header : false,
+			        layout: 'fit',
+			        plain:true,
+			        bodyStyle:'padding:5px;',
+			        buttonAlign:'center',
+			        items: contentPanel,
 
-			//record the item id
-			contentPanel.itemid=itemPK2+"."+dataObject;
+			        buttons: [{
+			            text: 'Cancel',
+			            handler: function() {
+			            	fkWindow.destroy();
+			            }
+			        }]
+			    });
+				
+				fkWindow.show();
+			}
+			else {
+				tabPanel.add(contentPanel); 
+				//record the item id
+				contentPanel.itemid=itemPK2+"."+dataObject;
+				
+				contentPanel.show();
+				contentPanel.doLayout();
+			}
 			
-			contentPanel.show();
-			contentPanel.doLayout();
-			
-			if(isBreadCrumb) {
+			if(isBreadCrumb && parentLink["isWindow"] != "true") {
 				var parentTreeIndex = parentLink["treeIndex"];
 				var parentTabPL = amalto.core.getTabPanel().getItem('itemDetailsdiv'+parentTreeIndex);
 				var currentTabPL = amalto.core.getTabPanel().getItem('itemDetailsdiv'+treeIndex);
@@ -4749,7 +4783,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	var fnLoadData2;
 	
 		
-	function browseForeignKey(nodeId, foreignKeyXpath, treeIndex,title,ids,conceptName){
+	function browseForeignKey(nodeId, foreignKeyXpath, treeIndex,title,ids,conceptName,isWindow){
 		var itemTree = itemTreeList[treeIndex];
 		var node = itemTree.getNodeByIndex(nodeId);
 		var keyValue = node.itemData.value;
@@ -4796,6 +4830,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			parentLink["ids"] = ids;
 			parentLink["conceptName"] = conceptName;
 			parentLink["treeIndex"] = treeIndex;
+			parentLink["isWindow"] = isWindow;
 			//@temp yguo, build linkpath map
 			displayItemDetails(itemPK, dataObject, true, parentLink);
 		}
@@ -5046,7 +5081,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		updateNode:function(id,treeIndex,format,typeName){updateNode(id, treeIndex,format,typeName);},
 		reloadNode:function(id,treeIndex){reloadNode(id, treeIndex);},
 		setlastUpdatedInputFlagPublic:function(id,treeIndex){setlastUpdatedInputFlag(id,treeIndex);},
-		browseForeignKey:function(nodeId, foreignKeyXpath, foreignKeyInfo, title, ids, concept){browseForeignKey(nodeId, foreignKeyXpath, foreignKeyInfo,title,ids,concept);},
+		browseForeignKey:function(nodeId, foreignKeyXpath, foreignKeyInfo, title, ids, concept, isWindow){browseForeignKey(nodeId, foreignKeyXpath, foreignKeyInfo,title,ids,concept,isWindow);},
 		showDatePicker:function(nodeId,treeIndex,nodeType,displayFormats){showDatePicker(nodeId,treeIndex,nodeType,displayFormats);},
 		showUploadFile: function (nodeId, treeIndex, nodeType){showUploadFile(nodeId, treeIndex, nodeType);},
 		removePicture: function (nodeId, treeIndex){removePicture(nodeId, treeIndex);},
