@@ -47,7 +47,7 @@ public class UpdateReportDWR {
             boolean itemsBrowser = !criteria.isNull("itemsBrowser") && criteria.get("itemsBrowser").equals("true");
 
             if (itemsBrowser) {
-                Configuration configuration = Configuration.getInstance();
+                Configuration configuration = Configuration.getInstance(true);
                 String dataCluster = configuration.getCluster();
                 String dataModel = configuration.getModel();
 
