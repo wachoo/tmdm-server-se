@@ -2093,7 +2093,7 @@ public class ItemsBrowserDWR {
             parentNode.appendChild(el);
             if (xsp.getTerm().asElementDecl().getType() != null)
                 if (xsp.getTerm().asElementDecl().getType().isComplexType() == false
-                        && xsp.getTerm().asElementDecl().getType().asSimpleType().getName().equals("boolean")) { //$NON-NLS-1$
+                        && "boolean".equals(xsp.getTerm().asElementDecl().getType().asSimpleType().getName())) { //$NON-NLS-1$
                     el.setTextContent("false"); //$NON-NLS-1$
                 }
         }
