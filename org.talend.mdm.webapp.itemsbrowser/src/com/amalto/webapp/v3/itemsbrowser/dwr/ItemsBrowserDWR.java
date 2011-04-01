@@ -1861,7 +1861,8 @@ public class ItemsBrowserDWR {
             Document xsdDoc = Util.parse(xsd);
             for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
                 String xpath = (String) iterator.next();
-                String basePath = "//xsd:element[@name=\"" + xpath.substring(xpath.lastIndexOf("/") + 1) + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                String mainPath = xpath.replaceAll("\\[.*?\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                String basePath = "//xsd:element[@name=\"" + mainPath.substring(mainPath.lastIndexOf("/") + 1) + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 for (int index = 0; index < Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().getLength(); index++) {
                     if (Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().item(index).getNodeName().equals("type")) { //$NON-NLS-1$
                         Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().item(index).getFirstChild().setNodeValue(
