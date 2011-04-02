@@ -174,7 +174,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == true && itemData.readOnly==true) ;
 			//alert("before: "+tmpStatus);
-			if(isReadOnlyinItem||tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"||itemData.typeName=="date"||itemData.typeName=="dateTime"){
+			if(isReadOnlyinItem||tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"){
 				//alert("after: "+tmpStatus);
 				readOnlyStyle = readOnly = "READONLY";
 			}
