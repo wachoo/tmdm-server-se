@@ -289,7 +289,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;">'+itemData.name+' '+mandatory+' '+descInfo+'</div>';
 			if(itemData.typeName!=null&&itemData.typeName=="boolean"){
 				value=String(value=='true');
-				html[html.length] = '<input type="checkbox" id="'+itemData.nodeId+'Value" value="'+value+'" '
+				var disabledStyle = (readOnly == "READONLY") ? 'disabled ="disabled"': "";
+				html[html.length] = '<input type="checkbox" id="'+itemData.nodeId+'Value" value="'+value+'" ' + disabledStyle
 				                    +  (value=='true'?' checked':' ')
 				                    +' onchange="this.value=String(this.checked);amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');"'
 				                    +' />';
