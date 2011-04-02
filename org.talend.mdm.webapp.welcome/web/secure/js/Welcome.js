@@ -253,7 +253,7 @@ amalto.welcome.Welcome = function () {
 							 style : 'font-size:80%;',
 							 autoHeight : true,
 							 style : 'font-size:80%;',
-							 html : '<span id="ItemsBrowser" style="padding-right:8px;cursor: pointer; width:150;" onclick="amalto.welcome.Welcome.openPages(\'itemsbrowser\', \'ItemsBrowser\');">' + 
+							 html : '<span id="ItemsBrowser" style="padding-right:8px;cursor: pointer; width:150;" onclick="amalto.welcome.Welcome.openPages(\'itemsbrowser2\', \'ItemsBrowser2\');">' + 
 								   '<IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/>' + ' ' + BROWSE_ITEMS[language] + '</span>' + '<br/>' +
 								   '<span id="Journal" style="padding-right:8px;cursor: pointer; width:150;" onclick="amalto.welcome.Welcome.openPages(\'updatereport\', \'UpdateReport\');">' + 
 								   '<IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/>' + ' ' + JOURNAL[language] + '</span>'
