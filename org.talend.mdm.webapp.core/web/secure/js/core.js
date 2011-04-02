@@ -67,8 +67,8 @@ String.prototype.ellipse = function(maxLength){
 String.prototype.replaceAll=function(s1, s2) { 
 	return this.replace(new RegExp(s1,"g"), s2); 
 }
-/*
-if(!Array.indexOf){
+
+if(![].indexOf){
     Array.prototype.indexOf = function(obj, start){
         for(var i=(start||0); i<this.length; i++){
             if(this[i]==obj){
@@ -77,7 +77,7 @@ if(!Array.indexOf){
         }
     }
 }
-*/
+
 String.prototype.trim = function () {
 	return this.replace(/^\s*(\S*(\s+\S+)*)\s*$/, "$1");
 };
@@ -101,6 +101,7 @@ String.prototype.startWith=function(str){
       return false;
     return true;
 };
+
 
 var g_oHtmlEncodeElement;
 
