@@ -132,6 +132,11 @@ public abstract class GenericControllerServlet extends HttpServlet {
 				imports.add(tmp);
 				tmp ="<script type=\"text/javascript\" src=\"/"+subMenu.getContext()+"/secure/js/"+subMenu.getApplication()+".js\"></script>\n";
 				imports.add(tmp);
+				//FIXME: This is a workaround for 4.2 only
+                if(subMenu.getContext().equals("itemsbrowser2")&&subMenu.getApplication().equals("ItemsBrowser2")) {//$NON-NLS-1$ //$NON-NLS-2$
+                    imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
+                    imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"></script>\n");//$NON-NLS-1$
+                }
 				//tmp ="<link rel=\"stylesheet\" type=\"text/css\" href=\"/"+subMenu.getContext()+"/secure/css/"+subMenu.getApplication()+".css\"></link>\n";
 				//imports.add(tmp);
 				String gxtEntryModule=gxtFactory.getGxtEntryModule(subMenu.getContext(), subMenu.getApplication());
