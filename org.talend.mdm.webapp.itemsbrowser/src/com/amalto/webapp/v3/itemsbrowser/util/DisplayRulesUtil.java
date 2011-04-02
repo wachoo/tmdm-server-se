@@ -57,13 +57,21 @@ public class DisplayRulesUtil {
 
         StringBuffer sb = new StringBuffer();
         sb
-                .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"1.0\">");
-        sb.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>");
+                .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"1.0\">"); //$NON-NLS-1$
+        sb.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>"); //$NON-NLS-1$
         sb.append(style);
-        sb.append("</xsl:stylesheet>");
+        sb.append("</xsl:stylesheet>"); //$NON-NLS-1$
 
         return sb.toString();
 
+    }
+
+    public String genDefaultValueStyle() {
+        String style = genStyle();
+        if (style.indexOf("<xsl:attribute name=\"t:visible\">") > -1) { //$NON-NLS-1$
+            style = style.replaceAll("<xsl:if test=\"not.*</xsl:if>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        return style;
     }
 
     private String translateSchema() {
@@ -82,7 +90,7 @@ public class DisplayRulesUtil {
                 String dspType = displayRule.getType();
                 if (dspType.equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
 
-                    style.append("<xsl:choose> "); //$NON-NLS-1$ //$NON-NLS-2$
+                    style.append("<xsl:choose> "); //$NON-NLS-1$
                     style.append("<xsl:when test=\"not(text())\"> "); //$NON-NLS-1$
                     if (isLiteralData(displayRule.getValue())) {
                         style.append("<xsl:text>" + Util.stripLeadingAndTrailingQuotes(displayRule.getValue()) + "</xsl:text>"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -97,7 +105,7 @@ public class DisplayRulesUtil {
 
                     style.append("<xsl:if test=\"not(" + displayRule.getValue() + ")\"> "); //$NON-NLS-1$ //$NON-NLS-2$
                     style.append("<xsl:attribute name=\"t:visible\">false</xsl:attribute> "); //$NON-NLS-1$ 
-                    style.append("</xsl:if><xsl:value-of select=\".\"/>"); //$NON-NLS-1$ 
+                    style.append("</xsl:if>"); //$NON-NLS-1$ 
 
                 }
             }
@@ -179,8 +187,8 @@ public class DisplayRulesUtil {
             Element annotations = (Element) e.getAnnotation().getAnnotation();
             NodeList annotList = annotations.getChildNodes();
             for (int k = 0; k < annotList.getLength(); k++) {
-                if ("appinfo".equals(annotList.item(k).getLocalName())) {
-                    Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
                     if (source == null)
                         continue;
                     String appinfoSource = source.getNodeValue();
@@ -204,8 +212,8 @@ public class DisplayRulesUtil {
             Element annotations = (Element) e.getAnnotation().getAnnotation();
             NodeList annotList = annotations.getChildNodes();
             for (int k = 0; k < annotList.getLength(); k++) {
-                if ("appinfo".equals(annotList.item(k).getLocalName())) {
-                    Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
                     if (source == null)
                         continue;
                     String appinfoSource = source.getNodeValue();
@@ -248,7 +256,7 @@ public class DisplayRulesUtil {
         if (node == null)
             return null;
         org.dom4j.Element elem = (org.dom4j.Element) node;
-        return elem.attributeValue("visible");
+        return elem.attributeValue("visible"); //$NON-NLS-1$
 
     }
 
@@ -271,7 +279,7 @@ public class DisplayRulesUtil {
             String xpathInRule = XmlUtil.normalizeXpath(displayRule.getXpath());
             if (displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
                 if (getMainXpath(xpath).equals(xpathInRule)) {
-                    if (node.getValue() == null || node.getValue().trim().equals("")) {
+                    if (node.getValue() == null || node.getValue().trim().equals("")) { //$NON-NLS-1$
                         node.setValue(displayRule.getValue());
                         ItemsBrowserDWR.updateNode2(xpath, node.getValue(), docIndex);
                     }
@@ -317,13 +325,13 @@ public class DisplayRulesUtil {
         @Override
         public String toString() {
 
-            String print = "TemplateBean [selfElement=" + selfElement.getName() + "]{";
+            String print = "TemplateBean [selfElement=" + selfElement.getName() + "]{"; //$NON-NLS-1$ //$NON-NLS-2$
             if (childrenElements != null) {
                 for (XSElementDecl child : childrenElements) {
-                    print += child.getName() + "|";
+                    print += child.getName() + "|"; //$NON-NLS-1$
                 }
             }
-            print += "}";
+            print += "}"; //$NON-NLS-1$
             return print;
 
         }

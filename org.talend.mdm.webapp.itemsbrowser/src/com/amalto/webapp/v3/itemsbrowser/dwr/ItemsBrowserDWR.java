@@ -1875,13 +1875,13 @@ public class ItemsBrowserDWR {
             Map<String, XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(CommonDWR.getXMLStringFromDocument(xsdDoc));
             XSElementDecl xsed = map.get(concept);
             DisplayRulesUtil displayRulesUtil = new DisplayRulesUtil(xsed);
-            realSchemaStyle = displayRulesUtil.genStyle();
+            realSchemaStyle = displayRulesUtil.genDefaultValueStyle();
         }
 
         if (realSchemaStyle == null) {
             DisplayRulesUtil displayRulesUtil = (DisplayRulesUtil) ctx.getSession().getAttribute(
                     "itemDocument_displayRulesUtil" + docIndex); //$NON-NLS-1$
-            realSchemaStyle = displayRulesUtil.genStyle();
+            realSchemaStyle = displayRulesUtil.genDefaultValueStyle();
         }
 
         // added by lzhang, make sure there is no empty node which has DSP value
