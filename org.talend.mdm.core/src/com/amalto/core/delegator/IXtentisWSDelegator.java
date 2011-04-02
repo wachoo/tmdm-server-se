@@ -67,7 +67,7 @@ import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.DroppedItemPOJOPK;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.TransformerCtrlBean;
 import com.amalto.core.ejb.TransformerPOJO;
 import com.amalto.core.ejb.TransformerPOJOPK;
@@ -4279,4 +4279,16 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
+    
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */ 
+	public WSString refreshCache(WSRefreshCache refreshCache){
+		ItemPOJO.clearCache();
+		ObjectPOJO.clearCache();
+		return new WSString("Refresh the item and object cache sucessfully!");
+	}
 }

@@ -13,6 +13,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSString _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSString refreshCache(com.amalto.core.webservice.WSRefreshCache refreshCache) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSString _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSString logout(com.amalto.core.webservice.WSLogout wsLogout) throws 
          java.rmi.RemoteException {
         

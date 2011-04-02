@@ -39,7 +39,12 @@
 	<message name="pingResponse">
 		<part name="dummy" element="tns:WSString"/>
 	</message>
-
+	<message name="refreshCacheRequest">
+			<part name="refreshCache" element="tns:WSRefreshCache"/>
+	</message>	
+	<message name="refreshCacheResponse">
+			<part name="dummy" element="tns:WSString"/>
+	</message>
 	<message name="logoutRequest">
 		<part name="wsLogout" element="tns:WSLogout"/>
 	</message>
@@ -965,7 +970,10 @@
 			<input message="tns:pingRequest"/>
 			<output message="tns:pingResponse"/>
 		</operation>
-		
+		<operation name="refreshCache">
+			<input message="tns:refreshCacheRequest"/>
+			<output message="tns:refreshCacheResponse"/>
+		</operation>
 		<operation name="logout">
 			<input message="tns:logoutRequest"/>
 			<output message="tns:logoutResponse"/>
@@ -1557,7 +1565,11 @@
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
 		</operation>
-		
+		<operation name="refreshCache">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
 		<operation name="logout">
 			<soap:operation style="document"/>
 			<input><soap:body use="literal"/></input>
