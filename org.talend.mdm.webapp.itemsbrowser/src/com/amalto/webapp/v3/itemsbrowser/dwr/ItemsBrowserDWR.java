@@ -3229,6 +3229,19 @@ public class ItemsBrowserDWR {
         }
 
         boolean isValidation = true;// if true, return null,else return errorMessage
+        
+        if (node.getTypeName().equals("double") || node.getTypeName().equals("float")){
+            if (!isNumeric(node.getValue())){
+                return "the field must be " + node.getTypeName();
+            }
+        }
+        if (node.getTypeName().equals("int") || node.getTypeName().equals("integer") || node.getTypeName().equals("long")){
+            if (!isInteger(node.getValue())){
+                return "the field must be " + node.getTypeName();
+            }
+        }
+        
+        
         if (value.length() == 0 && node != null && (node.getMinOccurs() >= 1)) {
             // by yguo, fix 0016045: Facet messages not taken into account
             if (node.getRestrictions() != null && node.getFacetErrorMsg() != null && node.getFacetErrorMsg().size() != 0) {
@@ -3346,7 +3359,12 @@ public class ItemsBrowserDWR {
         Pattern pattern = Pattern.compile("[\\-+]?[0-9]+\\.?[0-9]*");
         return pattern.matcher(str).matches();
     }
-
+    
+    public static boolean isInteger(String str){
+        Pattern pattern = Pattern.compile("[\\-+]?[0-9]+");
+        return pattern.matcher(str).matches();
+    }
+    
     /**
      * @author ymli; check if this node is mandatory
      * @param node
