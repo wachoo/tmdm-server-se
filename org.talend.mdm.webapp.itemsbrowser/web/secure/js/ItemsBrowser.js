@@ -4319,8 +4319,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	function lineageItem(lineageEntities, ids) {
-		//@temp, open the searchentitypanel on a fresh tab.
-//		ItemsBrowserInterface
 		var tabPanel = amalto.core.getTabPanel();
 		
 		var searchEntityPanel = tabPanel.getItem("searchEntityPanel");
@@ -4339,6 +4337,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 		searchEntityPanel.show();
 		searchEntityPanel.doLayout();
+		searchEntityPanel.doSearchList();
 		amalto.core.doLayout();
 	}
 	

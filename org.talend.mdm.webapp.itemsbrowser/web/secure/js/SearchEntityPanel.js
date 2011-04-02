@@ -270,7 +270,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 					text : "export"
 			}]
 			}],
-			id : "SearchEntityPanel",
+			id : "searchEntityPanel",
 			closable:true,
 			border:false
 		});	
@@ -278,34 +278,26 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 	
 	exporting:function(myParams){
 		var cluster = DWRUtil.getValue('datacluster-select');
-		
 		window.location.href="/itemsbrowser/secure/ExportingServlet?cluster=" + cluster + "&params=" + myParams;	
 	},
     
 	initListData : function(itemsBroswer){
 		this.isItemsBrowser = itemsBroswer;
 		this.store1.load({params:{start:0, limit:this.initPageSize}});
-		
     },
     
-    isItemsBrowser : false,
-    
-    doSearchList : function(itemsBrowser){
-    	this.isItemsBrowser = itemsBrowser;
+    doSearchList : function(){
 		var pageSize=Ext.getCmp("searchEntityPagingToolbar").pageSize;
 		this.store1.reload({params:{start:0, limit:pageSize}});
     },
     
     onSearchBtnClick : function(button, event){
-    	
-		this.doSearchList(false);
-		
+		this.doSearchList();
     },
     
     onSearchKeyClick : function(field, event){
-    	
     	if (event.getKey() == Ext.EventObject.ENTER) {
-	      this.doSearchList(false);
+	      this.doSearchList();
 	    }
 		
     },
@@ -316,7 +308,6 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 		if(keyWordsValue!='')DWRUtil.setValue('keyWords',keyWordsValue);
 		if(startDateValue!='')DWRUtil.setValue('fromDate',startDateValue);
 		if(endDateValue!='')DWRUtil.setValue('toDate',endDateValue);
-		
     },
     
     onResetBtnClick : function(button, event){
@@ -363,4 +354,5 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
               regex: this.criteria
             });
     }
-}); 
+}
+); 
