@@ -13,12 +13,17 @@
 package com.amalto.xmldb;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
 import com.amalto.xmldb.util.PartialXQLPackage;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 
 @SuppressWarnings("nls")
@@ -53,14 +58,37 @@ public class QueryBuilderTest extends TestCase {
         assertEquals(expected, actual);
     }
 
-    public void testBuildWhereConditionWhereCondition() throws Exception {
+    public void testBuildWhereCondition() throws Exception {
         LinkedHashMap<String, String> pivots = new LinkedHashMap<String, String>();
         pivots.put("$pivot0", "BrowseItem");
-        WhereCondition whereCond = new WhereCondition("BrowseItem/ViewPK", "=", "Browse_items_Product", null, false);
+        WhereCondition whereCond = new WhereCondition("BrowseItem/ViewPK", WhereCondition.EQUALS, "Browse_items_Product", null, false);
         Map<String, ArrayList<String>> metaDataTypes = null;
 
         String expected = "$pivot0/ViewPK eq \"Browse_items_Product\"";
         String actual = queryBuilder.buildWhereCondition(whereCond, pivots, metaDataTypes);
+        assertEquals(expected, actual);
+    }
+    
+    public void testBuildWhere() throws Exception {
+        LinkedHashMap<String, String> pivots = new LinkedHashMap<String, String>();
+        pivots.put("$pivot0", "Product");
+        WhereAnd whereItem = new WhereAnd();
+        whereItem.add(new WhereCondition("Product/Id", WhereCondition.CONTAINS, "231", WhereCondition.PRE_NONE, false));
+        Map<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
+        List<String> types = Arrays.asList(new String []{"xsd:string"});
+        metaDataTypes.put("Product/Id", new ArrayList<String>(types));
+
+        String expected = " matches($pivot0/Id, \"231.*\" ,\"i\") ";
+        String actual = queryBuilder.buildWhere(pivots, whereItem,metaDataTypes);
+        assertEquals(expected, actual);
+        
+        //And condition
+        whereItem.add(new WhereCondition("Product/Price", WhereCondition.GREATER_THAN, "10", WhereCondition.PRE_NONE, false));
+        types = Arrays.asList(new String []{"xsd:decimal"});
+        metaDataTypes.put("Product/Price", new ArrayList<String>(types));
+        expected = "( matches($pivot0/Id, \"231.*\" ,\"i\") ) and (number($pivot0/Price) gt 10)";
+
+        actual = queryBuilder.buildWhere(pivots, whereItem,metaDataTypes);
         assertEquals(expected, actual);
     }
 
@@ -69,8 +97,6 @@ public class QueryBuilderTest extends TestCase {
         PartialXQLPackage partialXQLPackage = new PartialXQLPackage();
         partialXQLPackage.setUseJoin(false);
         partialXQLPackage.setUseSubsequenceFirst(true);
-        partialXQLPackage.getForInCollectionMap().put("$pivot0", "collection(\"/Product\")//p/Product");
-        partialXQLPackage.setXqWhere("matches(Id, \"123.*\" ,\"i\")");
         long start = 0;
         long limit = 10;
         String rawQuery = "for $pivot0 in subsequence($_leres0_,1,10) return <result>{<Id>{string($pivot0/Id)}</Id>}</result>";
@@ -81,4 +107,47 @@ public class QueryBuilderTest extends TestCase {
         String actual = queryBuilder.getPagingString(withTotalCountOnFirstRow, partialXQLPackage, start, limit, rawQuery);
         assertEquals(expected, actual);
     }
+
+    public void testGetQuery() throws Exception {
+        boolean isItemQuery = true;
+        LinkedHashMap<String, String> objectRootElementNamesToRevisionID = new LinkedHashMap<String, String>();
+        LinkedHashMap<String, String> objectRootElementNamesToClusterName = new LinkedHashMap<String, String>();
+        objectRootElementNamesToClusterName.put(".*", "Product");
+        String forceMainPivot = null;
+        ArrayList<String> viewableFullPaths = new ArrayList<String>();
+        viewableFullPaths.add("Product/Id");
+        IWhereItem whereItem = null;
+        String orderBy = null;
+        String direction = null;
+        int start = 0;
+        long limit = 4;
+        boolean withTotalCountOnFirstRow = true;
+        Map<String, ArrayList<String>> metaDataTypes = null;
+
+        String expected = "let $_leres0_ := collection(\"/Product\")//p/Product \n";
+        expected += "let $_page_ :=\n";
+        expected += "for $pivot0 in subsequence($_leres0_,1,4)\n";
+        expected += "return <result>{<Id>{string($pivot0/Id)}</Id>}</result>\n";
+        expected += "return (<totalCount>{count($_leres0_)}</totalCount>, $_page_)";
+
+        String actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
+                objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
+                limit, withTotalCountOnFirstRow, metaDataTypes);
+        assertEquals(expected, actual);
+        
+        //Using where condition
+        whereItem = new WhereCondition("Product/Id", WhereCondition.CONTAINS, "231", WhereCondition.PRE_NONE, false);
+        expected = "let $_leres0_ := collection(\"/Product\")//p/Product [  matches(Id, \"231.*\" ,\"i\")  ]  \n";
+        expected += "let $_page_ :=\n";
+        expected += "for $pivot0 in subsequence($_leres0_,1,4)\n";
+        expected += "return <result>{<Id>{string($pivot0/Id)}</Id>}</result>\n";
+        expected += "return (<totalCount>{count($_leres0_)}</totalCount>, $_page_)";
+      
+        actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
+                objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
+                limit, withTotalCountOnFirstRow, metaDataTypes);
+        assertEquals(expected, actual);
+        
+    }
+
 }
