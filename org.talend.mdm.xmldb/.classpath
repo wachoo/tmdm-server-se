@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="com/amalto/xyleme/ejb/OLDXylemeWrapper.java|com/amalto/xyleme/test/ZZXylemeTest.java|com/amalto/xmldb/ejb/XmldbSFWrapperBean.java|com/amalto/xmldb/ejb/XmldbSLWrapperBean.java|com/amalto/xmldb/remote/facade/XmldbSLWrapperFacade.java|com/amalto/xmldb/ejb/|com/amalto/xmldb/remote/facade/|com/amalto/xmldb/remote/|com/amalto/xmldb/util/ToURLEncoded.java" kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" output="target/test-classes" path="test"/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.xmlserver.interfaces"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commmon"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commons.core"/>

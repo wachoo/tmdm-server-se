@@ -710,7 +710,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             conceptName = conceptName.startsWith("/") ? conceptName : "/" + conceptName;
             String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p"
                     + conceptName
-                    + (whereItem != null ? "\nwhere " + queryBuilder.buildWhere("", pivots, whereItem, null) + "\n" : "")
+                    + (whereItem != null ? "\nwhere " + buildWhere(pivots, whereItem, null) + "\n" : "")
                     + "\nreturn base-uri($pivot)";
 
             Collection<String> res = runQuery(null, null, xquery, null);
@@ -769,7 +769,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             // "\nreturn base-uri($pivot)";
             String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/"
                     + objectRootElementName
-                    + (whereItem != null ? "\nwhere " + queryBuilder.buildWhere("", pivots, whereItem, null) + "\n" : "")
+                    + (whereItem != null ? "\nwhere " + buildWhere(pivots, whereItem, null) + "\n" : "")
                     + "\nreturn base-uri($pivot)";
 
             Collection<String> res = runQuery(null, null, xquery, null);
