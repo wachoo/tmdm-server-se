@@ -2450,7 +2450,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // Check if user is allowed to read the cluster
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
                 authorized = true;
@@ -2478,63 +2478,64 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
             // FIXME: xQuery only
             String collectionpath = CommonUtil.getPath(revisionID, dataClusterName);
-            String matchesStr = "matches";
+            String matchesStr = "matches"; //$NON-NLS-1$
             if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-                matchesStr = "ora:matches";
+                matchesStr = "ora:matches"; //$NON-NLS-1$
             }
 
             StringBuilder query = new StringBuilder();
-            query.append("let $allres := collection(\"");
+            query.append("let $allres := collection(\""); //$NON-NLS-1$
             query.append(collectionpath);
-            query.append("\")/ii");
+            query.append("\")/ii"); //$NON-NLS-1$
 
             String wsContentKeywords = wsGetItemPKsByCriteria.getContentKeywords();
 
-            if (!useFTSearch && wsContentKeywords != null)
-                query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");
+            if (!useFTSearch && wsContentKeywords != null && wsContentKeywords.length() != 0)
+                query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
             Long fromDate = wsGetItemPKsByCriteria.getFromDate().longValue();
             if (fromDate > 0)
-                query.append("[./t >= ").append(fromDate).append("]");
+                query.append("[./t >= ").append(fromDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
 
             Long toDate = wsGetItemPKsByCriteria.getToDate().longValue();
             if (toDate > 0)
-                query.append("[./t <= ").append(toDate).append("]");
+                query.append("[./t <= ").append(toDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
 
+            //FIXME : Does not work for composite keys
             String keyKeywords = wsGetItemPKsByCriteria.getKeysKeywords();
+            if (keyKeywords != null) {
+                int valueIndex = keyKeywords.lastIndexOf("@"); //$NON-NLS-1$
+                String fkvalue = (valueIndex == -1) ? null : keyKeywords.substring(valueIndex + 1);
+                int keyIndex = (valueIndex == -1) ? -1 : keyKeywords.indexOf("@"); //$NON-NLS-1$
+                String fkxpath = (keyIndex == -1) ? null : keyKeywords.substring(keyIndex + 1, valueIndex);
+                String key = (keyIndex == -1) ? null : keyKeywords.substring(0, keyIndex);
 
-            int valueIndex = keyKeywords.lastIndexOf("@");
-            String fkvaule = keyKeywords.substring(valueIndex + 1);
-            int keyIndex = keyKeywords.indexOf("@");
-            String fkxpath = keyKeywords.substring(keyIndex + 1, valueIndex);
-            String key = keyKeywords.substring(0, keyIndex);
+                if (key != null && key.length() != 0)
+                    query.append("[").append(matchesStr).append("(./i , '").append(key).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-            if (keyKeywords != null)
-                query.append("[").append(matchesStr).append("(./i , '").append(key).append("')]");
-
-            if (!"".equals(fkxpath) && fkxpath != null && !"".equals(fkvaule) && fkvaule != null) {
-                query.append("[").append("./p/" + "/" + fkxpath + " eq '").append(fkvaule).append("']");
+                if (fkxpath != null && fkxpath.length() !=0 && fkvalue != null && fkvalue.length() != 0 ) {
+                    query.append("[").append("./p/" + "/" + fkxpath + " eq '").append(fkvalue).append("']"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                }
             }
-
             String wsConceptName = wsGetItemPKsByCriteria.getConceptName();
-            if (useFTSearch && wsContentKeywords != null) {
+            if (useFTSearch && wsContentKeywords != null && wsContentKeywords.length() != 0) {
                 if (MDMConfiguration.isExistDb()) {
-                    String concept = wsConceptName != null ? "p/" + wsConceptName : ".";
-                    query.append("[ft:query(").append(concept).append(",\"").append(wsContentKeywords).append("\")]");
+                    String concept = wsConceptName != null ? "p/" + wsConceptName : "."; //$NON-NLS-1$ //$NON-NLS-2$
+                    query.append("[ft:query(").append(concept).append(",\"").append(wsContentKeywords).append("\")]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 } else {
-                    query.append("[. contains text \"").append(wsContentKeywords).append("\"] ");
+                    query.append("[. contains text \"").append(wsContentKeywords).append("\"] "); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
 
             if (wsConceptName != null)
-                query.append("[./n eq '").append(wsConceptName).append("']");
+                query.append("[./n eq '").append(wsConceptName).append("']"); //$NON-NLS-1$ //$NON-NLS-2$
 
             int start = wsGetItemPKsByCriteria.getSkip();
             int limit = wsGetItemPKsByCriteria.getMaxItems();
 
-            query.append("\nlet $res := for $ii in subsequence($allres, ").append(start + 1).append(",").append(limit)
-                    .append(")\n");
-            query.append("return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n");
+            query.append("\nlet $res := for $ii in subsequence($allres, ").append(start + 1).append(",").append(limit) //$NON-NLS-1$ //$NON-NLS-2$
+                    .append(")\n"); //$NON-NLS-1$
+            query.append("return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n"); //$NON-NLS-1$
 
             // Determine Query based on number of results an counts
             query.append("return (<totalCount>{count($allres)}</totalCount>, $res)"); //$NON-NLS-1$
@@ -2554,20 +2555,20 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 String result = (String) iter.next();
                 if (i == 0) {
                     res[i++] = new WSItemPKsByCriteriaResponseResults(System.currentTimeMillis(), new WSItemPK(
-                            wsGetItemPKsByCriteria.getWsDataClusterPK(), result, null), "");
+                            wsGetItemPKsByCriteria.getWsDataClusterPK(), result, null), ""); //$NON-NLS-1$
                     continue;
                 }
                 // result = _highlightLeft.matcher(result).replaceAll("");
                 // result = _highlightRight.matcher(result).replaceAll("");
                 Element r = documentBuilder.parse(new InputSource(new StringReader(result))).getDocumentElement();
-                long t = new Long(xpath.evaluate("t", r)).longValue();
-                String conceptName = xpath.evaluate("n", r);
-                String taskId = xpath.evaluate("taskId", r);
+                long t = new Long(xpath.evaluate("t", r)).longValue(); //$NON-NLS-1$
+                String conceptName = xpath.evaluate("n", r); //$NON-NLS-1$
+                String taskId = xpath.evaluate("taskId", r); //$NON-NLS-1$
 
-                NodeList idsList = (NodeList) xpath.evaluate("./ids/i", r, XPathConstants.NODESET);
+                NodeList idsList = (NodeList) xpath.evaluate("./ids/i", r, XPathConstants.NODESET); //$NON-NLS-1$
                 String[] ids = new String[idsList.getLength()];
                 for (int j = 0; j < idsList.getLength(); j++) {
-                    ids[j] = (idsList.item(j).getFirstChild() == null ? "" : idsList.item(j).getFirstChild().getNodeValue());
+                    ids[j] = (idsList.item(j).getFirstChild() == null ? "" : idsList.item(j).getFirstChild().getNodeValue()); //$NON-NLS-1$
                 }
                 res[i++] = new WSItemPKsByCriteriaResponseResults(t, new WSItemPK(wsGetItemPKsByCriteria.getWsDataClusterPK(),
                         conceptName, ids), taskId);
@@ -2578,7 +2579,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
+                String err = "ERROR SYSTRACE: " + e.getMessage(); //$NON-NLS-1$
                 LOG.debug(err, e);
             }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
