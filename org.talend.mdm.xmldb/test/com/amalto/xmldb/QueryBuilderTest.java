@@ -146,8 +146,52 @@ public class QueryBuilderTest extends TestCase {
         actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
                 objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
                 limit, withTotalCountOnFirstRow, metaDataTypes);
+        assertEquals(expected, actual);  
+    }
+    
+    public void testGetQueryWithJoin() throws Exception {
+        boolean isItemQuery = true;
+        LinkedHashMap<String, String> objectRootElementNamesToRevisionID = new LinkedHashMap<String, String>();
+        LinkedHashMap<String, String> objectRootElementNamesToClusterName = new LinkedHashMap<String, String>();
+        objectRootElementNamesToClusterName.put(".*", "Product");
+        String forceMainPivot = null;
+        ArrayList<String> viewableFullPaths = new ArrayList<String>();
+        viewableFullPaths.add("Product/Name");
+        viewableFullPaths.add("ProductFamily/Name");
+        IWhereItem whereItem = new WhereCondition("Product/Family", WhereCondition.JOINS, "ProductFamily/Id", WhereCondition.PRE_NONE, false);
+        String orderBy = null;
+        String direction = null;
+        int start = 0;
+        long limit = Integer.MAX_VALUE;
+        boolean withTotalCountOnFirstRow = false;
+        Map<String, ArrayList<String>> metaDataTypes = null;
+
+        String expected = "let $_leres0_ := collection(\"/Product\")//p/Product \n";
+        expected += "let $_leres1_ := collection(\"/Product\")//p/ProductFamily \n";
+        expected += "for $pivot0 in $_leres0_, $pivot1 in $_leres1_\n";
+        expected += " where $pivot0/Family[not(.) or not(text()) or .]=concat(\"[\",$pivot1/Id,\"]\")\n\n";
+        expected += "return <result>{<Name>{string($pivot0/Name)}</Name>}{<Name>{string($pivot1/Name)}</Name>}</result>";
+
+        String actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
+                objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
+                limit, withTotalCountOnFirstRow, metaDataTypes);
         assertEquals(expected, actual);
         
+        //Using paging
+        limit = 8;
+        withTotalCountOnFirstRow = true;
+        expected = "let $_leres0_ := collection(\"/Product\")//p/Product \n";
+        expected += "let $_leres1_ := collection(\"/Product\")//p/ProductFamily \n";
+        expected += "let $_page_ :=\n";
+        expected += "for $pivot0 in $_leres0_, $pivot1 in $_leres1_\n";
+        expected += " where $pivot0/Family[not(.) or not(text()) or .]=concat(\"[\",$pivot1/Id,\"]\")\n\n";
+        expected += "return <result>{<Name>{string($pivot0/Name)}</Name>}{<Name>{string($pivot1/Name)}</Name>}</result>\n";
+        expected += "return (<totalCount>{count($_page_)}</totalCount>, subsequence($_page_,1,8))";
+
+        actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
+                objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
+                limit, withTotalCountOnFirstRow, metaDataTypes);
+        assertEquals(expected, actual);
     }
 
 }
