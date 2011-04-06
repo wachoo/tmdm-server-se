@@ -13,7 +13,9 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.boundary;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsSearchContainer;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.user.client.Element;
 
 /**
@@ -40,8 +42,18 @@ public class GetService {
         $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(ids, conceptName);
     }-*/;
 
+    static void setEnable(boolean enabled){
+        ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
+        itemsSearchContainer.getItemsListPanel().getGrid().setEnabled(enabled);
+    }
+    
     public static native void renderFormWindow(String ids, String concept, boolean isDuplicate, String refreshCB,
             Element formWindow, boolean isDetail) /*-{
-        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderFormWindow(ids, concept, isDuplicate, refreshCB, formWindow, isDetail);
+        var callee = arguments.callee;
+        callee.rendered = callee.rendered || function(){
+            @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::setEnable(Z)(true);
+        };
+        @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::setEnable(Z)(false);
+        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderFormWindow(ids, concept, isDuplicate, refreshCB, formWindow, isDetail, callee.rendered);
     }-*/;
 }
