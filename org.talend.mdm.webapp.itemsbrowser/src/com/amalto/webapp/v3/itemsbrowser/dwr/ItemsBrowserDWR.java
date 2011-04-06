@@ -1042,20 +1042,21 @@ public class ItemsBrowserDWR {
      */
     private String getFKInfo(String key, String foreignkey, List<String> fkInfos) {
         try {
-            if(key==null||key.trim().length()==0)return null;
-            
+            if (key == null || key.trim().length() == 0)
+                return null;
+
             List<String> ids = new ArrayList<String>();
-            
-            if(!key.matches("^\\[(.*?)\\]$")) { //$NON-NLS-1$
+
+            if (!key.matches("^\\[(.*?)\\]$")) { //$NON-NLS-1$
                 ids.add(key);
-            }else {
+            } else {
                 Pattern p = Pattern.compile("\\[(.*?)\\]"); //$NON-NLS-1$
                 Matcher m = p.matcher(key);
                 while (m.find()) {
                     ids.add(m.group(1));
                 }
             }
-            
+
             // Collections.reverse(ids);
             String concept = Util.getForeignPathFromPath(foreignkey);
             concept = concept.split("/")[0]; //$NON-NLS-1$
@@ -1795,12 +1796,12 @@ public class ItemsBrowserDWR {
                     "xpathToPolymType" + docIndex); //$NON-NLS-1$
 
             if (bk != null) {
-                NodeList list = Util.getNodeList(bk, "//*[@xsi:type]");
+                NodeList list = Util.getNodeList(bk, "//*[@xsi:type]"); //$NON-NLS-1$ //$NON-NLS-2$
                 HashMap<String, Integer> xpathTraceMap = new HashMap<String, Integer>();
                 for (int i = 0; i < list.getLength(); i++) {
                     Node nodeWithType = list.item(i);
                     Node parentNode = nodeWithType.getParentNode();
-                    String type = nodeWithType.getAttributes().getNamedItem("xsi:type").getNodeValue();
+                    String type = nodeWithType.getAttributes().getNamedItem("xsi:type").getNodeValue();//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-1$ //$NON-NLS-2$
                     String trace = "/" + nodeWithType.getNodeName();
                     int pos = getNodePositon(nodeWithType);
                     if (pos != -1)
@@ -2177,7 +2178,7 @@ public class ItemsBrowserDWR {
                     parentNode.appendChild(el);
                     if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
                         XSParticle[] children = null;
-                        String xsiType = node.getAttributes().getNamedItem("xsi:type").getNodeValue();
+                        String xsiType = node.getAttributes().getNamedItem("xsi:type").getNodeValue();//$NON-NLS-1$ //$NON-NLS-2$
                         if (xsiType != null) {
                             ReusableType resuType = SchemaWebAgent.getInstance().getReusableType(xsiType);
                             List<XSParticle> pt = resuType.getAllChildren(null);
@@ -2188,7 +2189,7 @@ public class ItemsBrowserDWR {
                         }
 
                         for (XSParticle child : children) {
-                            setChildrenWithValue(child, xPath + "[position()=" + (i + 1) + "]", docIndex, withValue);
+                            setChildrenWithValue(child, xPath + "[position()=" + (i + 1) + "]", docIndex, withValue);//$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
