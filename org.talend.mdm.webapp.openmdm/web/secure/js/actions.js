@@ -14,16 +14,24 @@ amalto.actions = function () {
 	var STATUS =  {
        'fr' : 'Statut',
        'en' : 'Status'
-    } 
+    }
+	var STATUS_MSG_SUCCESS =  {
+       'fr' : 'L\'action s\'est déroulée avec succès.',
+       'en' : 'Action completed successfully.'
+    }
+	var STATUS_MSG_FAILURE =  {
+	   'fr' : 'L\'action a échouée!',
+	   'en' : 'Action failed!'
+	}
 	
-	/********************************************************************
+	/***************************************************************************
 	 * 
 	 * PRIVATE Properties and Methods
 	 * 
-	 ********************************************************************/
+	 **************************************************************************/
 	function loadActionsPrivate(){
 		
-		//load cluster and model
+		// load cluster and model
 		Ext.getCmp('actions').collapse();
 		Ext.getCmp('actions').add(
 			new Ext.FormPanel({
@@ -71,7 +79,7 @@ amalto.actions = function () {
 		
 		amalto.core.doLayout();
 		
-		//reset client cache
+		// reset client cache
 		DWRUtil.setValue('datacluster-select',null);
 		DWRUtil.setValue('datamodel-select',null);
 		
@@ -88,7 +96,11 @@ amalto.actions = function () {
 		var cluster = DWRUtil.getValue('datacluster-select');
 		var model = DWRUtil.getValue('datamodel-select');
 		ActionsInterface.setClusterAndModel(cluster,model,function(result){
-			Ext.Msg.alert(STATUS[language],"  "+result);
+			if(result=="DONE")
+				Ext.Msg.alert(STATUS[language],STATUS_MSG_SUCCESS[language]);
+			else
+				Ext.Msg.alert(STATUS[language],STATUS_MSG_FAILURE[language] + ' ' + result);	
+				
 			var tabPanel = amalto.core.getTabPanel();
 			tabPanel.items.each(function(item){
                         if(item.closable){
@@ -98,17 +110,17 @@ amalto.actions = function () {
 		});
 	}
 
-	/********************************************************************
+	/***************************************************************************
 	 * 
 	 * PUBLIC Properties and Methods
 	 * 
-	 ********************************************************************/
+	 **************************************************************************/
 	return  { 
 		
 		loadActions: function() {
 			loadActionsPrivate();
 		}
 						
-	}//PUBLIC
+	}// PUBLIC
 	
 }();
