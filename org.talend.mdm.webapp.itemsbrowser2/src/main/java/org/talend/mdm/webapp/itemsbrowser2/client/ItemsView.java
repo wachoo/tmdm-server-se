@@ -271,7 +271,7 @@ public class ItemsView extends View {
         Dispatcher.forwardEvent(ItemsEvents.InitSearchContainer);
     }
 
-    // FIXME锛� can we refact this method to PubService
+    // FIXME can we refact this method to PubService
     private native void regResizeViewPort()/*-{
         var instance = this;
         $wnd.org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort = function(){
