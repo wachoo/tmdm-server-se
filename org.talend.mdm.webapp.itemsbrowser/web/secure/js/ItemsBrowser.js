@@ -2337,7 +2337,6 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         ItemsBrowserInterface.prepareSessionForItemDetails(dataObject,language,function(status){});
 		DWREngine.setAsync(true);
 		loadResource("/itemsbrowser/secure/js/ItemNode.js", "amalto.itemsbrowser.ItemNode" );
-		loadResource("/itemsbrowser/secure/js/BreadCrumb.js", "amalto.itemsbrowser.BreadCrumb" );
 		//alert("display items "+DWRUtil.toDescriptiveString(itemPK2,2)+" "+ dataObject);
 		amalto.core.working();
 		itemNodes = [];
