@@ -2328,7 +2328,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    
 	}
 	
-	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail) {
+	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered) {
 		
 		DWREngine.setAsync(false); 
 		ItemsBrowserInterface.getRootNode(dataObject,language, function(rootNode){
@@ -2468,6 +2468,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						map[treeIndex][length + i] = tmp;
     					}
     					fnCallback();
+    					rendered();
         			});
         		  };
         		  
@@ -2508,6 +2509,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						map[treeIndex][length + i] = tmp;
     					}
     					fnCallback();
+    					rendered();
         			});
         		  };
 				
@@ -2841,7 +2843,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                     bbar : new Ext.Toolbar([{
                         text : EDIT_ITEM_TOOLTIP[language],
                         xtype : "tbtext"
-                    }])                 
+                    }]),
+                    listeners: {
+                    	"render" : function(contentPanel){
+                    		
+                    	}
+                    }
                 });
 			}
 			formWindow.innerHTML = "";
@@ -5087,7 +5094,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		getSiblingsLength:function(node){getSiblingsLength(node);},
 		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);},
 		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);},
-		renderFormWindow:function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail){renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow,isDetail);}
+		renderFormWindow:function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered){renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow,isDetail, rendered);}
 		/*getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
 		setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}*/
  	};
