@@ -36,6 +36,7 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  *
  */
+@SuppressWarnings("nls")
 public class LoadParserTest extends TestCase {
 
     public static final boolean DEBUG = false;
