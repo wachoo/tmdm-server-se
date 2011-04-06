@@ -601,8 +601,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
 
             // get FK filter
-            WSWhereItem fkFilterWi = null;
-            fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(fkFilter);
+            //FIXME temporal fix to make it compile 
+            WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey, xpathForeignKey, fkFilter);
             if (fkFilterWi != null)
                 whereItem = fkFilterWi;
             initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
