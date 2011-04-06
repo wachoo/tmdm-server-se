@@ -36,6 +36,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
@@ -44,6 +45,8 @@ import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 import org.xmldb.api.DatabaseManager;
 import org.xmldb.api.base.Database;
 import org.xmldb.api.base.Resource;
@@ -543,6 +546,11 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
         long time = System.currentTimeMillis() - startT;
 
         return time;
+    }
+
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws XmlServerException {
+        // TODO Implement this
+        throw new NotImplementedException();
     }
 
     public byte[] getDocumentBytes(String revisionID, String clusterName, String uniqueID, String documentType)

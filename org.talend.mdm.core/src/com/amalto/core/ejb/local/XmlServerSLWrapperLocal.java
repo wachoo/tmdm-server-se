@@ -3,6 +3,9 @@
  */
 package com.amalto.core.ejb.local;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
 /**
  * Local interface for XmlServerSLWrapper.
  * @xdoclet-generated
@@ -104,6 +107,17 @@ public interface XmlServerSLWrapperLocal
     * @return the time to store the document
     */
    public long putDocumentFromDOM( org.w3c.dom.Element root,java.lang.String uniqueID,java.lang.String clusterName,java.lang.String revisionID ) throws com.amalto.core.util.XtentisException;
+
+   /**
+    * Load a document using a SAX parser.
+    *
+    * @param dataClusterName The unique ID of the cluster
+    * @param docReader A SAX reader
+    * @param input A SAX input
+    * @param revisionId The revision id (<code>null</code> for head).
+    * @throws com.amalto.xmlserver.interfaces.XmlServerException If anything goes wrong in underlying storage
+    */
+   public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws com.amalto.core.util.XtentisException;
 
    /**
     * Gets an XML document from the DB<br> The XML instruction will have an encoding specified as UTF-16

@@ -3,6 +3,9 @@
  */
 package com.amalto.core.ejb.remote;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
 /**
  * Remote interface for XmlServerSLWrapper.
  * @xdoclet-generated
@@ -117,6 +120,18 @@ public interface XmlServerSLWrapper
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
+    * Load a document using a SAX parser.
+    *
+    * @param dataClusterName The unique ID of the cluster
+    * @param docReader A SAX reader
+    * @param input A SAX input
+    * @param revisionId The revision id (<code>null</code> for head).
+    * @throws com.amalto.xmlserver.interfaces.XmlServerException If anything goes wrong in underlying storage
+    */
+   public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId)
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+   /**
     * Gets an XML document from the DB<br> The XML instruction will have an encoding specified as UTF-16
     * @param uniqueID The unique ID of the document
     * @param clusterName The unique ID of the cluster
@@ -221,7 +236,7 @@ public interface XmlServerSLWrapper
     * @param conceptName The name of the concept
     * @param whereItem The condition to apply
     * @return the number of items meeting the conditions
-    * @throws XtentisException
+    * @throws com.amalto.core.util.XtentisException
     */
    public long countItems( java.util.LinkedHashMap conceptPatternsToRevisionID,java.util.LinkedHashMap conceptPatternsToClusterName,java.lang.String conceptName,com.amalto.xmlserver.interfaces.IWhereItem whereItem )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
@@ -233,7 +248,7 @@ public interface XmlServerSLWrapper
     * @param mainObjectRootElementName An optional object XML root element name that will serve as the main pivot<br/> If not specified, the pivots will be in ordered of those in the viewableBusinessElements
     * @param whereItem The condition to apply
     * @return the number of items meeting the conditions
-    * @throws XtentisException
+    * @throws com.amalto.core.util.XtentisException
     */
    public long countXtentisObjects( java.util.HashMap objectRootElementNameToRevisionID,java.util.HashMap objectRootElementNameToClusterName,java.lang.String mainObjectRootElementName,com.amalto.xmlserver.interfaces.IWhereItem whereItem )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
@@ -272,7 +287,7 @@ public interface XmlServerSLWrapper
     * @param start The index of the first element to return (start at 0)
     * @param limit The index of the last element to search. A negative value or {@value Integer#MAX_VALUE} means no limit
     * @return the XQuery in the native language of the database
-    * @throws XtentisException
+    * @throws com.amalto.core.util.XtentisException
     */
    public java.lang.String getXtentisObjectsQuery( java.util.HashMap objectRootElementNameToRevisionID,java.util.HashMap objectRootElementNameToClusterName,java.lang.String mainObjectRootElementName,java.util.ArrayList viewableObjectElements,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;

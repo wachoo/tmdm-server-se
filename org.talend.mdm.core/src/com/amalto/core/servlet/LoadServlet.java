@@ -25,14 +25,12 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.TimeMeasure;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
-import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
 
 
 /**
@@ -86,6 +84,7 @@ public class LoadServlet extends HttpServlet {
             throw new ServletException(new UnsupportedOperationException("Autogen pk isn't supported"));
         }
 
+        // Get xml server and key information
         XmlServerSLWrapperLocal server;
         XSDKey keyMetadata;
         try {
@@ -99,20 +98,22 @@ public class LoadServlet extends HttpServlet {
             throw new ServletException(e);
         }
 
+        // Creates a load parser callback that loads data in server
         LoadParserCallback callback = new ServerParserCallback(server, dataClusterName);
 
+        // Start parsing
         try {
             if (server.supportTransaction()) {
                 server.start();
             }
-            java.io.InputStream inputStream = new XMLRootInputStream(request.getInputStream(), "root");
+            java.io.InputStream inputStream = new XMLRootInputStream(request.getInputStream(), "root"); //$NON-NLS-1$
             LoadParser.parse(inputStream, typeName, keyMetadata.getFields(), callback);
         } catch (Throwable throwable) {
             if (server.supportTransaction()) {
                 try {
                     server.rollback();
-                } catch (XtentisException e1) {
-                    log.error("Ignoring rollback exception", e1);
+                } catch (Exception rollbackException) {
+                    log.error("Ignoring rollback exception", rollbackException);
                 }
             }
             throw new ServletException(throwable);
@@ -121,8 +122,8 @@ public class LoadServlet extends HttpServlet {
         if (server.supportTransaction()) {
             try {
                 server.commit();
-            } catch (XtentisException e) {
-                throw new ServletException("Commit failed with errors", e);
+            } catch (Exception commitException) {
+                throw new ServletException("Commit failed with errors", commitException);
             }
         }
     }
@@ -222,7 +223,7 @@ public class LoadServlet extends HttpServlet {
                 Document schema = Util.parseXSD(schemaString);
                 XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, concept);
 
-                resultLogger.logTimeMeasureStep(timeMeasureTag, "Parse schema", TimeMeasure.step(timeMeasureTag, "Parse schema"));
+                resultLogger.logTimeMeasureStep(timeMeasureTag, "Parse schema", TimeMeasure.step(timeMeasureTag, "Parse schema")); //$NON-NLS-1$ //$NON-NLS-2$
                 //each item
                 XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
                 boolean transactionSupported = server.supportTransaction();
@@ -279,7 +280,7 @@ public class LoadServlet extends HttpServlet {
                         }
 
                         if ((i + 1) % 1000 == 0) {
-                            String stepName = "Loaded " + ((i + 1) / 1000) + "k";
+                            String stepName = "Loaded " + ((i + 1) / 1000) + "k"; //$NON-NLS-1$
                             resultLogger.logTimeMeasureStep(timeMeasureTag, stepName, TimeMeasure.step(timeMeasureTag, stepName));
                         }
                     }
@@ -310,12 +311,12 @@ public class LoadServlet extends HttpServlet {
                 writer.write("<p>" + resultLogger.print()); //$NON-NLS-1$
 
             } else {
-                writer.write("<p><b>Unknown action: </b>" + action + "<br/>");
+                writer.write("<p><b>Unknown action: </b>" + action + "<br/>"); //$NON-NLS-1$
 
             }
 
         } catch (Exception e) {
-            writer.write("<h1>An error occured: " + e.getLocalizedMessage() + "</h1>");
+            writer.write("<h1>An error occured: " + e.getLocalizedMessage() + "</h1>"); //$NON-NLS-1$
             TimeMeasure.end(timeMeasureTag);
             log.error(e.getMessage(), e);
         }
@@ -328,7 +329,7 @@ public class LoadServlet extends HttpServlet {
 
         if (xsdKey == null) {
             if (log.isDebugEnabled()) {
-                log.debug("Caching id for type '" + typeName + "' in data model '" + dataModelName + "'");
+                log.debug("Caching id for type '" + typeName + "' in data model '" + dataModelName + "'"); //$NON-NLS-1$
             }
 
             DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataModelName));
@@ -341,7 +342,7 @@ public class LoadServlet extends HttpServlet {
                 for (String currentField : conceptKey.getFields()) {
                     keysAsString += ' ' + currentField;
                 }
-                log.debug("Key for entity '" + typeName + "' : " + keysAsString);
+                log.debug("Key for entity '" + typeName + "' : " + keysAsString); //$NON-NLS-1$
             } else {
                 log.error("No key definition for entity '" + typeName + "'.");
                 throw new RuntimeException("No key definition for entity '" + typeName + "'.");
@@ -411,30 +412,30 @@ public class LoadServlet extends HttpServlet {
 
         public void logTimeMeasure(String msg) {
 
-            resultLogger.append(System.currentTimeMillis() + " [TimeMeasure]:" + msg + "</br>");
+            resultLogger.append(System.currentTimeMillis() + " [TimeMeasure]:" + msg + "</br>"); //$NON-NLS-1$
 
         }
 
 
         private void logTimeMeasureBegin(String timerId) {
 
-            logTimeMeasure("Start '" + timerId + "' ...");
+            logTimeMeasure("Start '" + timerId + "' ..."); //$NON-NLS-1$
 
         }
 
         private void logTimeMeasureEnd(String timerId, long totalElapsedTime) {
 
-            logTimeMeasure("End '" + timerId + "', total elapsed time: " + totalElapsedTime + " ms ");
+            logTimeMeasure("End '" + timerId + "', total elapsed time: " + totalElapsedTime + " ms "); //$NON-NLS-1$
 
         }
 
         public void logTimeMeasureStep(String timerId, String stepName, long stepCount) {
-            logTimeMeasure("&nbsp;&nbsp;&nbsp;&nbsp;-> '" + timerId + "', step name '" + stepName + "', elapsed time since previous step: " + stepCount + " ms ");
+            logTimeMeasure("&nbsp;&nbsp;&nbsp;&nbsp;-> '" + timerId + "', step name '" + stepName + "', elapsed time since previous step: " + stepCount + " ms "); //$NON-NLS-1$
         }
 
         public void logErrorMessage(String msg) {
 
-            resultLogger.append(System.currentTimeMillis() + " [ErrorMessage]:" + msg + "</br>");
+            resultLogger.append(System.currentTimeMillis() + " [ErrorMessage]:" + msg + "</br>");  //$NON-NLS-1$
 
         }
 
@@ -456,14 +457,13 @@ public class LoadServlet extends HttpServlet {
 
         public void flushDocument(XMLReader docReader, InputSource input) {
             try {
-                // TODO
-                // server.putDocumentFromSAX(dataClusterName, docReader, input, null);
-                docReader.setContentHandler(new DefaultHandler());
-                docReader.parse(input);
+                server.putDocumentFromSAX(dataClusterName, docReader, input, null);
                 currentCount++;
 
                 if (currentCount % 1000 == 0) {
-                    log.debug("Loaded documents (PUT method): " + (currentCount / 1000) + "k.");
+                    if (log.isDebugEnabled()) {
+                        log.debug("Loaded documents: " + (currentCount / 1000) + "K."); //$NON-NLS-1$
+                    }
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

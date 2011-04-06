@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 /**
  * Xtentis performs all calls to the DataBase via this interface<br>
@@ -198,7 +200,17 @@ public interface IXmlServerSLWrapper {
 	 * @throws XmlServerException
 	 */
 	public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID) throws XmlServerException;
-	
+
+    /**
+     * Load a document using a SAX parser.
+     *
+     * @param dataClusterName The unique ID of the cluster
+     * @param docReader A SAX reader
+     * @param input A SAX input
+     * @param revisionId The revision id (<code>null</code> for head).
+     * @throws XmlServerException If anything goes wrong in underlying storage
+     */
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws XmlServerException;
 
 	/**
 	 * Gets an XML document from the DB<br>

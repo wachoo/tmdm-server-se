@@ -6,7 +6,10 @@ package com.amalto.core.ejb.remote;
 
 import java.util.*;
 
-/**
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
+ /**
  * This class is remote adapter to XmlServerSLWrapper. It provides convenient way to access
  * facade session bean. Inverit from this class to provide reasonable caching and event handling capabilities.
  *
@@ -153,6 +156,15 @@ public class XmlServerSLWrapperRemote extends Observable
 
       return retval;
 
+   }
+
+   public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId)
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException
+   {
+        long retval;
+       retval =  getSession().putDocumentFromSAX( dataClusterName,docReader,input,revisionId );
+
+      return retval;
    }
 
    public java.lang.String getDocumentAsString ( java.lang.String revisionID,java.lang.String clusterName,java.lang.String uniqueID )

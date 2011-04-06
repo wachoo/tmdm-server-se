@@ -28,6 +28,8 @@ import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
 import com.amalto.xmlserver.interfaces.WhereOr;
 import com.amalto.xmlserver.interfaces.XmlServerException;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 /**
  * All applications must call the methods of this wrapper only They never
@@ -396,6 +398,22 @@ public class XmlServerSLWrapperBean implements SessionBean {
 		}
 	}
 
+    /**
+    * Load a document using a SAX parser.
+    *
+    * @param dataClusterName The unique ID of the cluster
+    * @param docReader A SAX reader
+    * @param input A SAX input
+    * @param revisionId The revision id (<code>null</code> for head).
+    * @throws com.amalto.xmlserver.interfaces.XmlServerException If anything goes wrong in underlying storage
+    */
+   public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws com.amalto.core.util.XtentisException {
+         try {
+			return server.putDocumentFromSAX(dataClusterName, docReader, input, revisionId);
+		} catch (XmlServerException e) {
+			throw new XtentisException(e);
+		}
+   }
 
 	/**
 	 * Gets an XML document from the DB<br>
@@ -1044,8 +1062,6 @@ public class XmlServerSLWrapperBean implements SessionBean {
 	 * Spell check is implemented by replacing any word that has matches in the dictionary
 	 * by an or clause with all the matches
 	 * 
-	 * @param clusterName
-	 * 			The cluster unique ID
 	 * @param item
 	 * 			The {@link IWhereItem} to spell check
 	 * @param spellThreshold
