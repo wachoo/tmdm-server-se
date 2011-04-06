@@ -155,7 +155,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             Document docXml = XmlUtil.parseText(itemBean.getItemXml());
             HashMap<String, Integer> countMap = new HashMap<String, Integer>();
             for (String path : viewBean.getViewableXpaths()) {
-                String leafPath = path.substring(path.lastIndexOf('/') + 1); //$NON-NLS-1$ 
+                String leafPath = path.substring(path.lastIndexOf('/') + 1);
                 List nodes = XmlUtil.getValuesFromXPath(docXml, leafPath);
                 if (nodes.size() > 1) {
                     // result has same name nodes
@@ -183,7 +183,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             for (String path : xpaths) {
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
-                    List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.lastIndexOf('/') + 1));//$NON-NLS-1$ 
+                    List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.lastIndexOf('/') + 1));
                     if (nodes.size() > 0) {
                         Node value = (Node) nodes.get(0);
                         if (typeModel.isMultiOccurrence()) {
@@ -204,6 +204,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     /**
      * DOC HSHU Comment method "getView".
      */
+    @Override
     public ViewBean getView(String viewPk, String language) {
         try {
 
@@ -243,17 +244,17 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return null;
     }
 
+    @Override
     public ItemResult saveItemBean(ItemBean item) {
         try {
             String message = null;
             int status = 0;
 
             // if update, check the item is modified by others?
-            WSItemPK wsi = null;
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
                     getCurrentDataCluster()), item.getItemXml(), new WSDataModelPK(getCurrentDataModel()), true),
                     "genericUI", true); //$NON-NLS-1$
-            wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
+            WSItemPK wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
 
             if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + item.getConcept())) { //$NON-NLS-1$
                 String outputErrorMessage = wsPutItemWithReport.getSource();
@@ -286,7 +287,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     status = ItemResult.FAILURE;
                 }
             } else {
-                message = "The record was saved successfully."; //$NON-NLS-1$
+                message = MESSAGES.save_record_success();
                 status = ItemResult.SUCCESS;
             }
             return new ItemResult(status, message);
@@ -311,6 +312,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         }
     }
 
+    @Override
     public ItemResult deleteItemBean(ItemBean item) {
         try {
             String dataClusterPK = getCurrentDataCluster();
@@ -360,6 +362,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         }
     }
 
+    @Override
     public List<ItemResult> deleteItemBeans(List<ItemBean> items) {
         List<ItemResult> itemResultes = new ArrayList<ItemResult>();
         for (ItemBean item : items) {
@@ -369,6 +372,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return itemResultes;
     }
 
+    @Override
     public List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path) {
         List<ItemResult> itemResultes = new ArrayList<ItemResult>();
         for (ItemBean item : items) {
@@ -378,6 +382,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return itemResultes;
     }
 
+    @Override
     public ItemResult logicalDeleteItem(ItemBean item, String path) {
         try {
             String dataClusterPK = getCurrentDataCluster();
@@ -508,6 +513,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
     }
 
+    @Override
     public List<ItemBaseModel> getViewsList(String language) {
         try {
             Map<String, String> viewMap = null;
@@ -572,6 +578,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      * Foreign key
      *********************************************************************/
 
+    @Override
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
             String dataClusterPK, boolean ifFKFilter) {
         String xpathForeignKey = model.getForeignkey();
@@ -691,7 +698,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                             id += "[" + (node.getText() == null ? "" : node.getText()) + "]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
                         }
                     }
-                    bean.setId(id); //$NON-NLS-1$
+                    bean.setId(id);
                     if (result != null) {
                         Element root = XmlUtil.parseText(result).getRootElement();
                         if (root.getName().equals("result"))//$NON-NLS-1$
@@ -724,6 +731,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      * Bookmark management
      *********************************************************************/
 
+    @Override
     public boolean isExistCriteria(String dataObjectLabel, String id) {
         try {
             WSItemPK wsItemPK = new WSItemPK();
@@ -741,16 +749,15 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             WSBoolean wsBoolean = CommonUtil.getPort().existsItem(wsExistsItem);
             return wsBoolean.is_true();
         } catch (XtentisWebappException e) {
-            // TODO Auto-generated catch block
             LOG.error(e.getMessage(), e);
             return false;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             LOG.error(e.getMessage(), e);
             return false;
         }
     }
 
+    @Override
     public String saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) {
         String returnString = "OK";//$NON-NLS-1$ 
         try {
@@ -778,6 +785,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         }
     }
 
+    @Override
     public PagingLoadResult<ItemBaseModel> querySearchTemplates(String view, boolean isShared, PagingLoadConfig load) {
         List<String> results = Arrays.asList(getSearchTemplateNames(view, isShared, load.getOffset(), load.getLimit()));
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
@@ -791,6 +799,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
     }
 
+    @Override
     public List<ItemBaseModel> getUserCriterias(String view) {
         String[] results = getSearchTemplateNames(view, false, 0, 0);
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
@@ -889,6 +898,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         }
     }
 
+    @Override
     public String deleteSearchTemplate(String id) {
         try {
             String[] ids = { id };
@@ -909,6 +919,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         }
     }
 
+    @Override
     public String getCriteriaByBookmark(String bookmark) {
         try {
             String criteria = "";//$NON-NLS-1$ 
@@ -928,6 +939,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return null;
     }
 
+    @Override
     public AppHeader getAppHeader() throws Exception {
 
         AppHeader header = new AppHeader();
@@ -944,11 +956,13 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      * 
      * @throws IOException
      */
+    @Override
     public void initMessages(String language) throws IOException {
         MESSAGES = GWTI18N.create(ItemsbrowserMessages.class, language);
 
     }
 
+    @Override
     public ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception {
         String dataCluster = getCurrentDataCluster();
         String dataModel = getCurrentDataModel();

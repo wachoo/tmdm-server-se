@@ -216,4 +216,5 @@ public interface ItemsbrowserMessages extends Messages {
 
     String delete_record_success();
 
+    String save_record_success();
 }
