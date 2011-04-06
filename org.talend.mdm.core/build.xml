@@ -26,13 +26,68 @@
 	<property name="conf" value="mdm.conf"/>
 	<property name="conf.template" value="mdm.conf.template"/>
 	<property name="svn.revision" value="36233"/>
-    <!-- ================================= 
+
+    <property name="tom.location" value="${basedir}/.." />
+
+    <!-- =================================
           target: all              
          ================================= -->
 	<target name="all" depends="version,package,undeploy,deploy">
 		<!-- <eclipse.refreshLocal resource="${basedir}"/> -->
 	</target>
-	
+
+    <target name="junit">
+      <echo message="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar"/>
+
+      <delete dir="${basedir}/target/test-classes" />
+      <mkdir dir="${basedir}/target/test-classes" />
+
+      <delete dir="${basedir}/target/test-reports" />
+      <mkdir dir="${basedir}/target/test-reports" />
+
+      <path id="base.classpath">
+        <pathelement path="bin" />
+        <pathelement path="${tom.location}/org.talend.mdm.core/bin" />
+        <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar"/>
+        <pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
+      </path>
+
+      <path id="compile.classpath">
+        <pathelement path="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar" />
+        <path refid="base.classpath" />
+      </path>
+
+      <path id="test.classpath">
+        <pathelement path="target/test-classes" />
+        <path refid="compile.classpath" />
+      </path>
+
+      <copy todir="${basedir}/target/test-classes" verbose="true">
+        <fileset dir="${basedir}/test" excludes="**/*.java"/>
+      </copy>
+
+      <javac srcdir="${basedir}/test" destdir="${basedir}/target/test-classes">
+        <classpath>
+          <path refid="compile.classpath" />
+        </classpath>
+      </javac>
+
+      <junit printsummary="yes" haltonfailure="yes" showoutput="yes">
+        <classpath>
+          <path refid="test.classpath" />
+        </classpath>
+
+        <batchtest fork="yes" todir="target/test-reports">
+          <fileset dir="target/test-classes">
+            <include name="**/*Test.class" />
+          </fileset>
+        </batchtest>
+
+        <formatter type="plain" />
+        <formatter type="xml" />
+      </junit>
+    </target>
+
    	<target name="version"  description="Maintain build.date property">
    		<buildnumber file="${version.props}" />
    		<echo>Revision Number :${svn.revision}</echo>
@@ -46,7 +101,7 @@
        	</propertyfile>   	
      </target>
 
-   	<target name="package">
+   	<target name="package" depends="version, junit">
    		
 		<jar destfile="${ejbs}" manifest="src/META-INF/MANIFEST.MF">
 
