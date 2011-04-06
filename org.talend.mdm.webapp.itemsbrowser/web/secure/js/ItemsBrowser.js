@@ -2468,7 +2468,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						map[treeIndex][length + i] = tmp;
     					}
     					fnCallback();
-    					rendered();
+    					if (rendered){
+    						rendered();
+    					}
         			});
         		  };
         		  
@@ -2509,7 +2511,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						map[treeIndex][length + i] = tmp;
     					}
     					fnCallback();
-    					rendered();
+    					if (rendered){
+    						rendered();
+    					}
         			});
         		  };
 				
