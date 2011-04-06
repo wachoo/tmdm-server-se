@@ -39,6 +39,7 @@
       <pathelement path="${tom.location}/org.talend.mdm.xmlserver.interfaces/bin" />
       <pathelement path="${tom.location}/org.talend.mdm.webapp.core/bin" />
       <pathelement path="${tom.location}/org.talend.mdm.core/bin" />
+      <pathelement path="${tom.location}/org.talend.mdm.commons.core/bin" />
       <pathelement path="${tom.location}/talend.mdm.libraries/lib/jboss-jmx.jar" />
       <pathelement path="${tom.location}/talend.mdm.libraries/lib/jboss-j2ee.jar" />
       <pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
