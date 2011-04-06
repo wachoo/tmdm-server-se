@@ -397,8 +397,8 @@ public class ItemPOJO implements Serializable {
                 String h = "<header>" + m.group(1) + "</header>"; //$NON-NLS-1$ //$NON-NLS-2$
                 Element header = Util.parse(h).getDocumentElement();
                 // used for binding data model
-                if (Util.getFirstTextNode(header, "dmn") != null) //$NON-NLS-1$
-                    newItem.setDataModelName(Util.getFirstTextNode(header, "dmn")); //$NON-NLS-1$
+                if (Util.getFirstTextNode(header, "dm") != null) //$NON-NLS-1$
+                    newItem.setDataModelName(Util.getFirstTextNode(header, "dm")); //$NON-NLS-1$
                 if (Util.getFirstTextNode(header, "dmr") != null) //$NON-NLS-1$
                     newItem.setDataModelRevision(Util.getFirstTextNode(header, "dmr")); //$NON-NLS-1$
                 newItem.setInsertionTime(Long.parseLong(Util.getFirstTextNode(header, "t"))); //$NON-NLS-1$
