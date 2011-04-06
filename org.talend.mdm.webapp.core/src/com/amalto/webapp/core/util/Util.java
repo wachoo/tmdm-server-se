@@ -308,23 +308,45 @@ public class Util {
         return null;
     }
 
-    public static WSWhereItem getConditionFromFKFilter(String fkFilter) {
+    public static WSWhereItem getConditionFromFKFilter(String foreignKey, String foreignKeyInfo, String fkFilter)
+            throws Exception {
         if (fkFilter == null || fkFilter.length() == 0)
             return null;
         if (fkFilter.equals("null"))
             return null;
 
+        int additionalInfo = fkFilter.indexOf("-");
+        String additionalValue = null;
+        if (additionalInfo != -1) {
+            additionalValue = fkFilter.substring(additionalInfo + 1);
+            fkFilter = fkFilter.substring(0, additionalInfo);
+        }
+        // Iterator<String> keyInfoIter = bscpt.k
         String[] criterias = fkFilter.split("#");
 
         ArrayList<WSWhereItem> condition = new ArrayList<WSWhereItem>();
         for (String cria : criterias) {
             String[] values = cria.split("\\$\\$");
-
-            WSWhereCondition wc = Util.convertLine(values);
-            if (wc != null) {
-                condition.add(new WSWhereItem(wc, null, null));
+            if (values.length == 3) {
+                // values = new String[] { foreignKey, "Contains", values[0] };
+                WSWhereCondition wc = Util.convertLine(values);
+                if (wc != null) {
+                    condition.add(new WSWhereItem(wc, null, null));
+                }
             }
         }
+        if (additionalInfo != -1) {
+            String[] keyInfos = (foreignKeyInfo != null && !foreignKeyInfo.trim().isEmpty()) ? foreignKeyInfo.split(",")
+                    : foreignKey.split(",");
+            for (String keyInfo : keyInfos) {
+                String[] values = new String[] { keyInfo, "Contains", additionalValue.equals(".*") ? "." : additionalValue };
+                WSWhereCondition wc = Util.convertLine(values);
+                if (wc != null) {
+                    condition.add(new WSWhereItem(wc, null, null));
+                }
+            }
+        }
+
         if (condition.size() > 0) {
             WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
             WSWhereItem whand = new WSWhereItem(null, and, null);
@@ -632,8 +654,8 @@ public class Util {
      * @throws Exception
      */
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws Exception {
-        XObject xo = XPathAPI.eval(contextNode, xPath, (namespace == null) ? contextNode : Util.getRootElement("nsholder",
-                namespace, prefix));
+        XObject xo = XPathAPI.eval(contextNode, xPath,
+                (namespace == null) ? contextNode : Util.getRootElement("nsholder", namespace, prefix));
         if (xo.getType() != XObject.CLASS_NODESET)
             return null;
         return xo.nodelist();
@@ -1124,7 +1146,8 @@ public class Util {
                 int i = j;
                 while ((i > 0 && itemsBrowserContent.get(i - 1)[col].length() > 0 && temp[col].length() > 0 && Double
                         .parseDouble(itemsBrowserContent.get(i - 1)[col]) > Double.parseDouble(temp[col]))
-                        || i > 0 && temp[col].length() == 0) {
+                        || i > 0
+                        && temp[col].length() == 0) {
                     itemsBrowserContent.set(i, itemsBrowserContent.get(i - 1));
                     i--;
                 }
@@ -1265,7 +1288,7 @@ public class Util {
 
         // get FK filter
         WSWhereItem fkFilterWi = null;
-        fkFilterWi = getConditionFromFKFilter(fkFilter);
+        fkFilterWi = getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, fkFilter);
         if (fkFilterWi != null)
             whereItem = fkFilterWi;
         Configuration config = Configuration.getInstance();
@@ -1419,7 +1442,7 @@ public class Util {
             }
             // edit by ymli; fix the bug:0011918: set the pageSize correctly.
             if (isCount) {
-                json.put("count", countForeignKey_filter(xpathForeignKey, fkFilter));
+                json.put("count", countForeignKey_filter(xpathForeignKey, xpathInfoForeignKey, fkFilter + "-" + value));
             }
 
             return json.toString();
@@ -1429,7 +1452,8 @@ public class Util {
 
     }
 
-    public static String countForeignKey_filter(String xpathForeignKey, String fkFilter) throws Exception {
+    public static String countForeignKey_filter(String xpathForeignKey, String xpathForeignKeyinfo, String fkFilter)
+            throws Exception {
         Configuration config = Configuration.getInstance();
         String conceptName = getConceptFromPath(xpathForeignKey);
 
@@ -1444,7 +1468,7 @@ public class Util {
                 whereItem = new WSWhereItem(whereCondition, null, null);
             }
             // get FK filter
-            WSWhereItem fkFilterWi = getConditionFromFKFilter(fkFilter);
+            WSWhereItem fkFilterWi = getConditionFromFKFilter(xpathForeignKey, xpathForeignKeyinfo, fkFilter);
             if (fkFilterWi != null)
                 whereItem = fkFilterWi;
 
