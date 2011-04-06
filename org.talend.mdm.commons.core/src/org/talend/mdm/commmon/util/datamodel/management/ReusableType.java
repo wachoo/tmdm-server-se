@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.mdm.commmon.util.datamodel.management;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSType;
 
@@ -55,6 +58,29 @@ public class ReusableType {
 
     public XSParticle getXsParticle() {
         return xsType.asComplexType().getContentType().asParticle();
+    }
+
+    public List<XSParticle> getAllChildren(XSParticle particle) {
+        List<XSParticle> particles = new ArrayList<XSParticle>();
+        XSParticle[] children = null;
+        if (particle == null) {
+            children = xsType.asComplexType().getContentType().asParticle().getTerm().asModelGroup().getChildren();
+        } else {
+            if (particle.getTerm().asModelGroup() != null)
+                children = particle.getTerm().asModelGroup().getChildren();
+            else {
+                particles.add(particle);
+                return particles;
+            }
+        }
+
+        if (children != null) {
+            for (XSParticle pt : children) {
+                particles.addAll(getAllChildren(pt));
+            }
+        }
+
+        return particles;
     }
 
     @Override
