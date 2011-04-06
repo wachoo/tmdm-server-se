@@ -2,11 +2,11 @@
     <menu-entries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:com.amalto.core.objects.menu.ejb.MenuEntryPOJO">
         <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
             <key xsi:type="java:java.lang.String">en</key>
-            <value xsi:type="java:java.lang.String">Browse Records 2</value>
+            <value xsi:type="java:java.lang.String">Browse Records</value>
         </descriptions>
         <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
             <key xsi:type="java:java.lang.String">fr</key>
-            <value xsi:type="java:java.lang.String">Accès aux données 2</value>
+            <value xsi:type="java:java.lang.String">Accès aux données</value>
         </descriptions>
         <application>ItemsBrowser2</application>
         <context>itemsbrowser2</context>

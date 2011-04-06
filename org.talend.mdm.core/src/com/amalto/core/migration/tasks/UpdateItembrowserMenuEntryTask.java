@@ -48,8 +48,8 @@ public class UpdateItembrowserMenuEntryTask extends AbstractMigrationTask {
                 gxtMenuEntryPOJO.setContext("itemsbrowser2");//$NON-NLS-1$
                 gxtMenuEntryPOJO.setApplication("ItemsBrowser2");//$NON-NLS-1$
                 HashMap<String, String> gxtDescriptions = new HashMap<String, String>();
-                gxtDescriptions.put("en", "Browse Records 2");//$NON-NLS-1$ //$NON-NLS-2$
-                gxtDescriptions.put("fr", "Accès aux données 2");//$NON-NLS-1$ //$NON-NLS-2$
+                gxtDescriptions.put("en", "Browse Records");//$NON-NLS-1$ //$NON-NLS-2$
+                gxtDescriptions.put("fr", "Accès aux données");//$NON-NLS-1$ //$NON-NLS-2$
                 gxtMenuEntryPOJO.setDescriptions(gxtDescriptions);
                 gxtMenuEntries.add(gxtMenuEntryPOJO);
                 gxtMenuPOJO.setMenuEntries(gxtMenuEntries);

@@ -1,6 +1,11 @@
 amalto.namespace("amalto.itemsbrowser2");
 
 amalto.itemsbrowser2.ItemsBrowser2 = function() {
+	
+	var TITLE_BROWSER_PANEL =    {
+        'fr' : 'Accès aux données',
+        'en' : 'Browse Records'
+    };
 
 	var itemsBrowser2Panel;
 	
@@ -23,7 +28,7 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
         
                     itemsBrowser2Panel = new Ext.Panel({
                         id : "itemsBrowser2Panel",
-                        title : "Browse Records v4",
+                        title : TITLE_BROWSER_PANEL[language],
                         layout : "fit",
                         closable : true,
                         html : '<div id="talend_itemsbrowser2_ItemsBrowser2" class="itemsbrowser2"></div>'
