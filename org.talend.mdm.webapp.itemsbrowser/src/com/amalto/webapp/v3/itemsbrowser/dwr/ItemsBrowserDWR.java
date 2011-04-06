@@ -1012,6 +1012,10 @@ public class ItemsBrowserDWR {
         }
 
     }
+    
+    public static void main(String[] args) {
+        System.out.println();
+    }
 
     /**
      * get FK info according to key
@@ -1023,12 +1027,20 @@ public class ItemsBrowserDWR {
      */
     private String getFKInfo(String key, String foreignkey, List<String> fkInfos) {
         try {
-            Pattern p = Pattern.compile("\\[(.*?)\\]"); //$NON-NLS-1$
-            Matcher m = p.matcher(key);
+            if(key==null||key.trim().length()==0)return null;
+            
             List<String> ids = new ArrayList<String>();
-            while (m.find()) {
-                ids.add(m.group(1));
+            
+            if(!key.matches("^\\[(.*?)\\]$")) { //$NON-NLS-1$
+                ids.add(key);
+            }else {
+                Pattern p = Pattern.compile("\\[(.*?)\\]"); //$NON-NLS-1$
+                Matcher m = p.matcher(key);
+                while (m.find()) {
+                    ids.add(m.group(1));
+                }
             }
+            
             // Collections.reverse(ids);
             String concept = Util.getForeignPathFromPath(foreignkey);
             concept = concept.split("/")[0]; //$NON-NLS-1$
