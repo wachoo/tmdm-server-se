@@ -86,7 +86,8 @@ public class WidgetDWR {
      * @throws Exception
      */
     public String countForeignKey_filter(String xpathForeignKey, String fkFilter) throws Exception {
-       return Util.countForeignKey_filter(xpathForeignKey, fkFilter);
+       //FIXME : temporal fix
+       return Util.countForeignKey_filter(xpathForeignKey, xpathForeignKey, fkFilter);
     }
     
     /**
