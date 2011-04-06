@@ -1,6 +1,7 @@
 package org.talend.mdm.bulkload.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -23,7 +24,9 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.w3c.dom.Document;
@@ -129,8 +132,57 @@ public class BulkloadClientUtil {
 		
 		System.out.println(usage);
 	}
-	
-	
+
+    public static void bulkload(String url, String cluster, String concept, String datamodel, boolean validate, boolean smartpk, InputStream itemdata,
+                                String username, String password, String universe) throws Exception {
+        HostConfiguration config = new HostConfiguration();
+        URI uri = new URI(url, false, "utf-8");
+        config.setHost(uri);
+
+        NameValuePair[] parameters = {new NameValuePair("cluster", cluster),
+                new NameValuePair("concept", concept),
+                new NameValuePair("datamodel", datamodel),
+                new NameValuePair("validate", String.valueOf(validate)),
+                new NameValuePair("smartpk", String.valueOf(smartpk))};
+
+        HttpClient client = new HttpClient();
+        String user = universe == null || universe.trim().length() == 0 ? username : universe + "/" + username;
+        client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
+        client.getParams().setAuthenticationPreemptive(true);
+
+        PutMethod putMethod = new PutMethod();
+        // This setPath call is *really* important (if not set, request will be sent to the JBoss root '/')
+        putMethod.setPath(url);
+        try {
+            // Configuration
+            putMethod.setRequestHeader("Content-Type", "text/xml");
+            putMethod.setQueryString(parameters);
+            putMethod.setContentChunked(true);
+            // Set the content of the PUT request
+            putMethod.setRequestEntity(new InputStreamRequestEntity(itemdata));
+
+            client.executeMethod(config, putMethod);
+        } finally {
+            putMethod.releaseConnection();
+        }
+    }
+
+    /**
+     *
+     * @param URL
+     * @param cluster
+     * @param concept
+     * @param datamodel
+     * @param validate
+     * @param smartpk
+     * @param itemdata
+     * @param username
+     * @param password
+     * @param universe
+     * @return
+     * @throws Exception
+     * @deprecated Consider using {@link #bulkload(String, String, String, String, boolean, boolean, java.io.InputStream, String, String, String)}
+     */
 	public static String bulkload(String URL, String cluster,String concept,String datamodel, boolean validate, boolean smartpk, List<String> itemdata,
 			String username, String password,String universe) throws Exception {
 		HttpClient client = new HttpClient();

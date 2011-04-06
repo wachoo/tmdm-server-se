@@ -3,6 +3,7 @@ package org.talend.mdm.bulkload.client;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.util.List;
@@ -94,17 +95,50 @@ public class BulkloadClient {
 	public void setOptions(BulkloadOptions options) {
 		this.options = options;
 	}
+
+    /**
+     * @param items
+     * @throws Exception
+     * @deprecated Consider using {@link #load(java.io.InputStream)}
+     */
 	public void load(List<String > items) throws Exception{
 		doLoad(items);
 	}
 	/**
 	 * load from a huge xml string
 	 * @param xmlString
+     * @deprecated Consider using {@link #load(java.io.InputStream)}
 	 */
 	public void load(String xmlString)throws Exception {
 		List<String > items=BulkloadClientUtil.getItemXmls(xmlString);			
 		doLoad(items);
 	}
+
+    /**
+     * <p>
+     * Loads XML documents in MDM using an InputStream. All documents should follow each other.
+     * For instance this InputStream can be used with this method.
+     * </p>
+     *
+     * <code>
+     * InputStream is = new ByteArrayInputStream("<doc></doc><doc></doc><doc></doc>".getBytes());
+     * </code>
+     *
+     * @param xmlDocuments A stream that contains several XML documents.
+     * @throws Exception Thrown in case
+     */
+    public void load(InputStream xmlDocuments) throws Exception {
+        BulkloadClientUtil.bulkload(url,
+                cluster,
+                concept,
+                datamodel,
+                options.isValidate(),
+                options.isSmartpk(),
+                xmlDocuments,
+                username,
+                password,
+                universe);
+    }
 	
 	private void doLoad(List<String> items)throws Exception {
 		if(items.size()>options.getArraySize()) {
@@ -144,6 +178,7 @@ public class BulkloadClient {
 	/**
 	 * load from File
 	 * @param inputXmlFile
+     * @deprecated Consider using {@link #load(java.io.InputStream)}
 	 */
 	public void load(Reader inputXmlFile) {
 		BufferedReader reader=null;
