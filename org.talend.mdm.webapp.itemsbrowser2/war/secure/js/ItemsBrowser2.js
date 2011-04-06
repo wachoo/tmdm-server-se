@@ -10,7 +10,7 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 	var itemsBrowser2Panel;
 	
 	var resizeViewPort = function(component , adjWidth, adjHeight, rawWidth, rawHeight){
-		if (org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort){
+		if (typeof org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort == "function"){
 			org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort();
 		}
 	};
