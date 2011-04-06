@@ -324,10 +324,13 @@ public class ItemsBrowserDWR {
         if (ids != null) {
             WSItem wsItem = Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
             rootNode.setTaskId(wsItem.getTaskId());
-
+            WebContext ctx = WebContextFactory.get();
+            Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
+            Document document = Util.parse(wsItem.getContent());
+            if (d != null && !document.isEqualNode(d)) {
+                ctx.getSession().setAttribute("itemDocument" + docIndex, document);
+            }
             if (rootNode.getPrimaryKeyInfo() != null && rootNode.getPrimaryKeyInfo().size() > 0 && ids != null) {
-
-                Document document = Util.parse(wsItem.getContent());
 
                 StringBuilder gettedValue = new StringBuilder();
                 for (String pkInfoPath : rootNode.getPrimaryKeyInfo()) {
@@ -347,7 +350,6 @@ public class ItemsBrowserDWR {
 
                 // update session
                 if (docIndex != -1) {
-                    WebContext ctx = WebContextFactory.get();
                     ctx.getSession().setAttribute("itemDocument" + docIndex + "_wsItem", wsItem); //$NON-NLS-1$ //$NON-NLS-2$
                     ctx.getSession().setAttribute("itemDocument" + docIndex, document); //$NON-NLS-1$
                 }
@@ -769,12 +771,13 @@ public class ItemsBrowserDWR {
                         }
                     }
                 }
-                if (realType != null && realType.length() > 0) {
-                    treeNode.setRealType(realType);
-                    HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
-                            "xpathToPolymType" + docIndex); //$NON-NLS-1$
-                    xpathToPolymType.put(xpath, realType);
-                }
+
+                // if (realType != null && realType.length() > 0) {
+                // treeNode.setRealType(realType);
+                // HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
+                //                            "xpathToPolymType" + docIndex); //$NON-NLS-1$
+                // xpathToPolymType.put(xpath, realType);
+                // }
             }
 
         } catch (Exception e2) {
@@ -862,6 +865,22 @@ public class ItemsBrowserDWR {
                         treeNodeTmp.setNodeId(nodeCount);
                         treeNodeTmp.setBindingPath(xpath + "[" + (i + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                         idToParticle.put(nodeCount, particle);
+                        if (bakDoc != null) {
+                            String specificXpath = xpath + "[" + (i + 1) + "]";
+                            NodeList tmpNodeList = Util.getNodeList(bakDoc, specificXpath);
+                            if (tmpNodeList != null && tmpNodeList.getLength() > 0) {
+                                if (tmpNodeList.item(0) instanceof Element) {
+                                    Element firstElem = (Element) tmpNodeList.item(0);
+                                    String realType = firstElem.getAttribute("xsi:type"); //$NON-NLS-1$
+                                    if (realType != null && !realType.isEmpty()) {
+                                        treeNodeTmp.setRealType(realType);
+                                        HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession()
+                                                .getAttribute("xpathToPolymType" + docIndex); //$NON-NLS-1$
+                                        xpathToPolymType.put(specificXpath, realType);
+                                    }
+                                }
+                            }
+                        }
                         // TODO check addThisNode
                         list.add(treeNodeTmp);
                         nodeCount++;
@@ -1012,7 +1031,6 @@ public class ItemsBrowserDWR {
         }
 
     }
-    
 
     /**
      * get FK info according to key
@@ -1316,8 +1334,14 @@ public class ItemsBrowserDWR {
             idToXpath.put(newId, siblingXpath + "[" + (siblingIndex + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
             ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
 
-            UpdateReportItem ri = new UpdateReportItem(idToXpath.get(newId), "", ""); //$NON-NLS-1$ //$NON-NLS-2$
-            updatedPath.put(siblingXpath + "[" + (siblingIndex + 1) + "]", ri); //$NON-NLS-1$ //$NON-NLS-2$
+            XSParticle particle = idToParticle.get(newId);
+            if (particle != null && particle.getTerm().isElementDecl()) {
+                if (particle.getTerm().asElementDecl().getType().isSimpleType()) {
+                    UpdateReportItem ri = new UpdateReportItem(idToXpath.get(newId), "", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                    updatedPath.put(siblingXpath + "[" + (siblingIndex + 1) + "]", ri); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+            }
+
             ctx.getSession().setAttribute("updatedPath" + docIndex, updatedPath); //$NON-NLS-1$
 
             nodeAutorization.add(siblingXpath + "[" + (siblingIndex + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1661,6 +1685,7 @@ public class ItemsBrowserDWR {
         WebContext ctx = WebContextFactory.get();
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
+        HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
 
         try {
 
@@ -1678,6 +1703,9 @@ public class ItemsBrowserDWR {
             editXpathInidToXpath(id, idToXpath, updatedPath);
             // add by ymli. fix the bug:0010576. edit the path
             String path = idToXpath.get(id);
+            HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
+                    "xpathToPolymType" + docIndex); //$NON-NLS-1$
+            xpathToPolymType.remove(path);
             if (updatedPath.get(idToXpath.get(id)) != null) {
                 path = updatedPath.get(idToXpath.get(id)).getPath();
                 Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\]$)"); //$NON-NLS-1$
@@ -1691,7 +1719,12 @@ public class ItemsBrowserDWR {
                     ri.setPath(path);
                 }
             }
-            updatedPath.put(path, ri);
+            XSParticle particle = idToParticle.get(id);
+            if (particle != null && particle.getTerm().isElementDecl()) {
+                if (particle.getTerm().asElementDecl().getType().isSimpleType()) {
+                    updatedPath.put(path, ri);
+                }
+            }
             idToXpath.remove(id);
             ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
             ctx.getSession().setAttribute("updatedPath" + docIndex, updatedPath); //$NON-NLS-1$
@@ -1724,6 +1757,23 @@ public class ItemsBrowserDWR {
         return false;
     }
 
+    private static int getNodePositon(Node node) {
+        if (node.getParentNode() == null)
+            return 1;
+
+        NodeList children = node.getParentNode().getChildNodes();
+        int id = 0;
+        for (int i = 0; i < children.getLength(); i++) {
+            Node nodeToSpec = children.item(i);
+            if (nodeToSpec instanceof Element && nodeToSpec.getNodeName().equals(node.getNodeName())) {
+                id++;
+                if (nodeToSpec.isSameNode(node))
+                    return id;
+            }
+        }
+        return -1;
+    }
+
     public static ItemResult saveItem(String[] ids, String concept, boolean newItem, int docIndex) throws Exception {
         WebContext ctx = WebContextFactory.get();
 
@@ -1736,19 +1786,49 @@ public class ItemsBrowserDWR {
             if (dataClusterPK == null || dataClusterPK.trim().length() == 0)
                 throw new Exception("Data Container can't be empty!");
             Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex);
-
+            Document bk = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup");
             // added by lzhang, make sure there is no empty node which has DSP value
             d = filledByDspValue(dataModelPK, concept, d, docIndex);
 
             // filter item xml
             HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
                     "xpathToPolymType" + docIndex); //$NON-NLS-1$
+
+            if (bk != null) {
+                NodeList list = Util.getNodeList(bk, "//*[@xsi:type]");
+                HashMap<String, Integer> xpathTraceMap = new HashMap<String, Integer>();
+                for (int i = 0; i < list.getLength(); i++) {
+                    Node nodeWithType = list.item(i);
+                    Node parentNode = nodeWithType.getParentNode();
+                    String type = nodeWithType.getAttributes().getNamedItem("xsi:type").getNodeValue();
+                    String trace = "/" + nodeWithType.getNodeName();
+                    int pos = getNodePositon(nodeWithType);
+                    if (pos != -1)
+                        trace += "[" + pos + "]";
+                    while (parentNode != null) {
+                        pos = getNodePositon(parentNode);
+                        String subTrace = "/" + parentNode.getNodeName();
+                        if (pos != -1)
+                            subTrace += "[" + pos + "]";
+                        trace = subTrace + trace;
+                        parentNode = parentNode.getParentNode();
+                        if (parentNode instanceof Document) {
+                            parentNode = parentNode.getParentNode();
+                        }
+                    }
+                    xpathToPolymType.put(trace, type);
+                }
+            }
+            // added by lzhang, make sure there is no empty node which has DSP value
+            // d = filledByDspValue(dataModelPK, concept, d, docIndex);
+
             if (xpathToPolymType != null && xpathToPolymType.size() > 0) {
                 d.getDocumentElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xsi", //$NON-NLS-1$ //$NON-NLS-2$
                         "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$
                 for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
                     String xpath = (String) iterator.next();
-                    ((Element) Util.getNodeList(d, xpath).item(0)).setAttribute("xsi:type", xpathToPolymType.get(xpath)); //$NON-NLS-1$
+                    if (Util.getNodeList(d, xpath).getLength() > 0)
+                        ((Element) Util.getNodeList(d, xpath).item(0)).setAttribute("xsi:type", xpathToPolymType.get(xpath)); //$NON-NLS-1$
                 }
             }
             HashMap<String, String> xpathToPolymFKType = (HashMap<String, String>) ctx.getSession().getAttribute(
@@ -2095,7 +2175,26 @@ public class ItemsBrowserDWR {
                         el.setTextContent(textContent);
 
                     parentNode.appendChild(el);
+                    if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
+                        XSParticle[] children = null;
+                        String xsiType = node.getAttributes().getNamedItem("xsi:type").getNodeValue();
+                        if (xsiType != null) {
+                            ReusableType resuType = SchemaWebAgent.getInstance().getReusableType(xsiType);
+                            List<XSParticle> pt = resuType.getAllChildren(null);
+                            children = pt.toArray(new XSParticle[] {});
+                        } else {
+                            XSComplexType type = (XSComplexType) xsp.getTerm().asElementDecl().getType();
+                            children = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+                        }
+
+                        for (XSParticle child : children) {
+                            setChildrenWithValue(child, xPath + "[position()=" + (i + 1) + "]", docIndex, withValue);
+                        }
+                    }
                 }
+            } else {
+                Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
+                parentNode.appendChild(el);
             }
         } else {
             Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
@@ -2105,21 +2204,32 @@ public class ItemsBrowserDWR {
                         && "boolean".equals(xsp.getTerm().asElementDecl().getType().asSimpleType().getName())) { //$NON-NLS-1$
                     el.setTextContent("false"); //$NON-NLS-1$
                 }
-        }
-
-        if (xsp.getTerm().asElementDecl().getType().isComplexType() == true) {
-            XSParticle particle = xsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
-            if (particle != null) {
-                XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
-                xpathParent = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
-                for (int i = 0; i < xsps.length; i++) {
-                    setChildrenWithValue(xsps[i], xpathParent, docIndex, withValue);
+            if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
+                XSComplexType type = (XSComplexType) xsp.getTerm().asElementDecl().getType();
+                XSParticle particle = type.getContentType().asParticle();
+                if (particle != null) {
+                    XSParticle[] children = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+                    String xpth = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
+                    for (XSParticle child : children) {
+                        setChildrenWithValue(child, xpth, docIndex, withValue);
+                    }
                 }
             }
-        } else if (xsp.getTerm().asElementDecl().getType().asSimpleType().getName() != null) {
-            // simple Type and check out the bool type
-
         }
+
+        // if (xsp.getTerm().asElementDecl().getType().isComplexType() == true) {
+        // XSParticle particle = xsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
+        // if (particle != null) {
+        // XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
+        // xpathParent = xpathParent + "/" + xsp.getTerm().asElementDecl().getName();
+        // for (int i = 0; i < xsps.length; i++) {
+        // setChildrenWithValue(xsps[i], xpathParent, docIndex, withValue);
+        // }
+        // }
+        // } else if (xsp.getTerm().asElementDecl().getType().asSimpleType().getName() != null) {
+        // // simple Type and check out the bool type
+        //
+        // }
     }
 
     public String countForeignKey(String xpathForeignKey) throws Exception {
@@ -2294,9 +2404,10 @@ public class ItemsBrowserDWR {
     /**
      * lym
      */
-    public String countForeignKey_filter(String dataObject, String xpathForeignKey, String fkFilter, int docIndex, int nodeId)
-            throws Exception {
-        return Util.countForeignKey_filter(xpathForeignKey, parseForeignKeyFilter(dataObject, fkFilter, docIndex, nodeId));
+    public String countForeignKey_filter(String dataObject, String xpathForeignKey, String xpathForeignKeyInfo, String fkFilter,
+            int docIndex, int nodeId) throws Exception {
+        return Util.countForeignKey_filter(xpathForeignKey, xpathForeignKeyInfo,
+                parseForeignKeyFilter(dataObject, fkFilter, docIndex, nodeId));
     }
 
     public String getForeignKeyListWithCount(int start, int limit, String value, String dataObject, String xpathForeignKey,
@@ -3401,6 +3512,8 @@ public class ItemsBrowserDWR {
             pos = entry.getKey().lastIndexOf("/");//$NON-NLS-1$
             String pPath = entry.getKey().substring(0, pos);
             if (pPath.equals(parentPath) && !entry.getKey().equals(xpath)) {
+                if (entry.getValue() == null)
+                    continue;
                 String v = entry.getValue().getValue();
                 if (v != null && v.trim().length() > 0)
                     return false;

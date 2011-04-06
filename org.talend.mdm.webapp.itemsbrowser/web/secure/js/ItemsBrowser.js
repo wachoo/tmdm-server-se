@@ -1380,8 +1380,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			            defaultAutoCreate : {tag: "input", type: "text", style :"height:21px;" ,autocomplete: "off"},
 						xpathForeignKey : fks["foreignKey"] + "",
 						xpathForeignKeyInfo: fks["foreignKeyInfo"] + "",
-						//fkFilter : fks["foreignKeyFilter"] + "",
-						fkFilter : "",
+						fkFilter : fks["foreignKeyFilter"] + "",
 						retrieveFKinfos : fks["foreignKeyRetrieve"] + "",
 						showDeleteButton : false,
 						renderTo : itemsForeignKeyValues
@@ -3618,6 +3617,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	function reloadNode(id, treeIndex){
 		var itemTree = itemTreeList[treeIndex];
 		var node = itemTree.getNodeByIndex(id);
+		if(Ext.get(id + 'TypeSelector') != null){
+          var selectIdx = Ext.get(id + 'TypeSelector').dom.selectedIndex;
+          var optons = Ext.get(id + 'TypeSelector').dom.options;
+          node.itemData.realType = optons[selectIdx].value;
+		}
 		itemTree.removeChildren(node);
 		node.expand();
 	}
@@ -3776,20 +3780,20 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		ItemsBrowserInterface.cloneNode(siblingId,newNode.index, treeIndex,function(result){
 			amalto.core.ready(result);
 		});
-		
 		newNode.insertAfter(siblingNode);
 		//newNode.appendTo(siblingNode.parent);
 		itemTree.getRoot().childrenRendered=false;
 		
 		var fnLoadData = function(oNode,fnCallback){
 			//getChildren(oNode.index,fnCallback, false, newItem, itemTree, treeIndex);
-			ItemsBrowserInterface.getChildren(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,null,function(result){
+			ItemsBrowserInterface.getChildren(oNode.index, YAHOO.widget.TreeView.nodeCount, language, false, treeIndex,Ext.get(oNode.index+"TypeSelector")==null?null:DWRUtil.getValue(oNode.index+"TypeSelector"),function(result){
 				if(result==null) {
 					fnCallback();
 					return;
 				}
 				for(var i=0; i<result.length; i++) {					
 					var tmp = new amalto.itemsbrowser.ItemNode(result[i],newItem[treeIndex],treeIndex,itemTree.getNodeByIndex(oNode.index),false,true,isReadOnlyinItem);
+					
 				if(result[i].type=="simple") tmp.setDynamicLoad();
 				   else tmp.setDynamicLoad(fnLoadData,1);
 			}
@@ -3801,6 +3805,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     	
 		newNode.setDynamicLoad(fnLoadData);
 		//itemTree.getRoot().refresh();
+//		siblingNode.updateNodeId(siblingId);
+		updateNodeId(siblingNode, siblingId);
 		siblingNode.parent.refresh();
 		//itemTree.getRoot().refresh();
 		amalto.core.ready();
@@ -3822,6 +3828,15 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				}				
 			}
 		}		
+	}
+	
+	function updateNodeId(node, nodeId){
+		node.updateNodeId(nodeId);
+		var children = node.children;
+		for (var i = 0; i < children.length; i++){
+			child = children[i];
+			updateNodeId(child, child.itemData.nodeId);
+		}
 	}
 	
 	function showEditWindow(nodeIndex, treeIndex, nodeType){
@@ -3956,14 +3971,16 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var j = 0;
 		
 		values = getChildrenValues(itemTree.getRoot());
-		itemNodes.remove(itemTree.getNodeByIndex(id));
-		itemTree.removeNode(itemTree.getNodeByIndex(id), true);
+		var nodeToDel = itemTree.getNodeByIndex(id);
+		var parentNode = nodeToDel.parent;
+		itemNodes.remove(nodeToDel);
+		itemTree.removeNode(nodeToDel, true);
 		ItemsBrowserInterface.removeNode(id, treeIndex, value,
 				function(result) {
 					amalto.core.ready(result);
 				});
 		
-		itemTree.getRoot().refresh();
+       itemTree.getRoot().refresh();
 		//add by ymli. set the values of nodes
 		for(var t=0;t<values.length;t++){
 			var value = values[t];
@@ -4583,7 +4600,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    }
 	    var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex);
 	    var dataObject=tbDetail && tbDetail.getTopToolbar() ? tbDetail.getTopToolbar().dataObject : conceptName;
-		ItemsBrowserInterface.countForeignKey_filter(dataObject,xpathForeignKey,fkFilter,treeIndex,nodeId, function(count){
+		ItemsBrowserInterface.countForeignKey_filter(dataObject,xpathForeignKey,xpathInfoForeignKey,fkFilter,treeIndex,nodeId, function(count){
 			//Display a pop-up window to search for foreign keys
 			if(foreignKeyWindow){
 			    foreignKeyWindow.hide();
@@ -4647,12 +4664,24 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                  
             });
             
+            var improvedProxy = new Ext.ux.data.ImprovedDWRProxy({
+                    dwrFunction: ItemsBrowserInterface.getForeignKeyListWithCount,
+                    dwrAdditional: [dataObject,xpathForeignKey, xpathInfoForeignKey,fkFilter,treeIndex,nodeId] //, Ext.getCmp('foreign-key-filter').getValue()]}
+                });
+                
+            improvedProxy.on('load', function(dwrAdditional,response){
+            	var json = eval("("+response+")");
+            	var count = json['count'];
+            	count = parseInt(count)
+                if(foreignKeyWindow != null){
+                    var title = TITLE_WINDOW_FK[language]+'<br/>('+count+' '+(count>1?MESSAGE_MULTI_SHOW[language]+')':MESSAGE_SINGLE_SHOW[language]+')');
+                    foreignKeyWindow.setTitle(title);
+                }
+              }
+            )
 			// FK combo	
 			var store = new Ext.data.Store({
-				proxy: new Ext.ux.data.ImprovedDWRProxy({
-			        dwrFunction: ItemsBrowserInterface.getForeignKeyListWithCount,
-			        dwrAdditional: [dataObject,xpathForeignKey, xpathInfoForeignKey,fkFilter,treeIndex,nodeId] //, Ext.getCmp('foreign-key-filter').getValue()]}
-				}),
+				proxy: improvedProxy,
 		        reader: new Ext.data.JsonReader({
 		            root: 'rows',
 		            totalProperty: 'count',
@@ -4713,7 +4742,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 	
 		        }
 		    });
-		    
+
 			foreignKeyWindow = new Ext.Window({
                 layout:'fit',
                 width:300,

@@ -127,6 +127,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		var cloneNodeImg = '';
 		var removeNodeImg = '';
 		var type='text'; //default is text
+		itemData.readOnly = false
 		//modify by ymli. If itemData.parent is not readonly, it can be add or delete
 		var tmpStatusItems=true;
 				tmpStatusItems = (itemData.parent != null && itemData.parent.readOnly == false || itemData.readOnly==false) ;
@@ -195,7 +196,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					//for a foreign key, direct edit is disabled.
 					readOnly = "READONLY";
 					readOnlyStyle = "ForeignKey";
-					var swit = "false";
+					var swit = false;
 					
 					if(parentLink == undefined) {
 						parentLink = [];
@@ -203,7 +204,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 					
 					foreignKeyImg += '' +
 						'<span style="cursor: pointer;" ' +
-						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+',\''+swit+'\',\''+parentLink["conceptName"]+'\')" >' +
+						'onclick="amalto.itemsbrowser.ItemsBrowser.chooseForeignKey('+itemData.nodeId+',\''+itemData.foreignKey+'\',\''+itemData.foreignKeyInfo+'\',\''+itemData.fkFilter+'\','+treeIndex+','+swit+',\''+parentLink["conceptName"]+'\')" >' +
 						' <img src="img/genericUI/link_edit.png" title="' + MAGPLUS_TT[language] + '"/></span>';
 				
 					var fkDataObject =  itemData.foreignKey.split("/")[0];	
