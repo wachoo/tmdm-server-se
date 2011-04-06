@@ -1013,9 +1013,6 @@ public class ItemsBrowserDWR {
 
     }
     
-    public static void main(String[] args) {
-        System.out.println();
-    }
 
     /**
      * get FK info according to key
