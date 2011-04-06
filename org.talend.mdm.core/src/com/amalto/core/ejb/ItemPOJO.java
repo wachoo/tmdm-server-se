@@ -397,8 +397,12 @@ public class ItemPOJO implements Serializable {
                 String h = "<header>" + m.group(1) + "</header>"; //$NON-NLS-1$ //$NON-NLS-2$
                 Element header = Util.parse(h).getDocumentElement();
                 // used for binding data model
-                if (Util.getFirstTextNode(header, "dm") != null) //$NON-NLS-1$
-                    newItem.setDataModelName(Util.getFirstTextNode(header, "dm")); //$NON-NLS-1$
+                String dm=Util.getFirstTextNode(header, "dmn");//$NON-NLS-1$
+                if (dm == null) {
+                	dm=Util.getFirstTextNode(header, "dm");//$NON-NLS-1$
+                }
+                newItem.setDataModelName(dm); //$NON-NLS-1$
+                
                 if (Util.getFirstTextNode(header, "dmr") != null) //$NON-NLS-1$
                     newItem.setDataModelRevision(Util.getFirstTextNode(header, "dmr")); //$NON-NLS-1$
                 newItem.setInsertionTime(Long.parseLong(Util.getFirstTextNode(header, "t"))); //$NON-NLS-1$
@@ -818,9 +822,9 @@ public class ItemPOJO implements Serializable {
         xmlBuilder.append(StringEscapeUtils.escapeXml(conceptName));
         xmlBuilder.append("</n>");
         if (dataModelName != null) {
-            xmlBuilder.append("<dm>");
+            xmlBuilder.append("<dmn>");
             xmlBuilder.append(StringEscapeUtils.escapeXml(dataModelName));
-            xmlBuilder.append("</dm>");
+            xmlBuilder.append("</dmn>");
         }
         if (dataModelRevision != null) {
             xmlBuilder.append("<dmr>");
