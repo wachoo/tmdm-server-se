@@ -43,9 +43,9 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
@@ -134,11 +134,11 @@ public class ItemsView extends View {
         for (String xpath : viewableXpaths) {
             TypeModel typeModel = dataTypes.get(xpath);
 
-            ColumnConfig cc = new ColumnConfig(xpath, typeModel == null ? xpath : ViewUtil.getViewableLabel(Locale
-                    .getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel), 200);
+            ColumnConfig cc = new ColumnConfig(xpath, typeModel == null ? xpath : ViewUtil.getViewableLabel(
+                    Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel), 200);
             if (typeModel instanceof SimpleTypeModel && !keys.contains(xpath)) {
-                Field field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage(Itemsbrowser2
-                        .getSession().getAppHeader()));
+                Field field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
+                        Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
 
                 CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
                 if (cellEditor != null) {
@@ -201,7 +201,8 @@ public class ItemsView extends View {
                     itemsFormPanel.setReadOnly(itemBean, entityModel.getKeys());
                 } else {
                     window = new Window();
-                    window.setSize(500, 500);
+                    window.setSize(650, 500);
+                    window.setMinWidth(600);
                     window.setPlain(true);
                     window.setModal(false);
                     window.setHeading(tabTitle);

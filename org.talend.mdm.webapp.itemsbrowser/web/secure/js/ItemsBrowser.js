@@ -3474,14 +3474,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			        plain:true,
 			        bodyStyle:'padding:5px;',
 			        buttonAlign:'center',
-			        items: contentPanel,
-
-			        buttons: [{
-			            text: 'Cancel',
-			            handler: function() {
-			            	fkWindow.destroy();
-			            }
-			        }]
+			        items: contentPanel
 			    });
 				
 				fkWindow.show();
