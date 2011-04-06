@@ -1,28 +1,38 @@
 package com.amalto.core.servlet;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.util.TimeMeasure;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XSDKey;
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.load.LoadParser;
+import com.amalto.core.load.LoadParserCallback;
+import com.amalto.core.load.io.XMLRootInputStream;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.util.TimeMeasure;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XSDKey;
+import com.amalto.core.util.XtentisException;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 
 /**
@@ -42,6 +52,8 @@ public class LoadServlet extends HttpServlet {
 
     private static final Logger log = Logger.getLogger(LoadServlet.class);
 
+    private static final Map<String, XSDKey> typeNameToKeyDef = new HashMap<String, XSDKey>();
+
     /**
      * Constructor
      */
@@ -57,10 +69,69 @@ public class LoadServlet extends HttpServlet {
     }
 
     @Override
+    protected void doPut(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException, java.io.IOException {
+        request.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
+
+        String dataClusterName = request.getParameter(PARAMETER_CLUSTER);
+        String typeName = request.getParameter(PARAMETER_CONCEPT);
+        String dataModelName = request.getParameter(PARAMETER_DATAMODEL);
+        boolean needValidate = Boolean.valueOf(request.getParameter(PARAMETER_VALIDATE));
+        boolean needAutoGenPK = Boolean.valueOf(request.getParameter(PARAMETER_SMARTPK));
+
+        if (needValidate) {
+            throw new ServletException(new UnsupportedOperationException("XML Validation isn't supported"));
+        }
+        if (needAutoGenPK) {
+            // TODO Support it (should be much easier than the !autogenPk).
+            throw new ServletException(new UnsupportedOperationException("Autogen pk isn't supported"));
+        }
+
+        XmlServerSLWrapperLocal server;
+        XSDKey keyMetadata;
+        try {
+            keyMetadata = getTypeKey(dataModelName, typeName);
+            server = Util.getXmlServerCtrlLocal();
+
+            if (!".".equals(keyMetadata.getSelector())) {
+                throw new ServletException(new UnsupportedOperationException("Selector '" + keyMetadata.getSelector() + "' isn't supported."));
+            }
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+
+        LoadParserCallback callback = new ServerParserCallback(server, dataClusterName);
+
+        try {
+            if (server.supportTransaction()) {
+                server.start();
+            }
+            java.io.InputStream inputStream = new XMLRootInputStream(request.getInputStream(), "root");
+            LoadParser.parse(inputStream, typeName, keyMetadata.getFields(), callback);
+        } catch (Throwable throwable) {
+            if (server.supportTransaction()) {
+                try {
+                    server.rollback();
+                } catch (XtentisException e1) {
+                    log.error("Ignoring rollback exception", e1);
+                }
+            }
+            throw new ServletException(throwable);
+        }
+
+        if (server.supportTransaction()) {
+            try {
+                server.commit();
+            } catch (XtentisException e) {
+                throw new ServletException("Commit failed with errors", e);
+            }
+        }
+    }
+
+    @Override
     protected void doPost(
             HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
-        doGet(request, response);
+        doPut(request, response);
     }
 
 
@@ -252,6 +323,38 @@ public class LoadServlet extends HttpServlet {
     }
 
 
+    private XSDKey getTypeKey(String dataModelName, String typeName) throws Exception {
+        XSDKey xsdKey = typeNameToKeyDef.get(dataModelName + typeName);
+
+        if (xsdKey == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Caching id for type '" + typeName + "' in data model '" + dataModelName + "'");
+            }
+
+            DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataModelName));
+            String schemaString = dataModel.getSchema();
+            Document schema = Util.parseXSD(schemaString);
+            XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, typeName);
+
+            if (conceptKey != null && log.isDebugEnabled()) {
+                String keysAsString = "";
+                for (String currentField : conceptKey.getFields()) {
+                    keysAsString += ' ' + currentField;
+                }
+                log.debug("Key for entity '" + typeName + "' : " + keysAsString);
+            } else {
+                log.error("No key definition for entity '" + typeName + "'.");
+                throw new RuntimeException("No key definition for entity '" + typeName + "'.");
+            }
+            xsdKey = conceptKey;
+
+            // Use dataModelName in key in case 1+ data models share the type name
+            typeNameToKeyDef.put(dataModelName + typeName, xsdKey);
+        }
+
+        return xsdKey;
+    }
+
     /**
      * Returns a writer that does not print anything if logger hasn't DEBUG level.
      *
@@ -340,5 +443,32 @@ public class LoadServlet extends HttpServlet {
         }
     }
 
+    private static class ServerParserCallback implements LoadParserCallback {
+        private int currentCount;
+        private final XmlServerSLWrapperLocal server;
+        private final String dataClusterName;
+
+        public ServerParserCallback(XmlServerSLWrapperLocal server, String dataClusterName) {
+            this.server = server;
+            this.dataClusterName = dataClusterName;
+            currentCount = 0;
+        }
+
+        public void flushDocument(XMLReader docReader, InputSource input) {
+            try {
+                // TODO
+                // server.putDocumentFromSAX(dataClusterName, docReader, input, null);
+                docReader.setContentHandler(new DefaultHandler());
+                docReader.parse(input);
+                currentCount++;
+
+                if (currentCount % 1000 == 0) {
+                    log.debug("Loaded documents (PUT method): " + (currentCount / 1000) + "k.");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
 }
