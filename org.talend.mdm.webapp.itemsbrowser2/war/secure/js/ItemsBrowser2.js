@@ -10,7 +10,7 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 	var itemsBrowser2Panel;
 	
 	var resizeViewPort = function(component , adjWidth, adjHeight, rawWidth, rawHeight){
-		if (typeof org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort == "function"){
+		if (org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort != undefined){
 			org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort();
 		}
 	};
@@ -35,6 +35,7 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
         
                     });
         
+                    tabPanel.un("resize", resizeViewPort);
                     tabPanel.on("resize", resizeViewPort);
         
                     tabPanel.add(itemsBrowser2Panel);
