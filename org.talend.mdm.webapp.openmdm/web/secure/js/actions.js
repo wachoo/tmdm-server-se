@@ -6,7 +6,14 @@ amalto.namespace("amalto");
 
  
 amalto.actions = function () {
-	
+	var DATA_MODEL = {
+		'fr':'Modèle de données',
+		'en':'Data Model'
+	}
+	var DATA_CONTAINER = {
+		'fr':'Conteneur de données',
+		'en':'Data Container'
+	}	
 	var SAVE = {
 		'fr':'Sauvegarder',
 		'en':'Save'
@@ -47,7 +54,7 @@ amalto.actions = function () {
 						}),
 						displayField: 'key',
 						valueField: 'key',
-						fieldLabel:'Data Container',
+						fieldLabel: DATA_CONTAINER[language],
 					  	loadingText:'Loading...',
 			         	mode:'remote',
 			          	triggerAction:'all',
@@ -62,7 +69,7 @@ amalto.actions = function () {
 						}),
 						displayField: 'key',
 						valueField: 'key',
-						fieldLabel:'Data Model',
+						fieldLabel: DATA_MODEL[language],
 					  	loadingText:'Loading...',
 			         	mode:'remote',
 			          	triggerAction:'all',
