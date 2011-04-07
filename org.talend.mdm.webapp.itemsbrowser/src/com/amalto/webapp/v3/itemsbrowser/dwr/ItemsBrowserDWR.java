@@ -2203,11 +2203,7 @@ public class ItemsBrowserDWR {
         } else {
             Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
             parentNode.appendChild(el);
-            if (xsp.getTerm().asElementDecl().getType() != null)
-                if (xsp.getTerm().asElementDecl().getType().isComplexType() == false
-                        && "boolean".equals(xsp.getTerm().asElementDecl().getType().asSimpleType().getName())) { //$NON-NLS-1$
-                    el.setTextContent("false"); //$NON-NLS-1$
-                }
+
             if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
                 XSComplexType type = (XSComplexType) xsp.getTerm().asElementDecl().getType();
                 XSParticle particle = type.getContentType().asParticle();
