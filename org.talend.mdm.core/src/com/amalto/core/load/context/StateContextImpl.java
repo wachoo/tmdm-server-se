@@ -13,16 +13,21 @@
 
 package com.amalto.core.load.context;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
 import com.amalto.core.load.LoadParserCallback;
 import com.amalto.core.load.Metadata;
 import com.amalto.core.load.State;
 import com.amalto.core.load.exception.ParserCallbackException;
+import com.amalto.core.load.path.PathMatch;
+import com.amalto.core.load.path.PathMatcher;
 import com.amalto.core.load.payload.EndPayload;
 import com.amalto.core.load.payload.StartPayload;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.util.*;
 
 /**
  *
@@ -32,9 +37,8 @@ public class StateContextImpl implements StateContext {
     private final String payLoadElementName;
     private final BufferStateContextWriter bufferStateContextWriter = new BufferStateContextWriter();
     private final Stack<String> currentLocation = new Stack<String>();
-    private final String[] idPaths;
-    private final Set<String> idLeftForMatch = new HashSet<String>();
     private final Metadata metadata;
+    private final Set<PathMatcher> paths;
 
     private State currentState = StartPayload.INSTANCE;
     private StateContextWriter contextWriter;
@@ -42,6 +46,8 @@ public class StateContextImpl implements StateContext {
     private int payloadCount = 0;
     private boolean isFlushDone;
     private boolean isMetadataReady;
+    private PathMatcher lastPartialMatchPath;
+    private int idToMatchCount = 0;
 
     public StateContextImpl(String payLoadElementName, String[] idPaths, LoadParserCallback callback, int payloadLimit) {
         this(payLoadElementName, idPaths, callback);
@@ -49,11 +55,15 @@ public class StateContextImpl implements StateContext {
     }
 
     private StateContextImpl(String payLoadElementName, String[] idPaths, LoadParserCallback callback) {
-        this.idPaths = idPaths;
         if (payLoadElementName == null) {
             throw new IllegalArgumentException("Payload element name cannot be null.");
         }
 
+        paths = new HashSet<PathMatcher>(idPaths.length + 1);
+        for (String idPath : idPaths) {
+            paths.add(new PathMatcher(idPath));
+        }
+        idToMatchCount = idPaths.length;
         contextWriter = bufferStateContextWriter;
         this.callback = callback;
         this.payLoadElementName = payLoadElementName;
@@ -88,7 +98,7 @@ public class StateContextImpl implements StateContext {
         isFlushDone = false;
         isMetadataReady = false;
         contextWriter = bufferStateContextWriter.reset();
-        idLeftForMatch.addAll(Arrays.asList(idPaths));
+        idToMatchCount = paths.size();
         metadata.reset();
     }
 
@@ -146,28 +156,63 @@ public class StateContextImpl implements StateContext {
 
         // Check path
         if (!isFlushDone()) {
-            String currentPath = "";
-            String separator = "";
-            for (String currentPathElement : currentLocation) {
-                currentPath += separator + currentPathElement;
-                separator = "/";
+            PathMatcher match = match(elementLocalName);
+            if (match != null) {
+                hasMatchId = true;
+                idToMatchCount--;
             }
 
-            Iterator<String> iterator = idLeftForMatch.iterator();
-            while (iterator.hasNext()) {
-                String match = iterator.next();
-                if (match.equals(currentPath)) {
-                    hasMatchId = true;
-                    iterator.remove();
-                }
-            }
-
-            if (idLeftForMatch.isEmpty()) {
+            if (idToMatchCount == 0) {
                 isMetadataReady = true;
             }
         }
 
         return hasMatchId;
+    }
+
+    /**
+     * Check if the <code>elementName</code> match:
+     * <ul>
+     * <li>any of the XPaths, in case none has matched yet (in case of first element, for instance).</li>
+     * <li>The last XPath that partially matched.</li>
+     * </ul>
+     *
+     * @param elementName A local element name
+     * @return The {@link PathMatcher} if <code>elementName</code> completed the matched, null otherwise.
+     */
+    private PathMatcher match(String elementName) {
+        if (lastPartialMatchPath == null) {
+            for (PathMatcher currentPath : paths) {
+                PathMatch match = currentPath.match(elementName);
+                switch (match) {
+                    case PARTIAL:
+                        lastPartialMatchPath = currentPath;
+                    case NONE:
+                        break;
+                    case FULL:
+                        return currentPath;
+                    default:
+                        throw new IllegalArgumentException("Unsupported match type: " + match);
+                }
+
+                if (lastPartialMatchPath != null) {
+                    break;
+                }
+            }
+            return null;
+        } else {
+            PathMatch match = lastPartialMatchPath.match(elementName);
+            switch (match) {
+                case NONE:
+                    lastPartialMatchPath = null;
+                case PARTIAL:
+                    return null;
+                case FULL:
+                    return lastPartialMatchPath;
+                default:
+                    throw new IllegalArgumentException("Unsupported match type: " + match);
+            }
+        }
     }
 
     public int getDepth() {
