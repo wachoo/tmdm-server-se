@@ -1441,7 +1441,7 @@ public class ItemsBrowserDWR {
                 node = xpathToTreeNode.get(xpath);
             if (xpath.lastIndexOf("]") == xpath.length() - 1 && node == null) {
                 node = xpathToTreeNode.get(xpath.replaceAll("\\[\\d+\\]$", "[1]")); //$NON-NLS-1$ //$NON-NLS-2$
-            } 
+            }
             if (node != null)
                 node.setValue(content);
             return "Node updated";
@@ -1775,8 +1775,8 @@ public class ItemsBrowserDWR {
                     "xpathToPolymType" + docIndex); //$NON-NLS-1$
 
             if (bk != null) {
-                //check if Schema instance namespace is bound before looking for xsi:type
-                if(bk.getDocumentElement().getAttributeNS("http://www.w3.org/2000/xmlns/", "xsi").length() != 0) { //$NON-NLS-1$ //$NON-NLS-2$)
+                // check if Schema instance namespace is bound before looking for xsi:type
+                if (bk.getDocumentElement().getAttributeNS("http://www.w3.org/2000/xmlns/", "xsi").length() != 0) { //$NON-NLS-1$ //$NON-NLS-2$)
                     NodeList list = Util.getNodeList(bk, "//*[@xsi:type]"); //$NON-NLS-1$
                     for (int i = 0; i < list.getLength(); i++) {
                         Node nodeWithType = list.item(i);
@@ -2029,7 +2029,7 @@ public class ItemsBrowserDWR {
             String content;
             WSItemPK wsItem = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
             content = Util.getPort().getItem(new WSGetItem(wsItem)).getContent();
-            
+
             for (Iterator iterator = parsXMLString(content).getRootElement().nodeIterator(); iterator.hasNext();) {
                 org.jboss.dom4j.Node node = (org.jboss.dom4j.Node) iterator.next();
                 if (node.getStringValue().startsWith("/imageserver")) { //$NON-NLS-1$
@@ -2157,11 +2157,14 @@ public class ItemsBrowserDWR {
                     parentNode.appendChild(el);
                     if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
                         XSParticle[] children = null;
-                        String xsiType = node.getAttributes().getNamedItem("xsi:type").getNodeValue(); //$NON-NLS-1$
-                        if (xsiType != null) {
-                            ReusableType resuType = SchemaWebAgent.getInstance().getReusableType(xsiType);
-                            List<XSParticle> pt = resuType.getAllChildren(null);
-                            children = pt.toArray(new XSParticle[] {});
+                        Node typeNode = node.getAttributes().getNamedItem("xsi:type");
+                        if (typeNode != null) {
+                            String xsiType = typeNode.getNodeValue();//$NON-NLS-1$ //$NON-NLS-2$
+                            if (xsiType != null) {
+                                ReusableType resuType = SchemaWebAgent.getInstance().getReusableType(xsiType);
+                                List<XSParticle> pt = resuType.getAllChildren(null);
+                                children = pt.toArray(new XSParticle[] {});
+                            }
                         } else {
                             XSComplexType type = (XSComplexType) xsp.getTerm().asElementDecl().getType();
                             children = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
