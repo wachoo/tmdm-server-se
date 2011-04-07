@@ -91,7 +91,7 @@ public class ItemsToolBar extends ToolBar {
 
     private ComboBox<ItemBaseModel> entityCombo = new ComboBox<ItemBaseModel>();
 
-    private final Button searchBut = new Button(MessagesFactory.getMessages().search_btn());
+    public final Button searchBut = new Button(MessagesFactory.getMessages().search_btn());
 
     private final Button advancedBut = new Button(MessagesFactory.getMessages().advsearch_btn());
 

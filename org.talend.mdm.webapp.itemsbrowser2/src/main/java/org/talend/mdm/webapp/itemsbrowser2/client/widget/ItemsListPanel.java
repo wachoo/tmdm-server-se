@@ -23,6 +23,8 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HideMode;
@@ -31,10 +33,12 @@ import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -46,6 +50,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
@@ -57,9 +62,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
@@ -89,6 +94,12 @@ public class ItemsListPanel extends ContentPanel {
         }
     };
 
+    ModelKeyProvider<ItemBean> keyProvidernew = new ModelKeyProvider<ItemBean>(){
+        public String getKey(ItemBean model) {
+            return model.getIds();
+        }
+    };
+    
     PagingLoader<PagingLoadResult<ModelData>> loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
 
     final ListStore<ItemBean> store = new ListStore<ItemBean>(loader);
@@ -113,6 +124,8 @@ public class ItemsListPanel extends ContentPanel {
         addToolBar();
         initPanel();
 
+        store.setKeyProvider(keyProvidernew);
+        
         loader.setRemoteSort(true);
         loader.addLoadListener(new LoadListener() {
 
@@ -275,6 +288,37 @@ public class ItemsListPanel extends ContentPanel {
 
     public Grid<ItemBean> getGrid() {
         return grid;
+    }
+    
+    public void refresh(String ids, final boolean refreshItemForm){
+        if (grid != null){
+            final ListStore<ItemBean> store = grid.getStore();
+            final ItemBean itemBean = store.findModel(ids);
+            if (itemBean != null){
+                EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
+                service.getItem(itemBean, entityModel, new AsyncCallback<ItemBean>() {
+                    public void onFailure(Throwable caught) {
+                        Window.alert(caught.getMessage());
+                    }
+                    public void onSuccess(ItemBean result) {
+                        Record record = store.getRecord(itemBean);
+                        itemBean.copy(result);
+                        record.commit(false);
+                        
+                        if (refreshItemForm){
+                            ItemBean m = grid.getSelectionModel().getSelectedItem();
+                            showItem(m, ItemsView.TARGET_IN_SEARCH_TAB);
+                        }
+                    }
+                });
+            } else {
+                ButtonEvent be = new ButtonEvent(toolBar.searchBut);
+                toolBar.searchBut.fireEvent(Events.Select, be);
+            }
+        } else {
+            ButtonEvent be = new ButtonEvent(toolBar.searchBut);
+            toolBar.searchBut.fireEvent(Events.Select, be);
+        }
     }
 
     private void showItem(ItemBean item, String itemsFormTarget) {

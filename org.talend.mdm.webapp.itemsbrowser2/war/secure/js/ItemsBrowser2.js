@@ -62,13 +62,11 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 		return language;
 	};
 
-	function openItemBrowser(ids, conceptName) {
+	function openItemBrowser(ids, conceptName, refreshCB) {
 		var isdArray;
 		if (ids != null && ids != "")			
 			isdArray = ids.split(".");
-		amalto.itemsbrowser.ItemsBrowser.editItemDetails(isdArray, conceptName,
-				function() {
-				});
+		amalto.itemsbrowser.ItemsBrowser.editItemDetails(isdArray, conceptName,	refreshCB);
 	};
 
 	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered) {
@@ -84,8 +82,8 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 		getLanguage : function() {
 			return getCurrentLanguage();
 		},
-		openItemBrowser : function(ids, conceptName) {
-			openItemBrowser(ids, conceptName);
+		openItemBrowser : function(ids, conceptName, refreshCB) {
+			openItemBrowser(ids, conceptName, refreshCB);
 		},
 		renderFormWindow : function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered) {
 			renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered);
