@@ -9,6 +9,10 @@
        <distributable/> 
    --> 
 
+   <listener>
+      <listener-class>com.amalto.core.servlet.ContextListener</listener-class>
+  </listener>
+
    <servlet>
       <servlet-name>runServlet</servlet-name>
       <display-name>run Servlet</display-name>

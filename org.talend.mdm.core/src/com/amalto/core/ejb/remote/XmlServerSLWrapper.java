@@ -348,4 +348,6 @@ public interface XmlServerSLWrapper
    public void end(  )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
+   public void close(  )
+      throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 }

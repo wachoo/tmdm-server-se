@@ -956,6 +956,10 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
         clusters.clear();
     }
 
+    public void close() throws XmlServerException {
+        // Nothing to clean up.
+    }
+
     public boolean existCluster(String revisionID, String clusterName) throws XmlServerException {
         if (clusterName == null || clusterName.trim().length() == 0)
             return false;

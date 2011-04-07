@@ -312,4 +312,5 @@ public interface XmlServerSLWrapperLocal
 
    public void end(  ) throws com.amalto.core.util.XtentisException;
 
+   public void close(  ) throws com.amalto.core.util.XtentisException;
 }

@@ -608,5 +608,5 @@ public interface IXmlServerSLWrapper {
     public void commit() throws XmlServerException;
     public void rollback() throws XmlServerException;
     public void end() throws XmlServerException;
-
+    public void close() throws XmlServerException;
 }

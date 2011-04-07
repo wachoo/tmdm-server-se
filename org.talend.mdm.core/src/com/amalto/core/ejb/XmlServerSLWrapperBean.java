@@ -1235,5 +1235,13 @@ public class XmlServerSLWrapperBean implements SessionBean {
             throw new XtentisException(e);
         }
     }
+
+    public void close(  ) throws com.amalto.core.util.XtentisException {
+        try {
+            server.close();
+        } catch (XmlServerException e) {
+            throw new XtentisException(e);
+        }
+    }
 	
 }
