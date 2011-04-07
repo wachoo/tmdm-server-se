@@ -3515,9 +3515,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	
 						for(var index = 0; index < parentNav.items.getCount(); index++) {
 							var item = parentNav.items.get(index);
-							if(item.getXType() == 'tbbutton') {
+							if(typeof item.getXType == 'function' && item.getXType() == 'tbbutton') {
 								var text = item.getText();
 								newNav.addButton(new Ext.Toolbar.Button({text: text, handler:item.handler}));
+							}
+							else {
+								newNav.addText(">>");
 							}
 						}
 						
