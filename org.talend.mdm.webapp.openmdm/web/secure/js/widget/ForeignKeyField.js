@@ -65,17 +65,19 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
     	var  pos = this.el.getXY();
 	    var dwrpasm = [this.xpathForeignKey, this.xpathForeignKeyInfo, this.fkFilter];
 	    var retrieve = "true" == this.retrieveFKinfos + "";
-	    WidgetInterface.countForeignKey_filter(this.xpathForeignKey, this.fkFilter, function(count) {
+	    WidgetInterface.countForeignKey_filter(this.xpathForeignKey, this.xpathForeignKeyInfo, this.fkFilter, function(count) {
 	    	if(this.taskForeignKeyWindow) {
 	    		this.taskForeignKeyWindow.hide();
 	    		this.taskForeignKeyWindow.destroy();
 	    	}
 	    	
+            this.improvedProxy = new Ext.ux.data.ImprovedDWRProxy({
+                    dwrFunction: WidgetInterface.getForeignKeyList,
+                    dwrAdditional: dwrpasm
+                });
+                
 			this.taskForeignKeytore = new Ext.data.Store({
-				proxy: new Ext.ux.data.ImprovedDWRProxy({
-			        dwrFunction : WidgetInterface.getForeignKeyList,
-			        dwrAdditional : dwrpasm
-				}),
+				proxy: this.improvedProxy,
 		        reader: new Ext.data.JsonReader({
 		            root : 'rows',
 		            totalProperty : 'count',
@@ -123,7 +125,19 @@ amalto.widget.ForeignKeyField = Ext.extend(Ext.form.TwinTriggerField, {
 		    
 		    this.foreignKeyCombo.on('keydown', this.keySearch, this, true); 
 		    
+            this.improvedProxy.on('load', function(dwrAdditional,response){
+                var json = eval("("+response+")");
+                var count = json['count'];
+                count = parseInt(count)
+                var window =  Ext.getCmp('task-foreign-key-window');
+                if(window!= null){
+                    var title = TITLE_WINDOW_FK[language]+'<br/>('+count+' '+(count>1?MESSAGE_MULTI_SHOW[language]+')':MESSAGE_SINGLE_SHOW[language]+')');
+                    window.setTitle(title);
+                }
+              }
+            )
 		    this.taskForeignKeyWindow = new Ext.Window({
+		    	id : 'task-foreign-key-window',
                 layout : 'fit',
                 width : 300,
                 height : 150,
