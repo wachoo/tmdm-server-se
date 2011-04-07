@@ -69,7 +69,10 @@ public class DisplayRulesUtil {
     public String genDefaultValueStyle() {
         String style = genStyle();
         if (style.indexOf("<xsl:attribute name=\"t:visible\">") > -1) { //$NON-NLS-1$
-            style = style.replaceAll("<xsl:if test=\"not.*</xsl:if>", "<xsl:value-of select=\".\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+            // if has child element
+            style = style.replaceAll("<xsl:if test=\"not.*</xsl:if><xsl:", "<xsl:"); //$NON-NLS-1$ //$NON-NLS-2$
+            // if has no child
+            style = style.replaceAll("<xsl:if test=\"not.*</xsl:if>", "<xsl:value-of select=\".\"/>"); //$NON-NLS-1$ //$NON-NLS-2$            
         }
         return style;
     }
