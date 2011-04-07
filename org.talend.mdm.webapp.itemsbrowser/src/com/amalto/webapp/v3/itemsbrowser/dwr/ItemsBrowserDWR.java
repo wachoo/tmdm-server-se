@@ -758,6 +758,27 @@ public class ItemsBrowserDWR {
                 }
                 treeNode.setSubTypes(subTypesName);
             }
+            if (((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT)) { //$NON-NLS-1$ //$NON-NLS-2$
+                String realType = null;
+                String xpath = idToXpath.get(id) + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
+                if (bakDoc != null) {
+                    String xph = idToXpath.get(id);
+                    NodeList tmpNodeList = Util.getNodeList(bakDoc, xpath);
+                    if (tmpNodeList != null && tmpNodeList.getLength() > 0) {
+                        if (tmpNodeList.item(0) instanceof Element) {
+                            Element firstElem = (Element) tmpNodeList.item(0);
+                            realType = firstElem.getAttribute("xsi:type"); //$NON-NLS-1$
+                        }
+                    }
+                }
+
+                if (realType != null && realType.length() > 0) {
+                    treeNode.setRealType(realType);
+                    HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
+                            "xpathToPolymType" + docIndex); //$NON-NLS-1$
+                    xpathToPolymType.put(xpath, realType);
+                }
+            }
 
         } catch (Exception e2) {
             LOG.error(e2.getMessage(), e2);
