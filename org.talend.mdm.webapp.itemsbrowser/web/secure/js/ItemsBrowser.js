@@ -3732,6 +3732,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					values.push(value1);					 
 		  		}				
 			}else{
+				if($(nodenew.index + "TypeSelector") != null && nodenew.itemData.realType != null){
+				   var valueCmp = nodenew.index +"--"+$(nodenew.index+"TypeSelector").selectedIndex;;
+                   values.push(valueCmp);
+				}
 				var var1=getChildrenValues(nodenew);				
 				for(var ii=0; ii<var1.length; ii++){
 					if(var1[ii])values.push(var1[ii]);
@@ -3997,6 +4001,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					if(urlvalues && urlvalues.length==2)
 					DWRUtil.setValue("showUrl" + idValue[0], "<a target='_blank' href='"+ urlvalues[1]+ "'>"+urlvalues[0]+"</a>");
 				}				
+			}
+			else if(idValue!=null&&$(idValue[0] + "TypeSelector")!=null){
+				$(idValue[0]+"TypeSelector").selectedIndex = idValue[1];
 			}
 		}
 		amalto.core.ready();
