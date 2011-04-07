@@ -16,9 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.load.LoadParser;
-import com.amalto.core.load.LoadParserCallback;
-import com.amalto.core.load.io.XMLRootInputStream;
+import com.amalto.core.load.action.DefaultLoadAction;
+import com.amalto.core.load.action.LoadAction;
+import com.amalto.core.load.action.OptimizedLoadAction;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
@@ -29,8 +29,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
 
 
 /**
@@ -51,6 +49,7 @@ public class LoadServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(LoadServlet.class);
 
     private static final Map<String, XSDKey> typeNameToKeyDef = new HashMap<String, XSDKey>();
+    public static final String PARAMETER_ACTION = "action"; //$NON-NLS-1$
 
     /**
      * Constructor
@@ -67,20 +66,36 @@ public class LoadServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPut(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException, java.io.IOException {
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
+        response.setContentType("text/html; charset=\"UTF-8\""); //$NON-NLS-1$
+        response.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
+
+        // configure writer depending on logger configuration.
+        PrintWriter writer = configureWriter(response);
+        writer.write("<html><body>"); //$NON-NLS-1$
+        writer.write(
+                "<p><b>Load datas into MDM</b><br/>" +
+                        "Check jboss/server/default/log/server.log or the jboss console output to determine when load is completed</b></p>"
+        );
 
         String dataClusterName = request.getParameter(PARAMETER_CLUSTER);
         String typeName = request.getParameter(PARAMETER_CONCEPT);
         String dataModelName = request.getParameter(PARAMETER_DATAMODEL);
         boolean needValidate = Boolean.valueOf(request.getParameter(PARAMETER_VALIDATE));
         boolean needAutoGenPK = Boolean.valueOf(request.getParameter(PARAMETER_SMARTPK));
+        String action = request.getParameter(PARAMETER_ACTION);
 
-        if (needValidate) {
+        // We support only load as action here
+        if (!"load".equalsIgnoreCase(action)) {
+            throw new ServletException(new UnsupportedOperationException("Action '" + action + "' isn't supported"));
+        }
+
+        LoadAction loadAction = getLoadAction(dataClusterName, typeName, dataModelName, needValidate, needAutoGenPK);
+        if (needValidate && !loadAction.supportValidation()) {
             throw new ServletException(new UnsupportedOperationException("XML Validation isn't supported"));
         }
-        if (needAutoGenPK) {
-            // TODO Support it (should be much easier than the !autogenPk).
+        if (needAutoGenPK && !loadAction.supportAutoGenPK()) {
             throw new ServletException(new UnsupportedOperationException("Autogen pk isn't supported"));
         }
 
@@ -90,24 +105,26 @@ public class LoadServlet extends HttpServlet {
         try {
             keyMetadata = getTypeKey(dataModelName, typeName);
             server = Util.getXmlServerCtrlLocal();
-
-            if (!".".equals(keyMetadata.getSelector())) {
-                throw new ServletException(new UnsupportedOperationException("Selector '" + keyMetadata.getSelector() + "' isn't supported."));
-            }
         } catch (Exception e) {
             throw new ServletException(e);
         }
 
-        // Creates a load parser callback that loads data in server
-        LoadParserCallback callback = new ServerParserCallback(server, dataClusterName);
-
-        // Start parsing
+        // Start parsing/loading
         try {
             if (server.supportTransaction()) {
                 server.start();
             }
-            java.io.InputStream inputStream = new XMLRootInputStream(request.getInputStream(), "root"); //$NON-NLS-1$
-            LoadParser.parse(inputStream, typeName, keyMetadata.getFields(), callback);
+
+            loadAction.load(request, keyMetadata, server);
+
+            // Commit changes
+            try {
+                if (server.supportTransaction()) {
+                    server.commit();
+                }
+            } catch (Exception commitException) {
+                throw new ServletException("Commit failed with errors", commitException);
+            }
         } catch (Throwable throwable) {
             if (server.supportTransaction()) {
                 try {
@@ -119,15 +136,26 @@ public class LoadServlet extends HttpServlet {
             throw new ServletException(throwable);
         }
 
-        if (server.supportTransaction()) {
-            try {
-                server.commit();
-            } catch (Exception commitException) {
-                throw new ServletException("Commit failed with errors", commitException);
-            }
-        }
+        writer.write("</body></html>"); //$NON-NLS-1$
     }
 
+    private static LoadAction getLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needValidate, boolean needAutoGenPK) {
+        LoadAction loadAction;
+        if (needValidate) {
+            loadAction = new DefaultLoadAction(dataClusterName, typeName, dataModelName, needValidate, needAutoGenPK);
+        } else {
+            loadAction = new OptimizedLoadAction(dataClusterName, typeName, needAutoGenPK);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Load action selected for load: " + loadAction.getClass().getName());  //$NON-NLS-1$
+        }
+        return loadAction;
+    }
+
+    /**
+     * @deprecated doPut should be used instead of this method !
+     */
     @Override
     protected void doPost(
             HttpServletRequest request,
@@ -135,7 +163,9 @@ public class LoadServlet extends HttpServlet {
         doPut(request, response);
     }
 
-
+    /**
+     * @deprecated doPut should be used instead of this method !
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException,
@@ -143,9 +173,9 @@ public class LoadServlet extends HttpServlet {
 
         req.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
 
-        String action = req.getParameter("action"); //$NON-NLS-1$
+        String action = req.getParameter(PARAMETER_ACTION); //$NON-NLS-1$
         if (action == null || action.length() == 0)
-            action = getServletConfig().getInitParameter("action"); //$NON-NLS-1$
+            action = getServletConfig().getInitParameter(PARAMETER_ACTION); //$NON-NLS-1$
 
         resp.setContentType("text/html; charset=\"UTF-8\""); //$NON-NLS-1$
         resp.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
@@ -443,33 +473,6 @@ public class LoadServlet extends HttpServlet {
 
         public String print() {
             return resultLogger.toString();
-        }
-    }
-
-    private static class ServerParserCallback implements LoadParserCallback {
-        private int currentCount;
-        private final XmlServerSLWrapperLocal server;
-        private final String dataClusterName;
-
-        public ServerParserCallback(XmlServerSLWrapperLocal server, String dataClusterName) {
-            this.server = server;
-            this.dataClusterName = dataClusterName;
-            currentCount = 0;
-        }
-
-        public void flushDocument(XMLReader docReader, InputSource input) {
-            try {
-                server.putDocumentFromSAX(dataClusterName, docReader, input, null);
-                currentCount++;
-
-                if (currentCount % 1000 == 0) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Loaded documents: " + (currentCount / 1000) + "K."); //$NON-NLS-1$
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 
