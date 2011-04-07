@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.transform.Transformer;
@@ -30,11 +31,14 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Node;
 
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerEBJLifeCycle;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 
 public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXmlServerEBJLifeCycle {
@@ -490,6 +494,83 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
     public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start,
             int limit, boolean withTotalCount) throws XmlServerException {
         return runQuery(revisionID, clusterName, query, parameters);
+    }
+    
+    public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XmlServerException {
+     // FIXME: xQuery only
+        String revisionId = criteria.getRevisionId();
+        String clusterName = criteria.getClusterName();      
+        String collectionpath = CommonUtil.getPath(revisionId, clusterName);
+        String matchesStr = "matches"; //$NON-NLS-1$
+        if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
+            matchesStr = "ora:matches"; //$NON-NLS-1$
+        }
+
+        StringBuilder query = new StringBuilder();
+        query.append("let $allres := collection(\""); //$NON-NLS-1$
+        query.append(collectionpath);
+        query.append("\")/ii"); //$NON-NLS-1$
+
+        String wsContentKeywords = criteria.getContentKeywords();
+        boolean useFTSearch = criteria.isUseFTSearch();
+        if (!useFTSearch && wsContentKeywords != null && wsContentKeywords.length() != 0)
+            query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+        Long fromDate = criteria.getFromDate().longValue();
+        if (fromDate > 0)
+            query.append("[./t >= ").append(fromDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        Long toDate = criteria.getToDate().longValue();
+        if (toDate > 0)
+            query.append("[./t <= ").append(toDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        String keyKeywords = criteria.getKeysKeywords();
+        if (keyKeywords != null && keyKeywords.length() != 0) {
+            if(!criteria.isCompoundKeyKeywords())
+                query.append('[').append(matchesStr).append("(./i , '").append(keyKeywords).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$
+            else {
+                //FIXME : Does not work for composite keys
+                int valueIndex = keyKeywords.lastIndexOf("@"); //$NON-NLS-1$
+                String fkvalue = (valueIndex == -1) ? null : keyKeywords.substring(valueIndex + 1);
+                int keyIndex = (valueIndex == -1) ? -1 : keyKeywords.indexOf("@"); //$NON-NLS-1$
+                String fkxpath = (keyIndex == -1) ? null : keyKeywords.substring(keyIndex + 1, valueIndex);
+                String key = (keyIndex == -1) ? null : keyKeywords.substring(0, keyIndex);
+
+                if (key != null && key.length() != 0)
+                    query.append("[").append(matchesStr).append("(./i , '").append(key).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+                if (fkxpath != null && fkxpath.length() !=0 && fkvalue != null && fkvalue.length() != 0 ) {
+                    query.append("[").append("./p//" + fkxpath + " eq '").append(fkvalue).append("']"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                }
+            }
+        }
+
+        String wsConceptName = criteria.getConceptName();
+        if (useFTSearch && wsContentKeywords != null && wsContentKeywords.length() != 0) {
+            if (MDMConfiguration.isExistDb()) {
+                String concept = wsConceptName != null ? "p/" + wsConceptName : "."; //$NON-NLS-1$ //$NON-NLS-2$
+                query.append("[ft:query(").append(concept).append(",\"").append(wsContentKeywords).append("\")]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            } else {
+                query.append("[. contains text \"").append(wsContentKeywords).append("\"] "); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        }
+
+        if (wsConceptName != null)
+            query.append("[./n eq '").append(wsConceptName).append("']"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        int start = criteria.getSkip();
+        int limit = criteria.getMaxItems();
+
+        query.append("\nlet $res := for $ii in subsequence($allres, ").append(start + 1).append(",").append(limit) //$NON-NLS-1$ //$NON-NLS-2$
+                .append(")\n"); //$NON-NLS-1$
+        query.append("return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n"); //$NON-NLS-1$
+
+        // Determine Query based on number of results an counts
+        query.append("return (<totalCount>{count($allres)}</totalCount>, $res)"); //$NON-NLS-1$
+
+        if (LOG.isDebugEnabled())
+            LOG.debug(query);
+        return runQuery(revisionId, clusterName, query.toString(), null);
     }
 
     public boolean supportTransaction() {

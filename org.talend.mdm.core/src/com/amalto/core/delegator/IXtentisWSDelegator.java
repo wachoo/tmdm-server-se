@@ -129,6 +129,7 @@ import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.core.webservice.*;
 import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereOr;
@@ -1124,7 +1125,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             // Check if user is allowed to read the cluster
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
                 authorized = true;
@@ -1139,7 +1140,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             // It would be too demanding to get all the concepts in all revisions (?)
             // The meat of this method should be ported to ItemCtrlBean
             String revisionID = null;
-            if (wsGetItemPKsByCriteria.getConceptName() == null) {
+            String conceptName = wsGetItemPKsByCriteria.getConceptName(); 
+            if (conceptName == null) {
                 if (user.getUniverse().getItemsRevisionIDs().size() > 0) {
                     throw new RemoteException("User " + user.getUsername() + " is using items coming from multiple revisions."
                             + " In that particular case, the concept must be specified");
@@ -1147,92 +1149,47 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     revisionID = user.getUniverse().getDefaultItemRevisionID();
                 }
             } else {
-                revisionID = user.getUniverse().getConceptRevisionID(wsGetItemPKsByCriteria.getConceptName());
+                revisionID = user.getUniverse().getConceptRevisionID(conceptName);
             }
 
-            // FIXME: xQuery only
-            String collectionpath = CommonUtil.getPath(revisionID, dataClusterName);
-            String matchesStr = "matches";
-            if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-                matchesStr = "ora:matches";
-            }
+            ItemPKCriteria criteria = new ItemPKCriteria();
+            criteria.setRevisionId(revisionID);
+            criteria.setClusterName(dataClusterName);
+            criteria.setConceptName(conceptName);
+            criteria.setContentKeywords(wsGetItemPKsByCriteria.getContentKeywords());
+            criteria.setKeysKeywords(wsGetItemPKsByCriteria.getKeysKeywords());
+            criteria.setCompoundKeyKeywords(false);
+            criteria.setFromDate(wsGetItemPKsByCriteria.getFromDate());
+            criteria.setToDate(wsGetItemPKsByCriteria.getToDate());
+            criteria.setMaxItems(wsGetItemPKsByCriteria.getMaxItems());
+            criteria.setSkip(wsGetItemPKsByCriteria.getSkip());
+            criteria.setUseFTSearch(false);
+            List<String> results = com.amalto.core.util.Util.getItemCtrl2Local().getItemPKsByCriteria(criteria);
 
-            StringBuilder query = new StringBuilder();
-            query.append("let $allres := collection(\"");
-            query.append(collectionpath);
-            query.append("\")/ii");
-
-            String wsContentKeywords = wsGetItemPKsByCriteria.getContentKeywords();
-            if (!useFTSearch && wsContentKeywords != null)
-                query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");
-
-            Long fromDate = wsGetItemPKsByCriteria.getFromDate().longValue();
-            if (fromDate > 0)
-                query.append("[./t >= ").append(fromDate).append("]");
-
-            Long toDate = wsGetItemPKsByCriteria.getToDate().longValue();
-            if (toDate > 0)
-                query.append("[./t <= ").append(toDate).append("]");
-
-            String keyKeywords = wsGetItemPKsByCriteria.getKeysKeywords();
-            if (keyKeywords != null)
-                query.append("[").append(matchesStr).append("(./i , '").append(keyKeywords).append("')]");
-
-            String wsConceptName = wsGetItemPKsByCriteria.getConceptName();
-            if (useFTSearch && wsContentKeywords != null) {
-                if (MDMConfiguration.isExistDb()) {
-                    String concept = wsConceptName != null ? "p/" + wsConceptName : ".";
-                    query.append("[ft:query(").append(concept).append(",\"").append(wsContentKeywords).append("\")]");
-                } else {
-                    query.append("[. contains text \"").append(wsContentKeywords).append("\"] ");
-                }
-            }
-
-            if (wsConceptName != null)
-                query.append("[./n eq '").append(wsConceptName).append("']");
-
-            int start = wsGetItemPKsByCriteria.getSkip();
-            int limit = wsGetItemPKsByCriteria.getMaxItems();
-
-            query.append("\nlet $res := for $ii in subsequence($allres, ").append(start + 1).append(",").append(limit)
-                    .append(")\n");
-            query.append("return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n");
-
-            // Determine Query based on number of results an counts
-            query.append("return (<totalCount>{count($allres)}</totalCount>, $res)");
-
-            if (LOG.isDebugEnabled())
-                LOG.debug(query);
-
-            DataClusterPOJOPK dcpk = new DataClusterPOJOPK(dataClusterName);
-            Collection<String> results = Util.getItemCtrl2Local().runQuery(revisionID, dcpk, query.toString(), null);
-
+            
             XPath xpath = XPathFactory.newInstance().newXPath();
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
             WSItemPKsByCriteriaResponseResults[] res = new WSItemPKsByCriteriaResponseResults[results.size()];
             int i = 0;
-            for (Iterator iter = results.iterator(); iter.hasNext();) {
-                String result = (String) iter.next();
+            for (String result : results) {
                 if (i == 0) {
                     res[i++] = new WSItemPKsByCriteriaResponseResults(System.currentTimeMillis(), new WSItemPK(
-                            wsGetItemPKsByCriteria.getWsDataClusterPK(), result, null), "");
+                            wsGetItemPKsByCriteria.getWsDataClusterPK(), result, null), ""); //$NON-NLS-1$
                     continue;
                 }
-                // result = _highlightLeft.matcher(result).replaceAll("");
-                // result = _highlightRight.matcher(result).replaceAll("");
                 Element r = documentBuilder.parse(new InputSource(new StringReader(result))).getDocumentElement();
-                long t = new Long(xpath.evaluate("t", r)).longValue();
-                String conceptName = xpath.evaluate("n", r);
-                String taskId = xpath.evaluate("taskId", r);
+                long t = new Long(xpath.evaluate("t", r)).longValue(); //$NON-NLS-1$
+                String cn = xpath.evaluate("n", r); //$NON-NLS-1$
+                String taskId = xpath.evaluate("taskId", r); //$NON-NLS-1$
 
-                NodeList idsList = (NodeList) xpath.evaluate("./ids/i", r, XPathConstants.NODESET);
+                NodeList idsList = (NodeList) xpath.evaluate("./ids/i", r, XPathConstants.NODESET); //$NON-NLS-1$
                 String[] ids = new String[idsList.getLength()];
                 for (int j = 0; j < idsList.getLength(); j++) {
-                    ids[j] = (idsList.item(j).getFirstChild() == null ? "" : idsList.item(j).getFirstChild().getNodeValue());
+                    ids[j] = (idsList.item(j).getFirstChild() == null ? "" : idsList.item(j).getFirstChild().getNodeValue()); //$NON-NLS-1$
                 }
                 res[i++] = new WSItemPKsByCriteriaResponseResults(t, new WSItemPK(wsGetItemPKsByCriteria.getWsDataClusterPK(),
-                        conceptName, ids), taskId);
+                        cn, ids), taskId);
             }
             return new WSItemPKsByCriteriaResponse(res);
 
@@ -1240,8 +1197,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             throw (new RemoteException(e.getLocalizedMessage()));
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOG.debug(err, e);
+                LOG.debug(e.getMessage(), e);
             }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }

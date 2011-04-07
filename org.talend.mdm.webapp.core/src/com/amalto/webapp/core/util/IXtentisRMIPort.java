@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.webapp.core.util;
 
 import java.io.ByteArrayInputStream;
@@ -100,6 +112,7 @@ import com.amalto.core.util.WhereConditionForcePivotFilter;
 import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.util.webservices.*;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.sun.org.apache.xpath.internal.XPathAPI;
 
 public abstract class IXtentisRMIPort implements XtentisPort {
@@ -560,7 +573,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // Check if user is allowed to read the cluster
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataClusterName)) {
                 authorized = true;
@@ -575,7 +588,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // It would be too demanding to get all the concepts in all revisions (?)
             // The meat of this method should be ported to ItemCtrlBean
             String revisionID = null;
-            if (wsGetItemPKsByCriteria.getConceptName() == null) {
+            String conceptName = wsGetItemPKsByCriteria.getConceptName();
+            if ( conceptName == null) {
                 if (user.getUniverse().getItemsRevisionIDs().size() > 0) {
                     throw new RemoteException("User " + user.getUsername() + " is using items coming from multiple revisions."
                             + " In that particular case, the concept must be specified");
@@ -583,69 +597,35 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     revisionID = user.getUniverse().getDefaultItemRevisionID();
                 }
             } else {
-                revisionID = user.getUniverse().getConceptRevisionID(wsGetItemPKsByCriteria.getConceptName());
+                revisionID = user.getUniverse().getConceptRevisionID(conceptName);
             }
 
-            // FIXME: xQuery only
-            String collectionpath = CommonUtil.getPath(revisionID, dataClusterName);
-            String query = "let $allres := collection(\""
-                    + collectionpath
-                    + "\")/ii"
-                    + ((wsGetItemPKsByCriteria.getContentKeywords() == null) ? "" : "[matches(./p , '"
-                            + wsGetItemPKsByCriteria.getContentKeywords() + "')]")
-                    + (wsGetItemPKsByCriteria.getFromDate().longValue() <= 0 ? "" : "[./t >= "
-                            + wsGetItemPKsByCriteria.getFromDate().longValue() + "]")
-                    + (wsGetItemPKsByCriteria.getToDate().longValue() <= 0 ? "" : "[./t <= "
-                            + wsGetItemPKsByCriteria.getToDate().longValue() + "]")
-                    + (wsGetItemPKsByCriteria.getKeysKeywords() == null ? "" : "[matches(./i , '"
-                            + wsGetItemPKsByCriteria.getKeysKeywords() + "')]")
-                    + (wsGetItemPKsByCriteria.getConceptName() == null ? "" : "[./n eq '"
-                            + wsGetItemPKsByCriteria.getConceptName() + "']");
-
-            if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-
-                query = "let $allres := collection(\""
-                        + collectionpath
-                        + "\")/ii"
-                        + ((wsGetItemPKsByCriteria.getContentKeywords() == null) ? "" : "[ora:matches(./p , \""
-                                + wsGetItemPKsByCriteria.getContentKeywords() + "\")]")
-                        + (wsGetItemPKsByCriteria.getFromDate().longValue() <= 0 ? "" : "[./t >= "
-                                + wsGetItemPKsByCriteria.getFromDate().longValue() + "]")
-                        + (wsGetItemPKsByCriteria.getToDate().longValue() <= 0 ? "" : "[./t <= "
-                                + wsGetItemPKsByCriteria.getToDate().longValue() + "]")
-                        + (wsGetItemPKsByCriteria.getKeysKeywords() == null ? "" : "[ora:matches(./i , \""
-                                + wsGetItemPKsByCriteria.getKeysKeywords() + "\")]")
-                        + (wsGetItemPKsByCriteria.getConceptName() == null ? "" : "[./n eq \""
-                                + wsGetItemPKsByCriteria.getConceptName() + "\"]");
-            }
-            int start = wsGetItemPKsByCriteria.getSkip();
-            int limit = wsGetItemPKsByCriteria.getMaxItems();
-            String sub = "\nlet $res := for $ii in subsequence($allres, " + (start + 1) + "," + limit + ")\n";
-            String ret = "return <r>{$ii/t}{$ii/n}<ids>{$ii/i}</ids></r>\n";
-            query += sub + ret;
-
-            // Determine Query based on number of results an counts
-            String rquery = query + "return (<totalCount>{count($allres)}</totalCount>, $res) "; //$NON-NLS-1$
-
-            if (LOG.isDebugEnabled())
-                LOG.debug(rquery);
-
-            DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsGetItemPKsByCriteria.getWsDataClusterPK().getPk());
-            Collection<String> results = com.amalto.core.util.Util.getItemCtrl2Local().runQuery(revisionID, dcpk, rquery, null);
+            ItemPKCriteria criteria = new ItemPKCriteria();
+            criteria.setRevisionId(revisionID);
+            criteria.setClusterName(dataClusterName);
+            criteria.setConceptName(conceptName);
+            criteria.setContentKeywords(wsGetItemPKsByCriteria.getContentKeywords());
+            criteria.setKeysKeywords(wsGetItemPKsByCriteria.getKeysKeywords());
+            criteria.setCompoundKeyKeywords(false);
+            criteria.setFromDate(wsGetItemPKsByCriteria.getFromDate());
+            criteria.setToDate(wsGetItemPKsByCriteria.getToDate());
+            criteria.setMaxItems(wsGetItemPKsByCriteria.getMaxItems());
+            criteria.setSkip(wsGetItemPKsByCriteria.getSkip());
+            criteria.setUseFTSearch(false);            
+            List<String> results = com.amalto.core.util.Util.getItemCtrl2Local().getItemPKsByCriteria(criteria);
 
             WSItemPKsByCriteriaResponseResults[] res = new WSItemPKsByCriteriaResponseResults[results.size()];
             int i = 0;
-            for (Iterator iter = results.iterator(); iter.hasNext();) {
-                String result = (String) iter.next();
-                result = result.replaceAll("\\s*__h", "").replaceAll("h__\\s*", "");
+            for (String result : results) {
+                result = result.replaceAll("\\s*__h", "").replaceAll("h__\\s*", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 Element r = Util.parse(result).getDocumentElement();
-                long t = new Long(Util.getFirstTextNode(r, "t")).longValue();
-                String conceptName = Util.getFirstTextNode(r, "n");
-                String taskId = Util.getFirstTextNode(r, "taskId");
-                taskId = taskId == null ? "" : taskId;
-                String[] ids = Util.getTextNodes(r, "ids/i");
+                long t = new Long(Util.getFirstTextNode(r, "t")).longValue(); //$NON-NLS-1$
+                String cn = Util.getFirstTextNode(r, "n"); //$NON-NLS-1$
+                String taskId = Util.getFirstTextNode(r, "taskId"); //$NON-NLS-1$
+                taskId = taskId == null ? "" : taskId; //$NON-NLS-1$
+                String[] ids = Util.getTextNodes(r, "ids/i"); //$NON-NLS-1$
                 res[i++] = new WSItemPKsByCriteriaResponseResults(t, new WSItemPK(wsGetItemPKsByCriteria.getWsDataClusterPK(),
-                        conceptName, ids), taskId);
+                        cn, ids), taskId);
             }
             return new WSItemPKsByCriteriaResponse(res);
 
@@ -2465,7 +2445,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // It would be too demanding to get all the concepts in all revisions (?)
             // The meat of this method should be ported to ItemCtrlBean
             String revisionID = null;
-            if (wsGetItemPKsByCriteria.getConceptName() == null) {
+            String conceptName = wsGetItemPKsByCriteria.getConceptName(); 
+            if (conceptName == null) {
                 if (user.getUniverse().getItemsRevisionIDs().size() > 0) {
                     throw new RemoteException("User " + user.getUsername() + " is using items coming from multiple revisions."
                             + " In that particular case, the concept must be specified");
@@ -2473,78 +2454,22 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     revisionID = user.getUniverse().getDefaultItemRevisionID();
                 }
             } else {
-                revisionID = user.getUniverse().getConceptRevisionID(wsGetItemPKsByCriteria.getConceptName());
+                revisionID = user.getUniverse().getConceptRevisionID(conceptName);
             }
 
-            // FIXME: xQuery only
-            String collectionpath = CommonUtil.getPath(revisionID, dataClusterName);
-            String matchesStr = "matches"; //$NON-NLS-1$
-            if (EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
-                matchesStr = "ora:matches"; //$NON-NLS-1$
-            }
-
-            StringBuilder query = new StringBuilder();
-            query.append("let $allres := collection(\""); //$NON-NLS-1$
-            query.append(collectionpath);
-            query.append("\")/ii"); //$NON-NLS-1$
-
-            String wsContentKeywords = wsGetItemPKsByCriteria.getContentKeywords();
-
-            if (!useFTSearch && wsContentKeywords != null && wsContentKeywords.length() != 0)
-                query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-            Long fromDate = wsGetItemPKsByCriteria.getFromDate().longValue();
-            if (fromDate > 0)
-                query.append("[./t >= ").append(fromDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
-
-            Long toDate = wsGetItemPKsByCriteria.getToDate().longValue();
-            if (toDate > 0)
-                query.append("[./t <= ").append(toDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
-
-            //FIXME : Does not work for composite keys
-            String keyKeywords = wsGetItemPKsByCriteria.getKeysKeywords();
-            if (keyKeywords != null) {
-                int valueIndex = keyKeywords.lastIndexOf("@"); //$NON-NLS-1$
-                String fkvalue = (valueIndex == -1) ? null : keyKeywords.substring(valueIndex + 1);
-                int keyIndex = (valueIndex == -1) ? -1 : keyKeywords.indexOf("@"); //$NON-NLS-1$
-                String fkxpath = (keyIndex == -1) ? null : keyKeywords.substring(keyIndex + 1, valueIndex);
-                String key = (keyIndex == -1) ? null : keyKeywords.substring(0, keyIndex);
-
-                if (key != null && key.length() != 0)
-                    query.append("[").append(matchesStr).append("(./i , '").append(key).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-                if (fkxpath != null && fkxpath.length() !=0 && fkvalue != null && fkvalue.length() != 0 ) {
-                    query.append("[").append("./p/" + "/" + fkxpath + " eq '").append(fkvalue).append("']"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                }
-            }
-            String wsConceptName = wsGetItemPKsByCriteria.getConceptName();
-            if (useFTSearch && wsContentKeywords != null && wsContentKeywords.length() != 0) {
-                if (MDMConfiguration.isExistDb()) {
-                    String concept = wsConceptName != null ? "p/" + wsConceptName : "."; //$NON-NLS-1$ //$NON-NLS-2$
-                    query.append("[ft:query(").append(concept).append(",\"").append(wsContentKeywords).append("\")]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                } else {
-                    query.append("[. contains text \"").append(wsContentKeywords).append("\"] "); //$NON-NLS-1$ //$NON-NLS-2$
-                }
-            }
-
-            if (wsConceptName != null)
-                query.append("[./n eq '").append(wsConceptName).append("']"); //$NON-NLS-1$ //$NON-NLS-2$
-
-            int start = wsGetItemPKsByCriteria.getSkip();
-            int limit = wsGetItemPKsByCriteria.getMaxItems();
-
-            query.append("\nlet $res := for $ii in subsequence($allres, ").append(start + 1).append(",").append(limit) //$NON-NLS-1$ //$NON-NLS-2$
-                    .append(")\n"); //$NON-NLS-1$
-            query.append("return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n"); //$NON-NLS-1$
-
-            // Determine Query based on number of results an counts
-            query.append("return (<totalCount>{count($allres)}</totalCount>, $res)"); //$NON-NLS-1$
-
-            if (LOG.isDebugEnabled())
-                LOG.debug(query);
-
-            DataClusterPOJOPK dcpk = new DataClusterPOJOPK(dataClusterName);
-            Collection<String> results = Util.getItemCtrl2Local().runQuery(revisionID, dcpk, query.toString(), null);
+            ItemPKCriteria criteria = new ItemPKCriteria();
+            criteria.setRevisionId(revisionID);
+            criteria.setClusterName(dataClusterName);
+            criteria.setConceptName(conceptName);
+            criteria.setContentKeywords(wsGetItemPKsByCriteria.getContentKeywords());
+            criteria.setKeysKeywords(wsGetItemPKsByCriteria.getKeysKeywords());
+            criteria.setCompoundKeyKeywords(true);
+            criteria.setFromDate(wsGetItemPKsByCriteria.getFromDate());
+            criteria.setToDate(wsGetItemPKsByCriteria.getToDate());
+            criteria.setMaxItems(wsGetItemPKsByCriteria.getMaxItems());
+            criteria.setSkip(wsGetItemPKsByCriteria.getSkip());
+            criteria.setUseFTSearch(false);
+            List<String> results = com.amalto.core.util.Util.getItemCtrl2Local().getItemPKsByCriteria(criteria);
 
             XPath xpath = XPathFactory.newInstance().newXPath();
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -2562,7 +2487,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 // result = _highlightRight.matcher(result).replaceAll("");
                 Element r = documentBuilder.parse(new InputSource(new StringReader(result))).getDocumentElement();
                 long t = new Long(xpath.evaluate("t", r)).longValue(); //$NON-NLS-1$
-                String conceptName = xpath.evaluate("n", r); //$NON-NLS-1$
+                String cn = xpath.evaluate("n", r); //$NON-NLS-1$
                 String taskId = xpath.evaluate("taskId", r); //$NON-NLS-1$
 
                 NodeList idsList = (NodeList) xpath.evaluate("./ids/i", r, XPathConstants.NODESET); //$NON-NLS-1$
@@ -2571,7 +2496,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                     ids[j] = (idsList.item(j).getFirstChild() == null ? "" : idsList.item(j).getFirstChild().getNodeValue()); //$NON-NLS-1$
                 }
                 res[i++] = new WSItemPKsByCriteriaResponseResults(t, new WSItemPK(wsGetItemPKsByCriteria.getWsDataClusterPK(),
-                        conceptName, ids), taskId);
+                        cn, ids), taskId);
             }
             return new WSItemPKsByCriteriaResponse(res);
 

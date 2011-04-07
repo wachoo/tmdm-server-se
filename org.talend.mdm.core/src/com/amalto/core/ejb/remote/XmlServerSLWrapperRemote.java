@@ -9,6 +9,9 @@ import java.util.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
+import com.amalto.core.util.XtentisException;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+
  /**
  * This class is remote adapter to XmlServerSLWrapper. It provides convenient way to access
  * facade session bean. Inverit from this class to provide reasonable caching and event handling capabilities.
@@ -305,6 +308,11 @@ public class XmlServerSLWrapperRemote extends Observable
 
       return retval;
 
+   }
+   
+   public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XtentisException, java.rmi.RemoteException {
+       List<String> retval =  getSession().getItemPKsByCriteria(criteria);
+      return retval;
    }
 
    public java.lang.String getXtentisObjectsQuery ( java.util.HashMap objectRootElementNameToRevisionID,java.util.HashMap objectRootElementNameToClusterName,java.lang.String mainObjectRootElementName,java.util.ArrayList viewableObjectElements,com.amalto.xmlserver.interfaces.IWhereItem whereItem,java.lang.String orderBy,java.lang.String direction,int start,int limit )

@@ -3,6 +3,11 @@
  */
 package com.amalto.core.ejb.local;
 
+import java.util.List;
+
+import com.amalto.core.util.XtentisException;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+
 /**
  * Local interface for ItemCtrl2.
  * @xdoclet-generated
@@ -240,6 +245,8 @@ public interface ItemCtrl2Local
 
    public java.util.ArrayList runQuery( java.lang.String revisionID,com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK,java.lang.String query,java.lang.String[] parameters ) throws com.amalto.core.util.XtentisException;
 
+   public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XtentisException;
+   
    /**
     * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
     * @param dataClusterPOJOPK

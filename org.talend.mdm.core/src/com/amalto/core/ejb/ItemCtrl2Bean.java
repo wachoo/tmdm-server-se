@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -40,6 +41,7 @@ import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereOr;
 
@@ -964,6 +966,18 @@ public class ItemCtrl2Bean implements SessionBean {
         }
     }
 
+    
+    public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XtentisException {
+        try {
+            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+            return server.getItemPKsByCriteria(criteria);
+        } catch (XtentisException xe) {
+            throw xe;
+        } catch (Exception e) {
+            throw new XtentisException(e.getLocalizedMessage(), e);
+        }
+    }
+    
     /**
      * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
      * 

@@ -3,8 +3,13 @@
  */
 package com.amalto.core.ejb.remote;
 
+import java.util.List;
+
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
+
+import com.amalto.core.util.XtentisException;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 
 /**
  * Remote interface for XmlServerSLWrapper.
@@ -275,6 +280,8 @@ public interface XmlServerSLWrapper
    public java.util.ArrayList runQuery( java.lang.String revisionID,java.lang.String clusterName,java.lang.String query,java.lang.String[] parameters,int start,int limit,boolean withTotalCount )
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
+   public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XtentisException, java.rmi.RemoteException;
+   
    /**
     * Builds a query in the native language of the DB (for instance XQuery) based on conditions
     * @param objectRootElementNameToRevisionID A map that gives the revision ID of an Object XML Root Element Name
