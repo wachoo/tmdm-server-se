@@ -2328,7 +2328,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered) {
-		
+
 		DWREngine.setAsync(false); 
 		ItemsBrowserInterface.getRootNode(dataObject,language, function(rootNode){
 			_rootNode=rootNode;
@@ -2760,7 +2760,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			tbDetail.saveItemHandler = function(){			
     				//@temp yguo, 
     				saveForGXT(ids,dataObject,treeIndex,function(){
-    					
+    					refreshCB()
     				});
     			};			
     			tbDetail.refreshItemHandler = function() {
@@ -2785,7 +2785,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			tbDetail.saveItemAndQuitHandler = function(){	
     				saveForGXT(ids,dataObject,treeIndex, function() {
     					//@TEMP YGUO, CLOSE THE WINDOW
+    					refreshCB();
     					window.callGxt();
+    					
     				});
     				
     			};
@@ -4045,6 +4047,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			var grid=gridContainerPanel.items.first();            			
     			grid.store.reload();
             }
+            refreshCB.call();
 		 });
 		
 		DWREngine.setAsync(true);
