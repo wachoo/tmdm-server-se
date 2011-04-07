@@ -39,21 +39,30 @@ public class GetService {
     }-*/;
 
     public static native void openItemBrowser(String ids, String conceptName) /*-{
-        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(ids, conceptName);
+        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(ids, conceptName, function(){
+            @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refresh(ZLjava/lang/String;)(true, ids);
+        });
     }-*/;
 
+    static void refresh(boolean refreshItemForm,String ids){
+        ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
+        itemsSearchContainer.getItemsListPanel().refresh(ids, refreshItemForm);
+    }
+    
     static void setEnable(boolean enabled){
         ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
         itemsSearchContainer.getItemsListPanel().getGrid().setEnabled(enabled);
     }
     
-    public static native void renderFormWindow(String ids, String concept, boolean isDuplicate, String refreshCB,
-            Element formWindow, boolean isDetail) /*-{
-        var callee = arguments.callee;
-        callee.rendered = callee.rendered || function(){
+    public static native void renderFormWindow(String ids, String concept, boolean isDuplicate,
+            Element formWindow, boolean isDetail, boolean refreshItemForm) /*-{
+        var refreshCB = function(){
+            @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refresh(ZLjava/lang/String;)(refreshItemForm, ids);
+        };
+        var rendered = function(){
             @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::setEnable(Z)(true);
         };
         @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::setEnable(Z)(false);
-        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderFormWindow(ids, concept, isDuplicate, refreshCB, formWindow, isDetail, callee.rendered);
+        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderFormWindow(ids, concept, isDuplicate, refreshCB, formWindow, isDetail, rendered);
     }-*/;
 }
