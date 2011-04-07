@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.xmldb;
 
 import java.io.UnsupportedEncodingException;
@@ -17,6 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.commons.core.utils.XPathUtils;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Expression;
@@ -26,6 +39,7 @@ import com.amalto.commons.core.utils.xpath.ri.compiler.Step;
 import com.amalto.xmldb.util.PartialXQLPackage;
 import com.amalto.xmldb.util.QueryBuilderContext;
 import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
 import com.amalto.xmlserver.interfaces.XmlServerException;
@@ -1134,14 +1148,16 @@ public abstract class QueryBuilder {
         return null;
     }
 
-    /**
-     * Default Matches method
-     * 
-     * @return
-     */
-    public String getMatchesMethod(String sourceStr, String matchStr) {
+    
+    protected String getXQueryMatchFunction() {
+        return "matches"; //$NON-NLS-1$
+    }
+
+    protected String getMatchesMethod(String sourceStr, String matchStr) {
         StringBuilder result = new StringBuilder();
-        result.append(" matches("); //$NON-NLS-1$
+        result.append(' ');
+        result.append(getXQueryMatchFunction());
+        result.append('(');
         result.append(sourceStr);
         result.append(", \""); //$NON-NLS-1$
         result.append(matchStr);
@@ -1154,7 +1170,7 @@ public abstract class QueryBuilder {
      * 
      * @return
      */
-    public abstract String getFullTextQueryString(String queryStr);
+    protected abstract String getFullTextQueryString(String queryStr);
 
     /**
      * Default Paging
@@ -1201,6 +1217,79 @@ public abstract class QueryBuilder {
                 query.append(rawQuery);
             }
         }
+        return query.toString();
+    }
+    
+    protected String buildPKsByCriteriaQuery(ItemPKCriteria criteria) {
+        String revisionId = criteria.getRevisionId();
+        String clusterName = criteria.getClusterName();
+        String collectionpath = CommonUtil.getPath(revisionId, clusterName);
+        String matchesStr = getXQueryMatchFunction();
+        
+        StringBuilder query = new StringBuilder();
+        query.append("let $allres := collection(\""); //$NON-NLS-1$
+        query.append(collectionpath);
+        query.append("\")/ii"); //$NON-NLS-1$
+
+        String wsContentKeywords = criteria.getContentKeywords();
+        boolean useFTSearch = criteria.isUseFTSearch();
+        if (!useFTSearch && wsContentKeywords != null && wsContentKeywords.length() != 0)
+            query.append("[").append(matchesStr).append("(./p/* , '").append(wsContentKeywords).append("')]");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+        Long fromDate = criteria.getFromDate().longValue();
+        if (fromDate > 0)
+            query.append("[./t >= ").append(fromDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        Long toDate = criteria.getToDate().longValue();
+        if (toDate > 0)
+            query.append("[./t <= ").append(toDate).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        String keyKeywords = criteria.getKeysKeywords();
+        if (keyKeywords != null && keyKeywords.length() != 0) {
+            if (!criteria.isCompoundKeyKeywords())
+                query.append('[').append(matchesStr).append("(./i , '").append(keyKeywords).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$
+            else {
+                // FIXME : Does not work for composite keys
+                int valueIndex = keyKeywords.lastIndexOf("@"); //$NON-NLS-1$
+                String fkvalue = (valueIndex == -1) ? null : keyKeywords.substring(valueIndex + 1);
+                int keyIndex = (valueIndex == -1) ? -1 : keyKeywords.indexOf("@"); //$NON-NLS-1$
+                String fkxpath = (keyIndex == -1) ? null : keyKeywords.substring(keyIndex + 1, valueIndex);
+                String key = (keyIndex == -1) ? null : keyKeywords.substring(0, keyIndex);
+
+                if (key != null && key.length() != 0)
+                    query.append("[").append(matchesStr).append("(./i , '").append(key).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+                if (fkxpath != null && fkxpath.length() != 0 && fkvalue != null && fkvalue.length() != 0) {
+                    query.append("[").append("./p//" + fkxpath + " eq '").append(fkvalue).append("']"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                }
+            }
+        }
+
+        String wsConceptName = criteria.getConceptName();
+        if (useFTSearch && wsContentKeywords != null && wsContentKeywords.length() != 0) {
+            if (MDMConfiguration.isExistDb()) {
+                String concept = wsConceptName != null ? "p/" + wsConceptName : "."; //$NON-NLS-1$ //$NON-NLS-2$
+                query.append("[ft:query(").append(concept).append(",\"").append(wsContentKeywords).append("\")]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            } else {
+                query.append("[. contains text \"").append(wsContentKeywords).append("\"] "); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        }
+
+        if (wsConceptName != null)
+            query.append("[./n eq '").append(wsConceptName).append("']"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        int start = criteria.getSkip();
+        int limit = criteria.getMaxItems();
+
+        query.append("\nlet $res := for $ii in subsequence($allres, ").append(start + 1).append(",").append(limit) //$NON-NLS-1$ //$NON-NLS-2$
+                .append(")\n"); //$NON-NLS-1$
+        query.append("return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n"); //$NON-NLS-1$
+
+        // Determine Query based on number of results an counts
+        query.append("return (<totalCount>{count($allres)}</totalCount>, $res)"); //$NON-NLS-1$
+
+        if (LOG.isDebugEnabled())
+            LOG.debug(query);
         return query.toString();
     }
 }
