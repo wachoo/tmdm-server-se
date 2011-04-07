@@ -23,6 +23,7 @@ import junit.framework.TestCase;
 
 import com.amalto.xmldb.util.PartialXQLPackage;
 import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 
@@ -61,34 +62,35 @@ public class QueryBuilderTest extends TestCase {
     public void testBuildWhereCondition() throws Exception {
         LinkedHashMap<String, String> pivots = new LinkedHashMap<String, String>();
         pivots.put("$pivot0", "BrowseItem");
-        WhereCondition whereCond = new WhereCondition("BrowseItem/ViewPK", WhereCondition.EQUALS, "Browse_items_Product", null, false);
+        WhereCondition whereCond = new WhereCondition("BrowseItem/ViewPK", WhereCondition.EQUALS, "Browse_items_Product", null,
+                false);
         Map<String, ArrayList<String>> metaDataTypes = null;
 
         String expected = "$pivot0/ViewPK eq \"Browse_items_Product\"";
         String actual = queryBuilder.buildWhereCondition(whereCond, pivots, metaDataTypes);
         assertEquals(expected, actual);
     }
-    
+
     public void testBuildWhere() throws Exception {
         LinkedHashMap<String, String> pivots = new LinkedHashMap<String, String>();
         pivots.put("$pivot0", "Product");
         WhereAnd whereItem = new WhereAnd();
         whereItem.add(new WhereCondition("Product/Id", WhereCondition.CONTAINS, "231", WhereCondition.PRE_NONE, false));
         Map<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
-        List<String> types = Arrays.asList(new String []{"xsd:string"});
+        List<String> types = Arrays.asList(new String[] { "xsd:string" });
         metaDataTypes.put("Product/Id", new ArrayList<String>(types));
 
         String expected = " matches($pivot0/Id, \"231.*\" ,\"i\") ";
-        String actual = queryBuilder.buildWhere(pivots, whereItem,metaDataTypes);
+        String actual = queryBuilder.buildWhere(pivots, whereItem, metaDataTypes);
         assertEquals(expected, actual);
-        
-        //And condition
+
+        // And condition
         whereItem.add(new WhereCondition("Product/Price", WhereCondition.GREATER_THAN, "10", WhereCondition.PRE_NONE, false));
-        types = Arrays.asList(new String []{"xsd:decimal"});
+        types = Arrays.asList(new String[] { "xsd:decimal" });
         metaDataTypes.put("Product/Price", new ArrayList<String>(types));
         expected = "( matches($pivot0/Id, \"231.*\" ,\"i\") ) and (number($pivot0/Price) gt 10)";
 
-        actual = queryBuilder.buildWhere(pivots, whereItem,metaDataTypes);
+        actual = queryBuilder.buildWhere(pivots, whereItem, metaDataTypes);
         assertEquals(expected, actual);
     }
 
@@ -134,21 +136,21 @@ public class QueryBuilderTest extends TestCase {
                 objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
                 limit, withTotalCountOnFirstRow, metaDataTypes);
         assertEquals(expected, actual);
-        
-        //Using where condition
+
+        // Using where condition
         whereItem = new WhereCondition("Product/Id", WhereCondition.CONTAINS, "231", WhereCondition.PRE_NONE, false);
         expected = "let $_leres0_ := collection(\"/Product\")//p/Product [  matches(Id, \"231.*\" ,\"i\")  ]  \n";
         expected += "let $_page_ :=\n";
         expected += "for $pivot0 in subsequence($_leres0_,1,4)\n";
         expected += "return <result>{<Id>{string($pivot0/Id)}</Id>}</result>\n";
         expected += "return (<totalCount>{count($_leres0_)}</totalCount>, $_page_)";
-      
-        actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
-                objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
-                limit, withTotalCountOnFirstRow, metaDataTypes);
-        assertEquals(expected, actual);  
+
+        actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
+                forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, withTotalCountOnFirstRow,
+                metaDataTypes);
+        assertEquals(expected, actual);
     }
-    
+
     public void testGetQueryWithJoin() throws Exception {
         boolean isItemQuery = true;
         LinkedHashMap<String, String> objectRootElementNamesToRevisionID = new LinkedHashMap<String, String>();
@@ -158,7 +160,8 @@ public class QueryBuilderTest extends TestCase {
         ArrayList<String> viewableFullPaths = new ArrayList<String>();
         viewableFullPaths.add("Product/Name");
         viewableFullPaths.add("ProductFamily/Name");
-        IWhereItem whereItem = new WhereCondition("Product/Family", WhereCondition.JOINS, "ProductFamily/Id", WhereCondition.PRE_NONE, false);
+        IWhereItem whereItem = new WhereCondition("Product/Family", WhereCondition.JOINS, "ProductFamily/Id",
+                WhereCondition.PRE_NONE, false);
         String orderBy = null;
         String direction = null;
         int start = 0;
@@ -176,8 +179,8 @@ public class QueryBuilderTest extends TestCase {
                 objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
                 limit, withTotalCountOnFirstRow, metaDataTypes);
         assertEquals(expected, actual);
-        
-        //Using paging
+
+        // Using paging
         limit = 8;
         withTotalCountOnFirstRow = true;
         expected = "let $_leres0_ := collection(\"/Product\")//p/Product \n";
@@ -188,10 +191,51 @@ public class QueryBuilderTest extends TestCase {
         expected += "return <result>{<Name>{string($pivot0/Name)}</Name>}{<Name>{string($pivot1/Name)}</Name>}</result>\n";
         expected += "return (<totalCount>{count($_page_)}</totalCount>, subsequence($_page_,1,8))";
 
-        actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
-                objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
-                limit, withTotalCountOnFirstRow, metaDataTypes);
+        actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
+                forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, withTotalCountOnFirstRow,
+                metaDataTypes);
         assertEquals(expected, actual);
     }
 
+    public void testBuildPKsByCriteriaQuery() throws Exception {
+        ItemPKCriteria criteria = new ItemPKCriteria();
+        criteria.setRevisionId(null);
+        criteria.setClusterName("DStar");
+        criteria.setConceptName("Agent");
+        criteria.setContentKeywords("");
+        criteria.setKeysKeywords("@Agent/AgencyFK@[1]");
+        criteria.setCompoundKeyKeywords(true);
+        criteria.setFromDate(-1L);
+        criteria.setToDate(-1L);
+        criteria.setMaxItems(20);
+        criteria.setSkip(0);
+        criteria.setUseFTSearch(false);
+
+        String expected = "let $allres := collection(\"/DStar\")/ii[./p//Agent/AgencyFK eq '[1]'][./n eq 'Agent']\n";
+        expected += "let $res := for $ii in subsequence($allres, 1,20)\n";
+        expected += "return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n";
+        expected += "return (<totalCount>{count($allres)}</totalCount>, $res)";
+        String actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
+        assertEquals(expected, actual);
+        
+        criteria = new ItemPKCriteria();
+        criteria.setRevisionId(null);
+        criteria.setClusterName("DStar");
+        criteria.setConceptName("Agent");
+        criteria.setContentKeywords("");
+        criteria.setKeysKeywords("Agent/AgencyFK[1]");
+        criteria.setCompoundKeyKeywords(false);
+        criteria.setFromDate(-1L);
+        criteria.setToDate(-1L);
+        criteria.setMaxItems(20);
+        criteria.setSkip(0);
+        criteria.setUseFTSearch(false);
+
+        expected = "let $allres := collection(\"/DStar\")/ii[matches(./i , 'Agent/AgencyFK[1]')][./n eq 'Agent']\n";
+        expected += "let $res := for $ii in subsequence($allres, 1,20)\n";
+        expected += "return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n";
+        expected += "return (<totalCount>{count($allres)}</totalCount>, $res)";
+        actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
+        assertEquals(expected, actual);
+    }
 }
