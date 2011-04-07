@@ -143,6 +143,7 @@ public class BulkloadClientUtil {
                 new NameValuePair("concept", concept),
                 new NameValuePair("datamodel", datamodel),
                 new NameValuePair("validate", String.valueOf(validate)),
+                new NameValuePair("action", "load"),
                 new NameValuePair("smartpk", String.valueOf(smartpk))};
 
         HttpClient client = new HttpClient();

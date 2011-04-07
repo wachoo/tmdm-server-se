@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.load.io.XMLStreamTokenizer;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
@@ -27,68 +28,79 @@ import org.w3c.dom.Node;
 *
 */
 public class DefaultLoadAction implements LoadAction {
-    private final String dataClusterName;
-    private final String typeName;
-    private final String dataModelName;
-    private final boolean needValidate;
-    private final boolean needAutoGenPK;
+	private final String dataClusterName;
+	private final String typeName;
+	private final String dataModelName;
+	private final boolean needValidate;
+	private final boolean needAutoGenPK;
 
-    public DefaultLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needValidate, boolean needAutoGenPK) {
-        this.dataClusterName = dataClusterName;
-        this.typeName = typeName;
-        this.dataModelName = dataModelName;
-        this.needValidate = needValidate;
-        this.needAutoGenPK = needAutoGenPK;
-    }
+	public DefaultLoadAction(String dataClusterName, String typeName,
+			String dataModelName, boolean needValidate, boolean needAutoGenPK) {
+		this.dataClusterName = dataClusterName;
+		this.typeName = typeName;
+		this.dataModelName = dataModelName;
+		this.needValidate = needValidate;
+		this.needAutoGenPK = needAutoGenPK;
+	}
 
-    public boolean supportValidation() {
-        return true;
-    }
+	public boolean supportValidation() {
+		return true;
+	}
 
-    public boolean supportAutoGenPK() {
-        return true;
-    }
+	public boolean supportAutoGenPK() {
+		return true;
+	}
 
-    public void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
-        String xmlData = ""; // TODO
+	public void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
+		XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(request.getInputStream());
 
-        DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataModelName));
-        String schemaString = dataModel.getSchema();
+        while (xmlStreamTokenizer.hasMoreElements()) {
+            String xmlData = xmlStreamTokenizer.nextElement();
 
-        if (xmlData == null || xmlData.trim().length() == 0) {
-            return;
-        }
+            DataModelPOJO dataModel = Util.getDataModelCtrlLocal()
+                    .getDataModel(new DataModelPOJOPK(dataModelName));
+            String schemaString = dataModel.getSchema();
 
-        Element root = Util.parse(xmlData).getDocumentElement();
-
-        // get key values
-        // support UUID or auto-increase temporarily
-        String[] ids = null;
-        if (!needAutoGenPK) {
-            ids = Util.getKeyValuesFromItem(root, keyMetadata);
-        } else {
-            if (Util.getUUIDNodes(schemaString, typeName).size() > 0) { // check uuid key exists
-                Node n = Util.processUUID(root, schemaString, dataClusterName, typeName);
-                // get key values
-                ids = Util.getKeyValuesFromItem((Element) n, keyMetadata);
-                // reset item projection
-                xmlData = Util.nodeToString(n);
+            if (xmlData == null || xmlData.trim().length() == 0) {
+                return;
             }
+
+            Element root = Util.parse(xmlData).getDocumentElement();
+
+            // get key values
+            // support UUID or auto-increase temporarily
+            String[] ids = null;
+            if (!needAutoGenPK) {
+                ids = Util.getKeyValuesFromItem(root, keyMetadata);
+            } else {
+                if (Util.getUUIDNodes(schemaString, typeName).size() > 0) { // check
+                    // uuid
+                    // key
+                    // exists
+                    Node n = Util.processUUID(root, schemaString,
+                            dataClusterName, typeName);
+                    // get key values
+                    ids = Util.getKeyValuesFromItem((Element) n, keyMetadata);
+                    // reset item projection
+                    xmlData = Util.nodeToString(n);
+                }
+            }
+
+            DataClusterPOJOPK clusterPK = new DataClusterPOJOPK(dataClusterName);
+            ItemPOJO itemPOJO = new ItemPOJO(clusterPK, typeName, ids,
+                    System.currentTimeMillis(), xmlData);
+
+            // validate
+            if (schemaString != null && needValidate) {
+                Util.validate(itemPOJO.getProjection(), schemaString);
+            }
+
+            if (dataModelName != null && dataModelName.length() > 0) {
+                itemPOJO.setDataModelName(dataModelName);
+            }
+
+            // When doing bulk load, disable cache
+            itemPOJO.store(false);
         }
-
-        DataClusterPOJOPK clusterPK = new DataClusterPOJOPK(dataClusterName);
-        ItemPOJO itemPOJO = new ItemPOJO(clusterPK, typeName, ids, System.currentTimeMillis(), xmlData);
-
-        // validate
-        if (schemaString != null && needValidate) {
-            Util.validate(itemPOJO.getProjection(), schemaString);
-        }
-
-        if (dataModelName != null && dataModelName.length() > 0) {
-            itemPOJO.setDataModelName(dataModelName);
-        }
-
-        //When doing bulk load, disable cache
-        itemPOJO.store(false);
     }
 }
