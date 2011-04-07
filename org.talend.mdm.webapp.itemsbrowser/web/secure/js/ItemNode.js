@@ -171,8 +171,9 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			
 			 //(itemData.key==true && newItem==false);
 			
-			var tmpStatus=true;
-				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == true && itemData.readOnly==true) ;
+			var tmpStatus=  false;	
+			if ((itemData.parent != null && itemData.parent.readOnly == true) || itemData.readOnly==true)
+				tmpStatus = true;			
 			//alert("before: "+tmpStatus);
 			if(isReadOnlyinItem||tmpStatus||itemData.typeName=="UUID"||itemData.typeName=="AUTO_INCREMENT"){
 				//alert("after: "+tmpStatus);
@@ -288,7 +289,9 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 
 			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;">'+itemData.name+' '+mandatory+' '+descInfo+'</div>';
 			if(itemData.typeName!=null&&itemData.typeName=="boolean"){
-				value=String(value=='true');
+				//value=String(value=='true');
+				if (value == 'false')
+					value = '';
 				var disabledStyle = (readOnly == "READONLY") ? 'disabled ="disabled"': "";
 				html[html.length] = '<input type="checkbox" id="'+itemData.nodeId+'Value" value="'+value+'" ' + disabledStyle
 				                    +  (value=='true'?' checked':' ')
