@@ -127,7 +127,6 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		var cloneNodeImg = '';
 		var removeNodeImg = '';
 		var type='text'; //default is text
-		itemData.readOnly = false
 		//modify by ymli. If itemData.parent is not readonly, it can be add or delete
 		var tmpStatusItems=true;
 				tmpStatusItems = (itemData.parent != null && itemData.parent.readOnly == false || itemData.readOnly==false) ;
