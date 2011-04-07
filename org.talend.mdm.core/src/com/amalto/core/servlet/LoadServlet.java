@@ -337,12 +337,14 @@ public class LoadServlet extends HttpServlet {
             Document schema = Util.parseXSD(schemaString);
             XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, typeName);
 
-            if (conceptKey != null && log.isDebugEnabled()) {
+            if (conceptKey != null) {
                 String keysAsString = "";
                 for (String currentField : conceptKey.getFields()) {
                     keysAsString += ' ' + currentField;
                 }
-                log.debug("Key for entity '" + typeName + "' : " + keysAsString); //$NON-NLS-1$
+                if (log.isDebugEnabled()) {
+                    log.debug("Key for entity '" + typeName + "' : " + keysAsString); //$NON-NLS-1$
+                }
             } else {
                 log.error("No key definition for entity '" + typeName + "'.");
                 throw new RuntimeException("No key definition for entity '" + typeName + "'.");
