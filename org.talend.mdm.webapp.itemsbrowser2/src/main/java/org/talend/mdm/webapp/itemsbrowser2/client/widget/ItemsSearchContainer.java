@@ -20,7 +20,6 @@ import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.google.gwt.user.client.Window;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -49,6 +48,7 @@ public class ItemsSearchContainer extends LayoutContainer {
         itemsFormPanel.setHeaderVisible(false);
         BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH);
         southData.setSplit(true);
+        southData.setSize(0.7F);
         //southData.setCollapsible(true);
         southData.setMargins(new Margins(5, 0, 0, 0));
         add(itemsFormPanel, southData);
