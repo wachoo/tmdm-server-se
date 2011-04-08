@@ -8,7 +8,13 @@ amalto.updatereport.UpdateReportPanel = function(config) {
 	this.initUIComponents();
 	amalto.updatereport.UpdateReportPanel.superclass.constructor.call(this);
 	loadResource("/updatereport/secure/js/UpdateReportLocal.js", "amalto.updatereport.UpdateReportLocal" );	
+	loadResource("/updatereport/secure/js/UpdateReportTimeLinePanel.js", "");	
 };
+
+var searchCriteria;
+var searchStart;
+var searchLimit;
+
 Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
     initPageSize:20,
     criteria:"",
@@ -65,14 +71,31 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 						this.onBeforeloadStore();
 					}.createDelegate(this)
         );
-
+		
+		this.store1.on('load', 
+	            function(button, event) {
+					if(button.lastOptions != null){
+						searchStart = button.lastOptions.params.start;
+						searchLimit = button.lastOptions.params.limit;
+					}
+				}
+		);
+		this.timelinePanel = new Ext.Panel({
+			id:"timelinePanel",
+			title:"TimeLine",
+			iconCls:"report_table_timeline",
+//			layout : "fit",
+			html:"<div id='tl' class='timeline-default' style='height:500px;'></div>"
+		});
+				
 		this.gridPanel1 = new Ext.grid.GridPanel({
 			id:"updateReportGridPanel",
+			title:"Add User",
+			iconCls:"report_tab_table",
 			store : this.store1,
 			border: false,
 			loadMask:true, 
 			layout : "fit",
-			region : "center",
 			selModel : new Ext.grid.RowSelectionModel({}),
 			columns : [{
 				hidden : false,
@@ -168,7 +191,6 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 					            } 
 							},
 							'change':function(field,newValue,oldValue){
-                                
                                 if(newValue != oldValue){
                                     lineMax = newValue;
                                     if(lineMax==null || lineMax=="") 
@@ -202,11 +224,27 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
           autoLoad:true
        });
        
-       
+       this.tabPanel8 = new Ext.TabPanel({
+			region:"center",
+			activeTab: 0,
+			items:[this.gridPanel1,
+			       this.timelinePanel],
+			listeners:{
+				"beforetabchange":function(obj, newTab, currentTab){
+					
+				},
+				"tabchange":function(obj, tab) {
+					if(tab.getId() == "timelinePanel"){
+						UpdateReportInterface.getReportString(searchStart, searchLimit, searchCriteria, callback);						
+					}
+				}
+			}       			
+       });
+      
 		Ext.apply(this, {			
 			layout : "border",
 			title : amalto.updatereport.UpdateReportLocal.get("title"),
-			items : [this.gridPanel1, {
+			items : [{
 				frame : false,
 				height : 150,
 				layout : "fit",
@@ -329,7 +367,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 					}.createDelegate(this),
 					text : amalto.updatereport.UpdateReportLocal.get("export")
 			}]
-			}],
+			}, this.tabPanel8 ],
 			id : "UpdateReportPanel",
 			closable:true,
 			border:false
@@ -339,7 +377,6 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 	initListData : function(itemsBroswer){
 		this.isItemsBrowser = itemsBroswer;
 		this.store1.load({params:{start:0, limit:this.initPageSize}});
-		
     },
     
     isItemsBrowser : false,
@@ -348,6 +385,8 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
     	this.isItemsBrowser = itemsBrowser;
 		var pageSize=Ext.getCmp("updateReportPagingToolbar").pageSize;
 		this.store1.reload({params:{start:0, limit:pageSize}});
+		searchStart = 0;
+		searchLimit = pageSize;
     },
     
     onSearchBtnClick : function(button, event){
@@ -384,6 +423,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
         DWRUtil.setValue('startDate','');
         DWRUtil.setValue('endDate','');
         this.criteria = "";
+        searchCriteria = "";
     },
     
     getRequestParam : function(){
@@ -413,7 +453,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
     
     onBeforeloadStore : function(){    	    	
    	   	 	this.criteria=this.getRequestParam();
-   	   	 	//alert(criteria);
+   	   	 	searchCriteria = this.criteria;
             Ext.apply(this.store1.baseParams,{
               regex: this.criteria
             });

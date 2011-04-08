@@ -13,7 +13,8 @@ amalto.updatereport.UpdateReport = function () {
     
     loadResource("/updatereport/secure/js/DataLogViewer.js", "");
     
-    
+    loadResource("/updatereport/secure/css/UpdateReport.css", "" );
+
     var updateReportPanel;
     
     function initUI(){

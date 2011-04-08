@@ -1,8 +1,12 @@
 package talend.webapp.v3.updatereport.dwr;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -28,7 +32,15 @@ import com.amalto.webapp.util.webservices.WSXPathsSearch;
 public class UpdateReportDWR {
 
     private Logger logger = org.apache.log4j.Logger.getLogger(this.getClass());
-
+    
+    private final String userNameLabel = "Username"; 
+    private final String sourceLabel = "source";
+    private final String entityLabel = "Entity";
+    private final String revisionLabel = "Revision";
+    private final String dataContainerLabel = "Data-container";
+    private final String dataModelLabel = "Data-model";
+    private final String keyLabel = "Key";
+    
     public UpdateReportDWR() {
 
     }
@@ -202,7 +214,74 @@ public class UpdateReportDWR {
         listRange.setTotalSize(totalSize);
         return listRange;
     }
+       
+    public String getReportString(int start, int limit, String regex) throws Exception {
+    	ListRange listRange = this.getUpdateReportList(start, limit, null, null, regex);
+    	Object[] data = listRange.getData();
+    	
+    	String str = this.generateEventString(data);
+    	return str;
+    }
 
+    private String generateEventString(Object[] data) throws ParseException{
+    	StringBuilder sb = new StringBuilder("{'dateTimeFormat': 'iso8601',");
+//    	sb.append("'wikiURL': ").append("'").append("http://simile.mit.edu/shelf/").append("'");
+//    	sb.append("'wikiSection': ").append("'").append("Simile Cubism Timeline").append("',");
+    	sb.append("'events' : [");
+    	
+    	for(int i =0; i<data.length; i++){
+    		DataChangeLog datalog = (DataChangeLog) data[i];
+    		sb.append("{'start':'").append(this.computeTime(datalog.getTimeInMillis())).append("',");
+    		sb.append("'title':'").append(datalog.getTimeInMillis()).append(" - ").append(datalog.getOperationType()).append("',");
+    		sb.append("'link':'").append("javascript:showDialog(")
+			 .append("\"").append(datalog.getIds()).append("\",")
+			 .append("\"").append(datalog.getKey()).append("\",")
+			 .append("\"").append(datalog.getConcept()).append("\",")
+			 .append("\"").append(datalog.getDataCluster()).append("\",")
+			 .append("\"").append(datalog.getDataModel()).append("\"").append(")',");
+    		sb.append("'description':'").append(this.userNameLabel).append(":").append(datalog.getUserName()).append("<br>")
+    									.append(this.sourceLabel).append(":").append(datalog.getSource()).append("<br>")
+    									.append(this.entityLabel).append(":").append(datalog.getConcept()).append("<br>")
+    									.append(this.revisionLabel).append(":").append(datalog.getRevisionID()).append("<br>")
+    									.append(this.dataContainerLabel).append(":").append(datalog.getDataCluster()).append("<br>")
+    									.append(this.dataModelLabel).append(":").append(datalog.getDataModel()).append("<br>")
+    									.append(this.keyLabel).append(":").append(datalog.getKey()).append("<br>")
+    		
+    		.append("'}");
+    		
+    		if(i != data.length-1)
+    			sb.append(",");
+    	}
+    	sb.append("]}");
+    	
+    	if(data.length > 1){
+    		sb.append("@||@");
+    		DataChangeLog obj = (DataChangeLog) data[0];  		
+    		sb.append(this.changeDataFormat(obj.getTimeInMillis()));
+    		
+    	}
+    	return sb.toString();
+    }
+
+    private String changeDataFormat(String src) throws ParseException{
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+    	Date d = sdf.parse(src);
+    	sdf = new SimpleDateFormat("MMM dd yyyy HH:mm:ss", Locale.ENGLISH);
+		String timeStr = sdf.format(d);
+    	return timeStr + " GMT";
+    }
+    
+    private static String computeTime(String src) throws ParseException{
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+    	Date d = sdf.parse(src);
+    	Calendar c = Calendar.getInstance();
+    	int offset = c.getTimeZone().getRawOffset()/3600000;
+    	c.setTime(d);
+    	c.add(Calendar.HOUR, offset);
+    	
+    	return sdf.format(c.getTime());
+    }
+    
     public boolean checkDCAndDM(String dataCluster, String dataModel) {
         return Util.checkDCAndDM(dataCluster, dataModel);
     }

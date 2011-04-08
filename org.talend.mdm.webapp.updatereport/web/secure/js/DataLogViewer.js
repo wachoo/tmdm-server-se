@@ -1,6 +1,6 @@
 Ext.namespace('amalto.updatereport');
 amalto.updatereport.DataLogViewer = function(config) {
-	loadResource("/updatereport/secure/css/UpdateReport.css", "" );
+	
 	
 	Ext.applyIf(this, config);
 	this.initUIComponents();
