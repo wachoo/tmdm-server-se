@@ -26,6 +26,8 @@ import com.amalto.core.util.TimeMeasure;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -140,15 +142,19 @@ public class LoadServlet extends HttpServlet {
     }
 
     private static LoadAction getLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needValidate, boolean needAutoGenPK) {
+        // Activate optimizations only if Qizx is used.
+        Object dbType = MDMConfiguration.getConfiguration().get("xmldb.type");
+        boolean isUsingQizx = dbType != null && EDBType.QIZX.getName().equals(dbType.toString());
+
         LoadAction loadAction;
-        if (needValidate) {
+        if (needValidate || !isUsingQizx) {
             loadAction = new DefaultLoadAction(dataClusterName, typeName, dataModelName, needValidate, needAutoGenPK);
         } else {
             loadAction = new OptimizedLoadAction(dataClusterName, typeName, needAutoGenPK);
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Load action selected for load: " + loadAction.getClass().getName());  //$NON-NLS-1$
+            log.debug("Load action selected for load: " + loadAction.getClass().getName() + "(isUsingQizx: " + isUsingQizx + " / needValidate:" + needValidate + ")");  //$NON-NLS-1$
         }
         return loadAction;
     }
