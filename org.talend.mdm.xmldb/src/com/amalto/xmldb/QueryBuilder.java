@@ -32,6 +32,7 @@ import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.commons.core.utils.XPathUtils;
+import com.amalto.commons.core.utils.xpath.ri.Compiler;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Expression;
 import com.amalto.commons.core.utils.xpath.ri.compiler.NodeNameTest;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Path;
@@ -93,8 +94,13 @@ public abstract class QueryBuilder {
                     // hshu modified,because Mantis interprets the 'i' tag as a text formatting (italic)
                     if (lastElementName != null && lastElementName.equals("i")) //$NON-NLS-1$
                         lastElementName = "xi"; //$NON-NLS-1$
-                    xqReturn.append("<").append(lastElementName).append(">{string(").append(factoredPath).append(")}</") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                            .append(lastElementName).append(">"); //$NON-NLS-1$
+                    if (lastStep.getAxis() == Compiler.AXIS_ATTRIBUTE) {
+                        xqReturn.append("<").append(lastElementName).append(">{string(").append(factoredPath).append(")}</") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                .append(lastElementName).append(">"); //$NON-NLS-1$
+                    } else {
+                        xqReturn.append("if (").append(factoredPath).append(") then ").append(factoredPath).append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                .append(lastElementName).append("/>"); //$NON-NLS-1$
+                    }
                 } else {
                     // /text() or /position(), etc....
                     if (moreThanOneViewable) {

@@ -54,7 +54,7 @@ public class QueryBuilderTest extends TestCase {
         LinkedHashMap<String, String> pivotsMap = new LinkedHashMap<String, String>();
         pivotsMap.put("$pivot0", "BrowseItem");
         boolean totalCountOnfirstRow = false;
-        String expected = "<CriteriaName>{string($pivot0/CriteriaName)}</CriteriaName>";
+        String expected = "if ($pivot0/CriteriaName) then $pivot0/CriteriaName else <CriteriaName/>";
         String actual = queryBuilder.getXQueryReturn(viewableFullPaths, pivotsMap, totalCountOnfirstRow);
         assertEquals(expected, actual);
         
@@ -65,7 +65,7 @@ public class QueryBuilderTest extends TestCase {
         pivotsMap.clear();
         pivotsMap.put("$pivot0", "Country");
         totalCountOnfirstRow = false;
-        expected = "<result>{<label>{string($pivot0/label)}</label>}{<xi>{string($pivot0/../../i)}</xi>}</result>";
+        expected = "<result>{if ($pivot0/label) then $pivot0/label else <label/>}{if ($pivot0/../../i) then $pivot0/../../i else <xi/>}</result>";
         actual = queryBuilder.getXQueryReturn(viewableFullPaths, pivotsMap, totalCountOnfirstRow);
         assertEquals(expected, actual);
     }
@@ -140,7 +140,7 @@ public class QueryBuilderTest extends TestCase {
         String expected = "let $_leres0_ := collection(\"/Product\")//p/Product \n";
         expected += "let $_page_ :=\n";
         expected += "for $pivot0 in subsequence($_leres0_,1,4)\n";
-        expected += "return <result>{<Id>{string($pivot0/Id)}</Id>}</result>\n";
+        expected += "return <result>{if ($pivot0/Id) then $pivot0/Id else <Id/>}</result>\n";
         expected += "return (<totalCount>{count($_leres0_)}</totalCount>, $_page_)";
 
         String actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
@@ -153,7 +153,7 @@ public class QueryBuilderTest extends TestCase {
         expected = "let $_leres0_ := collection(\"/Product\")//p/Product [  matches(Id, \"231.*\" ,\"i\")  ]  \n";
         expected += "let $_page_ :=\n";
         expected += "for $pivot0 in subsequence($_leres0_,1,4)\n";
-        expected += "return <result>{<Id>{string($pivot0/Id)}</Id>}</result>\n";
+        expected += "return <result>{if ($pivot0/Id) then $pivot0/Id else <Id/>}</result>\n";
         expected += "return (<totalCount>{count($_leres0_)}</totalCount>, $_page_)";
 
         actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
@@ -180,7 +180,7 @@ public class QueryBuilderTest extends TestCase {
 
         expected = "let $_leres0_ :=  for $r in collection(\"/DStar\")//p/Country order by $r/label return $r  \n";
         expected += "for $pivot0 in subsequence($_leres0_,1,20)\n";
-        expected += "return <result>{<label>{string($pivot0/label)}</label>}{<xi>{string($pivot0/../../i)}</xi>}</result>";
+        expected += "return <result>{if ($pivot0/label) then $pivot0/label else <label/>}{if ($pivot0/../../i) then $pivot0/../../i else <xi/>}</result>";
 
         actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
                 forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, withTotalCountOnFirstRow,
@@ -210,7 +210,7 @@ public class QueryBuilderTest extends TestCase {
         expected += "let $_leres1_ := collection(\"/Product\")//p/ProductFamily \n";
         expected += "for $pivot0 in $_leres0_, $pivot1 in $_leres1_\n";
         expected += " where $pivot0/Family[not(.) or not(text()) or .]=concat(\"[\",$pivot1/Id,\"]\")\n\n";
-        expected += "return <result>{<Name>{string($pivot0/Name)}</Name>}{<Name>{string($pivot1/Name)}</Name>}</result>";
+        expected += "return <result>{if ($pivot0/Name) then $pivot0/Name else <Name/>}{if ($pivot1/Name) then $pivot1/Name else <Name/>}</result>";
 
         String actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
                 objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
@@ -225,7 +225,7 @@ public class QueryBuilderTest extends TestCase {
         expected += "let $_page_ :=\n";
         expected += "for $pivot0 in $_leres0_, $pivot1 in $_leres1_\n";
         expected += " where $pivot0/Family[not(.) or not(text()) or .]=concat(\"[\",$pivot1/Id,\"]\")\n\n";
-        expected += "return <result>{<Name>{string($pivot0/Name)}</Name>}{<Name>{string($pivot1/Name)}</Name>}</result>\n";
+        expected += "return <result>{if ($pivot0/Name) then $pivot0/Name else <Name/>}{if ($pivot1/Name) then $pivot1/Name else <Name/>}</result>\n";
         expected += "return (<totalCount>{count($_page_)}</totalCount>, subsequence($_page_,1,8))";
 
         actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
