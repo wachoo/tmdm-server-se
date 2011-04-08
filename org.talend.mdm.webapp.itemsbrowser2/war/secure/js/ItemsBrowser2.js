@@ -6,6 +6,11 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
         'fr' : 'Accès aux données',
         'en' : 'Browse Records'
     };
+	
+	var MSG_RENDERER_ERROR = {
+        'fr' : 'ItemsBrowser colorer erreurs',
+        'en' : 'ItemsBrowser rendering errors'
+	};
 
 	var itemsBrowser2Panel;
 	
@@ -34,18 +39,19 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
                         html : '<div id="talend_itemsbrowser2_ItemsBrowser2" class="itemsbrowser2"></div>'
         
                     });
-        
-                    tabPanel.un("resize", resizeViewPort);
-                    tabPanel.on("resize", resizeViewPort);
-        
+
                     tabPanel.add(itemsBrowser2Panel);
         
                     itemsBrowser2Panel.show();
                     itemsBrowser2Panel.doLayout();
                     amalto.core.doLayout();
-        
-                    org_talend_mdm_webapp_itemsbrowser2_InBoundService_renderUI();
-        
+                    if (window.org_talend_mdm_webapp_itemsbrowser2_InBoundService_renderUI){
+                    	window.org_talend_mdm_webapp_itemsbrowser2_InBoundService_renderUI();
+                    } else {
+                    	window.alert(MSG_RENDERER_ERROR[language]);
+                    }
+                    tabPanel.un("resize", resizeViewPort);
+                    tabPanel.on("resize", resizeViewPort);
                 } else {
         
                     itemsBrowser2Panel.show();
@@ -69,9 +75,9 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 		amalto.itemsbrowser.ItemsBrowser.editItemDetails(isdArray, conceptName,	refreshCB);
 	};
 
-	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered) {
+	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered, enableQuit) {
 		var ids = itemPK2.split(".");
-		amalto.itemsbrowser.ItemsBrowser.renderFormWindow(ids, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered); 
+		amalto.itemsbrowser.ItemsBrowser.renderFormWindow(ids, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered, enableQuit); 
 	};
 	
 	return {
@@ -85,8 +91,8 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 		openItemBrowser : function(ids, conceptName, refreshCB) {
 			openItemBrowser(ids, conceptName, refreshCB);
 		},
-		renderFormWindow : function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered) {
-			renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered);
+		renderFormWindow : function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered, enableQuit) {
+			renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered, enableQuit);
 		}
 	}
 }();

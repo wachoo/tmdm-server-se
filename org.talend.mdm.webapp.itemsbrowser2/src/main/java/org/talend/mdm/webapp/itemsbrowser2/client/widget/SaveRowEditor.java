@@ -87,7 +87,7 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
             ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
             itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setOverflow(Overflow.AUTO);
             GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, itemsSearchContainer //$NON-NLS-1$
-                    .getItemsFormPanel().getContent().getBody().dom, true, false);
+                    .getItemsFormPanel().getContent().getBody().dom, true, false, false);
         }
     }
     

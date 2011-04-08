@@ -2327,7 +2327,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    
 	}
 	
-	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered) {
+	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered, enableQuit) {
 
 		DWREngine.setAsync(false); 
 		ItemsBrowserInterface.getRootNode(dataObject,language, function(rootNode){
@@ -2447,7 +2447,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     							if (!(tbDetail.baseOptions&O_SAVE))
     							{
 									//case new
-									tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT;
+									tbDetail.baseOptions |= O_SAVE;
+									if (enableQuit){
+										tbDetail.baseOptions |= O_SAVE_QUIT;
+									}
 									initToolBar(tbDetail, tbDetail.currentMode);
     							}
     						}
@@ -2490,7 +2493,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     							if (!(tbDetail.baseOptions&O_SAVE))
     							{
 									//case new
-									tbDetail.baseOptions |= O_SAVE|O_SAVE_QUIT; 
+									tbDetail.baseOptions |= O_SAVE;
+									if (enableQuit){
+										tbDetail.baseOptions |= O_SAVE_QUIT;
+									}
 									initToolBar(tbDetail, tbDetail.currentMode);
     							}
     						}
@@ -5140,7 +5146,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		getSiblingsLength:function(node){getSiblingsLength(node);},
 		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);},
 		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);},
-		renderFormWindow:function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered){renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow,isDetail, rendered);}
+		renderFormWindow:function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered, enableQuit){renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow,isDetail, rendered, enableQuit);}
 		/*getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
 		setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}*/
  	};
