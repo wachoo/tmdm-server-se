@@ -184,11 +184,13 @@ public abstract class GenericControllerServlet extends HttpServlet {
 		"<script type=\"text/javascript\" src=\"/core/secure/js/raphael-min.js\"></script>\n"+
 		//DWR
 		"<script language=\"javascript1.2\" type='text/javascript' src='/core/secure/dwr/engine.js'></script>\n"+
-		"<script language=\"javascript1.2\" type='text/javascript' src='/core/secure/dwr/util.js'></script>\n" ;
-		
+		"<script language=\"javascript1.2\" type='text/javascript' src='/core/secure/dwr/util.js'></script>\n" +
+		//Simile Wiget
+		"<script src=\"/core/secure/timeline/timeline_js/timeline-api.js\" type=\"text/javascript\"></script>\n"+
+		"<script src=\"/core/secure/timeline/timeline_ajax/simile-ajax-api.js\" type=\"text/javascript\"></script>\n" + 
+		"<link rel=\"stylesheet\" href=\"/core/secure/timeline/css/default.css\" type=\"text/css\">";		
 	}
 	
-
 	
 	protected String getBody(String language, HttpServletRequest request){ 
 //		String timestamp = "2007/07/04";
