@@ -23,7 +23,7 @@ import java.io.StringWriter;
  * Reusing the same {@link StringWriter} limit the cost(s) of resizing the buffer to the same size.
  * </p>
  */
-public class ResettableStringWriter extends StringWriter {
+class ResettableStringWriter extends StringWriter {
     private StringWriter delegate = new StringWriter();
     private int currentLength = 0;
     private int maxLength = -1;

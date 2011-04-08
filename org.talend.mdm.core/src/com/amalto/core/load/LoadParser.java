@@ -11,8 +11,10 @@
 
 package com.amalto.core.load;
 
+import com.amalto.core.load.context.AutoGenStateContext;
+import com.amalto.core.load.context.DefaultStateContext;
 import com.amalto.core.load.context.StateContext;
-import com.amalto.core.load.context.StateContextImpl;
+import org.apache.log4j.Logger;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -42,6 +44,7 @@ import java.io.InputStream;
  */
 public class LoadParser {
     private static final XMLInputFactory inputFactory = XMLInputFactory.newFactory();
+    private static final Logger log = Logger.getLogger(LoadParser.class);
 
     static {
         inputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
@@ -61,14 +64,11 @@ public class LoadParser {
      * </p>
      *
      * @param inputStream        The input stream to the XML fragments.
-     * @param payLoadElementName the local name of the XML element to look for while parsing
-     *                           (e.g. if top level XML element for TypeA is 'typeA', pass 'typeA' as parameter.
-     * @param idPaths            The XPaths expressions to evaluate when build ID for the document.
-     *                           Array allows to pass several XPaths for ID composed of 1+ values.
+     * @param config             Configuration of the LoadParser.
      * @param callback           The callback called when a document is ready to be persisted in MDM.
      */
-    public static void parse(InputStream inputStream, String payLoadElementName, String[] idPaths, LoadParserCallback callback) {
-        parse(inputStream, payLoadElementName, idPaths, Constants.DEFAULT_PARSER_LIMIT, callback);
+    public static void parse(InputStream inputStream, Configuration config, LoadParserCallback callback) {
+        parse(inputStream, config, Constants.DEFAULT_PARSER_LIMIT, callback);
     }
 
     /**
@@ -81,25 +81,35 @@ public class LoadParser {
      * </p>
      *
      * @param inputStream        The input stream to the XML fragments.
-     * @param payLoadElementName the local name of the XML element to look for while parsing
-     *                           (e.g. if top level XML element for TypeA is 'typeA', pass 'typeA' as parameter.
-     * @param idPaths            The XPaths expressions to evaluate when build ID for the document.
-     *                           Array allows to pass several XPaths for ID composed of 1+ values.
+     * @param config             Configuration of the LoadParser.
      * @param limit              A limit for documents to persist. Once this limit is reached, this method ends.
      * @param callback           The callback called when a document is ready to be persisted in MDM.
      */
-    public static void parse(InputStream inputStream, String payLoadElementName, String[] idPaths, int limit, LoadParserCallback callback) {
+    public static void parse(InputStream inputStream, Configuration config, int limit, LoadParserCallback callback) {
         if (inputStream == null) {
             throw new IllegalArgumentException("Input stream cannot be null");
         }
         if (callback == null) {
             throw new IllegalArgumentException("LoadParser callback cannot be null");
         }
+        if (config == null) {
+            throw new IllegalArgumentException("Configuration cannot be null");
+        }
 
         XMLStreamReader reader = null;
         try {
             reader = inputFactory.createXMLStreamReader(inputStream);
-            StateContext context = new StateContextImpl(payLoadElementName, idPaths, callback, limit);
+
+            StateContext context = new DefaultStateContext(config.getPayLoadElementName(),
+                    config.getIdPaths(),
+                    config.getDataClusterName(),
+                    limit,
+                    callback);
+            if (config.isAutoGenPK()) {
+                // Change the context to auto-generate metadata
+                context = AutoGenStateContext.decorate(context);
+            }
+
             while (!context.hasFinished()) {
                 context.parse(reader);
             }
@@ -113,9 +123,47 @@ public class LoadParser {
                     reader.close();
                 }
             } catch (XMLStreamException e) {
-                System.out.println("Exception on close reader.");
-                e.printStackTrace();
+                log.error("Exception on close reader.", e);
             }
         }
+    }
+
+    public static class Configuration {
+        private final String payLoadElementName;
+        private final String[] idPaths;
+        private final boolean autoGenPK;
+        private String dataClusterName;
+
+        public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName) {
+            this.payLoadElementName = payLoadElementName;
+            this.idPaths = idPaths;
+            this.autoGenPK = autoGenPK;
+            this.dataClusterName = dataClusterName;
+        }
+
+        /**
+         * @return the local name of the XML element to look for while parsing (e.g. if top level XML element for TypeA
+         *         is 'typeA', pass 'typeA' as parameter.
+         */
+        public String getPayLoadElementName() {
+            return payLoadElementName;
+        }
+
+        /**
+         * @return The XPaths expressions to evaluate when build ID for the document. Array allows to pass several
+         *         XPaths for ID composed of 1+ values.
+         */
+        public String[] getIdPaths() {
+            return idPaths;
+        }
+
+        public boolean isAutoGenPK() {
+            return autoGenPK;
+        }
+
+        public String getDataClusterName() {
+            return dataClusterName;
+        }
+
     }
 }

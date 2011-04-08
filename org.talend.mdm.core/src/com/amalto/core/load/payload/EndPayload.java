@@ -17,7 +17,6 @@ import com.amalto.core.load.Constants;
 import com.amalto.core.load.State;
 import com.amalto.core.load.context.StateContext;
 import com.amalto.core.load.context.Utils;
-import org.apache.log4j.Logger;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -27,7 +26,6 @@ import javax.xml.stream.XMLStreamReader;
  */
 public class EndPayload implements State {
     public static final State INSTANCE = new EndPayload();
-    private static final Logger log = Logger.getLogger(EndPayload.class);
 
     private EndPayload() {
     }

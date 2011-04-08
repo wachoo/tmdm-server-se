@@ -21,7 +21,7 @@ import java.util.StringTokenizer;
 public class PathMatcher {
     private int nextMatchIndex = 1;
     private int maxIndex;
-    private Set<Integer> pathElementsToMatch;
+    private final Set<Integer> pathElementsToMatch;
     private final String path;
 
     public PathMatcher(String path) {

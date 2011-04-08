@@ -18,7 +18,6 @@ import com.amalto.core.load.LoadParser;
 import com.amalto.core.load.LoadParserCallback;
 import com.amalto.core.load.io.XMLRootInputStream;
 import com.amalto.core.util.XSDKey;
-import org.apache.commons.lang.NotImplementedException;
 
 /**
 *
@@ -43,11 +42,7 @@ public class OptimizedLoadAction implements LoadAction {
     }
 
     public void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
-        if (needAutoGenPK) {
-            throw new NotImplementedException(); // TODO
-        }
-
-        if (!".".equals(keyMetadata.getSelector())) {
+        if (!".".equals(keyMetadata.getSelector())) { //$NON-NLS-1$
             throw new UnsupportedOperationException("Selector '" + keyMetadata.getSelector() + "' isn't supported.");
         }
 
@@ -55,6 +50,7 @@ public class OptimizedLoadAction implements LoadAction {
         LoadParserCallback callback = new ServerParserCallback(server, dataClusterName);
 
         java.io.InputStream inputStream = new XMLRootInputStream(request.getInputStream(), "root"); //$NON-NLS-1$
-        LoadParser.parse(inputStream, typeName, keyMetadata.getFields(), callback);
+        LoadParser.Configuration configuration = new LoadParser.Configuration(typeName, keyMetadata.getFields(), needAutoGenPK, dataClusterName);
+        LoadParser.parse(inputStream, configuration, callback);
     }
 }

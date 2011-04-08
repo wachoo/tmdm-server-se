@@ -43,7 +43,7 @@ public class Utils {
         }
     }
 
-    public static String generatePublicId(Metadata metadata) {
+    private static String generatePublicId(Metadata metadata) {
         return metadata.getContainer() + '.' + metadata.getName() + '.' + metadata.getId();
     }
 

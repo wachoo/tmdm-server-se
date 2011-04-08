@@ -25,6 +25,7 @@ public class Metadata {
     private String container = StringUtils.EMPTY;
     private String name = StringUtils.EMPTY;
     private String dmn = StringUtils.EMPTY;
+    private String dataClusterName;
 
     public Metadata() {
     }
@@ -83,5 +84,13 @@ public class Metadata {
 
     public void reset() {
         this.id = null;
+    }
+
+    public String getDataClusterName() {
+        return dataClusterName;
+    }
+
+    public void setDataClusterName(String dataClusterName) {
+        this.dataClusterName = dataClusterName;
     }
 }

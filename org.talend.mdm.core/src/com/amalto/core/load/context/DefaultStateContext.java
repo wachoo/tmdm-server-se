@@ -32,7 +32,7 @@ import com.amalto.core.load.payload.StartPayload;
 /**
  *
  */
-public class StateContextImpl implements StateContext {
+public class DefaultStateContext implements StateContext {
     private final LoadParserCallback callback;
     private final String payLoadElementName;
     private final BufferStateContextWriter bufferStateContextWriter = new BufferStateContextWriter();
@@ -49,12 +49,12 @@ public class StateContextImpl implements StateContext {
     private PathMatcher lastPartialMatchPath;
     private int idToMatchCount = 0;
 
-    public StateContextImpl(String payLoadElementName, String[] idPaths, LoadParserCallback callback, int payloadLimit) {
-        this(payLoadElementName, idPaths, callback);
+    public DefaultStateContext(String payLoadElementName, String[] idPaths, String dataClusterName, int payloadLimit, LoadParserCallback callback) {
+        this(payLoadElementName, idPaths, dataClusterName, callback);
         this.payloadLimit = payloadLimit;
     }
 
-    private StateContextImpl(String payLoadElementName, String[] idPaths, LoadParserCallback callback) {
+    private DefaultStateContext(String payLoadElementName, String[] idPaths, String dataClusterName, LoadParserCallback callback) {
         if (payLoadElementName == null) {
             throw new IllegalArgumentException("Payload element name cannot be null.");
         }
@@ -72,6 +72,7 @@ public class StateContextImpl implements StateContext {
         metadata.setContainer(payLoadElementName);
         metadata.setName(payLoadElementName);
         metadata.setDmn(payLoadElementName);
+        metadata.setDataClusterName(dataClusterName);
     }
 
     public String getPayLoadElementName() {

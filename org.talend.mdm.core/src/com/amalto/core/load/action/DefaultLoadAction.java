@@ -77,8 +77,7 @@ public class DefaultLoadAction implements LoadAction {
                     // uuid
                     // key
                     // exists
-                    Node n = Util.processUUID(root, schemaString,
-                            dataClusterName, typeName);
+                    Node n = Util.processUUID(root, schemaString, dataClusterName, typeName);
                     // get key values
                     ids = Util.getKeyValuesFromItem((Element) n, keyMetadata);
                     // reset item projection

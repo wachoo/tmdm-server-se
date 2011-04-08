@@ -17,12 +17,27 @@ import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.util.XSDKey;
 
 /**
-*
-*/
+ * Load strategy to be used during load of documents in MDM.
+ * @see com.amalto.core.servlet.LoadServlet
+ */
 public interface LoadAction {
+    /**
+     * @return true if action supports XML validation, false otherwise
+     */
     boolean supportValidation();
 
+    /**
+     * @return true if action supports ID generated server side (auto increment), false otherwise.
+     */
     boolean supportAutoGenPK();
 
+    /**
+     * Loads XML documents from <code>request</code> in <code>server</code>.
+     *
+     * @param request The request that contains all XML documents to be loaded in MDM.
+     * @param keyMetadata Key metadata <b>or <code>null</code> in case of autoGenPK</b>.
+     * @param server The database where the documents must be persisted.
+     * @throws Exception In case anything goes wrong during load.
+     */
     void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception;
 }

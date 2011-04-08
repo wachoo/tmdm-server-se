@@ -105,7 +105,8 @@ public class LoadServlet extends HttpServlet {
         XmlServerSLWrapperLocal server;
         XSDKey keyMetadata;
         try {
-            keyMetadata = getTypeKey(dataModelName, typeName);
+            // TODO There should be a better way than passing null for autoGenPK support (temp code).
+            keyMetadata = needAutoGenPK ? null : getTypeKey(dataModelName, typeName);
             server = Util.getXmlServerCtrlLocal();
         } catch (Exception e) {
             throw new ServletException(e);

@@ -17,8 +17,8 @@ import org.xml.sax.XMLReader;
 /**
  * Implement this interface to receive callback from {@link LoadParser} during parsing.
  *
- * @see LoadParser#parse(java.io.InputStream, String, String[], LoadParserCallback)
- * @see LoadParser#parse(java.io.InputStream, String, String[], int, LoadParserCallback)
+ * @see LoadParser#parse(java.io.InputStream, com.amalto.core.load.LoadParser.Configuration, LoadParserCallback)
+ * @see LoadParser#parse(java.io.InputStream, com.amalto.core.load.LoadParser.Configuration, int, LoadParserCallback)
  */
 public interface LoadParserCallback {
     /**
