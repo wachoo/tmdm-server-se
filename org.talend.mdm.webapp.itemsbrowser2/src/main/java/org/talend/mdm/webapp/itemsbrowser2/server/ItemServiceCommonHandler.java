@@ -26,8 +26,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.logging.Logger;
 
+import org.apache.log4j.Logger;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.Node;
+import org.scb.gwt.web.server.i18n.GWTI18N;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
@@ -46,6 +52,43 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
+
+import com.amalto.webapp.core.bean.UpdateReportItem;
+import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.util.webservices.WSBoolean;
+import com.amalto.webapp.util.webservices.WSCount;
+import com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters;
+import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSDeleteItem;
+import com.amalto.webapp.util.webservices.WSDropItem;
+import com.amalto.webapp.util.webservices.WSDroppedItemPK;
+import com.amalto.webapp.util.webservices.WSExistsItem;
+import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
+import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
+import com.amalto.webapp.util.webservices.WSGetView;
+import com.amalto.webapp.util.webservices.WSGetViewPKs;
+import com.amalto.webapp.util.webservices.WSItem;
+import com.amalto.webapp.util.webservices.WSItemPK;
+import com.amalto.webapp.util.webservices.WSPutItem;
+import com.amalto.webapp.util.webservices.WSPutItemWithReport;
+import com.amalto.webapp.util.webservices.WSRouteItemV2;
+import com.amalto.webapp.util.webservices.WSStringArray;
+import com.amalto.webapp.util.webservices.WSStringPredicate;
+import com.amalto.webapp.util.webservices.WSView;
+import com.amalto.webapp.util.webservices.WSViewPK;
+import com.amalto.webapp.util.webservices.WSViewSearch;
+import com.amalto.webapp.util.webservices.WSWhereAnd;
+import com.amalto.webapp.util.webservices.WSWhereCondition;
+import com.amalto.webapp.util.webservices.WSWhereItem;
+import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.amalto.webapp.util.webservices.WSWhereOr;
+import com.amalto.webapp.util.webservices.WSXPathsSearch;
+import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
 
 /**
  * DOC HSHU class global comment. Detailled comment
@@ -67,11 +110,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         String concept = ViewHelper.getConceptFromDefaultViewName(viewBean.getViewPK());
         try {
             WSWhereItem wi = CommonUtil.buildWhereItems(criteria);
-            String[] results = CommonUtil
-                    .getPort()
-                    .viewSearch(
-                            new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1,
-                                    skip, max, sortCol, sortDir)).getStrings();
+            String[] results = CommonUtil.getPort().viewSearch(
+                    new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1, skip, max,
+                            sortCol, sortDir)).getStrings();
 
             // TODO change ids to array?
             List<String> idsArray = new ArrayList<String>();
@@ -478,8 +519,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             Map<String, String> viewMap = null;
 
             String model = getCurrentDataModel();
-            String[] businessConcept = CommonUtil.getPort()
-                    .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
+            String[] businessConcept = CommonUtil.getPort().getBusinessConcepts(
+                    new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
             ArrayList<String> bc = new ArrayList<String>();
             for (int i = 0; i < businessConcept.length; i++) {
                 bc.add(businessConcept[i]);
@@ -567,8 +608,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
 
             // get FK filter
-            WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey, xpathForeignKey,
-                    fkFilter);
+            WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey, xpathForeignKey, fkFilter);
             if (fkFilterWi != null)
                 whereItem = fkFilterWi;
             initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
@@ -626,30 +666,24 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 // Run the query
                 if (!com.amalto.webapp.core.util.Util.isCustomFilter(fkFilter)) {
 
-                    results = CommonUtil
-                            .getPort()
-                            .xPathsSearch(
-                                    new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
-                                            .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config
-                                            .getLimit(), orderbyPath, null)).getStrings();
-                    count = CommonUtil.getPort()
-                            .count(new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
+                    results = CommonUtil.getPort().xPathsSearch(
+                            new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
+                                    .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config.getLimit(),
+                                    orderbyPath, null)).getStrings();
+                    count = CommonUtil.getPort().count(
+                            new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
 
                 } else {
 
                     String injectedXpath = com.amalto.webapp.core.util.Util.getInjectedXpath(fkFilter);
-                    results = CommonUtil
-                            .getPort()
-                            .getItemsByCustomFKFilters(
-                                    new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
-                                            new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
-                                                    .getOffset(), config.getLimit(), orderbyPath, null)).getStrings();
+                    results = CommonUtil.getPort().getItemsByCustomFKFilters(
+                            new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName, new WSStringArray(
+                                    xPaths.toArray(new String[xPaths.size()])), injectedXpath, config.getOffset(), config
+                                    .getLimit(), orderbyPath, null)).getStrings();
 
-                    count = CommonUtil
-                            .getPort()
-                            .countItemsByCustomFKFilters(
-                                    new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
-                                            injectedXpath)).getValue();
+                    count = CommonUtil.getPort().countItemsByCustomFKFilters(
+                            new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName, injectedXpath))
+                            .getValue();
                 }
             }
 
@@ -813,12 +847,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
             wi = new WSWhereItem(null, and, null);
 
-            String[] results = CommonUtil.getPort()
-                    .xPathsSearch(new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
+            String[] results = CommonUtil.getPort().xPathsSearch(
+                    new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
                             new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order //$NON-NLS-1$ 
                             // by
                             null // direction
-                            )).getStrings();
+                    )).getStrings();
 
             for (int i = 0; i < results.length; i++) {
                 results[i] = results[i].replaceAll("<CriteriaName>(.*)</CriteriaName>", "$1");//$NON-NLS-1$ //$NON-NLS-2$ 
@@ -854,8 +888,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             new WSWhereItem(null, null, or) });
 
             wi = new WSWhereItem(null, and, null);
-            return CommonUtil.getPort()
-                    .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$ 
+            return CommonUtil.getPort().count(
+                    new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$ 
                     .getValue();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -888,12 +922,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     public String getCriteriaByBookmark(String bookmark) {
         try {
             String criteria = "";//$NON-NLS-1$ 
-            String result = CommonUtil
-                    .getPort()
-                    .getItem(
-                            new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
-                                    "BrowseItem",//$NON-NLS-1$ 
-                                    new String[] { bookmark }))).getContent().trim();
+            String result = CommonUtil.getPort().getItem(
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem",//$NON-NLS-1$ 
+                            new String[] { bookmark }))).getContent().trim();
             if (result != null) {
                 if (result.indexOf("<SearchCriteria>") != -1)//$NON-NLS-1$ 
                     criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$ 
