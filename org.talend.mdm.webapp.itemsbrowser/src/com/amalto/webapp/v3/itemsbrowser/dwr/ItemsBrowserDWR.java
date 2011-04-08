@@ -840,7 +840,10 @@ public class ItemsBrowserDWR {
 
                 // max occurs > 1 support and do not get foreignkeylist by here.
                 if (value != null && value.length() != 0 && !(maxOccurs < 0 || maxOccurs > 1)) {
-                    treeNode.setValueInfo(getFKInfo(value, treeNode.getForeignKey(), infos));
+                    String gettedforeignKey=treeNode.getForeignKey();
+                    if(treeNode.getUsingforeignKey()!=null&&treeNode.getUsingforeignKey().trim().length()>0)
+                        gettedforeignKey=treeNode.getUsingforeignKey();
+                    treeNode.setValueInfo(getFKInfo(value, gettedforeignKey, infos));
                 }
 
             }
