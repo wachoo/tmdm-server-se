@@ -57,6 +57,17 @@ public class QueryBuilderTest extends TestCase {
         String expected = "<CriteriaName>{string($pivot0/CriteriaName)}</CriteriaName>";
         String actual = queryBuilder.getXQueryReturn(viewableFullPaths, pivotsMap, totalCountOnfirstRow);
         assertEquals(expected, actual);
+        
+        //
+        viewableFullPaths.clear();
+        viewableFullPaths.add("Country/label");
+        viewableFullPaths.add("Country/../../i");
+        pivotsMap.clear();
+        pivotsMap.put("$pivot0", "Country");
+        totalCountOnfirstRow = false;
+        expected = "<result>{<label>{string($pivot0/label)}</label>}{<xi>{string($pivot0/../../i)}</xi>}</result>";
+        actual = queryBuilder.getXQueryReturn(viewableFullPaths, pivotsMap, totalCountOnfirstRow);
+        assertEquals(expected, actual);
     }
 
     public void testBuildWhereCondition() throws Exception {
@@ -144,6 +155,32 @@ public class QueryBuilderTest extends TestCase {
         expected += "for $pivot0 in subsequence($_leres0_,1,4)\n";
         expected += "return <result>{<Id>{string($pivot0/Id)}</Id>}</result>\n";
         expected += "return (<totalCount>{count($_leres0_)}</totalCount>, $_page_)";
+
+        actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
+                forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, withTotalCountOnFirstRow,
+                metaDataTypes);
+        assertEquals(expected, actual);
+        
+        //
+        isItemQuery = true;
+        objectRootElementNamesToRevisionID.clear();
+        objectRootElementNamesToClusterName.clear();
+        objectRootElementNamesToClusterName.put(".*", "DStar");
+        forceMainPivot = null;
+        viewableFullPaths.clear();
+        viewableFullPaths.add("Country/label");
+        viewableFullPaths.add("Country/../../i");
+        whereItem = null;
+        orderBy = "Country/label";
+        direction = null;
+        start = 0;
+        limit = 20;
+        withTotalCountOnFirstRow = false;
+        metaDataTypes = null;
+
+        expected = "let $_leres0_ :=  for $r in collection(\"/DStar\")//p/Country order by $r/label return $r  \n";
+        expected += "for $pivot0 in subsequence($_leres0_,1,20)\n";
+        expected += "return <result>{<label>{string($pivot0/label)}</label>}{<xi>{string($pivot0/../../i)}</xi>}</result>";
 
         actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
                 forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, withTotalCountOnFirstRow,
