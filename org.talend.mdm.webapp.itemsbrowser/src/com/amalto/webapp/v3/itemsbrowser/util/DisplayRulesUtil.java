@@ -67,12 +67,13 @@ public class DisplayRulesUtil {
     }
 
     public String genDefaultValueStyle() {
+        // remove visible style before save it, it is just used to show
         String style = genStyle();
         if (style.indexOf("<xsl:attribute name=\"t:visible\">") > -1) { //$NON-NLS-1$
             // if has child element
-            style = style.replaceAll("<xsl:if test=\"not.*</xsl:if><xsl:", "<xsl:"); //$NON-NLS-1$ //$NON-NLS-2$
+            style = style.replaceAll("<xsl:if test=\"not(.*?)[^\\<xsl:if]</xsl:if><xsl:", "<xsl:"); //$NON-NLS-1$ //$NON-NLS-2$
             // if has no child
-            style = style.replaceAll("<xsl:if test=\"not.*</xsl:if>", "<xsl:value-of select=\".\"/>"); //$NON-NLS-1$ //$NON-NLS-2$            
+            style = style.replaceAll("<xsl:if test=\"not(.*?)[^\\<xsl:if]</xsl:if>", "<xsl:value-of select=\".\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return style;
     }
@@ -98,7 +99,8 @@ public class DisplayRulesUtil {
                     if (isLiteralData(displayRule.getValue())) {
                         style.append("<xsl:text>" + Util.stripLeadingAndTrailingQuotes(displayRule.getValue()) + "</xsl:text>"); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
-                        style.append("<xsl:value-of select=\"" + displayRule.getValue() + "\"/> "); //$NON-NLS-1$ //$NON-NLS-2$
+                        style
+                                .append("<xsl:value-of select=\"" + displayRule.getValue().replaceAll("\r\n", "").replaceAll("\n", "") + "\"/> "); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                     style.append("</xsl:when> "); //$NON-NLS-1$
                     style.append("<xsl:otherwise><xsl:value-of select=\".\"/></xsl:otherwise> "); //$NON-NLS-1$
@@ -106,7 +108,8 @@ public class DisplayRulesUtil {
 
                 } else if (dspType.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
 
-                    style.append("<xsl:if test=\"not(" + displayRule.getValue() + ")\"> "); //$NON-NLS-1$ //$NON-NLS-2$
+                    style
+                            .append("<xsl:if test=\"not(" + displayRule.getValue().replaceAll("\r\n", "").replaceAll("\n", "") + ")\"> "); //$NON-NLS-1$ //$NON-NLS-2$
                     style.append("<xsl:attribute name=\"t:visible\">false</xsl:attribute> "); //$NON-NLS-1$ 
                     style.append("</xsl:if>"); //$NON-NLS-1$ 
 
