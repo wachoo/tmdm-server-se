@@ -421,12 +421,13 @@ public class ItemsBrowserDWR {
             if (ids != null) {
 
                 WSItem wsItem = null;
-                if (ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem") == null) //$NON-NLS-1$ //$NON-NLS-2$
+                //fix bug 0019565
+//                if (ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem") == null) //$NON-NLS-1$ //$NON-NLS-2$
                     wsItem = Util.getPort()
                             .getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
-                else {
-                    wsItem = (WSItem) ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem");//$NON-NLS-1$ //$NON-NLS-2$
-                }
+//                else {
+//                    wsItem = (WSItem) ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem");//$NON-NLS-1$ //$NON-NLS-2$
+//                }
 
                 try {
                     extractUsingTransformerThroughView(concept, viewName, ids, dataModelPK, dataClusterPK, map, wsItem);
@@ -435,11 +436,13 @@ public class ItemsBrowserDWR {
                 }
 
                 Document document = null;
-                if (ctx.getSession().getAttribute("itemDocument" + docIndex) == null) { //$NON-NLS-1$
-                    document = Util.parse(wsItem.getContent());
-                } else {
-                    document = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
-                }
+                document = Util.parse(wsItem.getContent());
+                //fix bug 0019565
+//                if (ctx.getSession().getAttribute("itemDocument" + docIndex) == null) { //$NON-NLS-1$
+//                    document = Util.parse(wsItem.getContent());
+//                } else {
+//                    document = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
+//                }
 
                 ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", Util.copyDocument(document)); //$NON-NLS-1$ //$NON-NLS-2$
                 // update the node according to schema
