@@ -377,6 +377,8 @@ public class ItemsBrowserDWR {
         ctx.getSession().setAttribute("itemDocument" + docIndex, document); //$NON-NLS-1$
         ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", Util.copyDocument(document)); //$NON-NLS-1$ //$NON-NLS-2$
 
+        ctx.getSession().setAttribute("itemDocument" + docIndex + "_status", DOC_STATUS_EDIT);//$NON-NLS-1$ //$NON-NLS-2$
+
     }
 
     /**
@@ -421,13 +423,12 @@ public class ItemsBrowserDWR {
             if (ids != null) {
 
                 WSItem wsItem = null;
-                //fix bug 0019565
-//                if (ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem") == null) //$NON-NLS-1$ //$NON-NLS-2$
-                    wsItem = Util.getPort()
-                            .getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
-//                else {
-//                    wsItem = (WSItem) ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem");//$NON-NLS-1$ //$NON-NLS-2$
-//                }
+                // fix bug 0019565
+                //                if (ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem") == null) //$NON-NLS-1$ //$NON-NLS-2$
+                wsItem = Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+                // else {
+                //                    wsItem = (WSItem) ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem");//$NON-NLS-1$ //$NON-NLS-2$
+                // }
 
                 try {
                     extractUsingTransformerThroughView(concept, viewName, ids, dataModelPK, dataClusterPK, map, wsItem);
@@ -437,12 +438,12 @@ public class ItemsBrowserDWR {
 
                 Document document = null;
                 document = Util.parse(wsItem.getContent());
-                //fix bug 0019565
-//                if (ctx.getSession().getAttribute("itemDocument" + docIndex) == null) { //$NON-NLS-1$
-//                    document = Util.parse(wsItem.getContent());
-//                } else {
-//                    document = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
-//                }
+                // fix bug 0019565
+                //                if (ctx.getSession().getAttribute("itemDocument" + docIndex) == null) { //$NON-NLS-1$
+                // document = Util.parse(wsItem.getContent());
+                // } else {
+                //                    document = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
+                // }
 
                 ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", Util.copyDocument(document)); //$NON-NLS-1$ //$NON-NLS-2$
                 // update the node according to schema
@@ -840,9 +841,9 @@ public class ItemsBrowserDWR {
 
                 // max occurs > 1 support and do not get foreignkeylist by here.
                 if (value != null && value.length() != 0 && !(maxOccurs < 0 || maxOccurs > 1)) {
-                    String gettedforeignKey=treeNode.getForeignKey();
-                    if(treeNode.getUsingforeignKey()!=null&&treeNode.getUsingforeignKey().trim().length()>0)
-                        gettedforeignKey=treeNode.getUsingforeignKey();
+                    String gettedforeignKey = treeNode.getForeignKey();
+                    if (treeNode.getUsingforeignKey() != null && treeNode.getUsingforeignKey().trim().length() > 0)
+                        gettedforeignKey = treeNode.getUsingforeignKey();
                     treeNode.setValueInfo(getFKInfo(value, gettedforeignKey, infos));
                 }
 
