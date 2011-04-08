@@ -203,7 +203,7 @@ public class QueryBuilderTest extends TestCase {
         criteria.setClusterName("DStar");
         criteria.setConceptName("Agent");
         criteria.setContentKeywords("");
-        criteria.setKeysKeywords("@Agent/AgencyFK@[1]");
+        criteria.setKeysKeywords("$Agent/AgencyFK$[1]");
         criteria.setCompoundKeyKeywords(true);
         criteria.setFromDate(-1L);
         criteria.setToDate(-1L);
