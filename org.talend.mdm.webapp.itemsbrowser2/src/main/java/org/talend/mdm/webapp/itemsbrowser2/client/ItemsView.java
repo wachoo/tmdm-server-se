@@ -179,7 +179,7 @@ public class ItemsView extends View {
                     // Unit.PX);
                     itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setOverflow(Overflow.AUTO);
                     GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, itemsSearchContainer //$NON-NLS-1$
-                            .getItemsFormPanel().getContent().getBody().dom, true, false);
+                            .getItemsFormPanel().getContent().getBody().dom, true, false, false);
                 }
                 // TODO handle legacy form
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_TAB)) {
@@ -219,7 +219,7 @@ public class ItemsView extends View {
                     window.setPosition(left + offset, top + offset);
                     window.setId("formWindowContainer");//$NON-NLS-1$
                     GetService.regCallback();
-                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, window.getBody().dom, false, true);//$NON-NLS-1$
+                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, window.getBody().dom, false, true, true);//$NON-NLS-1$
                 }
                 // TODO handle legacy form
             }
