@@ -117,11 +117,11 @@ public abstract class QueryBuilder {
                     xqReturn.append(factoredPath);
                 }
             }
-            if(moreThanOneViewable || totalCountOnfirstRow)
-              xqReturn.append("}"); //$NON-NLS-1$
+            if (moreThanOneViewable || totalCountOnfirstRow)
+                xqReturn.append("}"); //$NON-NLS-1$
         }
-        if(moreThanOneViewable || totalCountOnfirstRow)
-        xqReturn.append("</result>"); //$NON-NLS-1$
+        if (moreThanOneViewable || totalCountOnfirstRow)
+            xqReturn.append("</result>"); //$NON-NLS-1$
 
         return xqReturn.toString();
     }
@@ -194,7 +194,7 @@ public abstract class QueryBuilder {
                 xqFor.append(i);
                 xqFor.append("_"); //$NON-NLS-1$
             }
-            
+
             StringBuilder xQueryCollectionName = new StringBuilder();
             xQueryCollectionName.append(getXQueryCollectionName(revisionID, clusterName));
             xQueryCollectionName.append("/"); //$NON-NLS-1$
@@ -223,14 +223,14 @@ public abstract class QueryBuilder {
             Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
         return buildWhere(new StringBuilder(), pivots, whereItem, metaDataTypes);
     }
-    
-    protected String buildWhere(LinkedHashMap<String, String> pivots, IWhereItem whereItem,
-            boolean useValueComparisons) throws XmlServerException {
+
+    protected String buildWhere(LinkedHashMap<String, String> pivots, IWhereItem whereItem, boolean useValueComparisons)
+            throws XmlServerException {
         return buildWhere(new StringBuilder(), pivots, whereItem, useValueComparisons);
     }
-    
-    private String buildWhere(StringBuilder where, LinkedHashMap<String, String> pivots, IWhereItem whereItem,
-            Object object) throws XmlServerException {
+
+    private String buildWhere(StringBuilder where, LinkedHashMap<String, String> pivots, IWhereItem whereItem, Object object)
+            throws XmlServerException {
         try {
             if (whereItem instanceof WhereLogicOperator) {
                 Collection<IWhereItem> subItems = ((WhereLogicOperator) whereItem).getItems();
@@ -244,7 +244,7 @@ public abstract class QueryBuilder {
                     IWhereItem item = iter.next();
                     if (i == 0)
                         where.append("("); //$NON-NLS-1$
-                    buildWhere(where, pivots, item, object); 
+                    buildWhere(where, pivots, item, object);
                     where.append(")");//$NON-NLS-1$
                     if (i < subItems.size() - 1)
                         if (item instanceof WhereCondition) {
@@ -358,7 +358,7 @@ public abstract class QueryBuilder {
                 // change * to .*
                 encoded = encoded.replaceAll("\\.\\*|\\*", "\\.\\*"); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            
+
             if (".*".equals(encoded) && !operator.equals(WhereCondition.EMPTY_NULL)) //$NON-NLS-1$
                 return ""; //$NON-NLS-1$
             // add modified on criteria
@@ -373,7 +373,7 @@ public abstract class QueryBuilder {
             }
 
             StringBuilder where = new StringBuilder();
-            
+
             if (operator.equals(WhereCondition.CONTAINS)) {
                 String predicate = wc.getStringPredicate();
                 // check if the left path is an attribute or an element
@@ -517,7 +517,7 @@ public abstract class QueryBuilder {
             return where.toString();
 
         } catch (Exception e) {
-            String err = "Unable to build the Where Condition : " + e.getLocalizedMessage(); 
+            String err = "Unable to build the Where Condition : " + e.getLocalizedMessage();
             LOG.error(err, e);
             throw new XmlServerException(err);
         }
@@ -886,7 +886,7 @@ public abstract class QueryBuilder {
                 xqWhere = buildWhere(pivotsMap, whereItem, metaDataTypes);
             }
             partialXQLPackage.setXqWhere(xqWhere);
-            
+
             // build order by
             String xqOrderBy;
             if (orderBy == null) {
@@ -918,7 +918,7 @@ public abstract class QueryBuilder {
                 rawQueryStringBuffer.append('\n').append(joinString);
 
             if (!partialXQLPackage.isUseGlobalOrderBy())
-                if(xqOrderBy.length() != 0)
+                if (xqOrderBy.length() != 0)
                     rawQueryStringBuffer.append('\n').append(xqOrderBy);
             rawQueryStringBuffer.append("\nreturn " + xqReturn); //$NON-NLS-1$
             String rawQuery = rawQueryStringBuffer.toString();
@@ -1109,7 +1109,7 @@ public abstract class QueryBuilder {
     public static String getXQueryCollectionName(String revisionID, String clusterName) throws XmlServerException {
         String collectionPath = getPath(revisionID, clusterName);
         if (collectionPath == null || collectionPath.length() == 0)
-            return "";  //$NON-NLS-1$
+            return ""; //$NON-NLS-1$
 
         String encoded = null;
         try {
@@ -1131,7 +1131,7 @@ public abstract class QueryBuilder {
         return "collection(\"" + encoded + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    private static Pattern pathWithoutConditions = Pattern.compile("(.*?)[\\[|/].*");  //$NON-NLS-1$
+    private static Pattern pathWithoutConditions = Pattern.compile("(.*?)[\\[|/].*"); //$NON-NLS-1$
 
     /**
      * Returns the first part - eg. the concept - from the path
@@ -1148,7 +1148,6 @@ public abstract class QueryBuilder {
         return null;
     }
 
-    
     protected String getXQueryMatchFunction() {
         return "matches"; //$NON-NLS-1$
     }
@@ -1219,13 +1218,13 @@ public abstract class QueryBuilder {
         }
         return query.toString();
     }
-    
+
     protected String buildPKsByCriteriaQuery(ItemPKCriteria criteria) {
         String revisionId = criteria.getRevisionId();
         String clusterName = criteria.getClusterName();
         String collectionpath = CommonUtil.getPath(revisionId, clusterName);
         String matchesStr = getXQueryMatchFunction();
-        
+
         StringBuilder query = new StringBuilder();
         query.append("let $allres := collection(\""); //$NON-NLS-1$
         query.append(collectionpath);
@@ -1250,9 +1249,9 @@ public abstract class QueryBuilder {
                 query.append('[').append(matchesStr).append("(./i , '").append(keyKeywords).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$
             else {
                 // FIXME : Does not work for composite keys
-                int valueIndex = keyKeywords.lastIndexOf("@"); //$NON-NLS-1$
+                int valueIndex = keyKeywords.lastIndexOf("$"); //$NON-NLS-1$
                 String fkvalue = (valueIndex == -1) ? null : keyKeywords.substring(valueIndex + 1);
-                int keyIndex = (valueIndex == -1) ? -1 : keyKeywords.indexOf("@"); //$NON-NLS-1$
+                int keyIndex = (valueIndex == -1) ? -1 : keyKeywords.indexOf("$"); //$NON-NLS-1$
                 String fkxpath = (keyIndex == -1) ? null : keyKeywords.substring(keyIndex + 1, valueIndex);
                 String key = (keyIndex == -1) ? null : keyKeywords.substring(0, keyIndex);
 

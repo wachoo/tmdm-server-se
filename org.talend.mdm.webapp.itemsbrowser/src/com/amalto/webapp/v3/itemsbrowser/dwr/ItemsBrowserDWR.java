@@ -3886,9 +3886,9 @@ public class ItemsBrowserDWR {
 
         StringBuilder sb = new StringBuilder();
         sb.append(keys);
-        sb.append("@");
+        sb.append("$");
         sb.append(xpath);
-        sb.append("@");
+        sb.append("$");
         sb.append(fkvalue);
 
         WSItemPKsByCriteriaResponse results = Util.getPort().getItemPKsByFullCriteria(
