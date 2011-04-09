@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -1254,7 +1255,8 @@ public abstract class QueryBuilder {
             if (!criteria.isCompoundKeyKeywords())
                 query.append('[').append(matchesStr).append("(./i , '").append(keyKeywords).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$
             else {
-                // FIXME : Does not work for composite keys
+                // keyKeywords of the form 'key$xpath$fkvalue'
+                // fkvalue of the form '[fk1@fk2@fk3....]'
                 int valueIndex = keyKeywords.lastIndexOf("$"); //$NON-NLS-1$
                 String fkvalue = (valueIndex == -1) ? null : keyKeywords.substring(valueIndex + 1);
                 int keyIndex = (valueIndex == -1) ? -1 : keyKeywords.indexOf("$"); //$NON-NLS-1$
@@ -1265,6 +1267,8 @@ public abstract class QueryBuilder {
                     query.append("[").append(matchesStr).append("(./i , '").append(key).append("')]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                 if (fkxpath != null && fkxpath.length() != 0 && fkvalue != null && fkvalue.length() != 0) {
+                    //fkvalue can be composite
+                    fkvalue = StringUtils.replace(fkvalue, "@", "]["); //$NON-NLS-1$ //$NON-NLS-2$
                     query.append("[").append("./p//" + fkxpath + " eq '").append(fkvalue).append("']"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 }
             }

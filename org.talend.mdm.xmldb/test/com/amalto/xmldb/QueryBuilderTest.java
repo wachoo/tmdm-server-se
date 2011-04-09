@@ -232,29 +232,45 @@ public class QueryBuilderTest extends TestCase {
                 forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, withTotalCountOnFirstRow,
                 metaDataTypes);
         assertEquals(expected, actual);
+        
+        //Using composite FK
+        objectRootElementNamesToRevisionID.clear();
+        objectRootElementNamesToClusterName.clear();
+        objectRootElementNamesToClusterName.put(".*", "DStar");
+        forceMainPivot = null;
+        viewableFullPaths.clear();
+        viewableFullPaths.add("Agent/Id");
+        viewableFullPaths.add("Agent/AgencyFK");
+        viewableFullPaths.add("Agency/Name");
+        whereItem = new WhereAnd();
+        ((WhereAnd)whereItem).add(new WhereCondition("Agent/AgencyFK", WhereCondition.JOINS, "Agency/Id1", WhereCondition.PRE_NONE, false));
+        ((WhereAnd)whereItem).add(new WhereCondition("Agent/AgencyFK", WhereCondition.JOINS, "Agency/Id2", WhereCondition.PRE_NONE, false));
+        orderBy = null;
+        direction = null;
+        start = 0;
+        limit = 10;
+        withTotalCountOnFirstRow = true;
+        metaDataTypes = null;
+        
+        expected = "let $_leres0_ := collection(\"/DStar\")//p/Agent \n";
+        expected += "let $_leres1_ := collection(\"/DStar\")//p/Agency \n";
+        expected += "let $_page_ :=\n";
+        expected += "for $pivot0 in $_leres0_, $pivot1 in $_leres1_\n";
+        expected += " where $pivot0/AgencyFK[not(.) or not(text()) or .]=concat(concat(\"[\",$pivot1/Id1,\"]\")\n";
+        expected += ",concat(\"[\",$pivot1/Id2,\"]\")\n";
+        expected += ")\n";
+        expected += "return <result>{if ($pivot0/Id) then $pivot0/Id else <Id/>}{if ($pivot0/AgencyFK) then $pivot0/AgencyFK else <AgencyFK/>}{if ($pivot1/Name) then $pivot1/Name else <Name/>}</result>\n";
+        expected += "return (<totalCount>{count($_page_)}</totalCount>, subsequence($_page_,1,10))";
+
+        actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
+                forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, withTotalCountOnFirstRow,
+                metaDataTypes);
+        assertEquals(expected, actual);
+
     }
 
     public void testBuildPKsByCriteriaQuery() throws Exception {
         ItemPKCriteria criteria = new ItemPKCriteria();
-        criteria.setRevisionId(null);
-        criteria.setClusterName("DStar");
-        criteria.setConceptName("Agent");
-        criteria.setContentKeywords("");
-        criteria.setKeysKeywords("$Agent/AgencyFK$[1]");
-        criteria.setCompoundKeyKeywords(true);
-        criteria.setFromDate(-1L);
-        criteria.setToDate(-1L);
-        criteria.setMaxItems(20);
-        criteria.setSkip(0);
-        criteria.setUseFTSearch(false);
-
-        String expected = "let $allres := collection(\"/DStar\")/ii[./p//Agent/AgencyFK eq '[1]'][./n eq 'Agent']\n";
-        expected += "let $res := for $ii in subsequence($allres, 1,20)\n";
-        expected += "return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n";
-        expected += "return (<totalCount>{count($allres)}</totalCount>, $res)";
-        String actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
-        assertEquals(expected, actual);
-        
         criteria = new ItemPKCriteria();
         criteria.setRevisionId(null);
         criteria.setClusterName("DStar");
@@ -268,7 +284,48 @@ public class QueryBuilderTest extends TestCase {
         criteria.setSkip(0);
         criteria.setUseFTSearch(false);
 
-        expected = "let $allres := collection(\"/DStar\")/ii[matches(./i , 'Agent/AgencyFK[1]')][./n eq 'Agent']\n";
+        String expected = "let $allres := collection(\"/DStar\")/ii[matches(./i , 'Agent/AgencyFK[1]')][./n eq 'Agent']\n";
+        expected += "let $res := for $ii in subsequence($allres, 1,20)\n";
+        expected += "return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n";
+        expected += "return (<totalCount>{count($allres)}</totalCount>, $res)";
+        String actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
+        assertEquals(expected, actual);
+ 
+        //compound keywords
+        criteria.setRevisionId(null);
+        criteria.setClusterName("DStar");
+        criteria.setConceptName("Agent");
+        criteria.setContentKeywords("");
+        criteria.setKeysKeywords("$Agent/AgencyFK$[1]");
+        criteria.setCompoundKeyKeywords(true);
+        criteria.setFromDate(-1L);
+        criteria.setToDate(-1L);
+        criteria.setMaxItems(20);
+        criteria.setSkip(0);
+        criteria.setUseFTSearch(false);
+
+        expected = "let $allres := collection(\"/DStar\")/ii[./p//Agent/AgencyFK eq '[1]'][./n eq 'Agent']\n";
+        expected += "let $res := for $ii in subsequence($allres, 1,20)\n";
+        expected += "return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n";
+        expected += "return (<totalCount>{count($allres)}</totalCount>, $res)";
+        actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
+        assertEquals(expected, actual);
+        
+        //compound keywords on composite FK
+        criteria = new ItemPKCriteria();
+        criteria.setRevisionId(null);
+        criteria.setClusterName("DStar");
+        criteria.setConceptName("Agent");
+        criteria.setContentKeywords("");
+        criteria.setKeysKeywords("$Agent/AgencyFK$[Id1@Id2@Id3]");
+        criteria.setCompoundKeyKeywords(true);
+        criteria.setFromDate(-1L);
+        criteria.setToDate(-1L);
+        criteria.setMaxItems(20);
+        criteria.setSkip(0);
+        criteria.setUseFTSearch(false);
+
+        expected = "let $allres := collection(\"/DStar\")/ii[./p//Agent/AgencyFK eq '[Id1][Id2][Id3]'][./n eq 'Agent']\n";
         expected += "let $res := for $ii in subsequence($allres, 1,20)\n";
         expected += "return <r>{$ii/t}{$ii/taskId}{$ii/n}<ids>{$ii/i}</ids></r>\n";
         expected += "return (<totalCount>{count($allres)}</totalCount>, $res)";
