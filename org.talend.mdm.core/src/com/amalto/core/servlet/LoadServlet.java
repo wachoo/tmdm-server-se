@@ -170,7 +170,7 @@ public class LoadServlet extends HttpServlet {
     protected void doPost(
             HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
-        doPut(request, response);
+        doGet(request, response);
     }
 
     /**
