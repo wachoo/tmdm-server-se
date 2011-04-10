@@ -229,7 +229,7 @@ public class UpdateReportDetailsServelt extends HttpServlet {
                 String[][] cols = new String[2][];
                 cols[0] = new String[] { "Data Container", "Data Model", "Entity", "Key", "Revision ID", "Operation Type",
                         "Operation Time", "Source", "User Name" };
-                cols[1] = new String[] { "Data Container", "Data Model", "Entité", "Clé", "ID de révision", "Type d\'opération",
+                cols[1] = new String[] { "Conteneur de données", "Modèle de données", "Entité", "Clé", "ID de révision", "Type d\'opération",
                         "Date d\'opération", "Source", "Utilisateur" };
                 String language = req.getParameter("language") != null ? req.getParameter("language") : "en";
                 if (language.equals("en"))

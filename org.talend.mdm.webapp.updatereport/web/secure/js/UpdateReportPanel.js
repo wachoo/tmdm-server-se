@@ -11,6 +11,14 @@ amalto.updatereport.UpdateReportPanel = function(config) {
 	loadResource("/updatereport/secure/js/UpdateReportTimeLinePanel.js", "");	
 };
 
+var GRID_TITLE={
+	'fr':'Résultats',
+	'en':'Results'
+};
+var TIMELINE_TITLE={
+	'fr':'Défilement',
+	'en':'Timeline'
+};
 var searchCriteria;
 var searchStart;
 var searchLimit;
@@ -82,7 +90,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 		);
 		this.timelinePanel = new Ext.Panel({
 			id:"timelinePanel",
-			title:"TimeLine",
+			title: TIMELINE_TITLE[language],
 			iconCls:"report_table_timeline",
 //			layout : "fit",
 			html:"<div id='tl' class='timeline-default' style='height:500px;'></div>"
@@ -90,7 +98,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 				
 		this.gridPanel1 = new Ext.grid.GridPanel({
 			id:"updateReportGridPanel",
-			title:"Add User",
+			title: GRID_TITLE[language],
 			iconCls:"report_tab_table",
 			store : this.store1,
 			border: false,
