@@ -87,9 +87,11 @@ public class LoadServlet extends HttpServlet {
         boolean needValidate = Boolean.valueOf(request.getParameter(PARAMETER_VALIDATE));
         boolean needAutoGenPK = Boolean.valueOf(request.getParameter(PARAMETER_SMARTPK));
         String action = request.getParameter(PARAMETER_ACTION);
+        if (action == null || action.length() == 0)
+            action = getServletConfig().getInitParameter(PARAMETER_ACTION);
 
         // We support only load as action here
-        if (!"load".equalsIgnoreCase(action)) {
+        if (!"load".equalsIgnoreCase(action)) { //$NON-NLS-1$
             throw new ServletException(new UnsupportedOperationException("Action '" + action + "' isn't supported"));
         }
 
@@ -144,7 +146,7 @@ public class LoadServlet extends HttpServlet {
 
     private static LoadAction getLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needValidate, boolean needAutoGenPK) {
         // Activate optimizations only if Qizx is used.
-        Object dbType = MDMConfiguration.getConfiguration().get("xmldb.type");
+        Object dbType = MDMConfiguration.getConfiguration().get("xmldb.type"); //$NON-NLS-1$
         boolean isUsingQizx = dbType != null && EDBType.QIZX.getName().equals(dbType.toString());
 
         LoadAction loadAction;
@@ -155,7 +157,8 @@ public class LoadServlet extends HttpServlet {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Load action selected for load: " + loadAction.getClass().getName() + "(isUsingQizx: " + isUsingQizx + " / needValidate:" + needValidate + ")");  //$NON-NLS-1$
+            log.debug("Load action selected for load: " + loadAction.getClass().getName() + "(isUsingQizx: " + isUsingQizx //$NON-NLS-1$ //$NON-NLS-2$
+                    + " / needValidate:" + needValidate + ")"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return loadAction;
     }
@@ -180,9 +183,9 @@ public class LoadServlet extends HttpServlet {
 
         req.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
 
-        String action = req.getParameter(PARAMETER_ACTION); //$NON-NLS-1$
+        String action = req.getParameter(PARAMETER_ACTION);
         if (action == null || action.length() == 0)
-            action = getServletConfig().getInitParameter(PARAMETER_ACTION); //$NON-NLS-1$
+            action = getServletConfig().getInitParameter(PARAMETER_ACTION);
 
         resp.setContentType("text/html; charset=\"UTF-8\""); //$NON-NLS-1$
         resp.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
@@ -317,7 +320,7 @@ public class LoadServlet extends HttpServlet {
                         }
 
                         if ((i + 1) % 1000 == 0) {
-                            String stepName = "Loaded " + ((i + 1) / 1000) + "k"; //$NON-NLS-1$
+                            String stepName = "Loaded " + ((i + 1) / 1000) + "k"; //$NON-NLS-1$ //$NON-NLS-2$
                             resultLogger.logTimeMeasureStep(timeMeasureTag, stepName, TimeMeasure.step(timeMeasureTag, stepName));
                         }
                     }
@@ -348,12 +351,12 @@ public class LoadServlet extends HttpServlet {
                 writer.write("<p>" + resultLogger.print()); //$NON-NLS-1$
 
             } else {
-                writer.write("<p><b>Unknown action: </b>" + action + "<br/>"); //$NON-NLS-1$
+                writer.write("<p><b>Unknown action: </b>" + action + "<br/>"); //$NON-NLS-1$ //$NON-NLS-2$
 
             }
 
         } catch (Exception e) {
-            writer.write("<h1>An error occured: " + e.getLocalizedMessage() + "</h1>"); //$NON-NLS-1$
+            writer.write("<h1>An error occured: " + e.getLocalizedMessage() + "</h1>"); //$NON-NLS-1$ //$NON-NLS-2$
             TimeMeasure.end(timeMeasureTag);
             log.error(e.getMessage(), e);
         }
@@ -366,7 +369,7 @@ public class LoadServlet extends HttpServlet {
 
         if (xsdKey == null) {
             if (log.isDebugEnabled()) {
-                log.debug("Caching id for type '" + typeName + "' in data model '" + dataModelName + "'"); //$NON-NLS-1$
+                log.debug("Caching id for type '" + typeName + "' in data model '" + dataModelName + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
 
             DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataModelName));
@@ -375,12 +378,12 @@ public class LoadServlet extends HttpServlet {
             XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, typeName);
 
             if (conceptKey != null) {
-                String keysAsString = "";
+                String keysAsString = ""; //$NON-NLS-1$
                 for (String currentField : conceptKey.getFields()) {
                     keysAsString += ' ' + currentField;
                 }
                 if (log.isDebugEnabled()) {
-                    log.debug("Key for entity '" + typeName + "' : " + keysAsString); //$NON-NLS-1$
+                    log.debug("Key for entity '" + typeName + "' : " + keysAsString); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             } else {
                 log.error("No key definition for entity '" + typeName + "'.");
@@ -451,30 +454,31 @@ public class LoadServlet extends HttpServlet {
 
         public void logTimeMeasure(String msg) {
 
-            resultLogger.append(System.currentTimeMillis() + " [TimeMeasure]:" + msg + "</br>"); //$NON-NLS-1$
+            resultLogger.append(System.currentTimeMillis() + " [TimeMeasure]:" + msg + "</br>"); //$NON-NLS-1$ //$NON-NLS-2$
 
         }
 
 
         private void logTimeMeasureBegin(String timerId) {
 
-            logTimeMeasure("Start '" + timerId + "' ..."); //$NON-NLS-1$
+            logTimeMeasure("Start '" + timerId + "' ..."); //$NON-NLS-1$ //$NON-NLS-2$
 
         }
 
         private void logTimeMeasureEnd(String timerId, long totalElapsedTime) {
 
-            logTimeMeasure("End '" + timerId + "', total elapsed time: " + totalElapsedTime + " ms "); //$NON-NLS-1$
+            logTimeMeasure("End '" + timerId + "', total elapsed time: " + totalElapsedTime + " ms "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
         }
 
         public void logTimeMeasureStep(String timerId, String stepName, long stepCount) {
-            logTimeMeasure("&nbsp;&nbsp;&nbsp;&nbsp;-> '" + timerId + "', step name '" + stepName + "', elapsed time since previous step: " + stepCount + " ms "); //$NON-NLS-1$
+            logTimeMeasure("&nbsp;&nbsp;&nbsp;&nbsp;-> '" + timerId + "', step name '" + stepName //$NON-NLS-1$ //$NON-NLS-2$
+                    + "', elapsed time since previous step: " + stepCount + " ms "); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         public void logErrorMessage(String msg) {
 
-            resultLogger.append(System.currentTimeMillis() + " [ErrorMessage]:" + msg + "</br>");  //$NON-NLS-1$
+            resultLogger.append(System.currentTimeMillis() + " [ErrorMessage]:" + msg + "</br>");  //$NON-NLS-1$ //$NON-NLS-2$
 
         }
 
