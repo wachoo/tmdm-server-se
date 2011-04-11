@@ -3480,14 +3480,11 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				else {
 					itemsPL = [errorContentPanel,treeDetailPanel];
 				}
-				
-                contentPanel = new Ext.Panel({
+			}
+			
+			if(parentLink != undefined && parentLink["isWindow"] == "true") {
+				contentPanel = new Ext.Panel({
                     id:'itemDetailsdiv'+treeIndex, 
-                    title: myTitle, 
-                    //activeTab: 0,
-                    //tabPosition:'bottom',
-                    //layout:'border',
-                    //height:500,
                     tbar: tbDetail,
                     closable:true,
                     items:itemsPL,
@@ -3496,18 +3493,17 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                         xtype : "tbtext"
                     }])                 
                 });
-			}
-			
-			if(parentLink != undefined && parentLink["isWindow"] == "true") {
+				
 				var fkWindow = new Ext.Window({
-			        width: 500,
+			        width: 710,
 			        height:400,
-			        minWidth: 500,
+			        minWidth: 600,
 			        minHeight: 400,
+			        title:myTitle,
 			        header : false,
 			        layout: 'fit',
 			        plain:true,
-			        bodyStyle:'padding:5px;',
+			        bodyStyle:'padding:1px;',
 			        buttonAlign:'center',
 			        items: contentPanel
 			    });
@@ -3515,6 +3511,18 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				fkWindow.show();
 			}
 			else {
+				contentPanel = new Ext.Panel({
+                    id:'itemDetailsdiv'+treeIndex, 
+                    title:myTitle,
+                    tbar: tbDetail,
+                    closable:true,
+                    items:itemsPL,
+                    bbar : new Ext.Toolbar([{
+                        text : EDIT_ITEM_TOOLTIP[language],
+                        xtype : "tbtext"
+                    }])                 
+                });
+				
 				tabPanel.add(contentPanel); 
 				//record the item id
 				contentPanel.itemid=itemPK2+"."+dataObject;
