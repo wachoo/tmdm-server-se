@@ -9,15 +9,15 @@
   ~ 9 rue Pages 92150 Suresnes, France
   -->
 
-<Geoname>
-    <geonameid>3038815</geonameid>
+<Geoname xsi:type="MyType" xmlns:ns0="http://myNamespace" xmlns:xsi="http://www.xml.com/XmlInstance">
+    <ns0:geonameid>3038815</ns0:geonameid>
     <name>Font de la Xona</name>
-    <asciiname>Font de la Xona</asciiname>
+    <asciiname xmlns:ns1="http://test.org/asciiname" ns1:lang="es">Font de la Xona</asciiname>
     <alternatenames/>
     <latitude>42.55003</latitude>
     <longitude>1.44986</longitude>
     <plan>Plan@@http:// 2 maps.google.com</plan>
-    <feature_class>H</feature_class>
+    <feature_class xmlns:ns1="http://test.org/featureclass/" ns1:lang="unknown">H</feature_class>
     <feature_code>SPNG 2</feature_code>
     <country_code>AD</country_code>
     <cc2/>

@@ -48,7 +48,7 @@ public class LoadParser {
 
     static {
         inputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-        inputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
+        inputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.TRUE);
         inputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     }
 

@@ -15,6 +15,8 @@ package com.amalto.core.load.context;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -22,6 +24,8 @@ import javax.xml.stream.XMLStreamReader;
 import com.amalto.core.load.process.PayloadProcessedElement;
 import com.amalto.core.load.process.ProcessedCharacters;
 import com.amalto.core.load.process.ProcessedEndElement;
+import com.amalto.core.load.process.ProcessedEndNamespace;
+import com.amalto.core.load.process.ProcessedStartNamespace;
 import com.amalto.core.load.process.ProcessedStartElement;
 import org.apache.commons.lang.ArrayUtils;
 import org.xml.sax.Attributes;
@@ -50,6 +54,13 @@ public class BufferStateContextWriter implements StateContextWriter {
                 reader.getLocalName(),
                 reader.getName().getLocalPart());
         processedElements.add(endElement);
+
+        // Namespace parsing
+        Map<String, String> prefixToNamespace = Utils.parseNamespace(reader);
+        Set<Map.Entry<String,String>> entries = prefixToNamespace.entrySet();
+        for (Map.Entry<String, String> entry : entries){
+            processedElements.add(new ProcessedEndNamespace(entry.getKey()));
+        }
     }
 
     public void writeCharacters(XMLStreamReader reader) throws XMLStreamException {
@@ -60,11 +71,22 @@ public class BufferStateContextWriter implements StateContextWriter {
     }
 
     public void writeStartElement(XMLStreamReader reader) throws XMLStreamException {
+        // Attribute parsing
         Attributes attributes = Utils.parseAttributes(reader);
+
+        // Namespace parsing
+        Map<String, String> prefixToNamespace = Utils.parseNamespace(reader);
+        Set<Map.Entry<String,String>> entries = prefixToNamespace.entrySet();
+        for (Map.Entry<String, String> entry : entries){
+            processedElements.add(new ProcessedStartNamespace(entry.getKey(), entry.getValue()));
+        }
+
+        // New start element
         ProcessedStartElement startElement = new ProcessedStartElement(reader.getNamespaceURI(),
                 reader.getLocalName(),
                 reader.getName().getLocalPart(),
-                attributes);
+                attributes
+        );
         processedElements.add(startElement);
     }
 

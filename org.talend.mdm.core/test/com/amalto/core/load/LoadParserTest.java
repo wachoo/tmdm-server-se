@@ -16,8 +16,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.amalto.core.load.exception.ParserCallbackException;
@@ -484,6 +486,9 @@ public class LoadParserTest extends TestCase {
     }
 
     private static class ConsolePrintParserCallback implements LoadParserCallback {
+        private final Map<String, String> namespaceToPrefix = new HashMap<String, String>();
+        private final Set<String> declaredNamespaces = new HashSet<String>();
+
         public void flushDocument(XMLReader docReader, InputSource input) {
             try {
                 docReader.setContentHandler(new ContentHandler() {
@@ -511,18 +516,46 @@ public class LoadParserTest extends TestCase {
                     }
 
                     public void startPrefixMapping(String prefix, String uri) throws SAXException {
-                        System.out.println("ParserScalabilityTest$ConsolePrintParserCallback.startPrefixMapping");
+                        namespaceToPrefix.put(uri, prefix);
                     }
 
                     public void endPrefixMapping(String prefix) throws SAXException {
-                        System.out.println("ParserScalabilityTest$ConsolePrintParserCallback.endPrefixMapping");
+                        String namespaceToRemove = null;
+                        Set<Map.Entry<String, String>> entries = namespaceToPrefix.entrySet();
+                        for (Map.Entry<String, String> entry : entries) {
+                            if (prefix != null && prefix.equals(entry.getValue())) {
+                                namespaceToRemove = entry.getKey();
+                            }
+                        }
+
+                        if (namespaceToRemove == null) {
+                            throw new RuntimeException("Could not find namespace with prefix '" + prefix + "' in current context");
+                        }
+
+                        declaredNamespaces.remove(namespaceToRemove);
+                        namespaceToPrefix.remove(namespaceToRemove);
                     }
 
                     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
                         indent();
                         System.out.print('<' + localName);
+                        if (attributes.getLength() > 0) {
+                            System.out.print(' ');
+                        }
                         for (int i = 0; i < attributes.getLength(); i++) {
-                            System.out.print(attributes.getLocalName(i) + "= \"" + attributes.getValue(i) + "\" ");
+                            String attributeURI = attributes.getURI(i);
+                            String prefix = StringUtils.EMPTY;
+                            if (StringUtils.EMPTY.equals(attributeURI)) {
+                                prefix = namespaceToPrefix.get(attributeURI) + ':';
+                            }
+                            System.out.print(prefix + attributes.getLocalName(i) + "=\"" + attributes.getValue(i) + "\" ");
+                        }
+                        Set<Map.Entry<String, String>> entries = namespaceToPrefix.entrySet();
+                        for (Map.Entry<String, String> entry : entries) {
+                            if (!declaredNamespaces.contains(entry.getKey())) {
+                                System.out.print(" xmlns:" + entry.getValue() + "=\"" + entry.getKey() + "\" ");
+                                declaredNamespaces.add(entry.getKey());
+                            }
                         }
                         System.out.println('>');
                         indent++;

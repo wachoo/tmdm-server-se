@@ -13,6 +13,9 @@
 
 package com.amalto.core.load.context;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
@@ -37,6 +40,12 @@ public class StateContextSAXWriter implements StateContextWriter {
     }
 
     public void writeEndElement(XMLStreamReader reader) throws XMLStreamException, SAXException {
+        Map<String, String> prefixToNamespace = Utils.parseNamespace(reader);
+        Set<Map.Entry<String, String>> entries = prefixToNamespace.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            contentHandler.endPrefixMapping(entry.getKey());
+        }
+
         contentHandler.endElement(getURI(reader), reader.getLocalName(), reader.getName().getLocalPart());
     }
 
@@ -48,7 +57,17 @@ public class StateContextSAXWriter implements StateContextWriter {
     }
 
     public void writeStartElement(XMLStreamReader reader) throws XMLStreamException, SAXException {
+        // Namespace parsing
+        Map<String, String> prefixToNamespace = Utils.parseNamespace(reader);
+        Set<Map.Entry<String, String>> entries = prefixToNamespace.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            contentHandler.startPrefixMapping(entry.getKey(), entry.getValue());
+        }
+
+        // Attribute parsing
         Attributes attributes = Utils.parseAttributes(reader);
+
+        // Start new XML element
         contentHandler.startElement(getURI(reader),
                 reader.getLocalName(),
                 reader.getName().getLocalPart(),
