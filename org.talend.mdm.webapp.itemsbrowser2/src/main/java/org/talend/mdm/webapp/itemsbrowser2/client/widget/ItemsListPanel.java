@@ -130,6 +130,7 @@ public class ItemsListPanel extends ContentPanel {
         loader.addLoadListener(new LoadListener() {
 
             public void loaderLoad(LoadEvent le) {
+                toolBar.searchBut.setEnabled(true);
                 grid.getSelectionModel().select(0, false);
             }
         });
@@ -156,6 +157,7 @@ public class ItemsListPanel extends ContentPanel {
     }
 
     public void updateGrid(CheckBoxSelectionModel<ItemBean> sm, List<ColumnConfig> columnConfigList) {
+        toolBar.searchBut.setEnabled(false);
         if (gridContainer != null && this.findItem(gridContainer.getElement()) != null)
             remove(gridContainer);
         if (panel != null && this.findItem(panel.getElement()) != null)
@@ -288,6 +290,11 @@ public class ItemsListPanel extends ContentPanel {
 
     public Grid<ItemBean> getGrid() {
         return grid;
+    }
+    
+    public void setEnabledGridSearchButton(boolean enabled){
+        grid.setEnabled(enabled);
+        toolBar.searchBut.setEnabled(enabled);
     }
     
     public void refresh(String ids, final boolean refreshItemForm){

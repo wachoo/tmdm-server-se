@@ -51,7 +51,8 @@ public class GetService {
     
     static void setEnable(boolean enabled){
         ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
-        itemsSearchContainer.getItemsListPanel().getGrid().setEnabled(enabled);
+        itemsSearchContainer.getItemsListPanel().setEnabledGridSearchButton(enabled);
+        
     }
     
     public static native void renderFormWindow(String ids, String concept, boolean isDuplicate,
