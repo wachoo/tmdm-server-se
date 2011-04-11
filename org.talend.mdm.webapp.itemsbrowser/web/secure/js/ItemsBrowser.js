@@ -2064,12 +2064,13 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                       totalProperty: 'totalSize',
                       id: 'value',
                       root: 'data'
-                  }, Ext.data.Record.create([
+                   }, Ext.data.Record.create([
                             {name: 'value',mapping:'value',type:'string'},
                             {name: 'text',mapping:'text',type:'string'}
                            ])
-                   )
-                });
+                   ),
+                 autoLoad: true
+            });
                 
             smartViewStore.on('beforeload', 
                     function(button, event) {
@@ -2083,8 +2084,24 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                                 
                     }
              );
+             
+             smartViewStore.on('load', 
+                    function() {
+                    	
+                    	var smartViewStoreNum=smartViewStore.getCount();
+                    	if(smartViewStoreNum>0){
+                           for(var i=0;i<smartViewStoreNum;i++){
+                              var gettedValue=smartViewStore.getAt(i).data.value;
+                              if(gettedValue=='Smart_view_'+toolbar.dataObject||gettedValue=='Smart_view_'+toolbar.dataObject+'_'+language.toUpperCase()){
+                              	smartViewCombo.setValue(gettedValue);
+                              	break;
+                              }  
+                           }
+                    	}
+                    }
+             );
                
-            var combo = new Ext.form.ComboBox({
+            var smartViewCombo = new Ext.form.ComboBox({
                 id :  "smartViewCombo"+toolbar.treeIndex,
                 name : "smartViewCombo"+toolbar.treeIndex,
                 editable : false,
@@ -2096,7 +2113,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
                 forceSelection:true,
                 resizable:true,
                 listeners : {                     
-                               'select' : function(combo,record,index) {
+                               'select' : function(smartViewCombo,record,index) {
                                 
                                                       var optName=null;
                                                       if(record.data.value.indexOf('#')!=-1)optName=record.data.text;
@@ -2109,7 +2126,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 
             });
             
-            toolbar.addField(combo);
+            toolbar.addField(smartViewCombo);
             nbButtons++;
         }
 	    // print
@@ -2375,7 +2392,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 					
 				var smartView = '';
 				if(newItem[treeIndex]==false ) {
-					smartView = '<iframe width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='+ids+'&concept='+dataObject+'&language='+language+'">';
+					smartView = '<iframe id="smartViewFrame'+treeIndex+'" width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='+ids+'&concept='+dataObject+'&language='+language+'">';
 				}	
 	
 				var breadCrumbHtml = '<div id="breadCrumbHtml"></div>';
@@ -4956,8 +4973,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	function getSmartView(ids, dataObject, treeIndex){
-		var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
-	
+		var tbDetail = getItemDetailsDiv(treeIndex);
 		tbDetail.displayTreeHandler = function(){	
 			getTree(ids,''+dataObject,treeIndex);
 		};
@@ -4975,7 +4991,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	}
 	
 	function getTree(ids,dataObject, treeIndex){
-		var tbDetail = amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
+		var tbDetail = getItemDetailsDiv(treeIndex);
 		tbDetail.displaySmartViewHandler = function(){	
 			getSmartView(ids,''+dataObject,treeIndex);
 		};
@@ -4986,6 +5002,16 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		// updating toolbar
 		initToolBar(tbDetail, M_TREE_VIEW);
 	
+	}
+	
+	function getItemDetailsDiv(treeIndex){
+		var tbDetail = null;
+        if(amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex)!=undefined){
+            tbDetail=amalto.core.getTabPanel().getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
+        }else{
+            tbDetail=Ext.getCmp('itemDetailsdiv'+treeIndex).getTopToolbar();
+        }
+        return tbDetail;
 	}
 	
 	
