@@ -1,4 +1,15 @@
-﻿
+﻿//Nick
+var tempQ = false;
+
+function closeTimelineBubble(){
+	if(!tempQ._closed){
+		document.body.removeChild(tempQ._div);
+		tempQ._doc=null;
+		tempQ._div=null;
+		tempQ._content=null;
+		tempQ._closed=true;
+	}
+}
 
 /* jquery-1.2.6.min.js */
 (function(){var _jQuery=window.jQuery,_$=window.$;
@@ -1789,6 +1800,9 @@ var R=SimileAjax.WindowManager.pushLayer(I,true,H);
 Q._div=H;
 Q.close=function(){SimileAjax.WindowManager.popLayer(R);
 };
+//Nick
+tempQ = Q;
+
 var G=function(T){var S=document.createElement("div");
 S.className=K(E.borderGraphicCSSClassPrefix+T);
 D.appendChild(S);

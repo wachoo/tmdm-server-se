@@ -55,31 +55,13 @@ function callback(msg){
     bandInfos[2].syncWith = 0;
     bandInfos[1].highlight = true;
     bandInfos[2].highlight = true;
-    
-    for (var i = 0; i < bandInfos.length; i++) {
-        bandInfos[i].decorators = [
-            new Timeline.SpanHighlightDecorator({
-                startDate:  "1", 
-                endDate:    new Date(Date.UTC(1850, 0, 1)),
-                cssClass:   "timeline-ether-bg", 
-                inFront:    true, 
-                theme:      theme1
-            }),
-            new Timeline.SpanHighlightDecorator({
-                startDate:  "Fri Jan 1 4480 00:00:00 GMT",
-                endDate:    "Fri Jan 1 8000 00:00:00 GMT",
-                cssClass:   "timeline-ether-bg",
-                inFront:    true, 
-                theme:      theme1
-            })
-        ];
-    }
-    
+        
     tl = Timeline.create(tl_el, bandInfos, Timeline.HORIZONTAL);
     eventSource1.loadJSON(jsonData, document.location.href);
 };
 
 function showDialog(ids, key, concept, dataCluster, dataModel){
+	closeTimelineBubble();
 	var tabPanel = amalto.core.getTabPanel();
 	var dataLogViewer=tabPanel.getItem(ids);
 	if( dataLogViewer== undefined){

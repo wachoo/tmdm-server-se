@@ -92,7 +92,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 			id:"timelinePanel",
 			title: TIMELINE_TITLE[language],
 			iconCls:"report_table_timeline",
-//			layout : "fit",
+			layout : "fit",
 			html:"<div id='tl' class='timeline-default' style='height:500px;'></div>"
 		});
 				
@@ -395,6 +395,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 		this.store1.reload({params:{start:0, limit:pageSize}});
 		searchStart = 0;
 		searchLimit = pageSize;
+		UpdateReportInterface.getReportString(searchStart, searchLimit, searchCriteria, callback);
     },
     
     onSearchBtnClick : function(button, event){
