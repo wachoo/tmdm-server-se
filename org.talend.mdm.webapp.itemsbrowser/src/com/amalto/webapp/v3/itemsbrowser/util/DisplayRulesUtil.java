@@ -68,14 +68,68 @@ public class DisplayRulesUtil {
 
     public String genDefaultValueStyle() {
         // remove visible style before save it, it is just used to show
-        String style = genStyle();
-        if (style.indexOf("<xsl:attribute name=\"t:visible\">") > -1) { //$NON-NLS-1$
-            // if has child element
-            style = style.replaceAll("<xsl:if test=\"not(.*?)[^\\<xsl:if]</xsl:if><xsl:", "<xsl:"); //$NON-NLS-1$ //$NON-NLS-2$
-            // if has no child
-            style = style.replaceAll("<xsl:if test=\"not(.*?)[^\\<xsl:if]</xsl:if>", "<xsl:value-of select=\".\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+        String style = translateDefaultValueSchema();
+
+        StringBuffer sb = new StringBuffer();
+        sb
+                .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"1.0\">"); //$NON-NLS-1$
+        sb.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>"); //$NON-NLS-1$
+        sb.append(style);
+        sb.append("</xsl:stylesheet>"); //$NON-NLS-1$
+
+        return sb.toString();
+    }
+
+    private String translateDefaultValueSchema() {
+        StringBuffer style = new StringBuffer();
+        travelXSElement(root);
+
+        for (TemplateBean tmp : tmpls) {
+            XSElementDecl self = tmp.getSelfElement();
+            List<XSElementDecl> children = tmp.getChildrenElements();
+
+            style.append("<xsl:template match=\"" + self.getName() + "\">") //$NON-NLS-1$ //$NON-NLS-2$
+                    .append("<xsl:copy>"); //$NON-NLS-1$ 
+
+            List<DisplayRule> dspRules = getRules(self);
+            for (DisplayRule displayRule : dspRules) {
+                String dspType = displayRule.getType();
+                if (dspType.equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
+
+                    style.append("<xsl:choose> "); //$NON-NLS-1$
+                    style.append("<xsl:when test=\"not(text())\"> "); //$NON-NLS-1$
+                    if (isLiteralData(displayRule.getValue())) {
+                        style.append("<xsl:text>" + Util.stripLeadingAndTrailingQuotes(displayRule.getValue()) + "</xsl:text>"); //$NON-NLS-1$ //$NON-NLS-2$
+                    } else {
+                        style
+                                .append("<xsl:value-of select=\"" + displayRule.getValue().replaceAll("\r\n", "").replaceAll("\n", "") + "\"/> "); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                    style.append("</xsl:when> "); //$NON-NLS-1$
+                    style.append("<xsl:otherwise><xsl:value-of select=\".\"/></xsl:otherwise> "); //$NON-NLS-1$
+                    style.append("</xsl:choose> "); //$NON-NLS-1$
+
+                } else if (dspType.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
+                    if (children == null || children.size() == 0) {
+                        style.append("<xsl:value-of select=\".\"/>"); //$NON-NLS-1$
+                    }
+                }
+            }
+
+            if (children != null && children.size() > 0) {
+                for (XSElementDecl child : children) {
+                    if (child.getType().isComplexType() || hasRules(child))
+                        style.append("<xsl:apply-templates select=\"" + child.getName() + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+                    else
+                        style.append("<xsl:copy-of select=\"" + child.getName() + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+            }
+
+            style.append("</xsl:copy>") //$NON-NLS-1$ 
+                    .append("</xsl:template>"); //$NON-NLS-1$ 
+
         }
-        return style;
+
+        return style.toString();
     }
 
     private String translateSchema() {
