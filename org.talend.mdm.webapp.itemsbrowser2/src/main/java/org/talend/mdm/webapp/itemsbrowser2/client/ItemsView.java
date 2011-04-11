@@ -201,7 +201,7 @@ public class ItemsView extends View {
                     itemsFormPanel.setReadOnly(itemBean, entityModel.getKeys());
                 } else {
                     window = new Window();
-                    window.setSize(650, 500);
+                    window.setSize(710, 500);
                     window.setMinWidth(600);
                     window.setPlain(true);
                     window.setModal(false);
@@ -219,7 +219,9 @@ public class ItemsView extends View {
                     window.setPosition(left + offset, top + offset);
                     window.setId("formWindowContainer");//$NON-NLS-1$
                     GetService.regCallback();
-                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, window.getBody().dom, false, true, true);//$NON-NLS-1$
+                    window.getBody().dom.getStyle().setOverflow(Overflow.AUTO);
+                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, window.getBody().dom, false,
+                            true, true);//$NON-NLS-1$
                 }
                 // TODO handle legacy form
             }
