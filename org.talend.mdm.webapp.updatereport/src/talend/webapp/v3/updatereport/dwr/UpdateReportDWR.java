@@ -254,7 +254,7 @@ public class UpdateReportDWR {
     	}
     	sb.append("]}");
     	
-    	if(data.length > 1){
+    	if(data.length >= 1){
     		sb.append("@||@");
     		DataChangeLog obj = (DataChangeLog) data[0];  		
     		sb.append(this.changeDataFormat(obj.getTimeInMillis()));
