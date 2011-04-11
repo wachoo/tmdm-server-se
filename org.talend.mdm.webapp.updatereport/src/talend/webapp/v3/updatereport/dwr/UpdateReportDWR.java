@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -17,6 +16,8 @@ import talend.webapp.v3.updatereport.bean.DataChangeLog;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.json.JSONObject;
+import com.amalto.webapp.core.util.Messages;
+import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
@@ -33,14 +34,9 @@ public class UpdateReportDWR {
 
     private Logger logger = org.apache.log4j.Logger.getLogger(this.getClass());
     
-    private final String userNameLabel = "Username"; 
-    private final String sourceLabel = "source";
-    private final String entityLabel = "Entity";
-    private final String revisionLabel = "Revision";
-    private final String dataContainerLabel = "Data-container";
-    private final String dataModelLabel = "Data-model";
-    private final String keyLabel = "Key";
-    
+    private static final Messages MESSAGES = MessagesFactory.getMessages("talend.webapp.v3.updatereport.dwr.messages", 
+    		UpdateReportDWR.class.getClassLoader());
+       
     public UpdateReportDWR() {
 
     }
@@ -50,13 +46,13 @@ public class UpdateReportDWR {
         ListRange listRange = new ListRange();
 
         WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(XSystemObjects.DC_UPDATE_PREPORT.getName());
-        String conceptName = "Update";// Hard Code
+        String conceptName = "Update";// Hard Code //$NON-NLS-1$         
 
         // Where condition
         ArrayList<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
         if (regex != null && regex.length() > 0) {
             JSONObject criteria = new JSONObject(regex);
-            boolean itemsBrowser = !criteria.isNull("itemsBrowser") && criteria.get("itemsBrowser").equals("true");
+            boolean itemsBrowser = !criteria.isNull("itemsBrowser") && criteria.get("itemsBrowser").equals("true"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
             if (itemsBrowser) {
                 Configuration configuration = Configuration.getInstance(true);
@@ -215,39 +211,40 @@ public class UpdateReportDWR {
         return listRange;
     }
        
-    public String getReportString(int start, int limit, String regex) throws Exception {
+    public String getReportString(int start, int limit, String regex, String language) throws Exception {
     	ListRange listRange = this.getUpdateReportList(start, limit, null, null, regex);
     	Object[] data = listRange.getData();
     	
-    	String str = this.generateEventString(data);
+    	String str = this.generateEventString(data, language);
     	return str;
     }
 
-    private String generateEventString(Object[] data) throws ParseException{
+    private String generateEventString(Object[] data, String language) throws ParseException{
     	StringBuilder sb = new StringBuilder("{'dateTimeFormat': 'iso8601',");
-//    	sb.append("'wikiURL': ").append("'").append("http://simile.mit.edu/shelf/").append("'");
-//    	sb.append("'wikiSection': ").append("'").append("Simile Cubism Timeline").append("',");
-    	sb.append("'events' : [");
-    	
+    	sb.append("'events' : [");	
+    	  
     	for(int i =0; i<data.length; i++){
     		DataChangeLog datalog = (DataChangeLog) data[i];
-    		sb.append("{'start':'").append(this.computeTime(datalog.getTimeInMillis())).append("',");
-    		sb.append("'title':'").append(datalog.getTimeInMillis()).append(" - ").append(datalog.getOperationType()).append("',");
-    		sb.append("'link':'").append("javascript:showDialog(")
+    		sb.append("{'start':'").append(this.computeTime(datalog.getTimeInMillis())).append("',");  //$NON-NLS-1$                         
+    		sb.append("'title':'").append(datalog.getTimeInMillis()).append(" - ").append(datalog.getOperationType()).append("',");  //$NON-NLS-1$
+    		sb.append("'link':'").append("javascript:showDialog(")  //$NON-NLS-1$
 			 .append("\"").append(datalog.getIds()).append("\",")
 			 .append("\"").append(datalog.getKey()).append("\",")
 			 .append("\"").append(datalog.getConcept()).append("\",")
 			 .append("\"").append(datalog.getDataCluster()).append("\",")
 			 .append("\"").append(datalog.getDataModel()).append("\"").append(")',");
-    		sb.append("'description':'").append(this.userNameLabel).append(":").append(datalog.getUserName()).append("<br>")
-    									.append(this.sourceLabel).append(":").append(datalog.getSource()).append("<br>")
-    									.append(this.entityLabel).append(":").append(datalog.getConcept()).append("<br>")
-    									.append(this.revisionLabel).append(":").append(datalog.getRevisionID()).append("<br>")
-    									.append(this.dataContainerLabel).append(":").append(datalog.getDataCluster()).append("<br>")
-    									.append(this.dataModelLabel).append(":").append(datalog.getDataModel()).append("<br>")
-    									.append(this.keyLabel).append(":").append(datalog.getKey()).append("<br>")
     		
-    		.append("'}");
+    		Locale locale = new Locale(language);
+    		    
+    		sb.append("'description':'").append(MESSAGES.getMessage(locale, "updatereport.timeline.label.userName")).append(":").append(datalog.getUserName()).append("<br>")
+			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.source")).append(":").append(datalog.getSource()).append("<br>")
+			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.entity")).append(":").append(datalog.getConcept()).append("<br>")
+			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.revision")).append(":").append(datalog.getRevisionID()).append("<br>")
+			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.dataContainer")).append(":").append(datalog.getDataCluster()).append("<br>")
+			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.dataModel")).append(":").append(datalog.getDataModel()).append("<br>")
+			.append(MESSAGES.getMessage(locale, "updatereport.timeline.label.key")).append(":").append(datalog.getKey()).append("<br>"); 			
+    		
+    		sb.append("'}");
     		
     		if(i != data.length-1)
     			sb.append(",");
@@ -264,15 +261,15 @@ public class UpdateReportDWR {
     }
 
     private String changeDataFormat(String src) throws ParseException{
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");  //$NON-NLS-1$
     	Date d = sdf.parse(src);
     	sdf = new SimpleDateFormat("MMM dd yyyy HH:mm:ss", Locale.ENGLISH);
 		String timeStr = sdf.format(d);
     	return timeStr + " GMT";
     }
     
-    private static String computeTime(String src) throws ParseException{
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+    private String computeTime(String src) throws ParseException{
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");  //$NON-NLS-1$
     	Date d = sdf.parse(src);
     	Calendar c = Calendar.getInstance();
     	int offset = c.getTimeZone().getRawOffset()/3600000;

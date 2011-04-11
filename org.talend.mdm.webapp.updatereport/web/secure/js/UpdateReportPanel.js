@@ -255,7 +255,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 			listeners:{
 				"tabchange":function(obj, tab) {
 					if(tab.getId() == "timelinePanel"){
-						UpdateReportInterface.getReportString(searchStart, searchLimit, searchCriteria, callback);						
+						UpdateReportInterface.getReportString(searchStart, searchLimit, searchCriteria, language, callback);						
 					}
 				}
 			}       			
@@ -407,7 +407,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 		this.store1.reload({params:{start:0, limit:pageSize}});
 		searchStart = 0;
 		searchLimit = pageSize;
-		UpdateReportInterface.getReportString(searchStart, searchLimit, searchCriteria, callback);
+		UpdateReportInterface.getReportString(searchStart, searchLimit, searchCriteria, language, callback);
     },
     
     onSearchBtnClick : function(button, event){
