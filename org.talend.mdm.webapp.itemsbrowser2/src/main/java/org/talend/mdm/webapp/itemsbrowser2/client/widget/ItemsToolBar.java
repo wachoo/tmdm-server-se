@@ -53,11 +53,11 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -98,8 +98,6 @@ public class ItemsToolBar extends ToolBar {
     private final Button managebookBtn = new Button();
 
     private final Button bookmarkBtn = new Button();
-
-    private final Window winAdvanced = new Window();
 
     private Button createBtn = new Button(MessagesFactory.getMessages().create_btn());
 
@@ -171,6 +169,7 @@ public class ItemsToolBar extends ToolBar {
         add(createBtn);
         createBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 String concept = ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString());//$NON-NLS-1$
 
@@ -192,6 +191,7 @@ public class ItemsToolBar extends ToolBar {
         // TODO duplicate with recordToolbar
         delMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
+            @Override
             public void componentSelected(MenuEvent ce) {
                 MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(),
                         new Listener<MessageBoxEvent>() {
@@ -211,10 +211,12 @@ public class ItemsToolBar extends ToolBar {
                                                         for (ItemResult result : results) {
                                                             if (result.getStatus() == ItemResult.FAILURE) {
                                                                 MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                                        MessagesFactory.getMessages().delete_record_failure(),
+                                                                        result.getDescription(),
                                                                         null);
                                                                 return;
                                                             }
+                                                            MessageBox.info(MessagesFactory.getMessages().info_title(),
+                                                                    result.getDescription(), null);
                                                         }
                                                         list.getStore().getLoader().load();
                                                     }
@@ -232,6 +234,7 @@ public class ItemsToolBar extends ToolBar {
         trashMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
         trashMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
+            @Override
             public void componentSelected(MenuEvent ce) {
                 final MessageBox box = MessageBox.prompt(MessagesFactory.getMessages().path(), MessagesFactory.getMessages()
                         .path_desc(), new Listener<MessageBoxEvent>() {
@@ -251,7 +254,7 @@ public class ItemsToolBar extends ToolBar {
                                                 for (ItemResult result : results) {
                                                     if (result.getStatus() == ItemResult.FAILURE) {
                                                         MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                                MessagesFactory.getMessages().delete_record_failure(), null);
+                                                                result.getDescription(), null);
                                                         return;
                                                     }
                                                 }
@@ -280,6 +283,7 @@ public class ItemsToolBar extends ToolBar {
         // add entity combo
         RpcProxy<List<ItemBaseModel>> Entityproxy = new RpcProxy<List<ItemBaseModel>>() {
 
+            @Override
             public void load(Object loadConfig, AsyncCallback<List<ItemBaseModel>> callback) {
                 service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), callback);
             }
@@ -301,6 +305,7 @@ public class ItemsToolBar extends ToolBar {
 
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
+            @Override
             public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                 String viewPk = se.getSelectedItem().get("value").toString();//$NON-NLS-1$
                 Dispatcher.forwardEvent(ItemsEvents.GetView, viewPk);
@@ -316,6 +321,7 @@ public class ItemsToolBar extends ToolBar {
         searchBut.setEnabled(false);
         searchBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 if (simplePanel.getCriteria() != null) {
                     isSimple = true;
@@ -337,6 +343,7 @@ public class ItemsToolBar extends ToolBar {
         advancedBut.setEnabled(false);
         advancedBut.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 // show advanced Search panel
                 advancedPanelVisible = !advancedPanelVisible;
@@ -360,6 +367,7 @@ public class ItemsToolBar extends ToolBar {
         managebookBtn.setEnabled(false);
         managebookBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 final Window winBookmark = new Window();
                 winBookmark.setHeading(MessagesFactory.getMessages().bookmarkmanagement_heading());
@@ -378,6 +386,7 @@ public class ItemsToolBar extends ToolBar {
                 // display bookmark grid
                 RpcProxy<PagingLoadResult<ItemBaseModel>> proxyBookmark = new RpcProxy<PagingLoadResult<ItemBaseModel>>() {
 
+                    @Override
                     public void load(Object loadConfig, AsyncCallback<PagingLoadResult<ItemBaseModel>> callback) {
                         service.querySearchTemplates(entityCombo.getValue().get("value").toString(), true, //$NON-NLS-1$
                                 (PagingLoadConfig) loadConfig, callback);
@@ -399,7 +408,6 @@ public class ItemsToolBar extends ToolBar {
                 ColumnConfig colEdit = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_edit(), 100); //$NON-NLS-1$
                 colEdit.setRenderer(new GridCellRenderer<ItemBaseModel>() {
 
-                    @SuppressWarnings("deprecation")//$NON-NLS-1$
                     public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();
@@ -450,7 +458,6 @@ public class ItemsToolBar extends ToolBar {
                 ColumnConfig colDel = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_del(), 100); //$NON-NLS-1$
                 colDel.setRenderer(new GridCellRenderer<ItemBaseModel>() {
 
-                    @SuppressWarnings("deprecation")
                     public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();
@@ -495,7 +502,6 @@ public class ItemsToolBar extends ToolBar {
                 ColumnConfig colSearch = new ColumnConfig("value", MessagesFactory.getMessages().bookmark_search(), 100); //$NON-NLS-1$
                 colSearch.setRenderer(new GridCellRenderer<ItemBaseModel>() {
 
-                    @SuppressWarnings("deprecation")
                     public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();
@@ -555,6 +561,7 @@ public class ItemsToolBar extends ToolBar {
         bookmarkBtn.setEnabled(false);
         bookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 showBookmarkSavedWin(true);
             }
@@ -582,9 +589,9 @@ public class ItemsToolBar extends ToolBar {
 
     private boolean ifManage(ItemBaseModel model) {
         // only the shared bookmark could be managed
-        Iterator i = userCriteriasList.iterator();
+        Iterator<ItemBaseModel> i = userCriteriasList.iterator();
         while (i.hasNext()) {
-            if (((ItemBaseModel) i.next()).get("value").equals( //$NON-NLS-1$
+            if ((i.next()).get("value").equals( //$NON-NLS-1$
                     model.get("value").toString())) { //$NON-NLS-1$    
                 return true;
             }
@@ -651,6 +658,7 @@ public class ItemsToolBar extends ToolBar {
         Button btn = new Button(MessagesFactory.getMessages().ok_btn());
         btn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue() //$NON-NLS-1$
                         .toString(), new AsyncCallback<Boolean>() {
@@ -726,6 +734,7 @@ public class ItemsToolBar extends ToolBar {
             Button searchBtn = new Button(MessagesFactory.getMessages().search_btn());
             searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                @Override
                 public void componentSelected(ButtonEvent ce) {
                     if (advancedPanel.getCriteria() == null || advancedPanel.getCriteria().equals("")) //$NON-NLS-1$
                         MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
@@ -744,6 +753,7 @@ public class ItemsToolBar extends ToolBar {
             Button advancedBookmarkBtn = new Button(MessagesFactory.getMessages().advsearch_bookmark());
             advancedBookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                @Override
                 public void componentSelected(ButtonEvent ce) {
                     showBookmarkSavedWin(false);
                 }
@@ -754,6 +764,7 @@ public class ItemsToolBar extends ToolBar {
             Button cancelBtn = new Button(MessagesFactory.getMessages().button_reset());
             cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                @Override
                 public void componentSelected(ButtonEvent ce) {
                     advancedPanel.cleanCriteria();
 

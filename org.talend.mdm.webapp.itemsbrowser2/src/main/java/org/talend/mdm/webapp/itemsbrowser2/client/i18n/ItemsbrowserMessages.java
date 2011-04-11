@@ -211,6 +211,8 @@ public interface ItemsbrowserMessages extends Messages {
     String save_process_validation_success();
 
     String save_process_validation_failure();
+    
+    String delete_process_validation_failure();
 
     String delete_record_failure();
 

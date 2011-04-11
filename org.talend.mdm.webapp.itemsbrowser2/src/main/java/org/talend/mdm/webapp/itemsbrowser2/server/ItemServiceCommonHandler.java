@@ -293,7 +293,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             return new ItemResult(status, message);
         } catch (Exception e) {
             ItemResult result;
-            // TODO
+            // TODO UGLY!!!! to be refactored
             if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {//$NON-NLS-1$ 
                 String saveSUCCE = "Save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$ 
                         + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".")//$NON-NLS-1$ 
@@ -323,7 +323,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             String message = null;
             String errorCode = null;
             if (outputErrorMessage != null) {
-                Document doc = XmlUtil.parse(outputErrorMessage);
+                Document doc = XmlUtil.parseText(outputErrorMessage);
                 // TODO what if multiple error nodes ?
                 String xpath = "/descendant::error"; //$NON-NLS-1$
                 Node errorNode = doc.selectSingleNode(xpath);
@@ -333,32 +333,33 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     message = errorElement.getText();
                 }
             }
-
+            
+            int status;
             if (outputErrorMessage == null || "0".equals(errorCode)) { //$NON-NLS-1$               
                 WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
-                if (wsItem != null)
-                    pushUpdateReport(ids, concept, "PHYSICAL_DELETE"); //$NON-NLS-1$ 
-                // deleted from the list.
-                else
-                    message = "ERROR - Unable to delete item"; //$NON-NLS-1$ 
-
-                if (message == null || message.length() == 0)
-                    message = "The record was deleted successfully."; //$NON-NLS-1$                
+                if (wsItem != null) {
+                    status = ItemResult.SUCCESS;
+                    pushUpdateReport(ids, concept, "PHYSICAL_DELETE"); //$NON-NLS-1$
+                    if (message == null || message.length() == 0)
+                        message = MESSAGES.delete_record_success();
+                }
+                else {
+                    status = ItemResult.FAILURE;
+                    message = MESSAGES.delete_record_failure();
+                }                        
             } else {
                 // Anything but 0 is unsuccessful
+                status = ItemResult.FAILURE;
                 if (message == null || message.length() == 0)
-                    message = "An error might have occurred. The record was not deleted."; //$NON-NLS-1$
-                message = "ERROR_3" + message; //$NON-NLS-1$
+                   message = MESSAGES.delete_process_validation_failure();
             }
 
-            if (message.indexOf("ERROR") > -1)//$NON-NLS-1$ 
-                return new ItemResult(ItemResult.FAILURE, message);
-            else
-                return new ItemResult(ItemResult.SUCCESS, message);
+            return new ItemResult(status, message);
 
         } catch (Exception e) {
-            return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage()); //$NON-NLS-1$
+            LOG.error(e.getMessage(), e);
+            return new ItemResult(ItemResult.FAILURE, e.getLocalizedMessage()); 
         }
     }
 
@@ -409,6 +410,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             return new ItemResult(ItemResult.SUCCESS, "OK");//$NON-NLS-1$ 
 
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
             return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage());//$NON-NLS-1$ 
         }
     }
@@ -914,6 +916,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 return "OK";//$NON-NLS-1$ 
             }
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
             return "ERROR -" + e.getLocalizedMessage();//$NON-NLS-1$ 
         }
     }
