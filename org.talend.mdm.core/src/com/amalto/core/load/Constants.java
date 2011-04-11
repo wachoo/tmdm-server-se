@@ -26,9 +26,9 @@ public interface Constants {
     String DMN_ELEMENT = "dmn";
     String DMR_ELEMENT = "dmr";
     String SP_ELEMENT = "sp";
-    String VERSION_ELEMENT = "i";
+    String TIMESTAMP_ELEMENT = "t";
     String TASK_ID_ELEMENT = "taskId";
-    String ID_ELEMENT = "t";
+    String ID_ELEMENT = "i";
     boolean NON_FINAL_STATE = false;
     boolean FINAL_STATE = true;
     int DEFAULT_PARSER_LIMIT = -1; // Means no limit

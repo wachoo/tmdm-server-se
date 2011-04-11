@@ -107,9 +107,9 @@ public class FlushXMLReader implements XMLReader {
         writePrologElement(Constants.DMN_ELEMENT, metadata.getDMN());
         writePrologElement(Constants.DMR_ELEMENT, metadata.getDMR());
         writePrologElement(Constants.SP_ELEMENT, metadata.getSP());
-        writePrologElement(Constants.VERSION_ELEMENT, metadata.getVersion());
+        writePrologElement(Constants.TIMESTAMP_ELEMENT, metadata.getVersion());
         writePrologElement(Constants.TASK_ID_ELEMENT, metadata.getTaskId());
-        writePrologElement(Constants.ID_ELEMENT, metadata.getId() == null ? StringUtils.EMPTY : metadata.getId());
+        writePrologElement(Constants.ID_ELEMENT, metadata.getId());
 
         // Payload
         contentHandler.startElement(StringUtils.EMPTY, Constants.PAYLOAD_ELEMENT, Constants.PAYLOAD_ELEMENT, Constants.EMPTY_ATTRIBUTES);
@@ -132,17 +132,19 @@ public class FlushXMLReader implements XMLReader {
         contentHandler.endDocument();
     }
 
-    private void writePrologElement(String elementName, String elementText) throws SAXException {
-        if (elementText == null) {
-            elementText = String.valueOf(elementText);
-        }
+    private void writePrologElement(String elementName, String... elementText) throws SAXException {
+        for (String currentElementText : elementText) {
+            if (currentElementText == null) {
+                currentElementText = String.valueOf(elementText);
+            }
 
-        contentHandler.startElement(StringUtils.EMPTY, elementName, elementName, Constants.EMPTY_ATTRIBUTES);
-        {
-            char[] elementTextChars = elementText.toCharArray();
-            contentHandler.characters(elementTextChars, 0, elementTextChars.length);
+            contentHandler.startElement(StringUtils.EMPTY, elementName, elementName, Constants.EMPTY_ATTRIBUTES);
+            {
+                char[] elementTextChars = currentElementText.toCharArray();
+                contentHandler.characters(elementTextChars, 0, elementTextChars.length);
+            }
+            contentHandler.endElement(StringUtils.EMPTY, elementName, elementName);
         }
-        contentHandler.endElement(StringUtils.EMPTY, elementName, elementName);
     }
 
     public void parse(String systemId) throws IOException, SAXException {

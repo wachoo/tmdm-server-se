@@ -11,6 +11,8 @@
 
 package com.amalto.core.load.context;
 
+import java.util.Collections;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
@@ -122,14 +124,14 @@ public class AutoGenStateContext implements StateContext {
         }
 
         @Override
-        public String getId() {
+        public String[] getId() {
             // TODO check if uuid key exist
             try {
                 String universe = LocalUser.getLocalUser().getUniverse().getName();
                 long id = AutoIncrementGenerator.generateNum(universe,
                         metadata.getDataClusterName(),
                         metadata.getName());
-                return String.valueOf(id);
+                return new String[]{String.valueOf(id)};
             } catch (XtentisException e) {
                 throw new RuntimeException(e);
             }

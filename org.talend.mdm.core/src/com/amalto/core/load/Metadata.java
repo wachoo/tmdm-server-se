@@ -11,6 +11,9 @@
 
 package com.amalto.core.load;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -21,7 +24,7 @@ public class Metadata {
     private final String sp = StringUtils.EMPTY;
     private final String taskId = null;
 
-    private String id = StringUtils.EMPTY;
+    private List<String> id = new ArrayList<String>();
     private String container = StringUtils.EMPTY;
     private String name = StringUtils.EMPTY;
     private String dmn = StringUtils.EMPTY;
@@ -42,8 +45,8 @@ public class Metadata {
         this.dmn = dmn;
     }
 
-    public String getId() {
-        return id;
+    public String[] getId() {
+        return id.toArray(new String[id.size()]);
     }
 
     public String getContainer() {
@@ -75,15 +78,11 @@ public class Metadata {
     }
 
     public void setId(String id) {
-        if (this.id == null) {
-            this.id = id.trim();
-        } else {
-            this.id += ':' + id.trim();
-        }
+        this.id.add(id.trim());
     }
 
     public void reset() {
-        this.id = null;
+        id.clear();
     }
 
     public String getDataClusterName() {

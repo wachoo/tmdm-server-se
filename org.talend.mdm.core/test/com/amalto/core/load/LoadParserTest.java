@@ -337,7 +337,7 @@ public class LoadParserTest extends TestCase {
 
         assertTrue(callback.hasBeenFlushed());
         assertEquals(1, callback.getFlushCount());
-        assertEquals(14, callback.getStartedElements().size());
+        assertEquals(15, callback.getStartedElements().size());
         assertTrue(hasParsedElement(callback, "root"));
         assertTrue(hasParsedElement(callback, "element2"));
         assertTrue(hasParsedCharacters(callback, "text"));
@@ -426,7 +426,7 @@ public class LoadParserTest extends TestCase {
                     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
                         startedElements.add(localName);
 
-                        if ("t".equals(localName)) {
+                        if ("i".equals(localName)) {
                             isId = true;
                         }
 
@@ -447,11 +447,20 @@ public class LoadParserTest extends TestCase {
                     public void characters(char[] ch, int start, int length) throws SAXException {
                         String string = new String(ch);
                         if (isId) {
-                            id = string;
+                            if (id != null && !id.isEmpty()) {
+                                id += ':' + string;
+                            } else {
+                                id = string;
+                            }
                         } else {
                             characters.add(string.trim());
                         }
                         super.characters(ch, start, length);
+                    }
+
+                    @Override
+                    public void startDocument() throws SAXException {
+                        id = null;
                     }
                 });
                 docReader.parse(input);
