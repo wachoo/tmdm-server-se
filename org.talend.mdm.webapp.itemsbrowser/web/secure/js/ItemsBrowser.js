@@ -1490,40 +1490,41 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		var cruise = true;
 		var sign = 0;
 		
-		while (cruise) {
-			for ( var i = sign; i < cpy.length; i++) {
-				if (cpy[i] == 'AND') {
-					if (cpy[i - 2] == null) {
-						cpy.unshift('(');
+		if (cpy.length > 0)
+			while (cruise) {
+				for ( var i = sign; i < cpy.length; i++) {
+					if (cpy[i] == 'AND') {
+						if (cpy[i - 2] == null) {
+							cpy.unshift('(');
+							break;
+						} else if (cpy[i - 4] != '(' && cpy[i - 4] != 'AND') {
+							if (cpy[i - 3] != '(') {
+								cpy.splice(i - 2, 0, '(');
+								break;
+							}
+						}
+	
+						if (cpy[i + 4] == 'AND') {
+							sign = i + 2;
+							continue;
+						} else {
+							if (cpy[i + 4] == 'OR') {
+								cpy.splice(i + 3, 0, ')');
+								break;
+							} else if (cpy[i + 4] == null) {
+								cpy.push(')');
+								cruise = false;
+								break;
+							}
+						}
+					}
+	
+					if (i == cpy.length - 1) {
+						cruise = false;
 						break;
-					} else if (cpy[i - 4] != '(' && cpy[i - 4] != 'AND') {
-						if (cpy[i - 3] != '(') {
-							cpy.splice(i - 2, 0, '(');
-							break;
-						}
 					}
-
-					if (cpy[i + 4] == 'AND') {
-						sign = i + 2;
-						continue;
-					} else {
-						if (cpy[i + 4] == 'OR') {
-							cpy.splice(i + 3, 0, ')');
-							break;
-						} else if (cpy[i + 4] == null) {
-							cpy.push(')');
-							cruise = false;
-							break;
-						}
-					}
-				}
-
-				if (i == cpy.length - 1) {
-					cruise = false;
-					break;
 				}
 			}
-		}
 		
 		_searchCriteriaResult = cpy.join('');
    }
