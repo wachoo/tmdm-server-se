@@ -92,10 +92,25 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 			id:"timelinePanel",
 			title: TIMELINE_TITLE[language],
 			iconCls:"report_table_timeline",
+			autoScroll:true,
+			titleCollapse:true,
 			layout : "fit",
-			html:"<div id='tl' class='timeline-default' style='height:500px;'></div>"
+			html:"<div id='tl' class='timeline-default' style='height:464px;'></div>",
+			listeners:{
+				bodyresize :function (p, width, height){
+					var obj = Ext.get('tl');
+					obj.setHeight(height);
+					if(!timeLinePanelHeight){
+						timeLinePanelHeight = height;	
+					}else{
+						timeLinePanelHeight = height;
+						document.getElementById("tl").innerHTML = "";
+						renderTimeline(jsonData4Timeline, initDate4Timeline);
+					}
+				} 	
+			}
 		});
-				
+		
 		this.gridPanel1 = new Ext.grid.GridPanel({
 			id:"updateReportGridPanel",
 			title: GRID_TITLE[language],
@@ -238,9 +253,6 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 			items:[this.gridPanel1,
 			       this.timelinePanel],
 			listeners:{
-				"beforetabchange":function(obj, newTab, currentTab){
-					
-				},
 				"tabchange":function(obj, tab) {
 					if(tab.getId() == "timelinePanel"){
 						UpdateReportInterface.getReportString(searchStart, searchLimit, searchCriteria, callback);						

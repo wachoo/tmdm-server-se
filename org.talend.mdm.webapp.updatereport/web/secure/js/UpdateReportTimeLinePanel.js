@@ -1,11 +1,20 @@
+var timeLinePanelHeight = false;
+var jsonData4Timeline = false;
+var initDate4Timeline = false;
 
 function callback(msg){
-	var tl;
+
 	var obj = msg.split("@||@");
 	
-	if(obj.length == 2)
-		var jsonData=eval('('+obj[0]+')');  
-	
+	if(obj.length == 2){
+		jsonData4Timeline=eval('('+obj[0]+')');  
+		initDate4Timeline = obj[1];
+	}
+		
+	renderTimeline(jsonData4Timeline, initDate4Timeline);
+};
+
+function renderTimeline(jsonData, initDate){
 	var tl_el = document.getElementById("tl");
     var eventSource1 = new Timeline.DefaultEventSource();
     
@@ -19,10 +28,10 @@ function callback(msg){
     theme2.event.tape.height = 6; 
     theme2.event.track.height = theme2.event.tape.height + 10;
 
-    var d = Timeline.DateTime.parseGregorianDateTime(obj[1])
+    var d = Timeline.DateTime.parseGregorianDateTime(initDate)
     var bandInfos = [
         Timeline.createBandInfo({
-            width:          294, 
+            width:          timeLinePanelHeight*0.6, 
             intervalUnit:   Timeline.DateTime.HOUR, 
             intervalPixels: 240,
             eventSource:    eventSource1,
@@ -31,7 +40,7 @@ function callback(msg){
             layout:         'original'  
         }),
         Timeline.createBandInfo({
-            width:          120, 
+            width:          timeLinePanelHeight*0.3, 
             intervalUnit:   Timeline.DateTime.DAY, 
             intervalPixels: 150,
             eventSource:    eventSource1,
@@ -40,7 +49,7 @@ function callback(msg){
             layout:         'overview'  
         }),
         Timeline.createBandInfo({
-            width:          50, 
+            width:          timeLinePanelHeight*0.1, 
             intervalUnit:   Timeline.DateTime.YEAR, 
             intervalPixels: 110,
             eventSource:    eventSource1,
@@ -56,9 +65,9 @@ function callback(msg){
     bandInfos[1].highlight = true;
     bandInfos[2].highlight = true;
         
-    tl = Timeline.create(tl_el, bandInfos, Timeline.HORIZONTAL);
+    Timeline.create(tl_el, bandInfos, Timeline.HORIZONTAL);
     eventSource1.loadJSON(jsonData, document.location.href);
-};
+}
 
 function showDialog(ids, key, concept, dataCluster, dataModel){
 	closeTimelineBubble();
