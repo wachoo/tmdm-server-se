@@ -1441,8 +1441,9 @@ public class Util {
                 }
             }
             // edit by ymli; fix the bug:0011918: set the pageSize correctly.
+            // FIXME: why do you invoke this method twice
             if (isCount) {
-                json.put("count", countForeignKey_filter(xpathForeignKey, xpathInfoForeignKey, fkFilter + "-" + value));
+                json.put("count", countForeignKey_filter(xpathForeignKey, xpathInfoForeignKey, fkFilter, value));
             }
 
             return json.toString();
@@ -1451,8 +1452,13 @@ public class Util {
         throw new Exception("this should not happen");
 
     }
-
+    
     public static String countForeignKey_filter(String xpathForeignKey, String xpathForeignKeyinfo, String fkFilter)
+            throws Exception {
+        return countForeignKey_filter(xpathForeignKey,xpathForeignKeyinfo,fkFilter,null);
+    }
+
+    public static String countForeignKey_filter(String xpathForeignKey, String xpathForeignKeyinfo, String fkFilter, String criteriaValue)
             throws Exception {
         Configuration config = Configuration.getInstance();
         String conceptName = getConceptFromPath(xpathForeignKey);
@@ -1471,6 +1477,26 @@ public class Util {
             WSWhereItem fkFilterWi = getConditionFromFKFilter(xpathForeignKey, xpathForeignKeyinfo, fkFilter);
             if (fkFilterWi != null)
                 whereItem = fkFilterWi;
+            
+            if(criteriaValue!=null&&criteriaValue.trim().length()>0) {
+                
+                List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
+                if (whereItem != null)
+                    condition.add(whereItem);
+
+                String criteriaCondition = conceptName + "/. CONTAINS ";
+                if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
+                    criteriaCondition = conceptName + "//* CONTAINS ";
+                }
+                criteriaCondition+=criteriaValue;
+                WSWhereItem wc = buildWhereItem(criteriaCondition);
+                
+                condition.add(wc);
+                WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
+                WSWhereItem wAnd = new WSWhereItem(null, and, null);
+                if (wAnd != null)
+                    whereItem = wAnd;
+            }
 
             count = getPort().count(new WSCount(new WSDataClusterPK(config.getCluster()), conceptName, whereItem,// null,
                     -1)).getValue();
