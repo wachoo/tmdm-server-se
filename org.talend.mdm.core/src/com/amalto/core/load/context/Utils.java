@@ -48,7 +48,12 @@ public class Utils {
     }
 
     private static String generatePublicId(Metadata metadata) {
-        return metadata.getContainer() + '.' + metadata.getName() + '.' + metadata.getId();
+        String publicId = metadata.getContainer() + '.' + metadata.getName();
+        String[] metadataId = metadata.getId();
+        for (String id : metadataId) {
+            publicId += '.' + id;
+        }
+        return publicId;
     }
 
     public static Attributes parseAttributes(XMLStreamReader reader) {
