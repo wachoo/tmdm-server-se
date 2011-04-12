@@ -1465,7 +1465,7 @@ public class Util {
 
         boolean isCustom = isCustomFilter(fkFilter);
 
-        String count = "0";
+        String count = "0";//$NON-NLS-1$
 
         if (!isCustom) {
             WSWhereCondition whereCondition = getConditionFromPath(xpathForeignKey);
@@ -1484,9 +1484,9 @@ public class Util {
                 if (whereItem != null)
                     condition.add(whereItem);
 
-                String criteriaCondition = conceptName + "/. CONTAINS ";
+                String criteriaCondition = conceptName + "/. CONTAINS ";//$NON-NLS-1$
                 if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                    criteriaCondition = conceptName + "//* CONTAINS ";
+                    criteriaCondition = conceptName + "//* CONTAINS ";//$NON-NLS-1$
                 }
                 criteriaCondition+=criteriaValue;
                 WSWhereItem wc = buildWhereItem(criteriaCondition);
