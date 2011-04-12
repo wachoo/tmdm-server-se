@@ -45,8 +45,8 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
                     itemsBrowser2Panel.show();
                     itemsBrowser2Panel.doLayout();
                     amalto.core.doLayout();
-                    if (window.org_talend_mdm_webapp_itemsbrowser2_InBoundService_renderUI){
-                    	window.org_talend_mdm_webapp_itemsbrowser2_InBoundService_renderUI();
+                    if (window.top.org_talend_mdm_webapp_itemsbrowser2_InBoundService_renderUI){
+                    	window.top.org_talend_mdm_webapp_itemsbrowser2_InBoundService_renderUI();
                     } else {
                     	window.alert(MSG_RENDERER_ERROR[language]);
                     }

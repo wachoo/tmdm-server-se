@@ -31,7 +31,7 @@ public class PubService {
 
     public static native void renderUI() /*-{
         
-        $wnd.org_talend_mdm_webapp_itemsbrowser2_InBoundService_renderUI = function () { 
+        $wnd.top.org_talend_mdm_webapp_itemsbrowser2_InBoundService_renderUI = function () { 
           @org.talend.mdm.webapp.itemsbrowser2.client.boundary.PubService::renderUIImpl()();
         };
          
