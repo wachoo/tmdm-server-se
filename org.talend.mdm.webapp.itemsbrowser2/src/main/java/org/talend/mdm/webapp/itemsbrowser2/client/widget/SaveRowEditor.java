@@ -32,8 +32,15 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
     protected void onRowClick(GridEvent<ItemBean> e) {
         // cancel click Editor  
     }
+    public void startEditing(int rowIndex, boolean doFocus) {
+        super.startEditing(rowIndex, doFocus);
+        grid.getSelectionModel().setLocked(true);
+        
+    }
+    
     public void stopEditing(boolean saveChanges) {
         super.stopEditing(saveChanges);
+        grid.getSelectionModel().setLocked(false);
         if (saveChanges){
             Document doc = XMLParser.createDocument();
             Map<String, Element> elementSet = new HashMap<String, Element>();

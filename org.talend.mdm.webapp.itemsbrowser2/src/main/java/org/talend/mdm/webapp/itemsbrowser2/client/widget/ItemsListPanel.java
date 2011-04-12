@@ -128,10 +128,12 @@ public class ItemsListPanel extends ContentPanel {
         
         loader.setRemoteSort(true);
         loader.addLoadListener(new LoadListener() {
-
             public void loaderLoad(LoadEvent le) {
-                toolBar.searchBut.setEnabled(true);
-                grid.getSelectionModel().select(0, false);
+                if (store.getModels().size() > 0){
+                    grid.getSelectionModel().select(0, false);
+                } else {
+                    toolBar.searchBut.setEnabled(true);
+                }
             }
         });
     }
@@ -190,9 +192,18 @@ public class ItemsListPanel extends ContentPanel {
         grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
 
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
-                ItemBean item = se.getSelectedItem();
+                final ItemBean item = se.getSelectedItem();
                 if (item != null) {
-                    showItem(item, ItemsView.TARGET_IN_SEARCH_TAB);
+                    gridContainer.setEnabled(false);
+                    EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
+                    service.getItem(item, entityModel, new AsyncCallback<ItemBean>() {
+                        public void onFailure(Throwable caught) {}
+                        public void onSuccess(ItemBean result) {
+                            item.copy(result);
+                            showItem(result, ItemsView.TARGET_IN_SEARCH_TAB);
+                        }
+                    });
+
                 }
             }
         });
@@ -293,7 +304,7 @@ public class ItemsListPanel extends ContentPanel {
     }
     
     public void setEnabledGridSearchButton(boolean enabled){
-        grid.setEnabled(enabled);
+        gridContainer.setEnabled(enabled);
         toolBar.searchBut.setEnabled(enabled);
     }
     
