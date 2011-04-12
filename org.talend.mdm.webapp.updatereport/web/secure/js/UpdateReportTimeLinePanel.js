@@ -6,16 +6,23 @@ function callback(msg){
 
 	var obj = msg.split("@||@");
 	
-	if(obj.length == 2){
+	
+	if(obj[2] == "true"){
 		jsonData4Timeline=eval('('+obj[0]+')');  
-		initDate4Timeline = obj[1];
+	}else{
+		jsonData4Timeline = false;
 	}
-		
+	
+	initDate4Timeline = obj[1];
 	renderTimeline(jsonData4Timeline, initDate4Timeline);
 };
 
 function renderTimeline(jsonData, initDate){
 	var tl_el = document.getElementById("tl");
+	
+	if(tl_el == null)
+		return;
+	
     var eventSource1 = new Timeline.DefaultEventSource();
     
     var theme1 = Timeline.ClassicTheme.create();
