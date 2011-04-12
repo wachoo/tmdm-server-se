@@ -250,21 +250,36 @@ public class UpdateReportDWR {
     		if(i != data.length-1)
     			sb.append(","); //$NON-NLS-1$
     	}
+
     	sb.append("]}"); //$NON-NLS-1$
+    	sb.append("@||@"); //$NON-NLS-1$
     	
     	if(data.length >= 1){
-    		sb.append("@||@"); //$NON-NLS-1$
     		DataChangeLog obj = (DataChangeLog) data[0];  		
-    		sb.append(this.changeDataFormat(obj.getTimeInMillis()));
-    		
+    		sb.append(this.changeDataFormat(obj.getTimeInMillis()));    		
+    	}else{
+    		sb.append(this.getDateStringPlusGMT(new Date()));
+    	}
+    	
+    	sb.append("@||@"); //$NON-NLS-1$
+    	if(data.length > 0){
+    		sb.append("true"); //$NON-NLS-1$
+    	}else{
+    		sb.append("false"); //$NON-NLS-1$
     	}
     	return sb.toString();
     }
 
     private String changeDataFormat(String src) throws ParseException{
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");  //$NON-NLS-1$
-    	Date d = sdf.parse(src);
-    	sdf = new SimpleDateFormat("MMM dd yyyy HH:mm:ss", Locale.ENGLISH); //$NON-NLS-1$
+
+    	Date d = sdf.parse(src);    	
+    	return this.getDateStringPlusGMT(d);
+    }
+    
+    private String getDateStringPlusGMT(Date d){
+    	
+    	SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yyyy HH:mm:ss", Locale.ENGLISH); //$NON-NLS-1$
 		String timeStr = sdf.format(d);
     	return timeStr + " GMT"; //$NON-NLS-1$
     }
