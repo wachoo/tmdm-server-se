@@ -1016,7 +1016,7 @@ public class Util {
 
     }
 
-    static LRUCache<String, XSDKey> xsdkeyCache = new LRUCache<String, XSDKey>(40);
+    private static final LRUCache<String, XSDKey> xsdkeyCache = new LRUCache<String, XSDKey>(40);
 
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException {
         try {
@@ -1083,7 +1083,7 @@ public class Util {
         } catch (Exception e) {
             String err = "Unable to get the keys for the Business Concept " + businessConceptName + ": "
                     + e.getLocalizedMessage();
-            throw new TransformerException(err);
+            throw new TransformerException(err, e);
         }
 
     }

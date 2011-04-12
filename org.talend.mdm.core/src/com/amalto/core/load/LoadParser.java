@@ -132,7 +132,7 @@ public class LoadParser {
         private final String payLoadElementName;
         private final String[] idPaths;
         private final boolean autoGenPK;
-        private String dataClusterName;
+        private final String dataClusterName;
 
         public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName) {
             this.payLoadElementName = payLoadElementName;

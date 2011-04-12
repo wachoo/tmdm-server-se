@@ -23,8 +23,8 @@ public class Metadata {
     private final String dmr = StringUtils.EMPTY;
     private final String sp = StringUtils.EMPTY;
     private final String taskId = null;
+    private final List<String> id = new ArrayList<String>();
 
-    private List<String> id = new ArrayList<String>();
     private String container = StringUtils.EMPTY;
     private String name = StringUtils.EMPTY;
     private String dmn = StringUtils.EMPTY;

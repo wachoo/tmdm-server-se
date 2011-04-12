@@ -48,4 +48,8 @@ class ServerParserCallback implements LoadParserCallback {
 			throw new RuntimeException(e);
 		}
 	}
+
+    public int getCount() {
+        return currentCount;
+    }
 }

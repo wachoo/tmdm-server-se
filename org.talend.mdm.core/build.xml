@@ -50,6 +50,8 @@
         <pathelement path="${tom.location}/org.talend.mdm.core/bin" />
         <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar"/>
         <pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
+        <pathelement path="${tom.location}/talend.mdm.libraries/lib/servlet-api.jar" />
+        <pathelement path="${tom.location}/org.talend.mdm.commmon/bin" />
       </path>
 
       <path id="compile.classpath">

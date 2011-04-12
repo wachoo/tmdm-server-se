@@ -144,7 +144,7 @@ public class LoadServlet extends HttpServlet {
         writer.write("</body></html>"); //$NON-NLS-1$
     }
 
-    private static LoadAction getLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needValidate, boolean needAutoGenPK) {
+    protected static LoadAction getLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needValidate, boolean needAutoGenPK) {
         // Activate optimizations only if Qizx is used.
         Object dbType = MDMConfiguration.getConfiguration().get("xmldb.type"); //$NON-NLS-1$
         boolean isUsingQizx = dbType != null && EDBType.QIZX.getName().equals(dbType.toString());
