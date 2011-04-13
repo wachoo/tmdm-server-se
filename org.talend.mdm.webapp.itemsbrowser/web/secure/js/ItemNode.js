@@ -303,7 +303,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				var tmpStatus=true;
 				tmpStatus = (itemData.parent != null && itemData.parent.readOnly == false) ;
 				var clearDate = '<span style="cursor:pointer;padding-left:4px;" onclick="amalto.itemsbrowser.ItemsBrowser.removeForeignKey(\''+itemData.nodeId+'\','+treeIndex+')">' +
-                       '<img title="'+ DEL_TT[language] +'" src="img/genericUI/link_delete.png"/></span>';
+                       '<img title="'+ DEL_TT[language] +'" src="img/genericUI/delete.png"/></span>';
 				if((itemData.readOnly == false && !isReadOnlyinItem) || tmpStatus)
 			   			html[html.length]  = clearDate +
 			   			'<span style="cursor:pointer;padding-left:4px;" onclick="javascript:amalto.itemsbrowser.ItemsBrowser.showDatePicker(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.typeName+'\',\''+itemData.displayFomats[1]+'\')">'+
