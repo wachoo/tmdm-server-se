@@ -105,14 +105,13 @@ public abstract class GenericControllerServlet extends HttpServlet {
 	}
 	
 	protected String getJavascriptImportsHtml() throws Exception{
-		String html = "";
+		StringBuilder html = new StringBuilder();
 		ArrayList<String> imports = getJavascriptImport();
 		for (Iterator<String> iter = imports.iterator(); iter.hasNext();) {
 			String jsImport = iter.next();
-			//html+="<script type=\"text/javascript\" src=\""+jsImport+"\"></script>\n";
-			html += jsImport;
+			html.append(jsImport);
 		}
-		return html;
+		return html.toString();
 	}
 	
 	private ArrayList<String> getJavascriptImport() throws Exception{
@@ -153,6 +152,7 @@ public abstract class GenericControllerServlet extends HttpServlet {
 		return i;	
 	}
 	
+	@SuppressWarnings("nls")
 	protected String getCommonImport(){
 		return 
 		//EXT & YUI
@@ -191,9 +191,8 @@ public abstract class GenericControllerServlet extends HttpServlet {
 		"<link rel=\"stylesheet\" href=\"/core/secure/timeline/css/default.css\" type=\"text/css\">";		
 	}
 	
-	
+	@SuppressWarnings("nls")
 	protected String getBody(String language, HttpServletRequest request){ 
-//		String timestamp = "2007/07/04";
 		String html = 		    
 			"		<option value=\"en\" selected>English</option>\n"+
 			"		<option value=\"fr\">Francais</option>\n";
@@ -226,7 +225,7 @@ public abstract class GenericControllerServlet extends HttpServlet {
 	}
 	
 	protected String getDefaultHtml(){
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 }
 
