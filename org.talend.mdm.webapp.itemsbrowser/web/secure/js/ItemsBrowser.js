@@ -2345,7 +2345,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    
 	}
 	
-	function renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered, enableQuit) {
+	function renderFormWindow(itemPK2, dataObject, isDuplicate, handleCallback, formWindow, isDetail, enableQuit) {
 
 		DWREngine.setAsync(false); 
 		ItemsBrowserInterface.getRootNode(dataObject,language, function(rootNode){
@@ -2488,8 +2488,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						map[treeIndex][length + i] = tmp;
     					}
     					fnCallback();
-    					if (rendered){
-    						rendered();
+    					if (handleCallback.enableGrid){
+    						handleCallback.enableGrid();
     					}
         			});
         		  };
@@ -2534,8 +2534,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     						map[treeIndex][length + i] = tmp;
     					}
     					fnCallback();
-    					if (rendered){
-    						rendered();
+    					if (handleCallback.enableGrid){
+    						handleCallback.enableGrid();
     					}
         			});
         		  };
@@ -2588,9 +2588,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
         					}
         					else if(result.lastIndexOf)
         					
-        					if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.INFO});		
-        					window.callGxt();
-        				});		
+        					if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.INFO});	
+        					handleCallback.refreshGrid();
+        					if (window.callGxt){
+        						window.callGxt();
+        					}
+        				});	
         			}});
         			
         			//@temp yguo, close the window
@@ -2784,7 +2787,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			tbDetail.saveItemHandler = function(){			
     				//@temp yguo, 
     				saveForGXT(ids,dataObject,treeIndex,function(){
-    					refreshCB()
+    					handleCallback.refreshRecord();
     				});
     			};			
     			tbDetail.refreshItemHandler = function() {
@@ -2809,7 +2812,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			tbDetail.saveItemAndQuitHandler = function(){	
     				saveForGXT(ids,dataObject,treeIndex, function() {
     					//@TEMP YGUO, CLOSE THE WINDOW
-    					refreshCB();
+    					handleCallback.refreshRecord();
     					window.callGxt();
     					
     				});
@@ -4322,7 +4325,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
 				amalto.core.ready(result);
 				displayItems();
-				refreshCB.call();
+				if (refreshCB){
+					refreshCB.call(null, "deleteItem");
+				}
 				if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.INFO});		
 			});		
 		}});		
@@ -5182,7 +5187,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		getSiblingsLength:function(node){getSiblingsLength(node);},
 		showEditWindow:function(nodeIndex, treeIndex, nodeType){showEditWindow(nodeIndex, treeIndex, nodeType);},
 		checkInputSearchValue:function(id,value){checkInputSearchValue(id,value);},
-		renderFormWindow:function(itemPK2, dataObject, isDuplicate, refreshCB, formWindow, isDetail, rendered, enableQuit){renderFormWindow(itemPK2, dataObject, isDuplicate, refreshCB, formWindow,isDetail, rendered, enableQuit);}
+		renderFormWindow:function(itemPK2, dataObject, isDuplicate, handleCallback, formWindow, isDetail, enableQuit){renderFormWindow(itemPK2, dataObject, isDuplicate, handleCallback, formWindow,isDetail, enableQuit);}
 		/*getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
 		setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}*/
  	};

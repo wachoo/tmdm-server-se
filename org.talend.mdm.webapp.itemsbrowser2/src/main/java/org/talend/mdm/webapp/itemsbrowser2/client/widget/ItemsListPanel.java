@@ -193,6 +193,7 @@ public class ItemsListPanel extends ContentPanel {
 
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 final ItemBean item = se.getSelectedItem();
+                
                 if (item != null) {
                     gridContainer.setEnabled(false);
                     EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
@@ -203,8 +204,11 @@ public class ItemsListPanel extends ContentPanel {
                             showItem(result, ItemsView.TARGET_IN_SEARCH_TAB);
                         }
                     });
-
+                } else {
+                    ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
+                    itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.setInnerHTML("");
                 }
+                
             }
         });
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {
@@ -308,6 +312,11 @@ public class ItemsListPanel extends ContentPanel {
         toolBar.searchBut.setEnabled(enabled);
     }
     
+    public void refreshGrid(){
+        pagingBar.refresh();
+        
+    }
+    
     public void refresh(String ids, final boolean refreshItemForm){
         if (grid != null){
             final ListStore<ItemBean> store = grid.getStore();
@@ -330,8 +339,7 @@ public class ItemsListPanel extends ContentPanel {
                     }
                 });
             } else {
-                ButtonEvent be = new ButtonEvent(toolBar.searchBut);
-                toolBar.searchBut.fireEvent(Events.Select, be);
+                pagingBar.first();
             }
         } else {
             ButtonEvent be = new ButtonEvent(toolBar.searchBut);

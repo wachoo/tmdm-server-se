@@ -39,9 +39,14 @@ public class GetService {
     }-*/;
 
     public static native void openItemBrowser(String ids, String conceptName) /*-{
-        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(ids, conceptName, function(){
-            @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refresh(ZLjava/lang/String;)(true, ids);
-        });
+        var refreshCB = function(operation){
+            if (operation == "deleteItem"){
+                @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refreshGrid()();
+            } else {
+                @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refresh(ZLjava/lang/String;)(true, ids);
+            }
+        };
+        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(ids, conceptName, refreshCB);
     }-*/;
 
     static void refresh(boolean refreshItemForm,String ids){
@@ -55,15 +60,27 @@ public class GetService {
         
     }
     
+    static void refreshGrid(){
+        ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
+        itemsSearchContainer.getItemsListPanel().refreshGrid();
+    }
+    
     public static native void renderFormWindow(String ids, String concept, boolean isDuplicate,
             Element formWindow, boolean isDetail, boolean refreshItemForm, boolean enableQuit) /*-{
-        var refreshCB = function(){
-            @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refresh(ZLjava/lang/String;)(refreshItemForm, ids);
+
+        var handleCallback = {
+            refreshRecord : function(){
+                @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refresh(ZLjava/lang/String;)(refreshItemForm, ids);
+            },
+            enableGrid : function(){
+                @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::setEnable(Z)(true);
+            },
+            refreshGrid : function(){
+                @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refreshGrid()();
+            }
         };
-        var rendered = function(){
-            @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::setEnable(Z)(true);
-        };
+        
         @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::setEnable(Z)(false);
-        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderFormWindow(ids, concept, isDuplicate, refreshCB, formWindow, isDetail, rendered, enableQuit);
+        $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderFormWindow(ids, concept, isDuplicate, handleCallback, formWindow, isDetail, enableQuit);
     }-*/;
 }
