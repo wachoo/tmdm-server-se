@@ -41,6 +41,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xerces.dom.ElementNSImpl;
 import org.apache.xerces.dom.TextImpl;
@@ -1805,6 +1806,23 @@ public class ItemsBrowserDWR {
             if (bk != null) {
                 // check if Schema instance namespace is bound before looking for xsi:type
                 if (bk.getDocumentElement().getAttributeNS("http://www.w3.org/2000/xmlns/", "xsi").length() != 0) { //$NON-NLS-1$ //$NON-NLS-2$)
+                    for (String xpath : xpathToPolymType.keySet()) {
+                        String[] xpathSnippets = xpath.split("/"); //$NON-NLS-1$
+                        for (int i = 0; i < xpathSnippets.length; i++) {
+                            String xpathSnippet = xpathSnippets[i];
+                            if (xpathSnippet.isEmpty())
+                                continue;
+                            if (!xpathSnippet.matches("(.*?)\\[.*?\\]")) { //$NON-NLS-1$
+                                xpathSnippets[i] += "[1]"; //$NON-NLS-1$
+                            }
+                        }
+                        String modifiedXpath = StringUtils.join(xpathSnippets, "/");
+                        if (!modifiedXpath.equals(xpath)) {
+                            String value = xpathToPolymType.get(xpath);
+                            xpathToPolymType.remove(xpath);
+                            xpathToPolymType.put(modifiedXpath, value);
+                        }
+                    }
                     NodeList list = Util.getNodeList(bk, "//*[@xsi:type]"); //$NON-NLS-1$
                     for (int i = 0; i < list.getLength(); i++) {
                         Node nodeWithType = list.item(i);
@@ -1825,7 +1843,9 @@ public class ItemsBrowserDWR {
                                 parentNode = parentNode.getParentNode();
                             }
                         }
-                        xpathToPolymType.put(trace, type);
+                        if (!xpathToPolymType.containsKey(trace)) {
+                            xpathToPolymType.put(trace, type);
+                        }
                     }
                 }
             }
