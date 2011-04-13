@@ -781,7 +781,8 @@ public class ItemsBrowserDWR {
                     treeNode.setRealType(realType);
                     HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
                             "xpathToPolymType" + docIndex); //$NON-NLS-1$
-                    xpathToPolymType.put(xpath, realType);
+                    xpathToPolymType.put(unifyXPath(xpath), realType);
+
                 }
             }
 
@@ -884,7 +885,7 @@ public class ItemsBrowserDWR {
                                         treeNodeTmp.setRealType(realType);
                                         HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession()
                                                 .getAttribute("xpathToPolymType" + docIndex); //$NON-NLS-1$
-                                        xpathToPolymType.put(specificXpath, realType);
+                                        xpathToPolymType.put(unifyXPath(specificXpath), realType);
                                     }
                                 }
                             }
@@ -1224,7 +1225,7 @@ public class ItemsBrowserDWR {
             if (selectedExtendType == null)
                 xpathToPolymType.remove(xpath);
             else
-                xpathToPolymType.put(xpath, selectedExtendType);
+                xpathToPolymType.put(unifyXPath(xpath), selectedExtendType);
 
         } catch (Exception e1) {
             LOG.error(e1.getMessage(), e1);
@@ -1783,6 +1784,20 @@ public class ItemsBrowserDWR {
         return -1;
     }
 
+    private static String unifyXPath(String xpath) {
+        String[] xpathSnippets = xpath.split("/"); //$NON-NLS-1$
+        for (int i = 0; i < xpathSnippets.length; i++) {
+            String xpathSnippet = xpathSnippets[i];
+            if (xpathSnippet.isEmpty())
+                continue;
+            if (!xpathSnippet.matches("(.*?)\\[.*?\\]")) { //$NON-NLS-1$
+                xpathSnippets[i] += "[1]"; //$NON-NLS-1$
+            }
+        }
+        String modifiedXpath = StringUtils.join(xpathSnippets, "/");
+        return modifiedXpath;
+    }
+
     public static ItemResult saveItem(String[] ids, String concept, boolean newItem, int docIndex) throws Exception {
         WebContext ctx = WebContextFactory.get();
 
@@ -1797,7 +1812,7 @@ public class ItemsBrowserDWR {
             Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
             Document bk = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$
             // added by lzhang, make sure there is no empty node which has DSP value
-            d = filledByDspValue(dataModelPK, concept, d, docIndex);
+            // d = filledByDspValue(dataModelPK, concept, d, docIndex);
 
             // filter item xml
             HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
@@ -1806,17 +1821,8 @@ public class ItemsBrowserDWR {
             if (bk != null) {
                 // check if Schema instance namespace is bound before looking for xsi:type
                 if (bk.getDocumentElement().getAttributeNS("http://www.w3.org/2000/xmlns/", "xsi").length() != 0) { //$NON-NLS-1$ //$NON-NLS-2$)
-                    for (String xpath : xpathToPolymType.keySet()) {
-                        String[] xpathSnippets = xpath.split("/"); //$NON-NLS-1$
-                        for (int i = 0; i < xpathSnippets.length; i++) {
-                            String xpathSnippet = xpathSnippets[i];
-                            if (xpathSnippet.isEmpty())
-                                continue;
-                            if (!xpathSnippet.matches("(.*?)\\[.*?\\]")) { //$NON-NLS-1$
-                                xpathSnippets[i] += "[1]"; //$NON-NLS-1$
-                            }
-                        }
-                        String modifiedXpath = StringUtils.join(xpathSnippets, "/");
+                    for (String xpath : new ArrayList<String>(xpathToPolymType.keySet())) {
+                        String modifiedXpath = unifyXPath(xpath);
                         if (!modifiedXpath.equals(xpath)) {
                             String value = xpathToPolymType.get(xpath);
                             xpathToPolymType.remove(xpath);
@@ -3374,7 +3380,8 @@ public class ItemsBrowserDWR {
                 }
             }
         }
-        if (node.getTypeName().equals("int") || node.getTypeName().equals("integer") || node.getTypeName().equals("long") || node.getTypeName().equals("short")) {
+        if (node.getTypeName().equals("int") || node.getTypeName().equals("integer") || node.getTypeName().equals("long")
+                || node.getTypeName().equals("short")) {
             if (node.getMinOccurs() > 0) {
                 if (!isInteger(value)) {
                     return "the field must be " + node.getTypeName();
