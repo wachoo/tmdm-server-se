@@ -2,6 +2,7 @@
 <module rename-to='itemsbrowser2'>
 	<stylesheet src='../resources/css/gxt-all.css'/>
 	<stylesheet src='../Itemsbrowser2.css'/>
+    
 	<!-- Inherit the core Web Toolkit stuff.                        -->
 	<inherits name='com.google.gwt.user.User'/>
 
@@ -38,5 +39,8 @@
     <source path='client' excludes="**/*Test.java" />
 	<source path='shared'/>
     <source path='model' />
-
+    
+    <!--  FIXME: This is a workaround for 4.2 only -->
+    <stylesheet src='/core/secure/ext-2.2/resources/css/ext-all.css'/>
+    
 </module>
