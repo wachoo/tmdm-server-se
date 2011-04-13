@@ -306,8 +306,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	};
 	
 	var BUTTON_TREE_VIEW = {
-		'fr':'Vue en arbre',
-		'en':'Tree View'
+		'fr':'Vue générée',
+		'en':'Generated view'
 	};
 	
 	var BUTTON_EXPORT = {
