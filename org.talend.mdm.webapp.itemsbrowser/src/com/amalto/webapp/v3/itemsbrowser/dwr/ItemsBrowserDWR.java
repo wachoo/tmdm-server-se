@@ -3343,7 +3343,7 @@ public class ItemsBrowserDWR {
 
         boolean isValidation = true;// if true, return null,else return errorMessage
 
-        if (node.getTypeName().equals("double") || node.getTypeName().equals("float")) {
+        if (node.getTypeName().equals("double") || node.getTypeName().equals("float") || node.getTypeName().equals("decimal")) {
             if (node.getMinOccurs() > 0) {
                 if (!isNumeric(value)) {
                     return "the field must be " + node.getTypeName();
@@ -3354,7 +3354,7 @@ public class ItemsBrowserDWR {
                 }
             }
         }
-        if (node.getTypeName().equals("int") || node.getTypeName().equals("integer") || node.getTypeName().equals("long")) {
+        if (node.getTypeName().equals("int") || node.getTypeName().equals("integer") || node.getTypeName().equals("long") || node.getTypeName().equals("short")) {
             if (node.getMinOccurs() > 0) {
                 if (!isInteger(value)) {
                     return "the field must be " + node.getTypeName();
