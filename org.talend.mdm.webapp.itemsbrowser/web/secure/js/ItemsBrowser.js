@@ -2665,7 +2665,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			DWREngine.setAsync(true);
     			
     			tbDetail.lineageItemHandler = function() {
-        			lineageItem(lineagEntities, ids);
+        			lineageItem(lineagEntities, ids, dataObject);
         		};
         		
         		tbDetail.taskItemHandler = function() {
@@ -2987,7 +2987,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			}
 		});
 		if(itemContentPanel && isDuplicate==false) {
-			if(itemContentPanel.itemid==itemPK2+"."+dataObject){
+			if(itemContentPanel.itemid==itemPK2+"."+dataObject && !(parentLink != undefined && parentLink["isWindow"] == "true")){
 				itemContentPanel.show();
 				return;
 			}
@@ -3229,7 +3229,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			DWREngine.setAsync(true);
     			
     			tbDetail.lineageItemHandler = function() {
-        			lineageItem(lineagEntities, ids);
+        			lineageItem(lineagEntities, ids, dataObject);
         		};
         		
         		tbDetail.taskItemHandler = function() {
@@ -3561,7 +3561,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 						newNav.show();
 						
 						newNav.addText(">>");
-						newNav.addButton(new Ext.Toolbar.Button({text: parentLink["title"], handler:function() {
+						newNav.addButton(new Ext.Toolbar.Button({text: parentLink["title"], style: "width:100px;overflow:hidden;text-overflow:ellipsis;", handler:function() {
 							displayItemDetails(parentLink["ids"], parentLink["conceptName"]);
 						}}));
 					}
@@ -3590,7 +3590,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				currentPL.add(breadCrumbNavigator);
 				currentPL.show();
 				currentPL.doLayout();
-				breadCrumbNavigator.addButton(new Ext.Toolbar.Button({text: parentLink["title"], handler:function() {
+				breadCrumbNavigator.addButton(new Ext.Toolbar.Button({text: parentLink["title"],style: "width:100px;overflow:hidden;text-overflow:ellipsis;", handler:function() {
 					displayItemDetails(parentLink["ids"], parentLink["conceptName"]);
 				}}));
 			}
@@ -4383,7 +4383,7 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 	    }
 	}
 	
-	function lineageItem(lineageEntities, ids) {
+	function lineageItem(lineageEntities, ids, dataObject) {
 		var tabPanel = amalto.core.getTabPanel();
 		
 		var searchEntityPanel = tabPanel.getItem("searchEntityPanel");
@@ -4395,7 +4395,8 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 		
 		searchEntityPanel = new amalto.itemsbrowser.SearchEntityPanel({
 			lineageEntities : lineageEntities,
-			ids : ids
+			ids : ids,
+			dataObject : dataObject
 		});
 		
 		tabPanel.add(searchEntityPanel);
