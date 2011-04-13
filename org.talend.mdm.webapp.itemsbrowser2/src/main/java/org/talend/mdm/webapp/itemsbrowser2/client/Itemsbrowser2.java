@@ -66,7 +66,7 @@ public class Itemsbrowser2 implements EntryPoint {
 
             public void onSuccess(AppHeader header) {
                 if (header.getDatacluster() == null || header.getDatamodel() == null){
-                    Window.alert(MessagesFactory.getMessages().data_model_prompt());
+                    Window.alert(MessagesFactory.getMessages().data_model_not_specified());
                     return;
                 }
                 getSession().put(UserSession.APP_HEADER, header);

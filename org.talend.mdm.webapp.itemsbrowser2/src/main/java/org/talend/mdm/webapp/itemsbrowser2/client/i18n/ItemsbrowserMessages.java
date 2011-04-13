@@ -220,5 +220,5 @@ public interface ItemsbrowserMessages extends Messages {
 
     String save_record_success();
 
-    String data_model_prompt();
+    String data_model_not_specified();
 }
