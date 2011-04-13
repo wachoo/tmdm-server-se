@@ -3345,22 +3345,22 @@ public class ItemsBrowserDWR {
 
         if (node.getTypeName().equals("double") || node.getTypeName().equals("float")) {
             if (node.getMinOccurs() > 0) {
-                if (!isNumeric(value)){
+                if (!isNumeric(value)) {
                     return "the field must be " + node.getTypeName();
                 }
             } else {
-                if (!"".equals(value) && !isNumeric(value)){
+                if (!"".equals(value) && !isNumeric(value)) {
                     return "the field must be " + node.getTypeName();
                 }
             }
         }
         if (node.getTypeName().equals("int") || node.getTypeName().equals("integer") || node.getTypeName().equals("long")) {
             if (node.getMinOccurs() > 0) {
-                if (!isInteger(value)){
+                if (!isInteger(value)) {
                     return "the field must be " + node.getTypeName();
                 }
             } else {
-                if (!"".equals(value) && !isInteger(value)){
+                if (!"".equals(value) && !isInteger(value)) {
                     return "the field must be " + node.getTypeName();
                 }
             }
@@ -3863,6 +3863,7 @@ public class ItemsBrowserDWR {
         Long fromDate = new Long(-1);
         Long toDate = new Long(-1);
         String fkvalue = null;
+        String dataObject = null;
 
         if (regex != null && regex.length() > 0) {
             JSONObject criteria = new JSONObject(regex);
@@ -3872,6 +3873,8 @@ public class ItemsBrowserDWR {
             entity = !criteria.isNull("entity") ? (String) criteria.get("entity") : "";
             keys = !criteria.isNull("key") && !"*".equals(criteria.get("key")) ? (String) criteria.get("key") : "";
             fkvalue = !criteria.isNull("fkvalue") && !"*".equals(criteria.get("fkvalue")) ? (String) criteria.get("fkvalue") : "";
+            dataObject = !criteria.isNull("dataObject") && !"*".equals(criteria.get("dataObject")) ? (String) criteria
+                    .get("dataObject") : "";
             contentWords = !criteria.isNull("keyWords") && !"*".equals(criteria.get("keyWords")) ? (String) criteria
                     .get("keyWords") : "";
 
@@ -3897,7 +3900,8 @@ public class ItemsBrowserDWR {
         String xpath = null;
 
         for (String path : foreignKeyXpath) {
-            if (path.indexOf(entity) != -1) {
+            String dataObjectPath = foreignKeyMap.get(path);
+            if (dataObjectPath.indexOf(dataObject) != -1) {
                 xpath = path.substring(1);
                 break;
             }

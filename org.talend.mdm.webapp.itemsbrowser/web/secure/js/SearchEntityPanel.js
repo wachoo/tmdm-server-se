@@ -4,6 +4,7 @@ amalto.itemsbrowser.SearchEntityPanel = function(config) {
 	Ext.applyIf(this, config);	
 	var lineageEntities = config.lineageEntities;
 	var ids = config.ids;
+	var dataObject = config.dataObject;
 	this.initUIComponents();
 	amalto.itemsbrowser.SearchEntityPanel.superclass.constructor.call(this);
 	var entityCB = Ext.getCmp("entityCB");
@@ -260,6 +261,12 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 				   				curcriteria += ",fkvalue:'[" + fkvalue +"]'";
 				   			}
 				   			
+				   			var dataObject = this.dataObject;
+				   			
+				   			if(dataObject != "") {
+				   				curcriteria += ",dataObject:'" + dataObject +"'";
+				   			}
+				   			
 				   			if(curcriteria != ""){
 				   				curcriteria = curcriteria.substring(1)
 				   				curcriteria = "{" + curcriteria + "}";
@@ -343,6 +350,12 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
    	    	
    			if(fkvalue != "") {
    				this.criteria += ",fkvalue:'[" + fkvalue +"]'";
+   			}
+
+   			var dataObject = this.dataObject;
+   			
+   			if(dataObject != "") {
+   				this.criteria += ",dataObject:'" + dataObject +"'";
    			}
    			
    			if(this.criteria != ""){
