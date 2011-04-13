@@ -270,7 +270,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						'onchange="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.displayFomats[1]+'\',\''+itemData.typeName+'\');"'+
 						/*' onfocus="amalto.itemsbrowser.ItemsBrowser.getRealValue(\''+itemData.nodeId+'\','+treeIndex+');"'+
 						' onblur="amalto.itemsbrowser.ItemsBrowser.setFormatValue(\''+itemData.nodeId+'\','+treeIndex+',\''+itemData.displayFomats[1]+'\');"'+*/
-						' size="72" type="'+ type+ '"  ' +
+						' size="72px" type="'+ type+ '"  ' +
 						'id="'+itemData.nodeId+'Value" value="'+value+'"'+'/>';
 			}
 			//input hidden
@@ -287,7 +287,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			}
 			
 
-			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;">'+itemData.name+' '+mandatory+' '+descInfo+'</div>';
+			html[html.length] = '<div style="display:inline"><div class="inputLabel">'+itemData.name+' '+mandatory+' '+descInfo+'</div>';
 			if(itemData.typeName!=null&&itemData.typeName=="boolean"){
 				//value=String(value=='true');
 				if (value == 'false')
@@ -364,11 +364,11 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 
 		else { //complex type
 			
-			html[html.length] = '<div style="display:inline"><div style="width:180;float:left;">'+itemData.name+' '+mandatory+' '+descInfo+'</div>' ;
+			html[html.length] = '<div style="display:inline"><div class="inputLabel">'+itemData.name+' '+mandatory+' '+descInfo+'</div>' ;
 			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + '<br/>';
 			
 			if(itemData.polymiorphism&&itemData.subTypes.length>0)
-			   html[html.length] =     '<span style="width:180;float:left;">'+USE_EXTENSION_LABEL[language]+'</span>'+' '+polymSelector + '<br/>';
+			   html[html.length] =     '<span class="inputLabel">'+USE_EXTENSION_LABEL[language]+'</span>'+' '+polymSelector + '<br/>';
 
 			html[html.length] = 	'<div class="detailLabel" id="'+itemData.nodeId+'XsdDetails" style="display:none">' ;
 			html[html.length] = 	'XML tag : '+itemData.xmlTag+'<br/> ' ;

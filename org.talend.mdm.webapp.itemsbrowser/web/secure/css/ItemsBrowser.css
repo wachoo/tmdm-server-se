@@ -52,9 +52,13 @@
 /***************************************************************************************
   SPECIFIC
 ****************************************************************************************/
+.inputLabel {
+  width: 180px;
+  float: left;
+}
 
-.itemTree{
-	font-size:12px;
+.itemTree {
+  font-size:12px;
 }
 
 .inputTree,
@@ -72,7 +76,7 @@
 .inputTreeForeignKey {
   padding: 2px 2px 2px 2px;
   overflow: hidden;
-  width: 60%;
+  width: 240px;
 }
 
 .selectTree {
