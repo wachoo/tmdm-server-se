@@ -42,7 +42,7 @@ public class AuthentCacheAgent {
 
 	      try {
 	         // Uniquely identify the MBeans and register them with the MBeanServer 
-	         name = new ObjectName("jboss.security:service=JaasSecurityManager");
+	         name = new ObjectName("jboss.security:service=JaasSecurityManager");//$NON-NLS-1$
 	         
 	         try{
 	        	 MBeanInfo info = mbs.getMBeanInfo( name );
@@ -52,8 +52,8 @@ public class AuthentCacheAgent {
 	         }
 	         
 	         //Invoke convertTo op
-	         String opName = "flushAuthenticationCache";
-	         String sig[] = { "java.lang.String","java.security.Principal" };
+	         String opName = "flushAuthenticationCache";//$NON-NLS-1$
+	         String sig[] = { "java.lang.String","java.security.Principal" };//$NON-NLS-1$
 	         
 	         Object user=null;
 	         Subject subject = LocalUser.getCurrentSubject();
@@ -62,17 +62,17 @@ public class AuthentCacheAgent {
 	                Principal principal = iter.next();
 	                if (principal instanceof Group) {
 	                    Group group = (Group) principal;
-	                    if ("Username".equals(group.getName())) {
+	                    if ("Username".equals(group.getName())) {//$NON-NLS-1$
 	                    	user=group;
 	                    	break;
 	                    }
 	                 }
 	         }
-	         Object opArgs[] = { "java:/jaas/xtentisSecurity",user};   
+	         Object opArgs[] = { "java:/jaas/xtentisSecurity",user};   //$NON-NLS-1$
 	         //The following code throws ReflectionException
 	         Object result = mbs.invoke( name, opName, opArgs, sig );		        
 	      } catch(Exception e) {
-	         e.printStackTrace();
+	    	  org.apache.log4j.Logger.getLogger(AuthentCacheAgent.class).error(e);
 	      }		 
 	 }
 }
