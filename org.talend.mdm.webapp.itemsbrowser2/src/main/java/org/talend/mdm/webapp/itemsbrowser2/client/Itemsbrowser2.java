@@ -1,6 +1,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.boundary.PubService;
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
@@ -9,6 +10,7 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -63,7 +65,10 @@ public class Itemsbrowser2 implements EntryPoint {
             }
 
             public void onSuccess(AppHeader header) {
-
+                if (header.getDatacluster() == null || header.getDatamodel() == null){
+                    Window.alert(MessagesFactory.getMessages().data_model_prompt());
+                    return;
+                }
                 getSession().put(UserSession.APP_HEADER, header);
 
                 // init messages on server side
