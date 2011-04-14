@@ -60,46 +60,51 @@ public abstract class QueryBuilder {
      * 
      * @param viewableFullPaths
      * @param pivotsMap
-     * @return
-     * @throws XmlServerException
+     * @param totalCountOnFirstRow
+     * @return A valid XQuery string
      */
     protected String getXQueryReturn(ArrayList<String> viewableFullPaths, LinkedHashMap<String, String> pivotsMap,
-            boolean totalCountOnfirstRow) throws XmlServerException {
+            boolean totalCountOnFirstRow) {
 
         int i = 0;
         boolean moreThanOneViewable = viewableFullPaths.size() > 1;
         StringBuilder xqReturn = new StringBuilder();
-        if (moreThanOneViewable || totalCountOnfirstRow)
+        if (moreThanOneViewable || totalCountOnFirstRow) {
             xqReturn.append("<result>"); //$NON-NLS-1$
+        }
 
-        for (Iterator<String> iter = viewableFullPaths.iterator(); iter.hasNext();) {
-            String bename = iter.next();
+        for (String bename : viewableFullPaths) {
             // remove leading slashes
-            if (bename.startsWith("/")) //$NON-NLS-1$
+            if (bename.startsWith("/")) { //$NON-NLS-1$
                 bename = bename.substring(1);
+            }
             // compile the path
-            Expression viewablePath = XPathUtils.compileXPath(bename);
+            Expression expression = XPathUtils.compileXPath(bename);
             // factor the root path
-            factorFirstPivotInMap(pivotsMap, viewablePath.toString());
+            factorFirstPivotInMap(pivotsMap, expression.toString());
             // factor the path
-            Expression factoredPath = XPathUtils.factorExpression(viewablePath, pivotsMap, true, true);
+            Expression factoredPath = XPathUtils.factorExpression(expression, pivotsMap, true, true);
 
-            if (moreThanOneViewable || totalCountOnfirstRow)
+            if (moreThanOneViewable || totalCountOnFirstRow) {
                 xqReturn.append("{"); //$NON-NLS-1$
+            }
 
-            if (viewablePath instanceof Path) {
+            if (expression instanceof Path) {
                 // determine last Element Name (Step NodeTest) type and name
-                Step lastStep = ((Path) viewablePath).getSteps()[((Path) viewablePath).getSteps().length - 1];
+                Path viewablePath = (Path) expression;
+                Step lastStep = viewablePath.getSteps()[viewablePath.getSteps().length - 1];
                 if (lastStep.getNodeTest() instanceof NodeNameTest) {
                     String lastElementName = lastStep.getNodeTest().toString();
                     // hshu modified,because Mantis interprets the 'i' tag as a text formatting (italic)
-                    if (lastElementName != null && lastElementName.equals("i")) //$NON-NLS-1$
+                    if (lastElementName != null && lastElementName.equals("i")) { //$NON-NLS-1$
                         lastElementName = "xi"; //$NON-NLS-1$
+                    }
                     if (lastStep.getAxis() == Compiler.AXIS_ATTRIBUTE) {
                         xqReturn.append("<").append(lastElementName).append(">{string(").append(factoredPath).append(")}</") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                 .append(lastElementName).append(">"); //$NON-NLS-1$
                     } else {
-                        xqReturn.append("if (").append(factoredPath).append(") then ").append(factoredPath).append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        xqReturn.append("let $element := ").append(factoredPath);
+                        xqReturn.append(" return if (!empty($element)) then $element").append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                 .append(lastElementName).append("/>"); //$NON-NLS-1$
                     }
                 } else {
@@ -124,11 +129,13 @@ public abstract class QueryBuilder {
                     xqReturn.append(factoredPath);
                 }
             }
-            if (moreThanOneViewable || totalCountOnfirstRow)
+            if (moreThanOneViewable || totalCountOnFirstRow) {
                 xqReturn.append("}"); //$NON-NLS-1$
+            }
         }
-        if (moreThanOneViewable || totalCountOnfirstRow)
+        if (moreThanOneViewable || totalCountOnFirstRow) {
             xqReturn.append("</result>"); //$NON-NLS-1$
+        }
 
         return xqReturn.toString();
     }

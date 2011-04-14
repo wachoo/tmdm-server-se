@@ -54,7 +54,7 @@ public class QueryBuilderTest extends TestCase {
         LinkedHashMap<String, String> pivotsMap = new LinkedHashMap<String, String>();
         pivotsMap.put("$pivot0", "BrowseItem");
         boolean totalCountOnfirstRow = false;
-        String expected = "if ($pivot0/CriteriaName) then $pivot0/CriteriaName else <CriteriaName/>";
+        String expected = "let $element := $pivot0/CriteriaName return if (!empty($element)) then $element else <CriteriaName/>";
         String actual = queryBuilder.getXQueryReturn(viewableFullPaths, pivotsMap, totalCountOnfirstRow);
         assertEquals(expected, actual);
         
@@ -65,7 +65,7 @@ public class QueryBuilderTest extends TestCase {
         pivotsMap.clear();
         pivotsMap.put("$pivot0", "Country");
         totalCountOnfirstRow = false;
-        expected = "<result>{if ($pivot0/label) then $pivot0/label else <label/>}{if ($pivot0/../../i) then $pivot0/../../i else <xi/>}</result>";
+        expected = "<result>{let $element := $pivot0/label return if (!empty($element)) then $element else <label/>}{let $element := $pivot0/../../i return if (!empty($element)) then $element else <xi/>}</result>";
         actual = queryBuilder.getXQueryReturn(viewableFullPaths, pivotsMap, totalCountOnfirstRow);
         assertEquals(expected, actual);
     }
@@ -88,7 +88,7 @@ public class QueryBuilderTest extends TestCase {
         WhereAnd whereItem = new WhereAnd();
         whereItem.add(new WhereCondition("Product/Id", WhereCondition.CONTAINS, "231", WhereCondition.PRE_NONE, false));
         Map<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
-        List<String> types = Arrays.asList(new String[] { "xsd:string" });
+        List<String> types = Arrays.asList("xsd:string");
         metaDataTypes.put("Product/Id", new ArrayList<String>(types));
 
         String expected = " matches($pivot0/Id, \"231.*\" ,\"i\") ";
@@ -97,7 +97,7 @@ public class QueryBuilderTest extends TestCase {
 
         // And condition
         whereItem.add(new WhereCondition("Product/Price", WhereCondition.GREATER_THAN, "10", WhereCondition.PRE_NONE, false));
-        types = Arrays.asList(new String[] { "xsd:decimal" });
+        types = Arrays.asList("xsd:decimal");
         metaDataTypes.put("Product/Price", new ArrayList<String>(types));
         expected = "( matches($pivot0/Id, \"231.*\" ,\"i\") ) and (number($pivot0/Price) gt 10)";
 
@@ -140,7 +140,7 @@ public class QueryBuilderTest extends TestCase {
         String expected = "let $_leres0_ := collection(\"/Product\")//p/Product \n";
         expected += "let $_page_ :=\n";
         expected += "for $pivot0 in subsequence($_leres0_,1,4)\n";
-        expected += "return <result>{if ($pivot0/Id) then $pivot0/Id else <Id/>}</result>\n";
+        expected += "return <result>{let $element := $pivot0/Id return if (!empty($element)) then $element else <Id/>}</result>\n";
         expected += "return (<totalCount>{count($_leres0_)}</totalCount>, $_page_)";
 
         String actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
@@ -153,7 +153,7 @@ public class QueryBuilderTest extends TestCase {
         expected = "let $_leres0_ := collection(\"/Product\")//p/Product [  matches(Id, \"231.*\" ,\"i\")  ]  \n";
         expected += "let $_page_ :=\n";
         expected += "for $pivot0 in subsequence($_leres0_,1,4)\n";
-        expected += "return <result>{if ($pivot0/Id) then $pivot0/Id else <Id/>}</result>\n";
+        expected += "return <result>{let $element := $pivot0/Id return if (!empty($element)) then $element else <Id/>}</result>\n";
         expected += "return (<totalCount>{count($_leres0_)}</totalCount>, $_page_)";
 
         actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
@@ -180,7 +180,7 @@ public class QueryBuilderTest extends TestCase {
 
         expected = "let $_leres0_ :=  for $r in collection(\"/DStar\")//p/Country order by $r/label return $r  \n";
         expected += "for $pivot0 in subsequence($_leres0_,1,20)\n";
-        expected += "return <result>{if ($pivot0/label) then $pivot0/label else <label/>}{if ($pivot0/../../i) then $pivot0/../../i else <xi/>}</result>";
+        expected += "return <result>{let $element := $pivot0/label return if (!empty($element)) then $element else <label/>}{let $element := $pivot0/../../i return if (!empty($element)) then $element else <xi/>}</result>";
 
         actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
                 forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, withTotalCountOnFirstRow,
@@ -210,7 +210,7 @@ public class QueryBuilderTest extends TestCase {
         expected += "let $_leres1_ := collection(\"/Product\")//p/ProductFamily \n";
         expected += "for $pivot0 in $_leres0_, $pivot1 in $_leres1_\n";
         expected += " where $pivot0/Family[not(.) or not(text()) or .]=concat(\"[\",$pivot1/Id,\"]\")\n\n";
-        expected += "return <result>{if ($pivot0/Name) then $pivot0/Name else <Name/>}{if ($pivot1/Name) then $pivot1/Name else <Name/>}</result>";
+        expected += "return <result>{let $element := $pivot0/Name return if (!empty($element)) then $element else <Name/>}{let $element := $pivot1/Name return if (!empty($element)) then $element else <Name/>}</result>";
 
         String actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID,
                 objectRootElementNamesToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start,
@@ -225,7 +225,7 @@ public class QueryBuilderTest extends TestCase {
         expected += "let $_page_ :=\n";
         expected += "for $pivot0 in $_leres0_, $pivot1 in $_leres1_\n";
         expected += " where $pivot0/Family[not(.) or not(text()) or .]=concat(\"[\",$pivot1/Id,\"]\")\n\n";
-        expected += "return <result>{if ($pivot0/Name) then $pivot0/Name else <Name/>}{if ($pivot1/Name) then $pivot1/Name else <Name/>}</result>\n";
+        expected += "return <result>{let $element := $pivot0/Name return if (!empty($element)) then $element else <Name/>}{let $element := $pivot1/Name return if (!empty($element)) then $element else <Name/>}</result>\n";
         expected += "return (<totalCount>{count($_page_)}</totalCount>, subsequence($_page_,1,8))";
 
         actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
@@ -259,7 +259,7 @@ public class QueryBuilderTest extends TestCase {
         expected += " where $pivot0/AgencyFK[not(.) or not(text()) or .]=concat(concat(\"[\",$pivot1/Id1,\"]\")\n";
         expected += ",concat(\"[\",$pivot1/Id2,\"]\")\n";
         expected += ")\n";
-        expected += "return <result>{if ($pivot0/Id) then $pivot0/Id else <Id/>}{if ($pivot0/AgencyFK) then $pivot0/AgencyFK else <AgencyFK/>}{if ($pivot1/Name) then $pivot1/Name else <Name/>}</result>\n";
+        expected += "return <result>{let $element := $pivot0/Id return if (!empty($element)) then $element else <Id/>}{let $element := $pivot0/AgencyFK return if (!empty($element)) then $element else <AgencyFK/>}{let $element := $pivot1/Name return if (!empty($element)) then $element else <Name/>}</result>\n";
         expected += "return (<totalCount>{count($_page_)}</totalCount>, subsequence($_page_,1,10))";
 
         actual = queryBuilder.getQuery(isItemQuery, objectRootElementNamesToRevisionID, objectRootElementNamesToClusterName,
@@ -271,7 +271,6 @@ public class QueryBuilderTest extends TestCase {
 
     public void testBuildPKsByCriteriaQuery() throws Exception {
         ItemPKCriteria criteria = new ItemPKCriteria();
-        criteria = new ItemPKCriteria();
         criteria.setRevisionId(null);
         criteria.setClusterName("DStar");
         criteria.setConceptName("Agent");
