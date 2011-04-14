@@ -756,37 +756,39 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             // this only operate non system items
             if (!XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER, wsPutItem.getWsDataClusterPK().getPk())) {
                 if (wsPutItem.getIsUpdate()) {
-                    if (itemKeyValues.length > 0) {
+                     // FIXME BUG 0019650  remove the multi-occurence elements and save,the elements are still displayed
+                     // old node override new when they are different
+//                    if (itemKeyValues.length > 0) {
                         // check if only update the key ,do nothing see 0012169
                         // if(Util.isOnlyUpdateKey(root, concept, conceptKey, itemKeyValues))
                         // return null;
-                        ItemPOJO pj = new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection);
-                        String revisionId = LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
-                        pj = ItemPOJO.load(revisionId, pj.getItemPOJOPK(), false);
+//                        ItemPOJO pj = new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection);
+//                        String revisionId = LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
+//                        pj = ItemPOJO.load(revisionId, pj.getItemPOJOPK(), false);
                         // normal case no polym //FIXME a bad solution
-                        if (pj != null && projection.indexOf("xsi:type") == -1 && projection.indexOf("tmdm:type") == -1) {
-                            // get updated path
-                            Node old = pj.getProjection();
-                            Node newNode = root;
-                            HashMap<String, UpdateReportItem> updatedPath = Util.compareElement("/" + old.getLocalName(),
-                                    newNode, old);
-                            if (updatedPath.size() > 0) {
-                                if ("sequence".equals(Util.getConceptModelType(concept, dataModel.getSchema()))) { // if
-                                                                                                                   // the
-                                                                                                                   // concept
-                                                                                                                   // is
-                                                                                                                   // sequence
-                                    // update the Node according to schema to keep the sequence as the same with the
-                                    // schema
-                                    old = Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
-                                }
-                                old = Util.updateElement("/" + old.getLocalName(), old, updatedPath);
-                                projection = Util.getXMLStringFromNode(old);
-                            } else {// if no update, return see 0012116
-                                return null;
-                            }
-                        }
-                    }
+//                        if (pj != null && projection.indexOf("xsi:type") == -1 && projection.indexOf("tmdm:type") == -1) {
+//                            // get updated path
+//                            Node old = pj.getProjection();
+//                            Node newNode = root;
+//                            HashMap<String, UpdateReportItem> updatedPath = Util.compareElement("/" + old.getLocalName(),
+//                                    newNode, old);
+//                            if (updatedPath.size() > 0) {
+//                                if ("sequence".equals(Util.getConceptModelType(concept, dataModel.getSchema()))) { // if
+//                                                                                                                   // the
+//                                                                                                                   // concept
+//                                                                                                                   // is
+//                                                                                                                   // sequence
+//                                    // update the Node according to schema to keep the sequence as the same with the
+//                                    // schema
+//                                    old = Util.updateNodeBySchema(concept, dataModel.getSchema(), old);
+//                                }
+//                                old = Util.updateElement("/" + old.getLocalName(), old, updatedPath);
+//                                projection = Util.getXMLStringFromNode(old);
+//                            } else {// if no update, return see 0012116
+//                                return null;
+//                            }
+//                        }
+//                    }
                 } else {
                     if (Util.containsUUIDType(concept, dataModel.getSchema(), root)) {
                         // update the item according to datamodel if there is UUID/AUTO_INCREMENT field and it's empty
