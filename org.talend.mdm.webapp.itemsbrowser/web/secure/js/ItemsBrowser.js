@@ -1794,7 +1794,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 											if ( dcount == sel.length)
 												displayItems();
 											
-											if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.INFO});			
+											if(result){
+												var pattern = "\\[" + language.toUpperCase() + ":" + "(.*?)\\]";
+												var resultArray = result.match(pattern);
+												if(resultArray != null){
+													result = resultArray[1];
+												}
+											 Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.INFO});	
+											}
 										});
 					        		}				        		
 					    		}				    			
@@ -4266,7 +4273,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 							    return;
 							}
 						}else{
+							var reg = '\\[' + language.toUpperCase() + ':' + '(.*?)\\]';
 							var msg2show=result.description;
+							var errorsArray = msg2show.match(reg);
+							if(errorsArray != null){
+								msg2show = errorsArray[1];
+							}
 							Ext.MessageBox.show({
 							    msg:msg2show,
 							    buttons:{"ok":"OK"},
@@ -4328,7 +4340,14 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 				if (refreshCB){
 					refreshCB.call(null, "deleteItem");
 				}
-				if(result)Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.INFO});		
+				if(result){
+                 var pattern = "\\[" + language.toUpperCase() + ":" + "(.*?)\\]";
+                 var resultArray = result.match(pattern);
+                 if(resultArray != null){
+                    result = resultArray[1];
+                 }
+				 Ext.MessageBox.show({msg:result, buttons:{"ok":"OK"}, icon:Ext.MessageBox.INFO});
+				}
 			});		
 		}});		
 	}
