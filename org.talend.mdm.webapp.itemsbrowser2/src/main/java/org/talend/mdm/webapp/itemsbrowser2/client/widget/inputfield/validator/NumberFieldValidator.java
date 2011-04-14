@@ -35,7 +35,7 @@ public class NumberFieldValidator implements Validator {
         String fractionDigits = field.getData(FacetEnum.FRACTION_DIGITS.getFacetName());
         if (fractionDigits != null && !fractionDigits.equals("")) {//$NON-NLS-1$
             String[] digits = value.split(".");//$NON-NLS-1$
-            if (digits[1].length() > Integer.parseInt(fractionDigits)) {
+            if (digits.length == 2 && digits[1].length() > Integer.parseInt(fractionDigits)) {
                 succeed = false;
                 defaultMessage += MessagesFactory.getMessages().check_fractionDigits() + fractionDigits + "\n";//$NON-NLS-1$
             }
