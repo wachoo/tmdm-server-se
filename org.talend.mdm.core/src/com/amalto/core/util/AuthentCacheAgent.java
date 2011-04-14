@@ -14,7 +14,7 @@ package com.amalto.core.util;
 
 import java.lang.management.ManagementFactory;
 import java.security.Principal;
-import java.security.acl.Group;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -24,9 +24,9 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 
+import org.jboss.security.SimpleGroup;
+import org.jboss.security.SimplePrincipal;
 import org.jboss.security.plugins.JaasSecurityManagerService;
-
-
 
 public class AuthentCacheAgent {
 	 private MBeanServer mbs = null;
@@ -36,7 +36,7 @@ public class AuthentCacheAgent {
 	      mbs = ManagementFactory.getPlatformMBeanServer();
 	 }
 	 
-	 public void flushAuthentCache(){
+	 public void flushAuthentCache(String username){
 
 	      ObjectName name = null;
 
@@ -47,30 +47,21 @@ public class AuthentCacheAgent {
 	         try{
 	        	 MBeanInfo info = mbs.getMBeanInfo( name );
 	        	 System.out.println( "Conversion Class: " + info.getClassName() );
-	         }catch(InstanceNotFoundException e2){	        	 
+	         }catch(InstanceNotFoundException e2){	     
 	        	 mbs.registerMBean(new JaasSecurityManagerService(), name);
 	         }
 	         
 	         //Invoke convertTo op
 	         String opName = "flushAuthenticationCache";//$NON-NLS-1$
 	         String sig[] = { "java.lang.String","java.security.Principal" };//$NON-NLS-1$
-	         
-	         Object user=null;
-	         Subject subject = LocalUser.getCurrentSubject();
-	            Set<Principal> set = subject.getPrincipals();
-	            for (Iterator<Principal> iter = set.iterator(); iter.hasNext();) {
-	                Principal principal = iter.next();
-	                if (principal instanceof Group) {
-	                    Group group = (Group) principal;
-	                    if ("Username".equals(group.getName())) {//$NON-NLS-1$
-	                    	user=group;
-	                    	break;
-	                    }
-	                 }
-	         }
-	         Object opArgs[] = { "java:/jaas/xtentisSecurity",user};   //$NON-NLS-1$
+
+	         Object opArgs[] = { "java:/jaas/xtentisSecurity",new SimplePrincipal(username)};   //$NON-NLS-1$
 	         //The following code throws ReflectionException
-	         Object result = mbs.invoke( name, opName, opArgs, sig );		        
+	         if(username==null || username.trim().length()==0){
+	        	 Object result = mbs.invoke( name, opName, new String[]{ "java:/jaas/xtentisSecurity"}, new String[]{ "java.lang.String"} ); //$NON-NLS-1$  //$NON-NLS-2$
+	         }else{
+	        	 Object result = mbs.invoke( name, opName, opArgs, sig );
+	         }
 	      } catch(Exception e) {
 	    	  org.apache.log4j.Logger.getLogger(AuthentCacheAgent.class).error(e);
 	      }		 
