@@ -7,7 +7,7 @@ amalto.namespace("amalto.ItemsTrash");
 //contextid.appid
 amalto.ItemsTrash.ItemsTrash=function(){
 	 loadResource("/ItemsTrash/secure/js/ItemsTrashLocal.js", "amalto.ItemsTrash.ItemsTrashLocal" );
-     loadResource("/ItemsTrash/secure/css/ItemsTrash.css", "" );
+     loadResource("/ItemsTrash/secure/css/ItemStrash.css", "" );
 
     var recordType = Ext.data.Record.create([
    
