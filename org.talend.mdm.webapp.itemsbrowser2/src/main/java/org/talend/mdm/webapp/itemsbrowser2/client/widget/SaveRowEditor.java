@@ -71,17 +71,21 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
                 }
 
                 public void onSuccess(ItemResult arg0) {
+                    Record record = null;
+                    Store store = grid.getStore();
+                    if (store != null) {
+                        record = store.getRecord(itemBean);
+                    }
                     if (arg0.getStatus() == ItemResult.SUCCESS) {
-                        Store store = grid.getStore();
-                        if (store != null) {
-                            Record record = store.getRecord(itemBean);
-                            if (record != null) {
-                                record.commit(false);
-                            }
+                        if (record != null) {
+                            record.commit(false);
                         }
                         refreshForm(itemBean);
                         MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
                     } else if (arg0.getStatus() == ItemResult.FAILURE) {
+                        if (record != null) {
+                            record.reject(false);
+                        }
                         MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
                     }
                 }
