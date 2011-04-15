@@ -650,7 +650,8 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.EQUALS;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where = factorPivots + " = " + encoded; //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
@@ -661,7 +662,8 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.NOT_EQUALS;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where = factorPivots + " != " + encoded; //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
@@ -672,7 +674,8 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.GREATER_THAN;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where = factorPivots + " > " + encoded; //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
@@ -683,7 +686,8 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.GREATER_THAN_OR_EQUAL;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where = factorPivots + " >= " + encoded; //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
@@ -694,7 +698,8 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.LOWER_THAN;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where = factorPivots + " < " + encoded; //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
@@ -705,7 +710,8 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.LOWER_THAN_OR_EQUAL;
                 if (isNum) {
-                    where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    where = factorPivots + " <= " + encoded; //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
