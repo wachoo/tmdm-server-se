@@ -43,7 +43,7 @@ import java.io.InputStream;
  * </p>
  */
 public class LoadParser {
-    private static final XMLInputFactory inputFactory = XMLInputFactory.newFactory();
+    private static final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
     private static final Logger log = Logger.getLogger(LoadParser.class);
 
     static {
