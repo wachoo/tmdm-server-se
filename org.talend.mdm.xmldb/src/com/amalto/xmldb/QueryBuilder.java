@@ -470,7 +470,8 @@ public abstract class QueryBuilder {
 
             } else if (operator.equals(WhereCondition.EQUALS)) {
                 if (isNum) {
-                    where.append("number(").append(factorPivots).append(") eq ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    //where.append("number(").append(factorPivots).append(") eq ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    where.append(factorPivots + " = " + encoded); //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append("= ").append(encoded); //$NON-NLS-1$
                 } else {
@@ -478,7 +479,8 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.NOT_EQUALS)) {
                 if (isNum) {
-                    where.append("number(").append(factorPivots).append(") ne ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    //where.append("number(").append(factorPivots).append(") ne ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    where.append(factorPivots + " != " + encoded); //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" != ").append(encoded); //$NON-NLS-1$
                 } else {
@@ -486,7 +488,8 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN)) {
                 if (isNum) {
-                    where.append("number(").append(factorPivots).append(") gt ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    //where.append("number(").append(factorPivots).append(") gt ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    where.append(factorPivots + " > " + encoded); //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append("> ").append(encoded); //$NON-NLS-1$
                 } else {
@@ -494,7 +497,8 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN_OR_EQUAL)) {
                 if (isNum) {
-                    where.append("number(").append(factorPivots).append(") ge ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    //where.append("number(").append(factorPivots).append(") ge ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    where.append(factorPivots + " >= " + encoded); //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" >= ").append(encoded); //$NON-NLS-1$
                 } else {
@@ -502,7 +506,8 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN)) {
                 if (isNum) {
-                    where.append("number(").append(factorPivots).append(") lt ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    //where.append("number(").append(factorPivots).append(") lt ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    where.append(factorPivots + " < " + encoded); //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" < ").append(encoded); //$NON-NLS-1$
                 } else {
@@ -510,7 +515,8 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN_OR_EQUAL)) {
                 if (isNum) {
-                    where.append("number(").append(factorPivots).append(") le ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    //where.append("number(").append(factorPivots).append(") le ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    where.append(factorPivots + " <= " + encoded); //$NON-NLS-1$
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" <= ").append(encoded); //$NON-NLS-1$
                 } else {
