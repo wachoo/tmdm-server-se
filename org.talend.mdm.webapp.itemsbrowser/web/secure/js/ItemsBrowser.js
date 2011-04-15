@@ -2794,11 +2794,10 @@ amalto.itemsbrowser.ItemsBrowser = function () {
     			tbDetail.saveItemHandler = function(){			
     				//@temp yguo, 
     				saveForGXT(ids,dataObject,treeIndex,function(){
-    					handleCallback.refreshRecord();
+    					tbDetail.refreshItemHandler();
     				});
     			};			
     			tbDetail.refreshItemHandler = function() {
-    				
                     var ids1;
                     if(ids.length==0)
                         ids1 = itemPK2;
