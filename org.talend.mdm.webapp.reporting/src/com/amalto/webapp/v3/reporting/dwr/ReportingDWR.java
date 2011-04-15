@@ -73,7 +73,7 @@ public class ReportingDWR {
 		WSWhereCondition wc = new WSWhereCondition(
 				"Reporting/Owner",
 				WSWhereOperator.EQUALS,Util.getAjaxSubject().getUsername(),
-				WSStringPredicate.NONE,false
+				WSStringPredicate.OR,false
 				);
 		WSWhereCondition wc2 = new WSWhereCondition(
 				"Reporting/Shared",
