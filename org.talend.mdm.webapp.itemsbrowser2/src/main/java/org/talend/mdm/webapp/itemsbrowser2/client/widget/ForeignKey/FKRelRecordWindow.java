@@ -22,7 +22,6 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -35,15 +34,17 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.KeyEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -51,7 +52,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
@@ -78,6 +81,8 @@ public class FKRelRecordWindow extends Window {
 
     private int pageSize = 20;
 
+    TextField<String> filter = new TextField<String>();
+    
     public FKRelRecordWindow() {}
     
     public FKRelRecordWindow(String fkKey, ReturnCriteriaFK returnCriteriaFK) {
@@ -101,13 +106,22 @@ public class FKRelRecordWindow extends Window {
         this.returnCriteriaFK = returnCriteriaFK;
     }
 
+    private String getFilterValue(){
+        String value = filter.getRawValue();
+        if (value == null || value.trim().equals("")){
+            value = ".*"; //$NON-NLS-1$
+        }
+        com.google.gwt.user.client.Window.setTitle(value);
+        return value;
+    }
+    
     protected void onRender(Element parent, int pos) {
         super.onRender(parent, pos);
         RpcProxy<PagingLoadResult<ForeignKeyBean>> proxy = new RpcProxy<PagingLoadResult<ForeignKeyBean>>() {
 
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
                 service.getForeignKeyList((PagingLoadConfig) loadConfig, Itemsbrowser2.getSession().getCurrentEntityModel()
-                        .getMetaDataTypes().get(fkKey), Itemsbrowser2.getSession().getAppHeader().getDatacluster(), false,
+                        .getMetaDataTypes().get(fkKey), Itemsbrowser2.getSession().getAppHeader().getDatacluster(), false, getFilterValue(),
                         new AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
                             public void onFailure(Throwable caught) {
@@ -134,21 +148,31 @@ public class FKRelRecordWindow extends Window {
         panel.setSize(WINDOW_WIDTH, WINDOW_HEIGH);
         panel.setHeaderVisible(false);
 
-        StoreFilterField<ForeignKeyBean> filter = new StoreFilterField<ForeignKeyBean>() {
+//        StoreFilterField<ForeignKeyBean> filter = new StoreFilterField<ForeignKeyBean>() {
+//
+//            protected boolean doSelect(Store<ForeignKeyBean> store, ForeignKeyBean parent, ForeignKeyBean record,
+//                    String property, String filter) {
+//
+//                for (String key : record.getProperties().keySet()) {
+//                    if (record.getProperties().get(key).toString().toLowerCase().startsWith(filter.toLowerCase()))
+//                        return true;
+//                }
+//                return false;
+//            }
+//
+//        };
+//        filter.setWidth(WINDOW_WIDTH - 40);
+//        filter.bind(store);
+        
+        filter.addListener(Events.KeyUp, new Listener<FieldEvent>() {
 
-            protected boolean doSelect(Store<ForeignKeyBean> store, ForeignKeyBean parent, ForeignKeyBean record,
-                    String property, String filter) {
-
-                for (String key : record.getProperties().keySet()) {
-                    if (record.getProperties().get(key).toString().toLowerCase().startsWith(filter.toLowerCase()))
-                        return true;
+            public void handleEvent(FieldEvent be) {
+                if (be.getKeyCode() != KeyCodes.KEY_UP && be.getKeyCode() != KeyCodes.KEY_DOWN){
+                    loader.load(0, pageSize);
                 }
-                return false;
             }
-
-        };
+        });
         filter.setWidth(WINDOW_WIDTH - 40);
-        filter.bind(store);
 
         ToolBar toolBar = new ToolBar();
         Button filterBtn = new Button();
