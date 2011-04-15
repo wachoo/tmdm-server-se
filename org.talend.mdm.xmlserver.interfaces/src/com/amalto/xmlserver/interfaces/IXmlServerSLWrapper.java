@@ -364,20 +364,21 @@ public interface IXmlServerSLWrapper {
     
     /**
      * Count Items based on conditions
+     *
      * @param conceptPatternsToRevisionID
      *          A map that gives the revision ID of a pattern matching a concept name Concept (isItemQuery is true) or Xtentis Object (isItemQuery is false)
      * @param conceptPatternsToClusterName
      *          An ordered map that gives the cluster name of a Concept when matching the first pattern found
      * @param conceptName
-     *          The name of the concept 
-     * @param whereItem 
+     *          The name of the concept
+     * @param whereItem
      *          The condition to apply
      * @return the number of items meeting the conditions
      * @throws XmlServerException
      */
     public long countItems(
-        LinkedHashMap<String, String> conceptPatternsToRevisionID,
-        LinkedHashMap<String, String> conceptPatternsToClusterName,
+        Map<String, String> conceptPatternsToRevisionID,
+        Map<String, String> conceptPatternsToClusterName,
         String conceptName,
         IWhereItem whereItem
     ) throws XmlServerException;
@@ -405,16 +406,17 @@ public interface IXmlServerSLWrapper {
     
     /**
      * Builds an Items query in the native language of the DB (for instance XQuery) based on conditions
+     *
      * @param conceptPatternsToRevisionID
      *          A map that gives the revision ID of a pattern matching a concept name Concept (isItemQuery is true) or Xtentis Object (isItemQuery is false)
      * @param conceptPatternsToClusterName
      *          An ordered map that gives the cluster name of a Concept when matching the first pattern found
      * @param forceMainPivot
      *          An optional pivot that will appear first in the list of pivots in the query<br>:
-     *          This allows forcing cartesian products: for instance Order Header vs Order Line 
-     * @param viewableFullPaths 
+     *          This allows forcing cartesian products: for instance Order Header vs Order Line
+     * @param viewableFullPaths
      *          The xPaths of the elements and their sub elements that constitute the top elements of the returned documents
-     * @param whereItem 
+     * @param whereItem
      *          The condition to apply
      * @param orderBy
      *          The path of the element to order by. <code>null</code> to avoid ordering
@@ -428,8 +430,8 @@ public interface IXmlServerSLWrapper {
      * @throws XmlServerException
      */
     public String getItemsQuery(
-        LinkedHashMap<String, String> conceptPatternsToRevisionID,
-        LinkedHashMap<String, String> conceptPatternsToClusterName,
+        Map<String, String> conceptPatternsToRevisionID,
+        Map<String, String> conceptPatternsToClusterName,
         String forceMainPivot,
         ArrayList<String> viewableFullPaths,    
         IWhereItem whereItem,
@@ -441,6 +443,7 @@ public interface IXmlServerSLWrapper {
     
     /**
      * Builds an Items query in the native language of the DB (for instance XQuery) based on conditions
+     *
      * @param conceptPatternsToRevisionID
      * @param conceptPatternsToClusterName
      * @param forceMainPivot
@@ -456,8 +459,8 @@ public interface IXmlServerSLWrapper {
      * @throws XmlServerException
      */
     public String getItemsQuery(
-            LinkedHashMap<String, String> conceptPatternsToRevisionID,
-            LinkedHashMap<String, String> conceptPatternsToClusterName,
+            Map<String, String> conceptPatternsToRevisionID,
+            Map<String, String> conceptPatternsToClusterName,
             String forceMainPivot,
             ArrayList<String> viewableFullPaths,    
             IWhereItem whereItem,

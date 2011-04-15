@@ -76,8 +76,8 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
         return true;
     }
 
-    public long countItems(LinkedHashMap<String, String> conceptPatternsToRevisionID,
-            LinkedHashMap<String, String> conceptPatternsToClusterName, String fullPath, IWhereItem whereItem)
+    public long countItems(Map<String, String> conceptPatternsToRevisionID,
+            Map<String, String> conceptPatternsToClusterName, String fullPath, IWhereItem whereItem)
             throws XmlServerException {
 
         StringBuilder xquery = new StringBuilder();
@@ -248,16 +248,16 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
         return getDocumentAsString(revisionID, clusterName, uniqueID, "UTF-16"); //$NON-NLS-1$
     }
 
-    public String getItemsQuery(LinkedHashMap<String, String> conceptPatternsToRevisionID,
-            LinkedHashMap<String, String> conceptPatternsToClusterName, String forceMainPivot,
+    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID,
+            Map<String, String> conceptPatternsToClusterName, String forceMainPivot,
             ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit)
             throws XmlServerException {
         return getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot, viewableFullPaths,
                 whereItem, orderBy, direction, start, limit, false, null);
     }
 
-    public String getItemsQuery(LinkedHashMap<String, String> conceptPatternsToRevisionID,
-            LinkedHashMap<String, String> conceptPatternsToClusterName, String forceMainPivot,
+    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID,
+            Map<String, String> conceptPatternsToClusterName, String forceMainPivot,
             ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit,
             boolean totalCountOnfirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
         // Replace for QueryBuilder

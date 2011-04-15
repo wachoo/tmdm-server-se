@@ -104,7 +104,7 @@ public abstract class QueryBuilder {
                                 .append(lastElementName).append(">"); //$NON-NLS-1$
                     } else {
                         xqReturn.append("let $element := ").append(factoredPath);
-                        xqReturn.append(" return if (!empty($element)) then $element").append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        xqReturn.append(" return if (not(empty($element))) then $element").append(" else <") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                 .append(lastElementName).append("/>"); //$NON-NLS-1$
                     }
                 } else {
@@ -153,13 +153,13 @@ public abstract class QueryBuilder {
     /**
      * Builds the xQuery Return statement for an Items Query
      * 
-     * @param viewableFullPaths
+     *
      * @param pivotsMap
      * @return
      * @throws XmlServerException
      */
-    protected String getXQueryFor(boolean isItemQuery, LinkedHashMap<String, String> rootElementNamesToRevisionID,
-            LinkedHashMap<String, String> rootElementNamesToClusterName, LinkedHashMap<String, String> pivotsMap,
+    protected String getXQueryFor(boolean isItemQuery, Map<String, String> rootElementNamesToRevisionID,
+            Map<String, String> rootElementNamesToClusterName, Map<String, String> pivotsMap,
             PartialXQLPackage partialXQLPackage, QueryBuilderContext queryBuilderContext) throws XmlServerException {
 
         StringBuilder xqFor = new StringBuilder();
@@ -869,6 +869,7 @@ public abstract class QueryBuilder {
     /**
      * Builds an XQuery
      * 
+     *
      * @param isItemQuery
      * @param objectRootElementNamesToRevisionID
      * @param objectRootElementNamesToClusterName
@@ -882,8 +883,8 @@ public abstract class QueryBuilder {
      * @return
      * @throws XmlServerException
      */
-    public String getQuery(boolean isItemQuery, LinkedHashMap<String, String> objectRootElementNamesToRevisionID,
-            LinkedHashMap<String, String> objectRootElementNamesToClusterName, String forceMainPivot,
+    public String getQuery(boolean isItemQuery, Map<String, String> objectRootElementNamesToRevisionID,
+            Map<String, String> objectRootElementNamesToClusterName, String forceMainPivot,
             ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit,
             boolean withTotalCountOnFirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
 
@@ -1075,8 +1076,8 @@ public abstract class QueryBuilder {
      * 
      ***********************************************************************/
 
-    public static String getClusterName(LinkedHashMap<String, String> conceptPatternsToRevisionID,
-            LinkedHashMap<String, String> conceptPatternsToClusterName, String fullPath) {
+    public static String getClusterName(Map<String, String> conceptPatternsToRevisionID,
+            Map<String, String> conceptPatternsToClusterName, String fullPath) {
         String conceptName = getRootElementNameFromPath(fullPath);
         // determine cluster
         String clusterName = null;
@@ -1091,7 +1092,7 @@ public abstract class QueryBuilder {
         return clusterName;
     }
 
-    public static String getRevisionID(LinkedHashMap<String, String> conceptPatternsToRevisionID, String fullPath) {
+    public static String getRevisionID(Map<String, String> conceptPatternsToRevisionID, String fullPath) {
         String conceptName = getRootElementNameFromPath(fullPath);
         // determine revision
         String revisionID = null;
