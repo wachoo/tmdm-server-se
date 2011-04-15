@@ -5162,8 +5162,12 @@ amalto.itemsbrowser.ItemsBrowser = function () {
             if(error.indexOf("]")>=0){
               error = error.replace("]"," ").trim();
             }
+            
             if(language.toLowerCase()==error.split(":")[0].toLowerCase().trim()){
-             return error.split(":")[1].trim();
+            	var errors = error.substring(3,error.length);
+            	
+              return errors;
+             //return error.split(":")[1].trim();
             }
           }
         }
