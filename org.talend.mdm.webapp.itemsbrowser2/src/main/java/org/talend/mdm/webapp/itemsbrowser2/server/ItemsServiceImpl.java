@@ -199,7 +199,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
     }
 
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
-            String dataClusterPK, boolean ifFKFilter) {
-        return itemsServiceHandler.getForeignKeyList(config, model, dataClusterPK, ifFKFilter);
+            String dataClusterPK, boolean ifFKFilter, String value) {
+        return itemsServiceHandler.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
     }
 }

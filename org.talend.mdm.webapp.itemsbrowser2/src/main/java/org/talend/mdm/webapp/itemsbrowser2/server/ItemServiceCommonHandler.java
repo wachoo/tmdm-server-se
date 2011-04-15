@@ -582,7 +582,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     @Override
     public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model,
-            String dataClusterPK, boolean ifFKFilter) {
+            String dataClusterPK, boolean ifFKFilter, String value) {
         String xpathForeignKey = model.getForeignkey();
         // to verify
         String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -590,7 +590,6 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         String fkFilter = ""; //$NON-NLS-1$
         if (ifFKFilter)
             fkFilter = model.getFkFilter();
-        String value = ".*"; //$NON-NLS-1$        
 
         if (xpathForeignKey == null)
             return null;
