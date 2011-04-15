@@ -98,7 +98,7 @@ public class QueryBuilderTest extends TestCase {
         whereItem.add(new WhereCondition("Product/Price", WhereCondition.GREATER_THAN, "10", WhereCondition.PRE_NONE, false));
         types = Arrays.asList("xsd:decimal");
         metaDataTypes.put("Product/Price", new ArrayList<String>(types));
-        expected = "( matches($pivot0/Id, \"231.*\" ,\"i\") ) and (number($pivot0/Price) gt 10)";
+        expected = "( matches($pivot0/Id, \"231.*\" ,\"i\") ) and ($pivot0/Price > 10)";
 
         actual = queryBuilder.buildWhere(pivots, whereItem, metaDataTypes);
         assertEquals(expected, actual);
