@@ -43,7 +43,7 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 		this.recordType = Ext.data.Record.create([
             {name: "date", mapping : "date", type: "string"},
             {name: "entity", mapping : "entity", type: "string"},
-            {name: "key", mapping : "key", type: "string"}
+            {name: "key", mapping : "key"}
 		 ]);
 		 
 		this.store1 = new Ext.data.Store({
