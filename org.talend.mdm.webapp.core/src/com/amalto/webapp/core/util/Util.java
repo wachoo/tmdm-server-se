@@ -315,7 +315,7 @@ public class Util {
         if (fkFilter.equals("null"))
             return null;
 
-        int additionalInfo = fkFilter.indexOf("-");
+        int additionalInfo = fkFilter.indexOf("-", fkFilter.lastIndexOf("#") > -1 ? fkFilter.lastIndexOf("#") + 1 : 0);
         String additionalValue = null;
         if (additionalInfo != -1) {
             additionalValue = fkFilter.substring(additionalInfo + 1);
@@ -654,8 +654,8 @@ public class Util {
      * @throws Exception
      */
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws Exception {
-        XObject xo = XPathAPI.eval(contextNode, xPath,
-                (namespace == null) ? contextNode : Util.getRootElement("nsholder", namespace, prefix));
+        XObject xo = XPathAPI.eval(contextNode, xPath, (namespace == null) ? contextNode : Util.getRootElement("nsholder",
+                namespace, prefix));
         if (xo.getType() != XObject.CLASS_NODESET)
             return null;
         return xo.nodelist();
@@ -1146,8 +1146,7 @@ public class Util {
                 int i = j;
                 while ((i > 0 && itemsBrowserContent.get(i - 1)[col].length() > 0 && temp[col].length() > 0 && Double
                         .parseDouble(itemsBrowserContent.get(i - 1)[col]) > Double.parseDouble(temp[col]))
-                        || i > 0
-                        && temp[col].length() == 0) {
+                        || i > 0 && temp[col].length() == 0) {
                     itemsBrowserContent.set(i, itemsBrowserContent.get(i - 1));
                     i--;
                 }
@@ -1452,14 +1451,14 @@ public class Util {
         throw new Exception("this should not happen");
 
     }
-    
+
     public static String countForeignKey_filter(String xpathForeignKey, String xpathForeignKeyinfo, String fkFilter)
             throws Exception {
-        return countForeignKey_filter(xpathForeignKey,xpathForeignKeyinfo,fkFilter,null);
+        return countForeignKey_filter(xpathForeignKey, xpathForeignKeyinfo, fkFilter, null);
     }
 
-    public static String countForeignKey_filter(String xpathForeignKey, String xpathForeignKeyinfo, String fkFilter, String criteriaValue)
-            throws Exception {
+    public static String countForeignKey_filter(String xpathForeignKey, String xpathForeignKeyinfo, String fkFilter,
+            String criteriaValue) throws Exception {
         Configuration config = Configuration.getInstance();
         String conceptName = getConceptFromPath(xpathForeignKey);
 
@@ -1477,9 +1476,9 @@ public class Util {
             WSWhereItem fkFilterWi = getConditionFromFKFilter(xpathForeignKey, xpathForeignKeyinfo, fkFilter);
             if (fkFilterWi != null)
                 whereItem = fkFilterWi;
-            
-            if(criteriaValue!=null&&criteriaValue.trim().length()>0) {
-                
+
+            if (criteriaValue != null && criteriaValue.trim().length() > 0) {
+
                 List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
                 if (whereItem != null)
                     condition.add(whereItem);
@@ -1488,9 +1487,9 @@ public class Util {
                 if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
                     criteriaCondition = conceptName + "//* CONTAINS ";//$NON-NLS-1$
                 }
-                criteriaCondition+=criteriaValue;
+                criteriaCondition += criteriaValue;
                 WSWhereItem wc = buildWhereItem(criteriaCondition);
-                
+
                 condition.add(wc);
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
                 WSWhereItem wAnd = new WSWhereItem(null, and, null);
