@@ -138,7 +138,7 @@ public class FKRelRecordWindow extends Window {
         };
 
         loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
-        ListStore<ForeignKeyBean> store = new ListStore<ForeignKeyBean>(loader);
+        final ListStore<ForeignKeyBean> store = new ListStore<ForeignKeyBean>(loader);
 
         FormPanel panel = new FormPanel();
         panel.setFrame(false);
@@ -166,9 +166,31 @@ public class FKRelRecordWindow extends Window {
         filter.addListener(Events.KeyUp, new Listener<FieldEvent>() {
 
             public void handleEvent(FieldEvent be) {
-                if (be.getKeyCode() != KeyCodes.KEY_UP && be.getKeyCode() != KeyCodes.KEY_DOWN){
-                    loader.load(0, pageSize);
+                if (be.getKeyCode() == KeyCodes.KEY_UP){
+                    ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
+                    if (fkBean == null){
+                        relatedRecordGrid.getSelectionModel().select(store.getCount() - 1, true);
+                    } else {
+                        relatedRecordGrid.getSelectionModel().selectPrevious(false);
+                        filter.focus();
+                    }
+                    return;
                 }
+                if (be.getKeyCode() == KeyCodes.KEY_DOWN){
+                    ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
+                    if (fkBean == null){
+                        relatedRecordGrid.getSelectionModel().select(0, true);
+                    } else {
+                        relatedRecordGrid.getSelectionModel().selectNext(false);
+                        filter.focus();
+                    }
+                    return;
+                }
+                if (be.getKeyCode() == KeyCodes.KEY_ENTER){
+                    returnCriteriaFK.setCriteriaFK(relatedRecordGrid.getSelectionModel().getSelectedItem());
+                    close();
+                }
+                loader.load(0, pageSize);
             }
         });
         filter.setWidth(WINDOW_WIDTH - 40);
