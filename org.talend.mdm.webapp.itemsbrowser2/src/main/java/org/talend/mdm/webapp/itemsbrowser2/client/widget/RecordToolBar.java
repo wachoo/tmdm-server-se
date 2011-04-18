@@ -7,10 +7,12 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -279,9 +281,9 @@ public class RecordToolBar extends ToolBar {
             public void onSuccess(ItemResult arg0) {
                 if (arg0.getStatus() == ItemResult.SUCCESS) {
                     parent.commitItemBean();
-                    MessageBox.alert(MessagesFactory.getMessages().info_title(), arg0.getDescription(), null);
+                    MessageBox.alert(MessagesFactory.getMessages().info_title(), Locale.getExceptionMessageByLanguage(GetService.getLanguage(), arg0.getDescription()), null);
                 } else if (arg0.getStatus() == ItemResult.FAILURE) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), arg0.getDescription(), null);
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), Locale.getExceptionMessageByLanguage(GetService.getLanguage(), arg0.getDescription()), null);
                 }
             }
 

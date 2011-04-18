@@ -111,7 +111,6 @@ public class FKRelRecordWindow extends Window {
         if (value == null || value.trim().equals("")){
             value = ".*"; //$NON-NLS-1$
         }
-        com.google.gwt.user.client.Window.setTitle(value);
         return value;
     }
     
