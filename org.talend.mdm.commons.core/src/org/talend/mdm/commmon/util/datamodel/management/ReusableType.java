@@ -55,6 +55,15 @@ public class ReusableType {
     public String getParentName() {
         return parentName;
     }
+    
+    
+    public boolean isAbstract() {
+        return isAbstract;
+    }
+
+    public void setAbstract(boolean isAbstract) {
+        this.isAbstract = isAbstract;
+    }
 
     public XSParticle getXsParticle() {
         return xsType.asComplexType().getContentType().asParticle();
