@@ -190,6 +190,9 @@ public class FKRelRecordWindow extends Window {
                     returnCriteriaFK.setCriteriaFK(relatedRecordGrid.getSelectionModel().getSelectedItem());
                     close();
                 }
+                if (be.getKeyCode() == KeyCodes.KEY_LEFT || be.getKeyCode() == KeyCodes.KEY_RIGHT){
+                    return;
+                }
                 loader.load(0, pageSize);
             }
         });
