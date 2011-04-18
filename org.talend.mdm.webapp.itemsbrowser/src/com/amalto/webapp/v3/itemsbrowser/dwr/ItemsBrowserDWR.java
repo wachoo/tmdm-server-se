@@ -168,6 +168,8 @@ public class ItemsBrowserDWR {
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "com.amalto.webapp.v3.itemsbrowser.dwr.messages", ItemsBrowserDWR.class.getClassLoader()); //$NON-NLS-1$
 
+    private static Object locker = new Object();
+
     public ItemsBrowserDWR() {
         super();
     }
@@ -1241,6 +1243,8 @@ public class ItemsBrowserDWR {
     public TreeNode[] getChildrenWithKeyMask(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
             boolean maskKey, String selectedExtendType) throws Exception {
 
+        synchronized(locker){     
+
         WebContext ctx = WebContextFactory.get();
         HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
@@ -1352,6 +1356,7 @@ public class ItemsBrowserDWR {
         handleDynamicLable(rtnNodes, docIndex);// FIXME: performance maybe a problem
         rtnNodes = handleDisplayRules(rtnNodes, docIndex);
         return rtnNodes;
+        }
     }
 
     private void clearChildrenValue(Node node) {

@@ -2359,7 +2359,9 @@ amalto.itemsbrowser.ItemsBrowser = function () {
 			_rootNode=rootNode;
 		});
         ItemsBrowserInterface.prepareSessionForItemDetails(dataObject,language,function(status){});
-		DWREngine.setAsync(true);
+       
+        //comment for bug 0020558
+//		DWREngine.setAsync(true);
 		loadResource("/itemsbrowser/secure/js/ItemNode.js", "amalto.itemsbrowser.ItemNode" );
 		//alert("display items "+DWRUtil.toDescriptiveString(itemPK2,2)+" "+ dataObject);
 		amalto.core.working();
