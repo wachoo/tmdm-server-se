@@ -831,9 +831,12 @@ public class ItemsBrowserDWR {
             List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(bindingType);
             if (subTypes != null && subTypes.size() > 0) {
                 treeNode.setPolymiorphism(true);
+                treeNode.setAbstract(new ReusableType(xsp.getTerm().asElementDecl().getType()).isAbstract());
                 ArrayList<String> subTypesName = new ArrayList<String>();
                 for (ReusableType reusableType : subTypes) {
-                    subTypesName.add(reusableType.getName());
+                    if (!reusableType.isAbstract()) {
+                        subTypesName.add(reusableType.getName());
+                    }
                 }
                 treeNode.setSubTypes(subTypesName);
             }
@@ -902,6 +905,7 @@ public class ItemsBrowserDWR {
         } catch (Exception e1) {
             LOG.error(e1.getMessage(), e1);
         }
+
         treeNode.setTypeName(typeNameTmp);
         treeNode.setXmlTag(xsp.getTerm().asElementDecl().getName());
         treeNode.setNodeId(nodeCount);

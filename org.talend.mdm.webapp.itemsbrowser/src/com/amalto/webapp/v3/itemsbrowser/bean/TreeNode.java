@@ -23,9 +23,9 @@ public class TreeNode implements Cloneable {
         super();
         if (!Util.isEnterprise()) {
             readOnly = false;
-            denyCreatable=false;
-            denyLogicalDeletable=false;
-            denyPhysicalDeletable=false;
+            denyCreatable = false;
+            denyLogicalDeletable = false;
+            denyPhysicalDeletable = false;
         }
     }
 
@@ -97,39 +97,49 @@ public class TreeNode implements Cloneable {
     private ArrayList<String> subTypes;
 
     private String realType;
-    
-    //extra access
-	boolean denyCreatable;
-	boolean denyLogicalDeletable;
-	boolean denyPhysicalDeletable;
-	
 
+    private boolean isAbstract = false;
 
-	public boolean isDenyCreatable() {
-		return denyCreatable;
-	}
+    public boolean isAbstract() {
+        return isAbstract;
+    }
 
-	public void setDenyCreatable(boolean denyCreatable) {
-		this.denyCreatable = denyCreatable;
-	}
+    public void setAbstract(boolean isAbstract) {
+        this.isAbstract = isAbstract;
+    }
 
-	public boolean isDenyLogicalDeletable() {
-		return denyLogicalDeletable;
-	}
+    // extra access
+    boolean denyCreatable;
 
-	public void setDenyLogicalDeletable(boolean denyLogicalDeletable) {
-		this.denyLogicalDeletable = denyLogicalDeletable;
-	}
+    boolean denyLogicalDeletable;
 
-	public boolean isDenyPhysicalDeletable() {
-		return denyPhysicalDeletable;
-	}
+    boolean denyPhysicalDeletable;
 
-	public void setDenyPhysicalDeletable(boolean denyPhysicalDeletable) {
-		this.denyPhysicalDeletable = denyPhysicalDeletable;
-	}
+    public boolean isDenyCreatable() {
+        return denyCreatable;
+    }
 
-	public boolean isPolymiorphism() {
+    public void setDenyCreatable(boolean denyCreatable) {
+        this.denyCreatable = denyCreatable;
+    }
+
+    public boolean isDenyLogicalDeletable() {
+        return denyLogicalDeletable;
+    }
+
+    public void setDenyLogicalDeletable(boolean denyLogicalDeletable) {
+        this.denyLogicalDeletable = denyLogicalDeletable;
+    }
+
+    public boolean isDenyPhysicalDeletable() {
+        return denyPhysicalDeletable;
+    }
+
+    public void setDenyPhysicalDeletable(boolean denyPhysicalDeletable) {
+        this.denyPhysicalDeletable = denyPhysicalDeletable;
+    }
+
+    public boolean isPolymiorphism() {
         return polymiorphism;
     }
 
@@ -190,8 +200,8 @@ public class TreeNode implements Cloneable {
                 NodeList annotList = el.getChildNodes();
                 ArrayList<String> pkInfoList = new ArrayList<String>();
                 ArrayList<String> fkInfoList = new ArrayList<String>();
-                boolean writable=false;
-                boolean denycreatable=false;
+                boolean writable = false;
+                boolean denycreatable = false;
                 for (int k = 0; k < annotList.getLength(); k++) {
                     if ("appinfo".equals(annotList.item(k).getLocalName())) {
                         Node source = annotList.item(k).getAttributes().getNamedItem("source");
@@ -204,8 +214,8 @@ public class TreeNode implements Cloneable {
                             setLabelOtherLanguage(annotList.item(k).getFirstChild().getNodeValue());
                         } else if ("X_Write".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
-                                //setReadOnly(false);
-                            	writable=true;
+                                // setReadOnly(false);
+                                writable = true;
                             }
                         } else if ("X_Hide".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
@@ -237,16 +247,16 @@ public class TreeNode implements Cloneable {
                             if (matcher.matches() && matcher.group(1).toLowerCase().equals(language)) {
                                 setDisplayFomats(matcher.group(1).toLowerCase(), annotList.item(k).getFirstChild().getNodeValue());
                             }
-                        }else if ("X_Deny_Create".equals(appinfoSource)) {
+                        } else if ("X_Deny_Create".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
                                 setDenyCreatable(true);
-                                denycreatable=true;
+                                denycreatable = true;
                             }
-                        }else if ("X_Deny_LogicalDelete".equals(appinfoSource)) {
+                        } else if ("X_Deny_LogicalDelete".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
                                 setDenyLogicalDeletable(true);
                             }
-                        }else if ("X_Deny_PhysicalDelete".equals(appinfoSource)) {
+                        } else if ("X_Deny_PhysicalDelete".equals(appinfoSource)) {
                             if (roles.contains(annotList.item(k).getFirstChild().getNodeValue())) {
                                 setDenyPhysicalDeletable(true);
                             }
@@ -258,7 +268,7 @@ public class TreeNode implements Cloneable {
                     }
                 }
                 if (Util.isEnterprise()) {
-                    readOnly=!writable;
+                    readOnly = !writable;
                 }
                 setForeignKeyInfo(fkInfoList);
                 setPrimaryKeyInfo(pkInfoList);
