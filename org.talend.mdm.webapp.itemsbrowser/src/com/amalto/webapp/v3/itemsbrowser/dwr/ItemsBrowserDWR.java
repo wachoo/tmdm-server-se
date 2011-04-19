@@ -607,8 +607,10 @@ public class ItemsBrowserDWR {
             for (Iterator<String> iterator = visibleRules.keySet().iterator(); iterator.hasNext();) {
                 String xpath = (String) iterator.next();
                 String value = displayRulesUtil.evalVisibleRuleResult(transformedDocument, xpath);
-                if (value != null) {
-                    dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_VISIBLE_RULE, xpath, value));
+                if (value != null&& value.equals("false")) {//$NON-NLS-1$
+                    dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_VISIBLE_RULE, xpath, "false"));//$NON-NLS-1$
+                }else if (value==null||(value != null&& value.equals("true"))) {//$NON-NLS-1$
+                    dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_VISIBLE_RULE, xpath, "true"));//$NON-NLS-1$
                 }
             }
         }
@@ -1511,7 +1513,36 @@ public class ItemsBrowserDWR {
         String xpath = idToXpath.get(id);
         if (xpath == null)
             return "Nothing to update";
-        return updateNode2(xpath, StringEscapeUtils.unescapeHtml(content), docIndex);
+        
+        String updateStatus=updateNode2(xpath, StringEscapeUtils.unescapeHtml(content), docIndex);
+        
+        try {
+            updateDspRules(docIndex,(Document) ctx.getSession().getAttribute("itemDocument" + docIndex),Util.getConceptFromPath(xpath));
+        } catch (Exception e) {
+            LOG.error("Error happened when update display rules!", e);//$NON-NLS-1$
+        }
+        
+        return updateStatus;
+    }
+    
+    
+    /**
+     * DOC HSHU Comment method "checkVisibilityRules".
+     */
+    public Map<String,String> checkVisibilityRules(int docIndex) {
+        Map<String,String> checkMap=new HashMap<String,String>();
+        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute("displayRules" + docIndex); //$NON-NLS-1$
+        for (DisplayRule displayRule : dspRules) {
+            String xpath = displayRule.getXpath();
+            if (displayRule.getType().equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
+                HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) WebContextFactory.get().getSession().getAttribute("xpathToTreeNode");//$NON-NLS-1$
+                if(xpathToTreeNode.get(xpath)!=null) {
+                    int nodeId=xpathToTreeNode.get(xpath).getNodeId();
+                    checkMap.put(String.valueOf(nodeId), displayRule.getValue());
+                }
+            }
+        }
+        return checkMap;
     }
 
     public synchronized static String updateNode2(String xpath, String content, int docIndex) {

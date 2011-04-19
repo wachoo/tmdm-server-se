@@ -346,8 +346,10 @@ public class DisplayRulesUtil {
                 }
             } else if (displayRule.getType().equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
                 if (getMainXpath(xpath).startsWith(xpathInRule)) {
-                    // nodesList.remove(node);
-                    node.setVisible(false);
+                    if(displayRule.getValue()!=null&&displayRule.getValue().equals("false")) { //$NON-NLS-1$
+                        // nodesList.remove(node);
+                        node.setVisible(false);
+                    }
                 }
             }
         }

@@ -4149,8 +4149,20 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 		// node.itemData.nodeId = id;
 		// edit by ymli: fix the bug:0013463
 		ItemsBrowserInterface.updateNode(id, value, treeIndex,
-				function(result) {
-					amalto.core.ready(result);
+				function(_result) {
+					amalto.core.ready(_result);
+					ItemsBrowserInterface.checkVisibilityRules(treeIndex,function(results){
+                        if(results!=null){
+                            for(var treeNodeId in results){
+                                if(treeNodeId!=undefined){
+                                    var displayStyle=(results[treeNodeId]=='true'?'block':'none');
+                                    if($('ygtvitem'+treeNodeId)!=undefined && $('ygtvitem'+treeNodeId)!=null){
+                                        $('ygtvitem'+treeNodeId).style.display=displayStyle;
+                                    }
+                                }   
+                            }
+                        }   
+                    });
 					$('errorDesc' + treeIndex).style.display = "block";
 				});
 		if (updateValue(id, treeIndex) == false) {

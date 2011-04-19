@@ -519,10 +519,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
         	style +='none;"';
         }
         else{
-        	style +='show;"';
+        	style +='block;"';
         }
         var sb = [];
-        sb[sb.length] = '<div class="ygtvitem" id="' + this.getElId() + '"' + style + '>';
+        sb[sb.length] = '<div class="ygtvitem" id="ygtvitem' + this.itemData.nodeId + '"' + style + '>';
         sb[sb.length] = this.getNodeHtml();
         sb[sb.length] = this.getChildrenHtml();
         sb[sb.length] = '</div>';
