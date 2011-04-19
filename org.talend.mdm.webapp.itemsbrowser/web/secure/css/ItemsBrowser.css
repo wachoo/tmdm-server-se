@@ -52,12 +52,18 @@
 /***************************************************************************************
   SPECIFIC
 ****************************************************************************************/
-.inputLabel {
-  width: 180px;
-  height: 16px;
-  float: left;
-  overflow: hidden;
+
+.inputLabelAfter{
+  
 }
+.inputLabelAfter .inputLabel {
+  height: 16px;
+  float:left;
+  width: 180px;
+}
+
+
+
 
 
 .itemTree {
