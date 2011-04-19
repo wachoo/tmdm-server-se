@@ -79,6 +79,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsToolBar extends ToolBar {
 
+	private static int itemNumber = 0;
+	
     private final static int PAGE_SIZE = 10;
 
     private boolean isSimple;
@@ -208,6 +210,7 @@ public class ItemsToolBar extends ToolBar {
                                                     }
 
                                                     public void onSuccess(List<ItemResult> results) {
+                                                    	itemNumber++;
                                                         StringBuffer sb = new StringBuffer();
                                                         for (ItemResult result : results) {
                                                             sb.append(result.getDescription() + "\n");//$NON-NLS-1$
@@ -217,6 +220,7 @@ public class ItemsToolBar extends ToolBar {
                                                                         null);
                                                                 return;
                                                             }
+                                                            break;
                                                         }
                                                         MessageBox.info(MessagesFactory.getMessages().info_title(),
                                                                 sb.toString(), null);
@@ -248,7 +252,7 @@ public class ItemsToolBar extends ToolBar {
                             if (list.getGrid() != null) {
                                 service.logicalDeleteItems(list.getGrid().getSelectionModel().getSelectedItems(), "/", //$NON-NLS-1$
                                         new AsyncCallback<List<ItemResult>>() {
-
+                                	
                                             public void onFailure(Throwable caught) {
                                                 Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                             }
