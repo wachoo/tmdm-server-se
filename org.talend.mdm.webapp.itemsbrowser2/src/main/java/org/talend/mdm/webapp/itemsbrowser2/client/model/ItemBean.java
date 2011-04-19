@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.model;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -31,6 +33,8 @@ public class ItemBean extends ItemBaseModel {
 
     private String itemXml;
 
+    private Map<String, ForeignKeyBean> foreignkeyDesc = new HashMap<String, ForeignKeyBean>();
+    
     /**
      * DOC HSHU ItemBean constructor comment.
      */
@@ -84,6 +88,15 @@ public class ItemBean extends ItemBaseModel {
         return pk;
     }
 
+    
+    public void setForeignkeyDesc(String fkValue, ForeignKeyBean desc){
+        foreignkeyDesc.put(fkValue, desc);
+    }
+    
+    public ForeignKeyBean getForeignkeyDesc(String fkValue){
+        return foreignkeyDesc.get(fkValue);
+    }
+    
     @Override
     public String toString() {
         return "ItemBean [concept=" + concept + ", ids=" + ids + ", itemXml=" + itemXml + "]";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$  
@@ -97,6 +110,7 @@ public class ItemBean extends ItemBaseModel {
         //FIXME is this ugly?
         setConcept(itemBean.getConcept());
         setIds(itemBean.getIds());
+        this.foreignkeyDesc = itemBean.foreignkeyDesc;
         setItemXml(itemBean.getItemXml());
         Collection<String> names = itemBean.getPropertyNames();
         for (String name : names) {

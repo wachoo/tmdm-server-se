@@ -1,9 +1,14 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.celleditor;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 
 public class FKCellEditor extends CellEditor {
@@ -13,8 +18,12 @@ public class FKCellEditor extends CellEditor {
     }
     public Object preProcessValue(Object value) {
         if (value == null) return null;
-        ForeignKeyBean fkBean = new ForeignKeyBean();
-        fkBean.setId((String) value);
+
+        ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
+        Grid<ItemBean> grid = itemsSearchContainer.getItemsListPanel().getGrid();
+
+        ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
+        ForeignKeyBean fkBean = itemBean.getForeignkeyDesc((String)value);
         return fkBean;
     }
 
@@ -22,7 +31,12 @@ public class FKCellEditor extends CellEditor {
         if (value == null) {
             return value;
         }
+        ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
+        Grid<ItemBean> grid = itemsSearchContainer.getItemsListPanel().getGrid();
+        
+        ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
         ForeignKeyBean fkBean = (ForeignKeyBean) value;
+        itemBean.setForeignkeyDesc(fkBean.getId(), fkBean);
         return fkBean.getId();
     }
 }

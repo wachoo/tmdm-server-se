@@ -208,16 +208,19 @@ public class ItemsToolBar extends ToolBar {
                                                     }
 
                                                     public void onSuccess(List<ItemResult> results) {
+                                                        StringBuffer sb = new StringBuffer();
                                                         for (ItemResult result : results) {
+                                                            sb.append(result.getDescription() + "\n");//$NON-NLS-1$
                                                             if (result.getStatus() == ItemResult.FAILURE) {
                                                                 MessageBox.alert(MessagesFactory.getMessages().error_title(),
                                                                         result.getDescription(),
                                                                         null);
                                                                 return;
                                                             }
-                                                            MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                    result.getDescription(), null);
                                                         }
+                                                        MessageBox.info(MessagesFactory.getMessages().info_title(),
+                                                                sb.toString(), null);
+                                                        
                                                         list.getStore().getLoader().load();
                                                     }
                                                 });

@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.creator;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -24,7 +26,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 public class CellRendererCreator {
 
-    public static GridCellRenderer<ModelData> createRenderer(TypeModel dataType){
+    public static GridCellRenderer<ModelData> createRenderer(TypeModel dataType, final String xpath){
         if (dataType.getType().equals(DataTypeConstants.URL)){
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
@@ -36,6 +38,18 @@ public class CellRendererCreator {
                         return "<a href='" + url[1] + "'>" + url[0] + "</a>";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     }
                     return "null";//$NON-NLS-1$
+                }
+            };
+            return renderer;
+        }
+        if (dataType.getForeignkey() != null){
+            GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
+
+                public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
+                        ListStore<ModelData> store, Grid<ModelData> grid) {
+                    ItemBean itemBean = (ItemBean) model;
+                    ForeignKeyBean fkBean = itemBean.getForeignkeyDesc((String)model.get(property));
+                    return fkBean.toString();
                 }
             };
             return renderer;

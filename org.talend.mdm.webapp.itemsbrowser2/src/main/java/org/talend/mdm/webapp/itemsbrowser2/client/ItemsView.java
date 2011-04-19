@@ -147,7 +147,7 @@ public class ItemsView extends View {
             }
 
             if (typeModel != null) {
-                GridCellRenderer<ModelData> renderer = CellRendererCreator.createRenderer(typeModel);
+                GridCellRenderer<ModelData> renderer = CellRendererCreator.createRenderer(typeModel, xpath);
                 if (renderer != null) {
                     cc.setRenderer(renderer);
                 }
