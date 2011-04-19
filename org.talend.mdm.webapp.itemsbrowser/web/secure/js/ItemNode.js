@@ -141,14 +141,14 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			type='hidden';
 		}
 		
-		var mandatory = "";
+		var mandatory = '<span style="color:red; visibility: hidden;">*</span>';
 		this.result = null;
 		//var check = this.checkMinOccurs(itemData,null);
 		//var ancestor = this.checkAncestorMinOCcurs(itemData);
 		//if(ancestor) check = true;
 		if(itemData.key||(itemData.minOccurs>=1  )) mandatory='<span style="color:red">*</span>';
 		// (itemData.parent==null || (itemData.parent!=null && itemData.parent.minOccurs>=1))
-		var descInfo = "";
+		var descInfo = '<img src="img/genericUI/information_icon.gif" style="visibility: hidden"/>';
 		if(itemData.description!=null)descInfo='<img src="img/genericUI/information_icon.gif" ext:qtitle="Description" ext:qtip="'+itemData.description+'"/>';
 		var polymSelector = "";
 		if(itemData.polymiorphism&&itemData.subTypes.length>0){
@@ -291,7 +291,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			}
 			
 
-			html[html.length] = '<div style="display:inline"><div class="inputLabel">'+itemData.name+' '+mandatory+' '+descInfo+'</div>';
+			html[html.length] = '<div style="display:inline"><span class="inputLabelAfter"><div class="inputLabel" title="' + itemData.name + '">'+itemData.name+ '</div></span> '+mandatory+' '+descInfo;
 			if(itemData.typeName!=null&&itemData.typeName=="boolean"){
 				//value=String(value=='true');
 				if (value == 'false')
@@ -368,7 +368,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 
 		else { //complex type
 			
-			html[html.length] = '<div style="display:inline"><div class="inputLabel">'+itemData.name+' '+mandatory+' '+descInfo+'</div>' ;
+			html[html.length] = '<div style="display:inline"><span class="inputLabelAfter"><div class="inputLabel" title="' + itemData.name + '">'+itemData.name+ '</div></span> '+mandatory+' '+descInfo ;
 			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + '<br/>';
 			
 			if(itemData.polymiorphism&&itemData.subTypes.length>0)
