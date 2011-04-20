@@ -49,7 +49,7 @@ public class CellRendererCreator {
                         ListStore<ModelData> store, Grid<ModelData> grid) {
                     ItemBean itemBean = (ItemBean) model;
                     ForeignKeyBean fkBean = itemBean.getForeignkeyDesc((String)model.get(property));
-                    return fkBean.toString();
+                    return fkBean == null ? "" : fkBean.toString();
                 }
             };
             return renderer;
