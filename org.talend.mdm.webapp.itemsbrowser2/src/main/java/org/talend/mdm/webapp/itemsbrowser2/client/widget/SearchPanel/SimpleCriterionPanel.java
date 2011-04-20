@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +22,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.ForeignKey.ReturnCriteriaFK;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.creator.SearchFieldCreator;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
@@ -35,7 +35,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Radio;
@@ -52,9 +51,9 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCriteriaFK {
 
-    private ComboBox<BaseModel> keyComboBox;
+    private ComboBoxField<BaseModel> keyComboBox;
 
-    private ComboBox<BaseModel> operatorComboBox;
+    private ComboBoxField<BaseModel> operatorComboBox;
 
     private Field field;
 
@@ -76,8 +75,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         super();
         setSpacing(3);
 
-        keyComboBox = new ComboBox<BaseModel>();
-        keyComboBox.setAutoWidth(true);
+        keyComboBox = new ComboBoxField<BaseModel>();
         keyComboBox.setDisplayField("name"); //$NON-NLS-1$
         keyComboBox.setValueField("value"); //$NON-NLS-1$
         keyComboBox.setStore(list);
@@ -94,8 +92,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
         add(keyComboBox);
 
-        operatorComboBox = new ComboBox<BaseModel>();
-        operatorComboBox.setAutoWidth(true);
+        operatorComboBox = new ComboBoxField<BaseModel>();
         operatorComboBox.setDisplayField("name"); //$NON-NLS-1$
         operatorComboBox.setValueField("value"); //$NON-NLS-1$
         operatorComboBox.setStore(operatorlist);
@@ -221,7 +218,8 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
             operatorComboBox.setValue(operatorlist.findModel("value", criterion.getOperator())); //$NON-NLS-1$
             if (field != null) {
                 if (field instanceof DateField) {
-                    ((DateField) field).setValue(new Date(criterion.getValue()));
+                    ((DateField) field)
+                            .setValue(((DateField) field).getPropertyEditor().convertStringValue(criterion.getValue()));
                 } else if (field instanceof SimpleComboBox) {
                     ((SimpleComboBox) field).setValue(((SimpleComboBox) field).findModel(criterion.getValue()));
                 } else if (field instanceof RadioGroup) {
