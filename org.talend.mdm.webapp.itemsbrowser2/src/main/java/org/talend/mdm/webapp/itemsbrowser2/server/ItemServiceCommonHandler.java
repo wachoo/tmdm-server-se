@@ -174,7 +174,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     Node value = (Node) nodes.get(0);
                     itemBean.set(path, value.getText());
                     TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
-                    if (typeModel.getForeignkey() != null){
+                    if (typeModel != null && typeModel.getForeignkey() != null){
                         itemBean.setForeignkeyDesc(value.getText(), getForeignKeyDesc(typeModel, false, value.getText()));
                     }
                 }
@@ -201,7 +201,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                             itemBean.set(path, list);
                         } else {
                             itemBean.set(path, value.getText());
-                            if (typeModel.getForeignkey() != null){
+                            if (typeModel != null && typeModel.getForeignkey() != null){
                                 itemBean.setForeignkeyDesc(value.getText(), getForeignKeyDesc(typeModel, false, value.getText()));
                             }
                         }
