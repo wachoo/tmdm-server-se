@@ -4258,8 +4258,31 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 		}
 
 	}
-
+	
 	function showExceptionMsg(errorString, exception, treeIndex) {
+		
+		errorString=dropOnErrorMsg(errorString);
+		
+		var error = itemTreeList[treeIndex];
+		$('errorDesc' + treeIndex).style.display = errorString
+				.indexOf("Save item") == 0 ? "none" : "block";
+		var reCat = /\[Error\].*\n/gi;
+		var innerHml = "";
+		var arrMactches = errorString.match(reCat);
+		if (arrMactches != null)
+			for (var i = 0; i < arrMactches.length; i++) {
+				innerHml += arrMactches[i];
+				if (i < arrMactches.length - 1)
+					innerHml += '<br/>';
+			}
+		else
+			innerHml += errorString + '<br/>';
+		$('errorDetail' + treeIndex).style.display = "block";
+		$('errorDetail' + treeIndex).innerHTML = innerHml;
+		_exception = true;
+	}
+
+	function showExceptionMsg_2(errorString, exception, treeIndex) {
 		var reg = /\[(.*?):(.*?)\]/gi;
 		var errorsArray = errorString.match(reg);
 		if (errorsArray != null) {
@@ -5937,7 +5960,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 		return returnRe;
 	}
 
-	function dropOnErrorMsgs(raw) {
+	function dropOnErrorMsg_2(raw) {
 		var reg = /\[(.*?):(.*?)\]/gi;
 		var errorsArray = raw.match(reg);
 		if (errorsArray != null) {
