@@ -18,12 +18,14 @@
     //default en
     String _USERNAME_ = "Login";
     String _PASSWORD_ = "Password";
-    String _UNIVERSE_ ="Version";
+    String _UNIVERSE_ = "Version";
+    String _LOGIN_ = "Login";
     String _ERROR = "Login failed. Please check your login and password";
     
     if ("fr".equals(language)) {
          _USERNAME_ = "Identifiant";
          _PASSWORD_ = "Mot&nbsp;de&nbsp;passe";
+         _LOGIN_= "Connexion";
          _ERROR = "Mauvais identifiant ou mot de passe";
     }
     String editionTitle=DefaultCommonUtil.getEditionTitle();
@@ -162,7 +164,7 @@ deleteCookie();
                         </tr>
                         <%}%>                       
                         <tr>
-                            <td colspan="2" align="center"><input type="button" name="login" value="Login" onclick="f_submit()"/></td>
+                            <td colspan="2" align="center"><input type="button" name="login" value="<%=_LOGIN_%>" onclick="f_submit()"/></td>
                         </tr>
                     </table>
                 </form>
