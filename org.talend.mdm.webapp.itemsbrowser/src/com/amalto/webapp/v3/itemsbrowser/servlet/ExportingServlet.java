@@ -91,6 +91,7 @@ public class ExportingServlet extends HttpServlet {
             Long fromDate = new Long(-1);
             Long toDate = new Long(-1);
             String fkvalue = null;
+            String dataObject = null;
 
             if (parametersValues != null && parametersValues.length() > 0) {
                 JSONObject criteria = new JSONObject(parametersValues);
@@ -100,6 +101,8 @@ public class ExportingServlet extends HttpServlet {
                 keys = !criteria.isNull("key") && !"*".equals(criteria.get("key")) ? (String) criteria.get("key") : "";
                 fkvalue = !criteria.isNull("fkvalue") && !"*".equals(criteria.get("fkvalue")) ? (String) criteria.get("fkvalue")
                         : "";
+                dataObject = !criteria.isNull("dataObject") && !"*".equals(criteria.get("dataObject")) ? (String) criteria
+                        .get("dataObject") : "";
                 contentWords = !criteria.isNull("keyWords") ? (String) criteria.get("keyWords") : "";
 
                 if (!criteria.isNull("fromDate")) {
@@ -117,14 +120,14 @@ public class ExportingServlet extends HttpServlet {
                 }
             }
 
-            // @temp yguo , xpath and value
             BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(entity);
             Map<String, String> foreignKeyMap = businessConcept.getForeignKeyMap();
             Set<String> foreignKeyXpath = foreignKeyMap.keySet();
             String xpath = null;
 
             for (String path : foreignKeyXpath) {
-                if (path.indexOf(entity) != -1) {
+                String dataObjectPath = foreignKeyMap.get(path);
+                if (dataObjectPath.indexOf(dataObject) != -1) {
                     xpath = path.substring(1);
                     break;
                 }
@@ -132,9 +135,9 @@ public class ExportingServlet extends HttpServlet {
 
             StringBuilder keysb = new StringBuilder();
             keysb.append(keys);
-            keysb.append("@");
+            keysb.append("$");
             keysb.append(xpath);
-            keysb.append("@");
+            keysb.append("$");
             keysb.append(fkvalue);
 
             WSItemPKsByCriteriaResponse results = Util.getPort().getItemPKsByFullCriteria(
