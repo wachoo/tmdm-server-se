@@ -78,8 +78,6 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsToolBar extends ToolBar {
-
-	private static int itemNumber = 0;
 	
     private final static int PAGE_SIZE = 10;
 
@@ -164,6 +162,26 @@ public class ItemsToolBar extends ToolBar {
         }
         updateUserCriteriasList();
     }
+    
+    public int getSuccessItemsNumber(List<ItemResult> results){
+    	int itemSuccessNumber=0;
+    	for (ItemResult result : results) {
+            if (result.getStatus() == ItemResult.SUCCESS) {
+            	itemSuccessNumber++;
+            }
+        }
+    	return itemSuccessNumber;
+    }
+    
+    public int getFailureItemsNumber(List<ItemResult> results){
+    	int itemFailureNumber=0;
+    	for (ItemResult result : results) {
+            if (result.getStatus() == ItemResult.FAILURE) {
+            	itemFailureNumber++;
+            }
+        }
+    	return itemFailureNumber;
+    }
 
     private void initToolBar() {
         createBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Create()));
@@ -210,23 +228,25 @@ public class ItemsToolBar extends ToolBar {
                                                     }
 
                                                     public void onSuccess(List<ItemResult> results) {
-                                                    	itemNumber++;
                                                         StringBuffer sb = new StringBuffer();
+                                                        
                                                         for (ItemResult result : results) {
-                                                            sb.append(result.getDescription() + "\n");//$NON-NLS-1$
+                                                            if (result.getStatus() == ItemResult.SUCCESS) {
+                                                            	sb.append(MessagesFactory.getMessages().delete_item_record_success(getSuccessItemsNumber(results))+"\n");
+                                                            }
                                                             if (result.getStatus() == ItemResult.FAILURE) {
-                                                                MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                                        result.getDescription(),
-                                                                        null);
-                                                                return;
+                                                            	sb.append(MessagesFactory.getMessages().delete_item_record_failure(getFailureItemsNumber(results))+"\n");
                                                             }
                                                             break;
                                                         }
+                                                        
                                                         MessageBox.info(MessagesFactory.getMessages().info_title(),
                                                                 sb.toString(), null);
                                                         
                                                         list.getStore().getLoader().load();
                                                     }
+                                                    
+                                                    
                                                 });
                                     }
 
@@ -267,7 +287,7 @@ public class ItemsToolBar extends ToolBar {
                                                 }
                                                 list.getStore().getLoader().load();
                                             }
-
+                                            
                                         });
 
                             }
