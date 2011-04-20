@@ -255,6 +255,9 @@ public class Util {
      * @return the Concept Name
      */
     public static String getConceptFromPath(String path) {
+        if(path==null||path.trim().length()==0)return null;
+        if(path.startsWith("/"))path=path.substring(1);
+        
         Pattern p = Pattern.compile("(.*?)[\\[|/].*");
         if (!path.endsWith("/"))
             path += "/";
