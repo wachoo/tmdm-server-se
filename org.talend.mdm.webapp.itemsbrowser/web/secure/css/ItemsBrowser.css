@@ -53,17 +53,10 @@
   SPECIFIC
 ****************************************************************************************/
 
-.inputLabelAfter{
-  
-}
-.inputLabelAfter .inputLabel {
-  height: 16px;
-  float:left;
+.inputLabel {
   width: 180px;
+  float: left;
 }
-
-
-
 
 
 .itemTree {

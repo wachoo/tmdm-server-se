@@ -291,7 +291,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			}
 			
 			var labelValue = itemData.name.length > 22 ? itemData.name.substr(0, 22)+"..." : itemData.name;
-			html[html.length] = '<div style="display:inline"><span class="inputLabelAfter"><div class="inputLabel" title="' + itemData.name + '">'+labelValue+ '</div></span> '+mandatory+' '+descInfo;
+			html[html.length] = '<div style="display:inline"><div class="inputLabel" title="' + itemData.name + '">'+labelValue+' '+mandatory+' '+descInfo+'</div>';
 			if(itemData.typeName!=null&&itemData.typeName=="boolean"){
 				//value=String(value=='true');
 				if (value == 'false')
@@ -368,7 +368,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 
 		else { //complex type
 			var labelValue = itemData.name.length > 22 ? itemData.name.substr(0, 22)+"..." : itemData.name;
-			html[html.length] = '<div style="display:inline"><span class="inputLabelAfter"><div class="inputLabel" title="' + itemData.name + '">'+labelValue+ '</div></span> '+mandatory+' '+descInfo ;
+			html[html.length] = '<div style="display:inline"><div class="inputLabel" title="' + itemData.name + '">'+labelValue+' '+mandatory+' '+descInfo+'</div>' ;
 			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + '<br/>';
 			
 			if(itemData.polymiorphism&&itemData.subTypes.length>0)
