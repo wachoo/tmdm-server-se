@@ -4191,8 +4191,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             for(var treeNodeId in results){
                                 if(treeNodeId!=undefined){
                                     var displayStyle=(results[treeNodeId]=='true'?'block':'none');
-                                    if($('ygtvitem'+treeNodeId)!=undefined && $('ygtvitem'+treeNodeId)!=null){
-                                        $('ygtvitem'+treeNodeId).style.display=displayStyle;
+                                    if($('ygtv'+treeNodeId)!=undefined && $('ygtv'+treeNodeId)!=null){
+                                        $('ygtv'+treeNodeId).style.display=displayStyle;
                                     }
                                 }   
                             }
