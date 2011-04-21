@@ -222,6 +222,8 @@ public interface ItemsbrowserMessages extends Messages {
 
     String delete_item_record_success(int value);
     
+    String select_delete_item_record();
+    
     String save_record_success();
 
     String data_model_not_specified();

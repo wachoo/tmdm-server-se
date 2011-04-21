@@ -19,7 +19,6 @@ import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
-import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -48,15 +47,17 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -77,7 +78,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsToolBar extends ToolBar {
-
+	
     private final static int PAGE_SIZE = 10;
 
     private boolean isSimple;
@@ -88,7 +89,7 @@ public class ItemsToolBar extends ToolBar {
 
     private AdvancedSearchPanel advancedPanel;
 
-    private ComboBoxField<ItemBaseModel> entityCombo = new ComboBoxField<ItemBaseModel>();
+    private ComboBox<ItemBaseModel> entityCombo = new ComboBox<ItemBaseModel>();
 
     public final Button searchBut = new Button(MessagesFactory.getMessages().search_btn());
 
@@ -161,29 +162,35 @@ public class ItemsToolBar extends ToolBar {
         }
         updateUserCriteriasList();
     }
-
-    public int getSuccessItemsNumber(List<ItemResult> results) {
-        int itemSuccessNumber = 0;
-        for (ItemResult result : results) {
+    
+    public int getSuccessItemsNumber(List<ItemResult> results){
+    	int itemSuccessNumber=0;
+    	for (ItemResult result : results) {
             if (result.getStatus() == ItemResult.SUCCESS) {
-                itemSuccessNumber++;
+            	itemSuccessNumber++;
             }
         }
-        return itemSuccessNumber;
+    	return itemSuccessNumber;
     }
-
-    public int getFailureItemsNumber(List<ItemResult> results) {
-        int itemFailureNumber = 0;
-        for (ItemResult result : results) {
+    
+    public int getFailureItemsNumber(List<ItemResult> results){
+    	int itemFailureNumber=0;
+    	for (ItemResult result : results) {
             if (result.getStatus() == ItemResult.FAILURE) {
-                itemFailureNumber++;
+            	itemFailureNumber++;
             }
         }
-        return itemFailureNumber;
+    	return itemFailureNumber;
+    }
+    
+    public int getSelectItemNumber(){
+    	int number = 0;
+    	ItemsListPanel list = (ItemsListPanel) instance.getParent();
+    	number = list.getGrid().getSelectionModel().getSelectedItems().size();
+    	return number;
     }
 
     private void initToolBar() {
-        setSpacing(3);
         createBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Create()));
         createBtn.setEnabled(false);
         add(createBtn);
@@ -212,56 +219,58 @@ public class ItemsToolBar extends ToolBar {
         delMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             @Override
-            public void componentSelected(MenuEvent ce) {
-                MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(),
-                        new Listener<MessageBoxEvent>() {
+            public void componentSelected(MenuEvent ce) {           	
+           	
+            	if(((ItemsListPanel) instance.getParent()).getGrid()==null){
+            		com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().select_delete_item_record());
+            	}else{
+            		if(getSelectItemNumber()==0){
+                		com.google.gwt.user.client.Window.alert(MessagesFactory.getMessages().select_delete_item_record());
+                	}else{            	
+                    MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages().delete_confirm(),
+                            new Listener<MessageBoxEvent>() {
+                    			final ItemsListPanel list = (ItemsListPanel) instance.getParent();
+                                public void handleEvent(MessageBoxEvent be) {
+                                    if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                        if (list.getGrid() != null) {
+                                            service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(),
+                                                    new AsyncCallback<List<ItemResult>>() {
 
-                            public void handleEvent(MessageBoxEvent be) {
-                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                    final ItemsListPanel list = (ItemsListPanel) instance.getParent();
-                                    if (list.getGrid() != null) {
-                                        service.deleteItemBeans(list.getGrid().getSelectionModel().getSelectedItems(),
-                                                new AsyncCallback<List<ItemResult>>() {
-
-                                                    public void onFailure(Throwable caught) {
-                                                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                                    }
-
-                                                    public void onSuccess(List<ItemResult> results) {
-                                                        StringBuffer sb = new StringBuffer();
-
-                                                        for (ItemResult result : results) {
-                                                            if (result.getStatus() == ItemResult.SUCCESS) {
-                                                                sb.append(MessagesFactory.getMessages()
-                                                                        .delete_item_record_success(
-                                                                                getSuccessItemsNumber(results))
-                                                                        + "\n");
-                                                            }
-                                                            if (result.getStatus() == ItemResult.FAILURE) {
-                                                                sb.append(MessagesFactory.getMessages()
-                                                                        .delete_item_record_failure(
-                                                                                getFailureItemsNumber(results))
-                                                                        + "\n");
-                                                            }
-                                                            break;
+                                                        public void onFailure(Throwable caught) {
+                                                            Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                                         }
 
-                                                        MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                sb.toString(), null);
+                                                        public void onSuccess(List<ItemResult> results) {
+                                                            StringBuffer sb = new StringBuffer();
+                                                            
+                                                            for (ItemResult result : results) {
+                                                                if (result.getStatus() == ItemResult.SUCCESS) {
+                                                                	sb.append(MessagesFactory.getMessages().delete_item_record_success(getSuccessItemsNumber(results))+"\n");
+                                                                }
+                                                                if (result.getStatus() == ItemResult.FAILURE) {
+                                                                	sb.append(MessagesFactory.getMessages().delete_item_record_failure(getFailureItemsNumber(results))+"\n");
+                                                                }
+                                                                break;
+                                                            }
+                                                            
+                                                            MessageBox.info(MessagesFactory.getMessages().info_title(),
+                                                                    sb.toString(), null);
+                                                            
+                                                            list.getStore().getLoader().load();
+                                                        }
+                                                        
+                                                        
+                                                    });
+                                        }
 
-                                                        list.getStore().getLoader().load();
-                                                    }
-
-                                                });
                                     }
-
                                 }
-                            }
-                        });
-
+                            });
+                	}
+            	}
             }
         });
-
+        
         MenuItem trashMenu = new MenuItem(MessagesFactory.getMessages().trash_btn());
         trashMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
         trashMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
@@ -277,7 +286,7 @@ public class ItemsToolBar extends ToolBar {
                             if (list.getGrid() != null) {
                                 service.logicalDeleteItems(list.getGrid().getSelectionModel().getSelectedItems(), "/", //$NON-NLS-1$
                                         new AsyncCallback<List<ItemResult>>() {
-
+                                	
                                             public void onFailure(Throwable caught) {
                                                 Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                                             }
@@ -285,14 +294,14 @@ public class ItemsToolBar extends ToolBar {
                                             public void onSuccess(List<ItemResult> results) {
                                                 for (ItemResult result : results) {
                                                     if (result.getStatus() == ItemResult.FAILURE) {
-                                                        MessageBox.alert(MessagesFactory.getMessages().error_title(), result
-                                                                .getDescription(), null);
+                                                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                                                result.getDescription(), null);
                                                         return;
                                                     }
                                                 }
                                                 list.getStore().getLoader().load();
                                             }
-
+                                            
                                         });
 
                             }
@@ -302,10 +311,10 @@ public class ItemsToolBar extends ToolBar {
                 box.getTextBox().setValue("/"); //$NON-NLS-1$
             }
         });
-
+        
         sub.add(trashMenu);
         sub.add(delMenu);
-
+        
         menu.setMenu(sub);
         menu.setEnabled(false);
         add(menu);
@@ -322,8 +331,10 @@ public class ItemsToolBar extends ToolBar {
         };
         ListLoader<ListLoadResult<ItemBaseModel>> Entityloader = new BaseListLoader<ListLoadResult<ItemBaseModel>>(Entityproxy);
 
+        HorizontalPanel entityPanel = new HorizontalPanel();
         final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>(Entityloader);
 
+        entityCombo.setAutoWidth(true);
         entityCombo.setEmptyText(MessagesFactory.getMessages().empty_entity());
         entityCombo.setLoadingText(MessagesFactory.getMessages().loading());
         entityCombo.setStore(list);
@@ -331,8 +342,7 @@ public class ItemsToolBar extends ToolBar {
         entityCombo.setValueField("value");//$NON-NLS-1$
         entityCombo.setForceSelection(true);
         entityCombo.setTriggerAction(TriggerAction.ALL);
-        entityCombo.setId("EntityComboBox");//$NON-NLS-1$    
-        entityCombo.setLazyRender(false);
+        entityCombo.setId("EntityComboBox");//$NON-NLS-1$  
 
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
@@ -343,10 +353,10 @@ public class ItemsToolBar extends ToolBar {
             }
 
         });
-        add(entityCombo);
+        entityPanel.add(entityCombo);
+        add(entityPanel);
         simplePanel = new SimpleCriterionPanel(null, null);
-        while (simplePanel.getItemCount() > 0)
-            add(simplePanel.getItem(0));
+        add(simplePanel);
 
         // add simple search button
         searchBut.setEnabled(false);
