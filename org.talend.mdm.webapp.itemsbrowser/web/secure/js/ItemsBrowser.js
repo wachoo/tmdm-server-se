@@ -534,6 +534,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 		'en' : 'No task related to this record!'
 	};
 
+	var MSG_CONFIRM_DELETE_ELEMENT = {
+		'fr' : 'Voulez vous réellement effacer cet enregistrement ',
+		'en' : 'Do you really want to delete this element '
+	};
+	
 	/***************************************************************************
 	 * EXT 2.0
 	 **************************************************************************/
@@ -4632,72 +4637,80 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 	}
 
 	function removeNode2(id, treeIndex) {
-		updateFlag[treeIndex] = true;
-		var value = "";
-		if (Ext.get(id + "Value"))
-			value = DWRUtil.getValue(id + "Value");
-		var itemTree = itemTreeList[treeIndex];
-		// add by ymli
-		// modified by ymli. If the Items is less than minOccurs, alert and
-		// return
-		var node = itemTree.getNodeByIndex(id);
-		var siblingLength = getSiblingsLength(node);
-		if (node.parent != null && siblingLength <= node.itemData.minOccurs) {
-			Ext.MessageBox.alert("Status", node.itemData.minOccurs + " "
-							+ node.itemData.name + "(s) at least");
-			return;
-		} else if (siblingLength <= 1) {
-			Ext.MessageBox.alert("Status", DELETE_ALERT[language]);
-			return;
-		}
-
-		// add by ymli. move the node which is deleted from map[treeIndex]
-		var array = map[treeIndex];
-		for (var i = 0; i < array.length; i++) {
-			var nodenew = array[i];
-			if (nodenew != null && nodenew.index == node.index)
-				array.splice(i, 1);
-		}
-
-		// add by ymli. remember the values of Nodes avoid them to be null
-		// map[treeIndex]=array;
-		var values = [];
-		// var array = map[treeIndex];
-		var j = 0;
-
-		values = getChildrenValues(itemTree.getRoot());
-		var nodeToDel = itemTree.getNodeByIndex(id);
-		var parentNode = nodeToDel.parent;
-		itemNodes.remove(nodeToDel);
-		itemTree.removeNode(nodeToDel, true);
-		ItemsBrowserInterface.removeNode(id, treeIndex, value,
-				function(result) {
-					amalto.core.ready(result);
-				});
-
-		itemTree.getRoot().refresh();
-		// add by ymli. set the values of nodes
-		for (var t = 0; t < values.length; t++) {
-			var value = values[t];
-			var idValue = value.split("--");
-			if (idValue != null && $(idValue[0] + "Value") != null) {
-				$(idValue[0] + "Value").value = idValue[1];
-				// reset URL & PICTURE type fields
-				if ($(idValue[0] + 'showPicture') && idValue[1].length > 0)
-					$(idValue[0] + 'showPicture').src = idValue[1];
-				if ($("showUrl" + idValue[0])) {
-					var urlvalues = idValue[1].split('@@');
-					if (urlvalues && urlvalues.length == 2)
-						DWRUtil.setValue("showUrl" + idValue[0],
-								"<a target='_blank' href='" + urlvalues[1]
-										+ "'>" + urlvalues[0] + "</a>");
+		Ext.MessageBox.confirm("confirm",
+			MSG_CONFIRM_DELETE_ELEMENT[language] + "?", 
+			function de(e) {
+			    if (e.toLocaleString() == "yes") {
+		
+				updateFlag[treeIndex] = true;
+				var value = "";
+				if (Ext.get(id + "Value"))
+					value = DWRUtil.getValue(id + "Value");
+				var itemTree = itemTreeList[treeIndex];
+				// add by ymli
+				// modified by ymli. If the Items is less than minOccurs, alert and
+				// return
+				var node = itemTree.getNodeByIndex(id);
+				var siblingLength = getSiblingsLength(node);
+				if (node.parent != null && siblingLength <= node.itemData.minOccurs) {
+					Ext.MessageBox.alert("Status", node.itemData.minOccurs + " "
+									+ node.itemData.name + "(s) at least");
+					return;
+				} else if (siblingLength <= 1) {
+					Ext.MessageBox.alert("Status", DELETE_ALERT[language]);
+					return;
 				}
-			} else if (idValue != null
-					&& $(idValue[0] + "TypeSelector") != null) {
-				$(idValue[0] + "TypeSelector").selectedIndex = idValue[1];
-			}
-		}
-		amalto.core.ready();
+			
+				// add by ymli. move the node which is deleted from map[treeIndex]
+				var array = map[treeIndex];
+				for (var i = 0; i < array.length; i++) {
+					var nodenew = array[i];
+					if (nodenew != null && nodenew.index == node.index)
+						array.splice(i, 1);
+				}
+			
+				// add by ymli. remember the values of Nodes avoid them to be null
+				// map[treeIndex]=array;
+				var values = [];
+				// var array = map[treeIndex];
+				var j = 0;
+			
+				values = getChildrenValues(itemTree.getRoot());
+				var nodeToDel = itemTree.getNodeByIndex(id);
+				var parentNode = nodeToDel.parent;
+				itemNodes.remove(nodeToDel);
+				itemTree.removeNode(nodeToDel, true);
+				ItemsBrowserInterface.removeNode(id, treeIndex, value,
+						function(result) {
+							amalto.core.ready(result);
+						});
+			
+				itemTree.getRoot().refresh();
+				// add by ymli. set the values of nodes
+				for (var t = 0; t < values.length; t++) {
+					var value = values[t];
+					var idValue = value.split("--");
+					if (idValue != null && $(idValue[0] + "Value") != null) {
+						$(idValue[0] + "Value").value = idValue[1];
+						// reset URL & PICTURE type fields
+						if ($(idValue[0] + 'showPicture') && idValue[1].length > 0)
+							$(idValue[0] + 'showPicture').src = idValue[1];
+						if ($("showUrl" + idValue[0])) {
+							var urlvalues = idValue[1].split('@@');
+							if (urlvalues && urlvalues.length == 2)
+								DWRUtil.setValue("showUrl" + idValue[0],
+										"<a target='_blank' href='" + urlvalues[1]
+												+ "'>" + urlvalues[0] + "</a>");
+						}
+					} else if (idValue != null
+							&& $(idValue[0] + "TypeSelector") != null) {
+						$(idValue[0] + "TypeSelector").selectedIndex = idValue[1];
+					}
+				}
+				amalto.core.ready();
+		
+			    }
+		});
 	}
 
 	function removeEleFromArray(array, deleteNode) {
