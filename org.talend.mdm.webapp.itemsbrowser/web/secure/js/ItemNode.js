@@ -158,9 +158,9 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
             	options += '<option value="'+itemData.typeName+'"></option>';	
             }
             for(var k=0; k<itemData.subTypes.length; k++) {
-                 if(itemData.subTypes[k]==itemData.realType) var selected = "selected";
+                 if(itemData.subTypes[k].name==itemData.realType) var selected = "selected";
                  else var selected = "";
-                 options +='<option value="'+itemData.subTypes[k]+'" '+selected+'>'+itemData.subTypes[k]+'</option>';
+                 options +='<option value="'+itemData.subTypes[k].name+'" '+selected+'>'+itemData.subTypes[k].label+'</option>';
             }
             polymSelector = '<div style="display:inline">' +
                         '<select onchange="amalto.itemsbrowser.ItemsBrowser.reloadNode(\''+itemData.nodeId+'\','+treeIndex+');" class="selectTreeREADONLY" id="'+itemData.nodeId+'TypeSelector">' +

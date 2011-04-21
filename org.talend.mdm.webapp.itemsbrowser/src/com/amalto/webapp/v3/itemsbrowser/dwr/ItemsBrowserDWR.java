@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -126,6 +127,7 @@ import com.amalto.webapp.v3.itemsbrowser.bean.ForeignKeyDrawer;
 import com.amalto.webapp.v3.itemsbrowser.bean.ItemResult;
 import com.amalto.webapp.v3.itemsbrowser.bean.Restriction;
 import com.amalto.webapp.v3.itemsbrowser.bean.SearchTempalteName;
+import com.amalto.webapp.v3.itemsbrowser.bean.SubTypeBean;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
 import com.amalto.webapp.v3.itemsbrowser.bean.View;
 import com.amalto.webapp.v3.itemsbrowser.bean.WhereCriteria;
@@ -832,12 +834,18 @@ public class ItemsBrowserDWR {
             if (subTypes != null && subTypes.size() > 0) {
                 treeNode.setPolymiorphism(true);
                 treeNode.setAbstract(new ReusableType(xsp.getTerm().asElementDecl().getType()).isAbstract());
-                ArrayList<String> subTypesName = new ArrayList<String>();
+                ArrayList<SubTypeBean> subTypesName = new ArrayList<SubTypeBean>();
                 for (ReusableType reusableType : subTypes) {
                     if (!reusableType.isAbstract()) {
-                        subTypesName.add(reusableType.getName());
+                        SubTypeBean subTypeBean = new SubTypeBean();
+                        reusableType.load();
+                        subTypeBean.setName(reusableType.getName());
+                        subTypeBean.setLabel(reusableType.getLabelMap().get(language)==null?reusableType.getName():reusableType.getLabelMap().get(language));
+                        subTypeBean.setOrderValue(reusableType.getOrderValue());
+                        subTypesName.add(subTypeBean);
                     }
                 }
+                Collections.sort(subTypesName);
                 treeNode.setSubTypes(subTypesName);
             }
             if (((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT)) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -2583,10 +2591,11 @@ public class ItemsBrowserDWR {
      * @return
      * @throws Exception
      */
-    public String getForeignKeyPolymTypeList(String value, String xpathForeignKey, int docIndex, int nodeId) throws Exception {
+    public String getForeignKeyPolymTypeList(String value, String xpathForeignKey, int docIndex, int nodeId, String language) throws Exception {
 
         String fkEntityType = null;
-        List<String> derivedTypes = new ArrayList<String>();
+        ReusableType entityReusableType = null;
+        List<SubTypeBean> derivedTypes = new ArrayList<SubTypeBean>();
 
         if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
             if (xpathForeignKey.startsWith("/"))
@@ -2597,13 +2606,24 @@ public class ItemsBrowserDWR {
             } else {
                 fkEntity = xpathForeignKey;
             }
+            
             fkEntityType = SchemaWebAgent.getInstance().getBusinessConcept(fkEntity).getCorrespondTypeName();
+            entityReusableType = SchemaWebAgent.getInstance().getReusableType(fkEntityType);
+            entityReusableType.load();
+            
             List<ReusableType> subtypes = SchemaWebAgent.getInstance().getMySubtypes(fkEntityType, true);
             for (ReusableType reusableType : subtypes) {
-                derivedTypes.add(reusableType.getName());
+                reusableType.load();
+                SubTypeBean subTypeBean=new SubTypeBean();
+                subTypeBean.setName(reusableType.getName());
+                subTypeBean.setLabel(reusableType.getLabelMap().get(language)==null?reusableType.getName():reusableType.getLabelMap().get(language));
+                subTypeBean.setOrderValue(reusableType.getOrderValue());
+                derivedTypes.add(subTypeBean);
             }
 
         }
+        
+        Collections.sort(derivedTypes);
 
         /*
          * WebContext ctx = WebContextFactory.get(); HashMap<Integer, String> idToXpath = (HashMap<Integer, String>)
@@ -2616,19 +2636,19 @@ public class ItemsBrowserDWR {
         JSONArray rows = new JSONArray();
         json.put("rows", rows);
 
-        if (fkEntityType != null) {
+        if (fkEntityType != null&&!entityReusableType.isAbstract()) {
             JSONObject row = new JSONObject();
-            row.put("value", "");
-            row.put("text", fkEntityType);
+            row.put("value", entityReusableType.getName());
+            row.put("text", entityReusableType.getLabelMap().get(language)==null?entityReusableType.getName():entityReusableType.getLabelMap().get(language));
             rows.put(row);
 
             counter++;
         }
 
-        for (String type : derivedTypes) {
+        for (SubTypeBean type : derivedTypes) {
             JSONObject row = new JSONObject();
-            row.put("value", type);
-            row.put("text", type);
+            row.put("value", type.getName());
+            row.put("text", type.getLabel());
             rows.put(row);
 
             counter++;
@@ -2638,7 +2658,7 @@ public class ItemsBrowserDWR {
 
         return json.toString();
     }
-
+    
     /**
      * DOC HSHU Comment method "switchForeignKeyType".
      * 

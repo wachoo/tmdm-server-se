@@ -94,7 +94,7 @@ public class TreeNode implements Cloneable {
 
     private boolean polymiorphism;
 
-    private ArrayList<String> subTypes;
+    private ArrayList<SubTypeBean> subTypes;
 
     private String realType;
 
@@ -147,11 +147,11 @@ public class TreeNode implements Cloneable {
         this.polymiorphism = polymiorphism;
     }
 
-    public ArrayList<String> getSubTypes() {
+    public ArrayList<SubTypeBean> getSubTypes() {
         return subTypes;
     }
 
-    public void setSubTypes(ArrayList<String> subTypes) {
+    public void setSubTypes(ArrayList<SubTypeBean> subTypes) {
         this.subTypes = subTypes;
     }
 
