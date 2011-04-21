@@ -29,8 +29,6 @@ public class ComboBoxField<D extends ModelData> extends ComboBox<D> {
 
         LayoutContainer list = (LayoutContainer) this.getListView().getParent();
         list.setLayout(new FitLayout());
-        list.setAutoWidth(true);
-        this.getListView().setAutoWidth(true);
         final Resize resizable = new Resize(list);
 
         resizable.addResizeListener(new ResizeListener() {
@@ -39,7 +37,5 @@ public class ComboBoxField<D extends ModelData> extends ComboBox<D> {
                 setMinListWidth(resizable.getBoxComponent().getWidth());
             }
         });
-
     }
-
 }
