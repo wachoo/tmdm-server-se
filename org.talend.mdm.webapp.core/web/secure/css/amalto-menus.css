@@ -41,3 +41,18 @@ div .sub-body{
 	position:relative;
 	left: 15px;
 }
+
+.menus-list a.x-item-disabled{
+	font:normal 11px tahoma, verdana, helvetica;
+	color: #888888;
+	border:1px solid #ffffff;
+	background-color:#ffffff;
+}
+
+.menus-list a.x-item-disabled:hover, .menus-list .selected .x-item-disabled{
+	border:1px solid #ffffff;
+	background-color:#ffffff;
+	display:block;
+	margin-bottom:2px;
+	text-decoration:none;
+}

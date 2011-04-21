@@ -571,6 +571,7 @@ amalto.core = function () {
 	 * Actions/Menus handling
 	 ********************/
 	var MENUS;
+	var GWT_MENUS = {};
 
 	/*
 	 * Load Actions/Menus
@@ -657,6 +658,8 @@ amalto.core = function () {
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/workflowtasks.png\"/></span>";
                         }else if(toCheckMenuID=='license.License'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/license.png\"/></span>";
+                        }else if(toCheckMenuID=='itemsbrowser2.ItemsBrowser2'){
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/default.gif\"/></span>";
                         }else{
                         	//default menus icon
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/default.gif\"/></span>";
@@ -668,6 +671,11 @@ amalto.core = function () {
 			    		//var menuId = 'menu-'+menu.id;
 			    		//doms[menu.level] =Ext.get(menuId).dom;
 			    		doms[menu.level] =menuitem;
+			    		if(toCheckMenuID=='itemsbrowser2.ItemsBrowser2'){
+			    			menu.disabled = true;
+			    			YAHOO.util.Dom.addClass(menuitem, 'x-item-disabled');
+			    			GWT_MENUS[toCheckMenuID] = {"menu": menu, "menuitem": menuitem};
+			    		}
 			    		
 			    	}
 			    }
@@ -708,6 +716,9 @@ amalto.core = function () {
 			
 			var menuId = a.id.substr(5);
 			var menu = MENUS[menuId-1];
+			if (menu.disabled){
+				return;
+			}
 			
 			if (menu.application == '') {
 				//A menu Holder
@@ -887,6 +898,17 @@ amalto.core = function () {
 			//	}
 			//);
 			//initUI();	
+		},
+		enabledGwtMenuItem: function(toCheckMenuID){
+			if (GWT_MENUS != null){
+				var menuObj = GWT_MENUS[toCheckMenuID];
+				if (menuObj != undefined){
+					menuObj.menu.disabled = false;
+					YAHOO.util.Dom.removeClass(menuObj.menuitem, 'x-item-disabled');
+					return true;
+				}
+			}
+			return false;
 		}
 		
 	}//PUBLIC
