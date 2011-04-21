@@ -10,6 +10,9 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.IncrementalCommand;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
@@ -52,8 +55,20 @@ public class Itemsbrowser2 implements EntryPoint {
         // first time do not render
         if (RootPanel.get(ItemsView.ROOT_DIV) != null)
             onModuleRender();
+        DeferredCommand.addCommand(new IncrementalCommand(){
+            public boolean execute() {
+                return !enableGWTMenu();
+            }
+        });
 
     }
+    
+    public native boolean enableGWTMenu()/*-{
+        if ($wnd.amalto.core){
+            return $wnd.amalto.core.enabledGwtMenuItem("itemsbrowser2.ItemsBrowser2");//$NON-NLS-1$
+        }
+        return false;
+    }-*/;
 
     public static void onModuleRender() {
         
