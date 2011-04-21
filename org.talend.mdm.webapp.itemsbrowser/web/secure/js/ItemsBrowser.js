@@ -5159,7 +5159,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 		searchEntityPanel = new amalto.itemsbrowser.SearchEntityPanel({
 					lineageEntities : lineageEntities,
 					ids : ids,
-					dataObject : dataObject
+					dataObject : dataObject,
+					language : language
 				});
 
 		tabPanel.add(searchEntityPanel);
