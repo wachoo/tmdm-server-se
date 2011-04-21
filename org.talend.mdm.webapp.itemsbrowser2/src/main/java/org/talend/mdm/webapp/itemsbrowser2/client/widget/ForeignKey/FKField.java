@@ -11,18 +11,14 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.button.SplitButton;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteriaFK {
 
-    private SplitButton foreignBtn;
+    private SplitButton foreignBtn = new SplitButton();
 
     private FKRelRecordWindow relWindow = new FKRelRecordWindow();
 
@@ -47,7 +43,7 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
             input.setStyleAttribute("position", "static"); //$NON-NLS-1$  //$NON-NLS-2$
         }
 
-        foreignBtn = new SplitButton();
+        
         foreignBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.link()));
         foreignBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -98,6 +94,11 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
 
     public void setCriteriaFK(final ForeignKeyBean fk) {
         setValue(fk);
+    }
+    
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        foreignBtn.setEnabled(enabled);
     }
     
     public void setValue(ForeignKeyBean fk){

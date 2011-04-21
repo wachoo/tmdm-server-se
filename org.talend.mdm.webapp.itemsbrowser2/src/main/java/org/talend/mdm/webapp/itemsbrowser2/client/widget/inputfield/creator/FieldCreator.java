@@ -116,6 +116,10 @@ public class FieldCreator {
             formBindings.addFieldBinding(binding);
         }
 
+        
+        field.setReadOnly(dataType.isReadOnly());
+        field.setEnabled(!dataType.isReadOnly());
+        
         return field;
     }
 
@@ -167,8 +171,6 @@ public class FieldCreator {
             field = textField;textField.setMessages(null);
         }
         field.setWidth(400);
-        field.setReadOnly(dataType.isReadOnly());
-        field.setEnabled(!dataType.isReadOnly());
         field.setData("facetErrorMsgs", dataType.getFacetErrorMsgs().get(language));//$NON-NLS-1$
         buildFacets(dataType, field);
         return field;
