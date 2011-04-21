@@ -6002,20 +6002,24 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 	
 	function dropOnErrorMsg(raw) {
 		var startMsg,endMsg,error;
-		if(raw.indexOf("<msg>[") >= 0){
-			startMsg=raw.substr(raw.indexOf("<msg>[")+5,raw.length);
-		}
-		if(startMsg.indexOf("]</msg>") >= 0){
-			endMsg=startMsg.substr(0,startMsg.indexOf("]</msg>"));
-		}
+		if((raw.indexOf("<msg>[") >= 0)&&(raw.indexOf("]</msg>") >= 0)){
+			if(raw.indexOf("<msg>[") >= 0){
+				startMsg=raw.substr(raw.indexOf("<msg>[")+5,raw.length);
+			}
+			if(startMsg.indexOf("]</msg>") >= 0){
+				endMsg=startMsg.substr(0,startMsg.indexOf("]</msg>"));
+			}
 			
-		if((endMsg.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="EN")){
-			error=endMsg.substr(endMsg.indexOf("[EN:")+4,endMsg.indexOf("][FR:")-4);
-		}else if((endMsg.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="FR")){
-			error=endMsg.substr(endMsg.indexOf("[FR:")+4,endMsg.length);
+			if((endMsg.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="EN")){
+				error=endMsg.substr(endMsg.indexOf("[EN:")+4,endMsg.indexOf("][FR:")-4);
+			}else if((endMsg.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="FR")){
+				error=endMsg.substr(endMsg.indexOf("[FR:")+4,endMsg.length);
+			}
+			return error;
+		}else{
+			return raw;
 		}
 		
-		return error;
 	}
 
 	return {
