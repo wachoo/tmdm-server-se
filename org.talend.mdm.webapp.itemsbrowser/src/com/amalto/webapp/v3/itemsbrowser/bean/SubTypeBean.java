@@ -66,12 +66,13 @@ public class SubTypeBean implements Comparable<SubTypeBean>{
     public int compareTo(SubTypeBean o) {
 
         if(o!=null&&o instanceof SubTypeBean) {
-            if(o.getOrderValue()!=null&&this.getOrderValue()!=null)
+            if(o.getOrderValue()!=null&&this.getOrderValue()!=null) {
                 
                 if(!o.getOrderValue().matches("\\d+"))o.setOrderValue(String.valueOf(Integer.MAX_VALUE));//$NON-NLS-1$
                 if(!this.getOrderValue().matches("\\d+"))this.setOrderValue(String.valueOf(Integer.MAX_VALUE));//$NON-NLS-1$
                 
                 return Integer.valueOf(this.getOrderValue()).compareTo(Integer.valueOf(o.getOrderValue()));
+            }   
         }
         return 0;
     }
