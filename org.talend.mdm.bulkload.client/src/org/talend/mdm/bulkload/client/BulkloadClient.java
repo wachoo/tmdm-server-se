@@ -124,8 +124,13 @@ public class BulkloadClient {
      * InputStream is = new ByteArrayInputStream("<doc></doc><doc></doc><doc></doc>".getBytes());
      * </code>
      *
+     * <p>
+     * This method blocks until all documents in <code>xmlDocuments</code> are read. For non blocking use cases
+     * see {@link #load()}.
+     * </p>
+     *
      * @param xmlDocuments A stream that contains several XML documents.
-     * @throws Exception Thrown in case
+     * @throws Exception Thrown in case of communication error
      */
     public void load(InputStream xmlDocuments) throws Exception {
         BulkloadClientUtil.bulkload(url,
@@ -135,6 +140,37 @@ public class BulkloadClient {
                 options.isValidate(),
                 options.isSmartpk(),
                 xmlDocuments,
+                username,
+                password,
+                universe);
+    }
+
+    /**
+     * <p>
+     * Loads XML documents in MDM using an InputStream created for the load. This method creates a {@link Thread} that
+     * wait for {@link InputStreamMerger#push(java.io.InputStream)} to get called.
+     * </p>
+     *
+     * <code>
+     * BulkloadClient client = ...<br/>
+     * InputStreamMerger is = client.load();<br/>
+     * for(...) {<br/>
+     *      is.push(new ByteArrayInputStream("...".getBytes());<br/>
+     * }
+     * </code>
+     *
+     * @throws Exception Thrown in case of communication error
+     * @see InputStreamMerger
+     * @return A {@link InputStreamMerger} that allow asynchronous push to bulkload client.
+     */
+    public InputStreamMerger load() throws Exception {
+        return BulkloadClientUtil.bulkload(url,
+                cluster,
+                concept,
+                datamodel,
+                options.isValidate(),
+                options.isSmartpk(),
+                options.getArraySize(),
                 username,
                 password,
                 universe);
@@ -201,24 +237,6 @@ public class BulkloadClient {
 				} catch (IOException e) {
 					
 				}
-		}
-	}
-	
-	public static void main(String[] args) {
-		//test
-		//FileReader reader=new FileReader(file)
-		URL url=BulkloadClient.class.getResource("test.xml");
-		try {
-			BufferedInputStream in=((BufferedInputStream)url.getContent());
-			byte[] buf=new byte[in.available()];
-			in.read(buf);
-			String xml=new String(buf);
-			BulkloadClient client=new BulkloadClient("http://localhost:8080/datamanager/loadServlet","admin","talend",null,"Order","Country","Order");
-			client.setOptions(new BulkloadOptions());
-			client.load(xml);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 }

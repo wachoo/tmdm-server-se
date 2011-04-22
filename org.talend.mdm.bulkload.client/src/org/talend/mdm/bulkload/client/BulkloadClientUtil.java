@@ -168,6 +168,16 @@ public class BulkloadClientUtil {
         }
     }
 
+    public static InputStreamMerger bulkload(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, int batchSize, String username, String password, String universe) {
+        final InputStreamMerger merger = new InputStreamMerger(batchSize);
+
+        Runnable loadRunnable = new AsyncLoadRunnable(url, cluster, concept, dataModel, validate, smartPK, merger, username, password, universe);
+        Thread loadThread = new Thread(loadRunnable);
+        loadThread.start();
+
+        return merger;
+    }
+
     /**
      *
      * @param URL
@@ -241,4 +251,37 @@ public class BulkloadClientUtil {
 		return str;
 	}
 
+    private static class AsyncLoadRunnable implements Runnable {
+        private final String url;
+        private final String cluster;
+        private final String concept;
+        private final String dataModel;
+        private final boolean validate;
+        private final boolean smartPK;
+        private final InputStream inputStream;
+        private final String userName;
+        private final String password;
+        private final String universe;
+
+        public AsyncLoadRunnable(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, InputStream inputStream, String userName, String password, String universe) {
+            this.url = url;
+            this.cluster = cluster;
+            this.concept = concept;
+            this.dataModel = dataModel;
+            this.validate = validate;
+            this.smartPK = smartPK;
+            this.inputStream = inputStream;
+            this.userName = userName;
+            this.password = password;
+            this.universe = universe;
+        }
+
+        public void run() {
+            try {
+                bulkload(url, cluster, concept, dataModel, validate, smartPK, inputStream, userName, password, universe);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
