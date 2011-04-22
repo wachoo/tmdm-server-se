@@ -6006,20 +6006,54 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 			if(raw.indexOf("<msg>[") >= 0){
 				startMsg=raw.substr(raw.indexOf("<msg>[")+5,raw.length);
 			}
-			if(startMsg.indexOf("]</msg>") >= 0){
-				endMsg=startMsg.substr(0,startMsg.indexOf("]</msg>"));
+			if(startMsg.indexOf("</msg>") >= 0){
+				endMsg=startMsg.substr(0,startMsg.indexOf("</msg>"));
 			}
 			
 			if((endMsg.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="EN")){
-				error=endMsg.substr(endMsg.indexOf("[EN:")+4,endMsg.indexOf("][FR:")-4);
+				if(raw.indexOf("][FR:") >=0){
+					error=endMsg.substr(endMsg.indexOf("[EN:")+4,endMsg.indexOf("[FR:")-5);
+				}else if(raw.indexOf("][FR:") < 0){
+					error=endMsg.substr(endMsg.indexOf("[EN:")+4);
+					error=error.substr(0,error.length-1);
+				}
 			}else if((endMsg.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="FR")){
-				error=endMsg.substr(endMsg.indexOf("[FR:")+4,endMsg.length);
+				if(raw.indexOf("][EN:") >=0){
+					error=endMsg.substr(endMsg.indexOf("[FR:")+4,raw.indexOf("[EN:")-5);
+				}else if(raw.indexOf("][EN:") < 0){
+					error=endMsg.substr(endMsg.indexOf("[FR:")+4);
+					error=error.substr(0,error.length-1);
+				}
 			}
+			return error;
+		}else if((raw.indexOf("[EN:") >= 0)&&(raw.indexOf("[FR:") >= 0)){
+			if((raw.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="EN")){
+				if(raw.indexOf("][FR:") >=0){
+					error=raw.substr(raw.indexOf("[EN:")+4,raw.indexOf("[FR:")-5);
+				}else{
+					error=raw.substr(raw.indexOf("[EN:")+4);
+					error=error.substr(0,error.length-1);
+				}
+			}else if((raw.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="FR")){
+				if(raw.indexOf("][EN:") >=0){
+					error=raw.substr(raw.indexOf("[FR:")+4,raw.indexOf("[EN:")-5);
+				}else{
+					error=raw.substr(raw.indexOf("[FR:")+4);
+					error=error.substr(0,error.length-1);
+				}
+			}
+			return error;
+		}else if((raw.indexOf("[EN:") >= 0)&&(raw.indexOf("[FR:")<0)){
+			error=raw.substr(raw.indexOf("[EN:")+4);
+			error=error.substr(0,error.length-1);
+			return error;
+		}else if((raw.indexOf("[EN:") < 0)&&(raw.indexOf("[FR:")>=0)){
+			error=raw.substr(raw.indexOf("[FR:")+4);
+			error=error.substr(0,error.length-1);
 			return error;
 		}else{
 			return raw;
 		}
-		
 	}
 
 	return {
