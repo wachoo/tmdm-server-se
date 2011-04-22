@@ -3188,7 +3188,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 						var treeDetailPanel = new Ext.Panel({
 									id : 'treeDetailsdiv' + treeIndex,
 									headerAsText : false,
-									style : "overflow:no;",
+									style : "overflow:hidden;",
 									autoScroll : true,
 									html : html,
 									border : false,
