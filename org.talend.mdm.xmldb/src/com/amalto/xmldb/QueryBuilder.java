@@ -26,12 +26,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
 import com.amalto.commons.core.utils.XPathUtils;
 import com.amalto.commons.core.utils.xpath.ri.Compiler;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Expression;
@@ -45,6 +39,11 @@ import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
 import com.amalto.xmlserver.interfaces.XmlServerException;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 /**
  * An XML DB Implementation of the wrapper that works with eXist Open
@@ -313,7 +312,7 @@ public abstract class QueryBuilder {
             Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
         try {
 
-            // all this is EXIST specific
+            // all this is shared by both EXIST and QIZX databases.
             String operator = wc.getOperator();
 
             // Parse (Right) Value argument,
@@ -329,17 +328,13 @@ public abstract class QueryBuilder {
             boolean isNum = false;
             if (wc.getRightValueOrPath() != null) {
                 isXpathFunction = wc.isRightValueXPath() && isValidatedFunction(wc.getRightValueOrPath().trim());
-                // handle case of String starting with a zero e.g. 00441065 or
-                // ending with . e.g. 12345.
-                if (!(wc.getRightValueOrPath().matches(".*\\D") || wc.getRightValueOrPath().startsWith("0") //$NON-NLS-1$ //$NON-NLS-2$
-                        || wc.getRightValueOrPath().endsWith(".") || wc.getRightValueOrPath().startsWith("+") || wc //$NON-NLS-1$ //$NON-NLS-2$
-                        .getRightValueOrPath().startsWith("-"))) { //$NON-NLS-1$
-                    try {
-                        Double.parseDouble(wc.getRightValueOrPath().trim());
-                        isRightValueNum = true;
-                    } catch (Exception e) {
-                    }
+                try {
+                    Double.parseDouble(wc.getRightValueOrPath().trim());
+                    isRightValueNum = true;
+                } catch (Exception e) {
+                    // Ignored. Means this isn't a num.
                 }
+
                 // TODO {Country/isoCode=[xsd:integer],
 
                 // TODO {Country/isoCode=[xsd:integer],
@@ -470,8 +465,11 @@ public abstract class QueryBuilder {
 
             } else if (operator.equals(WhereCondition.EQUALS)) {
                 if (isNum) {
-                    //where.append("number(").append(factorPivots).append(") eq ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
-                    where.append(factorPivots + " = " + encoded); //$NON-NLS-1$
+                    if(useNumberFunction()) {
+                        where.append("number(").append(factorPivots).append(") eq ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    } else {
+                        where.append(factorPivots).append(" = ").append(encoded); //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append("= ").append(encoded); //$NON-NLS-1$
                 } else {
@@ -479,8 +477,11 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.NOT_EQUALS)) {
                 if (isNum) {
-                    //where.append("number(").append(factorPivots).append(") ne ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
-                    where.append(factorPivots + " != " + encoded); //$NON-NLS-1$
+                    if(useNumberFunction()) {
+                        where.append("number(").append(factorPivots).append(") ne ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    } else {
+                        where.append(factorPivots).append(" != ").append(encoded); //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" != ").append(encoded); //$NON-NLS-1$
                 } else {
@@ -488,8 +489,11 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN)) {
                 if (isNum) {
-                    //where.append("number(").append(factorPivots).append(") gt ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
-                    where.append(factorPivots + " > " + encoded); //$NON-NLS-1$
+                    if (useNumberFunction()) {
+                        where.append("number(").append(factorPivots).append(") gt ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    } else {
+                        where.append(factorPivots).append(" > ").append(encoded); //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append("> ").append(encoded); //$NON-NLS-1$
                 } else {
@@ -497,8 +501,11 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.GREATER_THAN_OR_EQUAL)) {
                 if (isNum) {
-                    //where.append("number(").append(factorPivots).append(") ge ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
-                    where.append(factorPivots + " >= " + encoded); //$NON-NLS-1$
+                    if (useNumberFunction()) {
+                        where.append("number(").append(factorPivots).append(") ge ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    } else {
+                        where.append(factorPivots).append(" >= ").append(encoded); //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" >= ").append(encoded); //$NON-NLS-1$
                 } else {
@@ -506,8 +513,11 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN)) {
                 if (isNum) {
-                    //where.append("number(").append(factorPivots).append(") lt ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
-                    where.append(factorPivots + " < " + encoded); //$NON-NLS-1$
+                    if (useNumberFunction()) {
+                        where.append("number(").append(factorPivots).append(") lt ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    } else {
+                        where.append(factorPivots).append(" < ").append(encoded); //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" < ").append(encoded); //$NON-NLS-1$
                 } else {
@@ -515,8 +525,11 @@ public abstract class QueryBuilder {
                 }
             } else if (operator.equals(WhereCondition.LOWER_THAN_OR_EQUAL)) {
                 if (isNum) {
-                    //where.append("number(").append(factorPivots).append(") le ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
-                    where.append(factorPivots + " <= " + encoded); //$NON-NLS-1$
+                    if (useNumberFunction()) {
+                        where.append("number(").append(factorPivots).append(") le ").append(encoded); //$NON-NLS-1$ //$NON-NLS-2$
+                    } else {
+                        where.append(factorPivots).append(" <= ").append(encoded); //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where.append(factorPivots).append(" <= ").append(encoded); //$NON-NLS-1$
                 } else {
@@ -543,6 +556,13 @@ public abstract class QueryBuilder {
         }
 
     }
+
+    /**
+     * @return <code>true</code> is the XQuery number() function should be used in numeric comparison, <code>false</code> otherwise.
+     * @see #buildWhereCondition(com.amalto.xmlserver.interfaces.WhereCondition, java.util.LinkedHashMap, boolean)
+     * @see #buildWhereCondition(com.amalto.xmlserver.interfaces.WhereCondition, java.util.LinkedHashMap, Map)
+     */
+    protected abstract boolean useNumberFunction();
 
     /**
      * Build a where condition in XQuery using paths relative to the provided list of pivots
@@ -656,8 +676,11 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.EQUALS;
                 if (isNum) {
-                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    where = factorPivots + " = " + encoded; //$NON-NLS-1$
+                    if (useNumberFunction()) {
+                        where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    } else {
+                        where = factorPivots + " = " + encoded; //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
@@ -668,8 +691,11 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.NOT_EQUALS;
                 if (isNum) {
-                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    where = factorPivots + " != " + encoded; //$NON-NLS-1$
+                    if (useNumberFunction()) {
+                        where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    } else {
+                        where = factorPivots + " != " + encoded; //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
@@ -680,8 +706,11 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.GREATER_THAN;
                 if (isNum) {
-                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    where = factorPivots + " > " + encoded; //$NON-NLS-1$
+                    if (useNumberFunction()) {
+                        where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    } else {
+                        where = factorPivots + " > " + encoded; //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
@@ -692,8 +721,11 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.GREATER_THAN_OR_EQUAL;
                 if (isNum) {
-                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    where = factorPivots + " >= " + encoded; //$NON-NLS-1$
+                    if (useNumberFunction()) {
+                        where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    } else {
+                        where = factorPivots + " >= " + encoded; //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
@@ -704,8 +736,11 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.LOWER_THAN;
                 if (isNum) {
-                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    where = factorPivots + " < " + encoded; //$NON-NLS-1$
+                    if (useNumberFunction()) {
+                        where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    } else {
+                        where = factorPivots + " < " + encoded; //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
@@ -716,8 +751,11 @@ public abstract class QueryBuilder {
                 if (!useValueComparisons)
                     useOpe = WhereCondition.LOWER_THAN_OR_EQUAL;
                 if (isNum) {
-                    //where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    where = factorPivots + " <= " + encoded; //$NON-NLS-1$
+                    if (useNumberFunction()) {
+                        where = "number(" + factorPivots + ") " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    } else {
+                        where = factorPivots + " <= " + encoded; //$NON-NLS-1$
+                    }
                 } else if (isXpathFunction) {
                     where = factorPivots + " " + useOpe + " " + encoded; //$NON-NLS-1$ //$NON-NLS-2$
                 } else {

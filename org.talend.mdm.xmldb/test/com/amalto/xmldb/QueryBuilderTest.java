@@ -30,16 +30,11 @@ import com.amalto.xmlserver.interfaces.WhereCondition;
 @SuppressWarnings("nls")
 public class QueryBuilderTest extends TestCase {
 
-    private QueryBuilder queryBuilder;
+    private TestQueryBuilder queryBuilder;
 
     @Override
     protected void setUp() throws Exception {
-        queryBuilder = new QueryBuilder() {
-            @Override
-            public String getFullTextQueryString(String queryStr) {
-                return null;
-            }
-        };
+        queryBuilder = new TestQueryBuilder();
     }
 
     @Override
@@ -99,6 +94,12 @@ public class QueryBuilderTest extends TestCase {
         types = Arrays.asList("xsd:decimal");
         metaDataTypes.put("Product/Price", new ArrayList<String>(types));
         expected = "( matches($pivot0/Id, \"231.*\" ,\"i\") ) and ($pivot0/Price > 10)";
+
+        actual = queryBuilder.buildWhere(pivots, whereItem, metaDataTypes);
+        assertEquals(expected, actual);
+
+        queryBuilder.setUseNumberFunction(true);
+        expected = "( matches($pivot0/Id, \"231.*\" ,\"i\") ) and (number($pivot0/Price) gt 10)";
 
         actual = queryBuilder.buildWhere(pivots, whereItem, metaDataTypes);
         assertEquals(expected, actual);
@@ -329,5 +330,23 @@ public class QueryBuilderTest extends TestCase {
         expected += "return (<totalCount>{count($allres)}</totalCount>, $res)";
         actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
         assertEquals(expected, actual);
+    }
+
+    private static class TestQueryBuilder extends QueryBuilder {
+        private boolean useNumberFunction = false;
+
+        @Override
+        protected boolean useNumberFunction() {
+            return useNumberFunction;
+        }
+
+        public void setUseNumberFunction(boolean useNumberFunction) {
+            this.useNumberFunction = useNumberFunction;
+        }
+
+        @Override
+        public String getFullTextQueryString(String queryStr) {
+            return null;
+        }
     }
 }

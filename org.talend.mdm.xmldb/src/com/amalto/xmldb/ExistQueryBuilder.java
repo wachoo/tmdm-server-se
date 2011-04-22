@@ -17,6 +17,11 @@ import org.apache.commons.lang.StringEscapeUtils;
 public class ExistQueryBuilder extends QueryBuilder {
 
     @Override
+    protected boolean useNumberFunction() {
+        return false;
+    }
+
+    @Override
     public String getFullTextQueryString(String queryStr) {
         StringBuilder ftQueryBuilder = new StringBuilder();
         ftQueryBuilder.append("ft:query(.,\""); //$NON-NLS-1$
