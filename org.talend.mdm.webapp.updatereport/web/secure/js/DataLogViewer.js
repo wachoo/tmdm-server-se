@@ -47,7 +47,7 @@ Ext.extend(amalto.updatereport.DataLogViewer, Ext.Panel, {
 		        	});
 		        	
 		        	if(result) {
-		        		amalto.itemsbrowser.ItemsBrowser.editItemDetails(this.key, this.concept, function(){});
+		        		amalto.itemsbrowser.ItemsBrowser.editItemDetails(this.key.split('\.'), this.concept, function(){});
 		        	}
 		        	else {
 		        		Ext.MessageBox.alert("Error", "Please select the corresponding Data Container and Data Model.");
