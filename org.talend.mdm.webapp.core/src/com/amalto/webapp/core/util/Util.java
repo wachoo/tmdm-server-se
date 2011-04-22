@@ -330,13 +330,13 @@ public class Util {
         ArrayList<WSWhereItem> condition = new ArrayList<WSWhereItem>();
         for (String cria : criterias) {
             String[] values = cria.split("\\$\\$");
-            if (values.length == 3) {
+//            if (values.length == 3) {
                 // values = new String[] { foreignKey, "Contains", values[0] };
                 WSWhereCondition wc = Util.convertLine(values);
                 if (wc != null) {
                     condition.add(new WSWhereItem(wc, null, null));
                 }
-            }
+ //           }
         }
         if (additionalInfo != -1) {
             String[] keyInfos = (foreignKeyInfo != null && !foreignKeyInfo.trim().isEmpty()) ? foreignKeyInfo.split(",")
