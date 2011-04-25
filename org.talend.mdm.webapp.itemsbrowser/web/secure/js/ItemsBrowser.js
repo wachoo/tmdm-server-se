@@ -3101,7 +3101,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 							}
 							if (ids1 && ids1.length > 0) {
 								ItemsBrowserInterface.reloadItem(dataObject,
-										ids1, treeIndex, function() {
+										getItemIdsArray(ids1), treeIndex, function() {
 											reloadNode(node1.index, treeIndex);
 										});
 							}
@@ -3200,6 +3200,17 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
 		amalto.core.ready();
 	}
+	
+	function getItemIdsArray(ids){
+		
+		if(ids==null)return null;
+		if(isArray(ids))return ids;
+		//Is this ugly? Sure, this is the reality!
+		if(ids.indexOf('@')!=-1)return ids.split('@');
+		if(ids.indexOf(',')!=-1)return ids.split(',');
+		if(ids.indexOf('.')!=-1)return ids.split('.');
+		
+	}	
 	
 	function reValidationfromMap(treeIndex){
 		if(!validatinHistory.containsKey(treeIndex))
