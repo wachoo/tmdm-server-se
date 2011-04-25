@@ -668,28 +668,15 @@ amalto.welcome.Welcome = function () {
          	callback : function(result){
                 Ext.MessageBox.hide();
                 
-                if(result){
+                if(result.indexOf("ok") >= 0){
                    Ext.MessageBox.alert('Status', "Process done! ");
-                   var processName = processPK.replace("#","*").trim();
-                   var url = "/welcome/secure/OutputReport?process=" + processName ;    
-                   var panelID = "mimepanel" + "standardalone" + processPK ;
                    
-                   var mimepanel = new Ext.Panel( {   
-                   id : panelID,   
-                   title : "output_report of " +  processPK,
-                   closable:true,
-                   fitToFrame: true,                   
-                   html: '<iframe id="frame1" src=' + url+ ' frameborder="0" width="100%" height="100%"></iframe>'  
-                   });
-                   
-                   var tabPanel = amalto.core.getTabPanel();
-                   var contentPanel=tabPanel.getItem(panelID);
-                   if (contentPanel == undefined){
-                    tabPanel.add(mimepanel);
+                   if(result.length > 2){
+                      var url = result.substring(2);
+                      var downloadUrl = '/talendmdm/secure/MimeContentExportServlet?uri=' + url ;
+                      window.location.href=downloadUrl
                    }
-                   tabPanel.show();
-                   tabPanel.doLayout();
-                   amalto.core.doLayout(); 
+
                 }else{
                 	Ext.MessageBox.alert('Status', "Process failed! ");  
                 }

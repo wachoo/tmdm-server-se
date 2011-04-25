@@ -609,9 +609,9 @@ public class ItemsBrowserDWR {
             for (Iterator<String> iterator = visibleRules.keySet().iterator(); iterator.hasNext();) {
                 String xpath = (String) iterator.next();
                 String value = displayRulesUtil.evalVisibleRuleResult(transformedDocument, xpath);
-                if (value != null&& value.equals("false")) {//$NON-NLS-1$
+                if (value != null && value.equals("false")) {//$NON-NLS-1$
                     dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_VISIBLE_RULE, xpath, "false"));//$NON-NLS-1$
-                }else if (value==null||(value != null&& value.equals("true"))) {//$NON-NLS-1$
+                } else if (value == null || (value != null && value.equals("true"))) {//$NON-NLS-1$
                     dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_VISIBLE_RULE, xpath, "true"));//$NON-NLS-1$
                 }
             }
@@ -840,7 +840,8 @@ public class ItemsBrowserDWR {
                         SubTypeBean subTypeBean = new SubTypeBean();
                         reusableType.load();
                         subTypeBean.setName(reusableType.getName());
-                        subTypeBean.setLabel(reusableType.getLabelMap().get(language)==null?reusableType.getName():reusableType.getLabelMap().get(language));
+                        subTypeBean.setLabel(reusableType.getLabelMap().get(language) == null ? reusableType.getName()
+                                : reusableType.getLabelMap().get(language));
                         subTypeBean.setOrderValue(reusableType.getOrderValue());
                         subTypesName.add(subTypeBean);
                     }
@@ -1257,119 +1258,121 @@ public class ItemsBrowserDWR {
     public TreeNode[] getChildrenWithKeyMask(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
             boolean maskKey, String selectedExtendType) throws Exception {
 
-        synchronized(locker){     
+        synchronized (locker) {
 
-        WebContext ctx = WebContextFactory.get();
-        HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
-        HashMap<String, XSParticle> xpathToParticle = (HashMap<String, XSParticle>) ctx.getSession().getAttribute(
-                "xpathToParticle"); //$NON-NLS-1$
-        ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization"); //$NON-NLS-1$
-        Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
-        String[] keys = (String[]) ctx.getSession().getAttribute("foreignKeys"); //$NON-NLS-1$
-        HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute("xpathToTreeNode"); //$NON-NLS-1$
-        selectedExtendType = (selectedExtendType != null && selectedExtendType.equals("") ? null : selectedExtendType);
+            WebContext ctx = WebContextFactory.get();
+            HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute(
+                    "idToParticle"); //$NON-NLS-1$
+            HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
+            HashMap<String, XSParticle> xpathToParticle = (HashMap<String, XSParticle>) ctx.getSession().getAttribute(
+                    "xpathToParticle"); //$NON-NLS-1$
+            ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization"); //$NON-NLS-1$
+            Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
+            String[] keys = (String[]) ctx.getSession().getAttribute("foreignKeys"); //$NON-NLS-1$
+            HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute(
+                    "xpathToTreeNode"); //$NON-NLS-1$
+            selectedExtendType = (selectedExtendType != null && selectedExtendType.equals("") ? null : selectedExtendType);
 
-        try {
-            String xpath = idToXpath.get(id);
+            try {
+                String xpath = idToXpath.get(id);
 
-            // update doc
-            if (selectedExtendType != null && selectedExtendType.length() > 0) {
-                Node tagertNode = Util.getNodeList(d, xpath).item(0);
-                if (tagertNode != null) {
-                    NodeList childNodes = tagertNode.getChildNodes();
-                    int listLength = childNodes.getLength();
-                    for (int i = 0; i < listLength; i++) {
-                        Util.removeAll(childNodes.item(0), (short) -1, null);
-                    }
-                    setChildrenWithValue(SchemaWebAgent.getInstance().getReusableType(selectedExtendType).getXsParticle(), xpath,
-                            docIndex, true);
-                }
-            }
-            // keep changes when refresh
-            HashMap<String, UpdateReportItem> updatedPath;
-            if (ctx.getSession().getAttribute("updatedPath" + docIndex) != null) { //$NON-NLS-1$
-                updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex); //$NON-NLS-1$
-            } else {
-                updatedPath = new HashMap<String, UpdateReportItem>();
-            }
-            if (updatedPath.size() > 0) {
-                for (Iterator<String> iterator = updatedPath.keySet().iterator(); iterator.hasNext();) {
-                    String updatePath = iterator.next();
-                    UpdateReportItem updateReportItem = updatedPath.get(updatePath);
-                    NodeList gettedNodeList = Util.getNodeList(d, updatePath);
-                    if (gettedNodeList != null && gettedNodeList.getLength() > 0) {
-                        Node node = gettedNodeList.item(0);
-                        node.setTextContent(updateReportItem.getNewValue());
+                // update doc
+                if (selectedExtendType != null && selectedExtendType.length() > 0) {
+                    Node tagertNode = Util.getNodeList(d, xpath).item(0);
+                    if (tagertNode != null) {
+                        NodeList childNodes = tagertNode.getChildNodes();
+                        int listLength = childNodes.getLength();
+                        for (int i = 0; i < listLength; i++) {
+                            Util.removeAll(childNodes.item(0), (short) -1, null);
+                        }
+                        setChildrenWithValue(SchemaWebAgent.getInstance().getReusableType(selectedExtendType).getXsParticle(),
+                                xpath, docIndex, true);
                     }
                 }
+                // keep changes when refresh
+                HashMap<String, UpdateReportItem> updatedPath;
+                if (ctx.getSession().getAttribute("updatedPath" + docIndex) != null) { //$NON-NLS-1$
+                    updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex); //$NON-NLS-1$
+                } else {
+                    updatedPath = new HashMap<String, UpdateReportItem>();
+                }
+                if (updatedPath.size() > 0) {
+                    for (Iterator<String> iterator = updatedPath.keySet().iterator(); iterator.hasNext();) {
+                        String updatePath = iterator.next();
+                        UpdateReportItem updateReportItem = updatedPath.get(updatePath);
+                        NodeList gettedNodeList = Util.getNodeList(d, updatePath);
+                        if (gettedNodeList != null && gettedNodeList.getLength() > 0) {
+                            Node node = gettedNodeList.item(0);
+                            node.setTextContent(updateReportItem.getNewValue());
+                        }
+                    }
+                }
+                // update polym-map
+                HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
+                        "xpathToPolymType" + docIndex); //$NON-NLS-1$
+                if (selectedExtendType == null)
+                    xpathToPolymType.remove(xpath);
+                else
+                    xpathToPolymType.put(unifyXPath(xpath), selectedExtendType);
+
+            } catch (Exception e1) {
+                LOG.error(e1.getMessage(), e1);
             }
-            // update polym-map
-            HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
-                    "xpathToPolymType" + docIndex); //$NON-NLS-1$
-            if (selectedExtendType == null)
-                xpathToPolymType.remove(xpath);
-            else
-                xpathToPolymType.put(unifyXPath(xpath), selectedExtendType);
 
-        } catch (Exception e1) {
-            LOG.error(e1.getMessage(), e1);
-        }
+            if (xpathToTreeNode == null)
+                xpathToTreeNode = new HashMap<String, TreeNode>();
 
-        if (xpathToTreeNode == null)
-            xpathToTreeNode = new HashMap<String, TreeNode>();
+            if (foreignKey)
+                d = (Document) ctx.getSession().getAttribute("itemDocumentFK"); //$NON-NLS-1$
 
-        if (foreignKey)
-            d = (Document) ctx.getSession().getAttribute("itemDocumentFK"); //$NON-NLS-1$
+            boolean choice = false;
 
-        boolean choice = false;
+            XSParticle[] xsp = null;
+            if (idToParticle == null)
+                return null;
+            if (idToParticle.get(id) == null) {// simple type case, no children
+                return null;
+            }
+            this.nodeCount = nodeCount;// aiming added
+            xsp = idToParticle.get(id).getTerm().asModelGroup().getChildren();
+            if ("choice".equals(idToParticle.get(id).getTerm().asModelGroup().getCompositor().toString())) //$NON-NLS-1$
+                choice = true;
 
-        XSParticle[] xsp = null;
-        if (idToParticle == null)
-            return null;
-        if (idToParticle.get(id) == null) {// simple type case, no children
-            return null;
-        }
-        this.nodeCount = nodeCount;// aiming added
-        xsp = idToParticle.get(id).getTerm().asModelGroup().getChildren();
-        if ("choice".equals(idToParticle.get(id).getTerm().asModelGroup().getCompositor().toString())) //$NON-NLS-1$
-            choice = true;
+            try {
+                // replace xsp is this a proper way?
+                if (selectedExtendType != null && selectedExtendType.length() > 0)
+                    xsp = SchemaWebAgent.getInstance().getReusableType(selectedExtendType).getXsParticle().getTerm()
+                            .asModelGroup().getChildren();
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+            }
 
-        try {
-            // replace xsp is this a proper way?
-            if (selectedExtendType != null && selectedExtendType.length() > 0)
-                xsp = SchemaWebAgent.getInstance().getReusableType(selectedExtendType).getXsParticle().getTerm().asModelGroup()
-                        .getChildren();
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
+            ArrayList<TreeNode> list = new ArrayList<TreeNode>();
+            // iterate over children
+            for (int j = 0; j < xsp.length; j++) {
+                setChildrenWithKeyMask(id, language, foreignKey, docIndex, maskKey, choice, xsp[j], list, xpathToTreeNode);
+            }
 
-        ArrayList<TreeNode> list = new ArrayList<TreeNode>();
-        // iterate over children
-        for (int j = 0; j < xsp.length; j++) {
-            setChildrenWithKeyMask(id, language, foreignKey, docIndex, maskKey, choice, xsp[j], list, xpathToTreeNode);
-        }
+            // update dsp rules
+            updateDspRules(
+                    docIndex,
+                    d,
+                    idToXpath
+                            .get(id)
+                            .substring(
+                                    1,
+                                    idToXpath.get(id).indexOf("/", 1) > -1 ? idToXpath.get(id).indexOf("/", 1) : idToXpath
+                                            .get(id).length()).trim());
 
-        // update dsp rules
-        updateDspRules(
-                docIndex,
-                d,
-                idToXpath
-                        .get(id)
-                        .substring(
-                                1,
-                                idToXpath.get(id).indexOf("/", 1) > -1 ? idToXpath.get(id).indexOf("/", 1) : idToXpath.get(id)
-                                        .length()).trim());
+            if (xpathToTreeNode != null) {
+                ctx.getSession().setAttribute("xpathToTreeNode", xpathToTreeNode); //$NON-NLS-1$
+            }
 
-        if (xpathToTreeNode != null) {
-            ctx.getSession().setAttribute("xpathToTreeNode", xpathToTreeNode); //$NON-NLS-1$
-        }
+            TreeNode[] rtnNodes = list.toArray(new TreeNode[list.size()]);
 
-        TreeNode[] rtnNodes = list.toArray(new TreeNode[list.size()]);
-
-        handleDynamicLable(rtnNodes, docIndex);// FIXME: performance maybe a problem
-        rtnNodes = handleDisplayRules(rtnNodes, docIndex);
-        return rtnNodes;
+            handleDynamicLable(rtnNodes, docIndex);// FIXME: performance maybe a problem
+            rtnNodes = handleDisplayRules(rtnNodes, docIndex);
+            return rtnNodes;
         }
     }
 
@@ -1525,31 +1528,33 @@ public class ItemsBrowserDWR {
         String xpath = idToXpath.get(id);
         if (xpath == null)
             return "Nothing to update";
-        
-        String updateStatus=updateNode2(xpath, StringEscapeUtils.unescapeHtml(content), docIndex);
-        
+
+        String updateStatus = updateNode2(xpath, StringEscapeUtils.unescapeHtml(content), docIndex);
+
         try {
-            updateDspRules(docIndex,(Document) ctx.getSession().getAttribute("itemDocument" + docIndex),Util.getConceptFromPath(xpath));
+            updateDspRules(docIndex, (Document) ctx.getSession().getAttribute("itemDocument" + docIndex),
+                    Util.getConceptFromPath(xpath));
         } catch (Exception e) {
             LOG.error("Error happened when update display rules!", e);//$NON-NLS-1$
         }
-        
+
         return updateStatus;
     }
-    
-    
+
     /**
      * DOC HSHU Comment method "checkVisibilityRules".
      */
-    public Map<String,String> checkVisibilityRules(int docIndex) {
-        Map<String,String> checkMap=new HashMap<String,String>();
-        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute("displayRules" + docIndex); //$NON-NLS-1$
+    public Map<String, String> checkVisibilityRules(int docIndex) {
+        Map<String, String> checkMap = new HashMap<String, String>();
+        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession()
+                .getAttribute("displayRules" + docIndex); //$NON-NLS-1$
         for (DisplayRule displayRule : dspRules) {
             String xpath = displayRule.getXpath();
             if (displayRule.getType().equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
-                HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) WebContextFactory.get().getSession().getAttribute("xpathToTreeNode");//$NON-NLS-1$
-                if(xpathToTreeNode.get(xpath)!=null) {
-                    int nodeId=xpathToTreeNode.get(xpath).getNodeId();
+                HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) WebContextFactory.get().getSession()
+                        .getAttribute("xpathToTreeNode");//$NON-NLS-1$
+                if (xpathToTreeNode.get(xpath) != null) {
+                    int nodeId = xpathToTreeNode.get(xpath).getNodeId();
                     checkMap.put(String.valueOf(nodeId), displayRule.getValue());
                 }
             }
@@ -2591,7 +2596,8 @@ public class ItemsBrowserDWR {
      * @return
      * @throws Exception
      */
-    public String getForeignKeyPolymTypeList(String value, String xpathForeignKey, int docIndex, int nodeId, String language) throws Exception {
+    public String getForeignKeyPolymTypeList(String value, String xpathForeignKey, int docIndex, int nodeId, String language)
+            throws Exception {
 
         String fkEntityType = null;
         ReusableType entityReusableType = null;
@@ -2606,23 +2612,24 @@ public class ItemsBrowserDWR {
             } else {
                 fkEntity = xpathForeignKey;
             }
-            
+
             fkEntityType = SchemaWebAgent.getInstance().getBusinessConcept(fkEntity).getCorrespondTypeName();
             entityReusableType = SchemaWebAgent.getInstance().getReusableType(fkEntityType);
             entityReusableType.load();
-            
+
             List<ReusableType> subtypes = SchemaWebAgent.getInstance().getMySubtypes(fkEntityType, true);
             for (ReusableType reusableType : subtypes) {
                 reusableType.load();
-                SubTypeBean subTypeBean=new SubTypeBean();
+                SubTypeBean subTypeBean = new SubTypeBean();
                 subTypeBean.setName(reusableType.getName());
-                subTypeBean.setLabel(reusableType.getLabelMap().get(language)==null?reusableType.getName():reusableType.getLabelMap().get(language));
+                subTypeBean.setLabel(reusableType.getLabelMap().get(language) == null ? reusableType.getName() : reusableType
+                        .getLabelMap().get(language));
                 subTypeBean.setOrderValue(reusableType.getOrderValue());
                 derivedTypes.add(subTypeBean);
             }
 
         }
-        
+
         Collections.sort(derivedTypes);
 
         /*
@@ -2636,10 +2643,11 @@ public class ItemsBrowserDWR {
         JSONArray rows = new JSONArray();
         json.put("rows", rows);
 
-        if (fkEntityType != null&&!entityReusableType.isAbstract()) {
+        if (fkEntityType != null && !entityReusableType.isAbstract()) {
             JSONObject row = new JSONObject();
             row.put("value", entityReusableType.getName());
-            row.put("text", entityReusableType.getLabelMap().get(language)==null?entityReusableType.getName():entityReusableType.getLabelMap().get(language));
+            row.put("text", entityReusableType.getLabelMap().get(language) == null ? entityReusableType.getName()
+                    : entityReusableType.getLabelMap().get(language));
             rows.put(row);
 
             counter++;
@@ -2658,7 +2666,7 @@ public class ItemsBrowserDWR {
 
         return json.toString();
     }
-    
+
     /**
      * DOC HSHU Comment method "switchForeignKeyType".
      * 
@@ -3346,21 +3354,21 @@ public class ItemsBrowserDWR {
         try {
             if (ids.length == 0) {
                 WebContext ctx = WebContextFactory.get();
-                ids = (String[]) ctx.getSession().getAttribute("treeIdxToIDS" + docIndex);
+                ids = (String[]) ctx.getSession().getAttribute("treeIdxToIDS" + docIndex);//$NON-NLS-1$
             }
-            String itemAlias = concept + "." + Util.joinStrings(ids, ".");
+            String itemAlias = concept + "." + Util.joinStrings(ids, ".");//$NON-NLS-1$//$NON-NLS-2$
             // create updateReport
             LOG.info("Creating update-report for " + itemAlias + "'s action. ");
-            String updateReport = Util.createUpdateReport(ids, concept, "ACTION", null);
+            String updateReport = Util.createUpdateReport(ids, concept, "ACTION", null);//$NON-NLS-1$
 
             WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
-            WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),
-                    "text/xml; charset=utf-8");
+            WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
+                    "text/xml; charset=utf-8");//$NON-NLS-1$//$NON-NLS-2$
             WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, wsTypedContent);
             // check runnable transformer
             // we can leverage the exception mechanism also
             boolean isRunnableTransformerExist = false;
-            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();
+            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
             for (int i = 0; i < wst.length; i++) {
                 if (wst[i].getPk().equals(transformerPK)) {
                     isRunnableTransformerExist = true;
@@ -3374,19 +3382,22 @@ public class ItemsBrowserDWR {
                 throw new Exception("The Plugin Specs of this process is undefined! ");
 
             boolean outputReport = false;
+            String downloadUrl = "";
             if (isRunnableTransformerExist) {
                 LOG.info("Executing transformer for " + itemAlias + "'s action. ");
                 WSTransformerContextPipelinePipelineItem[] entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2)
                         .getPipeline().getPipelineItem();
                 if (entries.length > 0) {
                     WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
-                    if (item.getVariable().equals("output_report")) {
+                    if (item.getVariable().equals("output")) {//$NON-NLS-1$
                         byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
-                        WebContext ctx = WebContextFactory.get();
-                        ctx.getSession().setAttribute(transformerPK + docIndex, bytes);
-                        ctx.getSession().setAttribute(transformerPK + docIndex + "mimetype", //$NON-NLS-1$
-                                item.getWsTypedContent().getContentType().getBytes());
-                        outputReport = true;
+                        String content = new String(bytes);
+                        Document resultDoc = Util.parse(content);
+                        NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
+                        if (attrList != null && attrList.getLength() > 0) {
+                            downloadUrl = attrList.item(0).getTextContent();
+                            outputReport = true;
+                        }
                     }
                 }
             } else {
@@ -3396,12 +3407,12 @@ public class ItemsBrowserDWR {
             // store
             LOG.info("Saving update-report for " + itemAlias + "'s action. ");
 
-            if (!Util.persistentUpdateReport(updateReport, true).equals("OK")) {
+            if (!Util.persistentUpdateReport(updateReport, true).equals("OK")) {//$NON-NLS-1$
                 // return false;
-                throw new Exception("Store Update-Report failed! ");
+                throw new Exception("Store Update-Report failed! ");//$NON-NLS-1$
             }
-            if (!outputReport)
-                return "partialOk"; //$NON-NLS-1$
+            if (outputReport)
+                return "Ok" + downloadUrl; //$NON-NLS-1$
 
         } catch (Exception e) {
             String err = "Unable to launch Runnable Process! ";

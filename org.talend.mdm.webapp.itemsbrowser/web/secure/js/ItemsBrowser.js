@@ -606,6 +606,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
 	var breadCrumbPL;
 
+	var reportUrl = null;
+	
 	function browseItems() {
 		showItemsPanel();
 		// populate list
@@ -2032,6 +2034,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
 		store.on('load', function() {
 					grid.render();
+					if(reportUrl != null && reportUrl.length > 0){
+                       var downloadUrl = '/talendmdm/secure/MimeContentExportServlet?uri=' + reportUrl ;
+                        window.location.href=downloadUrl
+						reportUrl = null;
+					}
 				});
 
 	}
@@ -3024,41 +3031,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 													itempanel.isdirty = false;
 												}
 
-												displayItems.call();
 
-												if (result == "Ok") {
-													var url = "/itemsbrowser/secure/RefreshProperties?output_report=true&process="
-															+ selectedProcess
-															+ "&id="
-															+ tbDetail.treeIndex;
-													var panelID = "mimepanel"
-															+ tbDetail.treeIndex;
-
-													var mimepanel = new Ext.Panel(
-															{
-																id : panelID,
-																title : "output_report of "
-																		+ selectedProcess
-																		+ " "
-																		+ tbDetail.ids,
-																closable : true,
-																fitToFrame : true,
-																html : '<iframe id="frame1" src='
-																		+ url
-																		+ ' frameborder="0" width="100%" height="100%"></iframe>'
-															});
-
-													var tabPanel = amalto.core
-															.getTabPanel();
-													var contentPanel = tabPanel
-															.getItem(panelID);
-													if (contentPanel == undefined) {
-														tabPanel.add(mimepanel);
-													}
-													tabPanel.show();
-													tabPanel.doLayout();
-													amalto.core.doLayout();
-												}
+											   reportUrl = result.substring(2);
+											   displayItems.call();
 											} else {
 												Ext.MessageBox.alert('Status',
 														"Process failed! ");
@@ -3768,41 +3743,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 													itempanel.isdirty = false;
 												}
 
-												displayItems.call();
 
-												if (result == "Ok") {
-													var url = "/itemsbrowser/secure/RefreshProperties?output_report=true&process="
-															+ selectedProcess
-															+ "&id="
-															+ tbDetail.treeIndex;
-													var panelID = "mimepanel"
-															+ tbDetail.treeIndex;
+                                                reportUrl = result.substring(2);
 
-													var mimepanel = new Ext.Panel(
-															{
-																id : panelID,
-																title : "output_report of "
-																		+ selectedProcess
-																		+ " "
-																		+ tbDetail.ids,
-																closable : true,
-																fitToFrame : true,
-																html : '<iframe id="frame1" src='
-																		+ url
-																		+ ' frameborder="0" width="100%" height="100%"></iframe>'
-															});
-
-													var tabPanel = amalto.core
-															.getTabPanel();
-													var contentPanel = tabPanel
-															.getItem(panelID);
-													if (contentPanel == undefined) {
-														tabPanel.add(mimepanel);
-													}
-													tabPanel.show();
-													tabPanel.doLayout();
-													amalto.core.doLayout();
-												}
+											    displayItems.call();
+												
 											} else {
 												Ext.MessageBox.alert('Status',
 														"Process failed! ");

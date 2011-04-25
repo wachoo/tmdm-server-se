@@ -1,6 +1,5 @@
 package org.talend.mdm.webapp.welcome.dwr;
 
-import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,8 +9,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
-import org.directwebremoting.WebContext;
-import org.directwebremoting.WebContextFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.util.Menu;
@@ -166,8 +165,8 @@ public class WelcomeDWR {
      * @param transformerPK
      * @return
      */
-    public boolean runProcess(String transformerPK) {
-        boolean sucess = true;
+    public String runProcess(String transformerPK) {
+        String sucess = "ok";//$NON-NLS-1$
         WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
 
         try {
@@ -180,23 +179,26 @@ public class WelcomeDWR {
                     .getPipeline().getPipelineItem();
             if (entries.length > 0) {
                 WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
-                if (item.getVariable().equals("output_report")) { //$NON-NLS-1$
+                if (item.getVariable().equals("output")) {//$NON-NLS-1$
                     byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
-                    WebContext ctx = WebContextFactory.get();
-                    ctx.getSession().setAttribute(transformerPK, bytes);
-                    ctx.getSession().setAttribute(transformerPK + "mimetype", //$NON-NLS-1$
-                            item.getWsTypedContent().getContentType().getBytes());
+                    String urlcontent = new String(bytes);
+                    Document resultDoc = Util.parse(urlcontent);
+                    NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
+                    if (attrList != null && attrList.getLength() > 0) {
+                        String downloadUrl = attrList.item(0).getTextContent();
+                        sucess += downloadUrl;
+                    }
                 }
             }
         } catch (RemoteException e) {
             LOG.error(e.getMessage(), e);
-            sucess = false;
+            sucess = "failed";//$NON-NLS-1$
         } catch (XtentisWebappException e) {
             LOG.error(e.getMessage(), e);
-            sucess = false;
-        } catch (UnsupportedEncodingException e) {
+            sucess = "failed";//$NON-NLS-1$
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            sucess = false;
+            sucess = "failed";//$NON-NLS-1$
         }
 
         return sucess;
