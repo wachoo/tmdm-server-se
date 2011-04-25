@@ -4467,6 +4467,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 		var children = node.children;
 		for (var i = 0; i < children.length; i++) {
 			child = children[i];
+			child.itemData.value = "";
 			updateNodeId(child, child.itemData.nodeId);
 		}
 	}

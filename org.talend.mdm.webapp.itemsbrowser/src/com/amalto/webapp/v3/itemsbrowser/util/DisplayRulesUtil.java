@@ -15,8 +15,6 @@ package com.amalto.webapp.v3.itemsbrowser.util;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.dom4j.Document;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
@@ -374,12 +372,7 @@ public class DisplayRulesUtil {
 
     // get the source xpath if it is multi-occurs
     private static String getMainXpath(String xpath) {
-        Pattern p = Pattern.compile("(.*?)\\[[0-9]*\\]"); //$NON-NLS-1$
-        Matcher m = p.matcher(xpath);
-        if (m.find())
-            return m.group(1);
-        else
-            return xpath;
+        return xpath.replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public static void filterByDisplayRules(List<TreeNode> nodesList, TreeNode node, List<DisplayRule> dspRules, int docIndex)
@@ -390,15 +383,15 @@ public class DisplayRulesUtil {
         for (DisplayRule displayRule : dspRules) {
             String xpathInRule = XmlUtil.normalizeXpath(displayRule.getXpath());
             if (displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
-                if (getMainXpath(xpath).equals(xpathInRule)) {
+                if (getMainXpath(xpath).equals(getMainXpath(xpathInRule))) {
                     if (node.getValue() == null || node.getValue().trim().equals("")) { //$NON-NLS-1$
                         node.setValue(displayRule.getValue());
                         ItemsBrowserDWR.updateNode2(xpath, node.getValue(), docIndex);
                     }
                 }
             } else if (displayRule.getType().equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
-                if (getMainXpath(xpath).startsWith(xpathInRule)) {
-                    if(displayRule.getValue()!=null&&displayRule.getValue().equals("false")) { //$NON-NLS-1$
+                if (getMainXpath(xpath).startsWith(getMainXpath(xpathInRule))) {
+                    if (displayRule.getValue() != null && displayRule.getValue().equals("false")) { //$NON-NLS-1$
                         // nodesList.remove(node);
                         node.setVisible(false);
                     }
