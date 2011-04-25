@@ -37,13 +37,6 @@
         </method-attributes>
       </session>
       <session>
-         <ejb-name>MIMEContentPlugin</ejb-name>
-         <local-jndi-name>amalto/local/transformer/plugin/mime</local-jndi-name>
-
-        <method-attributes>
-        </method-attributes>
-      </session>
-      <session>
          <ejb-name>ProjectTransformerPlugin</ejb-name>
          <local-jndi-name>amalto/local/transformer/plugin/project</local-jndi-name>
 
