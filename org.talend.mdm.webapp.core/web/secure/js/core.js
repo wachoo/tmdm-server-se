@@ -120,6 +120,14 @@ function htmlUnescape(html)
     return g_oHtmlEncodeElement.innerText || g_oHtmlEncodeElement.textContent;
 }
 
+function isArray(value) {
+      return value &&
+      typeof value === 'object' &&
+      typeof value.length === 'number' &&
+      typeof value.splice === 'function' &&
+      !(value.propertyIsEnumerable('length'));
+}
+
 Ext.namespace("Ext.ux");
 Ext.ux.comboBoxRenderer = function(combo) {
   return function(value) {
