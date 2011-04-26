@@ -19,6 +19,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
 	loadResource("/itemsbrowser/secure/js/SearchEntityPanel.js", "");
 
+	loadResource("/itemsbrowser/secure/js/ItemNode.js", "");
 	/***************************************************************************
 	 * Localization
 	 **************************************************************************/
@@ -2518,8 +2519,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
        
         //comment for bug 0020558
 //		DWREngine.setAsync(true);
-		loadResource("/itemsbrowser/secure/js/ItemNode.js",
-				"amalto.itemsbrowser.ItemNode");
+
 		// alert("display items "+DWRUtil.toDescriptiveString(itemPK2,2)+" "+
 		// dataObject);
 		amalto.core.working();
@@ -3325,8 +3325,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
 	function displayItemDetails2(itemPK2, dataObject, isDuplicate, refreshCB,
 			isBreadCrumb, parentLink) {
-		loadResource("/itemsbrowser/secure/js/ItemNode.js",
-				"amalto.itemsbrowser.ItemNode");
+
 		// alert("display items "+DWRUtil.toDescriptiveString(itemPK2,2)+" "+
 		// dataObject);
 		amalto.core.working();
