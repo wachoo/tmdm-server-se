@@ -5181,16 +5181,17 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 						inputType : 'textfield',
 						monthNames : MONTH_NAME[language],
 						listeners : {
-
 							select : function(src, date) {
 								var setValue = date.format("Y-m-d");
 								if (nodeType == "dateTime") {
 									setValue += "T00:00:00";
 								};
-								if (displayFormats != "null")
+								if (displayFormats != "null"){
+									if(nodeType == "null")
+										nodeType = "date";
 									ItemsBrowserInterface.printFormatDate(
 											language, displayFormats, setValue,
-											"date", function(resultValue) {
+											nodeType, function(resultValue) {
 												// setValue = resultValue;
 												if (resultValue != "null")
 
@@ -5217,7 +5218,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 												nodeDatePickerWindow.hide();
 												nodeDatePickerWindow.destroy();
 											});
-								else {
+								} else {
 									DWRUtil.setValue(inputText, setValue);
 									if (treeIndex != -1) {
 										/*

@@ -3480,13 +3480,31 @@ public class ItemsBrowserDWR {
      */
     public String printFormatDate(String lang, String format, String value, String typeName) throws ParseException {
 
-        Object object = Date.parseDate(value.trim()).toCalendar();
+    	Calendar object = null;
+    	if(typeName.equalsIgnoreCase("date"))
+    		object = Date.parseDate(value.trim()).toCalendar();
+    	else if(typeName.equalsIgnoreCase("dateTime")){
+    		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    		object = Calendar.getInstance();
+    		object.setTime(sdf.parse(value.trim()));
+    	}
+    			
         if (format == null || format.equals("null") || object == null)
             return value;
         String valueReturn = com.amalto.core.util.Util.printWithFormat(new Locale(lang), format, object).toString();
         return valueReturn;
     }
 
+    public static void main(String[] args){
+    	java.util.Date date = new java.util.Date();
+    	String dateStr = String.format(Locale.ENGLISH, "%tc", date);
+    	System.out.println(dateStr); 
+    	try {
+    		java.text.DateFormat.getInstance().parse(dateStr);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+    }
     /**
      * @author ymli; fix the bug:0013463. validate the value from server
      * @param nodeId
