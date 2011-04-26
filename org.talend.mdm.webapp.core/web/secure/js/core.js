@@ -908,15 +908,19 @@ amalto.core = function () {
 			//initUI();	
 		},
 		enabledGwtMenuItem: function(toCheckMenuID){
-			if (GWT_MENUS != null){
-				var menuObj = GWT_MENUS[toCheckMenuID];
-				if (menuObj != undefined){
-					menuObj.menu.disabled = false;
-					YAHOO.util.Dom.removeClass(menuObj.menuitem, 'x-item-disabled');
-					return true;
+			try {
+				if (GWT_MENUS != null){
+					var menuObj = GWT_MENUS[toCheckMenuID];
+					if (menuObj != undefined){
+						menuObj.menu.disabled = false;
+						YAHOO.util.Dom.removeClass(menuObj.menuitem, 'x-item-disabled');
+						return true;
+					}
 				}
+				return false;
+			} catch (e) {
+				return false;	
 			}
-			return false;
 		}
 		
 	}//PUBLIC
