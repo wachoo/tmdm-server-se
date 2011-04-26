@@ -8,8 +8,8 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
     };
 	
 	var MSG_RENDERER_ERROR = {
-        'fr' : 'ItemsBrowser colorer erreurs',
-        'en' : 'ItemsBrowser rendering errors'
+        'fr' : 'Une erreur de rendu est survenue!',
+        'en' : 'Rendering error occured!'
 	};
 
 	var itemsBrowser2Panel;
