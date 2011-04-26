@@ -1577,8 +1577,13 @@ public class ItemsBrowserDWR {
                 } else {
                     Util.createOrUpdateNode(xpath, content, d);
                 }
-            } else
-                Util.getNodeList(d, xpath).item(0).getFirstChild().setNodeValue(content);
+            } else {
+                Node curNode = Util.getNodeList(d, xpath).item(0);
+                if (curNode != null)
+                    curNode.getFirstChild().setNodeValue(content);
+                else
+                    Util.createOrUpdateNode(xpath, content, d);
+            }
             // TODO add path to session
             HashMap<String, UpdateReportItem> updatedPath;
             if (ctx.getSession().getAttribute("updatedPath" + docIndex) != null) { //$NON-NLS-1$
