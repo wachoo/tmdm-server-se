@@ -64,10 +64,14 @@ public class Itemsbrowser2 implements EntryPoint {
     }
     
     public native boolean enableGWTMenu()/*-{
-        if ($wnd.amalto.core){
-            return $wnd.amalto.core.enabledGwtMenuItem("itemsbrowser2.ItemsBrowser2");//$NON-NLS-1$
+        try {
+            if ($wnd.amalto.core){
+                return $wnd.amalto.core.enabledGwtMenuItem("itemsbrowser2.ItemsBrowser2");//$NON-NLS-1$
+            }
+            return false;
+        } catch (e) {
+            return false;
         }
-        return false;
     }-*/;
 
     public static void onModuleRender() {
