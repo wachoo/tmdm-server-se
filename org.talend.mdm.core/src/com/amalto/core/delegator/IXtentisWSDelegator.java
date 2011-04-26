@@ -1412,8 +1412,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                         ItemPOJO pj = new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection);
                         String revisionId = LocalUser.getLocalUser().getUniverse().getConceptRevisionID(concept);
                         pj = ItemPOJO.load(revisionId, pj.getItemPOJOPK(), false);
-                        // normal case no polym //FIXME a bad solution
-                        if (pj != null && projection.indexOf("xsi:type") == -1 && projection.indexOf("tmdm:type") == -1) {
+                        if (pj != null) {
                             // get updated path
                             Node old = pj.getProjection();
                             Node newNode = root;

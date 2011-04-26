@@ -1356,6 +1356,7 @@ public class Util {
      */
     public static boolean checkHidden(XSParticle xsp) {
         boolean hidden = false;
+        if(xsp.getTerm().getAnnotation()==null)return hidden;
         Element annotations = (Element) xsp.getTerm().getAnnotation().getAnnotation();
         NodeList annotList = annotations.getChildNodes();
 
@@ -2594,12 +2595,21 @@ public class Util {
     public static HashMap<String, UpdateReportItem> compareElement(String parentPath, Node newElement, Node oldElement)
             throws Exception {
         HashMap<String, UpdateReportItem> map = new LinkedHashMap<String, UpdateReportItem>();
-        Set<String> xpaths = getXpaths(parentPath, newElement);
+        Set<String> complexNodes = new LinkedHashSet<String>();
+        Set<String> xpaths = getXpaths(parentPath, newElement, complexNodes);
         JXPathContext jxpContextOld = JXPathContext.newContext(oldElement);
         jxpContextOld.setLenient(true);
         JXPathContext jxpContextNew = JXPathContext.newContext(newElement);
         jxpContextNew.setLenient(true);
         String concept = newElement.getLocalName();
+        
+        for (String cnodePath : complexNodes) {
+            if (cnodePath.startsWith("/" + concept + "/")) {
+                cnodePath = cnodePath.replaceFirst("/" + concept + "/", "");
+                checkDiffsWhenComparingElement(map, jxpContextOld, jxpContextNew, cnodePath, true);
+            }
+        }
+        
         for (String xpath : xpaths) {
             NodeList listnew = getNodeList(newElement, xpath);
             NodeList listold = getNodeList(oldElement, xpath);
@@ -2615,26 +2625,58 @@ public class Util {
                         if (fixPath != null)
                             xpath1 = fixPath;
                     }
-
-                    String oldvalue = (String) jxpContextOld.getValue(xpath1, String.class);
-                    String newvalue = (String) jxpContextNew.getValue(xpath1, String.class);
-                    if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue) || oldvalue != null
-                            && oldvalue.length() > 0 && !oldvalue.equals(newvalue)) {
-                        UpdateReportItem item = new UpdateReportItem(xpath1, oldvalue, newvalue);
-                        map.put(xpath1, item);
-                    }
+                    checkDiffsWhenComparingElement(map, jxpContextOld, jxpContextNew, xpath1, false);
                 }
             } else {
-                String oldvalue = (String) jxpContextOld.getValue(xpath, String.class);
-                String newvalue = (String) jxpContextNew.getValue(xpath, String.class);
-                if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue) || oldvalue != null
-                        && oldvalue.length() > 0 && !oldvalue.equals(newvalue)) {
-                    UpdateReportItem item = new UpdateReportItem(xpath, oldvalue, newvalue);
-                    map.put(xpath, item);
-                }
+                checkDiffsWhenComparingElement(map, jxpContextOld, jxpContextNew, xpath, false);
             }
         }
+        
         return map;
+    }
+
+    /**
+     * DOC HSHU Comment method "checkDiffsWhenComparingElement".
+     * @param map
+     * @param jxpContextOld
+     * @param jxpContextNew
+     * @param xpath
+     */
+    private static void checkDiffsWhenComparingElement(HashMap<String, UpdateReportItem> map, JXPathContext jxpContextOld, JXPathContext jxpContextNew, String xpath, boolean attributeOnly) {
+        
+        String oldvalue = null;
+        String newvalue = null;
+        
+        //content text
+        if(!attributeOnly) {
+            oldvalue = (String) jxpContextOld.getValue(xpath, String.class);
+            newvalue = (String) jxpContextNew.getValue(xpath, String.class);
+            if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue)
+                    || oldvalue != null && oldvalue.length() > 0 && !oldvalue.equals(newvalue)) {
+                UpdateReportItem item = new UpdateReportItem(xpath, oldvalue, newvalue);
+                map.put(xpath, item);
+            }
+        }
+        
+        //attributes
+        String attrXpath1 = xpath+"/@xsi:type";
+        oldvalue=(String) jxpContextOld.getValue(attrXpath1, String.class);
+        newvalue = (String) jxpContextNew.getValue(attrXpath1, String.class);
+        if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue)
+                || oldvalue != null && oldvalue.length() > 0 && !oldvalue.equals(newvalue)) {
+            UpdateReportItem item = new UpdateReportItem(attrXpath1, oldvalue, newvalue);
+            map.put(attrXpath1, item);
+        }
+        
+        String attrXpath2 = xpath+"/@tmdm:type";
+        oldvalue=(String) jxpContextOld.getValue(attrXpath2, String.class);
+        newvalue = (String) jxpContextNew.getValue(attrXpath2, String.class);
+        if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue)
+                || oldvalue != null && oldvalue.length() > 0 && !oldvalue.equals(newvalue)) {
+            UpdateReportItem item = new UpdateReportItem(attrXpath2, oldvalue, newvalue);
+            map.put(attrXpath2, item);
+        }
+        
     }
 
     /**
@@ -2685,7 +2727,7 @@ public class Util {
         return null;
     }
 
-    private static Set<String> getXpaths(String parentPath, Node node) throws Exception {
+    private static Set<String> getXpaths(String parentPath, Node node, Set<String> complexNodes) throws Exception {
         Set<String> set = new LinkedHashSet<String>();
         NodeList list = node.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
@@ -2710,10 +2752,12 @@ public class Util {
                     // if list
                     if (j > 1) {
                         for (int ii = 1; ii <= j; ii++) {
-                            set.addAll(getXpaths(xPath + "[" + ii + "]", n));
+                            complexNodes.add(xPath + "[" + ii + "]");
+                            set.addAll(getXpaths(xPath + "[" + ii + "]", n, complexNodes));
                         }
                     } else {
-                        set.addAll(getXpaths(xPath, n));
+                        complexNodes.add(xPath);
+                        set.addAll(getXpaths(xPath, n, complexNodes));
                     }
                 }
             }
@@ -2771,6 +2815,8 @@ public class Util {
             return old;
         // use JXPathContext to update the old element
         JXPathContext jxpContext = JXPathContext.newContext(old);
+        jxpContext.registerNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        jxpContext.registerNamespace("tmdm", "http://www.talend.com/mdm");
         jxpContext.setLenient(true);
 
         jxpContext.setFactory(factory);
