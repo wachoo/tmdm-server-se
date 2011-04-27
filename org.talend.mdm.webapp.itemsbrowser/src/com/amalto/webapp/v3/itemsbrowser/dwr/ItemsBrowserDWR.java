@@ -3527,7 +3527,7 @@ public class ItemsBrowserDWR {
         if (xpath.lastIndexOf("]") == xpath.length() - 1 && node == null) {
             node = xpathToTreeNode.get(xpath.replaceAll("\\[\\d+\\]$", "[1]"));
         }
-
+        if(node==null) return "null";
         boolean isValidation = true;// if true, return null,else return errorMessage
 
         if (node.getTypeName().equals("double") || node.getTypeName().equals("float") || node.getTypeName().equals("decimal")) {
