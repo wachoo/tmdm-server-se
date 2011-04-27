@@ -19,7 +19,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
 	loadResource("/itemsbrowser/secure/js/SearchEntityPanel.js", "");
 
-	loadResource("/itemsbrowser/secure/js/ItemNode.js", "");
+	loadResource("/itemsbrowser/secure/js/ItemNode.js", ""); 
 	/***************************************************************************
 	 * Localization
 	 **************************************************************************/
