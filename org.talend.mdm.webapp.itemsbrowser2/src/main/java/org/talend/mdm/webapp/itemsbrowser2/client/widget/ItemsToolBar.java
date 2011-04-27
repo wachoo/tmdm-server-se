@@ -241,20 +241,38 @@ public class ItemsToolBar extends ToolBar {
                                                         }
 
                                                         public void onSuccess(List<ItemResult> results) {
-                                                            StringBuffer sb = new StringBuffer();
+                                                            StringBuffer msgs = new StringBuffer();
                                                             
-                                                            for (ItemResult result : results) {
-                                                                if (result.getStatus() == ItemResult.SUCCESS) {
-                                                                	sb.append(MessagesFactory.getMessages().delete_item_record_success(getSuccessItemsNumber(results))+"\n");
-                                                                }
-                                                                if (result.getStatus() == ItemResult.FAILURE) {
-                                                                	sb.append(MessagesFactory.getMessages().delete_item_record_failure(getFailureItemsNumber(results))+"\n");
-                                                                }
-                                                                break;
+                                                            int successNum = getSuccessItemsNumber(results);
+                                                            int failureNum = getFailureItemsNumber(results);
+                                                            
+                                                            if(successNum>0&&failureNum==0) {
+                                                                msgs.append(MessagesFactory.getMessages().delete_item_record_success(successNum));
+                                                                MessageBox.info(
+                                                                        MessagesFactory.getMessages().info_title(),
+                                                                        msgs.toString(), 
+                                                                        null);
+                                                            }else if(successNum==0&&failureNum==1) {
+                                                                String msg=results.iterator().next().getDescription();
+                                                                //TODO Handle ISO here
+                                                                MessageBox.alert(
+                                                                        MessagesFactory.getMessages().error_title(),
+                                                                        msg, 
+                                                                        null);
+                                                            }else if(successNum==0&&failureNum>1) {
+                                                                msgs.append(MessagesFactory.getMessages().delete_item_record_failure(failureNum));
+                                                                MessageBox.alert(
+                                                                        MessagesFactory.getMessages().error_title(),
+                                                                        msgs.toString(), 
+                                                                        null);
+                                                            }else if(successNum>0&&failureNum>0){
+                                                                msgs.append(MessagesFactory.getMessages().delete_item_record_success(successNum)+"\n");//$NON-NLS-1$
+                                                                msgs.append(MessagesFactory.getMessages().delete_item_record_failure(failureNum)+"\n");//$NON-NLS-1$
+                                                                MessageBox.info(
+                                                                        MessagesFactory.getMessages().info_title(),
+                                                                        msgs.toString(), 
+                                                                        null);
                                                             }
-                                                            
-                                                            MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                    sb.toString(), null);
                                                             
                                                             list.getStore().getLoader().load();
                                                         }
