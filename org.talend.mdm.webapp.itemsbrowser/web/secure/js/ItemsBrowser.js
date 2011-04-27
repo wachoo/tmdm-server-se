@@ -2860,15 +2860,16 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 															return;
 														} else if (result.lastIndexOf)
 
-															if (result)
+															if (result){
 																Ext.MessageBox
 																		.show({
-																			msg : result,
+																			msg : pickOutISOMessage(result),
 																			buttons : {
 																				"ok" : "OK"
 																			},
 																			icon : Ext.MessageBox.INFO
 																		});
+															}
 														handleCallback
 																.refreshGrid();
 														if (window.callGxt) {
@@ -3285,7 +3286,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 								} else {
 									err1 = dropOnErrorMsg(err1);
 									Ext.MessageBox.show({
-												msg : err1,
+												msg : pickOutISOMessage(err1),
 												buttons : {
 													"ok" : "CANCEL"
 												},
@@ -3296,7 +3297,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 							} else {
 								var msg2show = result.description;
 								Ext.MessageBox.show({
-											msg : msg2show,
+											msg : pickOutISOMessage(msg2show),
 											buttons : {
 												"ok" : "OK"
 											},
@@ -3312,6 +3313,21 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 				});
 	}
 
+	function pickOutISOMessage(message){
+		var result = message;
+        var pattern = "\\["
+                + language
+                        .toUpperCase()
+                + ":"
+                + "(.*?)\\]";
+        var resultArray = result
+                .match(pattern);
+        if (resultArray != null) {
+            result = resultArray[1];
+        }
+        return result;
+	}
+	
 	function displayItemDetails4Reference(itemPK2, dataObject, refreshCB) {
 
 		DWREngine.setAsync(false);
@@ -4942,7 +4958,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 								} else {
 									err1 = dropOnErrorMsg(err1);
 									Ext.MessageBox.show({
-												msg : err1,
+												msg : pickOutISOMessage(err1),
 												buttons : {
 													"ok" : "CANCEL"
 												},
@@ -4951,15 +4967,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 									return;
 								}
 							} else {
-								var reg = '\\[' + language.toUpperCase() + ':'
-										+ '(.*?)\\]';
 								var msg2show = result.description;
-								var errorsArray = msg2show.match(reg);
-								if (errorsArray != null) {
-									msg2show = errorsArray[1];
-								}
 								Ext.MessageBox.show({
-											msg : msg2show,
+											msg : pickOutISOMessage(msg2show),
 											buttons : {
 												"ok" : "OK"
 											},
@@ -5041,15 +5051,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 										refreshCB.call(null, "deleteItem");
 									}
 									if (result) {
-										var pattern = "\\["
-												+ language.toUpperCase() + ":"
-												+ "(.*?)\\]";
-										var resultArray = result.match(pattern);
-										if (resultArray != null) {
-											result = resultArray[1];
-										}
 										Ext.MessageBox.show({
-													msg : result,
+													msg : pickOutISOMessage(result),
 													buttons : {
 														"ok" : "OK"
 													},
