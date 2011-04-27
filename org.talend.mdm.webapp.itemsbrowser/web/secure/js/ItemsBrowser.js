@@ -540,6 +540,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 		'en' : 'Do you really want to delete this element '
 	};
 	
+	var MSG_ERROR_POP = {
+		'fr' : 'S\'il vous plaît d\'entrée de règles de validation en utilisant des outils Studio.',
+		'en' : 'Please Input Validation Rules using Studio tools.'
+	};
+	
 	/***************************************************************************
 	 * EXT 2.0
 	 **************************************************************************/
@@ -5959,7 +5964,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 	
 	function dropOnErrorMsg(raw) {
 		var startMsg,endMsg,error;
-		if((raw.indexOf("<msg>[") >= 0)&&(raw.indexOf("]</msg>") >= 0)){
+		if((raw.indexOf("<msg>") >= 0)&&(raw.indexOf("</msg>") >= 0)){
 			if(raw.indexOf("<msg>[") >= 0){
 				startMsg=raw.substr(raw.indexOf("<msg>[")+5,raw.length);
 			}
@@ -5969,45 +5974,59 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 			
 			if((endMsg.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="EN")){
 				if(raw.indexOf("][FR:") >=0){
-					error=endMsg.substr(endMsg.indexOf("[EN:")+4,endMsg.indexOf("[FR:")-5);
+					var ee = endMsg.substr(endMsg.indexOf("[EN:")+4);
+					error=ee.substr(0,ee.indexOf("][FR:"))
 				}else if(raw.indexOf("][FR:") < 0){
 					error=endMsg.substr(endMsg.indexOf("[EN:")+4);
-					error=error.substr(0,error.length-1);
+					error=error.substr(0,error.lastIndexOf("]"));
 				}
 			}else if((endMsg.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="FR")){
 				if(raw.indexOf("][EN:") >=0){
-					error=endMsg.substr(endMsg.indexOf("[FR:")+4,raw.indexOf("[EN:")-5);
+					var ee = endMsg.substr(endMsg.indexOf("[FR:")+4);
+					error=ee.substr(0,ee.indexOf("][EN:"))
 				}else if(raw.indexOf("][EN:") < 0){
 					error=endMsg.substr(endMsg.indexOf("[FR:")+4);
-					error=error.substr(0,error.length-1);
+					error=error.substr(0,error.lastIndexOf("]"));
 				}
+			}else if((error.indexOf("[EN:") >= 0)&&(error.indexOf("[FR:")<0)){
+					error=error.substr(error.indexOf("[EN:")+4);
+					error=error.substr(0,error.lastIndexOf("]"));
+			}else if((error.indexOf("[EN:") < 0)&&(error.indexOf("[FR:")>=0)){
+					error=error.substr(error.indexOf("[FR:")+4);
+					error=error.substr(0,error.lastIndexOf("]"));
 			}
 			return error;
 		}else if((raw.indexOf("[EN:") >= 0)&&(raw.indexOf("[FR:") >= 0)){
 			if((raw.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="EN")){
 				if(raw.indexOf("][FR:") >=0){
-					error=raw.substr(raw.indexOf("[EN:")+4,raw.indexOf("[FR:")-5);
+					var ee = raw.substr(raw.indexOf("[EN:")+4);
+					error=ee.substr(0,ee.indexOf("][FR:"))
 				}else{
 					error=raw.substr(raw.indexOf("[EN:")+4);
-					error=error.substr(0,error.length-1);
+					error=error.substr(0,error.lastIndexOf("]"));
 				}
 			}else if((raw.indexOf("["+language.toLocaleUpperCase()+":")>=0)&&(language.toLocaleUpperCase()=="FR")){
 				if(raw.indexOf("][EN:") >=0){
-					error=raw.substr(raw.indexOf("[FR:")+4,raw.indexOf("[EN:")-5);
+					var ee = raw.substr(raw.indexOf("[FR:")+4);
+					error=ee.substr(0,ee.indexOf("][EN:"))
 				}else{
 					error=raw.substr(raw.indexOf("[FR:")+4);
-					error=error.substr(0,error.length-1);
+					error=error.substr(0,error.lastIndexOf("]"));
 				}
 			}
 			return error;
-		}else if((raw.indexOf("[EN:") >= 0)&&(raw.indexOf("[FR:")<0)){
+		}else if((raw.indexOf("[EN:") >= 0)&&(raw.indexOf("[FR:")<0)&&(language.toLocaleUpperCase()=="EN")){
 			error=raw.substr(raw.indexOf("[EN:")+4);
-			error=error.substr(0,error.length-1);
+			error=error.substr(0,error.lastIndexOf("]"));
 			return error;
-		}else if((raw.indexOf("[EN:") < 0)&&(raw.indexOf("[FR:")>=0)){
+		}else if((raw.indexOf("[EN:") < 0)&&(raw.indexOf("[FR:")>=0)&&(language.toLocaleUpperCase()=="FR")){
 			error=raw.substr(raw.indexOf("[FR:")+4);
-			error=error.substr(0,error.length-1);
+			error=error.substr(0,error.lastIndexOf("]"));
 			return error;
+		}else if((raw.indexOf("[EN:")< 0)&&(language.toLocaleUpperCase()=="EN")){
+			return MSG_ERROR_POP[language];
+		}else if((raw.indexOf("[FR:")< 0)&&(language.toLocaleUpperCase()=="FR")){
+			return MSG_ERROR_POP[language];
 		}else{
 			return raw;
 		}
