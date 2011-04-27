@@ -28,9 +28,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2627,6 +2627,9 @@ public class ItemsBrowserDWR {
                 subTypeBean.setLabel(reusableType.getLabelMap().get(language) == null ? reusableType.getName() : reusableType
                         .getLabelMap().get(language));
                 subTypeBean.setOrderValue(reusableType.getOrderValue());
+                if (reusableType.isAbstract()) {
+                    continue;
+                }
                 derivedTypes.add(subTypeBean);
             }
 
