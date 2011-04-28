@@ -278,9 +278,7 @@ public class BulkloadClientUtil {
 
         public void run() {
             try {
-                System.out.println("Start bulkload");
                 bulkload(url, cluster, concept, dataModel, validate, smartPK, inputStream, userName, password, universe);
-                System.out.println("End bulkload");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
