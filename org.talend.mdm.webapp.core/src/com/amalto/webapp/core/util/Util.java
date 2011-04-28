@@ -32,7 +32,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -1555,8 +1557,12 @@ public class Util {
          * 
          * }
          */
-
-        else if (type.equals("byte"))
+        else if(type.equals("dateTime")){
+        	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        	Calendar dateTime = Calendar.getInstance();
+        	dateTime.setTime(sdf.parse(value.trim()));
+        	return dateTime;
+        }else if (type.equals("byte"))
             return Byte.valueOf(value);
         else if (type.equals("short"))
             return Short.valueOf(value);
