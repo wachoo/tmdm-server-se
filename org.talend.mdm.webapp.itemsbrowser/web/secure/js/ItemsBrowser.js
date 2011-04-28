@@ -3216,6 +3216,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 		if(ids.indexOf(',')!=-1)return ids.split(',');
 		if(ids.indexOf('.')!=-1)return ids.split('.');
 		
+		return ids;
+		
 	}	
 	
 	function reValidationfromMap(treeIndex){
