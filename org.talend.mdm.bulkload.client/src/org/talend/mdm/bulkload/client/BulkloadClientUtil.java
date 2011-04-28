@@ -168,8 +168,8 @@ public class BulkloadClientUtil {
         }
     }
 
-    public static InputStreamMerger bulkload(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, int batchSize, String username, String password, String universe) {
-        final InputStreamMerger merger = new InputStreamMerger(batchSize);
+    public static InputStreamMerger bulkload(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, String username, String password, String universe) {
+        InputStreamMerger merger = new InputStreamMerger();
 
         Runnable loadRunnable = new AsyncLoadRunnable(url, cluster, concept, dataModel, validate, smartPK, merger, username, password, universe);
         Thread loadThread = new Thread(loadRunnable);
@@ -278,7 +278,9 @@ public class BulkloadClientUtil {
 
         public void run() {
             try {
+                System.out.println("Start bulkload");
                 bulkload(url, cluster, concept, dataModel, validate, smartPK, inputStream, userName, password, universe);
+                System.out.println("End bulkload");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -24,14 +24,7 @@ public class InputStreamMergerTest extends TestCase {
 
 	public void testArguments() {
 		try {
-			new InputStreamMerger(-1);
-			fail("Negative arguments are not supported");
-		} catch (Exception e) {
-			// Expected
-		}
-
-		try {
-			InputStreamMerger bis = new InputStreamMerger(10);
+			InputStreamMerger bis = new InputStreamMerger();
 			bis.push(null);
 			fail("Null input streams are not supported as argument of push()");
 		} catch (Exception e) {
@@ -40,7 +33,7 @@ public class InputStreamMergerTest extends TestCase {
 	}
 
 	public void testSimpleClose() {
-		InputStreamMerger bis = new InputStreamMerger(10);
+		InputStreamMerger bis = new InputStreamMerger();
 		try {
 			bis.close();
 			assertEquals(-1, bis.read());
@@ -50,11 +43,11 @@ public class InputStreamMergerTest extends TestCase {
 	}
 
 	public void testSimpleReadReaderFirst() {
-		InputStreamMerger bis = new InputStreamMerger(1);
+		InputStreamMerger bis = new InputStreamMerger();
 		String testString = "test";
 
 		// Create a reader for the stream
-		ReaderRunnable reader = new ReaderRunnable(testString, bis, 1);
+		ReaderRunnable reader = new ReaderRunnable(bis);
 		// Create a "pusher", a thread that will put a new stream
 		Runnable pusher = new PusherRunnable(bis, testString, 1);
 
@@ -81,11 +74,11 @@ public class InputStreamMergerTest extends TestCase {
 	}
 
 	public void testSimpleReadPusherFirst() {
-		InputStreamMerger bis = new InputStreamMerger(1);
+		InputStreamMerger bis = new InputStreamMerger();
 		String testString = "test";
 
 		// Create a reader for the stream
-		ReaderRunnable reader = new ReaderRunnable(testString, bis, 1);
+		ReaderRunnable reader = new ReaderRunnable(bis);
 		// Create a "pusher", a thread that will put a new stream
 		Runnable pusher = new PusherRunnable(bis, testString, 1);
 
@@ -113,11 +106,11 @@ public class InputStreamMergerTest extends TestCase {
 
 	public void testManyReadReaderFirst() {
 		int times = 10;
-		InputStreamMerger bis = new InputStreamMerger(10);
+		InputStreamMerger bis = new InputStreamMerger();
 		String testString = "test";
 
 		// Create a reader for the stream
-		ReaderRunnable reader = new ReaderRunnable(testString, bis, times);
+		ReaderRunnable reader = new ReaderRunnable(bis);
 		// Create a "pusher", a thread that will put a new stream
 		Runnable pusher = new PusherRunnable(bis, testString, times);
 
@@ -147,41 +140,10 @@ public class InputStreamMergerTest extends TestCase {
 		assertEquals(expectedOutput, reader.getRebuiltString());
 	}
 
-	public void testNonEmptyCloseException() {
-		InputStreamMerger bis = new InputStreamMerger(1);
-		String testString = "test";
-
-		// Create a "pusher", a thread that will put a new stream
-		Runnable pusher = new PusherRunnable(bis, testString, 2);
-
-		// Start the test (but now the pusher starts first)
-		Thread pusherThread = new Thread(pusher);
-		pusherThread.start();
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-        try {
-            bis.close();
-            fail("Expected an exception (close while there's still stream to process");
-        } catch (IOException e) {
-            String expected = "Stream closed but 2 remained in stream";
-            assertEquals(expected, e.getMessage());
-        }
-
-		// Wait for test end
-		try {
-			pusherThread.join();
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	public void testBulkload() throws InterruptedException, IOException {
-		String testString = "<root></root>";
+		String testString = "<Product><Id>99</Id><Name>BaxLlvBgKJ6NuJsdOiAAGSGbWX7F3b</Name><ShortDescription></ShortDescription><LongDescription></LongDescription><Features><Sizes><Size></Size></Sizes><Colors><Color></Color></Colors></Features><Availability></Availability><Price></Price><Family></Family><Supplier></Supplier><CreationDate></CreationDate><RemovalDate></RemovalDate><Status></Status></Product>";
 		int batchSize = 10;
-		int inputSize = 5000;
+		int inputSize = 15000;
 
 		//
 		String expectedTestString = "";
@@ -195,86 +157,68 @@ public class InputStreamMergerTest extends TestCase {
 		}
 
 		// Start the test
-		InputStreamMerger inputStreamMerger = new InputStreamMerger(batchSize);
-		ReaderRunnable reader = doSimulateBulkload(testString, batchSize,
-				inputStreamMerger);
+		InputStreamMerger inputStreamMerger = doSimulateBulkload();
 		for (int i = 0; i < inputSize; i++) {
 			if (i > 0 && i % batchSize == 0) {
 				// Wait for reader to finish consume of xml chunks
-				inputStreamMerger.waitForExhaust();
-				assertEquals(expectedTestString, reader.getRebuiltString());
-
-				// Reset
+                inputStreamMerger.close();
                 // Create a new stream for a new batch
-				inputStreamMerger = new InputStreamMerger(batchSize);
-				reader = doSimulateBulkload(testString, batchSize,
-						inputStreamMerger);
+				inputStreamMerger = doSimulateBulkload();
 			}
 
-			inputStreamMerger.push(new ByteArrayInputStream(testString
-					.getBytes()));
+			inputStreamMerger.push(new ByteArrayInputStream(testString.getBytes()));
 		}
 
 		// Wait for remaining ones (in case (count % batchSize != 0))
-		inputStreamMerger.waitForExhaust();
+		inputStreamMerger.close();
 		if (inputSize % batchSize != 0) {
-			assertEquals(remainingExpectedTestString,
-					reader.getRebuiltString());
 		}
 	}
 
-	private static ReaderRunnable doSimulateBulkload(String testString,
-			int batchSize, InputStreamMerger bis) {
-		ReaderRunnable reader = new ReaderRunnable(testString, bis, batchSize);
+	private static InputStreamMerger doSimulateBulkload() {
+        InputStreamMerger merger = new InputStreamMerger();
+		ReaderRunnable reader = new ReaderRunnable(merger);
 		Thread readerThread = new Thread(reader);
 		readerThread.start(); // eq bulkload client load
-		return reader;
+
+		return merger;
 	}
 
 	private static class ReaderRunnable implements Runnable {
 		private final InputStreamMerger bis;
 		private final Object runLock = new Object();
-		private String rebuiltString;
-		private final char[] stringAsBytes;
-		private int currentIndex;
+		private String rebuiltString = "";
 
-		public ReaderRunnable(String testString, InputStreamMerger bis,
-				int expectedSize) {
+		public ReaderRunnable(InputStreamMerger bis) {
 			this.bis = bis;
-			stringAsBytes = new char[testString.length() * expectedSize];
-			this.currentIndex = 0;
 		}
 
 		public void run() {
 			synchronized (runLock) {
 				try {
-					int read;
-					while ((read = bis.read()) > 0) {
-						stringAsBytes[this.currentIndex++] = (char) read;
-					}
+					int readBytes;
+                    byte[] buffer = new byte[1024];
+                    while ((readBytes = bis.read(buffer)) > 0) {
+                        // System.out.println("Reading...");
+                        rebuiltString += new String(ArrayUtils.subarray(buffer, 0, readBytes));
+                        // System.out.println("Read readBytes = " + readBytes);
+                    }
+                    // System.out.println("Read done!");
 
-					this.rebuiltString = new String(stringAsBytes);
+                    if (rebuiltString.length() != 3810) {
+                        System.out.println("3810 but got " + rebuiltString.length());
+                    } else {
+                        System.out.println("Ok");
+                    }
 				} catch (IOException e) {
 					throw new RuntimeException(e);
-				} finally {
-					try {
-						bis.close();
-					} catch (IOException e) {
-						// Ignored
-						e.printStackTrace();
-					}
 				}
 			}
 		}
 
 		public String getRebuiltString() {
 			synchronized (runLock) {
-                if (currentIndex == stringAsBytes.length) {
-                    return rebuiltString;
-                } else {
-                    return new String(ArrayUtils.subarray(stringAsBytes, 0,
-					currentIndex));
-                }
+                return rebuiltString;
             }
 		}
 	}
@@ -298,7 +242,14 @@ public class InputStreamMergerTest extends TestCase {
 				}
 			} catch (IOException e) {
 				throw new RuntimeException(e);
-			}
+			} finally {
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                    // Exception during close
+                    e.printStackTrace();
+                }
+            }
 		}
 	}
 }

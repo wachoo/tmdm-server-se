@@ -22,6 +22,7 @@ import junit.framework.TestCase;
  *
  */
 public class BulkloadClientTest extends TestCase {
+
 	public void testClient() throws Exception {
         String serverURL = "http://localhost:8080/datamanager/loadServlet";
 

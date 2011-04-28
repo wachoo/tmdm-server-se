@@ -1,11 +1,9 @@
 package org.talend.mdm.bulkload.client;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.net.URL;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -170,7 +168,6 @@ public class BulkloadClient {
                 datamodel,
                 options.isValidate(),
                 options.isSmartpk(),
-                options.getArraySize(),
                 username,
                 password,
                 universe);
