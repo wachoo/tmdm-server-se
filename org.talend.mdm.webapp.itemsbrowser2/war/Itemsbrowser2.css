@@ -27,6 +27,12 @@
   padding: 12px;
 }
 
+/* extjs and gxt conflicts : override of gxt standard.css rules */
+body, table td, select {
+  font-family: tahoma, verdana, helvetica, Arial Unicode MS, Arial, sans-serif;
+  font-size: 12px;
+}
+
 /* solve menu item css problems, extjs and gxt */
 .x-menu-item {
     padding: 3px 21px 3px 27px !important;

@@ -390,7 +390,8 @@ public class ItemsToolBar extends ToolBar {
         entityCombo.setValueField("value");//$NON-NLS-1$
         entityCombo.setForceSelection(true);
         entityCombo.setTriggerAction(TriggerAction.ALL);
-        entityCombo.setId("EntityComboBox");//$NON-NLS-1$  
+        entityCombo.setId("EntityComboBox");//$NON-NLS-1$
+        entityCombo.setStyleAttribute("padding-right", "17px"); //$NON-NLS-1$ //$NON-NLS-2$
 
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
@@ -729,13 +730,13 @@ public class ItemsToolBar extends ToolBar {
         cb.setFieldLabel(MessagesFactory.getMessages().bookmark_shared());
         content.add(cb);
 
-        final TextField bookmarkfield = new TextField();
+        final TextField<String> bookmarkfield = new TextField<String>();
         bookmarkfield.setFieldLabel(MessagesFactory.getMessages().bookmark_name());
         Validator validator = new Validator() {
 
             public String validate(Field<?> field, String value) {
                 if (field == bookmarkfield) {
-                    if (bookmarkfield.getValue() == null || bookmarkfield.getValue().toString().trim().equals("")) //$NON-NLS-1$
+                    if (bookmarkfield.getValue() == null || bookmarkfield.getValue().trim().equals("")) //$NON-NLS-1$
                         return MessagesFactory.getMessages().required_field();
                 }
 
@@ -750,50 +751,50 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue() //$NON-NLS-1$
-                        .toString(), new AsyncCallback<Boolean>() {
+                service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue(),  //$NON-NLS-1$
+                        new AsyncCallback<Boolean>() {
 
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                .bookmark_existMsg(), null);
-                    }
+                            public void onFailure(Throwable caught) {
+                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                                MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                        .bookmark_existMsg(), null);
+                            }
 
-                    public void onSuccess(Boolean arg0) {
-                        if (!arg0) {
-                            String curCriteria = null;
-                            if (ifSimple)
-                                curCriteria = simplePanel.getCriteria().toString();
-                            else
-                                curCriteria = advancedPanel.getCriteria();
-                            service.saveCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue() //$NON-NLS-1$
-                                    .toString(), cb.getValue(), curCriteria, new AsyncCallback<String>() {
+                            public void onSuccess(Boolean arg0) {
+                                if (!arg0) {
+                                    String curCriteria = null;
+                                    if (ifSimple)
+                                        curCriteria = simplePanel.getCriteria().toString();
+                                    else
+                                        curCriteria = advancedPanel.getCriteria();
+                                    service.saveCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue() //$NON-NLS-1$
+                                            .toString(), cb.getValue(), curCriteria, new AsyncCallback<String>() {
 
-                                public void onFailure(Throwable caught) {
-                                    Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                                            .bookmark_saveFailed(), null);
+                                        public void onFailure(Throwable caught) {
+                                            Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
+                                                    .getMessages().bookmark_saveFailed(), null);
+                                        }
+
+                                        public void onSuccess(String arg0) {
+                                            if (arg0.equals("OK")) { //$NON-NLS-1$
+                                                MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory
+                                                        .getMessages().bookmark_saveSuccess(), null);
+                                                updateUserCriteriasList();
+                                                winBookmark.close();
+                                            } else
+                                                MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
+                                                        .getMessages().bookmark_saveFailed(), null);
+                                        }
+
+                                    });
+                                } else {
+                                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                            .bookmark_existMsg(), null);
                                 }
+                            }
 
-                                public void onSuccess(String arg0) {
-                                    if (arg0.equals("OK")) { //$NON-NLS-1$
-                                        MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                                .bookmark_saveSuccess(), null);
-                                        updateUserCriteriasList();
-                                        winBookmark.close();
-                                    } else
-                                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
-                                                .getMessages().bookmark_saveFailed(), null);
-                                }
-
-                            });
-                        } else {
-                            MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                    .bookmark_existMsg(), null);
-                        }
-                    }
-
-                });
+                        });
             }
         });
         winBookmark.addButton(btn);

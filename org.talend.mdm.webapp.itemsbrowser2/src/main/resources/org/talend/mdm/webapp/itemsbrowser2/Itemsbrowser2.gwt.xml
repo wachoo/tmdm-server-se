@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module rename-to='itemsbrowser2'>
 	<stylesheet src='../resources/css/gxt-all.css'/>
-	<stylesheet src='../Itemsbrowser2.css'/>
     
 	<!-- Inherit the core Web Toolkit stuff.                        -->
 	<inherits name='com.google.gwt.user.User'/>
@@ -42,5 +41,6 @@
     
     <!--  FIXME: This is a workaround for 4.2 only -->
     <stylesheet src='/core/secure/ext-2.2/resources/css/ext-all.css'/>
+    <stylesheet src='../Itemsbrowser2.css'/>
     
 </module>
