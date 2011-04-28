@@ -3535,7 +3535,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
 														var parentLink = [];
 														parentLink["title"] = myTitle;
-														parentLink["ids"] = ids;
+														parentLink["ids"] = itemPK2;
 														parentLink["conceptName"] = dataObject;
 
 														var tmp = new amalto.itemsbrowser.ItemNode(
@@ -3605,7 +3605,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
 														var currentLink = [];
 														currentLink["title"] = myTitle;
-														currentLink["ids"] = ids;
+														currentLink["ids"] = itemPK2;
 														currentLink["conceptName"] = dataObject;
 
 														if (parentLink == undefined
@@ -5700,9 +5700,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 		if (itemPK == "")
 			Ext.Msg.alert("Warning", "The concept does not exist.");
 		else {
+			var idsPk = [ids];
 			var parentLink = [];
 			parentLink["title"] = title;
-			parentLink["ids"] = ids;
+			parentLink["ids"] = idsPk;
 			parentLink["conceptName"] = conceptName;
 			parentLink["treeIndex"] = treeIndex;
 			parentLink["isWindow"] = isWindow;
