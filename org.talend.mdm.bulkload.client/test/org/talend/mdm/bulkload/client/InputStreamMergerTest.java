@@ -205,11 +205,13 @@ public class InputStreamMergerTest extends TestCase {
                     }
                     // System.out.println("Read done!");
 
+                    /*
                     if (rebuiltString.length() != 3810) {
                         System.out.println("3810 but got " + rebuiltString.length());
                     } else {
                         System.out.println("Ok");
                     }
+                    */
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
