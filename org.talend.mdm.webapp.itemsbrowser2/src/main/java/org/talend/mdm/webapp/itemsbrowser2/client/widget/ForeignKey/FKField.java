@@ -22,13 +22,12 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
 
     private FKRelRecordWindow relWindow = new FKRelRecordWindow();
 
-    public FKField(){
+    public FKField() {
         this.setFireChangeEventOnSetValue(true);
-        this.setEnabled(false);
         relWindow.setModal(true);
         relWindow.setBlinkModal(true);
     }
-    
+
     protected void onRender(Element target, int index) {
         El wrap = new El(DOM.createDiv());
         wrap.addStyleName("x-form-field-wrap"); //$NON-NLS-1$
@@ -38,12 +37,12 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
         input.addStyleName(fieldStyle);
         input.addStyleName("x-form-file-text"); //$NON-NLS-1$
         input.setId(XDOM.getUniqueId());
+        input.setEnabled(false);
 
         if (GXT.isIE && target.getTagName().equals("TD")) { //$NON-NLS-1$
             input.setStyleAttribute("position", "static"); //$NON-NLS-1$  //$NON-NLS-2$
         }
 
-        
         foreignBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.link()));
         foreignBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -73,7 +72,7 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
 
     protected void onResize(int width, int height) {
         super.onResize(width, height);
-        input.setWidth(width - foreignBtn.getWidth(), true);
+        input.setWidth(width - foreignBtn.getWidth() - 4, true);
     }
 
     protected void doAttachChildren() {
@@ -95,17 +94,16 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
     public void setCriteriaFK(final ForeignKeyBean fk) {
         setValue(fk);
     }
-    
+
     public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
         foreignBtn.setEnabled(enabled);
     }
-    
-    public void setValue(ForeignKeyBean fk){
+
+    public void setValue(ForeignKeyBean fk) {
         super.setValue(fk);
     }
-    
-    public ForeignKeyBean getValue(){
+
+    public ForeignKeyBean getValue() {
         return value;
     }
 }

@@ -581,43 +581,44 @@ public class ItemsBrowserDWR {
         List<DisplayRule> dspRules = new ArrayList<DisplayRule>();
         Map<String, String> defaultValueRules = businessConcept.getDefaultValueRulesMap();
         Map<String, String> visibleRules = businessConcept.getVisibleRulesMap();
+        String rulesStyle = displayRulesUtil.genStyle();
 
-        Document tmpDocument = Util.copyDocument(itemDocument);
         if (defaultValueRules.size() > 0) {
+            Document tmpDocument = Util.copyDocument(itemDocument);
             for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
                 String xPath = (String) iterator.next();
                 if (Util.getNodeList(tmpDocument, xPath).getLength() > 0
                         && Util.getNodeList(tmpDocument, xPath).item(0).getFirstChild() != null)
                     Util.getNodeList(tmpDocument, xPath).item(0).getFirstChild().setNodeValue(""); //$NON-NLS-1$
             }
-        }
 
-        String rulesStyle = displayRulesUtil.genStyle();
-        org.dom4j.Document transformedDocument = XmlUtil.styleDocument(tmpDocument, rulesStyle);
-
-        if (defaultValueRules.size() > 0) {
+            org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(tmpDocument, rulesStyle);
             for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
                 String xpath = (String) iterator.next();
-                String value = displayRulesUtil.evalDefaultValueRuleResult(transformedDocument, xpath);
+                String value = displayRulesUtil.evalDefaultValueRuleResult(transformedDocumentValue, xpath);
                 if (value != null) {
                     dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE, xpath, value));
                 }
             }
+            tmpDocument = null;
+            transformedDocumentValue = null;
         }
 
         if (visibleRules.size() > 0) {
+            org.dom4j.Document transformedDocumentVisible = XmlUtil.styleDocument(itemDocument, rulesStyle);
             for (Iterator<String> iterator = visibleRules.keySet().iterator(); iterator.hasNext();) {
                 String xpath = (String) iterator.next();
-                String value = displayRulesUtil.evalVisibleRuleResult(transformedDocument, xpath);
+                String value = displayRulesUtil.evalVisibleRuleResult(transformedDocumentVisible, xpath);
                 if (value != null && value.equals("false")) {//$NON-NLS-1$
                     dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_VISIBLE_RULE, xpath, "false"));//$NON-NLS-1$
                 } else if (value == null || (value != null && value.equals("true"))) {//$NON-NLS-1$
                     dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_VISIBLE_RULE, xpath, "true"));//$NON-NLS-1$
                 }
             }
+            transformedDocumentVisible = null;
         }
 
-        ctx.getSession().setAttribute("displayRules" + docIndex, dspRules); //$NON-NLS-1$
+        ctx.getSession().setAttribute("displayRules" + docIndex, dspRules); //$NON-NLS-1$ 
     }
 
     private BusinessConcept getBusinessConcept(HashMap<List, BusinessConcept> polymToBusinessConcept,
