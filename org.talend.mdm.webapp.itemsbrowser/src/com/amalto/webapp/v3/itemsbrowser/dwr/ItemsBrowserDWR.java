@@ -3398,11 +3398,14 @@ public class ItemsBrowserDWR {
                     if (item.getVariable().equals("output")) {//$NON-NLS-1$
                         byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
                         String content = new String(bytes);
-                        Document resultDoc = Util.parse(content);
-                        NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
-                        if (attrList != null && attrList.getLength() > 0) {
-                            downloadUrl = attrList.item(0).getTextContent();
-                            outputReport = true;
+                        try {
+                            Document resultDoc = Util.parse(content);
+                            NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
+                            if (attrList != null && attrList.getLength() > 0) {
+                                downloadUrl = attrList.item(0).getTextContent();
+                                outputReport = true;
+                            }
+                        } catch (Exception e) {
                         }
                     }
                 }
