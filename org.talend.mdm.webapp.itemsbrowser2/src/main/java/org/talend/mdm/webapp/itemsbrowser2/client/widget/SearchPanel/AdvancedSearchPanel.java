@@ -73,7 +73,7 @@ public class AdvancedSearchPanel extends FormPanel {
     private static String blank = " ";//$NON-NLS-1$
 
     final public void setCriteria(String c) {
-        if (c.indexOf(modifiedON) > -1) {//$NON-NLS-1$
+        if (c.indexOf(modifiedON) > -1) {
             // modified on condition
             String express = c.indexOf(modifiedON) - 5 > -1 ? c.substring(0, c.indexOf(modifiedON) - 5) + ")" : "";//$NON-NLS-1$  //$NON-NLS-2$
             expressionTextField.setValue(express);
@@ -104,7 +104,7 @@ public class AdvancedSearchPanel extends FormPanel {
                 if (condition.indexOf(blank, index) == -1)
                     d.setTime(Long.valueOf(condition.substring(index)));
                 else
-                    d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(blank, index)))); //$NON-NLS-1$
+                    d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(blank, index))));
                 tofield.setValue(d);
             }
         } else {
@@ -204,18 +204,19 @@ public class AdvancedSearchPanel extends FormPanel {
         this.setLabelWidth(110);
         this.setAutoHeight(true);
 
-        final FormData formData = new FormData("-20"); //$NON-NLS-1$
-
         final Button filterButton = new Button();
         filterButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
         filterButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 final Window winFilter = new Window();
                 winFilter.setHeading(MessagesFactory.getMessages().advsearch_filter());
                 winFilter.setModal(true);
-                winFilter.setAutoHeight(true);
-                winFilter.setAutoWidth(true);
+//                winFilter.setAutoHeight(true);
+//                winFilter.setAutoWidth(true);
+                winFilter.setWidth(645);
+                winFilter.setHeight(162);
                 ContentPanel root = new ContentPanel();
                 root.addStyleName("filter-panel"); //$NON-NLS-1$
                 root.setAutoHeight(true);
@@ -229,6 +230,7 @@ public class AdvancedSearchPanel extends FormPanel {
                 Button searchBtn = new Button(MessagesFactory.getMessages().ok_btn());
                 searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+                    @Override
                     public void componentSelected(ButtonEvent ce) {
                         setCriteria(multiCriteria.getCriteria().toString());
                         winFilter.close();
@@ -253,6 +255,7 @@ public class AdvancedSearchPanel extends FormPanel {
         validButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Valid()));
         validButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 try {
                     String curField = expressionTextField.getValue();
@@ -272,6 +275,7 @@ public class AdvancedSearchPanel extends FormPanel {
 
         expressionTextField = new TextField<String>() {
 
+            @Override
             protected void onRender(Element target, int index) {
                 // add button
                 El wrap = new El(DOM.createDiv());
@@ -298,6 +302,7 @@ public class AdvancedSearchPanel extends FormPanel {
                 super.onRender(target, index);
             }
 
+            @Override
             protected void onResize(int width, int height) {
                 super.onResize(width, height);
                 filterButton.setSize(25, 25);
@@ -305,12 +310,14 @@ public class AdvancedSearchPanel extends FormPanel {
                 input.setWidth(width - 50 - 6, true);
             }
 
+            @Override
             protected void doAttachChildren() {
                 super.doAttachChildren();
                 ComponentHelper.doAttach(filterButton);
                 ComponentHelper.doAttach(validButton);
             }
 
+            @Override
             protected void doDetachChildren() {
                 super.doDetachChildren();
                 ComponentHelper.doDetach(filterButton);
@@ -338,6 +345,7 @@ public class AdvancedSearchPanel extends FormPanel {
 
         cb.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
+            @Override
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
                 if (se.getSelectedItem() != null) {
                     String selvalue = se.getSelectedItem().get("value"); //$NON-NLS-1$                   

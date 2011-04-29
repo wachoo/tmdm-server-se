@@ -462,7 +462,8 @@ public class ItemsToolBar extends ToolBar {
                 final Window winBookmark = new Window();
                 winBookmark.setHeading(MessagesFactory.getMessages().bookmarkmanagement_heading());
                 winBookmark.setAutoHeight(true);
-                winBookmark.setAutoWidth(true);
+//                winBookmark.setAutoWidth(true);
+                winBookmark.setWidth(413);
                 winBookmark.setModal(true);
                 FormPanel content = new FormPanel();
                 FormData formData = new FormData("-10");//$NON-NLS-1$
@@ -717,8 +718,10 @@ public class ItemsToolBar extends ToolBar {
     private void showBookmarkSavedWin(final boolean ifSimple) {
         final Window winBookmark = new Window();
         winBookmark.setHeading(MessagesFactory.getMessages().bookmark_heading());
-        winBookmark.setAutoHeight(true);
-        winBookmark.setAutoWidth(true);
+        //winBookmark.setAutoHeight(true);
+        //winBookmark.setAutoWidth(true);
+        winBookmark.setWidth(355);
+        winBookmark.setHeight(191);
         FormPanel content = new FormPanel();
         content.setFrame(false);
         content.setBodyBorder(false);
