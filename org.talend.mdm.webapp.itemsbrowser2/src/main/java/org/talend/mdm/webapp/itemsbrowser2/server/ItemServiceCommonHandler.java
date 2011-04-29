@@ -350,7 +350,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
                 if (wsItem != null) {
                     status = ItemResult.SUCCESS;
-                    pushUpdateReport(ids, concept, "PHYSICAL_DELETE"); //$NON-NLS-1$
+                    pushUpdateReport(ids, concept, "PHYSICAL_DELETE", true); //$NON-NLS-1$
                     if (message == null || message.length() == 0)
                         message = MESSAGES.delete_record_success();
                 }
@@ -424,8 +424,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage());//$NON-NLS-1$ 
         }
     }
-
+    
     private String pushUpdateReport(String[] ids, String concept, String operationType) throws Exception {
+        return pushUpdateReport(ids,concept,operationType,false);
+    }
+
+    private String pushUpdateReport(String[] ids, String concept, String operationType, boolean routeAfterSaving) throws Exception {
         if (LOG.isTraceEnabled())
             LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$ 
 
@@ -441,7 +445,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             LOG.debug("pushUpdateReport() " + xml2);//$NON-NLS-1$ 
 
         // TODO routeAfterSaving is true
-        return persistentUpdateReport(xml2, false);
+        return persistentUpdateReport(xml2, routeAfterSaving);
     }
 
     private String createUpdateReport(String[] ids, String concept, String operationType,
