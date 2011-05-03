@@ -51,6 +51,7 @@ import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -93,7 +94,7 @@ public class ItemsToolBar extends ToolBar {
 
     public final Button searchBut = new Button(MessagesFactory.getMessages().search_btn());
 
-    private final Button advancedBut = new Button(MessagesFactory.getMessages().advsearch_btn());
+    private final ToggleButton advancedBut = new ToggleButton(MessagesFactory.getMessages().advsearch_btn());
 
     private final Button managebookBtn = new Button();
 
@@ -813,6 +814,7 @@ public class ItemsToolBar extends ToolBar {
     private void resizeAfterSearch() {
         advancedPanelVisible = false;
         advancedPanel.setVisible(advancedPanelVisible);
+        advancedBut.toggle(advancedPanelVisible);
         // resize result grid
         if (((ItemsListPanel) instance.getParent()).gridContainer != null)
             ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance.getParent().getOffsetHeight()
