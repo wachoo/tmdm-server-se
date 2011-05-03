@@ -178,6 +178,7 @@ public class ItemsView extends View {
                     // itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setHeight(1300,
                     // Unit.PX);
                     itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setOverflow(Overflow.AUTO);
+                    itemsSearchContainer.getItemsFormPanel().reSize();
                     GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, itemsSearchContainer //$NON-NLS-1$
                             .getItemsFormPanel().getContent().getBody().dom, true, false, false);
                 }

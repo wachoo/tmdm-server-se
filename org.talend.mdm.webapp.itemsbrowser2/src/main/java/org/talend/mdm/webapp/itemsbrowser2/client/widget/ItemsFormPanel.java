@@ -35,6 +35,8 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.google.gwt.dom.client.Style.Overflow;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
@@ -66,6 +68,14 @@ public class ItemsFormPanel extends ContentPanel {
     protected void onResize(int width, int height) {
         // TODO Auto-generated method stub
         super.onResize(width, height);
+        if (content.getBody() != null){
+            content.getBody().dom.getStyle().setOverflow(Overflow.SCROLL);
+            content.getBody().dom.getStyle().setHeight(height, Unit.PX);
+        }
+    }
+    
+    public void reSize(){
+        onResize(this.getWidth(), this.getHeight());
     }
 
     public void paint(EntityModel entityModel) {
