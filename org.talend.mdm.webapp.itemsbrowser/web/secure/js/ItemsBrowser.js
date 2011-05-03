@@ -2035,10 +2035,6 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
         store.on('load', function() {
                     grid.render();
-                    if(reportUrl != null && reportUrl.length > 0){
-                        window.open(reportUrl);
-                        reportUrl = null;
-                    }
                 });
 
     }
@@ -3032,8 +3028,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                     itempanel.isdirty = false;
                                                 }
 
-
                                                reportUrl = result.substring(2);
+                                               if(reportUrl != null && reportUrl.length > 0){
+                                                   window.open(reportUrl);
+                                                   reportUrl = null;
+                                               }
                                                displayItems.call();
                                             } else {
                                                 Ext.MessageBox.alert('Status',
@@ -3773,7 +3772,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
 
                                                 reportUrl = result.substring(2);
-
+                                                if(reportUrl != null && reportUrl.length > 0){
+                                                    window.open(reportUrl);
+                                                    reportUrl = null;
+                                                }
                                                 displayItems.call();
                                                 
                                             } else {
