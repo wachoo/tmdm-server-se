@@ -2915,6 +2915,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                             }
 
                                             amalto.core.ready(result);
+                                            handleCallback.refreshGrid(); 
                                             if (result) {
                                                 Ext.MessageBox.alert('Status',
                                                         result, function() {
@@ -5085,7 +5086,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             + treeIndex);
                     amalto.core.ready(result);
                     // displayItems();
-                    refreshCB.call();
+                    refreshCB.call(null, "deleteItem");
                     if (result)
                         Ext.MessageBox.alert('Status', result);
                 });
