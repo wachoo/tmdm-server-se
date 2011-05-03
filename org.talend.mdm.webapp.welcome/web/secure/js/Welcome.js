@@ -671,8 +671,7 @@ amalto.welcome.Welcome = function () {
                    
                    if(result.length > 2){
                       var url = result.substring(2);
-                      var downloadUrl = '/talendmdm/secure/MimeContentExportServlet?uri=' + url ;
-                      window.location.href=downloadUrl
+                      window.open(url);
                    }
 
                 }else{

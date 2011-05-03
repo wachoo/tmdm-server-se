@@ -2036,8 +2036,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         store.on('load', function() {
                     grid.render();
                     if(reportUrl != null && reportUrl.length > 0){
-                       var downloadUrl = '/talendmdm/secure/MimeContentExportServlet?uri=' + reportUrl ;
-                        window.location.href=downloadUrl
+                        window.open(reportUrl);
                         reportUrl = null;
                     }
                 });
