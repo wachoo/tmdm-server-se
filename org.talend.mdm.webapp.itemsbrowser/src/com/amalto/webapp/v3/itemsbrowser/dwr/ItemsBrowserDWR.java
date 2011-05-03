@@ -499,11 +499,11 @@ public class ItemsBrowserDWR {
             } else {
                 idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
             }
-            idToXpath.put(nodeId, "/" + concept);
+            idToXpath.put(nodeId, "/" + concept);//$NON-NLS-1$
             ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
 
             HashMap<String, XSParticle> xpathToParticle = new HashMap<String, XSParticle>();
-            xpathToParticle.put("/" + concept, xsct.getContentType().asParticle());
+            xpathToParticle.put("/" + concept, xsct.getContentType().asParticle());//$NON-NLS-1$
             ctx.getSession().setAttribute("xpathToParticle", xpathToParticle); //$NON-NLS-1$
 
             ArrayList<String> nodeAutorization = new ArrayList<String>();
@@ -1354,9 +1354,15 @@ public class ItemsBrowserDWR {
             }
 
             // update dsp rules
-            updateDspRules(docIndex, d, idToXpath.get(id).substring(1,
-                    idToXpath.get(id).indexOf("/", 1) > -1 ? idToXpath.get(id).indexOf("/", 1) : idToXpath.get(id).length())//$NON-NLS-1$//$NON-NLS-2$
-                    .trim());
+            updateDspRules(
+                    docIndex,
+                    d,
+                    idToXpath
+                            .get(id)
+                            .substring(
+                                    1,
+                                    idToXpath.get(id).indexOf("/", 1) > -1 ? idToXpath.get(id).indexOf("/", 1) : idToXpath.get(id).length())//$NON-NLS-1$//$NON-NLS-2$
+                            .trim());
 
             if (xpathToTreeNode != null) {
                 ctx.getSession().setAttribute("xpathToTreeNode", xpathToTreeNode); //$NON-NLS-1$
@@ -1523,12 +1529,12 @@ public class ItemsBrowserDWR {
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
         String xpath = idToXpath.get(id);
         if (xpath == null)
-            return "Nothing to update";
+            return "Nothing to update";//$NON-NLS-1$
 
         String updateStatus = updateNode2(xpath, StringEscapeUtils.unescapeHtml(content), docIndex);
 
         try {
-            updateDspRules(docIndex, (Document) ctx.getSession().getAttribute("itemDocument" + docIndex),
+            updateDspRules(docIndex, (Document) ctx.getSession().getAttribute("itemDocument" + docIndex),//$NON-NLS-1$
                     Util.getConceptFromPath(xpath));
         } catch (Exception e) {
             LOG.error("Error happened when update display rules!", e);//$NON-NLS-1$
@@ -2262,11 +2268,11 @@ public class ItemsBrowserDWR {
                         }
                     }
                 else
-                    return "ERROR - dropItem is NULL";
+                    return "ERROR - dropItem is NULL";//$NON-NLS-1$
                 ctx.getSession().setAttribute("viewNameItems", null); //$NON-NLS-1$
-                return "OK";
+                return "OK";//$NON-NLS-1$
             } else {
-                return "OK - But no update report";
+                return "OK - But no update report";//$NON-NLS-1$
             }
         } catch (Exception e) {
             return "ERROR -" + e.getLocalizedMessage();
@@ -2333,9 +2339,9 @@ public class ItemsBrowserDWR {
                     parentNode.appendChild(el);
                     if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
                         XSParticle[] children = null;
-                        Node typeNode = node.getAttributes().getNamedItem("xsi:type");
+                        Node typeNode = node.getAttributes().getNamedItem("xsi:type");//$NON-NLS-1$
                         if (typeNode != null) {
-                            String xsiType = typeNode.getNodeValue();//$NON-NLS-1$ //$NON-NLS-2$
+                            String xsiType = typeNode.getNodeValue();
                             if (xsiType != null) {
                                 ReusableType resuType = SchemaWebAgent.getInstance().getReusableType(xsiType);
                                 List<XSParticle> pt = resuType.getAllChildren(null);
@@ -2385,10 +2391,10 @@ public class ItemsBrowserDWR {
 
         // get xpath value map
         WebContext ctx = WebContextFactory.get();
-        HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute("xpathToTreeNode");
+        HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute("xpathToTreeNode");//$NON-NLS-1$
         HashMap<String, UpdateReportItem> updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute(
-                "updatedPath" + docIndex);
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");
+                "updatedPath" + docIndex);//$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");//$NON-NLS-1$
         String currentXpath = null;
         if (idToXpath != null && idToXpath.get(nodeId) != null)
             currentXpath = idToXpath.get(nodeId);
@@ -2404,19 +2410,19 @@ public class ItemsBrowserDWR {
             }
 
             // parse
-            String[] criterias = fkFilter.split("#");
+            String[] criterias = fkFilter.split("#");//$NON-NLS-1$
             List conditions = new ArrayList<String>();
             for (String cria : criterias) {
                 Map<String, String> conditionMap = new HashMap<String, String>();
-                String[] values = cria.split("\\$\\$");
+                String[] values = cria.split("\\$\\$");//$NON-NLS-1$
                 for (int i = 0; i < values.length; i++) {
 
                     switch (i) {
                     case 0:
-                        conditionMap.put("Xpath", values[0]);
+                        conditionMap.put("Xpath", values[0]);//$NON-NLS-1$
                         break;
                     case 1:
-                        conditionMap.put("Operator", values[1]);
+                        conditionMap.put("Operator", values[1]);//$NON-NLS-1$
                         break;
                     case 2:
                         String rightValueOrPath = values[2];
@@ -2426,10 +2432,10 @@ public class ItemsBrowserDWR {
                         rightValueOrPath = parseRightValueOrPath(xpathToTreeNode, updatedPath, dataObject, rightValueOrPath,
                                 currentXpath);
 
-                        conditionMap.put("Value", rightValueOrPath);
+                        conditionMap.put("Value", rightValueOrPath);//$NON-NLS-1$
                         break;
                     case 3:
-                        conditionMap.put("Predicate", values[3]);
+                        conditionMap.put("Predicate", values[3]);//$NON-NLS-1$
                         break;
                     default:
                         break;
@@ -2443,11 +2449,11 @@ public class ItemsBrowserDWR {
                 for (Iterator iterator = conditions.iterator(); iterator.hasNext();) {
                     Map<String, String> conditionMap = (Map<String, String>) iterator.next();
                     if (conditionMap.size() > 0) {
-                        String xpath = conditionMap.get("Xpath") == null ? "" : conditionMap.get("Xpath");
-                        String operator = conditionMap.get("Operator") == null ? "" : conditionMap.get("Operator");
-                        String value = conditionMap.get("Value") == null ? "" : conditionMap.get("Value");
-                        String predicate = conditionMap.get("Predicate") == null ? "" : conditionMap.get("Predicate");
-                        sb.append(xpath + "$$" + operator + "$$" + value + "$$" + predicate + "#");
+                        String xpath = conditionMap.get("Xpath") == null ? "" : conditionMap.get("Xpath");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                        String operator = conditionMap.get("Operator") == null ? "" : conditionMap.get("Operator");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                        String value = conditionMap.get("Value") == null ? "" : conditionMap.get("Value");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                        String predicate = conditionMap.get("Predicate") == null ? "" : conditionMap.get("Predicate");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                        sb.append(xpath + "$$" + operator + "$$" + value + "$$" + predicate + "#");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
                     }
                 }
                 if (sb.length() > 0)
@@ -2464,7 +2470,7 @@ public class ItemsBrowserDWR {
             String dataObject, String rightValueOrPath, String currentXpath) {
 
         String origiRightValueOrPath = rightValueOrPath;
-        String patternString = dataObject + "(/[A-Za-z0-9_\\[\\]]*)+";
+        String patternString = dataObject + "(/[A-Za-z0-9_\\[\\]]*)+";//$NON-NLS-1$
         Pattern pattern = Pattern.compile(patternString);// FIXME support simple xpath
         Matcher matcher = pattern.matcher(rightValueOrPath);
         while (matcher.find()) {
@@ -2478,37 +2484,37 @@ public class ItemsBrowserDWR {
                     int endPos = matcher.end(j);
                     if (startPos > 0 && endPos < origiRightValueOrPath.length() - 1) {
                         String checkValue = origiRightValueOrPath.substring(startPos - 1, endPos + 1).trim();
-                        if (checkValue.startsWith("\"") && checkValue.endsWith("\""))
+                        if (checkValue.startsWith("\"") && checkValue.endsWith("\""))//$NON-NLS-1$//$NON-NLS-2$
                             return rightValueOrPath;
                     }
 
                     // handle multi occurrences
 
                     // clean start char
-                    if (currentXpath.startsWith("//"))
+                    if (currentXpath.startsWith("//"))//$NON-NLS-1$
                         currentXpath = currentXpath.substring(2);
-                    else if (currentXpath.startsWith("/"))
+                    else if (currentXpath.startsWith("/"))//$NON-NLS-1$
                         currentXpath = currentXpath.substring(1);
 
-                    if (gettedXpath.startsWith("//"))
+                    if (gettedXpath.startsWith("//"))//$NON-NLS-1$
                         gettedXpath = currentXpath.substring(2);
-                    else if (gettedXpath.startsWith("/"))
+                    else if (gettedXpath.startsWith("/"))//$NON-NLS-1$
                         gettedXpath = currentXpath.substring(1);
 
-                    if (currentXpath.matches(".*\\[(\\d+)\\].*") && !gettedXpath.matches(".*\\[(\\d+)\\].*")) {
+                    if (currentXpath.matches(".*\\[(\\d+)\\].*") && !gettedXpath.matches(".*\\[(\\d+)\\].*")) {//$NON-NLS-1$//$NON-NLS-2$
                         // get ..
                         String currentXpathParent = currentXpath;
                         String gettedXpathParent = gettedXpath;
-                        if (currentXpath.lastIndexOf("/") != -1)
-                            currentXpathParent = currentXpath.substring(0, currentXpath.lastIndexOf("/"));
-                        if (gettedXpath.lastIndexOf("/") != -1)
-                            gettedXpathParent = gettedXpath.substring(0, gettedXpath.lastIndexOf("/"));
+                        if (currentXpath.lastIndexOf("/") != -1)//$NON-NLS-1$
+                            currentXpathParent = currentXpath.substring(0, currentXpath.lastIndexOf("/"));//$NON-NLS-1$
+                        if (gettedXpath.lastIndexOf("/") != -1)//$NON-NLS-1$
+                            gettedXpathParent = gettedXpath.substring(0, gettedXpath.lastIndexOf("/"));//$NON-NLS-1$
                         // clean
-                        String currentXpathParentReplaced = currentXpathParent.replaceAll("\\[(\\d+)\\]", "");
+                        String currentXpathParentReplaced = currentXpathParent.replaceAll("\\[(\\d+)\\]", "");//$NON-NLS-1$//$NON-NLS-2$
                         // compare
                         if (currentXpathParentReplaced.equals(gettedXpathParent)) {
-                            if (gettedXpath.lastIndexOf("/") != -1)
-                                gettedXpath = currentXpathParent + gettedXpath.substring(gettedXpath.lastIndexOf("/"));
+                            if (gettedXpath.lastIndexOf("/") != -1)//$NON-NLS-1$
+                                gettedXpath = currentXpathParent + gettedXpath.substring(gettedXpath.lastIndexOf("/"));//$NON-NLS-1$
                         }
                     }
 
@@ -2517,22 +2523,22 @@ public class ItemsBrowserDWR {
                     boolean matchedAValue = false;
 
                     // How to handle multi-nodes?
-                    if (updatedPath != null && updatedPath.get("/" + gettedXpath) != null) {
-                        UpdateReportItem updateReportItem = updatedPath.get("/" + gettedXpath);
+                    if (updatedPath != null && updatedPath.get("/" + gettedXpath) != null) {//$NON-NLS-1$
+                        UpdateReportItem updateReportItem = updatedPath.get("/" + gettedXpath);//$NON-NLS-1$
                         replacedValue = updateReportItem.getNewValue();
                         if (replacedValue != null)
                             matchedAValue = true;
                     }
 
-                    if (!matchedAValue && xpathToTreeNode != null && xpathToTreeNode.get("/" + gettedXpath) != null) {
-                        replacedValue = xpathToTreeNode.get("/" + gettedXpath).getValue();
+                    if (!matchedAValue && xpathToTreeNode != null && xpathToTreeNode.get("/" + gettedXpath) != null) {//$NON-NLS-1$
+                        replacedValue = xpathToTreeNode.get("/" + gettedXpath).getValue();//$NON-NLS-1$
                         if (replacedValue != null)
                             matchedAValue = true;
                     }
 
-                    replacedValue = replacedValue == null ? "null" : replacedValue;
+                    replacedValue = replacedValue == null ? "null" : replacedValue;//$NON-NLS-1$
                     if (matchedAValue)
-                        replacedValue = "\"" + replacedValue + "\"";
+                        replacedValue = "\"" + replacedValue + "\"";//$NON-NLS-1$//$NON-NLS-2$
                     rightValueOrPath = rightValueOrPath.replaceFirst(patternString, replacedValue);
                 }
 
@@ -2568,11 +2574,11 @@ public class ItemsBrowserDWR {
 
         if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
 
-            if (xpathForeignKey.startsWith("/"))
+            if (xpathForeignKey.startsWith("/"))//$NON-NLS-1$
                 xpathForeignKey = xpathForeignKey.substring(1);
-            String fkEntity = "";
-            if (xpathForeignKey.indexOf("/") != -1) {
-                fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));
+            String fkEntity = "";//$NON-NLS-1$
+            if (xpathForeignKey.indexOf("/") != -1) {//$NON-NLS-1$
+                fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
             } else {
                 fkEntity = xpathForeignKey;
             }
@@ -2606,11 +2612,11 @@ public class ItemsBrowserDWR {
         List<SubTypeBean> derivedTypes = new ArrayList<SubTypeBean>();
 
         if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
-            if (xpathForeignKey.startsWith("/"))
+            if (xpathForeignKey.startsWith("/"))//$NON-NLS-1$
                 xpathForeignKey = xpathForeignKey.substring(1);
-            String fkEntity = "";
-            if (xpathForeignKey.indexOf("/") != -1) {
-                fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));
+            String fkEntity = "";//$NON-NLS-1$
+            if (xpathForeignKey.indexOf("/") != -1) {//$NON-NLS-1$
+                fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
             } else {
                 fkEntity = xpathForeignKey;
             }
@@ -2646,12 +2652,12 @@ public class ItemsBrowserDWR {
         JSONObject json = new JSONObject();
         int counter = 0;
         JSONArray rows = new JSONArray();
-        json.put("rows", rows);
+        json.put("rows", rows);//$NON-NLS-1$
 
         if (fkEntityType != null && !entityReusableType.isAbstract()) {
             JSONObject row = new JSONObject();
-            row.put("value", entityReusableType.getName());
-            row.put("text", entityReusableType.getLabelMap().get(language) == null ? entityReusableType.getName()
+            row.put("value", entityReusableType.getName());//$NON-NLS-1$
+            row.put("text", entityReusableType.getLabelMap().get(language) == null ? entityReusableType.getName()//$NON-NLS-1$
                     : entityReusableType.getLabelMap().get(language));
             rows.put(row);
 
@@ -2660,14 +2666,14 @@ public class ItemsBrowserDWR {
 
         for (SubTypeBean type : derivedTypes) {
             JSONObject row = new JSONObject();
-            row.put("value", type.getName());
-            row.put("text", type.getLabel());
+            row.put("value", type.getName());//$NON-NLS-1$
+            row.put("text", type.getLabel());//$NON-NLS-1$
             rows.put(row);
 
             counter++;
         }
 
-        json.put("total", counter);
+        json.put("total", counter);//$NON-NLS-1$
 
         return json.toString();
     }
@@ -2696,14 +2702,14 @@ public class ItemsBrowserDWR {
         }
 
         if (xpathInfoForeignKey != null && xpathInfoForeignKey.length() > 0) {
-            String[] fkInfoPaths = xpathInfoForeignKey.split(",");
-            xpathInfoForeignKey = "";
+            String[] fkInfoPaths = xpathInfoForeignKey.split(",");//$NON-NLS-1$
+            xpathInfoForeignKey = "";//$NON-NLS-1$
             for (int i = 0; i < fkInfoPaths.length; i++) {
                 String fkInfoPath = fkInfoPaths[i];
                 String relacedFkInfoPath = replaceXpathRoot(targetEntity, fkInfoPath);
                 if (relacedFkInfoPath != null && relacedFkInfoPath.length() > 0) {
                     if (xpathInfoForeignKey.length() > 0)
-                        xpathInfoForeignKey += ",";
+                        xpathInfoForeignKey += ",";//$NON-NLS-1$
                     xpathInfoForeignKey += relacedFkInfoPath;
                 }
             }
@@ -2721,8 +2727,8 @@ public class ItemsBrowserDWR {
      * @return
      */
     private String replaceXpathRoot(String targetEntity, String xpath) {
-        if (xpath.indexOf("/") != -1)
-            xpath = targetEntity + xpath.substring(xpath.indexOf("/"));
+        if (xpath.indexOf("/") != -1)//$NON-NLS-1$
+            xpath = targetEntity + xpath.substring(xpath.indexOf("/"));//$NON-NLS-1$
         else
             xpath = targetEntity;
         return xpath;
@@ -2736,9 +2742,9 @@ public class ItemsBrowserDWR {
         if (docIndex != -1) {
             WebContext ctx = WebContextFactory.get();
             HashMap<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
-            updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex);
-            if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && updatedPath == null) { //$NON-NLS-1$
-                return "ERROR_2";
+            updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex);//$NON-NLS-1$
+            if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && updatedPath == null) { //$NON-NLS-1$//$NON-NLS-2$
+                return "ERROR_2";//$NON-NLS-1$
             }
 
             String xml2 = Util.createUpdateReport(ids, concept, operationType, updatedPath);
@@ -2751,7 +2757,7 @@ public class ItemsBrowserDWR {
             return Util.persistentUpdateReport(xml2, true);
 
         } else
-            return "OK";
+            return "OK";//$NON-NLS-1$
     }
 
     public static void synchronizeUpdateState(int docIndex) {
@@ -2761,8 +2767,8 @@ public class ItemsBrowserDWR {
 
     private static void synchronizeUpdateState(WebContext ctx, int docIndex) {
         if (docIndex != -1)
-            ctx.getSession().setAttribute("updatedPath" + docIndex, null);
-        ctx.getSession().setAttribute("viewNameItems", null);
+            ctx.getSession().setAttribute("updatedPath" + docIndex, null);//$NON-NLS-1$
+        ctx.getSession().setAttribute("viewNameItems", null);//$NON-NLS-1$
     }
 
     private void insertAfter(Node newNode, Node node) {
@@ -2826,17 +2832,17 @@ public class ItemsBrowserDWR {
 
     public int countItems(String criteria, String dataObjet) throws Exception {
         Configuration config = Configuration.getInstance();
-        String[] criterias = criteria.split("[\\s]+OR[\\s]+");
+        String[] criterias = criteria.split("[\\s]+OR[\\s]+");//$NON-NLS-1$
         ArrayList<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
 
         for (String cria : criterias) {
             ArrayList<WSWhereItem> condition = new ArrayList<WSWhereItem>();
-            String[] subCriterias = cria.split("[\\s]+AND[\\s]+");
+            String[] subCriterias = cria.split("[\\s]+AND[\\s]+");//$NON-NLS-1$
             for (String subCria : subCriterias) {
-                if (subCria.startsWith("(")) {
+                if (subCria.startsWith("(")) {//$NON-NLS-1$
                     subCria = subCria.substring(1);
                 }
-                if (subCria.endsWith(")")) {
+                if (subCria.endsWith(")")) {//$NON-NLS-1$
                     subCria = subCria.substring(0, subCria.length() - 1);
                 }
 
@@ -2857,20 +2863,20 @@ public class ItemsBrowserDWR {
                 .count(new WSCount(new WSDataClusterPK(config.getCluster()), dataObjet, wi, 0)).getValue());
 
         WebContext ctx = WebContextFactory.get();
-        ctx.getSession().setAttribute("totalCountItems", count);
+        ctx.getSession().setAttribute("totalCountItems", count);//$NON-NLS-1$
 
         return count;
     }
 
     public WSWhereItem countItem(String criteria, String dataObjet) throws Exception {
         WSWhereItem wi;
-        String[] filters = criteria.split(" ");
+        String[] filters = criteria.split(" ");//$NON-NLS-1$
         String filterXpaths, filterOperators, filterValues;
 
         filterXpaths = filters[0];
         filterOperators = filters[1];
         if (filters.length <= 2)
-            filterValues = " ";
+            filterValues = " ";//$NON-NLS-1$
         else
             filterValues = filters[2];
 
@@ -2906,8 +2912,8 @@ public class ItemsBrowserDWR {
             String[] keys = new String[key.getFields().length];
             keys = Arrays.copyOf(key.getFields(), key.getFields().length);
             for (int i = 0; i < keys.length; i++) {
-                if (".".equals(key.getSelector()))
-                    keys[i] = "/" + concept + "/" + keys[i];
+                if (".".equals(key.getSelector()))//$NON-NLS-1$
+                    keys[i] = "/" + concept + "/" + keys[i];//$NON-NLS-1$//$NON-NLS-2$
                 else
                     keys[i] = key.getSelector() + keys[i];
             }
@@ -2927,14 +2933,14 @@ public class ItemsBrowserDWR {
         Map<String, XSElementDecl> xsdMap = CommonDWR.getConceptMap(config.getModel());
 
         String concept = view.getViewPK();
-        if (concept.contains("Browse_items_"))
+        if (concept.contains("Browse_items_"))//$NON-NLS-1$
             concept = CommonDWR.getConceptFromBrowseItemView(view.getViewPK());
 
         XSElementDecl el = xsdMap.get(concept);
 
         for (String viewItem : view.getViewables()) {
             ArrayList<String> dataTypesHolder = new ArrayList<String>();
-            String[] pathSlices = viewItem.split("/");
+            String[] pathSlices = viewItem.split("/");//$NON-NLS-1$
             XSElementDecl node = parseMetaDataTypes(el, pathSlices[0], dataTypesHolder);
             if (pathSlices.length > 1) {
                 for (int i = 1; i < pathSlices.length; i++) {
@@ -2948,7 +2954,7 @@ public class ItemsBrowserDWR {
         for (String key : searchablesKeys) {
             if (!metaDataTypes.containsKey(key)) {
                 ArrayList<String> dataTypesHolder = new ArrayList<String>();
-                String[] pathSlices = key.split("/");
+                String[] pathSlices = key.split("/");//$NON-NLS-1$
                 XSElementDecl node = parseMetaDataTypes(el, pathSlices[0], dataTypesHolder);
                 if (pathSlices.length > 1) {
                     for (int i = 1; i < pathSlices.length; i++) {
@@ -2971,7 +2977,7 @@ public class ItemsBrowserDWR {
             String dataModelPK = config.getModel();
             Map<String, XSElementDecl> map = CommonDWR.getConceptMap(dataModelPK);
             XSElementDecl decl = map.get(concept);
-            String[] pathSlices = path.split("/");
+            String[] pathSlices = path.split("/");//$NON-NLS-1$
 
             if (pathSlices.length > 1) {
                 for (int i = 1; i < pathSlices.length; i++) {
@@ -3026,9 +3032,9 @@ public class ItemsBrowserDWR {
                                 if (txtImpl.getNextSibling() instanceof ElementNSImpl) {
                                     ElementNSImpl ens = (ElementNSImpl) txtImpl.getNextSibling();
 
-                                    if (ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKey")) {
+                                    if (ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKey")) {//$NON-NLS-1$//$NON-NLS-2$
                                         String value = ens.getTextContent();
-                                        Pattern ptn = Pattern.compile("(.*?)\\[(.*?)\\]");
+                                        Pattern ptn = Pattern.compile("(.*?)\\[(.*?)\\]");//$NON-NLS-1$
                                         Matcher match = ptn.matcher(value);
 
                                         if (match.matches()) {
@@ -3036,25 +3042,25 @@ public class ItemsBrowserDWR {
                                         }
 
                                         fkHandler.add(value);
-                                    } else if (ens.getAttributes().getNamedItem("source").getNodeValue()
-                                            .equals("X_ForeignKeyInfo")) {
+                                    } else if (ens.getAttributes().getNamedItem("source").getNodeValue()//$NON-NLS-1$
+                                            .equals("X_ForeignKeyInfo")) {//$NON-NLS-1$
                                         // @temp multiply fkinfo
                                         fkInfoHandler.add(ens.getFirstChild().getNodeValue());
-                                    } else if (ens.getAttributes().getNamedItem("source").getNodeValue()
-                                            .equals("X_ForeignKey_Filter")) {
+                                    } else if (ens.getAttributes().getNamedItem("source").getNodeValue()//$NON-NLS-1$
+                                            .equals("X_ForeignKey_Filter")) {//$NON-NLS-1$
                                         fkFilterHandler.add(ens.getFirstChild().getNodeValue());
-                                    } else if (ens.getAttributes().getNamedItem("source").getNodeValue()
-                                            .equals("X_Retrieve_FKinfos")) {
+                                    } else if (ens.getAttributes().getNamedItem("source").getNodeValue()//$NON-NLS-1$
+                                            .equals("X_Retrieve_FKinfos")) {//$NON-NLS-1$
                                         fkRetrieveHandler.add(ens.getFirstChild().getNodeValue());
                                     }
                                 }
                             }
                         }
 
-                        foreignKeyContents.put("foreignKey", fkHandler);
-                        foreignKeyContents.put("foreignKeyInfo", fkInfoHandler);
-                        foreignKeyContents.put("foreignKeyFilter", fkFilterHandler);
-                        foreignKeyContents.put("foreignKeyRetrieve", fkRetrieveHandler);
+                        foreignKeyContents.put("foreignKey", fkHandler);//$NON-NLS-1$
+                        foreignKeyContents.put("foreignKeyInfo", fkInfoHandler);//$NON-NLS-1$
+                        foreignKeyContents.put("foreignKeyFilter", fkFilterHandler);//$NON-NLS-1$
+                        foreignKeyContents.put("foreignKeyRetrieve", fkRetrieveHandler);//$NON-NLS-1$
                     }
                 }
             }
@@ -3071,7 +3077,7 @@ public class ItemsBrowserDWR {
         XSType type = elem.getType();
         if (elem.getName().equals(pathSlice)) {
             if (elem.getType() instanceof XSComplexType) {
-                valuesHolder.add("complex type");
+                valuesHolder.add("complex type");//$NON-NLS-1$
             } else {
                 XSSimpleType simpType = (XSSimpleType) elem.getType();
                 valuesHolder.add(simpType.getName());
@@ -3089,7 +3095,7 @@ public class ItemsBrowserDWR {
                         ArrayList<String> fkContents = getForeignKeyInfoForXSDElem(childElem);
                         if (fkContents.size() > 0) {
 
-                            valuesHolder.add("foreign key");
+                            valuesHolder.add("foreign key");//$NON-NLS-1$
                             valuesHolder.addAll(fkContents);
                             return childElem;
                         }
@@ -3098,21 +3104,21 @@ public class ItemsBrowserDWR {
                             XSSimpleType simpType = (XSSimpleType) childElem.getType();
                             Collection<FacetImpl> facets = (Collection<FacetImpl>) simpType.asRestriction().getDeclaredFacets();
                             for (XSFacet facet : facets) {
-                                if (facet.getName().equals("enumeration")) {
-                                    valuesHolder.add("enumeration");
+                                if (facet.getName().equals("enumeration")) {//$NON-NLS-1$
+                                    valuesHolder.add("enumeration");//$NON-NLS-1$
                                     break;
                                 }
                             }
-                            if (!valuesHolder.contains("enumeration")) {
+                            if (!valuesHolder.contains("enumeration")) {//$NON-NLS-1$
 
                                 String basicName = simpType.getBaseType().getName();
                                 String simpTypeName = simpType.getName();
-                                if (simpType.getTargetNamespace().equals("http://www.w3.org/2001/XMLSchema")) {
-                                    simpTypeName = "xsd:" + simpTypeName;
+                                if (simpType.getTargetNamespace().equals("http://www.w3.org/2001/XMLSchema")) {//$NON-NLS-1$
+                                    simpTypeName = "xsd:" + simpTypeName;//$NON-NLS-1$
                                 } else
-                                    simpTypeName = "xsd:" + basicName;
+                                    simpTypeName = "xsd:" + basicName;//$NON-NLS-1$
                                 valuesHolder.add(simpTypeName);
-                            } else if (simpType.asRestriction() != null && valuesHolder.contains("enumeration")) {
+                            } else if (simpType.asRestriction() != null && valuesHolder.contains("enumeration")) {//$NON-NLS-1$
                                 Iterator<XSFacet> facetIter = simpType.asRestriction().iterateDeclaredFacets();
                                 while (facetIter.hasNext()) {
                                     XSFacet facet = facetIter.next();
@@ -3120,7 +3126,7 @@ public class ItemsBrowserDWR {
                                 }
                             }
                         } else {
-                            valuesHolder.add("complex type");
+                            valuesHolder.add("complex type");//$NON-NLS-1$
                         }
                         return childElem;
                     }
@@ -3147,15 +3153,15 @@ public class ItemsBrowserDWR {
                     TextImpl txtImpl = (TextImpl) node;
                     if (txtImpl.getNextSibling() instanceof ElementNSImpl) {
                         ElementNSImpl ens = (ElementNSImpl) txtImpl.getNextSibling();
-                        if (ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKey")) {
+                        if (ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKey")) {//$NON-NLS-1$//$NON-NLS-2$
                             String value = ens.getTextContent();
-                            Pattern ptn = Pattern.compile("(.*?)\\[(.*?)\\]");
+                            Pattern ptn = Pattern.compile("(.*?)\\[(.*?)\\]");//$NON-NLS-1$
                             Matcher match = ptn.matcher(value);
                             if (match.matches()) {
                                 value = match.group(1);
                             }
                             foreignKeyContents.add(0, value);
-                        } else if (ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKeyInfo")) {
+                        } else if (ens.getAttributes().getNamedItem("source").getNodeValue().equals("X_ForeignKeyInfo")) {//$NON-NLS-1$//$NON-NLS-2$
                             String fkInfo = null;
                             if (foreignKeyContents.size() > 1) {
                                 fkInfo = foreignKeyContents.get(1);
@@ -3163,7 +3169,7 @@ public class ItemsBrowserDWR {
                             if (fkInfo == null) {
                                 fkInfo = ens.getFirstChild().getNodeValue();
                             } else {
-                                fkInfo += "," + ens.getFirstChild().getNodeValue();
+                                fkInfo += "," + ens.getFirstChild().getNodeValue();//$NON-NLS-1$
                             }
                             foreignKeyContents.add(0, fkInfo);
                         }
@@ -3172,32 +3178,32 @@ public class ItemsBrowserDWR {
             }
         }
         if (foreignKeyContents.size() == 1) {
-            foreignKeyContents.add(1, "");
+            foreignKeyContents.add(1, "");//$NON-NLS-1$
         }
         return foreignKeyContents;
     }
 
     private WSWhereOperator getOperator(String option) {
         WSWhereOperator res = null;
-        if (option.equalsIgnoreCase("CONTAINS"))
+        if (option.equalsIgnoreCase("CONTAINS"))//$NON-NLS-1$
             res = WSWhereOperator.CONTAINS;
-        else if (option.equalsIgnoreCase("EQUALS"))
+        else if (option.equalsIgnoreCase("EQUALS"))//$NON-NLS-1$
             res = WSWhereOperator.EQUALS;
-        else if (option.equalsIgnoreCase("GREATER_THAN"))
+        else if (option.equalsIgnoreCase("GREATER_THAN"))//$NON-NLS-1$
             res = WSWhereOperator.GREATER_THAN;
-        else if (option.equalsIgnoreCase("GREATER_THAN_OR_EQUAL"))
+        else if (option.equalsIgnoreCase("GREATER_THAN_OR_EQUAL"))//$NON-NLS-1$
             res = WSWhereOperator.GREATER_THAN_OR_EQUAL;
-        else if (option.equalsIgnoreCase("JOIN"))
+        else if (option.equalsIgnoreCase("JOIN"))//$NON-NLS-1$
             res = WSWhereOperator.JOIN;
-        else if (option.equalsIgnoreCase("LOWER_THAN"))
+        else if (option.equalsIgnoreCase("LOWER_THAN"))//$NON-NLS-1$
             res = WSWhereOperator.LOWER_THAN;
-        else if (option.equalsIgnoreCase("LOWER_THAN_OR_EQUAL"))
+        else if (option.equalsIgnoreCase("LOWER_THAN_OR_EQUAL"))//$NON-NLS-1$
             res = WSWhereOperator.LOWER_THAN_OR_EQUAL;
-        else if (option.equalsIgnoreCase("NOT_EQUALS"))
+        else if (option.equalsIgnoreCase("NOT_EQUALS"))//$NON-NLS-1$
             res = WSWhereOperator.NOT_EQUALS;
-        else if (option.equalsIgnoreCase("STARTSWITH"))
+        else if (option.equalsIgnoreCase("STARTSWITH"))//$NON-NLS-1$
             res = WSWhereOperator.STARTSWITH;
-        else if (option.equalsIgnoreCase("STRICTCONTAINS"))
+        else if (option.equalsIgnoreCase("STRICTCONTAINS"))//$NON-NLS-1$
             res = WSWhereOperator.STRICTCONTAINS;
         return res;
     }
@@ -3226,7 +3232,7 @@ public class ItemsBrowserDWR {
             String concept = inputParams[0];
             String language = inputParams[1];
             String smRegex = "Smart_view_" + concept + "(_([^#]+))?(#(.+))?";//$NON-NLS-1$//$NON-NLS-2$
-            Pattern smp = Pattern.compile(smRegex);//$NON-NLS-1$//$NON-NLS-2$
+            Pattern smp = Pattern.compile(smRegex);
 
             // get process
             List<ComboItemBean> comboItems = new ArrayList<ComboItemBean>();
@@ -3285,7 +3291,7 @@ public class ItemsBrowserDWR {
 
             if (regex == null || regex.length() == 0)
                 return listRange;
-            String[] inputParams = regex.split("&");
+            String[] inputParams = regex.split("&");//$NON-NLS-1$
             String businessConcept = inputParams[0];
             String language = inputParams[1];
 
@@ -3298,7 +3304,7 @@ public class ItemsBrowserDWR {
             String[] businessConcepts = Util.getPort().getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model)))
                     .getStrings();
 
-            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();
+            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
             for (int i = 0; i < wst.length; i++) {
                 if (isMyRunableProcess(wst[i].getPk(), businessConcept, businessConcepts)) {
                     /*
@@ -3312,13 +3318,13 @@ public class ItemsBrowserDWR {
                     // and if the description is null, use the default value.
                     WSTransformer trans = Util.getPort().getTransformer(new WSGetTransformer(wst[i]));
                     String description = trans.getDescription();
-                    Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);
-                    String name = p.matcher(description).replaceAll("$1");
-                    if (name.equals(""))
-                        if (language.equalsIgnoreCase("fr"))
-                            name = "Action par défaut";
-                        else if (language.equalsIgnoreCase("en"))
-                            name = "Default Action";
+                    Pattern p = Pattern.compile(".*\\[" + language.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
+                    String name = p.matcher(description).replaceAll("$1");//$NON-NLS-1$
+                    if (name.equals(""))//$NON-NLS-1$
+                        if (language.equalsIgnoreCase("fr"))//$NON-NLS-1$
+                            name = "Action par défaut";//$NON-NLS-1$
+                        else if (language.equalsIgnoreCase("en"))//$NON-NLS-1$
+                            name = "Default Action";//$NON-NLS-1$
                         else
                             name = description;
                     comboItem.add(new ComboItemBean(wst[i].getPk(), name));
@@ -3338,11 +3344,11 @@ public class ItemsBrowserDWR {
 
     private boolean isMyRunableProcess(String transformerName, String ownerConcept, String[] businessConcepts) {
 
-        String possibleConcept = "";
+        String possibleConcept = "";//$NON-NLS-1$
         if (businessConcepts != null) {
             for (int i = 0; i < businessConcepts.length; i++) {
                 String businessConcept = businessConcepts[i];
-                if (transformerName.startsWith("Runnable_" + businessConcept)) {
+                if (transformerName.startsWith("Runnable_" + businessConcept)) {//$NON-NLS-1$
                     if (businessConcept.length() > possibleConcept.length())
                         possibleConcept = businessConcept;
                 }
@@ -3387,7 +3393,7 @@ public class ItemsBrowserDWR {
                 throw new Exception("The Plugin Specs of this process is undefined! ");
 
             boolean outputReport = false;
-            String downloadUrl = "";
+            String downloadUrl = "";//$NON-NLS-1$
             if (isRunnableTransformerExist) {
                 LOG.info("Executing transformer for " + itemAlias + "'s action. ");
                 WSTransformerContextPipelinePipelineItem[] entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2)
@@ -3468,7 +3474,7 @@ public class ItemsBrowserDWR {
      * 
      */
     public String printFormat(String lang, String format, String value, String typeName) throws ParseException {
-        if (typeName == null || typeName.equals("null") || format.equals("null"))
+        if (typeName == null || typeName.equals("null") || format.equals("null"))//$NON-NLS-1$//$NON-NLS-2$
             return value;
         Object object = Util.getTypeValue(lang, typeName, value);
         if (object instanceof Calendar || object instanceof Time || object == null)
@@ -3488,15 +3494,15 @@ public class ItemsBrowserDWR {
     public String printFormatDate(String lang, String format, String value, String typeName) throws ParseException {
 
         Calendar object = null;
-        if (typeName.equalsIgnoreCase("date"))
+        if (typeName.equalsIgnoreCase("date"))//$NON-NLS-1$
             object = Date.parseDate(value.trim()).toCalendar();
-        else if (typeName.equalsIgnoreCase("dateTime")) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        else if (typeName.equalsIgnoreCase("dateTime")) {//$NON-NLS-1$
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");//$NON-NLS-1$
             object = Calendar.getInstance();
             object.setTime(sdf.parse(value.trim()));
         }
 
-        if (format == null || format.equals("null") || object == null)
+        if (format == null || format.equals("null") || object == null)//$NON-NLS-1$
             return value;
         String valueReturn = com.amalto.core.util.Util.printWithFormat(new Locale(lang), format, object).toString();
         return valueReturn;
@@ -3504,7 +3510,7 @@ public class ItemsBrowserDWR {
 
     public static void main(String[] args) {
         java.util.Date date = new java.util.Date();
-        String dateStr = String.format(Locale.ENGLISH, "%tc", date);
+        String dateStr = String.format(Locale.ENGLISH, "%tc", date);//$NON-NLS-1$
         System.out.println(dateStr);
         try {
             java.text.DateFormat.getInstance().parse(dateStr);
@@ -3522,33 +3528,33 @@ public class ItemsBrowserDWR {
     public String validateNode(String language, int nodeId, String value) {
         String errorMessage = null;
         WebContext ctx = WebContextFactory.get();
-        HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute("xpathToTreeNode");
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");
+        HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute("xpathToTreeNode");//$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");//$NON-NLS-1$
         String xpath = idToXpath.get(nodeId);
         TreeNode node = null;
         ArrayList<Restriction> restrictions = null;
         if (xpath != null)
             node = xpathToTreeNode.get(xpath);
-        if (xpath.lastIndexOf("]") == xpath.length() - 1 && node == null) {
-            node = xpathToTreeNode.get(xpath.replaceAll("\\[\\d+\\]$", "[1]"));
+        if (xpath.lastIndexOf("]") == xpath.length() - 1 && node == null) {//$NON-NLS-1$
+            node = xpathToTreeNode.get(xpath.replaceAll("\\[\\d+\\]$", "[1]"));//$NON-NLS-1$//$NON-NLS-2$
         }
         if (node == null)
             return "null";//$NON-NLS-1$
         boolean isValidation = true;// if true, return null,else return errorMessage
 
-        if (node.getTypeName().equals("double") || node.getTypeName().equals("float") || node.getTypeName().equals("decimal")) {
+        if (node.getTypeName().equals("double") || node.getTypeName().equals("float") || node.getTypeName().equals("decimal")) {//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
             if (node.getMinOccurs() > 0) {
                 if (!isNumeric(value)) {
                     return "the field must be " + node.getTypeName();
                 }
             } else {
-                if (!"".equals(value) && !isNumeric(value)) {
+                if (!"".equals(value) && !isNumeric(value)) {//$NON-NLS-1$
                     return "the field must be " + node.getTypeName();
                 }
             }
         }
-        if (node.getTypeName().equals("int") || node.getTypeName().equals("integer") || node.getTypeName().equals("long")
-                || node.getTypeName().equals("short")) {
+        if (node.getTypeName().equals("int") || node.getTypeName().equals("integer") || node.getTypeName().equals("long")//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                || node.getTypeName().equals("short")) {//$NON-NLS-1$
             if (node.getMinOccurs() > 0) {
                 if (!isInteger(value)) {
                     return "the field must be " + node.getTypeName();
@@ -3596,7 +3602,7 @@ public class ItemsBrowserDWR {
             // boolean ancestor = checkAncestorMinOCcurs(node);
 
             if (node.getMinOccurs() >= 1 || (node.getMinOccurs() == 0 && value.trim().length() != 0)) {
-                if (re.getName().equals("pattern")) {
+                if (re.getName().equals("pattern")) {//$NON-NLS-1$
                     if (!AUTO_INCREMENT.equals(value) && !Pattern.compile(re.getValue()).matcher(value).matches()) {
                         errorMessage = errorMessage == null ? value + " don't match the field's pattern: " + re.getValue()
                                 : errorMessage;
@@ -3604,22 +3610,22 @@ public class ItemsBrowserDWR {
                         break;
                     }
                 }
-                if (re.getName().equals("minLength") && value.length() < Integer.parseInt(re.getValue())) {
+                if (re.getName().equals("minLength") && value.length() < Integer.parseInt(re.getValue())) {//$NON-NLS-1$
                     errorMessage = errorMessage == null ? "the field minLength is " + re.getValue() : errorMessage;
                     isValidation = false;
                     break;
                 }
-                if (re.getName().equals("maxLength") && value.length() > Integer.parseInt(re.getValue())) {
+                if (re.getName().equals("maxLength") && value.length() > Integer.parseInt(re.getValue())) {//$NON-NLS-1$
                     errorMessage = errorMessage == null ? "the field maxLength is " + re.getValue() : errorMessage;
                     isValidation = false;
                     break;
                 }
-                if (re.getName().equals("length") && value.length() != Integer.parseInt(re.getValue())) {
+                if (re.getName().equals("length") && value.length() != Integer.parseInt(re.getValue())) {//$NON-NLS-1$
                     errorMessage = errorMessage == null ? "the field's length should be " + re.getValue() : errorMessage;
                     isValidation = false;
                     break;
                 }
-                if (re.getName().equals("minExclusive"))
+                if (re.getName().equals("minExclusive"))//$NON-NLS-1$
                     if (!isNumeric(value)) {
                         errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
                         isValidation = false;
@@ -3630,7 +3636,7 @@ public class ItemsBrowserDWR {
                         break;
                     }
 
-                if (re.getName().equals("minInclusive")) {
+                if (re.getName().equals("minInclusive")) {//$NON-NLS-1$
                     if (!isNumeric(value)) {
                         errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
                         isValidation = false;
@@ -3642,7 +3648,7 @@ public class ItemsBrowserDWR {
                     }
                 }
 
-                if (re.getName().equals("maxInclusive")) {
+                if (re.getName().equals("maxInclusive")) {//$NON-NLS-1$
                     if (!isNumeric(value)) {
                         errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
                         isValidation = false;
@@ -3654,7 +3660,7 @@ public class ItemsBrowserDWR {
                     }
                 }
 
-                if (re.getName().equals("maxExclusive")) {
+                if (re.getName().equals("maxExclusive")) {//$NON-NLS-1$
                     if (!isNumeric(value)) {
                         errorMessage = errorMessage == null ? node.getName() + " is not a valid value for number" : errorMessage;
                         isValidation = false;
@@ -3674,12 +3680,12 @@ public class ItemsBrowserDWR {
     }
 
     public static boolean isNumeric(String str) {
-        Pattern pattern = Pattern.compile("[\\-+]?[0-9]+\\.?[0-9]*");
+        Pattern pattern = Pattern.compile("[\\-+]?[0-9]+\\.?[0-9]*");//$NON-NLS-1$
         return pattern.matcher(str).matches();
     }
 
     public static boolean isInteger(String str) {
-        Pattern pattern = Pattern.compile("[\\-+]?[0-9]+");
+        Pattern pattern = Pattern.compile("[\\-+]?[0-9]+");//$NON-NLS-1$
         return pattern.matcher(str).matches();
     }
 
@@ -3737,33 +3743,33 @@ public class ItemsBrowserDWR {
     public String getWhereItemsByCriteria(String viewName) {
         // String whereItem = "(Agent/Id CONTAINS * AND Agent/Name CONTAINS *) OR Agent/Com CONTAINS *";
 
-        String whereItem = "";// "Country/isoCode#EQUALS#33# ###Country/label#CONTAINS#a#OR###Country/Continent#CONTAINS#6#AND";
+        String whereItem = "";// "Country/isoCode#EQUALS#33# ###Country/label#CONTAINS#a#OR###Country/Continent#CONTAINS#6#AND";//$NON-NLS-1$
 
         try {
             String result = Util
                     .getPort()
                     .getItem(
                             new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
-                                    "BrowseItem", new String[] { viewName }))).getContent().trim();
+                                    "BrowseItem", new String[] { viewName }))).getContent().trim();//$NON-NLS-1$
             if (result != null) {
                 // BrowseItem report = BrowseItem.unmarshal2POJO(result);
-                String criterias = result.substring(result.indexOf("<WhereCriteria>") + 15, result.indexOf("</WhereCriteria>"));
-                String[] criteria = criterias.split("</Criteria>");
-                String Field = "";
-                String Operator = "";
-                String Value = "";
-                String Join = " ";
+                String criterias = result.substring(result.indexOf("<WhereCriteria>") + 15, result.indexOf("</WhereCriteria>"));//$NON-NLS-1$//$NON-NLS-2$
+                String[] criteria = criterias.split("</Criteria>");//$NON-NLS-1$
+                String Field = "";//$NON-NLS-1$
+                String Operator = "";//$NON-NLS-1$
+                String Value = "";//$NON-NLS-1$
+                String Join = " ";//$NON-NLS-1$
                 int criteriaLenth = criteria[criteria.length - 1].trim().isEmpty() ? criteria.length - 1 : criteria.length;
                 // String item="";
                 for (int i = 0; i < criteriaLenth; i++) {
                     // Matcher m = Field.matcher(criteria[i]);
-                    Field = criteria[i].substring(criteria[i].indexOf("<Field>") + 7, criteria[i].indexOf("</Field>"));
-                    Operator = criteria[i].substring(criteria[i].indexOf("<Operator>") + 10, criteria[i].indexOf("</Operator>"));
-                    Value = criteria[i].substring(criteria[i].indexOf("<Value>") + 7, criteria[i].indexOf("</Value>"));
+                    Field = criteria[i].substring(criteria[i].indexOf("<Field>") + 7, criteria[i].indexOf("</Field>"));//$NON-NLS-1$//$NON-NLS-2$
+                    Operator = criteria[i].substring(criteria[i].indexOf("<Operator>") + 10, criteria[i].indexOf("</Operator>"));//$NON-NLS-1$//$NON-NLS-2$
+                    Value = criteria[i].substring(criteria[i].indexOf("<Value>") + 7, criteria[i].indexOf("</Value>"));//$NON-NLS-1$//$NON-NLS-2$
 
-                    whereItem += Field + "#" + Operator + "#" + Value + "#" + Join + "###";
-                    if (criteria[i].indexOf("<Join>") + 6 < criteria[i].indexOf("</Join>"))
-                        Join = criteria[i].substring(criteria[i].indexOf("<Join>") + 6, criteria[i].indexOf("</Join>"));
+                    whereItem += Field + "#" + Operator + "#" + Value + "#" + Join + "###";//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+                    if (criteria[i].indexOf("<Join>") + 6 < criteria[i].indexOf("</Join>"))//$NON-NLS-1$//$NON-NLS-2$
+                        Join = criteria[i].substring(criteria[i].indexOf("<Join>") + 6, criteria[i].indexOf("</Join>"));//$NON-NLS-1$//$NON-NLS-2$
 
                 }
             } else {
@@ -3791,7 +3797,7 @@ public class ItemsBrowserDWR {
      */
     @SuppressWarnings("finally")
     public String saveCriteria(String viewPK, String templateName, boolean isShared, String[][] criteriasString) {
-        String returnString = "OK";
+        String returnString = "OK";//$NON-NLS-1$
         try {
             String owner = Util.getLoginUserName();
             WhereCriteria whereCriteria = new WhereCriteria();
@@ -3814,7 +3820,7 @@ public class ItemsBrowserDWR {
                             .marshal2String(), new WSDataModelPK(XSystemObjects.DM_SEARCHTEMPLATE.getName()), false));
 
             if (pk != null)
-                returnString = "OK";
+                returnString = "OK";//$NON-NLS-1$
             else
                 returnString = null;
         } catch (Exception e) {
@@ -3831,18 +3837,18 @@ public class ItemsBrowserDWR {
             Criteria criteria = new Criteria();// set to criterias
             String[] criteriaString = criteriasString[i];// get from criteriasString
 
-            String[] paths = criteriaString[0].split(" ");
+            String[] paths = criteriaString[0].split(" ");//$NON-NLS-1$
             criteria.setField(paths[0]);
             criteria.setOperator(paths[1]);
             if (paths.length < 3)
-                criteria.setValue("*");
+                criteria.setValue("*");//$NON-NLS-1$
             else
                 criteria.setValue(paths[2]);
 
-            criteriaString[0] = criteriaString[0].replaceAll(" ", "#");
+            criteriaString[0] = criteriaString[0].replaceAll(" ", "#");//$NON-NLS-1$//$NON-NLS-2$
             for (int j = 1; j < criteriaString.length; j++) {
                 if (criteriaString[j] != null && criteriaString[j].trim().length() > 0
-                        && (criteriaString[j].trim().equals("AND") || criteriaString[j].trim().equals("OR")))
+                        && (criteriaString[j].trim().equals("AND") || criteriaString[j].trim().equals("OR")))//$NON-NLS-1$//$NON-NLS-2$
                     criteria.setJoin(criteriaString[j].trim());
                 // whereItem+=criteria[j].trim()+"#";
             }
@@ -3859,7 +3865,7 @@ public class ItemsBrowserDWR {
         String templates = getSearchTemplateNames(start, limit, regex, false);
         if (templates.length() > 0) {
 
-            String[] searchTemplates = templates.split("##");
+            String[] searchTemplates = templates.split("##");//$NON-NLS-1$
             for (int i = 0; i < searchTemplates.length; i++) {
                 SearchTempalteName name = new SearchTempalteName(searchTemplates[i]);
                 list.add(name);
@@ -3872,7 +3878,7 @@ public class ItemsBrowserDWR {
     }
 
     public String getSearchTemplateNames(int start, int limit, String view, boolean isShared) {
-        String templateNames = "";
+        String templateNames = "";//$NON-NLS-1$
         try {
             int localStart = 0;
             int localLimit = 0;
@@ -3887,18 +3893,18 @@ public class ItemsBrowserDWR {
             WSWhereItem wi = new WSWhereItem();
 
             // Configuration config = Configuration.getInstance();
-            WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,
+            WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,//$NON-NLS-1$
                     WSStringPredicate.NONE, false);
             /*
              * WSWhereCondition wc2 = new WSWhereCondition( "hierarchical-report/data-model", WSWhereOperator.EQUALS,
              * config.getModel(), WSStringPredicate.NONE, false);
              */
-            WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS, Util.getAjaxSubject()
+            WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS, Util.getAjaxSubject()//$NON-NLS-1$
                     .getUsername(), WSStringPredicate.OR, false);
             WSWhereCondition wc4;
             WSWhereOr or = new WSWhereOr();
             if (isShared) {
-                wc4 = new WSWhereCondition("BrowseItem/Shared", WSWhereOperator.EQUALS, "true", WSStringPredicate.OR, false);
+                wc4 = new WSWhereCondition("BrowseItem/Shared", WSWhereOperator.EQUALS, "true", WSStringPredicate.OR, false);//$NON-NLS-1$//$NON-NLS-2$
 
                 or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null), new WSWhereItem(wc4, null, null) });
             } else {
@@ -3913,7 +3919,7 @@ public class ItemsBrowserDWR {
 
             String[] results = Util.getPort()
                     .xPathsSearch(new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
-                            new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order
+                            new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order//$NON-NLS-1$
                             // by
                             null // direction
                             )).getStrings();
@@ -3921,8 +3927,8 @@ public class ItemsBrowserDWR {
             // Map<String, String> map = new HashMap<String, String>();
 
             for (int i = 0; i < results.length; i++) {
-                results[i] = results[i].replaceAll("<CriteriaName>(.*)</CriteriaName>", "$1");
-                templateNames += results[i] + "##";
+                results[i] = results[i].replaceAll("<CriteriaName>(.*)</CriteriaName>", "$1");//$NON-NLS-1$
+                templateNames += results[i] + "##";//$NON-NLS-1$
                 // map.put(results[i], results[i]);
             }
 
@@ -3939,20 +3945,20 @@ public class ItemsBrowserDWR {
     public String deleteTemplate(String id) {
         try {
             String[] ids = { id };
-            String concept = "BrowseItem";
+            String concept = "BrowseItem";//$NON-NLS-1$
             String dataClusterPK = XSystemObjects.DC_SEARCHTEMPLATE.getName();
             if (ids != null) {
                 WSItemPK wsItem = Util.getPort().deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
 
                 if (wsItem == null)
-                    return "ERROR - deleteTemplate is NULL";
-                return "OK";
+                    return "ERROR - deleteTemplate is NULL";//$NON-NLS-1$
+                return "OK";//$NON-NLS-1$
             } else {
-                return "OK";
+                return "OK";//$NON-NLS-1$
             }
         } catch (Exception e) {
-            return "ERROR -" + e.getLocalizedMessage();
+            return "ERROR -" + e.getLocalizedMessage();//$NON-NLS-1$
         }
     }
 
@@ -3961,13 +3967,13 @@ public class ItemsBrowserDWR {
         WSWhereItem wi = new WSWhereItem();
 
         // Configuration config = Configuration.getInstance();
-        WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view, WSStringPredicate.NONE,
+        WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view, WSStringPredicate.NONE,//$NON-NLS-1$
                 false);
         /*
          * WSWhereCondition wc2 = new WSWhereCondition( "hierarchical-report/data-model", WSWhereOperator.EQUALS,
          * config.getModel(), WSStringPredicate.NONE, false);
          */
-        WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS, Util.getAjaxSubject()
+        WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS, Util.getAjaxSubject()//$NON-NLS-1$
                 .getUsername(), WSStringPredicate.NONE, false);
 
         WSWhereOr or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null) });
@@ -3978,14 +3984,14 @@ public class ItemsBrowserDWR {
 
         wi = new WSWhereItem(null, and, null);
         return Util.getPort()
-                .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))
+                .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$
                 .getValue();
     }
 
     public boolean isExistCriteria(String dataObjectLabel, String id) throws RemoteException, XtentisWebappException {
 
         WSItemPK wsItemPK = new WSItemPK();
-        wsItemPK.setConceptName("BrowseItem");
+        wsItemPK.setConceptName("BrowseItem");//$NON-NLS-1$
 
         WSDataClusterPK wsDataClusterPK = new WSDataClusterPK();
         wsDataClusterPK.setPk(XSystemObjects.DC_SEARCHTEMPLATE.getName());
@@ -4031,7 +4037,7 @@ public class ItemsBrowserDWR {
          * comboItem.add(manage);
          */
         if (templates.length() > 0) {
-            String[] searchTemplates = templates.split("##");
+            String[] searchTemplates = templates.split("##");//$NON-NLS-1$
             for (int i = 0; i < searchTemplates.length; i++) {
                 comboItem.add(new ComboItemBean(searchTemplates[i], searchTemplates[i]));
             }
@@ -4064,24 +4070,24 @@ public class ItemsBrowserDWR {
 
             Configuration configuration = Configuration.getInstance();
             wsDataClusterPK.setPk(configuration.getCluster());
-            entity = !criteria.isNull("entity") ? (String) criteria.get("entity") : "";
-            keys = !criteria.isNull("key") && !"*".equals(criteria.get("key")) ? (String) criteria.get("key") : "";
-            fkvalue = !criteria.isNull("fkvalue") && !"*".equals(criteria.get("fkvalue")) ? (String) criteria.get("fkvalue") : "";
-            dataObject = !criteria.isNull("dataObject") && !"*".equals(criteria.get("dataObject")) ? (String) criteria
-                    .get("dataObject") : "";
-            contentWords = !criteria.isNull("keyWords") && !"*".equals(criteria.get("keyWords")) ? (String) criteria
-                    .get("keyWords") : "";
+            entity = !criteria.isNull("entity") ? (String) criteria.get("entity") : "";//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            keys = !criteria.isNull("key") && !"*".equals(criteria.get("key")) ? (String) criteria.get("key") : "";//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
+            fkvalue = !criteria.isNull("fkvalue") && !"*".equals(criteria.get("fkvalue")) ? (String) criteria.get("fkvalue") : "";//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
+            dataObject = !criteria.isNull("dataObject") && !"*".equals(criteria.get("dataObject")) ? (String) criteria//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                    .get("dataObject") : "";//$NON-NLS-1$//$NON-NLS-2$
+            contentWords = !criteria.isNull("keyWords") && !"*".equals(criteria.get("keyWords")) ? (String) criteria//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                    .get("keyWords") : "";//$NON-NLS-1$//$NON-NLS-2$
 
-            if (!criteria.isNull("fromDate")) {
-                String startDate = (String) criteria.get("fromDate");
-                SimpleDateFormat dataFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            if (!criteria.isNull("fromDate")) {//$NON-NLS-1$
+                String startDate = (String) criteria.get("fromDate");//$NON-NLS-1$
+                SimpleDateFormat dataFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//$NON-NLS-1$
                 java.util.Date date = dataFmt.parse(startDate);
                 fromDate = date.getTime();
             }
 
-            if (!criteria.isNull("toDate")) {
-                String endDate = (String) criteria.get("toDate");
-                SimpleDateFormat dataFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            if (!criteria.isNull("toDate")) {//$NON-NLS-1$
+                String endDate = (String) criteria.get("toDate");//$NON-NLS-1$
+                SimpleDateFormat dataFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//$NON-NLS-1$
                 java.util.Date date = dataFmt.parse(endDate);
                 toDate = date.getTime();
             }
@@ -4103,9 +4109,9 @@ public class ItemsBrowserDWR {
 
         StringBuilder sb = new StringBuilder();
         sb.append(keys);
-        sb.append("$");
+        sb.append("$");//$NON-NLS-1$
         sb.append(xpath);
-        sb.append("$");
+        sb.append("$");//$NON-NLS-1$
         sb.append(fkvalue);
 
         WSItemPKsByCriteriaResponse results = Util.getPort().getItemPKsByFullCriteria(
@@ -4122,9 +4128,9 @@ public class ItemsBrowserDWR {
             }
 
             Map record = new HashMap();
-            record.put("date", new java.util.Date(results.getResults()[i].getDate()).toString());
-            record.put("entity", results.getResults()[i].getWsItemPK().getConceptName());
-            record.put("key", results.getResults()[i].getWsItemPK().getIds());
+            record.put("date", new java.util.Date(results.getResults()[i].getDate()).toString());//$NON-NLS-1$
+            record.put("entity", results.getResults()[i].getWsItemPK().getConceptName());//$NON-NLS-1$
+            record.put("key", results.getResults()[i].getWsItemPK().getIds());//$NON-NLS-1$
             data[i - 1] = record;
         }
 
