@@ -468,6 +468,11 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		this.itemData.nodeId = nodeId;
 		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem);
 	},
+	
+	updateNodeValue: function(updatedValue){
+		this.itemData.value = updatedValue;
+		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem);
+	},
     
     // overrides YAHOO.widget.Node
     getNodeHtml: function() {
