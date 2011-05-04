@@ -18,8 +18,11 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.webapp.core.util.GxtFactory;
+import com.amalto.webapp.core.util.WebappForbiddenLoginException;
+import com.amalto.webapp.core.util.WebappRepeatedLoginException;
 
 
 
@@ -47,6 +50,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		PrintWriter out = res.getWriter();
+		String username = null;
 		try {
 		
 		Locale locale = req.getLocale();
@@ -67,9 +71,17 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 		res.setHeader("Content-Type","text/html; charset=UTF-8");
 		
 		//see  	 0013864
-		String username=com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
-		if("admin".equals(username)) {
-			throw new Exception("admin can't login WebUI");
+		username=com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
+		if("admin".equals(username)) {//$NON-NLS-1$
+			throw new WebappForbiddenLoginException("admin can't login WebUI");//$NON-NLS-1$
+		}
+		LinkedHashMap<String, String> onlineUsers = LocalUser.getLocalUser().getOnlineUsers();
+		if(onlineUsers.containsKey(username)) {
+
+		    if(onlineUsers.get(username)!=null&&req.getSession().getId()!=null&&
+		            !onlineUsers.get(username).equals(req.getSession().getId()))
+		            throw new WebappRepeatedLoginException(username+ " already login in another session! ");//$NON-NLS-1$
+		    
 		}
 		// Dispacth call
 		String jsp = req.getParameter("action");	
@@ -92,6 +104,8 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 			//res.sendRedirect("../index.html");
 		}*/
 		else {
+		    
+		    LocalUser.getLocalUser().getOnlineUsers().put(username, req.getSession().getId());
 
 			String html = 
 					"<html>\n" +
@@ -131,7 +145,13 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 			
 		}
 
-		} catch (Exception e) {
+		} catch (WebappRepeatedLoginException e) {
+            req.getSession().invalidate();
+            out.write("<h3>Login Error</h3> <p><font size=\"4\" color=\"red\"> "+ e.getLocalizedMessage()+"</font></p>"+
+                    "<a href='"+ req.getContextPath() +"/LogoutServlet?user="+username+"'>Force logout</a> ");
+        
+            //e.printStackTrace(out);
+        } catch (Exception e) {
 			req.getSession().invalidate();
 			out.write("<h3>Login Error</h3> <p><font size=\"4\" color=\"red\"> "+ e.getLocalizedMessage()+"</font></p>"+
 					"<a href='../index.html'>Back to login screen</a> ");

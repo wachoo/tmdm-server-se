@@ -32,6 +32,17 @@
             <display-name>ItemTreeServlet</display-name>
             <servlet-class>com.amalto.webapp.widget.ItemTreeServlet</servlet-class>
         </servlet>
+        
+        <servlet>
+            <servlet-name>LogoutServlet</servlet-name>
+            <display-name>LogoutServlet</display-name>
+            <servlet-class>com.amalto.webapp.v3.xtentismdm.servlet.LogoutServlet</servlet-class>
+        </servlet>
+        
+        <servlet-mapping>
+            <servlet-name>LogoutServlet</servlet-name>
+            <url-pattern>/LogoutServlet</url-pattern>
+        </servlet-mapping>
     
         <servlet-mapping>
             <servlet-name>ItemTreeServlet</servlet-name>

@@ -1,13 +1,8 @@
 package com.amalto.core.delegator;
 
-import java.security.Principal;
-import java.security.acl.Group;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
@@ -16,13 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.universe.ejb.UniversePOJOPK;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 
 public abstract class ILocalUser implements IBeanDelegator{
+    
+    protected static LinkedHashMap<String,String> onlineUsers = new LinkedHashMap<String,String>();
+    
 	public Subject getICurrentSubject() throws XtentisException {
 		String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container";       		
 		Subject subject;
@@ -39,8 +35,12 @@ public abstract class ILocalUser implements IBeanDelegator{
 	public ILocalUser getILocalUser() throws XtentisException {
 		return null;
 	}
+	
+    public static LinkedHashMap<String, String> getOnlineUsers() {
+        return onlineUsers;
+    }
 
-	public HashSet<String> getRoles() {
+    public HashSet<String> getRoles() {
 		// TODO Auto-generated method stub
 		HashSet<String> set=new HashSet<String>();
 		set.add("administration");
