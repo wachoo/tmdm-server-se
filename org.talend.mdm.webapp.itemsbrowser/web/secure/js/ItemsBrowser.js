@@ -2558,7 +2558,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     + treeIndex
                                     + '" width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='
                                     + ids + '&concept=' + dataObject
-                                    + '&language=' + language + '">';
+                                    + '&language=' + language + '" style="visibility:hidden;"/>';
                         }
 
                         var breadCrumbHtml = '<div id="breadCrumbHtml"></div>';
@@ -2575,9 +2575,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                         var html = '<div>' + '      <span id="itemDetails'
                                 + treeIndex + '" class="itemTree"></span>'
-                                + '     <span id="smartView' + treeIndex
-                                + '" style="display=none;">' + smartView
-                                + '</span>' + '</div>';
+                                + '     <div id="smartView' + treeIndex
+                                + '">' + smartView
+                                + '</div>' + '</div>';
 
                         var tbDetail = new Ext.Toolbar({
                                     id : treeIndex + '_item-tb'
@@ -3175,7 +3175,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     title : myTitle,
                                     tbar : tbDetail,
                                     header : false,
-                                    style : "height:99%;",
+//                                    style : "height:99%;",
                                     closable : true,
                                     items : [errorContentPanel, treeDetailPanel],
                                     bbar : new Ext.Toolbar([{
