@@ -97,10 +97,10 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
     private void refreshForm(ItemBean itemBean){
         if (!Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()){
             ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
-            itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setOverflow(Overflow.AUTO);
+            itemsSearchContainer.getItemsFormPanel().getElement().getStyle().setOverflow(Overflow.AUTO);
             itemsSearchContainer.getItemsFormPanel().reSize();
             GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, itemsSearchContainer //$NON-NLS-1$
-                    .getItemsFormPanel().getContent().getBody().dom, true, false, false);
+                    .getItemsFormPanel().getElement(), true, false, false);
         }
     }
     

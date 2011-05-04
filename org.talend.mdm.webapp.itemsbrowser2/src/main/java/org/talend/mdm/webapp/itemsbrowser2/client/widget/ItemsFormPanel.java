@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
-import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.DateUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
@@ -22,7 +21,6 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -35,9 +33,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
@@ -56,7 +52,7 @@ public class ItemsFormPanel extends ContentPanel {
 
     public ItemsFormPanel() {
         content.setHeaderVisible(false);
-        content.setScrollMode(Scroll.AUTO);
+//        content.setScrollMode(Scroll.AUTO);
         if (Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()) {
             content.setTopComponent(toolbar);
 
@@ -68,11 +64,15 @@ public class ItemsFormPanel extends ContentPanel {
     protected void onResize(int width, int height) {
         // TODO Auto-generated method stub
         super.onResize(width, height);
-        if (content.getBody() != null){
-            content.getBody().dom.getStyle().setOverflow(Overflow.SCROLL);
-            content.getBody().dom.getStyle().setHeight(height, Unit.PX);
-        }
+        this.getElement().getStyle().setHeight(height, Unit.PX);
+        renderFormResize(this.getElement());
     }
+
+    private native void renderFormResize(com.google.gwt.user.client.Element el)/*-{
+        if (el.renderFormResize){
+            el.renderFormResize();
+        }
+    }-*/;
     
     public void reSize(){
         onResize(this.getWidth(), this.getHeight());

@@ -36,6 +36,9 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -43,9 +46,9 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
@@ -54,6 +57,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -177,10 +181,10 @@ public class ItemsView extends View {
                 } else {
                     // itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setHeight(1300,
                     // Unit.PX);
-                    itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.getStyle().setOverflow(Overflow.AUTO);
+                    itemsSearchContainer.getItemsFormPanel().getElement().getStyle().setOverflow(Overflow.AUTO);
                     itemsSearchContainer.getItemsFormPanel().reSize();
                     GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, itemsSearchContainer //$NON-NLS-1$
-                            .getItemsFormPanel().getContent().getBody().dom, true, false, false);
+                            .getItemsFormPanel().getElement(), true, false, false);
                 }
                 // TODO handle legacy form
             } else if (itemsFormTarget.equals(ItemsView.TARGET_IN_NEW_TAB)) {
@@ -220,6 +224,11 @@ public class ItemsView extends View {
                     window.setPosition(left + offset, top + offset);
                     window.setId("formWindowContainer");//$NON-NLS-1$
                     GetService.regCallback();
+                    window.addListener(Events.Resize, new Listener<BaseEvent>() {
+                        public void handleEvent(BaseEvent be) {
+                            renderFormResize(window.getBody().dom);
+                        }
+                    });
                     window.getBody().dom.getStyle().setOverflow(Overflow.AUTO);
                     GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, window.getBody().dom, false,
                             true, true);//$NON-NLS-1$
@@ -228,6 +237,12 @@ public class ItemsView extends View {
             }
         }
     }
+    
+    private native void renderFormResize(Element el)/*-{
+        if (el.renderFormResize){
+            el.renderFormResize();
+        }
+    }-*/;
 
     protected void onInitFrame(AppEvent ae) {
 

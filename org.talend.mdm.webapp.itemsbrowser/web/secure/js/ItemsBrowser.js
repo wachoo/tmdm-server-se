@@ -2558,7 +2558,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     + treeIndex
                                     + '" width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='
                                     + ids + '&concept=' + dataObject
-                                    + '&language=' + language + '" style="visibility:hidden;"/>';
+                                    + '&language=' + language + '" style="display: none;"/>';
                         }
 
                         var breadCrumbHtml = '<div id="breadCrumbHtml"></div>';
@@ -3173,15 +3173,12 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         contentPanel = new Ext.Panel({
                                     id : 'itemDetailsdiv' + treeIndex,
                                     title : myTitle,
-                                    tbar : tbDetail,
+                                    border : false,
                                     header : false,
 //                                    style : "height:99%;",
                                     closable : true,
                                     items : [errorContentPanel, treeDetailPanel],
-                                    bbar : new Ext.Toolbar([{
-                                                text : EDIT_ITEM_TOOLTIP[language],
-                                                xtype : "tbtext"
-                                            }]),
+                                    
                                     listeners : {
                                         "render" : function(contentPanel) {
 
@@ -3190,8 +3187,48 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 });
                     }
                     formWindow.innerHTML = "";
-                    contentPanel.render(formWindow);
-
+                    formWindow.style.overflow = "hidden";
+					
+					formWindow.contentPanel = contentPanel;
+					
+					new Ext.Panel({
+						tbar : tbDetail,
+						header : false,
+						applyTo : formWindow,
+						autoScroll : true,
+						items : [contentPanel],
+						bbar : new Ext.Toolbar([{
+	                                                text : EDIT_ITEM_TOOLTIP[language],
+	                                                xtype : "tbtext"
+	                                            }])
+					});
+					
+					window.setTimeout(function(){
+						new Ext.Panel({
+							tbar : tbDetail,
+							header : false,
+							applyTo : formWindow,
+							autoScroll : true,
+							items : [contentPanel]
+							
+						});
+					}, 1000);
+					
+					formWindow.renderFormResize = function(){
+						new Ext.Panel({
+							tbar : tbDetail,
+							header : false,
+							applyTo : formWindow,
+							autoScroll : true,
+							items : [contentPanel]
+							
+						});
+					};
+					
+					
+//                    contentPanel.render(formWindow);
+					
+                    
                     // record the item id
                     contentPanel.itemid = itemPK2 + "." + dataObject;
 
@@ -3200,6 +3237,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
         amalto.core.ready();
     }
+    
     
     function getItemIdsArray(ids){
         
@@ -6075,6 +6113,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             renderFormWindow(itemPK2, dataObject, isDuplicate, handleCallback,
                     formWindow, isDetail, enableQuit);
         }
+
         /*
          * getRealValue:function(id,treeIndex){getRealValue(id,treeIndex);},
          * setFormatValue:function(id,treeIndex,displayFormats){setFormatValue(id,treeIndex,displayFormats);}
