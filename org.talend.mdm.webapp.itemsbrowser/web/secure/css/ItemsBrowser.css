@@ -42,7 +42,11 @@
 }
 
 .item_bt_task {
-    background-image: url(../img/default.gif) !important;
+    background-image: url(../img/task.png) !important;
+}
+
+.item_bt_relations {
+    background-image: url(../img/relations.png) !important;
 }
 
 .item_bt_delete {

@@ -2395,7 +2395,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
             toolbar.addButton({
                         tooltip : LINEAGE_TOOLTIP[language],
-                        iconCls : 'item_bt_task',
+                        iconCls : 'item_bt_relations',
                         text : LINEAGE_BUTTON[language],
                         className : 'tb-button tb-button-nude',
                         handler : toolbar.lineageItemHandler
