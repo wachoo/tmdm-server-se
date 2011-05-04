@@ -85,6 +85,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 					if(button.lastOptions != null){
 						searchStart = button.lastOptions.params.start;
 						searchLimit = button.lastOptions.params.limit;
+						Ext.getCmp("updateReportPagingToolbar").loading.setIconClass("x-tbar-done");
 					}
 				}
 		);

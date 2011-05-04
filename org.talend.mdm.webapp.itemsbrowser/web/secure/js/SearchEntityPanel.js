@@ -79,6 +79,12 @@ Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
 			this.onBeforeloadStore();
 		}.createDelegate(this)
     );
+	
+	this.store1.on('load', 
+            function(button, event) {
+				Ext.getCmp("searchEntityPagingToolbar").loading.setIconClass("x-tbar-done");
+			}
+	);
 
 	this.gridPanel1 = new Ext.grid.GridPanel({
 		id:"searchEntityGridPanel",

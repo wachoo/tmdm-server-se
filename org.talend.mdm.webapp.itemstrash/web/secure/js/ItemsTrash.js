@@ -211,6 +211,12 @@ amalto.ItemsTrash.ItemsTrash=function(){
           regex: criteria
          });
         });
+   	   	
+   	    store.on('load', 
+             function(button, event) {
+ 				Ext.getCmp("trash-pagingtoolbar").loading.setIconClass("x-tbar-done");
+ 			}
+	 	);
            	
 		store.load({params:{start:0, limit:pageSize}});
     };

@@ -49,6 +49,11 @@
     background-image: url(../img/delete.png) !important;
 }
 
+.x-tbar-done{
+    background-image: url(../img/refreshToolbar.gif) !important;
+}
+
+
 /***************************************************************************************
   SPECIFIC
 ****************************************************************************************/

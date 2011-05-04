@@ -13,3 +13,6 @@
 .report_table_timeline { 
 	background-image: url(../img/time.png)!important; 
 }
+.x-tbar-done{
+    background-image: url(../img/refresh.gif) !important;
+}
