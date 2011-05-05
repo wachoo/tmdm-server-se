@@ -21,12 +21,17 @@ import org.dom4j.io.SAXReader;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.webapp.core.util.GxtFactory;
+import com.amalto.webapp.core.util.Messages;
+import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.WebappForbiddenLoginException;
 import com.amalto.webapp.core.util.WebappRepeatedLoginException;
 
 
 
 public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericControllerServlet{
+    
+    private static final Messages MESSAGES = MessagesFactory.getMessages("com.amalto.webapp.v3.xtentismdm.servlet.messages", //$NON-NLS-1$
+            ControllerServlet.class.getClassLoader());
     
     /**
      * 
@@ -73,14 +78,14 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 		//see  	 0013864
 		username=com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
 		if("admin".equals(username)) {//$NON-NLS-1$
-			throw new WebappForbiddenLoginException("admin can't login WebUI");//$NON-NLS-1$
+			throw new WebappForbiddenLoginException(MESSAGES.getMessage(new Locale(language), "login.exception.forbidden"));//$NON-NLS-1$
 		}
 		LinkedHashMap<String, String> onlineUsers = LocalUser.getLocalUser().getOnlineUsers();
 		if(onlineUsers.containsKey(username)) {
 
 		    if(onlineUsers.get(username)!=null&&req.getSession().getId()!=null&&
-		            !onlineUsers.get(username).equals(req.getSession().getId()))
-		            throw new WebappRepeatedLoginException(username+ " already login in another session! ");//$NON-NLS-1$
+		            !onlineUsers.get(username).equals(req.getSession().getId())) 
+                throw new WebappRepeatedLoginException(MESSAGES.getMessage(new Locale(language), "login.exception.repeated",username ));//$NON-NLS-1$
 		    
 		}
 		// Dispacth call
