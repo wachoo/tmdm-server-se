@@ -2906,6 +2906,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                 $('errorDetail' + treeIndex).style.display = "block";
                                                 $('errorDetail' + treeIndex).innerHTML = "<br/>"
                                                         + err1 + "<br/>";
+                                                paintDetailTreeSize(treeIndex);
                                                 return;
                                             }
 
@@ -3272,8 +3273,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             $('errorDesc' + treeIndex).style.display = "none";
             if(!reValidationfromMap(treeIndex)){
                 $('errorDesc' + treeIndex).style.display = "block";
+                paintDetailTreeSize(treeIndex);
                 return;
             }
+            paintDetailTreeSize(treeIndex);
         }
         
         ItemsBrowserInterface.saveItem(itemPK, dataObject, newItem[treeIndex],
@@ -3305,6 +3308,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             // @temp yguo check
                             $('errorDesc' + treeIndex).style.display = "block";
                             $('errorDesc' + treeIndex).style.display = "none";
+                            paintDetailTreeSize(treeIndex);
                         }
 
                         if (result.description == null
@@ -3473,7 +3477,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         var html = '<div>' + '      <span id="itemDetails'
                                 + treeIndex + '" class="itemTree"></span>'
                                 + '     <span id="smartView' + treeIndex
-                                + '" style="display=none;">' + smartView
+                                + '" style="display:none;">' + smartView
                                 + '</span>' + '</div>';
 
                         var tbDetail = new Ext.Toolbar({
@@ -3960,6 +3964,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     // activeTab: 0,
                                     // tabPosition:'bottom',
                                     // layout:'border',
+
                                     autoScroll : false,
                                     html : errorHtml,
                                     border : false,
@@ -3973,7 +3978,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     // tabPosition:'bottom',
                                     // layout:'border',
                                     // height:501,
-                                    style : "overflow:auto;height:93%;",
+                                    style : "overflow:auto;height: 97%",
+                                    autoHeight : true,
                                     autoScroll : true,
                                     html : html,
                                     border : false,
@@ -4160,6 +4166,13 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
     }
 
+    function paintDetailTreeSize(treeIndex){
+    	var errorEl = Ext.get('errorDetailsdiv' + treeIndex).dom;
+    	var detailEl = Ext.get('treeDetailsdiv' + treeIndex).dom;
+    	var parent = errorEl.parentNode;
+    	detailEl.style.height = (1 - (errorEl.offsetHeight / parent.offsetHeight)) * 100 + "%";
+    }
+    
     function getSelectedViewName(dataObject) {
 
         var viewName = "";
@@ -4190,7 +4203,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         }
 
         $('errorDetail' + treeIndex).style.display = "none";
-
+		paintDetailTreeSize(treeIndex);
         var itemTree = itemTreeList[treeIndex];        
         // node.itemData.nodeId = id;
         // edit by ymli: fix the bug:0013463
@@ -4215,8 +4228,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             }
                         }   
                     });
-                    if(atuoValidationFlag)
+                    if(atuoValidationFlag){
                         $('errorDesc' + treeIndex).style.display = "block";
+                        paintDetailTreeSize(treeIndex);
+                    }
                 });
         if (updateValue(id, treeIndex) == false) {
             allUpdate = true;
@@ -4229,8 +4244,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 if ($('errorDesc' + treeIndex)) {
                     if (allUpdate == true) {
                         $('errorDesc' + treeIndex).style.display = "block";
-                    } else
+                    } else {
                         $('errorDesc' + treeIndex).style.display = "none";
+                    }
+                    paintDetailTreeSize(treeIndex);
                 }
             }
         }
@@ -4291,6 +4308,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var error = itemTreeList[treeIndex];
         $('errorDesc' + treeIndex).style.display = errorString
                 .indexOf("Save item") == 0 ? "none" : "block";
+		paintDetailTreeSize(treeIndex);
         var reCat = /\[Error\].*\n/gi;
         var innerHml = "";
         var arrMactches = errorString.match(reCat);
@@ -4304,6 +4322,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             innerHml += errorString + '<br/>';
         $('errorDetail' + treeIndex).style.display = "block";
         $('errorDetail' + treeIndex).innerHTML = innerHml;
+        paintDetailTreeSize(treeIndex);
         _exception = true;
     }
 
@@ -4345,6 +4364,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var error = itemTreeList[treeIndex];
         $('errorDesc' + treeIndex).style.display = errorString
                 .indexOf("Save item") == 0 ? "none" : "block";
+		paintDetailTreeSize(treeIndex);
         var reCat = /\[Error\].*\n/gi;
         var innerHml = "";
         var arrMactches = errorString.match(reCat);
@@ -4358,6 +4378,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             innerHml += errorString + '<br/>';
         $('errorDetail' + treeIndex).style.display = "block";
         $('errorDetail' + treeIndex).innerHTML = innerHml;
+        paintDetailTreeSize(treeIndex);
         _exception = true;
     }
 
@@ -4743,8 +4764,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             $('errorDesc' + treeIndex).style.display = "none";
             if(!reValidationfromMap(treeIndex)){
                 $('errorDesc' + treeIndex).style.display = "block";
+                paintDetailTreeSize(treeIndex);
                 return;
             }
+            paintDetailTreeSize(treeIndex);
         }
         
         saveItem(ids, dataObject, treeIndex, function() {
@@ -4764,8 +4787,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             $('errorDesc' + treeIndex).style.display = "none";
             if(!reValidationfromMap(treeIndex)){
                 $('errorDesc' + treeIndex).style.display = "block";
+                paintDetailTreeSize(treeIndex);
                 return;
             }
+            paintDetailTreeSize(treeIndex);
         } 
         
         DWREngine.setAsync(false);
@@ -4872,6 +4897,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         if (updateItemNodesBeforeSaving(treeIndex) == true) {
             $('errorDesc' + treeIndex).style.display = "block";
             $('errorDetail' + treeIndex).style.display = "none";
+            paintDetailTreeSize(treeIndex);
             return;
         }
 
@@ -4879,7 +4905,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             return;
         $('errorDesc' + treeIndex).style.display = "none";
         $('errorDetail' + treeIndex).style.display = "none";
-
+		paintDetailTreeSize(treeIndex);
+		
         var cluster = DWRUtil.getValue('datacluster-select');
         ItemsBrowserInterface.isDataClusterExists(cluster, {
                     callback : function(result) {
@@ -5122,6 +5149,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         $('errorDetail' + treeIndex).style.display = "block";
                         $('errorDetail' + treeIndex).innerHTML = "<br/>" + err1
                                 + "<br/>";
+                        paintDetailTreeSize(treeIndex);
                         return;
                     }
                     var itempanel = amalto.core.getTabPanel().activeTab;
