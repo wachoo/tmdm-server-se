@@ -53,6 +53,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -265,6 +266,12 @@ public class ItemsListPanel extends ContentPanel {
             public void componentSelected(MenuEvent ce) {
                 // TODO check dirty status
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
+                if(m==null) {
+                    MessageBox.alert(
+                            MessagesFactory.getMessages().warning_title(),
+                            MessagesFactory.getMessages().grid_record_select(), null);
+                    return;
+                }
                 showItem(m, ItemsView.TARGET_IN_NEW_WINDOW);
             }
         });
@@ -276,6 +283,12 @@ public class ItemsListPanel extends ContentPanel {
 
             public void componentSelected(MenuEvent ce) {
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
+                if(m==null) {
+                    MessageBox.alert(
+                            MessagesFactory.getMessages().warning_title(),
+                            MessagesFactory.getMessages().grid_record_select(), null);
+                    return;
+                }
                 showItem(m, ItemsView.TARGET_IN_NEW_TAB);
             }
         });
@@ -286,7 +299,14 @@ public class ItemsListPanel extends ContentPanel {
         editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             public void componentSelected(MenuEvent ce) {
-                int rowIndex = grid.getStore().indexOf(grid.getSelectionModel().getSelectedItem());
+                ItemBean m = grid.getSelectionModel().getSelectedItem();
+                if(m==null) {
+                    MessageBox.alert(
+                            MessagesFactory.getMessages().warning_title(),
+                            MessagesFactory.getMessages().grid_record_select(), null);
+                    return;
+                }
+                int rowIndex = grid.getStore().indexOf(m);
                 re.startEditing(rowIndex, true);
             }
         });
