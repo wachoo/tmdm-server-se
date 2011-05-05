@@ -24,35 +24,27 @@ import org.apache.log4j.Logger;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 
-
 /**
- * DOC HSHU  class global comment. Detailled comment
+ * DOC HSHU class global comment. Detailled comment
  */
-public class LogoutServlet extends HttpServlet{
-    
-    private String userName = null;
-    
-    private Logger logger = Logger.getLogger(this.getClass());
-    
-    /* (non-Jsdoc)
-     * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-     */
+public class LogoutServlet extends HttpServlet {
+
+    private static final Logger logger = Logger.getLogger(LogoutServlet.class);
+
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        userName=req.getParameter("user");
-        doPost(req, resp);
+
+        doLogout(req, resp);
     }
-    
-    /* (non-Jsdoc)
-     * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-     */
+
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            LocalUser.getLocalUser().getOnlineUsers().remove(userName);
-        } catch (XtentisException e) {
-            logger.error("Error happened while updating online users! ");
-        }
+        doLogout(req, resp);
+    }
+
+    private void doLogout(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.getSession().invalidate();
-        resp.sendRedirect(req.getContextPath()+"/index.html");
+        resp.sendRedirect(req.getContextPath() + "/index.html"); //$NON-NLS-1$
 
     }
 

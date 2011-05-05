@@ -20,6 +20,7 @@ import org.dom4j.io.SAXReader;
 
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.util.GxtFactory;
 import com.amalto.webapp.core.util.Messages;
 import com.amalto.webapp.core.util.MessagesFactory;
@@ -88,10 +89,11 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
                 throw new WebappRepeatedLoginException(MESSAGES.getMessage(new Locale(language), "login.exception.repeated",username ));//$NON-NLS-1$
 		    
 		}
-		// Dispacth call
+		// Dispatch call
 		String jsp = req.getParameter("action");	
 		if ("logout".equals(jsp)) {
-			req.getSession().invalidate();
+		    LocalUser.getLocalUser().getOnlineUsers().remove(username);
+	        req.getSession().invalidate();
 			res.sendRedirect("../index.html");
 		} 
 		/*else if("initialization".equals(jsp)){
@@ -153,13 +155,12 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 		} catch (WebappRepeatedLoginException e) {
             req.getSession().invalidate();
             out.write("<h3>Login Error</h3> <p><font size=\"4\" color=\"red\"> "+ e.getLocalizedMessage()+"</font></p>"+
-                    "<a href='"+ req.getContextPath() +"/LogoutServlet?user="+username+"'>Force logout</a> ");
+                    "<a href='"+ req.getContextPath() +"/LogoutServlet"+"'>Back to login screen</a> ");
         
-            //e.printStackTrace(out);
         } catch (Exception e) {
 			req.getSession().invalidate();
 			out.write("<h3>Login Error</h3> <p><font size=\"4\" color=\"red\"> "+ e.getLocalizedMessage()+"</font></p>"+
-					"<a href='../index.html'>Back to login screen</a> ");
+			        "<a href='"+ req.getContextPath() +"/LogoutServlet"+"'>Back to login screen</a> ");
 		
 			//e.printStackTrace(out);
 		} finally {
