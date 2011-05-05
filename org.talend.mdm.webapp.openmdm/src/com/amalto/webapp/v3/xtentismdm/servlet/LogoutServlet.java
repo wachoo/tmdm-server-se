@@ -13,21 +13,22 @@
 package com.amalto.webapp.v3.xtentismdm.servlet;
 
 import java.io.IOException;
+import java.util.Map;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
 import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.XtentisException;
 
-/**
- * DOC HSHU class global comment. Detailled comment
- */
 public class LogoutServlet extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
 
     private static final Logger logger = Logger.getLogger(LogoutServlet.class);
 
@@ -42,7 +43,24 @@ public class LogoutServlet extends HttpServlet {
         doLogout(req, resp);
     }
 
-    private void doLogout(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    private void doLogout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String user = req.getParameter("user"); //$NON-NLS-1$
+        if (user != null) {
+            try {
+                String sessionId = LocalUser.getLocalUser().getOnlineUsers().remove(user);
+                if (sessionId != null) {
+                    ServletContext context = req.getSession().getServletContext();
+                    @SuppressWarnings("unchecked")
+                    Map<String, HttpSession> activeSessions = (Map<String, HttpSession>) context
+                            .getAttribute(SessionListener.ACTIVE_SESSIONS);
+                    HttpSession session = activeSessions.get(sessionId);
+                    session.invalidate();
+                }
+            } catch (Exception e) {
+                logger.debug("Error happened while updating online users!"); //$NON-NLS-1$
+            }
+        }
+
         req.getSession().invalidate();
         resp.sendRedirect(req.getContextPath() + "/index.html"); //$NON-NLS-1$
 
