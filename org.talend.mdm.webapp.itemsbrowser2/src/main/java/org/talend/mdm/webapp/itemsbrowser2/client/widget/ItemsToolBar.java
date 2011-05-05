@@ -153,13 +153,13 @@ public class ItemsToolBar extends ToolBar {
         else {
             menu.setEnabled(true);
             if (denyPhysicalDelete)
-                menu.getMenu().getItem(0).setEnabled(false);
+                menu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(false);
             else
-                menu.getMenu().getItem(0).setEnabled(true);
+                menu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(true);
             if (denyLogicalDelete)
-                menu.getMenu().getItem(1).setEnabled(false);
+                menu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(false);
             else
-                menu.getMenu().getItem(1).setEnabled(true);
+                menu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(true);
         }
         updateUserCriteriasList();
     }
@@ -214,6 +214,7 @@ public class ItemsToolBar extends ToolBar {
         menu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
         Menu sub = new Menu();
         MenuItem delMenu = new MenuItem(MessagesFactory.getMessages().delete_btn());
+        delMenu.setId("physicalDelMenuInGrid");//$NON-NLS-1$
         delMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
 
         // TODO duplicate with recordToolbar
@@ -321,6 +322,7 @@ public class ItemsToolBar extends ToolBar {
         });
 
         MenuItem trashMenu = new MenuItem(MessagesFactory.getMessages().trash_btn());
+        trashMenu.setId("logicalDelMenuInGrid");//$NON-NLS-1$
         trashMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
         trashMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
