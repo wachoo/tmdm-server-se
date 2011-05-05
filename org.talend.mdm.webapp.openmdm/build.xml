@@ -52,6 +52,7 @@
 			<zipfileset dir="web" includes="**/*" />
 			<zipfileset dir="src" prefix="WEB-INF/classes" includes="**/*.xsl" />
 			<zipfileset dir="src" prefix="WEB-INF/classes" includes="**/*.xml" />
+			<zipfileset dir="src" prefix="WEB-INF/classes" includes="**/*.properties" />
 			<zipfileset dir="libs" prefix="WEB-INF/lib" includes="*.jar" />
 		</jar>
    		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
