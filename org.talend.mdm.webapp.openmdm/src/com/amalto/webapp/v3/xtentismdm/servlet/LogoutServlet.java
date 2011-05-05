@@ -24,7 +24,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
-import com.amalto.core.util.LocalUser;
+import com.amalto.core.delegator.ILocalUser;
 
 public class LogoutServlet extends HttpServlet {
 
@@ -47,7 +47,7 @@ public class LogoutServlet extends HttpServlet {
         String user = req.getParameter("user"); //$NON-NLS-1$
         if (user != null) {
             try {
-                String sessionId = LocalUser.getLocalUser().getOnlineUsers().remove(user);
+                String sessionId = ILocalUser.getOnlineUsers().remove(user);
                 if (sessionId != null) {
                     ServletContext context = req.getSession().getServletContext();
                     @SuppressWarnings("unchecked")

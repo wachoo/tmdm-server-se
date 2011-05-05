@@ -18,7 +18,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import com.amalto.core.util.LocalUser;
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.webapp.core.util.Messages;
 import com.amalto.webapp.core.util.MessagesFactory;
@@ -74,7 +74,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             if ("admin".equals(username)) {//$NON-NLS-1$		    
                 throw new WebappForbiddenLoginException(MESSAGES.getMessage(locale, "login.exception.forbidden", username)); //$NON-NLS-1$);
             }
-            LinkedHashMap<String, String> onlineUsers = LocalUser.getLocalUser().getOnlineUsers();
+            LinkedHashMap<String, String> onlineUsers = ILocalUser.getOnlineUsers();
             if (onlineUsers.containsKey(username)) {
 
                 if (onlineUsers.get(username) != null && req.getSession().getId() != null
@@ -86,12 +86,12 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             // Dispatch call
             String jsp = req.getParameter("action"); //$NON-NLS-1$	
             if ("logout".equals(jsp)) { //$NON-NLS-1$
-                LocalUser.getLocalUser().getOnlineUsers().remove(username);
+                ILocalUser.getOnlineUsers().remove(username);
                 req.getSession().invalidate();
                 res.sendRedirect("../index.html"); //$NON-NLS-1$
             } else {
 
-                LocalUser.getLocalUser().getOnlineUsers().put(username, req.getSession().getId());
+                ILocalUser.getOnlineUsers().put(username, req.getSession().getId());
 
                 String html = "<html>\n" + "<head>\n" + "<title>Talend MDM</title>\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + "<meta name=\"gwt:property\" content=\"locale=" + language + "\" >\n" + super.getCommonImport(); //$NON-NLS-1$ //$NON-NLS-2$
@@ -216,7 +216,8 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             io = ControllerServlet.class.getResourceAsStream("languageSelection.xml"); //$NON-NLS-1$
             SAXReader reader = new SAXReader();
             Document document = reader.read(io);
-            for (Iterator<Element> iterator = document.getRootElement().elementIterator(); iterator.hasNext();) {
+            for (@SuppressWarnings("unchecked")
+            Iterator<Element> iterator = document.getRootElement().elementIterator(); iterator.hasNext();) {
                 Element element = iterator.next();
                 String key = element.attributeValue("value");//$NON-NLS-1$
                 String value = element.getText();
