@@ -354,9 +354,12 @@ public abstract class QueryBuilder {
                             isLeftPathNum = true;
                         }
                     }
+                }                
+                if(metaDataTypes==null){ //fix 0021067, if can't get metaDataTypes
+                	isNum = isLeftPathNum || isRightValueNum;
+                }else{
+                	isNum = isLeftPathNum && isRightValueNum;
                 }
-
-                isNum = isLeftPathNum && isRightValueNum;
 
                 encoded = isXpathFunction ? wc.getRightValueOrPath().trim() : StringEscapeUtils.escapeXml(wc
                         .getRightValueOrPath());
