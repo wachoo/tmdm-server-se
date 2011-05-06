@@ -54,11 +54,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -111,6 +111,15 @@ public class ItemsToolBar extends ToolBar {
     private List<ItemBaseModel> userCriteriasList;
 
     private boolean advancedPanelVisible = false;
+
+    /****** record edit bookmark info *****/
+    private boolean editBookmark = false;
+
+    private boolean bookmarkShared = false;
+
+    private String bookmarkName = null;
+
+    /*************************************/
 
     public ItemsToolBar() {
         // init user saved model
@@ -257,8 +266,8 @@ public class ItemsToolBar extends ToolBar {
                                                         } else if (successNum > 1 && failureNum == 0) {
                                                             msgs.append(MessagesFactory.getMessages().delete_item_record_success(
                                                                     successNum));
-                                                            MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                    msgs.toString(), null);
+                                                            MessageBox.info(MessagesFactory.getMessages().info_title(), msgs
+                                                                    .toString(), null);
                                                         } else if (successNum == 0 && failureNum == 1) {
                                                             String msg = results.iterator().next().getDescription();
                                                             MessageBox.alert(MessagesFactory.getMessages().error_title(),
@@ -266,8 +275,8 @@ public class ItemsToolBar extends ToolBar {
                                                         } else if (successNum == 0 && failureNum > 1) {
                                                             msgs.append(MessagesFactory.getMessages().delete_item_record_failure(
                                                                     failureNum));
-                                                            MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                                    msgs.toString(), null);
+                                                            MessageBox.alert(MessagesFactory.getMessages().error_title(), msgs
+                                                                    .toString(), null);
                                                         } else if (successNum > 0 && failureNum > 0) {
                                                             msgs.append(MessagesFactory.getMessages().delete_item_record_success(
                                                                     successNum)
@@ -275,8 +284,8 @@ public class ItemsToolBar extends ToolBar {
                                                             msgs.append(MessagesFactory.getMessages().delete_item_record_failure(
                                                                     failureNum)
                                                                     + "\n");//$NON-NLS-1$
-                                                            MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                                                    msgs.toString(), null);
+                                                            MessageBox.info(MessagesFactory.getMessages().info_title(), msgs
+                                                                    .toString(), null);
                                                         }
 
                                                         list.getStore().getLoader().load();
@@ -345,8 +354,8 @@ public class ItemsToolBar extends ToolBar {
                                             public void onSuccess(List<ItemResult> results) {
                                                 for (ItemResult result : results) {
                                                     if (result.getStatus() == ItemResult.FAILURE) {
-                                                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                                                result.getDescription(), null);
+                                                        MessageBox.alert(MessagesFactory.getMessages().error_title(), result
+                                                                .getDescription(), null);
                                                         return;
                                                     }
                                                 }
@@ -441,6 +450,7 @@ public class ItemsToolBar extends ToolBar {
                 // show advanced Search panel
                 advancedPanelVisible = !advancedPanelVisible;
                 advancedPanel.setVisible(advancedPanelVisible);
+                advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn").setVisible(false);
 
                 if (((ItemsListPanel) instance.getParent()).gridContainer != null)
                     ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance.getParent().getOffsetHeight()
@@ -465,7 +475,7 @@ public class ItemsToolBar extends ToolBar {
                 final Window winBookmark = new Window();
                 winBookmark.setHeading(MessagesFactory.getMessages().bookmarkmanagement_heading());
                 winBookmark.setAutoHeight(true);
-//                winBookmark.setAutoWidth(true);
+                // winBookmark.setAutoWidth(true);
                 winBookmark.setWidth(413);
                 winBookmark.setModal(true);
                 FormPanel content = new FormPanel();
@@ -530,11 +540,14 @@ public class ItemsToolBar extends ToolBar {
                                                         advancedPanel.cleanCriteria();
                                                     advancedPanelVisible = true;
                                                     advancedPanel.setVisible(advancedPanelVisible);
+                                                    advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn").setVisible(
+                                                            true);
+                                                    bookmarkName = model.get("value").toString();
+                                                    bookmarkShared = Boolean.parseBoolean(model.get("shared").toString());
                                                     if (((ItemsListPanel) instance.getParent()).gridContainer != null)
                                                         ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance
                                                                 .getParent().getOffsetHeight()
-                                                                - instance.getOffsetHeight()
-                                                                - advancedPanel.getOffsetHeight());
+                                                                - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
                                                     winBookmark.close();
                                                     // showAdvancedWin(instance, arg0);
                                                     // winBookmark.close();
@@ -721,8 +734,8 @@ public class ItemsToolBar extends ToolBar {
     private void showBookmarkSavedWin(final boolean ifSimple) {
         final Window winBookmark = new Window();
         winBookmark.setHeading(MessagesFactory.getMessages().bookmark_heading());
-        //winBookmark.setAutoHeight(true);
-        //winBookmark.setAutoWidth(true);
+        // winBookmark.setAutoHeight(true);
+        // winBookmark.setAutoWidth(true);
         winBookmark.setWidth(355);
         winBookmark.setHeight(191);
         FormPanel content = new FormPanel();
@@ -757,7 +770,7 @@ public class ItemsToolBar extends ToolBar {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue(),  //$NON-NLS-1$
+                service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue(), //$NON-NLS-1$
                         new AsyncCallback<Boolean>() {
 
                             public void onFailure(Throwable caught) {
@@ -773,27 +786,7 @@ public class ItemsToolBar extends ToolBar {
                                         curCriteria = simplePanel.getCriteria().toString();
                                     else
                                         curCriteria = advancedPanel.getCriteria();
-                                    service.saveCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue() //$NON-NLS-1$
-                                            .toString(), cb.getValue(), curCriteria, new AsyncCallback<String>() {
-
-                                        public void onFailure(Throwable caught) {
-                                            Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
-                                                    .getMessages().bookmark_saveFailed(), null);
-                                        }
-
-                                        public void onSuccess(String arg0) {
-                                            if (arg0.equals("OK")) { //$NON-NLS-1$
-                                                MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory
-                                                        .getMessages().bookmark_saveSuccess(), null);
-                                                updateUserCriteriasList();
-                                                winBookmark.close();
-                                            } else
-                                                MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory
-                                                        .getMessages().bookmark_saveFailed(), null);
-                                        }
-
-                                    });
+                                    saveBookmark(bookmarkfield.getValue().toString(), cb.getValue(), curCriteria, winBookmark);
                                 } else {
                                     MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                                             .bookmark_existMsg(), null);
@@ -807,6 +800,32 @@ public class ItemsToolBar extends ToolBar {
 
         winBookmark.add(content);
         winBookmark.show();
+    }
+
+    private void saveBookmark(String name, boolean shared, String curCriteria, final Window winBookmark) {
+
+        service.saveCriteria(entityCombo.getValue().get("value").toString(), name, shared, curCriteria,
+                new AsyncCallback<String>() {
+
+                    public void onFailure(Throwable caught) {
+                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                .bookmark_saveFailed(), null);
+                    }
+
+                    public void onSuccess(String arg0) {
+                        if (arg0.equals("OK")) { //$NON-NLS-1$
+                            MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                    .bookmark_saveSuccess(), null);
+                            updateUserCriteriasList();
+                            if (winBookmark != null)
+                                winBookmark.close();
+                        } else
+                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                    .bookmark_saveFailed(), null);
+                    }
+
+                });
     }
 
     public FormPanel getAdvancedPanel() {
@@ -830,6 +849,7 @@ public class ItemsToolBar extends ToolBar {
             advancedPanel.setButtonAlign(HorizontalAlignment.CENTER);
 
             Button searchBtn = new Button(MessagesFactory.getMessages().search_btn());
+            searchBtn.setItemId("searchBtn");
             searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
@@ -849,6 +869,7 @@ public class ItemsToolBar extends ToolBar {
             advancedPanel.addButton(searchBtn);
 
             Button advancedBookmarkBtn = new Button(MessagesFactory.getMessages().advsearch_bookmark());
+            advancedBookmarkBtn.setItemId("advancedBookmarkBtn");
             advancedBookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
@@ -859,7 +880,21 @@ public class ItemsToolBar extends ToolBar {
             });
             advancedPanel.addButton(advancedBookmarkBtn);
 
+            Button updateBookmarkBtn = new Button(MessagesFactory.getMessages().bookmark_update());
+            updateBookmarkBtn.setItemId("updateBookmarkBtn");
+            updateBookmarkBtn.setVisible(false);
+            updateBookmarkBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    saveBookmark(bookmarkName, bookmarkShared, advancedPanel.getCriteria(), null);
+                }
+
+            });
+            advancedPanel.addButton(updateBookmarkBtn);
+
             Button cancelBtn = new Button(MessagesFactory.getMessages().button_reset());
+            cancelBtn.setItemId("cancelBtn");
             cancelBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override

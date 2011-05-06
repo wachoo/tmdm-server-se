@@ -139,7 +139,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     if (id != null)
                         idsArray.add(id);
                 }
-                
+
                 ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), results[i]);//$NON-NLS-1$ 
                 dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
                 itemBeans.add(itemBean);
@@ -174,7 +174,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     Node value = (Node) nodes.get(0);
                     itemBean.set(path, value.getText());
                     TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
-                    if (typeModel != null && typeModel.getForeignkey() != null){
+                    if (typeModel != null && typeModel.getForeignkey() != null) {
                         itemBean.setForeignkeyDesc(value.getText(), getForeignKeyDesc(typeModel, value.getText()));
                     }
                 }
@@ -201,7 +201,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                             itemBean.set(path, list);
                         } else {
                             itemBean.set(path, value.getText());
-                            if (typeModel != null && typeModel.getForeignkey() != null){
+                            if (typeModel != null && typeModel.getForeignkey() != null) {
                                 itemBean.setForeignkeyDesc(value.getText(), getForeignKeyDesc(typeModel, value.getText()));
                             }
                         }
@@ -343,7 +343,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     message = errorElement.getText();
                 }
             }
-            
+
             int status;
             if (outputErrorMessage == null || "0".equals(errorCode)) { //$NON-NLS-1$               
                 WSItemPK wsItem = CommonUtil.getPort().deleteItem(
@@ -353,23 +353,22 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     pushUpdateReport(ids, concept, "PHYSICAL_DELETE", true); //$NON-NLS-1$
                     if (message == null || message.length() == 0)
                         message = MESSAGES.delete_record_success();
-                }
-                else {
+                } else {
                     status = ItemResult.FAILURE;
                     message = MESSAGES.delete_record_failure();
-                }                        
+                }
             } else {
                 // Anything but 0 is unsuccessful
                 status = ItemResult.FAILURE;
                 if (message == null || message.length() == 0)
-                   message = MESSAGES.delete_process_validation_failure();
+                    message = MESSAGES.delete_process_validation_failure();
             }
 
             return new ItemResult(status, message);
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            return new ItemResult(ItemResult.FAILURE, e.getLocalizedMessage()); 
+            return new ItemResult(ItemResult.FAILURE, e.getLocalizedMessage());
         }
     }
 
@@ -424,12 +423,13 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             return new ItemResult(ItemResult.FAILURE, "ERROR -" + e.getLocalizedMessage());//$NON-NLS-1$ 
         }
     }
-    
+
     private String pushUpdateReport(String[] ids, String concept, String operationType) throws Exception {
-        return pushUpdateReport(ids,concept,operationType,false);
+        return pushUpdateReport(ids, concept, operationType, false);
     }
 
-    private String pushUpdateReport(String[] ids, String concept, String operationType, boolean routeAfterSaving) throws Exception {
+    private String pushUpdateReport(String[] ids, String concept, String operationType, boolean routeAfterSaving)
+            throws Exception {
         if (LOG.isTraceEnabled())
             LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$ 
 
@@ -590,27 +590,27 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return sortedMap;
     }
 
-    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids){
-        
+    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids) {
+
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null)
             return null;
-        
-        if (ids == null || ids.trim().length() == 0){
+
+        if (ids == null || ids.trim().length() == 0) {
             return null;
         }
-        
+
         ForeignKeyBean bean = new ForeignKeyBean();
-        if (!model.isRetrieveFKinfos()){
+        if (!model.isRetrieveFKinfos()) {
             bean.setId(ids);
             return bean;
         }
-        
+
         String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-     
+
         String[] results = null;
         try {
-            
+
             String initxpathForeignKey = ""; //$NON-NLS-1$
             initxpathForeignKey = com.amalto.webapp.core.util.Util.getForeignPathFromPath(xpathForeignKey);
             initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
@@ -618,16 +618,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             // foreign key set by business concept
             if (initxpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
                 String conceptName = initxpathForeignKey;
-                
+
                 String dataClusterPK = getCurrentDataCluster();
-                
+
                 // determine if we have xPath Infos: e.g. labels to display
                 String[] xpathInfos = new String[1];
                 if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null)//$NON-NLS-1$
                     xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
                 else
                     xpathInfos[0] = conceptName;
-                
+
                 // add the xPath Infos Path
                 ArrayList<String> xPaths = new ArrayList<String>();
                 if (model.isRetrieveFKinfos())
@@ -637,22 +637,22 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     }
                 // add the key paths last, since there may be multiple keys
                 xPaths.add(conceptName + "/../../i"); //$NON-NLS-1$
-                
-                //where conditions
+
+                // where conditions
                 WSWhereCondition whereCondition = com.amalto.webapp.core.util.Util.getConditionFromPath(xpathForeignKey);
                 WSWhereItem whereItem = null;
                 if (whereCondition != null) {
                     whereItem = new WSWhereItem(whereCondition, null, null);
                 }
-                
+
                 List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
                 if (whereItem != null)
                     condition.add(whereItem);
-                
+
                 List<String> idList = new ArrayList<String>();
                 Pattern pattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
                 Matcher matcher = pattern.matcher(ids);
-                while (matcher.find()){
+                while (matcher.find()) {
                     String id = matcher.group();
                     id = id.replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$
                     idList.add(id);
@@ -661,34 +661,27 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 // if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
                 // strConcept = conceptName + "//* CONTAINS ";
                 // }
-                for (int i = 0;i < idList.size();i++){
+                for (int i = 0; i < idList.size(); i++) {
                     String id = idList.get(i);
                     String strConcept = conceptName + "/../../i CONTAINS "; //$NON-NLS-1$ //$NON-NLS-2$
                     WSWhereItem wc = com.amalto.webapp.core.util.Util.buildWhereItem(strConcept + id);
-                    condition.add(wc);                    
+                    condition.add(wc);
                 }
-                
-                
+
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
                 WSWhereItem whand = new WSWhereItem(null, and, null);
                 if (whand != null)
                     whereItem = whand;
-                
 
-                
                 results = CommonUtil.getPort().xPathsSearch(
-                        new WSXPathsSearch(
-                                new WSDataClusterPK(dataClusterPK), 
-                                null, 
-                                new WSStringArray(xPaths.toArray(new String[xPaths.size()])), 
-                                whereItem, -1, 0, 20,
-                                null, null)).getStrings();
-                
-            }//end if
-            
+                        new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
+                                .toArray(new String[xPaths.size()])), whereItem, -1, 0, 20, null, null)).getStrings();
+
+            }// end if
+
             if (results != null && results.length > 0) {
                 String result = results[0];
-                
+
                 String id = ""; //$NON-NLS-1$
                 List<Node> nodes = XmlUtil.getValuesFromXPath(XmlUtil.parseText(result), "//i"); //$NON-NLS-1$
                 if (nodes != null) {
@@ -713,9 +706,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             LOG.error(e.getMessage(), e);
         }
         return null;
-    
+
     }
-    
+
     /*********************************************************************
      * Foreign key
      *********************************************************************/
@@ -749,7 +742,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
 
             // get FK filter
-            WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey, xpathForeignKey, fkFilter);
+            WSWhereItem fkFilterWi = com.amalto.webapp.core.util.Util.getConditionFromFKFilter(xpathForeignKey, xpathForeignKey,
+                    fkFilter);
             if (fkFilterWi != null)
                 whereItem = fkFilterWi;
             initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
@@ -931,9 +925,22 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
         for (String result : results) {
             ItemBaseModel bm = new ItemBaseModel();
-            bm.set("name", result);//$NON-NLS-1$ 
-            bm.set("value", result);//$NON-NLS-1$ 
-            list.add(bm);
+            try {
+                org.w3c.dom.Node resultNode = com.amalto.webapp.core.util.Util.parse(result).getFirstChild();
+                for (int i = 0; i < resultNode.getChildNodes().getLength(); i++) {
+                    if (resultNode.getChildNodes().item(i) instanceof org.w3c.dom.Element) {
+                        if (resultNode.getChildNodes().item(i).getNodeName().equals("CriteriaName")) { //$NON-NLS-1$ 
+                            bm.set("name", resultNode.getChildNodes().item(i).getFirstChild().getTextContent());//$NON-NLS-1$ 
+                            bm.set("value", resultNode.getChildNodes().item(i).getFirstChild().getTextContent());//$NON-NLS-1$ 
+                        } else if (resultNode.getChildNodes().item(i).getNodeName().equals("Shared")) { //$NON-NLS-1$ 
+                            bm.set("shared", resultNode.getChildNodes().item(i).getFirstChild().getTextContent()); //$NON-NLS-1$ 
+                        }
+                    }
+                }
+                list.add(bm);
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+            }
         }
         int totalSize = Integer.parseInt(countSearchTemplate(view));
         return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
@@ -946,9 +953,23 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
         for (String result : results) {
             ItemBaseModel bm = new ItemBaseModel();
-            bm.set("name", result);//$NON-NLS-1$ 
-            bm.set("value", result);//$NON-NLS-1$ 
-            list.add(bm);
+
+            try {
+                org.w3c.dom.Node resultNode = com.amalto.webapp.core.util.Util.parse(result).getFirstChild();
+                for (int i = 0; i < resultNode.getChildNodes().getLength(); i++) {
+                    if (resultNode.getChildNodes().item(i) instanceof org.w3c.dom.Element) {
+                        if (resultNode.getChildNodes().item(i).getNodeName().equals("CriteriaName")) { //$NON-NLS-1$ 
+                            bm.set("name", resultNode.getChildNodes().item(i).getFirstChild().getTextContent());//$NON-NLS-1$ 
+                            bm.set("value", resultNode.getChildNodes().item(i).getFirstChild().getTextContent());//$NON-NLS-1$ 
+                        } else if (resultNode.getChildNodes().item(i).getNodeName().equals("Shared")) { //$NON-NLS-1$ 
+                            bm.set("shared", resultNode.getChildNodes().item(i).getFirstChild().getTextContent()); //$NON-NLS-1$ 
+                        }
+                    }
+                }
+                list.add(bm);
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+            }
         }
         return list;
     }
@@ -988,16 +1009,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
             wi = new WSWhereItem(null, and, null);
 
-            String[] results = CommonUtil.getPort().xPathsSearch(
-                    new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
-                            new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order //$NON-NLS-1$ 
-                            // by
-                            null // direction
-                    )).getStrings();
-
-            for (int i = 0; i < results.length; i++) {
-                results[i] = results[i].replaceAll("<CriteriaName>(.*)</CriteriaName>", "$1");//$NON-NLS-1$ //$NON-NLS-2$ 
-            }
+            String[] results = CommonUtil
+                    .getPort()
+                    .xPathsSearch(
+                            new WSXPathsSearch(
+                                    new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
+                                    null,// pivot
+                                    new WSStringArray(new String[] { "BrowseItem/CriteriaName", "BrowseItem/Shared" }), wi, -1, localStart, localLimit, null, // order //$NON-NLS-1$ 
+                                    // by
+                                    null // direction
+                            )).getStrings();
             return results;
 
         } catch (XtentisWebappException e) {
