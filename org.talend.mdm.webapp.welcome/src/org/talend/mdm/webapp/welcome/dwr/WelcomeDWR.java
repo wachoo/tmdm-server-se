@@ -179,7 +179,7 @@ public class WelcomeDWR {
                     .getPipeline().getPipelineItem();
             if (entries.length > 0) {
                 WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
-                if (item.getVariable().equals("outputUrl")) {//$NON-NLS-1$
+                if (item.getVariable().equals("output_url")) {//$NON-NLS-1$
                     byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
                     String urlcontent = new String(bytes);
                     Document resultDoc = Util.parse(urlcontent);
