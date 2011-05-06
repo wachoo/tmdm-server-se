@@ -325,6 +325,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSItemPK _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSString deleteItemWithReport(com.amalto.core.webservice.WSDeleteItemWithReport wsDeleteItem) throws 
+         java.rmi.RemoteException {
+        
+        com.amalto.core.webservice.WSString _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSInt deleteItems(com.amalto.core.webservice.WSDeleteItems wsDeleteItems) throws 
          java.rmi.RemoteException {
         

@@ -446,6 +446,14 @@
 	<message name="deleteItemResponse">
 		<part name="wsItemPK" element="tns:WSItemPK"/>
 	</message>
+
+	<message name="deleteItemWithReportRequest">
+		<part name="wsDeleteItem" element="tns:WSDeleteItemWithReport"/>
+	</message>
+	<message name="deleteItemWithReportResponse">
+		<part name="message" element="tns:WSString"/>
+	</message>
+		
 	<message name="deleteItemsRequest">
 		<part name="wsDeleteItems" element="tns:WSDeleteItems"/>
 	</message>
@@ -1202,7 +1210,12 @@
 			<input message="tns:deleteItemRequest"/>
 			<output message="tns:deleteItemResponse"/>
 		</operation>		
-		
+
+		<operation name="deleteItemWithReport">
+			<input message="tns:deleteItemWithReportRequest"/>
+			<output message="tns:deleteItemWithReportResponse"/>
+		</operation>
+				
 		<operation name="deleteItems">
 			<input message="tns:deleteItemsRequest"/>
 			<output message="tns:deleteItemsResponse"/>
@@ -1860,7 +1873,13 @@
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
 		</operation>
-		
+
+		<operation name="deleteItemWithReport">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+				
 		<operation name="deleteItems">
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>

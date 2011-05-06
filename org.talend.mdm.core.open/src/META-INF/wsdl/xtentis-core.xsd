@@ -1181,6 +1181,20 @@
 	</xsd:complexType>
 	<xsd:element name="WSDeleteItem" type="tns:WSDeleteItem"/>
 
+	<xsd:complexType name="WSDeleteItemWithReport">
+		<xsd:annotation>
+			<xsd:documentation>
+				Deletes an item based on its cluster pk and its key(s) with report
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="wsItemPK" nillable="false" type="tns:WSItemPK"/>		
+			<xsd:element maxOccurs="1" minOccurs="1" name="source" nillable="true" type="xsd:string"/>	
+			<xsd:element maxOccurs="1" minOccurs="1" name="user" nillable="true" type="xsd:string"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSDeleteItemWithReport" type="tns:WSDeleteItemWithReport"/>
+	
 	<xsd:complexType name="WSDeleteItems">
 		<xsd:annotation>
 			<xsd:documentation>

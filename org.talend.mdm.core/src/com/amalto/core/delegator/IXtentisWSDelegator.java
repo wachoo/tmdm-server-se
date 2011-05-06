@@ -49,8 +49,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
-import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
@@ -59,6 +57,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
 import sun.misc.BASE64Decoder;
@@ -1782,7 +1781,95 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */ 
+	public WSString deleteItemWithReport(WSDeleteItemWithReport wsDeleteItem)
+			throws RemoteException {
+		try{
+        String dataClusterPK = wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk();
+        String concept=wsDeleteItem.getWsItemPK().getConceptName();
+        String[] ids=wsDeleteItem.getWsItemPK().getIds();
+        String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
 
+        String message = null;
+        String errorCode = null;
+        if (outputErrorMessage != null) {
+            Document doc = Util.parse(outputErrorMessage);
+            // TODO what if multiple error nodes ?
+            String xpath = "/descendant::error"; //$NON-NLS-1$
+            Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
+            if (errorNode instanceof Element) {
+                Element errorElement = (Element) errorNode;
+                errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                Node child = errorElement.getFirstChild();
+                if (child instanceof Text)
+                    message = ((Text) child).getTextContent();
+            }
+        }
+
+        if (outputErrorMessage == null || "0".equals(errorCode)) { //$NON-NLS-1$
+            if (ids != null ) {
+                WSItemPK wsItem =deleteItem(
+                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
+                if (wsItem != null){
+                    // create resultUpdateReport
+                    String resultUpdateReport = Util.createUpdateReport(ids, concept, "PHYSICAL_DELETE", null, "", wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk());  //$NON-NLS-1$ //$NON-NLS-2$
+                    if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
+                        ILocalUser user = LocalUser.getLocalUser();
+                        String source = wsDeleteItem.getSource();
+                        String operationType = "PHYSICAL_DELETE"; //$NON-NLS-1$
+                        Map<String, UpdateReportItemPOJO> updateReportItemsMap = new HashMap<String, UpdateReportItemPOJO>();
+                        
+                        String userName = "";
+                        if (wsDeleteItem.getUser() != null && wsDeleteItem.getUser().length() > 0) {
+                            userName = wsDeleteItem.getUser();
+                        } else {
+                            userName = user.getUsername();
+                        }
+                        String revisionID = "";
+                        UniversePOJO universe = user.getUniverse();
+                        if (universe != null) {
+                            revisionID = universe.getConceptRevisionID(concept);
+                        }
+                        UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, //$NON-NLS-1$
+                                source, System.currentTimeMillis(), dataClusterPK, "", userName, revisionID, //$NON-NLS-1$
+                                updateReportItemsMap);
+
+                        WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(), //$NON-NLS-1$
+                                new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
+                        routeItemV2(new WSRouteItemV2(itemPK));
+                    }
+                }                   
+                else
+                    message = "ERROR - Unable to delete item";
+
+                if (outputErrorMessage == null)
+                    message = message == null ? "" : message; //$NON-NLS-1$
+                else if (message == null || message.length() == 0)
+                    message = "The validation process completed successfully. The record was deleted successfully."; 
+            } else {
+                if (outputErrorMessage == null)
+                    message = message == null ? "" : message; //$NON-NLS-1$
+                else if (message == null || message.length() == 0)
+                    message = "Could not retrieve the validation process result. An error might have occurred. The record was not deleted.";
+                return new WSString(message + " - No update report was produced");
+            }
+        } else {
+            // Anything but 0 is unsuccessful
+            if (message == null || message.length() == 0)
+            	 message = "Could not retrieve the validation process result. An error might have occurred. The record was not deleted.";
+        }
+        return new WSString(message);
+
+    } catch (Exception e) {
+        throw new RemoteException( e.getLocalizedMessage()); //$NON-NLS-1$
+    }
+
+	}
     /**
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
@@ -4246,4 +4333,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 		ObjectPOJO.clearCache();
 		return new WSString("Refresh the item and object cache sucessfully!");
 	}
+
+
 }

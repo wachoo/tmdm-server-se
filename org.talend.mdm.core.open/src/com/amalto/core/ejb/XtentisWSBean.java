@@ -798,7 +798,17 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	throws RemoteException {
 		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().deleteItem(wsDeleteItem);
 	}    
-    
+
+	/**
+	 * @ejb.interface-method view-type = "service-endpoint"
+	 * @ejb.permission 
+	 * 	role-name = "authenticated"
+	 * 	view-type = "service-endpoint"
+	 */ 
+	public WSString deleteItemWithReport(WSDeleteItemWithReport wsDeleteItem)
+			throws RemoteException {
+		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().deleteItemWithReport(wsDeleteItem);
+	}
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
 	 * @ejb.permission 
@@ -1796,5 +1806,6 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			throws RemoteException {
 		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().refreshCache(refreshCache);
 	}
+	
 
 }
