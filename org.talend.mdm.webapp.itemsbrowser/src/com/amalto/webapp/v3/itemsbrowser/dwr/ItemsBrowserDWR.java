@@ -3530,17 +3530,6 @@ public class ItemsBrowserDWR {
         return valueReturn;
     }
 
-    public static void main(String[] args) {
-        java.util.Date date = new java.util.Date();
-        String dateStr = String.format(Locale.ENGLISH, "%tc", date);//$NON-NLS-1$
-        System.out.println(dateStr);
-        try {
-            java.text.DateFormat.getInstance().parse(dateStr);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
      * @author ymli; fix the bug:0013463. validate the value from server
      * @param nodeId

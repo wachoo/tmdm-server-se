@@ -2558,7 +2558,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     + treeIndex
                                     + '" width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='
                                     + ids + '&concept=' + dataObject
-                                    + '&language=' + language + '" style="display: none;"/>';
+                                    + '&language=' + language + '" style="display: block;"/>';
                         }
 
                         var breadCrumbHtml = '<div id="breadCrumbHtml"></div>';
