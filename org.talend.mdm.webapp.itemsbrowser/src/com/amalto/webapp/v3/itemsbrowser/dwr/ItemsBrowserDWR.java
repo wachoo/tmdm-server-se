@@ -3422,7 +3422,7 @@ public class ItemsBrowserDWR {
                         .getPipeline().getPipelineItem();
                 if (entries.length > 0) {
                     WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
-                    if (item.getVariable().equals("outout_url")) {//$NON-NLS-1$
+                    if (item.getVariable().equals("output_url")) {//$NON-NLS-1$
                         byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
                         String content = new String(bytes);
                         try {
