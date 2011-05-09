@@ -1815,7 +1815,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             if (ids != null ) {
                 WSItemPK wsItem =deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
-                if (wsItem != null){
+                if (wsItem != null && !"UpdateReport".equals(dataClusterPK)){
                     // create resultUpdateReport
                     String resultUpdateReport = Util.createUpdateReport(ids, concept, "PHYSICAL_DELETE", null, "", wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk());  //$NON-NLS-1$ //$NON-NLS-2$
                     if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
