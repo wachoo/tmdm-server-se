@@ -716,7 +716,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             // clusterName)+"/ii/p"+conceptName+(whereItem !=null ? "\nwhere "+buildWhere("", pivots,
             // whereItem,true)+"\n" : "") + "\nreturn base-uri($pivot)";
             conceptName = conceptName.startsWith("/") ? conceptName : "/" + conceptName;
-            String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p"
+            String xquery = "for $pivot in " + queryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/ii/p"
                     + conceptName
                     + (whereItem != null ? "\nwhere " + buildWhere(pivots, whereItem, null) + "\n" : "")
                     + "\nreturn base-uri($pivot)";
@@ -765,9 +765,10 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
 
             // determine cluster
             String clusterName = objectRootElementNameToClusterName.get(objectRootElementName);
-            if (clusterName == null)
+            if (clusterName == null) {
                 throw new XmlServerException("Unable to find a cluster for Xtentis Object Root Element Name '"
                         + objectRootElementName + "'");
+            }
 
             // Replace for QueryBuilder
             // String xquery =
@@ -775,7 +776,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             // getXQueryCollectionName(revisionID, clusterName)+"/"+objectRootElementName+
             // (whereItem !=null ? "\nwhere "+buildWhere("", pivots, whereItem,true)+"\n" : "") +
             // "\nreturn base-uri($pivot)";
-            String xquery = "for $pivot in " + QueryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/"
+            String xquery = "for $pivot in " + queryBuilder.getXQueryCollectionName(revisionID, clusterName) + "/"
                     + objectRootElementName
                     + (whereItem != null ? "\nwhere " + buildWhere(pivots, whereItem, null) + "\n" : "")
                     + "\nreturn base-uri($pivot)";

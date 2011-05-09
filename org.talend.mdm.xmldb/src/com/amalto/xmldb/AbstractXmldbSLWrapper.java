@@ -43,7 +43,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
 
     private static Logger LOG = Logger.getLogger(AbstractXmldbSLWrapper.class);
 
-    private final QueryBuilder queryBuilder = newQueryBuilder();
+    protected final QueryBuilder queryBuilder = newQueryBuilder();
 
     protected abstract QueryBuilder newQueryBuilder();
 
@@ -85,21 +85,21 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
             // if the where Item is null, try to make a simplified x path query
             if (whereItem == null) {
                 // get the concept
-                String revisionID = QueryBuilder.getRevisionID(conceptPatternsToRevisionID, fullPath);
+                String revisionID = queryBuilder.getRevisionID(conceptPatternsToRevisionID, fullPath);
                 // determine cluster
-                String clusterName = QueryBuilder.getClusterName(conceptPatternsToRevisionID, conceptPatternsToClusterName,
+                String clusterName = queryBuilder.getClusterName(conceptPatternsToClusterName,
                         fullPath);
                
                 // Replace for QueryBuilder
                 xquery.append("count("); //$NON-NLS-1$
-                xquery.append(QueryBuilder.getXQueryCollectionName(revisionID, clusterName));
+                xquery.append(queryBuilder.getXQueryCollectionName(revisionID, clusterName));
                 xquery.append("/ii/p/"); //$NON-NLS-1$
                 xquery.append(fullPath);
                 xquery.append(")"); //$NON-NLS-1$
             } else {
                 xquery.append("let $zcount := "); //$NON-NLS-1$
                 xquery.append(getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, null, new ArrayList<String>(
-                        Arrays.asList(new String[] { fullPath })), whereItem, null, null, 0, -1));
+                        Arrays.asList(fullPath)), whereItem, null, null, 0, -1));
                 xquery.append("\n return count($zcount)"); //$NON-NLS-1$
             }
 
@@ -132,14 +132,14 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
 
                 // Replace for QueryBuilder
                 xquery.append("count("); //$NON-NLS-1$
-                xquery.append(QueryBuilder.getXQueryCollectionName(revisionID, clusterName));
+                xquery.append(queryBuilder.getXQueryCollectionName(revisionID, clusterName));
                 xquery.append("/"); //$NON-NLS-1$
                 xquery.append(objectFullPath);
                 xquery.append(")"); //$NON-NLS-1$ 
             } else {
                 xquery.append("let $zcount := "); //$NON-NLS-1$
                 xquery.append(getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, null,
-                        new ArrayList<String>(Arrays.asList(new String[] { objectFullPath })), whereItem, null, null, 0, -1));
+                        new ArrayList<String>(Arrays.asList(objectFullPath)), whereItem, null, null, 0, -1));
                 xquery.append("\n return count($zcount)"); //$NON-NLS-1$
             }
 
@@ -191,7 +191,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
                 pivots.put(conceptName, conceptName);
 
                 String appendWhere = queryBuilder.buildWhere(pivots, whereItem, false);
-                ;
+
                 if (appendWhere != null && appendWhere.length() > 0 && appendWhere.trim().length() != 0) {
                     xqWhere.append(" and "); //$NON-NLS-1$
                     xqWhere.append(appendWhere);

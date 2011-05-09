@@ -139,11 +139,11 @@ public abstract class QueryBuilder {
         return xqReturn.toString();
     }
 
-    protected static void factorFirstPivotInMap(LinkedHashMap<String, String> pivotsMap, String viewablePath) {
+    protected void factorFirstPivotInMap(LinkedHashMap<String, String> pivotsMap, String viewablePath) {
         if (viewablePath != null && viewablePath.trim().length() > 0) {
             if (viewablePath.startsWith("/")) //$NON-NLS-1$
                 viewablePath = viewablePath.substring(1);
-            String thisRootElementName = getRootElementNameFromPath(viewablePath.toString());
+            String thisRootElementName = getRootElementNameFromPath(viewablePath);
             if (thisRootElementName != null && thisRootElementName.length() != 0 && !pivotsMap.containsValue(thisRootElementName))
                 XPathUtils.factorExpression(XPathUtils.compileXPath(thisRootElementName), pivotsMap, true, true);
         }
@@ -181,7 +181,7 @@ public abstract class QueryBuilder {
             // determine cluster
             String clusterName = null;
             if (isItemQuery) {
-                clusterName = getClusterName(rootElementNamesToRevisionID, rootElementNamesToClusterName, path);
+                clusterName = getClusterName(rootElementNamesToClusterName, path);
             } else {
                 // object name, not a pattern --> direct match
                 clusterName = rootElementNamesToClusterName.get(rootElementName);
@@ -1064,7 +1064,7 @@ public abstract class QueryBuilder {
                 String[] splits = key.split(WhereCondition.JOINS);
                 if (splits.length == 2) {
                     String fk = splits[0].trim().replace("(", "").replace(")", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                    String rightV = splits[1].trim().replace("(", "").replace(")", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+                    String rightV = splits[1].trim().replace("(", "").replace(")", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     ArrayList<String> value = fkMaps.get(fk);
                     if (value == null) {
                         value = new ArrayList<String>();
@@ -1111,20 +1111,12 @@ public abstract class QueryBuilder {
         return where.toString();
     }
 
-    /***********************************************************************
-     * 
-     * Helper Methods
-     * 
-     ***********************************************************************/
-
-    public static String getClusterName(Map<String, String> conceptPatternsToRevisionID,
-            Map<String, String> conceptPatternsToClusterName, String fullPath) {
+    public String getClusterName(Map<String, String> conceptPatternsToClusterName, String fullPath) {
         String conceptName = getRootElementNameFromPath(fullPath);
         // determine cluster
         String clusterName = null;
         Set<String> patterns = conceptPatternsToClusterName.keySet();
-        for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext();) {
-            String pattern = iterator.next();
+        for (String pattern : patterns) {
             if (conceptName.matches(pattern)) {
                 clusterName = conceptPatternsToClusterName.get(pattern);
                 break;
@@ -1133,13 +1125,12 @@ public abstract class QueryBuilder {
         return clusterName;
     }
 
-    public static String getRevisionID(Map<String, String> conceptPatternsToRevisionID, String fullPath) {
+    public String getRevisionID(Map<String, String> conceptPatternsToRevisionID, String fullPath) {
         String conceptName = getRootElementNameFromPath(fullPath);
         // determine revision
         String revisionID = null;
         Set<String> patterns = conceptPatternsToRevisionID.keySet();
-        for (Iterator<String> iterator = patterns.iterator(); iterator.hasNext();) {
-            String pattern = iterator.next();
+        for (String pattern : patterns) {
             if (conceptName.matches(pattern)) {
                 revisionID = conceptPatternsToRevisionID.get(pattern);
                 break;
@@ -1149,37 +1140,19 @@ public abstract class QueryBuilder {
     }
 
     /**
-     * get the DB repository root path
-     */
-    public static String getDBRootPath() {
-        return CommonUtil.getDBRootPath();
-    }
-
-    /**
-     * 
-     * @param revisionID
-     * @param clusterName
-     * @return
-     */
-    public static String getPath(String revisionID, String clusterName) {
-        return CommonUtil.getPath(revisionID, clusterName);
-    }
-
-    public static boolean isHead(String revisionID) {
-        if (revisionID != null)
-            revisionID = revisionID.replaceAll("\\[HEAD\\]|HEAD", ""); //$NON-NLS-1$ //$NON-NLS-2$
-        return (revisionID == null || revisionID.length() == 0);
-    }
-
-    /**
      * Determine the collection name based on the revision ID and Cluster Name
-     */
-    public static String getXQueryCollectionName(String revisionID, String clusterName) throws XmlServerException {
+     * @param revisionID Revision Id
+     * @param clusterName Cluster name
+     * @return The xquery collection name that stores the XML documents
+     *
+     * @throws com.amalto.xmlserver.interfaces.XmlServerException In case of unexpected error.
+     * */
+    public String getXQueryCollectionName(String revisionID, String clusterName) throws XmlServerException {
         String collectionPath = getPath(revisionID, clusterName);
         if (collectionPath == null || collectionPath.length() == 0)
             return ""; //$NON-NLS-1$
 
-        String encoded = null;
+        String encoded;
         try {
             encoded = URLEncoder.encode(collectionPath, "utf-8"); //$NON-NLS-1$
         } catch (UnsupportedEncodingException unlikely) {
@@ -1197,6 +1170,28 @@ public abstract class QueryBuilder {
         encoded = encoded.replaceAll("%2F", "/"); //$NON-NLS-1$ //$NON-NLS-2$
 
         return "collection(\"" + encoded + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    /***********************************************************************
+     *
+     * Helper Methods
+     *
+     ***********************************************************************/
+
+    /**
+     * 
+     * @param revisionID
+     * @param clusterName
+     * @return
+     */
+    public static String getPath(String revisionID, String clusterName) {
+        return CommonUtil.getPath(revisionID, clusterName);
+    }
+
+    public static boolean isHead(String revisionID) {
+        if (revisionID != null)
+            revisionID = revisionID.replaceAll("\\[HEAD\\]|HEAD", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        return (revisionID == null || revisionID.length() == 0);
     }
 
     private static Pattern pathWithoutConditions = Pattern.compile("(.*?)[\\[|/].*"); //$NON-NLS-1$
