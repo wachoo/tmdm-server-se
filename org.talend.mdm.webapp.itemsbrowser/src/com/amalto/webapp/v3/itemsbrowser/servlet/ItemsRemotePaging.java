@@ -147,7 +147,12 @@ public class ItemsRemotePaging extends HttpServlet {
                 // aiming modify
                 // yin guo fix bug 0010867. the totalCountOnfirstRow is true.
                 if (i == 0) {
-                    totalSize = Integer.parseInt(Util.parse(results[i]).getDocumentElement().getTextContent());
+                    try {
+                        // Qizx doesn't wrap the count in a XML element, so try to parse it
+                        totalSize = Integer.parseInt(results[i]);
+                    } catch (NumberFormatException e) {
+                        totalSize = Integer.parseInt(Util.parse(results[i]).getDocumentElement().getTextContent());
+                    }
                     continue;
                 }
 
