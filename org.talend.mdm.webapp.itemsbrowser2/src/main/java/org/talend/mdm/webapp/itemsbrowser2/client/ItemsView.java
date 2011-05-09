@@ -261,10 +261,10 @@ public class ItemsView extends View {
             protected void onWindowResize(int width, int height) {
                 Widget w = this.getParent();
                 setSize(w.getOffsetWidth(), w.getOffsetHeight());
+                this.doLayout(true);
             }
         };
         container.setLayout(new FitLayout());
-        container.setAutoWidth(true);
         // build tab
         tabFrame = new TabPanel();
         tabFrame.setMinTabWidth(115);
@@ -283,6 +283,7 @@ public class ItemsView extends View {
         // FIXME can not auto-fill
         container.setStyleAttribute("height", "100%");//$NON-NLS-1$ //$NON-NLS-2$
         RootPanel.get(ROOT_DIV).getElement().getStyle().setHeight(100, Unit.PCT);
+        RootPanel.get(ROOT_DIV).getElement().getStyle().setWidth(100, Unit.PCT);
         RootPanel.get(ROOT_DIV).add(container);
         tabFrame.setHeight(container.getOffsetHeight());
         regResizeViewPort();

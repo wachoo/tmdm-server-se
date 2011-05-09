@@ -12,8 +12,6 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
         'en' : 'Rendering error occured!'
 	};
 
-	var itemsBrowser2Panel;
-	
 	var resizeViewPort = function(component , adjWidth, adjHeight, rawWidth, rawHeight){
 		if (window.org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort != undefined){
 			window.org_talend_mdm_webapp_itemsbrowser2_client_ItemsView_onResizeViewPort();
@@ -27,20 +25,19 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 			if(flag){
 				// init UI
                 var tabPanel = amalto.core.getTabPanel();
-                itemsBrowser2Panel = tabPanel.getItem('itemsBrowser2Panel');
-        
+                var itemsBrowser2Panel = tabPanel.getItem('itemsBrowser2Panelaaa');
+
                 if (itemsBrowser2Panel == undefined) {
         
                     itemsBrowser2Panel = new Ext.Panel({
-                        id : "itemsBrowser2Panel",
+                        id : "itemsBrowser2Panelaaa",
                         title : TITLE_BROWSER_PANEL[language],
                         layout : "fit",
                         closable : true,
                         html : '<div id="talend_itemsbrowser2_ItemsBrowser2" class="itemsbrowser2"></div>'
         
                     });
-
-                    tabPanel.add(itemsBrowser2Panel);
+                   	tabPanel.add(itemsBrowser2Panel);
         
                     itemsBrowser2Panel.show();
                     itemsBrowser2Panel.doLayout();
@@ -50,8 +47,7 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
                     } else {
                     	window.alert(MSG_RENDERER_ERROR[language]);
                     }
-                    tabPanel.un("resize", resizeViewPort);
-                    tabPanel.on("resize", resizeViewPort);
+                    itemsBrowser2Panel.on("resize", resizeViewPort);
                 } else {
         
                     itemsBrowser2Panel.show();

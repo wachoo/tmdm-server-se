@@ -242,7 +242,7 @@ public class ItemsListPanel extends ContentPanel {
         hookContextMenu();
 
         add(gridContainer);
-
+        this.syncSize();
         this.doLayout();
     }
 
