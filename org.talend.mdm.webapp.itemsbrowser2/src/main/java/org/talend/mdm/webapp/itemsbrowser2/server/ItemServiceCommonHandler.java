@@ -654,7 +654,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 Matcher matcher = pattern.matcher(ids);
                 while (matcher.find()) {
                     String id = matcher.group();
-                    id = id.replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                    id = id.replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     idList.add(id);
                 }
 
@@ -663,7 +663,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 // }
                 for (int i = 0; i < idList.size(); i++) {
                     String id = idList.get(i);
-                    String strConcept = conceptName + "/../../i CONTAINS "; //$NON-NLS-1$ //$NON-NLS-2$
+                    String strConcept = conceptName + "/../../i CONTAINS "; //$NON-NLS-1$
                     WSWhereItem wc = com.amalto.webapp.core.util.Util.buildWhereItem(strConcept + id);
                     condition.add(wc);
                 }
@@ -1026,7 +1026,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-        return null;
+        return new String[]{};
     }
 
     private String countSearchTemplate(String view) {
