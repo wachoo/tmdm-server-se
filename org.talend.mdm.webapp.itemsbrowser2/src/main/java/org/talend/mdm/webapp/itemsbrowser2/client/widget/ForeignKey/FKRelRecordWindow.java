@@ -83,7 +83,9 @@ public class FKRelRecordWindow extends Window {
 
     TextField<String> filter = new TextField<String>();
     
-    public FKRelRecordWindow() {}
+    public FKRelRecordWindow() {
+
+    }
     
     public FKRelRecordWindow(String fkKey, ReturnCriteriaFK returnCriteriaFK) {
         this.fkKey = fkKey;
@@ -261,7 +263,5 @@ public class FKRelRecordWindow extends Window {
         addButton(cancelBtn);
         add(panel, new FlowData(5));
 
-        setAutoHeight(true);
-        setAutoWidth(true);
     }
 }

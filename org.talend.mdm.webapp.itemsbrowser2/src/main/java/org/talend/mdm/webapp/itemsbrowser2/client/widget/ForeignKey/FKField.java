@@ -24,6 +24,8 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
 
     public FKField() {
         this.setFireChangeEventOnSetValue(true);
+        relWindow.setSize(470, 340);
+        relWindow.setResizable(false);
         relWindow.setModal(true);
         relWindow.setBlinkModal(true);
     }
