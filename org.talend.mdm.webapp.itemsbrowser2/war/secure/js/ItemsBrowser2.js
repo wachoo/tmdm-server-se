@@ -25,12 +25,12 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 			if(flag){
 				// init UI
                 var tabPanel = amalto.core.getTabPanel();
-                var itemsBrowser2Panel = tabPanel.getItem('itemsBrowser2Panelaaa');
+                var itemsBrowser2Panel = tabPanel.getItem('itemsBrowser2Panel');
 
                 if (itemsBrowser2Panel == undefined) {
         
                     itemsBrowser2Panel = new Ext.Panel({
-                        id : "itemsBrowser2Panelaaa",
+                        id : "itemsBrowser2Panel",
                         title : TITLE_BROWSER_PANEL[language],
                         layout : "fit",
                         closable : true,
