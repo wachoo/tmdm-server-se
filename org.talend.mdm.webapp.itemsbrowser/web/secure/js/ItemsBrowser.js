@@ -3190,8 +3190,6 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     formWindow.innerHTML = "";
                     formWindow.style.overflow = "hidden";
 					
-					formWindow.contentPanel = contentPanel;
-					
 					new Ext.Panel({
 						tbar : tbDetail,
 						header : false,
@@ -3204,27 +3202,6 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 	                                            }])
 					});
 					
-					window.setTimeout(function(){
-						new Ext.Panel({
-							tbar : tbDetail,
-							header : false,
-							applyTo : formWindow,
-							autoScroll : true,
-							items : [contentPanel]
-							
-						});
-					}, 1000);
-					
-					formWindow.renderFormResize = function(){
-						new Ext.Panel({
-							tbar : tbDetail,
-							header : false,
-							applyTo : formWindow,
-							autoScroll : true,
-							items : [contentPanel]
-							
-						});
-					};
 					
 					
 //                    contentPanel.render(formWindow);
