@@ -121,8 +121,13 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             for (int i = 0; i < results.length; i++) {
 
                 if (i == 0) {
-                    totalSize = Integer.parseInt(com.amalto.webapp.core.util.Util.parse(results[i]).getDocumentElement()
-                            .getTextContent());
+                    try {
+                        // Qizx doesn't wrap the count in a XML element, so try to parse it
+                        totalSize = Integer.parseInt(results[i]);
+                    } catch (NumberFormatException e) {
+                        totalSize = Integer.parseInt(com.amalto.webapp.core.util.Util.parse(results[i]).getDocumentElement()
+                                .getTextContent());
+                    }
                     continue;
                 }
 
@@ -147,7 +152,6 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            e.printStackTrace();
         }
         return new Object[] { itemBeans, totalSize };
 
@@ -264,7 +268,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
                     getCurrentDataCluster()), item.getItemXml(), new WSDataModelPK(getCurrentDataModel()), true),
                     "genericUI", true); //$NON-NLS-1$
-            WSItemPK wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
+           CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
 
             if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + item.getConcept())) { //$NON-NLS-1$
                 String outputErrorMessage = wsPutItemWithReport.getSource();
