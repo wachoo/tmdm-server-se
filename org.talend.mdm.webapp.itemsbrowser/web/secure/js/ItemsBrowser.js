@@ -4417,7 +4417,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         return temp;
     }
 
-    function cloneNode2(siblingId, hasIcon, treeIndex) {
+    function cloneNode2(siblingId, hasIcon, treeIndex, conceptName) {
         var itemTree = itemTreeList[treeIndex];
         var siblingNode = itemTree.getNodeByIndex(siblingId);
 
@@ -4449,9 +4449,13 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         siblingNode.itemData.value = "";
                 });
         DWREngine.setAsync(true);
+        
+        var parentLink = [];
+        parentLink["conceptName"] = conceptName;
+        
         var newNode = new amalto.itemsbrowser.ItemNode(
                 cloneObject(siblingNode.itemData), true, treeIndex,
-                siblingNode.parent, true, true, isReadOnlyinItem);
+                siblingNode.parent, true, true, isReadOnlyinItem, parentLink);
         newNode.updateNodeId(nodeCount);
         // remove by ymli; fix the bug:0013463
         // newNode.updateValue(" ");
@@ -4480,7 +4484,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             var tmp = new amalto.itemsbrowser.ItemNode(
                                     result[i], newItem[treeIndex], treeIndex,
                                     itemTree.getNodeByIndex(oNode.index),
-                                    false, true, isReadOnlyinItem);
+                                    false, true, isReadOnlyinItem, parentLink);
 
                             if (result[i].type == "simple")
                                 tmp.setDynamicLoad();
@@ -6084,8 +6088,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             chooseForeignKey(nodeId, xpath, xpathInfo, fkFilter, treeIndex,
                     isSwitch, conceptName);
         },
-        cloneNode2 : function(siblingId, hasIcon, treeIndex) {
-            cloneNode2(siblingId, hasIcon, treeIndex);
+        cloneNode2 : function(siblingId, hasIcon, treeIndex, conceptName) {
+            cloneNode2(siblingId, hasIcon, treeIndex, conceptName);
         },
         removeNode2 : function(id, treeIndex) {
             removeNode2(id, treeIndex);

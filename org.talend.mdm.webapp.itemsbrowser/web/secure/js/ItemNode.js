@@ -24,6 +24,7 @@ amalto.itemsbrowser.ItemNode = function(itemData, newItem, treeIndex, oParent, e
         this.treeIndex = treeIndex;
         this.hasIcon = hasIcon;
         this.isReadOnlyinItem = isReadOnlyinItem;
+        this.parentLink = parentLink;
     }
 };
 
@@ -132,7 +133,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				tmpStatusItems = (itemData.parent != null && itemData.parent.readOnly == false || itemData.readOnly==false) ;
 				
 		if((itemData.maxOccurs<0 || itemData.maxOccurs>1) && tmpStatusItems){
-			cloneNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.cloneNode2(\''+itemData.nodeId+'\',false,'+treeIndex+')">' +
+			cloneNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.cloneNode2(\''+itemData.nodeId+'\',false,'+treeIndex+',\''+parentLink["conceptName"]+'\')" >' +
 					' <img src="img/genericUI/add.png" title="'+ PLUSMUL_TT[language] +'"/></span>';
 			removeNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.removeNode2(\''+itemData.nodeId+'\','+treeIndex+')">' +
 					' <img src="img/genericUI/delete.png" title="'+ DELMUL_TT[language] +'"/></span>';
@@ -466,7 +467,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	
 	updateNodeId: function(nodeId){
 		this.itemData.nodeId = nodeId;
-		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem);
+		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem, this.parentLink);
 	},
 	
 	updateNodeValue: function(updatedValue){
