@@ -133,6 +133,7 @@ import com.amalto.webapp.v3.itemsbrowser.bean.SubTypeBean;
 import com.amalto.webapp.v3.itemsbrowser.bean.TreeNode;
 import com.amalto.webapp.v3.itemsbrowser.bean.View;
 import com.amalto.webapp.v3.itemsbrowser.bean.WhereCriteria;
+import com.amalto.webapp.v3.itemsbrowser.util.BusinessConceptForBrowser;
 import com.amalto.webapp.v3.itemsbrowser.util.DisplayRulesUtil;
 import com.amalto.webapp.v3.itemsbrowser.util.DynamicLabelUtil;
 import com.amalto.webapp.v3.itemsbrowser.util.PropsUtils;
@@ -526,8 +527,8 @@ public class ItemsBrowserDWR {
         if (ctx.getSession().getAttribute("itemDocument_displayRulesUtil" + docIndex) == null) //$NON-NLS-1$
             return;
 
-        HashMap<List, BusinessConcept> polymToBusinessConcept = (HashMap<List, BusinessConcept>) ctx.getSession().getAttribute(
-                "polymToBusinessConcept" + docIndex); //$NON-NLS-1$  
+        HashMap<List, BusinessConceptForBrowser> polymToBusinessConcept = (HashMap<List, BusinessConceptForBrowser>) ctx
+                .getSession().getAttribute("polymToBusinessConcept" + docIndex); //$NON-NLS-1$  
         HashMap<List, DisplayRulesUtil> polymToDisplayRulesUtil = (HashMap<List, DisplayRulesUtil>) ctx.getSession()
                 .getAttribute("polymToDisplayRulesUtil" + docIndex); //$NON-NLS-1$  
 
@@ -538,7 +539,11 @@ public class ItemsBrowserDWR {
 
         Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$ //$NON-NLS-2$
         DisplayRulesUtil displayRulesUtil = null;
-        BusinessConcept businessConcept = getBusinessConcept(polymToBusinessConcept, xpathToPolymType);
+        BusinessConceptForBrowser businessConcept = getBusinessConcept(polymToBusinessConcept, xpathToPolymType);
+        List<DisplayRule> dspRules = new ArrayList<DisplayRule>();
+        Map<String, String> defaultValueRules = null;
+        Map<String, String> visibleRules = null;
+        String rulesStyle = null;
 
         if (xpathToPolymType != null && xpathToPolymType.size() > 0) {
             List polymList = new ArrayList();
@@ -597,25 +602,27 @@ public class ItemsBrowserDWR {
                         .getXMLStringFromDocument(xsdDoc));
                 XSElementDecl xsed = map.get(concept);
 
-                businessConcept = new BusinessConcept(xsed);
+                businessConcept = new BusinessConceptForBrowser(xsed);
                 businessConcept.load();
                 polymToBusinessConcept.put(polymList, businessConcept);
-                ctx.getSession().setAttribute("itemDocument_businessConcept" + docIndex, businessConcept); //$NON-NLS-1$  
 
                 displayRulesUtil = new DisplayRulesUtil(xsed);
                 polymToDisplayRulesUtil.put(polymList, displayRulesUtil);
-                ctx.getSession().setAttribute("itemDocument_displayRulesUtil" + docIndex, displayRulesUtil); //$NON-NLS-1$  
             } else
                 displayRulesUtil = polymToDisplayRulesUtil.get(polymList);
-        } else {
-            businessConcept = (BusinessConcept) ctx.getSession().getAttribute("itemDocument_businessConcept" + docIndex); //$NON-NLS-1$
-            displayRulesUtil = (DisplayRulesUtil) ctx.getSession().getAttribute("itemDocument_displayRulesUtil" + docIndex); //$NON-NLS-1$
-        }
 
-        List<DisplayRule> dspRules = new ArrayList<DisplayRule>();
-        Map<String, String> defaultValueRules = businessConcept.getDefaultValueRulesMap();
-        Map<String, String> visibleRules = businessConcept.getVisibleRulesMap();
-        String rulesStyle = displayRulesUtil.genStyle();
+            defaultValueRules = businessConcept.getDefaultValueRulesMap();
+            visibleRules = businessConcept.getVisibleRulesMap();
+            rulesStyle = displayRulesUtil.genStyle();
+        } else {
+            BusinessConcept businessConcept2 = (BusinessConcept) ctx.getSession().getAttribute(
+                    "itemDocument_businessConcept" + docIndex); //$NON-NLS-1$
+            displayRulesUtil = (DisplayRulesUtil) ctx.getSession().getAttribute("itemDocument_displayRulesUtil" + docIndex); //$NON-NLS-1$
+
+            defaultValueRules = businessConcept2.getDefaultValueRulesMap();
+            visibleRules = businessConcept2.getVisibleRulesMap();
+            rulesStyle = displayRulesUtil.genStyle();
+        }
 
         if (defaultValueRules.size() > 0) {
             Document tmpDocument = Util.copyDocument(doc);
@@ -720,7 +727,7 @@ public class ItemsBrowserDWR {
         return false;
     }
 
-    private BusinessConcept getBusinessConcept(HashMap<List, BusinessConcept> polymToBusinessConcept,
+    private BusinessConceptForBrowser getBusinessConcept(HashMap<List, BusinessConceptForBrowser> polymToBusinessConcept,
             HashMap<String, String> xpathToPolymType) {
         for (List keyList : polymToBusinessConcept.keySet()) {
             for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {

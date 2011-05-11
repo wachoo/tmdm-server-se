@@ -10,10 +10,12 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.commmon.util.datamodel.management;
+package com.amalto.webapp.v3.itemsbrowser.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -23,22 +25,19 @@ import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSModelGroup;
 import com.sun.xml.xsom.XSParticle;
 
-/**
- * DOC HSHU class global comment. Detailled comment
- */
-public class BusinessConcept {
+public class BusinessConceptForBrowser {
 
     private static final boolean Lazy_Load = true;
 
-    public static final String APPINFO_X_HIDE = "X_Hide";
+    public static final String APPINFO_X_HIDE = "X_Hide"; //$NON-NLS-1$
 
-    public static final String APPINFO_X_WRITE = "X_Write";
+    public static final String APPINFO_X_WRITE = "X_Write"; //$NON-NLS-1$
 
-    public static final String APPINFO_X_DEFAULT_VALUE_RULE = "X_Default_Value_Rule";
+    public static final String APPINFO_X_DEFAULT_VALUE_RULE = "X_Default_Value_Rule"; //$NON-NLS-1$
 
-    public static final String APPINFO_X_VISIBLE_RULE = "X_Visible_Rule";
+    public static final String APPINFO_X_VISIBLE_RULE = "X_Visible_Rule"; //$NON-NLS-1$
 
-    public static final String APPINFO_X_FOREIGNKEY = "X_ForeignKey";
+    public static final String APPINFO_X_FOREIGNKEY = "X_ForeignKey"; //$NON-NLS-1$
 
     private XSElementDecl e;
 
@@ -52,12 +51,14 @@ public class BusinessConcept {
 
     private Map<String, String> foreignKeyMap;
 
+    private HashMap<String, Integer> countMap;
+
     // TODO: translate it from technique to business logic
     // annotations{label,access rules,foreign keys,workflow,schematron,lookup fields...}
     // restrictions
     // enumeration
 
-    public BusinessConcept(XSElementDecl e) {
+    public BusinessConceptForBrowser(XSElementDecl e) {
         super();
         this.e = e;
         this.name = e.getName();
@@ -83,7 +84,7 @@ public class BusinessConcept {
      */
     public void load() {
         beforeLoad();
-        travelXSElement(getE(), "/" + getName());
+        travelXSElement(getE(), "/" + getName()); //$NON-NLS-1$
     }
 
     /**
@@ -95,6 +96,7 @@ public class BusinessConcept {
         defaultValueRulesMap = new HashMap<String, String>();
         visibleRulesMap = new HashMap<String, String>();
         foreignKeyMap = new HashMap<String, String>();
+        countMap = new HashMap<String, Integer>();
     }
 
     public Map<String, String> getDefaultValueRulesMap() {
@@ -117,7 +119,20 @@ public class BusinessConcept {
      */
     private void travelXSElement(XSElementDecl e, String currentXPath) {
         if (e != null) {
+            Pattern p = Pattern.compile("(.*?)(\\d+)$"); //$NON-NLS-1$
+            Matcher m = p.matcher(e.getName());
+            String name = e.getName();
+            if (m.matches()) {
+                name = m.group(1);
+            }
 
+            String currentName = currentXPath.substring(0, currentXPath.lastIndexOf("/") + 1) + name; //$NON-NLS-1$
+            if (countMap.containsKey(currentName))
+                countMap.put(currentName, countMap.get(currentName) + 1);
+            else
+                countMap.put(currentName, 1);
+
+            currentXPath = currentName + "[" + countMap.get(currentName) + "]"; //$NON-NLS-1$ //$NON-NLS-2$
             parseAnnotation(currentXPath, e);
 
             if (e.getType().isComplexType()) {
@@ -144,7 +159,7 @@ public class BusinessConcept {
             }
         } else if (xsParticle.getTerm().asElementDecl() != null) {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
-            travelXSElement(subElement, currentXPath + "/" + subElement.getName());
+            travelXSElement(subElement, currentXPath + "/" + subElement.getName()); //$NON-NLS-1$
         }
     }
 
@@ -153,20 +168,18 @@ public class BusinessConcept {
             Element annotations = (Element) e.getAnnotation().getAnnotation();
             NodeList annotList = annotations.getChildNodes();
             for (int k = 0; k < annotList.getLength(); k++) {
-                if ("appinfo".equals(annotList.item(k).getLocalName())) {
-                    Node source = annotList.item(k).getAttributes().getNamedItem("source");
+                if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
                     if (source == null)
                         continue;
                     String appinfoSource = source.getNodeValue();
                     if (annotList.item(k) != null && annotList.item(k).getFirstChild() != null) {
                         String appinfoSourceValue = annotList.item(k).getFirstChild().getNodeValue();
-                        if (appinfoSource.equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
+                        if (appinfoSource.equals(BusinessConceptForBrowser.APPINFO_X_DEFAULT_VALUE_RULE)) {
                             defaultValueRulesMap.put(currentXPath, appinfoSourceValue);
-                        } else if (appinfoSource.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
+                        } else if (appinfoSource.equals(BusinessConceptForBrowser.APPINFO_X_VISIBLE_RULE)) {
                             visibleRulesMap.put(currentXPath, appinfoSourceValue);
-                        } else if (appinfoSource.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
-                            visibleRulesMap.put(currentXPath, appinfoSourceValue);
-                        } else if (appinfoSource.equals(BusinessConcept.APPINFO_X_FOREIGNKEY)) {
+                        } else if (appinfoSource.equals(BusinessConceptForBrowser.APPINFO_X_FOREIGNKEY)) {
                             foreignKeyMap.put(currentXPath, appinfoSourceValue);
                         }
                     }
@@ -178,7 +191,7 @@ public class BusinessConcept {
 
     @Override
     public String toString() {
-        return "BusinessConcept [name=" + name + "]";
+        return "BusinessConcept [name=" + name + "]"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
 }
