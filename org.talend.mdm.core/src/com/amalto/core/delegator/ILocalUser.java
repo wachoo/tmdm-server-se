@@ -17,8 +17,6 @@ import com.amalto.core.util.XtentisException;
 
 public abstract class ILocalUser implements IBeanDelegator{
     
-    protected static LinkedHashMap<String,String> onlineUsers = new LinkedHashMap<String,String>();
-    
 	public Subject getICurrentSubject() throws XtentisException {
 		String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container";       		
 		Subject subject;
@@ -35,10 +33,6 @@ public abstract class ILocalUser implements IBeanDelegator{
 	public ILocalUser getILocalUser() throws XtentisException {
 		return null;
 	}
-	
-    public static LinkedHashMap<String, String> getOnlineUsers() {
-        return onlineUsers;
-    }
 
     public HashSet<String> getRoles() {
 		// TODO Auto-generated method stub
