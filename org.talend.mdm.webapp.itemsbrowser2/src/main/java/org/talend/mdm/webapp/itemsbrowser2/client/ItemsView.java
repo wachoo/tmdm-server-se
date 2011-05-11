@@ -100,6 +100,7 @@ public class ItemsView extends View {
         super.initialize();
     }
 
+    @Override
     protected void handleEvent(AppEvent event) {
 
         if (event.getType() == ItemsEvents.InitFrame) {
@@ -142,7 +143,7 @@ public class ItemsView extends View {
             ColumnConfig cc = new ColumnConfig(xpath, typeModel == null ? xpath : ViewUtil.getViewableLabel(
                     Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel), 200);
             if (typeModel instanceof SimpleTypeModel && !keys.contains(xpath)) {
-                Field field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
+                Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false,
                         Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
 
                 CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
@@ -185,7 +186,7 @@ public class ItemsView extends View {
                     // Unit.PX);
                     itemsSearchContainer.getItemsFormPanel().getElement().getStyle().setOverflow(Overflow.AUTO);
                     itemsSearchContainer.getItemsFormPanel().reSize();
-                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, itemsSearchContainer //$NON-NLS-1$
+                    GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, itemsSearchContainer
                             .getItemsFormPanel().getElement(), true, false, false);
                 }
                 // TODO handle legacy form
@@ -233,7 +234,7 @@ public class ItemsView extends View {
                     });
                     window.getBody().dom.getStyle().setOverflow(Overflow.AUTO);
                     GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, window.getBody().dom, false,
-                            true, true);//$NON-NLS-1$
+                            true, true);
                 }
                 // TODO handle legacy form
             }
@@ -250,16 +251,19 @@ public class ItemsView extends View {
 
         // create search panel
         // build frame
-        Log.info("Init tab-frame... ");//$NON-NLS-1$
+        if(Log.isInfoEnabled())
+            Log.info("Init tab-frame... ");//$NON-NLS-1$
 
         container = new Viewport() {
 
+            @Override
             public void onAttach() {
                 super.onAttach();
                 Widget w = this.getParent();
                 setSize(w.getOffsetWidth(), w.getOffsetHeight());
             }
 
+            @Override
             protected void onWindowResize(int width, int height) {
                 Widget w = this.getParent();
                 setSize(w.getOffsetWidth(), w.getOffsetHeight());
@@ -307,9 +311,9 @@ public class ItemsView extends View {
     }
 
     protected void onInitSearchContainer(AppEvent ae) {
-
         // create search panel
-        Log.info("Init items-search-container... ");//$NON-NLS-1$
+        if(Log.isInfoEnabled())
+            Log.info("Init items-search-container... ");//$NON-NLS-1$
         itemsSearchContainer = new ItemsSearchContainer();
 
         addTab(itemsSearchContainer, "Search Tab", MessagesFactory.getMessages().search_tab_name(), false);//$NON-NLS-1$
