@@ -18,10 +18,12 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.webapp.core.util.Messages;
 import com.amalto.webapp.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.WebappForbiddenLoginException;
+import com.amalto.webapp.core.util.WebappRepeatedLoginException;
 
 public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericControllerServlet {
 
@@ -72,13 +74,24 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             if ("admin".equals(username)) {//$NON-NLS-1$		    
                 throw new WebappForbiddenLoginException(MESSAGES.getMessage(locale, "login.exception.forbidden", username)); //$NON-NLS-1$);
             }
+            LinkedHashMap<String, String> onlineUsers = ILocalUser.getOnlineUsers();
+            if (onlineUsers.containsKey(username)) {
 
+                if (onlineUsers.get(username) != null && req.getSession().getId() != null
+                        && !onlineUsers.get(username).equals(req.getSession().getId())) {
+                    throw new WebappRepeatedLoginException(MESSAGES.getMessage(locale, "login.exception.repeated", username)); //$NON-NLS-1$
+                }
+
+            }
             // Dispatch call
             String jsp = req.getParameter("action"); //$NON-NLS-1$	
             if ("logout".equals(jsp)) { //$NON-NLS-1$
+                ILocalUser.getOnlineUsers().remove(username);
                 req.getSession().invalidate();
                 res.sendRedirect("../index.html"); //$NON-NLS-1$
             } else {
+
+                ILocalUser.getOnlineUsers().put(username, req.getSession().getId());
 
                 String html = "<html>\n" + "<head>\n" + "<title>Talend MDM</title>\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + "<meta name=\"gwt:property\" content=\"locale=" + language + "\" >\n" + super.getCommonImport(); //$NON-NLS-1$ //$NON-NLS-2$
@@ -104,6 +117,19 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
                 out.write(html);
             }
 
+        } catch (WebappRepeatedLoginException e) {
+            req.getSession().invalidate();
+            String title = MESSAGES.getMessage(locale, "login.error"); //$NON-NLS-1$
+            String message = e.getLocalizedMessage();
+            String backLogin = MESSAGES.getMessage(locale, "back.login"); //$NON-NLS-1$
+            String forceLogout = MESSAGES.getMessage(locale, "force.logout"); //$NON-NLS-1$
+            StringBuilder html = new StringBuilder();
+            html.append("<h3>").append(title).append("</h3>"); //$NON-NLS-1$ //$NON-NLS-2$
+            html.append("<p><font size='4' color='red'>").append(message).append("</font></p>"); //$NON-NLS-1$ //$NON-NLS-2$
+            html.append("<a href='").append(req.getContextPath()).append("/LogoutServlet?user=").append(username).append("'>").append(forceLogout).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            html.append("<br/><br/>"); //$NON-NLS-1$
+            html.append("<a href='").append(req.getContextPath()).append("/LogoutServlet'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            out.write(html.toString());
         } catch (Exception e) {
             req.getSession().invalidate();
             String title = MESSAGES.getMessage(locale, "login.error"); //$NON-NLS-1$
