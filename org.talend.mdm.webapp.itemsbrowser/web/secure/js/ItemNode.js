@@ -235,8 +235,9 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				value = KEY_DEFAULT_vALUE[language];
 				mandatory='<span style="color:red">*</span>';
 			}
-			var typeStatus = true;
-			typeStatus = htmlUnescape(value).length<70 ||(itemData.typeName=="PICTURE")||(itemData.typeName=="URL")
+			
+			var typeTextArea= false;
+			typeTextArea = htmlUnescape(value).length>=70 && (itemData.typeName!="PICTURE") && (itemData.typeName!="URL")
 
 			// select list
 			if((itemData.readOnly == false && !isReadOnlyinItem) && itemData.enumeration.length!=0) {
@@ -268,7 +269,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
                         '</select>';
 			}
 			//input text
-			else if(typeStatus) {					
+			else if(!typeTextArea) {					
 					var input=' ' +
 						' <input class="inputTree'+readOnlyStyle+'" '+readOnly+' ' +
 						//TODO'onFocus="amalto.itemsbrowser.ItemsBrowser.setlastUpdatedInputFlagPublic(\''+itemData.nodeId+'\','+treeIndex+');" ' +
@@ -286,7 +287,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			else {
 				
 				var input = ' ' +
-						'<textarea class="inputTree'+readOnlyStyle+'" '+readOnly+' ' +
+						'<textarea class="textAreaTree'+readOnlyStyle+'" '+readOnly+' ' +
 						'onblur="amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');" id="'+itemData.nodeId+'Value" ' +
 						'rows="4" cols="69" type="text">'+value+'</textarea>';
 			}

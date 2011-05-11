@@ -67,7 +67,6 @@
   float: left;
 }
 
-
 .itemTree {
   font-size:12px;
 }
@@ -76,18 +75,34 @@
 .inputTreeREADONLY,
 .inputTreeForeignKey,
 .selectTree, 
-.selectTreeREADONLY {
-  height: 20px;
+.selectTreeREADONLY,
+.textAreaTree,
+.textAreaTreeREADONLY {
   font: 12px tahoma,verdana,helvetica;
   border: 1px solid #787878;
 }
 
 .inputTree,
 .inputTreeREADONLY,
-.inputTreeForeignKey {
+.inputTreeForeignKey,
+.selectTree, 
+.selectTreeREADONLY {
+  height: 20px;
+}
+
+.inputTree,
+.inputTreeREADONLY,
+.inputTreeForeignKey,
+.textAreaTree,
+.textAreaTreeREADONLY {
   padding: 2px 2px 2px 2px;
-  overflow: hidden;
   width: 360px;
+}
+
+.inputTree,
+.inputTreeREADONLY,
+.inputTreeForeignKey {
+  overflow: hidden;
 }
 
 .selectTree {
@@ -96,7 +111,8 @@
 
 .selectTreeREADONLY,
 .inputTreeREADONLY,
-.inputTreeForeignKey {
+.inputTreeForeignKey,
+.textAreaTreeREADONLY {
   color:#777777;
   background-color: #F4F4F4;
 }
