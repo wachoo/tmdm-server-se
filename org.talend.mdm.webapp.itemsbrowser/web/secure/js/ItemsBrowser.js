@@ -4447,8 +4447,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         // browseForeignKey. the value of node equals
                         // siblingNode's value.
                         siblingNode.itemData.value = "";
-                });
-        DWREngine.setAsync(true);
+                });       
         
         var parentLink = [];
         parentLink["conceptName"] = conceptName;
@@ -4504,6 +4503,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         siblingNode.parent.refresh();
         // itemTree.getRoot().refresh();
         amalto.core.ready();
+        DWREngine.setAsync(true);
         // removed by lzhang, if need, (line 3722 siblingNode.itemData.value =
         // "") has done this
         // if($(nodeCount+"Value"))$(nodeCount+"Value").value = "";
