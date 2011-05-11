@@ -472,7 +472,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	
 	updateNodeValue: function(updatedValue){
 		this.itemData.value = updatedValue;
-		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem);
+		this.initContent(this.itemData, this.newItem,this.treeIndex, this.hasIcon,this.isReadOnlyinItem, this.parentLink);
 	},
     
     // overrides YAHOO.widget.Node
