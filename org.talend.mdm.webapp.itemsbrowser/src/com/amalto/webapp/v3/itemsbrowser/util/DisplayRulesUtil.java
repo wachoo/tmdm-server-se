@@ -14,8 +14,14 @@ package com.amalto.webapp.v3.itemsbrowser.util;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.w3c.dom.Element;
@@ -39,10 +45,13 @@ public class DisplayRulesUtil {
 
     private List<TemplateBean> tmpls;
 
+    private HashMap<String, Integer> countMap;
+
     public DisplayRulesUtil(XSElementDecl root) {
         super();
         this.root = root;
         this.tmpls = new ArrayList<TemplateBean>();
+        this.countMap = new HashMap<String, Integer>();
     }
 
     /**
@@ -78,16 +87,61 @@ public class DisplayRulesUtil {
         return sb.toString();
     }
 
+    private String getStyleElemName(String elemName, HashMap<String, Integer> indexMap) {
+        String styleName = null;
+        Pattern p = Pattern.compile("(.*?)(\\[\\d+\\])$"); //$NON-NLS-1$
+        Matcher m = p.matcher(elemName);
+        String name = elemName;
+        if (m.matches()) {
+            name = m.group(1);
+        }
+
+        if (indexMap.containsKey(name)) {
+            int index = indexMap.get(name);
+            styleName = name + "[" + (index + 1) + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+            indexMap.put(name, index + 1);
+        } else {
+            if (countMap.get(name) > 1) {
+                styleName = name + "[1]"; //$NON-NLS-1$
+                indexMap.put(name, 1);
+            } else {
+                styleName = name;
+                indexMap.put(name, 1);
+            }
+        }
+        return styleName;
+    }
+
+    private String getTemplateName(String elemName, HashMap<String, Integer> indexMap) {
+        String styleName = null;
+        Pattern p = Pattern.compile("(.*?)(\\[\\d+\\])$"); //$NON-NLS-1$
+        Matcher m = p.matcher(elemName);
+        String name = elemName;
+        if (m.matches()) {
+            name = m.group(1);
+        }
+        if (indexMap.containsKey(name) && countMap.get(name) > 1) {
+            int index = indexMap.get(name);
+            styleName = name + "[" + (countMap.get(name) - index + 1) + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+            indexMap.put(name, index - 1);
+        } else {
+            styleName = name;
+            indexMap.put(name, 1);
+        }
+        return styleName;
+    }
+
     private String translateDefaultValueSchema() {
         StringBuffer style = new StringBuffer();
         if (tmpls.isEmpty())
-            travelXSElement(root);
+            travelXSElement(root, "/" + root.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 
+        HashMap<String, Integer> indexMap = new HashMap<String, Integer>();
         for (TemplateBean tmp : tmpls) {
             XSElementDecl self = tmp.getSelfElement();
-            List<XSElementDecl> children = tmp.getChildrenElements();
+            Map<XSElementDecl, String> children = tmp.getChildrenElements();
 
-            style.append("<xsl:template match=\"" + self.getName() + "\">") //$NON-NLS-1$ //$NON-NLS-2$
+            style.append("<xsl:template match=\"" + getTemplateName(tmp.getXPath(), indexMap) + "\">") //$NON-NLS-1$ //$NON-NLS-2$
                     .append("<xsl:copy>"); //$NON-NLS-1$ 
 
             List<DisplayRule> dspRules = getRules(self);
@@ -114,9 +168,9 @@ public class DisplayRulesUtil {
             }
 
             if (children != null && children.size() > 0) {
-                for (XSElementDecl child : children) {
+                for (XSElementDecl child : children.keySet()) {
                     if (child.getType().isComplexType() || hasRules(child))
-                        style.append("<xsl:apply-templates select=\"" + child.getName() + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+                        style.append("<xsl:apply-templates select=\"" + getStyleElemName(children.get(child), indexMap) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
                     else
                         style.append("<xsl:copy-of select=\"" + child.getName() + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
@@ -175,13 +229,14 @@ public class DisplayRulesUtil {
     private String translateSchema() {
         StringBuffer style = new StringBuffer();
         if (tmpls.isEmpty())
-            travelXSElement(root);
+            travelXSElement(root, "/" + root.getName()); //$NON-NLS-1$
 
+        HashMap<String, Integer> indexMap = new HashMap<String, Integer>();
         for (TemplateBean tmp : tmpls) {
             XSElementDecl self = tmp.getSelfElement();
-            List<XSElementDecl> children = tmp.getChildrenElements();
+            Map<XSElementDecl, String> children = tmp.getChildrenElements();
 
-            style.append("<xsl:template match=\"" + self.getName() + "\">") //$NON-NLS-1$ //$NON-NLS-2$
+            style.append("<xsl:template match=\"" + getTemplateName(tmp.getXPath(), indexMap) + "\">") //$NON-NLS-1$ //$NON-NLS-2$
                     .append("<xsl:copy>"); //$NON-NLS-1$ 
 
             List<DisplayRule> dspRules = getRules(self);
@@ -217,9 +272,9 @@ public class DisplayRulesUtil {
             }
 
             if (children != null && children.size() > 0) {
-                for (XSElementDecl child : children) {
+                for (XSElementDecl child : children.keySet()) {
                     if (child.getType().isComplexType() || hasRules(child))
-                        style.append("<xsl:apply-templates select=\"" + child.getName() + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+                        style.append("<xsl:apply-templates select=\"" + getStyleElemName(children.get(child), indexMap) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
                     else
                         style.append("<xsl:copy-of select=\"" + child.getName() + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
@@ -251,18 +306,34 @@ public class DisplayRulesUtil {
         return false;
     }
 
-    private void travelXSElement(XSElementDecl e) {
+    private String travelXSElement(XSElementDecl e, String currentXPath) {
         if (e != null) {
+            Pattern p = Pattern.compile("(.*?)(\\d+)$"); //$NON-NLS-1$
+            Matcher m = p.matcher(e.getName());
+            String name = e.getName();
+            if (m.matches()) {
+                name = m.group(1);
+            }
+            String currentName = currentXPath.substring(0, currentXPath.lastIndexOf("/") + 1) + name; //$NON-NLS-1$
 
             if (e.getType().isSimpleType()) {
-
                 if (hasRules(e)) {
-                    tmpls.add(new TemplateBean(e));
+
+                    if (countMap.containsKey(currentName))
+                        countMap.put(currentName, countMap.get(currentName) + 1);
+                    else
+                        countMap.put(currentName, 1);
+                    currentXPath = currentName + "[" + countMap.get(currentName) + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+
+                    tmpls.add(new TemplateBean(e, currentXPath));
                 }
-
             } else if (e.getType().isComplexType()) {
-
-                TemplateBean templateBean = new TemplateBean(e);
+                if (countMap.containsKey(currentName))
+                    countMap.put(currentName, countMap.get(currentName) + 1);
+                else
+                    countMap.put(currentName, 1);
+                currentXPath = currentName + "[" + countMap.get(currentName) + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+                TemplateBean templateBean = new TemplateBean(e, currentXPath);
                 tmpls.add(templateBean);
 
                 XSParticle[] subParticles = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup()
@@ -270,25 +341,27 @@ public class DisplayRulesUtil {
                 if (subParticles != null) {
                     for (int i = 0; i < subParticles.length; i++) {
                         XSParticle xsParticle = subParticles[i];
-                        travelParticle(xsParticle, templateBean);
+                        travelParticle(xsParticle, templateBean, currentXPath);
                     }
                 }
 
             }
 
+            return currentXPath;
         }
+        return null;
     }
 
-    private void travelParticle(XSParticle xsParticle, TemplateBean templateBean) {
+    private void travelParticle(XSParticle xsParticle, TemplateBean templateBean, String currentXPath) {
         if (xsParticle.getTerm().asModelGroup() != null) {
             XSParticle[] xsps = xsParticle.getTerm().asModelGroup().getChildren();
             for (int j = 0; j < xsps.length; j++) {
-                travelParticle(xsps[j], templateBean);
+                travelParticle(xsps[j], templateBean, currentXPath);
             }
         } else if (xsParticle.getTerm().asElementDecl() != null) {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
-            templateBean.addChildElement(subElement);
-            travelXSElement(subElement);
+            String refXPath = travelXSElement(subElement, currentXPath + "/" + subElement.getName()); //$NON-NLS-1$ 
+            templateBean.addChildElement(subElement, refXPath);
         }
     }
 
@@ -375,6 +448,20 @@ public class DisplayRulesUtil {
         return xpath.replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
+    private static String unifyXPath(String xpath) {
+        String[] xpathSnippets = xpath.split("/"); //$NON-NLS-1$
+        for (int i = 0; i < xpathSnippets.length; i++) {
+            String xpathSnippet = xpathSnippets[i];
+            if (xpathSnippet.isEmpty())
+                continue;
+            if (!xpathSnippet.matches("(.*?)\\[.*?\\]")) { //$NON-NLS-1$
+                xpathSnippets[i] += "[1]"; //$NON-NLS-1$
+            }
+        }
+        String modifiedXpath = StringUtils.join(xpathSnippets, "/");//$NON-NLS-1$
+        return modifiedXpath;
+    }
+
     public static void filterByDisplayRules(List<TreeNode> nodesList, TreeNode node, List<DisplayRule> dspRules, int docIndex)
             throws ParseException {
 
@@ -383,14 +470,14 @@ public class DisplayRulesUtil {
         for (DisplayRule displayRule : dspRules) {
             String xpathInRule = XmlUtil.normalizeXpath(displayRule.getXpath());
             if (displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
-                if (getMainXpath(xpath).equals(getMainXpath(xpathInRule))) {
+                if (unifyXPath(xpath).equals(xpathInRule)) {
                     if (node.getValue() == null || node.getValue().trim().equals("")) { //$NON-NLS-1$
                         node.setValue(displayRule.getValue());
                         ItemsBrowserDWR.updateNode2(xpath, node.getValue(), docIndex);
                     }
                 }
             } else if (displayRule.getType().equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
-                if (getMainXpath(xpath).startsWith(getMainXpath(xpathInRule))) {
+                if (unifyXPath(xpath).startsWith(xpathInRule)) {
                     if (displayRule.getValue() != null && displayRule.getValue().equals("false")) { //$NON-NLS-1$
                         // nodesList.remove(node);
                         node.setVisible(false);
@@ -403,30 +490,37 @@ public class DisplayRulesUtil {
 
     class TemplateBean {
 
+        private String xpath = null;
+
         private XSElementDecl selfElement = null;
 
-        private List<XSElementDecl> childrenElements = null;
+        private LinkedHashMap<XSElementDecl, String> childrenElements = null;
 
-        public TemplateBean(XSElementDecl selfElement) {
+        public TemplateBean(XSElementDecl selfElement, String xpath) {
             super();
             this.selfElement = selfElement;
+            this.xpath = xpath;
         }
 
         public XSElementDecl getSelfElement() {
             return selfElement;
         }
 
-        public List<XSElementDecl> getChildrenElements() {
+        public String getXPath() {
+            return xpath;
+        }
+
+        public LinkedHashMap<XSElementDecl, String> getChildrenElements() {
             return childrenElements;
         }
 
         /**
          * DOC HSHU Comment method "addChildElement".
          */
-        public void addChildElement(XSElementDecl childElement) {
+        public void addChildElement(XSElementDecl childElement, String xpath) {
             if (childrenElements == null)
-                childrenElements = new ArrayList<XSElementDecl>();
-            childrenElements.add(childElement);
+                childrenElements = new LinkedHashMap<XSElementDecl, String>();
+            childrenElements.put(childElement, xpath);
         }
 
         @Override
@@ -434,7 +528,7 @@ public class DisplayRulesUtil {
 
             String print = "TemplateBean [selfElement=" + selfElement.getName() + "]{"; //$NON-NLS-1$ //$NON-NLS-2$
             if (childrenElements != null) {
-                for (XSElementDecl child : childrenElements) {
+                for (XSElementDecl child : childrenElements.keySet()) {
                     print += child.getName() + "|"; //$NON-NLS-1$
                 }
             }

@@ -25,12 +25,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +56,7 @@ import org.jboss.dom4j.io.SAXReader;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -266,8 +268,8 @@ public class ItemsBrowserDWR {
             Configuration config = Configuration.getInstance();
             String[] viewables = new View(viewPK, language).getViewables();
             String[] labelViewables = new String[viewables.length];
-            HashMap<String, String> xpathToLabel = CommonDWR.getFieldsByDataModel(config.getModel(),
-                    CommonDWR.getConceptFromBrowseItemView(viewPK), language, true);
+            HashMap<String, String> xpathToLabel = CommonDWR.getFieldsByDataModel(config.getModel(), CommonDWR
+                    .getConceptFromBrowseItemView(viewPK), language, true);
             for (int i = 0; i < viewables.length; i++) {
                 String labelViewable = ""; //$NON-NLS-1$
                 String path = viewables[i];
@@ -532,6 +534,9 @@ public class ItemsBrowserDWR {
         HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
                 "xpathToPolymType" + docIndex); //$NON-NLS-1$  
 
+        HashMap<String, String> SortedxpathToPolymType = null;
+
+        Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$ //$NON-NLS-2$
         DisplayRulesUtil displayRulesUtil = null;
         BusinessConcept businessConcept = getBusinessConcept(polymToBusinessConcept, xpathToPolymType);
 
@@ -539,25 +544,54 @@ public class ItemsBrowserDWR {
             List polymList = new ArrayList();
             for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
                 String subType = xpathToPolymType.get(iterator.next());
-                if (!polymList.contains(subType))
-                    polymList.add(subType);
+                // if (!polymList.contains(subType))
+                polymList.add(subType);
             }
 
             if (businessConcept == null) {
+                SortedxpathToPolymType = sortPolymTypeByXpath(xpathToPolymType, doc);
                 String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
                 Document xsdDoc = Util.parse(xsd);
-                for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
+                List<Node> rawNodeList = new ArrayList<Node>();
+                for (Iterator<String> iterator = SortedxpathToPolymType.keySet().iterator(); iterator.hasNext();) {
                     String xpath = (String) iterator.next();
-                    String mainPath = xpath.replaceAll("\\[.*?\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$
-                    String basePath = "//xsd:element[@name=\"" + mainPath.substring(mainPath.lastIndexOf("/") + 1) + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    for (int index = 0; index < Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().getLength(); index++) {
-                        if (Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().item(index).getNodeName().equals("type")) { //$NON-NLS-1$
-                            Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().item(index).getFirstChild()
-                                    .setNodeValue(xpathToPolymType.get(xpath));
-                            break;
+                    if (xpath.indexOf("[") > -1) {
+                        String mainPath = xpath.replaceAll("\\[.*?\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$           
+                        String basePath = "//xsd:element[@name=\"" + mainPath.substring(mainPath.lastIndexOf("/") + 1) + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        Node rawNode = Util.getNodeList(xsdDoc, basePath).item(0);
+                        Node backupNode = rawNode.cloneNode(true);
+                        for (int index = 0; index < backupNode.getAttributes().getLength(); index++) {
+                            if (backupNode.getAttributes().item(index).getNodeName().equals("name")) { //$NON-NLS-1$
+                                backupNode.getAttributes().item(index).getFirstChild().setNodeValue(getDspXpathName(xpath));
+                            }
+                            if (backupNode.getAttributes().item(index).getNodeName().equals("type")) { //$NON-NLS-1$
+                                backupNode.getAttributes().item(index).getFirstChild().setNodeValue(
+                                        SortedxpathToPolymType.get(xpath));
+                            }
+                        }
+                        // synchronize node in document
+                        // Util.getNodeList(itemDocument, xpath).item(0).set
+                        rawNode.getParentNode().insertBefore(backupNode, rawNode);
+                        rawNodeList.add(rawNode);
+                    } else {
+                        String basePath = "//xsd:element[@name=\"" + xpath.substring(xpath.lastIndexOf("/") + 1) + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        for (int index = 0; index < Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().getLength(); index++) {
+                            if (Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().item(index).getNodeName().equals(
+                                    "type")) { //$NON-NLS-1$
+                                Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().item(index).getFirstChild()
+                                        .setNodeValue(SortedxpathToPolymType.get(xpath));
+                                break;
+                            }
                         }
                     }
+
                 }
+                // remove basic node
+                if (!rawNodeList.isEmpty())
+                    for (Node node : rawNodeList) {
+                        if (node.getParentNode() != null)
+                            node.getParentNode().removeChild(node);
+                    }
 
                 Map<String, XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(CommonDWR
                         .getXMLStringFromDocument(xsdDoc));
@@ -584,7 +618,7 @@ public class ItemsBrowserDWR {
         String rulesStyle = displayRulesUtil.genStyle();
 
         if (defaultValueRules.size() > 0) {
-            Document tmpDocument = Util.copyDocument(itemDocument);
+            Document tmpDocument = Util.copyDocument(doc);
             for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
                 String xPath = (String) iterator.next();
                 if (Util.getNodeList(tmpDocument, xPath).getLength() > 0
@@ -605,7 +639,7 @@ public class ItemsBrowserDWR {
         }
 
         if (visibleRules.size() > 0) {
-            org.dom4j.Document transformedDocumentVisible = XmlUtil.styleDocument(itemDocument, rulesStyle);
+            org.dom4j.Document transformedDocumentVisible = XmlUtil.styleDocument(doc, rulesStyle);
             for (Iterator<String> iterator = visibleRules.keySet().iterator(); iterator.hasNext();) {
                 String xpath = (String) iterator.next();
                 String value = displayRulesUtil.evalVisibleRuleResult(transformedDocumentVisible, xpath);
@@ -621,24 +655,91 @@ public class ItemsBrowserDWR {
         ctx.getSession().setAttribute("displayRules" + docIndex, dspRules); //$NON-NLS-1$ 
     }
 
+    private HashMap<String, String> sortPolymTypeByXpath(HashMap<String, String> xpathToPolymType, Document doc) {
+        LinkedHashMap<String, String> tmpMap = new LinkedHashMap<String, String>();
+        List<String> tmpList = new ArrayList<String>();
+        int i = 0;
+        for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
+            i++;
+            String xpath = (String) iterator.next();
+            if (tmpList.isEmpty())
+                tmpList.add(xpath);
+            else {
+                for (int index = tmpList.size() - 1; index > -1; index--) {
+                    String tmpXpath = tmpList.get(index);
+                    try {
+                        if (ifLargePosi(Util.getNodeList(doc, tmpXpath).item(0), Util.getNodeList(doc, xpath).item(0))) {
+                            if (index + 1 >= tmpList.size())
+                                tmpList.add(xpath);
+                            else
+                                tmpList.add(index + 1, xpath);
+                            break;
+                        }
+                    } catch (DOMException e) {
+                        LOG.error(e.getMessage(), e);
+                        return tmpMap;
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
+                        return tmpMap;
+                    }
+                }
+                if (tmpList.size() < i)
+                    tmpList.add(0, xpath);
+            }
+        }
+
+        for (int index = 0; index < tmpList.size(); index++) {
+            tmpMap.put(tmpList.get(index), xpathToPolymType.get(tmpList.get(index)));
+        }
+
+        return tmpMap;
+    }
+
+    private boolean ifLargePosi(Node node, Node refNode) {
+        if (node.equals(refNode))
+            return true;
+        if (node.hasChildNodes()) {
+            for (int i = 0; i < node.getChildNodes().getLength(); i++) {
+                if (node.getChildNodes().item(i).equals(refNode))
+                    return true;
+                if (ifLargePosi(node.getChildNodes().item(i), refNode))
+                    return true;
+            }
+        }
+        while (node.getNextSibling() != null) {
+            if (node.getNextSibling().equals(refNode))
+                return true;
+            for (int i = 0; i < node.getNextSibling().getChildNodes().getLength(); i++) {
+                if (node.getNextSibling().getChildNodes().item(i).equals(refNode))
+                    return true;
+                if (ifLargePosi(node.getNextSibling().getChildNodes().item(i), refNode))
+                    return true;
+            }
+            node = node.getNextSibling();
+        }
+        return false;
+    }
+
     private BusinessConcept getBusinessConcept(HashMap<List, BusinessConcept> polymToBusinessConcept,
             HashMap<String, String> xpathToPolymType) {
         for (List keyList : polymToBusinessConcept.keySet()) {
-            List tmpList = new ArrayList();
-            for (int i = 0; i < keyList.size(); i++)
-                tmpList.add(keyList.get(i).toString());
-
             for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
                 String xpath = iterator.next();
                 if (!keyList.contains(xpathToPolymType.get(xpath))) {
                     return null;
-                } else if (!tmpList.isEmpty() && keyList.contains(xpathToPolymType.get(xpath)))
-                    tmpList.remove(xpathToPolymType.get(xpath));
+                } else if (keyList.isEmpty()) {
+                    return null;
+                } else if (keyList.contains(xpathToPolymType.get(xpath)))
+                    keyList.remove(xpathToPolymType.get(xpath));
             }
-            if (tmpList.isEmpty())
+            if (keyList.isEmpty())
                 return polymToBusinessConcept.get(keyList);
         }
         return null;
+    }
+
+    private String getDspXpathName(String unifiedXPath) {
+        return unifiedXPath.substring(unifiedXPath.lastIndexOf("/") + 1).replaceAll("\\[", "").replaceAll("\\]", "");
     }
 
     /**
@@ -1241,8 +1342,8 @@ public class ItemsBrowserDWR {
 
     private TreeNode[] handleDisplayRules(TreeNode[] nodes, int docIndex) throws XtentisWebappException {
         try {
-            List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession()
-                    .getAttribute("displayRules" + docIndex); //$NON-NLS-1$
+            List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
+                    "displayRules" + docIndex); //$NON-NLS-1$
             if (nodes != null) {
                 List<TreeNode> nodesList = new ArrayList(Arrays.asList(nodes));
                 for (int i = 0; i < nodes.length; i++) {
@@ -1278,7 +1379,6 @@ public class ItemsBrowserDWR {
 
             try {
                 String xpath = idToXpath.get(id);
-
                 // update doc
                 if (selectedExtendType != null && selectedExtendType.length() > 0) {
                     Node tagertNode = Util.getNodeList(d, xpath).item(0);
@@ -1387,8 +1487,8 @@ public class ItemsBrowserDWR {
     @SuppressWarnings("unchecked")
     public String updateNodeDspValue(int docIndex, int newId) {
         WebContext ctx = WebContextFactory.get();
-        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession()
-                .getAttribute("displayRules" + docIndex); //$NON-NLS-1$
+        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
+                "displayRules" + docIndex); //$NON-NLS-1$
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
         String sourcePath = idToXpath.get(newId).replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$
         for (DisplayRule displayRule : dspRules) {
@@ -1410,7 +1510,10 @@ public class ItemsBrowserDWR {
         // associate the new id node to the particle of his sibling
         idToParticle.put(newId, xsp);
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
+        Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
         HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute("xpathToTreeNode"); //$NON-NLS-1$
+        HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
+                "xpathToPolymType" + docIndex); //$NON-NLS-1$
 
         try {
 
@@ -1427,6 +1530,14 @@ public class ItemsBrowserDWR {
             insertAfter(nodeClone, node);
             ctx.getSession().setAttribute("itemDocument" + docIndex, node.getOwnerDocument()); //$NON-NLS-1$
 
+            // added by lzhang, consistent with document when edit status
+            if (doc != null) {
+                Node node2 = Util.getNodeList(doc, idToXpath.get(siblingId)).item(0);
+                Node nodeClone2 = node2.cloneNode(true);
+                clearChildrenValue(nodeClone2);
+                insertAfter(nodeClone2, node2);
+            }
+
             String siblingXpath = idToXpath.get(siblingId).replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
             int siblingIndex = getXpathIndex(idToXpath.get(siblingId));
@@ -1439,7 +1550,7 @@ public class ItemsBrowserDWR {
                 updatedPath = new HashMap<String, UpdateReportItem>();
             }
 
-            editXpathInidToXpathAdd(siblingId, idToXpath, updatedPath);
+            editXpathInidToXpathAdd(siblingId, idToXpath, updatedPath, xpathToPolymType);
 
             idToXpath.put(newId, siblingXpath + "[" + (siblingIndex + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
             ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
@@ -1459,8 +1570,12 @@ public class ItemsBrowserDWR {
             TreeNode siblingNode = xpathToTreeNode.get(siblingXpath + "[" + siblingIndex + "]"); //$NON-NLS-1$ //$NON-NLS-2$
             TreeNode siblingNodeTmp = (TreeNode) siblingNode.clone();
             siblingNodeTmp.setNodeId(newId);
-            xpathToTreeNode.put(siblingXpath + "[" + (siblingIndex + 1) + "]", siblingNodeTmp); //$NON-NLS-1$ //$NON-NLS-2$            
+            xpathToTreeNode.put(siblingXpath + "[" + (siblingIndex + 1) + "]", siblingNodeTmp); //$NON-NLS-1$ //$NON-NLS-2$    
 
+            if (siblingNode.isPolymiorphism()) {
+                // update polym
+                xpathToPolymType.put(unifyXPath(siblingXpath + "[" + (siblingIndex + 1) + "]"), siblingNode.getRealType());
+            }
             return "Cloned";//$NON-NLS-1$
 
         } catch (Exception e) {
@@ -1547,8 +1662,8 @@ public class ItemsBrowserDWR {
      */
     public Map<String, String> checkVisibilityRules(int docIndex) {
         Map<String, String> checkMap = new HashMap<String, String>();
-        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession()
-                .getAttribute("displayRules" + docIndex); //$NON-NLS-1$
+        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
+                "displayRules" + docIndex); //$NON-NLS-1$
 
         for (DisplayRule displayRule : dspRules) {
             String xpath = displayRule.getXpath();
@@ -1573,7 +1688,7 @@ public class ItemsBrowserDWR {
         String[] xpathSnippets = regex.split("/"); //$NON-NLS-1$
         for (int i = 0; i < xpathSnippets.length; i++) {
             if (!xpathSnippets[i].equals(""))//$NON-NLS-1$
-                xpathSnippets[i] += "(\\[.*?\\])?"; //$NON-NLS-1$                
+                xpathSnippets[i] = xpathSnippets[i].replaceAll("\\[\\d+\\]$", "") + "(\\[.*?\\])?"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$              
         }
         Pattern p = Pattern.compile(StringUtils.join(xpathSnippets, "/")); //$NON-NLS-1$  
         for (Object key : xpathToTreeNode.keySet()) {
@@ -1704,11 +1819,12 @@ public class ItemsBrowserDWR {
      * will be edited , eg. '/PurchaseOrder/ListItems/POItem[j]'(j>i), j--
      * 
      */
-    public void editXpathInidToXpath(int id, HashMap<Integer, String> idToXpath, HashMap<String, UpdateReportItem> updatedPath) {
+    public void editXpathInidToXpath(int id, HashMap<Integer, String> idToXpath, HashMap<String, UpdateReportItem> updatedPath,
+            HashMap<String, String> xpathToPolymType) {
         String nodeXpath = idToXpath.get(id).replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$ //$NON-NLS-2$
         String patternXpath = nodeXpath.replaceAll("\\[", "\\\\["); //$NON-NLS-1$ //$NON-NLS-2$
         patternXpath = patternXpath.replaceAll("\\]", "\\\\]"); //$NON-NLS-1$ //$NON-NLS-2$
-        ;
+
         Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\](.*?))"); //$NON-NLS-1$
         Matcher m = p.matcher(idToXpath.get(id));
         int nodeIndex = -1;
@@ -1719,6 +1835,7 @@ public class ItemsBrowserDWR {
             int key = keys.next();
             String xpath = idToXpath.get(key);
             String xpath1 = xpath;
+            String unifiedXpath = null;
             if (xpath.matches(patternXpath + "\\[\\d+\\].*")) { //$NON-NLS-1$
                 int pathIndex = -1;
                 Matcher m1 = p.matcher(xpath);
@@ -1728,6 +1845,12 @@ public class ItemsBrowserDWR {
                     pathIndex--;
                     xpath = nodeXpath + "[" + pathIndex + "]" + m1.group(m1.groupCount()); //$NON-NLS-1$ //$NON-NLS-2$
                     idToXpath.put(key, xpath);
+                    // added by lzhang
+                    unifiedXpath = unifyXPath(xpath1);
+                    if (xpathToPolymType.containsKey(unifiedXpath)) {
+                        xpathToPolymType.put(unifyXPath(xpath), xpathToPolymType.get(unifiedXpath));
+                        xpathToPolymType.remove(unifiedXpath);
+                    }
 
                     if (updatedPath.get(xpath1) != null) {
                         UpdateReportItem uri = updatedPath.get(xpath1);
@@ -1745,7 +1868,8 @@ public class ItemsBrowserDWR {
      * be edited , eg. '/PurchaseOrder/ListItems/POItem[j]'(j>i), j++
      * 
      */
-    public void editXpathInidToXpathAdd(int id, HashMap<Integer, String> idToXpath, HashMap<String, UpdateReportItem> updatedPath) {
+    public void editXpathInidToXpathAdd(int id, HashMap<Integer, String> idToXpath,
+            HashMap<String, UpdateReportItem> updatedPath, HashMap<String, String> xpathToPolymType) {
         int beginIndex = idToXpath.get(id).lastIndexOf("["); //$NON-NLS-1$
         int endIndex = idToXpath.get(id).lastIndexOf("]"); //$NON-NLS-1$
 
@@ -1757,6 +1881,7 @@ public class ItemsBrowserDWR {
             int key = keys.next();
             String xpath = idToXpath.get(key);
             String xpath1 = xpath;
+            String unifiedXpath = null;
             int xpathIndex = xpath.indexOf(patternXpath);
             if (xpathIndex >= 0) {
                 int pathIndex = -1;
@@ -1764,13 +1889,18 @@ public class ItemsBrowserDWR {
                 int beginIndex1 = lastSubString.indexOf("["); //$NON-NLS-1$
                 int endIndex1 = lastSubString.indexOf("]"); //$NON-NLS-1$
                 if (beginIndex1 < endIndex1 && beginIndex1 != -1 && endIndex1 != -1) {
-
                     pathIndex = Integer.parseInt(lastSubString.substring(beginIndex1 + 1, endIndex1));
                     String lastString = lastSubString.substring(endIndex1 + 1);
                     if (nodeIndex < pathIndex) {
                         pathIndex++;
                         xpath = patternXpath + "[" + pathIndex + "]" + lastString; //$NON-NLS-1$ //$NON-NLS-2$
                         idToXpath.put(key, xpath);
+                        // added by lzhang
+                        unifiedXpath = unifyXPath(xpath1);
+                        if (xpathToPolymType.containsKey(unifiedXpath)) {
+                            xpathToPolymType.put(unifyXPath(xpath), xpathToPolymType.get(unifiedXpath));
+                            xpathToPolymType.remove(unifiedXpath);
+                        }
 
                         if (updatedPath.get(xpath1) != null) {
                             UpdateReportItem uri = updatedPath.get(xpath1);
@@ -1858,11 +1988,13 @@ public class ItemsBrowserDWR {
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
         HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
+        HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
+                "xpathToPolymType" + docIndex); //$NON-NLS-1$
 
         try {
 
-            Util.getNodeList(d, idToXpath.get(id)).item(0).getParentNode()
-                    .removeChild(Util.getNodeList(d, idToXpath.get(id)).item(0));
+            Util.getNodeList(d, idToXpath.get(id)).item(0).getParentNode().removeChild(
+                    Util.getNodeList(d, idToXpath.get(id)).item(0));
 
             HashMap<String, UpdateReportItem> updatedPath;
             if (ctx.getSession().getAttribute("updatedPath" + docIndex) != null) { //$NON-NLS-1$
@@ -1870,14 +2002,22 @@ public class ItemsBrowserDWR {
             } else {
                 updatedPath = new HashMap<String, UpdateReportItem>();
             }
-            UpdateReportItem ri = new UpdateReportItem(idToXpath.get(id), oldValue, ""); //$NON-NLS-1$
-
-            editXpathInidToXpath(id, idToXpath, updatedPath);
+            UpdateReportItem ri = new UpdateReportItem(idToXpath.get(id), oldValue, ""); //$NON-NLS-1$      
             // add by ymli. fix the bug:0010576. edit the path
             String path = idToXpath.get(id);
-            HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
-                    "xpathToPolymType" + docIndex); //$NON-NLS-1$
-            xpathToPolymType.remove(path);
+            // modified by lzhang, be consistent with xpathToPolymType
+            boolean ifPolym = false;
+            if (xpathToPolymType.containsKey(unifyXPath(path))) {
+                xpathToPolymType.remove(unifyXPath(path));
+                ifPolym = true;
+            }
+
+            editXpathInidToXpath(id, idToXpath, updatedPath, xpathToPolymType);
+
+            if (ifPolym)
+                updateDspRules(docIndex, d, path.substring(1, path.indexOf("/", 1) > -1 ? path.indexOf("/", 1) : path.length())//$NON-NLS-1$//$NON-NLS-2$
+                        .trim());
+
             if (updatedPath.get(idToXpath.get(id)) != null) {
                 path = updatedPath.get(idToXpath.get(id)).getPath();
                 Pattern p = Pattern.compile("(.*?)(\\[)(\\d+)(\\]$)"); //$NON-NLS-1$
@@ -1920,8 +2060,8 @@ public class ItemsBrowserDWR {
 
         WSItem wsitem = (WSItem) ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem"); //$NON-NLS-1$ //$NON-NLS-2$
         if (wsitem != null) {
-            ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(wsitem.getWsDataClusterPK().getPk()),
-                    wsitem.getConceptName(), wsitem.getIds());
+            ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(wsitem.getWsDataClusterPK().getPk()), wsitem
+                    .getConceptName(), wsitem.getIds());
             boolean isModified = com.amalto.core.util.Util.getItemCtrl2Local().isItemModifiedByOther(itempk,
                     wsitem.getInsertionTime());
             return isModified;
@@ -2144,8 +2284,8 @@ public class ItemsBrowserDWR {
             List polymList = new ArrayList();
             for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
                 String subType = xpathToPolymType.get(iterator.next());
-                if (!polymList.contains(subType))
-                    polymList.add(subType);
+                // if (!polymList.contains(subType))
+                polymList.add(subType);
             }
             HashMap<List, DisplayRulesUtil> polymToDisplayRulesUtil = (HashMap<List, DisplayRulesUtil>) ctx.getSession()
                     .getAttribute("polymToDisplayRulesUtil" + docIndex);//$NON-NLS-1$
@@ -2382,6 +2522,18 @@ public class ItemsBrowserDWR {
             } else {
                 Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
                 parentNode.appendChild(el);
+
+                if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
+                    XSComplexType type = (XSComplexType) xsp.getTerm().asElementDecl().getType();
+                    XSParticle particle = type.getContentType().asParticle();
+                    if (particle != null) {
+                        XSParticle[] children = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+                        String xpth = xpathParent + '/' + xsp.getTerm().asElementDecl().getName();
+                        for (XSParticle child : children) {
+                            setChildrenWithValue(child, xpth, docIndex, withValue);
+                        }
+                    }
+                }
             }
         } else {
             Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
@@ -2575,14 +2727,14 @@ public class ItemsBrowserDWR {
      */
     public String countForeignKey_filter(String dataObject, String xpathForeignKey, String xpathForeignKeyInfo, String fkFilter,
             int docIndex, int nodeId) throws Exception {
-        return Util.countForeignKey_filter(xpathForeignKey, xpathForeignKeyInfo,
-                parseForeignKeyFilter(dataObject, fkFilter, docIndex, nodeId));
+        return Util.countForeignKey_filter(xpathForeignKey, xpathForeignKeyInfo, parseForeignKeyFilter(dataObject, fkFilter,
+                docIndex, nodeId));
     }
 
     public String getForeignKeyListWithCount(int start, int limit, String value, String dataObject, String xpathForeignKey,
             String xpathInfoForeignKey, String fkFilter, int docIndex, int nodeId) throws RemoteException, Exception {
-        return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey,
-                parseForeignKeyFilter(dataObject, fkFilter, docIndex, nodeId), true);
+        return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, parseForeignKeyFilter(
+                dataObject, fkFilter, docIndex, nodeId), true);
     }
 
     /**
@@ -2847,8 +2999,8 @@ public class ItemsBrowserDWR {
 
     public boolean checkIfDocumentExists(String[] ids, String concept) throws Exception {
         Configuration config = Configuration.getInstance();
-        boolean flag = Util.getPort()
-                .existsItem(new WSExistsItem(new WSItemPK(new WSDataClusterPK(config.getCluster()), concept, ids))).is_true();
+        boolean flag = Util.getPort().existsItem(
+                new WSExistsItem(new WSItemPK(new WSDataClusterPK(config.getCluster()), concept, ids))).is_true();
         return flag;
     }
 
@@ -3926,12 +4078,12 @@ public class ItemsBrowserDWR {
 
             wi = new WSWhereItem(null, and, null);
 
-            String[] results = Util.getPort()
-                    .xPathsSearch(new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
+            String[] results = Util.getPort().xPathsSearch(
+                    new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
                             new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order//$NON-NLS-1$
                             // by
                             null // direction
-                            )).getStrings();
+                    )).getStrings();
 
             // Map<String, String> map = new HashMap<String, String>();
 
@@ -3992,8 +4144,8 @@ public class ItemsBrowserDWR {
         new WSWhereItem(null, null, or) });
 
         wi = new WSWhereItem(null, and, null);
-        return Util.getPort()
-                .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$
+        return Util.getPort().count(
+                new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$
                 .getValue();
     }
 
