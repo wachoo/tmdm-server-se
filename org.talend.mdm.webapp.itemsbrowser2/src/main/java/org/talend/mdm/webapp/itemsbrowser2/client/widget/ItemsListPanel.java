@@ -26,6 +26,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -76,6 +77,7 @@ public class ItemsListPanel extends ContentPanel {
 
     RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
 
+        @Override
         public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBean>> callback) {
             QueryModel qm = new QueryModel();
             toolBar.setQueryModel(qm);
@@ -134,6 +136,7 @@ public class ItemsListPanel extends ContentPanel {
         loader.setRemoteSort(true);
         loader.addLoadListener(new LoadListener() {
 
+            @Override
             public void loaderLoad(LoadEvent le) {
                 if (store.getModels().size() > 0) {
                     showItemTimes++;
@@ -198,13 +201,19 @@ public class ItemsListPanel extends ContentPanel {
         }
         grid.addListener(Events.OnMouseOver, new Listener<GridEvent<ItemBean>>() {
 
-            public void handleEvent(GridEvent<ItemBean> be) {
-                ItemBean item = grid.getStore().getAt(be.getRowIndex());
-                grid.getView().getRow(item).getStyle().setCursor(Style.Cursor.POINTER);
+            public void handleEvent(GridEvent<ItemBean> ge) {
+                int rowIndex = ge.getRowIndex();
+                if (rowIndex != -1) {
+                    ItemBean item = grid.getStore().getAt(rowIndex);
+                    if (Log.isDebugEnabled())
+                        Log.debug(item.toString());
+                    grid.getView().getRow(item).getStyle().setCursor(Style.Cursor.POINTER);
+                }
             }
         });
         grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
 
+            @Override
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 final ItemBean item = se.getSelectedItem();
 
@@ -212,17 +221,18 @@ public class ItemsListPanel extends ContentPanel {
                     gridContainer.setEnabled(false);
                     EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
                     service.getItem(item, entityModel, new AsyncCallback<ItemBean>() {
-                        public void onFailure(Throwable caught) {}
+
+                        public void onFailure(Throwable caught) {
+                            if (Log.isErrorEnabled())
+                                Log.error(caught.getMessage(), caught);
+                        }
+
                         public void onSuccess(ItemBean result) {
                             item.copy(result);
                             showItem(result, ItemsView.TARGET_IN_SEARCH_TAB);
                         }
                     });
-                } else {
-                    ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
-                    // itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.setInnerHTML("");
                 }
-
             }
         });
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {
@@ -276,6 +286,7 @@ public class ItemsListPanel extends ContentPanel {
         openInWindow.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openWin()));
         openInWindow.addSelectionListener(new SelectionListener<MenuEvent>() {
 
+            @Override
             public void componentSelected(MenuEvent ce) {
                 // TODO check dirty status
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
@@ -293,6 +304,7 @@ public class ItemsListPanel extends ContentPanel {
         openInTab.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
         openInTab.addSelectionListener(new SelectionListener<MenuEvent>() {
 
+            @Override
             public void componentSelected(MenuEvent ce) {
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
                 if (m == null) {
@@ -309,6 +321,7 @@ public class ItemsListPanel extends ContentPanel {
         editRow.setText(MessagesFactory.getMessages().edititem());
         editRow.addSelectionListener(new SelectionListener<MenuEvent>() {
 
+            @Override
             public void componentSelected(MenuEvent ce) {
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
                 if (m == null) {
