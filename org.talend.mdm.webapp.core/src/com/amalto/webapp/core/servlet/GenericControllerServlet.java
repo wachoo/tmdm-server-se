@@ -117,11 +117,30 @@ public abstract class GenericControllerServlet extends HttpServlet {
 	private ArrayList<String> getJavascriptImport() throws Exception{
 		ArrayList<String> imports = new ArrayList<String>();
 		getJavascriptImportDetail(Menu.getRootMenu(), imports, 1,1);
+		//FIXME: This is a workaround for 4.2 only
+		complementItemsbrowser(imports);
 		return imports;
 	}
 
 	
+    /**
+     * DOC HSHU Comment method "containLegacyItemsbrowser".
+     */
+    private void complementItemsbrowser(ArrayList<String> imports) {
+        boolean isItemsbrowserExist=false;
+        boolean isItemsbrowser2Exist=false;
+        for (String importMenu : imports) {
+            if(importMenu.indexOf("src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"")!=-1)isItemsbrowserExist=true;//$NON-NLS-1$
+            if(importMenu.indexOf("src=\"/itemsbrowser2/secure/js/ItemsBrowser2.js\"")!=-1)isItemsbrowser2Exist=true;//$NON-NLS-1$
+        }
+        if(isItemsbrowser2Exist&&!isItemsbrowserExist) {
+           imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
+           imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"></script>\n");//$NON-NLS-1$
+        }
+    }
+   
 	private int getJavascriptImportDetail(Menu menu, ArrayList< String> imports, int level, int i) throws Exception{
+
 		for (Iterator<String> iter = menu.getSubMenus().keySet().iterator(); iter.hasNext(); ) {
 			String key = iter.next();
 			Menu subMenu= menu.getSubMenus().get(key);
@@ -131,11 +150,7 @@ public abstract class GenericControllerServlet extends HttpServlet {
 				imports.add(tmp);
 				tmp ="<script type=\"text/javascript\" src=\"/"+subMenu.getContext()+"/secure/js/"+subMenu.getApplication()+".js\"></script>\n";
 				imports.add(tmp);
-				//FIXME: This is a workaround for 4.2 only
-                if(subMenu.getContext().equals("itemsbrowser2")&&subMenu.getApplication().equals("ItemsBrowser2")) {//$NON-NLS-1$ //$NON-NLS-2$
-                    imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
-                    imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"></script>\n");//$NON-NLS-1$
-                }
+				
 				//tmp ="<link rel=\"stylesheet\" type=\"text/css\" href=\"/"+subMenu.getContext()+"/secure/css/"+subMenu.getApplication()+".css\"></link>\n";
 				//imports.add(tmp);
 				String gxtEntryModule=gxtFactory.getGxtEntryModule(subMenu.getContext(), subMenu.getApplication());
