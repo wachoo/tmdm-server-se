@@ -46,9 +46,9 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.TabPanel.TabPosition;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
@@ -120,6 +120,7 @@ public class ItemsView extends View {
 
         itemsSearchContainer = Registry.get(ITEMS_SEARCH_CONTAINER);
         itemsSearchContainer.getItemsListPanel().getToolBar().updateToolBar(viewBean);
+        itemsSearchContainer.getItemsListPanel().resetShowItemTimes();
     }
 
     protected void onSearchView(final AppEvent event) {
@@ -161,6 +162,7 @@ public class ItemsView extends View {
         }
 
         itemsSearchContainer.getItemsListPanel().updateGrid(sm, ccList);
+        itemsSearchContainer.getItemsListPanel().resetShowItemTimes();
         // TODO in the view of ViewItemForm binding
 
     }
@@ -237,10 +239,10 @@ public class ItemsView extends View {
             }
         }
     }
-    
+
     private native void renderFormResize(Element el)/*-{
         if (el.renderFormResize){
-            el.renderFormResize();
+        el.renderFormResize();
         }
     }-*/;
 

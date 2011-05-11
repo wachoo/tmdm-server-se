@@ -54,6 +54,7 @@ import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -95,12 +96,13 @@ public class ItemsListPanel extends ContentPanel {
         }
     };
 
-    ModelKeyProvider<ItemBean> keyProvidernew = new ModelKeyProvider<ItemBean>(){
+    ModelKeyProvider<ItemBean> keyProvidernew = new ModelKeyProvider<ItemBean>() {
+
         public String getKey(ItemBean model) {
             return model.getIds();
         }
     };
-    
+
     PagingLoader<PagingLoadResult<ModelData>> loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
 
     final ListStore<ItemBean> store = new ListStore<ItemBean>(loader);
@@ -115,6 +117,8 @@ public class ItemsListPanel extends ContentPanel {
 
     private final static int PAGE_SIZE = 10;
 
+    private int showItemTimes = 0;
+
     PagingToolBarEx pagingBar = null;
 
     ItemsToolBar toolBar;
@@ -126,12 +130,15 @@ public class ItemsListPanel extends ContentPanel {
         initPanel();
 
         store.setKeyProvider(keyProvidernew);
-        
+
         loader.setRemoteSort(true);
         loader.addLoadListener(new LoadListener() {
+
             public void loaderLoad(LoadEvent le) {
-                if (store.getModels().size() > 0){
+                if (store.getModels().size() > 0) {
+                    showItemTimes++;
                     grid.getSelectionModel().select(0, false);
+
                 } else {
                     toolBar.searchBut.setEnabled(true);
                 }
@@ -141,7 +148,7 @@ public class ItemsListPanel extends ContentPanel {
 
     private void initPanel() {
         panel = new ContentPanel();
-        Html promptMsg = new Html("<div class=\"promptMsg\">"+MessagesFactory.getMessages().search_initMsg()+"</div>");//$NON-NLS-1$ //$NON-NLS-2$
+        Html promptMsg = new Html("<div class=\"promptMsg\">" + MessagesFactory.getMessages().search_initMsg() + "</div>");//$NON-NLS-1$ //$NON-NLS-2$
         panel.setBodyBorder(false);
         panel.setBorders(false);
         panel.setHeaderVisible(false);
@@ -170,7 +177,13 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer = new ContentPanel(new FitLayout());
         gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
-        pagingBar = new PagingToolBarEx(PAGE_SIZE);
+        if (pagingBar == null) {
+            pagingBar = new PagingToolBarEx(PAGE_SIZE);
+
+        } else {
+            NumberField numField = (NumberField) pagingBar.getItem(pagingBar.getItemCount() - 3);
+            pagingBar = new PagingToolBarEx(numField.getValue().intValue());
+        }
         pagingBar.setHideMode(HideMode.VISIBILITY);
         pagingBar.setVisible(false);
         pagingBar.bind(loader);
@@ -194,7 +207,7 @@ public class ItemsListPanel extends ContentPanel {
 
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 final ItemBean item = se.getSelectedItem();
-                
+
                 if (item != null) {
                     gridContainer.setEnabled(false);
                     EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
@@ -207,9 +220,9 @@ public class ItemsListPanel extends ContentPanel {
                     });
                 } else {
                     ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
-                    itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.setInnerHTML("");
+                    // itemsSearchContainer.getItemsFormPanel().getContent().getBody().dom.setInnerHTML("");
                 }
-                
+
             }
         });
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemBean>>() {
@@ -248,12 +261,12 @@ public class ItemsListPanel extends ContentPanel {
 
     public void layoutGrid() {
         this.layout(true);
-        if (gridContainer != null){
+        if (gridContainer != null) {
             Element parent = DOM.getParent(gridContainer.getElement());
             gridContainer.setSize(parent.getOffsetWidth(), parent.getOffsetHeight());
         }
     }
-    
+
     private void hookContextMenu() {
 
         Menu contextMenu = new Menu();
@@ -266,10 +279,9 @@ public class ItemsListPanel extends ContentPanel {
             public void componentSelected(MenuEvent ce) {
                 // TODO check dirty status
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
-                if(m==null) {
-                    MessageBox.alert(
-                            MessagesFactory.getMessages().warning_title(),
-                            MessagesFactory.getMessages().grid_record_select(), null);
+                if (m == null) {
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                            .grid_record_select(), null);
                     return;
                 }
                 showItem(m, ItemsView.TARGET_IN_NEW_WINDOW);
@@ -283,10 +295,9 @@ public class ItemsListPanel extends ContentPanel {
 
             public void componentSelected(MenuEvent ce) {
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
-                if(m==null) {
-                    MessageBox.alert(
-                            MessagesFactory.getMessages().warning_title(),
-                            MessagesFactory.getMessages().grid_record_select(), null);
+                if (m == null) {
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                            .grid_record_select(), null);
                     return;
                 }
                 showItem(m, ItemsView.TARGET_IN_NEW_TAB);
@@ -300,10 +311,9 @@ public class ItemsListPanel extends ContentPanel {
 
             public void componentSelected(MenuEvent ce) {
                 ItemBean m = grid.getSelectionModel().getSelectedItem();
-                if(m==null) {
-                    MessageBox.alert(
-                            MessagesFactory.getMessages().warning_title(),
-                            MessagesFactory.getMessages().grid_record_select(), null);
+                if (m == null) {
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                            .grid_record_select(), null);
                     return;
                 }
                 int rowIndex = grid.getStore().indexOf(m);
@@ -326,33 +336,35 @@ public class ItemsListPanel extends ContentPanel {
     public Grid<ItemBean> getGrid() {
         return grid;
     }
-    
-    public void setEnabledGridSearchButton(boolean enabled){
+
+    public void setEnabledGridSearchButton(boolean enabled) {
         gridContainer.setEnabled(enabled);
         toolBar.searchBut.setEnabled(enabled);
     }
-    
-    public void refreshGrid(){
+
+    public void refreshGrid() {
         pagingBar.refresh();
-        
+
     }
-    
-    public void refresh(String ids, final boolean refreshItemForm){
-        if (grid != null){
+
+    public void refresh(String ids, final boolean refreshItemForm) {
+        if (grid != null) {
             final ListStore<ItemBean> store = grid.getStore();
             final ItemBean itemBean = store.findModel(ids);
-            if (itemBean != null){
+            if (itemBean != null) {
                 EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
                 service.getItem(itemBean, entityModel, new AsyncCallback<ItemBean>() {
+
                     public void onFailure(Throwable caught) {
                         Window.alert(caught.getMessage());
                     }
+
                     public void onSuccess(ItemBean result) {
                         Record record = store.getRecord(itemBean);
                         itemBean.copy(result);
                         record.commit(false);
-                        
-                        if (refreshItemForm){
+
+                        if (refreshItemForm) {
                             ItemBean m = grid.getSelectionModel().getSelectedItem();
                             showItem(m, ItemsView.TARGET_IN_SEARCH_TAB);
                         }
@@ -367,7 +379,14 @@ public class ItemsListPanel extends ContentPanel {
         }
     }
 
+    public void resetShowItemTimes() {
+        showItemTimes = 0;
+    }
+
     private void showItem(ItemBean item, String itemsFormTarget) {
+        showItemTimes--;
+        if (showItemTimes >= 1)
+            return;
         AppEvent evt = new AppEvent(ItemsEvents.ViewItemForm, item);
         evt.setData(ItemsView.ITEMS_FORM_TARGET, itemsFormTarget);
         Dispatcher.forwardEvent(evt);
