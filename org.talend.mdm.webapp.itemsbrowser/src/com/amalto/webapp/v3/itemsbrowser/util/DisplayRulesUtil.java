@@ -70,7 +70,19 @@ public class DisplayRulesUtil {
         sb.append("</xsl:stylesheet>"); //$NON-NLS-1$
 
         return sb.toString();
+    }
 
+    public String genSpecifiedDefaultValueStyle(String elemName) {
+        String style = translateSpefiedDefaultValueSchema(elemName);
+
+        StringBuffer sb = new StringBuffer();
+        sb
+                .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"1.0\">"); //$NON-NLS-1$
+        sb.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>"); //$NON-NLS-1$
+        sb.append(style);
+        sb.append("</xsl:stylesheet>"); //$NON-NLS-1$
+
+        return sb.toString();
     }
 
     public String genDefaultValueStyle() {
@@ -184,7 +196,7 @@ public class DisplayRulesUtil {
         return style.toString();
     }
 
-    private String translateVisibleSchema() {
+    private String translateSpefiedDefaultValueSchema(String elemName) {
         StringBuffer style = new StringBuffer();
         if (tmpls.isEmpty())
             travelXSElement(root, "/" + root.getName()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -200,10 +212,27 @@ public class DisplayRulesUtil {
             List<DisplayRule> dspRules = getRules(self);
             for (DisplayRule displayRule : dspRules) {
                 String dspType = displayRule.getType();
-                if (dspType.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
-                    style.append("<xsl:if test=\"not(" + getPureValue(displayRule.getValue()) + ")\"> "); //$NON-NLS-1$ //$NON-NLS-2$ 
-                    style.append("<xsl:attribute name=\"t:visible\">false</xsl:attribute> "); //$NON-NLS-1$ 
-                    style.append("</xsl:if>"); //$NON-NLS-1$ 
+                if (dspType.equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
+                    if (self.getName().equals(elemName)) {
+                        style.append("<xsl:choose> "); //$NON-NLS-1$
+                        style.append("<xsl:when test=\"not(text())\"> "); //$NON-NLS-1$
+                        if (isLiteralData(displayRule.getValue())) {
+                            style
+                                    .append("<xsl:text>" + Util.stripLeadingAndTrailingQuotes(displayRule.getValue()) + "</xsl:text>"); //$NON-NLS-1$ //$NON-NLS-2$
+                        } else {
+                            style.append("<xsl:value-of select=\"" + getPureValue(displayRule.getValue()) + "\"/> "); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                        style.append("</xsl:when> "); //$NON-NLS-1$                    
+                        style.append("<xsl:otherwise><xsl:value-of select=\".\"/></xsl:otherwise> "); //$NON-NLS-1$
+                        style.append("</xsl:choose> "); //$NON-NLS-1$
+                    } else {
+                        style.append("<xsl:value-of select=\".\"/>"); //$NON-NLS-1$
+                    }
+                } else if (dspType.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
+                    if (!ifRuleExist(dspRules, BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE))
+                        if (children == null || children.size() == 0) {
+                            style.append("<xsl:value-of select=\".\"/>"); //$NON-NLS-1$
+                        }
                 }
             }
 
@@ -218,6 +247,7 @@ public class DisplayRulesUtil {
 
             style.append("</xsl:copy>") //$NON-NLS-1$ 
                     .append("</xsl:template>"); //$NON-NLS-1$ 
+
         }
 
         return style.toString();
