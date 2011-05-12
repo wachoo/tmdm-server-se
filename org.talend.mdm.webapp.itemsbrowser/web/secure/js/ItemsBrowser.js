@@ -4440,18 +4440,24 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         DWREngine.setAsync(false);        
         var parentLink = [];
         parentLink["conceptName"] = conceptName;
+        parentLink["cloneNode2"] = true;
+        
         // add by yguo. fix bug clone node then
         // browseForeignKey. the value of node equals
         // siblingNode's value.
-        siblingNode.itemData.value = "";
+//        siblingNode.itemData.value = "";
         var newNode = new amalto.itemsbrowser.ItemNode(
                 cloneObject(siblingNode.itemData), true, treeIndex,
                 siblingNode.parent, true, true, isReadOnlyinItem, parentLink);
         newNode.updateNodeId(nodeCount);
+        
+        newNode.itemData.value = "";
+        newNode.itemData.realValue = "";
+        
         ItemsBrowserInterface.updateNodeDspValue(treeIndex, siblingNode.index,
                 function(result) {
                     if (result != null)
-                        newNode.updateNodeValue(result);                   
+                        newNode.updateNodeValue(result);                      
                 }); 
         
         // remove by ymli; fix the bug:0013463
@@ -4524,6 +4530,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 }
             }
         }
+         parentLink["cloneNode2"] = false;
     }
 
     function updateNodeId(node, nodeId) {
