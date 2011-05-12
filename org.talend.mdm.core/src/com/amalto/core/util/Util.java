@@ -1225,6 +1225,34 @@ public class Util {
         return mapForAll;
     }
 
+    static LRUCache<String, Map<String, XSType>> cTypeMapCache = new LRUCache<String, Map<String, XSType>>(10);
+    
+    public static Map<String, XSType> getConceptTypeMap(String xsd) throws Exception {
+        if (cTypeMapCache.get(xsd) != null)
+            return cTypeMapCache.get(xsd);
+        XSOMParser reader = new XSOMParser();
+        reader.setAnnotationParser(new DomAnnotationParserFactory());
+        reader.setEntityResolver(new SecurityEntityResolver());
+        SAXErrorHandler seh=new SAXErrorHandler();
+        reader.setErrorHandler(seh);
+        reader.parse(new StringReader(xsd));
+        XSSchemaSet xss = reader.getResult();
+        String errors = seh.getErrors();
+        if(errors.length()>0){
+            throw new SAXException("DataModel parsing error--->"+errors);
+        }
+        Collection xssList = xss.getSchemas();
+        Map<String, XSType> mapForAll = new HashMap<String, XSType>();
+        Map<String, XSType> map = null;
+        for (Iterator iter = xssList.iterator(); iter.hasNext();) {
+            XSSchema schema = (XSSchema) iter.next();
+            map = schema.getTypes();
+            
+            mapForAll.putAll(map);
+        }
+        cTypeMapCache.put(xsd, mapForAll);
+        return mapForAll;
+    }
     /**
      * update the node according to the schema
      * 

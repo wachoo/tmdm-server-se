@@ -49,6 +49,8 @@ import org.apache.xerces.dom.ElementNSImpl;
 import org.apache.xerces.dom.TextImpl;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
+import org.dom4j.Attribute;
+import org.dom4j.QName;
 import org.exolab.castor.types.Date;
 import org.exolab.castor.types.Time;
 import org.jboss.dom4j.DocumentException;
@@ -1337,11 +1339,16 @@ public class ItemsBrowserDWR {
                 for (int i = 0; i < nodes.length; i++) {
                     String label = nodes[i].getName();
                     if (DynamicLabelUtil.isDynamicLabel(label)) {
+                        
+                        label = replaceForeignPath(nodes[i].getBindingPath(), label, parsedDocument);
+                        
                         String stylesheet = DynamicLabelUtil.genStyle(nodes[i].getBindingPath(), label);
                         String parsedLabel = DynamicLabelUtil.getParsedLabel(DynamicLabelUtil.styleDocument(parsedDocument,
                                 stylesheet));
-                        if (parsedLabel != null)
+                        
+                        if (parsedLabel != null){
                             nodes[i].setName(parsedLabel);
+                        }
                     }
                 }
             }
@@ -1350,7 +1357,128 @@ public class ItemsBrowserDWR {
             throw new XtentisWebappException("Exception happened during parsing dynamic label! ");
         }
     }
+    
+    private String replaceForeignPath(String basePath, String dynamicLabel, org.dom4j.Document doc) throws Exception{
+        
+        Pattern pattern = Pattern.compile("\\{.*?\\}");//$NON-NLS-1$
+        Matcher matcher = pattern.matcher(dynamicLabel);
+        List<String> dynamicPathes = new ArrayList<String>();
+        while (matcher.find()){
+            dynamicPathes.add(matcher.group().replaceAll("^\\{", "").replaceAll("\\}$", ""));//$NON-NLS-1$ //$NON-NLS-2$
+        }
 
+        Configuration config = Configuration.getInstance();
+        String dataModelPK = config.getModel();
+        String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
+        Map<String, XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(xsd);
+        Map<String, XSType> typeMap = com.amalto.core.util.Util.getConceptTypeMap(xsd);
+        basePath = basePath.startsWith("/") ? basePath.substring(1) : basePath; //$NON-NLS-1$
+        XSElementDecl xsed = map.get(basePath.split("/")[0]); //$NON-NLS-1$
+        
+        for (String dyPath : dynamicPathes){
+            org.dom4j.Element baseEl = (org.dom4j.Element) doc.selectSingleNode(basePath);
+            org.dom4j.Element el = (org.dom4j.Element) baseEl.selectSingleNode(dyPath);//$NON-NLS-1$
+
+            List<org.dom4j.Element> pathNodes = getPathNode(el);
+            
+            Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
+            if (fkObj != null){
+                String foreignkey = (String)fkObj[0];
+                List<String> fkInfos = (List<String>) fkObj[1];
+                String key = el.getStringValue();
+                String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
+                dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", fkInfoStr); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        }
+        return dynamicLabel;
+    }
+    
+    private List<org.dom4j.Element> getPathNode(org.dom4j.Element el){
+        List<org.dom4j.Element> pathEls = new ArrayList<org.dom4j.Element>();
+        org.dom4j.Element currentEl = el;
+        while (currentEl != null){
+            pathEls.add(0, currentEl);
+            currentEl = currentEl.getParent();
+        }
+        return pathEls;
+    }
+    
+    
+    private Object[] getForeign(XSElementDecl xsed, List<org.dom4j.Element> pathNodes, int pos, Map<String, XSType> typeMap){
+        
+        XSType xsct = null;
+        org.dom4j.Element el = pathNodes.get(pos);
+        Attribute attr = el.attribute("type"); //$NON-NLS-1$
+        String xsiType = attr == null ? null : attr.getStringValue();
+        if (xsiType != null && !xsiType.equals("")){ //$NON-NLS-1$
+            xsct = typeMap.get(xsiType);
+        } else {
+            xsct = xsed.getType();    
+        }
+
+        if (pos < pathNodes.size() - 1) {
+            XSParticle[] xsp = ((XSComplexType)xsct).getContentType().asParticle().getTerm().asModelGroup().getChildren();    
+            for (XSParticle xs : xsp){
+                List<XSElementDecl> dels = getElementDecls(xs);
+                for (XSElementDecl del : dels){
+                    if (del.getName().equals(pathNodes.get(pos + 1).getName())){
+                        Object[] fkObj = getForeign(del, pathNodes, pos + 1, typeMap);
+                        if (fkObj != null){
+                            return fkObj;
+                        }
+                    }    
+                }
+            }
+        } else {
+            XSAnnotation anno = xsed.getAnnotation();
+            if (anno != null){
+                Element annotation = (Element) anno.getAnnotation();
+                if (annotation != null){
+                    NodeList annotList = annotation.getChildNodes();
+                    if (annotList != null){
+                        Object[] fkObj = new Object[2];
+                        String fk = null;
+                        List<String> fkInfo = new ArrayList<String>();
+                        for (int k = 0; k < annotList.getLength(); k++) {
+                            if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$ 
+                                Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
+                                if (source == null)
+                                    continue;
+                                String appinfoSource = source.getNodeValue();
+                                if ("X_ForeignKey".equals(appinfoSource)) { //$NON-NLS-1$
+                                    fk = annotList.item(k).getFirstChild().getNodeValue();;
+                                } else if ("X_ForeignKeyInfo".equals(appinfoSource)) { //$NON-NLS-1$
+                                    fkInfo.add(annotList.item(k).getFirstChild().getNodeValue());
+                                }
+                            }
+                        }
+                        if (fk != null){
+                            fkObj[0] = fk;
+                            fkObj[1] = fkInfo;
+                            return fkObj;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private List<XSElementDecl> getElementDecls(XSParticle xs){
+        List<XSElementDecl> elDecls = new ArrayList<XSElementDecl>();
+        if (xs.getTerm().asModelGroup() != null) { // is complex type
+            XSParticle[] xsps = xs.getTerm().asModelGroup().getChildren();
+            for (int i = 0; i < xsps.length; i++) {
+                elDecls.addAll(getElementDecls(xsps[i]));
+            }
+        }
+        XSElementDecl del = xs.getTerm().asElementDecl();
+        if (del != null){
+            elDecls.add(del);
+        }
+        return elDecls;
+    }
+    
     private TreeNode[] handleDisplayRules(TreeNode[] nodes, int docIndex) throws XtentisWebappException {
         try {
             List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
