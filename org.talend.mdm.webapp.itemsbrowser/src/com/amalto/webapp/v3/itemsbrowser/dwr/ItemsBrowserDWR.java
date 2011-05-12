@@ -2011,6 +2011,9 @@ public class ItemsBrowserDWR {
             Util.getNodeList(d, idToXpath.get(id)).item(0).getParentNode().removeChild(
                     Util.getNodeList(d, idToXpath.get(id)).item(0));
 
+            Util.getNodeList(doc, idToXpath.get(id)).item(0).getParentNode().removeChild(
+                    Util.getNodeList(doc, idToXpath.get(id)).item(0));
+
             HashMap<String, UpdateReportItem> updatedPath;
             if (ctx.getSession().getAttribute("updatedPath" + docIndex) != null) { //$NON-NLS-1$
                 updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex); //$NON-NLS-1$
