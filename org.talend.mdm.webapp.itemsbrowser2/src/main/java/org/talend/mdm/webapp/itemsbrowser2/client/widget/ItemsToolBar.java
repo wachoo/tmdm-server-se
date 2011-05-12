@@ -86,7 +86,7 @@ public class ItemsToolBar extends ToolBar {
 
     private static String userCluster = null;
 
-    private SimpleCriterionPanel simplePanel;
+    private SimpleCriterionPanel<?> simplePanel;
 
     private AdvancedSearchPanel advancedPanel;
 
@@ -111,9 +111,6 @@ public class ItemsToolBar extends ToolBar {
     private List<ItemBaseModel> userCriteriasList;
 
     private boolean advancedPanelVisible = false;
-
-    /****** record edit bookmark info *****/
-    private boolean editBookmark = false;
 
     private boolean bookmarkShared = false;
 
@@ -162,13 +159,13 @@ public class ItemsToolBar extends ToolBar {
         else {
             menu.setEnabled(true);
             if (denyPhysicalDelete)
-                menu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(false);
+                menu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
             else
-                menu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(true);
+                menu.getMenu().getItemByItemId("physicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
             if (denyLogicalDelete)
-                menu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(false);
+                menu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(false); //$NON-NLS-1$
             else
-                menu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(true);
+                menu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
         }
         updateUserCriteriasList();
     }
