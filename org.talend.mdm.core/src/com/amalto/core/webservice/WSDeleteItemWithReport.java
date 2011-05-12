@@ -9,14 +9,18 @@ package com.amalto.core.webservice;
 public class WSDeleteItemWithReport {
     protected com.amalto.core.webservice.WSItemPK wsItemPK;
     protected java.lang.String source;
+    protected java.lang.String operateType;
+    protected java.lang.String updatePath;
     protected java.lang.String user;
     
     public WSDeleteItemWithReport() {
     }
     
-    public WSDeleteItemWithReport(com.amalto.core.webservice.WSItemPK wsItemPK, java.lang.String source, java.lang.String user) {
+    public WSDeleteItemWithReport(com.amalto.core.webservice.WSItemPK wsItemPK, java.lang.String source, java.lang.String operateType, java.lang.String updatePath, java.lang.String user) {
         this.wsItemPK = wsItemPK;
         this.source = source;
+        this.operateType = operateType;
+        this.updatePath = updatePath;
         this.user = user;
     }
     
@@ -34,6 +38,22 @@ public class WSDeleteItemWithReport {
     
     public void setSource(java.lang.String source) {
         this.source = source;
+    }
+    
+    public java.lang.String getOperateType() {
+        return operateType;
+    }
+    
+    public void setOperateType(java.lang.String operateType) {
+        this.operateType = operateType;
+    }
+    
+    public java.lang.String getUpdatePath() {
+        return updatePath;
+    }
+    
+    public void setUpdatePath(java.lang.String updatePath) {
+        this.updatePath = updatePath;
     }
     
     public java.lang.String getUser() {

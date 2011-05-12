@@ -1781,6 +1781,35 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()));
         }
     }
+    private void pushToUpdateReport(WSDeleteItemWithReport wsDeleteItem,String dataClusterPK,String concept, String[] ids)throws Exception{
+        // create resultUpdateReport
+        String resultUpdateReport = Util.createUpdateReport(ids, concept, wsDeleteItem.getOperateType(), null, "", wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk());  //$NON-NLS-1$ //$NON-NLS-2$
+        if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
+            ILocalUser user = LocalUser.getLocalUser();
+            String source = wsDeleteItem.getSource();
+            String operationType = wsDeleteItem.getOperateType(); //$NON-NLS-1$
+            Map<String, UpdateReportItemPOJO> updateReportItemsMap = new HashMap<String, UpdateReportItemPOJO>();
+            
+            String userName = "";
+            if (wsDeleteItem.getUser() != null && wsDeleteItem.getUser().length() > 0) {
+                userName = wsDeleteItem.getUser();
+            } else {
+                userName = user.getUsername();
+            }
+            String revisionID = "";
+            UniversePOJO universe = user.getUniverse();
+            if (universe != null) {
+                revisionID = universe.getConceptRevisionID(concept);
+            }
+            UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, //$NON-NLS-1$
+                    source, System.currentTimeMillis(), dataClusterPK, "", userName, revisionID, //$NON-NLS-1$
+                    updateReportItemsMap);
+
+            WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(), //$NON-NLS-1$
+                    new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
+            routeItemV2(new WSRouteItemV2(itemPK));
+        }
+    }
 	/**
 	 * @ejb.interface-method view-type = "service-endpoint"
 	 * @ejb.permission 
@@ -1793,6 +1822,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         String dataClusterPK = wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk();
         String concept=wsDeleteItem.getWsItemPK().getConceptName();
         String[] ids=wsDeleteItem.getWsItemPK().getIds();
+        if("LOGIC_DELETE".equals(wsDeleteItem.getOperateType())){//$NON-NLS-1$
+        	dropItem(new WSDropItem(wsDeleteItem.getWsItemPK(), wsDeleteItem.getUpdatePath()));
+        	pushToUpdateReport(wsDeleteItem, dataClusterPK, concept, ids);           
+        	return new WSString("logical delete item sucessfully!");
+        }
         String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
 
         String message = null;
@@ -1816,33 +1850,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 WSItemPK wsItem =deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
                 if (wsItem != null && !"UpdateReport".equals(dataClusterPK)){
-                    // create resultUpdateReport
-                    String resultUpdateReport = Util.createUpdateReport(ids, concept, "PHYSICAL_DELETE", null, "", wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk());  //$NON-NLS-1$ //$NON-NLS-2$
-                    if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
-                        ILocalUser user = LocalUser.getLocalUser();
-                        String source = wsDeleteItem.getSource();
-                        String operationType = "PHYSICAL_DELETE"; //$NON-NLS-1$
-                        Map<String, UpdateReportItemPOJO> updateReportItemsMap = new HashMap<String, UpdateReportItemPOJO>();
-                        
-                        String userName = "";
-                        if (wsDeleteItem.getUser() != null && wsDeleteItem.getUser().length() > 0) {
-                            userName = wsDeleteItem.getUser();
-                        } else {
-                            userName = user.getUsername();
-                        }
-                        String revisionID = "";
-                        UniversePOJO universe = user.getUniverse();
-                        if (universe != null) {
-                            revisionID = universe.getConceptRevisionID(concept);
-                        }
-                        UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, //$NON-NLS-1$
-                                source, System.currentTimeMillis(), dataClusterPK, "", userName, revisionID, //$NON-NLS-1$
-                                updateReportItemsMap);
-
-                        WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(), //$NON-NLS-1$
-                                new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
-                        routeItemV2(new WSRouteItemV2(itemPK));
-                    }
+                	pushToUpdateReport(wsDeleteItem, dataClusterPK, concept, ids);                    
                 }                   
                 else
                     message = "ERROR - Unable to delete item";
