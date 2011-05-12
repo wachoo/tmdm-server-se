@@ -485,8 +485,7 @@ public abstract class AbstractXmldbSLWrapper implements IXmlServerSLWrapper, IXm
 
     public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID)
             throws XmlServerException {
-        long time = putDocumentFromString(xmlString, uniqueID, clusterName, revisionID, IXmlServerSLWrapper.TYPE_DOCUMENT);
-        return time;
+        return putDocumentFromString(xmlString, uniqueID, clusterName, revisionID, IXmlServerSLWrapper.TYPE_DOCUMENT);
     }
 
     public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start,
