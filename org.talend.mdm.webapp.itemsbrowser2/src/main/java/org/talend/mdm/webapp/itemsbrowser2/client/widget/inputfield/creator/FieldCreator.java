@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2010 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -48,8 +48,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
 
-    public static Field createField(SimpleTypeModel dataType, FormBinding formBindings, boolean enableMultiple, String language) {
-        Field field = null;
+    public static Field<?> createField(SimpleTypeModel dataType, FormBinding formBindings, boolean enableMultiple, String language) {
+        Field<?> field;
 
         if (dataType.isMultiOccurrence() && enableMultiple) {
             MultipleField multipleField = new MultipleField(dataType, language);
@@ -123,8 +123,8 @@ public class FieldCreator {
         return field;
     }
 
-    public static Field createCustomField(SimpleTypeModel dataType, String language){
-        Field field = null;
+    public static Field<?> createCustomField(SimpleTypeModel dataType, String language){
+        Field<?> field;
         String baseType = dataType.getType().getBaseTypeName(); 
         if (DataTypeConstants.INTEGER.getTypeName().equals(baseType) ||
                     DataTypeConstants.INT.getTypeName().equals(baseType)||
