@@ -857,7 +857,7 @@ public class XmldbSLWrapper extends AbstractXmldbSLWrapper {
             String err = "Unable to perform single find for query: \"" + query + "\"" + " on "
                     + getFullURL(revisionID, clusterName) + ": " + e.getLocalizedMessage();
             LOG.info(err, e);
-            throw new XmlServerException(err);
+            throw new XmlServerException(err, e);
         }
     }
 
