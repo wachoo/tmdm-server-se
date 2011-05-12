@@ -633,16 +633,20 @@ public class ItemsBrowserDWR {
                     Util.getNodeList(tmpDocument, xPath).item(0).getFirstChild().setNodeValue(""); //$NON-NLS-1$
             }
 
-            org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(tmpDocument, rulesStyle);
-            for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
-                String xpath = (String) iterator.next();
-                String value = displayRulesUtil.evalDefaultValueRuleResult(transformedDocumentValue, xpath);
-                if (value != null) {
-                    dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE, xpath, value));
+            try {
+                org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(tmpDocument, rulesStyle);
+                for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
+                    String xpath = (String) iterator.next();
+                    String value = displayRulesUtil.evalDefaultValueRuleResult(transformedDocumentValue, xpath);
+                    if (value != null) {
+                        dspRules.add(new DisplayRule(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE, xpath, value));
+                    }
                 }
+                tmpDocument = null;
+                transformedDocumentValue = null;
+            } catch (Exception e) {
+                throw new XtentisWebappException(MESSAGES.getMessage("style.error"), e);
             }
-            tmpDocument = null;
-            transformedDocumentValue = null;
         }
 
         if (visibleRules.size() > 0) {
@@ -1499,10 +1503,13 @@ public class ItemsBrowserDWR {
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
         String sourcePath = idToXpath.get(newId).replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$
         for (DisplayRule displayRule : dspRules) {
-            if (displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE))
-                if (sourcePath.equals(displayRule.getXpath())) {
+            if (displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
+                String xpathInRule = displayRule.getXpath();
+                if ((xpathInRule.indexOf("[") > -1 && unifyXPath(sourcePath).equals(xpathInRule)) //$NON-NLS-1$
+                        || (xpathInRule.indexOf("[") == -1 && sourcePath.equals(xpathInRule))) { //$NON-NLS-1$
                     return displayRule.getValue();
                 }
+            }
         }
         return null;
     }
@@ -1530,14 +1537,14 @@ public class ItemsBrowserDWR {
 
             // added by lzhang, DWR synchronize to update the DSPValue
             String dspValue = updateNodeDspValue(docIndex, siblingId);
-            if (dspValue != null)
+            if (dspValue != null && nodeClone.getFirstChild() != null)
                 nodeClone.getFirstChild().setNodeValue(dspValue);
 
             // simulate an "insertAfter()" which actually doesn't exist
             insertAfter(nodeClone, node);
             ctx.getSession().setAttribute("itemDocument" + docIndex, node.getOwnerDocument()); //$NON-NLS-1$
 
-            // added by lzhang, consistent with document when edit status
+            // added by lzhang, consistent with document nodes when edit status
             if (doc != null) {
                 Node node2 = Util.getNodeList(doc, idToXpath.get(siblingId)).item(0);
                 Node nodeClone2 = node2.cloneNode(true);
@@ -1994,6 +2001,7 @@ public class ItemsBrowserDWR {
         WebContext ctx = WebContextFactory.get();
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
+        Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
         HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
         HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
                 "xpathToPolymType" + docIndex); //$NON-NLS-1$

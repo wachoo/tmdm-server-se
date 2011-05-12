@@ -4437,25 +4437,23 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         }
         var nodeCount = YAHOO.widget.TreeView.nodeCount;
 
-        DWREngine.setAsync(false);
-        ItemsBrowserInterface.updateNodeDspValue(treeIndex, siblingNode.index,
-                function(result) {
-                    if (result != null)
-                        siblingNode.itemData.value = result;
-                    else
-                        // add by yguo. fix bug clone node then
-                        // browseForeignKey. the value of node equals
-                        // siblingNode's value.
-                        siblingNode.itemData.value = "";
-                });       
-        
+        DWREngine.setAsync(false);        
         var parentLink = [];
         parentLink["conceptName"] = conceptName;
-        
+        // add by yguo. fix bug clone node then
+        // browseForeignKey. the value of node equals
+        // siblingNode's value.
+        siblingNode.itemData.value = "";
         var newNode = new amalto.itemsbrowser.ItemNode(
                 cloneObject(siblingNode.itemData), true, treeIndex,
                 siblingNode.parent, true, true, isReadOnlyinItem, parentLink);
         newNode.updateNodeId(nodeCount);
+        ItemsBrowserInterface.updateNodeDspValue(treeIndex, siblingNode.index,
+                function(result) {
+                    if (result != null)
+                        newNode.updateNodeValue(result);                   
+                }); 
+        
         // remove by ymli; fix the bug:0013463
         // newNode.updateValue(" ");
         ItemsBrowserInterface.cloneNode(siblingId, newNode.index, treeIndex,

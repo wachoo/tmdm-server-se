@@ -184,6 +184,45 @@ public class DisplayRulesUtil {
         return style.toString();
     }
 
+    private String translateVisibleSchema() {
+        StringBuffer style = new StringBuffer();
+        if (tmpls.isEmpty())
+            travelXSElement(root, "/" + root.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+
+        HashMap<String, Integer> indexMap = new HashMap<String, Integer>();
+        for (TemplateBean tmp : tmpls) {
+            XSElementDecl self = tmp.getSelfElement();
+            Map<XSElementDecl, String> children = tmp.getChildrenElements();
+
+            style.append("<xsl:template match=\"" + getTemplateName(tmp.getXPath(), indexMap) + "\">") //$NON-NLS-1$ //$NON-NLS-2$
+                    .append("<xsl:copy>"); //$NON-NLS-1$ 
+
+            List<DisplayRule> dspRules = getRules(self);
+            for (DisplayRule displayRule : dspRules) {
+                String dspType = displayRule.getType();
+                if (dspType.equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
+                    style.append("<xsl:if test=\"not(" + getPureValue(displayRule.getValue()) + ")\"> "); //$NON-NLS-1$ //$NON-NLS-2$ 
+                    style.append("<xsl:attribute name=\"t:visible\">false</xsl:attribute> "); //$NON-NLS-1$ 
+                    style.append("</xsl:if>"); //$NON-NLS-1$ 
+                }
+            }
+
+            if (children != null && children.size() > 0) {
+                for (XSElementDecl child : children.keySet()) {
+                    if (child.getType().isComplexType() || hasRules(child))
+                        style.append("<xsl:apply-templates select=\"" + getStyleElemName(children.get(child), indexMap) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+                    else
+                        style.append("<xsl:copy-of select=\"" + child.getName() + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+            }
+
+            style.append("</xsl:copy>") //$NON-NLS-1$ 
+                    .append("</xsl:template>"); //$NON-NLS-1$ 
+        }
+
+        return style.toString();
+    }
+
     private boolean ifRuleExist(List<DisplayRule> dspRules, String rule) {
         for (DisplayRule displayRule : dspRules) {
             String dspType = displayRule.getType();
@@ -470,14 +509,16 @@ public class DisplayRulesUtil {
         for (DisplayRule displayRule : dspRules) {
             String xpathInRule = XmlUtil.normalizeXpath(displayRule.getXpath());
             if (displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
-                if (unifyXPath(xpath).equals(xpathInRule)) {
+                if ((xpathInRule.indexOf("[") > -1 && unifyXPath(xpath).equals(xpathInRule)) //$NON-NLS-1$
+                        || (xpathInRule.indexOf("[") == -1 && getMainXpath(xpath).equals(xpathInRule))) { //$NON-NLS-1$
                     if (node.getValue() == null || node.getValue().trim().equals("")) { //$NON-NLS-1$
                         node.setValue(displayRule.getValue());
                         ItemsBrowserDWR.updateNode2(xpath, node.getValue(), docIndex);
                     }
                 }
             } else if (displayRule.getType().equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
-                if (unifyXPath(xpath).startsWith(xpathInRule)) {
+                if ((xpathInRule.indexOf("[") > -1 && unifyXPath(xpath).startsWith(xpathInRule)) //$NON-NLS-1$
+                        || (xpathInRule.indexOf("[") == -1 && getMainXpath(xpath).startsWith(xpathInRule))) { //$NON-NLS-1$
                     if (displayRule.getValue() != null && displayRule.getValue().equals("false")) { //$NON-NLS-1$
                         // nodesList.remove(node);
                         node.setVisible(false);
