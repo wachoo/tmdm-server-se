@@ -1378,7 +1378,7 @@ public class ItemsBrowserDWR {
         for (String dyPath : dynamicPathes){
             org.dom4j.Element baseEl = (org.dom4j.Element) doc.selectSingleNode(basePath);
             org.dom4j.Element el = (org.dom4j.Element) baseEl.selectSingleNode(dyPath);//$NON-NLS-1$
-
+            if (el == null) continue;
             List<org.dom4j.Element> pathNodes = getPathNode(el);
             
             Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
