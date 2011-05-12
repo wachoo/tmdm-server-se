@@ -1190,6 +1190,8 @@
 		<xsd:sequence>
 			<xsd:element maxOccurs="1" minOccurs="1" name="wsItemPK" nillable="false" type="tns:WSItemPK"/>		
 			<xsd:element maxOccurs="1" minOccurs="1" name="source" nillable="true" type="xsd:string"/>	
+			<xsd:element maxOccurs="1" minOccurs="1" name="operateType" nillable="true" type="xsd:string"/>	
+			<xsd:element maxOccurs="1" minOccurs="1" name="updatePath" nillable="true" type="xsd:string"/>	
 			<xsd:element maxOccurs="1" minOccurs="1" name="user" nillable="true" type="xsd:string"/>
 		</xsd:sequence>		
 	</xsd:complexType>
