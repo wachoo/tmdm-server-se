@@ -180,13 +180,9 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer = new ContentPanel(new FitLayout());
         gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
-        if (pagingBar == null) {
-            pagingBar = new PagingToolBarEx(PAGE_SIZE);
-
-        } else {
-            NumberField numField = (NumberField) pagingBar.getItem(pagingBar.getItemCount() - 3);
-            pagingBar = new PagingToolBarEx(numField.getValue().intValue());
-        }
+        int usePageSize = PAGE_SIZE;
+        if(pagingBar!=null)usePageSize=pagingBar.getPageSize();
+        pagingBar = new PagingToolBarEx(usePageSize);
         pagingBar.setHideMode(HideMode.VISIBILITY);
         pagingBar.setVisible(false);
         pagingBar.bind(loader);
