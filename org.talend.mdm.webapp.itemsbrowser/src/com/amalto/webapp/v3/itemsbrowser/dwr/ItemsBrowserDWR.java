@@ -50,7 +50,6 @@ import org.apache.xerces.dom.TextImpl;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 import org.dom4j.Attribute;
-import org.dom4j.QName;
 import org.exolab.castor.types.Date;
 import org.exolab.castor.types.Time;
 import org.jboss.dom4j.DocumentException;
@@ -615,7 +614,6 @@ public class ItemsBrowserDWR {
 
             defaultValueRules = businessConcept.getDefaultValueRulesMap();
             visibleRules = businessConcept.getVisibleRulesMap();
-            rulesStyle = displayRulesUtil.genStyle();
         } else {
             BusinessConcept businessConcept2 = (BusinessConcept) ctx.getSession().getAttribute(
                     "itemDocument_businessConcept" + docIndex); //$NON-NLS-1$
@@ -623,7 +621,6 @@ public class ItemsBrowserDWR {
 
             defaultValueRules = businessConcept2.getDefaultValueRulesMap();
             visibleRules = businessConcept2.getVisibleRulesMap();
-            rulesStyle = displayRulesUtil.genStyle();
         }
 
         if (defaultValueRules.size() > 0) {
@@ -636,6 +633,7 @@ public class ItemsBrowserDWR {
             }
 
             try {
+                rulesStyle = displayRulesUtil.genDefaultValueStyle();
                 org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(tmpDocument, rulesStyle);
                 for (Iterator<String> iterator = defaultValueRules.keySet().iterator(); iterator.hasNext();) {
                     String xpath = (String) iterator.next();
@@ -652,7 +650,11 @@ public class ItemsBrowserDWR {
         }
 
         if (visibleRules.size() > 0) {
+            if (rulesStyle == null)
+                rulesStyle = displayRulesUtil.genDefaultValueStyle();
             org.dom4j.Document transformedDocumentVisible = XmlUtil.styleDocument(doc, rulesStyle);
+            rulesStyle = displayRulesUtil.genVisibleStyle();
+            transformedDocumentVisible = XmlUtil.styleDocument(transformedDocumentVisible, rulesStyle);
             for (Iterator<String> iterator = visibleRules.keySet().iterator(); iterator.hasNext();) {
                 String xpath = (String) iterator.next();
                 String value = displayRulesUtil.evalVisibleRuleResult(transformedDocumentVisible, xpath);
@@ -1339,14 +1341,14 @@ public class ItemsBrowserDWR {
                 for (int i = 0; i < nodes.length; i++) {
                     String label = nodes[i].getName();
                     if (DynamicLabelUtil.isDynamicLabel(label)) {
-                        
+
                         label = replaceForeignPath(nodes[i].getBindingPath(), label, parsedDocument);
-                        
+
                         String stylesheet = DynamicLabelUtil.genStyle(nodes[i].getBindingPath(), label);
                         String parsedLabel = DynamicLabelUtil.getParsedLabel(DynamicLabelUtil.styleDocument(parsedDocument,
                                 stylesheet));
-                        
-                        if (parsedLabel != null){
+
+                        if (parsedLabel != null) {
                             nodes[i].setName(parsedLabel);
                         }
                     }
@@ -1357,13 +1359,13 @@ public class ItemsBrowserDWR {
             throw new XtentisWebappException("Exception happened during parsing dynamic label! ");
         }
     }
-    
-    private String replaceForeignPath(String basePath, String dynamicLabel, org.dom4j.Document doc) throws Exception{
-        
+
+    private String replaceForeignPath(String basePath, String dynamicLabel, org.dom4j.Document doc) throws Exception {
+
         Pattern pattern = Pattern.compile("\\{.*?\\}");//$NON-NLS-1$
         Matcher matcher = pattern.matcher(dynamicLabel);
         List<String> dynamicPathes = new ArrayList<String>();
-        while (matcher.find()){
+        while (matcher.find()) {
             dynamicPathes.add(matcher.group().replaceAll("^\\{", "").replaceAll("\\}$", ""));//$NON-NLS-1$ //$NON-NLS-2$
         }
 
@@ -1374,16 +1376,17 @@ public class ItemsBrowserDWR {
         Map<String, XSType> typeMap = com.amalto.core.util.Util.getConceptTypeMap(xsd);
         basePath = basePath.startsWith("/") ? basePath.substring(1) : basePath; //$NON-NLS-1$
         XSElementDecl xsed = map.get(basePath.split("/")[0]); //$NON-NLS-1$
-        
-        for (String dyPath : dynamicPathes){
+
+        for (String dyPath : dynamicPathes) {
             org.dom4j.Element baseEl = (org.dom4j.Element) doc.selectSingleNode(basePath);
             org.dom4j.Element el = (org.dom4j.Element) baseEl.selectSingleNode(dyPath);//$NON-NLS-1$
-            if (el == null) continue;
+            if (el == null)
+                continue;
             List<org.dom4j.Element> pathNodes = getPathNode(el);
-            
+
             Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
-            if (fkObj != null){
-                String foreignkey = (String)fkObj[0];
+            if (fkObj != null) {
+                String foreignkey = (String) fkObj[0];
                 List<String> fkInfos = (List<String>) fkObj[1];
                 String key = el.getStringValue();
                 String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
@@ -1392,50 +1395,49 @@ public class ItemsBrowserDWR {
         }
         return dynamicLabel;
     }
-    
-    private List<org.dom4j.Element> getPathNode(org.dom4j.Element el){
+
+    private List<org.dom4j.Element> getPathNode(org.dom4j.Element el) {
         List<org.dom4j.Element> pathEls = new ArrayList<org.dom4j.Element>();
         org.dom4j.Element currentEl = el;
-        while (currentEl != null){
+        while (currentEl != null) {
             pathEls.add(0, currentEl);
             currentEl = currentEl.getParent();
         }
         return pathEls;
     }
-    
-    
-    private Object[] getForeign(XSElementDecl xsed, List<org.dom4j.Element> pathNodes, int pos, Map<String, XSType> typeMap){
-        
+
+    private Object[] getForeign(XSElementDecl xsed, List<org.dom4j.Element> pathNodes, int pos, Map<String, XSType> typeMap) {
+
         XSType xsct = null;
         org.dom4j.Element el = pathNodes.get(pos);
         Attribute attr = el.attribute("type"); //$NON-NLS-1$
         String xsiType = attr == null ? null : attr.getStringValue();
-        if (xsiType != null && !xsiType.equals("")){ //$NON-NLS-1$
+        if (xsiType != null && !xsiType.equals("")) { //$NON-NLS-1$
             xsct = typeMap.get(xsiType);
         } else {
-            xsct = xsed.getType();    
+            xsct = xsed.getType();
         }
 
         if (pos < pathNodes.size() - 1) {
-            XSParticle[] xsp = ((XSComplexType)xsct).getContentType().asParticle().getTerm().asModelGroup().getChildren();    
-            for (XSParticle xs : xsp){
+            XSParticle[] xsp = ((XSComplexType) xsct).getContentType().asParticle().getTerm().asModelGroup().getChildren();
+            for (XSParticle xs : xsp) {
                 List<XSElementDecl> dels = getElementDecls(xs);
-                for (XSElementDecl del : dels){
-                    if (del.getName().equals(pathNodes.get(pos + 1).getName())){
+                for (XSElementDecl del : dels) {
+                    if (del.getName().equals(pathNodes.get(pos + 1).getName())) {
                         Object[] fkObj = getForeign(del, pathNodes, pos + 1, typeMap);
-                        if (fkObj != null){
+                        if (fkObj != null) {
                             return fkObj;
                         }
-                    }    
+                    }
                 }
             }
         } else {
             XSAnnotation anno = xsed.getAnnotation();
-            if (anno != null){
+            if (anno != null) {
                 Element annotation = (Element) anno.getAnnotation();
-                if (annotation != null){
+                if (annotation != null) {
                     NodeList annotList = annotation.getChildNodes();
-                    if (annotList != null){
+                    if (annotList != null) {
                         Object[] fkObj = new Object[2];
                         String fk = null;
                         List<String> fkInfo = new ArrayList<String>();
@@ -1446,13 +1448,14 @@ public class ItemsBrowserDWR {
                                     continue;
                                 String appinfoSource = source.getNodeValue();
                                 if ("X_ForeignKey".equals(appinfoSource)) { //$NON-NLS-1$
-                                    fk = annotList.item(k).getFirstChild().getNodeValue();;
+                                    fk = annotList.item(k).getFirstChild().getNodeValue();
+                                    ;
                                 } else if ("X_ForeignKeyInfo".equals(appinfoSource)) { //$NON-NLS-1$
                                     fkInfo.add(annotList.item(k).getFirstChild().getNodeValue());
                                 }
                             }
                         }
-                        if (fk != null){
+                        if (fk != null) {
                             fkObj[0] = fk;
                             fkObj[1] = fkInfo;
                             return fkObj;
@@ -1464,7 +1467,7 @@ public class ItemsBrowserDWR {
         return null;
     }
 
-    private List<XSElementDecl> getElementDecls(XSParticle xs){
+    private List<XSElementDecl> getElementDecls(XSParticle xs) {
         List<XSElementDecl> elDecls = new ArrayList<XSElementDecl>();
         if (xs.getTerm().asModelGroup() != null) { // is complex type
             XSParticle[] xsps = xs.getTerm().asModelGroup().getChildren();
@@ -1473,12 +1476,12 @@ public class ItemsBrowserDWR {
             }
         }
         XSElementDecl del = xs.getTerm().asElementDecl();
-        if (del != null){
+        if (del != null) {
             elDecls.add(del);
         }
         return elDecls;
     }
-    
+
     private TreeNode[] handleDisplayRules(TreeNode[] nodes, int docIndex) throws XtentisWebappException {
         try {
             List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
@@ -1675,9 +1678,11 @@ public class ItemsBrowserDWR {
             // added by lzhang, consistent with document nodes when edit status
             if (doc != null) {
                 Node node2 = Util.getNodeList(doc, idToXpath.get(siblingId)).item(0);
-                Node nodeClone2 = node2.cloneNode(true);
-                clearChildrenValue(nodeClone2);
-                insertAfter(nodeClone2, node2);
+                if (node2 != null) {
+                    Node nodeClone2 = node2.cloneNode(true);
+                    clearChildrenValue(nodeClone2);
+                    insertAfter(nodeClone2, node2);
+                }
             }
 
             String siblingXpath = idToXpath.get(siblingId).replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -3629,7 +3634,7 @@ public class ItemsBrowserDWR {
                 if (isMyRunableProcess(wst[i].getPk(), businessConcept, businessConcepts)) {
                     /*
                      * String pk=wst[i].getPk(); String text=pk; if(pk.lastIndexOf("#")==-1) {
-                     * if(language.equalsIgnoreCase ("fr"))text="Action par défaut"; else text="Default Action"; }else {
+                     * if(language.equalsIgnoreCase ("fr"))text="Action par d茅faut"; else text="Default Action"; }else {
                      * text=pk.substring(pk.lastIndexOf("#")+1); }
                      */
 
@@ -3642,7 +3647,7 @@ public class ItemsBrowserDWR {
                     String name = p.matcher(description).replaceAll("$1");//$NON-NLS-1$
                     if (name.equals(""))//$NON-NLS-1$
                         if (language.equalsIgnoreCase("fr"))//$NON-NLS-1$
-                            name = "Action par défaut";//$NON-NLS-1$
+                            name = "Action par d茅faut";//$NON-NLS-1$
                         else if (language.equalsIgnoreCase("en"))//$NON-NLS-1$
                             name = "Default Action";//$NON-NLS-1$
                         else
