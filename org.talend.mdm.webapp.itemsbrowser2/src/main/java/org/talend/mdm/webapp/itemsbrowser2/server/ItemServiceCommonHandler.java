@@ -268,7 +268,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
                     getCurrentDataCluster()), item.getItemXml(), new WSDataModelPK(getCurrentDataModel()), true),
                     "genericUI", true); //$NON-NLS-1$
-           CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
+            CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
 
             if (com.amalto.webapp.core.util.Util.isTransformerExist("beforeSaving_" + item.getConcept())) { //$NON-NLS-1$
                 String outputErrorMessage = wsPutItemWithReport.getSource();
@@ -946,7 +946,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 LOG.error(e.getMessage(), e);
             }
         }
-        int totalSize = Integer.parseInt(countSearchTemplate(view));
+        int totalSize = results.size();
         return new BasePagingLoadResult<ItemBaseModel>(list, load.getOffset(), totalSize);
     }
 
@@ -1030,7 +1030,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-        return new String[]{};
+        return new String[] {};
     }
 
     private String countSearchTemplate(String view) {
