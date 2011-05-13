@@ -317,7 +317,6 @@ amalto.welcome.Welcome = function () {
 							title : ALERTS_TITLE[language],
 							id : 'alertsFields',
 							width : 500,
-							style : 'font-size: 80%;',
 							colspan : 2,
 							autoHeight : true,
 							html : '<span id="licenseAlert" style="padding-right:8px;cursor: pointer;" onclick="amalto.welcome.Welcome.openPages(\'license\', \'License\');"></span>'
@@ -384,7 +383,6 @@ amalto.welcome.Welcome = function () {
 							id : 'tasksField',
 							width : 500,
 							autoHeight : true,
-							style : 'font-size:80%;',
 							html : '<span id="workflowtasks" style="padding-right:8px;cursor: pointer;" onclick="amalto.welcome.Welcome.openPages(\'workflowtasks\', \'WorkflowTasks\');"></span>'
 						})
 				         ]
@@ -447,8 +445,7 @@ amalto.welcome.Welcome = function () {
 							title : PROCESS_TITLE[language],
 							id : 'processField',
 							width : 500,
-							autoHeight : true,
-							style : 'font-size:80%;'
+							autoHeight : true
 							})
 				         ]
 			});
