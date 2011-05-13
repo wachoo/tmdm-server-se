@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.w3c.dom.Element;
@@ -384,25 +383,6 @@ public class DisplayRulesUtil {
 
     }
 
-    // get the source xpath if it is multi-occurs
-    private static String getMainXpath(String xpath) {
-        return xpath.replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    private static String unifyXPath(String xpath) {
-        String[] xpathSnippets = xpath.split("/"); //$NON-NLS-1$
-        for (int i = 0; i < xpathSnippets.length; i++) {
-            String xpathSnippet = xpathSnippets[i];
-            if (xpathSnippet.isEmpty())
-                continue;
-            if (!xpathSnippet.matches("(.*?)\\[.*?\\]")) { //$NON-NLS-1$
-                xpathSnippets[i] += "[1]"; //$NON-NLS-1$
-            }
-        }
-        String modifiedXpath = StringUtils.join(xpathSnippets, "/");//$NON-NLS-1$
-        return modifiedXpath;
-    }
-
     public static void filterByDisplayRules(List<TreeNode> nodesList, TreeNode node, List<DisplayRule> dspRules, int docIndex)
             throws ParseException {
 
@@ -411,16 +391,14 @@ public class DisplayRulesUtil {
         for (DisplayRule displayRule : dspRules) {
             String xpathInRule = XmlUtil.normalizeXpath(displayRule.getXpath());
             if (displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
-                if ((xpathInRule.indexOf("[") > -1 && unifyXPath(xpath).equals(xpathInRule)) //$NON-NLS-1$
-                        || (xpathInRule.indexOf("[") == -1 && getMainXpath(xpath).equals(xpathInRule))) { //$NON-NLS-1$
+                if (XpathUtil.checkDefalutByXpath(xpath, xpathInRule)) {
                     if (node.getValue() == null || node.getValue().trim().equals("")) { //$NON-NLS-1$
                         node.setValue(displayRule.getValue());
                         ItemsBrowserDWR.updateNode2(xpath, node.getValue(), docIndex);
                     }
                 }
             } else if (displayRule.getType().equals(BusinessConcept.APPINFO_X_VISIBLE_RULE)) {
-                if ((xpathInRule.indexOf("[") > -1 && unifyXPath(xpath).startsWith(xpathInRule)) //$NON-NLS-1$
-                        || (xpathInRule.indexOf("[") == -1 && getMainXpath(xpath).startsWith(xpathInRule))) { //$NON-NLS-1$
+                if (XpathUtil.checkVisibleByXpath(xpath, xpathInRule)) {
                     if (displayRule.getValue() != null && displayRule.getValue().equals("false")) { //$NON-NLS-1$
                         // nodesList.remove(node);
                         node.setVisible(false);
