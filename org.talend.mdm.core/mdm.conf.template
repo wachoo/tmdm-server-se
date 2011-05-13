@@ -27,69 +27,8 @@ xmldb.driver=org.exist.xmldb.DatabaseImpl
 xmldb.dbid=exist
 xmldb.dburl=exist/xmlrpc/db
 xmldb.isupurl=exist/
-##xmldb.type can only be exist,berkeley or oracle.
 xmldb.type=exist
 xmlserver.class=com.amalto.xmldb.XmldbSLWrapper
-
-########################################################
-#  Qizx xml db Setting
-########################################################
-#xmldb.type=qizx
-#xmlserver.class=org.talend.mdm.qizx.xmldb.QizxWrapper
-#xmldb.qizx.ecountsamplesize=2000
-## default storage dir is jboss_home/server/default/data/Qizx
-#qizx.storage.dir=xxx
-
-######################################################
-# berkeley DB XML Setting
-######################################################
-#xmldb.type=berkeley
-#xmlserver.class=org.talend.mdm.berkeley.xmldb.BerkeleyXmlDBWrapper
-## default env dir is jboss_home/server/default/data/bdbxml
-#berkeley.env.dir=xxx
-#### settings -- see Berkeley DB documentation
-## max log file size ( MBytes ), DB default is 10
-#xmldb.bdbxml.maxlogfilesize = XX
-## log buffer size ( KBytes ), DB default is 32
-#xmldb.bdbxml.logbuffersize = XX
-## db cache ( MBytes ), DB default is 256K
-#xmldb.bdbxml.cachesize = 80
-## transaction max active number, default is 20
-#xmldb.bdbxml.txnmaxactive = XX
-## transaction time out ( seconds ), default is none
-#xmldb.bdbxml.timeout = 180
-## use read-committed transactions (default is serializable isolation)
-#xmldb.bdbxml.readcommitted = true
-## deadlock detection
-## use a locktimeout if > 0, otherwise resolve deadlocks by picking the thread with the smallest
-## number of write locks. The thread with the smallest number of write locks is the one that has
-## performed the least amount of work
-#xmldb.bdbxml.locktimeout = XX
-## number of retries when a deadlock occurs, default = 20
-#xmldb.bdbxml.maxretry = XX
-## auto indexing (default is true)
-#xmldb.bdbxml.autoindexing = false
-## cost query optimization (default is true)
-#xmldb.bdbxml.statisticsenabled = false
-# maximum number of locks, default is 1000
-#xmldb.bdbxml.maxlocks=1000
-# maximum number of locking entities, default is 1000
-#xmldb.bdbxml.maxlockers=1000
-## maximum number of locked objects, default is 1000
-#xmldb.bdbxml.maxlockobjects=1000
-
-######################################################
-# Oracle DB Setting
-######################################################
-#xmldb.server.name=192.168.0.225
-#xmldb.server.port=1521
-#xmldb.administrator.username=system
-#xmldb.administrator.password=shong
-#xmldb.driver=oracle.jdbc.driver.OracleDriver
-#xmldb.dbid=talend
-##xmldb.type can only be exist,berkeley or oracle.
-#xmldb.type=oracle
-#xmlserver.class=org.talend.mdm.oracle.xmldb.OracleXmlDbWrapper
 
 ######################################################
 # Subscription Engine
