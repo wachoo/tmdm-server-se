@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.Timer;
@@ -48,21 +49,24 @@ public class MultipleCriteriaPanel extends SimplePanel {
 
     private Panel separationRightPanel;
 
+    private Window parentWin;
+
     private ComboBox<ItemBaseModel> operatorComboBox;
 
     private ViewBean view;
 
     private ListStore<ItemBaseModel> list;
 
-    public MultipleCriteriaPanel(MultipleCriteriaPanel parent, ViewBean view) {
+    public MultipleCriteriaPanel(MultipleCriteriaPanel parent, ViewBean view, Window win) {
         super();
         this.parent = parent;
         this.view = view;
+        this.parentWin = win;
         this.add(getMainPanel());
     }
 
     public MultipleCriteriaPanel(ViewBean view) {
-        this(null, view);
+        this(null, view, null);
     }
 
     private Panel getMainPanel() {
@@ -185,12 +189,13 @@ public class MultipleCriteriaPanel extends SimplePanel {
         newPanel.updateFields(view);
         final int index = (rightPanel.getWidgetCount() == 0 ? 0 : rightPanel.getWidgetCount() - 1);
         rightPanel.insert(newPanel, index);
+
         redraw();
         return newPanel;
     }
 
     private MultipleCriteriaPanel addMultipleCriteriaPanel() {
-        final MultipleCriteriaPanel newPanel = new MultipleCriteriaPanel(MultipleCriteriaPanel.this, view);
+        final MultipleCriteriaPanel newPanel = new MultipleCriteriaPanel(MultipleCriteriaPanel.this, view, this.parentWin);
         final int index = (rightPanel.getWidgetCount() == 0 ? 0 : rightPanel.getWidgetCount() - 1);
         rightPanel.insert(newPanel, index);
         redraw();
@@ -199,10 +204,16 @@ public class MultipleCriteriaPanel extends SimplePanel {
 
     protected void redraw() {
         final int offsetHeight = rightPanel.getOffsetHeight();
+        final int offsetWidth = rightPanel.getOffsetWidth();
         if (separationLeftPanel != null)
             separationLeftPanel.setHeight(offsetHeight + "px"); //$NON-NLS-1$
         if (separationRightPanel != null)
-            separationRightPanel.setHeight(offsetHeight + "px"); //$NON-NLS-1$
+            separationRightPanel.setHeight(offsetHeight + "px"); //$NON-NLS-1$   
+
+        if (this.parentWin != null && offsetWidth > 0) {
+            this.parentWin.setWidth(offsetWidth + 160 + "px"); //$NON-NLS-1$
+            this.parentWin.center();
+        }
 
         if (parent != null)
             parent.redraw();

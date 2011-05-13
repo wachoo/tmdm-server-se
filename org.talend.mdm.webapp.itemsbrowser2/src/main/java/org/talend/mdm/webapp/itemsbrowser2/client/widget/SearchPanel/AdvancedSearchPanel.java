@@ -213,17 +213,17 @@ public class AdvancedSearchPanel extends FormPanel {
                 final Window winFilter = new Window();
                 winFilter.setHeading(MessagesFactory.getMessages().advsearch_filter());
                 winFilter.setModal(true);
-//                winFilter.setAutoHeight(true);
-//                winFilter.setAutoWidth(true);
-                winFilter.setWidth(645);
-                winFilter.setHeight(162);
+                // winFilter.setAutoHeight(true);
+                // winFilter.setAutoWidth(true);
+                // winFilter.setWidth(645);
+                // winFilter.setHeight(162);
                 ContentPanel root = new ContentPanel();
                 root.addStyleName("filter-panel"); //$NON-NLS-1$
                 root.setAutoHeight(true);
                 root.setHeaderVisible(false);
                 root.setBodyBorder(false);
                 root.setFrame(false);
-                final MultipleCriteriaPanel multiCriteria = new MultipleCriteriaPanel(null, view);
+                final MultipleCriteriaPanel multiCriteria = new MultipleCriteriaPanel(null, view, winFilter);
                 root.add(multiCriteria);
                 winFilter.add(root);
 
