@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.webapp.v3.itemsbrowser.servlet;
 
 import java.io.IOException;
@@ -18,12 +30,6 @@ import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
 import com.amalto.webapp.util.webservices.WSTransformerV2PK;
 import com.amalto.webapp.v3.itemsbrowser.dwr.ItemsBrowserDWR;
-
-/**
- * 
- * @author asaintguilhem
- * 
- */
 
 public class SmartViewServlet extends HttpServlet {
 
@@ -52,24 +58,29 @@ public class SmartViewServlet extends HttpServlet {
             optname = StringUtils.substringAfterLast(smartViewName, "#"); //$NON-NLS-1$
         else
             optname = null;
-        boolean transfo_lang = ItemsBrowserDWR.checkIfTransformerExists(concept, language, optname);
 
-        boolean transfo_no_lang = ItemsBrowserDWR.checkIfTransformerExists(concept, null, optname);
-        String content = "";//$NON-NLS-1$
-        String contentType = "text/html";//$NON-NLS-1$
-        String transformer = null;
+        boolean transfo_lang = ItemsBrowserDWR.checkSmartViewExists(concept, language, optname, false);
+
+        String transformer;
         if (transfo_lang) {
             transformer = "Smart_view_" + concept + "_" + language.toUpperCase();//$NON-NLS-1$ //$NON-NLS-2$
             if (optname != null && optname.length() > 0)
                 transformer += "#" + optname;//$NON-NLS-1$
-        } else if (transfo_no_lang) {
-            transformer = "Smart_view_" + concept;//$NON-NLS-1$
-            if (optname != null && optname.length() > 0)
-                transformer += "#" + optname;//$NON-NLS-1$
+        } else {
+            // Fallback to the non-language one
+            boolean transfo_no_lang = ItemsBrowserDWR.checkSmartViewExists(concept, null, optname, false);
+            if (transfo_no_lang) {
+                transformer = "Smart_view_" + concept;//$NON-NLS-1$
+                if (optname != null && optname.length() > 0)
+                    transformer += "#" + optname;//$NON-NLS-1$
+            } else
+                transformer = null;
         }
 
+        String content = "";//$NON-NLS-1$
+        String contentType = "text/html";//$NON-NLS-1$
         if (transformer != null) {
-            String dataClusterPK = "";//$NON-NLS-1$
+            String dataClusterPK;
             try {
                 Configuration conf = (Configuration) (request.getSession().getAttribute("configuration"));//$NON-NLS-1$
                 dataClusterPK = conf.getCluster();

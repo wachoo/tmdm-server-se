@@ -1773,7 +1773,7 @@ public class ItemsBrowserDWR {
             }
             com.amalto.core.util.Util.validate((Element) node, schema);
         } catch (Exception e) {
-            String prefix = "Unable to create/update the item " + ": "; //$NON-NLS-1$ //$NON-NLS-2$
+            String prefix = "Unable to create/update the item " + ": ";
             String err = prefix + ": " + e.getLocalizedMessage(); //$NON-NLS-1$
             LOG.error(err, e);
             return err;
@@ -3077,16 +3077,20 @@ public class ItemsBrowserDWR {
             node.getParentNode().appendChild(newNode);
     }
 
-    public static boolean checkIfTransformerExists(String concept, String language) {
-        return checkIfTransformerExists(concept, language, null);
+    public static boolean checkSmartViewExists(String concept, String language, boolean useNoLang) {
+        return checkSmartViewExists(concept, language, null, useNoLang);
     }
 
-    public static boolean checkIfTransformerExists(String concept, String language, String optname) {
+    public static boolean checkSmartViewExists(String concept, String language, String optname, boolean useNoLang) {
         try {
             SmartViewDescriptions smDescs = new SmartViewDescriptions();
             smDescs.build(concept, language);
 
             Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
+            if (useNoLang) {
+                // Add the no language Smart Views too
+                smDescSet.addAll(smDescs.get(null));
+            }
             for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
                 if (optname != null) {
                     if (optname.equals(smDesc.optName))
@@ -3104,10 +3108,7 @@ public class ItemsBrowserDWR {
     }
 
     public static boolean checkSmartViewExists(String concept, String language) {
-        boolean ret = checkIfTransformerExists(concept, language);
-        if (!ret) {
-            ret = checkIfTransformerExists(concept, null);
-        }
+        boolean ret = checkSmartViewExists(concept, language, true);
         return ret;
     }
 
@@ -3525,9 +3526,9 @@ public class ItemsBrowserDWR {
 
             List<ComboItemBean> comboItems = new ArrayList<ComboItemBean>();
 
-            // Get the localized Smart Views first
+            // Get the lang Smart Views first : Smart_view_<entity>_<ISO> and Smart_view_<entity>_<ISO>#<option>
             Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
-            // Add the non-localized Smart Views too
+            // Add the fallback noLang Smart Views too : Smart_view_<entity> and Smart_view_<entity>#<option>
             smDescSet.addAll(smDescs.get(null));
 
             for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
@@ -3562,7 +3563,8 @@ public class ItemsBrowserDWR {
 
             @Override
             public boolean equals(Object obj) {
-                // Smart Views are considered equivalent if their option names are equal.
+                // Smart Views on same entity are considered equivalent if their option names are equal.
+                // Meaning we don't bother of their isoLang
                 if (obj instanceof SmartViewDescription) {
                     SmartViewDescription other = (SmartViewDescription) obj;
                     if (optName == null)
