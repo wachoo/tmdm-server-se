@@ -2214,18 +2214,15 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 listeners : {
                     'select' : function(smartViewCombo, record, index) {
 
-                        var optName = null;
-                        if (record.data.value.indexOf('#') != -1)
-                            optName = record.data.text;
+                        var smartViewName = record.data.value;
                         var frameUrl = '/itemsbrowser/secure/SmartViewServlet?ids='
                                 + toolbar.ids
                                 + '&concept='
                                 + toolbar.dataObject + '&language=' + language;
-                        if (optName != null)
-                            frameUrl += ('&optname=' + optName);
+                        if (smartViewName != null)
+                            frameUrl += ('&name=' + smartViewName);
                         document.getElementById("smartViewFrame"
                                 + toolbar.treeIndex).src = frameUrl;
-
                     }
                 }
 
@@ -5866,17 +5863,16 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     }
 
     function printSmartView(ids, dataObject, treeIndex) {
-        var optname = null;
+        var smartViewName = null;
         var selectedSmartView = Ext.getCmp('smartViewCombo' + treeIndex).value;
         if (selectedSmartView != undefined && selectedSmartView != null) {
-            if (selectedSmartView.indexOf('#') != -1)
-                optname = DWRUtil.getValue('smartViewCombo' + treeIndex);
+        	smartViewName = selectedSmartView;
         }
 
         var url = '/itemsbrowser/secure/SmartViewServlet?ids=' + ids
                 + '&concept=' + dataObject + '&language=' + language;
-        if (optname != null)
-            url += '&optname=' + optname;
+        if (smartViewName != null)
+            url += '&name=' + smartViewName;
         window
                 .open(
                         url,
