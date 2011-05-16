@@ -55,7 +55,6 @@ import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -125,6 +124,8 @@ public class ItemsListPanel extends ContentPanel {
 
     ItemsToolBar toolBar;
 
+    private ItemsListPanel instance = this;
+
     public ItemsListPanel() {
         setLayout(new FitLayout());
         setHeaderVisible(false);
@@ -181,7 +182,8 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
         int usePageSize = PAGE_SIZE;
-        if(pagingBar!=null)usePageSize=pagingBar.getPageSize();
+        if (pagingBar != null)
+            usePageSize = pagingBar.getPageSize();
         pagingBar = new PagingToolBarEx(usePageSize);
         pagingBar.setHideMode(HideMode.VISIBILITY);
         pagingBar.setVisible(false);
@@ -228,6 +230,13 @@ public class ItemsListPanel extends ContentPanel {
                             showItem(result, ItemsView.TARGET_IN_SEARCH_TAB);
                         }
                     });
+                } else {
+                    ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
+                    Element curElem = itemsSearchContainer.getItemsFormPanel().getElement();
+                    // remove the embeded iframe
+                    if (curElem != null && curElem.getChildCount() > 0) {
+                        curElem.getChild(0).removeFromParent();
+                    }
                 }
             }
         });
