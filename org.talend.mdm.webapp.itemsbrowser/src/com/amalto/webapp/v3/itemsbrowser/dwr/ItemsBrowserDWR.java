@@ -25,7 +25,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -3093,10 +3092,10 @@ public class ItemsBrowserDWR {
             }
             for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
                 if (optname != null) {
-                    if (optname.equals(smDesc.optName))
+                    if (optname.equals(smDesc.getOptName()))
                         return true;
                 } else {
-                    if (smDesc.optName == null)
+                    if (smDesc.getOptName() == null)
                         return true;
                 }
             }
@@ -3532,8 +3531,8 @@ public class ItemsBrowserDWR {
             smDescSet.addAll(smDescs.get(null));
 
             for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
-                String value = URLEncoder.encode(smDesc.name, "UTF-8"); //$NON-NLS-1$
-                comboItems.add(new ComboItemBean(value, smDesc.displayName));
+                String value = URLEncoder.encode(smDesc.getName(), "UTF-8"); //$NON-NLS-1$
+                comboItems.add(new ComboItemBean(value, smDesc.getDisplayName()));
             }
 
             listRange.setData(comboItems.toArray());
@@ -3545,113 +3544,6 @@ public class ItemsBrowserDWR {
             throw new Exception(err);
         }
         return listRange;
-    }
-
-    private static class SmartViewDescriptions {
-
-        private static final long serialVersionUID = 1L;
-
-        private static class SmartViewDescription {
-
-            private String name;
-
-            private String displayName;
-
-            private String isoLang;
-
-            private String optName;
-
-            @Override
-            public boolean equals(Object obj) {
-                // Smart Views on same entity are considered equivalent if their option names are equal.
-                // Meaning we don't bother of their isoLang
-                if (obj instanceof SmartViewDescription) {
-                    SmartViewDescription other = (SmartViewDescription) obj;
-                    if (optName == null)
-                        return other.optName == null;
-                    else
-                        return optName.equals(other.optName);
-                }
-                return false;
-            }
-
-            @Override
-            public int hashCode() {
-                return optName == null ? "".hashCode() : optName.hashCode(); //$NON-NLS-1$
-            }
-
-            @Override
-            public String toString() {
-                return name;
-            }
-        }
-
-        private Map<String, List<SmartViewDescription>> descs;
-
-        public void build(String concept, String defaultIsoLang) throws XtentisWebappException, RemoteException {
-            String smRegex = "Smart_view_" + concept + "(_([^#]+))?(#(.+))?";//$NON-NLS-1$//$NON-NLS-2$
-            Pattern smp = Pattern.compile(smRegex);
-
-            // get process
-            WSTransformerPK[] wstpks = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
-            for (int i = 0; i < wstpks.length; i++) {
-                if (wstpks[i].getPk().matches(smRegex)) {
-                    SmartViewDescriptions.SmartViewDescription smDesc = new SmartViewDescriptions.SmartViewDescription();
-                    smDesc.name = wstpks[i].getPk();
-                    Matcher matcher = smp.matcher(wstpks[i].getPk());
-                    while (matcher.find()) {
-                        smDesc.isoLang = matcher.group(2);
-                        smDesc.optName = matcher.group(4);
-                    }
-
-                    WSTransformer wst = Util.getPort().getTransformer(new WSGetTransformer(wstpks[i]));
-                    String description = wst.getDescription();
-                    // Try to extract the Smart View display information from its description first
-                    if (defaultIsoLang != null && defaultIsoLang.length() != 0) {
-                        Pattern p = Pattern.compile(".*\\[" + defaultIsoLang.toUpperCase() + ":(.*?)\\].*", Pattern.DOTALL);//$NON-NLS-1$//$NON-NLS-2$
-                        smDesc.displayName = p.matcher(description).replaceAll("$1");//$NON-NLS-1$
-                    }
-                    if (smDesc.displayName == null || smDesc.displayName.length() == 0) {
-                        if (description.length() != 0)
-                            smDesc.displayName = description;
-                        else if (smDesc.optName == null)
-                            smDesc.displayName = MESSAGES.getMessage("smart.view.default.option"); //$NON-NLS-1$
-                        else
-                            smDesc.displayName = smDesc.optName;
-                    }
-
-                    add(smDesc);
-                }
-            }
-        }
-
-        private void add(SmartViewDescription smDesc) {
-            if (descs == null)
-                descs = new HashMap<String, List<SmartViewDescription>>();
-            String key;
-            if (smDesc.isoLang == null)
-                key = ""; //$NON-NLS-1$
-            else
-                key = smDesc.isoLang.toLowerCase();
-            List<SmartViewDescription> smList = descs.get(key);
-            if (smList == null) {
-                smList = new ArrayList<SmartViewDescription>();
-                descs.put(key, smList);
-            }
-            smList.add(smDesc);
-        }
-
-        public Set<SmartViewDescription> get(String isoLang) {
-            Set<SmartViewDescription> smSet = new HashSet<SmartViewDescription>();
-            if (descs != null) {
-                if (isoLang == null)
-                    isoLang = ""; //$NON-NLS-1$
-                List<SmartViewDescription> smList = descs.get(isoLang.toLowerCase());
-                if (smList != null)
-                    smSet.addAll(smList);
-            }
-            return smSet;
-        }
     }
 
     public ListRange getRunnableProcessList(int start, int limit, String sort, String dir, String regex) throws Exception {
