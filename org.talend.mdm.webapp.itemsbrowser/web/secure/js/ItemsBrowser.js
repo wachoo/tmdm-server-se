@@ -3152,7 +3152,6 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         var errorContentPanel = new Ext.Panel({
                                     id : 'errorDetailsdiv' + treeIndex,
                                     headerAsText : false,
-                                    autoScroll : false,
                                     html : errorHtml,
                                     border : false,
                                     closable : false
@@ -3161,8 +3160,6 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         var treeDetailPanel = new Ext.Panel({
                                     id : 'treeDetailsdiv' + treeIndex,
                                     headerAsText : false,
-                                    style : "overflow:hidden;",
-                                    autoScroll : true,
                                     html : html,
                                     border : false,
                                     closable : false
@@ -3175,34 +3172,38 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     header : false,
 //                                    style : "height:99%;",
                                     closable : true,
+                                    autoScroll : true,
+                                    tbar : tbDetail,
                                     items : [errorContentPanel, treeDetailPanel],
                                     
                                     listeners : {
                                         "render" : function(contentPanel) {
-
+											
                                         }
-                                    }
+                                    },
+                                    bbar : new Ext.Toolbar([{
+	                                                text : EDIT_ITEM_TOOLTIP[language],
+	                                                xtype : "tbtext"
+	                                            }])
                                 });
                     }
                     formWindow.innerHTML = "";
                     formWindow.style.overflow = "hidden";
+
+                    contentPanel.render(formWindow);
 					
-					new Ext.Panel({
-						tbar : tbDetail,
-						header : false,
-						applyTo : formWindow,
-						autoScroll : true,
-						items : [contentPanel],
-						bbar : new Ext.Toolbar([{
-	                                                text : EDIT_ITEM_TOOLTIP[language],
-	                                                xtype : "tbtext"
-	                                            }])
-					});
-					
-					
-					
-//                    contentPanel.render(formWindow);
-					
+                    formWindow.renderFormResize = function(){
+                    	var h1 = contentPanel.getTopToolbar().getEl().dom.offsetHeight;
+						var h2 = contentPanel.getBottomToolbar().getEl().dom.offsetHeight;
+						var contentHeight = formWindow.offsetHeight - h1 - h2;
+						treeDetailPanel.getEl().dom.parentNode.style.height = contentHeight + "px";
+                    };
+                    
+                    window.setTimeout(function(){
+                    	formWindow.renderFormResize();
+                    }, 1);
+                    
+                    
                     
                     // record the item id
                     contentPanel.itemid = itemPK2 + "." + dataObject;
@@ -4026,6 +4027,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                         contentPanel.show();
                         contentPanel.doLayout();
+                        
+                        window.setTimeout(function(){
+							var h2 = contentPanel.getBottomToolbar().getEl().dom.offsetHeight;
+							treeDetailPanel.getEl().dom.parentNode.style.height = treeDetailPanel.getEl().dom.parentNode.offsetHeight - h2; 
+                    	}, 1);
                     }
 
                     if (isBreadCrumb && parentLink["isWindow"] != "true") {
