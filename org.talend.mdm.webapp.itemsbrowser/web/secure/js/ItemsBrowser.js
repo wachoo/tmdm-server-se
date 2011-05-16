@@ -1838,10 +1838,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                                     || err1 == "") {
                                                                 return;
                                                             } else {
-                                                                var errOne = dropOnErrorMsg(err1);
+                                                         //       var errOne = dropOnErrorMsg(err1);
                                                                 Ext.MessageBox
                                                                         .show({
-                                                                            msg : errOne,
+                                                                            msg : pickOutISOMessage(error1),
                                                                             buttons : {
                                                                                 "ok" : "CANCEL"
                                                                             },
@@ -3296,7 +3296,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 if (err1 == null || err1 == "") {
                                     return;
                                 } else {
-                                    err1 = dropOnErrorMsg(err1);
+                             //       err1 = dropOnErrorMsg(err1);
                                     Ext.MessageBox.show({
                                                 msg : pickOutISOMessage(err1),
                                                 buttons : {
@@ -3331,7 +3331,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 + language
                         .toUpperCase()
                 + ":"
-                + "(.*?)\\]";
+                + "(.*)\\]";
         var resultArray = result
                 .match(pattern);
         if (resultArray != null) {
@@ -4277,7 +4277,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     
     function showExceptionMsg(errorString, exception, treeIndex) {
         
-        errorString=dropOnErrorMsg(errorString);
+        errorString=pickOutISOMessage(errorString);
         
         var error = itemTreeList[treeIndex];
         $('errorDesc' + treeIndex).style.display = errorString
@@ -5010,7 +5010,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 if (err1 == null || err1 == "") {
                                     return;
                                 } else {
-                                    err1 = dropOnErrorMsg(err1);
+                               //     err1 = dropOnErrorMsg(err1);
                                     Ext.MessageBox.show({
                                                 msg : pickOutISOMessage(err1),
                                                 buttons : {
