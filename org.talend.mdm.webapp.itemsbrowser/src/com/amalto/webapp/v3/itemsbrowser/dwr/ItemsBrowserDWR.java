@@ -1392,7 +1392,7 @@ public class ItemsBrowserDWR {
                 List<String> fkInfos = (List<String>) fkObj[1];
                 String key = el.getStringValue();
                 String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
-                dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", fkInfoStr); //$NON-NLS-1$ //$NON-NLS-2$
+                dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", fkInfoStr == null ? "" : fkInfoStr); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
         }
         return dynamicLabel;
