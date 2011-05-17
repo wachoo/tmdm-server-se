@@ -308,7 +308,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 				var disabledStyle = (readOnly == "READONLY") ? 'disabled ="disabled"': "";
 				html[html.length] = '<input type="checkbox" id="'+itemData.nodeId+'Value" value="'+value+'" ' + disabledStyle
 				                    +  (value=='true'?' checked':' ')
-				                    +' onchange="this.value=String(this.checked);amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');"'
+				                    +' onclick="this.value=String(this.checked);amalto.itemsbrowser.ItemsBrowser.updateNode(\''+itemData.nodeId+'\','+treeIndex+');"'
 				                    +' />';
 				//FIXME:empty also means false
 			}else if(itemData.typeName!=null&&(itemData.typeName=="date"||itemData.typeName=="dateTime")){//DATE		
