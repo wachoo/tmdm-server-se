@@ -1099,6 +1099,8 @@ public class Util {
             res = WSWhereOperator.STRICTCONTAINS;
         else if (option.equalsIgnoreCase("FULLTEXTSEARCH"))
             res = WSWhereOperator.FULLTEXTSEARCH;
+        else if (option.equalsIgnoreCase("EMPTY_NULL"))
+            res = WSWhereOperator.EMPTY_NULL;
         return res;
     }
 

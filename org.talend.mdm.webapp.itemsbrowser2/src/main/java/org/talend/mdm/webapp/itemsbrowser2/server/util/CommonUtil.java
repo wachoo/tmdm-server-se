@@ -161,6 +161,17 @@ public class CommonUtil {
         ArrayList<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
         WSWhereItem item = new WSWhereItem(wc, null, null);
         conditions.add(item);
+        
+        //FIXME: This is a workaround for boolean criteria
+        if(filterValues!=null&&filterValues.equals("false")) {//$NON-NLS-1$ 
+            wc.setStringPredicate(WSStringPredicate.OR);
+            conditions.add(new WSWhereItem(new WSWhereCondition(
+                    filterXpaths, 
+                    Util.getOperator("EMPTY_NULL"),//$NON-NLS-1$ 
+                    filterValues,
+                    WSStringPredicate.NONE, 
+                    false), null, null));
+        }
 
         if (conditions.size() == 0) {
             wi = null;
