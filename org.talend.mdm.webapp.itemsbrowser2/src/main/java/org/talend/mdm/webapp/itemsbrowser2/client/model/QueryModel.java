@@ -31,6 +31,8 @@ public class QueryModel extends ItemBaseModel {
 
     String criteria;
 
+    String language;
+    
     public QueryModel() {
 
     }
@@ -74,4 +76,12 @@ public class QueryModel extends ItemBaseModel {
     public void setCriteria(String criteria) {
         this.criteria = criteria;
     }
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
 }

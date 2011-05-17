@@ -14,10 +14,12 @@ package org.talend.mdm.webapp.itemsbrowser2.server;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -104,12 +106,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     public static ItemsbrowserMessages MESSAGES = null;// FIXME check NPE
 
     private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
-            int max, String sortDir, String sortCol) {
+            int max, String sortDir, String sortCol, String language) {
 
         int totalSize = 0;
-
+        String dateFormat = "yyyy-MM-dd";  //$NON-NLS-1$ 
+        String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$ 
+        
         List<ItemBean> itemBeans = new ArrayList<ItemBean>();
         String concept = ViewHelper.getConceptFromDefaultViewName(viewBean.getViewPK());
+        Map<String, String[]> formatMap = this.checkDisplayFormat(entityModel, language);
+        
         try {
             WSWhereItem wi = CommonUtil.buildWhereItems(criteria);
             String[] results = CommonUtil.getPort().viewSearch(
@@ -145,7 +151,27 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                         idsArray.add(id);
                 }
 
-                ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), results[i]);//$NON-NLS-1$ 
+                Set<String> keySet = formatMap.keySet();
+                SimpleDateFormat sdf = null;
+                
+                for(String key : keySet){
+                	String[] value = formatMap.get(key);
+                	String dateText = XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")).getText(); //$NON-NLS-1$ //$NON-NLS-2$
+             
+                	if(dateText != null){
+                		if(dateText.trim() != ""){ //$NON-NLS-1$
+                			if(value[1].equalsIgnoreCase("DATE")){ //$NON-NLS-1$
+                        		sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
+                        	}else if(value[1].equalsIgnoreCase("DATETIME")){ //$NON-NLS-1$
+                        		sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
+                        	}
+                    		Date date = sdf.parse(dateText.trim());	
+                    		XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")).setText(String.format(java.util.Locale.ENGLISH, value[0], date)); //$NON-NLS-1$ //$NON-NLS-2$
+                		}	
+                	}	
+                }
+                
+                ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), doc.asXML());//$NON-NLS-1$ 
                 dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
                 itemBeans.add(itemBean);
             }
@@ -157,6 +183,30 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     }
 
+    private Map<String, String[]> checkDisplayFormat(EntityModel entityModel, String language){
+    	Map<String, TypeModel> metaData = entityModel.getMetaDataTypes();
+    	Map<String, String[]> formatMap = new HashMap<String, String[]>();
+    	String languageStr = "format_" + language.toLowerCase();   //$NON-NLS-1$
+    	if(metaData == null)
+    		return formatMap;
+    	
+    	Set<String> keySet = metaData.keySet();
+    	for(String key : keySet){
+    		TypeModel typeModel = metaData.get(key);
+    		if(typeModel.getType().getTypeName().equalsIgnoreCase("DATE") || typeModel.getType().getTypeName().equalsIgnoreCase("DATETIME")){
+    			if(typeModel.getDisplayFomats() != null){
+    				if(typeModel.getDisplayFomats().size() > 0){
+    					if(typeModel.getDisplayFomats().containsKey(languageStr)){
+    						formatMap.put(key, new String[]{typeModel.getDisplayFomats().get(languageStr), 
+    								typeModel.getType().getTypeName()});
+    					}
+    				}
+    			}
+    		}
+    	}
+    	return formatMap;
+    }
+    
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = XmlUtil.parseText(itemBean.getItemXml());
@@ -527,7 +577,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             sortDir = ItemHelper.SEARCH_DIRECTION_DESC;
         }
         Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria()
-                .toString(), pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField());
+                .toString(), pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(), config.getLanguage());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
         return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);

@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 
@@ -83,6 +84,8 @@ public class ItemsListPanel extends ContentPanel {
             qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
             int pageSize = (Integer) pagingBar.getPageSize();
             qm.getPagingLoadConfig().setLimit(pageSize);
+            qm.setLanguage(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
+            
             service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
 
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
