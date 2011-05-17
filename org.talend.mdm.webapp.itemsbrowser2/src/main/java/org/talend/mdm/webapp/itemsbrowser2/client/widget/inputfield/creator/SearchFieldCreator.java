@@ -12,6 +12,10 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -21,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 public class SearchFieldCreator {
@@ -79,18 +84,8 @@ public class SearchFieldCreator {
                 field = dateField;
                 cons = OperatorConstants.dateOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.BOOLEAN.getBaseTypeName())) {
-                Radio radio = new Radio();
-                radio.setBoxLabel("True"); //$NON-NLS-1$ 
-                radio.setValueAttribute("true"); //$NON-NLS-1$ 
-                radio.setValue(true);
-                Radio radio2 = new Radio();
-                radio2.setBoxLabel("False");//$NON-NLS-1$
-                radio2.setValueAttribute("false");//$NON-NLS-1$
-                RadioGroup radioGroup = new RadioGroup();
-                radioGroup.setStyleAttribute("padding-left", "10px");//$NON-NLS-1$ //$NON-NLS-2$
-                radioGroup.add(radio);
-                radioGroup.add(radio2);
-                field = radioGroup;
+                CheckBox checkBox = new CheckBox();
+                field = checkBox;
                 cons = OperatorConstants.booleanOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.STRING.getBaseTypeName())
                     || typeModel.getType().getBaseTypeName().equals(DataTypeConstants.UUID.getBaseTypeName())
