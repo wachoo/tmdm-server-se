@@ -134,13 +134,9 @@ public class FlushXMLReader implements XMLReader {
 
     private void writePrologElement(String elementName, String... elementText) throws SAXException {
         for (String currentElementText : elementText) {
-            if (currentElementText == null) {
-                currentElementText = String.valueOf(elementText);
-            }
-
             contentHandler.startElement(StringUtils.EMPTY, elementName, elementName, Constants.EMPTY_ATTRIBUTES);
             {
-                char[] elementTextChars = currentElementText.toCharArray();
+                char[] elementTextChars = String.valueOf(currentElementText).toCharArray();
                 contentHandler.characters(elementTextChars, 0, elementTextChars.length);
             }
             contentHandler.endElement(StringUtils.EMPTY, elementName, elementName);
