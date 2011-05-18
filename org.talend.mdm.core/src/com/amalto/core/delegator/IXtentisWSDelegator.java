@@ -1402,6 +1402,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     throw new XtentisException("DataCluster R-" + revisionID + "/" + dcpk.getUniqueId() + " don't exists!");
                 }
             }
+            //taskId
+            String taskId=null;
             if (!XSystemObjects.isXSystemObject(XObjectType.DATA_CLUSTER, wsPutItem.getWsDataClusterPK().getPk())) {
                 if (wsPutItem.getIsUpdate()) {
                     if (itemKeyValues.length > 0) {
@@ -1413,6 +1415,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                         pj = ItemPOJO.load(revisionId, pj.getItemPOJOPK(), false);
                         if (pj != null) {
                             // get updated path
+                        	taskId=pj.getTaskId();
                             Node old = pj.getProjection();
                             Node newNode = root;
                             HashMap<String, UpdateReportItem> updatedPath = Util.compareElement("/" + old.getLocalName(),
@@ -1444,9 +1447,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 }
             }
             // end
-
-            ItemPOJOPK itemPOJOPK = Util.getItemCtrl2Local().putItem(
-                    new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection), dataModel);
+            ItemPOJO itemPojo=new ItemPOJO(dcpk, concept, itemKeyValues, System.currentTimeMillis(), projection);
+            itemPojo.setTaskId(taskId);
+            ItemPOJOPK itemPOJOPK = Util.getItemCtrl2Local().putItem(itemPojo
+                    , dataModel);
             if (itemPOJOPK == null)
                 return null;
             // aiming add if datacluster is 'PROVINIONING' and current user,clear LocalUser cache

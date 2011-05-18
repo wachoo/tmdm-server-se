@@ -304,7 +304,7 @@ public class ItemPOJO implements Serializable {
         return new ItemPOJOPK(getDataClusterPOJOPK(), getConceptName(), getItemIds());
     }
 
-    private static Pattern pLoad = Pattern.compile(".*?(<c>.*?</t>).*?(<p>(.*)</p>|<p/>).*", Pattern.DOTALL); //$NON-NLS-1$
+    private static Pattern pLoad = Pattern.compile(".*?(<c>.*?</taskId>|<c>.*?</t>).*?(<p>(.*)</p>|<p/>).*", Pattern.DOTALL); //$NON-NLS-1$
 
     /**
      * Loads an Item. User rights are checked.
@@ -844,14 +844,14 @@ public class ItemPOJO implements Serializable {
                 xmlBuilder.append("</i>");
             }
         }
-        if (taskId != null) {
-            xmlBuilder.append("<taskId>");
-            xmlBuilder.append(taskId);
-            xmlBuilder.append("</taskId>");
-        }
         xmlBuilder.append("<t>");
         xmlBuilder.append(insertionTime);
         xmlBuilder.append("</t>");
+        if (taskId != null) {
+        	xmlBuilder.append("<taskId>");
+        	xmlBuilder.append(taskId);
+        	xmlBuilder.append("</taskId>");
+        }
         xmlBuilder.append("<p>");
         xmlBuilder.append(getProjectionAsString());
         xmlBuilder.append("</p></ii>");
