@@ -5449,7 +5449,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             }, {
                 text : RESET[language],
                 handler : function() {
-                    uploadFilePanel.getForm().reset();
+                    uploadFilePanel.getForm().getEl().dom.reset();
                 }
             }]
         });
