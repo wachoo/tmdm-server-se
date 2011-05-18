@@ -249,6 +249,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
        });
        
        this.tabPanel8 = new Ext.TabPanel({
+       	    id:"tabPanel",
 			region:"center",
 			activeTab: 0,
 			items:[this.gridPanel1,

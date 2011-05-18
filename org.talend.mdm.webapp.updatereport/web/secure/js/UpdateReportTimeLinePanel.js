@@ -22,7 +22,9 @@ function renderTimeline(jsonData, initDate){
 	
 	if(tl_el == null)
 		return;
-	
+	var tabPanel = Ext.getCmp("tabPanel");
+	if(tabPanel.getActiveTab().getId() != "timelinePanel")
+	    return;
     var eventSource1 = new Timeline.DefaultEventSource();
     
     var theme1 = Timeline.ClassicTheme.create();
