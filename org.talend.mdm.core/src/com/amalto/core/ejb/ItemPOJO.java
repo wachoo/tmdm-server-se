@@ -816,45 +816,45 @@ public class ItemPOJO implements Serializable {
     @SuppressWarnings("nls")
     public String serialize() throws XtentisException {
         StringBuilder xmlBuilder = new StringBuilder();
-        xmlBuilder.append("<ii><c>");
+        xmlBuilder.append("<ii><c>");//$NON-NLS-1$
         xmlBuilder.append(StringEscapeUtils.escapeXml(dataClusterPOJOPK.getUniqueId()));
-        xmlBuilder.append("</c><n>");
+        xmlBuilder.append("</c><n>");//$NON-NLS-1$
         xmlBuilder.append(StringEscapeUtils.escapeXml(conceptName));
-        xmlBuilder.append("</n>");
+        xmlBuilder.append("</n>");//$NON-NLS-1$
         if (dataModelName != null) {
-            xmlBuilder.append("<dmn>");
+            xmlBuilder.append("<dmn>");//$NON-NLS-1$
             xmlBuilder.append(StringEscapeUtils.escapeXml(dataModelName));
-            xmlBuilder.append("</dmn>");
+            xmlBuilder.append("</dmn>");//$NON-NLS-1$
         }
         if (dataModelRevision != null) {
-            xmlBuilder.append("<dmr>");
+            xmlBuilder.append("<dmr>");//$NON-NLS-1$
             xmlBuilder.append(StringEscapeUtils.escapeXml(dataModelRevision));
-            xmlBuilder.append("</dmr>");
+            xmlBuilder.append("</dmr>");//$NON-NLS-1$
         }
         if (planPK != null) {
-            xmlBuilder.append("<sp>");
+            xmlBuilder.append("<sp>");//$NON-NLS-1$
             xmlBuilder.append(StringEscapeUtils.escapeXml(planPK.getUniqueId()));
-            xmlBuilder.append("</sp>");
+            xmlBuilder.append("</sp>");//$NON-NLS-1$
         }
         String[] ids = getItemIds();
         for (int i = 0; i < ids.length; i++) {
             if (ids[i] != null) {
-                xmlBuilder.append("<i>");
+                xmlBuilder.append("<i>");//$NON-NLS-1$
                 xmlBuilder.append(StringEscapeUtils.escapeXml(ids[i].trim()));
-                xmlBuilder.append("</i>");
+                xmlBuilder.append("</i>");//$NON-NLS-1$
             }
         }
-        xmlBuilder.append("<t>");
+        xmlBuilder.append("<t>");//$NON-NLS-1$
         xmlBuilder.append(insertionTime);
-        xmlBuilder.append("</t>");
+        xmlBuilder.append("</t>");//$NON-NLS-1$
         if (taskId != null) {
-        	xmlBuilder.append("<taskId>");
+        	xmlBuilder.append("<taskId>"); //$NON-NLS-1$
         	xmlBuilder.append(taskId);
-        	xmlBuilder.append("</taskId>");
+        	xmlBuilder.append("</taskId>");//$NON-NLS-1$
         }
-        xmlBuilder.append("<p>");
+        xmlBuilder.append("<p>");//$NON-NLS-1$
         xmlBuilder.append(getProjectionAsString());
-        xmlBuilder.append("</p></ii>");
+        xmlBuilder.append("</p></ii>");//$NON-NLS-1$
 
         return xmlBuilder.toString();
     }
