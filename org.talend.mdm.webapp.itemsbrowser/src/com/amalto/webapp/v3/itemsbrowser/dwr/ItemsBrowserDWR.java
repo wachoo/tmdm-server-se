@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -271,8 +271,8 @@ public class ItemsBrowserDWR {
             Configuration config = Configuration.getInstance();
             String[] viewables = new View(viewPK, language).getViewables();
             String[] labelViewables = new String[viewables.length];
-            HashMap<String, String> xpathToLabel = CommonDWR.getFieldsByDataModel(config.getModel(),
-                    CommonDWR.getConceptFromBrowseItemView(viewPK), language, true);
+            HashMap<String, String> xpathToLabel = CommonDWR.getFieldsByDataModel(config.getModel(), CommonDWR
+                    .getConceptFromBrowseItemView(viewPK), language, true);
             for (int i = 0; i < viewables.length; i++) {
                 String labelViewable = ""; //$NON-NLS-1$
                 String path = viewables[i];
@@ -572,8 +572,8 @@ public class ItemsBrowserDWR {
                                 backupNode.getAttributes().item(index).getFirstChild().setNodeValue(getDspXpathName(xpath));
                             }
                             if (backupNode.getAttributes().item(index).getNodeName().equals("type")) { //$NON-NLS-1$
-                                backupNode.getAttributes().item(index).getFirstChild()
-                                        .setNodeValue(SortedxpathToPolymType.get(xpath));
+                                backupNode.getAttributes().item(index).getFirstChild().setNodeValue(
+                                        SortedxpathToPolymType.get(xpath));
                             }
                         }
                         // synchronize node in document
@@ -583,8 +583,8 @@ public class ItemsBrowserDWR {
                     } else {
                         String basePath = "//xsd:element[@name=\"" + xpath.substring(xpath.lastIndexOf("/") + 1) + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         for (int index = 0; index < Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().getLength(); index++) {
-                            if (Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().item(index).getNodeName()
-                                    .equals("type")) { //$NON-NLS-1$
+                            if (Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().item(index).getNodeName().equals(
+                                    "type")) { //$NON-NLS-1$
                                 Util.getNodeList(xsdDoc, basePath).item(0).getAttributes().item(index).getFirstChild()
                                         .setNodeValue(SortedxpathToPolymType.get(xpath));
                                 break;
@@ -1485,8 +1485,8 @@ public class ItemsBrowserDWR {
 
     private TreeNode[] handleDisplayRules(TreeNode[] nodes, int docIndex) throws XtentisWebappException {
         try {
-            List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession()
-                    .getAttribute("displayRules" + docIndex); //$NON-NLS-1$
+            List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
+                    "displayRules" + docIndex); //$NON-NLS-1$
             if (nodes != null) {
                 List<TreeNode> nodesList = new ArrayList(Arrays.asList(nodes));
                 for (int i = 0; i < nodes.length; i++) {
@@ -1600,15 +1600,9 @@ public class ItemsBrowserDWR {
             }
 
             // update dsp rules
-            updateDspRules(
-                    docIndex,
-                    d,
-                    idToXpath
-                            .get(id)
-                            .substring(
-                                    1,
-                                    idToXpath.get(id).indexOf("/", 1) > -1 ? idToXpath.get(id).indexOf("/", 1) : idToXpath.get(id).length())//$NON-NLS-1$//$NON-NLS-2$
-                            .trim());
+            updateDspRules(docIndex, d, idToXpath.get(id).substring(1,
+                    idToXpath.get(id).indexOf("/", 1) > -1 ? idToXpath.get(id).indexOf("/", 1) : idToXpath.get(id).length())//$NON-NLS-1$//$NON-NLS-2$
+                    .trim());
 
             if (xpathToTreeNode != null) {
                 ctx.getSession().setAttribute("xpathToTreeNode", xpathToTreeNode); //$NON-NLS-1$
@@ -1636,8 +1630,8 @@ public class ItemsBrowserDWR {
     @SuppressWarnings("unchecked")
     public String updateNodeDspValue(int docIndex, int newId) {
         WebContext ctx = WebContextFactory.get();
-        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession()
-                .getAttribute("displayRules" + docIndex); //$NON-NLS-1$
+        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
+                "displayRules" + docIndex); //$NON-NLS-1$
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
         String sourcePath = idToXpath.get(newId);
         for (DisplayRule displayRule : dspRules) {
@@ -1726,8 +1720,8 @@ public class ItemsBrowserDWR {
 
             if (siblingNode.isPolymiorphism()) {
                 // update polym
-                xpathToPolymType.put(XpathUtil.unifyXPath(siblingXpath + "[" + (siblingIndex + 1) + "]"),
-                        siblingNode.getRealType());
+                xpathToPolymType.put(XpathUtil.unifyXPath(siblingXpath + "[" + (siblingIndex + 1) + "]"), siblingNode
+                        .getRealType());
             }
             return "Cloned";//$NON-NLS-1$
 
@@ -1815,8 +1809,8 @@ public class ItemsBrowserDWR {
      */
     public Map<String, String> checkVisibilityRules(int docIndex) {
         Map<String, String> checkMap = new HashMap<String, String>();
-        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession()
-                .getAttribute("displayRules" + docIndex); //$NON-NLS-1$
+        List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
+                "displayRules" + docIndex); //$NON-NLS-1$
 
         for (DisplayRule displayRule : dspRules) {
             String xpath = displayRule.getXpath();
@@ -2128,11 +2122,14 @@ public class ItemsBrowserDWR {
 
         try {
 
-            Util.getNodeList(d, idToXpath.get(id)).item(0).getParentNode()
-                    .removeChild(Util.getNodeList(d, idToXpath.get(id)).item(0));
+            Util.getNodeList(d, idToXpath.get(id)).item(0).getParentNode().removeChild(
+                    Util.getNodeList(d, idToXpath.get(id)).item(0));
 
-            Util.getNodeList(doc, idToXpath.get(id)).item(0).getParentNode()
-                    .removeChild(Util.getNodeList(doc, idToXpath.get(id)).item(0));
+            if (doc != null) {
+                Node node2 = Util.getNodeList(doc, idToXpath.get(id)).item(0);
+                if (node2 != null)
+                    node2.getParentNode().removeChild(node2);
+            }
 
             HashMap<String, UpdateReportItem> updatedPath;
             if (ctx.getSession().getAttribute("updatedPath" + docIndex) != null) { //$NON-NLS-1$
@@ -2198,8 +2195,8 @@ public class ItemsBrowserDWR {
 
         WSItem wsitem = (WSItem) ctx.getSession().getAttribute("itemDocument" + docIndex + "_wsItem"); //$NON-NLS-1$ //$NON-NLS-2$
         if (wsitem != null) {
-            ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(wsitem.getWsDataClusterPK().getPk()),
-                    wsitem.getConceptName(), wsitem.getIds());
+            ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(wsitem.getWsDataClusterPK().getPk()), wsitem
+                    .getConceptName(), wsitem.getIds());
             boolean isModified = com.amalto.core.util.Util.getItemCtrl2Local().isItemModifiedByOther(itempk,
                     wsitem.getInsertionTime());
             return isModified;
@@ -2851,14 +2848,14 @@ public class ItemsBrowserDWR {
      */
     public String countForeignKey_filter(String dataObject, String xpathForeignKey, String xpathForeignKeyInfo, String fkFilter,
             int docIndex, int nodeId) throws Exception {
-        return Util.countForeignKey_filter(xpathForeignKey, xpathForeignKeyInfo,
-                parseForeignKeyFilter(dataObject, fkFilter, docIndex, nodeId));
+        return Util.countForeignKey_filter(xpathForeignKey, xpathForeignKeyInfo, parseForeignKeyFilter(dataObject, fkFilter,
+                docIndex, nodeId));
     }
 
     public String getForeignKeyListWithCount(int start, int limit, String value, String dataObject, String xpathForeignKey,
             String xpathInfoForeignKey, String fkFilter, int docIndex, int nodeId) throws RemoteException, Exception {
-        return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey,
-                parseForeignKeyFilter(dataObject, fkFilter, docIndex, nodeId), true);
+        return Util.getForeignKeyList(start, limit, value, xpathForeignKey, xpathInfoForeignKey, parseForeignKeyFilter(
+                dataObject, fkFilter, docIndex, nodeId), true);
     }
 
     /**
@@ -3113,8 +3110,8 @@ public class ItemsBrowserDWR {
 
     public boolean checkIfDocumentExists(String[] ids, String concept) throws Exception {
         Configuration config = Configuration.getInstance();
-        boolean flag = Util.getPort()
-                .existsItem(new WSExistsItem(new WSItemPK(new WSDataClusterPK(config.getCluster()), concept, ids))).is_true();
+        boolean flag = Util.getPort().existsItem(
+                new WSExistsItem(new WSItemPK(new WSDataClusterPK(config.getCluster()), concept, ids))).is_true();
         return flag;
     }
 
@@ -3996,11 +3993,9 @@ public class ItemsBrowserDWR {
         String whereItem = "";// "Country/isoCode#EQUALS#33# ###Country/label#CONTAINS#a#OR###Country/Continent#CONTAINS#6#AND";//$NON-NLS-1$
 
         try {
-            String result = Util
-                    .getPort()
-                    .getItem(
-                            new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
-                                    "BrowseItem", new String[] { viewName }))).getContent().trim();//$NON-NLS-1$
+            String result = Util.getPort().getItem(
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
+                            "BrowseItem", new String[] { viewName }))).getContent().trim();//$NON-NLS-1$
             if (result != null) {
                 // BrowseItem report = BrowseItem.unmarshal2POJO(result);
                 String criterias = result.substring(result.indexOf("<WhereCriteria>") + 15, result.indexOf("</WhereCriteria>"));//$NON-NLS-1$//$NON-NLS-2$
@@ -4167,12 +4162,12 @@ public class ItemsBrowserDWR {
 
             wi = new WSWhereItem(null, and, null);
 
-            String[] results = Util.getPort()
-                    .xPathsSearch(new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
+            String[] results = Util.getPort().xPathsSearch(
+                    new WSXPathsSearch(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), null,// pivot
                             new WSStringArray(new String[] { "BrowseItem/CriteriaName" }), wi, -1, localStart, localLimit, null, // order//$NON-NLS-1$
                             // by
                             null // direction
-                            )).getStrings();
+                    )).getStrings();
 
             // Map<String, String> map = new HashMap<String, String>();
 
@@ -4233,8 +4228,8 @@ public class ItemsBrowserDWR {
         new WSWhereItem(null, null, or) });
 
         wi = new WSWhereItem(null, and, null);
-        return Util.getPort()
-                .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$
+        return Util.getPort().count(
+                new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$
                 .getValue();
     }
 
