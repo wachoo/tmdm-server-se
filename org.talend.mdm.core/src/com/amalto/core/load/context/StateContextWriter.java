@@ -30,4 +30,10 @@ public interface StateContextWriter {
     void writeStartElement(XMLStreamReader reader) throws Exception;
 
     void flush(ContentHandler contentHandler) throws Exception;
+
+    void writeStartElement(String elementLocalName) throws Exception;
+
+    void writeCharacters(String characters) throws Exception;
+
+    void writeEndElement(String elementLocalName) throws Exception;
 }

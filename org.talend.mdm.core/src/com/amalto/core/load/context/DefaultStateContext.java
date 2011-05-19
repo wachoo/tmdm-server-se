@@ -99,6 +99,7 @@ public class DefaultStateContext implements StateContext {
         isFlushDone = false;
         isMetadataReady = false;
         contextWriter = bufferStateContextWriter.reset();
+        currentLocation.empty();
         idToMatchCount = paths.size();
         metadata.reset();
     }
@@ -151,7 +152,7 @@ public class DefaultStateContext implements StateContext {
         }
     }
 
-    public boolean enterElement(String elementLocalName) {
+    public boolean enterElement(String elementLocalName, XMLStreamReader reader) {
         currentLocation.push(elementLocalName);
         boolean hasMatchId = false;
 

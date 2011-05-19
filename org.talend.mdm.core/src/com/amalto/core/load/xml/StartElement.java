@@ -37,7 +37,8 @@ public class StartElement implements State {
         }
 
         String elementLocalName = reader.getName().getLocalPart();
-        if (!context.getPayLoadElementName().equals(elementLocalName) && context.enterElement(elementLocalName)) {
+        boolean isIdElement = context.enterElement(elementLocalName, reader);
+        if (!context.getPayLoadElementName().equals(elementLocalName) && isIdElement) {
             context.setCurrent(SetId.INSTANCE);
         } else {
             context.setCurrent(Selector.INSTANCE);

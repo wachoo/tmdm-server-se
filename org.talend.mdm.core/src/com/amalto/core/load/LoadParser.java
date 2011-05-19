@@ -11,15 +11,18 @@
 
 package com.amalto.core.load;
 
-import com.amalto.core.load.context.AutoGenStateContext;
-import com.amalto.core.load.context.DefaultStateContext;
-import com.amalto.core.load.context.StateContext;
-import org.apache.log4j.Logger;
+import java.io.InputStream;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.io.InputStream;
+
+import com.amalto.core.load.context.AutoGenStateContext;
+import com.amalto.core.load.context.AutoIdGenerator;
+import com.amalto.core.load.context.DefaultAutoIdGenerator;
+import com.amalto.core.load.context.DefaultStateContext;
+import com.amalto.core.load.context.StateContext;
+import org.apache.log4j.Logger;
 
 /**
  * <p>
@@ -27,8 +30,8 @@ import java.io.InputStream;
  * that can be stored in MDM.
  * </p>
  * <p>
- * This parser reads "full" XML documents, and XML document must be valid. In case the XML stream contains :
- * <br/>
+ * This parser reads "full" XML documents, and XML document must be valid. In
+ * case the XML stream contains : <br/>
  * &lt;doc&gt;<br/>
  * ...<br/>
  * &lt;/doc&gt;<br/>
@@ -36,134 +39,165 @@ import java.io.InputStream;
  * ...<br/>
  * &lt;/doc&gt;<br/>
  * <br/>
- * Consider using {@link com.amalto.core.load.io.XMLRootInputStream} to wrap the XML fragments.
+ * Consider using {@link com.amalto.core.load.io.XMLRootInputStream} to wrap the
+ * XML fragments.
  * </p>
  * <p>
  * <b>Note:</b> This class is thread-safe.
  * </p>
  */
 public class LoadParser {
-    private static final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-    private static final Logger log = Logger.getLogger(LoadParser.class);
+	private static final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
-    static {
-        inputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-        inputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.TRUE);
-        inputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
-    }
+	private static final Logger log = Logger.getLogger(LoadParser.class);
 
-    private LoadParser() {
-    }
+	static {
+		inputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+		inputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.TRUE);
+		inputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
+	}
 
-    /**
-     * <p>
-     * Parse XML from the input stream and call back once data is ready to persisted in MDM.
-     * </p>
-     * <p>
-     * This method ends once the input stream is exhausted.
-     * </p>
-     *
-     * @param inputStream        The input stream to the XML fragments.
-     * @param config             Configuration of the LoadParser.
-     * @param callback           The callback called when a document is ready to be persisted in MDM.
-     */
-    public static void parse(InputStream inputStream, Configuration config, LoadParserCallback callback) {
-        parse(inputStream, config, Constants.DEFAULT_PARSER_LIMIT, callback);
-    }
+	private LoadParser() {
+	}
 
-    /**
-     * <p>
-     * Parse XML from the input stream and call back once data is ready to persisted in MDM.
-     * </p>
-     * <p>
-     * This method ends once the input stream is exhausted <b>OR</b> when the number of callback has reached
-     * <code>limit</code>.
-     * </p>
-     *
-     * @param inputStream        The input stream to the XML fragments.
-     * @param config             Configuration of the LoadParser.
-     * @param limit              A limit for documents to persist. Once this limit is reached, this method ends.
-     * @param callback           The callback called when a document is ready to be persisted in MDM.
-     */
-    public static void parse(InputStream inputStream, Configuration config, int limit, LoadParserCallback callback) {
-        if (inputStream == null) {
-            throw new IllegalArgumentException("Input stream cannot be null");
-        }
-        if (callback == null) {
-            throw new IllegalArgumentException("LoadParser callback cannot be null");
-        }
-        if (config == null) {
-            throw new IllegalArgumentException("Configuration cannot be null");
-        }
+	/**
+	 * <p>
+	 * Parse XML from the input stream and call back once data is ready to
+	 * persisted in MDM.
+	 * </p>
+	 * <p>
+	 * This method ends once the input stream is exhausted.
+	 * </p>
+	 * 
+	 * @param inputStream
+	 *            The input stream to the XML fragments.
+	 * @param config
+	 *            Configuration of the LoadParser.
+	 * @param callback
+	 *            The callback called when a document is ready to be persisted
+	 *            in MDM.
+	 */
+	public static void parse(InputStream inputStream, Configuration config, LoadParserCallback callback) {
+		parse(inputStream, config, Constants.DEFAULT_PARSER_LIMIT, callback);
+	}
 
-        XMLStreamReader reader = null;
-        try {
-            reader = inputFactory.createXMLStreamReader(inputStream);
+	/**
+	 * <p>
+	 * Parse XML from the input stream and call back once data is ready to
+	 * persisted in MDM.
+	 * </p>
+	 * <p>
+	 * This method ends once the input stream is exhausted <b>OR</b> when the
+	 * number of callback has reached <code>limit</code>.
+	 * </p>
+	 * 
+	 * @param inputStream
+	 *            The input stream to the XML fragments.
+	 * @param config
+	 *            Configuration of the LoadParser.
+	 * @param limit
+	 *            A limit for documents to persist. Once this limit is reached,
+	 *            this method ends.
+	 * @param callback
+	 *            The callback called when a document is ready to be persisted
+	 *            in MDM.
+	 */
+	public static void parse(InputStream inputStream, Configuration config, int limit, LoadParserCallback callback) {
+		if (inputStream == null) {
+			throw new IllegalArgumentException("Input stream cannot be null");
+		}
+		if (callback == null) {
+			throw new IllegalArgumentException(
+					"LoadParser callback cannot be null");
+		}
+		if (config == null) {
+			throw new IllegalArgumentException("Configuration cannot be null");
+		}
 
-            StateContext context = new DefaultStateContext(config.getPayLoadElementName(),
-                    config.getIdPaths(),
-                    config.getDataClusterName(),
-                    limit,
-                    callback);
-            if (config.isAutoGenPK()) {
-                // Change the context to auto-generate metadata
-                context = AutoGenStateContext.decorate(context);
-            }
+		XMLStreamReader reader = null;
+		try {
+			reader = inputFactory.createXMLStreamReader(inputStream);
 
-            while (!context.hasFinished()) {
-                context.parse(reader);
-            }
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
+			StateContext context = new DefaultStateContext(config.getPayLoadElementName(), config.getIdPaths(), config.getDataClusterName(), limit, callback);
+			if (config.isAutoGenPK()) {
+				AutoIdGenerator autoIdGenerator;
+                if(config.getIdGenerator() == null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Mode is auto gen PK, but no auto id generator has been set. Switching to default id generator.");
+                    }
+                    autoIdGenerator = new DefaultAutoIdGenerator();
+                } else {
+                    autoIdGenerator = config.getIdGenerator();
                 }
-            } catch (XMLStreamException e) {
-                log.error("Exception on close reader.", e);
-            }
-        }
-    }
+                // Change the context to auto-generate metadata
+                context = AutoGenStateContext.decorate(context, config.getIdPaths(), autoIdGenerator);
+			}
 
-    public static class Configuration {
-        private final String payLoadElementName;
-        private final String[] idPaths;
-        private final boolean autoGenPK;
-        private final String dataClusterName;
+			while (!context.hasFinished()) {
+				context.parse(reader);
+			}
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (XMLStreamException e) {
+				log.error("Exception on close reader.", e);
+			}
+		}
+	}
 
-        public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName) {
-            this.payLoadElementName = payLoadElementName;
-            this.idPaths = idPaths;
-            this.autoGenPK = autoGenPK;
-            this.dataClusterName = dataClusterName;
-        }
+	public static class Configuration {
+		private final String payLoadElementName;
+		private final String[] idPaths;
+		private final boolean autoGenPK;
+		private final String dataClusterName;
+		private final AutoIdGenerator idGenerator;
 
-        /**
-         * @return the local name of the XML element to look for while parsing (e.g. if top level XML element for TypeA
-         *         is 'typeA', pass 'typeA' as parameter.
-         */
-        public String getPayLoadElementName() {
-            return payLoadElementName;
-        }
+		public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName) {
+			this(payLoadElementName, idPaths, autoGenPK, dataClusterName, null);
+		}
 
-        /**
-         * @return The XPaths expressions to evaluate when build ID for the document. Array allows to pass several
-         *         XPaths for ID composed of 1+ values.
-         */
-        public String[] getIdPaths() {
-            return idPaths;
-        }
+		public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName, AutoIdGenerator idGenerator) {
+			this.payLoadElementName = payLoadElementName;
+			this.idPaths = idPaths;
+			this.autoGenPK = autoGenPK;
+			this.dataClusterName = dataClusterName;
+			this.idGenerator = idGenerator;
+		}
 
-        public boolean isAutoGenPK() {
-            return autoGenPK;
-        }
+		/**
+		 * @return the local name of the XML element to look for while parsing
+		 *         (e.g. if top level XML element for TypeA is 'typeA', pass
+		 *         'typeA' as parameter.
+		 */
+		public String getPayLoadElementName() {
+			return payLoadElementName;
+		}
 
-        public String getDataClusterName() {
-            return dataClusterName;
-        }
+		/**
+		 * @return The XPaths expressions to evaluate when build ID for the
+		 *         document. Array allows to pass several XPaths for ID composed
+		 *         of 1+ values.
+		 */
+		public String[] getIdPaths() {
+			return idPaths;
+		}
 
-    }
+		public boolean isAutoGenPK() {
+			return autoGenPK;
+		}
+
+		public String getDataClusterName() {
+			return dataClusterName;
+		}
+
+		public AutoIdGenerator getIdGenerator() {
+			return idGenerator;
+		}
+	}
 }

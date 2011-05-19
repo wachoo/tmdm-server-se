@@ -44,6 +44,7 @@ public class EndPayload implements State {
             Utils.doParserCallback(context, reader, context.getMetadata());
         }
 
+        context.leaveElement();
         // After payload is over, go to next payload start and buffer next elements until id is reached.
         context.setCurrent(StartPayload.INSTANCE);
     }

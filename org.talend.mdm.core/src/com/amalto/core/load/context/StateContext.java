@@ -51,7 +51,7 @@ public interface StateContext {
 
     void leaveElement();
 
-    boolean enterElement(String elementLocalName);
+    boolean enterElement(String elementLocalName, XMLStreamReader reader);
 
     int getDepth();
 }

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.amalto.core.load.exception.ParserCallbackException;
+import com.amalto.core.load.context.AutoIdGenerator;import com.amalto.core.load.exception.ParserCallbackException;
 import com.amalto.core.load.io.XMLRootInputStream;
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -41,7 +41,8 @@ import org.xml.sax.helpers.DefaultHandler;
 @SuppressWarnings("nls")
 public class LoadParserTest extends TestCase {
 
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
+    private AutoIdGenerator idGenerator = new TestAutoIdGenerator();
 
     public void testArgs() {
         ParserTestCallback callback = new ParserTestCallback();
@@ -182,6 +183,33 @@ public class LoadParserTest extends TestCase {
         }
     }
 
+    public void test6() {
+        InputStream testResource = this.getClass().getResourceAsStream("test6.xml");
+        assertNotNull(testResource);
+
+        ParserTestCallback callback = new ParserTestCallback();
+
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"uniqueId"}, true, "clusterName", idGenerator);
+
+        if (DEBUG) {
+             InputStream testResource2 = this.getClass().getResourceAsStream("test6.xml");
+             LoadParserCallback callback2 = new ConsolePrintParserCallback();
+             LoadParser.parse(testResource2, config, callback2);
+         }
+
+        LoadParser.parse(testResource, config, callback);
+        assertTrue(callback.hasBeenFlushed());
+        assertEquals(1, callback.getFlushCount());
+        assertEquals(14, callback.getStartedElements().size());
+        assertTrue(hasParsedElement(callback, "element1"));
+        assertTrue(hasParsedElement(callback, "element2"));
+        assertTrue(hasParsedAttribute(callback, "attribute1"));
+        assertTrue(hasParsedAttribute(callback, "attribute2"));
+        assertEquals("0", callback.getId());
+
+    }
+
+
     public void test3MultiThread() {
         int threadNumber = 20;
         Set<Thread> threads = new HashSet<Thread>(threadNumber + 1);
@@ -246,6 +274,31 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedElement(callback, "element1"));
         assertTrue(hasParsedCharacters(callback, "text"));
         assertEquals("text", callback.getId());
+    }
+
+    public void testMultipleXmlRootWithAutoGenId() {
+        InputStream testResource = new ByteArrayInputStream("<root><element1/><element2>text</element2></root><root><element1/><element2>text</element2></root>".getBytes());
+        testResource = new XMLRootInputStream(testResource, "doc");
+        assertNotNull(testResource);
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"id"}, true, "clusterName", idGenerator);
+
+        if (DEBUG) {
+            InputStream testResource2 = new ByteArrayInputStream("<root><element1/><element2>text</element2></root><root><element1/><element2>text</element2></root>".getBytes());
+            testResource2 = new XMLRootInputStream(testResource2, "doc");
+            LoadParserCallback callback2 = new ConsolePrintParserCallback();
+            LoadParser.parse(testResource2, config, callback2);
+        }
+
+        ParserTestCallback callback = new ParserTestCallback();
+
+        LoadParser.parse(testResource, config, callback);
+        assertTrue(callback.hasBeenFlushed());
+        assertEquals(2, callback.getFlushCount());
+        assertEquals(28, callback.getStartedElements().size());
+        assertTrue(hasParsedElement(callback, "root"));
+        assertTrue(hasParsedElement(callback, "element1"));
+        assertTrue(hasParsedCharacters(callback, "text"));
+        assertEquals("0", callback.getId());
     }
 
     public void testMultipleXmlRootFailure() {
@@ -602,4 +655,8 @@ public class LoadParserTest extends TestCase {
             }
         }
     }
-}
+private static class TestAutoIdGenerator implements AutoIdGenerator {
+            public String generateAutoId(String dataClusterName, String conceptName) {
+                return "0";
+            }
+        }}

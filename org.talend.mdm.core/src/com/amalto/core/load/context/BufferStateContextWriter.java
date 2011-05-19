@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import com.amalto.core.load.Constants;
 import com.amalto.core.load.process.PayloadProcessedElement;
 import com.amalto.core.load.process.ProcessedCharacters;
 import com.amalto.core.load.process.ProcessedEndElement;
@@ -28,6 +29,7 @@ import com.amalto.core.load.process.ProcessedEndNamespace;
 import com.amalto.core.load.process.ProcessedStartNamespace;
 import com.amalto.core.load.process.ProcessedStartElement;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -95,6 +97,29 @@ public class BufferStateContextWriter implements StateContextWriter {
             processedElement.flush(contentHandler);
         }
         processedElements.clear();
+    }
+
+    public void writeStartElement(String elementLocalName) throws Exception {
+        // New start element
+        ProcessedStartElement startElement = new ProcessedStartElement(StringUtils.EMPTY,
+                elementLocalName,
+                elementLocalName,
+                Constants.EMPTY_ATTRIBUTES
+        );
+        processedElements.add(startElement);
+    }
+
+    public void writeCharacters(String characters) throws Exception {
+        // Characters
+        processedElements.add(new ProcessedCharacters(characters.toCharArray()));
+    }
+
+    public void writeEndElement(String elementLocalName) throws Exception {
+        // End element
+        ProcessedEndElement endElement = new ProcessedEndElement(StringUtils.EMPTY,
+                elementLocalName,
+                elementLocalName);
+        processedElements.add(endElement);
     }
 
     public BufferStateContextWriter reset() {

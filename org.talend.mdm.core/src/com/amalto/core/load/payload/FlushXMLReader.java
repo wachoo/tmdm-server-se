@@ -116,10 +116,11 @@ public class FlushXMLReader implements XMLReader {
         try {
             context.getWriter().flush(contentHandler);
             context.setWriter(new StateContextSAXWriter(contentHandler));
-            while (!context.hasFinishedPayload() && !context.hasFinished()) {
+            while (!context.hasFinishedPayload()) {
                 context.parse(reader);
             }
-            context.parse(reader);
+            if(context.getDepth() == 1)
+                context.parse(reader);
         } catch (Exception e) {
             throw new SAXException(e);
         }

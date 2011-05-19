@@ -49,9 +49,9 @@ public class Selector implements State {
                  *    <root>...</root>
                  * </root>
                  *
-                 * We want to end the payload for the top level <root> element, hence the depth == 0 condition.
+                 * We want to end the payload for the top level <root> element, hence the depth == 1 condition.
                  */
-                if (context.getDepth() == 0 && context.getPayLoadElementName().equals(reader.getName().getLocalPart())) {
+                if (context.getDepth() == 1 && context.getPayLoadElementName().equals(reader.getName().getLocalPart())) {
                     context.setCurrent(EndPayload.INSTANCE);
                 } else {
                     context.setCurrent(EndElement.INSTANCE);
@@ -64,7 +64,7 @@ public class Selector implements State {
                 context.setCurrent(End.INSTANCE);
                 break;
             case XMLEvent.COMMENT:
-                // TODO
+                // Ignore comment storage in MDM
                 break;
             default:
                 // Nothing to do?

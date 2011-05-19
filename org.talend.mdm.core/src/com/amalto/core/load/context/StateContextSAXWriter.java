@@ -16,6 +16,7 @@ package com.amalto.core.load.context;
 import java.util.Map;
 import java.util.Set;
 
+import com.amalto.core.load.Constants;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
@@ -76,6 +77,19 @@ public class StateContextSAXWriter implements StateContextWriter {
 
     public void flush(ContentHandler contentHandler) throws Exception {
         // Nothing to do
+    }
+
+    public void writeStartElement(String elementLocalName) throws Exception {
+        contentHandler.startElement(StringUtils.EMPTY, elementLocalName, elementLocalName, Constants.EMPTY_ATTRIBUTES);
+    }
+
+    public void writeCharacters(String characters) throws Exception {
+        char[] chars = characters.toCharArray();
+        contentHandler.characters(chars, 0, chars.length);
+    }
+
+    public void writeEndElement(String elementLocalName) throws Exception {
+        contentHandler.endElement(StringUtils.EMPTY, elementLocalName, elementLocalName);
     }
 
     private static String getURI(XMLStreamReader reader) {
