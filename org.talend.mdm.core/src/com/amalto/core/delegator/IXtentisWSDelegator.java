@@ -1162,7 +1162,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             criteria.setToDate(wsGetItemPKsByCriteria.getToDate());
             criteria.setMaxItems(wsGetItemPKsByCriteria.getMaxItems());
             criteria.setSkip(wsGetItemPKsByCriteria.getSkip());
-            criteria.setUseFTSearch(false);
+            criteria.setUseFTSearch(useFTSearch);
             List<String> results = com.amalto.core.util.Util.getItemCtrl2Local().getItemPKsByCriteria(criteria);
 
             
