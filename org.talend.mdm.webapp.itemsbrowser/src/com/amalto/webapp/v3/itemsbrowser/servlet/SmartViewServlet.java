@@ -59,7 +59,7 @@ public class SmartViewServlet extends HttpServlet {
         else
             optname = null;
 
-        boolean transfo_lang = ItemsBrowserDWR.checkSmartViewExists(concept, language, optname, false);
+        boolean transfo_lang = ItemsBrowserDWR.checkSmartViewExistsByLangAndOptName(concept, language, optname, false);
 
         String transformer;
         if (transfo_lang) {
@@ -68,7 +68,7 @@ public class SmartViewServlet extends HttpServlet {
                 transformer += "#" + optname;//$NON-NLS-1$
         } else {
             // Fallback to the non-language one
-            boolean transfo_no_lang = ItemsBrowserDWR.checkSmartViewExists(concept, null, optname, false);
+            boolean transfo_no_lang = ItemsBrowserDWR.checkSmartViewExistsByLangAndOptName(concept, null, optname, false);
             if (transfo_no_lang) {
                 transformer = "Smart_view_" + concept;//$NON-NLS-1$
                 if (optname != null && optname.length() > 0)

@@ -3076,11 +3076,11 @@ public class ItemsBrowserDWR {
             node.getParentNode().appendChild(newNode);
     }
 
-    public static boolean checkSmartViewExists(String concept, String language, boolean useNoLang) {
-        return checkSmartViewExists(concept, language, null, useNoLang);
+    public static boolean checkSmartViewExistsByLang(String concept, String language, boolean useNoLang) {
+        return checkSmartViewExistsByLangAndOptName(concept, language, null, useNoLang);
     }
 
-    public static boolean checkSmartViewExists(String concept, String language, String optname, boolean useNoLang) {
+    public static boolean checkSmartViewExistsByLangAndOptName(String concept, String language, String optname, boolean useNoLang) {
         try {
             SmartViewDescriptions smDescs = new SmartViewDescriptions();
             smDescs.build(concept, language);
@@ -3107,7 +3107,7 @@ public class ItemsBrowserDWR {
     }
 
     public static boolean checkSmartViewExists(String concept, String language) {
-        boolean ret = checkSmartViewExists(concept, language, true);
+        boolean ret = checkSmartViewExistsByLang(concept, language, true);
         return ret;
     }
 
