@@ -642,7 +642,7 @@ amalto.core = function () {
                         var toCheckMenuID=menu.context+"."+menu.application;
                         if(menu.icon!=null){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/imageserver/"+menu.icon+"?width=16&height=16\"/></span>";
-			    		}else if(toCheckMenuID=='itemsbrowser.ItemsBrowser'||toCheckMenuID=='viewbrowser.ViewBrowser'){
+			    		}else if(toCheckMenuID=='itemsbrowser.ItemsBrowser'||toCheckMenuID=='viewbrowser.ViewBrowser'||toCheckMenuID=='itemsbrowser2.ItemsBrowser2'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/></span>";
                         }else if(toCheckMenuID=='crossreferencing.CrossReferencing'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/crossref.png\"/></span>";
@@ -666,8 +666,8 @@ amalto.core = function () {
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/workflowtasks.png\"/></span>";
                         }else if(toCheckMenuID=='license.License'){
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/license.png\"/></span>";
-                        }else if(toCheckMenuID=='itemsbrowser2.ItemsBrowser2'){
-                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/default.gif\"/></span>";
+                        }else if(toCheckMenuID=='datastewardship.Datastewardship'){
+                        	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/stewardship.png\"/></span>";
                         }else{
                         	//default menus icon
                         	imageIconPart="<span style=\"padding-right:8px;\"><IMG SRC=\"/talendmdm/secure/img/menu/default.gif\"/></span>";
