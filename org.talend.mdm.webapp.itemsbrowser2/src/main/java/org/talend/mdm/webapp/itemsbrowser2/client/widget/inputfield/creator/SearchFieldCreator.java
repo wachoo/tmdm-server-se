@@ -19,13 +19,10 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 public class SearchFieldCreator {
@@ -84,7 +81,13 @@ public class SearchFieldCreator {
                 field = dateField;
                 cons = OperatorConstants.dateOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.BOOLEAN.getBaseTypeName())) {
-                CheckBox checkBox = new CheckBox();
+                final CheckBox checkBox = new CheckBox();
+                checkBox.setBoxLabel("False"); //$NON-NLS-1$
+                checkBox.addListener(Events.Change, new Listener<BaseEvent>() {
+                    public void handleEvent(BaseEvent be) {
+                        checkBox.setBoxLabel(checkBox.getValue() ? " True" : "False"); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                });
                 field = checkBox;
                 cons = OperatorConstants.booleanOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.STRING.getBaseTypeName())
