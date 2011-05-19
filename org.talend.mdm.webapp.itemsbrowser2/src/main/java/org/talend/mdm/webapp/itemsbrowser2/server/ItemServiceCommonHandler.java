@@ -109,18 +109,20 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             int max, String sortDir, String sortCol, String language) {
 
         int totalSize = 0;
-        String dateFormat = "yyyy-MM-dd";  //$NON-NLS-1$ 
+        String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$ 
         String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$ 
-        
+
         List<ItemBean> itemBeans = new ArrayList<ItemBean>();
         String concept = ViewHelper.getConceptFromDefaultViewName(viewBean.getViewPK());
         Map<String, String[]> formatMap = this.checkDisplayFormat(entityModel, language);
-        
+
         try {
             WSWhereItem wi = CommonUtil.buildWhereItems(criteria);
-            String[] results = CommonUtil.getPort().viewSearch(
-                    new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1, skip, max,
-                            sortCol, sortDir)).getStrings();
+            String[] results = CommonUtil
+                    .getPort()
+                    .viewSearch(
+                            new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1,
+                                    skip, max, sortCol, sortDir)).getStrings();
 
             // TODO change ids to array?
             List<String> idsArray = new ArrayList<String>();
@@ -146,31 +148,37 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 Document doc = XmlUtil.parseText(results[i]);
                 idsArray.clear();
                 for (String key : entityModel.getKeys()) {
-                    String id = XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")).getText();//$NON-NLS-1$ //$NON-NLS-2$ 
+                    Node idNode = XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$ 
+                    if (idNode == null)
+                        continue;
+                    String id = idNode.getText();
                     if (id != null)
                         idsArray.add(id);
                 }
 
                 Set<String> keySet = formatMap.keySet();
                 SimpleDateFormat sdf = null;
-                
-                for(String key : keySet){
-                	String[] value = formatMap.get(key);
-                	String dateText = XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")).getText(); //$NON-NLS-1$ //$NON-NLS-2$
-             
-                	if(dateText != null){
-                		if(dateText.trim() != ""){ //$NON-NLS-1$
-                			if(value[1].equalsIgnoreCase("DATE")){ //$NON-NLS-1$
-                        		sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
-                        	}else if(value[1].equalsIgnoreCase("DATETIME")){ //$NON-NLS-1$
-                        		sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
-                        	}
-                    		Date date = sdf.parse(dateText.trim());	
-                    		XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")).setText(String.format(java.util.Locale.ENGLISH, value[0], date)); //$NON-NLS-1$ //$NON-NLS-2$
-                		}	
-                	}	
+
+                for (String key : keySet) {
+                    String[] value = formatMap.get(key);
+                    Node dateNode = XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$
+                    if (dateNode == null)
+                        continue;
+                    String dateText = dateNode.getText();
+
+                    if (dateText != null) {
+                        if (dateText.trim() != "") { //$NON-NLS-1$
+                            if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
+                                sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
+                            } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
+                                sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
+                            }
+                            Date date = sdf.parse(dateText.trim());
+                            XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")).setText(String.format(java.util.Locale.ENGLISH, value[0], date)); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                    }
                 }
-                
+
                 ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), doc.asXML());//$NON-NLS-1$ 
                 dynamicAssembleByResultOrder(itemBean, viewBean, entityModel);
                 itemBeans.add(itemBean);
@@ -183,30 +191,31 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     }
 
-    private Map<String, String[]> checkDisplayFormat(EntityModel entityModel, String language){
-    	Map<String, TypeModel> metaData = entityModel.getMetaDataTypes();
-    	Map<String, String[]> formatMap = new HashMap<String, String[]>();
-    	String languageStr = "format_" + language.toLowerCase();   //$NON-NLS-1$
-    	if(metaData == null)
-    		return formatMap;
-    	
-    	Set<String> keySet = metaData.keySet();
-    	for(String key : keySet){
-    		TypeModel typeModel = metaData.get(key);
-    		if(typeModel.getType().getTypeName().equalsIgnoreCase("DATE") || typeModel.getType().getTypeName().equalsIgnoreCase("DATETIME")){
-    			if(typeModel.getDisplayFomats() != null){
-    				if(typeModel.getDisplayFomats().size() > 0){
-    					if(typeModel.getDisplayFomats().containsKey(languageStr)){
-    						formatMap.put(key, new String[]{typeModel.getDisplayFomats().get(languageStr), 
-    								typeModel.getType().getTypeName()});
-    					}
-    				}
-    			}
-    		}
-    	}
-    	return formatMap;
+    private Map<String, String[]> checkDisplayFormat(EntityModel entityModel, String language) {
+        Map<String, TypeModel> metaData = entityModel.getMetaDataTypes();
+        Map<String, String[]> formatMap = new HashMap<String, String[]>();
+        String languageStr = "format_" + language.toLowerCase(); //$NON-NLS-1$
+        if (metaData == null)
+            return formatMap;
+
+        Set<String> keySet = metaData.keySet();
+        for (String key : keySet) {
+            TypeModel typeModel = metaData.get(key);
+            if (typeModel.getType().getTypeName().equalsIgnoreCase("DATE") //$NON-NLS-1$
+                    || typeModel.getType().getTypeName().equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
+                if (typeModel.getDisplayFomats() != null) {
+                    if (typeModel.getDisplayFomats().size() > 0) {
+                        if (typeModel.getDisplayFomats().containsKey(languageStr)) {
+                            formatMap.put(key, new String[] { typeModel.getDisplayFomats().get(languageStr),
+                                    typeModel.getType().getTypeName() });
+                        }
+                    }
+                }
+            }
+        }
+        return formatMap;
     }
-    
+
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = XmlUtil.parseText(itemBean.getItemXml());
@@ -577,7 +586,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             sortDir = ItemHelper.SEARCH_DIRECTION_DESC;
         }
         Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria()
-                .toString(), pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(), config.getLanguage());
+                .toString(), pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(),
+                config.getLanguage());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
         return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
@@ -589,8 +599,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             Map<String, String> viewMap = null;
 
             String model = getCurrentDataModel();
-            String[] businessConcept = CommonUtil.getPort().getBusinessConcepts(
-                    new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
+            String[] businessConcept = CommonUtil.getPort()
+                    .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
             ArrayList<String> bc = new ArrayList<String>();
             for (int i = 0; i < businessConcept.length; i++) {
                 bc.add(businessConcept[i]);
@@ -727,9 +737,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 if (whand != null)
                     whereItem = whand;
 
-                results = CommonUtil.getPort().xPathsSearch(
-                        new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
-                                .toArray(new String[xPaths.size()])), whereItem, -1, 0, 20, null, null)).getStrings();
+                results = CommonUtil
+                        .getPort()
+                        .xPathsSearch(
+                                new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
+                                        .toArray(new String[xPaths.size()])), whereItem, -1, 0, 20, null, null)).getStrings();
 
             }// end if
 
@@ -855,24 +867,30 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 // Run the query
                 if (!com.amalto.webapp.core.util.Util.isCustomFilter(fkFilter)) {
 
-                    results = CommonUtil.getPort().xPathsSearch(
-                            new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
-                                    .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config.getLimit(),
-                                    orderbyPath, null)).getStrings();
-                    count = CommonUtil.getPort().count(
-                            new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
+                    results = CommonUtil
+                            .getPort()
+                            .xPathsSearch(
+                                    new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
+                                            .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config
+                                            .getLimit(), orderbyPath, null)).getStrings();
+                    count = CommonUtil.getPort()
+                            .count(new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
 
                 } else {
 
                     String injectedXpath = com.amalto.webapp.core.util.Util.getInjectedXpath(fkFilter);
-                    results = CommonUtil.getPort().getItemsByCustomFKFilters(
-                            new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName, new WSStringArray(
-                                    xPaths.toArray(new String[xPaths.size()])), injectedXpath, config.getOffset(), config
-                                    .getLimit(), orderbyPath, null)).getStrings();
+                    results = CommonUtil
+                            .getPort()
+                            .getItemsByCustomFKFilters(
+                                    new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
+                                            new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
+                                                    .getOffset(), config.getLimit(), orderbyPath, null)).getStrings();
 
-                    count = CommonUtil.getPort().countItemsByCustomFKFilters(
-                            new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName, injectedXpath))
-                            .getValue();
+                    count = CommonUtil
+                            .getPort()
+                            .countItemsByCustomFKFilters(
+                                    new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
+                                            injectedXpath)).getValue();
                 }
             }
 
@@ -1104,8 +1122,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             new WSWhereItem(null, null, or) });
 
             wi = new WSWhereItem(null, and, null);
-            return CommonUtil.getPort().count(
-                    new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$ 
+            return CommonUtil.getPort()
+                    .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$ 
                     .getValue();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -1139,9 +1157,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     public String getCriteriaByBookmark(String bookmark) {
         try {
             String criteria = "";//$NON-NLS-1$ 
-            String result = CommonUtil.getPort().getItem(
-                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem",//$NON-NLS-1$ 
-                            new String[] { bookmark }))).getContent().trim();
+            String result = CommonUtil
+                    .getPort()
+                    .getItem(
+                            new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
+                                    "BrowseItem",//$NON-NLS-1$ 
+                                    new String[] { bookmark }))).getContent().trim();
             if (result != null) {
                 if (result.indexOf("<SearchCriteria>") != -1)//$NON-NLS-1$ 
                     criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$ 
