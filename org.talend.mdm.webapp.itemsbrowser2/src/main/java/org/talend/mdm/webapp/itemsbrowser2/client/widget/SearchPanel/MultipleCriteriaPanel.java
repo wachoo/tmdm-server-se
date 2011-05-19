@@ -195,7 +195,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
     }
 
     private MultipleCriteriaPanel addMultipleCriteriaPanel() {
-        final MultipleCriteriaPanel newPanel = new MultipleCriteriaPanel(MultipleCriteriaPanel.this, view, this.parentWin);
+        final MultipleCriteriaPanel newPanel = new MultipleCriteriaPanel(MultipleCriteriaPanel.this, view, null);
         final int index = (rightPanel.getWidgetCount() == 0 ? 0 : rightPanel.getWidgetCount() - 1);
         rightPanel.insert(newPanel, index);
         redraw();
@@ -210,9 +210,18 @@ public class MultipleCriteriaPanel extends SimplePanel {
         if (separationRightPanel != null)
             separationRightPanel.setHeight(offsetHeight + "px"); //$NON-NLS-1$   
 
-        if (this.parentWin != null && offsetWidth > 0) {
-            this.parentWin.setWidth(offsetWidth + 160 + "px"); //$NON-NLS-1$
-            this.parentWin.center();
+        if (this.parentWin != null) {
+            if (offsetWidth > 0) {
+                if (offsetWidth > 600)
+                    this.parentWin.setWidth("800px"); //$NON-NLS-1$
+                else
+                    this.parentWin.setWidth(offsetWidth + 160 + "px"); //$NON-NLS-1$
+                this.parentWin.center();
+            }
+            if (this.parentWin.getOffsetHeight() > 600) {
+                this.parentWin.setHeight(600);
+            }
+
         }
 
         if (parent != null)
