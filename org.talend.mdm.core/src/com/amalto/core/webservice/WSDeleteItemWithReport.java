@@ -12,16 +12,20 @@ public class WSDeleteItemWithReport {
     protected java.lang.String operateType;
     protected java.lang.String updatePath;
     protected java.lang.String user;
+    protected java.lang.Boolean invokeBeforeSaving;
+    protected java.lang.Boolean pushToUpdateReport;
     
     public WSDeleteItemWithReport() {
     }
     
-    public WSDeleteItemWithReport(com.amalto.core.webservice.WSItemPK wsItemPK, java.lang.String source, java.lang.String operateType, java.lang.String updatePath, java.lang.String user) {
+    public WSDeleteItemWithReport(com.amalto.core.webservice.WSItemPK wsItemPK, java.lang.String source, java.lang.String operateType, java.lang.String updatePath, java.lang.String user, java.lang.Boolean invokeBeforeSaving, java.lang.Boolean pushToUpdateReport) {
         this.wsItemPK = wsItemPK;
         this.source = source;
         this.operateType = operateType;
         this.updatePath = updatePath;
         this.user = user;
+        this.invokeBeforeSaving = invokeBeforeSaving;
+        this.pushToUpdateReport = pushToUpdateReport;
     }
     
     public com.amalto.core.webservice.WSItemPK getWsItemPK() {
@@ -62,5 +66,21 @@ public class WSDeleteItemWithReport {
     
     public void setUser(java.lang.String user) {
         this.user = user;
+    }
+    
+    public java.lang.Boolean getInvokeBeforeSaving() {
+        return invokeBeforeSaving;
+    }
+    
+    public void setInvokeBeforeSaving(java.lang.Boolean invokeBeforeSaving) {
+        this.invokeBeforeSaving = invokeBeforeSaving;
+    }
+    
+    public java.lang.Boolean getPushToUpdateReport() {
+        return pushToUpdateReport;
+    }
+    
+    public void setPushToUpdateReport(java.lang.Boolean pushToUpdateReport) {
+        this.pushToUpdateReport = pushToUpdateReport;
     }
 }

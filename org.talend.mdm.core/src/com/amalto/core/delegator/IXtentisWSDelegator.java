@@ -1707,7 +1707,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
                 WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(),
                         new WSDataModelPK("UpdateReport"), false));
-                routeItemV2(new WSRouteItemV2(itemPK));
+                if(wsPutItemWithReport.getInvokeBeforeSaving()){
+                	routeItemV2(new WSRouteItemV2(itemPK));
+                }
             }
 
             return wsi;
@@ -1785,7 +1787,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
-    private void pushToUpdateReport(WSDeleteItemWithReport wsDeleteItem,String dataClusterPK,String concept, String[] ids)throws Exception{
+    private void pushToUpdateReport(WSDeleteItemWithReport wsDeleteItem,String dataClusterPK,String concept, String[] ids, boolean trigger)throws Exception{
         // create resultUpdateReport
         String resultUpdateReport = Util.createUpdateReport(ids, concept, wsDeleteItem.getOperateType(), null, "", wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk());  //$NON-NLS-1$ //$NON-NLS-2$
         if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
@@ -1811,6 +1813,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
             WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(), //$NON-NLS-1$
                     new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
+            if(trigger)
             routeItemV2(new WSRouteItemV2(itemPK));
         }
     }
@@ -1828,33 +1831,39 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         String[] ids=wsDeleteItem.getWsItemPK().getIds();
         if("LOGIC_DELETE".equals(wsDeleteItem.getOperateType())){//$NON-NLS-1$
         	dropItem(new WSDropItem(wsDeleteItem.getWsItemPK(), wsDeleteItem.getUpdatePath()));
-        	pushToUpdateReport(wsDeleteItem, dataClusterPK, concept, ids);           
+        	if(wsDeleteItem.getPushToUpdateReport()){
+        		pushToUpdateReport(wsDeleteItem, dataClusterPK, concept, ids, wsDeleteItem.getInvokeBeforeSaving());
+        	}
         	return new WSString("logical delete item sucessfully!");
         }
-        String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
-
-        String message = null;
+        String outputErrorMessage=null;
         String errorCode = null;
-        if (outputErrorMessage != null) {
-            Document doc = Util.parse(outputErrorMessage);
-            // TODO what if multiple error nodes ?
-            String xpath = "/descendant::error"; //$NON-NLS-1$
-            Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
-            if (errorNode instanceof Element) {
-                Element errorElement = (Element) errorNode;
-                errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
-                Node child = errorElement.getFirstChild();
-                if (child instanceof Text)
-                    message = ((Text) child).getTextContent();
-            }
+        String message = "";	  //$NON-NLS-1$
+        if(wsDeleteItem.getInvokeBeforeSaving()){
+        	outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
+	              
+	        if (outputErrorMessage != null) {
+	            Document doc = Util.parse(outputErrorMessage);
+	            // TODO what if multiple error nodes ?
+	            String xpath = "/descendant::error"; //$NON-NLS-1$
+	            Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
+	            if (errorNode instanceof Element) {
+	                Element errorElement = (Element) errorNode;
+	                errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+	                Node child = errorElement.getFirstChild();
+	                if (child instanceof Text)
+	                    message = ((Text) child).getTextContent();
+	            }
+	        }
         }
-
         if (outputErrorMessage == null || "0".equals(errorCode)) { //$NON-NLS-1$
             if (ids != null ) {
                 WSItemPK wsItem =deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
                 if (wsItem != null && !"UpdateReport".equals(dataClusterPK)){
-                	pushToUpdateReport(wsDeleteItem, dataClusterPK, concept, ids);                    
+                	if(wsDeleteItem.getPushToUpdateReport()){
+                		pushToUpdateReport(wsDeleteItem, dataClusterPK, concept, ids,wsDeleteItem.getInvokeBeforeSaving());    
+                	}
                 }                   
                 else
                     message = "ERROR - Unable to delete item";
@@ -1876,11 +1885,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             	 message = "Could not retrieve the validation process result. An error might have occurred. The record was not deleted.";
         }
         return new WSString(message);
+    
 
     } catch (Exception e) {
         throw new RemoteException( e.getLocalizedMessage()); //$NON-NLS-1$
     }
-
 	}
     /**
      * @ejb.interface-method view-type = "service-endpoint"
