@@ -37,7 +37,6 @@ public class StartPayload implements State {
         } else if (reader.next() == XMLEvent.START_ELEMENT) {
             if (context.getPayLoadElementName().equals(reader.getName().getLocalPart())) {
                 // Reset the context since a new pay load is being read
-                context.reset();
                 context.setCurrent(StartElement.INSTANCE);
             }
         }

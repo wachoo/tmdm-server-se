@@ -42,7 +42,6 @@ import org.xml.sax.helpers.DefaultHandler;
 public class LoadParserTest extends TestCase {
 
     public static final boolean DEBUG = false;
-    private AutoIdGenerator idGenerator = new TestAutoIdGenerator();
 
     public void testArgs() {
         ParserTestCallback callback = new ParserTestCallback();
@@ -184,7 +183,9 @@ public class LoadParserTest extends TestCase {
     }
 
     public void test6() {
+        TestAutoIdGenerator idGenerator = new TestAutoIdGenerator();
         InputStream testResource = this.getClass().getResourceAsStream("test6.xml");
+        assertFalse(idGenerator.isStateSaved());
         assertNotNull(testResource);
 
         ParserTestCallback callback = new ParserTestCallback();
@@ -206,7 +207,7 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedAttribute(callback, "attribute1"));
         assertTrue(hasParsedAttribute(callback, "attribute2"));
         assertEquals("0", callback.getId());
-
+        assertTrue(idGenerator.isStateSaved());
     }
 
 
@@ -277,9 +278,11 @@ public class LoadParserTest extends TestCase {
     }
 
     public void testMultipleXmlRootWithAutoGenId() {
+        TestAutoIdGenerator idGenerator = new TestAutoIdGenerator();
         InputStream testResource = new ByteArrayInputStream("<Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product><Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product>".getBytes());
         testResource = new XMLRootInputStream(testResource, "doc");
         assertNotNull(testResource);
+        assertFalse(idGenerator.isStateSaved());
         LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"id"}, true, "clusterName", idGenerator);
 
         if (DEBUG) {
@@ -299,6 +302,7 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedElement(callback, "Name"));
         assertTrue(hasParsedCharacters(callback, "Test1"));
         assertEquals("0", callback.getId());
+        assertTrue(idGenerator.isStateSaved());
     }
 
     public void testMultipleXmlRootFailure() {
@@ -657,8 +661,21 @@ public class LoadParserTest extends TestCase {
     }
 
     private static class TestAutoIdGenerator implements AutoIdGenerator {
+
+        private boolean savedState;
+
         public String generateAutoId(String dataClusterName, String conceptName) {
+            savedState = false;
             return "0";
+        }
+
+        public void saveState() {
+            // Nothing to do
+            savedState = true;
+        }
+
+        public boolean isStateSaved() {
+            return savedState;
         }
     }
 }

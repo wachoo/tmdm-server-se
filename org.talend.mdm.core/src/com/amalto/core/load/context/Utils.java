@@ -44,6 +44,9 @@ public class Utils {
         } catch (Throwable throwable) {
             throw new ParserCallbackException(throwable);
         }
+
+        // Once flush is done, reset context
+        context.reset();
     }
 
     private static String generatePublicId(Metadata metadata) {

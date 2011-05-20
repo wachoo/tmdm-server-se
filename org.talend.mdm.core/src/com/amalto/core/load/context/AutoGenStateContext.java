@@ -41,10 +41,13 @@ public class AutoGenStateContext implements StateContext {
 
     private boolean hasGeneratedAutomaticId;
 
+    private final AutoIdGenerator generator;
+
     private AutoGenStateContext(StateContext delegate, String[] idPaths, AutoIdGenerator generator) {
         this.delegate = delegate;
         this.idPaths = idPaths;
-        metadata = new AutoGenMetadata(this.delegate.getMetadata(), generator);
+        this.generator = generator;
+        metadata = new AutoGenMetadata(this.delegate.getMetadata(), this.generator);
     }
 
     /**
@@ -120,6 +123,10 @@ public class AutoGenStateContext implements StateContext {
     }
 
     public void reset() {
+        // This line is rather important since the generator might need to persist its state
+        // see DefaultAutoIdGenerator for instance.
+        generator.saveState();
+
         hasGeneratedAutomaticId = false;
         delegate.reset();
         metadata.reset();

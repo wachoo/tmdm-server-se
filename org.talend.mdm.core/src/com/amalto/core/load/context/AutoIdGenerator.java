@@ -29,4 +29,6 @@ public interface AutoIdGenerator {
      * @return A automatically generated id valid for the <code>conceptName</code> in <code>dataClusterName</code>
      */
     String generateAutoId(String dataClusterName, String conceptName);
+
+    void saveState();
 }

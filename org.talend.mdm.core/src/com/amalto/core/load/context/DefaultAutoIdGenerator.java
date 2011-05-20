@@ -31,4 +31,8 @@ public class DefaultAutoIdGenerator implements AutoIdGenerator {
             throw new RuntimeException(e);
         }
     }
+
+    public void saveState() {
+        AutoIncrementGenerator.saveToDB();
+    }
 }
