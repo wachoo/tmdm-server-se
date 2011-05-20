@@ -15,5 +15,18 @@ package com.amalto.core.load.context;
  *
  */
 public interface AutoIdGenerator {
-        String generateAutoId(String dataClusterName, String conceptName);
-    }
+    /**
+     * <p>
+     * Generate an automatic id for the <code>conceptName</code> (a.k.a. type name) in the <code>dataCluster</code>
+     * identified by <code>dataClusterName</code>.
+     * </p>
+     * <p>
+     * Implementations of this interface may not use the parameters to generate ids.
+     * </p>
+     *
+     * @param dataClusterName A data cluster name.
+     * @param conceptName     A concept name (type name).
+     * @return A automatically generated id valid for the <code>conceptName</code> in <code>dataClusterName</code>
+     */
+    String generateAutoId(String dataClusterName, String conceptName);
+}

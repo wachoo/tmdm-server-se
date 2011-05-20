@@ -13,13 +13,6 @@
 
 package com.amalto.core.load.context;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 import com.amalto.core.load.LoadParserCallback;
 import com.amalto.core.load.Metadata;
 import com.amalto.core.load.State;
@@ -29,24 +22,42 @@ import com.amalto.core.load.path.PathMatcher;
 import com.amalto.core.load.payload.EndPayload;
 import com.amalto.core.load.payload.StartPayload;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+
 /**
  *
  */
 public class DefaultStateContext implements StateContext {
     private final LoadParserCallback callback;
+
     private final String payLoadElementName;
+
     private final BufferStateContextWriter bufferStateContextWriter = new BufferStateContextWriter();
+
     private final Stack<String> currentLocation = new Stack<String>();
+
     private final Metadata metadata;
+
     private final Set<PathMatcher> paths;
 
     private State currentState = StartPayload.INSTANCE;
+
     private StateContextWriter contextWriter;
+
     private int payloadLimit = -1;
+
     private int payloadCount = 0;
+
     private boolean isFlushDone;
+
     private boolean isMetadataReady;
+
     private PathMatcher lastPartialMatchPath;
+
     private int idToMatchCount = 0;
 
     public DefaultStateContext(String payLoadElementName, String[] idPaths, String dataClusterName, int payloadLimit, LoadParserCallback callback) {
@@ -112,7 +123,7 @@ public class DefaultStateContext implements StateContext {
         currentState = state;
     }
 
-    public void parse(XMLStreamReader reader) throws XMLStreamException {
+    public void parse(XMLStreamReader reader) {
         try {
             currentState.parse(this, reader);
         } catch (ParserCallbackException e) {
@@ -152,7 +163,7 @@ public class DefaultStateContext implements StateContext {
         }
     }
 
-    public boolean enterElement(String elementLocalName, XMLStreamReader reader) {
+    public boolean enterElement(String elementLocalName) {
         currentLocation.push(elementLocalName);
         boolean hasMatchId = false;
 

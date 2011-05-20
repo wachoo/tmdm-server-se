@@ -13,17 +13,16 @@
 
 package com.amalto.core.load.context;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 import com.amalto.core.load.LoadParserCallback;
+
+import javax.xml.stream.XMLStreamReader;
 
 /**
  *
  */
 public interface StateContext {
 
-    void parse(XMLStreamReader reader) throws XMLStreamException;
+    void parse(XMLStreamReader reader);
 
     String getPayLoadElementName();
 
@@ -51,7 +50,7 @@ public interface StateContext {
 
     void leaveElement();
 
-    boolean enterElement(String elementLocalName, XMLStreamReader reader);
+    boolean enterElement(String elementLocalName);
 
     int getDepth();
 }

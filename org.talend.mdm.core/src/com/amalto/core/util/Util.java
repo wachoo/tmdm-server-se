@@ -1499,9 +1499,12 @@ public class Util {
                 } else {
                     String universe = LocalUser.getLocalUser().getUniverse().getName();
                     Object o = jxpContext.getValue(xpath);
-                    if (o == null || o.toString().trim().length() == 0)
-                        value = String.valueOf(AutoIncrementGenerator.generateNum(universe, dataCluster, concept + "."
-                                + xpath.replaceAll("/", ".")));
+                    if (o == null || o.toString().trim().length() == 0) {
+                        long id = AutoIncrementGenerator.generateNum(universe, dataCluster, concept + "."
+                                + xpath.replaceAll("/", "."));
+                        AutoIncrementGenerator.saveToDB();
+                        value = String.valueOf(id);
+                    }
                     else
                         value = o.toString();
                 }

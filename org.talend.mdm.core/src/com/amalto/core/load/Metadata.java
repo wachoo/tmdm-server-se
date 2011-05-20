@@ -11,17 +11,15 @@
 
 package com.amalto.core.load;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  *
  */
 public class Metadata {
-    private final String dmr = StringUtils.EMPTY;
-    private final String sp = StringUtils.EMPTY;
     private final String taskId = null;
     private final List<String> id = new ArrayList<String>();
 
@@ -58,11 +56,11 @@ public class Metadata {
     }
 
     public String getDMR() {
-        return dmr;
+        return StringUtils.EMPTY;
     }
 
     public String getSP() {
-        return sp;
+        return StringUtils.EMPTY;
     }
 
     public String getTaskId() {

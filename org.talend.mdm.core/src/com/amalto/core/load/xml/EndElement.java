@@ -13,12 +13,12 @@
 
 package com.amalto.core.load.xml;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 import com.amalto.core.load.Constants;
 import com.amalto.core.load.State;
 import com.amalto.core.load.context.StateContext;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  *

@@ -32,7 +32,7 @@ public interface LoadParserCallback {
      * </p>
      *
      * @param docReader A SAX XML reader.
-     * @param input An SAX input source.
+     * @param input     An SAX input source.
      */
     void flushDocument(XMLReader docReader, InputSource input);
 }

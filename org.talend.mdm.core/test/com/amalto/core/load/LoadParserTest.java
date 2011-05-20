@@ -41,7 +41,7 @@ import org.xml.sax.helpers.DefaultHandler;
 @SuppressWarnings("nls")
 public class LoadParserTest extends TestCase {
 
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     private AutoIdGenerator idGenerator = new TestAutoIdGenerator();
 
     public void testArgs() {
@@ -277,13 +277,13 @@ public class LoadParserTest extends TestCase {
     }
 
     public void testMultipleXmlRootWithAutoGenId() {
-        InputStream testResource = new ByteArrayInputStream("<root><element1/><element2>text</element2></root><root><element1/><element2>text</element2></root>".getBytes());
+        InputStream testResource = new ByteArrayInputStream("<Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product><Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product>".getBytes());
         testResource = new XMLRootInputStream(testResource, "doc");
         assertNotNull(testResource);
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"id"}, true, "clusterName", idGenerator);
+        LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"id"}, true, "clusterName", idGenerator);
 
         if (DEBUG) {
-            InputStream testResource2 = new ByteArrayInputStream("<root><element1/><element2>text</element2></root><root><element1/><element2>text</element2></root>".getBytes());
+            InputStream testResource2 = new ByteArrayInputStream("<Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product><Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product>".getBytes());
             testResource2 = new XMLRootInputStream(testResource2, "doc");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
             LoadParser.parse(testResource2, config, callback2);
@@ -294,10 +294,10 @@ public class LoadParserTest extends TestCase {
         LoadParser.parse(testResource, config, callback);
         assertTrue(callback.hasBeenFlushed());
         assertEquals(2, callback.getFlushCount());
-        assertEquals(28, callback.getStartedElements().size());
-        assertTrue(hasParsedElement(callback, "root"));
-        assertTrue(hasParsedElement(callback, "element1"));
-        assertTrue(hasParsedCharacters(callback, "text"));
+        assertEquals(32, callback.getStartedElements().size());
+        assertTrue(hasParsedElement(callback, "Product"));
+        assertTrue(hasParsedElement(callback, "Name"));
+        assertTrue(hasParsedCharacters(callback, "Test1"));
         assertEquals("0", callback.getId());
     }
 
@@ -655,8 +655,10 @@ public class LoadParserTest extends TestCase {
             }
         }
     }
-private static class TestAutoIdGenerator implements AutoIdGenerator {
-            public String generateAutoId(String dataClusterName, String conceptName) {
-                return "0";
-            }
-        }}
+
+    private static class TestAutoIdGenerator implements AutoIdGenerator {
+        public String generateAutoId(String dataClusterName, String conceptName) {
+            return "0";
+        }
+    }
+}

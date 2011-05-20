@@ -13,18 +13,17 @@
 
 package com.amalto.core.load.context;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.xml.stream.XMLStreamReader;
-
 import com.amalto.core.load.Metadata;
 import com.amalto.core.load.exception.ParserCallbackException;
 import com.amalto.core.load.payload.FlushXMLReader;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.AttributesImpl;
+
+import javax.xml.stream.XMLStreamReader;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *

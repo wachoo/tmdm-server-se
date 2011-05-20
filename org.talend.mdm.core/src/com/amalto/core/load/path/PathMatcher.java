@@ -16,8 +16,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
-*
-*/
+ *
+ */
 public class PathMatcher {
     private int nextMatchIndex = 1;
     private int maxIndex;

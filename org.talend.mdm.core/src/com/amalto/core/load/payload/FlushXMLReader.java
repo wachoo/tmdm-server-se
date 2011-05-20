@@ -119,8 +119,9 @@ public class FlushXMLReader implements XMLReader {
             while (!context.hasFinishedPayload()) {
                 context.parse(reader);
             }
-            if(context.getDepth() == 1)
+            if (context.getDepth() == 1) {
                 context.parse(reader);
+            }
         } catch (Exception e) {
             throw new SAXException(e);
         }

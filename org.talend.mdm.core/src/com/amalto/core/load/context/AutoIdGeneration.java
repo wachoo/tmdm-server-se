@@ -11,12 +11,17 @@
 
 package com.amalto.core.load.context;
 
-import com.amalto.core.load.State;import com.amalto.core.load.xml.Selector;import javax.xml.stream.XMLStreamException;import javax.xml.stream.XMLStreamReader; /**
+import com.amalto.core.load.State;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
+/**
  *
  */
-
 class AutoIdGeneration implements State {
     private final State previousState;
+
     private final String[] idPaths;
 
     public AutoIdGeneration(State previousState, String[] idPaths) {
@@ -28,7 +33,7 @@ class AutoIdGeneration implements State {
         try {
             String[] id = context.getMetadata().getId();
             int index = 0;
-            assert(id.length == idPaths.length);
+            assert (id.length == idPaths.length);
             for (String idPath : idPaths) {
                 context.getWriter().writeStartElement(idPath);
                 context.getWriter().writeCharacters(id[index++]);
@@ -40,7 +45,7 @@ class AutoIdGeneration implements State {
 
         context.setCurrent(previousState);
 
-        if(!context.isFlushDone()) {
+        if (!context.isFlushDone()) {
             Utils.doParserCallback(context, reader, context.getMetadata());
         }
     }

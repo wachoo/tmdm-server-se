@@ -38,7 +38,7 @@ import java.util.Enumeration;
  * &lt;root&gt;&lt;/root&gt;
  * </code>
  * </p>
- *
+ * <p/>
  * <p>
  * The contract of {@link Enumeration} is fully implemented so <code>hasMoreElements</code> must be called before
  * <code>nextElement()</code>

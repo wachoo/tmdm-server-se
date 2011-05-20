@@ -11,18 +11,17 @@
 
 package com.amalto.core.load.action;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.LoadParser;
-import com.amalto.core.load.LoadParserCallback;
 import com.amalto.core.load.io.XMLRootInputStream;
 import com.amalto.core.util.XSDKey;
 import org.apache.log4j.Logger;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
-*
-*/
+ *
+ */
 public class OptimizedLoadAction implements LoadAction {
     private static final Logger log = Logger.getLogger(OptimizedLoadAction.class);
     private final String dataClusterName;

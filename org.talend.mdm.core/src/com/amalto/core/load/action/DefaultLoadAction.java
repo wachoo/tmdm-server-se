@@ -11,8 +11,6 @@
 
 package com.amalto.core.load.action;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.io.XMLStreamTokenizer;
@@ -24,35 +22,37 @@ import com.amalto.core.util.XSDKey;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
-*
-*/
+ *
+ */
 public class DefaultLoadAction implements LoadAction {
-	private final String dataClusterName;
-	private final String typeName;
-	private final String dataModelName;
-	private final boolean needValidate;
-	private final boolean needAutoGenPK;
+    private final String dataClusterName;
+    private final String typeName;
+    private final String dataModelName;
+    private final boolean needValidate;
+    private final boolean needAutoGenPK;
 
-	public DefaultLoadAction(String dataClusterName, String typeName,
-			String dataModelName, boolean needValidate, boolean needAutoGenPK) {
-		this.dataClusterName = dataClusterName;
-		this.typeName = typeName;
-		this.dataModelName = dataModelName;
-		this.needValidate = needValidate;
-		this.needAutoGenPK = needAutoGenPK;
-	}
+    public DefaultLoadAction(String dataClusterName, String typeName,
+                             String dataModelName, boolean needValidate, boolean needAutoGenPK) {
+        this.dataClusterName = dataClusterName;
+        this.typeName = typeName;
+        this.dataModelName = dataModelName;
+        this.needValidate = needValidate;
+        this.needAutoGenPK = needAutoGenPK;
+    }
 
-	public boolean supportValidation() {
-		return true;
-	}
+    public boolean supportValidation() {
+        return true;
+    }
 
-	public boolean supportAutoGenPK() {
-		return true;
-	}
+    public boolean supportAutoGenPK() {
+        return true;
+    }
 
-	public void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
-		XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(request.getInputStream());
+    public void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
+        XMLStreamTokenizer xmlStreamTokenizer = new XMLStreamTokenizer(request.getInputStream());
 
         while (xmlStreamTokenizer.hasMoreElements()) {
             String xmlData = xmlStreamTokenizer.nextElement();

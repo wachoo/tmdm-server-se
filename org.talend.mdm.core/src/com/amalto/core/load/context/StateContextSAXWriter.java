@@ -13,9 +13,6 @@
 
 package com.amalto.core.load.context;
 
-import java.util.Map;
-import java.util.Set;
-
 import com.amalto.core.load.Constants;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +22,8 @@ import org.xml.sax.SAXException;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *

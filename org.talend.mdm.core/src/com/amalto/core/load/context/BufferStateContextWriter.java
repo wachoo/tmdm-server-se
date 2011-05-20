@@ -13,26 +13,20 @@
 
 package com.amalto.core.load.context;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 import com.amalto.core.load.Constants;
-import com.amalto.core.load.process.PayloadProcessedElement;
-import com.amalto.core.load.process.ProcessedCharacters;
-import com.amalto.core.load.process.ProcessedEndElement;
-import com.amalto.core.load.process.ProcessedEndNamespace;
-import com.amalto.core.load.process.ProcessedStartNamespace;
-import com.amalto.core.load.process.ProcessedStartElement;
+import com.amalto.core.load.process.*;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -59,8 +53,8 @@ public class BufferStateContextWriter implements StateContextWriter {
 
         // Namespace parsing
         Map<String, String> prefixToNamespace = Utils.parseNamespace(reader);
-        Set<Map.Entry<String,String>> entries = prefixToNamespace.entrySet();
-        for (Map.Entry<String, String> entry : entries){
+        Set<Map.Entry<String, String>> entries = prefixToNamespace.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
             processedElements.add(new ProcessedEndNamespace(entry.getKey()));
         }
     }
@@ -78,8 +72,8 @@ public class BufferStateContextWriter implements StateContextWriter {
 
         // Namespace parsing
         Map<String, String> prefixToNamespace = Utils.parseNamespace(reader);
-        Set<Map.Entry<String,String>> entries = prefixToNamespace.entrySet();
-        for (Map.Entry<String, String> entry : entries){
+        Set<Map.Entry<String, String>> entries = prefixToNamespace.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
             processedElements.add(new ProcessedStartNamespace(entry.getKey(), entry.getValue()));
         }
 

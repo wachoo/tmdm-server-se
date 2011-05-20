@@ -71,7 +71,6 @@ public class AutoIncrementGenerator {
         num++;
 
         CONFIGURATION.setProperty(key, String.valueOf(num));
-        saveToDB();
         return num;
     }
 
