@@ -13,23 +13,28 @@
 
 package com.amalto.core.load.io;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * <p>
- * An input stream that is designed to wrap XML documents without a unique XML root.
+ * An input stream that is designed to wrap XML documents without a unique XML root. If processing instructions are
+ * found in the stream, they are ignored (i.e. skipped).
  * </p>
  * <p>
  * On {@link java.io.InputStream#close()}, this implementation also closes the input stream to the XML documents.
  * </p>
  */
 public class XMLRootInputStream extends InputStream {
+    private static final Logger logger = Logger.getLogger(XMLRootInputStream.class);
     private final InputStream wrapped;
     private final char[] startXmlElement;
     private final char[] endXmlElement;
     private int startXmlElementIndex = 0;
     private int endXmlElementIndex = 0;
+    int readAheadBuffer = -1;
 
     /**
      * @param wrapped        The input stream to the XML documents to be wrapped in a unique XML root element.
@@ -43,11 +48,39 @@ public class XMLRootInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
+        // Empty the "buffer" for characters that have been read ahead but needs to be returned to reader.
+        if (readAheadBuffer > 0) {
+            int readAheadBufferValue = readAheadBuffer;
+            readAheadBuffer = -1;
+            return readAheadBufferValue;
+        }
+
         if (startXmlElementIndex != startXmlElement.length) {
             return startXmlElement[startXmlElementIndex++];
         }
 
         int wrappedRead = wrapped.read();
+
+        // Skip processing instructions (if any).
+        if (wrappedRead == '<') {
+            int nextWrappedRead = wrapped.read();
+
+            if (nextWrappedRead == '?') {
+                int skippedBytes = 0;
+                while (wrapped.read() != '>') {
+                    skippedBytes++;
+                }
+                // Read next character (the one right after the end of the processing instruction).
+                wrappedRead = wrapped.read();
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Skipped " + skippedBytes + " bytes of processing instructions");
+                }
+            } else {
+                readAheadBuffer = nextWrappedRead;
+            }
+        }
+
         if (wrappedRead >= 0) {
             return wrappedRead;
         } else if (endXmlElementIndex != endXmlElement.length) {

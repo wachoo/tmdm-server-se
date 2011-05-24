@@ -28,7 +28,7 @@ class AutoGenMetadata extends Metadata {
 
     @Override
     public String[] getId() {
-        return new String[]{generator.generateAutoId(metadata.getDataClusterName(), metadata.getName())};
+        return new String[]{generator.generateId(metadata.getDataClusterName(), metadata.getName())};
     }
 
     @Override

@@ -19,7 +19,7 @@ import com.amalto.core.util.XtentisException;
  *
  */
 public class DefaultAutoIdGenerator implements AutoIdGenerator {
-    public String generateAutoId(String dataClusterName, String conceptName) {
+    public String generateId(String dataClusterName, String conceptName) {
         // TODO check if uuid key exist
         try {
             String universe = LocalUser.getLocalUser().getUniverse().getName();

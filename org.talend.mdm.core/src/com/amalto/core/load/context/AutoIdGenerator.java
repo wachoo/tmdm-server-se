@@ -28,7 +28,10 @@ public interface AutoIdGenerator {
      * @param conceptName     A concept name (type name).
      * @return A automatically generated id valid for the <code>conceptName</code> in <code>dataClusterName</code>
      */
-    String generateAutoId(String dataClusterName, String conceptName);
+    String generateId(String dataClusterName, String conceptName);
 
+    /**
+     * Tells the auto id generator to save its state (usually the last id that has been generated).
+     */
     void saveState();
 }

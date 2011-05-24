@@ -252,6 +252,32 @@ public class LoadParserTest extends TestCase {
         }
     }
 
+    public void testMultipleXmlRootWithProcessingInstructions() {
+        String documents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><element1/><element2>text</element2></root><?xml version=\"1.0\" encoding=\"UTF-8\"?><root><element1/><element2>text</element2></root>";
+        InputStream testResource = new ByteArrayInputStream(documents.getBytes());
+        testResource = new XMLRootInputStream(testResource, "doc");
+        assertNotNull(testResource);
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element2"}, false, "clusterName");
+
+        if (true) {
+            InputStream testResource2 = new ByteArrayInputStream(documents.getBytes());
+            testResource2 = new XMLRootInputStream(testResource2, "doc");
+            LoadParserCallback callback2 = new ConsolePrintParserCallback();
+            LoadParser.parse(testResource2, config, callback2);
+        }
+
+        ParserTestCallback callback = new ParserTestCallback();
+
+        LoadParser.parse(testResource, config, callback);
+        assertTrue(callback.hasBeenFlushed());
+        assertEquals(2, callback.getFlushCount());
+        assertEquals(26, callback.getStartedElements().size());
+        assertTrue(hasParsedElement(callback, "root"));
+        assertTrue(hasParsedElement(callback, "element1"));
+        assertTrue(hasParsedCharacters(callback, "text"));
+        assertEquals("text", callback.getId());
+    }
+
     public void testMultipleXmlRoot() {
         InputStream testResource = new ByteArrayInputStream("<root><element1/><element2>text</element2></root><root><element1/><element2>text</element2></root>".getBytes());
         testResource = new XMLRootInputStream(testResource, "doc");
@@ -664,7 +690,7 @@ public class LoadParserTest extends TestCase {
 
         private boolean savedState;
 
-        public String generateAutoId(String dataClusterName, String conceptName) {
+        public String generateId(String dataClusterName, String conceptName) {
             savedState = false;
             return "0";
         }

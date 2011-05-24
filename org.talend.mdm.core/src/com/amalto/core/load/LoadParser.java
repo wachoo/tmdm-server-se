@@ -107,15 +107,7 @@ public class LoadParser {
 
             StateContext context = new DefaultStateContext(config.getPayLoadElementName(), config.getIdPaths(), config.getDataClusterName(), limit, callback);
             if (config.isAutoGenPK()) {
-                AutoIdGenerator autoIdGenerator;
-                if (config.getIdGenerator() == null) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Mode is auto gen PK, but no auto id generator has been set. Switching to default id generator.");
-                    }
-                    autoIdGenerator = new DefaultAutoIdGenerator();
-                } else {
-                    autoIdGenerator = config.getIdGenerator();
-                }
+                AutoIdGenerator autoIdGenerator = config.getIdGenerator();
                 // Change the context to auto-generate metadata
                 context = AutoGenStateContext.decorate(context, config.getIdPaths(), autoIdGenerator);
             }
@@ -146,7 +138,10 @@ public class LoadParser {
         private final AutoIdGenerator idGenerator;
 
         public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName) {
-            this(payLoadElementName, idPaths, autoGenPK, dataClusterName, null);
+            this(payLoadElementName, idPaths, autoGenPK, dataClusterName, new DefaultAutoIdGenerator());
+            if (log.isDebugEnabled()) {
+                log.debug("No auto id generator has been set. Switching to default id generator.");
+            }
         }
 
         public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName, AutoIdGenerator idGenerator) {
