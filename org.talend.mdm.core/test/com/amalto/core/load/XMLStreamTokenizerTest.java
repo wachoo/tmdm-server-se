@@ -89,4 +89,20 @@ public class XMLStreamTokenizerTest extends TestCase {
 
         assertEquals(2, docCount);
     }
+
+    //
+    public void testDocument2() {
+        XMLStreamTokenizer tokenizer = new XMLStreamTokenizer(new ByteArrayInputStream("<Product><Name>Talend Golf Shirt</Name><Description>Golf-style, collared t-shirt</Description><Availability>false</Availability><Price>16.99</Price><Family/><Id>231035935</Id><Picture>/imageserver/upload/TalendShop/golf_shirt.jpg?width=150&amp;amp;height=90&amp;amp;preserveAspectRatio=true</Picture><OnlineStore>Talend Shop@@http://www.cafepress.com/Talend.231035935</OnlineStore></Product><Product><Name>Talend Fitted T-Shirt</Name><Description>Fitted T. ultra-fine combed ring spun cotton</Description><Availability>false</Availability><Price>15.99</Price><Family/><Id>231035936</Id><Picture>/imageserver/upload/TalendShop/tshirt.jpg?width=150&amp;amp;height=90&amp;amp;preserveAspectRatio=true</Picture><OnlineStore>Talend Shop@@http://www.cafepress.com/Talend.231035936</OnlineStore></Product>".getBytes()));
+        int docCount = 0;
+        String[] expected = new String[]{
+                "<Product><Name>Talend Golf Shirt</Name><Description>Golf-style, collared t-shirt</Description><Availability>false</Availability><Price>16.99</Price><Family/><Id>231035935</Id><Picture>/imageserver/upload/TalendShop/golf_shirt.jpg?width=150&amp;amp;height=90&amp;amp;preserveAspectRatio=true</Picture><OnlineStore>Talend Shop@@http://www.cafepress.com/Talend.231035935</OnlineStore></Product>",
+                "<Product><Name>Talend Fitted T-Shirt</Name><Description>Fitted T. ultra-fine combed ring spun cotton</Description><Availability>false</Availability><Price>15.99</Price><Family/><Id>231035936</Id><Picture>/imageserver/upload/TalendShop/tshirt.jpg?width=150&amp;amp;height=90&amp;amp;preserveAspectRatio=true</Picture><OnlineStore>Talend Shop@@http://www.cafepress.com/Talend.231035936</OnlineStore></Product>"
+        };
+        while (tokenizer.hasMoreElements()) {
+            assertEquals(expected[docCount], tokenizer.nextElement());
+            docCount++;
+        }
+
+        assertEquals(2, docCount);
+    }
 }

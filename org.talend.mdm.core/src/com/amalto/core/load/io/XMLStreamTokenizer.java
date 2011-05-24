@@ -49,6 +49,7 @@ public class XMLStreamTokenizer implements Enumeration<String> {
     private final InputStream inputStream;
     private String currentNextElement;
     private String rootElementName = null;
+    private int previousCharacter;
 
     public XMLStreamTokenizer(InputStream inputStream) {
         this.inputStream = inputStream;
@@ -73,7 +74,7 @@ public class XMLStreamTokenizer implements Enumeration<String> {
             boolean isFragmentComplete = false;
             int read;
             boolean inElement = false;
-            boolean isEnd = false;
+            boolean isEndElement = false;
             String currentElementName = "";
             int currentLevel = 0;
 
@@ -84,18 +85,20 @@ public class XMLStreamTokenizer implements Enumeration<String> {
                         break;
                     case '/':
                         if (inElement) {
-                            isEnd = true;
+                            isEndElement = true;
                         }
                         break;
                     case '>':
-                        if (isEnd) {
-                            currentLevel--;
-                        } else {
-                            currentLevel++;
+                        if (previousCharacter != '/') {
+                            if (isEndElement) {
+                                currentLevel--;
+                            } else {
+                                currentLevel++;
+                            }
                         }
 
                         if (inElement) {
-                            if (isEnd && rootElementName != null
+                            if (isEndElement && rootElementName != null
                                     && rootElementName.equals(currentElementName)
                                     && currentLevel == 0) {
                                 isFragmentComplete = true;
@@ -104,7 +107,7 @@ public class XMLStreamTokenizer implements Enumeration<String> {
                             }
                             currentElementName = "";
 
-                            isEnd = false;
+                            isEndElement = false;
                             inElement = false;
                         }
                         break;
@@ -113,6 +116,7 @@ public class XMLStreamTokenizer implements Enumeration<String> {
                     currentElementName += (char) read;
                 }
 
+                previousCharacter = read;
                 stringWriter.append((char) read);
             }
 
