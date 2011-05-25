@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
@@ -51,6 +52,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -85,7 +87,7 @@ public class ItemsListPanel extends ContentPanel {
             int pageSize = (Integer) pagingBar.getPageSize();
             qm.getPagingLoadConfig().setLimit(pageSize);
             qm.setLanguage(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
-            
+
             service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
 
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
@@ -185,8 +187,8 @@ public class ItemsListPanel extends ContentPanel {
         gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
         int usePageSize = PAGE_SIZE;
-        if (pagingBar != null)
-            usePageSize = pagingBar.getPageSize();
+        if (StateManager.get().get("grid") != null) //$NON-NLS-1$
+            usePageSize = Integer.valueOf(((Map) StateManager.get().get("grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         pagingBar = new PagingToolBarEx(usePageSize);
         pagingBar.setHideMode(HideMode.VISIBILITY);
         pagingBar.setVisible(false);
@@ -195,6 +197,7 @@ public class ItemsListPanel extends ContentPanel {
         grid = new Grid<ItemBean>(store, cm);
         grid.setSelectionModel(sm);
         grid.setStateful(true);
+        grid.setStateId("grid"); //$NON-NLS-1$
         re = new SaveRowEditor();
         grid.getView().setForceFit(true);
         if (cm.getColumnCount() > 0) {
