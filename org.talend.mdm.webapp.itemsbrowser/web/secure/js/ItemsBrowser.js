@@ -232,10 +232,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         'fr' : 'cliquer pour choisir',
         'en' : 'click to select'
     };
-
+    
     var MSG_CONFIRM_DELETE_ITEM = {
-        'fr' : 'Voulez vous réellement effacer cet enregistrement ',
-        'en' : 'Do you really want to delete this record '
+        'fr' : 'Voulez vous réellement effacer cet enregistrement ?',
+        'en' : 'Do you really want to delete this record?'
     };
     var MSG_CONFIRM_DELETE_ITEMS = {
         'fr' : 'Voulez vous réellement effacer les enregistrements sélectionnés ',
@@ -257,7 +257,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     };
     var MSG_CONFIRM_OVERRIDE_ITEM = {
         'fr' : 'Cet enregistrement a été modifié par une autre personne. Si vous le sauvegardez maintenant, vous écraserez ses changements. Voulez-vous continuer ?',
-        'en' : 'This object was also modified by somebody else. If you save now, you will overwrite his or her changes. Are you sure you want to do that?'
+        'en' : 'This record was also modified by somebody else. If you save now, you will overwrite his or her changes. Are you sure you want to do that?'
     };
 
     var BUTTON_DISPLAY = {
@@ -534,19 +534,14 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         'fr' : 'Aucune tâche n\'est reliée à cet enregistrement!',
         'en' : 'No task related to this record!'
     };
-
-    var MSG_CONFIRM_DELETE_ELEMENT = {
-        'fr' : 'Voulez vous réellement effacer cet enregistrement ',
-        'en' : 'Do you really want to delete this element '
+    
+    var MSG_CONFIRM_REFRESH_TREE_DETAIL = {
+    	'fr' : 'Cet enregistrement a été modifié. Si vous rafraichissez maintenant, vous écraserez ses changements. Voulez-vous continuer ?',
+    	'en' : 'This record has been modified. If you refresh it now, you will overwrite its changes. Are you sure you want to do that?'
     };
     
-    var MSG_CONFIRM_REFRESH_TREE_DETAIL ={
-    	'fr' : 'Are you sure you want to refresh that?',
-    	'en' : 'Are you sure you want to refresh that?'
-    };
-    
-    var CONFIRM = {
-    	'fr' : 'Reconnaît',
+    var MSG_CONFIRM_TITLE = {
+    	'fr' : 'Confirmation',
     	'en' : 'Confirm'
     };
     
@@ -829,7 +824,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
      * @author ymli
      */
     function toDelete(viewName) {
-        Ext.MessageBox.confirm("confirm",
+        Ext.MessageBox.confirm(MSG_CONFIRM_TITLE[language],
                 "Do you really want to remove this Bookmark?", function de(e) {
                     if (e.toLocaleString() == "yes") {
                         ItemsBrowserInterface.deleteTemplate(viewName,
@@ -1786,8 +1781,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                         // callback count
                         if (sel.length == 0)
                             return;
-                        Ext.MessageBox.confirm("confirm",
-                                MSG_CONFIRM_DELETE_ITEMS[language] + " ?",
+                        Ext.MessageBox.confirm(MSG_CONFIRM_TITLE[language],
+                                MSG_CONFIRM_DELETE_ITEMS[language],
                                 function re(en) {
                                     if (en == "yes") {
                                         for (var j = 0; j < sel.length; j++) {
@@ -2812,8 +2807,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             for (var i = 0; i < itemPK.length; i++) {
                                 tmp += " " + itemPK[i];
                             }
-                            Ext.MessageBox.confirm("confirm",
-                                    MSG_CONFIRM_DELETE_ITEM[language] + " ?",
+                            Ext.MessageBox.confirm(MSG_CONFIRM_TITLE[language],
+                                    MSG_CONFIRM_DELETE_ITEM[language],
                                     function re(en) {
                                         if (en == "yes") {
                                             ItemsBrowserInterface.getUriArray(
@@ -3128,7 +3123,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         		return;
                         	}
                         	
-                        	Ext.MessageBox.confirm(CONFIRM[language], MSG_CONFIRM_REFRESH_TREE_DETAIL[language], function(btn){
+                        	Ext.MessageBox.confirm(MSG_CONFIRM_TITLE[language], MSG_CONFIRM_REFRESH_TREE_DETAIL[language], function(btn){
                         		if (btn == "no") return;
                         		refreshFn();
                         	});
@@ -3903,7 +3898,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         		return;
                         	}
                         	
-                        	Ext.MessageBox.confirm(CONFIRM[language], MSG_CONFIRM_REFRESH_TREE_DETAIL[language], function(btn){
+                        	Ext.MessageBox.confirm(MSG_CONFIRM_TITLE[language], MSG_CONFIRM_REFRESH_TREE_DETAIL[language], function(btn){
                         		if (btn == "no") return;
                         	    refreshFn();
                         	});
@@ -4713,8 +4708,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     }
 
     function removeNode2(id, treeIndex) {
-        Ext.MessageBox.confirm("confirm",
-            MSG_CONFIRM_DELETE_ELEMENT[language] + "?", 
+        Ext.MessageBox.confirm(MSG_CONFIRM_TITLE[language],
+            MSG_CONFIRM_DELETE_ITEM[language], 
             function de(e) {
                 if (e.toLocaleString() == "yes") {
         
@@ -4959,7 +4954,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         ItemsBrowserInterface.isDataClusterExists(cluster, {
                     callback : function(result) {
                         if (!result) {
-                            Ext.Msg.confirm("confirm",
+                            Ext.Msg.confirm(MSG_CONFIRM_TITLE[language],
                                     CONFIRM_DATACLUSTER_CHANGE[language],
                                     function re(en) {
                                         var dataClusterCmb = Ext
@@ -4976,7 +4971,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                             // return;
                                             Ext.Msg
                                                     .confirm(
-                                                            "confirm",
+                                                    		MSG_CONFIRM_TITLE[language],
                                                             MSG_CONFIRM_SAVE_ITEM[language],
                                                             function re(en) {
                                                                 if (en == "no") {
@@ -5005,7 +5000,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         ItemsBrowserInterface.isItemModifiedByOther(newItem[treeIndex],
                 treeIndex, function(result) {
                     if (result) {
-                        Ext.Msg.confirm("confirm",
+                        Ext.Msg.confirm(MSG_CONFIRM_TITLE[language],
                                 MSG_CONFIRM_OVERRIDE_ITEM[language], function(
                                         en) {
                                     if (en == "no") {
@@ -5115,8 +5110,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         for (var i = 0; i < itemPK.length; i++) {
             tmp += " " + itemPK[i];
         }
-        Ext.MessageBox.confirm("confirm", MSG_CONFIRM_DELETE_ITEM[language]
-                        + " ?", function re(en) {
+        Ext.MessageBox.confirm(MSG_CONFIRM_TITLE[language], MSG_CONFIRM_DELETE_ITEM[language]
+                        , function re(en) {
                     if (en == "yes") {
                         ItemsBrowserInterface.getUriArray(dataObject, itemPK,
                                 function(picUriArray) {
@@ -5408,7 +5403,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             }]
                 });
         var window = new Ext.Window({
-            title : CONFIRM[language],
+            title : MSG_CONFIRM_TITLE[language],
             width : 200,
             height : 120,
             layout : 'fit',
@@ -5961,7 +5956,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                         // return;
                                         Ext.Msg
                                                 .confirm(
-                                                        "confirm",
+                                                		MSG_CONFIRM_TITLE[language],
                                                         MSG_CONFIRM_SAVE_ITEM[language],
                                                         function re(en) {
                                                             if (en == "no") {
