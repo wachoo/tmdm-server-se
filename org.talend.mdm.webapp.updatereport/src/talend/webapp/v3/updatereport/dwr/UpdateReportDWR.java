@@ -213,11 +213,11 @@ public class UpdateReportDWR {
     }
        
     public String getReportString(int start, int limit, String regex, String language) throws Exception {
-    	int limitCount = 0;
-    	if(regex != null && regex.length() > 0){
-    		limitCount = limit;
-    	}
-    	ListRange listRange = this.getUpdateReportList(start, limitCount, null, null, regex);
+//    	int limitCount = 0;
+//    	if(regex != null && regex.length() > 0){
+//    		limitCount = limit;
+//    	}
+    	ListRange listRange = this.getUpdateReportList(start, limit, null, null, regex);
     	Object[] data = listRange.getData();
     	
     	String str = this.generateEventString(data, language);
