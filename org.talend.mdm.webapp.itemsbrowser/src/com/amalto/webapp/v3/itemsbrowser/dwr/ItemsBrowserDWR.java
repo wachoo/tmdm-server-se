@@ -1380,18 +1380,22 @@ public class ItemsBrowserDWR {
 
         for (String dyPath : dynamicPathes) {
             org.dom4j.Element baseEl = (org.dom4j.Element) doc.selectSingleNode(basePath);
-            org.dom4j.Element el = (org.dom4j.Element) baseEl.selectSingleNode(dyPath);//$NON-NLS-1$
-            if (el == null)
-                continue;
-            List<org.dom4j.Element> pathNodes = getPathNode(el);
+            try { 
+                org.dom4j.Element el = (org.dom4j.Element) baseEl.selectSingleNode(dyPath);//$NON-NLS-1$
+                if (el == null)
+                    continue;
+                List<org.dom4j.Element> pathNodes = getPathNode(el);
 
-            Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
-            if (fkObj != null) {
-                String foreignkey = (String) fkObj[0];
-                List<String> fkInfos = (List<String>) fkObj[1];
-                String key = el.getStringValue();
-                String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
-                dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", fkInfoStr == null ? "" : fkInfoStr); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
+                if (fkObj != null) {
+                    String foreignkey = (String) fkObj[0];
+                    List<String> fkInfos = (List<String>) fkObj[1];
+                    String key = el.getStringValue();
+                    String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
+                    dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", fkInfoStr == null ? "" : fkInfoStr); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                }
+            } catch (Exception e){
+                continue;
             }
         }
         return dynamicLabel;
