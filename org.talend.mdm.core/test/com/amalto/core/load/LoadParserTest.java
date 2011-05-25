@@ -259,7 +259,7 @@ public class LoadParserTest extends TestCase {
         assertNotNull(testResource);
         LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element2"}, false, "clusterName");
 
-        if (true) {
+        if (DEBUG) {
             InputStream testResource2 = new ByteArrayInputStream(documents.getBytes());
             testResource2 = new XMLRootInputStream(testResource2, "doc");
             LoadParserCallback callback2 = new ConsolePrintParserCallback();
