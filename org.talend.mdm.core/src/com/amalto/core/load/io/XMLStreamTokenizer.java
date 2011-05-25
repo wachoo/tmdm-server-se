@@ -75,11 +75,18 @@ public class XMLStreamTokenizer implements Enumeration<String> {
             int read;
             boolean inElement = false;
             boolean isEndElement = false;
+            boolean isProcessingInstruction = false;
             String currentElementName = "";
             int currentLevel = 0;
 
             while (!isFragmentComplete && (read = inputStream.read()) > 0) {
                 switch (read) {
+                    case '?':
+                        if (previousCharacter == '<') {
+                            stringWriter.reset();
+                            isProcessingInstruction = true;
+                        }
+                        break;
                     case '<':
                         inElement = true;
                         break;
@@ -89,7 +96,7 @@ public class XMLStreamTokenizer implements Enumeration<String> {
                         }
                         break;
                     case '>':
-                        if (previousCharacter != '/') {
+                        if (previousCharacter != '/' && !isProcessingInstruction) {
                             if (isEndElement) {
                                 currentLevel--;
                             } else {
@@ -102,7 +109,7 @@ public class XMLStreamTokenizer implements Enumeration<String> {
                                     && rootElementName.equals(currentElementName)
                                     && currentLevel == 0) {
                                 isFragmentComplete = true;
-                            } else if (rootElementName == null) {
+                            } else if (rootElementName == null && !isProcessingInstruction) {
                                 rootElementName = currentElementName;
                             }
                             currentElementName = "";
@@ -110,14 +117,22 @@ public class XMLStreamTokenizer implements Enumeration<String> {
                             isEndElement = false;
                             inElement = false;
                         }
+
+                        if (isProcessingInstruction && previousCharacter == '?') {
+                            isProcessingInstruction = false;
+                            continue;
+                        }
+
                         break;
                 }
                 if (inElement && read != '<' && read != '/') {
                     currentElementName += (char) read;
                 }
 
+                if (!isProcessingInstruction) {
+                    stringWriter.append((char) read);
+                }
                 previousCharacter = read;
-                stringWriter.append((char) read);
             }
 
         } catch (IOException e) {

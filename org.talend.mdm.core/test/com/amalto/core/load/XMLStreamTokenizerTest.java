@@ -105,4 +105,20 @@ public class XMLStreamTokenizerTest extends TestCase {
 
         assertEquals(2, docCount);
     }
+
+    public void testProcessingInstructions() {
+        XMLStreamTokenizer tokenizer = new XMLStreamTokenizer(new ByteArrayInputStream("<?xml version=\"1.0\"?><root></root><?xml version=\"1.0\"?><root></root>".getBytes()));
+        int docCount = 0;
+        String[] expected = new String[]{
+                "<root></root>",
+                "<root></root>"
+        };
+        while (tokenizer.hasMoreElements()) {
+            assertEquals(expected[docCount], tokenizer.nextElement());
+            docCount++;
+        }
+
+        assertEquals(2, docCount);
+    }
+
 }
