@@ -14,6 +14,7 @@ package com.amalto.core.load;
 import com.amalto.core.load.action.DefaultLoadAction;
 import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.load.action.OptimizedLoadAction;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.servlet.LoadServlet;
 import junit.framework.TestCase;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -22,6 +23,8 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
  *
  */
 public class LoadServletTest extends TestCase {
+
+    public static final String TEST_DATA_CLUSTER = "TestDataCluster";
 
     public void testOptimizationSelection() {
         LoadServletTestFixture servlet = getFixture();
@@ -56,36 +59,62 @@ public class LoadServletTest extends TestCase {
 
         // Qizx database
         MDMConfiguration.getConfiguration().setProperty("xmldb.type", "qizx");
-        LoadAction loadAction = servlet.getLoadAction(null, null, null, false);
+        LoadAction loadAction = servlet.getLoadAction(TEST_DATA_CLUSTER, null, null, false);
         assertEquals(OptimizedLoadAction.class, loadAction.getClass());
         assertTrue(loadAction.supportAutoGenPK());
         assertFalse(loadAction.supportValidation());
 
         // Exist database
         MDMConfiguration.getConfiguration().setProperty("xmldb.type", "exist");
-        loadAction = servlet.getLoadAction(null, null, null, true);
+        loadAction = servlet.getLoadAction(TEST_DATA_CLUSTER, null, null, true);
         assertEquals(DefaultLoadAction.class, loadAction.getClass());
         assertTrue(loadAction.supportAutoGenPK());
         assertTrue(loadAction.supportValidation());
     }
 
+    public void testNonExistingDataCluster() {
+        LoadServletTestFixture servlet = getFixture();
+
+        // Qizx database
+        try {
+            servlet.getLoadAction("NonExistingDataCluster", null, null, false);
+            fail("Expected an error (data cluster does not exist)");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+
+    }
+
     private LoadServletTestFixture getFixture() {
-        return new LoadServletTestFixture();
+        return new LoadServletTestFixture(TEST_DATA_CLUSTER);
     }
 
     private class LoadServletTestFixture extends LoadServlet {
 
-        private LoadServletTestFixture() {
+        private final String[] dataClusterNames;
+
+        private LoadServletTestFixture(String... dataClusterNames) {
+            this.dataClusterNames = dataClusterNames;
         }
 
         public LoadAction getLoadAction(boolean needValidate) {
-            return getLoadAction("", "", "", needValidate, false);
+            return getLoadAction(TEST_DATA_CLUSTER, "", "", needValidate, false);
         }
 
         public LoadAction getLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needValidate) {
-            return LoadServlet.getLoadAction(dataClusterName, typeName, dataModelName, needValidate, false);
+            return getLoadAction(dataClusterName, typeName, dataModelName, needValidate, false);
         }
 
+        @Override
+        protected DataClusterPOJO getDataCluster(String dataClusterName) {
+            for (String clusterName : dataClusterNames) {
+                if (clusterName.equals(dataClusterName)) {
+                    return new DataClusterPOJO(null, clusterName);
+                }
+            }
+
+            return null;
+        }
     }
 
 }

@@ -19,7 +19,9 @@ import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.action.DefaultLoadAction;
 import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.load.action.OptimizedLoadAction;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.TimeMeasure;
@@ -143,7 +145,13 @@ public class LoadServlet extends HttpServlet {
         writer.write("</body></html>"); //$NON-NLS-1$
     }
 
-    protected static LoadAction getLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needValidate, boolean needAutoGenPK) {
+    protected LoadAction getLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needValidate, boolean needAutoGenPK) {
+        // Test if the data cluster actually exists
+        DataClusterPOJO dataCluster = getDataCluster(dataClusterName);
+        if (dataCluster == null) {
+            throw new IllegalArgumentException("Data cluster '" + dataClusterName + "' does not exist.");
+        }
+
         // Activate optimizations only if Qizx is used.
         Object dbType = MDMConfiguration.getConfiguration().get("xmldb.type"); //$NON-NLS-1$
         boolean isUsingQizx = dbType != null && EDBType.QIZX.getName().equals(dbType.toString());
@@ -160,6 +168,18 @@ public class LoadServlet extends HttpServlet {
                     + " / needValidate:" + needValidate + ")"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return loadAction;
+    }
+
+    protected DataClusterPOJO getDataCluster(String dataClusterName) {
+        DataClusterPOJO dataCluster;
+        try {
+            DataClusterCtrlLocal dataClusterCtrlLocal = Util.getDataClusterCtrlLocal();
+            DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(dataClusterName);
+            dataCluster = dataClusterCtrlLocal.getDataCluster(dataClusterPOJOPK);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return dataCluster;
     }
 
     /**
