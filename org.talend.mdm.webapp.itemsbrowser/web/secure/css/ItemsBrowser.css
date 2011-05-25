@@ -63,8 +63,9 @@
 ****************************************************************************************/
 
 .inputLabel {
-  width: 180px;
+  width: 200px;
   float: left;
+  overflow: hidden;
 }
 
 .itemTree {

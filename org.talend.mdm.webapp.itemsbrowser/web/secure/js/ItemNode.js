@@ -299,7 +299,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 						'rows="4" cols="69" type="text">'+value+'</textarea>';
 			}
 			
-			var labelValue = itemData.name.length > 22 ? itemData.name.substr(0, 22)+"..." : itemData.name;
+			var labelValue = itemData.name;
 			html[html.length] = '<div style="display:inline"><div class="inputLabel" title="' + itemData.name + '">'+labelValue+' '+mandatory+' '+descInfo+'</div>';
 			if(itemData.typeName!=null&&itemData.typeName=="boolean"){
 				//value=String(value=='true');
@@ -376,7 +376,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		}
 
 		else { //complex type
-			var labelValue = itemData.name.length > 22 ? itemData.name.substr(0, 22)+"..." : itemData.name;
+			var labelValue = itemData.name;
 			html[html.length] = '<div style="display:inline"><div class="inputLabel" title="' + itemData.name + '">'+labelValue+' '+mandatory+' '+descInfo+'</div>' ;
 			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + '<br/>';
 			
