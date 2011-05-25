@@ -2503,7 +2503,14 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
     function displayItemDetails4Duplicate(itemPK2, dataObject) {
 
-        displayItemDetails2(itemPK2, dataObject, true, displayItems);
+    	var refreshCB = function(){
+    		displayItems.call();
+    		if (window.top.org_talend_mdm_webapp_itemsbrowser2_InBoundService_refreshGrid != undefined){
+    			window.top.org_talend_mdm_webapp_itemsbrowser2_InBoundService_refreshGrid();
+    		}
+    	};
+    	
+        displayItemDetails2(itemPK2, dataObject, true, refreshCB);
 
     }
 

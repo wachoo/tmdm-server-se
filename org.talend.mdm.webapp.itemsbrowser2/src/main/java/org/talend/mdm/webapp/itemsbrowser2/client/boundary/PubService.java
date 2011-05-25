@@ -37,4 +37,10 @@ public class PubService {
          
     }-*/;
     
+    public static native void regRefresh()/*-{
+        $wnd.top.org_talend_mdm_webapp_itemsbrowser2_InBoundService_refreshGrid = function(){
+            @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refreshGrid()();
+        };
+    }-*/;
+    
 }

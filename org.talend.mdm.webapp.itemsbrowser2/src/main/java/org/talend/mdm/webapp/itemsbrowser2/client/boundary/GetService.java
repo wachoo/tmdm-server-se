@@ -50,18 +50,18 @@ public class GetService {
         $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.openItemBrowser(ids, conceptName, refreshCB);
     }-*/;
 
-    static void refresh(boolean refreshItemForm,String ids){
+    public static void refresh(boolean refreshItemForm,String ids){
         ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
         itemsSearchContainer.getItemsListPanel().refresh(ids, refreshItemForm);
     }
     
-    static void setEnable(boolean enabled){
+    public static void setEnable(boolean enabled){
         ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
         itemsSearchContainer.getItemsListPanel().setEnabledGridSearchButton(enabled);
         
     }
     
-    static void refreshGrid(){
+    public static void refreshGrid(){
         ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
         itemsSearchContainer.getItemsListPanel().refreshGrid();
     }

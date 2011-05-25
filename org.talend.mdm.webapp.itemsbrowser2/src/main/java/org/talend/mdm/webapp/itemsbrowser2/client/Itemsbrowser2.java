@@ -123,6 +123,7 @@ public class Itemsbrowser2 implements EntryPoint {
 
     private void registerPubServices() {
         PubService.renderUI();
+        PubService.regRefresh();
     }
 
     /**
