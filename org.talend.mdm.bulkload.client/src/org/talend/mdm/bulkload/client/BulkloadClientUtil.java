@@ -24,6 +24,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -149,7 +150,9 @@ public class BulkloadClientUtil {
         HttpClient client = new HttpClient();
         String user = universe == null || universe.trim().length() == 0 ? username : universe + "/" + username;
         client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
-        client.getParams().setAuthenticationPreemptive(true);
+        HttpClientParams clientParams = client.getParams();
+        clientParams.setAuthenticationPreemptive(true);
+        clientParams.setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 
         PutMethod putMethod = new PutMethod();
         // This setPath call is *really* important (if not set, request will be sent to the JBoss root '/')
