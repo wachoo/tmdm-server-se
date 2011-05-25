@@ -413,7 +413,7 @@ public class ItemsToolBar extends ToolBar {
         });
         entityPanel.add(entityCombo);
         add(entityPanel);
-        simplePanel = new SimpleCriterionPanel(null, null);
+        simplePanel = new SimpleCriterionPanel(null, null, searchBut);
         add(simplePanel);
 
         // add simple search button
@@ -429,7 +429,11 @@ public class ItemsToolBar extends ToolBar {
                     resizeAfterSearch();
                 } else {
                     MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                            .advsearch_lessinfo(), null);
+                            .advsearch_lessinfo(), new Listener<MessageBoxEvent>() {
+                                public void handleEvent(MessageBoxEvent be) {
+                                    simplePanel.focusField();
+                                }
+                            });
                 }
             }
 

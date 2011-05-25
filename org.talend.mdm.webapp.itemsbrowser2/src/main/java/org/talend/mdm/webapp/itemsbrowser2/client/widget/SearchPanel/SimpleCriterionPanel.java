@@ -30,17 +30,23 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModel;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
@@ -57,6 +63,8 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
     private Field field;
 
+    private Button searchBut;
+    
     private LayoutContainer content = new LayoutContainer();
 
     private ViewBean view;
@@ -71,8 +79,9 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
     private ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
-    public SimpleCriterionPanel(final MultipleCriteriaPanel ancestor, final Panel parent) {
+    public SimpleCriterionPanel(final MultipleCriteriaPanel ancestor, final Panel parent, Button searchBut) {
         super();
+        this.searchBut = searchBut;
         setSpacing(3);
 
         keyComboBox = new ComboBoxField<BaseModel>();
@@ -171,9 +180,24 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
             if (field instanceof FKField)
                 ((FKField) field).Update(getKey(), this);
             content.add(field);
+            field.addListener(Events.KeyDown, new Listener<FieldEvent>() {
+                public void handleEvent(FieldEvent be) {
+                    if (be.getKeyCode() == KeyCodes.KEY_ENTER){
+                        if (searchBut != null){
+                            searchBut.fireEvent(Events.Select);
+                        }
+                    }
+                }
+            });
         }
         setOperatorComboBox(SearchFieldCreator.cons);
         content.layout();
+    }
+    
+    public void focusField(){
+        if (field != null){
+            field.focus();
+        }
     }
 
     private String getKey() {

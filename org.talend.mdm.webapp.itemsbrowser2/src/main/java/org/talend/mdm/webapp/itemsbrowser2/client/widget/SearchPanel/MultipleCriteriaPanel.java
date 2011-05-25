@@ -185,7 +185,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
     }
 
     private SimpleCriterionPanel addSimpleCriterionPanel() {
-        final SimpleCriterionPanel newPanel = new SimpleCriterionPanel(MultipleCriteriaPanel.this, rightPanel);
+        final SimpleCriterionPanel newPanel = new SimpleCriterionPanel(MultipleCriteriaPanel.this, rightPanel, null);
         newPanel.updateFields(view);
         final int index = (rightPanel.getWidgetCount() == 0 ? 0 : rightPanel.getWidgetCount() - 1);
         rightPanel.insert(newPanel, index);
