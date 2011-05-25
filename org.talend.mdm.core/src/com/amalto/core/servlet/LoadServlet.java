@@ -89,8 +89,9 @@ public class LoadServlet extends HttpServlet {
         boolean needValidate = Boolean.valueOf(request.getParameter(PARAMETER_VALIDATE));
         boolean needAutoGenPK = Boolean.valueOf(request.getParameter(PARAMETER_SMARTPK));
         String action = request.getParameter(PARAMETER_ACTION);
-        if (action == null || action.length() == 0)
+        if (action == null || action.length() == 0) {
             action = getServletConfig().getInitParameter(PARAMETER_ACTION);
+        }
 
         // We support only load as action here
         if (!"load".equalsIgnoreCase(action)) { //$NON-NLS-1$
@@ -384,37 +385,39 @@ public class LoadServlet extends HttpServlet {
 
 
     private XSDKey getTypeKey(String dataModelName, String typeName) throws Exception {
-        XSDKey xsdKey = typeNameToKeyDef.get(dataModelName + typeName);
+        synchronized (typeNameToKeyDef) {
+            XSDKey xsdKey = typeNameToKeyDef.get(dataModelName + typeName);
 
-        if (xsdKey == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Caching id for type '" + typeName + "' in data model '" + dataModelName + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            }
-
-            DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataModelName));
-            String schemaString = dataModel.getSchema();
-            Document schema = Util.parseXSD(schemaString);
-            XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, typeName);
-
-            if (conceptKey != null) {
-                String keysAsString = ""; //$NON-NLS-1$
-                for (String currentField : conceptKey.getFields()) {
-                    keysAsString += ' ' + currentField;
-                }
+            if (xsdKey == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Key for entity '" + typeName + "' : " + keysAsString); //$NON-NLS-1$ //$NON-NLS-2$
+                    log.debug("Caching id for type '" + typeName + "' in data model '" + dataModelName + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
-            } else {
-                log.error("No key definition for entity '" + typeName + "'.");
-                throw new RuntimeException("No key definition for entity '" + typeName + "'.");
+
+                DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataModelName));
+                String schemaString = dataModel.getSchema();
+                Document schema = Util.parseXSD(schemaString);
+                XSDKey conceptKey = Util.getBusinessConceptKey(schema, typeName);
+
+                if (conceptKey != null) {
+                    String keysAsString = ""; //$NON-NLS-1$
+                    for (String currentField : conceptKey.getFields()) {
+                        keysAsString += ' ' + currentField;
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug("Key for entity '" + typeName + "' : " + keysAsString); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                } else {
+                    log.error("No key definition for entity '" + typeName + "'.");
+                    throw new RuntimeException("No key definition for entity '" + typeName + "'.");
+                }
+                xsdKey = conceptKey;
+
+                // Use dataModelName in key in case 1+ data models share the type name
+                typeNameToKeyDef.put(dataModelName + typeName, xsdKey);
             }
-            xsdKey = conceptKey;
 
-            // Use dataModelName in key in case 1+ data models share the type name
-            typeNameToKeyDef.put(dataModelName + typeName, xsdKey);
+            return xsdKey;
         }
-
-        return xsdKey;
     }
 
     /**
