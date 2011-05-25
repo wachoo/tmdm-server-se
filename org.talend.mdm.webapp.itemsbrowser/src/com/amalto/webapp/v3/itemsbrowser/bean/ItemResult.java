@@ -24,6 +24,8 @@ public class ItemResult {
 
     private String description;
 
+    private String returnValue;
+
     public ItemResult() {
     }
 
@@ -34,6 +36,12 @@ public class ItemResult {
     public ItemResult(int status, String description) {
         setStatus(status);
         setDescription(description);
+    }
+
+    public ItemResult(int status, String description, String returnValue) {
+        setStatus(status);
+        setDescription(description);
+        setReturnValue(returnValue);
     }
 
     public void setStatus(int status) {
@@ -50,5 +58,13 @@ public class ItemResult {
 
     public String getDescription() {
         return this.description;
+    }
+
+    public String getReturnValue() {
+        return returnValue;
+    }
+
+    public void setReturnValue(String returnValue) {
+        this.returnValue = returnValue;
     }
 }

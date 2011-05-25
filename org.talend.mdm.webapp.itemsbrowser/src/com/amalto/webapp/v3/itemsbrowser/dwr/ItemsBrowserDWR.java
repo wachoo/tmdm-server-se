@@ -2379,7 +2379,9 @@ public class ItemsBrowserDWR {
                 message = MESSAGES.getMessage("save.success"); //$NON-NLS-1$
                 status = ItemResult.SUCCESS;
             }
-            return new ItemResult(status, message);
+
+            return new ItemResult(status, message, Util.joinStrings(wsi.getIds(), ".")); //$NON-NLS-1$
+
         } catch (Exception e) {
             ItemResult result;
             // TODO Ugly isn't it ?

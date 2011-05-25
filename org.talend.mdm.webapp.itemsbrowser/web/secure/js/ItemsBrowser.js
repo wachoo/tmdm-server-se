@@ -4821,7 +4821,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         } 
         
         DWREngine.setAsync(false);
-        saveItem(ids, dataObject, treeIndex, function() {
+        saveItem(ids, dataObject, treeIndex, function(result) {        
             // amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
             // refreshCB.call();
             var toolbar = amalto.core.getTabPanel()
@@ -4831,6 +4831,20 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             var itempanel = amalto.core.getTabPanel().activeTab;
             if (itempanel) {
                 itempanel.isdirty = false;
+                if (result != null){  
+                	var itemPK  = result.split('.');
+                	 var myTitle = ""; 
+                     if (dataObject != null)
+                         myTitle = dataObject;
+                     for (var i = 0; i < itemPK.length; i++) {
+                         myTitle += " " + itemPK[i];
+                     }
+                    
+                	itempanel.itemid = itemPK + "." + dataObject;   
+                	itempanel.title = myTitle;
+                	if (itempanel.getUpdater())
+                		itempanel.getUpdater().refresh();                	
+                }
             }
 
             // refresh the search result tabs
@@ -4838,7 +4852,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 var grid = gridContainerPanel.items.first();
                 grid.store.reload();
             }
-            refreshCB.call();
+            refreshCB.call();        	
         });
 
         DWREngine.setAsync(true);
@@ -5041,7 +5055,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         tbDetail.items.get('saveAndQBTN').enable();
 
                         if (callbackOnSuccess && result.status != 1)
-                            callbackOnSuccess();
+                        	if (result.returnValue)
+                        		callbackOnSuccess(result.returnValue);
+                        	else
+                        		callbackOnSuccess();
 
                         if (result.description == null
                                 || result.description == "") {
