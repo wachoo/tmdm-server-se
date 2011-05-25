@@ -176,7 +176,7 @@ public abstract class ObjectPOJO implements Serializable{
 		} catch (Exception e) {
 			String err = "No class found for Object "+name;
 			LOG.error(err,e);
-			throw new XtentisException(err);
+			throw new XtentisException(err, e);
 		}
 	}
 
@@ -198,7 +198,7 @@ public abstract class ObjectPOJO implements Serializable{
 		} catch (Exception e) {
 			String err = "No element name found for Object "+name;
 			LOG.error(err,e);
-			throw new XtentisException(err);
+			throw new XtentisException(err, e);
 		}
 	}
 
@@ -227,7 +227,7 @@ public abstract class ObjectPOJO implements Serializable{
 
     /**
      * Set the last XML Server Error
-     * @param the error
+     * @param lastError the error
      */
 	protected void setLastError(String lastError) {
 		this.lastError = lastError;
@@ -295,7 +295,7 @@ public abstract class ObjectPOJO implements Serializable{
     	    String err = "Unable to load the Object  "+  objectPOJOPK.getUniqueId()+" in Cluster "+getCluster(objectClass)
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    } 
     }
     
@@ -343,7 +343,7 @@ public abstract class ObjectPOJO implements Serializable{
     	    String err = "Unable to load the Object  "+objectClass.getName()+"["+objectPOJOPK.getUniqueId()+"] in Cluster "+getCluster(objectClass)
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    } 
     }
     
@@ -399,7 +399,7 @@ public abstract class ObjectPOJO implements Serializable{
     	    String err = "Unable to remove the Object  "+  objectPOJOPK.getUniqueId()+" from Cluster "+getCluster(objectClass)
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    } 
     }
     
@@ -431,7 +431,7 @@ public abstract class ObjectPOJO implements Serializable{
     	    String err = "Unable to remove the object "+objectPOJOPK.getUniqueId()+" from cluster "+getCluster(objectClass)
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    }  
 
     }
@@ -483,7 +483,7 @@ public abstract class ObjectPOJO implements Serializable{
     	    String err = "Unable to store the Object  "+  getPK().getUniqueId()+" in Cluster "+getCluster(this.getClass())
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    } 
     }
     
@@ -539,7 +539,7 @@ public abstract class ObjectPOJO implements Serializable{
     	    String err = "Unable to store the Object "+this.getClass().getName()+" --> "+getPK().getUniqueId()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    } 
 
     }
@@ -633,7 +633,7 @@ public abstract class ObjectPOJO implements Serializable{
     	    String err = "Unable to find all the Object identifiers for object "+ getObjectName(objectClass)+" using regex "+regex
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    } 
     }
     
@@ -686,7 +686,7 @@ public abstract class ObjectPOJO implements Serializable{
     	    String err = "Error Finding All Unsynchronized PKs"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    } 
     }
     
@@ -737,7 +737,7 @@ public abstract class ObjectPOJO implements Serializable{
     	    String err = "Error getting the marshaled object '"+objectName+"' of id '"+uniqueID+"' in revision '"+(revisionID == null ? "[HEAD]": revisionID)+"'"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    } 
     }
     
@@ -781,7 +781,7 @@ public abstract class ObjectPOJO implements Serializable{
     	    String err = "Error creating/replacing the marshaled object '"+objectName+"' of id '"+uniqueID+"' in revision '"+(revisionID == null ? "[HEAD]": revisionID)+"'"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    } 
     }
     
@@ -912,7 +912,7 @@ public abstract class ObjectPOJO implements Serializable{
     	    String err = "Unable to find all the Object identifiers Using Criteria for object "+ getObjectName(objectClass)
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    LOG.error(err,e);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    } 
     }
     
@@ -945,7 +945,7 @@ public abstract class ObjectPOJO implements Serializable{
         } catch (Throwable t) {
         	String err = "Unable to marshal '"+this.getPK().getUniqueId()+"'";
 	        LOG.error(err,t);
-	        throw new XtentisException(err);
+	        throw new XtentisException(err, t);
         }
 		return sw.toString();
     }
@@ -970,7 +970,7 @@ public abstract class ObjectPOJO implements Serializable{
         } catch (Throwable t) {
 	        String err = "Unable to unmarshal the object of class '"+objectClass+"' from \n"+marshaledItem;
 	        LOG.error(err,t);
-	        throw new XtentisException(err);
+	        throw new XtentisException(err, t);
         } 
     }
     

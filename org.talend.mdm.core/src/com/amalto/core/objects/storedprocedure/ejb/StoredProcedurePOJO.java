@@ -112,7 +112,7 @@ public class StoredProcedurePOJO extends ObjectPOJO{
     	    String err = "Unable to execute the Stored Procedure "+getPK().getUniqueId()
     	    		+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    	    throw new EJBException(err);
+    	    throw new EJBException(err, e);
 	    } 
 
     }

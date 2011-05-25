@@ -103,18 +103,14 @@ public class StoredProcedureCtrlBean implements SessionBean{
     	org.apache.log4j.Logger.getLogger(this.getClass()).debug("putStoredProcedure() ");
     	
         try {
-            
-            StoredProcedurePOJOPK pk = new StoredProcedurePOJOPK(storedProcedure.store());
-            if (pk == null) throw new XtentisException("Check the XML Server logs");
-            
-            return pk;
+            return new StoredProcedurePOJOPK(storedProcedure.store());
 	    } catch (XtentisException e) {
 	    	throw(e);
 	    } catch (Exception e) {
     	    String err = "Unable to create/update the Stored Procedure "+storedProcedure.getName()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    }
 
     }
@@ -132,7 +128,7 @@ public class StoredProcedureCtrlBean implements SessionBean{
         try {
         	StoredProcedurePOJO sp = ObjectPOJO.load(StoredProcedurePOJO.class, pk);
         	if (sp == null) {
-        		String err= "The Stroed Procedure "+pk.getUniqueId()+" does not exist.";
+        		String err= "The Stored Procedure "+pk.getUniqueId()+" does not exist.";
         		org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
         		throw new XtentisException(err);
         	}
@@ -143,7 +139,7 @@ public class StoredProcedureCtrlBean implements SessionBean{
     	    String err = "Unable to get the StoredProcedure "+pk.toString()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    }
     }
     
@@ -188,7 +184,7 @@ public class StoredProcedureCtrlBean implements SessionBean{
     	    String err = "Unable to remove the Stored Procedure "+pk.toString()
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    }
     }    
     
@@ -216,7 +212,7 @@ public class StoredProcedureCtrlBean implements SessionBean{
 	    } catch (Exception e) {
     	    String err = e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-    	    throw new XtentisException(err);
+    	    throw new XtentisException(err, e);
 	    }
     }    
     
