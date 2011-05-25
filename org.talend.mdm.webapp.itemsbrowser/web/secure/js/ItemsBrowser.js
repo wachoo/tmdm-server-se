@@ -540,6 +540,16 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         'en' : 'Do you really want to delete this element '
     };
     
+    var MSG_CONFIRM_REFRESH_TREE_DETAIL ={
+    	'fr' : 'Are you sure you want to refresh that?',
+    	'en' : 'Are you sure you want to refresh that?'
+    };
+    
+    var CONFIRM = {
+    	'fr' : 'Reconnaît',
+    	'en' : 'Confirm'
+    };
+    
     /***************************************************************************
      * EXT 2.0
      **************************************************************************/
@@ -3083,26 +3093,39 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         tbDetail.saveItemHandler = function() {
                             // @temp yguo,
                             saveForGXT(ids, dataObject, treeIndex, function() {
-                                        tbDetail.refreshItemHandler();
+                                        tbDetail.refreshItemHandler(true);
                                     });
                         };
-                        tbDetail.refreshItemHandler = function() {
-                            var ids1;
-                            if (ids.length == 0)
-                                ids1 = itemPK2;
-                            else
-                                ids1 = ids;
-                            if (!ids1 || keys[treeIndex].length > 0) {
-                                ids1 = keys[treeIndex];
-                                // reset ids
-                                ids = ids1.join('.');
-                            }
-                            if (ids1 && ids1.length > 0) {
-                                ItemsBrowserInterface.reloadItem(dataObject,
-                                        getItemIdsArray(ids1), treeIndex, function() {
-                                            reloadNode(node1.index, treeIndex);
-                                        });
-                            }
+                        tbDetail.refreshItemHandler = function(noConfirming) {
+                        	
+                        	var refreshFn = function(){
+                        		var ids1;
+	                            if (ids.length == 0)
+	                                ids1 = itemPK2;
+	                            else
+	                                ids1 = ids;
+	                            if (!ids1 || keys[treeIndex].length > 0) {
+	                                ids1 = keys[treeIndex];
+	                                // reset ids
+	                                ids = ids1.join('.');
+	                            }
+	                            if (ids1 && ids1.length > 0) {
+	                                ItemsBrowserInterface.reloadItem(dataObject,
+	                                        getItemIdsArray(ids1), treeIndex, function() {
+	                                            reloadNode(node1.index, treeIndex);
+	                                        });
+	                            }
+                        	};
+                        	if (noConfirming == true){
+                        		refreshFn();
+                        		return;
+                        	}
+                        	
+                        	Ext.MessageBox.confirm(CONFIRM[language], MSG_CONFIRM_REFRESH_TREE_DETAIL[language], function(btn){
+                        		if (btn == "no") return;
+                        		refreshFn();
+                        	});
+
                         };
 
                         tbDetail.saveItemAndQuitHandler = function() {
@@ -3847,26 +3870,41 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             saveItemWithoutQuit(ids, dataObject, treeIndex,
                                     refreshCB);
                         };
-                        tbDetail.refreshItemHandler = function() {
+                        tbDetail.refreshItemHandler = function(noConfirming) {
+                        	
+                        	var refreshFn = function(){
+                        		var ids1;
+	                            if (ids.length == 0)
+	                                ids1 = itemPK2;
+	                            else
+	                                ids1 = ids;
+	                            if (!ids1 || keys[treeIndex].length > 0) {
+	                                ids1 = keys[treeIndex];
+	                                // reset ids
+	                                ids = ids1.join('.');
+	                            }
+	                            if (ids1 && ids1.length > 0) {
+	                                ItemsBrowserInterface.reloadItem(dataObject,
+	                                        ids1, treeIndex, function() {
+	                                            reloadNode(node1.index, treeIndex);
+	                                        });
+	                            }
+                        	};
+                        	
+                        	if (noConfirming == true){
+                        		refreshFn();
+                        		return;
+                        	}
+                        	
+                        	Ext.MessageBox.confirm(CONFIRM[language], MSG_CONFIRM_REFRESH_TREE_DETAIL[language], function(btn){
+                        		if (btn == "no") return;
+                        	    refreshFn();
+                        	});
 
-                            var ids1;
-                            if (ids.length == 0)
-                                ids1 = itemPK2;
-                            else
-                                ids1 = ids;
-                            if (!ids1 || keys[treeIndex].length > 0) {
-                                ids1 = keys[treeIndex];
-                                // reset ids
-                                ids = ids1.join('.');
-                            }
-                            if (ids1 && ids1.length > 0) {
-                                ItemsBrowserInterface.reloadItem(dataObject,
-                                        ids1, treeIndex, function() {
-                                            reloadNode(node1.index, treeIndex);
-                                        });
-                            }
-
+                            
+                            
                             /*
+
                              * var node2 = new YAHOO.widget.HTMLNode(nameTmp,
                              * root, false, true); var rootnode =
                              * root.children[0]; itemTree.removeNode(rootnode);
@@ -4788,7 +4826,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             // refreshCB.call();
             var toolbar = amalto.core.getTabPanel()
                     .getComponent('itemDetailsdiv' + treeIndex).getTopToolbar();
-            toolbar.refreshItemHandler();
+            toolbar.refreshItemHandler(true);
             // set isdirty=true
             var itempanel = amalto.core.getTabPanel().activeTab;
             if (itempanel) {
@@ -5346,7 +5384,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             }]
                 });
         var window = new Ext.Window({
-            title : 'Confirm',
+            title : CONFIRM[language],
             width : 200,
             height : 120,
             layout : 'fit',
