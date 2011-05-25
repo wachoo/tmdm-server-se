@@ -39,6 +39,7 @@ import org.dom4j.Node;
 import org.scb.gwt.web.server.i18n.GWTI18N;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
@@ -585,6 +586,19 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         if (SortDir.DESC.equals(pagingLoad.getSortDir())) {
             sortDir = ItemHelper.SEARCH_DIRECTION_DESC;
         }
+        Map<String, TypeModel> types = config.getModel().getMetaDataTypes();
+        TypeModel typeModel = types.get(pagingLoad.getSortField());
+
+        if (typeModel != null) {
+            if (DataTypeConstants.INTEGER.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                    || DataTypeConstants.INT.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                    || DataTypeConstants.LONG.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                    || DataTypeConstants.DECIMAL.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                    || DataTypeConstants.FLOAT.getTypeName().equals(typeModel.getType().getBaseTypeName())
+                    || DataTypeConstants.DOUBLE.getTypeName().equals(typeModel.getType().getBaseTypeName())) {
+                sortDir = "NUMBER:" + sortDir; //$NON-NLS-1$
+            }
+        }
         Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria()
                 .toString(), pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(),
                 config.getLanguage());
@@ -835,7 +849,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                         condition.add(whereItem);
                     WSWhereItem wc = null;
                     String strConcept = conceptName + "/. CONTAINS "; //$NON-NLS-1$
-
+                    
                     // if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
                     // strConcept = conceptName + "//* CONTAINS ";
                     // }

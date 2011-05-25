@@ -26,6 +26,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.commons.core.utils.XPathUtils;
 import com.amalto.commons.core.utils.xpath.ri.Compiler;
 import com.amalto.commons.core.utils.xpath.ri.compiler.Expression;
@@ -39,11 +45,6 @@ import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
 import com.amalto.xmlserver.interfaces.XmlServerException;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 /**
  * An XML DB Implementation of the wrapper that works with eXist Open
@@ -961,7 +962,13 @@ public abstract class QueryBuilder {
                 xqOrderBy = ""; //$NON-NLS-1$
             } else {
                 factorFirstPivotInMap(pivotsMap, orderBy);
-                xqOrderBy = "order by " + XPathUtils.factor(orderBy, pivotsMap) + (direction == null ? "" : " " + direction); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                boolean isNumber = false;
+                if (!"".equals(direction) && direction != null && direction.indexOf(":") != -1) { //$NON-NLS-1$
+                    isNumber = true;
+                    direction = direction.substring(direction.indexOf(":") + 1);
+                 }
+
+                xqOrderBy = "order by " + (isNumber ? ("number(" + XPathUtils.factor(orderBy, pivotsMap) + ")") : XPathUtils.factor(orderBy, pivotsMap)) + (direction == null ? "" : " " + direction); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
             partialXQLPackage.setXqOrderBy(xqOrderBy);
             // Get For
