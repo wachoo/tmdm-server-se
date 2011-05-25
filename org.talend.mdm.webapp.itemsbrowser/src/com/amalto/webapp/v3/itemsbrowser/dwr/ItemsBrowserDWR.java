@@ -514,6 +514,9 @@ public class ItemsBrowserDWR {
             ArrayList<String> nodeAutorization = new ArrayList<String>();
             ctx.getSession().setAttribute("nodeAutorization", nodeAutorization); //$NON-NLS-1$
 
+            // added by lzhang, clean the update status session
+            ctx.getSession().setAttribute("updatedPath" + docIndex, new HashMap<String, UpdateReportItem>()); //$NON-NLS-1$    
+
             return ids != null ? Util.joinStrings(ids, ".") : null; //$NON-NLS-1$
 
         } catch (Exception e) {
@@ -1380,7 +1383,7 @@ public class ItemsBrowserDWR {
 
         for (String dyPath : dynamicPathes) {
             org.dom4j.Element baseEl = (org.dom4j.Element) doc.selectSingleNode(basePath);
-            try { 
+            try {
                 org.dom4j.Element el = (org.dom4j.Element) baseEl.selectSingleNode(dyPath);//$NON-NLS-1$
                 if (el == null)
                     continue;
@@ -1394,7 +1397,7 @@ public class ItemsBrowserDWR {
                     String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
                     dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", fkInfoStr == null ? "" : fkInfoStr); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 continue;
             }
         }
@@ -1553,7 +1556,8 @@ public class ItemsBrowserDWR {
                         NodeList gettedNodeList = Util.getNodeList(d, updatePath);
                         if (gettedNodeList != null && gettedNodeList.getLength() > 0) {
                             Node node = gettedNodeList.item(0);
-                            node.setTextContent(updateReportItem.getNewValue());
+                            if (updateReportItem != null)
+                                node.setTextContent(updateReportItem.getNewValue());
                         }
                     }
                 }
@@ -1706,11 +1710,17 @@ public class ItemsBrowserDWR {
             ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
 
             XSParticle particle = idToParticle.get(newId);
-            if (particle != null && particle.getTerm().isElementDecl()) {
+            if (particle == null) // add simple node
+                updatedPath
+                        .put(
+                                siblingXpath + "[" + (siblingIndex + 1) + "]", new UpdateReportItem(idToXpath.get(newId), "", dspValue != null ? dspValue : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            else if (particle.getTerm().isElementDecl()) {
                 if (particle.getTerm().asElementDecl().getType().isSimpleType()) {
                     UpdateReportItem ri = new UpdateReportItem(idToXpath.get(newId), "", ""); //$NON-NLS-1$ //$NON-NLS-2$
                     updatedPath.put(siblingXpath + "[" + (siblingIndex + 1) + "]", ri); //$NON-NLS-1$ //$NON-NLS-2$
                 }
+            } else {
+                updatedPath.put(siblingXpath + "[" + (siblingIndex + 1) + "]", null); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
             ctx.getSession().setAttribute("updatedPath" + docIndex, updatedPath); //$NON-NLS-1$
@@ -2171,11 +2181,15 @@ public class ItemsBrowserDWR {
                 }
             }
             XSParticle particle = idToParticle.get(id);
-            if (particle != null && particle.getTerm().isElementDecl()) {
+            if (particle == null)// remove simple node
+                updatedPath.put(path, ri); //$NON-NLS-1$ //$NON-NLS-2$
+            else if (particle.getTerm().isElementDecl()) {
                 if (particle.getTerm().asElementDecl().getType().isSimpleType()) {
                     updatedPath.put(path, ri);
                 }
-            }
+            } else
+                updatedPath.put(path, null);
+
             idToXpath.remove(id);
             ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
             ctx.getSession().setAttribute("updatedPath" + docIndex, updatedPath); //$NON-NLS-1$
@@ -2324,7 +2338,7 @@ public class ItemsBrowserDWR {
                     && ctx.getSession().getAttribute("hasAutoChangeField" + docIndex).equals(new Boolean(true))) { //$NON-NLS-1$
                 hasAutoChangeField = true;
             }
-            if (!"DELETE".equals(operationType) && updatedPath == null) { //$NON-NLS-1$
+            if (!"DELETE".equals(operationType) && (updatedPath == null || updatedPath.isEmpty())) { //$NON-NLS-1$
                 if (!hasAutoChangeField) {
                     return new ItemResult(ItemResult.UNCHANGED);
                 }
@@ -3044,7 +3058,7 @@ public class ItemsBrowserDWR {
             WebContext ctx = WebContextFactory.get();
             HashMap<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
             updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute("updatedPath" + docIndex);//$NON-NLS-1$
-            if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && updatedPath == null) { //$NON-NLS-1$//$NON-NLS-2$
+            if (!("PHYSICAL_DELETE".equals(operationType) || "LOGIC_DELETE".equals(operationType)) && (updatedPath == null || updatedPath.isEmpty())) { //$NON-NLS-1$//$NON-NLS-2$
                 return "ERROR_2";//$NON-NLS-1$
             }
 

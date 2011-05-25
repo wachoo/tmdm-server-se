@@ -4799,15 +4799,17 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             paintDetailTreeSize(treeIndex);
         }
         
-        saveItem(ids, dataObject, treeIndex, function() {
-                    var itempanel = amalto.core.getTabPanel().activeTab;
-                    if (itempanel) {
-                        itempanel.isdirty = false;
-                    }
-                    amalto.core.getTabPanel().remove('itemDetailsdiv'
-                            + treeIndex);
-                    refreshCB.call();
-                });
+        saveItem(ids, dataObject, treeIndex, function(result) {
+        	if (result.status == 2)//no change
+        		return;
+            var itempanel = amalto.core.getTabPanel().activeTab;
+            if (itempanel) {
+                itempanel.isdirty = false;
+            }
+            amalto.core.getTabPanel().remove('itemDetailsdiv'
+                    + treeIndex);
+            refreshCB.call();
+        });
 
     }
 
@@ -4826,6 +4828,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         saveItem(ids, dataObject, treeIndex, function(result) {        
             // amalto.core.getTabPanel().remove('itemDetailsdiv'+treeIndex);
             // refreshCB.call();
+        	if (result.status == 2)//no change
+        		return;
             var toolbar = amalto.core.getTabPanel()
                     .getComponent('itemDetailsdiv' + treeIndex).getTopToolbar();
             toolbar.refreshItemHandler(true);
@@ -4833,8 +4837,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             var itempanel = amalto.core.getTabPanel().activeTab;
             if (itempanel) {
                 itempanel.isdirty = false;
-                if (result != null){  
-                	var itemPK  = result.split('.');
+                if (result != null && result.returnValue != null){  
+                	var itemPK  = result.returnValue.split('.');
                 	 var myTitle = ""; 
                      if (dataObject != null)
                          myTitle = dataObject;
@@ -5056,11 +5060,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         tbDetail.items.get('saveBTN').enable();
                         tbDetail.items.get('saveAndQBTN').enable();
 
-                        if (callbackOnSuccess && result.status != 1)
-                        	if (result.returnValue)
-                        		callbackOnSuccess(result.returnValue);
-                        	else
-                        		callbackOnSuccess();
+                        if (callbackOnSuccess && result.status != 1)                        	
+                        	callbackOnSuccess(result);
 
                         if (result.description == null
                                 || result.description == "") {
