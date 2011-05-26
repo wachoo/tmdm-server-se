@@ -363,6 +363,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    	//for delete we need to be admin, or have a role of admin , or role of write on instance 
 	    	boolean authorized = false;
 	    	ILocalUser user = LocalUser.getLocalUser();
+	    	if(user.getUsername()==null) return null;
 	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$ 
 	    		authorized = true;
 	    	} else if (user.isAdmin(objectClass)) {
@@ -449,6 +450,7 @@ public abstract class ObjectPOJO implements Serializable{
 	    	//for storing we need to be admin, or have a role of admin , or role of write on instance 
 	    	boolean authorized = false;
 	    	ILocalUser user = LocalUser.getLocalUser();
+	    	if(user.getUsername()==null) return null;
 	    	if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { 
 	    		authorized = true;
 	    	} else if (user.userCanWrite(this.getClass(), this.getPK().getUniqueId())) {

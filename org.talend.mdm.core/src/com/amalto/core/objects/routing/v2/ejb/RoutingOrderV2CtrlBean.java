@@ -420,9 +420,10 @@ public class RoutingOrderV2CtrlBean implements SessionBean, TimedObject {
         	
         	ObjectPOJOPK pk = routingOrderPOJO.store();
             if (pk == null) {
-        	    String err = "XML server failure. Unable to create/update the Routing Order. "+routingOrderPOJO.getPK().getUniqueId()+" with message\n"+routingOrderPOJO.getMessage();
-        	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-            	throw new XtentisException(err);
+//        	    String err = "XML server failure. Unable to create/update the Routing Order. "+routingOrderPOJO.getPK().getUniqueId()+" with message\n"+routingOrderPOJO.getMessage();
+//        	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+//            	throw new XtentisException(err);
+            	return null;
             }
             
             return routingOrderPOJO.getAbstractRoutingOrderPOJOPK();
