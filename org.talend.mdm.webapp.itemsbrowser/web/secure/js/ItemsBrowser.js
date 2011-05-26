@@ -2091,7 +2091,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         clearToolBar(toolbar);
         toolbar.currentMode = mode;
         var nbButtons = 0;
-
+        mode =M_TREE_VIEW;
         var options = 0;
         switch (mode) {
             case M_TREE_VIEW :
@@ -3203,29 +3203,29 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     
                                     listeners : {
                                         "render" : function(contentPanel) {
-											
+                                            
                                         }
                                     },
                                     bbar : new Ext.Toolbar([{
-	                                                text : EDIT_ITEM_TOOLTIP[language],
-	                                                xtype : "tbtext"
-	                                            }])
+                                                    text : EDIT_ITEM_TOOLTIP[language],
+                                                    xtype : "tbtext"
+                                                }])
                                 });
                     }
                     formWindow.innerHTML = "";
                     formWindow.style.overflow = "hidden";
 
                     contentPanel.render(formWindow);
-					
+                    
                     formWindow.renderFormResize = function(){
-                    	var h1 = contentPanel.getTopToolbar().getEl().dom.offsetHeight;
-						var h2 = contentPanel.getBottomToolbar().getEl().dom.offsetHeight;
-						var contentHeight = formWindow.offsetHeight - h1 - h2;
-						treeDetailPanel.getEl().dom.parentNode.style.height = contentHeight + "px";
+                        var h1 = contentPanel.getTopToolbar().getEl().dom.offsetHeight;
+                        var h2 = contentPanel.getBottomToolbar().getEl().dom.offsetHeight;
+                        var contentHeight = formWindow.offsetHeight - h1 - h2;
+                        treeDetailPanel.getEl().dom.parentNode.style.height = contentHeight + "px";
                     };
                     
                     window.setTimeout(function(){
-                    	formWindow.renderFormResize();
+                        formWindow.renderFormResize();
                     }, 1);
                     
                     
@@ -3352,16 +3352,17 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     }
 
     function pickOutISOMessage(message){
-        var result = message;
-        var pattern = "\\["
-                + language
-                        .toUpperCase()
-                + ":"
-                + "(.*)\\]";
+        var result = message.replaceAll("\\[", "{");
+        result = result.replaceAll("\\]", "}");
+        
+        var pattern = "([{]" + language
+                        .toUpperCase() + ":" + "(([^{]|[{][^{}]*[}])*)})";
         var resultArray = result
                 .match(pattern);
         if (resultArray != null) {
-            result = resultArray[1];
+            result = resultArray[2];
+            result = result.replaceAll("{", "[");
+            result = result.replaceAll("}", "]");
         }
         return result;
     }
@@ -4069,9 +4070,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         contentPanel.doLayout();
                         
                         window.setTimeout(function(){
-							var h2 = contentPanel.getBottomToolbar().getEl().dom.offsetHeight;
-							treeDetailPanel.getEl().dom.parentNode.style.height = treeDetailPanel.getEl().dom.parentNode.offsetHeight - h2; 
-                    	}, 1);
+                            var h2 = contentPanel.getBottomToolbar().getEl().dom.offsetHeight;
+                            treeDetailPanel.getEl().dom.parentNode.style.height = treeDetailPanel.getEl().dom.parentNode.offsetHeight - h2; 
+                        }, 1);
                     }
 
                     if (isBreadCrumb && parentLink["isWindow"] != "true") {
@@ -4187,10 +4188,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     }
 
     function paintDetailTreeSize(treeIndex){
-    	var errorEl = Ext.get('errorDetailsdiv' + treeIndex).dom;
-    	var detailEl = Ext.get('treeDetailsdiv' + treeIndex).dom;
-    	var parent = errorEl.parentNode;
-    	detailEl.style.height = (1 - (errorEl.offsetHeight / parent.offsetHeight)) * 100 + "%";
+        var errorEl = Ext.get('errorDetailsdiv' + treeIndex).dom;
+        var detailEl = Ext.get('treeDetailsdiv' + treeIndex).dom;
+        var parent = errorEl.parentNode;
+        detailEl.style.height = (1 - (errorEl.offsetHeight / parent.offsetHeight)) * 100 + "%";
     }
     
     function getSelectedViewName(dataObject) {
@@ -4223,13 +4224,13 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         }
 
         $('errorDetail' + treeIndex).style.display = "none";
-		paintDetailTreeSize(treeIndex);
+        paintDetailTreeSize(treeIndex);
         var itemTree = itemTreeList[treeIndex];        
         // node.itemData.nodeId = id;
         // edit by ymli: fix the bug:0013463
         ItemsBrowserInterface.updateNode(id, value, treeIndex,
                 function(_result) {
-        			node.updateNodeValue(value);
+                    node.updateNodeValue(value);
                     amalto.core.ready(_result);                    
                     ItemsBrowserInterface.checkVisibilityRules(treeIndex,function(results){
                         if(results!=null){
@@ -4241,8 +4242,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     }
                                     //synchronize to itemData
                                     var treeNode = itemTree.getNodeByIndex(treeNodeId);
-                                    if (treeNode != undefined && treeNode != null){                                    	
-                                    	treeNode.itemData.visible = results[treeNodeId];
+                                    if (treeNode != undefined && treeNode != null){                                     
+                                        treeNode.itemData.visible = results[treeNodeId];
                                     }
                                 }   
                             }
@@ -4328,7 +4329,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var error = itemTreeList[treeIndex];
         $('errorDesc' + treeIndex).style.display = errorString
                 .indexOf("Save item") == 0 ? "none" : "block";
-		paintDetailTreeSize(treeIndex);
+        paintDetailTreeSize(treeIndex);
         var reCat = /\[Error\].*\n/gi;
         var innerHml = "";
         var arrMactches = errorString.match(reCat);
@@ -4384,7 +4385,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var error = itemTreeList[treeIndex];
         $('errorDesc' + treeIndex).style.display = errorString
                 .indexOf("Save item") == 0 ? "none" : "block";
-		paintDetailTreeSize(treeIndex);
+        paintDetailTreeSize(treeIndex);
         var reCat = /\[Error\].*\n/gi;
         var innerHml = "";
         var arrMactches = errorString.match(reCat);
@@ -4952,8 +4953,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             return;
         $('errorDesc' + treeIndex).style.display = "none";
         $('errorDetail' + treeIndex).style.display = "none";
-		paintDetailTreeSize(treeIndex);
-		
+        paintDetailTreeSize(treeIndex);
+        
         var cluster = DWRUtil.getValue('datacluster-select');
         ItemsBrowserInterface.isDataClusterExists(cluster, {
                     callback : function(result) {
@@ -5921,7 +5922,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     + treeIndex).getTopToolbar();
         } else {
 //            tbDetail = Ext.getCmp('itemDetailsdiv' + treeIndex).getTopToolbar();
-        	tbDetail = Ext.getCmp(treeIndex + "_item-tb");
+            tbDetail = Ext.getCmp(treeIndex + "_item-tb");
         }
         return tbDetail;
     }
@@ -5930,7 +5931,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var smartViewName = null;
         var selectedSmartView = Ext.getCmp('smartViewCombo' + treeIndex).value;
         if (selectedSmartView != undefined && selectedSmartView != null) {
-        	smartViewName = selectedSmartView;
+            smartViewName = selectedSmartView;
         }
 
         var url = '/itemsbrowser/secure/SmartViewServlet?ids=' + ids
