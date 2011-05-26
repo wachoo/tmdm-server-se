@@ -75,6 +75,7 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class ItemsListPanel extends ContentPanel {
 
+    List<ItemBean> selectedItems = null;
     ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
     RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
@@ -146,10 +147,19 @@ public class ItemsListPanel extends ContentPanel {
             public void loaderLoad(LoadEvent le) {
                 if (store.getModels().size() > 0) {
                     showItemTimes++;
-                    grid.getSelectionModel().select(0, false);
-
+                    if (selectedItems != null){
+                        grid.getSelectionModel().select(selectedItems, false);
+                        ItemBean selectedItem = grid.getSelectionModel().getSelectedItem();
+                        if (selectedItem == null){
+                            grid.getSelectionModel().select(0, false);
+                        }
+                    } else {
+                        grid.getSelectionModel().select(0, false);
+                    }
                 } else {
                     toolBar.searchBut.setEnabled(true);
+                    ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
+                    itemsSearchContainer.getItemsFormPanel().getElement().setInnerHTML(""); //$NON-NLS-1$
                 }
             }
         });
@@ -220,8 +230,8 @@ public class ItemsListPanel extends ContentPanel {
             @Override
             public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
                 final ItemBean item = se.getSelectedItem();
-
                 if (item != null) {
+                    selectedItems = se.getSelection();
                     gridContainer.setEnabled(false);
                     EntityModel entityModel = (EntityModel) Itemsbrowser2.getSession().get(UserSession.CURRENT_ENTITY_MODEL);
                     service.getItem(item, entityModel, new AsyncCallback<ItemBean>() {
@@ -233,7 +243,7 @@ public class ItemsListPanel extends ContentPanel {
 
                         public void onSuccess(ItemBean result) {
                             item.copy(result);
-                            showItem(result, ItemsView.TARGET_IN_SEARCH_TAB);
+                            showItem(item, ItemsView.TARGET_IN_SEARCH_TAB);
                         }
                     });
                 } else {

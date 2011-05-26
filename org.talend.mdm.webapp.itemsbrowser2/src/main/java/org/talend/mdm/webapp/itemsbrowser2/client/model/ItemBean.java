@@ -118,4 +118,17 @@ public class ItemBean extends ItemBaseModel {
         }
     }
 
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (!(obj instanceof ItemBean))
+            return false;
+        
+        ItemBean item = (ItemBean) obj;
+        if (item.ids != null){
+            return item.ids.equals(this.ids);
+        }
+        return item.ids == this.ids;
+        
+    }
 }
