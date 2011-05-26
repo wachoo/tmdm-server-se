@@ -80,9 +80,9 @@ public class DefaultStateContext implements StateContext {
         this.payLoadElementName = payLoadElementName;
 
         metadata = new Metadata();
-        metadata.setContainer(payLoadElementName);
         metadata.setName(payLoadElementName);
         metadata.setDmn(payLoadElementName);
+        metadata.setContainer(dataClusterName);
         metadata.setDataClusterName(dataClusterName);
     }
 
