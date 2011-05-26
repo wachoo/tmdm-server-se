@@ -2067,6 +2067,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     // modes
     var M_TREE_VIEW = 1;
     var M_PERSO_VIEW = 2;
+    
+    // save user selected smart view
+    var selectedView;
 
     function clearToolBar(toolbar) {
         if (toolbar.tr != undefined && toolbar.tr.childNodes) {
@@ -2091,7 +2094,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         clearToolBar(toolbar);
         toolbar.currentMode = mode;
         var nbButtons = 0;
-        mode =M_TREE_VIEW;
+        // remove redundant code
+        //mode =M_TREE_VIEW;
         var options = 0;
         switch (mode) {
             case M_TREE_VIEW :
@@ -2200,6 +2204,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                 + language.toUpperCase()) {
                                     smartViewCombo.setValue(gettedValue);
                                     break;
+                                }if (selectedView){
+                                	if (selectedView != ""){
+                                		smartViewCombo.setValue(selectedView);
+                                        break;
+                                	}
                                 }
                             }
                         }
@@ -2220,6 +2229,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     'select' : function(smartViewCombo, record, index) {
 
                         var smartViewName = record.data.value;
+                        selectedView = smartViewName;
                         var frameUrl = '/itemsbrowser/secure/SmartViewServlet?ids='
                                 + toolbar.ids
                                 + '&concept='
@@ -2533,6 +2543,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var tabPanel = amalto.core.getTabPanel();
         var contentPanel = tabPanel.getItem('itemDetailsdiv' + treeIndex);
         var ids = "";
+        //reinit
+        selectedView = "";
 
         if (itemPK2 == null) {
             newItem[treeIndex] = true;
@@ -3060,7 +3072,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                         ItemsBrowserInterface.checkSmartViewExists(dataObject,
                                 language, function(result) {
-
+                        			DWREngine.setAsync(false);
                                     var mode = M_TREE_VIEW;
                                     // var tb =
                                     // tabPanel.getComponent('itemDetailsdiv'+treeIndex).getTopToolbar();
@@ -3086,10 +3098,22 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                                         $('smartView' + treeIndex).style.display = 'block';
                                         $('itemDetails' + treeIndex).style.display = 'none';
-                                    }
+                                    }else  if (newItem[treeIndex] == false){
+                                    	ItemsBrowserInterface.checkSmartViewExistsByOpt(dataObject,
+                                                language, function(exists) {
+                                    		if (exists == true){
+                                    			 tbDetail.displaySmartViewHandler = function() {
+                                    		            getSmartView(ids, '' + dataObject, treeIndex);
+                                    		        };
 
+                                    		        tb.baseOptions |= O_PRINT
+                                                    | O_PERSO_VIEW
+                                                    | O_SMARTVIEW_SWITCH;
+                                    		}
+                                    	});
+                                    }  
                                     initToolBar(tb, mode);
-
+                                    DWREngine.setAsync(true);
                                 });
 
                         tbDetail.saveItemHandler = function() {
@@ -3425,6 +3449,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 return;
         }
         var ids = "";
+        //reinit
+        selectedView = "";
 
         if (itemPK2 == null) {
             newItem[treeIndex] = true;
@@ -3844,7 +3870,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                     var tb = tbDetail;
                                     if (result == true
                                             && newItem[treeIndex] == false) {
-
+                                    	DWREngine.setAsync(false);
                                         mode = M_PERSO_VIEW;
 
                                         tbDetail.displayTreeHandler = function() {
@@ -3863,10 +3889,22 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                                         $('smartView' + treeIndex).style.display = 'block';
                                         $('itemDetails' + treeIndex).style.display = 'none';
-                                    }
+                                    }else  if (newItem[treeIndex] == false){
+                                    	ItemsBrowserInterface.checkSmartViewExistsByOpt(dataObject,
+                                                language, function(exists) {
+                                    		if (exists == true){
+                                    			 tbDetail.displaySmartViewHandler = function() {
+                                    		            getSmartView(ids, '' + dataObject, treeIndex);
+                                    		        };
 
+                                    		        tb.baseOptions |= O_PRINT
+                                                    | O_PERSO_VIEW
+                                                    | O_SMARTVIEW_SWITCH;
+                                    		}
+                                    	});
+                                    }  
                                     initToolBar(tb, mode);
-
+                                    DWREngine.setAsync(true);
                                 });
 
                         tbDetail.saveItemHandler = function() {

@@ -3093,6 +3093,26 @@ public class ItemsBrowserDWR {
             node.getParentNode().appendChild(newNode);
     }
 
+    public static boolean checkSmartViewExistsByOpt(String concept, String language) {
+        try {
+            SmartViewDescriptions smDescs = new SmartViewDescriptions();
+            smDescs.build(concept, language);
+
+            Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
+
+            // Add the no language Smart Views too
+            smDescSet.addAll(smDescs.get(null));
+
+            if (!smDescSet.isEmpty())
+                return true;
+            else
+                return false;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
     public static boolean checkSmartViewExistsByLang(String concept, String language, boolean useNoLang) {
         return checkSmartViewExistsByLangAndOptName(concept, language, null, useNoLang);
     }
