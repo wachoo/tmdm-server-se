@@ -963,12 +963,12 @@ public abstract class QueryBuilder {
             } else {
                 factorFirstPivotInMap(pivotsMap, orderBy);
                 boolean isNumber = false;
-                if (!"".equals(direction) && direction != null && direction.indexOf(":") != -1) { //$NON-NLS-1$
+                if (!"".equals(direction) && direction != null && direction.indexOf(":") != -1) { //$NON-NLS-1$ //$NON-NLS-2$
                     isNumber = true;
-                    direction = direction.substring(direction.indexOf(":") + 1);
+                    direction = direction.substring(direction.indexOf(":") + 1); //$NON-NLS-1$
                  }
 
-                xqOrderBy = "order by " + (isNumber ? ("number(" + XPathUtils.factor(orderBy, pivotsMap) + ")") : XPathUtils.factor(orderBy, pivotsMap)) + (direction == null ? "" : " " + direction); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                xqOrderBy = "order by " + (isNumber ? ("number(" + XPathUtils.factor(orderBy, pivotsMap) + ")") : XPathUtils.factor(orderBy, pivotsMap)) + (direction == null ? "" : " " + direction); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
             }
             partialXQLPackage.setXqOrderBy(xqOrderBy);
             // Get For
