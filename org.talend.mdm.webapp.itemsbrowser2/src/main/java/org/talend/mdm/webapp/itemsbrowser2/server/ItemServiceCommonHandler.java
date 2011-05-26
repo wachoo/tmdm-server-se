@@ -37,6 +37,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.scb.gwt.web.server.i18n.GWTI18N;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
@@ -850,9 +852,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     WSWhereItem wc = null;
                     String strConcept = conceptName + "/. CONTAINS "; //$NON-NLS-1$
                     
-                    // if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                    // strConcept = conceptName + "//* CONTAINS ";
-                    // }
+                    if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
+                        strConcept = conceptName + "//* CONTAINS "; //$NON-NLS-1$
+                    }
                     wc = com.amalto.webapp.core.util.Util.buildWhereItem(strConcept + value);
                     condition.add(wc);
                     WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
