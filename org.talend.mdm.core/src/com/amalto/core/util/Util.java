@@ -77,6 +77,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import org.apache.commons.jxpath.AbstractFactory;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
@@ -2943,7 +2944,7 @@ public class Util {
                 + "</OperationType>" + "<RevisionID>" + revisionId + "</RevisionID>" + "<DataCluster>" + dataClusterPK
                 + "</DataCluster>" + "<DataModel>" + dataModelPK + "</DataModel>" + "<Concept>"
                 + StringEscapeUtils.escapeXml(concept) + "</Concept>" + "<Key>" + StringEscapeUtils.escapeXml(key) + "</Key>";
-        if ("UPDATE".equals(operationType)) {
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
             Collection<UpdateReportItem> list = updatedPath.values();
             boolean isUpdate = false;
             for (Iterator<UpdateReportItem> iter = list.iterator(); iter.hasNext();) {

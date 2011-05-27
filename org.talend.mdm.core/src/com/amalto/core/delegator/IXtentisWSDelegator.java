@@ -1640,9 +1640,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             HashMap<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
 
             if (itemPoJo == null) {
-                operationType = UpdateReportPOJO.OPERATIONTYPE_CREATE;
+                operationType = UpdateReportPOJO.OPERATION_TYPE_CREATE;
             } else {
-                operationType = UpdateReportPOJO.OPERATIONTYPE_UPDATEE;
+                operationType = UpdateReportPOJO.OPERATION_TYPE_UPDATE;
                 // get updated path
                 Element old = itemPoJo.getProjection();
                 Element newNode = root;

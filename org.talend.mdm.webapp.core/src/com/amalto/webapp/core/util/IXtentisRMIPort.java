@@ -48,8 +48,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
 import org.jboss.security.Base64Encoder;
-import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -2233,9 +2231,9 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             HashMap<String, UpdateReportItem> updatedPath = new HashMap<String, UpdateReportItem>();
 
             if (itemPoJo == null) {
-                operationType = UpdateReportPOJO.OPERATIONTYPE_CREATE;
+                operationType = UpdateReportPOJO.OPERATION_TYPE_CREATE;
             } else {
-                operationType = UpdateReportPOJO.OPERATIONTYPE_UPDATEE;
+                operationType = UpdateReportPOJO.OPERATION_TYPE_UPDATE;
                 // get updated path
                 Element old = itemPoJo.getProjection();
                 Element newNode = root;
