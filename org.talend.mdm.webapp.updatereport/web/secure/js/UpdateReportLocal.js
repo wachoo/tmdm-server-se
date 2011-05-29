@@ -40,8 +40,8 @@ amalto.updatereport.UpdateReportLocal=function(){
 			};
 
 			locale_fr = {
-				'dataCluster' : 'Data Container',
-				'dataModel' : 'Data Model',
+				'dataCluster' : 'Conteneur de données',
+				'dataModel' : 'Modèle de données',
 				'concept' : 'Entité',
 				'key' : 'Clé',
 				'revisionID' : 'ID de révision',
@@ -53,11 +53,11 @@ amalto.updatereport.UpdateReportLocal=function(){
 				'start_date':'Date de début',
 				'end_date': 'Date de fin',
 				'searchPanel_tile':'Panneau de recherche',
-				'reset':'Réinitialise',
-				'search':'Recherche',
-				'emptyMsg':'Aucun donnée',
+				'reset':'Réinitialiser',
+				'search':'Rechercher',
+				'emptyMsg':'Aucune donnée',
 				'lines_per_page':'Nombre de lignes par page',
-				'displayMsg':'Affichage enregistrements {0} - {1} sur {2}',
+				'displayMsg':'Affichage des enregistrements {0} - {1} sur {2}',
 				'export':'Exporter vers Excel'
 			};
                  
