@@ -405,7 +405,26 @@ public class ItemPOJO implements Serializable {
                 
                 if (Util.getFirstTextNode(header, "dmr") != null) //$NON-NLS-1$
                     newItem.setDataModelRevision(Util.getFirstTextNode(header, "dmr")); //$NON-NLS-1$
-                newItem.setInsertionTime(Long.parseLong(Util.getFirstTextNode(header, "t"))); //$NON-NLS-1$
+                
+                //if <t> after <taskId> then see 0021697
+                String time=null;
+                if(m.group(1).indexOf("<t>")==-1){ //$NON-NLS-1$
+                	Pattern tp=Pattern.compile("<t>(.*?)</t>"); //$NON-NLS-1$
+                	Matcher tm=tp.matcher(item);
+                	if(tm.find()){
+                		time=tm.group(1);
+                	}
+                }else{
+                	time=Util.getFirstTextNode(header, "t"); //$NON-NLS-1$
+                }
+                if(time!=null){
+                	try{
+                	newItem.setInsertionTime(Long.parseLong(time)); //$NON-NLS-1$
+                	}catch(Exception e){
+                		LOG.error(e);
+                	}
+                }
+                
                 String plan = Util.getFirstTextNode(header, "sp"); //$NON-NLS-1$
                 if (plan != null)
                     newItem.setPlanPK(new SynchronizationPlanPOJOPK(plan));
