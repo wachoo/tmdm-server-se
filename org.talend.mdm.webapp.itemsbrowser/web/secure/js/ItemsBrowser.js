@@ -3122,7 +3122,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                         tbDetail.refreshItemHandler(true);
                                     });
                         };
-                        tbDetail.refreshItemHandler = function(noConfirming) {
+                        tbDetail.refreshItemHandler = function(noConfirming, newIds) {
                         	
                         	var refreshFn = function(){
                         		var ids1;
@@ -3134,6 +3134,22 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 	                                ids1 = keys[treeIndex];
 	                                // reset ids
 	                                ids = ids1.join('.');
+	                            }
+ 								if (newIds && newIds.constructor == String){
+ 									 ids1 = newIds.split('.'); 
+ 									 // reset ids
+	                                 ids = newIds; 	
+	                                 //update the title
+	                                 isDuplicate = false;         
+								      var myTitle = "";
+								      if(_dataObject!=null) myTitle=_dataObject;
+								    
+								      if(dataObject!=null) myTitle = dataObject;  
+								    
+								      for(var i=0; i<ids1.length; i++) {
+								       myTitle +=" "+ids1[i];
+								      } 	          
+								      contentPanel.setTitle(myTitle);								                             								 								
 	                            }
 	                            if (ids1 && ids1.length > 0) {
 	                                ItemsBrowserInterface.reloadItem(dataObject,
@@ -3366,7 +3382,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                             icon : Ext.MessageBox.INFO
                                         });
                                 if (callbackOnSuccess && result.status != 1)
-                                    callbackOnSuccess();
+                                    callbackOnSuccess(result.returnValue);
                                 return;
                             }
                         }
@@ -3911,7 +3927,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             saveItemWithoutQuit(ids, dataObject, treeIndex,
                                     refreshCB);
                         };
-                        tbDetail.refreshItemHandler = function(noConfirming) {
+                        tbDetail.refreshItemHandler = function(noConfirming,newIds) {
                         	
                         	var refreshFn = function(){
                         		var ids1;
@@ -3924,6 +3940,23 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 	                                // reset ids
 	                                ids = ids1.join('.');
 	                            }
+ 								if (newIds && newIds.constructor == String){
+ 									 ids1 = newIds.split('.'); 
+ 									 // reset ids
+	                                 ids = newIds; 	
+	                                 //update the title
+	                                 isDuplicate = false;         
+								      var myTitle = "";
+								      if(_dataObject!=null) myTitle=_dataObject;
+								    
+								      if(dataObject!=null) myTitle = dataObject;  
+								    
+								      for(var i=0; i<ids1.length; i++) {
+								       myTitle +=" "+ids1[i];
+								      } 	                    
+								      contentPanel.setTitle(myTitle);
+								                   								 									
+	                            }	                            
 	                            if (ids1 && ids1.length > 0) {
 	                                ItemsBrowserInterface.reloadItem(dataObject,
 	                                        ids1, treeIndex, function() {
@@ -4871,7 +4904,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         		return;
             var toolbar = amalto.core.getTabPanel()
                     .getComponent('itemDetailsdiv' + treeIndex).getTopToolbar();
-            toolbar.refreshItemHandler(true);
+            toolbar.refreshItemHandler(true,result);
             // set isdirty=true
             var itempanel = amalto.core.getTabPanel().activeTab;
             if (itempanel) {
@@ -5100,7 +5133,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         tbDetail.items.get('saveAndQBTN').enable();
 
                         if (callbackOnSuccess && result.status != 1)                        	
-                        	callbackOnSuccess(result);
+                        	callbackOnSuccess(result.returnValue);
 
                         if (result.description == null
                                 || result.description == "") {
