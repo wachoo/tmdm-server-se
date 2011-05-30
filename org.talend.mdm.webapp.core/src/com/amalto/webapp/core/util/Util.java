@@ -124,11 +124,11 @@ public class Util {
 
     private static String port = null;
     static {
-        port = MDMConfiguration.getConfiguration().getProperty("xmldb.server.port");
+        port = MDMConfiguration.getConfiguration().getProperty("xmldb.server.port"); //$NON-NLS-1$
         port = port == null ? "8080" : port;
     }
 
-    private static String endpoint_address = "http://localhost:" + port + "/talend/TalendPort";
+    private static String endpoint_address = "http://localhost:" + port + "/talend/TalendPort"; //$NON-NLS-1$ //$NON-NLS-2$
 
     public static int _AUTO_ = 0;
 
@@ -145,13 +145,13 @@ public class Util {
         try {
             as = Util.getAjaxSubject();
         } catch (Exception e) {
-            throw new XtentisWebappException("Unable to access the logged user data");
+            throw new XtentisWebappException("Unable to access the logged user data"); //$NON-NLS-1$
         }
         if (as == null)
-            throw new XtentisWebappException("Session Expired");
+            throw new XtentisWebappException("Session Expired"); //$NON-NLS-1$
         // org.apache.log4j.Category.getInstance(Util.class).debug("getPort() ");
         String[] mdm = as.getMDMData();
-        String url = "http://" + mdm[0] + "/talend/TalendPort";
+        String url = "http://" + mdm[0] + "/talend/TalendPort"; //$NON-NLS-1$ //$NON-NLS-2$
         return Util.getPort(url, mdm[1], mdm[2]);
     }
 
@@ -172,7 +172,7 @@ public class Util {
             return getWSPort(endpointAddress, username, password);
 
         // Auto
-        if (endpointAddress.contains("localhost"))
+        if (endpointAddress.contains("localhost")) //$NON-NLS-1$
             return getRMIEndPoint();
 
         return getWSPort(endpointAddress, username, password);
@@ -193,7 +193,7 @@ public class Util {
             return (XtentisPort) stub;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new XtentisWebappException("Unable to access endpoint at: " + endpointAddress + ": " + e.getLocalizedMessage());
+            throw new XtentisWebappException("Unable to access endpoint at: " + endpointAddress + ": " + e.getLocalizedMessage()); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
@@ -202,7 +202,7 @@ public class Util {
         // return new XtentisRMIPort();
 
         try {
-            return (IXtentisRMIPort) Class.forName("com.amalto.webapp.core.util.XtentisRMIPort").newInstance();
+            return (IXtentisRMIPort) Class.forName("com.amalto.webapp.core.util.XtentisRMIPort").newInstance(); //$NON-NLS-1$
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -217,10 +217,10 @@ public class Util {
         BufferedReader in = null;
         in = new BufferedReader(new InputStreamReader(c.getResourceAsStream(filename)));
 
-        String xml = "";
+        String xml = ""; //$NON-NLS-1$
         String line;
         while ((line = in.readLine()) != null)
-            xml += line + "\n";
+            xml += line + "\n"; //$NON-NLS-1$
         return xml;
     }
 
@@ -242,9 +242,9 @@ public class Util {
     public static String joinStrings(String[] strings, String separator) {
         if (strings == null)
             return null;
-        String res = "";
+        String res = ""; //$NON-NLS-1$
         for (int i = 0; i < strings.length; i++) {
-            res += (i > 0) ? separator : "";
+            res += (i > 0) ? separator : ""; //$NON-NLS-1$
             res += strings[i];
         }
         return res;
@@ -257,12 +257,14 @@ public class Util {
      * @return the Concept Name
      */
     public static String getConceptFromPath(String path) {
-        if(path==null||path.trim().length()==0)return null;
-        if(path.startsWith("/"))path=path.substring(1);
-        
-        Pattern p = Pattern.compile("(.*?)[\\[|/].*");
-        if (!path.endsWith("/"))
-            path += "/";
+        if (path == null || path.trim().length() == 0)
+            return null;
+        if (path.startsWith("/")) //$NON-NLS-1$
+            path = path.substring(1);
+
+        Pattern p = Pattern.compile("(.*?)[\\[|/].*"); //$NON-NLS-1$
+        if (!path.endsWith("/")) //$NON-NLS-1$
+            path += "/"; //$NON-NLS-1$
         Matcher m = p.matcher(path);
         if (m.matches())
             return m.group(1);
@@ -278,16 +280,16 @@ public class Util {
     public static String getFieldFromPath(String path) {
         String result = null;
         if (path != null) {
-            if (path.endsWith("/"))
-                path = path.substring(0, path.lastIndexOf("/"));
-            String[] tmps = path.split("/");
+            if (path.endsWith("/")) //$NON-NLS-1$
+                path = path.substring(0, path.lastIndexOf("/")); //$NON-NLS-1$
+            String[] tmps = path.split("/"); //$NON-NLS-1$
             result = tmps[tmps.length - 1];
         }
         return result;
     }
 
     public static String getForeignPathFromPath(String path) {
-        int pos = path.indexOf("[");
+        int pos = path.indexOf("["); //$NON-NLS-1$
         if (pos != -1) {
             return path.substring(0, pos);
         }
@@ -296,16 +298,16 @@ public class Util {
     }
 
     public static WSWhereCondition getConditionFromPath(String path) {
-        Pattern p = Pattern.compile("(.*?)\\[(.*?)(&=|!=|>=|<=|>|<|=)(.*?)\\].*");
-        if (!path.endsWith("/"))
-            path += "/";
+        Pattern p = Pattern.compile("(.*?)\\[(.*?)(&=|!=|>=|<=|>|<|=)(.*?)\\].*"); //$NON-NLS-1$
+        if (!path.endsWith("/")) //$NON-NLS-1$
+            path += "/"; //$NON-NLS-1$
         Matcher m = p.matcher(path);
         if (m.matches()) {
             WSWhereCondition wc = new WSWhereCondition();
             wc.setLeftPath(m.group(2).trim());
             com.amalto.webapp.util.webservices.WSWhereOperator operator = changeToWSOperator(m.group(3));
             wc.setOperator(operator);
-            wc.setRightValueOrPath(m.group(4).trim().replaceAll("'|\"", ""));
+            wc.setRightValueOrPath(m.group(4).trim().replaceAll("'|\"", "")); //$NON-NLS-1$ //$NON-NLS-2$
             wc.setSpellCheck(true);
             wc.setStringPredicate(WSStringPredicate.NONE);
             return wc;
@@ -317,34 +319,34 @@ public class Util {
             throws Exception {
         if (fkFilter == null || fkFilter.length() == 0)
             return null;
-        if (fkFilter.equals("null"))
+        if (fkFilter.equals("null")) //$NON-NLS-1$
             return null;
 
-        int additionalInfo = fkFilter.indexOf("-", fkFilter.lastIndexOf("#") > -1 ? fkFilter.lastIndexOf("#") + 1 : 0);
+        int additionalInfo = fkFilter.indexOf("-", fkFilter.lastIndexOf("#") > -1 ? fkFilter.lastIndexOf("#") + 1 : 0); //$NON-NLS-1$ //$NON-NLS-2$
         String additionalValue = null;
         if (additionalInfo != -1) {
             additionalValue = fkFilter.substring(additionalInfo + 1);
             fkFilter = fkFilter.substring(0, additionalInfo);
         }
         // Iterator<String> keyInfoIter = bscpt.k
-        String[] criterias = fkFilter.split("#");
+        String[] criterias = fkFilter.split("#"); //$NON-NLS-1$
 
         ArrayList<WSWhereItem> condition = new ArrayList<WSWhereItem>();
         for (String cria : criterias) {
-            String[] values = cria.split("\\$\\$");
-//            if (values.length == 3) {
-                // values = new String[] { foreignKey, "Contains", values[0] };
-                WSWhereCondition wc = Util.convertLine(values);
-                if (wc != null) {
-                    condition.add(new WSWhereItem(wc, null, null));
-                }
- //           }
+            String[] values = cria.split("\\$\\$"); //$NON-NLS-1$
+            // if (values.length == 3) {
+            // values = new String[] { foreignKey, "Contains", values[0] };
+            WSWhereCondition wc = Util.convertLine(values);
+            if (wc != null) {
+                condition.add(new WSWhereItem(wc, null, null));
+            }
+            // }
         }
         if (additionalInfo != -1) {
-            String[] keyInfos = (foreignKeyInfo != null && !foreignKeyInfo.trim().isEmpty()) ? foreignKeyInfo.split(",")
-                    : foreignKey.split(",");
+            String[] keyInfos = (foreignKeyInfo != null && !foreignKeyInfo.trim().isEmpty()) ? foreignKeyInfo.split(",") //$NON-NLS-1$
+                    : foreignKey.split(","); //$NON-NLS-1$
             for (String keyInfo : keyInfos) {
-                String[] values = new String[] { keyInfo, "Contains", additionalValue.equals(".*") ? "." : additionalValue };
+                String[] values = new String[] { keyInfo, "Contains", additionalValue.equals(".*") ? "." : additionalValue }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 WSWhereCondition wc = Util.convertLine(values);
                 if (wc != null) {
                     condition.add(new WSWhereItem(wc, null, null));
@@ -370,45 +372,45 @@ public class Util {
 
         if (values.length >= 3) {
             WSWhereOperator operator = null;
-            if (values[1].equals("Contains"))
+            if (values[1].equals("Contains")) //$NON-NLS-1$
                 operator = WSWhereOperator.CONTAINS;
-            else if (values[1].equals("Contains Text Of"))
+            else if (values[1].equals("Contains Text Of")) //$NON-NLS-1$
                 operator = WSWhereOperator.JOIN;
-            else if (values[1].equals("="))
+            else if (values[1].equals("=")) //$NON-NLS-1$
                 operator = WSWhereOperator.EQUALS;
-            else if (values[1].equals(">"))
+            else if (values[1].equals(">")) //$NON-NLS-1$
                 operator = WSWhereOperator.GREATER_THAN;
-            else if (values[1].equals(">="))
+            else if (values[1].equals(">=")) //$NON-NLS-1$
                 operator = WSWhereOperator.GREATER_THAN_OR_EQUAL;
-            else if (values[1].equals("<"))
+            else if (values[1].equals("<")) //$NON-NLS-1$
                 operator = WSWhereOperator.LOWER_THAN;
-            else if (values[1].equals("<="))
+            else if (values[1].equals("<=")) //$NON-NLS-1$
                 operator = WSWhereOperator.LOWER_THAN_OR_EQUAL;
-            else if (values[1].equals("!="))
+            else if (values[1].equals("!=")) //$NON-NLS-1$
                 operator = WSWhereOperator.NOT_EQUALS;
-            else if (values[1].equals("Starts With"))
+            else if (values[1].equals("Starts With")) //$NON-NLS-1$
                 operator = WSWhereOperator.STARTSWITH;
-            else if (values[1].equals("Strict Contains"))
+            else if (values[1].equals("Strict Contains")) //$NON-NLS-1$
                 operator = WSWhereOperator.STRICTCONTAINS;
             wc.setOperator(operator);
-            if (values[2] != null && values[2].matches("^\".*\"$"))
+            if (values[2] != null && values[2].matches("^\".*\"$")) //$NON-NLS-1$
                 values[2] = values[2].substring(1, values[2].length() - 1);
             wc.setRightValueOrPath(values[2]);
         }
 
         if (values.length >= 4) {
             WSStringPredicate predicate = null;
-            if (values[3].equals(""))
+            if (values[3].equals("")) //$NON-NLS-1$
                 predicate = WSStringPredicate.NONE;
-            else if (values[3].equals("Or"))
+            else if (values[3].equals("Or")) //$NON-NLS-1$
                 predicate = WSStringPredicate.OR;
-            if (values[3].equals("And"))
+            if (values[3].equals("And")) //$NON-NLS-1$
                 predicate = WSStringPredicate.AND;
-            if (values[3].equals("Strict And"))
+            if (values[3].equals("Strict And")) //$NON-NLS-1$
                 predicate = WSStringPredicate.STRICTAND;
-            if (values[3].equals("Exactly"))
+            if (values[3].equals("Exactly")) //$NON-NLS-1$
                 predicate = WSStringPredicate.EXACTLY;
-            if (values[3].equals("Not"))
+            if (values[3].equals("Not")) //$NON-NLS-1$
                 predicate = WSStringPredicate.NOT;
             wc.setStringPredicate(predicate);
         } else {
@@ -427,43 +429,43 @@ public class Util {
      */
     public static boolean findXSDSimpleTypeInDocument(Document doc, Node elem, String type, ArrayList<String> typeInfo)
             throws Exception {
-        if (type != null && type.trim().equals("")) {
-            if (Util.getNodeList(elem, ".//xsd:simpleType").getLength() > 0) {
-                NodeList list = Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction");
+        if (type != null && type.trim().equals("")) { //$NON-NLS-1$
+            if (Util.getNodeList(elem, ".//xsd:simpleType").getLength() > 0) { //$NON-NLS-1$
+                NodeList list = Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction"); //$NON-NLS-1$
                 if (list.getLength() > 0) {
-                    if (Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration").getLength() > 0) {
-                        NodeList emumList = Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration");
-                        typeInfo.add("enumeration");
+                    if (Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration").getLength() > 0) { //$NON-NLS-1$
+                        NodeList emumList = Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration"); //$NON-NLS-1$
+                        typeInfo.add("enumeration"); //$NON-NLS-1$
                         for (int i = 0; i < emumList.getLength(); i++) {
-                            typeInfo.add(emumList.item(i).getAttributes().getNamedItem("value").getNodeValue());
+                            typeInfo.add(emumList.item(i).getAttributes().getNamedItem("value").getNodeValue()); //$NON-NLS-1$
                         }
                     } else {
-                        typeInfo.add(list.item(0).getAttributes().getNamedItem("base").getNodeValue());
+                        typeInfo.add(list.item(0).getAttributes().getNamedItem("base").getNodeValue()); //$NON-NLS-1$
                     }
                 }
                 return true;
-            } else if (Util.getNodeList(elem, "/xsd:complexType").getLength() > 0) {
+            } else if (Util.getNodeList(elem, "/xsd:complexType").getLength() > 0) { //$NON-NLS-1$
                 return false;
             }
         }
 
-        String path = "//xsd:simpleType";
-        if (type != null && !type.trim().equals("")) {
-            path += "[@name='" + type + "']";
+        String path = "//xsd:simpleType"; //$NON-NLS-1$
+        if (type != null && !type.trim().equals("")) { //$NON-NLS-1$
+            path += "[@name='" + type + "']"; //$NON-NLS-1$ //$NON-NLS-2$
         }
         if (Util.getNodeList(doc, path).getLength() > 0) {
             Node node = Util.getNodeList(doc, path).item(0);
-            if (Util.getNodeList(node, "//xsd:restriction").getLength() > 0) {
-                Node resNode = Util.getNodeList(node, "//xsd:restriction").item(0);
-                NodeList enumList = Util.getNodeList(resNode, "/xsd:enumeration");
+            if (Util.getNodeList(node, "//xsd:restriction").getLength() > 0) { //$NON-NLS-1$
+                Node resNode = Util.getNodeList(node, "//xsd:restriction").item(0); //$NON-NLS-1$
+                NodeList enumList = Util.getNodeList(resNode, "/xsd:enumeration"); //$NON-NLS-1$
                 if (enumList.getLength() > 0) {
                     // enumeration occurs
-                    typeInfo.add("enumeration");
+                    typeInfo.add("enumeration"); //$NON-NLS-1$
                     for (int i = 0; i < enumList.getLength(); i++) {
-                        typeInfo.add(enumList.item(i).getAttributes().getNamedItem("value").getNodeValue());
+                        typeInfo.add(enumList.item(i).getAttributes().getNamedItem("value").getNodeValue()); //$NON-NLS-1$
                     }
                 } else {
-                    typeInfo.add(resNode.getAttributes().getNamedItem("base").getNodeValue());
+                    typeInfo.add(resNode.getAttributes().getNamedItem("base").getNodeValue()); //$NON-NLS-1$
                 }
                 return true;
             }
@@ -472,13 +474,13 @@ public class Util {
             NodeList importList = null;
             for (int nm = 0; nm < 2; nm++) {
                 if (nm == 0) {
-                    importList = Util.getNodeList(doc, "//xsd:import");
+                    importList = Util.getNodeList(doc, "//xsd:import"); //$NON-NLS-1$
                 } else {
-                    importList = Util.getNodeList(doc, "//xsd:include");
+                    importList = Util.getNodeList(doc, "//xsd:include"); //$NON-NLS-1$
                 }
 
                 for (int i = 0; i < importList.getLength(); i++) {
-                    Node schemaLocation = importList.item(i).getAttributes().getNamedItem("schemaLocation");
+                    Node schemaLocation = importList.item(i).getAttributes().getNamedItem("schemaLocation"); //$NON-NLS-1$
                     if (schemaLocation == null) {
                         continue;
                     }
@@ -497,7 +499,7 @@ public class Util {
         documentBuilderFactory.setNamespaceAware(true);
         documentBuilderFactory.setValidating(false);
 
-        Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)");
+        Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)"); //$NON-NLS-1$
         Matcher match = httpUrl.matcher(xsdLocation);
         Document d = null;
         try {
@@ -518,7 +520,7 @@ public class Util {
 
     public static List<String> getAuthorizationInfo() {
         ArrayList<String> authorizations = new ArrayList<String>();
-        String user = "", pwd = "";
+        String user = "", pwd = ""; //$NON-NLS-1$ //$NON-NLS-2$
         try {
             Subject subject = LocalUser.getCurrentSubject();
             Set<Principal> set = subject.getPrincipals();
@@ -526,11 +528,11 @@ public class Util {
                 Principal principal = iter.next();
                 if (principal instanceof Group) {
                     Group group = (Group) principal;
-                    if ("Username".equals(group.getName())) {
+                    if ("Username".equals(group.getName())) { //$NON-NLS-1$
                         if (group.members().hasMoreElements()) {
                             user = group.members().nextElement().getName();
                         }
-                    } else if ("Password".equals(group.getName())) {
+                    } else if ("Password".equals(group.getName())) { //$NON-NLS-1$
                         if (group.members().hasMoreElements()) {
                             pwd = group.members().nextElement().getName();
                         }
@@ -550,7 +552,7 @@ public class Util {
     public static String getResponseFromURL(String url, String user, String pwd) {
         BASE64Encoder encoder = new BASE64Encoder();
         StringBuffer buffer = new StringBuffer();
-        String credentials = encoder.encode(new String(user + ":" + pwd).getBytes());
+        String credentials = encoder.encode(new String(user + ":" + pwd).getBytes()); //$NON-NLS-1$
 
         try {
             URL urlCn = new URL(url);
@@ -558,8 +560,8 @@ public class Util {
             conn.setAllowUserInteraction(true);
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            conn.setRequestProperty("Authorization", "Basic " + credentials);
-            conn.setRequestProperty("Expect", "100-continue");
+            conn.setRequestProperty("Authorization", "Basic " + credentials); //$NON-NLS-1$ //$NON-NLS-2$
+            conn.setRequestProperty("Expect", "100-continue"); //$NON-NLS-1$ //$NON-NLS-2$
 
             InputStreamReader doc = new InputStreamReader(conn.getInputStream());
             BufferedReader reader = new BufferedReader(doc);
@@ -576,19 +578,19 @@ public class Util {
     }
 
     public static com.amalto.webapp.util.webservices.WSWhereOperator changeToWSOperator(String operator) {
-        if ("=".equals(operator))
+        if ("=".equals(operator)) //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.EQUALS;
-        if ("!=".equals(operator))
+        if ("!=".equals(operator)) //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.NOT_EQUALS;
-        if ("<".equals(operator))
+        if ("<".equals(operator)) //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.LOWER_THAN;
-        if ("<=".equals(operator))
+        if ("<=".equals(operator)) //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.LOWER_THAN_OR_EQUAL;
-        if (">".equals(operator))
+        if (">".equals(operator)) //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.GREATER_THAN;
-        if (">=".equals(operator))
+        if (">=".equals(operator)) //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.GREATER_THAN_OR_EQUAL;
-        if ("&=".equals(operator))
+        if ("&=".equals(operator)) //$NON-NLS-1$
             return com.amalto.webapp.util.webservices.WSWhereOperator.CONTAINS;
         return null;
     }
@@ -614,8 +616,8 @@ public class Util {
     public static String nodeToString(Node n) throws Exception {
         StringWriter sw = new StringWriter();
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
-        transformer.setOutputProperty("omit-xml-declaration", "yes");
-        transformer.setOutputProperty("indent", "yes");
+        transformer.setOutputProperty("omit-xml-declaration", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
+        transformer.setOutputProperty("indent", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
         transformer.transform(new DOMSource(n), new StreamResult(sw));
         return sw.toString();
     }
@@ -659,7 +661,7 @@ public class Util {
      * @throws Exception
      */
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws Exception {
-        XObject xo = XPathAPI.eval(contextNode, xPath, (namespace == null) ? contextNode : Util.getRootElement("nsholder",
+        XObject xo = XPathAPI.eval(contextNode, xPath, (namespace == null) ? contextNode : Util.getRootElement("nsholder", //$NON-NLS-1$
                 namespace, prefix));
         if (xo.getType() != XObject.CLASS_NODESET)
             return null;
@@ -679,11 +681,11 @@ public class Util {
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
             DOMImplementation impl = builder.getDOMImplementation();
-            Document namespaceHolder = impl.createDocument(namespace, (prefix == null ? "" : prefix + ":") + elementName, null);
+            Document namespaceHolder = impl.createDocument(namespace, (prefix == null ? "" : prefix + ":") + elementName, null); //$NON-NLS-1$ //$NON-NLS-2$
             rootNS = namespaceHolder.getDocumentElement();
-            rootNS.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + prefix, namespace);
+            rootNS.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + prefix, namespace); //$NON-NLS-1$ //$NON-NLS-2$
         } catch (Exception e) {
-            String err = "Error creating a namespace holder document: " + e.getLocalizedMessage();
+            String err = "Error creating a namespace holder document: " + e.getLocalizedMessage(); //$NON-NLS-1$
             throw new Exception(err);
         }
         return rootNS;
@@ -701,14 +703,14 @@ public class Util {
 
         try {
             // initialize the sax parser which uses Xerces
-            System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
+            System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"); //$NON-NLS-1$ //$NON-NLS-2$
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             // Schema validation based on schemaURL
             factory.setNamespaceAware(true);
             factory.setValidating((schema != null));
-            factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
+            factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema"); //$NON-NLS-1$ //$NON-NLS-2$
             if (schema != null) {
-                factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource", new InputSource(new StringReader(
+                factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource", new InputSource(new StringReader( //$NON-NLS-1$
                         schema)));
             }
             DocumentBuilder builder;
@@ -716,7 +718,7 @@ public class Util {
             builder.setErrorHandler(seh);
             d = builder.parse(new InputSource(new StringReader(xmlString)));
         } catch (Exception e) {
-            String err = "Unable to parse the document" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage() + "\n "
+            String err = "Unable to parse the document" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage() + "\n " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     + xmlString;
             throw new Exception(err);
         }
@@ -724,8 +726,8 @@ public class Util {
         // check if dcument parsed correctly against the schema
         if (schema != null) {
             String errors = seh.getErrors();
-            if (!errors.equals("")) {
-                String err = "Document  did not parse against schema: \n" + errors + "\n" + xmlString;
+            if (!errors.equals("")) { //$NON-NLS-1$
+                String err = "Document  did not parse against schema: \n" + errors + "\n" + xmlString; //$NON-NLS-1$ //$NON-NLS-2$
                 throw new Exception(err);
             }
         }
@@ -741,13 +743,13 @@ public class Util {
         ;
 
         // test for hard-coded values
-        if (xPath.startsWith("\"") && xPath.endsWith("\""))
+        if (xPath.startsWith("\"") && xPath.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
             return new String[] { xPath.substring(1, xPath.length() - 1) };
 
         // test for incomplete path (elements missing /text())
-        if (!xPath.matches(".*@[^/\\]]+")) // attribute
-            if (!xPath.endsWith(")")) // function
-                xPath += "/text()";
+        if (!xPath.matches(".*@[^/\\]]+")) // attribute //$NON-NLS-1$
+            if (!xPath.endsWith(")")) // function //$NON-NLS-1$
+                xPath += "/text()"; //$NON-NLS-1$
 
         try {
             XObject xo = XPathAPI.eval(contextNode, xPath, namespaceNode);
@@ -763,7 +765,7 @@ public class Util {
                 results = new String[] { xo.toString() };
             }
         } catch (Exception e) {
-            String err = "Unable to get the text node(s) of " + xPath + ": " + e.getClass().getName() + ": "
+            String err = "Unable to get the text node(s) of " + xPath + ": " + e.getClass().getName() + ": " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     + e.getLocalizedMessage();
             throw new XtentisWebappException(err);
         }
@@ -795,7 +797,7 @@ public class Util {
      *********************************************************************/
     public static AjaxSubject getAjaxSubject() throws PolicyContextException {
         // Retrieve the subject
-        String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container";
+        String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container"; //$NON-NLS-1$
         Subject sub = (Subject) PolicyContext.getContext(SUBJECT_CONTEXT_KEY);
 
         return new AjaxSubject(sub);
@@ -806,7 +808,7 @@ public class Util {
         String result = "";
         // Get the Authenticated Subject
 
-        Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
+        Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container"); //$NON-NLS-1$
 
         // Now look for a Group
 
@@ -835,7 +837,7 @@ public class Util {
 
                         String info = en.nextElement().toString();
 
-                        result = result + "," + info;
+                        result = result + "," + info; //$NON-NLS-1$
 
                     }
 
@@ -851,22 +853,22 @@ public class Util {
     }
 
     public static String getLoginUserName() throws Exception {
-        return getPrincipalMember("Username");
+        return getPrincipalMember("Username"); //$NON-NLS-1$
 
     }
 
     public static String getLoginUniverse() throws Exception {
-        return getPrincipalMember("Universe");
+        return getPrincipalMember("Universe"); //$NON-NLS-1$
 
     }
 
     public static String getLoginRoles() throws Exception {
-        return getPrincipalMember("Roles");
+        return getPrincipalMember("Roles"); //$NON-NLS-1$
 
     }
 
     public static String getRevisionIdFromUniverse(String universeName, String conceptName) throws Exception {
-        String revisonId = "";
+        String revisonId = ""; //$NON-NLS-1$
         WSUniverse wsUniverse = Util.getPort().getUniverse(new WSGetUniverse(new WSUniversePK(universeName)));
         UniversePOJO universe = XConverter.WS2POJO(wsUniverse);
         revisonId = universe.getConceptRevisionID(conceptName);
@@ -875,24 +877,23 @@ public class Util {
 
     public static Element getLoginProvisioningFromDB() throws Exception {
 
-        WSItem item = Util.getPort()
-                .getItem(
-                        new WSGetItem(new WSItemPK(new WSDataClusterPK("PROVISIONING"), "User", new String[] { Util
-                                .getLoginUserName() })));
+        WSItem item = Util.getPort().getItem(
+                new WSGetItem(new WSItemPK(new WSDataClusterPK("PROVISIONING"), "User", new String[] { Util //$NON-NLS-1$ //$NON-NLS-2$
+                        .getLoginUserName() })));
         String userString = item.getContent();
 
-        Element user = (Element) Util.getNodeList(Util.parse(userString), "//User").item(0);
+        Element user = (Element) Util.getNodeList(Util.parse(userString), "//User").item(0); //$NON-NLS-1$
         return user;
         // return com.amalto.core.util.Util.getLoginProvisioningFromDB();
     }
 
     public static String getUserDataModel() throws Exception {
         Element item = getLoginProvisioningFromDB();
-        NodeList nodeList = Util.getNodeList(item, "//property");
+        NodeList nodeList = Util.getNodeList(item, "//property"); //$NON-NLS-1$
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if ("model".equals(Util.getFirstTextNode(node, "name"))) {
-                Node fchild = Util.getNodeList(node, "value").item(0).getFirstChild();
+            if ("model".equals(Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
+                Node fchild = Util.getNodeList(node, "value").item(0).getFirstChild(); //$NON-NLS-1$
                 return fchild.getNodeValue();
             }
         }
@@ -913,18 +914,18 @@ public class Util {
     public static byte[] md5(String text, String charset) {
         // arguments check
         if (text == null) {
-            throw new NullPointerException("null text");
+            throw new NullPointerException("null text"); //$NON-NLS-1$
         }
 
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
+            MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
             md.update(text.getBytes(charset));
             return md.digest();
         } catch (NoSuchAlgorithmException e) {
             // log.error("Cannot find MD5 algorithm", e);
-            throw new RuntimeException("Cannot find MD5 algorithm");
+            throw new RuntimeException("Cannot find MD5 algorithm"); //$NON-NLS-1$
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("No such encoding: " + charset);
+            throw new RuntimeException("No such encoding: " + charset); //$NON-NLS-1$
         }
     }
 
@@ -948,7 +949,7 @@ public class Util {
      */
     public static String toHexString(byte[] bytes) {
         if (bytes == null) {
-            throw new IllegalArgumentException("byte array must not be null");
+            throw new IllegalArgumentException("byte array must not be null"); //$NON-NLS-1$
         }
         StringBuffer hex = new StringBuffer(bytes.length * 2);
         for (int i = 0; i < bytes.length; i++) {
@@ -983,7 +984,7 @@ public class Util {
             return map;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
         }
     }
 
@@ -1010,32 +1011,32 @@ public class Util {
             }
             return keyValues;
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
         }
     }
 
     public static String getCodeFromWSConnectorResponseCode(WSConnectorResponseCode code) {
         if (code.equals(WSConnectorResponseCode.OK))
-            return "OK";
+            return "OK"; //$NON-NLS-1$
         if (code.equals(WSConnectorResponseCode.STOPPED))
-            return "STOPPED";
-        return "ERROR";
+            return "STOPPED"; //$NON-NLS-1$
+        return "ERROR"; //$NON-NLS-1$
     }
 
     /*********************************************************************
      * VERSIONING
      *********************************************************************/
 
-    private static final String PROP_FILE = "/version.properties";
+    private static final String PROP_FILE = "/version.properties"; //$NON-NLS-1$
 
     /**
      * Returns <code>String</code> representation of package version information.
      */
     public static String getVersion(Class<?> clazz) {
         Properties props = loadProps(clazz);
-        return "v" + props.getProperty("major") + "." + props.getProperty("minor") + "." + props.getProperty("rev") + "_"
-                + props.getProperty("build.number") + " " + props.getProperty("build.date") + " : "
-                + props.getProperty("description");
+        return "v" + props.getProperty("major") + "." + props.getProperty("minor") + "." + props.getProperty("rev") + "_" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+                + props.getProperty("build.number") + " " + props.getProperty("build.date") + " : " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                + props.getProperty("description"); //$NON-NLS-1$
     }
 
     // load props as resource on classpath
@@ -1044,7 +1045,7 @@ public class Util {
         Properties props = new Properties();
         is = clazz.getResourceAsStream(PROP_FILE);
         if (is == null) {
-            throw new RuntimeException("Couldn't find: " + PROP_FILE + " on CLASSPATH");
+            throw new RuntimeException("Couldn't find: " + PROP_FILE + " on CLASSPATH"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         try {
             props.load(is);
@@ -1065,7 +1066,7 @@ public class Util {
      */
     public static void storeProvisioning(String username, String xmlString) throws Exception {
         XmlServerSLWrapperLocal server = com.amalto.core.util.Util.getXmlServerCtrlLocal();
-        server.putDocumentFromString(xmlString, "PROVISIONING" + "." + "User" + "." + username, "PROVISIONING", null);
+        server.putDocumentFromString(xmlString, "PROVISIONING" + "." + "User" + "." + username, "PROVISIONING", null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
         ItemPOJO.clearCache();
     }
 
@@ -1077,29 +1078,29 @@ public class Util {
      */
     public static WSWhereOperator getOperator(String option) {
         WSWhereOperator res = null;
-        if (option.equalsIgnoreCase("CONTAINS"))
+        if (option.equalsIgnoreCase("CONTAINS")) //$NON-NLS-1$
             res = WSWhereOperator.CONTAINS;
-        else if (option.equalsIgnoreCase("EQUALS"))
+        else if (option.equalsIgnoreCase("EQUALS")) //$NON-NLS-1$
             res = WSWhereOperator.EQUALS;
-        else if (option.equalsIgnoreCase("GREATER_THAN"))
+        else if (option.equalsIgnoreCase("GREATER_THAN")) //$NON-NLS-1$
             res = WSWhereOperator.GREATER_THAN;
-        else if (option.equalsIgnoreCase("GREATER_THAN_OR_EQUAL"))
+        else if (option.equalsIgnoreCase("GREATER_THAN_OR_EQUAL")) //$NON-NLS-1$
             res = WSWhereOperator.GREATER_THAN_OR_EQUAL;
-        else if (option.equalsIgnoreCase("JOIN"))
+        else if (option.equalsIgnoreCase("JOIN")) //$NON-NLS-1$
             res = WSWhereOperator.JOIN;
-        else if (option.equalsIgnoreCase("LOWER_THAN"))
+        else if (option.equalsIgnoreCase("LOWER_THAN")) //$NON-NLS-1$
             res = WSWhereOperator.LOWER_THAN;
-        else if (option.equalsIgnoreCase("LOWER_THAN_OR_EQUAL"))
+        else if (option.equalsIgnoreCase("LOWER_THAN_OR_EQUAL")) //$NON-NLS-1$
             res = WSWhereOperator.LOWER_THAN_OR_EQUAL;
-        else if (option.equalsIgnoreCase("NOT_EQUALS"))
+        else if (option.equalsIgnoreCase("NOT_EQUALS")) //$NON-NLS-1$
             res = WSWhereOperator.NOT_EQUALS;
-        else if (option.equalsIgnoreCase("STARTSWITH"))
+        else if (option.equalsIgnoreCase("STARTSWITH")) //$NON-NLS-1$
             res = WSWhereOperator.STARTSWITH;
-        else if (option.equalsIgnoreCase("STRICTCONTAINS"))
+        else if (option.equalsIgnoreCase("STRICTCONTAINS")) //$NON-NLS-1$
             res = WSWhereOperator.STRICTCONTAINS;
-        else if (option.equalsIgnoreCase("FULLTEXTSEARCH"))
+        else if (option.equalsIgnoreCase("FULLTEXTSEARCH")) //$NON-NLS-1$
             res = WSWhereOperator.FULLTEXTSEARCH;
-        else if (option.equalsIgnoreCase("EMPTY_NULL"))
+        else if (option.equalsIgnoreCase("EMPTY_NULL")) //$NON-NLS-1$
             res = WSWhereOperator.EMPTY_NULL;
         return res;
     }
@@ -1116,7 +1117,7 @@ public class Util {
         if (col == -1)
             return false;
         for (String[] temp : itemsBrowserContent) {
-            if (!temp[col].matches("^(-|)[0-9]+(\\.?)[0-9]*$"))
+            if (!temp[col].matches("^(-|)[0-9]+(\\.?)[0-9]*$")) //$NON-NLS-1$
                 return false;
         }
         return true;
@@ -1134,7 +1135,7 @@ public class Util {
         System.out.println(dir);
         if (col < 0)
             return;
-        if ("descending".equals(dir)) {
+        if ("descending".equals(dir)) { //$NON-NLS-1$
             for (int j = 1; j < itemsBrowserContent.size(); j++) {
                 String temp[] = itemsBrowserContent.get(j);
                 int i = j;
@@ -1174,7 +1175,7 @@ public class Util {
     public static int getSortCol(String[] columns, String title) {
         int col = -1;
         for (int i = 0; i < columns.length; i++)
-            if (("/" + columns[i]).equals(title))
+            if (("/" + columns[i]).equals(title)) //$NON-NLS-1$
                 return i;
         return col;
     }
@@ -1187,7 +1188,7 @@ public class Util {
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 // String nName=node.getNodeName();
                 // String xPath=parentPath+"/"+nName;
-                String nValue = com.amalto.core.util.Util.getFirstTextNode(node, ".");
+                String nValue = com.amalto.core.util.Util.getFirstTextNode(node, "."); //$NON-NLS-1$
                 if (!hasChildren(node)) {
                     l.add(nValue);
                 }
@@ -1207,13 +1208,13 @@ public class Util {
     }
 
     public static WSWhereItem buildWhereItems(String criteria) throws Exception {
-        Pattern p = Pattern.compile("\\((.*)\\)");
+        Pattern p = Pattern.compile("\\((.*)\\)"); //$NON-NLS-1$
         Matcher m = p.matcher(criteria);
         if (m.matches()) {
             criteria = m.group(1);
         }
 
-        String[] criterias = criteria.split("[\\s]+OR[\\s]+");
+        String[] criterias = criteria.split("[\\s]+OR[\\s]+"); //$NON-NLS-1$
         ArrayList<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
 
         for (String cria : criterias) {
@@ -1223,13 +1224,13 @@ public class Util {
             if (m.matches()) {
                 cria = m.group(1);
             }
-            String[] subCriterias = cria.split("[\\s]+AND[\\s]+");
+            String[] subCriterias = cria.split("[\\s]+AND[\\s]+"); //$NON-NLS-1$
             // add by ymli; fix the bug: 0011974. remove "(" at the left and ")" at the right
             for (String subCria : subCriterias) {
-                if (subCria.startsWith("(")) {
+                if (subCria.startsWith("(")) { //$NON-NLS-1$
                     subCria = subCria.substring(1);
                 }
-                if (subCria.endsWith(")"))
+                if (subCria.endsWith(")")) //$NON-NLS-1$
                     subCria = subCria.substring(0, subCria.length() - 1);
                 WSWhereItem whereItem = buildWhereItem(subCria);
                 if (whereItem != null)
@@ -1249,17 +1250,17 @@ public class Util {
 
     public static WSWhereItem buildWhereItem(String criteria) throws Exception {
         WSWhereItem wi;
-        String[] filters = criteria.split(" ");
+        String[] filters = criteria.split(" "); //$NON-NLS-1$
         String filterXpaths, filterOperators, filterValues;
 
         filterXpaths = filters[0];
         filterOperators = filters[1];
         if (filters.length <= 2)
-            filterValues = " ";
+            filterValues = " "; //$NON-NLS-1$
         else
             filterValues = filters[2];
 
-        if (filterXpaths == null || filterXpaths.trim().equals(""))
+        if (filterXpaths == null || filterXpaths.trim().equals("")) //$NON-NLS-1$
             return null;
 
         WSWhereCondition wc = new WSWhereCondition(filterXpaths, Util.getOperator(filterOperators), filterValues,
@@ -1279,11 +1280,21 @@ public class Util {
 
     }
 
+    // added by lzhang, for 22001
+    // explicit replaced current element with root element
+    public static String getFormatedFKInfo(String info, String conceptName) {
+        info = info.substring(info.startsWith("/") ? 1 : 0); //$NON-NLS-1$
+        String formatedInfo = info;
+        if (info.startsWith("./")) //$NON-NLS-1$
+            formatedInfo = info.replaceFirst("./", conceptName + "/"); //$NON-NLS-1$ //$NON-NLS-2$
+        return formatedInfo;
+    }
+
     public static String getForeignKeyList(int start, int limit, String value, String xpathForeignKey,
             String xpathInfoForeignKey, String fkFilter, boolean isCount) throws RemoteException, Exception {
         if (xpathForeignKey == null)
             return null;
-        String initxpathForeignKey = "";
+        String initxpathForeignKey = ""; //$NON-NLS-1$
         initxpathForeignKey = getForeignPathFromPath(xpathForeignKey);
 
         WSWhereCondition whereCondition = getConditionFromPath(xpathForeignKey);
@@ -1300,27 +1311,27 @@ public class Util {
         Configuration config = Configuration.getInstance();
         // aiming modify there is bug when initxpathForeignKey when it's like 'conceptname/key'
         // so we convert initxpathForeignKey to 'conceptname'
-        initxpathForeignKey = initxpathForeignKey.split("/")[0];
+        initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
         // end
-        xpathInfoForeignKey = xpathInfoForeignKey == null ? "" : xpathInfoForeignKey;
+        xpathInfoForeignKey = xpathInfoForeignKey == null ? "" : xpathInfoForeignKey; //$NON-NLS-1$
         // foreign key set by business concept
-        if (initxpathForeignKey.split("/").length == 1) {
+        if (initxpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
             String conceptName = initxpathForeignKey;
 
             // determine if we have xPath Infos: e.g. labels to display
             String[] xpathInfos = new String[1];
-            if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null)
-                xpathInfos = xpathInfoForeignKey.split(",");
+            if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) //$NON-NLS-1$
+                xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
             else
                 xpathInfos[0] = conceptName;
             // aiming add .* to value
-            value = value == null ? "" : value;
+            value = value == null ? "" : value; //$NON-NLS-1$
             // end
             // build query - add a content condition on the pivot if we search for a particular value
             String filteredConcept = conceptName;
             // hshu fix bug 0013849: Lazy loading of FK picker always get records from the first 20 records of all
             // records
-            if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim())) {
+            if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
                 List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
                 if (whereItem != null)
                     condition.add(whereItem);
@@ -1328,9 +1339,9 @@ public class Util {
                 // hshu fixed the regression: the filter works only on FK, not on FK Info.
                 // if(xpathForeignKey.equals(conceptName))wc=buildWhereItem(conceptName+"/. CONTAINS "+value);
                 // else wc=buildWhereItem(xpathForeignKey+" CONTAINS "+value);
-                String strConcept = conceptName + "/. CONTAINS ";
+                String strConcept = conceptName + "/. CONTAINS "; //$NON-NLS-1$
                 if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                    strConcept = conceptName + "//* CONTAINS ";
+                    strConcept = conceptName + "//* CONTAINS "; //$NON-NLS-1$
                 }
                 wc = buildWhereItem(strConcept + value);
                 condition.add(wc);
@@ -1367,14 +1378,14 @@ public class Util {
             // add the xPath Infos Path
             ArrayList<String> xPaths = new ArrayList<String>();
             for (int i = 0; i < xpathInfos.length; i++) {
-                xPaths.add(xpathInfos[i].replaceFirst(conceptName, filteredConcept));
+                xPaths.add(getFormatedFKInfo(xpathInfos[i].replaceFirst(conceptName, filteredConcept), filteredConcept));
             }
             // add the key paths last, since there may be multiple keys
-            xPaths.add(filteredConcept + "/../../i");
+            xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
             // order by
             String orderbyPath = null;
-            if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) {
-                orderbyPath = xpathInfos[0].replaceFirst(conceptName, filteredConcept);
+            if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
+                orderbyPath = getFormatedFKInfo(xpathInfos[0].replaceFirst(conceptName, filteredConcept), filteredConcept);
             } else {
 
             }
@@ -1400,62 +1411,62 @@ public class Util {
             // json.put("count", results.length);
 
             JSONArray rows = new JSONArray();
-            json.put("rows", rows);
+            json.put("rows", rows); //$NON-NLS-1$
 
             // add (?i) to incasesensitive
             // parse the results - each result contains the xPathInfo values, followed by the keys
             // the first row is totalCount
             for (int i = 0; i < results.length; i++) {
                 // process no infos case
-                if (!results[i].startsWith("<result>")) {
-                    results[i] = "<result>" + results[i] + "</result>";
+                if (!results[i].startsWith("<result>")) { //$NON-NLS-1$
+                    results[i] = "<result>" + results[i] + "</result>"; //$NON-NLS-1$ //$NON-NLS-2$
                 }
-                results[i] = results[i].replaceAll("\\n", "");// replace \n
-                results[i] = results[i].replaceAll(">(\\s+)<", "><"); // replace spaces between elements
+                results[i] = results[i].replaceAll("\\n", "");// replace \n //$NON-NLS-1$ //$NON-NLS-2$
+                results[i] = results[i].replaceAll(">(\\s+)<", "><"); // replace spaces between elements //$NON-NLS-1$ //$NON-NLS-2$
                 Element root = parse(results[i]).getDocumentElement();
                 NodeList list = root.getChildNodes();
 
                 // recover keys - which are last
-                String keys = "";
-                for (int j = "".equals(xpathInfoForeignKey) ? 1 : xpathInfos.length; j < list.getLength(); j++) {
+                String keys = ""; //$NON-NLS-1$
+                for (int j = "".equals(xpathInfoForeignKey) ? 1 : xpathInfos.length; j < list.getLength(); j++) { //$NON-NLS-1$
                     Node textNode = list.item(j).getFirstChild();
-                    keys += "[" + (textNode == null ? "" : textNode.getNodeValue()) + "]";
+                    keys += "[" + (textNode == null ? "" : textNode.getNodeValue()) + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 }
 
                 // recover xPathInfos
                 String infos = null;
 
                 // if no xPath Infos given, use the key values
-                if (xpathInfos.length == 0 || "".equals(xpathInfoForeignKey) || xpathInfoForeignKey == null) {
+                if (xpathInfos.length == 0 || "".equals(xpathInfoForeignKey) || xpathInfoForeignKey == null) { //$NON-NLS-1$
                     infos = keys;
                 } else {
                     // build a dash separated string of xPath Infos
                     for (int j = 0; j < xpathInfos.length; j++) {
-                        infos = (infos == null ? "" : infos + "-");
+                        infos = (infos == null ? "" : infos + "-"); //$NON-NLS-1$ //$NON-NLS-2$
                         Node textNode = list.item(j).getFirstChild();
-                        infos += textNode == null ? "" : textNode.getNodeValue();
+                        infos += textNode == null ? "" : textNode.getNodeValue(); //$NON-NLS-1$
                     }
                 }
 
-                if ((keys.equals("[]") || keys.equals("")) && (infos.equals("") || infos.equals("[]"))) {
+                if ((keys.equals("[]") || keys.equals("")) && (infos.equals("") || infos.equals("[]"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     // empty row
                 } else {
                     JSONObject row = new JSONObject();
-                    row.put("keys", keys);
-                    row.put("infos", infos);
+                    row.put("keys", keys); //$NON-NLS-1$
+                    row.put("infos", infos); //$NON-NLS-1$
                     rows.put(row);
                 }
             }
             // edit by ymli; fix the bug:0011918: set the pageSize correctly.
             // FIXME: why do you invoke this method twice
             if (isCount) {
-                json.put("count", countForeignKey_filter(xpathForeignKey, xpathInfoForeignKey, fkFilter, value));
+                json.put("count", countForeignKey_filter(xpathForeignKey, xpathInfoForeignKey, fkFilter, value)); //$NON-NLS-1$
             }
 
             return json.toString();
         }
 
-        throw new Exception("this should not happen");
+        throw new Exception("this should not happen"); //$NON-NLS-1$
 
     }
 
@@ -1526,7 +1537,7 @@ public class Util {
 
     public static boolean isCustomFilter(String fkFilter) {
         boolean isCustom = false;
-        if (fkFilter != null && fkFilter.startsWith("$CFFP:"))
+        if (fkFilter != null && fkFilter.startsWith("$CFFP:")) //$NON-NLS-1$
             isCustom = true;
         return isCustom;
     }
@@ -1542,7 +1553,7 @@ public class Util {
     public static Object getTypeValue(String lang, String type, String value) throws ParseException {
 
         // time
-        if (type.equals("date"))
+        if (type.equals("date")) //$NON-NLS-1$
             return Date.parseDate(value.trim()).toCalendar();
         /*
          * else if(type.equals("time")) return BigInteger.//Time.parseTime(value.trim());
@@ -1559,22 +1570,22 @@ public class Util {
          * 
          * }
          */
-        else if(type.equals("dateTime")){
-        	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        	Calendar dateTime = Calendar.getInstance();
-        	dateTime.setTime(sdf.parse(value.trim()));
-        	return dateTime;
-        }else if (type.equals("byte"))
+        else if (type.equals("dateTime")) { //$NON-NLS-1$
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //$NON-NLS-1$
+            Calendar dateTime = Calendar.getInstance();
+            dateTime.setTime(sdf.parse(value.trim()));
+            return dateTime;
+        } else if (type.equals("byte")) //$NON-NLS-1$
             return Byte.valueOf(value);
-        else if (type.equals("short"))
+        else if (type.equals("short")) //$NON-NLS-1$
             return Short.valueOf(value);
-        else if (type.equals("int") || type.equals("integer"))
+        else if (type.equals("int") || type.equals("integer")) //$NON-NLS-1$ //$NON-NLS-2$
             return Integer.valueOf(value);
-        else if (type.equals("long"))
+        else if (type.equals("long")) //$NON-NLS-1$
             return Long.valueOf(value);
-        else if (type.equals("float"))
+        else if (type.equals("float")) //$NON-NLS-1$
             return Float.valueOf(value);
-        else if (type.equals("double"))
+        else if (type.equals("double")) //$NON-NLS-1$
             return Double.valueOf(value);
         return null;
     }
@@ -1582,7 +1593,7 @@ public class Util {
     public static boolean isTransformerExist(String transformerPK) {
         try {
             boolean isBeforeSavingTransformerExist = false;
-            Collection<TransformerV2POJOPK> wst = com.amalto.core.util.Util.getTransformerV2CtrlLocal().getTransformerPKs("*");
+            Collection<TransformerV2POJOPK> wst = com.amalto.core.util.Util.getTransformerV2CtrlLocal().getTransformerPKs("*"); //$NON-NLS-1$
             for (TransformerV2POJOPK id : wst) {
                 if (id.getIds()[0].equals(transformerPK)) {
                     isBeforeSavingTransformerExist = true;
@@ -1611,7 +1622,7 @@ public class Util {
                         Document doc1 = node.getOwnerDocument();
                         Element e = doc1.createElement(name);
                         if (index > 0) { // list
-                            Pointer p = context.getRelativeContext(pointer).getPointer(name + "[" + (index) + "]");
+                            Pointer p = context.getRelativeContext(pointer).getPointer(name + "[" + (index) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                             Node curNode = (Node) p.getNode();
                             if (curNode != null) {
                                 if (curNode.getNextSibling() != null) {
@@ -1659,8 +1670,8 @@ public class Util {
         String revisionId = null;
 
         Configuration config = Configuration.getInstance();
-        String dataModelPK = config.getModel() == null ? "" : config.getModel();
-        String dataClusterPK = config.getCluster() == null ? "" : config.getCluster();
+        String dataModelPK = config.getModel() == null ? "" : config.getModel(); //$NON-NLS-1$
+        String dataClusterPK = config.getCluster() == null ? "" : config.getCluster(); //$NON-NLS-1$
 
         String username = Util.getLoginUserName();
         String universename = Util.getLoginUniverse();
@@ -1672,7 +1683,7 @@ public class Util {
             for (int i = 0; i < ids.length; i++) {
                 keyBuilder.append(ids[i]);
                 if (i != ids.length - 1)
-                    keyBuilder.append(".");
+                    keyBuilder.append("."); //$NON-NLS-1$
             }
         }
         String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
@@ -1708,15 +1719,15 @@ public class Util {
 
     public static String persistentUpdateReport(String xml2, boolean routeAfterSaving) throws Exception {
         if (xml2 == null)
-            return "OK";
+            return "OK"; //$NON-NLS-1$
 
         WSItemPK itemPK = Util.getPort().putItem(
-                new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
+                new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$ //$NON-NLS-2$
 
         if (routeAfterSaving)
             Util.getPort().routeItemV2(new WSRouteItemV2(itemPK));
 
-        return "OK";
+        return "OK"; //$NON-NLS-1$
     }
 
     public static String stripLeadingAndTrailingQuotes(String str) {
