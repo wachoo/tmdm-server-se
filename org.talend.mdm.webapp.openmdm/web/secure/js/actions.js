@@ -111,7 +111,12 @@ amalto.actions = function () {
 			var tabPanel = amalto.core.getTabPanel();
 			tabPanel.items.each(function(item){
                         if(item.closable){
-                            tabPanel.remove(item);
+                        	if((item.id=='welcome')||(item.id=='tdscPanel')){
+                        		
+                        	}else{
+                        		tabPanel.remove(item);
+                        	}
+                            
                         }            
             });
 		});
