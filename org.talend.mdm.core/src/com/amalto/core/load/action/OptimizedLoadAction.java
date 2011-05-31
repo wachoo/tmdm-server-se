@@ -26,11 +26,13 @@ public class OptimizedLoadAction implements LoadAction {
     private static final Logger log = Logger.getLogger(OptimizedLoadAction.class);
     private final String dataClusterName;
     private final String typeName;
+    private final String dataModelName;
     private final boolean needAutoGenPK;
 
-    public OptimizedLoadAction(String dataClusterName, String typeName, boolean needAutoGenPK) {
+    public OptimizedLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needAutoGenPK) {
         this.dataClusterName = dataClusterName;
         this.typeName = typeName;
+        this.dataModelName = dataModelName;
         this.needAutoGenPK = needAutoGenPK;
     }
 
@@ -51,11 +53,11 @@ public class OptimizedLoadAction implements LoadAction {
         ServerParserCallback callback = new ServerParserCallback(server, dataClusterName);
 
         java.io.InputStream inputStream = new XMLRootInputStream(request.getInputStream(), "root"); //$NON-NLS-1$
-        LoadParser.Configuration configuration = new LoadParser.Configuration(typeName, keyMetadata.getFields(), needAutoGenPK, dataClusterName);
+        LoadParser.Configuration configuration = new LoadParser.Configuration(typeName, keyMetadata.getFields(), needAutoGenPK, dataClusterName, dataModelName);
         LoadParser.parse(inputStream, configuration, callback);
 
         if (log.isDebugEnabled()) {
-            log.debug("Number of documents loaded: " + callback.getCount());
+            log.debug("Number of documents loaded: " + callback.getCount()); //$NON-NLS-1$
         }
     }
 }

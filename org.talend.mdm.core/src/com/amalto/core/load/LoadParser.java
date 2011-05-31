@@ -105,7 +105,7 @@ public class LoadParser {
         try {
             reader = inputFactory.createXMLStreamReader(inputStream);
 
-            StateContext context = new DefaultStateContext(config.getPayLoadElementName(), config.getIdPaths(), config.getDataClusterName(), limit, callback);
+            StateContext context = new DefaultStateContext(config.getPayLoadElementName(), config.getIdPaths(), config.getDataClusterName(), config.getDataModelName(), limit, callback);
             if (config.isAutoGenPK()) {
                 AutoIdGenerator autoIdGenerator = config.getIdGenerator();
                 // Change the context to auto-generate metadata
@@ -135,20 +135,22 @@ public class LoadParser {
         private final String[] idPaths;
         private final boolean autoGenPK;
         private final String dataClusterName;
+        private final String dataModelName;
         private final AutoIdGenerator idGenerator;
 
-        public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName) {
-            this(payLoadElementName, idPaths, autoGenPK, dataClusterName, new DefaultAutoIdGenerator());
+        public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName, String dataModelName) {
+            this(payLoadElementName, idPaths, autoGenPK, dataClusterName, dataModelName, new DefaultAutoIdGenerator());
             if (log.isDebugEnabled()) {
-                log.debug("No auto id generator has been set. Switching to default id generator.");
+                log.debug("No auto id generator has been set. Switching to default id generator."); //$NON-NLS-1$
             }
         }
 
-        public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName, AutoIdGenerator idGenerator) {
+        public Configuration(String payLoadElementName, String[] idPaths, boolean autoGenPK, String dataClusterName, String dataModelName, AutoIdGenerator idGenerator) {
             this.payLoadElementName = payLoadElementName;
             this.idPaths = idPaths;
             this.autoGenPK = autoGenPK;
             this.dataClusterName = dataClusterName;
+            this.dataModelName = dataModelName;
             this.idGenerator = idGenerator;
         }
 
@@ -176,6 +178,10 @@ public class LoadParser {
 
         public String getDataClusterName() {
             return dataClusterName;
+        }
+        
+        public String getDataModelName() {
+            return dataModelName;
         }
 
         public AutoIdGenerator getIdGenerator() {

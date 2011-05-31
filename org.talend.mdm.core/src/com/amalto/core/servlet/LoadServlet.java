@@ -161,7 +161,7 @@ public class LoadServlet extends HttpServlet {
         if (needValidate || !isUsingQizx) {
             loadAction = new DefaultLoadAction(dataClusterName, typeName, dataModelName, needValidate, needAutoGenPK);
         } else {
-            loadAction = new OptimizedLoadAction(dataClusterName, typeName, needAutoGenPK);
+            loadAction = new OptimizedLoadAction(dataClusterName, typeName, dataModelName, needAutoGenPK);
         }
 
         if (log.isDebugEnabled()) {

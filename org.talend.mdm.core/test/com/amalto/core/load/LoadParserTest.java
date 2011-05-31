@@ -59,7 +59,7 @@ public class LoadParserTest extends TestCase {
         }
 
         try {
-            LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{null}, false, "clusterName");
+            LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{null}, false, "clusterName", "modelName");
             LoadParser.parse(new ByteArrayInputStream(StringUtils.EMPTY.getBytes()), config, null);
         } catch (IllegalArgumentException e) {
             assertEquals("LoadParser callback cannot be null", e.getMessage());
@@ -74,7 +74,7 @@ public class LoadParserTest extends TestCase {
         };
 
         try {
-            LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"Id"}, false, "clusterName");
+            LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"Id"}, false, "clusterName", "modelName");
             LoadParser.parse(new ByteArrayInputStream("<root><Id>0</Id></root>".getBytes()), config, callback);
             Assert.fail("Should have failed due to callback exception.");
         } catch (Exception e) {
@@ -89,7 +89,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"id"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"id"}, false, "clusterName", "modelName");
         LoadParser.parse(testResource, config, callback);
         assertTrue(callback.hasBeenFlushed());
         assertEquals(13, callback.getStartedElements().size());
@@ -103,7 +103,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.Configuration config = new LoadParser.Configuration("Geoname", new String[]{"geonameid"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("Geoname", new String[]{"geonameid"}, false, "clusterName", "modelName");
         LoadParser.parse(testResource, config, callback);
         assertTrue(callback.hasBeenFlushed());
         assertEquals(31, callback.getStartedElements().size());
@@ -125,7 +125,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"Id"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"Id"}, false, "clusterName", "modelName");
         LoadParser.parse(testResource, config, callback);
         assertTrue(callback.hasBeenFlushed());
         assertEquals(29, callback.getStartedElements().size());
@@ -141,7 +141,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element1"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element1"}, false, "clusterName", "modelName");
         LoadParser.parse(testResource, config, callback);
         assertTrue(callback.hasBeenFlushed());
         assertEquals(1, callback.getFlushCount());
@@ -164,7 +164,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"uniqueId"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"uniqueId"}, false, "clusterName", "modelName");
         LoadParser.parse(testResource, config, callback);
         assertTrue(callback.hasBeenFlushed());
         assertEquals(1, callback.getFlushCount());
@@ -190,7 +190,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"uniqueId"}, true, "clusterName", idGenerator);
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"uniqueId"}, true, "clusterName", "modelName", idGenerator);
 
         if (DEBUG) {
              InputStream testResource2 = this.getClass().getResourceAsStream("test6.xml");
@@ -223,7 +223,7 @@ public class LoadParserTest extends TestCase {
 
                     ParserTestCallback callback = new ParserTestCallback();
 
-                    LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"Id"}, false, "clusterName");
+                    LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"Id"}, false, "clusterName", "modelName");
                     LoadParser.parse(testResource, config, callback);
                     assertTrue(callback.hasBeenFlushed());
                     assertEquals(29, callback.getStartedElements().size());
@@ -257,7 +257,7 @@ public class LoadParserTest extends TestCase {
         InputStream testResource = new ByteArrayInputStream(documents.getBytes());
         testResource = new XMLRootInputStream(testResource, "doc");
         assertNotNull(testResource);
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element2"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element2"}, false, "clusterName", "modelName");
 
         if (DEBUG) {
             InputStream testResource2 = new ByteArrayInputStream(documents.getBytes());
@@ -282,7 +282,7 @@ public class LoadParserTest extends TestCase {
         InputStream testResource = new ByteArrayInputStream("<root><element1/><element2>text</element2></root><root><element1/><element2>text</element2></root>".getBytes());
         testResource = new XMLRootInputStream(testResource, "doc");
         assertNotNull(testResource);
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element2"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element2"}, false, "clusterName", "modelName");
 
         if (DEBUG) {
             InputStream testResource2 = new ByteArrayInputStream("<root><element1/><element2>text</element2></root><root><element1/><element2>text</element2></root>".getBytes());
@@ -309,7 +309,7 @@ public class LoadParserTest extends TestCase {
         testResource = new XMLRootInputStream(testResource, "doc");
         assertNotNull(testResource);
         assertFalse(idGenerator.isStateSaved());
-        LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"id"}, true, "clusterName", idGenerator);
+        LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"id"}, true, "clusterName", "modelName", idGenerator);
 
         if (DEBUG) {
             InputStream testResource2 = new ByteArrayInputStream("<Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product><Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product>".getBytes());
@@ -338,7 +338,7 @@ public class LoadParserTest extends TestCase {
         ParserTestCallback callback = new ParserTestCallback();
 
         try {
-            LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element2"}, false, "clusterName");
+            LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element2"}, false, "clusterName", "modelName");
             LoadParser.parse(testResource, config, callback);
             fail("Should have failed. There are 2 roots in XML document.");
         } catch (Exception e) {
@@ -360,7 +360,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"Id"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"Id"}, false, "clusterName", "modelName");
         LoadParser.parse(testResource, config, callback);
 
         assertTrue(callback.hasBeenFlushed());
@@ -379,7 +379,7 @@ public class LoadParserTest extends TestCase {
         ParserTestCallback callback = new ParserTestCallback();
 
         try {
-            LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element_that_does_not_exist"}, false, "clusterName");
+            LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"element_that_does_not_exist"}, false, "clusterName", "modelName");
             LoadParser.parse(testResource, config, callback);
             fail("Expected an error since id field does not exist");
         } catch (Exception e) {
@@ -397,7 +397,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"Id"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"Id"}, false, "clusterName", "modelName");
         LoadParser.parse(testResource, config, callback);
 
         assertTrue(callback.hasBeenFlushed());
@@ -415,7 +415,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"Id1", "Id2"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"Id1", "Id2"}, false, "clusterName", "modelName");
         LoadParser.parse(testResource, config, callback);
 
         assertTrue(callback.hasBeenFlushed());
@@ -433,7 +433,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"NewId"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"NewId"}, false, "clusterName", "modelName");
         LoadParser.parse(testResource, config, callback);
 
         assertTrue(callback.hasBeenFlushed());
@@ -451,7 +451,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"Id/RealId"}, false, "clusterName");
+        LoadParser.Configuration config = new LoadParser.Configuration("root", new String[]{"Id/RealId"}, false, "clusterName", "modelName");
         LoadParser.parse(testResource, config, callback);
 
         assertTrue(callback.hasBeenFlushed());

@@ -60,12 +60,12 @@ public class DefaultStateContext implements StateContext {
 
     private int idToMatchCount = 0;
 
-    public DefaultStateContext(String payLoadElementName, String[] idPaths, String dataClusterName, int payloadLimit, LoadParserCallback callback) {
-        this(payLoadElementName, idPaths, dataClusterName, callback);
+    public DefaultStateContext(String payLoadElementName, String[] idPaths, String dataClusterName, String dataModelName, int payloadLimit, LoadParserCallback callback) {
+        this(payLoadElementName, idPaths, dataClusterName, dataModelName, callback);
         this.payloadLimit = payloadLimit;
     }
 
-    private DefaultStateContext(String payLoadElementName, String[] idPaths, String dataClusterName, LoadParserCallback callback) {
+    private DefaultStateContext(String payLoadElementName, String[] idPaths, String dataClusterName, String dataModelName, LoadParserCallback callback) {
         if (payLoadElementName == null) {
             throw new IllegalArgumentException("Payload element name cannot be null.");
         }
@@ -84,6 +84,7 @@ public class DefaultStateContext implements StateContext {
         metadata.setDmn(payLoadElementName);
         metadata.setContainer(dataClusterName);
         metadata.setDataClusterName(dataClusterName);
+        metadata.setDmn(dataModelName);
     }
 
     public String getPayLoadElementName() {
