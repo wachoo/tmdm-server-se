@@ -221,6 +221,42 @@ public class SchemaWebAgent extends SchemaManager {
 
     }
 
+    public List<ReusableType> getMyParents(String subTypeName) throws Exception {
+        DataModelBean dataModelBean = getFromPool(getMyDataModelTicket());
+        List<ReusableType> reusableTypes = dataModelBean.getReusableTypes();
+        List<ReusableType> parentsTypes = new ArrayList<ReusableType>();
+        
+        getParents(subTypeName, reusableTypes, parentsTypes);
+
+        return parentsTypes;
+    }
+    
+    private void getParents(String subTypeName, List<ReusableType> reusableTypes, List<ReusableType> parentsTypes) {
+        for(ReusableType reusableType : reusableTypes) {
+            if(reusableType.getName().equals(subTypeName)) {
+                String parentName = reusableType.getParentName();
+                ReusableType type = findParentType(parentName, reusableTypes);
+                if (type != null) {
+                    parentsTypes.add(type);
+                    getParents(parentName, reusableTypes, parentsTypes);
+                }
+            }
+        }
+    }
+
+    private ReusableType findParentType(String parName, List<ReusableType> reusableTypes) {
+        ReusableType resuable = null;
+
+        for (ReusableType reusableType : reusableTypes) {
+            if (reusableType.getName().equals(parName)) {
+                resuable = reusableType;
+                break;
+            }
+        }
+
+        return resuable;
+    }
+
     /**
      * DOC HSHU Comment method "setMySubtypes".
      * @param parentTypeName
@@ -312,17 +348,34 @@ public class SchemaWebAgent extends SchemaManager {
         DataModelID dataModelID = getMyDataModelTicket();
         //check business concepts
         List<BusinessConcept> businessConcepts = getBusinessConcepts(dataModelID);
+        List<String> extendType = new ArrayList<String>();
+        extendType.add(entityName);
+
         for (BusinessConcept businessConcept : businessConcepts) {
             businessConcept.load();
             String bcName=businessConcept.getName();
+
+            if (bcName.equals(entityName)) {
+                List<ReusableType> parentTypes = getMyParents(getBusinessConcept(bcName).getCorrespondTypeName());
+                List<String> parentConcept = new ArrayList<String>();
+                for (ReusableType type : parentTypes) {
+                    parentConcept.add(type.getName());
+                }
+
+                for (BusinessConcept concept : businessConcepts) {
+                    if (parentConcept.contains(concept.getCorrespondTypeName())) {
+                        extendType.add(concept.getName());
+                    }
+                }
+            }
+
             Map<String, String> foreignKeyMap=businessConcept.getForeignKeyMap();
             Collection<String> fkPaths = foreignKeyMap.values();
+
             for (String fkPath : fkPaths) {
-        
-                if(isFkPoint2Entity(fkPath,entityName)) {
+                if (isFkPoint2Entity(fkPath, extendType)) {
                     if(!references.contains(bcName))references.add(bcName);
                 }
-                       
             }
         }
         
@@ -330,11 +383,18 @@ public class SchemaWebAgent extends SchemaManager {
 
     }
 
-    private boolean isFkPoint2Entity(String fkPath,String entityName) {
-        if(fkPath==null||fkPath.length()==0)return false;
-        if(fkPath.startsWith("/"))fkPath=fkPath.substring(1);
-        if(fkPath.startsWith(entityName+"/")||fkPath.equals(entityName))return true;
-        else return false;
+    private boolean isFkPoint2Entity(String fkPath, List<String> extendType) {
+        if (fkPath == null || fkPath.length() == 0)
+            return false;
+        if (fkPath.startsWith("/")) //$NON-NLS-1$
+            fkPath = fkPath.substring(1);
+        boolean contained = false;
+        for (String type : extendType) {
+            if (fkPath.startsWith(type + "/") || fkPath.equals(type)) //$NON-NLS-1$
+                contained = true;
+        }
+
+        return contained;
     }
     
     /**
