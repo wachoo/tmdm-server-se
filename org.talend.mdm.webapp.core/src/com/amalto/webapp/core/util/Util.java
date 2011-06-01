@@ -145,10 +145,10 @@ public class Util {
         try {
             as = Util.getAjaxSubject();
         } catch (Exception e) {
-            throw new XtentisWebappException("Unable to access the logged user data"); //$NON-NLS-1$
+            throw new XtentisWebappException("Unable to access the logged user data");
         }
         if (as == null)
-            throw new XtentisWebappException("Session Expired"); //$NON-NLS-1$
+            throw new XtentisWebappException("Session Expired");
         // org.apache.log4j.Category.getInstance(Util.class).debug("getPort() ");
         String[] mdm = as.getMDMData();
         String url = "http://" + mdm[0] + "/talend/TalendPort"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -193,7 +193,7 @@ public class Util {
             return (XtentisPort) stub;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new XtentisWebappException("Unable to access endpoint at: " + endpointAddress + ": " + e.getLocalizedMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new XtentisWebappException("Unable to access endpoint at: " + endpointAddress + ": " + e.getLocalizedMessage());
         }
     }
 
@@ -685,7 +685,7 @@ public class Util {
             rootNS = namespaceHolder.getDocumentElement();
             rootNS.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + prefix, namespace); //$NON-NLS-1$ //$NON-NLS-2$
         } catch (Exception e) {
-            String err = "Error creating a namespace holder document: " + e.getLocalizedMessage(); //$NON-NLS-1$
+            String err = "Error creating a namespace holder document: " + e.getLocalizedMessage();
             throw new Exception(err);
         }
         return rootNS;
@@ -718,7 +718,7 @@ public class Util {
             builder.setErrorHandler(seh);
             d = builder.parse(new InputSource(new StringReader(xmlString)));
         } catch (Exception e) {
-            String err = "Unable to parse the document" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage() + "\n " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            String err = "Unable to parse the document" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage() + "\n "
                     + xmlString;
             throw new Exception(err);
         }
@@ -727,7 +727,7 @@ public class Util {
         if (schema != null) {
             String errors = seh.getErrors();
             if (!errors.equals("")) { //$NON-NLS-1$
-                String err = "Document  did not parse against schema: \n" + errors + "\n" + xmlString; //$NON-NLS-1$ //$NON-NLS-2$
+                String err = "Document  did not parse against schema: \n" + errors + "\n" + xmlString;
                 throw new Exception(err);
             }
         }
@@ -765,7 +765,7 @@ public class Util {
                 results = new String[] { xo.toString() };
             }
         } catch (Exception e) {
-            String err = "Unable to get the text node(s) of " + xPath + ": " + e.getClass().getName() + ": " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            String err = "Unable to get the text node(s) of " + xPath + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             throw new XtentisWebappException(err);
         }
@@ -923,9 +923,9 @@ public class Util {
             return md.digest();
         } catch (NoSuchAlgorithmException e) {
             // log.error("Cannot find MD5 algorithm", e);
-            throw new RuntimeException("Cannot find MD5 algorithm"); //$NON-NLS-1$
+            throw new RuntimeException("Cannot find MD5 algorithm");
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("No such encoding: " + charset); //$NON-NLS-1$
+            throw new RuntimeException("No such encoding: " + charset);
         }
     }
 
@@ -949,7 +949,7 @@ public class Util {
      */
     public static String toHexString(byte[] bytes) {
         if (bytes == null) {
-            throw new IllegalArgumentException("byte array must not be null"); //$NON-NLS-1$
+            throw new IllegalArgumentException("byte array must not be null");
         }
         StringBuffer hex = new StringBuffer(bytes.length * 2);
         for (int i = 0; i < bytes.length; i++) {
@@ -1045,7 +1045,7 @@ public class Util {
         Properties props = new Properties();
         is = clazz.getResourceAsStream(PROP_FILE);
         if (is == null) {
-            throw new RuntimeException("Couldn't find: " + PROP_FILE + " on CLASSPATH"); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new RuntimeException("Couldn't find: " + PROP_FILE + " on CLASSPATH");
         }
         try {
             props.load(is);
@@ -1466,7 +1466,7 @@ public class Util {
             return json.toString();
         }
 
-        throw new Exception("this should not happen"); //$NON-NLS-1$
+        throw new Exception("this should not happen");
 
     }
 
