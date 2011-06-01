@@ -874,13 +874,15 @@ public class ItemPOJO implements Serializable {
         	xmlBuilder.append("</taskId>");//$NON-NLS-1$
         }
         xmlBuilder.append("<p>");//$NON-NLS-1$
-        //see 0021743
+      //see 0021743, add the xsi namespace declaration to avoid tMDMInput parsing '@xsi:type' throw exception
         String xml=getProjectionAsString();
         try {
-			Document doc=Util.parse(xml);
-			doc.getDocumentElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xsi", //$NON-NLS-1$ //$NON-NLS-2$
-            "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$
-			xml=Util.nodeToString(doc.getDocumentElement());
+        	if((xml!=null && !xml.contains("http://www.w3.org/2001/XMLSchema-instance")) || xml==null){ //$NON-NLS-1$
+				Element node=getProjection();
+				node.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xsi", //$NON-NLS-1$ //$NON-NLS-2$
+	            "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$
+				xml=Util.nodeToString(node);
+        	}
 		} catch (Exception e) {
 			LOG.error(e);
 		}
