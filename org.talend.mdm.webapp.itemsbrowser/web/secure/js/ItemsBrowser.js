@@ -3381,6 +3381,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                             },
                                             icon : Ext.MessageBox.INFO
                                         });
+                                setTimeout("Ext.MessageBox.hide()",800);     
                                 if (callbackOnSuccess && result.status != 1)
                                     callbackOnSuccess(result.returnValue);
                                 return;
@@ -5165,6 +5166,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                             },
                                             icon : Ext.MessageBox.INFO
                                         });
+                               setTimeout("Ext.MessageBox.hide()",800);
                                 return;
                             }
                         }
