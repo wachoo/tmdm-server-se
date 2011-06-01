@@ -1384,10 +1384,10 @@ public class Util {
             xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
             // order by
             String orderbyPath = null;
-            if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
-                orderbyPath = getFormatedFKInfo(xpathInfos[0].replaceFirst(conceptName, filteredConcept), filteredConcept);
-            } else {
-
+            if (!MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
+                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
+                    orderbyPath = getFormatedFKInfo(xpathInfos[0].replaceFirst(conceptName, filteredConcept), filteredConcept);
+                }
             }
 
             // Run the query

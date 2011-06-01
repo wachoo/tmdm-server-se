@@ -872,11 +872,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
                 // order by
                 String orderbyPath = null;
-                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
-                    orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(xpathInfos[0].replaceFirst(conceptName,
-                            filteredConcept), filteredConcept);
-                } else {
-
+                if (!MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
+                    if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
+                        orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(xpathInfos[0].replaceFirst(conceptName,
+                                filteredConcept), filteredConcept);
+                    }
                 }
 
                 // Run the query
