@@ -24,7 +24,8 @@ public class JobAware {
 	private static final String JOBOX_RESERVED_FOLDER_NAME = "tmp";
 	
 	private String workDir;
-
+    private String contextStr;
+    
 	public JobAware(JoboxConfig joboxConfig) {
 		this.workDir=joboxConfig.getWorkPath();
 	}
@@ -122,11 +123,15 @@ public class JobAware {
 		}
 	}
 
+	public void setContextStr(String cxt){
+	    contextStr = cxt;
+	}
+	
 	private String analyzeJobParams(File entity, JobInfo jobInfo) {
 		String propFilePath=null;
 		try {
 			List<File> checkList = new ArrayList<File>();
-			findFirstFile(entity, "Default.properties", checkList);
+			findFirstFile(entity, (contextStr == null ? "Default" :  contextStr)+".properties", checkList);//$NON-NLS-1$//$NON-NLS-2$
 			if (checkList.size() > 0) {
 				propFilePath=checkList.get(0).getAbsolutePath();
 				Properties paramProperties = new Properties();
