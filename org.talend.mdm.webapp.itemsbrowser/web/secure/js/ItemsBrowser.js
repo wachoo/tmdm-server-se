@@ -4379,7 +4379,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     typeName, function(result) {
                         value = result;
 
-                        updateNode2(id, node, value, treeIndex);
+                        if(value!="")
+                        	updateNode2(id, node, value, treeIndex);
                     });// interface.updatevalue( ;
         else
             updateNode2(id, node, value, treeIndex);
