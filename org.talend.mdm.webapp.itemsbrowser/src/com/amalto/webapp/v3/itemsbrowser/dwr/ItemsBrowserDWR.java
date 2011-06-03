@@ -3776,7 +3776,9 @@ public class ItemsBrowserDWR {
             return value;
         Object object = Util.getTypeValue(lang, typeName, value);
         if (object instanceof Calendar || object instanceof Time || object == null)
-            return value;
+        {
+            return Util.outputValidateDate(value);
+        }
         return object.toString();
     }
 
