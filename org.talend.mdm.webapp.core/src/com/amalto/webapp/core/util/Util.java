@@ -1384,10 +1384,10 @@ public class Util {
             xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
             // order by
             String orderbyPath = null;
-            if (!MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
-                    orderbyPath = getFormatedFKInfo(xpathInfos[0].replaceFirst(conceptName, filteredConcept), filteredConcept);
-                }
+            if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
+                orderbyPath = getFormatedFKInfo(xpathInfos[0].replaceFirst(conceptName, filteredConcept), filteredConcept);
+            } else {
+
             }
 
             // Run the query
@@ -1542,6 +1542,38 @@ public class Util {
         return isCustom;
     }
 
+    public static String outputValidateDate(String dataValue)throws ParseException{
+        Pattern datePtn = Pattern.compile("\\d{1,2}\\/\\d{1,2}\\/\\d{4}");//$NON-NLS-1$
+        Matcher mtn = datePtn.matcher(dataValue);
+        if(mtn.matches()){
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");//$NON-NLS-1$
+            java.util.Date date = sdf.parse(dataValue);
+            sdf.applyPattern("yyyy-MM-dd");//$NON-NLS-1$
+            dataValue = sdf.format(date);
+        }
+        else
+        {
+            Pattern datePartPtn = Pattern.compile("\\d{1,2}\\/\\d{4}");//$NON-NLS-1$
+            mtn = datePartPtn.matcher(dataValue);
+            if(mtn.matches()){
+                dataValue = "01/" + dataValue;//$NON-NLS-1$
+                return outputValidateDate(dataValue);
+            }
+            else
+            {
+                datePartPtn = Pattern.compile("\\d{1,2}\\/\\d{1,2}");//$NON-NLS-1$
+                mtn = datePartPtn.matcher(dataValue);
+                if(mtn.matches()){
+                    java.util.Calendar now = Calendar.getInstance();
+                    now.setTime(new java.util.Date());
+                    dataValue = dataValue + "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$
+                    return outputValidateDate(dataValue);
+                }
+            }
+        }
+        
+        return dataValue;
+    }
     /**
      * @author ymli
      * @param type
@@ -1553,8 +1585,17 @@ public class Util {
     public static Object getTypeValue(String lang, String type, String value) throws ParseException {
 
         // time
-        if (type.equals("date")) //$NON-NLS-1$
-            return Date.parseDate(value.trim()).toCalendar();
+        if (type.equals("date")) {//$NON-NLS-1$
+            String dataStr = value;
+            Calendar calendar = null;
+            try{
+            calendar = Date.parseDate(dataStr.trim()).toCalendar();
+            }
+            catch(Exception ex){
+                calendar = Date.parseDate(outputValidateDate(value)).toCalendar();
+            }
+            
+            return calendar;
         /*
          * else if(type.equals("time")) return BigInteger.//Time.parseTime(value.trim());
          */
@@ -1570,6 +1611,7 @@ public class Util {
          * 
          * }
          */
+        }
         else if (type.equals("dateTime")) { //$NON-NLS-1$
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //$NON-NLS-1$
             Calendar dateTime = Calendar.getInstance();
