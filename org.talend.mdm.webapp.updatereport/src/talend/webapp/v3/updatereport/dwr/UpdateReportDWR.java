@@ -182,6 +182,7 @@ public class UpdateReportDWR {
                 String userName = Util.getFirstTextNode(doc, "/Update/UserName"); //$NON-NLS-1$
                 String source = Util.getFirstTextNode(doc, "/Update/Source"); //$NON-NLS-1$
                 String timeInMillis = Util.getFirstTextNode(doc, "/Update/TimeInMillis"); //$NON-NLS-1$
+                String epochTime = Util.getFirstTextNode(doc, "/Update/TimeInMillis"); //$NON-NLS-1$
                 String operationType = Util.getFirstTextNode(doc, "/Update/OperationType"); //$NON-NLS-1$
                 String revisionID = Util.getFirstTextNode(doc, "/Update/RevisionID"); //$NON-NLS-1$
                 String dataCluster = Util.getFirstTextNode(doc, "/Update/DataCluster"); //$NON-NLS-1$
@@ -192,6 +193,7 @@ public class UpdateReportDWR {
                 item.setUserName(userName);
                 item.setSource(source);
                 item.setTimeInMillis(timeInMillis);
+                item.setEpochTime(epochTime);
                 item.setOperationType(operationType);
                 item.setRevisionID(revisionID);
                 item.setDataCluster(dataCluster);

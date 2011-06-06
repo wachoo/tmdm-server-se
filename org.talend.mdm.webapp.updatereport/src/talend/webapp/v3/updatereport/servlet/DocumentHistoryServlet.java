@@ -24,8 +24,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
@@ -109,15 +107,7 @@ public class DocumentHistoryServlet extends HttpServlet {
     private Parameters getParameters(HttpServletRequest req) {
         Map parameters = req.getParameterMap();
 
-        Long date;
-        try {
-            String dateAsString = getParameterString(parameters, DATE_PARAMETER, true);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd hh:mm:ss");  //$NON-NLS-1$
-            date = simpleDateFormat.parse(dateAsString).getTime();
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-
+        Long date = Long.parseLong(getParameterString(parameters, DATE_PARAMETER, true));
         String dataClusterName = getParameterString(parameters, DATA_CLUSTER_PARAMETER, true);
         String dataModelName = getParameterString(parameters, DATA_MODEL_PARAMETER, true);
         String conceptName = getParameterString(parameters, CONCEPT_PARAMETER, true);

@@ -61,6 +61,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 		  {name: "revisionID", type: "string"},
 		  {name: "operationType", type: "string"},
 		  {name: "timeInMillis", type: "string"},
+		  {name: "epochTime", type: "string"},
 		  {name: "source", type: "string"},
 		  {name: "userName", type: "string"},
 		  {name: "ids", type: "string"}
@@ -184,7 +185,7 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
 		        	            } else {
                                     // Note: this feature is only enabled in enterprise version
                                     dataLogViewer=new amalto.updatereport.HistoryViewer(
-                                    {'ids':ids,'date':record.data.timeInMillis,'key':record.data.key,'concept':record.data.concept,'dataCluster':record.data.dataCluster,'dataModel':record.data.dataModel});
+                                    {'ids':ids,'date':record.data.epochTime,'key':record.data.key,'concept':record.data.concept,'dataCluster':record.data.dataCluster,'dataModel':record.data.dataModel});
 		        	            }
 
                                 tabPanel.add(dataLogViewer);

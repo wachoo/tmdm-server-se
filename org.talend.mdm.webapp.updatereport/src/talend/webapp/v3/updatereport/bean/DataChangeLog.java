@@ -32,6 +32,8 @@ public class DataChangeLog {
 	
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 
+    private String epochTime;
+
 	public String getSource() {
 		return cleanOutput(source);
 	}
@@ -134,7 +136,12 @@ public class DataChangeLog {
 		
 		return output;
 	}
-	
-	
-	
+
+    public void setEpochTime(String epochTime) {
+        this.epochTime = epochTime;
+    }
+
+    public String getEpochTime() {
+        return epochTime;
+    }
 }
