@@ -15,6 +15,7 @@ import com.amalto.core.history.Document;
 import com.amalto.core.history.DocumentHistory;
 import com.amalto.core.history.DocumentHistoryFactory;
 import com.amalto.core.history.DocumentHistoryNavigator;
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -24,7 +25,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -48,11 +51,15 @@ public class DocumentHistoryServlet extends HttpServlet {
 
     private static final String CURRENT_ACTION = "current"; //$NON-NLS-1$
 
-    private static final String BEFORE_ACTION = "before";  //$NON-NLS-1$
+    private static final String PREVIOUS_ACTION = "before";  //$NON-NLS-1$
+
+    private static final String NEXT_ACTION = "next";  //$NON-NLS-1$
 
     private static final Logger logger = Logger.getLogger(DocumentHistoryServlet.class);
 
     private static final DocumentHistory factory = DocumentHistoryFactory.getInstance().create();
+
+    private static final Map<Parameters,DocumentHistoryNavigator> cache = new LRUMap(50);
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -66,42 +73,67 @@ public class DocumentHistoryServlet extends HttpServlet {
         ServletOutputStream outputStream = resp.getOutputStream();
         Date historyDate = new Date(parameters.getDate());
 
-        DocumentHistoryNavigator navigator = getHistoryNavigator(parameters);
-
-        // Now does the actual writing to client
-        resp.setContentType("text/xml");
-        outputStream.println("<history>"); //$NON-NLS-1$
-        {
-            // Go to date history
-            navigator.previous(historyDate);
-
-            // Get the one before the action and the one right after
-            Document document = new EmptyDocument();
-            if (CURRENT_ACTION.equalsIgnoreCase(parameters.getAction())) {
-                document = navigator.current();
-            } else if (BEFORE_ACTION.equalsIgnoreCase(parameters.getAction())) {
-                if (navigator.hasPrevious()) {
-                    document = navigator.previous();
-                } else {
-                    logger.warn("No previous state for document before date '" + historyDate + "'.");
-                }
-            } else {
-                throw new ServletException(new IllegalArgumentException("Action '" + parameters.getAction() + " is not supported."));
+        DocumentHistoryNavigator navigator = cache.get(parameters);
+        synchronized (cache) {
+            if (navigator == null) {
+                navigator = factory.getHistory(parameters.getDataClusterName(),
+                    parameters.getDataModelName(),
+                    parameters.getConceptName(),
+                    parameters.getId(),
+                    parameters.getRevisionId());
+                cache.put(parameters, navigator);
             }
-
-            // Write directly the document content w/o using the xml writer (it's already XML).
-            outputStream.print(document.getAsString());
         }
-        outputStream.println("</history>"); //$NON-NLS-1$
-        outputStream.flush();
+
+        synchronized (navigator) { // Prevent other threads to use the same navigator
+            // Now does the actual writing to client
+            resp.setContentType("text/xml");
+            outputStream.println("<history>"); //$NON-NLS-1$
+            {
+                // Go to date history
+                navigator.goTo(historyDate);
+
+                // Get the one before the action and the one right after
+                Document document = new EmptyDocument();
+                if (CURRENT_ACTION.equalsIgnoreCase(parameters.getAction())) {
+                    document = navigator.current();
+                } else if (PREVIOUS_ACTION.equalsIgnoreCase(parameters.getAction())) {
+                    if (navigator.hasPrevious()) {
+                        document = navigator.previous();
+                    } else {
+                        logger.warn("No previous state for document before date '" + historyDate + "'.");
+                    }
+                } else if (NEXT_ACTION.equalsIgnoreCase(parameters.getAction())) {
+                    if (navigator.hasNext()) {
+                        document = navigator.next();
+                    } else {
+                        logger.warn("No next state for document after date '" + historyDate + "'.");
+                    }
+                } else {
+                    throw new ServletException(new IllegalArgumentException("Action '" + parameters.getAction() + " is not supported."));
+                }
+
+                // Write directly the document content w/o using the xml writer (it's already XML).
+                outputStream.print(document.getAsString());
+            }
+            outputStream.println("</history>"); //$NON-NLS-1$
+            outputStream.flush();
+        }
     }
 
     private DocumentHistoryNavigator getHistoryNavigator(Parameters parameters) {
-        return factory.getHistory(parameters.getDataClusterName(),
+        Map<Parameters, DocumentHistoryNavigator> cache = new HashMap<Parameters, DocumentHistoryNavigator>();
+        DocumentHistoryNavigator navigator = cache.get(parameters);
+        if (navigator == null) {
+            navigator = factory.getHistory(parameters.getDataClusterName(),
                 parameters.getDataModelName(),
                 parameters.getConceptName(),
                 parameters.getId(),
                 parameters.getRevisionId());
+            cache.put(parameters, navigator);
+        }
+
+        return navigator;
     }
 
     private Parameters getParameters(HttpServletRequest req) {
@@ -176,6 +208,32 @@ public class DocumentHistoryServlet extends HttpServlet {
 
         public String getAction() {
             return action;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Parameters)) return false;
+
+            Parameters that = (Parameters) o;
+
+            if (!conceptName.equals(that.conceptName)) return false;
+            if (!dataClusterName.equals(that.dataClusterName)) return false;
+            if (!dataModelName.equals(that.dataModelName)) return false;
+            if (!Arrays.equals(id, that.id)) return false;
+            if (revisionId != null ? !revisionId.equals(that.revisionId) : that.revisionId != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = dataClusterName.hashCode();
+            result = 31 * result + dataModelName.hashCode();
+            result = 31 * result + conceptName.hashCode();
+            result = 31 * result + Arrays.hashCode(id);
+            result = 31 * result + (revisionId != null ? revisionId.hashCode() : 0);
+            return result;
         }
     }
 
