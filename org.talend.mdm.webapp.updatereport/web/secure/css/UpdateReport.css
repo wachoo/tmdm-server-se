@@ -16,3 +16,8 @@
 .x-tbar-done{
     background-image: url(../img/refresh.gif) !important;
 }
+
+/* For enterprise data changes viewer (allow table layout to use 100% of frame space) */
+.x-table-layout {
+    width: 100%;
+}

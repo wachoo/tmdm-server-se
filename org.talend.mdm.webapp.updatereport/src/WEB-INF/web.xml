@@ -2,9 +2,9 @@
 
 <!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
 
-<web-app >
+<web-app>
     <!-- <distributable/> -->
-    
+
     <servlet>
         <servlet-name>dwr-invoker</servlet-name>
         <display-name>DWR Servlet</display-name>
@@ -24,7 +24,17 @@
         <servlet-name>UpdateReportDetailsServelt</servlet-name>
         <url-pattern>/secure/updateReportDetails</url-pattern>
     </servlet-mapping>
-      
+
+    <servlet>
+        <servlet-name>DocumentHistoryServlet</servlet-name>
+        <servlet-class>talend.webapp.v3.updatereport.servlet.DocumentHistoryServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>DocumentHistoryServlet</servlet-name>
+        <url-pattern>/secure/documentHistory</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/secure/dwr/*</url-pattern>

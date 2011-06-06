@@ -176,18 +176,27 @@ Ext.extend(amalto.updatereport.UpdateReportPanel, Ext.Panel, {
    	    				
    	    				var tabPanel = amalto.core.getTabPanel();
    	    				var dataLogViewer=tabPanel.getItem(ids);
-						if( dataLogViewer== undefined){
-							
-							dataLogViewer=new amalto.updatereport.DataLogViewer(
-								{'ids':ids,'key':record.data.key,'concept':record.data.concept,'dataCluster':record.data.dataCluster,'dataModel':record.data.dataModel});
-							tabPanel.add(dataLogViewer);							
+						if(dataLogViewer == undefined) {
+		        	        UpdateReportInterface.isEnterpriseVersion(function(data) {
+		        	            if(!data) {
+                                    dataLogViewer=new amalto.updatereport.DataLogViewer(
+                                    {'ids':ids,'key':record.data.key,'concept':record.data.concept,'dataCluster':record.data.dataCluster,'dataModel':record.data.dataModel});
+		        	            } else {
+                                    // Note: this feature is only enabled in enterprise version
+                                    dataLogViewer=new amalto.updatereport.HistoryViewer(
+                                    {'ids':ids,'date':record.data.timeInMillis,'key':record.data.key,'concept':record.data.concept,'dataCluster':record.data.dataCluster,'dataModel':record.data.dataModel});
+		        	            }
+
+                                tabPanel.add(dataLogViewer);
+                                dataLogViewer.show();
+                                dataLogViewer.doLayout();
+						        amalto.core.doLayout();
+		        	        });
+						} else {
+                            dataLogViewer.show();
+                            dataLogViewer.doLayout();
+                            amalto.core.doLayout();
 						}
-				        
-				        dataLogViewer.show();
-						dataLogViewer.doLayout();
-						amalto.core.doLayout();
-   	    				
-   	    				
    	    			}
    	   	    },
 			bbar : new Ext.PagingToolbar({

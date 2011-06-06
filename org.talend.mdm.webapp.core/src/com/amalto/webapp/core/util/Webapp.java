@@ -25,7 +25,9 @@ public interface Webapp {
     public boolean isShowMsg() throws Exception;
 
     public boolean isDataSteWardShip() throws Exception;
-    
+
+    public boolean isEnterpriseVersion();
+
     public static final Webapp INSTANCE = WebappFactory.createWebapp();
 
     public static final class WebappFactory {

@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import com.amalto.webapp.core.util.Webapp;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
@@ -39,6 +40,10 @@ public class UpdateReportDWR {
        
     public UpdateReportDWR() {
 
+    }
+
+    public boolean isEnterpriseVersion() {
+        return Webapp.INSTANCE.isEnterpriseVersion();
     }
 
     public ListRange getUpdateReportList(int start, int limit, String sort, String dir, String regex) throws Exception {

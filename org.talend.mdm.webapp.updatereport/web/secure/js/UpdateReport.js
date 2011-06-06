@@ -12,7 +12,11 @@ amalto.updatereport.UpdateReport = function () {
     loadResource("/updatereport/secure/js/UpdateReportPanel.js", "");
     
     loadResource("/updatereport/secure/js/DataLogViewer.js", "");
-    
+
+    loadResource("/updatereport/secure/js/XmlTreeLoader.js", "");
+
+    loadResource("/updatereport/secure/js/HistoryViewer.js", "");
+
     loadResource("/updatereport/secure/css/UpdateReport.css", "" );
 
     var updateReportPanel;
