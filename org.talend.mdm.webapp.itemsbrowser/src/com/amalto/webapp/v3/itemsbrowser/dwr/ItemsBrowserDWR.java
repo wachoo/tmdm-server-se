@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2394,7 +2394,7 @@ public class ItemsBrowserDWR {
                 status = ItemResult.SUCCESS;
             }
 
-            return new ItemResult(status, message, Util.joinStrings(wsi.getIds(), ".")); //$NON-NLS-1$
+            return new ItemResult(status, message, Util.joinStrings(wsi == null ? ids : wsi.getIds(), ".")); //$NON-NLS-1$
 
         } catch (Exception e) {
             ItemResult result;
@@ -3775,8 +3775,7 @@ public class ItemsBrowserDWR {
         if (typeName == null || typeName.equals("null") || format.equals("null") || "".equals(value))//$NON-NLS-1$//$NON-NLS-2$
             return value;
         Object object = Util.getTypeValue(lang, typeName, value);
-        if (object instanceof Calendar || object instanceof Time || object == null)
-        {
+        if (object instanceof Calendar || object instanceof Time || object == null) {
             return Util.outputValidateDate(value);
         }
         return object.toString();
