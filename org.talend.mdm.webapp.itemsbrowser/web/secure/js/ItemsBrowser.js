@@ -2696,7 +2696,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                                 treeIndex,
                                                                 itemTree
                                                                         .getNodeByIndex(oNode.index),
-                                                                false,
+                                                                result[i].autoExpand,
                                                                 true,
                                                                 isReadOnlyinItem,
                                                                 parentLink);
@@ -2771,7 +2771,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                                 treeIndex,
                                                                 itemTree
                                                                         .getNodeByIndex(oNode.index),
-                                                                false,
+                                                                result[i].autoExpand,
                                                                 true,
                                                                 isReadOnlyinItem,
                                                                 parentLink);
@@ -3626,7 +3626,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                                 treeIndex,
                                                                 itemTree
                                                                         .getNodeByIndex(oNode.index),
-                                                                false,
+                                                                result[i].autoExpand,
                                                                 true,
                                                                 isReadOnlyinItem,
                                                                 parentLink);
@@ -3703,7 +3703,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                                 treeIndex,
                                                                 itemTree
                                                                         .getNodeByIndex(oNode.index),
-                                                                false,
+                                                                result[i].autoExpand,
                                                                 true,
                                                                 isReadOnlyinItem,
                                                                 currentLink);
@@ -4604,7 +4604,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             var tmp = new amalto.itemsbrowser.ItemNode(
                                     result[i], newItem[treeIndex], treeIndex,
                                     itemTree.getNodeByIndex(oNode.index),
-                                    false, true, isReadOnlyinItem, parentLink);
+                                    result[i].autoExpand, true, isReadOnlyinItem, parentLink);
 
                             if (result[i].type == "simple")
                                 tmp.setDynamicLoad();
@@ -4766,7 +4766,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             var tmp = new amalto.itemsbrowser.ItemNode(
                                     result[i], newItem[treeIndex], treeIndex,
                                     itemTree.getNodeByIndex(oNode.index),
-                                    false, true, isReadOnlyinItem);
+                                    result[i].autoExpand, true, isReadOnlyinItem);
                             if (result[i].type == "simple")
                                 tmp.setDynamicLoad();
                             else

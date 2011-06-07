@@ -100,6 +100,7 @@ public class TreeNode implements Cloneable {
 
     private boolean isAbstract = false;
 
+    private boolean autoExpand;
     public boolean isAbstract() {
         return isAbstract;
     }
@@ -223,6 +224,11 @@ public class TreeNode implements Cloneable {
                             }
                         } else if ("X_ForeignKey".equals(appinfoSource)) {
                             setForeignKey(annotList.item(k).getFirstChild().getNodeValue());
+                        }else if ("X_AutoExpand".equals(appinfoSource)) {
+                        	String v=annotList.item(k).getFirstChild().getNodeValue();
+                        	if(v!=null){
+                        		setAutoExpand(Boolean.valueOf(v));
+                        	}
                         } else if ("X_ForeignKey_Filter".equals(appinfoSource)) {
                             setFkFilter(annotList.item(k).getFirstChild().getNodeValue());
                         } else if ("X_ForeignKeyInfo".equals(appinfoSource)) {
@@ -561,7 +567,15 @@ public class TreeNode implements Cloneable {
         this.parent = parent;
     }
 
-    /**
+    public boolean isAutoExpand() {
+		return autoExpand;
+	}
+
+	public void setAutoExpand(boolean autoExpand) {
+		this.autoExpand = autoExpand;
+	}
+
+	/**
      * add by fliu 0009157
      * 
      * @param lang
