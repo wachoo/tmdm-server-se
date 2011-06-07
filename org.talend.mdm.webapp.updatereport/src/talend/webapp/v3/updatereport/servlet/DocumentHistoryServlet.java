@@ -45,52 +45,44 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
         ServletOutputStream outputStream = resp.getOutputStream();
         Date historyDate = new Date(parameters.getDate());
 
-        DocumentHistoryNavigator navigator = cache.get(parameters);
-        synchronized (cache) {
-            if (navigator == null) {
-                navigator = factory.getHistory(parameters.getDataClusterName(),
-                        parameters.getDataModelName(),
-                        parameters.getConceptName(),
-                        parameters.getId(),
-                        parameters.getRevisionId());
-                cache.put(parameters, navigator);
-            }
-        }
+        DocumentHistoryNavigator navigator = factory.getHistory(parameters.getDataClusterName(),
+                parameters.getDataModelName(),
+                parameters.getConceptName(),
+                parameters.getId(),
+                parameters.getRevisionId());
 
-        synchronized (navigator) { // Prevent other threads to use the same navigator
-            // Now does the actual writing to client
-            resp.setContentType("text/xml");
-            outputStream.println("<history>"); //$NON-NLS-1$
-            {
-                // Go to date history
-                navigator.goTo(historyDate);
+        // Now does the actual writing to client
+        resp.setContentType("text/xml");
+        outputStream.println("<history>"); //$NON-NLS-1$
+        {
+            // Go to date history
+            navigator.goTo(historyDate);
 
-                // Get the one before the action and the one right after
-                Document document = new EmptyDocument();
-                if (CURRENT_ACTION.equalsIgnoreCase(parameters.getAction())) {
-                    document = navigator.current();
-                } else if (PREVIOUS_ACTION.equalsIgnoreCase(parameters.getAction())) {
-                    if (navigator.hasPrevious()) {
-                        document = navigator.previous();
-                    } else {
-                        logger.warn("No previous state for document before date '" + historyDate + "'.");
-                    }
-                } else if (NEXT_ACTION.equalsIgnoreCase(parameters.getAction())) {
-                    if (navigator.hasNext()) {
-                        document = navigator.next();
-                    } else {
-                        logger.warn("No next state for document after date '" + historyDate + "'.");
-                    }
+            // Get the one before the action and the one right after
+            Document document = new EmptyDocument();
+            if (CURRENT_ACTION.equalsIgnoreCase(parameters.getAction())) {
+                document = navigator.current();
+            } else if (PREVIOUS_ACTION.equalsIgnoreCase(parameters.getAction())) {
+                if (navigator.hasPrevious()) {
+                    document = navigator.previous();
                 } else {
-                    throw new ServletException(new IllegalArgumentException("Action '" + parameters.getAction() + " is not supported."));
+                    logger.warn("No previous state for document before date '" + historyDate + "'.");
                 }
-
-                // Write directly the document content w/o using the xml writer (it's already XML).
-                outputStream.print(document.getAsString());
+            } else if (NEXT_ACTION.equalsIgnoreCase(parameters.getAction())) {
+                if (navigator.hasNext()) {
+                    document = navigator.next();
+                } else {
+                    logger.warn("No next state for document after date '" + historyDate + "'.");
+                }
+            } else {
+                throw new ServletException(new IllegalArgumentException("Action '" + parameters.getAction() + " is not supported."));
             }
-            outputStream.println("</history>"); //$NON-NLS-1$
-            outputStream.flush();
+
+            // Write directly the document content w/o using the xml writer (it's already XML).
+            outputStream.print(document.getAsString());
         }
+        outputStream.println("</history>"); //$NON-NLS-1$
+        outputStream.flush();
     }
 }
 

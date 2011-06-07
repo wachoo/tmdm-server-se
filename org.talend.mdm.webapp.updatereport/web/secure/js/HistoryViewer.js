@@ -49,7 +49,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                     xtype: "talend.documenthistorypanel",
                     cellCls: 'history-viewer-changes',
                     id:2,
-                    title:'Current',
+                    title:'After',
                     date:this.date,
                     key:this.key,
                     concept:this.concept,
