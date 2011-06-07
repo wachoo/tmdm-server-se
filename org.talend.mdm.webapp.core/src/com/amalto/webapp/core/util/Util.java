@@ -1543,33 +1543,41 @@ public class Util {
     }
 
     public static String outputValidateDate(String dataValue)throws ParseException{
-        Pattern datePtn = Pattern.compile("\\d{1,2}\\/\\d{1,2}\\/\\d{4}");//$NON-NLS-1$
+        Pattern datePtn = Pattern.compile("((\\d{1,2}\\/){2}\\d{4})?(\\d{1,2}\\/\\d{4})?(\\d{1,2}{2})?(\\d{1,2}\\/\\d{1,2})?(\\d{4})?");//$NON-NLS-1$
         Matcher mtn = datePtn.matcher(dataValue);
-        if(mtn.matches()){
+        
+        if(!mtn.matches())return dataValue;
+        
+        if(mtn.group(1) != null ){
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");//$NON-NLS-1$
             java.util.Date date = sdf.parse(dataValue);
             sdf.applyPattern("yyyy-MM-dd");//$NON-NLS-1$
             dataValue = sdf.format(date);
+            return dataValue;
         }
-        else
-        {
-            Pattern datePartPtn = Pattern.compile("\\d{1,2}\\/\\d{4}");//$NON-NLS-1$
-            mtn = datePartPtn.matcher(dataValue);
-            if(mtn.matches()){
-                dataValue = "01/" + dataValue;//$NON-NLS-1$
-                return outputValidateDate(dataValue);
-            }
-            else
-            {
-                datePartPtn = Pattern.compile("\\d{1,2}\\/\\d{1,2}");//$NON-NLS-1$
-                mtn = datePartPtn.matcher(dataValue);
-                if(mtn.matches()){
-                    java.util.Calendar now = Calendar.getInstance();
-                    now.setTime(new java.util.Date());
-                    dataValue = dataValue + "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$
-                    return outputValidateDate(dataValue);
-                }
-            }
+        
+        java.util.Calendar now = Calendar.getInstance();
+        now.setTime(new java.util.Date());
+        
+        if(mtn.group(1) == null && mtn.group(3) != null && mtn.group(5) != null){
+            dataValue = "01/" + dataValue;//$NON-NLS-1$
+            return outputValidateDate(dataValue);
+        }
+        else if(mtn.group(3) != null){
+            dataValue = now.get(java.util.Calendar.DAY_OF_MONTH) + "/" + dataValue;//$NON-NLS-1$
+            return outputValidateDate(dataValue);
+        }
+        else if(mtn.group(6) != null){
+            dataValue = now.get(java.util.Calendar.DAY_OF_MONTH) + "/" + (now.get(java.util.Calendar.MONTH)+ 1) + "/" + dataValue ;//$NON-NLS-1$//$NON-NLS-2$
+            return outputValidateDate(dataValue);
+        }
+        else if(mtn.group(4) != null && mtn.group(5) == null){
+            dataValue = dataValue + "/" + (now.get(java.util.Calendar.MONTH) + 1) + "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$//$NON-NLS-2$
+            return outputValidateDate(dataValue);
+        }
+        else if(mtn.group(5) != null){
+            dataValue += "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$
+            return outputValidateDate(dataValue); 
         }
         
         return dataValue;
