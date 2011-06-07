@@ -33,7 +33,10 @@ public class WebappImpl implements Webapp {
     }
 
     public boolean isDataSteWardShip() throws Exception {
-        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean isEnterpriseVersion() {
         return false;
     }
 }
