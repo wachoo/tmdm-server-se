@@ -19,4 +19,14 @@ public interface Document {
      */
     boolean isDeleted();
 
+    /**
+     * <p>
+     * Restore this document to the MDM database.
+     * </p>
+     * <p>
+     * <b>Note:</b>The logged user must be admin to call this method.
+     * </p>
+     * @throws IllegalStateException If the user is not an admin user.
+     */
+    void restore();
 }

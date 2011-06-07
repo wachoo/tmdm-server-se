@@ -15,6 +15,10 @@ amalto.updatereport.UpdateReport = function () {
 
     loadResource("/updatereport/secure/js/XmlTreeLoader.js", "");
 
+    loadResource("/updatereport/secure/js/ClassTableLayout.js", "");
+
+    loadResource("/updatereport/secure/js/DocumentHistoryPanel.js", "");
+
     loadResource("/updatereport/secure/js/HistoryViewer.js", "");
 
     loadResource("/updatereport/secure/css/UpdateReport.css", "" );

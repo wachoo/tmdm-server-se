@@ -7,6 +7,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.util.Webapp;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -40,6 +43,15 @@ public class UpdateReportDWR {
        
     public UpdateReportDWR() {
 
+    }
+
+    public boolean isAdminUser() {
+        try {
+            return LocalUser.getLocalUser().isAdmin(ItemPOJO.class);
+        } catch (XtentisException e) {
+            logger.error(MESSAGES.getMessage(Locale.getDefault(), "updatereport.server.isAdminUser.error"), e);   //$NON-NLS-1$
+            return false;
+        }
     }
 
     public boolean isEnterpriseVersion() {
