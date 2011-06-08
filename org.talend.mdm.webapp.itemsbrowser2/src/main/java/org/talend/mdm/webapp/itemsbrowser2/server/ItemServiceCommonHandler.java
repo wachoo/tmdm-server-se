@@ -40,6 +40,7 @@ import org.scb.gwt.web.server.i18n.GWTI18N;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.talend.mdm.webapp.itemsbrowser2.client.exception.ParserException;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
@@ -186,6 +187,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 itemBeans.add(itemBean);
             }
 
+        } catch (ParserException e) {
+            return new Object[] { null, 0 };
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

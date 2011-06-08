@@ -20,14 +20,12 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
-import org.talend.mdm.webapp.itemsbrowser2.client.exception.ParserException;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.Parser;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 
@@ -93,19 +91,19 @@ public class ItemsListPanel extends ContentPanel {
             qm.getPagingLoadConfig().setLimit(pageSize);
             qm.setLanguage(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
 
-            try {// valid criteria first
-                Parser.parse(qm.getCriteria());
-            } catch (ParserException e) {
-                MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().invalid_expression()
-                        + qm.getCriteria(), null);
-                callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
-                return;
-            }
             service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
 
                 public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
-                    callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
-                            .getTotalLength()));
+                    if (result.getData() != null)
+                        callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
+                                .getTotalLength()));
+                    else {// parser exception
+                        callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                .invalid_expression()
+                                + qm.getCriteria(), null);
+                    }
+
                 }
 
                 public void onFailure(Throwable caught) {
