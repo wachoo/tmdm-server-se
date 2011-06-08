@@ -238,11 +238,11 @@ public class UpdateReportDWR {
 //    	}
     	ListRange listRange = this.getUpdateReportList(start, limit, null, null, regex);
     	Object[] data = listRange.getData();
-    	
-    	String str = this.generateEventString(data, language);
-    	return str;
+
+        return generateEventString(data, language);
     }
 
+    // This is the HTML displayed in the time line bubble (when you click on an event).
     private String generateEventString(Object[] data, String language) throws ParseException{
     	StringBuilder sb = new StringBuilder("{'dateTimeFormat': 'iso8601',"); //$NON-NLS-1$
     	sb.append("'events' : [");	 //$NON-NLS-1$
@@ -254,6 +254,7 @@ public class UpdateReportDWR {
     		sb.append("'link':'").append("javascript:showDialog(") //$NON-NLS-1$ //$NON-NLS-2$
 			 .append("\"").append(datalog.getIds()).append("\",") //$NON-NLS-1$ //$NON-NLS-2$
 			 .append("\"").append(datalog.getKey()).append("\",") //$NON-NLS-1$ //$NON-NLS-2$
+			 .append("\"").append(datalog.getEpochTime()).append("\",") //$NON-NLS-1$ //$NON-NLS-2$
 			 .append("\"").append(datalog.getConcept()).append("\",") //$NON-NLS-1$ //$NON-NLS-2$
 			 .append("\"").append(datalog.getDataCluster()).append("\",") //$NON-NLS-1$ //$NON-NLS-2$
 			 .append("\"").append(datalog.getDataModel()).append("\"").append(")',"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

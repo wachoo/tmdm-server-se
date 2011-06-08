@@ -24,6 +24,7 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                     dataCluster:this.dataCluster,
                     dataModel:this.dataModel,
                     action:this.action,
+                    parentPanelId:this.parentPanelId,
 			        listeners: { 'render' : function(button) {
                             UpdateReportInterface.isAdminUser(function(data) {
                                 button.disabled = !data;
@@ -37,6 +38,13 @@ Ext.extend(amalto.updatereport.DocumentHistoryPanel, Ext.Panel, {
                             },
                             url: "/updatereport/secure/documentRestore?date="+this.date+"&dataCluster="+this.dataCluster+"&dataModel="+this.dataModel+"&concept="+this.concept+"&revision=&action="+this.action+"&key="+this.key
                         });
+
+                        // auto close panel that contains this document history panel
+                        var tabPanel = amalto.core.getTabPanel();
+                        var parentPanel=tabPanel.getItem(this.parentPanelId);
+                        if(parentPanel) {
+                            tabPanel.remove(parentPanel);
+                        }
                     }
 			    },{
 			        anchor: '100%, 80%',

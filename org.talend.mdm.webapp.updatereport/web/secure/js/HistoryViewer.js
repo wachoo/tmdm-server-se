@@ -7,12 +7,14 @@ amalto.updatereport.HistoryViewer = function(config) {
 
 };
 
+var panelId = "datachangesviewer";
+
 Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
 	initUIComponents : function() {
 	    Ext.apply(this, {
 			layout : 'classtable',
 			title : "Data Changes Viewer",
-			id : "datachangesviewer",
+			id : panelId,
 			closable:true,
 			border:true,
 			layoutConfig: {columns:2, cls: 'history-viewer'},
@@ -38,6 +40,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                     xtype: "talend.documenthistorypanel",
                     cellCls: 'history-viewer-changes',
                     id:1,
+                    parentPanelId:panelId,
                     title:'Before',
                     date:this.date,
                     key:this.key,
@@ -49,6 +52,7 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                     xtype: "talend.documenthistorypanel",
                     cellCls: 'history-viewer-changes',
                     id:2,
+                    parentPanelId:panelId,
                     title:'After',
                     date:this.date,
                     key:this.key,

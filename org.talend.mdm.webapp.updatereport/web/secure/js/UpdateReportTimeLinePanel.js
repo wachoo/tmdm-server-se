@@ -78,18 +78,30 @@ function renderTimeline(jsonData, initDate){
     eventSource1.loadJSON(jsonData, document.location.href);
 }
 
-function showDialog(ids, key, concept, dataCluster, dataModel){
+function showDialog(ids, key, epochTime, concept, dataCluster, dataModel){
 	closeTimelineBubble();
 	var tabPanel = amalto.core.getTabPanel();
 	var dataLogViewer=tabPanel.getItem(ids);
 	if( dataLogViewer== undefined){
-		
-		dataLogViewer=new amalto.updatereport.DataLogViewer(
-			{'ids':ids,'key':key,'concept':concept,'dataCluster':dataCluster,'dataModel':dataModel});
-		tabPanel.add(dataLogViewer);							
-	}
-    
-    dataLogViewer.show();
-	dataLogViewer.doLayout();
-	amalto.core.doLayout();
+
+		UpdateReportInterface.isEnterpriseVersion(function(data) {
+            if(!data) {
+                dataLogViewer=new amalto.updatereport.DataLogViewer(
+                {'ids':ids,'key':key,'concept':concept,'dataCluster':dataCluster,'dataModel':dataModel});
+            } else {
+                // Note: this feature is only enabled in enterprise version
+                dataLogViewer=new amalto.updatereport.HistoryViewer(
+                {'ids':ids,'date':epochTime,'key':key,'concept':concept,'dataCluster':dataCluster,'dataModel':dataModel});
+            }
+
+            tabPanel.add(dataLogViewer);
+            dataLogViewer.show();
+            dataLogViewer.doLayout();
+            amalto.core.doLayout();
+        });
+	} else {
+        dataLogViewer.show();
+        dataLogViewer.doLayout();
+        amalto.core.doLayout();
+    }
 };
