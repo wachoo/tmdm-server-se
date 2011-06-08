@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -303,7 +303,7 @@ public class ItemsBrowserDWR {
 
     public TreeNode getRootNode2(String concept, String[] ids, int docIndex, String language) throws RemoteException, Exception {
 
-        Configuration config = Configuration.getInstance();
+        Configuration config = Configuration.getInstance(true);
         String dataModelPK = config.getModel();
         Map<String, XSElementDecl> map = CommonDWR.getConceptMap(dataModelPK);
         XSElementDecl decl = map.get(concept);
@@ -3227,7 +3227,7 @@ public class ItemsBrowserDWR {
         try {
 
             WebContext ctx = WebContextFactory.get();
-            Configuration config = Configuration.getInstance(true);
+            Configuration config = Configuration.getInstance();
             String model = config.getModel();
 
             CommonDWR.getFieldsByDataModel(model, concept, language, true);
