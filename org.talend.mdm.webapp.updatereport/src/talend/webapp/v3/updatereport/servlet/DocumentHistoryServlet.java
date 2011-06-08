@@ -13,6 +13,7 @@ package talend.webapp.v3.updatereport.servlet;
 
 import com.amalto.core.history.Document;
 import com.amalto.core.history.DocumentHistoryNavigator;
+import com.amalto.core.history.EmptyDocument;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 

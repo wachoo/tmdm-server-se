@@ -9,15 +9,14 @@
  * 9 rue Pages 92150 Suresnes, France
  */
 
-package talend.webapp.v3.updatereport.servlet;
+package com.amalto.core.history;
 
-import com.amalto.core.history.Document;
 import org.apache.commons.lang.StringUtils;
 
 /**
 *
 */
-class EmptyDocument implements Document {
+public class EmptyDocument implements MutableDocument {
     public String getAsString() {
         return StringUtils.EMPTY;
     }
@@ -31,5 +30,29 @@ class EmptyDocument implements Document {
     }
 
     public void restore() {
+    }
+
+    public MutableDocument setField(String field, String newValue) {
+        return this;
+    }
+
+    public MutableDocument deleteField(String field) {
+        return this;
+    }
+
+    public MutableDocument addField(String field, int index, String value) {
+        return this;
+    }
+
+    public MutableDocument setCreated(boolean isCreated) {
+        return this;
+    }
+
+    public MutableDocument setDeleted(boolean isDeleted) {
+        return this;
+    }
+
+    public Document applyChanges() {
+        return this;
     }
 }
