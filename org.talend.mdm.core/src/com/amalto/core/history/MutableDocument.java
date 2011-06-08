@@ -28,6 +28,28 @@ public interface MutableDocument extends Document {
 
     /**
      * <p>
+     * Delete a field in the document
+     * </p>
+     *
+     * @param field XPath to the field in the document.
+     * @return The document with the field deleted.
+     */
+    MutableDocument deleteField(String field);
+
+    /**
+     * <p>
+     * Adds a field in the document.
+     * </p>
+     *
+     * @param field XPath to the field in the document.
+     * @param index In case of collections, tells where the value should be inserted.
+     * @param value Field value  @return The document with a new field added with the value passed as parameter.
+     * @return The document with the field added.
+     */
+    MutableDocument addField(String field, int index, String value);
+
+    /**
+     * <p>
      * Turns on or off the <pre>isCreated</pre> flag for the document.
      * </p>
      * <p>

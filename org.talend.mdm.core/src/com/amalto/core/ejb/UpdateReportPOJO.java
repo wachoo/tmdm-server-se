@@ -16,6 +16,10 @@ public class UpdateReportPOJO {
 
     public final static String OPERATION_TYPE_UPDATE = "UPDATE"; //$NON-NLS-1$
 
+    public static final String OPERATION_TYPE_PHYSICAL_DELETE = "PHYSICAL_DELETE";  //$NON-NLS-1$
+
+    public static final String OPERATION_TYPE_LOGICAL_DELETE = "LOGICAL_DELETE";  //$NON-NLS-1$
+
     private String source;
 
     private long timeInMillis;

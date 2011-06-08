@@ -21,6 +21,11 @@ import java.util.Date;
  * <p>
  * Implementations of this interface are able to redo and undo the actions a user has done to a MDM document.
  * </p>
+ * <p>
+ * Note: the {@link #hashCode()} method might be used to order actions chronologically (in case actions have return the same
+ * date in {@link #getDate()}). Implementations of this interface must be careful if they override the {@link Object#hashCode()}
+ * method.
+ * </p>
  */
 public interface Action {
 
