@@ -4601,11 +4601,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         
         ItemsBrowserInterface.updateNodeDspValue(treeIndex, siblingNode.index,
                 function(result) {
-                    if (result != null)
-                        newNode.updateNodeValue(result); 
-                    else
-                    	if (!ifdeep)
-                    		newNode.updateNodeValue("");
+        			if (!ifdeep)
+	                    if (result != null)
+	                        newNode.updateNodeValue(result); 
+	                    else                    	
+	                    	newNode.updateNodeValue("");
                 }); 
         
         // remove by ymli; fix the bug:0013463
