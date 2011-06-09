@@ -91,8 +91,8 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		};
 		
 		var DEEPPLUSMUL_TT = {
-				'fr':'Clone en profondeur une occurrence',
-				'en':'Deep clone an occurrence'
+				'fr':'Cloner cette occurrence',
+				'en':'Clone this occurrence'
 			};
 		
 		var PLUSFKS_TT = {

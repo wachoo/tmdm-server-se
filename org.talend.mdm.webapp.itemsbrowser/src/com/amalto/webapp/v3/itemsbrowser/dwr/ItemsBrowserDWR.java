@@ -1731,9 +1731,9 @@ public class ItemsBrowserDWR {
                 if (ifdeep)
                     uritem = node.getFirstChild().getNodeValue();
                 else
-                    uritem = dspValue != null ? dspValue : "";
+                    uritem = dspValue != null ? dspValue : ""; //$NON-NLS-1$
                 updatedPath.put(
-                        siblingXpath + "[" + (siblingIndex + 1) + "]", new UpdateReportItem(idToXpath.get(newId), "", uritem)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        siblingXpath + "[" + (siblingIndex + 1) + "]", new UpdateReportItem(idToXpath.get(newId), "", uritem)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
             } else if (particle.getTerm().isElementDecl()) {
                 if (particle.getTerm().asElementDecl().getType().isSimpleType()) {
                     UpdateReportItem ri = new UpdateReportItem(idToXpath.get(newId), "", ""); //$NON-NLS-1$ //$NON-NLS-2$
