@@ -614,6 +614,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
     var reportUrl = null;
     
+    var refreshFnList = {};
     function browseItems() {
         showItemsPanel();
         // populate list
@@ -3019,25 +3020,25 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                 Ext.MessageBox.alert('Status',
                                                         "Process done! ");
                                                 // FIXME mock refresh
-                                                itemTree.removeNode(itemTree
-                                                        .getRoot().children[0]);
-                                                node1 = new YAHOO.widget.HTMLNode(
-                                                        nameTmp, root, false,
-                                                        true);
-                                                var viewName = getSelectedViewName(dataObject);
-                                                ItemsBrowserInterface.setTree(
-                                                        dataObject, viewName,
-                                                        itemPK2, node1.index,
-                                                        false, treeIndex,
-                                                        false,
-                                                        function(result) {
-                                                            node1
-                                                                    .setDynamicLoad(
-                                                                            fnLoadData,
-                                                                            1);
-                                                            node1.expand();
-                                                            itemTree.draw();
-                                                        });
+//                                                itemTree.removeNode(itemTree
+//                                                        .getRoot().children[0]);
+//                                                node1 = new YAHOO.widget.HTMLNode(
+//                                                        nameTmp, root, false,
+//                                                        true);
+//                                                var viewName = getSelectedViewName(dataObject);
+//                                                ItemsBrowserInterface.setTree(
+//                                                        dataObject, viewName,
+//                                                        itemPK2, node1.index,
+//                                                        false, treeIndex,
+//                                                        true,
+//                                                        function(result) {
+//                                                            node1
+//                                                                    .setDynamicLoad(
+//                                                                            fnLoadData,
+//                                                                            1);
+//                                                            node1.expand();
+//                                                            itemTree.draw();
+//                                                        });
 
                                                 // amalto.core.getTabPanel().remove('itemDetailsdiv'+
                                                 // treeIndex);
@@ -3055,6 +3056,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                    window.open(reportUrl);
                                                    reportUrl = null;
                                                }
+                                               tbDetail.refreshItemHandler(null, true);
                                                displayItems.call();
                                             } else {
                                                 Ext.MessageBox.alert('Status',
@@ -3119,10 +3121,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         tbDetail.saveItemHandler = function() {
                             // @temp yguo,
                             saveForGXT(ids, dataObject, treeIndex, function() {
-                                        tbDetail.refreshItemHandler(true);
+                                        tbDetail.refreshItemHandler(ids, true);
                                     });
                         };
-                        tbDetail.refreshItemHandler = function(noConfirming, newIds) {
+                        tbDetail.refreshItemHandler = function(newIds, noConfirming) {
                         	
                         	var refreshFn = function(){
                         		var ids1;
@@ -3158,7 +3160,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 	                                        });
 	                            }
                         	};
-                        	if (noConfirming == true){
+							if (noConfirming === true){
                         		refreshFn();
                         		return;
                         	}
@@ -3251,6 +3253,14 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                     xtype : "tbtext"
                                                 }])
                                 });
+                                
+						refreshFnList["itemsBrowser2Panel"] = function(){
+							if (contentPanel.rendered){
+								try {
+									tbDetail.refreshItemHandler(null, true);
+								} catch (e) {}
+							}
+						};
                     }
                     formWindow.innerHTML = "";
                     formWindow.style.overflow = "hidden";
@@ -3279,6 +3289,16 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         amalto.core.ready();
     }
     
+    function refreshAllFn(){
+		if (refreshFnList != null){
+			var tabPanel = amalto.core.getTabPanel();
+			for (var prop in refreshFnList){
+				if (tabPanel.getItem(prop) != undefined){
+					refreshFnList[prop]();
+				}
+			}
+		}
+    }
     
     function getItemIdsArray(ids){
         
@@ -3825,25 +3845,25 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                 Ext.MessageBox.alert('Status',
                                                         "Process done! ");
                                                 // FIXME mock refresh
-                                                itemTree.removeNode(itemTree
-                                                        .getRoot().children[0]);
-                                                node1 = new YAHOO.widget.HTMLNode(
-                                                        nameTmp, root, false,
-                                                        true);
-                                                var viewName = getSelectedViewName(dataObject);
-                                                ItemsBrowserInterface.setTree(
-                                                        dataObject, viewName,
-                                                        itemPK2, node1.index,
-                                                        false, treeIndex,
-                                                        false,
-                                                        function(result) {
-                                                            node1
-                                                                    .setDynamicLoad(
-                                                                            fnLoadData,
-                                                                            1);
-                                                            node1.expand();
-                                                            itemTree.draw();
-                                                        });
+//                                                itemTree.removeNode(itemTree
+//                                                        .getRoot().children[0]);
+//                                                node1 = new YAHOO.widget.HTMLNode(
+//                                                        nameTmp, root, false,
+//                                                        true);
+//                                                var viewName = getSelectedViewName(dataObject);
+//                                                ItemsBrowserInterface.setTree(
+//                                                        dataObject, viewName,
+//                                                        itemPK2, node1.index,
+//                                                        false, treeIndex,
+//                                                        true,
+//                                                        function(result) {
+//                                                            node1
+//                                                                    .setDynamicLoad(
+//                                                                            fnLoadData,
+//                                                                            1);
+//                                                            node1.expand();
+//                                                            itemTree.draw();
+//                                                        });
 
                                                 // amalto.core.getTabPanel().remove('itemDetailsdiv'+
                                                 // treeIndex);
@@ -3862,6 +3882,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                     window.open(reportUrl);
                                                     reportUrl = null;
                                                 }
+                                                tbDetail.refreshItemHandler(null, true);
                                                 displayItems.call();
                                                 
                                             } else {
@@ -3928,8 +3949,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             saveItemWithoutQuit(ids, dataObject, treeIndex,
                                     refreshCB);
                         };
-                        tbDetail.refreshItemHandler = function(noConfirming,newIds) {
-                        	
+                        tbDetail.refreshItemHandler = function(newIds, noConfirming) {
+
                         	var refreshFn = function(){
                         		var ids1;
 	                            if (ids.length == 0)
@@ -3965,8 +3986,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 	                                        });
 	                            }
                         	};
-                        	
-                        	if (noConfirming == true){
+							if (noConfirming === true){
                         		refreshFn();
                         		return;
                         	}
@@ -4091,6 +4111,14 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         } else {
                             itemsPL = [errorContentPanel, treeDetailPanel];
                         }
+                        
+                        refreshFnList['itemDetailsdiv' + treeIndex] = function(){
+                        	if (contentPanel.rendered){
+                        		try{
+									tbDetail.refreshItemHandler(null, true);
+                        		} catch (e) {}
+                        	}
+						};
                     }
 
                     if (parentLink != undefined
@@ -4906,7 +4934,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         		return;
             var toolbar = amalto.core.getTabPanel()
                     .getComponent('itemDetailsdiv' + treeIndex).getTopToolbar();
-            toolbar.refreshItemHandler(true,result);
+            toolbar.refreshItemHandler(result, true);
             // set isdirty=true
             var itempanel = amalto.core.getTabPanel().activeTab;
             if (itempanel) {
@@ -6262,6 +6290,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 handleCallback, formWindow, isDetail, enableQuit) {
             renderFormWindow(itemPK2, dataObject, isDuplicate, handleCallback,
                     formWindow, isDetail, enableQuit);
+        },
+        refreshAllFn : function(){
+        	refreshAllFn();
         }
 
         /*
