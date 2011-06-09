@@ -1383,21 +1383,33 @@ public class ItemsBrowserDWR {
 
         for (String dyPath : dynamicPathes) {
             org.dom4j.Element baseEl = (org.dom4j.Element) doc.selectSingleNode(basePath);
-            try {
-                org.dom4j.Element el = (org.dom4j.Element) baseEl.selectSingleNode(dyPath);//$NON-NLS-1$
-                if (el == null)
+            try { 
+                List els = (List) baseEl.selectNodes(dyPath);//$NON-NLS-1$
+                if (els == null)
                     continue;
-                List<org.dom4j.Element> pathNodes = getPathNode(el);
-
-                Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
-                if (fkObj != null) {
-                    String foreignkey = (String) fkObj[0];
-                    List<String> fkInfos = (List<String>) fkObj[1];
-                    String key = el.getStringValue();
-                    String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
-                    dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", fkInfoStr == null ? "" : fkInfoStr); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                String multiValue = "";
+                if (els.size() > 0){
+                	
+	                for (int i = 0; i < els.size();i++){
+		                List<org.dom4j.Element> pathNodes = getPathNode((org.dom4j.Element) els.get(i));
+		                String key = ((org.dom4j.Element)els.get(i)).getStringValue();
+		                Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
+		                if (fkObj != null) {
+		                    String foreignkey = (String) fkObj[0];
+		                    List<String> fkInfos = (List<String>) fkObj[1];
+		                    
+		                    String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
+		                    multiValue += fkInfoStr == null ? "" : fkInfoStr;
+		                    
+		                } else {
+		                	multiValue += key == null ? "" : key;
+		                }
+	                }
+	                
+	                dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", multiValue == null ? "" : multiValue); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	                
                 }
-            } catch (Exception e) {
+            } catch (Exception e){
                 continue;
             }
         }
