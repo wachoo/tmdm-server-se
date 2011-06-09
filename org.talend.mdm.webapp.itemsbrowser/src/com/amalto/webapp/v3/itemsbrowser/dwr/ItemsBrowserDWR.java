@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -298,6 +298,8 @@ public class ItemsBrowserDWR {
     }
 
     public TreeNode getRootNode(String concept, String language) throws RemoteException, Exception {
+        WebContext ctx = WebContextFactory.get();
+        ctx.getSession().setAttribute("multiOccurrence", null); //$NON-NLS-1$
         return getRootNode2(concept, null, -1, language);
     }
 
@@ -1723,6 +1725,15 @@ public class ItemsBrowserDWR {
             editXpathInidToXpathAdd(siblingId, idToXpath, updatedPath, xpathToPolymType);
 
             idToXpath.put(newId, siblingXpath + "[" + (siblingIndex + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+            Map<String, Integer> multiOccurrence = (Map<String, Integer>) ctx.getSession().getAttribute("multiOccurrence"); //$NON-NLS-1$
+            if (multiOccurrence != null) {
+                Integer nodeNumb = multiOccurrence.get(siblingXpath);
+                multiOccurrence.put(siblingXpath, nodeNumb == null ? 2 : nodeNumb + 1);
+            } else {
+                multiOccurrence = new HashMap<String, Integer>();
+                multiOccurrence.put(siblingXpath, 2);
+            }
+            ctx.getSession().setAttribute("multiOccurrence", multiOccurrence); //$NON-NLS-1$
             ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
 
             XSParticle particle = idToParticle.get(newId);
@@ -2211,6 +2222,17 @@ public class ItemsBrowserDWR {
                 updatedPath.put(path, null);
 
             idToXpath.remove(id);
+            Map<String, Integer> multiOccurrence = (Map<String, Integer>) ctx.getSession().getAttribute("multiOccurrence"); //$NON-NLS-1$
+            String multiNodePath = path.endsWith("]") ? path.substring(0, path.lastIndexOf("[")) : path; //$NON-NLS-1$ //$NON-NLS-2$
+            if (multiOccurrence != null) {
+                Integer nodeNumb = multiOccurrence.get(multiNodePath);
+                multiOccurrence.put(multiNodePath, nodeNumb == null ? 1 : nodeNumb - 1);
+            } else {
+                multiOccurrence = new HashMap<String, Integer>();
+                multiOccurrence.put(multiNodePath, 1);
+            }
+
+            ctx.getSession().setAttribute("multiOccurrence", multiOccurrence); //$NON-NLS-1$
             ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
             ctx.getSession().setAttribute("updatedPath" + docIndex, updatedPath); //$NON-NLS-1$
             ctx.getSession().setAttribute("itemDocument" + docIndex, d); //$NON-NLS-1$
@@ -2272,6 +2294,36 @@ public class ItemsBrowserDWR {
                 throw new Exception("Data Container can't be empty!");
             Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
             Document bk = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$
+            Map<String, Integer> multiOccurrence = (Map<String, Integer>) ctx.getSession().getAttribute("multiOccurrence"); //$NON-NLS-1$
+            if (multiOccurrence != null && multiOccurrence.size() > 0) {
+                String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
+                Document xsdDoc = Util.parse(xsd);
+                // @yguo, refill the xsd by specify multiOccurrence
+                if (multiOccurrence != null && multiOccurrence.size() > 0) {
+                    for (Iterator<String> iterator = multiOccurrence.keySet().iterator(); iterator.hasNext();) {
+                        String xpath = iterator.next();
+                        Integer num = multiOccurrence.get(xpath);
+                        String xsdPath = "//xsd:element[@name=\"" + xpath.substring(xpath.lastIndexOf("/") + 1) + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        NodeList nodeList = Util.getNodeList(xsdDoc, xsdPath);
+                        int length = nodeList.getLength();
+                        if (length < num) {
+                            Node node = nodeList.item(0);
+                            if (node != null) {
+                                for (int j = 0; j < num; j++) {
+                                    Node cloneNode = node.cloneNode(true);
+                                    node.getParentNode().insertBefore(cloneNode, node);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Map<String, XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(CommonDWR
+                        .getXMLStringFromDocument(xsdDoc));
+                XSElementDecl xsed = map.get(concept);
+                DisplayRulesUtil displayRulesUtil = new DisplayRulesUtil(xsed);
+                ctx.getSession().setAttribute("itemDocument_displayRulesUtil" + docIndex, displayRulesUtil); //$NON-NLS-1$
+            }
             // added by lzhang, make sure there is no empty node which has DSP value
             d = filledByDspValue(dataModelPK, concept, d, docIndex);
 
