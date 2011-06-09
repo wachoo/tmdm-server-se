@@ -4562,7 +4562,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         return temp;
     }
 
-    function cloneNode2(siblingId, hasIcon, treeIndex, conceptName) {
+    function cloneNode2(siblingId, hasIcon, treeIndex, conceptName, ifdeep) {
         var itemTree = itemTreeList[treeIndex];
         var siblingNode = itemTree.getNodeByIndex(siblingId);
 
@@ -4602,12 +4602,15 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         ItemsBrowserInterface.updateNodeDspValue(treeIndex, siblingNode.index,
                 function(result) {
                     if (result != null)
-                        newNode.updateNodeValue(result);                      
+                        newNode.updateNodeValue(result); 
+                    else
+                    	if (!ifdeep)
+                    		newNode.updateNodeValue("");
                 }); 
         
         // remove by ymli; fix the bug:0013463
         // newNode.updateValue(" ");
-        ItemsBrowserInterface.cloneNode(siblingId, newNode.index, treeIndex,
+        ItemsBrowserInterface.cloneNode(siblingId, newNode.index, treeIndex,ifdeep,
                 function(result) {
                     amalto.core.ready(result);
                 });
@@ -6256,8 +6259,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             chooseForeignKey(nodeId, xpath, xpathInfo, fkFilter, treeIndex,
                     isSwitch, conceptName);
         },
-        cloneNode2 : function(siblingId, hasIcon, treeIndex, conceptName) {
-            cloneNode2(siblingId, hasIcon, treeIndex, conceptName);
+        cloneNode2 : function(siblingId, hasIcon, treeIndex, conceptName, ifdeep) {
+            cloneNode2(siblingId, hasIcon, treeIndex, conceptName, ifdeep);
         },
         removeNode2 : function(id, treeIndex) {
             removeNode2(id, treeIndex);

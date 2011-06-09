@@ -90,6 +90,11 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			'en':'Add an occurrence'
 		};
 		
+		var DEEPPLUSMUL_TT = {
+				'fr':'Clone en profondeur une occurrence',
+				'en':'Deep clone an occurrence'
+			};
+		
 		var PLUSFKS_TT = {
 			'fr':'Nouvel enregistrement pour cette relation',
 			'en':'Create a new record for this relation'
@@ -127,16 +132,19 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	
 		var cloneNodeImg = '';
 		var removeNodeImg = '';
+		var deepCloneNodeImg = '';
 		var type='text'; //default is text
 		//modify by ymli. If itemData.parent is not readonly, it can be add or delete
 		var tmpStatusItems=true;
 				tmpStatusItems = (itemData.parent != null && itemData.parent.readOnly == false || itemData.readOnly==false) ;
 				
 		if((itemData.maxOccurs<0 || itemData.maxOccurs>1) && tmpStatusItems){
-			cloneNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.cloneNode2(\''+itemData.nodeId+'\',false,'+treeIndex+',\''+parentLink["conceptName"]+'\')" >' +
-					' <img src="img/genericUI/add.png" title="'+ PLUSMUL_TT[language] +'"/></span>';
+			cloneNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.cloneNode2(\''+itemData.nodeId+'\',false,'+treeIndex+',\''+parentLink["conceptName"]+'\', false)" >' +
+					' <img src="img/genericUI/add.png" title="'+ PLUSMUL_TT[language] +'"/></span>';			
 			removeNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.removeNode2(\''+itemData.nodeId+'\','+treeIndex+')">' +
 					' <img src="img/genericUI/delete.png" title="'+ DELMUL_TT[language] +'"/></span>';
+			deepCloneNodeImg = '<span style="cursor: pointer;" onclick="amalto.itemsbrowser.ItemsBrowser.cloneNode2(\''+itemData.nodeId+'\',false,'+treeIndex+',\''+parentLink["conceptName"]+'\', true)" >' +
+			' <img src="img/genericUI/add-group.png" title="'+ DEEPPLUSMUL_TT[language] +'"/></span>';
 		}
 		if(itemData.typeName!=null&&(itemData.typeName=="PICTURE" || itemData.typeName=="URL")){
 			type='hidden';
@@ -357,7 +365,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 			}
 			
 			html[html.length] = '<div style="display:inline"><span id="'+itemData.nodeId+'ValidateBadge" style="background-image:url(img/genericUI/validateBadge.gif);background-repeat:no-repeat;background-position:bottom;width:16px;height:16px;padding-left:4px;display:none"></span>'+'</div>' ;
-			html[html.length] = 		cloneNodeImg+' '+removeNodeImg+' '+foreignKeyImg ;
+			html[html.length] = 		cloneNodeImg+' '+removeNodeImg  +' '+foreignKeyImg ;
 			
 			html[html.length] = '<div style="display:inline"><div id="'+itemData.nodeId+'ErrorMessage" style="padding-left:180px;display:none" ></div>';
 			html[html.length] = '	<div class="detailLabel" id="'+itemData.nodeId+'XsdDetails" style="display:none">';
@@ -378,7 +386,7 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 		else { //complex type
 			var labelValue = itemData.name;
 			html[html.length] = '<div style="display:inline"><div class="inputLabel" title="' + itemData.name + '">'+labelValue+' '+mandatory+' '+descInfo+'</div>' ;
-			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + '<br/>';
+			html[html.length] = 	cloneNodeImg+' '+removeNodeImg + ' ' + deepCloneNodeImg + '<br/>';
 			
 			if(itemData.polymiorphism&&itemData.subTypes.length>0)
 			   html[html.length] =     '<span class="inputLabel">'+USE_EXTENSION_LABEL[language]+'</span>'+' '+polymSelector + '<br/>';

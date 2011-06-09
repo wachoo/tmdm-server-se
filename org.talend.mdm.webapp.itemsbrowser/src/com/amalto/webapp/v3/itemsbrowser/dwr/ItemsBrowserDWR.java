@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1383,33 +1383,33 @@ public class ItemsBrowserDWR {
 
         for (String dyPath : dynamicPathes) {
             org.dom4j.Element baseEl = (org.dom4j.Element) doc.selectSingleNode(basePath);
-            try { 
+            try {
                 List els = (List) baseEl.selectNodes(dyPath);//$NON-NLS-1$
                 if (els == null)
                     continue;
                 String multiValue = "";
-                if (els.size() > 0){
-                	
-	                for (int i = 0; i < els.size();i++){
-		                List<org.dom4j.Element> pathNodes = getPathNode((org.dom4j.Element) els.get(i));
-		                String key = ((org.dom4j.Element)els.get(i)).getStringValue();
-		                Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
-		                if (fkObj != null) {
-		                    String foreignkey = (String) fkObj[0];
-		                    List<String> fkInfos = (List<String>) fkObj[1];
-		                    
-		                    String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
-		                    multiValue += fkInfoStr == null ? "" : fkInfoStr;
-		                    
-		                } else {
-		                	multiValue += key == null ? "" : key;
-		                }
-	                }
-	                
-	                dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", multiValue == null ? "" : multiValue); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	                
+                if (els.size() > 0) {
+
+                    for (int i = 0; i < els.size(); i++) {
+                        List<org.dom4j.Element> pathNodes = getPathNode((org.dom4j.Element) els.get(i));
+                        String key = ((org.dom4j.Element) els.get(i)).getStringValue();
+                        Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
+                        if (fkObj != null) {
+                            String foreignkey = (String) fkObj[0];
+                            List<String> fkInfos = (List<String>) fkObj[1];
+
+                            String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
+                            multiValue += fkInfoStr == null ? "" : fkInfoStr;
+
+                        } else {
+                            multiValue += key == null ? "" : key;
+                        }
+                    }
+
+                    dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", multiValue == null ? "" : multiValue); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 continue;
             }
         }
@@ -1664,7 +1664,7 @@ public class ItemsBrowserDWR {
         return null;
     }
 
-    public String cloneNode(int siblingId, int newId, int docIndex) throws Exception {
+    public String cloneNode(int siblingId, int newId, int docIndex, boolean ifdeep) throws Exception {
 
         WebContext ctx = WebContextFactory.get();
         HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
@@ -1683,12 +1683,15 @@ public class ItemsBrowserDWR {
 
             Node node = Util.getNodeList(d, idToXpath.get(siblingId)).item(0);
             Node nodeClone = node.cloneNode(true);
-            clearChildrenValue(nodeClone);
+            String dspValue = null;
+            if (!ifdeep) {
+                clearChildrenValue(nodeClone);
 
-            // added by lzhang, DWR synchronize to update the DSPValue
-            String dspValue = updateNodeDspValue(docIndex, siblingId);
-            if (dspValue != null && nodeClone.getFirstChild() != null)
-                nodeClone.getFirstChild().setNodeValue(dspValue);
+                // added by lzhang, DWR synchronize to update the DSPValue
+                dspValue = updateNodeDspValue(docIndex, siblingId);
+                if (dspValue != null && nodeClone.getFirstChild() != null)
+                    nodeClone.getFirstChild().setNodeValue(dspValue);
+            }
 
             // simulate an "insertAfter()" which actually doesn't exist
             insertAfter(nodeClone, node);
@@ -1699,7 +1702,8 @@ public class ItemsBrowserDWR {
                 Node node2 = Util.getNodeList(doc, idToXpath.get(siblingId)).item(0);
                 if (node2 != null) {
                     Node nodeClone2 = node2.cloneNode(true);
-                    clearChildrenValue(nodeClone2);
+                    if (!ifdeep)
+                        clearChildrenValue(nodeClone2);
                     insertAfter(nodeClone2, node2);
                 }
             }
@@ -1722,11 +1726,15 @@ public class ItemsBrowserDWR {
             ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
 
             XSParticle particle = idToParticle.get(newId);
-            if (particle == null) // add simple node
-                updatedPath
-                        .put(
-                                siblingXpath + "[" + (siblingIndex + 1) + "]", new UpdateReportItem(idToXpath.get(newId), "", dspValue != null ? dspValue : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-            else if (particle.getTerm().isElementDecl()) {
+            if (particle == null) {// add simple node
+                String uritem = null;
+                if (ifdeep)
+                    uritem = node.getFirstChild().getNodeValue();
+                else
+                    uritem = dspValue != null ? dspValue : "";
+                updatedPath.put(
+                        siblingXpath + "[" + (siblingIndex + 1) + "]", new UpdateReportItem(idToXpath.get(newId), "", uritem)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            } else if (particle.getTerm().isElementDecl()) {
                 if (particle.getTerm().asElementDecl().getType().isSimpleType()) {
                     UpdateReportItem ri = new UpdateReportItem(idToXpath.get(newId), "", ""); //$NON-NLS-1$ //$NON-NLS-2$
                     updatedPath.put(siblingXpath + "[" + (siblingIndex + 1) + "]", ri); //$NON-NLS-1$ //$NON-NLS-2$
