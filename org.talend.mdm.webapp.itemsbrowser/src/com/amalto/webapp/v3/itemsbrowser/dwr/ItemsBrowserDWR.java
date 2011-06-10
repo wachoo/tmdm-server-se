@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -744,17 +744,19 @@ public class ItemsBrowserDWR {
     private BusinessConceptForBrowser getBusinessConcept(HashMap<List, BusinessConceptForBrowser> polymToBusinessConcept,
             HashMap<String, String> xpathToPolymType) {
         for (List keyList : polymToBusinessConcept.keySet()) {
-            for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
-                String xpath = iterator.next();
-                if (!keyList.contains(xpathToPolymType.get(xpath))) {
-                    return null;
-                } else if (keyList.isEmpty()) {
-                    return null;
-                } else if (keyList.contains(xpathToPolymType.get(xpath)))
-                    keyList.remove(xpathToPolymType.get(xpath));
+            if (!keyList.isEmpty()) {
+                for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
+                    String xpath = iterator.next();
+                    if (!keyList.contains(xpathToPolymType.get(xpath))) {
+                        return null;
+                    } else if (keyList.isEmpty()) {
+                        return null;
+                    } else if (keyList.contains(xpathToPolymType.get(xpath)))
+                        keyList.remove(xpathToPolymType.get(xpath));
+                }
+                if (keyList.isEmpty())
+                    return polymToBusinessConcept.get(keyList);
             }
-            if (keyList.isEmpty())
-                return polymToBusinessConcept.get(keyList);
         }
         return null;
     }
@@ -1554,6 +1556,12 @@ public class ItemsBrowserDWR {
                         }
                         setChildrenWithValue(SchemaWebAgent.getInstance().getReusableType(selectedExtendType).getXsParticle(),
                                 xpath, docIndex, true);
+                        // // add xsi:type in order to deep clone
+                        // if (d.getDocumentElement().getAttributeNS("http://www.w3.org/2000/xmlns/", "xsi").length() ==
+                        // 0)
+                        // d.getDocumentElement().setAttributeNS(
+                        //                                    "http://www.w3.org/2000/xmlns/", "xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$; //$NON-NLS-2$; //$NON-NLS-3$;
+                        //                        ((Element) tagertNode).setAttribute("xsi:type", selectedExtendType); //$NON-NLS-1$
                     }
                 }
                 // keep changes when refresh
@@ -1682,7 +1690,6 @@ public class ItemsBrowserDWR {
                 "xpathToPolymType" + docIndex); //$NON-NLS-1$
 
         try {
-
             Node node = Util.getNodeList(d, idToXpath.get(siblingId)).item(0);
             Node nodeClone = node.cloneNode(true);
             String dspValue = null;
@@ -1734,7 +1741,9 @@ public class ItemsBrowserDWR {
                 multiOccurrence.put(siblingXpath, 2);
             }
             ctx.getSession().setAttribute("multiOccurrence", multiOccurrence); //$NON-NLS-1$
-            ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
+            ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$            
+            ctx.getSession().setAttribute("cloneXpath" + docIndex, //$NON-NLS-1$
+                    new String[] { idToXpath.get(siblingId), siblingXpath + "[" + (siblingIndex + 1) + "]" }); //$NON-NLS-1$ //$NON-NLS-2$
 
             XSParticle particle = idToParticle.get(newId);
             if (particle == null) {// add simple node
@@ -1877,7 +1886,7 @@ public class ItemsBrowserDWR {
 
     public synchronized static String updateNode2(String xpath, String content, int docIndex) {
         WebContext ctx = WebContextFactory.get();
-        Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
+        Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$        
         HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
         ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization"); //$NON-NLS-1$
 
@@ -2697,6 +2706,8 @@ public class ItemsBrowserDWR {
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$ _backup
 
         Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        String[] cloneXpath = (String[]) ctx.getSession().getAttribute("cloneXpath" + docIndex); //$NON-NLS-1$ 
         String xPath = xpathParent + '/' + xsp.getTerm().asElementDecl().getName();
         //boolean isEdit = ((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT); //$NON-NLS-1$ //$NON-NLS-2$
         Node parentNode = Util.getNodeList(d, xpathParent).item(0);
@@ -2708,6 +2719,21 @@ public class ItemsBrowserDWR {
                     Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
                     Node node = nodes.item(i);
                     String textContent = node.getTextContent();
+                    if (cloneXpath != null && xPath.startsWith(cloneXpath[1]))// cloneXpath[0]
+                    // is
+                    // 'clone
+                    // from'
+                    // xpath,
+                    // cloneXpath[1]
+                    // is
+                    // 'clone
+                    // to'
+                    // xpath
+                    {
+                        NodeList cloneList = Util.getNodeList(d, xPath.replace(cloneXpath[1], cloneXpath[0]));
+                        if (cloneList != null && cloneList.getLength() > 0)
+                            textContent = cloneList.item(0).getTextContent();
+                    }
                     if (xsp.getTerm().asElementDecl().getType().isSimpleType() && textContent != null && withValue)
                         el.setTextContent(textContent);
 
@@ -2734,6 +2760,11 @@ public class ItemsBrowserDWR {
                 }
             } else {
                 Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
+                if (cloneXpath != null && xPath.startsWith(cloneXpath[1])) {
+                    NodeList cloneList = Util.getNodeList(d, xPath.replace(cloneXpath[1], cloneXpath[0]));
+                    if (cloneList != null && cloneList.getLength() > 0)
+                        el.setTextContent(cloneList.item(0).getTextContent());
+                }
                 parentNode.appendChild(el);
 
                 if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
@@ -2750,6 +2781,11 @@ public class ItemsBrowserDWR {
             }
         } else {
             Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
+            if (cloneXpath != null && xPath.startsWith(cloneXpath[1])) {
+                NodeList cloneList = Util.getNodeList(d, xPath.replace(cloneXpath[1], cloneXpath[0]));
+                if (cloneList != null && cloneList.getLength() > 0)
+                    el.setTextContent(cloneList.item(0).getTextContent());
+            }
             parentNode.appendChild(el);
 
             if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
