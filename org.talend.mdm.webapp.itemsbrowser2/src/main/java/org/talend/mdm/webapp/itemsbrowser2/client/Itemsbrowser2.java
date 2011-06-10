@@ -1,8 +1,8 @@
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.boundary.PubService;
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 
@@ -10,9 +10,9 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.IncrementalCommand;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
@@ -32,6 +32,10 @@ public class Itemsbrowser2 implements EntryPoint {
      */
     public void onModuleLoad() {
 
+        //i18n client setup
+        ItemsbrowserMessages messages = GWT.create(ItemsbrowserMessages.class);
+        MessagesFactory.setMessages(messages);
+        
         // log setting
         Log.setUncaughtExceptionHandler();
 
@@ -90,21 +94,8 @@ public class Itemsbrowser2 implements EntryPoint {
                 }
                 getSession().put(UserSession.APP_HEADER, header);
 
-                // init messages on server side
-                getItemService().initMessages(Locale.getLanguage(header), new AsyncCallback<Void>() {
-
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                    }
-
-                    public void onSuccess(Void arg) {
-                        Dispatcher dispatcher = Dispatcher.get();
-                        // dispatch a event
-                        dispatcher.dispatch(ItemsEvents.InitFrame);
-                    }
-
-                });
-
+                Dispatcher dispatcher = Dispatcher.get();
+                dispatcher.dispatch(ItemsEvents.InitFrame);
             }
 
         });

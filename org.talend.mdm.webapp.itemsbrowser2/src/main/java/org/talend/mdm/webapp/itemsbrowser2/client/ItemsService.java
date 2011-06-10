@@ -1,6 +1,5 @@
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
@@ -67,8 +66,6 @@ public interface ItemsService extends RemoteService {
     List<ItemResult> logicalDeleteItems(List<ItemBean> items, String path);
 
     AppHeader getAppHeader() throws Exception;
-
-    void initMessages(String language) throws IOException;
 
     ItemBean getItem(ItemBean itemBean, EntityModel entityModel) throws Exception;
 

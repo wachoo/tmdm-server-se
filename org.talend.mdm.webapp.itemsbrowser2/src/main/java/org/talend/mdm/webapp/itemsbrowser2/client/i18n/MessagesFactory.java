@@ -12,20 +12,24 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.i18n;
 
-
-import com.google.gwt.core.client.GWT;
-
-
 public class MessagesFactory {
 
     private static ItemsbrowserMessages MESSAGES;
-    
-    private MessagesFactory(){}
-    
-    public static ItemsbrowserMessages getMessages()
-    {
-        if(MESSAGES == null && GWT.isClient())
-           MESSAGES = GWT.create(ItemsbrowserMessages.class);
+
+    private MessagesFactory() {
+    }
+
+    public static synchronized void setMessages(ItemsbrowserMessages messages) {
+        if (MESSAGES != null) {
+            throw new IllegalStateException();
+        }
+        MESSAGES = messages;
+    }
+
+    public static synchronized ItemsbrowserMessages getMessages() {
+        if (MESSAGES == null) {
+            throw new IllegalStateException();
+        }
         return MESSAGES;
     }
 }

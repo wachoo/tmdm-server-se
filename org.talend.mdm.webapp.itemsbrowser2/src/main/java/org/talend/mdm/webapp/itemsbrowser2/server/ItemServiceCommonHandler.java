@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,12 +35,10 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.scb.gwt.web.server.i18n.GWTI18N;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.talend.mdm.webapp.itemsbrowser2.client.exception.ParserException;
-import org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages;
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
@@ -98,16 +95,11 @@ import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 
-/**
- * DOC HSHU class global comment. Detailled comment
- * 
- * Customize MDM Jboss related methods here
- */
 public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
+    private static final long serialVersionUID = 1L;
+    
     private static final Logger LOG = Logger.getLogger(ItemServiceCommonHandler.class);
-
-    public static ItemsbrowserMessages MESSAGES = null;// FIXME check NPE
 
     private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
             int max, String sortDir, String sortCol, String language) {
@@ -183,10 +175,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 itemBeans.add(itemBean);
             }
 
-        } catch (ParserException e) {
-            return new Object[] { null, 0 };
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
         return new Object[] { itemBeans, totalSize };
     }
@@ -235,7 +226,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             HashMap<String, Integer> countMap = new HashMap<String, Integer>();
             for (String path : viewBean.getViewableXpaths()) {
                 String leafPath = path.substring(path.lastIndexOf('/') + 1);
-                List nodes = XmlUtil.getValuesFromXPath(docXml, leafPath);
+                List<?> nodes = XmlUtil.getValuesFromXPath(docXml, leafPath);
                 if (nodes.size() > 1) {
                     // result has same name nodes
                     if (countMap.containsKey(leafPath)) {
@@ -266,7 +257,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             for (String path : xpaths) {
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
-                    List nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.lastIndexOf('/') + 1));
+                    List<?> nodes = XmlUtil.getValuesFromXPath(docXml, path.substring(path.lastIndexOf('/') + 1));
                     if (nodes.size() > 0) {
                         Node value = (Node) nodes.get(0);
                         if (typeModel.isMultiOccurrence()) {
@@ -364,16 +355,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
                 if ("0".equals(errorCode)) { //$NON-NLS-1$
                     if (message == null || message.length() == 0)
-                        message = MESSAGES.save_process_validation_success();
+                        message = MessagesFactory.getMessages().save_process_validation_success();
                     status = ItemResult.SUCCESS;
                 } else {
                     // Anything but 0 is unsuccessful
                     if (message == null || message.length() == 0)
-                        message = MESSAGES.save_process_validation_failure();
+                        message = MessagesFactory.getMessages().save_process_validation_failure();
                     status = ItemResult.FAILURE;
                 }
             } else {
-                message = MESSAGES.save_record_success();
+                message = MessagesFactory.getMessages().save_record_success();
                 status = ItemResult.SUCCESS;
             }
             return new ItemResult(status, message);
@@ -428,16 +419,16 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     status = ItemResult.SUCCESS;
                     pushUpdateReport(ids, concept, "PHYSICAL_DELETE", true); //$NON-NLS-1$
                     if (message == null || message.length() == 0)
-                        message = MESSAGES.delete_record_success();
+                        message = MessagesFactory.getMessages().delete_record_success();
                 } else {
                     status = ItemResult.FAILURE;
-                    message = MESSAGES.delete_record_failure();
+                    message = MessagesFactory.getMessages().delete_record_failure();
                 }
             } else {
                 // Anything but 0 is unsuccessful
                 status = ItemResult.FAILURE;
                 if (message == null || message.length() == 0)
-                    message = MESSAGES.delete_process_validation_failure();
+                    message = MessagesFactory.getMessages().delete_process_validation_failure();
             }
 
             return new ItemResult(status, message);
@@ -589,6 +580,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return "OK";//$NON-NLS-1$ 
     }
 
+    @Override
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {
         PagingLoadConfig pagingLoad = config.getPagingLoadConfig();
         String sortDir = null;
@@ -614,6 +606,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria()
                 .toString(), pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(),
                 config.getLanguage());
+        @SuppressWarnings("unchecked")
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
         return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
@@ -775,6 +768,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 String result = results[0];
 
                 String id = ""; //$NON-NLS-1$
+                @SuppressWarnings("unchecked")
                 List<Node> nodes = XmlUtil.getValuesFromXPath(XmlUtil.parseText(result), "//i"); //$NON-NLS-1$
                 if (nodes != null) {
                     for (Node node : nodes) {
@@ -926,6 +920,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 for (String result : results) {
                     ForeignKeyBean bean = new ForeignKeyBean();
                     String id = ""; //$NON-NLS-1$
+                    @SuppressWarnings("unchecked")
                     List<Node> nodes = XmlUtil.getValuesFromXPath(XmlUtil.parseText(result), "//i"); //$NON-NLS-1$
                     if (nodes != null) {
                         for (Node node : nodes) {
@@ -1115,7 +1110,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                             new WSXPathsSearch(
                                     new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
                                     null,// pivot
-                                    new WSStringArray(new String[] { "BrowseItem/CriteriaName", "BrowseItem/Shared" }), wi, -1, localStart, localLimit, null, // order //$NON-NLS-1$ 
+                                    new WSStringArray(new String[] { "BrowseItem/CriteriaName", "BrowseItem/Shared" }), wi, -1, localStart, localLimit, null, // order //$NON-NLS-1$ //$NON-NLS-2$
                                     // by
                                     null // direction
                             )).getStrings();
@@ -1127,36 +1122,6 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             LOG.error(e.getMessage(), e);
         }
         return new String[] {};
-    }
-
-    private String countSearchTemplate(String view) {
-        try {
-            WSWhereItem wi = new WSWhereItem();
-
-            // Configuration config = Configuration.getInstance();
-            WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,//$NON-NLS-1$ 
-                    WSStringPredicate.NONE, false);
-            /*
-             * WSWhereCondition wc2 = new WSWhereCondition( "hierarchical-report/data-model", WSWhereOperator.EQUALS,
-             * config.getModel(), WSStringPredicate.NONE, false);
-             */
-            WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,//$NON-NLS-1$ 
-                    com.amalto.webapp.core.util.Util.getLoginUserName(), WSStringPredicate.NONE, false);
-
-            WSWhereOr or = new WSWhereOr(new WSWhereItem[] { new WSWhereItem(wc3, null, null) });
-
-            WSWhereAnd and = new WSWhereAnd(new WSWhereItem[] { new WSWhereItem(wc1, null, null),
-            /* new WSWhereItem(wc2, null, null), */
-            new WSWhereItem(null, null, or) });
-
-            wi = new WSWhereItem(null, and, null);
-            return CommonUtil.getPort()
-                    .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$ 
-                    .getValue();
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return "0";//$NON-NLS-1$ 
-        }
     }
 
     @Override
@@ -1213,17 +1178,6 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         header.setStandAloneMode(ItemsBrowserConfiguration.isStandalone());
         header.setUsingDefaultForm(ItemsBrowserConfiguration.isUsingDefaultForm());
         return header;
-
-    }
-
-    /**
-     * DOC HSHU Comment method "initMessage".
-     * 
-     * @throws IOException
-     */
-    @Override
-    public void initMessages(String language) throws IOException {
-        MESSAGES = GWTI18N.create(ItemsbrowserMessages.class, language);
 
     }
 

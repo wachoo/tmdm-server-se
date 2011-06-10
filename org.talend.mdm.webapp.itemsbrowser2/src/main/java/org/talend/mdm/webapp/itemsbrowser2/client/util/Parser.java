@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client.util;
 import java.io.Serializable;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.exception.ParserException;
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Criteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SimpleCriterion;
@@ -22,14 +23,13 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.OperatorValueConstants;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-/**
- * DOC stephane class global comment. Detailled comment
- */
 public class Parser implements Serializable, IsSerializable {
 
-    public static final char BEGIN_BLOCK = '(';//$NON-NLS-1$
+    private static final long serialVersionUID = 1L;
 
-    public static final char END_BLOCK = ')';//$NON-NLS-1$
+    public static final char BEGIN_BLOCK = '(';
+
+    public static final char END_BLOCK = ')';
 
     public static Criteria parse(String input) throws ParserException {
         checkBlocks(input);
@@ -39,7 +39,7 @@ public class Parser implements Serializable, IsSerializable {
     protected static Criteria parse(String input, int beginIndex, int endIndex) throws ParserException {
         char firstChar = input.charAt(beginIndex);
         if (firstChar == ' ') {
-            throw new ParserException("Illegal character at position " + beginIndex);
+            throw new ParserException(MessagesFactory.getMessages().exception_parse_illegalChar(beginIndex));
         } else if (firstChar == BEGIN_BLOCK) {
             return parseGroupFilter(input, beginIndex, endIndex);
         } else {
@@ -113,7 +113,7 @@ public class Parser implements Serializable, IsSerializable {
             final SimpleCriterion simpleCriterion = new SimpleCriterion(split[0].trim(), realOp, split[1].trim());
             return simpleCriterion;
         }
-        throw new ParserException("Cannot find correct operator in " + value);
+        throw new ParserException(MessagesFactory.getMessages().exception_parse_unknownOperator(value));
     }
 
     private static String getOperator(String value) {
@@ -181,7 +181,7 @@ public class Parser implements Serializable, IsSerializable {
                 return i;
             }
         }
-        throw new ParserException("Cannot find closing " + END_BLOCK + " at position " + i);
+        throw new ParserException(MessagesFactory.getMessages().exception_parse_missEndBlock(END_BLOCK, i));
     }
 
     protected static void checkBlocks(String input) throws ParserException {
@@ -195,14 +195,14 @@ public class Parser implements Serializable, IsSerializable {
                 level--;
             }
             if (level < 0) {
-                throw new ParserException("too many " + END_BLOCK + " at position " + i);
+                throw new ParserException(MessagesFactory.getMessages().exception_parse_tooManyEndBlock(END_BLOCK, i));
             }
         }
         if (level < 0) {
-            throw new ParserException("too many " + END_BLOCK + " at position " + i);
+            throw new ParserException(MessagesFactory.getMessages().exception_parse_tooManyEndBlock(END_BLOCK, i));
         }
         if (level > 0) {
-            throw new ParserException("too many " + END_BLOCK + " at position " + i);
+            throw new ParserException(MessagesFactory.getMessages().exception_parse_tooManyEndBlock(END_BLOCK, i));
         }
     }
 }

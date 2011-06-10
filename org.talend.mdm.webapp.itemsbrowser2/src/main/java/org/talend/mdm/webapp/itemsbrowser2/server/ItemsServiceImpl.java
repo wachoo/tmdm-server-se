@@ -12,16 +12,19 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
-import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.ServletException;
+
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
+import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.server.i18n.ItemsbrowserMessagesImpl;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
@@ -37,15 +40,14 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 @SuppressWarnings("serial")
 public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsService {
 
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        MessagesFactory.setMessages(new ItemsbrowserMessagesImpl());
+    }
+
     private static ItemsService itemsServiceHandler = ItemServiceHandlerFactory.createHandler();
 
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see
-     * org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#queryItemBean(org.talend.mdm.webapp.itemsbrowser2.client
-     * .model.QueryModel)
-     */
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config) {
         return itemsServiceHandler.queryItemBeans(config);
     }
@@ -54,11 +56,6 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return itemsServiceHandler.getView(viewPk, language);
     }
 
-    /*
-     * (non-Jsdoc)
-     * 
-     * @see org.talend.mdm.webapp.itemsbrowser2.client.ItemsService#getViewsList(java.lang.String)
-     */
     public List<ItemBaseModel> getViewsList(String language) {
         return itemsServiceHandler.getViewsList(language);
     }
@@ -183,10 +180,6 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
      */
     public AppHeader getAppHeader() throws Exception {
         return itemsServiceHandler.getAppHeader();
-    }
-
-    public void initMessages(String language) throws IOException {
-        itemsServiceHandler.initMessages(language);
     }
 
     /**
