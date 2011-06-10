@@ -122,9 +122,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
         try {
             WSWhereItem wi = CommonUtil.buildWhereItems(criteria);
-            String[] results = CommonUtil.getPort().viewSearch(
-                    new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1, skip, max,
-                            sortCol, sortDir)).getStrings();
+            String[] results = CommonUtil
+                    .getPort()
+                    .viewSearch(
+                            new WSViewSearch(new WSDataClusterPK(dataClusterPK), new WSViewPK(viewBean.getViewPK()), wi, -1,
+                                    skip, max, sortCol, sortDir)).getStrings();
 
             // TODO change ids to array?
             List<String> idsArray = new ArrayList<String>();
@@ -141,13 +143,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     continue;
                 }
 
-                // aiming modify when there is null value in fields, the viewable fields sequence is the same as the
-                // childlist of result
-                if (!results[i].startsWith("<result>")) { //$NON-NLS-1$
-                    results[i] = "<result>" + results[i] + "</result>"; //$NON-NLS-1$ //$NON-NLS-2$
-                }
+                Document doc = parseResultDocument(results[i], "result"); //$NON-NLS-1$
 
-                Document doc = XmlUtil.parseText(results[i]);
                 idsArray.clear();
                 for (String key : entityModel.getKeys()) {
                     Node idNode = XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")); //$NON-NLS-1$ //$NON-NLS-2$ 
@@ -169,15 +166,14 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     String dateText = dateNode.getText();
 
                     if (dateText != null) {
-                        if (dateText.trim() != "") { //$NON-NLS-1$
+                        if (dateText.trim().length() != 0) {
                             if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
                                 sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
                             } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
                                 sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
                             }
                             Date date = sdf.parse(dateText.trim());
-                            XmlUtil
-                                    .queryNode(doc, key.replaceFirst(concept + "/", "result/")).setText(String.format(java.util.Locale.ENGLISH, value[0], date)); //$NON-NLS-1$ //$NON-NLS-2$
+                            XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")).setText(String.format(java.util.Locale.ENGLISH, value[0], date)); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
@@ -193,7 +189,19 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             LOG.error(e.getMessage(), e);
         }
         return new Object[] { itemBeans, totalSize };
+    }
 
+    protected Document parseResultDocument(String result, String expectedRootElement) throws DocumentException {
+        Document doc = XmlUtil.parseText(result);
+        Element rootElement = doc.getRootElement();
+        if (!rootElement.getName().equals(expectedRootElement)) {
+            // When there is a null value in fields, the viewable fields sequence is not enclosed by expected element
+            // FIXME Better to find out a solution at the underlying stage
+            rootElement.detach();
+            Element resultElement = doc.addElement(expectedRootElement);
+            resultElement.add(rootElement);
+        }
+        return doc;
     }
 
     private Map<String, String[]> checkDisplayFormat(EntityModel entityModel, String language) {
@@ -604,8 +612,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
         }
         Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria()
-                .toString(), pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(), config
-                .getLanguage());
+                .toString(), pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(),
+                config.getLanguage());
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
         return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize);
@@ -617,8 +625,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             Map<String, String> viewMap = null;
 
             String model = getCurrentDataModel();
-            String[] businessConcept = CommonUtil.getPort().getBusinessConcepts(
-                    new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
+            String[] businessConcept = CommonUtil.getPort()
+                    .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
             ArrayList<String> bc = new ArrayList<String>();
             for (int i = 0; i < businessConcept.length; i++) {
                 bc.add(businessConcept[i]);
@@ -755,9 +763,11 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 if (whand != null)
                     whereItem = whand;
 
-                results = CommonUtil.getPort().xPathsSearch(
-                        new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
-                                .toArray(new String[xPaths.size()])), whereItem, -1, 0, 20, null, null)).getStrings();
+                results = CommonUtil
+                        .getPort()
+                        .xPathsSearch(
+                                new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
+                                        .toArray(new String[xPaths.size()])), whereItem, -1, 0, 20, null, null)).getStrings();
 
             }// end if
 
@@ -868,8 +878,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 if (model.isRetrieveFKinfos())
                     // add the xPath Infos Path
                     for (int i = 0; i < xpathInfos.length; i++) {
-                        xPaths.add(com.amalto.webapp.core.util.Util.getFormatedFKInfo(xpathInfos[i].replaceFirst(conceptName,
-                                filteredConcept), filteredConcept));
+                        xPaths.add(com.amalto.webapp.core.util.Util.getFormatedFKInfo(
+                                xpathInfos[i].replaceFirst(conceptName, filteredConcept), filteredConcept));
                     }
                 // add the key paths last, since there may be multiple keys
                 xPaths.add(filteredConcept + "/../../i"); //$NON-NLS-1$
@@ -877,32 +887,38 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 String orderbyPath = null;
                 if (!MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
                     if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
-                        orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(xpathInfos[0].replaceFirst(conceptName,
-                                filteredConcept), filteredConcept);
+                        orderbyPath = com.amalto.webapp.core.util.Util.getFormatedFKInfo(
+                                xpathInfos[0].replaceFirst(conceptName, filteredConcept), filteredConcept);
                     }
                 }
 
                 // Run the query
                 if (!com.amalto.webapp.core.util.Util.isCustomFilter(fkFilter)) {
 
-                    results = CommonUtil.getPort().xPathsSearch(
-                            new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
-                                    .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config.getLimit(),
-                                    orderbyPath, null)).getStrings();
-                    count = CommonUtil.getPort().count(
-                            new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
+                    results = CommonUtil
+                            .getPort()
+                            .xPathsSearch(
+                                    new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
+                                            .toArray(new String[xPaths.size()])), whereItem, -1, config.getOffset(), config
+                                            .getLimit(), orderbyPath, null)).getStrings();
+                    count = CommonUtil.getPort()
+                            .count(new WSCount(new WSDataClusterPK(dataClusterPK), conceptName, whereItem, -1)).getValue();
 
                 } else {
 
                     String injectedXpath = com.amalto.webapp.core.util.Util.getInjectedXpath(fkFilter);
-                    results = CommonUtil.getPort().getItemsByCustomFKFilters(
-                            new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName, new WSStringArray(
-                                    xPaths.toArray(new String[xPaths.size()])), injectedXpath, config.getOffset(), config
-                                    .getLimit(), orderbyPath, null)).getStrings();
+                    results = CommonUtil
+                            .getPort()
+                            .getItemsByCustomFKFilters(
+                                    new WSGetItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
+                                            new WSStringArray(xPaths.toArray(new String[xPaths.size()])), injectedXpath, config
+                                                    .getOffset(), config.getLimit(), orderbyPath, null)).getStrings();
 
-                    count = CommonUtil.getPort().countItemsByCustomFKFilters(
-                            new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName, injectedXpath))
-                            .getValue();
+                    count = CommonUtil
+                            .getPort()
+                            .countItemsByCustomFKFilters(
+                                    new WSCountItemsByCustomFKFilters(new WSDataClusterPK(dataClusterPK), conceptName,
+                                            injectedXpath)).getValue();
                 }
             }
 
@@ -1134,8 +1150,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             new WSWhereItem(null, null, or) });
 
             wi = new WSWhereItem(null, and, null);
-            return CommonUtil.getPort().count(
-                    new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$ 
+            return CommonUtil.getPort()
+                    .count(new WSCount(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem", wi, -1))//$NON-NLS-1$ 
                     .getValue();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -1169,9 +1185,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     public String getCriteriaByBookmark(String bookmark) {
         try {
             String criteria = "";//$NON-NLS-1$ 
-            String result = CommonUtil.getPort().getItem(
-                    new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), "BrowseItem",//$NON-NLS-1$ 
-                            new String[] { bookmark }))).getContent().trim();
+            String result = CommonUtil
+                    .getPort()
+                    .getItem(
+                            new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
+                                    "BrowseItem",//$NON-NLS-1$ 
+                                    new String[] { bookmark }))).getContent().trim();
             if (result != null) {
                 if (result.indexOf("<SearchCriteria>") != -1)//$NON-NLS-1$ 
                     criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$ 
