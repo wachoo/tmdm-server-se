@@ -3895,9 +3895,9 @@ public class ItemsBrowserDWR {
     public String printFormat(String lang, String format, String value, String typeName) throws ParseException {
         if (typeName == null || typeName.equals("null") || format.equals("null") || "".equals(value))//$NON-NLS-1$//$NON-NLS-2$
             return value;
-        Object object = Util.getTypeValue(lang, typeName, value);
+        Object object = Util.getTypeValue(lang, typeName, value, format);
         if (object instanceof Calendar || object instanceof Time || object == null) {
-            return Util.outputValidateDate(value);
+            return Util.outputValidateDate(value, format);
         }
         return object.toString();
     }

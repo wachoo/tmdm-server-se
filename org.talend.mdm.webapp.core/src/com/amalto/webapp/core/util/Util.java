@@ -1542,42 +1542,57 @@ public class Util {
         return isCustom;
     }
 
-    public static String outputValidateDate(String dataValue)throws ParseException{
-        Pattern datePtn = Pattern.compile("((\\d{1,2}\\/){2}\\d{4})?(\\d{1,2}\\/\\d{4})?(\\d{1,2}{2})?(\\d{1,2}\\/\\d{1,2})?(\\d{4})?");//$NON-NLS-1$
+    public static String outputValidateDate(String dataValue, String format)throws ParseException{
+        Pattern datePtn = Pattern.compile("((\\d{1,2}\\/){2}\\d{4})?(\\d{1,2}\\/\\d{4})?(\\d{1,2})?(\\d{1,2}\\/\\d{1,2})?(\\d{4})?((\\d{1,2}\\/)(\\d{1,2}\\/)(\\d{1,4}))?");//$NON-NLS-1$
         Matcher mtn = datePtn.matcher(dataValue);
         
-        if(!mtn.matches())return dataValue;
-        
-        if(mtn.group(1) != null ){
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");//$NON-NLS-1$
-            java.util.Date date = sdf.parse(dataValue);
-            sdf.applyPattern("yyyy-MM-dd");//$NON-NLS-1$
-            dataValue = sdf.format(date);
-            return dataValue;
+        if(mtn.matches())
+        {
+            if(mtn.group(1) != null ){
+                SimpleDateFormat sdf = new SimpleDateFormat(format.equals("%tD") ? "MM/dd/yyyy" : "dd/MM/yyyy");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                java.util.Date date = sdf.parse(dataValue);
+                sdf.applyPattern("yyyy-MM-dd");//$NON-NLS-1$
+                dataValue = sdf.format(date);
+                return dataValue;
+            }
+            
+            java.util.Calendar now = Calendar.getInstance();
+            now.setTime(new java.util.Date());
+            
+            if(mtn.group(1) == null && mtn.group(3) != null && mtn.group(5) != null){
+                dataValue = "01/" + dataValue;//$NON-NLS-1$
+                return outputValidateDate(dataValue, format);
+            }
+            else if(mtn.group(3) != null){
+                dataValue = now.get(java.util.Calendar.DAY_OF_MONTH) + "/" + dataValue;//$NON-NLS-1$
+                return outputValidateDate(dataValue, format);
+            }
+            else if(mtn.group(6) != null){
+                dataValue = now.get(java.util.Calendar.DAY_OF_MONTH) + "/" + (now.get(java.util.Calendar.MONTH)+ 1) + "/" + dataValue ;//$NON-NLS-1$//$NON-NLS-2$
+                return outputValidateDate(dataValue, format);
+            }
+            else if(mtn.group(4) != null && mtn.group(5) == null && mtn.group(7) == null){
+                dataValue = dataValue + "/" + (now.get(java.util.Calendar.MONTH) + 1) + "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$//$NON-NLS-2$
+                return outputValidateDate(dataValue, format);
+            }
+            else if(mtn.group(5) != null){
+                dataValue += "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$
+                return outputValidateDate(dataValue, format); 
+            }
+            else if(mtn.group(7) != null){
+                String year = 2000 + Integer.valueOf(mtn.group(10).startsWith("0") ? mtn.group(10).substring(1) : mtn.group(10)) + "";//$NON-NLS-1$//$NON-NLS-2$
+                dataValue =(mtn.group(4).isEmpty() ? "" : mtn.group(4)) + mtn.group(8) + mtn.group(9) +  year; //$NON-NLS-1$
+                return outputValidateDate(dataValue, format); 
+            }
         }
         
-        java.util.Calendar now = Calendar.getInstance();
-        now.setTime(new java.util.Date());
-        
-        if(mtn.group(1) == null && mtn.group(3) != null && mtn.group(5) != null){
-            dataValue = "01/" + dataValue;//$NON-NLS-1$
-            return outputValidateDate(dataValue);
-        }
-        else if(mtn.group(3) != null){
-            dataValue = now.get(java.util.Calendar.DAY_OF_MONTH) + "/" + dataValue;//$NON-NLS-1$
-            return outputValidateDate(dataValue);
-        }
-        else if(mtn.group(6) != null){
-            dataValue = now.get(java.util.Calendar.DAY_OF_MONTH) + "/" + (now.get(java.util.Calendar.MONTH)+ 1) + "/" + dataValue ;//$NON-NLS-1$//$NON-NLS-2$
-            return outputValidateDate(dataValue);
-        }
-        else if(mtn.group(4) != null && mtn.group(5) == null){
-            dataValue = dataValue + "/" + (now.get(java.util.Calendar.MONTH) + 1) + "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$//$NON-NLS-2$
-            return outputValidateDate(dataValue);
-        }
-        else if(mtn.group(5) != null){
-            dataValue += "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$
-            return outputValidateDate(dataValue); 
+        datePtn = Pattern.compile("(\\w*)\\s+(\\w*)\\s+(\\d*)\\s+(\\d{2}:\\d{2}:\\d{2})\\s+(\\w*)\\s+(\\d{4})");//$NON-NLS-1$
+        mtn = datePtn.matcher(dataValue);
+        if(mtn.matches()){
+            java.util.Calendar now = Calendar.getInstance();
+            now.setTimeInMillis(java.util.Date.parse(dataValue));
+            dataValue = now.get(java.util.Calendar.DAY_OF_MONTH) + "/" + (now.get(java.util.Calendar.MONTH)+ 1) + "/" + (now.get(java.util.Calendar.YEAR)) ;//$NON-NLS-1$//$NON-NLS-2$
+            return outputValidateDate(dataValue, format);
         }
         
         return dataValue;
@@ -1590,7 +1605,7 @@ public class Util {
      * @throws ParseException Byte, Short, Integer, and Long Float and Double date,time
      */
 
-    public static Object getTypeValue(String lang, String type, String value) throws ParseException {
+    public static Object getTypeValue(String lang, String type, String value, String format) throws ParseException {
 
         // time
         if (type.equals("date")) {//$NON-NLS-1$
@@ -1600,7 +1615,7 @@ public class Util {
             calendar = Date.parseDate(dataStr.trim()).toCalendar();
             }
             catch(Exception ex){
-                calendar = Date.parseDate(outputValidateDate(value)).toCalendar();
+                calendar = Date.parseDate(outputValidateDate(value, format)).toCalendar();
             }
             
             return calendar;
