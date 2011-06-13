@@ -1,8 +1,8 @@
 package org.talend.mdm.webapp.general.client;
 
 import org.talend.mdm.webapp.general.client.message.PublicMessageService;
-import org.talend.mdm.webapp.general.client.mvc.OverallEvent;
-import org.talend.mdm.webapp.general.client.mvc.controller.OverallController;
+import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
+import org.talend.mdm.webapp.general.client.mvc.controller.GeneralController;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -19,8 +19,8 @@ public class General implements EntryPoint {
 		PublicMessageService.registerMessageService();
 		
 		Dispatcher dispatcher = Dispatcher.get();
-		dispatcher.addController(new OverallController());
-		dispatcher.dispatch(OverallEvent.InitFrame);
+		dispatcher.addController(new GeneralController());
+		dispatcher.dispatch(GeneralEvent.InitFrame);
 
 	}
 }

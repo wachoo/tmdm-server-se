@@ -2,7 +2,7 @@ package org.talend.mdm.webapp.general.client.mvc;
 
 import com.extjs.gxt.ui.client.event.EventType;
 
-public class OverallEvent {
+public class GeneralEvent {
 
     public static final EventType Error = new EventType();
 

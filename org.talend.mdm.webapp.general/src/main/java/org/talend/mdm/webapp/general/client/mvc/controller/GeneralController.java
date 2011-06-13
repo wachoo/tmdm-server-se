@@ -8,8 +8,8 @@ import org.talend.mdm.webapp.general.client.MdmAsyncCallback;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
-import org.talend.mdm.webapp.general.client.mvc.OverallEvent;
-import org.talend.mdm.webapp.general.client.mvc.view.OverallView;
+import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
+import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
 import org.talend.mdm.webapp.general.model.MenuBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -18,29 +18,29 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.google.gwt.user.client.Window;
 
-public class OverallController extends Controller {
+public class GeneralController extends Controller {
 
 	private GeneralServiceAsync service;
 	
-	private OverallView view;
+	private GeneralView view;
 	
-	public OverallController(){
-		registerEventTypes(OverallEvent.InitFrame);
-		registerEventTypes(OverallEvent.Error);
-		registerEventTypes(OverallEvent.LoadMenus);
+	public GeneralController(){
+		registerEventTypes(GeneralEvent.InitFrame);
+		registerEventTypes(GeneralEvent.Error);
+		registerEventTypes(GeneralEvent.LoadMenus);
 	}
 	
 	@Override
     public void initialize() {
 		service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
-		view = new OverallView(this);
+		view = new GeneralView(this);
 	}
 	
 	@Override
 	public void handleEvent(final AppEvent event) {
 		EventType type = event.getType();
 		
-		if (type == OverallEvent.InitFrame){
+		if (type == GeneralEvent.InitFrame){
 //		    service.greetServer("hello", new MdmAsyncCallback<String>() {
 //	            
 //	            @Override
@@ -56,9 +56,9 @@ public class OverallController extends Controller {
                     forwardToView(view, event);
                 }
             });
-		} else if (type == OverallEvent.Error){
+		} else if (type == GeneralEvent.Error){
 			this.forwardToView(view, event);
-		} else if (type == OverallEvent.LoadMenus){
+		} else if (type == GeneralEvent.LoadMenus){
 		    service.getMenus("en", new MdmAsyncCallback<List<MenuBean>>() {
                 @Override
                 public void onSuccess(List<MenuBean> result) {
