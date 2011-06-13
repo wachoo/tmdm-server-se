@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="datastewardship" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
+<project name="org.talend.mdm.webapp.general" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
 
 	<property file="build.properties" />
 	
