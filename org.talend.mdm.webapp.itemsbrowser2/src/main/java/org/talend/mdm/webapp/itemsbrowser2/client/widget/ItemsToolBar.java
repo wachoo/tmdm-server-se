@@ -8,6 +8,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
+import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.ItemCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
@@ -35,6 +36,7 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
@@ -72,6 +74,8 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.dom.client.Style.Overflow;
+import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.ClickListener;
@@ -103,6 +107,8 @@ public class ItemsToolBar extends ToolBar {
     private Button createBtn = new Button(MessagesFactory.getMessages().create_btn());
 
     private Button menu = new Button(MessagesFactory.getMessages().delete_btn());
+    
+    private Button uploadBtn = new Button("Import and Export");
 
     private ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
@@ -167,6 +173,20 @@ public class ItemsToolBar extends ToolBar {
             else
                 menu.getMenu().getItemByItemId("logicalDelMenuInGrid").setEnabled(true); //$NON-NLS-1$
         }
+        
+        uploadBtn.setEnabled(false);
+        boolean denyUploadFile = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyLogicalDeletable();
+        
+        if (denyUploadFile)
+        	uploadBtn.setEnabled(false);
+        else {
+        	uploadBtn.setEnabled(true);
+            if (denyUploadFile)
+            	uploadBtn.getMenu().getItemByItemId("uploadMenuInGrid").setEnabled(false);
+            else
+            	uploadBtn.getMenu().getItemByItemId("uploadMenuInGrid").setEnabled(true);
+        }
+        
         updateUserCriteriasList();
     }
 
@@ -376,6 +396,28 @@ public class ItemsToolBar extends ToolBar {
         menu.setEnabled(false);
         add(menu);
 
+        
+        uploadBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        Menu subFile = new Menu();
+        MenuItem uploadMenu = new MenuItem("Import");
+        uploadMenu.setId("uploadFileMenuInGrid");//$NON-NLS-1$
+        uploadMenu.setStyleName("Import");
+        
+        uploadMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            @Override
+            public void componentSelected(MenuEvent ce) {
+            	GetService.renderUploadWindow();
+            }
+        });
+        
+        
+        subFile.add(uploadMenu);
+
+        uploadBtn.setMenu(subFile);
+        uploadBtn.setEnabled(false);
+        add(uploadBtn);
+        
         add(new FillToolItem());
 
         // add entity combo
@@ -912,4 +954,59 @@ public class ItemsToolBar extends ToolBar {
             advancedPanel.setVisible(false);
         }
     }
+    
+    class FileUploadExample extends com.extjs.gxt.ui.client.widget.LayoutContainer {  
+ 	   
+ 	   @Override  
+ 	   protected void onRender(com.google.gwt.user.client.Element parent, int index) {  
+ 	     super.onRender(parent, index);  
+ 	     setStyleAttribute("margin", "10px");  
+ 	   
+ 	     final FormPanel panel = new FormPanel();  
+ 	     panel.setHeading("File Upload Example");  
+ 	     panel.setFrame(true);  
+ 	     panel.setAction("myurl");  
+ 	     panel.setEncoding(com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding.MULTIPART);  
+ 	     panel.setMethod(com.extjs.gxt.ui.client.widget.form.FormPanel.Method.POST);  
+ 	     panel.setButtonAlign(HorizontalAlignment.CENTER);  
+ 	     panel.setWidth(350);  
+ 	   
+ 	     TextField<String> name = new TextField<String>();  
+ 	     name.setFieldLabel("Name");  
+ 	     panel.add(name);  
+ 	   
+ 	     com.extjs.gxt.ui.client.widget.form.FileUploadField file = new com.extjs.gxt.ui.client.widget.form.FileUploadField();  
+ 	     file.setAllowBlank(false);  
+ 	     file.setName("uploadedfile");  
+ 	     file.setFieldLabel("File");  
+ 	     panel.add(file);  
+ 	   
+ 	     Button btn = new Button("Reset");  
+ 	     btn.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+ 	       @Override  
+ 	       public void componentSelected(ButtonEvent ce) {  
+ 	         panel.reset();  
+ 	       }  
+ 	     });  
+ 	     panel.addButton(btn);  
+ 	   
+ 	     btn = new Button("Submit");  
+ 	     btn.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+ 	       @Override  
+ 	       public void componentSelected(ButtonEvent ce) {  
+ 	         if (!panel.isValid()) {  
+ 	           return;  
+ 	         }  
+ 	         // normally would submit the form but for example no server set up to  
+ 	         // handle the post  
+ 	         // panel.submit();  
+ 	         MessageBox.info("Action", "You file was uploaded", null);  
+ 	       }  
+ 	     });  
+ 	     panel.addButton(btn);  
+ 	   
+ 	     add(panel);  
+ 	   }  
+ 	   
+  }
 }

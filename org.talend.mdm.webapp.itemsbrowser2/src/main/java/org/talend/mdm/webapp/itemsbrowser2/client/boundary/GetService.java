@@ -84,4 +84,8 @@ public class GetService {
         @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::setEnable(Z)(false);
         $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderFormWindow(ids, concept, isDuplicate, handleCallback, formWindow, isDetail, enableQuit);
     }-*/;
+    
+    public static native void renderUploadWindow() /*-{
+    $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderUploadWindow();
+	}-*/;
 }

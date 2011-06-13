@@ -11,6 +11,12 @@
 		<servlet-class>org.talend.mdm.webapp.itemsbrowser2.server.ItemsServiceImpl</servlet-class>
 	</servlet>
 	
+	<servlet>
+        <servlet-name>readExcelFile</servlet-name>
+        <display-name>readExcelFile</display-name>
+        <servlet-class>org.talend.mdm.webapp.itemsbrowser2.servlet.UploadData</servlet-class>
+    </servlet>
+	
 	<!-- DWR config
 	<servlet>
 		<servlet-name>dwr-invoker</servlet-name>
@@ -27,6 +33,10 @@
 		<url-pattern>/secure/dwr/*</url-pattern>
 	</servlet-mapping>
     -->
+    <servlet-mapping>
+        <servlet-name>readExcelFile</servlet-name>
+        <url-pattern>/secure/upload</url-pattern>
+    </servlet-mapping>
     
 	<servlet-mapping>
 		<servlet-name>itemsServlet</servlet-name>
