@@ -4,6 +4,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.Frame;
 
 public class WorkSpace extends LayoutContainer {
@@ -33,6 +34,7 @@ public class WorkSpace extends LayoutContainer {
             item.setClosable(true);
             item.setLayout(new FitLayout());
             Frame frame = new Frame(url);
+            frame.getElement().getStyle().setBorderWidth(0.0D, Unit.PX);
             item.add(frame);
             workTabPanel.add(item);
         }
