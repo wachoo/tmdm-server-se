@@ -905,7 +905,17 @@ public class ItemsBrowserDWR {
             }
         }
     }
-
+    private int getBiggestIdFromidToParticle(){
+    	WebContext ctx = WebContextFactory.get();
+    	HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
+    	int ret=1;
+    	for(Integer v:idToParticle.keySet()){
+    		if(v>ret){
+    			ret=v;
+    		}
+    	}
+    	return ret;
+    }
     private void setChildrenWithKeyMask(int id, String language, boolean foreignKey, int docIndex, boolean maskKey,
             boolean choice, XSParticle xsp, ArrayList<TreeNode> list, HashMap<String, TreeNode> xpathToTreeNode)
             throws ParseException {
@@ -1038,7 +1048,10 @@ public class ItemsBrowserDWR {
         } catch (Exception e1) {
             LOG.error(e1.getMessage(), e1);
         }
-
+        //dynamic load may cause YAHOO.widget.TreeView.nodeCount < the real created nodes count, so we should nodeCount++
+        if(nodeCount<=getBiggestIdFromidToParticle()){
+        	nodeCount++;
+        }
         treeNode.setTypeName(typeNameTmp);
         treeNode.setXmlTag(xsp.getTerm().asElementDecl().getName());
         treeNode.setNodeId(nodeCount);
@@ -2335,7 +2348,7 @@ public class ItemsBrowserDWR {
             }
             // added by lzhang, make sure there is no empty node which has DSP value
             d = filledByDspValue(dataModelPK, concept, d, docIndex);
-
+           
             // filter item xml
             HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
                     "xpathToPolymType" + docIndex); //$NON-NLS-1$
