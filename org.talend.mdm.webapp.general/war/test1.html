@@ -1,0 +1,20 @@
+<!doctype html>
+
+<html>
+  <head>
+	<script type="text/javascript">
+		window.onload = function(){
+			var btn = document.getElementById("btn");
+			btn.onclick = function(){
+				window.top.OverallFrame.registerGlobalMessage("refreshButton", function(msgId, data){
+					btn.innerHTML = data;
+				});
+			};
+		};
+	</script>
+  </head>
+
+  <body>
+	hello <button id="btn">register message</button>
+  </body>
+</html>

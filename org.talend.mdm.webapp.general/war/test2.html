@@ -1,0 +1,21 @@
+<!doctype html>
+
+<html>
+  <head>
+	<script type="text/javascript">
+		window.onload = function(){
+			var btn = document.getElementById("btn");
+			var txt = document.getElementById("txt");
+			btn.onclick = function(){
+				
+				window.top.OverallFrame.notifyGlobalMessage("refreshButton", txt.value);
+			};
+		};
+	</script>
+  </head>
+
+  <body>
+	hello <button id="btn">send message</button>
+	<input id="txt" type="text"/>
+  </body>
+</html>
