@@ -98,7 +98,7 @@ public class ItemsBrowser2DWR {
 	}
 	
 	
-	public ArrayList<ArrayList<String>> getCrossReferencingContent(String tableName) throws XtentisWebappException {
+	public ArrayList<ArrayList<String>> getItemsBrowsContent(String tableName) throws XtentisWebappException {
 		try {
 			String[] results = Util.getPort().getItems(
 					new WSGetItems(
@@ -232,7 +232,7 @@ public class ItemsBrowser2DWR {
 	 * @throws Exception
 	 * @throws RemoteException
 	 */
-	public void deleteCrossReferencingTable(String tableName) throws RemoteException, Exception{
+	public void deleteItemsBroserTable(String tableName) throws RemoteException, Exception{
 
 		tableName=tableName.replaceAll("\\s+","");
 
@@ -258,7 +258,7 @@ public class ItemsBrowser2DWR {
 	 * gets a grid from a view
 	 * @throws Exception
 	 */
-	public String[] putCrossReferencingTable(String concept,String[] fields,String[] keys) throws Exception {
+	public String[] putItemsBrowseTable(String concept,String[] fields,String[] keys) throws Exception {
 
 		concept=concept.replaceAll(" ","_");
 

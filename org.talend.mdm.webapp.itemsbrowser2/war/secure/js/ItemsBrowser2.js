@@ -158,11 +158,176 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
     }; // GridValidator plugin end
 
 
-	
+    var LABEL_ITEMS_BROWSER = {
+    		'fr':'Transcodifications',
+    		'en':'Items-browser tables'
+    	}
+    	var LABEL_SELECT_TABLE={
+    		'fr':'Tables existantes',
+    		'en':'Select an existing table'
+    	}
+    	var BUTTON_NEW_ITEMS_BROWSER = {
+    		'fr':'Nouvelle table de Articles Sourcils tables',
+    		'en':'New items-brows table'
+    	}
+    	var BUTTON_IMPORT = {
+    		'fr':'Importer des données',
+    		'en':'Upload data file'
+    	}
+    	var BUTTON_DELETE = {
+    		'fr':'Supprimer',
+    		'en':'Delete'
+    	}
+    	var BUTTON_EDIT = {
+    		'fr':'Editer',
+    		'en':'Edit'
+    	}
+    	var BUTTON_ADD_ROW = {
+    		'fr':'Ajouter une ligne',
+    		'en':'Add row'
+    	}
+    	var BUTTON_DELETE_ROW={
+    		'fr':'Supprimer la sélection',
+    		'en':'Delete rows'
+    	}
+    	var SAVE = {
+    		'fr':'Sauvegarder',
+    		'en':'Save'
+    	}
+
+    	var LOADING={
+    	'fr':'Chargement...',
+    	'en':'Loading...'
+    	}
+
+    	var MSG_AT_LEAST_ONE_KEY =  {
+        'fr' : 'La table doit avoir au moins une clé',
+        'en' : 'The table must have at least one key'
+    	}
+
+    	var MSG_INVALID_TABLE_NAME =  {
+    	    'fr' : 'La table doit avoir un nom commencant par une lettre suivie de caractères alphanumériques',
+    	    'en' : 'The table name must start with a letter followed by aphanumeric characters'
+    	}
+
+    	var MSG_INVALID_FIELD_NAME =  {
+    	    'fr' : 'Le nom de champ n\'est pas valide, champ  ',
+    	    'en' : 'The field name is not valid, field '
+    	}
+
+    	var LABEL_FIELD={
+    		'fr':'Champ',
+    		'en':'Field'
+    	}
+
+    	var BTN_EDIT =  {
+    	    'fr' : 'Editer',
+    	    'en' : 'Edit'
+    	}
+
+    	var BTN_DELETE =  {
+    	    'fr' : 'Supprimer',
+    	    'en' : 'Delete'
+    	}
+
+    	var ADD_FIELD_BUTTON = {
+    	    'fr' : "Ajouter un champ" ,
+    	    'en' : "Add a field"
+    	}
+
+    	var UPLOAD_DATA_LEGEND = {
+    		'fr' : "Ajouter des donn&eacute;es &agrave; la table : ",
+    		'en' : "Upload data file to table : "
+    	}
+
+    	var HEADER_GRID_DELETE={
+    		'fr':"Supprimer",
+    		'en':"Delete"
+    	}
+
+    	var CONFIRM_DELETE_TRANSCO = {
+    		'en':"Are you sure you want to delete this Items-Browser table?",
+    		'fr':"\312tes-vous s\373r de vouloir supprimer cette table  de Articles Sourcils?"
+    	}
+
+    	var CONFIRM_DELETE_ELEMENT = {
+    		'fr': "\312tes-vous s\373r de vouloir supprimer cet \351l\351ment?",
+    		'en': "Are you sure you want to delete this element ?"
+    	}
+
+    	var LEGEND1={
+    		'fr':"Tables de Articles Sourcils tables existantes",
+    		'en':"Items-Browser"
+    	}
+
+    	var LABEL_DESCRIPTION={
+    		'fr':'Description',
+    		'en':'Description'
+    	}
+    	var LABEL_UPLOAD={
+    		'fr':'Importer des données',
+    		'en':'Upload data'
+    	}
+    	var LABEL_FILE={
+    		'fr':'Fichier',
+    		'en':'File'
+    	}
+    	var LABEL_FILE_TYPE={
+    		'fr':'Type de fichier',
+    		'en':'File type'
+    	}
+    	var LABEL_SEPARATOR={
+    		'fr':'Séparateur',
+    		'en':'Separator'
+    	}
+    	var LABEL_DELIMITER={
+    		'fr':'Délimiteur de texte',
+    		'en':'Text Delimiter'
+    	}
+    	var LABEL_ENCODING={
+    		'fr':'Encodage',
+    		'en':'Encoding'
+    	}
+    	var LABEL_HEADERS_ON_FIRST_LINE={
+    		'fr':'En-têtes sur 1ère ligne',
+    		'en':'Headres on First Line'
+    	}
+
+    	var BUTTON_SEND={
+    		'fr':'Envoyer',
+    		'en':'Submit'
+    	}
+    	var LABEL_NEW_ITEMS_BROWSER={
+    		'fr':'Nouvelle table de de Articles Sourcils',
+    		'en':'New items-browser table'
+    	}
+    	var LABEL_TABLE_NAME={
+    		'fr':'Nom de la table',
+    		'en':'Table name'
+    	}
+    	var KEY={
+    		'fr':'Clé',
+    		'en':'Key'
+    	}
+
+    	var DISCARD={
+    		'fr':'Annuler vos changements?',
+    		'en':'Discard your changes?'
+    	}
+
+    	var FIELDS_DO_NOT_MATCH = {
+    		'fr': 'Un ou plusieurs champs ne respectent pas leur format<br/>',
+    		'en': 'One or more fields do not match their requested pattern<br/>'
+    	};
+
+    	var ERROR ={
+    			'fr':'Erreur',
+    			'en':'Error'
+    	};
 
 	var concept;
 	var tableDescription;
-	var panelCrossRef;
+	var panelItemsBrowser;
 	var grid = null;
 
 	var editedRows = new Array();
@@ -171,14 +336,14 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 
 	var row = 1;
 
-	function displayCrossRefMainPanel(){
+	function displayItemsBrowserMainPanel(){
 		var tabPanel = amalto.core.getTabPanel();
 		var panel;
 		if(tabPanel.getItem('upload-main-panel') == undefined){
 
-			panelCrossRef = new Ext.Panel({
+			panelItemsBrowser = new Ext.Panel({
 				id: 'upload-main-panel',
-				title: LABEL_CROSS_REFERENCING[language],
+				title: LABEL_ITEMS_BROWSER[language],
 				layout:'border',
 				autoScroll: false,
 				border: false,
@@ -223,7 +388,7 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 				                	concept = record.data.key;
 				                	ItemsBrowser2Interface.getTableDescription(concept,function(desc){
 				                			tableDescription = desc;
-										    getCrossReferencingContent();
+										    getItemsBrowsContent();
 				                	})
 			          		}
 			          	}
@@ -231,7 +396,7 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 					new Ext.Toolbar.Spacer(),
 					new Ext.Toolbar.Button({
 				        text: BUTTON_EDIT[language],
-						handler: getCrossReferencingContent
+						handler: getItemsBrowsContent
 			    	}),
 			    	new Ext.Toolbar.Separator(),
 			    	new Ext.Toolbar.Button({
@@ -245,15 +410,15 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 			    	}),
 			    	new Ext.Toolbar.Separator(),
 					new Ext.Toolbar.Button({
-		            	text: BUTTON_NEW_CROSS_REF[language],
-						handler: createCrossRef
+		            	text: BUTTON_NEW_ITEMS_BROWSER[language],
+						handler: createItemsBrowser
 					})
 				]
 			});
-			tabPanel.add(panelCrossRef);
+			tabPanel.add(panelItemsBrowser);
 		}
 
-		panelCrossRef.show();
+		panelItemsBrowser.show();
 		//panel.doLayout();
 		amalto.core.doLayout();
 	}
@@ -262,17 +427,17 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
 ASG                DISPLAY TRANSCO TABLE
 ************************************************************/
 
-	function getCrossReferencingContent(){
+	function getItemsBrowsContent(){
 		var panel = Ext.getCmp('center-panel-upload');
 		panel.remove('main-upload');
 		if(tableDescription==null){
 			amalto.core.doLayout();
 			return;
 		}
-		ItemsBrowser2Interface.getCrossReferencingContent(getCrossReferencingContentCB,concept);
+		ItemsBrowser2Interface.getItemsBrowsContent(getItemsBrowsContentCB,concept);
 	}
 
-	function getCrossReferencingContentCB(result){
+	function getItemsBrowsContentCB(result){
 		recordFields = new Array();
 		for(var i=0; i<tableDescription.fields.length; i++) {
 			recordFields.push({name:tableDescription.fields[i]});
@@ -383,7 +548,7 @@ ASG                DISPLAY TRANSCO TABLE
     	ItemsBrowser2Interface.deleteDocument(concept,keys,fields,values,function(){
     		var store = grid.getStore();
     		store.remove(record);
-    		//getCrossReferencingContent();
+    		//getItemsBrowsContent();
     	});
 	}
 
@@ -480,7 +645,6 @@ ASG                DISPLAY TRANSCO TABLE
 				{
 					name:'concept',
 					xtype:'textfield',
-					//fieldLabel:LABEL_CROSS_REFERENCING[language],
 					readOnly:true,
 					inputType:'hidden',
 					value:tableDescription.name
@@ -599,7 +763,7 @@ ASG                DISPLAY TRANSCO TABLE
                     if (form.isValid()) {
                         form.submit({
                             waitMsg: 'Sending...',
-                            success: function(){this.uploaded; getCrossReferencingContent();},
+                            success: function(){this.uploaded; getItemsBrowsContent();},
                             failure:  function(response,options) {
 							Ext.MessageBox.show({title:'Error', msg:'Registration failed: '+response.responseText,
 							icon:Ext.MessageBox.ERROR,
@@ -626,7 +790,7 @@ ASG                DISPLAY TRANSCO TABLE
 	function deleteTransco(){
 		if(tableDescription==null) return;
 		if(confirm(CONFIRM_DELETE_TRANSCO[language])){
-            ItemsBrowser2Interface.deleteCrossReferencingTable(concept, function(){
+            ItemsBrowser2Interface.deleteItemsBroserTable(concept, function(){
             	tableDescription = null;
             	Ext.getCmp('comboBoxTablesName').reset();
             	//Ext.getCmp('transcoInfo').reset();
@@ -637,7 +801,7 @@ ASG                DISPLAY TRANSCO TABLE
 	}
 
 
-	function createCrossRef(){
+	function createItemsBrowser(){
 		row = 1;
 		Ext.getCmp('comboBoxTablesName').reset();
 		var tabPanel = amalto.core.getTabPanel();
@@ -645,7 +809,7 @@ ASG                DISPLAY TRANSCO TABLE
 //		Ext.QuickTips.init();
 		var panel = new Ext.FormPanel({
 			id:'main-upload',
-			title:LABEL_NEW_CROSS_REF[language],
+			title:LABEL_NEW_ITEMS_BROWSER[language],
 			closable:true,
 			border:false,
 			bodyBorder:false,
@@ -831,7 +995,7 @@ ASG                DISPLAY TRANSCO TABLE
 			alert(MSG_AT_LEAST_ONE_KEY[language]);
 		 	return;
 		}
-	    ItemsBrowser2Interface.putCrossReferencingTable(transcoName,fields,keys, function(){
+	    ItemsBrowser2Interface.putItemsBrowseTable(transcoName,fields,keys, function(){
 	    	var tabPanel = amalto.core.getTabPanel();
 //	    	Ext.getCmp('crossref-grid-container').remove('crossref-grid');
 	    	Ext.getCmp('center-panel-upload').remove('main-upload');
@@ -841,11 +1005,14 @@ ASG                DISPLAY TRANSCO TABLE
     	       	concept = transcoName;
 		        ItemsBrowser2Interface.getTableDescription(transcoName,function(desc){
         			tableDescription = desc;
-				    getCrossReferencingContent();
+				    getItemsBrowsContent();
         		});
 			}
 	    });
 	}
+	
+	
+	
 	
 	return {
 
@@ -862,7 +1029,7 @@ ASG                DISPLAY TRANSCO TABLE
 			renderFormWindow(itemPK2, dataObject, isDuplicate, handleCallback, formWindow, isDetail, enableQuit);
 		},
 		renderUploadWindow : function(){
-			displayCrossRefMainPanel();
+			displayItemsBrowserMainPanel();
 		}
 	}
 }();
