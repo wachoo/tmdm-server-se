@@ -567,7 +567,7 @@ public class ItemsToolBar extends ToolBar {
                                 public void onClick(Widget arg0) {
                                     // edit the bookmark
                                     if (advancedPanel == null) {
-                                        advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
+                                        advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), null);
                                     }
                                     service.getCriteriaByBookmark(model.get("value").toString(), new AsyncCallback<String>() { //$NON-NLS-1$
 
@@ -762,7 +762,7 @@ public class ItemsToolBar extends ToolBar {
                     public void onSuccess(String arg0) {
                         isSimple = false;
                         if (advancedPanel == null) {
-                            advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
+                            advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), null);
                         }
                         advancedPanel.setCriteria(arg0);
                         String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
@@ -887,11 +887,12 @@ public class ItemsToolBar extends ToolBar {
 
     private void initAdvancedPanel() {
         if (advancedPanel == null) {
-            advancedPanel = new AdvancedSearchPanel(simplePanel.getView());
+        	Button searchBtn = new Button(MessagesFactory.getMessages().search_btn());
+        	advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), searchBtn);
             advancedPanel.setItemId("advancedPanel"); //$NON-NLS-1$
             advancedPanel.setButtonAlign(HorizontalAlignment.CENTER);
 
-            Button searchBtn = new Button(MessagesFactory.getMessages().search_btn());
+            
             searchBtn.setItemId("searchBtn");
             searchBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 

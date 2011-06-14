@@ -27,6 +27,9 @@ import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -47,6 +50,7 @@ import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -71,7 +75,11 @@ public class AdvancedSearchPanel extends FormPanel {
     private static String modifiedON = "../../t";//$NON-NLS-1$
 
     private static String blank = " ";//$NON-NLS-1$
+    
+    private Button filterButton = new Button();
 
+    private Button searchBtn;
+    
     final public void setCriteria(String c) {
         if (c.indexOf(modifiedON) > -1) {
             // modified on condition
@@ -192,7 +200,8 @@ public class AdvancedSearchPanel extends FormPanel {
         this.view = viewbean;
     }
 
-    public AdvancedSearchPanel(ViewBean viewbean) {
+    public AdvancedSearchPanel(ViewBean viewbean, Button search) {
+    	this.searchBtn = search;
         this.view = viewbean;
         setHeaderVisible(false);
         // setLayout(new FitLayout());
@@ -326,6 +335,17 @@ public class AdvancedSearchPanel extends FormPanel {
             }
 
         };
+        
+        expressionTextField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
+            public void handleEvent(FieldEvent be) {
+                if (be.getKeyCode() == KeyCodes.KEY_ENTER){
+                	if (searchBtn != null){
+                		searchBtn.fireEvent(Events.Select);
+                	}
+                }
+            }
+        });
+        
         expressionTextField.setFieldLabel(MessagesFactory.getMessages().search_expression());
         this.add(expressionTextField, new FormData("70%")); //$NON-NLS-1$
 
