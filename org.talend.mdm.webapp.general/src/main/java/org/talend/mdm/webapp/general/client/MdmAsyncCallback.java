@@ -17,10 +17,8 @@ import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-
 public abstract class MdmAsyncCallback<T> implements AsyncCallback<T> {
 
-    @Override
     public void onFailure(Throwable caught) {
         MessageBox.alert(MessageFactory.getMessages().error(), caught.getMessage(), null);
     }

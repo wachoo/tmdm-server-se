@@ -24,32 +24,32 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 
-public class AccordionMenus extends ContentPanel {  
+public class AccordionMenus extends ContentPanel {
 
     private static AccordionMenus instance;
-    
+
     private HTMLMenuItem activeItem;
-    
-    private AccordionMenus(){
+
+    private AccordionMenus() {
         super();
-        this.setHeading(MessageFactory.getMessages().menus()); 
+        this.setHeading(MessageFactory.getMessages().menus());
         this.addStyleName("menus-list"); //$NON-NLS-1$
         this.setLayout(new FlowLayout());
         this.setScrollMode(Scroll.AUTO);
     }
-    
-    public static AccordionMenus getInstance(){
-        if (instance == null){
+
+    public static AccordionMenus getInstance() {
+        if (instance == null) {
             instance = new AccordionMenus();
         }
         return instance;
     }
 
-    public void initMenus(List<MenuBean> menus){
-        
-        for (int i = 0;i < menus.size();i++){
+    public void initMenus(List<MenuBean> menus) {
+
+        for (int i = 0; i < menus.size(); i++) {
             MenuBean item = menus.get(i);
-            String toCheckMenuID=item.getContext() + "." + item.getApplication(); //$NON-NLS-1$
+            String toCheckMenuID = item.getContext() + "." + item.getApplication(); //$NON-NLS-1$
             String icon = makeImageIconPart(item, toCheckMenuID);
             StringBuffer str = new StringBuffer();
             str.append("<span class='body'>"); //$NON-NLS-1$
@@ -61,56 +61,56 @@ public class AccordionMenus extends ContentPanel {
         }
         this.layout();
     }
-    
-    private String makeImageIconPart(MenuBean item, String toCheckMenuID){
-        String icon =null;
-        if(item.getIcon() != null && item.getIcon().trim().length() != 0){
+
+    private String makeImageIconPart(MenuBean item, String toCheckMenuID) {
+        String icon = null;
+        if (item.getIcon() != null && item.getIcon().trim().length() != 0) {
             icon = "/imageserver/" + item.getIcon() + "?width=16&height=16"; //$NON-NLS-1$ //$NON-NLS-2$
-        }else if("itemsbrowser.ItemsBrowser".equals(toCheckMenuID) || "viewbrowser.ViewBrowser".equals(toCheckMenuID) || "itemsbrowser2.ItemsBrowser2".equals(toCheckMenuID)){ //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        } else if ("itemsbrowser.ItemsBrowser".equals(toCheckMenuID) || "viewbrowser.ViewBrowser".equals(toCheckMenuID) || "itemsbrowser2.ItemsBrowser2".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             icon = "/talendmdm/secure/img/menu/browse.png"; //$NON-NLS-1$
-        }else if("crossreferencing.CrossReferencing".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("crossreferencing.CrossReferencing".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/crossref.png"; //$NON-NLS-1$
-        }else if("hierarchical.GroupingHierarchy".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("hierarchical.GroupingHierarchy".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/grouping_hier.png"; //$NON-NLS-1$
-        }else if("ehierarchical.DerivedHierarchy".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("ehierarchical.DerivedHierarchy".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/derived_hier.png"; //$NON-NLS-1$
-        }else if("usersandroles.Users".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("usersandroles.Users".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/manage_users.png"; //$NON-NLS-1$
-        }else if("reporting.Reporting".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("reporting.Reporting".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/reporting.png"; //$NON-NLS-1$
-        }else if("SynchronizationItem.SynchronizationItem".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("SynchronizationItem.SynchronizationItem".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/synchro_item.png"; //$NON-NLS-1$
-        }else if("SynchronizationAction.SynchronizationAction".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("SynchronizationAction.SynchronizationAction".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/synchronize.png"; //$NON-NLS-1$
-        }else if("ItemsTrash.ItemsTrash".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("ItemsTrash.ItemsTrash".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/trash.png"; //$NON-NLS-1$
-        }else if("updatereport.UpdateReport".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("updatereport.UpdateReport".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/updatereport.png"; //$NON-NLS-1$
-        }else if("workflowtasks.WorkflowTasks".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("workflowtasks.WorkflowTasks".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/workflowtasks.png"; //$NON-NLS-1$
-        }else if("license.License".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("license.License".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/license.png"; //$NON-NLS-1$
-        }else if("datastewardship.Datastewardship".equals(toCheckMenuID)){ //$NON-NLS-1$
+        } else if ("datastewardship.Datastewardship".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "/talendmdm/secure/img/menu/stewardship.png"; //$NON-NLS-1$
-        }else{
-            //default menus icon
-            icon="/talendmdm/secure/img/menu/default.gif"; //$NON-NLS-1$
+        } else {
+            // default menus icon
+            icon = "/talendmdm/secure/img/menu/default.gif"; //$NON-NLS-1$
         }
         return icon;
     }
-    
-    public void selectedItem(HTMLMenuItem item){
-        if (activeItem == item) return;
-        if (activeItem != null){
+
+    public void selectedItem(HTMLMenuItem item) {
+        if (activeItem == item)
+            return;
+        if (activeItem != null) {
             activeItem.removeStyleName("selected"); //$NON-NLS-1$
         }
         item.addStyleName("selected"); //$NON-NLS-1$
         activeItem = item;
     }
-    
+
     ClickHandler clickHander = new ClickHandler() {
 
-        @Override
         public void onClick(ClickEvent event) {
             HTMLMenuItem item = (HTMLMenuItem) event.getSource();
             selectedItem(item);
@@ -118,15 +118,17 @@ public class AccordionMenus extends ContentPanel {
         }
 
     };
-    
-    class HTMLMenuItem extends HTML{
+
+    class HTMLMenuItem extends HTML {
+
         MenuBean menuBean;
-        public HTMLMenuItem(MenuBean menuBean, String html){
+
+        public HTMLMenuItem(MenuBean menuBean, String html) {
             super(html);
             this.setStyleName("menu-item"); //$NON-NLS-1$
             this.menuBean = menuBean;
         }
-        
+
         public MenuBean getMenuBean() {
             return menuBean;
         }

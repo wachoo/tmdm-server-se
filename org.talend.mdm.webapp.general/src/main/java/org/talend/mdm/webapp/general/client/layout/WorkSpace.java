@@ -28,33 +28,33 @@ import com.google.gwt.user.client.ui.Frame;
 public class WorkSpace extends LayoutContainer {
 
     private static WorkSpace instance;
-    
+
     private TabPanel workTabPanel = new TabPanel();
-    
-    private WorkSpace(){
+
+    private WorkSpace() {
         super();
         this.setLayout(new FitLayout());
-        workTabPanel.setMinTabWidth(115);  
-        workTabPanel.setResizeTabs(true);  
-        workTabPanel.setAnimScroll(true);  
+        workTabPanel.setMinTabWidth(115);
+        workTabPanel.setResizeTabs(true);
+        workTabPanel.setAnimScroll(true);
         workTabPanel.setTabScroll(true);
         this.add(workTabPanel);
     }
-    
-    public static WorkSpace getInstance(){
-        if (instance == null){
+
+    public static WorkSpace getInstance() {
+        if (instance == null) {
             instance = new WorkSpace();
         }
         return instance;
     }
-    
-    public void addWorkTab(final HTMLMenuItem menuItem){
+
+    public void addWorkTab(final HTMLMenuItem menuItem) {
         MenuBean menuBean = menuItem.getMenuBean();
         TabItem item = workTabPanel.getItemByItemId(menuBean.getName());
-        if (item == null){
+        if (item == null) {
             item = new TabItem(menuBean.getName());
             item.addListener(Events.Select, new Listener<BaseEvent>() {
-                @Override
+
                 public void handleEvent(BaseEvent be) {
                     AccordionMenus.getInstance().selectedItem(menuItem);
                 }

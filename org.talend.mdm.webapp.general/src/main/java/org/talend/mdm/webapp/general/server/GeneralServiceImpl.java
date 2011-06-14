@@ -44,14 +44,13 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralService {
 
     private static final Logger LOG = Logger.getLogger(GeneralServiceImpl.class);
-    
-    @Override
+
     public List<MenuBean> getMenus(String language) throws Exception {
         List<MenuBean> menus = new ArrayList<MenuBean>();
         try {
             getSubMenus(Menu.getRootMenu(), language, menus, 1, 1);
         } catch (XtentisWebappException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return menus;
     }
@@ -67,7 +66,7 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
             item.setContext(subMenu.getContext());
             item.setIcon(subMenu.getIcon());
             item.setName(subMenu.getLabels().get(language));
-            item.setApplication(subMenu.getApplication() == null ? "" : subMenu.getApplication());
+            item.setApplication(subMenu.getApplication() == null ? "" : subMenu.getApplication()); //$NON-NLS-1$
             rows.add(item);
             i++;
             if (subMenu.getSubMenus().size() > 0)
@@ -76,57 +75,56 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
         return i;
 
     }
-    
-    public List<ComboBoxModel> getClusters(){
+
+    public List<ComboBoxModel> getClusters() {
         try {
             List<ComboBoxModel> clusters = new ArrayList<ComboBoxModel>();
-            
-            WSDataClusterPK[] wsDataClustersPKs = Util.getPort().getDataClusterPKs(
-                    new WSRegexDataClusterPKs("*") //$NON-NLS-1$
+
+            WSDataClusterPK[] wsDataClustersPKs = Util.getPort().getDataClusterPKs(new WSRegexDataClusterPKs("*") //$NON-NLS-1$
                     ).getWsDataClusterPKs();
-            
-            //CommonDWR.filterSystemClustersPK(wsDataClustersPKs, map);
-            
-            Map<String, XSystemObjects> xDataClustersMap=XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
+
+            // CommonDWR.filterSystemClustersPK(wsDataClustersPKs, map);
+
+            Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
             for (int i = 0; i < wsDataClustersPKs.length; i++) {
-                if(!XSystemObjects.isXSystemObject(xDataClustersMap,XObjectType.DATA_CLUSTER, wsDataClustersPKs[i].getPk())){
-                    WSDataCluster wsGetDataCluster=Util.getPort().getDataCluster(new WSGetDataCluster(wsDataClustersPKs[i]));
-                    clusters.add(new ComboBoxModel(wsDataClustersPKs[i].getPk(),wsGetDataCluster.getDescription()==null?"":wsGetDataCluster.getDescription())); //$NON-NLS-1$
+                if (!XSystemObjects.isXSystemObject(xDataClustersMap, XObjectType.DATA_CLUSTER, wsDataClustersPKs[i].getPk())) {
+                    WSDataCluster wsGetDataCluster = Util.getPort().getDataCluster(new WSGetDataCluster(wsDataClustersPKs[i]));
+                    clusters.add(new ComboBoxModel(wsDataClustersPKs[i].getPk(),
+                            wsGetDataCluster.getDescription() == null ? "" : wsGetDataCluster.getDescription())); //$NON-NLS-1$
                 }
             }
-            
-            return  clusters;
+
+            return clusters;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return null;
         }
     }
 
-    public List<ComboBoxModel> getModels(){
+    public List<ComboBoxModel> getModels() {
         try {
             List<ComboBoxModel> models = new ArrayList<ComboBoxModel>();
-            WSDataModelPK[] wsDataModelsPKs = Util.getPort().getDataModelPKs(
-                    new WSRegexDataModelPKs("*") //$NON-NLS-1$
+            WSDataModelPK[] wsDataModelsPKs = Util.getPort().getDataModelPKs(new WSRegexDataModelPKs("*") //$NON-NLS-1$
                     ).getWsDataModelPKs();
-            
-            //CommonDWR.filterSystemDataModelsPK(wsDataModelsPK, map);
-            
-            Map<String, XSystemObjects> xDataModelsMap=XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
+
+            // CommonDWR.filterSystemDataModelsPK(wsDataModelsPK, map);
+
+            Map<String, XSystemObjects> xDataModelsMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
             for (int i = 0; i < wsDataModelsPKs.length; i++) {
-                if(!XSystemObjects.isXSystemObject(xDataModelsMap,XObjectType.DATA_MODEL, wsDataModelsPKs[i].getPk())){
-                    WSDataModel wsDataModel=Util.getPort().getDataModel(new WSGetDataModel(wsDataModelsPKs[i]));
-                    models.add(new ComboBoxModel(wsDataModelsPKs[i].getPk(), wsDataModel.getDescription()==null?"":wsDataModel.getDescription()));//$NON-NLS-1$
+                if (!XSystemObjects.isXSystemObject(xDataModelsMap, XObjectType.DATA_MODEL, wsDataModelsPKs[i].getPk())) {
+                    WSDataModel wsDataModel = Util.getPort().getDataModel(new WSGetDataModel(wsDataModelsPKs[i]));
+                    models.add(new ComboBoxModel(wsDataModelsPKs[i].getPk(),
+                            wsDataModel.getDescription() == null ? "" : wsDataModel.getDescription()));//$NON-NLS-1$
                 }
             }
-            
-            return  models;
+
+            return models;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return null;
         }
     }
-    
-    @Override
+
     public String getMsg() {
         List<ComboBoxModel> clusters = getClusters();
         List<ComboBoxModel> models = getModels();

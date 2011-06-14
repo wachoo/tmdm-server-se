@@ -75,15 +75,21 @@
 			<scope>compile</scope>
 		</dependency>
 
-		<!-- Of course we need web-core -->
-
-		<!-- Common env -->
- 
-		<!-- If you need to use our SchemaPool, you need this dependency also -->
-
-		<!-- Because we want to use web service in a stand-alone jetty to make 
-			develop more efficient, all dependencies below should be required. Do we 
-			need all of these? -->
+		<!-- MDM dependencies -->
+		<dependency>
+			<groupId>org.talend.mdm.webapp.core</groupId>
+			<artifactId>org.talend.mdm.webapp.core</artifactId>
+			<version>${project.version}</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../org.talend.mdm.webapp.core/z.mdm.webapp.core.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.talend.mdm.commmon</groupId>
+			<artifactId>org.talend.mdm.commmon</artifactId>
+			<version>${project.version}</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../org.talend.mdm.commmon/z.mdm.common.lib.jar</systemPath>
+		</dependency>
 
 	</dependencies>
 
