@@ -4692,7 +4692,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var children = node.children;
         for (var i = 0; i < children.length; i++) {
             child = children[i];
-            child.itemData.value = "";
+            if (child.itemData.typeName != null && child.itemData.typeName != "boolean")
+            	child.itemData.value = "";
             updateNodeId(child, child.itemData.nodeId);
         }
     }
@@ -6130,7 +6131,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             var value = DWRUtil.getValue(nodeId + 'Value');
             node.resetErrorMessage(nodeId);
             DWREngine.setAsync(false);
-            ItemsBrowserInterface.validateNode(language, nodeId, value,
+            ItemsBrowserInterface.validateNode(language, nodeId, value, treeIndex,
                     function(result) {
                         if (result == "null"){
                             if(!atuoValidationFlag){

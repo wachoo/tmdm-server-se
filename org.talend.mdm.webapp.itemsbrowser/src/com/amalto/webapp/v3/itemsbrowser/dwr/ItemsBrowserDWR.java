@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -388,7 +388,7 @@ public class ItemsBrowserDWR {
         ctx.getSession().setAttribute("itemDocument" + docIndex + "_backup", Util.copyDocument(document)); //$NON-NLS-1$ //$NON-NLS-2$
 
         ctx.getSession().setAttribute("itemDocument" + docIndex + "_status", DOC_STATUS_EDIT);//$NON-NLS-1$ //$NON-NLS-2$
-
+        ctx.getSession().setAttribute("cloneXpath" + docIndex, null); //$NON-NLS-1$   
     }
 
     /**
@@ -499,13 +499,13 @@ public class ItemsBrowserDWR {
             ctx.getSession().setAttribute("idToParticle", idToParticle); //$NON-NLS-1$
 
             HashMap<Integer, String> idToXpath;
-            if (ctx.getSession().getAttribute("idToXpath") == null) { //$NON-NLS-1$
+            if (ctx.getSession().getAttribute("idToXpath" + docIndex) == null) { //$NON-NLS-1$
                 idToXpath = new HashMap<Integer, String>();
             } else {
-                idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
+                idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$
             }
             idToXpath.put(nodeId, "/" + concept);//$NON-NLS-1$
-            ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
+            ctx.getSession().setAttribute("idToXpath" + docIndex, idToXpath); //$NON-NLS-1$
 
             HashMap<String, XSParticle> xpathToParticle = new HashMap<String, XSParticle>();
             xpathToParticle.put("/" + concept, xsct.getContentType().asParticle());//$NON-NLS-1$
@@ -515,7 +515,8 @@ public class ItemsBrowserDWR {
             ctx.getSession().setAttribute("nodeAutorization", nodeAutorization); //$NON-NLS-1$
 
             // added by lzhang, clean the update status session
-            ctx.getSession().setAttribute("updatedPath" + docIndex, new HashMap<String, UpdateReportItem>()); //$NON-NLS-1$    
+            ctx.getSession().setAttribute("updatedPath" + docIndex, new HashMap<String, UpdateReportItem>()); //$NON-NLS-1$   
+            ctx.getSession().setAttribute("cloneXpath" + docIndex, null); //$NON-NLS-1$   
 
             return ids != null ? Util.joinStrings(ids, ".") : null; //$NON-NLS-1$
 
@@ -567,7 +568,7 @@ public class ItemsBrowserDWR {
                     String xpath = (String) iterator.next();
                     if (xpath.indexOf("[") > -1) {
                         String mainPath = XpathUtil.getMainXpath(xpath);
-                        String basePath = "//xsd:element[@name=\"" + mainPath.substring(mainPath.lastIndexOf("/") + 1) + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        String basePath = "//xsd:element[@name=\"" + mainPath.substring(mainPath.lastIndexOf("/") + 1) + "\"]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$                       
                         Node rawNode = Util.getNodeList(xsdDoc, basePath).item(0);
                         Node backupNode = rawNode.cloneNode(true);
                         for (int index = 0; index < backupNode.getAttributes().getLength(); index++) {
@@ -743,24 +744,30 @@ public class ItemsBrowserDWR {
             HashMap<String, String> xpathToPolymType) {
         for (List keyList : polymToBusinessConcept.keySet()) {
             if (!keyList.isEmpty()) {
+                List tmpList = new ArrayList();
+                Iterator it = keyList.iterator();
+                while (it.hasNext())
+                    tmpList.add(it.next());
+
                 for (Iterator<String> iterator = xpathToPolymType.keySet().iterator(); iterator.hasNext();) {
                     String xpath = iterator.next();
-                    if (!keyList.contains(xpathToPolymType.get(xpath))) {
+                    if (!tmpList.contains(xpathToPolymType.get(xpath))) {
                         return null;
-                    } else if (keyList.isEmpty()) {
+                    } else if (tmpList.isEmpty()) {
                         return null;
-                    } else if (keyList.contains(xpathToPolymType.get(xpath)))
-                        keyList.remove(xpathToPolymType.get(xpath));
+                    } else if (tmpList.contains(xpathToPolymType.get(xpath)))
+                        tmpList.remove(xpathToPolymType.get(xpath));
                 }
-                if (keyList.isEmpty())
+                if (tmpList.isEmpty())
                     return polymToBusinessConcept.get(keyList);
             }
         }
         return null;
     }
 
-    private String getDspXpathName(String unifiedXPath) {
-        return unifiedXPath.substring(unifiedXPath.lastIndexOf("/") + 1).replaceAll("\\[", "").replaceAll("\\]", "");
+    private String getDspXpathName(String unifiedXPath) {// add separator in left and right sides to avoid same named in
+        // xsd
+        return unifiedXPath.substring(unifiedXPath.lastIndexOf("/") + 1).replaceAll("\\[", "00000").replaceAll("\\]", "00000"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
     }
 
     /**
@@ -903,17 +910,19 @@ public class ItemsBrowserDWR {
             }
         }
     }
-    private int getBiggestIdFromidToParticle(){
-    	WebContext ctx = WebContextFactory.get();
-    	HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
-    	int ret=1;
-    	for(Integer v:idToParticle.keySet()){
-    		if(v>ret){
-    			ret=v;
-    		}
-    	}
-    	return ret;
+
+    private int getBiggestIdFromidToParticle() {
+        WebContext ctx = WebContextFactory.get();
+        HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
+        int ret = 1;
+        for (Integer v : idToParticle.keySet()) {
+            if (v > ret) {
+                ret = v;
+            }
+        }
+        return ret;
     }
+
     private void setChildrenWithKeyMask(int id, String language, boolean foreignKey, int docIndex, boolean maskKey,
             boolean choice, XSParticle xsp, ArrayList<TreeNode> list, HashMap<String, TreeNode> xpathToTreeNode)
             throws ParseException {
@@ -933,14 +942,17 @@ public class ItemsBrowserDWR {
 
         WebContext ctx = WebContextFactory.get();
         HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$
         HashMap<String, XSParticle> xpathToParticle = (HashMap<String, XSParticle>) ctx.getSession().getAttribute(
                 "xpathToParticle"); //$NON-NLS-1$
+        HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
+                "xpathToPolymType" + docIndex); //$NON-NLS-1$
         ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization"); //$NON-NLS-1$
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
         // reload the xmlstring
         String xmlString = (String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_xmlstring"); //$NON-NLS-1$ //$NON-NLS-2$
-        if (xmlString != null) {
+        String[] cloneXpath = (String[]) ctx.getSession().getAttribute("cloneXpath" + docIndex); //$NON-NLS-1$
+        if (xmlString != null && cloneXpath == null) {
             try {
                 d = Util.parse(xmlString);
             } catch (Exception e) {
@@ -982,26 +994,18 @@ public class ItemsBrowserDWR {
                 Collections.sort(subTypesName);
                 treeNode.setSubTypes(subTypesName);
             }
-            if (((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT)) { //$NON-NLS-1$ //$NON-NLS-2$
-                String realType = null;
+            if (((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT)) { //$NON-NLS-1$ //$NON-NLS-2$                
                 String xpath = idToXpath.get(id) + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
                 if (bakDoc != null) {
-                    NodeList tmpNodeList = Util.getNodeList(bakDoc, xpath);
-                    if (tmpNodeList != null && tmpNodeList.getLength() > 0) {
-                        if (tmpNodeList.item(0) instanceof Element) {
-                            Element firstElem = (Element) tmpNodeList.item(0);
-                            realType = firstElem.getAttribute("xsi:type"); //$NON-NLS-1$
-                        }
-                    }
+                    getRealTypeFromDoc(xpathToPolymType, bakDoc, xpath, xpath, treeNode);
                 }
 
-                if (realType != null && realType.length() > 0) {
-                    treeNode.setRealType(realType);
-                    HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
-                            "xpathToPolymType" + docIndex); //$NON-NLS-1$
-                    xpathToPolymType.put(XpathUtil.unifyXPath(xpath), realType);
+            } else if (cloneXpath != null) {
+                // new document and clone complex type node
+                String xpath = idToXpath.get(id) + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
+                getRealTypeFromDoc(xpathToPolymType, d, xpath.startsWith(cloneXpath[1]) ? xpath.replace(cloneXpath[1],
+                        cloneXpath[0]) : xpath, xpath, treeNode);
 
-                }
             }
 
         } catch (Exception e2) {
@@ -1046,9 +1050,10 @@ public class ItemsBrowserDWR {
         } catch (Exception e1) {
             LOG.error(e1.getMessage(), e1);
         }
-        //dynamic load may cause YAHOO.widget.TreeView.nodeCount < the real created nodes count, so we should nodeCount++
-        if(nodeCount<=getBiggestIdFromidToParticle()){
-        	nodeCount++;
+        // dynamic load may cause YAHOO.widget.TreeView.nodeCount < the real created nodes count, so we should
+        // nodeCount++
+        if (nodeCount <= getBiggestIdFromidToParticle()) {
+            nodeCount++;
         }
         treeNode.setTypeName(typeNameTmp);
         treeNode.setXmlTag(xsp.getTerm().asElementDecl().getName());
@@ -1090,34 +1095,26 @@ public class ItemsBrowserDWR {
                 try {
                     NodeList nodeList = Util.getNodeList(d, xpath);
                     for (int i = 0; i < nodeList.getLength(); i++) {
-                        idToXpath.put(nodeCount, xpath + "[" + (i + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
-                        xpathToParticle.put(xpath + "[" + (i + 1) + "]", particle); //$NON-NLS-1$ //$NON-NLS-2$
+                        String specificXpath = xpath + '[' + (i + 1) + ']'; //$NON-NLS-1$ //$NON-NLS-2$
+                        idToXpath.put(nodeCount, specificXpath); 
+                        xpathToParticle.put(specificXpath, particle); 
                         TreeNode treeNodeTmp = (TreeNode) treeNode.clone();
                         treeNodeTmp.setNodeId(nodeCount);
-                        treeNodeTmp.setBindingPath(xpath + "[" + (i + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+                        treeNodeTmp.setBindingPath(specificXpath); 
                         idToParticle.put(nodeCount, particle);
                         if (bakDoc != null) {
-                            String specificXpath = xpath + '[' + (i + 1) + ']';
-                            NodeList tmpNodeList = Util.getNodeList(bakDoc, specificXpath);
-                            if (tmpNodeList != null && tmpNodeList.getLength() > 0) {
-                                if (tmpNodeList.item(0) instanceof Element) {
-                                    Element firstElem = (Element) tmpNodeList.item(0);
-                                    String realType = firstElem.getAttribute("xsi:type"); //$NON-NLS-1$
-                                    if (realType != null && !realType.isEmpty()) {
-                                        treeNodeTmp.setRealType(realType);
-                                        HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession()
-                                                .getAttribute("xpathToPolymType" + docIndex); //$NON-NLS-1$
-                                        xpathToPolymType.put(XpathUtil.unifyXPath(specificXpath), realType);
-                                    }
-                                }
-                            }
+                            getRealTypeFromDoc(xpathToPolymType, bakDoc, specificXpath, specificXpath, treeNodeTmp);
+                        } else if (cloneXpath != null) {
+                            // new document and clone complex type node
+                            getRealTypeFromDoc(xpathToPolymType, d, specificXpath.startsWith(cloneXpath[1]) ? specificXpath
+                                    .replace(cloneXpath[1], cloneXpath[0]) : specificXpath, specificXpath, treeNodeTmp);
                         }
                         // TODO check addThisNode
                         if (treeNodeTmp.isVisible()) {
                             list.add(treeNodeTmp);
                             nodeCount++;
                         }
-                        xpathToTreeNode.put(xpath + "[" + (i + 1) + "]", treeNodeTmp);
+                        xpathToTreeNode.put(xpath + "[" + (i + 1) + "]", treeNodeTmp); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                     if (nodeList.getLength() == 0) {
                         idToXpath.put(nodeCount, xpath);
@@ -1264,6 +1261,21 @@ public class ItemsBrowserDWR {
 
         }
 
+    }
+
+    private void getRealTypeFromDoc(HashMap<String, String> xpathToPolymType, Document doc, String docXpath, String storeXpath,
+            TreeNode treeNode) throws Exception {
+        NodeList tmpNodeList = Util.getNodeList(doc, docXpath);
+        if (tmpNodeList != null && tmpNodeList.getLength() > 0) {
+            if (tmpNodeList.item(0) instanceof Element) {
+                Element firstElem = (Element) tmpNodeList.item(0);
+                String realType = firstElem.getAttribute("xsi:type"); //$NON-NLS-1$
+                if (realType != null && !realType.isEmpty()) {
+                    treeNode.setRealType(realType);
+                    xpathToPolymType.put(XpathUtil.unifyXPath(storeXpath), realType);
+                }
+            }
+        }
     }
 
     /**
@@ -1544,7 +1556,7 @@ public class ItemsBrowserDWR {
             WebContext ctx = WebContextFactory.get();
             HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute(
                     "idToParticle"); //$NON-NLS-1$
-            HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
+            HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$
             HashMap<String, XSParticle> xpathToParticle = (HashMap<String, XSParticle>) ctx.getSession().getAttribute(
                     "xpathToParticle"); //$NON-NLS-1$
             ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization"); //$NON-NLS-1$
@@ -1567,12 +1579,15 @@ public class ItemsBrowserDWR {
                         }
                         setChildrenWithValue(SchemaWebAgent.getInstance().getReusableType(selectedExtendType).getXsParticle(),
                                 xpath, docIndex, true);
-                        // // add xsi:type in order to deep clone
-                        // if (d.getDocumentElement().getAttributeNS("http://www.w3.org/2000/xmlns/", "xsi").length() ==
-                        // 0)
-                        // d.getDocumentElement().setAttributeNS(
-                        //                                    "http://www.w3.org/2000/xmlns/", "xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$; //$NON-NLS-2$; //$NON-NLS-3$;
-                        //                        ((Element) tagertNode).setAttribute("xsi:type", selectedExtendType); //$NON-NLS-1$
+                        // added by lzhang, add xsi:type in order to deep clone
+                        ((Element) tagertNode).setAttributeNS(
+                                "http://www.w3.org/2001/XMLSchema-instance", "xsi:type", selectedExtendType); //$NON-NLS-1$; //$NON-NLS-2$; 
+                        // synchornize with back doc
+                        Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
+                        if (doc != null && Util.getNodeList(doc, xpath).item(0) != null) {
+                            ((Element) Util.getNodeList(doc, xpath).item(0)).setAttributeNS(
+                                    "http://www.w3.org/2001/XMLSchema-instance", "xsi:type", selectedExtendType); //$NON-NLS-1$; //$NON-NLS-2$; 
+                        }
                     }
                 }
                 // keep changes when refresh
@@ -1673,7 +1688,7 @@ public class ItemsBrowserDWR {
         WebContext ctx = WebContextFactory.get();
         List<DisplayRule> dspRules = (List<DisplayRule>) WebContextFactory.get().getSession().getAttribute(
                 "displayRules" + docIndex); //$NON-NLS-1$
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$
         String sourcePath = idToXpath.get(newId);
         for (DisplayRule displayRule : dspRules) {
             if (displayRule.getType().equals(BusinessConcept.APPINFO_X_DEFAULT_VALUE_RULE)) {
@@ -1689,7 +1704,7 @@ public class ItemsBrowserDWR {
 
         WebContext ctx = WebContextFactory.get();
         HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$
         ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization"); //$NON-NLS-1$
         XSParticle xsp = idToParticle.get(siblingId);
         // associate the new id node to the particle of his sibling
@@ -1702,20 +1717,24 @@ public class ItemsBrowserDWR {
 
         try {
             Node node = Util.getNodeList(d, idToXpath.get(siblingId)).item(0);
-            Node nodeClone = node.cloneNode(true);
             String dspValue = null;
-            if (!ifdeep) {
-                clearChildrenValue(nodeClone);
+            if (node != null) {
+                Node nodeClone = node.cloneNode(true);
 
-                // added by lzhang, DWR synchronize to update the DSPValue
-                dspValue = updateNodeDspValue(docIndex, siblingId);
-                if (dspValue != null && nodeClone.getFirstChild() != null)
-                    nodeClone.getFirstChild().setNodeValue(dspValue);
-            }
+                if (!ifdeep) {
+                    clearChildrenValue(nodeClone);
 
-            // simulate an "insertAfter()" which actually doesn't exist
-            insertAfter(nodeClone, node);
-            ctx.getSession().setAttribute("itemDocument" + docIndex, node.getOwnerDocument()); //$NON-NLS-1$
+                    // added by lzhang, DWR synchronize to update the DSPValue
+                    dspValue = updateNodeDspValue(docIndex, siblingId);
+                    if (dspValue != null && nodeClone.getFirstChild() != null)
+                        nodeClone.getFirstChild().setNodeValue(dspValue);
+                }
+
+                // simulate an "insertAfter()" which actually doesn't exist
+                insertAfter(nodeClone, node);
+                ctx.getSession().setAttribute("itemDocument" + docIndex, node.getOwnerDocument()); //$NON-NLS-1$
+            } else
+                return "Error";//$NON-NLS-1$
 
             // added by lzhang, consistent with document nodes when edit status
             if (doc != null) {
@@ -1744,8 +1763,10 @@ public class ItemsBrowserDWR {
 
             idToXpath.put(newId, siblingXpath + "[" + (siblingIndex + 1) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
             ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$            
-            ctx.getSession().setAttribute("cloneXpath" + docIndex, //$NON-NLS-1$
-                    new String[] { idToXpath.get(siblingId), siblingXpath + "[" + (siblingIndex + 1) + "]" }); //$NON-NLS-1$ //$NON-NLS-2$
+            ctx.getSession().setAttribute(
+                    "cloneXpath" + docIndex, //$NON-NLS-1$
+                    new String[] { idToXpath.get(siblingId),
+                            siblingXpath + "[" + (siblingIndex + 1) + "]", String.valueOf(ifdeep) }); //$NON-NLS-1$ //$NON-NLS-2$
 
             XSParticle particle = idToParticle.get(newId);
             if (particle == null) {// add simple node
@@ -1843,7 +1864,7 @@ public class ItemsBrowserDWR {
 
     public String updateNode(int id, String content, int docIndex) {
         WebContext ctx = WebContextFactory.get();
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$
         String xpath = idToXpath.get(id);
         if (xpath == null)
             return "Nothing to update";//$NON-NLS-1$
@@ -1889,7 +1910,7 @@ public class ItemsBrowserDWR {
     public synchronized static String updateNode2(String xpath, String content, int docIndex) {
         WebContext ctx = WebContextFactory.get();
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$        
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$
         ArrayList<String> nodeAutorization = (ArrayList<String>) ctx.getSession().getAttribute("nodeAutorization"); //$NON-NLS-1$
 
         try {
@@ -2169,7 +2190,7 @@ public class ItemsBrowserDWR {
 
     public String removeNode(int id, int docIndex, String oldValue) {
         WebContext ctx = WebContextFactory.get();
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath"); //$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$
         Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
         HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
@@ -2233,7 +2254,7 @@ public class ItemsBrowserDWR {
                 updatedPath.put(path, null);
 
             idToXpath.remove(id);
-            ctx.getSession().setAttribute("idToXpath", idToXpath); //$NON-NLS-1$
+            ctx.getSession().setAttribute("idToXpath" + docIndex, idToXpath); //$NON-NLS-1$
             ctx.getSession().setAttribute("updatedPath" + docIndex, updatedPath); //$NON-NLS-1$
             ctx.getSession().setAttribute("itemDocument" + docIndex, d); //$NON-NLS-1$
             return "Deleted";//$NON-NLS-1$
@@ -2298,7 +2319,7 @@ public class ItemsBrowserDWR {
             reFillXsdByXML(d, dataModelPK, concept, docIndex);
             // added by lzhang, make sure there is no empty node which has DSP value
             d = filledByDspValue(dataModelPK, concept, d, docIndex);
-           
+
             // filter item xml
             HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
                     "xpathToPolymType" + docIndex); //$NON-NLS-1$
@@ -2667,11 +2688,10 @@ public class ItemsBrowserDWR {
 
         WebContext ctx = WebContextFactory.get();
         Document d = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex); //$NON-NLS-1$ _backup
-
         Document doc = (Document) ctx.getSession().getAttribute("itemDocument" + docIndex + "_backup"); //$NON-NLS-1$ //$NON-NLS-2$
 
         String[] cloneXpath = (String[]) ctx.getSession().getAttribute("cloneXpath" + docIndex); //$NON-NLS-1$ 
-        String xPath = xpathParent + '/' + xsp.getTerm().asElementDecl().getName();
+        String xPath = xpathParent + '/' + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$ 
         //boolean isEdit = ((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT); //$NON-NLS-1$ //$NON-NLS-2$
         Node parentNode = Util.getNodeList(d, xpathParent).item(0);
         if (doc != null) {
@@ -2682,7 +2702,7 @@ public class ItemsBrowserDWR {
                     Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
                     Node node = nodes.item(i);
                     String textContent = node.getTextContent();
-                    if (cloneXpath != null && xPath.startsWith(cloneXpath[1]))// cloneXpath[0]
+                    if (cloneXpath != null && cloneXpath[2].equals("true") && xPath.startsWith(cloneXpath[1]))// cloneXpath[0]
                     // is
                     // 'clone
                     // from'
@@ -2693,7 +2713,8 @@ public class ItemsBrowserDWR {
                     // to'
                     // xpath
                     {
-                        NodeList cloneList = Util.getNodeList(d, xPath.replace(cloneXpath[1], cloneXpath[0]));
+                        NodeList cloneList = Util.getNodeList(d, (xPath + "[" + (i + 1) + "]").replace(cloneXpath[1], //$NON-NLS-1$  //$NON-NLS-2$ 
+                                cloneXpath[0]));
                         if (cloneList != null && cloneList.getLength() > 0)
                             textContent = cloneList.item(0).getTextContent();
                     }
@@ -2722,33 +2743,45 @@ public class ItemsBrowserDWR {
                     }
                 }
             } else {
-                Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
-                if (cloneXpath != null && xPath.startsWith(cloneXpath[1])) {
-                    NodeList cloneList = Util.getNodeList(d, xPath.replace(cloneXpath[1], cloneXpath[0]));
-                    if (cloneList != null && cloneList.getLength() > 0)
-                        el.setTextContent(cloneList.item(0).getTextContent());
-                }
-                parentNode.appendChild(el);
+                setChildrenWithValueByClone(cloneXpath, xPath, d, xsp, parentNode, xpathParent, docIndex, withValue);
+            }
+        } else {
+            setChildrenWithValueByClone(cloneXpath, xPath, d, xsp, parentNode, xpathParent, docIndex, withValue);
+        }
+    }
 
-                if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
-                    XSComplexType type = (XSComplexType) xsp.getTerm().asElementDecl().getType();
-                    XSParticle particle = type.getContentType().asParticle();
-                    if (particle != null) {
-                        XSParticle[] children = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-                        String xpth = xpathParent + '/' + xsp.getTerm().asElementDecl().getName();
+    private void setChildrenWithValueByClone(String[] cloneXpath, String xPath, Document d, XSParticle xsp, Node parentNode,
+            String xpathParent, int docIndex, boolean withValue) throws Exception {
+        if (cloneXpath != null && xPath.startsWith(cloneXpath[1])) {
+            NodeList cloneList = Util.getNodeList(d, xPath.replace(cloneXpath[1], cloneXpath[0]));
+            if (cloneList != null && cloneList.getLength() > 0)
+                for (int i = 0; i < cloneList.getLength(); i++) {// multi-occur
+                    Element el2 = d.createElement(xsp.getTerm().asElementDecl().getName());
+                    if (cloneXpath[2].equals("true") && xsp.getTerm().asElementDecl().getType().isSimpleType() && withValue) //$NON-NLS-1$
+                        el2.setTextContent(cloneList.item(i).getTextContent());
+                    parentNode.appendChild(el2);
+
+                    if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
+                        XSParticle[] children = null;
+                        Node typeNode = cloneList.item(i).getAttributes().getNamedItem("xsi:type");//$NON-NLS-1$
+                        if (typeNode != null) {
+                            String xsiType = typeNode.getNodeValue();
+                            if (xsiType != null) {
+                                ReusableType resuType = SchemaWebAgent.getInstance().getReusableType(xsiType);
+                                List<XSParticle> pt = resuType.getAllChildren(null);
+                                children = pt.toArray(new XSParticle[] {});
+                            }
+                        } else {
+                            XSComplexType type = (XSComplexType) xsp.getTerm().asElementDecl().getType();
+                            children = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+                        }
                         for (XSParticle child : children) {
-                            setChildrenWithValue(child, xpth, docIndex, withValue);
+                            setChildrenWithValue(child, xPath + "[position()=" + (i + 1) + "]", docIndex, withValue); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
-            }
         } else {
             Element el = d.createElement(xsp.getTerm().asElementDecl().getName());
-            if (cloneXpath != null && xPath.startsWith(cloneXpath[1])) {
-                NodeList cloneList = Util.getNodeList(d, xPath.replace(cloneXpath[1], cloneXpath[0]));
-                if (cloneList != null && cloneList.getLength() > 0)
-                    el.setTextContent(cloneList.item(0).getTextContent());
-            }
             parentNode.appendChild(el);
 
             if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
@@ -2756,7 +2789,7 @@ public class ItemsBrowserDWR {
                 XSParticle particle = type.getContentType().asParticle();
                 if (particle != null) {
                     XSParticle[] children = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-                    String xpth = xpathParent + '/' + xsp.getTerm().asElementDecl().getName();
+                    String xpth = xpathParent + '/' + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$ 
                     for (XSParticle child : children) {
                         setChildrenWithValue(child, xpth, docIndex, withValue);
                     }
@@ -2780,7 +2813,7 @@ public class ItemsBrowserDWR {
         HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute("xpathToTreeNode");//$NON-NLS-1$
         HashMap<String, UpdateReportItem> updatedPath = (HashMap<String, UpdateReportItem>) ctx.getSession().getAttribute(
                 "updatedPath" + docIndex);//$NON-NLS-1$
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");//$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex);//$NON-NLS-1$
         String currentXpath = null;
         if (idToXpath != null && idToXpath.get(nodeId) != null)
             currentXpath = idToXpath.get(nodeId);
@@ -3884,11 +3917,11 @@ public class ItemsBrowserDWR {
      * @param value
      * @return
      */
-    public String validateNode(String language, int nodeId, String value) {
+    public String validateNode(String language, int nodeId, String value, int docIndex) {
         String errorMessage = null;
         WebContext ctx = WebContextFactory.get();
         HashMap<String, TreeNode> xpathToTreeNode = (HashMap<String, TreeNode>) ctx.getSession().getAttribute("xpathToTreeNode");//$NON-NLS-1$
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath");//$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex);//$NON-NLS-1$
         String xpath = idToXpath.get(nodeId);
         TreeNode node = null;
         ArrayList<Restriction> restrictions = null;

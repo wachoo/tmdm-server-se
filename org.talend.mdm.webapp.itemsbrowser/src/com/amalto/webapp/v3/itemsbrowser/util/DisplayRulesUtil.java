@@ -237,7 +237,7 @@ public class DisplayRulesUtil {
 
     private String travelXSElement(XSElementDecl e, String currentXPath) {
         if (e != null) {
-            Pattern p = Pattern.compile("(.*?)(\\d+)$"); //$NON-NLS-1$
+            Pattern p = Pattern.compile("(.*?)(00000\\d+00000)$"); //$NON-NLS-1$ //add separator in left and right sides to avoid same named in xsd, correspond to getDspXpathName function in ItemBrowserDWR
             Matcher m = p.matcher(e.getName());
             String name = e.getName();
             if (m.matches()) {
