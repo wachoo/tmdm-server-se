@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.talend.core.runtime.service">
+      <Service
+            class="org.talend.mdm.repository.localprovider.impl.MDMRepositoryLocalProviderService"
+            serviceId="IRepositoryLocalProviderService">
+      </Service>
+   </extension>
+   <extension
+         point="org.talend.core.repository.repository_provider">
+      <RepositoryFactory
+            authenticationNeeded="false"
+            class="org.talend.mdm.repository.localprovider.impl.MDMLocalRepositoryFactory"
+            displayToUser="true"
+            id="MDMLocal"
+            name="MDMLocal">
+      </RepositoryFactory>
+   </extension>
+
+</plugin>
