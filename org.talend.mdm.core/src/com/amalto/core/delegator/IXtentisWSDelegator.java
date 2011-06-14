@@ -1707,9 +1707,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
                 WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(),
                         new WSDataModelPK("UpdateReport"), false));
-                if(wsPutItemWithReport.getInvokeBeforeSaving()){
-                	routeItemV2(new WSRouteItemV2(itemPK));
-                }
+                
+                routeItemV2(new WSRouteItemV2(itemPK));
+                
             }
 
             return wsi;
