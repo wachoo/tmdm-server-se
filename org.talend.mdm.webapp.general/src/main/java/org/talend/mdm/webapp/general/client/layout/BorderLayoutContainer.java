@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.general.client.layout;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -25,9 +37,8 @@ public class BorderLayoutContainer extends Viewport {
 		WorkSpace center = WorkSpace.getInstance();  
 		center.setBorders(false);
 		center.setScrollMode(Scroll.AUTOX);  
-		  
-	    ContentPanel east = new ContentPanel();
-	    east.setHeading("Action");
+
+	    ActionsPanel east = ActionsPanel.getInstance();
 	    east.setBorders(false);
 	    ContentPanel south = new ContentPanel();
 	    south.setHeaderVisible(false);
@@ -47,7 +58,7 @@ public class BorderLayoutContainer extends Viewport {
 	    BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);  
 	    centerData.setMargins(new Margins(0));  
 	  
-	    BorderLayoutData eastData = new BorderLayoutData(LayoutRegion.EAST, 150);  
+	    BorderLayoutData eastData = new BorderLayoutData(LayoutRegion.EAST, 240);  
 	    eastData.setSplit(true);  
 	    eastData.setCollapsible(true);  
 	    eastData.setMargins(new Margins(0,0,0,5));  

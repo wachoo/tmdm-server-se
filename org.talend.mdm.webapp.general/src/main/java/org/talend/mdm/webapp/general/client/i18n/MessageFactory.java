@@ -10,18 +10,22 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.general.client.mvc;
+package org.talend.mdm.webapp.general.client.i18n;
 
-import com.extjs.gxt.ui.client.event.EventType;
 
-public class GeneralEvent {
+import com.google.gwt.core.client.GWT;
 
-    public static final EventType Error = new EventType();
 
-    public static final EventType InitFrame = new EventType();
+public class MessageFactory {
+
+    private static GeneralMessages MESSAGES;
     
-    public static final EventType LoadMenus = new EventType();
+    private MessageFactory(){}
     
-    public static final EventType LoadActions = new EventType();
-
+    public static GeneralMessages getMessages()
+    {
+        if(MESSAGES == null && GWT.isClient())
+           MESSAGES = GWT.create(GeneralMessages.class);
+        return MESSAGES;
+    }
 }

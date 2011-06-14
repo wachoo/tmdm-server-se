@@ -12,6 +12,13 @@
 
   <!-- Other module inherits                                      -->
   <inherits name='com.extjs.gxt.ui.GXT'/>
+  
+  <inherits name='com.google.gwt.xml.XML'/>
+
+  <inherits name="com.google.gwt.i18n.I18N"/>
+  
+  <!-- GWT locale -->   
+  <extend-property name="locale" values="fr" />   
 
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.talend.mdm.webapp.general.client.General'/>

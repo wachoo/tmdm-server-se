@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.general.client.mvc.controller;
 
 
@@ -8,8 +20,10 @@ import org.talend.mdm.webapp.general.client.MdmAsyncCallback;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
+import org.talend.mdm.webapp.general.client.layout.ActionsPanel;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
+import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.MenuBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -28,6 +42,7 @@ public class GeneralController extends Controller {
 		registerEventTypes(GeneralEvent.InitFrame);
 		registerEventTypes(GeneralEvent.Error);
 		registerEventTypes(GeneralEvent.LoadMenus);
+		registerEventTypes(GeneralEvent.LoadActions);
 	}
 	
 	@Override
@@ -41,30 +56,37 @@ public class GeneralController extends Controller {
 		EventType type = event.getType();
 		
 		if (type == GeneralEvent.InitFrame){
-//		    service.greetServer("hello", new MdmAsyncCallback<String>() {
-//	            
-//	            @Override
-//	            public void onSuccess(String result) {
-//	                Window.alert(result);
-//	                forwardToView(view, event);
-//	            }
-//	        });
-		    service.getMsg(new MdmAsyncCallback<String>() {
-
-                public void onSuccess(String result) {
-                    Window.alert(result);
-                    forwardToView(view, event);
-                }
-            });
+		    forwardToView(view, event);
 		} else if (type == GeneralEvent.Error){
 			this.forwardToView(view, event);
 		} else if (type == GeneralEvent.LoadMenus){
-		    service.getMenus("en", new MdmAsyncCallback<List<MenuBean>>() {
-                @Override
-                public void onSuccess(List<MenuBean> result) {
-                    AccordionMenus.getInstance().initMenus(result);
-                }
-            });
+		    loadMenu(event);
+		} else if (type == GeneralEvent.LoadActions){
+		    loadActions(event);
 		}
 	}
+	
+	private void loadMenu(final AppEvent event){
+	    service.getMenus("en", new MdmAsyncCallback<List<MenuBean>>() {
+            @Override
+            public void onSuccess(List<MenuBean> result) {
+                event.setData(result);
+                forwardToView(view, event);
+            }
+        });
+	}
+	
+	private void loadActions(AppEvent event){
+        service.getClusters(new MdmAsyncCallback<List<ComboBoxModel>>() {
+            public void onSuccess(List<ComboBoxModel> containers) {
+                ActionsPanel.getInstance().loadDataContainer(containers);
+            }
+        });
+        service.getModels(new MdmAsyncCallback<List<ComboBoxModel>>() {
+            public void onSuccess(List<ComboBoxModel> models) {
+                ActionsPanel.getInstance().loadDataModel(models);
+            }
+        });
+	}
+	
 }

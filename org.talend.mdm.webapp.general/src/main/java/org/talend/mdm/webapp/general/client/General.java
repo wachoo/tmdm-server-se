@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.general.client;
 
 import org.talend.mdm.webapp.general.client.message.PublicMessageService;
@@ -11,11 +23,10 @@ import com.google.gwt.core.client.GWT;
 
 public class General implements EntryPoint {
 
-	public static final String OVERALL_SERVICE = "GeneralService";
+	public static final String OVERALL_SERVICE = "GeneralService"; //$NON-NLS-1$
 	
 	public void onModuleLoad() {
 		Registry.register(OVERALL_SERVICE, GWT.create(GeneralService.class));
-		
 		PublicMessageService.registerMessageService();
 		
 		Dispatcher dispatcher = Dispatcher.get();
