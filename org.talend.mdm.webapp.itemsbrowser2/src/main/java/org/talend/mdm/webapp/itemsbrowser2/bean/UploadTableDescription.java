@@ -66,7 +66,7 @@ public class UploadTableDescription {
 		} catch (XtentisWebappException e) {
 			throw(e);
 		} catch (Exception e) {
-			throw new XtentisWebappException("Unable to get the cross referencing table descripion of "+tableName+": "+e.getClass().getName()+": "+e.getLocalizedMessage());
+			throw new XtentisWebappException("Unable to get the Items brows table descripion of "+tableName+": "+e.getClass().getName()+": "+e.getLocalizedMessage());
 		}
 	}
 

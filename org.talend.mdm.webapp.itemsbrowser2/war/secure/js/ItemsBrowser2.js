@@ -2,6 +2,7 @@ amalto.namespace("amalto.itemsbrowser2");
 
 amalto.itemsbrowser2.ItemsBrowser2 = function() {
 	
+    loadResource("/itemsbrowser2/secure/js/gridToExcel.js", "");
 	
 	var TITLE_BROWSER_PANEL =    {
         'fr' : 'Accès aux données',
@@ -193,6 +194,11 @@ amalto.itemsbrowser2.ItemsBrowser2 = function() {
     	var SAVE = {
     		'fr':'Sauvegarder',
     		'en':'Save'
+    	}
+    
+    	var EXPORT = {
+    		'fr':'Export',
+    		'en':'Export'
     	}
 
     	var LOADING={
@@ -481,6 +487,7 @@ ASG                DISPLAY TRANSCO TABLE
 			height: 200,
 		    store: store,
 		    loadMask:true,
+		    title:'ItemsBrowser Export Record',
 		    cm: new Ext.grid.ColumnModel(myColumns),
     		viewConfig: {
 		    	autoFill:true
@@ -518,7 +525,11 @@ ASG                DISPLAY TRANSCO TABLE
 				new Ext.Toolbar.Button({
 				            	text: SAVE[language],
 								handler: saveGrid
-					})
+					}),
+				new Ext.Toolbar.Button({
+	            	text: EXPORT[language],
+					handler: ExportHandler
+				})
 		    ]
 	    });
 
@@ -616,6 +627,22 @@ ASG                DISPLAY TRANSCO TABLE
 	    grid.getStore().commitChanges();
 
 	}
+	
+	function ExportHandler(){
+		var vExportContent = grid.getExcelXml();
+		if(Ext.isIE6 || Ext.isIE7 || Ext.isSafari || Ext.isSafari2 || Ext.isSafari3){
+		var fd=Ext.get('frmDummy');
+        if (!fd) {
+            fd=Ext.DomHelper.append(Ext.getBody(),{tag:'form',method:'post',id:'frmDummy',action:'/itemsbrowser2/secure/download', target:'_blank',name:'frmDummy',cls:'x-hidden',cn:[
+                {tag:'input',name:'exportContent',id:'exportContent',type:'hidden'}
+            ]},true);
+        }
+        fd.child('#exportContent').set({value:vExportContent});
+        fd.dom.submit();
+	}else{
+		document.location = 'data:application/vnd.ms-excel;base64,'+Base64.encode(vExportContent);
+	}
+	}
 
 /************************************************************
                 ADD DATA
@@ -680,13 +707,11 @@ ASG                DISPLAY TRANSCO TABLE
 			                		Ext.getCmp('sep').setDisabled(false);
 			                		Ext.getCmp('encodings').setDisabled(false);
 			                		Ext.getCmp('delimiter').setDisabled(false);
-			                		//Ext.getCmp('headersOnFirstLine').setDisabled(false);
 			                	}
 			                	else{
 			                		Ext.getCmp('sep').setDisabled(true);
 			                		Ext.getCmp('encodings').setDisabled(true);
 			                		Ext.getCmp('delimiter').setDisabled(true);
-			                		//Ext.getCmp('headersOnFirstLine').setDisabled(true);
 			                	}
 			                }
             		}
@@ -806,7 +831,6 @@ ASG                DISPLAY TRANSCO TABLE
 		Ext.getCmp('comboBoxTablesName').reset();
 		var tabPanel = amalto.core.getTabPanel();
 
-//		Ext.QuickTips.init();
 		var panel = new Ext.FormPanel({
 			id:'main-upload',
 			title:LABEL_NEW_ITEMS_BROWSER[language],
@@ -857,41 +881,7 @@ ASG                DISPLAY TRANSCO TABLE
 							]
 						}
 					]
-				}/*,
-				{
-					layout:'column',
-					border:false,
-					items:[
-						{
-							columnWidth:.49,
-							border:false,
-							layout:'form',
-							labelWidth:150,
-							defaults: {labelSeparator:''},
-							items:[
-								{
-									xtype:'textfield',
-									id:'field2',
-									fieldLabel:LABEL_FIELD[language]+' 2'
-								}
-							]
-						},{
-							columnWidth:.49,
-							border:false,
-							layout:'form',
-							labelWidth:40,
-							defaults: {labelSeparator:''},
-							items:[
-								{
-			                		xtype:'checkbox',
-			                		id:'key2',
-			                		fieldLabel:KEY[language],
-			                		tooltip: 'This field will be a key'
-								}
-							]
-						}
-					]
-				}*/
+				}
 			],
 			buttons:[
 				new Ext.Button({
@@ -902,12 +892,7 @@ ASG                DISPLAY TRANSCO TABLE
 				new Ext.Button({
 					text:ADD_FIELD_BUTTON[language],
 					handler:addTranscoField
-				})/*,
-				new Ext.Toolbar.Separator(),
-				new Ext.Button({
-					text:'Effacer le dernier champ',
-					handler:deleteLastField
-				})*/
+				})
 			]
 		});
 
@@ -970,7 +955,6 @@ ASG                DISPLAY TRANSCO TABLE
 	    var fields = new Array();
 	    var keys = new Array();
 	    var transcoName = Ext.getCmp('transcoName').getValue();
-	    //check concept
 	    var re = new RegExp('[a-zA-Z][a-zA-Z0-9]*');
 	    var m = re.exec(transcoName);
 	    if (m == null) {
@@ -990,14 +974,12 @@ ASG                DISPLAY TRANSCO TABLE
 	        keys.push(key);
 	        hasKey = hasKey || (key==true);
 	    }
-	    //check at least a key
 		if(! hasKey){
 			alert(MSG_AT_LEAST_ONE_KEY[language]);
 		 	return;
 		}
 	    ItemsBrowser2Interface.putItemsBrowseTable(transcoName,fields,keys, function(){
 	    	var tabPanel = amalto.core.getTabPanel();
-//	    	Ext.getCmp('crossref-grid-container').remove('crossref-grid');
 	    	Ext.getCmp('center-panel-upload').remove('main-upload');
 			if(Ext.get('comboBoxTablesName')!=undefined){
 	           	Ext.getCmp('comboBoxTablesName').reset();

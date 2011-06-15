@@ -280,44 +280,6 @@ public class UploadData  extends HttpServlet {
         writer.close();
     }
 
-
-	/**
-	 * Return a specific Cross Referencing table description (keys and fields)
-	 * @param concept
-	 * @return the requested CorossReferencing table
-	 * @throws XtentisWebappException
-	 * @throws Exception
-	 */
-	/*
-	private CrossReferencingTableDescription getCrossReferencingTableDescription(String concept) throws XtentisWebappException, Exception{
-		String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(ControllerServlet.datamodel))).getXsdSchema();
-		Document document = Util.parse(xsd);
-		NodeList list = Util.getNodeList(document,"xsd:element");
-		for(int i=0;i<list.getLength();i++){
-			CrossReferencingTableDescription crossReferencing = new CrossReferencingTableDescription();
-			crossReferencing.setName(list.item(i).getAttributes().getNamedItem("name").toString().replaceAll("name=\"(.*?)\"","$1"));
-			Node node = Util.getNodeList(list.item(i),"xsd:complexType").item(0);
-			Node node2 = Util.getNodeList(node,"xsd:sequence").item(0);
-			NodeList list2 = Util.getNodeList(node2,"xsd:element");
-			String[] fields = new String[list2.getLength()];
-			ArrayList keys = new ArrayList();
-			for(int j=0;j<list2.getLength();j++){
-				fields[j] = list2.item(j).getAttributes().getNamedItem("name").toString().replaceAll("name=\"(.*?)\"","$1");
-				//System.out.println("field "+j+" "+fields[j]);
-				String minOccurs = list2.item(j).getAttributes().getNamedItem("minOccurs").toString().replaceAll("minOccurs=\"(.*?)\"","$1");
-				if(minOccurs.equals("1")) {
-					keys.add(fields[j]);
-					//System.out.println("key "+fields[j]);
-				}
-			}
-			crossReferencing.setFields(fields);
-			crossReferencing.setKeys((String[])(keys.toArray(new String[keys.size()])));
-			if(crossReferencing.getName().equals(concept)) return crossReferencing;
-		}
-		return null;
-	}
-	*/
-
 	private void putDocument(String xml) throws ServletException{
         try {
         	Util.getPort().putItem(

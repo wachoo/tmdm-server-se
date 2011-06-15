@@ -28,16 +28,18 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
+import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.data.ListLoader;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -56,11 +58,12 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -74,12 +77,12 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.dom.client.Style.Overflow;
-import com.google.gwt.user.client.Random;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class ItemsToolBar extends ToolBar {
@@ -408,6 +411,7 @@ public class ItemsToolBar extends ToolBar {
             @Override
             public void componentSelected(MenuEvent ce) {
             	GetService.renderUploadWindow();
+            	//itemsBrowser2Import();
             }
         });
         
@@ -956,58 +960,98 @@ public class ItemsToolBar extends ToolBar {
         }
     }
     
-    class FileUploadExample extends com.extjs.gxt.ui.client.widget.LayoutContainer {  
+    
+    public void itemsBrowser2Import(){
+    	RootPanel.get("talend_itemsbrowser2_ItemsBrowser2Import").getElement().getStyle().setHeight(100, Unit.PCT);
+        RootPanel.get("talend_itemsbrowser2_ItemsBrowser2Import").getElement().getStyle().setWidth(100, Unit.PCT);
+        RootPanel.get("talend_itemsbrowser2_ItemsBrowser2Import").add(new ItemsBrowserImport());
+    }
+    
+    class ItemsBrowserImport extends com.extjs.gxt.ui.client.widget.LayoutContainer {  
  	   
- 	   @Override  
- 	   protected void onRender(com.google.gwt.user.client.Element parent, int index) {  
- 	     super.onRender(parent, index);  
- 	     setStyleAttribute("margin", "10px");  
- 	   
- 	     final FormPanel panel = new FormPanel();  
- 	     panel.setHeading("File Upload Example");  
- 	     panel.setFrame(true);  
- 	     panel.setAction("myurl");  
- 	     panel.setEncoding(com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding.MULTIPART);  
- 	     panel.setMethod(com.extjs.gxt.ui.client.widget.form.FormPanel.Method.POST);  
- 	     panel.setButtonAlign(HorizontalAlignment.CENTER);  
- 	     panel.setWidth(350);  
- 	   
- 	     TextField<String> name = new TextField<String>();  
- 	     name.setFieldLabel("Name");  
- 	     panel.add(name);  
- 	   
- 	     com.extjs.gxt.ui.client.widget.form.FileUploadField file = new com.extjs.gxt.ui.client.widget.form.FileUploadField();  
- 	     file.setAllowBlank(false);  
- 	     file.setName("uploadedfile");  
- 	     file.setFieldLabel("File");  
- 	     panel.add(file);  
- 	   
- 	     Button btn = new Button("Reset");  
- 	     btn.addSelectionListener(new SelectionListener<ButtonEvent>() {  
- 	       @Override  
- 	       public void componentSelected(ButtonEvent ce) {  
- 	         panel.reset();  
- 	       }  
- 	     });  
- 	     panel.addButton(btn);  
- 	   
- 	     btn = new Button("Submit");  
- 	     btn.addSelectionListener(new SelectionListener<ButtonEvent>() {  
- 	       @Override  
- 	       public void componentSelected(ButtonEvent ce) {  
- 	         if (!panel.isValid()) {  
- 	           return;  
- 	         }  
- 	         // normally would submit the form but for example no server set up to  
- 	         // handle the post  
- 	         // panel.submit();  
- 	         MessageBox.info("Action", "You file was uploaded", null);  
- 	       }  
- 	     });  
- 	     panel.addButton(btn);  
- 	   
- 	     add(panel);  
- 	   }  
- 	   
-  }
+    	public ItemsBrowserImport(){
+    		super();
+    	}
+    	
+  	   @Override  
+  	   protected void onRender(com.google.gwt.user.client.Element parent, int index) {  
+  	     super.onRender(parent, index);  
+  	     setStyleAttribute("margin", "10px");  
+  	   
+  	     final FormPanel panel = new FormPanel();  
+  	     panel.setHeading("Upload data");  
+  	     panel.setFrame(true);  
+  	     panel.setAction("myurl");  
+  	     panel.setEncoding(com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding.MULTIPART);  
+  	     panel.setMethod(com.extjs.gxt.ui.client.widget.form.FormPanel.Method.POST);  
+  	     panel.setButtonAlign(HorizontalAlignment.CENTER);  
+  	     panel.setWidth(500);  
+  	     panel.setHeight(700);
+  	     
+  	     com.extjs.gxt.ui.client.widget.form.FileUploadField file = new com.extjs.gxt.ui.client.widget.form.FileUploadField();  
+  	     file.setAllowBlank(false);  
+  	     file.setName("fileToUpload");  
+  	     file.setFieldLabel("File");  
+  	     panel.add(file);  
+  	   
+  	     ListStore<ModelData> fileType = new ListStore<ModelData>();  
+  	     fileType.add(getFileType());  
+  	    
+  	      ComboBox<ModelData> combo = new ComboBox<ModelData>();  
+  	      combo.setEmptyText("Select ...");  
+  	      combo.setDisplayField("Excel");  
+  	      combo.setWidth(150);  
+  	      combo.setId("fileType");
+  	      combo.setName("fileType");
+  	      combo.setStore(fileType);  
+  	      combo.setTypeAhead(true);  
+  	      combo.setTriggerAction(TriggerAction.ALL);  
+  	      combo.enableEvents(false);
+  	      combo.addListener(Events.Change, new Listener<ComponentEvent>() {
+			@Override
+			public void handleEvent(ComponentEvent be) {
+				// TODO Auto-generated method stub
+				ComboBox<BaseModel> selectBox = (ComboBox) be.getComponent();
+				String value = selectBox.getValue().get("Excel");  
+				
+			}
+  	    	  
+  	      });
+  	 
+  	    panel.add(combo);  
+  	    
+  	    
+  	  Button btn = new Button("Reset");  
+	     btn.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+	       @Override  
+	       public void componentSelected(ButtonEvent ce) {  
+	         panel.reset();  
+	       }  
+	     });  
+	     panel.addButton(btn);  
+	     
+  	     btn = new Button("Submit");  
+  	     btn.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+  	       @Override  
+  	       public void componentSelected(ButtonEvent ce) {  
+  	         if (!panel.isValid()) {  
+  	           return;  
+  	         }  
+  	         MessageBox.info("Action", "You file was uploaded", null);  
+  	       }  
+  	     });  
+  	     panel.addButton(btn);  
+  	   
+  	     add(panel);  
+  	   }  
+   }
+    
+   private List<BaseModel> getFileType() {
+	   List<BaseModel> list = new ArrayList<BaseModel>();
+	   list = new ArrayList<BaseModel>();  
+	   BaseModel bm = new BaseModel();  
+	   bm.set("Excel", "excel");
+	   
+	   return list;
+   }
 }

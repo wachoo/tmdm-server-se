@@ -12,6 +12,12 @@
 	</servlet>
 	
 	<servlet>
+        <servlet-name>exportExcelFile</servlet-name>
+        <display-name>exportExcelFile</display-name>
+        <servlet-class>org.talend.mdm.webapp.itemsbrowser2.servlet.DownloadData</servlet-class>
+    </servlet>
+	
+	<servlet>
         <servlet-name>readExcelFile</servlet-name>
         <display-name>readExcelFile</display-name>
         <servlet-class>org.talend.mdm.webapp.itemsbrowser2.servlet.UploadData</servlet-class>
@@ -36,6 +42,11 @@
     <servlet-mapping>
         <servlet-name>readExcelFile</servlet-name>
         <url-pattern>/secure/upload</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>exportExcelFile</servlet-name>
+        <url-pattern>/secure/download</url-pattern>
     </servlet-mapping>
     
 	<servlet-mapping>
