@@ -1315,21 +1315,25 @@ public class ItemsBrowserDWR {
             if (item != null) {
                 String content = item.getContent();
                 Node node = Util.parse(content).getDocumentElement();
-                StringBuffer sb = new StringBuffer();
-                for (int i = 0; i < fkInfos.size(); i++) {
-                    String info = fkInfos.get(i);
-                    JXPathContext jxpContext = JXPathContext.newContext(node);
-                    jxpContext.setLenient(true);
-                    info = info.replaceFirst(concept + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
-                    String fkinfo = (String) jxpContext.getValue(info, String.class);
-                    if (fkinfo != null && fkinfo.length() != 0) {
-                        sb.append(fkinfo);
+                if (fkInfos.size() > 0){
+                    StringBuffer sb = new StringBuffer();
+                    for (int i = 0; i < fkInfos.size(); i++) {
+                        String info = fkInfos.get(i);
+                        JXPathContext jxpContext = JXPathContext.newContext(node);
+                        jxpContext.setLenient(true);
+                        info = info.replaceFirst(concept + "/", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                        String fkinfo = (String) jxpContext.getValue(info, String.class);
+                        if (fkinfo != null && fkinfo.length() != 0) {
+                            sb.append(fkinfo);
+                        }
+                        if (i < fkInfos.size() - 1 && fkInfos.size() > 1) {
+                            sb.append("-"); //$NON-NLS-1$
+                        }
                     }
-                    if (i < fkInfos.size() - 1 && fkInfos.size() > 1) {
-                        sb.append("-"); //$NON-NLS-1$
-                    }
+                    return sb.toString();    
+                } else {
+                    return key;
                 }
-                return sb.toString();
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -1415,25 +1419,25 @@ public class ItemsBrowserDWR {
                 if (els == null)
                     continue;
                 String multiValue = "";
-                if (els.size() > 0) {
+                if (els.size() > 0){
 
-                    for (int i = 0; i < els.size(); i++) {
-                        List<org.dom4j.Element> pathNodes = getPathNode((org.dom4j.Element) els.get(i));
-                        String key = ((org.dom4j.Element) els.get(i)).getStringValue();
-                        Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
-                        if (fkObj != null) {
-                            String foreignkey = (String) fkObj[0];
-                            List<String> fkInfos = (List<String>) fkObj[1];
+	                for (int i = 0; i < els.size();i++){
+		                List<org.dom4j.Element> pathNodes = getPathNode((org.dom4j.Element) els.get(i));
+		                String key = ((org.dom4j.Element)els.get(i)).getStringValue();
+		                Object[] fkObj = getForeign(xsed, pathNodes, 0, typeMap);
+		                if (fkObj != null && ((List<String>)fkObj[1]).size() > 0) {
+		                    String foreignkey = (String) fkObj[0];
+		                    List<String> fkInfos = (List<String>) fkObj[1];
 
-                            String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
-                            multiValue += fkInfoStr == null ? "" : fkInfoStr;
+		                    String fkInfoStr = getFKInfo(key, foreignkey, fkInfos);
+		                    multiValue += fkInfoStr == null ? "" : fkInfoStr;
 
-                        } else {
-                            multiValue += key == null ? "" : key;
-                        }
-                    }
-
-                    dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", multiValue == null ? "" : multiValue); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		                } else {
+		                	multiValue += key == null ? "" : key;
+		                }
+	                }
+	                
+	                dynamicLabel = dynamicLabel.replace("{" + dyPath + "}", multiValue == null ? "" : multiValue); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                 }
             } catch (Exception e) {
