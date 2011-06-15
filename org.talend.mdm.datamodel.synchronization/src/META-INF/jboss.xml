@@ -13,7 +13,7 @@
 			<destination-jndi-name>topic/testTopic</destination-jndi-name>
 			<resource-ref>
 				<res-ref-name>jms/QCF</res-ref-name>
-				<jndi-name>ConnectionFactory</jndi-name>
+				<jndi-name>java:/XAConnectionFactory</jndi-name>
 			</resource-ref>
 		</message-driven>
 	</enterprise-beans>

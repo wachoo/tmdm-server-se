@@ -48,7 +48,7 @@ import com.amalto.webapp.core.dmagent.SchemaWebAgent;
  *   
  * @ejb.transaction type="NotSupported"  
  *   
- * @jboss.message-driven   connection-factory-jndi-name="ConnectionFactory"  
+ * @jboss.message-driven   connection-factory-jndi-name="java:/XAConnectionFactory"  
  *                         destination-jndi-name="topic/testTopic"  
  *   
  * @jboss.pool   initial-beans-in-free-pool="1"  
@@ -156,7 +156,7 @@ public class DataModelSynchronizationMDB implements MessageDrivenBean, MessageLi
      */
     private void init() throws JMSException, NamingException {
         InitialContext iniCtx = new InitialContext();
-        Object tmp = iniCtx.lookup("ConnectionFactory");
+        Object tmp = iniCtx.lookup("java:/XAConnectionFactory");
         QueueConnectionFactory qcf = (QueueConnectionFactory) tmp;
         conn = qcf.createQueueConnection();
         session = conn.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);

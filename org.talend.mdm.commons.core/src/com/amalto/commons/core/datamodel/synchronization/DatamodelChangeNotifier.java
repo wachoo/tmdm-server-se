@@ -34,7 +34,7 @@ public class DatamodelChangeNotifier {
 
     private static final String topicName = "topic/testTopic";// FIXME: do not use the test topic
 
-    private static final String topicConnectionName = "java:/XAConnectionFactory";
+    private static final String topicConnectionName = "java:/JmsXA";
 
     Context jndiContext = null;
 
