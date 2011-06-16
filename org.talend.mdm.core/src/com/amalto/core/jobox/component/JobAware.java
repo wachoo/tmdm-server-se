@@ -131,7 +131,7 @@ public class JobAware {
 		String propFilePath=null;
 		try {
 			List<File> checkList = new ArrayList<File>();
-			findFirstFile(entity, (contextStr == null ? "Default" :  contextStr)+".properties", checkList);//$NON-NLS-1$//$NON-NLS-2$
+			findFirstFile(jobInfo,entity, (contextStr == null ? "Default" :  contextStr)+".properties", checkList);//$NON-NLS-1$//$NON-NLS-2$
 			if (checkList.size() > 0) {
 				propFilePath=checkList.get(0).getAbsolutePath();
 				Properties paramProperties = new Properties();
@@ -159,7 +159,7 @@ public class JobAware {
 	private  boolean recognizeTISJob(File entity) {
 		boolean isTISEntry = false;
 		List<File> checkList = new ArrayList<File>();
-		findFirstFile(entity, "classpath.jar", checkList);
+		findFirstFile(null, entity, "classpath.jar", checkList);
 		if (checkList.size() > 0) {
 			try {
 				JarFile jarFile = new JarFile(checkList.get(0)
@@ -182,7 +182,7 @@ public class JobAware {
 		String separator = System.getProperty("path.separator");
 		
 		List<File> checkList = new ArrayList<File>();
-		findFirstFile(entity, "classpath.jar", checkList);
+		findFirstFile(null,entity, "classpath.jar", checkList);
 		if (checkList.size() > 0) {
 			try {
 				String basePath=checkList.get(0).getParent();
@@ -210,20 +210,21 @@ public class JobAware {
 		jobInfo.setClasspath(newClassPath);
 	}
 
-	private void findFirstFile(File root, String fileName,
+	private void findFirstFile(JobInfo jobInfo,File root, String fileName,
 			List<File> resultList) {
 
 		if (resultList.size() > 0)
 			return;
 
-		if (root.isFile()) {
+		if (root.isFile()) {			
 			if (root.getName().equals(fileName)) {
-				resultList.add(root);
+				if(jobInfo==null || root.getParentFile().getParentFile().getName().toLowerCase().startsWith(jobInfo.getName().toLowerCase()))
+					resultList.add(root);
 			}
 		} else if (root.isDirectory()) {
 			File[] files = root.listFiles();
 			for (int i = 0; i < files.length; i++) {
-				findFirstFile(files[i], fileName, resultList);
+				findFirstFile(jobInfo,files[i], fileName, resultList);
 			}
 		}
 
