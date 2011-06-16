@@ -159,7 +159,7 @@ public class JobAware {
 	private  boolean recognizeTISJob(File entity) {
 		boolean isTISEntry = false;
 		List<File> checkList = new ArrayList<File>();
-		findFirstFile(null, entity, "classpath.jar", checkList);
+		findFirstFile(null, entity, "classpath.jar", checkList);//$NON-NLS-1$
 		if (checkList.size() > 0) {
 			try {
 				JarFile jarFile = new JarFile(checkList.get(0)
@@ -182,7 +182,7 @@ public class JobAware {
 		String separator = System.getProperty("path.separator");
 		
 		List<File> checkList = new ArrayList<File>();
-		findFirstFile(null,entity, "classpath.jar", checkList);
+		findFirstFile(null,entity, "classpath.jar", checkList);//$NON-NLS-1$
 		if (checkList.size() > 0) {
 			try {
 				String basePath=checkList.get(0).getParent();
