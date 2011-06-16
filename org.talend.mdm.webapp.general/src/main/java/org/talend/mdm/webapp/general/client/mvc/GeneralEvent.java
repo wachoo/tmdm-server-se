@@ -23,5 +23,7 @@ public class GeneralEvent {
     public static final EventType LoadMenus = new EventType();
     
     public static final EventType LoadActions = new EventType();
+    
+    public static final EventType SwitchClusterAndModel  = new EventType();
 
 }

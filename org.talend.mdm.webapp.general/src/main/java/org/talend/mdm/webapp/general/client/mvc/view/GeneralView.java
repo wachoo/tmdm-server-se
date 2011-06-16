@@ -42,8 +42,8 @@ public class GeneralView extends View {
 			onError(event);
 		} else if (type == GeneralEvent.LoadMenus){
 		    AccordionMenus.getInstance().initMenus((List<MenuBean>) event.getData());
-		} else if (type == GeneralEvent.LoadActions){
-		    
+		    Dispatcher dispatcher = Dispatcher.get();
+		    dispatcher.dispatch(GeneralEvent.LoadActions);
 		}
 	}
 

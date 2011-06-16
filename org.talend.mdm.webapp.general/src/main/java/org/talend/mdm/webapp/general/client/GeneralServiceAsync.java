@@ -31,4 +31,6 @@ public interface GeneralServiceAsync {
     void getClusters(AsyncCallback<List<ComboBoxModel>> callback);
 
     void getModels(AsyncCallback<List<ComboBoxModel>> callback);
+
+    void setClusterAndModel(String cluster, String model, AsyncCallback<String> callback);
 }

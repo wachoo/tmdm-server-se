@@ -30,9 +30,7 @@ public class BorderLayoutContainer extends Viewport {
 		setLayout(layout);  
 		this.setBorders(false);
 		
-		ContentPanel north = new ContentPanel();
-		north.setHeaderVisible(false);
-		north.setBorders(false);
+		ContentPanel north = BrandingBar.getInstance();
 		LayoutContainer west = AccordionMenus.getInstance();
 		WorkSpace center = WorkSpace.getInstance();  
 		center.setBorders(false);
@@ -45,7 +43,7 @@ public class BorderLayoutContainer extends Viewport {
 	    south.setBorders(false);
 	    south.setFrame(true);
 	  
-	    BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 100);  
+	    BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 40);
 	    northData.setCollapsible(false);  
 	    northData.setFloatable(false);  
 	    northData.setHideCollapseTool(true);  

@@ -3,8 +3,12 @@ package org.talend.mdm.webapp.general.client.layout;
 import java.util.List;
 
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
+import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -35,14 +39,22 @@ public class ActionsPanel extends ContentPanel {
         this.setLayout(formLayout);
         
         dataContainerBox.setFieldLabel(MessageFactory.getMessages().data_container());
+        dataContainerBox.setDisplayField("value"); //$NON-NLS-1$
+        dataContainerBox.setValueField("value"); //$NON-NLS-1$
         dataContainerBox.setWidth(100);
+        dataContainerBox.setStore(containerStore);
         dataModelBox.setFieldLabel(MessageFactory.getMessages().data_model());
+        dataModelBox.setDisplayField("value"); //$NON-NLS-1$
+        dataModelBox.setValueField("value"); //$NON-NLS-1$
         dataModelBox.setWidth(100);
+        dataModelBox.setStore(dataStore);
         FormData formData = new FormData();
         formData.setMargins(new Margins(5));
         this.add(dataContainerBox, formData);
         this.add(dataModelBox, formData);
         this.add(saveBtn, formData);
+        
+        initEvent();
     }
     
     public static ActionsPanel getInstance(){
@@ -52,15 +64,30 @@ public class ActionsPanel extends ContentPanel {
         return instance;
     }
     
+    private void initEvent(){
+        saveBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            public void componentSelected(ButtonEvent ce) {
+                Dispatcher dispatcher = Dispatcher.get();
+                dispatcher.dispatch(GeneralEvent.SwitchClusterAndModel);
+            }
+        });
+    }
+    
     public void loadDataContainer(List<ComboBoxModel> containers){
         containerStore.removeAll();
         containerStore.add(containers);
-        dataContainerBox.setStore(containerStore);
     }
     
     public void loadDataModel(List<ComboBoxModel> models){
         dataStore.removeAll();
         dataStore.add(models);
-        dataModelBox.setStore(dataStore);
+    }
+    
+    public String getDataCluster(){
+        return dataContainerBox.getValue().getValue();
+    }
+    
+    public String getDataModel(){
+        return dataModelBox.getValue().getValue();
     }
 }

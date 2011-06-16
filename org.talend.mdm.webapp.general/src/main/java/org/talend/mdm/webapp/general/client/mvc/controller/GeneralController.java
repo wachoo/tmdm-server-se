@@ -16,11 +16,12 @@ package org.talend.mdm.webapp.general.client.mvc.controller;
 
 import java.util.List;
 
-import org.talend.mdm.webapp.general.client.MdmAsyncCallback;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
-import org.talend.mdm.webapp.general.client.layout.AccordionMenus;
+import org.talend.mdm.webapp.general.client.MdmAsyncCallback;
+import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.client.layout.ActionsPanel;
+import org.talend.mdm.webapp.general.client.layout.WorkSpace;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
@@ -30,7 +31,8 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.google.gwt.user.client.Window;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.Window.Location;
 
 public class GeneralController extends Controller {
 
@@ -43,6 +45,7 @@ public class GeneralController extends Controller {
 		registerEventTypes(GeneralEvent.Error);
 		registerEventTypes(GeneralEvent.LoadMenus);
 		registerEventTypes(GeneralEvent.LoadActions);
+		registerEventTypes(GeneralEvent.SwitchClusterAndModel);
 	}
 	
 	@Override
@@ -63,11 +66,15 @@ public class GeneralController extends Controller {
 		    loadMenu(event);
 		} else if (type == GeneralEvent.LoadActions){
 		    loadActions(event);
+		} else if (type == GeneralEvent.SwitchClusterAndModel){
+		    switchClusterAndModel(event);
 		}
 	}
 	
 	private void loadMenu(final AppEvent event){
-	    service.getMenus("en", new MdmAsyncCallback<List<MenuBean>>() {
+	    String lang = Location.getParameter("language"); //$NON-NLS-1$
+	    lang = lang == null ? "en" : lang; //$NON-NLS-1$
+	    service.getMenus(lang, new MdmAsyncCallback<List<MenuBean>>() {
             @Override
             public void onSuccess(List<MenuBean> result) {
                 event.setData(result);
@@ -89,4 +96,19 @@ public class GeneralController extends Controller {
         });
 	}
 	
+	private void switchClusterAndModel(AppEvent event){
+	    String dataCluster = ActionsPanel.getInstance().getDataCluster();
+	    String dataModel = ActionsPanel.getInstance().getDataModel();
+	    service.setClusterAndModel(dataCluster, dataModel, new MdmAsyncCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                if("DONE".equals(result)){ //$NON-NLS-1$
+                    MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_success(), null);
+                } else {
+                    MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_failure() + " " + result, null); //$NON-NLS-1$
+                }
+                WorkSpace.getInstance().clearTabs();
+            }
+        });
+	}
 }

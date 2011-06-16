@@ -33,4 +33,6 @@ public interface GeneralService extends RemoteService {
     List<ComboBoxModel> getClusters();
     
     List<ComboBoxModel> getModels();
+    
+    String setClusterAndModel(String cluster, String model);
 }

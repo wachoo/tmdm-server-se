@@ -12,16 +12,42 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.client.layout;
 
+import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
+
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.Window.Location;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 
 public class BrandingBar extends ContentPanel {
 
     private static BrandingBar instance;
     
+    private FlowPanel bar = new FlowPanel();
+    
+    private HorizontalPanel hp = new HorizontalPanel();
+    
+    private ListBox languageBox = new ListBox();
+    
+    Button logout = new Button(MessageFactory.getMessages().logout());
+    
     private BrandingBar(){
         super();
+        setHeaderVisible(false);
+        setBorders(false);
+        buildBar();
+        initEvent();
     }
     
     public static BrandingBar getInstance(){
@@ -31,8 +57,97 @@ public class BrandingBar extends ContentPanel {
         return instance;
     }
     
-    private void buildBar(){
-        HorizontalPanel hp = new HorizontalPanel();
+    private void initEvent(){
+        languageBox.addChangeHandler(new ChangeHandler() {
+            public void onChange(ChangeEvent event) {
+                
+                String path = Location.getPath();
+                
+                String query = Location.getQueryString();
+                String lang = Location.getParameter("language"); //$NON-NLS-1$
+                
+                if (lang == null || lang.trim().length() == 0){
+                    setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
+                } else {
+                    
+                    if (query.indexOf("&language=" + lang + "&") != -1){ //$NON-NLS-1$ //$NON-NLS-2$
+                        query = query.replace("&language=" + lang + "&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    } else if (query.endsWith("&language=" + lang)){ //$NON-NLS-1$
+                        query = query.replace("&language=" + lang, ""); //$NON-NLS-1$ //$NON-NLS-2$
+                    } else if (query.startsWith("?language=" + lang)){ //$NON-NLS-1$
+                        query = query.replaceAll("language=" + lang + "&?", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    }
+                    
+                    setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
+                }
+            }
+        });
         
+        logout.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            public void componentSelected(ButtonEvent ce) {
+                setHref("/talendmdm//secure?action=logout"); //$NON-NLS-1$
+            }
+        });
     }
+    
+    private native void setHref(String href)/*-{
+        $wnd.location.href = href;
+    }-*/;
+    
+    private void buildBar(){
+
+        bar.add(new Image("/talendmdm/secure/img/header-back-title.png")); //$NON-NLS-1$
+        HTML userLabel = new HTML("Default Administrator<br>connected to: [HEAD]"); //$NON-NLS-1$
+        userLabel.setStyleName("username"); //$NON-NLS-1$
+        userLabel.getElement().setId("username-div"); //$NON-NLS-1$
+        bar.add(userLabel);
+        
+        hp.getElement().getStyle().setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
+        hp.getElement().getStyle().setProperty("top", "-2px"); //$NON-NLS-1$ //$NON-NLS-2$
+        hp.getElement().getStyle().setProperty("right", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
+        
+
+        Image logoMdm = new Image("/talendmdm/secure/img/logo-mdm.png"); //$NON-NLS-1$
+        logoMdm.getElement().getStyle().setMarginTop(2D, Unit.PX);
+        hp.add(logoMdm);
+        hp.setCellVerticalAlignment(logoMdm, VerticalPanel.ALIGN_BOTTOM);
+        
+        HTML versionLabel = new HTML("Enterprise<br>Edition"); //$NON-NLS-1$
+        versionLabel.setStyleName("version-label"); //$NON-NLS-1$
+        hp.add(versionLabel);
+        hp.setCellVerticalAlignment(versionLabel, VerticalPanel.ALIGN_MIDDLE);
+        
+        hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
+        
+        languageBox.getElement().setId("languageSelect"); //$NON-NLS-1$
+        languageBox.setStyleName("language-box"); //$NON-NLS-1$
+        
+        hp.add(languageBox);
+        hp.setCellVerticalAlignment(languageBox, VerticalPanel.ALIGN_MIDDLE);
+        hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
+        hp.add(logout);
+        hp.setCellVerticalAlignment(logout, VerticalPanel.ALIGN_MIDDLE);
+        hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
+        
+        bar.setSize("100%", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
+        bar.setStyleName("generic-header-background"); //$NON-NLS-1$
+        bar.add(hp);
+        
+        this.add(bar);
+        
+        buildLanguage();
+    }
+    
+    private void buildLanguage(){
+        String lang = Location.getParameter("language"); //$NON-NLS-1$
+        languageBox.addItem("English", "en"); //$NON-NLS-1$ //$NON-NLS-2$
+        if ("en".equals(lang)){ //$NON-NLS-1$
+            languageBox.setSelectedIndex(languageBox.getItemCount() - 1);
+        }
+        languageBox.addItem("Francais", "fr");//$NON-NLS-1$ //$NON-NLS-2$
+        if ("fr".equals(lang)){ //$NON-NLS-1$
+            languageBox.setSelectedIndex(languageBox.getItemCount() - 1);
+        }
+    }
+    
 }

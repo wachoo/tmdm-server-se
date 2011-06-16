@@ -24,6 +24,7 @@ import org.talend.mdm.webapp.general.client.GeneralService;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.MenuBean;
 
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -89,8 +90,7 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
             for (int i = 0; i < wsDataClustersPKs.length; i++) {
                 if (!XSystemObjects.isXSystemObject(xDataClustersMap, XObjectType.DATA_CLUSTER, wsDataClustersPKs[i].getPk())) {
                     WSDataCluster wsGetDataCluster = Util.getPort().getDataCluster(new WSGetDataCluster(wsDataClustersPKs[i]));
-                    clusters.add(new ComboBoxModel(wsDataClustersPKs[i].getPk(),
-                            wsGetDataCluster.getDescription() == null ? "" : wsGetDataCluster.getDescription())); //$NON-NLS-1$
+                    clusters.add(new ComboBoxModel(wsGetDataCluster.getDescription(), wsDataClustersPKs[i].getPk())); //$NON-NLS-1$
                 }
             }
 
@@ -113,8 +113,7 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
             for (int i = 0; i < wsDataModelsPKs.length; i++) {
                 if (!XSystemObjects.isXSystemObject(xDataModelsMap, XObjectType.DATA_MODEL, wsDataModelsPKs[i].getPk())) {
                     WSDataModel wsDataModel = Util.getPort().getDataModel(new WSGetDataModel(wsDataModelsPKs[i]));
-                    models.add(new ComboBoxModel(wsDataModelsPKs[i].getPk(),
-                            wsDataModel.getDescription() == null ? "" : wsDataModel.getDescription()));//$NON-NLS-1$
+                    models.add(new ComboBoxModel(wsDataModel.getDescription(), wsDataModelsPKs[i].getPk()));//$NON-NLS-1$
                 }
             }
 
@@ -129,5 +128,15 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
         List<ComboBoxModel> clusters = getClusters();
         List<ComboBoxModel> models = getModels();
         return "server message";
+    }
+
+    public String setClusterAndModel(String cluster, String model) {
+        try {
+            Configuration.initialize(cluster,model);
+            //Used by javascript as a status code
+            return "DONE"; //$NON-NLS-1$
+        } catch (Exception e) {
+            return e.getLocalizedMessage();
+        }           
     }
 }

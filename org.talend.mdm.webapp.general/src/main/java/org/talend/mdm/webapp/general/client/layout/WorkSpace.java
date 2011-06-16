@@ -69,4 +69,8 @@ public class WorkSpace extends LayoutContainer {
         }
         workTabPanel.setSelection(item);
     }
+    
+    public void clearTabs(){
+        workTabPanel.removeAll();
+    }
 }

@@ -28,4 +28,12 @@ public interface GeneralMessages extends Messages {
     String data_model();
     
     String save();
+    
+    String status();
+    
+    String status_msg_success();
+    
+    String status_msg_failure();
+    
+    String logout();
 }
