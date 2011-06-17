@@ -33,7 +33,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -45,14 +44,6 @@ import com.amalto.webapp.util.webservices.WSGetItems;
 import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutBusinessConceptSchema;
 import com.amalto.webapp.util.webservices.WSPutItem;
-
-/**
- * cluster
- * 
- * 
- * @author starkey
- * 
- */
 
 public class ItemsBrowser2DWR {
 

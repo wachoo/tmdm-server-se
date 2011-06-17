@@ -487,7 +487,7 @@ ASG                DISPLAY TRANSCO TABLE
 			height: 200,
 		    store: store,
 		    loadMask:true,
-		    title:'ItemsBrowser Export Record',
+		    title:'ItemsBrowser Export Record '+tableDescription.name,
 		    cm: new Ext.grid.ColumnModel(myColumns),
     		viewConfig: {
 		    	autoFill:true
@@ -633,7 +633,7 @@ ASG                DISPLAY TRANSCO TABLE
 		if(Ext.isIE6 || Ext.isIE7 || Ext.isSafari || Ext.isSafari2 || Ext.isSafari3){
 		var fd=Ext.get('frmDummy');
         if (!fd) {
-            fd=Ext.DomHelper.append(Ext.getBody(),{tag:'form',method:'post',id:'frmDummy',action:'/itemsbrowser2/secure/download', target:'_blank',name:'frmDummy',cls:'x-hidden',cn:[
+            fd=Ext.DomHelper.append(Ext.getBody(),{tag:'form',method:'post',id:'frmDummy',action:'/itemsbrowser2/secure/download?tableDescription='+tableDescription.name, target:'_blank',name:'frmDummy',cls:'x-hidden',cn:[
                 {tag:'input',name:'exportContent',id:'exportContent',type:'hidden'}
             ]},true);
         }

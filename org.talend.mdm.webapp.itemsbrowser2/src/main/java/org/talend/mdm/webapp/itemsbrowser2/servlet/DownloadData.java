@@ -20,11 +20,17 @@ public class DownloadData extends HttpServlet{
 			
 			PrintWriter out = resp.getWriter();
 			
-			req.setCharacterEncoding("UTF-8");
-			resp.setHeader("Content-Type","application/force-download");
-			resp.setHeader("Content-Type","application/vnd.ms-excel");
-			resp.setHeader("Content-Disposition","attachment;filename=export.xls");
-			out.print(req.getParameter("exportContent"));
+			String tables= req.getParameter("tableDescription");
+			
+			req.setCharacterEncoding("UTF-8");//$NON-NLS-1$
+			resp.setHeader("Content-Type","application/force-download");//$NON-NLS-1$
+			resp.setHeader("Content-Type","application/vnd.ms-excel");//$NON-NLS-1$
+			if(tables!=null&&!"".equals(tables)){
+				resp.setHeader("Content-Disposition","attachment;filename="+tables+".xls");//$NON-NLS-1$
+			}else{
+				resp.setHeader("Content-Disposition","attachment;filename=export.xls");//$NON-NLS-1$
+			}
+			out.print(req.getParameter("exportContent"));//$NON-NLS-1$
 		}catch(Exception e){
 			org.apache.log4j.Logger.getLogger(this.getClass()).error("doPost() ");
 		}

@@ -455,4 +455,16 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
     public String grid_record_select() {
         return MESSAGES.getMessage("grid_record_select");
     }
+
+	@Override
+	public String itemsBrowser_Import_Export() {
+		// TODO Auto-generated method stub
+		return MESSAGES.getMessage("itemsBrowser_Import_Export");
+	}
+
+	@Override
+	public String itemsBrowser_Import() {
+		// TODO Auto-generated method stub
+		return MESSAGES.getMessage("itemsBrowser_Import");
+	}
 }
