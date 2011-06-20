@@ -17,8 +17,11 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
+import org.exolab.castor.xml.ClassDescriptorResolver;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.XMLClassDescriptorResolver;
+import org.exolab.castor.xml.util.XMLClassDescriptorResolverImpl;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -64,7 +67,9 @@ import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 public abstract class ObjectPOJO implements Serializable{
    
     private static Logger LOG = Logger.getLogger(ObjectPOJO.class);
-    
+
+    private static XMLClassDescriptorResolver cdr = new XMLClassDescriptorResolverImpl();
+
 	/* cached the Object pojos to improve performance*/
 	private static LRUCache<ItemCacheKey, String> cachedPojo;
 	private static  int MAX_CACHE_SIZE=5000;
@@ -943,7 +948,11 @@ public abstract class ObjectPOJO implements Serializable{
     	//Marshal
 		StringWriter sw = new StringWriter();
 		try {
-	        Marshaller.marshal(this, sw);
+            Marshaller marshaller = new Marshaller(sw);
+            marshaller.setResolver(cdr);
+            marshaller.setValidation(false);
+
+            marshaller.marshal(this);
         } catch (Throwable t) {
         	String err = "Unable to marshal '"+this.getPK().getUniqueId()+"'";
 	        LOG.error(err,t);
@@ -963,12 +972,12 @@ public abstract class ObjectPOJO implements Serializable{
      */
     public static <T extends ObjectPOJO> T unmarshal(Class<T> objectClass, String marshaledItem) throws XtentisException{
     	try {
-	        return (T)
-	        	Unmarshaller.unmarshal(
-	        			objectClass, 
-	        			new InputSource(new StringReader(marshaledItem)
-	        	)
-	        );
+            Unmarshaller unmarshaller = new Unmarshaller(objectClass);
+            unmarshaller.setResolver(cdr);
+            unmarshaller.setValidation(false);
+            unmarshaller.setReuseObjects(true);
+
+            return (T) unmarshaller.unmarshal(new InputSource(new StringReader(marshaledItem)));
         } catch (Throwable t) {
 	        String err = "Unable to unmarshal the object of class '"+objectClass+"' from \n"+marshaledItem;
 	        LOG.error(err,t);

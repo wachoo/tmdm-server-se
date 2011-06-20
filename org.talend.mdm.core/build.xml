@@ -57,6 +57,8 @@
       <path id="compile.classpath">
         <pathelement path="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar" />
         <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.jazzy-core.jar" />
+        <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.castor-1.0.5-xml.jar" />
+        <pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-logging.jar" />
         <pathelement path="${tom.location}/talend.mdm.libraries/lib/jboss-j2ee.jar" />
         <path refid="base.classpath" />
       </path>
