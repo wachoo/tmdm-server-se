@@ -11,6 +11,7 @@ MENUS
 	display:block;
 	margin-bottom:2px;
 	text-decoration:none;
+	cursor: pointer;
 }
 .menus-list .menu-item .body{
 	padding:5px 2px 5px 15px;
