@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.general.client.layout;
 import java.util.List;
 
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
+import org.talend.mdm.webapp.general.client.util.UrlUtil;
 import org.talend.mdm.webapp.general.model.MenuBean;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -53,7 +54,7 @@ public class AccordionMenus extends ContentPanel {
             String icon = makeImageIconPart(item, toCheckMenuID);
             StringBuffer str = new StringBuffer();
             str.append("<span class='body'>"); //$NON-NLS-1$
-            str.append("<img src='" + icon + "'/>"); //$NON-NLS-1$ //$NON-NLS-2$
+            str.append("<img src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
             str.append("<span class='desc'>" + item.getName() + "</span></span>"); //$NON-NLS-1$ //$NON-NLS-2$
             HTML html = new HTMLMenuItem(item, str.toString());
             html.addClickHandler(clickHander);
@@ -112,13 +113,26 @@ public class AccordionMenus extends ContentPanel {
     ClickHandler clickHander = new ClickHandler() {
 
         public void onClick(ClickEvent event) {
-            HTMLMenuItem item = (HTMLMenuItem) event.getSource();
+            final HTMLMenuItem item = (HTMLMenuItem) event.getSource();
             selectedItem(item);
-            WorkSpace.getInstance().addWorkTab(item);
+            MenuBean menuBean = item.getMenuBean();
+            getUrl(menuBean.getContext(), menuBean.getApplication(), UrlUtil.getLanguage(), new GetUrl(){
+                public void getUrl(String url) {
+                    WorkSpace.getInstance().addWorkTab(item, url);
+                }
+            });
         }
-
     };
 
+    private native void getUrl(String context, String application, String language, GetUrl getUrl)/*-{
+        
+        $wnd.amalto[context][application].getUrl(language, function(url){
+            if (getUrl != null){
+                getUrl.@org.talend.mdm.webapp.general.client.layout.AccordionMenus.GetUrl::getUrl(Ljava/lang/String;)(url);
+            }
+        });
+    }-*/;
+    
     class HTMLMenuItem extends HTML {
 
         MenuBean menuBean;
@@ -132,5 +146,9 @@ public class AccordionMenus extends ContentPanel {
         public MenuBean getMenuBean() {
             return menuBean;
         }
+    }
+    
+    interface GetUrl{
+        void getUrl(String url);
     }
 }

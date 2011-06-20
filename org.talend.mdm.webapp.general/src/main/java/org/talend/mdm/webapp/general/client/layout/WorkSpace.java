@@ -48,7 +48,7 @@ public class WorkSpace extends LayoutContainer {
         return instance;
     }
 
-    public void addWorkTab(final HTMLMenuItem menuItem) {
+    public void addWorkTab(final HTMLMenuItem menuItem, String url) {
         MenuBean menuBean = menuItem.getMenuBean();
         TabItem item = workTabPanel.getItemByItemId(menuBean.getName());
         if (item == null) {
@@ -62,7 +62,8 @@ public class WorkSpace extends LayoutContainer {
             item.setItemId(menuBean.getName());
             item.setClosable(true);
             item.setLayout(new FitLayout());
-            Frame frame = new Frame("/" + menuBean.getContext()); //$NON-NLS-1$
+            Frame frame = new Frame(url);
+//            Frame frame = new Frame("/" + menuBean.getContext()); //$NON-NLS-1$
             frame.getElement().getStyle().setBorderWidth(0.0D, Unit.PX);
             item.add(frame);
             workTabPanel.add(item);

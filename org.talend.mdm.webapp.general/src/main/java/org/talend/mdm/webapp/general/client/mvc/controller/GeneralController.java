@@ -24,6 +24,7 @@ import org.talend.mdm.webapp.general.client.layout.ActionsPanel;
 import org.talend.mdm.webapp.general.client.layout.WorkSpace;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
+import org.talend.mdm.webapp.general.client.util.UrlUtil;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.MenuBean;
 
@@ -72,9 +73,7 @@ public class GeneralController extends Controller {
 	}
 	
 	private void loadMenu(final AppEvent event){
-	    String lang = Location.getParameter("language"); //$NON-NLS-1$
-	    lang = lang == null ? "en" : lang; //$NON-NLS-1$
-	    service.getMenus(lang, new MdmAsyncCallback<List<MenuBean>>() {
+	    service.getMenus(UrlUtil.getLanguage(), new MdmAsyncCallback<List<MenuBean>>() {
             @Override
             public void onSuccess(List<MenuBean> result) {
                 event.setData(result);

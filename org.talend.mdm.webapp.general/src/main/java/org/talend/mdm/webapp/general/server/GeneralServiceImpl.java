@@ -23,6 +23,7 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.general.client.GeneralService;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.MenuBean;
+import org.talend.mdm.webapp.general.server.util.Utils;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
@@ -49,32 +50,11 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
     public List<MenuBean> getMenus(String language) throws Exception {
         List<MenuBean> menus = new ArrayList<MenuBean>();
         try {
-            getSubMenus(Menu.getRootMenu(), language, menus, 1, 1);
+            Utils.getSubMenus(Menu.getRootMenu(), language, menus, 1, 1);
         } catch (XtentisWebappException e) {
             LOG.error(e.getMessage(), e);
         }
         return menus;
-    }
-
-    private int getSubMenus(Menu menu, String language, List<MenuBean> rows, int level, int i) {
-        for (Iterator<String> iter = menu.getSubMenus().keySet().iterator(); iter.hasNext();) {
-            String key = iter.next();
-            Menu subMenu = menu.getSubMenus().get(key);
-
-            MenuBean item = new MenuBean();
-            item.setId(i);
-            item.setLevel(level);
-            item.setContext(subMenu.getContext());
-            item.setIcon(subMenu.getIcon());
-            item.setName(subMenu.getLabels().get(language));
-            item.setApplication(subMenu.getApplication() == null ? "" : subMenu.getApplication()); //$NON-NLS-1$
-            rows.add(item);
-            i++;
-            if (subMenu.getSubMenus().size() > 0)
-                i = getSubMenus(subMenu, language, rows, level + 1, i);
-        }
-        return i;
-
     }
 
     public List<ComboBoxModel> getClusters() {
