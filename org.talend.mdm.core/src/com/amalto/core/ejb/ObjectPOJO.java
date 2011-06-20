@@ -68,7 +68,7 @@ public abstract class ObjectPOJO implements Serializable{
    
     private static Logger LOG = Logger.getLogger(ObjectPOJO.class);
 
-    private static XMLClassDescriptorResolver cdr = new XMLClassDescriptorResolverImpl();
+    private static final XMLClassDescriptorResolver cdr = new XMLClassDescriptorResolverImpl();
 
 	/* cached the Object pojos to improve performance*/
 	private static LRUCache<ItemCacheKey, String> cachedPojo;
