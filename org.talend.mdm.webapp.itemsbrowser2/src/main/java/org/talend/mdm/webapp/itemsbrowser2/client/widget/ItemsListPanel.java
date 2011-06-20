@@ -213,6 +213,8 @@ public class ItemsListPanel extends ContentPanel {
             usePageSize = Integer.valueOf(((Map) StateManager.get().get("grid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         pagingBar = new PagingToolBarEx(usePageSize);
         pagingBar.setHideMode(HideMode.VISIBILITY);
+        pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());
+
         pagingBar.setVisible(false);
         pagingBar.bind(loader);
         gridContainer.setBottomComponent(pagingBar);

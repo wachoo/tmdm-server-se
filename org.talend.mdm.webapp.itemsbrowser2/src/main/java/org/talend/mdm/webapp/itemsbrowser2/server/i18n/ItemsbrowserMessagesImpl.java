@@ -467,4 +467,10 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
 		// TODO Auto-generated method stub
 		return MESSAGES.getMessage("itemsBrowser_Import");
 	}
+
+    @Override
+    public String page_displaying_records() {
+        // TODO Auto-generated method stub
+        return MESSAGES.getMessage("page_displaying_records");
+    }
 }

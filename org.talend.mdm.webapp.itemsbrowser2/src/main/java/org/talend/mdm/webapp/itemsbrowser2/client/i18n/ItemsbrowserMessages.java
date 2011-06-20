@@ -170,6 +170,8 @@ public interface ItemsbrowserMessages extends Messages {
 
     String page_size_notice();
 
+    String page_displaying_records();
+
     String save_confirm();
 
     String delete_confirm();
