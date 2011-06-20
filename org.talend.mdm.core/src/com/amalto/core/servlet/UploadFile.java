@@ -136,9 +136,6 @@ public class UploadFile extends HttpServlet {
                     // tempFile=new
                     // File(deploydir+File.separator+jobpath+(jobpath.length()==0?"":File.separator)+item.getName());
                     tempFile = new File(deploydir + File.separator + item.getName());
-                    String contextStr = req.getParameter("contextStr"); //$NON-NLS-1$
-                    JobContainer jobContainer=JobContainer.getUniqueInstance();
-                    jobContainer.getJobAware().setContextStr(contextStr);
                 }
                 // bar files
                 if (item.getName().endsWith(".bar")) {
@@ -153,11 +150,16 @@ public class UploadFile extends HttpServlet {
                 }
                 item.write(tempFile);
                 files.add(tempFile.getAbsolutePath());
+                if (req.getParameter("deployjob") != null && item.getName().endsWith(".zip")) {// deploy job  //$NON-NLS-1$//$NON-NLS-2$
+                    String contextStr = req.getParameter("contextStr"); //$NON-NLS-1$
+                    JobContainer jobContainer = JobContainer.getUniqueInstance();
+                    jobContainer.setContextStrToBeSaved(tempFile.getAbsolutePath(), contextStr);
+                }
             } catch (Exception e) {
-                throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+                throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage());//$NON-NLS-1$
             }
         }// if field
-        // }// while item
+         // }// while item
         String urlRedirect = req.getParameter("urlRedirect");
         if (urlRedirect != null && "true".equals(urlRedirect)) {
             String redirectUrl = req.getContextPath() + "?" + "mimeFile=" + tempFile.getName();
