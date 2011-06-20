@@ -2,11 +2,6 @@
 <project name="org.talend.mdm.webapp.general" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
 
 	<property file="build.properties" />
-	
-	<property name="web.inf" value="${basedir}/war/WEB-INF" />
-	<property name="web.description" value="${web.inf}/web.xml" />
-	<property name="web.description.jboss" value="${web.inf}/web.jboss.template" />
-	<property name="web.description.temp" value="${web.inf}/web.xml.moved" />
 
 	<target name="prepare-maven" if="local.developer.build">
 		<path id="maven-ant-tasks.classpath" path="${maven.ant.tasks.file}" />
@@ -18,16 +13,13 @@
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
 	<property name="mdm.build.version" value="${major}.${minor}.${rev}-r${svn.revision}" />
-
+	<property name="dev.mode.excluded.start" value="" />
+	<property name="dev.mode.excluded.end" value="" />
+		
 	<target name="clean">
 		<antcall target="mvn.invoke">
 			<param name="mvn.goal" value="clean" />
 		</antcall>
-	</target>
-	
-	<target name="prepareJbossEnv">
-	     <move file="${web.description}" tofile="${web.description.temp}"/>
-	     <move file="${web.description.jboss}" tofile="${web.description}"/>
 	</target>
 
 	<target name="package">
@@ -36,11 +28,6 @@
 		</antcall>
 	</target>
 	
-	<target name="recoverLocalEnv">
-		 <move file="${web.description}" tofile="${web.description.jboss}"/>
-		 <move file="${web.description.temp}" tofile="${web.description}"/>
-	</target>
-
 	<target name="install">
 		<antcall target="mvn.invoke">
 			<param name="mvn.goal" value="install" />
@@ -55,7 +42,7 @@
 		<copy file="${build.dir}/org.talend.mdm.webapp.general-${mdm.build.version}.war" tofile="${jboss.deploy.dir}/org.talend.mdm.webapp.general.war" />
 	</target>
 
-	<target name="all" depends="prepareJbossEnv,package,recoverLocalEnv,undeploy,deploy" />
+	<target name="all" depends="package,undeploy,deploy" />
 
 	<target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
 		<property environment="env" />
@@ -64,6 +51,8 @@
 			<arg value="-V" />
 			<arg value="-Dgeneral.build.dir=${build.dir}" />
 			<arg value="-Dgeneral.build.version=${mdm.build.version}" />
+			<arg value="-Ddev.mode.excluded.start=${dev.mode.excluded.start}" />
+			<arg value="-Ddev.mode.excluded.end=${dev.mode.excluded.end}" />
 			<arg value="${mvn.goal}" />
 		</artifact:mvn>
 	</target>
