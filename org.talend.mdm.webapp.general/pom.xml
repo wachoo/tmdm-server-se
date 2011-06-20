@@ -174,7 +174,6 @@
 						</goals>
 						<configuration>
 							<includeScope>system</includeScope>
-							<includeArtifactIds>gwt_i18n_server</includeArtifactIds>
 							<outputDirectory>${project.build.directory}/war/WEB-INF/lib</outputDirectory>
 						</configuration>
 					</execution>
