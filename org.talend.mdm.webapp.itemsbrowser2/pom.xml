@@ -272,26 +272,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Copy our system deps to WEB-INF/lib -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.1</version>
-                <executions>
-                    <execution>
-                        <id>copy-system-deps</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeScope>system</includeScope>
-                            <outputDirectory>${project.build.directory}/war/WEB-INF/lib</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Apply dev mode exclusions -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
