@@ -976,6 +976,8 @@ public abstract class ObjectPOJO implements Serializable{
             unmarshaller.setResolver(cdr);
             unmarshaller.setValidation(false);
             unmarshaller.setReuseObjects(true);
+            //Do not remove this line unless you know what you're doing
+            unmarshaller.setWhitespacePreserve(true);
 
             return (T) unmarshaller.unmarshal(new InputSource(new StringReader(marshaledItem)));
         } catch (Throwable t) {
