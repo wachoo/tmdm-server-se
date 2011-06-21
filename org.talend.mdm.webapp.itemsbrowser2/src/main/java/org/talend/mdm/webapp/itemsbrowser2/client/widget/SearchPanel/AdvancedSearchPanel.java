@@ -213,7 +213,7 @@ public class AdvancedSearchPanel extends FormPanel {
         this.setLabelWidth(110);
         this.setAutoHeight(true);
 
-        final Button filterButton = new Button();
+
         filterButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Edit()));
         filterButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
