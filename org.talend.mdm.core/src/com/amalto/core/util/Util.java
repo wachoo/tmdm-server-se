@@ -77,7 +77,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import com.amalto.core.ejb.UpdateReportPOJO;
 import org.apache.commons.jxpath.AbstractFactory;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
@@ -104,6 +103,7 @@ import com.amalto.core.delegator.IXtentisWSDelegator;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.DroppedItemCtrlLocal;
 import com.amalto.core.ejb.local.DroppedItemCtrlLocalHome;
 import com.amalto.core.ejb.local.ItemCtrl2Local;
@@ -187,20 +187,21 @@ public class Util {
     private static final Logger LOG = Logger.getLogger(Util.class);
 
     private static final TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    
+
     private static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage"; //$NON-NLS-1$
+
     private static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema"; //$NON-NLS-1$
+
     private static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource"; //$NON-NLS-1$
-    
+
     private static LRUCache<String, Document> xmlCache = new LRUCache<String, Document>(20);
-    
+
     private static DocumentBuilderFactory nonValidatingDocumentBuilderFactory;
 
-    
     static {
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",  DocumentBuilderFactoryImpl.class.getName()); //$NON-NLS-1$
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", DocumentBuilderFactoryImpl.class.getName()); //$NON-NLS-1$
     }
-    
+
     /**
      * helper class
      */
@@ -216,7 +217,7 @@ public class Util {
                 nc = list.next();
 
                 if (withPrefix) {
-                    serviceJndiList.add(serviceJndiPrefix + "/" + nc.getName());  //$NON-NLS-1$
+                    serviceJndiList.add(serviceJndiPrefix + "/" + nc.getName()); //$NON-NLS-1$
                 } else {
                     serviceJndiList.add(nc.getName());
                 }
@@ -231,8 +232,6 @@ public class Util {
         return getRuntimeServiceJndiList(true);
     }
 
-    
-
     /*********************************************************************
      * Parsing Stuff
      *********************************************************************/
@@ -242,8 +241,6 @@ public class Util {
         return doc;
     }
 
-    
-
     public static Document parseXSD(String xsd) throws ParserConfigurationException, IOException, SAXException {
         Document doc = xmlCache.get(xsd);
         if (doc != null)
@@ -252,7 +249,7 @@ public class Util {
         xmlCache.put(xsd, doc);
         return doc;
     }
-    
+
     private static synchronized DocumentBuilderFactory getDocumentBuilderFactory() {
         if (nonValidatingDocumentBuilderFactory == null) {
             nonValidatingDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -265,7 +262,7 @@ public class Util {
 
     public static Document parse(String xmlString, String schema) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory factory;
-        if(schema != null) {
+        if (schema != null) {
             factory = DocumentBuilderFactory.newInstance();
             // Schema validation based on schemaURL
             factory.setNamespaceAware(true);
@@ -275,7 +272,7 @@ public class Util {
         } else {
             factory = getDocumentBuilderFactory();
         }
-        
+
         DocumentBuilder builder = factory.newDocumentBuilder();
         SAXErrorHandler seh = new SAXErrorHandler();
         builder.setErrorHandler(seh);
@@ -1022,8 +1019,9 @@ public class Util {
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException {
         try {
             String schema = nodeToString(xsd);
-            //FIXME: sometimes this bug 'Concept/.../Conpcet/Id' happens in the cache, so I have to remove getFromCache first! 
-            //XSDKey key = xsdkeyCache.get(schema + "#" + businessConceptName);
+            // FIXME: sometimes this bug 'Concept/.../Conpcet/Id' happens in the cache, so I have to remove getFromCache
+            // first!
+            // XSDKey key = xsdkeyCache.get(schema + "#" + businessConceptName);
             XSDKey key = null;
             if (key != null)
                 return key;
@@ -1042,7 +1040,7 @@ public class Util {
                 DocumentBuilder builder;
                 builder = factory.newDocumentBuilder();
                 NodeList list = null;
-                
+
                 for (int xsdType = 0; xsdType < 2; xsdType++) {
                     if (xsdType == 0)
                         list = Util.getNodeList(xsd, "./xsd:import");
@@ -1080,7 +1078,7 @@ public class Util {
                 xsdkeyCache.put(schema + "#" + businessConceptName, key);
                 return key;
             }
-            
+
         } catch (Exception e) {
             String err = "Unable to get the keys for the Business Concept " + businessConceptName + ": "
                     + e.getLocalizedMessage();
@@ -1206,13 +1204,13 @@ public class Util {
         XSOMParser reader = new XSOMParser();
         reader.setAnnotationParser(new DomAnnotationParserFactory());
         reader.setEntityResolver(new SecurityEntityResolver());
-        SAXErrorHandler seh=new SAXErrorHandler();
+        SAXErrorHandler seh = new SAXErrorHandler();
         reader.setErrorHandler(seh);
         reader.parse(new StringReader(xsd));
         XSSchemaSet xss = reader.getResult();
         String errors = seh.getErrors();
-        if(errors.length()>0){
-        	throw new SAXException("DataModel parsing error--->"+errors);
+        if (errors.length() > 0) {
+            throw new SAXException("DataModel parsing error--->" + errors);
         }
         Collection xssList = xss.getSchemas();
         Map<String, XSElementDecl> mapForAll = new HashMap<String, XSElementDecl>();
@@ -1227,20 +1225,20 @@ public class Util {
     }
 
     static LRUCache<String, Map<String, XSType>> cTypeMapCache = new LRUCache<String, Map<String, XSType>>(10);
-    
+
     public static Map<String, XSType> getConceptTypeMap(String xsd) throws Exception {
         if (cTypeMapCache.get(xsd) != null)
             return cTypeMapCache.get(xsd);
         XSOMParser reader = new XSOMParser();
         reader.setAnnotationParser(new DomAnnotationParserFactory());
         reader.setEntityResolver(new SecurityEntityResolver());
-        SAXErrorHandler seh=new SAXErrorHandler();
+        SAXErrorHandler seh = new SAXErrorHandler();
         reader.setErrorHandler(seh);
         reader.parse(new StringReader(xsd));
         XSSchemaSet xss = reader.getResult();
         String errors = seh.getErrors();
-        if(errors.length()>0){
-            throw new SAXException("DataModel parsing error--->"+errors);
+        if (errors.length() > 0) {
+            throw new SAXException("DataModel parsing error--->" + errors);
         }
         Collection xssList = xss.getSchemas();
         Map<String, XSType> mapForAll = new HashMap<String, XSType>();
@@ -1248,12 +1246,13 @@ public class Util {
         for (Iterator iter = xssList.iterator(); iter.hasNext();) {
             XSSchema schema = (XSSchema) iter.next();
             map = schema.getTypes();
-            
+
             mapForAll.putAll(map);
         }
         cTypeMapCache.put(xsd, mapForAll);
         return mapForAll;
     }
+
     /**
      * update the node according to the schema
      * 
@@ -1385,7 +1384,8 @@ public class Util {
      */
     public static boolean checkHidden(XSParticle xsp) {
         boolean hidden = false;
-        if(xsp.getTerm().getAnnotation()==null)return hidden;
+        if (xsp.getTerm().getAnnotation() == null)
+            return hidden;
         Element annotations = (Element) xsp.getTerm().getAnnotation().getAnnotation();
         NodeList annotList = annotations.getChildNodes();
 
@@ -1501,12 +1501,11 @@ public class Util {
                     String universe = LocalUser.getLocalUser().getUniverse().getName();
                     Object o = jxpContext.getValue(xpath);
                     if (o == null || o.toString().trim().length() == 0) {
-                        long id = AutoIncrementGenerator.generateNum(universe, dataCluster, concept + "."
-                                + xpath.replaceAll("/", "."));
+                        long id = AutoIncrementGenerator.generateNum(universe, dataCluster,
+                                concept + "." + xpath.replaceAll("/", "."));
                         AutoIncrementGenerator.saveToDB();
                         value = String.valueOf(id);
-                    }
-                    else
+                    } else
                         value = o.toString();
                 }
                 jxpContext.createPathAndSetValue(xpath, value);
@@ -1625,8 +1624,8 @@ public class Util {
         try {
             String type;
             type = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element[@name='" + businessConceptName
-                    + "']/xsd:complexType//xsd:element[@name='" + keyName + "']/@type", getRootElement("nsholder", xsd
-                    .getDocumentElement().getNamespaceURI(), "xsd"))[0];
+                    + "']/xsd:complexType//xsd:element[@name='" + keyName + "']/@type",
+                    getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"))[0];
 
             return type;
         } catch (TransformerException e) {
@@ -1773,14 +1772,14 @@ public class Util {
      * @return the xml string
      * @throws TransformerException
      */
-    public static String nodeToString(Node n, boolean omitXMLDeclaration) throws TransformerException {      
+    public static String nodeToString(Node n, boolean omitXMLDeclaration) throws TransformerException {
         StringWriter sw = new StringWriter();
         Transformer transformer = transformerFactory.newTransformer();
         if (omitXMLDeclaration)
             transformer.setOutputProperty("omit-xml-declaration", "yes");
         else
             transformer.setOutputProperty("omit-xml-declaration", "no");
-        if(LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled())
             transformer.setOutputProperty("indent", "yes");
         transformer.transform(new DOMSource(n), new StreamResult(sw));
         if (sw == null)
@@ -1788,7 +1787,7 @@ public class Util {
         String s = sw.toString().replaceAll("\r\n", "\n");
         return s;
     }
-    
+
     /**
      * DOC HSHU Comment method "removeAllAttributes".
      * 
@@ -1840,8 +1839,8 @@ public class Util {
      */
     public static NodeList getNodeList(Node contextNode, String xPath, String namespace, String prefix) throws XtentisException {
         try {
-            XObject xo = XPathAPI.eval(contextNode, xPath, (namespace == null) ? contextNode : Util.getRootElement("nsholder",
-                    namespace, prefix));
+            XObject xo = XPathAPI.eval(contextNode, xPath,
+                    (namespace == null) ? contextNode : Util.getRootElement("nsholder", namespace, prefix));
             if (xo.getType() != XObject.CLASS_NODESET)
                 return null;
             return xo.nodelist();
@@ -2617,9 +2616,9 @@ public class Util {
         if (ids == null)
             return itemPKXmlString.toString();
 
-        itemPKXmlString.append("<item-pOJOPK><concept-name>").append(conceptName).append("</concept-name><ids>").append(
-                joinStrings(ids, ".")).append("</ids><data-cluster-pOJOPK><ids>").append(clusterName).append(
-                "</ids></data-cluster-pOJOPK></item-pOJOPK>");
+        itemPKXmlString.append("<item-pOJOPK><concept-name>").append(conceptName).append("</concept-name><ids>")
+                .append(joinStrings(ids, ".")).append("</ids><data-cluster-pOJOPK><ids>").append(clusterName)
+                .append("</ids></data-cluster-pOJOPK></item-pOJOPK>");
 
         return itemPKXmlString.toString();
     }
@@ -2634,14 +2633,14 @@ public class Util {
         JXPathContext jxpContextNew = JXPathContext.newContext(newElement);
         jxpContextNew.setLenient(true);
         String concept = newElement.getLocalName();
-        
+
         for (String cnodePath : complexNodes) {
             if (cnodePath.startsWith("/" + concept + "/")) {
                 cnodePath = cnodePath.replaceFirst("/" + concept + "/", "");
                 checkDiffsWhenComparingElement(map, jxpContextOld, jxpContextNew, cnodePath, true);
             }
         }
-        
+
         for (String xpath : xpaths) {
             NodeList listnew = getNodeList(newElement, xpath);
             NodeList listold = getNodeList(oldElement, xpath);
@@ -2663,52 +2662,54 @@ public class Util {
                 checkDiffsWhenComparingElement(map, jxpContextOld, jxpContextNew, xpath, false);
             }
         }
-        
+
         return map;
     }
 
     /**
      * DOC HSHU Comment method "checkDiffsWhenComparingElement".
+     * 
      * @param map
      * @param jxpContextOld
      * @param jxpContextNew
      * @param xpath
      */
-    private static void checkDiffsWhenComparingElement(HashMap<String, UpdateReportItem> map, JXPathContext jxpContextOld, JXPathContext jxpContextNew, String xpath, boolean attributeOnly) {
-        
+    private static void checkDiffsWhenComparingElement(HashMap<String, UpdateReportItem> map, JXPathContext jxpContextOld,
+            JXPathContext jxpContextNew, String xpath, boolean attributeOnly) {
+
         String oldvalue = null;
         String newvalue = null;
-        
-        //content text
-        if(!attributeOnly) {
+
+        // content text
+        if (!attributeOnly) {
             oldvalue = (String) jxpContextOld.getValue(xpath, String.class);
             newvalue = (String) jxpContextNew.getValue(xpath, String.class);
-            if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue)
-                    || oldvalue != null && oldvalue.length() > 0 && !oldvalue.equals(newvalue)) {
+            if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue) || oldvalue != null
+                    && oldvalue.length() > 0 && !oldvalue.equals(newvalue)) {
                 UpdateReportItem item = new UpdateReportItem(xpath, oldvalue, newvalue);
                 map.put(xpath, item);
             }
         }
-        
-        //attributes
-        String attrXpath1 = xpath+"/@xsi:type";
-        oldvalue=(String) jxpContextOld.getValue(attrXpath1, String.class);
+
+        // attributes
+        String attrXpath1 = xpath + "/@xsi:type";
+        oldvalue = (String) jxpContextOld.getValue(attrXpath1, String.class);
         newvalue = (String) jxpContextNew.getValue(attrXpath1, String.class);
-        if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue)
-                || oldvalue != null && oldvalue.length() > 0 && !oldvalue.equals(newvalue)) {
+        if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue) || oldvalue != null && oldvalue.length() > 0
+                && !oldvalue.equals(newvalue)) {
             UpdateReportItem item = new UpdateReportItem(attrXpath1, oldvalue, newvalue);
             map.put(attrXpath1, item);
         }
-        
-        String attrXpath2 = xpath+"/@tmdm:type";
-        oldvalue=(String) jxpContextOld.getValue(attrXpath2, String.class);
+
+        String attrXpath2 = xpath + "/@tmdm:type";
+        oldvalue = (String) jxpContextOld.getValue(attrXpath2, String.class);
         newvalue = (String) jxpContextNew.getValue(attrXpath2, String.class);
-        if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue)
-                || oldvalue != null && oldvalue.length() > 0 && !oldvalue.equals(newvalue)) {
+        if (newvalue != null && newvalue.length() > 0 && !newvalue.equals(oldvalue) || oldvalue != null && oldvalue.length() > 0
+                && !oldvalue.equals(newvalue)) {
             UpdateReportItem item = new UpdateReportItem(attrXpath2, oldvalue, newvalue);
             map.put(attrXpath2, item);
         }
-        
+
     }
 
     /**
@@ -3512,7 +3513,9 @@ public class Util {
                     while ((z = in.getNextEntry()) != null) {
                         String dirName = z.getName();
                         int pos = dirName.indexOf('/');
-
+                        if (pos == -1) {
+                            pos = dirName.indexOf(File.separator);
+                        }
                         String dir = dirName.substring(0, pos);
                         pos = dir.lastIndexOf('_');
                         jobName = dir.substring(0, pos);
