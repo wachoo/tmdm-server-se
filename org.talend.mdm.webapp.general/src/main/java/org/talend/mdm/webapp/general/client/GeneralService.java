@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.MenuBean;
+import org.talend.mdm.webapp.general.model.UserBean;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -35,4 +36,6 @@ public interface GeneralService extends RemoteService {
     List<ComboBoxModel> getModels();
     
     String setClusterAndModel(String cluster, String model);
+    
+    public UserBean getUsernameAndUniverse() throws Exception;
 }

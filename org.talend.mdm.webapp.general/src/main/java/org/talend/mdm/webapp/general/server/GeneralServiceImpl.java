@@ -13,9 +13,10 @@
 package org.talend.mdm.webapp.general.server;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.security.jacc.PolicyContextException;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
@@ -23,12 +24,13 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.general.client.GeneralService;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.MenuBean;
+import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
+import org.w3c.dom.Document;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSDataCluster;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModel;
@@ -51,8 +53,9 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
         List<MenuBean> menus = new ArrayList<MenuBean>();
         try {
             Utils.getSubMenus(Menu.getRootMenu(), language, menus, 1, 1);
-        } catch (XtentisWebappException e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            e.printStackTrace();
         }
         return menus;
     }
@@ -118,5 +121,37 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
         } catch (Exception e) {
             return e.getLocalizedMessage();
         }           
+    }
+    
+    public UserBean getUsernameAndUniverse() throws Exception {
+        UserBean userBean = new UserBean();
+        userBean.setEnterprise(com.amalto.core.util.Util.isEnterprise());
+        if (!com.amalto.core.util.Util.isEnterprise()) {
+            userBean.setName(Util.getLoginUserName());
+            userBean.setUniverse("UNKNOWN"); //$NON-NLS-1$
+            return userBean;
+        }
+        try {
+            String givenname = null;
+            String familyname = null;
+            String xml = Util.getAjaxSubject().getXml();
+            if (xml != null) {
+                Document d = Util.parse(xml);
+                givenname = Util.getFirstTextNode(d, "//givenname"); //$NON-NLS-1$
+                familyname = Util.getFirstTextNode(d, "//familyname"); //$NON-NLS-1$
+            }
+
+            String universe = Util.getLoginUniverse();
+            if (familyname != null && givenname != null){
+                userBean.setName(givenname + " " + familyname); //$NON-NLS-1$
+            } else{
+                userBean.setName(Util.getAjaxSubject().getUsername());
+            }
+            userBean.setUniverse(universe);
+            return userBean;
+        } catch (PolicyContextException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

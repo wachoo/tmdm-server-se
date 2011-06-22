@@ -25,13 +25,15 @@ public class General implements EntryPoint {
 
 	public static final String OVERALL_SERVICE = "GeneralService"; //$NON-NLS-1$
 	
+	public static final String USER_BEAN = "UserBean"; //$NON-NLS-1$
+	
 	public void onModuleLoad() {
 		Registry.register(OVERALL_SERVICE, GWT.create(GeneralService.class));
 		PublicMessageService.registerMessageService();
 		
 		Dispatcher dispatcher = Dispatcher.get();
 		dispatcher.addController(new GeneralController());
-		dispatcher.dispatch(GeneralEvent.InitFrame);
+		dispatcher.dispatch(GeneralEvent.LoadUser);
 
 	}
 }

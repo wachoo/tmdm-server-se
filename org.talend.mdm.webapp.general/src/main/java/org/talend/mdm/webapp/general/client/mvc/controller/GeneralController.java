@@ -27,13 +27,14 @@ import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
 import org.talend.mdm.webapp.general.client.util.UrlUtil;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.MenuBean;
+import org.talend.mdm.webapp.general.model.UserBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.google.gwt.user.client.Window.Location;
 
 public class GeneralController extends Controller {
 
@@ -42,6 +43,7 @@ public class GeneralController extends Controller {
 	private GeneralView view;
 	
 	public GeneralController(){
+	    registerEventTypes(GeneralEvent.LoadUser);
 		registerEventTypes(GeneralEvent.InitFrame);
 		registerEventTypes(GeneralEvent.Error);
 		registerEventTypes(GeneralEvent.LoadMenus);
@@ -58,11 +60,13 @@ public class GeneralController extends Controller {
 	@Override
 	public void handleEvent(final AppEvent event) {
 		EventType type = event.getType();
-		
-		if (type == GeneralEvent.InitFrame){
+
+		if (type == GeneralEvent.LoadUser){
+		    loadUser(event);
+		} else if (type == GeneralEvent.InitFrame){
 		    forwardToView(view, event);
 		} else if (type == GeneralEvent.Error){
-			this.forwardToView(view, event);
+		    this.forwardToView(view, event);
 		} else if (type == GeneralEvent.LoadMenus){
 		    loadMenu(event);
 		} else if (type == GeneralEvent.LoadActions){
@@ -78,6 +82,16 @@ public class GeneralController extends Controller {
             public void onSuccess(List<MenuBean> result) {
                 event.setData(result);
                 forwardToView(view, event);
+            }
+        });
+	}
+	
+	private void loadUser(AppEvent event){
+	    service.getUsernameAndUniverse(new MdmAsyncCallback<UserBean>() {
+            public void onSuccess(UserBean userBean) {
+                Registry.register(General.USER_BEAN, userBean);
+                Dispatcher dispatcher = Dispatcher.get();
+                dispatcher.dispatch(GeneralEvent.InitFrame);
             }
         });
 	}

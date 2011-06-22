@@ -12,8 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.client.layout;
 
+import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
+import org.talend.mdm.webapp.general.model.UserBean;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -95,9 +98,15 @@ public class BrandingBar extends ContentPanel {
     }-*/;
     
     private void buildBar(){
-
+        UserBean userBean = Registry.get(General.USER_BEAN);
         bar.add(new Image("/talendmdm/secure/img/header-back-title.png")); //$NON-NLS-1$
-        HTML userLabel = new HTML("Default Administrator<br>connected to: [HEAD]"); //$NON-NLS-1$
+        String html = userBean.getName() + "<br>"; //$NON-NLS-1$
+        if(userBean.getUniverse() != null && userBean.getUniverse().trim().length() != 0 && !"UNKNOWN".equals(userBean.getUniverse())){ //$NON-NLS-1$
+            html += MessageFactory.getMessages().connected_to() + ": [" + userBean.getUniverse() + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+        } else {
+            html += MessageFactory.getMessages().connected_to() + ": [HEAD]"; //$NON-NLS-1$
+        }
+        HTML userLabel = new HTML(html); 
         userLabel.setStyleName("username"); //$NON-NLS-1$
         userLabel.getElement().setId("username-div"); //$NON-NLS-1$
         bar.add(userLabel);
@@ -105,14 +114,14 @@ public class BrandingBar extends ContentPanel {
         hp.getElement().getStyle().setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
         hp.getElement().getStyle().setProperty("top", "-2px"); //$NON-NLS-1$ //$NON-NLS-2$
         hp.getElement().getStyle().setProperty("right", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
-        
 
         Image logoMdm = new Image("/talendmdm/secure/img/logo-mdm.png"); //$NON-NLS-1$
         logoMdm.getElement().getStyle().setMarginTop(2D, Unit.PX);
         hp.add(logoMdm);
         hp.setCellVerticalAlignment(logoMdm, VerticalPanel.ALIGN_BOTTOM);
         
-        HTML versionLabel = new HTML("Enterprise<br>Edition"); //$NON-NLS-1$
+        
+        HTML versionLabel = new HTML(userBean.isEnterprise() ? MessageFactory.getMessages().enterprise() : MessageFactory.getMessages().community() + "<br>" + MessageFactory.getMessages().edition()); //$NON-NLS-1$
         versionLabel.setStyleName("version-label"); //$NON-NLS-1$
         hp.add(versionLabel);
         hp.setCellVerticalAlignment(versionLabel, VerticalPanel.ALIGN_MIDDLE);

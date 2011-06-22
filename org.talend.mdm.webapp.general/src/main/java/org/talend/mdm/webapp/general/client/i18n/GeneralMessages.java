@@ -36,4 +36,12 @@ public interface GeneralMessages extends Messages {
     String status_msg_failure();
     
     String logout();
+    
+    String enterprise();
+    
+    String community();
+    
+    String edition();
+    
+    String connected_to();
 }
