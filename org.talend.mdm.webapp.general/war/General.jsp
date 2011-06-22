@@ -16,7 +16,11 @@
 		out.print(js);
 	}
     %>
+    <script>
+	talend = {};
+    </script>
     <script type="text/javascript" language="javascript" src="test_datastewardship.js"></script>
+    <script type="text/javascript" language="javascript" src="test_crossreference.js"></script>
     
     <script type="text/javascript" language="javascript" src="general/general.nocache.js"></script>
     

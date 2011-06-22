@@ -126,7 +126,7 @@ public class AccordionMenus extends ContentPanel {
 
     private native void getUrl(String context, String application, String language, GetUrl getUrl)/*-{
         
-        $wnd.amalto[context][application].getUrl(language, function(url){
+        $wnd.talend[context][application].getUrl(language, function(url){
             if (getUrl != null){
                 getUrl.@org.talend.mdm.webapp.general.client.layout.AccordionMenus.GetUrl::getUrl(Ljava/lang/String;)(url);
             }
