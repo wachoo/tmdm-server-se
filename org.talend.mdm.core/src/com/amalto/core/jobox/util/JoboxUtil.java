@@ -10,6 +10,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import com.amalto.core.jobox.JobInfo;
+
 public class JoboxUtil {
 
     // param folderPath
@@ -131,19 +133,20 @@ public class JoboxUtil {
 
     }
 
-    public static void findFirstFile(File root, String fileName, List<File> resultList) {
+    public static void findFirstFile(JobInfo jobInfo, File root, String fileName, List<File> resultList) {
 
         if (resultList.size() > 0)
             return;
 
         if (root.isFile()) {
             if (root.getName().equals(fileName)) {
-                resultList.add(root);
+            	if(jobInfo==null || root.getParentFile().getParentFile().getName().toLowerCase().startsWith(jobInfo.getName().toLowerCase())) 
+            	 	resultList.add(root); 
             }
         } else if (root.isDirectory()) {
             File[] files = root.listFiles();
             for (int i = 0; i < files.length; i++) {
-                findFirstFile(files[i], fileName, resultList);
+                findFirstFile(jobInfo,files[i], fileName, resultList);
             }
         }
 

@@ -76,7 +76,7 @@ public class JoboxListener implements DirListener {
             return;
         }
         List<File> resultList = new ArrayList<File>();
-        JoboxUtil.findFirstFile(new File(sourcePath), "classpath.jar", resultList); //$NON-NLS-1$
+        JoboxUtil.findFirstFile(null, new File(sourcePath), "classpath.jar", resultList); //$NON-NLS-1$
         if (!resultList.isEmpty()) {
             JarInputStream jarIn = null;
             JarOutputStream jarOut = null;
