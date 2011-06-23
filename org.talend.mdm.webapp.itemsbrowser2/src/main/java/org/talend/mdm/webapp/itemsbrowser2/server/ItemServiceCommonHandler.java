@@ -27,9 +27,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -57,6 +59,7 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
+import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -98,7 +101,7 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     private static final long serialVersionUID = 1L;
-    
+
     private static final Logger LOG = Logger.getLogger(ItemServiceCommonHandler.class);
 
     private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
@@ -373,12 +376,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             // TODO UGLY!!!! to be refactored
             if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {//$NON-NLS-1$ 
                 String saveSUCCE = "Save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$ 
-                        + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".")//$NON-NLS-1$ 
+                        + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".")//$NON-NLS-1$
                         + "' successfully, But " + e.getLocalizedMessage();//$NON-NLS-1$ 
                 result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
             } else {
                 String err = "Unable to save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$ 
-                        + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".") + "'"//$NON-NLS-1$ //$NON-NLS-2$ 
+                        + com.amalto.webapp.core.util.Util.joinStrings(new String[] { item.getIds() }, ".") + "'"//$NON-NLS-1$ //$NON-NLS-2$
                         + e.getLocalizedMessage();
                 if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
                     err = e.getLocalizedMessage();
@@ -656,17 +659,15 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return null;
     }
 
-    private static LinkedHashMap<String, String> getMapSortedByValue(Map<String, String> map) {
-        TreeSet<Map.Entry> set = new TreeSet<Map.Entry>(new Comparator() {
-
-            public int compare(Object obj, Object obj1) {
-                return ((Comparable) ((Map.Entry) obj).getValue()).compareTo(((Map.Entry) obj1).getValue());
+    private static Map<String, String> getMapSortedByValue(Map<String, String> map) {
+        TreeSet<Map.Entry<String, String>> set = new TreeSet<Map.Entry<String, String>>(new Comparator<Map.Entry<String, String>>() {
+            public int compare(Map.Entry<String, String> obj, Map.Entry<String, String> obj1) {
+                return obj.getValue().compareTo(obj1.getValue());
             }
         });
         set.addAll(map.entrySet());
-        LinkedHashMap<String, String> sortedMap = new LinkedHashMap<String, String>();
-        for (Iterator i = set.iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
+        Map<String, String> sortedMap = new LinkedHashMap<String, String>();
+        for (Map.Entry entry : set) {
             sortedMap.put((String) entry.getKey(), (String) entry.getValue());
         }
 
@@ -674,125 +675,58 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     }
 
     private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids) {
-
         String xpathForeignKey = model.getForeignkey();
-        if (xpathForeignKey == null)
+        if (xpathForeignKey == null) {
             return null;
-
+        }
         if (ids == null || ids.trim().length() == 0) {
             return null;
         }
 
         ForeignKeyBean bean = new ForeignKeyBean();
+        bean.setId(ids);
         if (!model.isRetrieveFKinfos()) {
-            bean.setId(ids);
             return bean;
-        }
+        } else {
+            try {
+                ItemPOJOPK pk = new ItemPOJOPK();
+                // TODO Support compound key
+                String[] itemId = {ids.replaceAll("\\[", "").replaceAll("\\]", "").trim()}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                pk.setIds(itemId);
+                pk.setConceptName(model.getForeignkey().split("/")[0]);
+                pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
+                ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
 
-        String xpathInfoForeignKey = model.getForeignKeyInfo().toString().replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-
-        String[] results = null;
-        try {
-
-            String initxpathForeignKey = ""; //$NON-NLS-1$
-            initxpathForeignKey = com.amalto.webapp.core.util.Util.getForeignPathFromPath(xpathForeignKey);
-            initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
-
-            // foreign key set by business concept
-            if (initxpathForeignKey.split("/").length == 1) { //$NON-NLS-1$
-                String conceptName = initxpathForeignKey;
-
-                String dataClusterPK = getCurrentDataCluster();
-
-                // determine if we have xPath Infos: e.g. labels to display
-                String[] xpathInfos = new String[1];
-                if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null)//$NON-NLS-1$
-                    xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
-                else
-                    xpathInfos[0] = conceptName;
-
-                // add the xPath Infos Path
-                ArrayList<String> xPaths = new ArrayList<String>();
-                if (model.isRetrieveFKinfos())
-                    // add the xPath Infos Path
-                    for (int i = 0; i < xpathInfos.length; i++) {
-                        xPaths.add(com.amalto.webapp.core.util.Util.getFormatedFKInfo(xpathInfos[i], conceptName));
+                if (item != null) {
+                    org.w3c.dom.Document document = item.getProjection().getOwnerDocument();
+                    List<String> foreignKeyInfo = model.getForeignKeyInfo();
+                    String id = "";
+                    for (String foreignKeyPath : foreignKeyInfo) {
+                        NodeList nodes = com.amalto.core.util.Util.getNodeList(document, StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
+                        if (nodes.getLength() == 1) {
+                            id += nodes.item(0).getTextContent(); //$NON-NLS-1$ //$NON-NLS-2$
+                        } else {
+                            throw new IllegalArgumentException("XPath '" + foreignKeyPath + "' matched " + nodes.getLength() + " instead of 1.");
+                        }
                     }
-                // add the key paths last, since there may be multiple keys
-                xPaths.add(conceptName + "/../../i"); //$NON-NLS-1$
 
-                // where conditions
-                WSWhereCondition whereCondition = com.amalto.webapp.core.util.Util.getConditionFromPath(xpathForeignKey);
-                WSWhereItem whereItem = null;
-                if (whereCondition != null) {
-                    whereItem = new WSWhereItem(whereCondition, null, null);
+                    bean.setId(id);
+                    return bean;
                 }
-
-                List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
-                if (whereItem != null)
-                    condition.add(whereItem);
-
-                List<String> idList = new ArrayList<String>();
-                Pattern pattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
-                Matcher matcher = pattern.matcher(ids);
-                while (matcher.find()) {
-                    String id = matcher.group();
-                    id = id.replaceAll("\\[", "").replaceAll("\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                    idList.add(id);
-                }
-
-                // if (MDMConfiguration.getDBType().getName().equals(EDBType.QIZX.getName())) {
-                // strConcept = conceptName + "//* CONTAINS ";
-                // }
-                for (int i = 0; i < idList.size(); i++) {
-                    String id = idList.get(i);
-                    String strConcept = conceptName + "/../../i CONTAINS "; //$NON-NLS-1$
-                    WSWhereItem wc = com.amalto.webapp.core.util.Util.buildWhereItem(strConcept + id);
-                    condition.add(wc);
-                }
-
-                WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
-                WSWhereItem whand = new WSWhereItem(null, and, null);
-                if (whand != null)
-                    whereItem = whand;
-
-                results = CommonUtil
-                        .getPort()
-                        .xPathsSearch(
-                                new WSXPathsSearch(new WSDataClusterPK(dataClusterPK), null, new WSStringArray(xPaths
-                                        .toArray(new String[xPaths.size()])), whereItem, -1, 0, 20, null, null)).getStrings();
-
-            }// end if
-
-            if (results != null && results.length > 0) {
-                String result = results[0];
-
-                String id = ""; //$NON-NLS-1$
-                @SuppressWarnings("unchecked")
-                List<Node> nodes = XmlUtil.getValuesFromXPath(XmlUtil.parseText(result), "//i"); //$NON-NLS-1$
-                if (nodes != null) {
-                    for (Node node : nodes) {
-                        id += "[" + (node.getText() == null ? "" : node.getText()) + "]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
-                    }
-                }
-                bean.setId(id);
-                if (result != null) {
-                    Element root = XmlUtil.parseText(result).getRootElement();
-                    if (root.getName().equals("result"))//$NON-NLS-1$
-                        initFKBean(root, bean);
-                    else
-                        bean.set(root.getName(), root.getTextTrim());
-                }
-                return bean;
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
             }
-
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
         }
-        return null;
 
+        return null;
+    }
+
+    private void initFKBean(Element ele, ForeignKeyBean bean) {
+        for (Object subEle : ele.elements()) {
+            Element curEle = (Element) subEle;
+            bean.set(curEle.getName(), curEle.getTextTrim());
+            initFKBean(curEle, bean);
+        }
     }
 
     /*********************************************************************
@@ -948,15 +882,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return null;
     }
 
-    private void initFKBean(Element ele, ForeignKeyBean bean) {
-        for (Object subEle : ele.elements()) {
-            Element curEle = (Element) subEle;
-            bean.set(curEle.getName(), curEle.getTextTrim());
-            initFKBean(curEle, bean);
-        }
-    }
-
-    /*********************************************************************
+    /**
+     * ******************************************************************
      * Bookmark management
      *********************************************************************/
 
