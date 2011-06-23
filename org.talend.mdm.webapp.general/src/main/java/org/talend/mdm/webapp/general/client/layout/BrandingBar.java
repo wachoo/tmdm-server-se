@@ -12,8 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.client.layout;
 
+import java.util.List;
+
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
+import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.UserBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -144,18 +147,14 @@ public class BrandingBar extends ContentPanel {
         
         this.add(bar);
         
-        buildLanguage();
     }
     
-    private void buildLanguage(){
-        String lang = Location.getParameter("language"); //$NON-NLS-1$
-        languageBox.addItem("English", "en"); //$NON-NLS-1$ //$NON-NLS-2$
-        if ("en".equals(lang)){ //$NON-NLS-1$
-            languageBox.setSelectedIndex(languageBox.getItemCount() - 1);
-        }
-        languageBox.addItem("Francais", "fr");//$NON-NLS-1$ //$NON-NLS-2$
-        if ("fr".equals(lang)){ //$NON-NLS-1$
-            languageBox.setSelectedIndex(languageBox.getItemCount() - 1);
+    public void buildLanguage(List<ItemBean> languages){
+        for (ItemBean lang : languages){
+            languageBox.addItem(lang.getText(), lang.getValue());
+            if (lang.getValue().equals(Location.getParameter("language"))){ //$NON-NLS-1$
+                languageBox.setSelectedIndex(languageBox.getItemCount() - 1);
+            }
         }
     }
     

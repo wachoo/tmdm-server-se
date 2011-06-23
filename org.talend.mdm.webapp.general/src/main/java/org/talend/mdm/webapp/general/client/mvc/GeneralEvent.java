@@ -26,6 +26,8 @@ public class GeneralEvent {
     
     public static final EventType LoadActions = new EventType();
     
+    public static final EventType LoadLanguages = new EventType();
+    
     public static final EventType SwitchClusterAndModel  = new EventType();
 
 }

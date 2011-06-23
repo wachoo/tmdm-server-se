@@ -12,21 +12,28 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.server;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.security.jacc.PolicyContextException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.general.client.GeneralService;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
+import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
@@ -55,7 +62,6 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
             Utils.getSubMenus(Menu.getRootMenu(), language, menus, 1, 1);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            e.printStackTrace();
         }
         return menus;
     }
@@ -66,9 +72,6 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
 
             WSDataClusterPK[] wsDataClustersPKs = Util.getPort().getDataClusterPKs(new WSRegexDataClusterPKs("*") //$NON-NLS-1$
                     ).getWsDataClusterPKs();
-
-            // CommonDWR.filterSystemClustersPK(wsDataClustersPKs, map);
-
             Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
             for (int i = 0; i < wsDataClustersPKs.length; i++) {
                 if (!XSystemObjects.isXSystemObject(xDataClustersMap, XObjectType.DATA_CLUSTER, wsDataClustersPKs[i].getPk())) {
@@ -150,8 +153,42 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
             userBean.setUniverse(universe);
             return userBean;
         } catch (PolicyContextException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public List<ItemBean> getLanguages() {
+        InputStream is = GeneralServiceImpl.class.getResourceAsStream("languages.xml"); //$NON-NLS-1$
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        List<ItemBean> languages = new ArrayList<ItemBean>();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(is);
+            Element root = doc.getDocumentElement();
+            NodeList nodes = root.getChildNodes();
+            for (int i = 0;i < nodes.getLength();i++){
+                Node node = nodes.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE){
+                    if (node.getNodeName().equals("language")){ //$NON-NLS-1$ 
+                        ItemBean lang = new ItemBean();
+                        lang.setText(node.getTextContent());
+                        lang.setValue(node.getAttributes().getNamedItem("value").getNodeValue()); //$NON-NLS-1$
+                        languages.add(lang);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        
+        return languages;
+    }
+    
+    //temp test
+    public static void main(String[] args){
+        GeneralServiceImpl gs = new GeneralServiceImpl();
+        List<ItemBean> list = gs.getLanguages();
+        System.out.println(list.size());
     }
 }

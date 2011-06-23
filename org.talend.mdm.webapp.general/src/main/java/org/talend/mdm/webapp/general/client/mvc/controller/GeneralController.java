@@ -21,11 +21,13 @@ import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.MdmAsyncCallback;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.client.layout.ActionsPanel;
+import org.talend.mdm.webapp.general.client.layout.BrandingBar;
 import org.talend.mdm.webapp.general.client.layout.WorkSpace;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
 import org.talend.mdm.webapp.general.client.util.UrlUtil;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
+import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.talend.mdm.webapp.general.model.UserBean;
 
@@ -47,6 +49,7 @@ public class GeneralController extends Controller {
 		registerEventTypes(GeneralEvent.InitFrame);
 		registerEventTypes(GeneralEvent.Error);
 		registerEventTypes(GeneralEvent.LoadMenus);
+		registerEventTypes(GeneralEvent.LoadLanguages);
 		registerEventTypes(GeneralEvent.LoadActions);
 		registerEventTypes(GeneralEvent.SwitchClusterAndModel);
 	}
@@ -67,6 +70,8 @@ public class GeneralController extends Controller {
 		    forwardToView(view, event);
 		} else if (type == GeneralEvent.Error){
 		    this.forwardToView(view, event);
+		} else if (type == GeneralEvent.LoadLanguages){
+		    loadLanguages(event);
 		} else if (type == GeneralEvent.LoadMenus){
 		    loadMenu(event);
 		} else if (type == GeneralEvent.LoadActions){
@@ -74,6 +79,16 @@ public class GeneralController extends Controller {
 		} else if (type == GeneralEvent.SwitchClusterAndModel){
 		    switchClusterAndModel(event);
 		}
+	}
+	
+	private void loadLanguages(AppEvent event){
+	    service.getLanguages(new MdmAsyncCallback<List<ItemBean>>() {
+            public void onSuccess(List<ItemBean> result) {
+                BrandingBar.getInstance().buildLanguage(result);
+                Dispatcher dispatcher = Dispatcher.get();
+                dispatcher.dispatch(GeneralEvent.InitFrame);
+            }
+        });
 	}
 	
 	private void loadMenu(final AppEvent event){
@@ -91,7 +106,7 @@ public class GeneralController extends Controller {
             public void onSuccess(UserBean userBean) {
                 Registry.register(General.USER_BEAN, userBean);
                 Dispatcher dispatcher = Dispatcher.get();
-                dispatcher.dispatch(GeneralEvent.InitFrame);
+                dispatcher.dispatch(GeneralEvent.LoadLanguages);
             }
         });
 	}

@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.general.client;
 import java.util.List;
 
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
+import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.talend.mdm.webapp.general.model.UserBean;
 
@@ -38,4 +39,6 @@ public interface GeneralService extends RemoteService {
     String setClusterAndModel(String cluster, String model);
     
     public UserBean getUsernameAndUniverse() throws Exception;
+    
+    public List<ItemBean> getLanguages();
 }
