@@ -508,7 +508,7 @@ public class ItemsToolBar extends ToolBar {
                     ((ItemsListPanel) instance.getParent()).gridContainer.setHeight(instance.getParent().getOffsetHeight()
                             - instance.getOffsetHeight() - advancedPanel.getOffsetHeight());
                 if (isSimple)
-                    advancedPanel.setCriteria(simplePanel.getCriteria().toString());
+                    advancedPanel.setCriteria("((" + simplePanel.getCriteria().toString() + "))"); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
         });
