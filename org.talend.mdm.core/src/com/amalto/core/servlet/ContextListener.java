@@ -11,22 +11,36 @@
 
 package com.amalto.core.servlet;
 
+import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
+import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocalHome;
+import com.amalto.core.util.Util;
+import org.apache.log4j.Logger;
+
+import javax.naming.InitialContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
-import org.apache.log4j.Logger;
+import javax.servlet.ServletException;
 
 /**
  *
  */
 public class ContextListener implements ServletContextListener {
+
     private static final Logger log = Logger.getLogger(ContextListener.class);
 
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        // Nothing to do here.
+        if (log.isDebugEnabled()) {
+            log.debug("contextInitialized()"); //$NON-NLS-1$
+        }
+
+        try {
+            // AutoUpgrade
+            ConfigurationInfoCtrlLocal ctrl = ((ConfigurationInfoCtrlLocalHome) new InitialContext().lookup(ConfigurationInfoCtrlLocalHome.JNDI_NAME)).create();
+            ctrl.autoUpgradeInBackground();
+        } catch (Throwable e) {
+            log.error("Unable to perform Auto Upgrade", e);
+        }
     }
 
     /**

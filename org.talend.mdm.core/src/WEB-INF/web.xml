@@ -38,19 +38,6 @@
       </init-param>
 
    </servlet>
-   
-   
-   <servlet>
-      <servlet-name>startupServlet</servlet-name>
-      <display-name>Start-Up Servlet</display-name>
-      <description><![CDATA[This servlet launches the autoUpgrade on start-up]]></description>
-      <servlet-class>com.amalto.core.servlet.StartupServlet</servlet-class>
-      <init-param>
-         <param-name>action</param-name>
-         <param-value>all</param-value>
-      </init-param>
-      <load-on-startup>999</load-on-startup>
-   </servlet>
 
    <servlet>
       <servlet-name>loadServlet</servlet-name>
@@ -71,10 +58,6 @@
    <servlet-mapping>
       <servlet-name>uploadFile</servlet-name>
       <url-pattern>/uploadFile</url-pattern>
-   </servlet-mapping>
-   <servlet-mapping>
-      <servlet-name>startupServlet</servlet-name>
-      <url-pattern>/startupServlet</url-pattern>
    </servlet-mapping>
    <servlet-mapping>
       <servlet-name>loadServlet</servlet-name>
@@ -98,16 +81,6 @@
         </auth-constraint>
     </security-constraint>
 
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>StartupServlet</web-resource-name>
-            <url-pattern>/startupServlet</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>administration</role-name>
-        </auth-constraint>
-    </security-constraint>
-        
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>UploadFile</web-resource-name>
