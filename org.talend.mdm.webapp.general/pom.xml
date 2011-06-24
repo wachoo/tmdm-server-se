@@ -91,7 +91,20 @@
             <scope>system</scope>
             <systemPath>${basedir}/../org.talend.mdm.commmon/z.mdm.common.lib.jar</systemPath>
         </dependency>
-
+        <dependency>
+            <groupId>com.amalto.core</groupId>
+            <artifactId>com.amalto.core</artifactId>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../org.talend.mdm.core/z.mdm.core.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jbossall-client</artifactId>
+            <version>4.2.2.GA</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../talend.mdm.libraries/lib/jbossall-client.jar</systemPath>
+        </dependency>  
     </dependencies>
 
     <build>
