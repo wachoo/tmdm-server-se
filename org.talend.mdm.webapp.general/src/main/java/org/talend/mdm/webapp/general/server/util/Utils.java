@@ -68,7 +68,7 @@ public class Utils {
     }
     
     public static List<ItemBean> getLanguages() {
-        InputStream is = GeneralServiceImpl.class.getResourceAsStream("languages.xml"); //$NON-NLS-1$
+        InputStream is = GeneralServiceImpl.class.getResourceAsStream("/languages.xml"); //$NON-NLS-1$
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         List<ItemBean> languages = new ArrayList<ItemBean>();
         try {
