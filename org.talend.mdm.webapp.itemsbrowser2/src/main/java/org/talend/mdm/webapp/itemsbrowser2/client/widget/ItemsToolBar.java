@@ -21,7 +21,6 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsView;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
-import org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService;
 import org.talend.mdm.webapp.itemsbrowser2.client.creator.ItemCreator;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
@@ -474,7 +473,7 @@ public class ItemsToolBar extends ToolBar {
                             });
 
                     combo = new ComboBox<ItemBaseModel>();
-                    combo.setEmptyText("Select an existing table"); //$NON-NLS-1$
+                    combo.setEmptyText("Select an existing table"); //TODO String to externalize
                     combo.setDisplayField("label"); //$NON-NLS-1$
                     combo.setWidth(150);
                     combo.setStore(tableList);
@@ -483,6 +482,7 @@ public class ItemsToolBar extends ToolBar {
 
                     combo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
+                        @Override
                         public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                             if (se.getSelectedItem() == null)
                                 return;
@@ -494,6 +494,7 @@ public class ItemsToolBar extends ToolBar {
                     toolBar.add(combo);
                     toolBar.add(new Button("Edit", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
 
+                        @Override
                         public void componentSelected(ButtonEvent ce) {
                             if (currentTableName == null)
                                 return;
@@ -502,8 +503,9 @@ public class ItemsToolBar extends ToolBar {
                     }));
 
                     toolBar.add(new SeparatorToolItem());
-                    toolBar.add(new Button("Upload Data File", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
+                    toolBar.add(new Button("Upload Data File", new SelectionListener<ButtonEvent>() { //TODO String to externalize
 
+                        @Override
                         public void componentSelected(ButtonEvent ce) {
                             if (currentTableName == null)
                                 return;
@@ -539,8 +541,8 @@ public class ItemsToolBar extends ToolBar {
                             typeList.add(list);
 
                             ComboBox<ItemBaseModel> fileTypecombo = new ComboBox<ItemBaseModel>();
-                            fileTypecombo.setEmptyText("Select..."); //$NON-NLS-1$
-                            fileTypecombo.setFieldLabel("File type"); //$NON-NLS-1$
+                            fileTypecombo.setEmptyText("Select..."); //TODO String to externalize
+                            fileTypecombo.setFieldLabel("File type"); ///TODO String to externalize
                             fileTypecombo.setDisplayField("label"); //$NON-NLS-1$
                             fileTypecombo.setValueField("key"); //$NON-NLS-1$
                             fileTypecombo.setForceSelection(true);
@@ -549,7 +551,7 @@ public class ItemsToolBar extends ToolBar {
                             formPanel.add(fileTypecombo);
 
                             CheckBox headerLine = new CheckBox();
-                            headerLine.setFieldLabel("Headres on First Line"); //$NON-NLS-1$
+                            headerLine.setFieldLabel("Headers on First Line"); //TODO String to externalize
                             formPanel.add(headerLine);
 
                             List<ItemBaseModel> separatorList = new ArrayList<ItemBaseModel>();
@@ -623,7 +625,7 @@ public class ItemsToolBar extends ToolBar {
                             encodingStoreList.add(encodingList);
 
                             final ComboBox<ItemBaseModel> encodingCombo = new ComboBox<ItemBaseModel>();
-                            encodingCombo.setFieldLabel("Encoding"); //$NON-NLS-1$
+                            encodingCombo.setFieldLabel("Encoding"); //TODO String to externalize
                             encodingCombo.setDisplayField("label"); //$NON-NLS-1$
                             encodingCombo.setValueField("key"); //$NON-NLS-1$
                             encodingCombo.setForceSelection(true);
@@ -633,6 +635,7 @@ public class ItemsToolBar extends ToolBar {
 
                             fileTypecombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
+                                @Override
                                 public void selectionChanged(SelectionChangedEvent<ItemBaseModel> event) {
                                     String type = (String) event.getSelectedItem().get("key"); //$NON-NLS-1$
                                     if (type.equalsIgnoreCase("CSV")) { //$NON-NLS-1$
@@ -647,8 +650,9 @@ public class ItemsToolBar extends ToolBar {
                                 }
                             });
 
-                            Button submit = new Button("Submit", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
+                            Button submit = new Button("Submit", new SelectionListener<ButtonEvent>() { //TODO String to externalize
 
+                                @Override
                                 public void componentSelected(ButtonEvent ce) {
                                     formPanel.submit();
                                     panel.removeAll();
@@ -667,16 +671,18 @@ public class ItemsToolBar extends ToolBar {
                         }
                     }));
                     toolBar.add(new SeparatorToolItem());
-                    toolBar.add(new Button("Delete", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
+                    toolBar.add(new Button("Delete", new SelectionListener<ButtonEvent>() { //TODO String to externalize
 
+                        @Override
                         public void componentSelected(ButtonEvent ce) {
                             if (currentTableName == null)
                                 return;
-                            MessageBox.confirm("Delete Table", "Are you sure you want to delete this Items-Browser table?", //$NON-NLS-1$ //$NON-NLS-2$
+                            MessageBox.confirm("Delete Table", "Are you sure you want to delete this Items-Browser table?", //TODO Strings to externalize
                                     new Listener<MessageBoxEvent>() {
 
                                         public void handleEvent(MessageBoxEvent event) {
-                                            if (event.getButtonClicked().getText().equalsIgnoreCase("Yes")) { //$NON-NLS-1$
+                                            
+                                            if (event.getButtonClicked().getText().equalsIgnoreCase("Yes")) { ///TODO Wrong!!!! 
                                                 String model = Itemsbrowser2.getSession().getAppHeader().getDatacluster();
                                                 service.deleteItemsBrowserTable(model, currentTableName,
                                                         new AsyncCallback<List<ItemBaseModel>>() {
@@ -700,8 +706,9 @@ public class ItemsToolBar extends ToolBar {
                         }
                     }));
                     toolBar.add(new SeparatorToolItem());
-                    toolBar.add(new Button("New items-browser table", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
+                    toolBar.add(new Button("New table", new SelectionListener<ButtonEvent>() { //TODO String to externalize
 
+                        @Override
                         public void componentSelected(ButtonEvent ce) {
 
                             panel.removeAll();
@@ -719,7 +726,7 @@ public class ItemsToolBar extends ToolBar {
                             final FormData formData = new FormData("100%"); //$NON-NLS-1$
                             final FormPanel addPanel = new FormPanel();
                             addPanel.setCollapsible(false);
-                            addPanel.setHeading("New Items-browser table"); //$NON-NLS-1$
+                            addPanel.setHeading("New table"); //TODO String to externalize. What's that ???
                             addPanel.setFrame(false);
                             addPanel.setHeaderVisible(true);
                             addPanel.setEncoding(Encoding.MULTIPART);
@@ -732,7 +739,7 @@ public class ItemsToolBar extends ToolBar {
                             main.setLayout(new ColumnLayout());
 
                             TextField<String> tableName = new TextField<String>();
-                            tableName.setFieldLabel("Table name"); //$NON-NLS-1$
+                            tableName.setFieldLabel("Table name"); //TODO String to externalize
                             addPanel.add(tableName);
 
                             final LayoutContainer left = new LayoutContainer();
@@ -760,8 +767,9 @@ public class ItemsToolBar extends ToolBar {
                             cp.add(addPanel);
                             ToolBar tb = new ToolBar();
                             tb.setWidth("100%"); //$NON-NLS-1$
-                            tb.add(new Button("Save", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
+                            tb.add(new Button("Save", new SelectionListener<ButtonEvent>() { //TODO String to externalize
 
+                                @Override
                                 public void componentSelected(ButtonEvent ce) {
 
                                 }
@@ -769,6 +777,7 @@ public class ItemsToolBar extends ToolBar {
                             tb.add(new SeparatorToolItem());
                             tb.add(new Button("Add a Field", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
 
+                                @Override
                                 public void componentSelected(ButtonEvent ce) {
                                     fieldCount = fieldCount + 1;
                                     TextField<String> f = new TextField<String>();
@@ -795,7 +804,6 @@ public class ItemsToolBar extends ToolBar {
                 }
 
                 tabFrame.setSelection(item);
-                // GetService.renderUploadWindow();
             }
         });
 
@@ -1355,7 +1363,7 @@ public class ItemsToolBar extends ToolBar {
 
                 ContentPanel content = new ContentPanel();
                 content.setCollapsible(false);
-                content.setHeading("Update Table"); //$NON-NLS-1$
+                content.setHeading("Update Table"); //TODO String to externalize
                 content.setFrame(false);
                 content.setHeaderVisible(true);
                 content.setWidth("100%"); //$NON-NLS-1$
@@ -1377,8 +1385,9 @@ public class ItemsToolBar extends ToolBar {
 
                 ToolBar buttomBar = new ToolBar();
                 buttomBar.setWidth("100%"); //$NON-NLS-1$
-                buttomBar.add(new Button("Add row", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
+                buttomBar.add(new Button("Add row", new SelectionListener<ButtonEvent>() { //TODO String to externalize
 
+                    @Override
                     public void componentSelected(ButtonEvent ce) {
                         ItemBean bean = new ItemBean();
                         grid.stopEditing();
@@ -1388,9 +1397,9 @@ public class ItemsToolBar extends ToolBar {
                 }));
 
                 buttomBar.add(new SeparatorToolItem());
-                buttomBar.add(new Button("Save")); //$NON-NLS-1$
+                buttomBar.add(new Button("Save")); //TODO String to externalize
                 buttomBar.add(new SeparatorToolItem());
-                buttomBar.add(new Button("Export")); //$NON-NLS-1$
+                buttomBar.add(new Button("Export")); //TODO String to externalize
 
                 content.add(grid);
                 content.setBottomComponent(buttomBar);
