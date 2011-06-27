@@ -57,7 +57,7 @@ public class Utils {
             Menu subMenu= menu.getSubMenus().get(key);
             
             if(subMenu.getContext()!=null) {
-                String tmp ="<script type=\"text/javascript\" src=\"/"+subMenu.getContext()+"/secure/js/"+subMenu.getApplication()+".js\"></script>\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                String tmp ="<script type=\"text/javascript\" src=\"" + subMenu.getApplication()+".js\"></script>\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 imports.add(tmp);
                 i++;
             }

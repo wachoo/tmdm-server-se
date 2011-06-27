@@ -12,14 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.server;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.security.jacc.PolicyContextException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
@@ -31,9 +28,6 @@ import org.talend.mdm.webapp.general.model.MenuBean;
 import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
@@ -108,12 +102,6 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
             LOG.error(e.getMessage(), e);
             return null;
         }
-    }
-
-    public String getMsg() {
-        List<ComboBoxModel> clusters = getClusters();
-        List<ComboBoxModel> models = getModels();
-        return "server message";
     }
 
     public String setClusterAndModel(String cluster, String model) {

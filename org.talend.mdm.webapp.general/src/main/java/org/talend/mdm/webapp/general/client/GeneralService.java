@@ -30,8 +30,6 @@ public interface GeneralService extends RemoteService {
 
     List<MenuBean> getMenus(String language) throws Exception;
     
-    String getMsg();
-    
     List<ComboBoxModel> getClusters();
     
     List<ComboBoxModel> getModels();

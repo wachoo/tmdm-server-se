@@ -9,6 +9,10 @@
     <link type="text/css" rel="stylesheet" href="General.css">
     <link type="text/css" rel="stylesheet" href="General-menus.css">
     <title>Web Application Starter Project</title>
+
+    <script>
+	talend = {};
+    </script>    
     <%
 	List<String> imports = new ArrayList<String>();
 	Utils.getJavascriptImportDetail(imports);
@@ -16,12 +20,7 @@
 		out.print(js);
 	}
     %>
-    <script>
-	talend = {};
-    </script>
-    <script type="text/javascript" language="javascript" src="test_datastewardship.js"></script>
-    <script type="text/javascript" language="javascript" src="test_crossreference.js"></script>
-    
+
     <script type="text/javascript" language="javascript" src="general/general.nocache.js"></script>
     
   </head>

@@ -17,7 +17,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 public class PublicMessageService {
 	
 	public static native void registerMessageService()/*-{
-		$wnd.OverallFrame = {
+		$wnd.General = {
 			registerGlobalMessage : function(msgId, handler){//  msgConfig.id, msgConfig.handler
 				@org.talend.mdm.webapp.general.client.message.PublicMessageService::registerGlobalMessageHandler(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(msgId, handler);
 			},

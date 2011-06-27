@@ -28,8 +28,6 @@ public interface GeneralServiceAsync {
 
     void getMenus(String language, AsyncCallback<List<MenuBean>> callback);
 
-    void getMsg(AsyncCallback<String> callback);
-
     void getClusters(AsyncCallback<List<ComboBoxModel>> callback);
 
     void getModels(AsyncCallback<List<ComboBoxModel>> callback);

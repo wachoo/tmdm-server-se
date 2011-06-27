@@ -6,7 +6,7 @@
 		window.onload = function(){
 			var btn = document.getElementById("btn");
 			btn.onclick = function(){
-				window.top.OverallFrame.registerGlobalMessage("refreshButton", function(msgId, data){
+				window.top.General.registerGlobalMessage("refreshButton", function(msgId, data){
 					btn.innerHTML = data;
 				});
 			};
