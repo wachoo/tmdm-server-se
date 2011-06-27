@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.ServletException;
 
@@ -195,4 +197,21 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
             String dataClusterPK, boolean ifFKFilter, String value) {
         return itemsServiceHandler.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
     }
+
+	@Override
+	public List<ItemBaseModel> getUploadTableNames(String datacluster, String value) {
+		return itemsServiceHandler.getUploadTableNames(datacluster, value);
+	}
+
+	@Override
+	public Map<String, List<String>> getUploadTableDescription(String datacluster, String tableName) {
+		return itemsServiceHandler.getUploadTableDescription(datacluster, tableName);
+	}
+
+	@Override
+	public List<ItemBaseModel> deleteItemsBrowserTable(String datacluster, String tableName) {
+		return itemsServiceHandler.deleteItemsBrowserTable(datacluster, tableName);
+	}
+
+
 }

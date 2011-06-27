@@ -237,4 +237,6 @@ public interface ItemsbrowserMessages extends Messages {
     String itemsBrowser_Import_Export();
     
     String itemsBrowser_Import();
+    
+    String label_items_browser();
 }

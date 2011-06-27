@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
 import java.io.Serializable;
+import java.io.StringReader;
+import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -50,6 +52,7 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -58,11 +61,15 @@ import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
+import com.amalto.webapp.util.webservices.WSDeleteBusinessConcept;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
+import com.amalto.webapp.util.webservices.WSDeleteItems;
 import com.amalto.webapp.util.webservices.WSDropItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSExistsItem;
+import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
+import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
 import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSGetView;
@@ -87,6 +94,11 @@ import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.sun.xml.xsom.XSComplexType;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.parser.XSOMParser;
 
 public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
@@ -1153,6 +1165,101 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             idList.add(tokenizer.nextToken());
         }
         return idList.toArray(new String[idList.size()]);
+    }
+    
+    @Override
+    public List<ItemBaseModel> getUploadTableNames(String datacluster, String value) {
+    	try {
+			String[] result =
+				CommonUtil.getPort().getBusinessConcepts(
+						new WSGetBusinessConcepts(
+								new WSDataModelPK(datacluster)
+						)
+				).getStrings();
+
+
+			List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
+			for(String str : result){
+				ItemBaseModel model = new ItemBaseModel();
+				model.set("label", str);
+				model.set("key", str);
+				list.add(model);
+			}
+			return list;
+			
+		} catch (XtentisWebappException e) {
+			 LOG.error(e.getMessage(), e);
+		} catch (Exception e) {
+			 LOG.error(e.getMessage(), e);
+		}
+		return null;
+    }
+    
+    public Map<String, List<String>> getUploadTableDescription(String datacluster, String tableName){
+    	try {
+			String[] tableKeys = CommonUtil.getPort().getBusinessConceptKey(new WSGetBusinessConceptKey(new WSDataModelPK(datacluster),tableName)).getFields();
+			String schema = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(datacluster))).getXsdSchema();
+			XSOMParser parser = new XSOMParser();
+			parser.parse(new StringReader(schema));
+	        XSSchemaSet xss = parser.getResult();
+	        XSElementDecl decl;
+	        decl = xss.getElementDecl("", tableName);
+	        if (decl==null) {
+	        	throw new XtentisWebappException("The uploadFile table \""+tableName+"\" definition cannot be found");
+	        }
+	        XSComplexType type = (XSComplexType)decl.getType();
+	        XSParticle[] xsp =
+	        	type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+	        ArrayList<String> fieldNames = new ArrayList<String>();
+	        for (int i = 0; i < xsp.length; i++) {
+	        	fieldNames.add(xsp[i].getTerm().asElementDecl().getName());
+			}
+	        String[] fields = fieldNames.toArray(new String[fieldNames.size()]);
+	        
+	        Map<String, List<String>> map = new HashMap<String, List<String>>();
+	        List<String> keyList = new ArrayList<String>();
+	        for(String str : tableKeys){
+	        	keyList.add(str);
+	        }
+	        map.put("keys", keyList);
+	        
+	        List<String> fieldList = new ArrayList<String>();
+	        for(String str : fields){
+	        	fieldList.add(str);
+	        }
+	        map.put("fields", fieldList);
+	        
+	        List<String> tableList = new ArrayList<String>();
+	        tableList.add(tableName);
+	        map.put("name", tableList);
+	        
+	        return map;
+	        
+    	} catch (RemoteException e) {
+			LOG.error(e.getMessage(), e);
+		} catch (XtentisWebappException e) {
+			LOG.error(e.getMessage(), e);
+		} catch (SAXException e) {
+			LOG.error(e.getMessage(), e);
+		}
+    	return null;
+    }
+    
+    public List<ItemBaseModel> deleteItemsBrowserTable(String datacluster, String tableName){
+    	tableName=tableName.replaceAll("\\s+","");
+		
+    	try {
+    		/*deletes item */
+			CommonUtil.getPort().deleteItems(new WSDeleteItems(new WSDataClusterPK(datacluster), tableName, null, -1));
+			
+			/* deletes concept */
+	    	CommonUtil.getPort().deleteBusinessConcept(new WSDeleteBusinessConcept(new WSDataModelPK(datacluster),tableName));
+    	} catch (RemoteException e) {
+    		LOG.error(e.getMessage(), e);
+		} catch (XtentisWebappException e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return this.getUploadTableNames(datacluster, "");
     }
 
 }

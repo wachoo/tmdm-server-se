@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
@@ -38,6 +39,7 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -60,25 +62,36 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
@@ -124,6 +137,8 @@ public class ItemsToolBar extends ToolBar {
     private ItemsToolBar instance = this;
 
     private List<ItemBaseModel> userCriteriasList;
+    
+    private ListStore<ItemBaseModel> tableList = new ListStore<ItemBaseModel>(); 
 
     private boolean advancedPanelVisible = false;
 
@@ -131,6 +146,12 @@ public class ItemsToolBar extends ToolBar {
 
     private String bookmarkName = null;
 
+    private String currentTableName = null;
+    
+    private ComboBox<ItemBaseModel> combo = null;
+    
+    private int fieldCount = 1;
+    
     /*************************************/
 
     public ItemsToolBar() {
@@ -409,14 +430,363 @@ public class ItemsToolBar extends ToolBar {
         uploadBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
         Menu subFile = new Menu();
         MenuItem uploadMenu = new MenuItem(MessagesFactory.getMessages().itemsBrowser_Import());
-        uploadMenu.setId("uploadFileMenuInGrid");//$NON-NLS-1$
-        uploadMenu.setStyleName("uploadFileMenuInGrid");//$NON-NLS-1$
+        uploadMenu.setId("uploadMenuInGrid");//$NON-NLS-1$
+        uploadMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
         
         uploadMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             @Override
             public void componentSelected(MenuEvent ce) {
-            	GetService.renderUploadWindow();
+            	TabPanel tabFrame = (TabPanel)Registry.get(ItemsView.TAB_FRAME);
+            	TabItem item = tabFrame.getItemByItemId("upload-main-panel"); //$NON-NLS-1$
+            	currentTableName = null;
+            	
+            	if (item == null) {
+					
+            		item = new TabItem();
+                    item.setItemId("upload-main-panel");
+                    item.setText(MessagesFactory.getMessages().label_items_browser());     
+                    item.setLayout(new FitLayout());
+                    item.setScrollMode(Scroll.NONE);
+                    item.setBorders(false);
+                    item.setClosable(true);
+					                      
+            		final ContentPanel panel = new ContentPanel();
+            		panel.setCollapsible(true);  
+            	    panel.setFrame(false);
+            	    panel.setHeaderVisible(false);
+            	    panel.setWidth("100%");
+            	    panel.setLayout(new FitLayout());
+            	    
+                    ToolBar toolBar = new ToolBar();  
+					toolBar.setWidth("100%");
+                   
+					service.getUploadTableNames(Itemsbrowser2.getSession().getAppHeader().getDatacluster(),"", new AsyncCallback<List<ItemBaseModel>>(){
+						@Override
+						public void onFailure(Throwable caught) {
+							Dispatcher.forwardEvent(ItemsEvents.Error, caught);				
+						}
+
+						@Override
+						public void onSuccess(List<ItemBaseModel> list) {
+							tableList.removeAll();
+							tableList.add(list);
+						}
+					});
+									    
+				    combo = new ComboBox<ItemBaseModel>();  
+				    combo.setEmptyText("Select an existing table");  
+				    combo.setDisplayField("label");  
+				    combo.setWidth(150);  
+				    combo.setStore(tableList);  
+				    combo.setTypeAhead(true);  
+				    combo.setTriggerAction(TriggerAction.ALL); 
+				    				    
+				    combo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
+						public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
+							if(se.getSelectedItem() == null)
+								return;
+							currentTableName = (String)se.getSelectedItem().get("key");							
+							ItemsToolBar.this.showContenPanel(panel, currentTableName);
+						}
+					});
+				    
+					toolBar.add(combo);
+					toolBar.add(new Button("Edit", new SelectionListener<ButtonEvent>(){
+						public void componentSelected(ButtonEvent ce) {
+							if(currentTableName == null)
+								return;
+							ItemsToolBar.this.showContenPanel(panel, currentTableName);
+						}						
+					}));
+					
+					toolBar.add(new SeparatorToolItem());
+					toolBar.add(new Button("Upload Data File", new SelectionListener<ButtonEvent>(){
+						public void componentSelected(ButtonEvent ce) {
+							if(currentTableName == null)
+								return;
+							panel.removeAll();
+							final FormPanel formPanel = new FormPanel();
+							formPanel.setCollapsible(false);  
+							formPanel.setHeading("Upload data");
+							formPanel.setFrame(false);
+							formPanel.setHeaderVisible(true);
+							formPanel.setEncoding(Encoding.MULTIPART);  
+							formPanel.setButtonAlign(HorizontalAlignment.CENTER); 
+							formPanel.setMethod(Method.POST); 
+							formPanel.setWidth("100%");
+//							formPanel.setUrl("secure/upload");
+														
+							FileUploadField file = new FileUploadField();  
+						    file.setAllowBlank(false);  
+						    file.setName("uploadedfile");  
+						    file.setFieldLabel("File"); 
+						    formPanel.add(file); 
+						    
+						    List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
+						    ItemBaseModel excel = new ItemBaseModel();
+						    excel.set("label", "Excel");
+						    excel.set("key", "Excel");
+						    list.add(excel);
+						    
+						    ItemBaseModel csv = new ItemBaseModel();
+						    csv.set("label", "CSV");
+						    csv.set("key", "CSV");
+						    list.add(csv);
+						    ListStore<ItemBaseModel> typeList = new ListStore<ItemBaseModel>();
+						    typeList.add(list);
+						    
+						    ComboBox<ItemBaseModel> fileTypecombo = new ComboBox<ItemBaseModel>();  
+						    fileTypecombo.setEmptyText("Select...");  
+						    fileTypecombo.setFieldLabel("File type");  
+						    fileTypecombo.setDisplayField("label");   
+						    fileTypecombo.setValueField("key");  
+						    fileTypecombo.setForceSelection(true);  
+						    fileTypecombo.setStore(typeList);  
+						    fileTypecombo.setTriggerAction(TriggerAction.ALL); 						    
+						    formPanel.add(fileTypecombo);
+						    
+						    CheckBox headerLine = new CheckBox();  
+						    headerLine.setFieldLabel("Headres on First Line");
+						    formPanel.add(headerLine);
+						    
+						    List<ItemBaseModel> separatorList = new ArrayList<ItemBaseModel>();
+						    ItemBaseModel comma = new ItemBaseModel();
+						    comma.set("label", "comma");
+						    comma.set("key", "comma");
+						    separatorList.add(comma);
+						    
+						    ItemBaseModel semicolon = new ItemBaseModel();
+						    semicolon.set("label", "semicolon");
+						    semicolon.set("key", "semicolon");
+						    separatorList.add(semicolon);
+						    
+						    ListStore<ItemBaseModel> separatorStoreList = new ListStore<ItemBaseModel>();
+						    separatorStoreList.add(separatorList);
+						    
+						    final ComboBox<ItemBaseModel> separatorCombo = new ComboBox<ItemBaseModel>();  
+						    separatorCombo.setFieldLabel("Separator");  
+						    separatorCombo.setDisplayField("label");   
+						    separatorCombo.setValueField("key");  
+						    separatorCombo.setForceSelection(true);  
+						    separatorCombo.setStore(separatorStoreList);  
+						    separatorCombo.setTriggerAction(TriggerAction.ALL); 						    
+						    formPanel.add(separatorCombo);
+						    
+						    List<ItemBaseModel> textDelimiterList = new ArrayList<ItemBaseModel>();
+						    ItemBaseModel doubleDelimiter = new ItemBaseModel();
+						    doubleDelimiter.set("label", "\"");
+						    doubleDelimiter.set("key", "d");
+						    textDelimiterList.add(doubleDelimiter);
+						    
+						    ItemBaseModel singleDelimiter = new ItemBaseModel();
+						    singleDelimiter.set("label", "\'");
+						    singleDelimiter.set("key", "s");
+						    textDelimiterList.add(singleDelimiter);
+						    
+						    ListStore<ItemBaseModel> textDelimiterStoreList = new ListStore<ItemBaseModel>();
+						    textDelimiterStoreList.add(textDelimiterList);
+						    
+						    final ComboBox<ItemBaseModel> textDelimiterCombo = new ComboBox<ItemBaseModel>();  
+						    textDelimiterCombo.setFieldLabel("Text Delimiter");  
+						    textDelimiterCombo.setDisplayField("label");   
+						    textDelimiterCombo.setValueField("key");  
+						    textDelimiterCombo.setForceSelection(true);  
+						    textDelimiterCombo.setStore(textDelimiterStoreList);  
+						    textDelimiterCombo.setTriggerAction(TriggerAction.ALL); 						    
+						    formPanel.add(textDelimiterCombo);
+						    
+						    List<ItemBaseModel> encodingList = new ArrayList<ItemBaseModel>();
+						    ItemBaseModel utf8 = new ItemBaseModel();
+						    utf8.set("label", "UTF-8");
+						    utf8.set("key", "utf8");
+						    encodingList.add(utf8);
+						    
+						    ItemBaseModel iso88591 = new ItemBaseModel();
+						    iso88591.set("label", "ISO-8859-1");
+						    iso88591.set("key", "iso88591");
+						    encodingList.add(iso88591);
+						    
+						    ItemBaseModel iso885915 = new ItemBaseModel();
+						    iso885915.set("label", "iso885915");
+						    iso885915.set("key", "iso885915");
+						    encodingList.add(iso885915);
+						    
+						    ItemBaseModel cp1252 = new ItemBaseModel();
+						    cp1252.set("label", "cp1252");
+						    cp1252.set("key", "cp1252");
+						    encodingList.add(cp1252);
+						    
+						    ListStore<ItemBaseModel> encodingStoreList = new ListStore<ItemBaseModel>();
+						    encodingStoreList.add(encodingList);
+						    
+						    final ComboBox<ItemBaseModel> encodingCombo = new ComboBox<ItemBaseModel>();  
+						    encodingCombo.setFieldLabel("Encoding");  
+						    encodingCombo.setDisplayField("label");   
+						    encodingCombo.setValueField("key");  
+						    encodingCombo.setForceSelection(true);  
+						    encodingCombo.setStore(encodingStoreList);  
+						    encodingCombo.setTriggerAction(TriggerAction.ALL); 						    
+						    formPanel.add(encodingCombo);
+						    
+						    fileTypecombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {								
+								public void selectionChanged(SelectionChangedEvent<ItemBaseModel> event) {
+									String type = (String)event.getSelectedItem().get("key");
+									if(type.equalsIgnoreCase("CSV")){									
+										separatorCombo.enable();
+										textDelimiterCombo.enable();
+										encodingCombo.enable();										
+									}else{
+										separatorCombo.disable();
+										textDelimiterCombo.disable();
+										encodingCombo.disable();
+									}
+								}
+							});
+						    
+						    Button submit = new Button("Submit", new SelectionListener<ButtonEvent>(){
+								public void componentSelected(ButtonEvent ce) {
+									formPanel.submit();
+									panel.removeAll();
+								}						
+							});
+
+						    formPanel.add(submit);						    			  
+						    
+						    separatorCombo.disable();
+							textDelimiterCombo.disable();
+							encodingCombo.disable();
+						    
+							formPanel.setLabelWidth(200);
+							panel.add(formPanel);	
+						    panel.layout();
+						}						
+					}));
+					toolBar.add(new SeparatorToolItem());
+					toolBar.add(new Button("Delete", new SelectionListener<ButtonEvent>(){
+						public void componentSelected(ButtonEvent ce) {
+							if(currentTableName == null)
+								return;
+							MessageBox.confirm("Delete Table", "Are you sure you want to delete this Items-Browser table?", new Listener<MessageBoxEvent>() {
+								@Override
+								public void handleEvent(MessageBoxEvent event) {
+									if(event.getButtonClicked().getText().equalsIgnoreCase("Yes")){
+										String model = Itemsbrowser2.getSession().getAppHeader().getDatacluster();
+										service.deleteItemsBrowserTable(model, currentTableName, new AsyncCallback<List<ItemBaseModel>>() {							
+											@Override
+											public void onSuccess(List<ItemBaseModel> list) {
+												tableList.removeAll();
+												tableList.add(list);
+												combo.setStore(tableList);
+												combo.reset();
+												panel.removeAll();
+												panel.layout();
+											}
+											
+											@Override
+											public void onFailure(Throwable caught) {												
+												Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+											}
+										});
+									}
+								}
+							});
+						}						
+					}));
+					toolBar.add(new SeparatorToolItem());
+					toolBar.add(new Button("New items-browser table", new SelectionListener<ButtonEvent>(){
+						public void componentSelected(ButtonEvent ce) {
+
+							panel.removeAll();
+							fieldCount = 1;
+							ContentPanel cp = new ContentPanel();
+							cp.setCollapsible(true);  
+							cp.setFrame(false);
+							cp.setHeaderVisible(false);
+							cp.setWidth("100%");
+							cp.setLayout(new FitLayout());
+							cp.setBodyBorder(false);
+							cp.setBorders(false);
+							cp.setScrollMode(Scroll.AUTO);
+							
+							final FormData formData = new FormData("100%");  							
+							final FormPanel addPanel = new FormPanel();
+							addPanel.setCollapsible(false);  
+							addPanel.setHeading("New Items-browser table");
+							addPanel.setFrame(false);
+							addPanel.setHeaderVisible(true);
+							addPanel.setEncoding(Encoding.MULTIPART);  
+							addPanel.setButtonAlign(HorizontalAlignment.CENTER); 
+							addPanel.setMethod(Method.POST); 
+							addPanel.setWidth("100%");
+							addPanel.setLabelWidth(200);
+							
+							final LayoutContainer main = new LayoutContainer();  
+						    main.setLayout(new ColumnLayout());  
+									    						    
+							TextField<String> tableName = new TextField<String>();  
+							tableName.setFieldLabel("Table name");
+						    addPanel.add(tableName);  
+						    
+						    final LayoutContainer left = new LayoutContainer();  
+						    left.setStyleAttribute("paddingRight", "10px");  
+						    FormLayout layout = new FormLayout();  
+						    left.setLayout(layout); 
+						    
+						    TextField<String> field1 = new TextField<String>();  
+						    field1.setFieldLabel("Field " + fieldCount); 						    
+						    left.add(field1, formData);  
+						    
+						    final LayoutContainer right = new LayoutContainer();  
+						    right.setStyleAttribute("paddingLeft", "10px");  
+						    layout = new FormLayout(); 						   
+						    right.setLayout(layout);  
+						    
+						    CheckBox keycb = new CheckBox();  
+						    keycb.setFieldLabel("Key");
+						    right.add(keycb, formData); 
+						    
+						    main.add(left, new com.extjs.gxt.ui.client.widget.layout.ColumnData(.347));
+						    main.add(right, new com.extjs.gxt.ui.client.widget.layout.ColumnData(.347)); 
+						    addPanel.add(main, new FormData("100%"));
+						    
+						    cp.add(addPanel);
+						    ToolBar tb = new ToolBar();  
+						    tb.setWidth("100%");
+						    tb.add(new Button("Save", new SelectionListener<ButtonEvent>(){
+								public void componentSelected(ButtonEvent ce) {
+									
+								}						    	
+						    }));
+						    tb.add(new SeparatorToolItem());
+						    tb.add(new Button("Add a Field", new SelectionListener<ButtonEvent>(){
+								public void componentSelected(ButtonEvent ce) {
+									fieldCount = fieldCount + 1;
+									TextField<String> f = new TextField<String>();  
+								    f.setFieldLabel("Field " + fieldCount); 
+								    left.add(f, formData);
+								    
+								    CheckBox kcb = new CheckBox();  
+								    kcb.setFieldLabel("Key");
+								    right.add(kcb, formData); 
+								    
+								    main.layout();
+								    addPanel.layout();
+								}						    	
+						    }));
+						    cp.setBottomComponent(tb);						  						    
+						    panel.add(cp);
+							panel.layout();
+						}						
+					}));
+
+                    panel.setTopComponent(toolBar);
+                    item.add(panel);
+                    tabFrame.add(item);
+                }
+            	
+            	tabFrame.setSelection(item);
+//            	GetService.renderUploadWindow();
             }
         });
         
@@ -964,5 +1334,64 @@ public class ItemsToolBar extends ToolBar {
             advancedPanel.setVisible(false);
         }
     }
-    
+    public void showContenPanel(final ContentPanel panel, String currentTableName){
+		
+		String model = Itemsbrowser2.getSession().getAppHeader().getDatacluster();
+		service.getUploadTableDescription(model, currentTableName, new AsyncCallback<Map<String,List<String>>>() {
+			
+			@Override
+			public void onSuccess(Map<String, List<String>> description) {
+				
+				panel.removeAll();
+				
+				ContentPanel content = new ContentPanel();
+				content.setCollapsible(false);  
+				content.setHeading("12314");
+				content.setFrame(false);
+				content.setHeaderVisible(true);
+				content.setWidth("100%");
+													
+				List<String> fieldList = description.get("fields");
+				List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+				for(String str : fieldList){
+					ColumnConfig column = new ColumnConfig();
+					column.setId(str);  
+				    column.setHeader(str);
+				    column.setWidth(200);
+				    configs.add(column); 
+				}
+				ColumnModel cm = new ColumnModel(configs);
+				final ListStore<ItemBean> store = new ListStore<ItemBean>(); 
+				final EditorGrid<ItemBean> grid = new EditorGrid<ItemBean>(store, cm); 
+				grid.setAutoExpandColumn(fieldList.get(0));  
+			    grid.setBorders(true);
+			    
+			    ToolBar buttomBar = new ToolBar();  
+			    buttomBar.setWidth("100%");
+			    buttomBar.add(new Button("Add row", new SelectionListener<ButtonEvent>(){
+					public void componentSelected(ButtonEvent ce) {
+						ItemBean bean = new ItemBean();
+						grid.stopEditing();
+						store.insert(bean, 0);
+						grid.startEditing(store.indexOf(bean), 0);  
+					}			    	
+			    }));
+			    
+			    buttomBar.add(new SeparatorToolItem());
+			    buttomBar.add(new Button("Save"));
+			    buttomBar.add(new SeparatorToolItem());
+			    buttomBar.add(new Button("Export"));
+			    
+			    content.add(grid);
+			    content.setBottomComponent(buttomBar);
+			    panel.add(content);	
+			    panel.layout();
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+			}
+		});
+    } 
 }

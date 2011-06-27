@@ -1,6 +1,8 @@
 package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
@@ -62,4 +64,12 @@ public interface ItemsServiceAsync {
 
     void logicalDeleteItems(List<ItemBean> items, String path, AsyncCallback<List<ItemResult>> callback);
 
+	void getUploadTableNames(String datacluster, String value,
+			AsyncCallback<List<ItemBaseModel>> callback);
+
+	void getUploadTableDescription(String datacluster, String tableName,
+			AsyncCallback<Map<String, List<String>>> callback);
+
+	void deleteItemsBrowserTable(String datacluster, String tableName,
+			AsyncCallback<List<ItemBaseModel>> callback);
 }
