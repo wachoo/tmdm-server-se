@@ -231,12 +231,12 @@ public interface ItemsbrowserMessages extends Messages {
     String save_record_success();
 
     String data_model_not_specified();
-    
+
     String grid_record_select();
-    
+
     String itemsBrowser_Import_Export();
-    
+
     String itemsBrowser_Import();
-    
+
     String label_items_browser();
 }

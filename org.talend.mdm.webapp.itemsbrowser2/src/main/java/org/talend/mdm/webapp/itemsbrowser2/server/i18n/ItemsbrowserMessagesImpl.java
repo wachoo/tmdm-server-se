@@ -468,8 +468,7 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
         return MESSAGES.getMessage("page_displaying_records");
     }
 
-	@Override
-	public String label_items_browser() {
-		return MESSAGES.getMessage("label_items_browser");
-	}
+    public String label_items_browser() {
+        return MESSAGES.getMessage("label_items_browser");
+    }
 }

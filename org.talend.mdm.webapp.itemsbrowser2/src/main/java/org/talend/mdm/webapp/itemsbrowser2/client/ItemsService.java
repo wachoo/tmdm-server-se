@@ -2,7 +2,6 @@ package org.talend.mdm.webapp.itemsbrowser2.client;
 
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
@@ -73,10 +72,10 @@ public interface ItemsService extends RemoteService {
 
     ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK,
             boolean ifFKFilter, String value);
-    
+
     List<ItemBaseModel> getUploadTableNames(String datacluster, String value);
-    
+
     Map<String, List<String>> getUploadTableDescription(String datacluster, String tableName);
-    
+
     List<ItemBaseModel> deleteItemsBrowserTable(String datacluster, String tableName);
 }

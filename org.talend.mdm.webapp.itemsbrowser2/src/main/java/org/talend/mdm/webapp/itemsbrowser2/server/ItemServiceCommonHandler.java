@@ -106,7 +106,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
     private static final Logger LOG = Logger.getLogger(ItemServiceCommonHandler.class);
 
-    private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]");
+    private static final Pattern extractIdPattern = Pattern.compile("\\[.*?\\]"); //$NON-NLS-1$
 
     private Object[] getItemBeans(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String criteria, int skip,
             int max, String sortDir, String sortCol, String language) {
@@ -609,8 +609,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
         }
         Object[] result = getItemBeans(config.getDataClusterPK(), config.getView(), config.getModel(), config.getCriteria(),
-                pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(),
-                config.getLanguage());
+                pagingLoad.getOffset(), pagingLoad.getLimit(), sortDir, pagingLoad.getSortField(), config.getLanguage());
         @SuppressWarnings("unchecked")
         List<ItemBean> itemBeans = (List<ItemBean>) result[0];
         int totalSize = (Integer) result[1];
@@ -625,7 +624,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
             ArrayList<String> bc = new ArrayList<String>();
             Collections.addAll(bc, businessConcept);
-            WSViewPK[] wsViewsPK = CommonUtil.getPort().getViewPKs(new WSGetViewPKs(ViewHelper.DEFAULT_VIEW_PREFIX + ".*")).getWsViewPK();//$NON-NLS-1$
+            WSViewPK[] wsViewsPK = CommonUtil.getPort()
+                    .getViewPKs(new WSGetViewPKs(ViewHelper.DEFAULT_VIEW_PREFIX + ".*")).getWsViewPK();//$NON-NLS-1$
 
             // Filter view list according to current datamodel
             TreeMap<String, String> views = new TreeMap<String, String>();
@@ -657,16 +657,18 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     }
 
     private static Map<String, String> getMapSortedByValue(Map<String, String> map) {
-        TreeSet<Map.Entry<String, String>> set = new TreeSet<Map.Entry<String, String>>(new Comparator<Map.Entry<String, String>>() {
-            public int compare(Map.Entry<String, String> obj1, Map.Entry<String, String> obj2) {
-                String obj1Value = obj1.getValue();
-                if (obj1Value != null) {
-                    return obj1Value.compareTo(obj2.getValue());
-                } else { // obj1Value == null
-                    return obj2.getValue() == null ? 0 : 1;
-                }
-            }
-        });
+        TreeSet<Map.Entry<String, String>> set = new TreeSet<Map.Entry<String, String>>(
+                new Comparator<Map.Entry<String, String>>() {
+
+                    public int compare(Map.Entry<String, String> obj1, Map.Entry<String, String> obj2) {
+                        String obj1Value = obj1.getValue();
+                        if (obj1Value != null) {
+                            return obj1Value.compareTo(obj2.getValue());
+                        } else { // obj1Value == null
+                            return obj2.getValue() == null ? 0 : 1;
+                        }
+                    }
+                });
         set.addAll(map.entrySet());
         Map<String, String> sortedMap = new LinkedHashMap<String, String>();
         for (Map.Entry<String, String> entry : set) {
@@ -694,20 +696,22 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 ItemPOJOPK pk = new ItemPOJOPK();
                 String[] itemId = extractIdWithBrackets(ids);
                 pk.setIds(itemId);
-                pk.setConceptName(model.getForeignkey().split("/")[0]);
+                pk.setConceptName(model.getForeignkey().split("/")[0]); //$NON-NLS-1$
                 pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
                 ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
 
                 if (item != null) {
                     org.w3c.dom.Document document = item.getProjection().getOwnerDocument();
                     List<String> foreignKeyInfo = model.getForeignKeyInfo();
-                    String formattedId = ""; // Id formatted using foreign key info
+                    String formattedId = ""; // Id formatted using foreign key info //$NON-NLS-1$
                     for (String foreignKeyPath : foreignKeyInfo) {
-                        NodeList nodes = com.amalto.core.util.Util.getNodeList(document, StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
+                        NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
+                                StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
                         if (nodes.getLength() == 1) {
-                            formattedId += nodes.item(0).getTextContent(); //$NON-NLS-1$ //$NON-NLS-2$
+                            formattedId += nodes.item(0).getTextContent();
                         } else {
-                            throw new IllegalArgumentException("XPath '" + foreignKeyPath + "' matched " + nodes.getLength() + " instead of 1.");
+                            throw new IllegalArgumentException("XPath '" + foreignKeyPath + "' matched " + nodes.getLength() //$NON-NLS-1$ //$NON-NLS-2$
+                                    + " instead of 1."); //$NON-NLS-1$
                         }
                     }
 
@@ -885,8 +889,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     }
 
     /**
-     * ******************************************************************
-     * Bookmark management
+     * ****************************************************************** Bookmark management
      *********************************************************************/
 
     @Override
@@ -1144,7 +1147,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         }
 
         if (!hasMatchedOnce) {
-            throw new IllegalArgumentException("Id '" + ids + "' is malformed for this method");
+            throw new IllegalArgumentException("Id '" + ids + "' is malformed for this method");  //$NON-NLS-1$//$NON-NLS-2$
         }
 
         return idList.toArray(new String[idList.size()]);
@@ -1156,9 +1159,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
      */
     private static String[] extractIdWithDots(String ids) {
         List<String> idList = new ArrayList<String>();
-        StringTokenizer tokenizer = new StringTokenizer(ids, ".");
+        StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
         if (!tokenizer.hasMoreTokens()) {
-            throw new IllegalArgumentException("Id '" + ids + "' is malformed for this method");
+            throw new IllegalArgumentException("Id '" + ids + "' is malformed for this method");  //$NON-NLS-1$//$NON-NLS-2$
         }
 
         while (tokenizer.hasMoreTokens()) {
@@ -1166,100 +1169,95 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         }
         return idList.toArray(new String[idList.size()]);
     }
-    
+
     @Override
     public List<ItemBaseModel> getUploadTableNames(String datacluster, String value) {
-    	try {
-			String[] result =
-				CommonUtil.getPort().getBusinessConcepts(
-						new WSGetBusinessConcepts(
-								new WSDataModelPK(datacluster)
-						)
-				).getStrings();
+        try {
+            String[] result = CommonUtil.getPort().getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(datacluster)))
+                    .getStrings();
 
+            List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
+            for (String str : result) {
+                ItemBaseModel model = new ItemBaseModel();
+                model.set("label", str); //$NON-NLS-1$
+                model.set("key", str); //$NON-NLS-1$
+                list.add(model);
+            }
+            return list;
 
-			List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
-			for(String str : result){
-				ItemBaseModel model = new ItemBaseModel();
-				model.set("label", str);
-				model.set("key", str);
-				list.add(model);
-			}
-			return list;
-			
-		} catch (XtentisWebappException e) {
-			 LOG.error(e.getMessage(), e);
-		} catch (Exception e) {
-			 LOG.error(e.getMessage(), e);
-		}
-		return null;
+        } catch (XtentisWebappException e) {
+            LOG.error(e.getMessage(), e);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return null;
     }
-    
-    public Map<String, List<String>> getUploadTableDescription(String datacluster, String tableName){
-    	try {
-			String[] tableKeys = CommonUtil.getPort().getBusinessConceptKey(new WSGetBusinessConceptKey(new WSDataModelPK(datacluster),tableName)).getFields();
-			String schema = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(datacluster))).getXsdSchema();
-			XSOMParser parser = new XSOMParser();
-			parser.parse(new StringReader(schema));
-	        XSSchemaSet xss = parser.getResult();
-	        XSElementDecl decl;
-	        decl = xss.getElementDecl("", tableName);
-	        if (decl==null) {
-	        	throw new XtentisWebappException("The uploadFile table \""+tableName+"\" definition cannot be found");
-	        }
-	        XSComplexType type = (XSComplexType)decl.getType();
-	        XSParticle[] xsp =
-	        	type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-	        ArrayList<String> fieldNames = new ArrayList<String>();
-	        for (int i = 0; i < xsp.length; i++) {
-	        	fieldNames.add(xsp[i].getTerm().asElementDecl().getName());
-			}
-	        String[] fields = fieldNames.toArray(new String[fieldNames.size()]);
-	        
-	        Map<String, List<String>> map = new HashMap<String, List<String>>();
-	        List<String> keyList = new ArrayList<String>();
-	        for(String str : tableKeys){
-	        	keyList.add(str);
-	        }
-	        map.put("keys", keyList);
-	        
-	        List<String> fieldList = new ArrayList<String>();
-	        for(String str : fields){
-	        	fieldList.add(str);
-	        }
-	        map.put("fields", fieldList);
-	        
-	        List<String> tableList = new ArrayList<String>();
-	        tableList.add(tableName);
-	        map.put("name", tableList);
-	        
-	        return map;
-	        
-    	} catch (RemoteException e) {
-			LOG.error(e.getMessage(), e);
-		} catch (XtentisWebappException e) {
-			LOG.error(e.getMessage(), e);
-		} catch (SAXException e) {
-			LOG.error(e.getMessage(), e);
-		}
-    	return null;
+
+    public Map<String, List<String>> getUploadTableDescription(String datacluster, String tableName) {
+        try {
+            String[] tableKeys = CommonUtil.getPort()
+                    .getBusinessConceptKey(new WSGetBusinessConceptKey(new WSDataModelPK(datacluster), tableName)).getFields();
+            String schema = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(datacluster))).getXsdSchema();
+            XSOMParser parser = new XSOMParser();
+            parser.parse(new StringReader(schema));
+            XSSchemaSet xss = parser.getResult();
+            XSElementDecl decl;
+            decl = xss.getElementDecl("", tableName); //$NON-NLS-1$
+            if (decl == null) {
+                throw new XtentisWebappException("The uploadFile table \"" + tableName + "\" definition cannot be found"); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            XSComplexType type = (XSComplexType) decl.getType();
+            XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+            ArrayList<String> fieldNames = new ArrayList<String>();
+            for (int i = 0; i < xsp.length; i++) {
+                fieldNames.add(xsp[i].getTerm().asElementDecl().getName());
+            }
+            String[] fields = fieldNames.toArray(new String[fieldNames.size()]);
+
+            Map<String, List<String>> map = new HashMap<String, List<String>>();
+            List<String> keyList = new ArrayList<String>();
+            for (String str : tableKeys) {
+                keyList.add(str);
+            }
+            map.put("keys", keyList); //$NON-NLS-1$
+
+            List<String> fieldList = new ArrayList<String>();
+            for (String str : fields) {
+                fieldList.add(str);
+            }
+            map.put("fields", fieldList); //$NON-NLS-1$
+
+            List<String> tableList = new ArrayList<String>();
+            tableList.add(tableName);
+            map.put("name", tableList); //$NON-NLS-1$
+
+            return map;
+
+        } catch (RemoteException e) {
+            LOG.error(e.getMessage(), e);
+        } catch (XtentisWebappException e) {
+            LOG.error(e.getMessage(), e);
+        } catch (SAXException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return null;
     }
-    
-    public List<ItemBaseModel> deleteItemsBrowserTable(String datacluster, String tableName){
-    	tableName=tableName.replaceAll("\\s+","");
-		
-    	try {
-    		/*deletes item */
-			CommonUtil.getPort().deleteItems(new WSDeleteItems(new WSDataClusterPK(datacluster), tableName, null, -1));
-			
-			/* deletes concept */
-	    	CommonUtil.getPort().deleteBusinessConcept(new WSDeleteBusinessConcept(new WSDataModelPK(datacluster),tableName));
-    	} catch (RemoteException e) {
-    		LOG.error(e.getMessage(), e);
-		} catch (XtentisWebappException e) {
-			LOG.error(e.getMessage(), e);
-		}
-		return this.getUploadTableNames(datacluster, "");
+
+    public List<ItemBaseModel> deleteItemsBrowserTable(String datacluster, String tableName) {
+        tableName = tableName.replaceAll("\\s+", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+        try {
+            /* deletes item */
+            CommonUtil.getPort().deleteItems(new WSDeleteItems(new WSDataClusterPK(datacluster), tableName, null, -1));
+
+            /* deletes concept */
+            CommonUtil.getPort().deleteBusinessConcept(new WSDeleteBusinessConcept(new WSDataModelPK(datacluster), tableName));
+        } catch (RemoteException e) {
+            LOG.error(e.getMessage(), e);
+        } catch (XtentisWebappException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return this.getUploadTableNames(datacluster, ""); //$NON-NLS-1$
     }
 
 }
