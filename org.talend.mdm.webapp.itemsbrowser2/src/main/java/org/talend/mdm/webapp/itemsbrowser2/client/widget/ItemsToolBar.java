@@ -473,7 +473,8 @@ public class ItemsToolBar extends ToolBar {
                             });
 
                     combo = new ComboBox<ItemBaseModel>();
-                    combo.setEmptyText("Select an existing table"); //TODO String to externalize
+                    combo.setEmptyText(MessagesFactory.getMessages().label_combo_select());
+
                     combo.setDisplayField("label"); //$NON-NLS-1$
                     combo.setWidth(150);
                     combo.setStore(tableList);
@@ -494,309 +495,312 @@ public class ItemsToolBar extends ToolBar {
                     toolBar.add(combo);
                     toolBar.add(new Button("Edit", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
 
-                        @Override
-                        public void componentSelected(ButtonEvent ce) {
-                            if (currentTableName == null)
-                                return;
-                            ItemsToolBar.this.showContenPanel(panel, currentTableName);
-                        }
-                    }));
+                                @Override
+                                public void componentSelected(ButtonEvent ce) {
+                                    if (currentTableName == null)
+                                        return;
+                                    ItemsToolBar.this.showContenPanel(panel, currentTableName);
+                                }
+                            }));
 
                     toolBar.add(new SeparatorToolItem());
-                    toolBar.add(new Button("Upload Data File", new SelectionListener<ButtonEvent>() { //TODO String to externalize
-
-                        @Override
-                        public void componentSelected(ButtonEvent ce) {
-                            if (currentTableName == null)
-                                return;
-                            panel.removeAll();
-                            final FormPanel formPanel = new FormPanel();
-                            formPanel.setCollapsible(false);
-                            formPanel.setHeading("Upload data"); //$NON-NLS-1$
-                            formPanel.setFrame(false);
-                            formPanel.setHeaderVisible(true);
-                            formPanel.setEncoding(Encoding.MULTIPART);
-                            formPanel.setButtonAlign(HorizontalAlignment.CENTER);
-                            formPanel.setMethod(Method.POST);
-                            formPanel.setWidth("100%"); //$NON-NLS-1$
-                            // formPanel.setUrl("secure/upload");
-
-                            FileUploadField file = new FileUploadField();
-                            file.setAllowBlank(false);
-                            file.setName("uploadedfile"); //$NON-NLS-1$
-                            file.setFieldLabel("File"); //$NON-NLS-1$
-                            formPanel.add(file);
-
-                            List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
-                            ItemBaseModel excel = new ItemBaseModel();
-                            excel.set("label", "Excel"); //$NON-NLS-1$ //$NON-NLS-2$
-                            excel.set("key", "Excel"); //$NON-NLS-1$ //$NON-NLS-2$
-                            list.add(excel);
-
-                            ItemBaseModel csv = new ItemBaseModel();
-                            csv.set("label", "CSV"); //$NON-NLS-1$ //$NON-NLS-2$
-                            csv.set("key", "CSV"); //$NON-NLS-1$ //$NON-NLS-2$
-                            list.add(csv);
-                            ListStore<ItemBaseModel> typeList = new ListStore<ItemBaseModel>();
-                            typeList.add(list);
-
-                            ComboBox<ItemBaseModel> fileTypecombo = new ComboBox<ItemBaseModel>();
-                            fileTypecombo.setEmptyText("Select..."); //TODO String to externalize
-                            fileTypecombo.setFieldLabel("File type"); ///TODO String to externalize
-                            fileTypecombo.setDisplayField("label"); //$NON-NLS-1$
-                            fileTypecombo.setValueField("key"); //$NON-NLS-1$
-                            fileTypecombo.setForceSelection(true);
-                            fileTypecombo.setStore(typeList);
-                            fileTypecombo.setTriggerAction(TriggerAction.ALL);
-                            formPanel.add(fileTypecombo);
-
-                            CheckBox headerLine = new CheckBox();
-                            headerLine.setFieldLabel("Headers on First Line"); //TODO String to externalize
-                            formPanel.add(headerLine);
-
-                            List<ItemBaseModel> separatorList = new ArrayList<ItemBaseModel>();
-                            ItemBaseModel comma = new ItemBaseModel();
-                            comma.set("label", "comma"); //$NON-NLS-1$ //$NON-NLS-2$
-                            comma.set("key", "comma"); //$NON-NLS-1$ //$NON-NLS-2$
-                            separatorList.add(comma);
-
-                            ItemBaseModel semicolon = new ItemBaseModel();
-                            semicolon.set("label", "semicolon"); //$NON-NLS-1$ //$NON-NLS-2$
-                            semicolon.set("key", "semicolon"); //$NON-NLS-1$ //$NON-NLS-2$
-                            separatorList.add(semicolon);
-
-                            ListStore<ItemBaseModel> separatorStoreList = new ListStore<ItemBaseModel>();
-                            separatorStoreList.add(separatorList);
-
-                            final ComboBox<ItemBaseModel> separatorCombo = new ComboBox<ItemBaseModel>();
-                            separatorCombo.setFieldLabel("Separator"); //$NON-NLS-1$
-                            separatorCombo.setDisplayField("label"); //$NON-NLS-1$
-                            separatorCombo.setValueField("key"); //$NON-NLS-1$
-                            separatorCombo.setForceSelection(true);
-                            separatorCombo.setStore(separatorStoreList);
-                            separatorCombo.setTriggerAction(TriggerAction.ALL);
-                            formPanel.add(separatorCombo);
-
-                            List<ItemBaseModel> textDelimiterList = new ArrayList<ItemBaseModel>();
-                            ItemBaseModel doubleDelimiter = new ItemBaseModel();
-                            doubleDelimiter.set("label", "\""); //$NON-NLS-1$ //$NON-NLS-2$
-                            doubleDelimiter.set("key", "d"); //$NON-NLS-1$ //$NON-NLS-2$
-                            textDelimiterList.add(doubleDelimiter);
-
-                            ItemBaseModel singleDelimiter = new ItemBaseModel();
-                            singleDelimiter.set("label", "\'"); //$NON-NLS-1$ //$NON-NLS-2$
-                            singleDelimiter.set("key", "s"); //$NON-NLS-1$ //$NON-NLS-2$
-                            textDelimiterList.add(singleDelimiter);
-
-                            ListStore<ItemBaseModel> textDelimiterStoreList = new ListStore<ItemBaseModel>();
-                            textDelimiterStoreList.add(textDelimiterList);
-
-                            final ComboBox<ItemBaseModel> textDelimiterCombo = new ComboBox<ItemBaseModel>();
-                            textDelimiterCombo.setFieldLabel("Text Delimiter"); //$NON-NLS-1$
-                            textDelimiterCombo.setDisplayField("label"); //$NON-NLS-1$
-                            textDelimiterCombo.setValueField("key"); //$NON-NLS-1$
-                            textDelimiterCombo.setForceSelection(true);
-                            textDelimiterCombo.setStore(textDelimiterStoreList);
-                            textDelimiterCombo.setTriggerAction(TriggerAction.ALL);
-                            formPanel.add(textDelimiterCombo);
-
-                            List<ItemBaseModel> encodingList = new ArrayList<ItemBaseModel>();
-                            ItemBaseModel utf8 = new ItemBaseModel();
-                            utf8.set("label", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
-                            utf8.set("key", "utf8"); //$NON-NLS-1$ //$NON-NLS-2$
-                            encodingList.add(utf8);
-
-                            ItemBaseModel iso88591 = new ItemBaseModel();
-                            iso88591.set("label", "ISO-8859-1"); //$NON-NLS-1$ //$NON-NLS-2$
-                            iso88591.set("key", "iso88591"); //$NON-NLS-1$ //$NON-NLS-2$
-                            encodingList.add(iso88591);
-
-                            ItemBaseModel iso885915 = new ItemBaseModel();
-                            iso885915.set("label", "iso885915"); //$NON-NLS-1$ //$NON-NLS-2$
-                            iso885915.set("key", "iso885915"); //$NON-NLS-1$ //$NON-NLS-2$
-                            encodingList.add(iso885915);
-
-                            ItemBaseModel cp1252 = new ItemBaseModel();
-                            cp1252.set("label", "cp1252"); //$NON-NLS-1$ //$NON-NLS-2$
-                            cp1252.set("key", "cp1252"); //$NON-NLS-1$ //$NON-NLS-2$
-                            encodingList.add(cp1252);
-
-                            ListStore<ItemBaseModel> encodingStoreList = new ListStore<ItemBaseModel>();
-                            encodingStoreList.add(encodingList);
-
-                            final ComboBox<ItemBaseModel> encodingCombo = new ComboBox<ItemBaseModel>();
-                            encodingCombo.setFieldLabel("Encoding"); //TODO String to externalize
-                            encodingCombo.setDisplayField("label"); //$NON-NLS-1$
-                            encodingCombo.setValueField("key"); //$NON-NLS-1$
-                            encodingCombo.setForceSelection(true);
-                            encodingCombo.setStore(encodingStoreList);
-                            encodingCombo.setTriggerAction(TriggerAction.ALL);
-                            formPanel.add(encodingCombo);
-
-                            fileTypecombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
-
-                                @Override
-                                public void selectionChanged(SelectionChangedEvent<ItemBaseModel> event) {
-                                    String type = (String) event.getSelectedItem().get("key"); //$NON-NLS-1$
-                                    if (type.equalsIgnoreCase("CSV")) { //$NON-NLS-1$
-                                        separatorCombo.enable();
-                                        textDelimiterCombo.enable();
-                                        encodingCombo.enable();
-                                    } else {
-                                        separatorCombo.disable();
-                                        textDelimiterCombo.disable();
-                                        encodingCombo.disable();
-                                    }
-                                }
-                            });
-
-                            Button submit = new Button("Submit", new SelectionListener<ButtonEvent>() { //TODO String to externalize
+                    toolBar.add(new Button(MessagesFactory.getMessages().label_button_upload_data(),
+                            new SelectionListener<ButtonEvent>() {
 
                                 @Override
                                 public void componentSelected(ButtonEvent ce) {
-                                    formPanel.submit();
+                                    if (currentTableName == null)
+                                        return;
                                     panel.removeAll();
-                                }
-                            });
+                                    final FormPanel formPanel = new FormPanel();
+                                    formPanel.setCollapsible(false);
+                                    formPanel.setHeading("Upload data"); //$NON-NLS-1$
+                                    formPanel.setFrame(false);
+                                    formPanel.setHeaderVisible(true);
+                                    formPanel.setEncoding(Encoding.MULTIPART);
+                                    formPanel.setButtonAlign(HorizontalAlignment.CENTER);
+                                    formPanel.setMethod(Method.POST);
+                                    formPanel.setWidth("100%"); //$NON-NLS-1$
+                                    // formPanel.setUrl("secure/upload");
 
-                            formPanel.add(submit);
+                                    FileUploadField file = new FileUploadField();
+                                    file.setAllowBlank(false);
+                                    file.setName("uploadedfile"); //$NON-NLS-1$
+                                    file.setFieldLabel("File"); //$NON-NLS-1$
+                                    formPanel.add(file);
 
-                            separatorCombo.disable();
-                            textDelimiterCombo.disable();
-                            encodingCombo.disable();
+                                    List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
+                                    ItemBaseModel excel = new ItemBaseModel();
+                                    excel.set("label", "Excel"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    excel.set("key", "Excel"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    list.add(excel);
 
-                            formPanel.setLabelWidth(200);
-                            panel.add(formPanel);
-                            panel.layout();
-                        }
-                    }));
-                    toolBar.add(new SeparatorToolItem());
-                    toolBar.add(new Button("Delete", new SelectionListener<ButtonEvent>() { //TODO String to externalize
+                                    ItemBaseModel csv = new ItemBaseModel();
+                                    csv.set("label", "CSV"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    csv.set("key", "CSV"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    list.add(csv);
+                                    ListStore<ItemBaseModel> typeList = new ListStore<ItemBaseModel>();
+                                    typeList.add(list);
 
-                        @Override
-                        public void componentSelected(ButtonEvent ce) {
-                            if (currentTableName == null)
-                                return;
-                            MessageBox.confirm("Delete Table", "Are you sure you want to delete this Items-Browser table?", //TODO Strings to externalize
-                                    new Listener<MessageBoxEvent>() {
+                                    ComboBox<ItemBaseModel> fileTypecombo = new ComboBox<ItemBaseModel>();
+                                    fileTypecombo.setEmptyText(MessagesFactory.getMessages().label_combo_filetype_select());
+                                    fileTypecombo.setFieldLabel(MessagesFactory.getMessages().label_field_filetype());
+                                    fileTypecombo.setDisplayField("label"); //$NON-NLS-1$
+                                    fileTypecombo.setValueField("key"); //$NON-NLS-1$
+                                    fileTypecombo.setForceSelection(true);
+                                    fileTypecombo.setStore(typeList);
+                                    fileTypecombo.setTriggerAction(TriggerAction.ALL);
+                                    formPanel.add(fileTypecombo);
 
-                                        public void handleEvent(MessageBoxEvent event) {
-                                            
-                                            if (event.getButtonClicked().getText().equalsIgnoreCase("Yes")) { ///TODO Wrong!!!! 
-                                                String model = Itemsbrowser2.getSession().getAppHeader().getDatacluster();
-                                                service.deleteItemsBrowserTable(model, currentTableName,
-                                                        new AsyncCallback<List<ItemBaseModel>>() {
+                                    CheckBox headerLine = new CheckBox();
+                                    headerLine.setFieldLabel(MessagesFactory.getMessages().label_field_header_first());
+                                    formPanel.add(headerLine);
 
-                                                            public void onSuccess(List<ItemBaseModel> list) {
-                                                                tableList.removeAll();
-                                                                tableList.add(list);
-                                                                combo.setStore(tableList);
-                                                                combo.reset();
-                                                                panel.removeAll();
-                                                                panel.layout();
-                                                            }
+                                    List<ItemBaseModel> separatorList = new ArrayList<ItemBaseModel>();
+                                    ItemBaseModel comma = new ItemBaseModel();
+                                    comma.set("label", "comma"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    comma.set("key", "comma"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    separatorList.add(comma);
 
-                                                            public void onFailure(Throwable caught) {
-                                                                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                                            }
-                                                        });
+                                    ItemBaseModel semicolon = new ItemBaseModel();
+                                    semicolon.set("label", "semicolon"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    semicolon.set("key", "semicolon"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    separatorList.add(semicolon);
+
+                                    ListStore<ItemBaseModel> separatorStoreList = new ListStore<ItemBaseModel>();
+                                    separatorStoreList.add(separatorList);
+
+                                    final ComboBox<ItemBaseModel> separatorCombo = new ComboBox<ItemBaseModel>();
+                                    separatorCombo.setFieldLabel("Separator"); //$NON-NLS-1$
+                                    separatorCombo.setDisplayField("label"); //$NON-NLS-1$
+                                    separatorCombo.setValueField("key"); //$NON-NLS-1$
+                                    separatorCombo.setForceSelection(true);
+                                    separatorCombo.setStore(separatorStoreList);
+                                    separatorCombo.setTriggerAction(TriggerAction.ALL);
+                                    formPanel.add(separatorCombo);
+
+                                    List<ItemBaseModel> textDelimiterList = new ArrayList<ItemBaseModel>();
+                                    ItemBaseModel doubleDelimiter = new ItemBaseModel();
+                                    doubleDelimiter.set("label", "\""); //$NON-NLS-1$ //$NON-NLS-2$
+                                    doubleDelimiter.set("key", "d"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    textDelimiterList.add(doubleDelimiter);
+
+                                    ItemBaseModel singleDelimiter = new ItemBaseModel();
+                                    singleDelimiter.set("label", "\'"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    singleDelimiter.set("key", "s"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    textDelimiterList.add(singleDelimiter);
+
+                                    ListStore<ItemBaseModel> textDelimiterStoreList = new ListStore<ItemBaseModel>();
+                                    textDelimiterStoreList.add(textDelimiterList);
+
+                                    final ComboBox<ItemBaseModel> textDelimiterCombo = new ComboBox<ItemBaseModel>();
+                                    textDelimiterCombo.setFieldLabel("Text Delimiter"); //$NON-NLS-1$
+                                    textDelimiterCombo.setDisplayField("label"); //$NON-NLS-1$
+                                    textDelimiterCombo.setValueField("key"); //$NON-NLS-1$
+                                    textDelimiterCombo.setForceSelection(true);
+                                    textDelimiterCombo.setStore(textDelimiterStoreList);
+                                    textDelimiterCombo.setTriggerAction(TriggerAction.ALL);
+                                    formPanel.add(textDelimiterCombo);
+
+                                    List<ItemBaseModel> encodingList = new ArrayList<ItemBaseModel>();
+                                    ItemBaseModel utf8 = new ItemBaseModel();
+                                    utf8.set("label", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    utf8.set("key", "utf8"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    encodingList.add(utf8);
+
+                                    ItemBaseModel iso88591 = new ItemBaseModel();
+                                    iso88591.set("label", "ISO-8859-1"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    iso88591.set("key", "iso88591"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    encodingList.add(iso88591);
+
+                                    ItemBaseModel iso885915 = new ItemBaseModel();
+                                    iso885915.set("label", "iso885915"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    iso885915.set("key", "iso885915"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    encodingList.add(iso885915);
+
+                                    ItemBaseModel cp1252 = new ItemBaseModel();
+                                    cp1252.set("label", "cp1252"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    cp1252.set("key", "cp1252"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    encodingList.add(cp1252);
+
+                                    ListStore<ItemBaseModel> encodingStoreList = new ListStore<ItemBaseModel>();
+                                    encodingStoreList.add(encodingList);
+
+                                    final ComboBox<ItemBaseModel> encodingCombo = new ComboBox<ItemBaseModel>();
+                                    encodingCombo.setFieldLabel(MessagesFactory.getMessages().label_field_encoding());
+                                    encodingCombo.setDisplayField("label"); //$NON-NLS-1$
+                                    encodingCombo.setValueField("key"); //$NON-NLS-1$
+                                    encodingCombo.setForceSelection(true);
+                                    encodingCombo.setStore(encodingStoreList);
+                                    encodingCombo.setTriggerAction(TriggerAction.ALL);
+                                    formPanel.add(encodingCombo);
+
+                                    fileTypecombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
+
+                                        @Override
+                                        public void selectionChanged(SelectionChangedEvent<ItemBaseModel> event) {
+                                            String type = (String) event.getSelectedItem().get("key"); //$NON-NLS-1$
+                                            if (type.equalsIgnoreCase("CSV")) { //$NON-NLS-1$
+                                                separatorCombo.enable();
+                                                textDelimiterCombo.enable();
+                                                encodingCombo.enable();
+                                            } else {
+                                                separatorCombo.disable();
+                                                textDelimiterCombo.disable();
+                                                encodingCombo.disable();
                                             }
                                         }
                                     });
-                        }
-                    }));
+
+                                    Button submit = new Button(MessagesFactory.getMessages().label_button_submit(),
+                                            new SelectionListener<ButtonEvent>() {
+
+                                                @Override
+                                                public void componentSelected(ButtonEvent ce) {
+                                                    formPanel.submit();
+                                                    panel.removeAll();
+                                                }
+                                            });
+
+                                    formPanel.add(submit);
+
+                                    separatorCombo.disable();
+                                    textDelimiterCombo.disable();
+                                    encodingCombo.disable();
+
+                                    formPanel.setLabelWidth(200);
+                                    panel.add(formPanel);
+                                    panel.layout();
+                                }
+                            }));
                     toolBar.add(new SeparatorToolItem());
-                    toolBar.add(new Button("New table", new SelectionListener<ButtonEvent>() { //TODO String to externalize
+                    toolBar.add(new Button(MessagesFactory.getMessages().delete_btn(), new SelectionListener<ButtonEvent>() {
 
                         @Override
                         public void componentSelected(ButtonEvent ce) {
+                            if (currentTableName == null)
+                                return;
+                            MessageBox.confirm(MessagesFactory.getMessages().label_field_delete_table(), MessagesFactory
+                                    .getMessages().message_delete_table(), new Listener<MessageBoxEvent>() {
 
-                            panel.removeAll();
-                            fieldCount = 1;
-                            ContentPanel cp = new ContentPanel();
-                            cp.setCollapsible(true);
-                            cp.setFrame(false);
-                            cp.setHeaderVisible(false);
-                            cp.setWidth("100%"); //$NON-NLS-1$
-                            cp.setLayout(new FitLayout());
-                            cp.setBodyBorder(false);
-                            cp.setBorders(false);
-                            cp.setScrollMode(Scroll.AUTO);
+                                public void handleEvent(MessageBoxEvent event) {
 
-                            final FormData formData = new FormData("100%"); //$NON-NLS-1$
-                            final FormPanel addPanel = new FormPanel();
-                            addPanel.setCollapsible(false);
-                            addPanel.setHeading("New table"); //TODO String to externalize. What's that ???
-                            addPanel.setFrame(false);
-                            addPanel.setHeaderVisible(true);
-                            addPanel.setEncoding(Encoding.MULTIPART);
-                            addPanel.setButtonAlign(HorizontalAlignment.CENTER);
-                            addPanel.setMethod(Method.POST);
-                            addPanel.setWidth("100%"); //$NON-NLS-1$
-                            addPanel.setLabelWidth(200);
+                                    if (event.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                        String model = Itemsbrowser2.getSession().getAppHeader().getDatacluster();
+                                        service.deleteItemsBrowserTable(model, currentTableName,
+                                                new AsyncCallback<List<ItemBaseModel>>() {
 
-                            final LayoutContainer main = new LayoutContainer();
-                            main.setLayout(new ColumnLayout());
+                                                    public void onSuccess(List<ItemBaseModel> list) {
+                                                        tableList.removeAll();
+                                                        tableList.add(list);
+                                                        combo.setStore(tableList);
+                                                        combo.reset();
+                                                        panel.removeAll();
+                                                        panel.layout();
+                                                    }
 
-                            TextField<String> tableName = new TextField<String>();
-                            tableName.setFieldLabel("Table name"); //TODO String to externalize
-                            addPanel.add(tableName);
-
-                            final LayoutContainer left = new LayoutContainer();
-                            left.setStyleAttribute("paddingRight", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
-                            FormLayout layout = new FormLayout();
-                            left.setLayout(layout);
-
-                            TextField<String> field1 = new TextField<String>();
-                            field1.setFieldLabel("Field " + fieldCount); //$NON-NLS-1$
-                            left.add(field1, formData);
-
-                            final LayoutContainer right = new LayoutContainer();
-                            right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
-                            layout = new FormLayout();
-                            right.setLayout(layout);
-
-                            CheckBox keycb = new CheckBox();
-                            keycb.setFieldLabel("Key"); //$NON-NLS-1$
-                            right.add(keycb, formData);
-
-                            main.add(left, new com.extjs.gxt.ui.client.widget.layout.ColumnData(.347));
-                            main.add(right, new com.extjs.gxt.ui.client.widget.layout.ColumnData(.347));
-                            addPanel.add(main, new FormData("100%")); //$NON-NLS-1$
-
-                            cp.add(addPanel);
-                            ToolBar tb = new ToolBar();
-                            tb.setWidth("100%"); //$NON-NLS-1$
-                            tb.add(new Button("Save", new SelectionListener<ButtonEvent>() { //TODO String to externalize
-
-                                @Override
-                                public void componentSelected(ButtonEvent ce) {
-
+                                                    public void onFailure(Throwable caught) {
+                                                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                                                    }
+                                                });
+                                    }
                                 }
-                            }));
-                            tb.add(new SeparatorToolItem());
-                            tb.add(new Button("Add a Field", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
-
-                                @Override
-                                public void componentSelected(ButtonEvent ce) {
-                                    fieldCount = fieldCount + 1;
-                                    TextField<String> f = new TextField<String>();
-                                    f.setFieldLabel("Field " + fieldCount); //$NON-NLS-1$
-                                    left.add(f, formData);
-
-                                    CheckBox kcb = new CheckBox();
-                                    kcb.setFieldLabel("Key"); //$NON-NLS-1$
-                                    right.add(kcb, formData);
-
-                                    main.layout();
-                                    addPanel.layout();
-                                }
-                            }));
-                            cp.setBottomComponent(tb);
-                            panel.add(cp);
-                            panel.layout();
+                            });
                         }
                     }));
+                    toolBar.add(new SeparatorToolItem());
+                    toolBar.add(new Button(MessagesFactory.getMessages().label_button_new_table(),
+                            new SelectionListener<ButtonEvent>() {
+
+                                @Override
+                                public void componentSelected(ButtonEvent ce) {
+
+                                    panel.removeAll();
+                                    fieldCount = 1;
+                                    ContentPanel cp = new ContentPanel();
+                                    cp.setCollapsible(true);
+                                    cp.setFrame(false);
+                                    cp.setHeaderVisible(false);
+                                    cp.setWidth("100%"); //$NON-NLS-1$
+                                    cp.setLayout(new FitLayout());
+                                    cp.setBodyBorder(false);
+                                    cp.setBorders(false);
+                                    cp.setScrollMode(Scroll.AUTO);
+
+                                    final FormData formData = new FormData("100%"); //$NON-NLS-1$
+                                    final FormPanel addPanel = new FormPanel();
+                                    addPanel.setCollapsible(false);
+                                    addPanel.setFrame(false);
+                                    addPanel.setHeaderVisible(false);
+                                    addPanel.setEncoding(Encoding.MULTIPART);
+                                    addPanel.setButtonAlign(HorizontalAlignment.CENTER);
+                                    addPanel.setMethod(Method.POST);
+                                    addPanel.setWidth("100%"); //$NON-NLS-1$
+                                    addPanel.setLabelWidth(200);
+
+                                    final LayoutContainer main = new LayoutContainer();
+                                    main.setLayout(new ColumnLayout());
+
+                                    TextField<String> tableName = new TextField<String>();
+                                    tableName.setFieldLabel(MessagesFactory.getMessages().label_field_table_name());
+                                    addPanel.add(tableName);
+
+                                    final LayoutContainer left = new LayoutContainer();
+                                    left.setStyleAttribute("paddingRight", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    FormLayout layout = new FormLayout();
+                                    left.setLayout(layout);
+
+                                    TextField<String> field1 = new TextField<String>();
+                                    field1.setFieldLabel("Field " + fieldCount); //$NON-NLS-1$
+                                    left.add(field1, formData);
+
+                                    final LayoutContainer right = new LayoutContainer();
+                                    right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
+                                    layout = new FormLayout();
+                                    right.setLayout(layout);
+
+                                    CheckBox keycb = new CheckBox();
+                                    keycb.setFieldLabel("Key"); //$NON-NLS-1$
+                                    right.add(keycb, formData);
+
+                                    main.add(left, new com.extjs.gxt.ui.client.widget.layout.ColumnData(.347));
+                                    main.add(right, new com.extjs.gxt.ui.client.widget.layout.ColumnData(.347));
+                                    addPanel.add(main, new FormData("100%")); //$NON-NLS-1$
+
+                                    cp.add(addPanel);
+                                    ToolBar tb = new ToolBar();
+                                    tb.setWidth("100%"); //$NON-NLS-1$
+                                    tb.add(new Button(MessagesFactory.getMessages().save_btn(),
+                                            new SelectionListener<ButtonEvent>() {
+
+                                                @Override
+                                                public void componentSelected(ButtonEvent ce) {
+
+                                                }
+                                            }));
+                                    tb.add(new SeparatorToolItem());
+                                    tb.add(new Button("Add a Field", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
+
+                                                @Override
+                                                public void componentSelected(ButtonEvent ce) {
+                                                    fieldCount = fieldCount + 1;
+                                                    TextField<String> f = new TextField<String>();
+                                                    f.setFieldLabel("Field " + fieldCount); //$NON-NLS-1$
+                                                    left.add(f, formData);
+
+                                                    CheckBox kcb = new CheckBox();
+                                                    kcb.setFieldLabel("Key"); //$NON-NLS-1$
+                                                    right.add(kcb, formData);
+
+                                                    main.layout();
+                                                    addPanel.layout();
+                                                }
+                                            }));
+                                    cp.setBottomComponent(tb);
+                                    panel.add(cp);
+                                    panel.layout();
+                                }
+                            }));
 
                     panel.setTopComponent(toolBar);
                     item.add(panel);
@@ -1363,7 +1367,7 @@ public class ItemsToolBar extends ToolBar {
 
                 ContentPanel content = new ContentPanel();
                 content.setCollapsible(false);
-                content.setHeading("Update Table"); //TODO String to externalize
+                content.setHeading(MessagesFactory.getMessages().label_update_table());
                 content.setFrame(false);
                 content.setHeaderVisible(true);
                 content.setWidth("100%"); //$NON-NLS-1$
@@ -1385,7 +1389,7 @@ public class ItemsToolBar extends ToolBar {
 
                 ToolBar buttomBar = new ToolBar();
                 buttomBar.setWidth("100%"); //$NON-NLS-1$
-                buttomBar.add(new Button("Add row", new SelectionListener<ButtonEvent>() { //TODO String to externalize
+                buttomBar.add(new Button(MessagesFactory.getMessages().label_add_row(), new SelectionListener<ButtonEvent>() {
 
                     @Override
                     public void componentSelected(ButtonEvent ce) {
@@ -1397,9 +1401,9 @@ public class ItemsToolBar extends ToolBar {
                 }));
 
                 buttomBar.add(new SeparatorToolItem());
-                buttomBar.add(new Button("Save")); //TODO String to externalize
+                buttomBar.add(new Button(MessagesFactory.getMessages().save_btn()));
                 buttomBar.add(new SeparatorToolItem());
-                buttomBar.add(new Button("Export")); //TODO String to externalize
+                buttomBar.add(new Button(MessagesFactory.getMessages().label_button_export()));
 
                 content.add(grid);
                 content.setBottomComponent(buttomBar);

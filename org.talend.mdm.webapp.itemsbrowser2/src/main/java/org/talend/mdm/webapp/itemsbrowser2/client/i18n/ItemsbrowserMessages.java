@@ -239,4 +239,40 @@ public interface ItemsbrowserMessages extends Messages {
     String itemsBrowser_Import();
 
     String label_items_browser();
+
+    String label_combo_select();
+
+    String label_button_upload_data();
+
+    String label_combo_filetype_select();
+
+    String label_field_filetype();
+
+    String label_field_header_first();
+
+    String label_field_encoding();
+
+    String label_button_submit();
+
+    String label_field_delete_table();
+
+    String message_delete_table();
+
+    String label_button_new_table();
+
+    String label_field_table_name();
+
+    String label_update_table();
+
+    String label_add_row();
+
+    String label_button_export();
+    
+    String label_exception_xpath_not_match(String xpath, int length);
+
+    String label_error_delete_template_null();
+
+    String label_exception_id_malform(String id);
+
+    String label_exception_upload_table_not_found(String table);
 }

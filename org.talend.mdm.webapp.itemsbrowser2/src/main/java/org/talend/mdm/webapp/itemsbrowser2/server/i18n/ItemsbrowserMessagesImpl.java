@@ -471,4 +471,76 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
     public String label_items_browser() {
         return MESSAGES.getMessage("label_items_browser");
     }
+
+    public String label_combo_select() {
+        return MESSAGES.getMessage("label_combo_select");
+    }
+
+    public String label_button_upload_data() {
+        return MESSAGES.getMessage("label_button_upload_data");
+    }
+
+    public String label_combo_filetype_select() {
+        return MESSAGES.getMessage("label_combo_filetype_select");
+    }
+
+    public String label_field_filetype() {
+        return MESSAGES.getMessage("label_field_filetype");
+    }
+
+    public String label_field_header_first() {
+        return MESSAGES.getMessage("label_field_header_first");
+    }
+
+    public String label_field_encoding() {
+        return MESSAGES.getMessage("lable_field_encoding");
+    }
+
+    public String label_button_submit() {
+        return MESSAGES.getMessage("lable_button_submit");
+    }
+
+    public String label_field_delete_table() {
+        return MESSAGES.getMessage("label_field_delete_table");
+    }
+
+    public String message_delete_table() {
+        return MESSAGES.getMessage("message_delete_table");
+    }
+
+    public String label_button_new_table() {
+        return MESSAGES.getMessage("label_button_new_table");
+    }
+
+    public String label_field_table_name() {
+        return MESSAGES.getMessage("label_field_table_name");
+    }
+
+    public String label_update_table() {
+        return MESSAGES.getMessage("label_update_table");
+    }
+
+    public String label_add_row() {
+        return MESSAGES.getMessage("label_add_row");
+    }
+
+    public String label_button_export() {
+        return MESSAGES.getMessage("label_button_export");
+    }
+
+    public String label_exception_xpath_not_match(String xpath, int length) {
+        return MESSAGES.getMessage("label_exception_xpath_not_match", xpath, length);
+    }
+
+    public String label_error_delete_template_null() {
+        return MESSAGES.getMessage("label_error_delete_template_null");
+    }
+
+    public String label_exception_id_malform(String id) {
+        return MESSAGES.getMessage("label_exception_id_malform", id);
+    }
+
+    public String label_exception_upload_table_not_found(String table) {
+        return MESSAGES.getMessage("label_exception_upload_table_not_found", table);
+    }
 }
