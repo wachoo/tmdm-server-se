@@ -1,7 +1,6 @@
 package org.talend.mdm.webapp.recyclebin.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -9,15 +8,9 @@ import com.google.gwt.core.client.GWT;
 public class RecycleBin implements EntryPoint {
 
     /**
-     * The message displayed to the user when the server cannot be reached or returns an error.
+     * Create a remote service proxy to talk to the server-side RecycleBin service.
      */
-    private static final String SERVER_ERROR = "An error occurred while "
-            + "attempting to contact the server. Please check your network " + "connection and try again.";
-
-    /**
-     * Create a remote service proxy to talk to the server-side Greeting service.
-     */
-    private RecycleBinServiceAsync greetingService = GWT.create(RecycleBinService.class);
+    public static final String RECYCLEBIN_SERVICE = "RecycleBinService"; //$NON-NLS-1$   
 
     /**
      * This is the entry point method.
