@@ -19,14 +19,22 @@ import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.Restriction;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.CommonUtil;
+import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.ComboBoxField;
+import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.data.BaseListLoadResult;
+import com.extjs.gxt.ui.client.data.BaseListLoader;
+import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -36,13 +44,14 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.KeyEvent;
-import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -54,7 +63,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
@@ -74,6 +82,8 @@ public class FKRelRecordWindow extends Window {
     private String fkKey;
 
     private ReturnCriteriaFK returnCriteriaFK;
+    
+    private ListStore<BaseModel> typeList = new ListStore<BaseModel>();
 
     private ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
@@ -82,6 +92,8 @@ public class FKRelRecordWindow extends Window {
     private int pageSize = 20;
 
     TextField<String> filter = new TextField<String>();
+
+	private ComboBoxField<BaseModel> typeComboBox;
     
     public FKRelRecordWindow() {
 
@@ -118,11 +130,11 @@ public class FKRelRecordWindow extends Window {
     
     protected void onRender(Element parent, int pos) {
         super.onRender(parent, pos);
+        final TypeModel typeModel= Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes().get(fkKey);
         RpcProxy<PagingLoadResult<ForeignKeyBean>> proxy = new RpcProxy<PagingLoadResult<ForeignKeyBean>>() {
 
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
-                service.getForeignKeyList((PagingLoadConfig) loadConfig, Itemsbrowser2.getSession().getCurrentEntityModel()
-                        .getMetaDataTypes().get(fkKey), Itemsbrowser2.getSession().getAppHeader().getDatacluster(), false, getFilterValue(),
+                service.getForeignKeyList((PagingLoadConfig) loadConfig, typeModel, Itemsbrowser2.getSession().getAppHeader().getDatacluster(), false, getFilterValue(),
                         new AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
                             public void onFailure(Throwable caught) {
@@ -139,6 +151,30 @@ public class FKRelRecordWindow extends Window {
             }
         };
 
+        RpcProxy<BaseListLoadResult<BaseModel>> proxy1 = new RpcProxy<BaseListLoadResult<BaseModel>>() {
+
+            public void load(final Object loadConfig, final AsyncCallback<BaseListLoadResult<BaseModel>> callback) {
+            	service.getForeignKeyPolymTypeList(typeModel.getForeignkey(), "en", new AsyncCallback<List<Restriction>>() {
+
+                    public void onFailure(Throwable caught) {
+                        callback.onFailure(caught);
+                    }
+
+                    public void onSuccess(List<Restriction> result) {
+                    	List<BaseModel> list=new ArrayList<BaseModel>();
+                    	for(Restriction re: result){
+                    		BaseModel model=new BaseModel();
+                    		model.set("name", re.getName());//$NON-NLS-1$
+                    		model.set("value", re.getValue());//$NON-NLS-1$
+                    		list.add(model);
+                    	}
+                        callback.onSuccess(new BaseListLoadResult<BaseModel>(list));
+                    }
+                });
+            }
+        };
+        BaseListLoader<ListLoadResult<Restriction>> loader1 = new BaseListLoader<ListLoadResult<Restriction>>(proxy1);
+        typeList=new ListStore<BaseModel>(loader1);        
         loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
         final ListStore<ForeignKeyBean> store = new ListStore<ForeignKeyBean>(loader);
 
@@ -148,22 +184,6 @@ public class FKRelRecordWindow extends Window {
         panel.setHeaderVisible(false);
         panel.setSize(WINDOW_WIDTH, WINDOW_HEIGH);
         panel.setHeaderVisible(false);
-
-//        StoreFilterField<ForeignKeyBean> filter = new StoreFilterField<ForeignKeyBean>() {
-//
-//            protected boolean doSelect(Store<ForeignKeyBean> store, ForeignKeyBean parent, ForeignKeyBean record,
-//                    String property, String filter) {
-//
-//                for (String key : record.getProperties().keySet()) {
-//                    if (record.getProperties().get(key).toString().toLowerCase().startsWith(filter.toLowerCase()))
-//                        return true;
-//                }
-//                return false;
-//            }
-//
-//        };
-//        filter.setWidth(WINDOW_WIDTH - 40);
-//        filter.bind(store);
         
         filter.addListener(Events.KeyUp, new Listener<FieldEvent>() {
 
@@ -198,12 +218,48 @@ public class FKRelRecordWindow extends Window {
                 loader.load(0, pageSize);
             }
         });
-        filter.setWidth(WINDOW_WIDTH - 40);
+        filter.setWidth(WINDOW_WIDTH - 80);
 
         ToolBar toolBar = new ToolBar();
+        
+        typeComboBox = new ComboBoxField<BaseModel>();
+        typeComboBox.setDisplayField("name"); //$NON-NLS-1$
+        typeComboBox.setValueField("value"); //$NON-NLS-1$
+        typeComboBox.setStore(typeList);
+        typeComboBox.setTriggerAction(TriggerAction.ALL);
+        typeComboBox.setEmptyText("Select a Type...");
+        typeComboBox.setId("DerivedTypeComboBox"); //$NON-NLS-1$
+        
+        typeComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
+			
+			@Override
+			public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
+				String targetType=se.getSelectedItem().get("value").toString();//$NON-NLS-1$
+				String fkInfo=typeModel.getForeignKeyInfo().size()>0?typeModel.getForeignKeyInfo().get(0):null;
+				service.switchForeignKeyType(targetType, typeModel.getForeignkey(), fkInfo, getFilterValue(), new AsyncCallback<ForeignKeyDrawer>(){
+
+					public void onFailure(Throwable arg0) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					public void onSuccess(ForeignKeyDrawer fkDrawer) {
+						typeModel.setForeignkey(fkDrawer.getXpathForeignKey());
+						List<String> fkinfo=new ArrayList<String>();
+						fkinfo.add(fkDrawer.getXpathInfoForeignKey());
+						typeModel.setForeignKeyInfo(fkinfo);
+						loader.load(0, pageSize);
+					}					
+				});				
+			}
+		});
+        toolBar.add(typeComboBox);
+        
         Button filterBtn = new Button();
         filterBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.funnel()));
         filterBtn.setWidth(30);
+        filter.setWidth(200);
+        typeComboBox.setWidth(WINDOW_WIDTH-250);
         toolBar.add(filterBtn);
         toolBar.add(filter);
         panel.setTopComponent(toolBar);

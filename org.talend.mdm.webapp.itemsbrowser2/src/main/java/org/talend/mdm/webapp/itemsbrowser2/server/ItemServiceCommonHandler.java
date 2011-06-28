@@ -16,13 +16,23 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
@@ -31,16 +41,21 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.Restriction;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.SearchTemplate;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.SubTypeBean;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ItemHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.RoleHelper;
@@ -54,7 +69,11 @@ import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.webapp.core.bean.UpdateReportItem;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSCount;
@@ -1262,4 +1281,126 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return this.getUploadTableNames(datacluster, ""); //$NON-NLS-1$
     }
 
+    /**
+     * DOC HSHU Comment method "getForeignKeyPolymTypeList".
+     * 
+     * @param value
+     * @param xpathForeignKey
+     * @param docIndex
+     * @param nodeId
+     * @return
+     * @throws Exception
+     */
+    public List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws Exception {
+
+        String fkEntityType = null;
+        ReusableType entityReusableType = null;
+        List<SubTypeBean> derivedTypes = new ArrayList<SubTypeBean>();
+
+        if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
+            if (xpathForeignKey.startsWith("/"))//$NON-NLS-1$
+                xpathForeignKey = xpathForeignKey.substring(1);
+            String fkEntity = "";//$NON-NLS-1$
+            if (xpathForeignKey.indexOf("/") != -1) {//$NON-NLS-1$
+                fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
+            } else {
+                fkEntity = xpathForeignKey;
+            }
+
+            fkEntityType = SchemaWebAgent.getInstance().getBusinessConcept(fkEntity).getCorrespondTypeName();
+            entityReusableType = SchemaWebAgent.getInstance().getReusableType(fkEntityType);
+            entityReusableType.load();
+
+            List<ReusableType> subtypes = SchemaWebAgent.getInstance().getMySubtypes(fkEntityType, true);
+            for (ReusableType reusableType : subtypes) {
+                reusableType.load();
+                SubTypeBean subTypeBean = new SubTypeBean();
+                subTypeBean.setName(reusableType.getName());
+                subTypeBean.setLabel(reusableType.getLabelMap().get(language) == null ? reusableType.getName() : reusableType
+                        .getLabelMap().get(language));
+                subTypeBean.setOrderValue(reusableType.getOrderValue());
+                if (reusableType.isAbstract()) {
+                    continue;
+                }
+                derivedTypes.add(subTypeBean);
+            }
+
+        }
+
+        Collections.sort(derivedTypes);
+
+        List<Restriction> ret = new ArrayList<Restriction>();
+
+        if (fkEntityType != null && !entityReusableType.isAbstract()) {
+            Restriction re = new Restriction();
+            re.setName(entityReusableType.getName());
+            re.setValue(entityReusableType.getLabelMap().get(language) == null ? entityReusableType.getName()
+                    : entityReusableType.getLabelMap().get(language));
+            ret.add(re);
+        }
+
+        for (SubTypeBean type : derivedTypes) {
+            Restriction re = new Restriction();
+            re.setName(type.getName());
+            re.setValue(type.getLabel());
+            ret.add(re);
+        }
+        return ret;
+    }
+
+    /**
+     * DOC HSHU Comment method "switchForeignKeyType".
+     * 
+     * @param targetEntity
+     * @param xpathForeignKey
+     * @param xpathInfoForeignKey
+     * @param fkFilter
+     * @return
+     * @throws Exception
+     */
+    public ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
+            String fkFilter) throws Exception {
+        ForeignKeyDrawer fkDrawer = new ForeignKeyDrawer();
+
+        BusinessConcept businessConcept = SchemaWebAgent.getInstance().getFirstBusinessConceptFromRootType(targetEntityType);
+        if (businessConcept == null)
+            return null;
+        String targetEntity = businessConcept.getName();
+
+        if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
+            xpathForeignKey = replaceXpathRoot(targetEntity, xpathForeignKey);
+        }
+
+        if (xpathInfoForeignKey != null && xpathInfoForeignKey.length() > 0) {
+            String[] fkInfoPaths = xpathInfoForeignKey.split(",");//$NON-NLS-1$
+            xpathInfoForeignKey = "";//$NON-NLS-1$
+            for (int i = 0; i < fkInfoPaths.length; i++) {
+                String fkInfoPath = fkInfoPaths[i];
+                String relacedFkInfoPath = replaceXpathRoot(targetEntity, fkInfoPath);
+                if (relacedFkInfoPath != null && relacedFkInfoPath.length() > 0) {
+                    if (xpathInfoForeignKey.length() > 0)
+                        xpathInfoForeignKey += ",";//$NON-NLS-1$
+                    xpathInfoForeignKey += relacedFkInfoPath;
+                }
+            }
+        }
+        fkDrawer.setXpathForeignKey(xpathForeignKey);
+        fkDrawer.setXpathInfoForeignKey(xpathInfoForeignKey);
+        return fkDrawer;
+    }
+
+    /**
+     * DOC HSHU Comment method "replaceXpathRoot".
+     * 
+     * @param targetEntity
+     * @param xpathForeignKey
+     * @return
+     */
+    private String replaceXpathRoot(String targetEntity, String xpath) {
+        if (xpath.indexOf("/") != -1)//$NON-NLS-1$
+            xpath = targetEntity + xpath.substring(xpath.indexOf("/"));//$NON-NLS-1$
+        else
+            xpath = targetEntity;
+        return xpath;
+    }
 }

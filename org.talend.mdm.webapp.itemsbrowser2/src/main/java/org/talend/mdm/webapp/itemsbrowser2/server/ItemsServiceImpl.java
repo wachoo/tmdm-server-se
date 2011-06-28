@@ -20,11 +20,13 @@ import javax.servlet.ServletException;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsService;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.Restriction;
 import org.talend.mdm.webapp.itemsbrowser2.server.i18n.ItemsbrowserMessagesImpl;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
@@ -209,4 +211,12 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return itemsServiceHandler.deleteItemsBrowserTable(datacluster, tableName);
     }
 
+    public List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws Exception {
+        return itemsServiceHandler.getForeignKeyPolymTypeList(xpathForeignKey, language);
+    }
+
+    public ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
+            String fkFilter) throws Exception {
+        return itemsServiceHandler.switchForeignKeyType(targetEntityType, xpathForeignKey, xpathInfoForeignKey, fkFilter);
+    }
 }

@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.Restriction;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
@@ -68,4 +70,10 @@ public interface ItemsServiceAsync {
     void getUploadTableDescription(String datacluster, String tableName, AsyncCallback<Map<String, List<String>>> callback);
 
     void deleteItemsBrowserTable(String datacluster, String tableName, AsyncCallback<List<ItemBaseModel>> callback);
+
+    void getForeignKeyPolymTypeList(String xpathForeignKey, String language, AsyncCallback<List<Restriction>> callback);
+
+    void switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter,
+            AsyncCallback<ForeignKeyDrawer> callback);
+
 }

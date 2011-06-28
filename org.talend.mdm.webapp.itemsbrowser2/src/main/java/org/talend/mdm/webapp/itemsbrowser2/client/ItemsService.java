@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.Restriction;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
@@ -78,4 +80,9 @@ public interface ItemsService extends RemoteService {
     Map<String, List<String>> getUploadTableDescription(String datacluster, String tableName);
 
     List<ItemBaseModel> deleteItemsBrowserTable(String datacluster, String tableName);
+
+    List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws Exception;
+
+    ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
+            String fkFilter) throws Exception;
 }
