@@ -729,8 +729,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                         if (nodes.getLength() == 1) {
                             formattedId += nodes.item(0).getTextContent();
                         } else {
-                            throw new IllegalArgumentException("XPath '" + foreignKeyPath + "' matched " + nodes.getLength() //TODO String to externalize
-                                    + " instead of 1."); 
+                            throw new IllegalArgumentException(MessagesFactory.getMessages().label_exception_xpath_not_match(
+                                    foreignKeyPath, nodes.getLength()));
                         }
                     }
 
@@ -1086,7 +1086,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
 
                 if (wsItem == null)
-                    return "ERROR - deleteTemplate is NULL";//TODO String to externalize
+                    return MessagesFactory.getMessages().label_error_delete_template_null();
                 return "OK";//$NON-NLS-1$
             } else {
                 return "OK";//$NON-NLS-1$
@@ -1166,7 +1166,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         }
 
         if (!hasMatchedOnce) {
-            throw new IllegalArgumentException("Id '" + ids + "' is malformed for this method");  //TODO String to externalize
+            throw new IllegalArgumentException(MessagesFactory.getMessages().label_exception_id_malform(ids));
         }
 
         return idList.toArray(new String[idList.size()]);
@@ -1180,7 +1180,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         List<String> idList = new ArrayList<String>();
         StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
         if (!tokenizer.hasMoreTokens()) {
-            throw new IllegalArgumentException("Id '" + ids + "' is malformed for this method");  //TODO String to externalize
+            throw new IllegalArgumentException(MessagesFactory.getMessages().label_exception_id_malform(ids));
         }
 
         while (tokenizer.hasMoreTokens()) {
@@ -1224,7 +1224,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             XSElementDecl decl;
             decl = xss.getElementDecl("", tableName); //$NON-NLS-1$
             if (decl == null) {
-                throw new XtentisWebappException("The uploadFile table \"" + tableName + "\" definition cannot be found"); //TODO String to externalize
+                throw new XtentisWebappException(MessagesFactory.getMessages().label_exception_upload_table_not_found(tableName));
             }
             XSComplexType type = (XSComplexType) decl.getType();
             XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
