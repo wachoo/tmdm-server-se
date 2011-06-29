@@ -45,10 +45,7 @@ public class Configuration {
         // aiming modify load the configure from db instead of session
         WebContext ctx = WebContextFactory.get();
         Configuration instance;
-        if (ctx == null) {
-            org.apache.log4j.Logger.getLogger(Configuration.class).debug("getInstance() context null");
-        }
-        if (ctx.getSession().getAttribute("configuration") == null) {
+        if (ctx == null || ctx.getSession().getAttribute("configuration") == null) {
             org.apache.log4j.Logger.getLogger(Configuration.class).info("instance null, loading");
             instance = load();
 

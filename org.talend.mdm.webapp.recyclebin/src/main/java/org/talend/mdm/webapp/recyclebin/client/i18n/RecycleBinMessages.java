@@ -22,6 +22,8 @@ public interface RecycleBinMessages extends Messages {
 
     String confirm_title();
 
+    String error_title();
+
     String dataClusterName();
 
     String revisionID();
@@ -50,5 +52,7 @@ public interface RecycleBinMessages extends Messages {
 
     String restore_confirm();
 
-    String lines_per_page();
+    String page_size_label();
+
+    String page_size_notice();
 }

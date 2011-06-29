@@ -12,12 +12,14 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.client.mvc;
 
+import org.talend.mdm.webapp.recyclebin.client.MainFramePanel;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinEvents;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
@@ -38,6 +40,8 @@ public class RecycleBinView extends View {
     private void onInitFrame(AppEvent event) {
         if (Log.isInfoEnabled())
             Log.info("Init frame... ");//$NON-NLS-1$
+
+        RootPanel.get().add(MainFramePanel.getInstance());
     }
 
 }

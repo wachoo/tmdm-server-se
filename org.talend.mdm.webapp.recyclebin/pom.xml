@@ -120,6 +120,13 @@
             <systemPath>${tom.location}/org.talend.mdm.commmon/z.mdm.common.lib.jar</systemPath>
         </dependency>
         <dependency>
+            <groupId>org.talend.mdm.commons.core</groupId>
+            <artifactId>org.talend.mdm.commons.core</artifactId>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>${tom.location}/org.talend.mdm.commons.core/z.mdm.common.commons.core.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
             <version>${project.version}</version>
