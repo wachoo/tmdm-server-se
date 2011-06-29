@@ -73,14 +73,14 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -521,7 +521,7 @@ public class ItemsToolBar extends ToolBar {
                                     formPanel.setButtonAlign(HorizontalAlignment.CENTER);
                                     formPanel.setMethod(Method.POST);
                                     formPanel.setWidth("100%"); //$NON-NLS-1$
-                                    // formPanel.setUrl("secure/upload");
+                                    formPanel.setAction("/itemsbrowser2/upload"); //$NON-NLS-1$
 
                                     FileUploadField file = new FileUploadField();
                                     file.setAllowBlank(false);
@@ -548,12 +548,14 @@ public class ItemsToolBar extends ToolBar {
                                     fileTypecombo.setDisplayField("label"); //$NON-NLS-1$
                                     fileTypecombo.setValueField("key"); //$NON-NLS-1$
                                     fileTypecombo.setForceSelection(true);
+                                    fileTypecombo.setName("fileType"); //$NON-NLS-1$
                                     fileTypecombo.setStore(typeList);
                                     fileTypecombo.setTriggerAction(TriggerAction.ALL);
                                     formPanel.add(fileTypecombo);
 
                                     CheckBox headerLine = new CheckBox();
                                     headerLine.setFieldLabel(MessagesFactory.getMessages().label_field_header_first());
+                                    headerLine.setName("headersOnFirstLine"); //$NON-NLS-1$
                                     formPanel.add(headerLine);
 
                                     List<ItemBaseModel> separatorList = new ArrayList<ItemBaseModel>();
@@ -576,6 +578,7 @@ public class ItemsToolBar extends ToolBar {
                                     separatorCombo.setValueField("key"); //$NON-NLS-1$
                                     separatorCombo.setForceSelection(true);
                                     separatorCombo.setStore(separatorStoreList);
+                                    separatorCombo.setName("sep"); //$NON-NLS-1$
                                     separatorCombo.setTriggerAction(TriggerAction.ALL);
                                     formPanel.add(separatorCombo);
 
@@ -597,6 +600,7 @@ public class ItemsToolBar extends ToolBar {
                                     textDelimiterCombo.setFieldLabel("Text Delimiter"); //$NON-NLS-1$
                                     textDelimiterCombo.setDisplayField("label"); //$NON-NLS-1$
                                     textDelimiterCombo.setValueField("key"); //$NON-NLS-1$
+                                    textDelimiterCombo.setName("delimiter"); //$NON-NLS-1$
                                     textDelimiterCombo.setForceSelection(true);
                                     textDelimiterCombo.setStore(textDelimiterStoreList);
                                     textDelimiterCombo.setTriggerAction(TriggerAction.ALL);
@@ -630,6 +634,7 @@ public class ItemsToolBar extends ToolBar {
                                     encodingCombo.setFieldLabel(MessagesFactory.getMessages().label_field_encoding());
                                     encodingCombo.setDisplayField("label"); //$NON-NLS-1$
                                     encodingCombo.setValueField("key"); //$NON-NLS-1$
+                                    encodingCombo.setName("encodings"); //$NON-NLS-1$
                                     encodingCombo.setForceSelection(true);
                                     encodingCombo.setStore(encodingStoreList);
                                     encodingCombo.setTriggerAction(TriggerAction.ALL);
@@ -658,7 +663,6 @@ public class ItemsToolBar extends ToolBar {
                                                 @Override
                                                 public void componentSelected(ButtonEvent ce) {
                                                     formPanel.submit();
-                                                    panel.removeAll();
                                                 }
                                             });
 
