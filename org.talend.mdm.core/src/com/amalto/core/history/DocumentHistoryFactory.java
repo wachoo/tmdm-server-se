@@ -31,11 +31,7 @@ public class DocumentHistoryFactory {
         try {
             Object documentHistoryObject = Class.forName(IMPLEMENTATION_CLASS_NAME).newInstance();
             return (DocumentHistory) documentHistoryObject;
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

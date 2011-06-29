@@ -49,29 +49,26 @@ public interface MutableDocument extends Document {
     MutableDocument addField(String field, int index, String value);
 
     /**
-     * <p>
-     * Turns on or off the <pre>isCreated</pre> flag for the document.
-     * </p>
-     * <p>
-     * <b>Note:</b>This should turn off the deleted status.
-     * </p>
-     *
-     * @param isCreated true if the document should be marked as created, false otherwise.
-     * @return A mutable document ready to be used (might be the same instance).
+     * @return Returns a document with created status.
      */
-    MutableDocument setCreated(boolean isCreated);
+    MutableDocument create();
 
     /**
-     * <p>
-     * Turns on or off the <pre>isDeleted</pre> flag for the document.
-     * </p>
-     * <p>
-     * <b>Note:</b>This should turn off the created status.
-     * </p>
-     * @param isDeleted true if the document should be marked as deleted, false otherwise.
-     * @return A mutable document ready to be used (might be the same instance).
+     * Deletes the document. MDM supports two different kinds of deletes: LOGICAL and PHYSICAL.
+     * @param deleteType The type of delete to perform.
+     * @return A {@link MutableDocument} after delete has been performed.
+     * @see DeleteType
      */
-    MutableDocument setDeleted(boolean isDeleted);
+    MutableDocument delete(DeleteType deleteType);
+
+    /**
+     * Recovers the document. MDM supports two different kinds of deletes: LOGICAL and PHYSICAL.
+     * @param deleteType Type of delete to recover.
+     * @return A recovered document.
+     * @throws IllegalStateException If the document wasn't deleted by the <code>deleteType</code> type.
+     * @see DeleteType
+     */
+    MutableDocument recover(DeleteType deleteType);
 
     /**
      * @return Returns a unmodifiable document that might be result of action optimizations.

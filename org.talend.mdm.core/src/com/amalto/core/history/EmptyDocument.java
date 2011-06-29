@@ -44,11 +44,15 @@ public class EmptyDocument implements MutableDocument {
         return this;
     }
 
-    public MutableDocument setCreated(boolean isCreated) {
+    public MutableDocument create() {
         return this;
     }
 
-    public MutableDocument setDeleted(boolean isDeleted) {
+    public MutableDocument delete(DeleteType deleteType) {
+        return this;
+    }
+
+    public MutableDocument recover(DeleteType deleteType) {
         return this;
     }
 
