@@ -38,7 +38,7 @@ public class GetService {
         return $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.getLanguage();
     }-*/;
 
-    public static native void openItemBrowser(String ids, String conceptName) /*-{        
+    public static native void openItemBrowser(String ids, String conceptName) /*-{
         var refreshCB = function(operation){
             if ($doc.getElementById('talend_itemsbrowser2_ItemsBrowser2')==null)return;
             if (operation == "deleteItem"){
@@ -68,7 +68,6 @@ public class GetService {
     
     public static native void renderFormWindow(String ids, String concept, boolean isDuplicate,
             Element formWindow, boolean isDetail, boolean refreshItemForm, boolean enableQuit) /*-{
-                
         var handleCallback = {
             refreshRecord : function(){
                 @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refresh(ZLjava/lang/String;)(refreshItemForm, ids);
@@ -80,12 +79,9 @@ public class GetService {
                 @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::refreshGrid()();
             }
         };
-        
+
         @org.talend.mdm.webapp.itemsbrowser2.client.boundary.GetService::setEnable(Z)(false);
         $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderFormWindow(ids, concept, isDuplicate, handleCallback, formWindow, isDetail, enableQuit);
     }-*/;
     
-    public static native void renderUploadWindow() /*-{
-    $wnd.parent.amalto.itemsbrowser2.ItemsBrowser2.renderUploadWindow();
-	}-*/;
 }

@@ -565,7 +565,6 @@ public class ItemsToolBar extends ToolBar {
                 }
 
                 tabFrame.setSelection(item);
-                // GetService.renderUploadWindow();
             }
         });
 
