@@ -45,8 +45,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class NewTablePanel extends ContentPanel {
 
-    private static NewTablePanel panel = null;
-
     private int fieldCount = 1;
 
     private String[] fieldArray = null;
@@ -55,7 +53,13 @@ public class NewTablePanel extends ContentPanel {
 
     private ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
 
-    private NewTablePanel() {
+    private ContentPanel container;
+
+    private ItemsToolBar toolbar;
+
+    private TextField<String> tableName;
+
+    public NewTablePanel() {
         this.setCollapsible(true);
         this.setFrame(false);
         this.setHeaderVisible(false);
@@ -66,12 +70,6 @@ public class NewTablePanel extends ContentPanel {
         this.setScrollMode(Scroll.AUTO);
 
         this.addFormPanel();
-    }
-
-    public static NewTablePanel getInstance() {
-        if (panel == null)
-            panel = new NewTablePanel();
-        return panel;
     }
 
     private void addFormPanel() {
@@ -88,7 +86,7 @@ public class NewTablePanel extends ContentPanel {
         final LayoutContainer main = new LayoutContainer();
         main.setLayout(new ColumnLayout());
 
-        final TextField<String> tableName = new TextField<String>();
+        tableName = new TextField<String>();
         tableName.setFieldLabel(MessagesFactory.getMessages().label_field_table_name());
         addPanel.add(tableName);
 
@@ -147,7 +145,9 @@ public class NewTablePanel extends ContentPanel {
                     }
 
                     public void onSuccess(Void arg0) {
-                        MessageBox.alert("123", "123", null);
+                        toolbar.setCurrentTableName(tableName.getValue());
+                        toolbar.addDownloadPanel(container);
+                        toolbar.addOption(tableName.getValue());
                     }
                 });
 
@@ -212,5 +212,12 @@ public class NewTablePanel extends ContentPanel {
         return true;
     }-*/;
 
+    public void setContainer(ContentPanel container) {
+        this.container = container;
+    }
+
+    public void setToolbar(ItemsToolBar toolbar) {
+        this.toolbar = toolbar;
+    }
 
 }

@@ -554,7 +554,10 @@ public class ItemsToolBar extends ToolBar {
                                 @Override
                                 public void componentSelected(ButtonEvent ce) {
                                     panel.removeAll();
-                                    NewTablePanel cp = NewTablePanel.getInstance();
+                                    NewTablePanel cp = new NewTablePanel();
+                                    cp.setToolbar(ItemsToolBar.this);
+                                    cp.setContainer(panel);
+
                                     panel.add(cp);
                                     panel.layout();
                                 }
@@ -1130,5 +1133,23 @@ public class ItemsToolBar extends ToolBar {
 
             }
         });
+    }
+
+    public String getCurrentTableName() {
+        return currentTableName;
+    }
+
+    public void setCurrentTableName(String currentTableName) {
+        this.currentTableName = currentTableName;
+    }
+
+    public void addOption(String newTableName) {
+        ItemBaseModel model = new ItemBaseModel();
+        model.set("label", newTableName); //$NON-NLS-1$
+        model.set("key", newTableName); //$NON-NLS-1$
+        tableList.add(model);
+        combo.setStore(tableList);
+
+        combo.setValue(model);
     }
 }
