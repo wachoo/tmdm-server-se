@@ -5173,7 +5173,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         tbDetail.items.get('saveAndQBTN').enable();
 
                         if (callbackOnSuccess && result.status != 1)                        	
-                        	callbackOnSuccess(result.returnValue);
+                        	callbackOnSuccess(result);
 
                         if (result.description == null
                                 || result.description == "") {
