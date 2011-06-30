@@ -54,9 +54,15 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     
     private ComboBox<ItemBaseModel> encodingCombo;
 
+    private FileUploadField file;
+
+    private CheckBox headerLine;
+
     private ItemsToolBar toolbar;
 
     private ContentPanel container;
+
+    private HiddenField<String> nameField;
 
     private UploadFileFormPanel() {
 
@@ -75,17 +81,18 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         tableName = name;
         if (panel == null)
             panel = new UploadFileFormPanel();
+        panel.getNameField().setValue(tableName);
         return panel;
     }
 
     private void renderForm() {
 
-        HiddenField<String> nameField = new HiddenField<String>();
+        nameField = new HiddenField<String>();
         nameField.setName("concept");//$NON-NLS-1$
         nameField.setValue(tableName);
         this.add(nameField);
 
-        FileUploadField file = new FileUploadField();
+        file = new FileUploadField();
         file.setAllowBlank(false);
         file.setName("file"); //$NON-NLS-1$
         file.setId("fileUpload");//$NON-NLS-1$   
@@ -118,7 +125,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         this.add(fileTypecombo);
 
 
-        CheckBox headerLine = new CheckBox();
+        headerLine = new CheckBox();
         headerLine.setId("headersOnFirstLine");//$NON-NLS-1$
         headerLine.setName("headersOnFirstLine");//$NON-NLS-1$
         headerLine.setFieldLabel(MessagesFactory.getMessages().label_field_header_first());
@@ -213,6 +220,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
             @Override
             public void selectionChanged(SelectionChangedEvent<ItemBaseModel> event) {
+                if (event.getSelectedItem() == null)
+                    return;
                 String type = (String) event.getSelectedItem().get("key"); //$NON-NLS-1$
                 if (type.equalsIgnoreCase("CSV")) { //$NON-NLS-1$
                     separatorCombo.enable();
@@ -258,11 +267,28 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         }
     }
 
+    public void resetForm() {
+        file.clear();
+        fileTypecombo.reset();
+        headerLine.setValue(true);
+        separatorCombo.reset();
+        textDelimiterCombo.reset();
+        textDelimiterCombo.reset();
+        encodingCombo.reset();
+        separatorCombo.disable();
+        textDelimiterCombo.disable();
+        encodingCombo.disable();
+    }
+
     public void setToolbar(ItemsToolBar toolbar) {
         this.toolbar = toolbar;
     }
 
     public void setContainer(ContentPanel container) {
         this.container = container;
+    }
+
+    public HiddenField<String> getNameField() {
+        return nameField;
     }
 }

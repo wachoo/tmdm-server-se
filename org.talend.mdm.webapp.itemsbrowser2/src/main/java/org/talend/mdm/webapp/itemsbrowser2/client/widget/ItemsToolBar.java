@@ -508,6 +508,7 @@ public class ItemsToolBar extends ToolBar {
                                     UploadFileFormPanel formPanel = UploadFileFormPanel.getInstance(currentTableName);
                                     formPanel.setToolbar(ItemsToolBar.this);
                                     formPanel.setContainer(panel);
+                                    formPanel.resetForm();
                                     panel.add(formPanel);
                                     panel.layout();
                                 }
