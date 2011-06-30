@@ -275,4 +275,7 @@ public interface ItemsbrowserMessages extends Messages {
     String label_exception_id_malform(String id);
 
     String label_exception_upload_table_not_found(String table);
+
+    String label_select_type();
+
 }

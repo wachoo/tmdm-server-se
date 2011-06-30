@@ -154,7 +154,7 @@ public class FKRelRecordWindow extends Window {
         RpcProxy<BaseListLoadResult<BaseModel>> proxy1 = new RpcProxy<BaseListLoadResult<BaseModel>>() {
 
             public void load(final Object loadConfig, final AsyncCallback<BaseListLoadResult<BaseModel>> callback) {
-            	service.getForeignKeyPolymTypeList(typeModel.getForeignkey(), "en", new AsyncCallback<List<Restriction>>() {
+                service.getForeignKeyPolymTypeList(typeModel.getForeignkey(), "en", new AsyncCallback<List<Restriction>>() {//$NON-NLS-1$
 
                     public void onFailure(Throwable caught) {
                         callback.onFailure(caught);
@@ -227,7 +227,7 @@ public class FKRelRecordWindow extends Window {
         typeComboBox.setValueField("value"); //$NON-NLS-1$
         typeComboBox.setStore(typeList);
         typeComboBox.setTriggerAction(TriggerAction.ALL);
-        typeComboBox.setEmptyText("Select a Type...");
+        typeComboBox.setEmptyText(MessagesFactory.getMessages().label_select_type());
         typeComboBox.setId("DerivedTypeComboBox"); //$NON-NLS-1$
         
         typeComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
@@ -238,10 +238,9 @@ public class FKRelRecordWindow extends Window {
 				String fkInfo=typeModel.getForeignKeyInfo().size()>0?typeModel.getForeignKeyInfo().get(0):null;
 				service.switchForeignKeyType(targetType, typeModel.getForeignkey(), fkInfo, getFilterValue(), new AsyncCallback<ForeignKeyDrawer>(){
 
-					public void onFailure(Throwable arg0) {
-						// TODO Auto-generated method stub
-						
-					}
+                            public void onFailure(Throwable arg0) {
+
+                     }
 
 					public void onSuccess(ForeignKeyDrawer fkDrawer) {
 						typeModel.setForeignkey(fkDrawer.getXpathForeignKey());

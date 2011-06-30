@@ -543,4 +543,9 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
     public String label_exception_upload_table_not_found(String table) {
         return MESSAGES.getMessage("label_exception_upload_table_not_found", table);
     }
+
+    public String label_select_type() {
+        return MESSAGES.getMessage("label_select_type");
+    }
+
 }
