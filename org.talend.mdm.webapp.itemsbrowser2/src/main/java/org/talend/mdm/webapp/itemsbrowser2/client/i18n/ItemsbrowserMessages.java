@@ -278,4 +278,9 @@ public interface ItemsbrowserMessages extends Messages {
 
     String label_select_type();
 
+    String invalid_tableName();
+
+    String invalid_field(String field);
+
+    String no_key();
 }

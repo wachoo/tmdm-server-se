@@ -548,4 +548,15 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
         return MESSAGES.getMessage("label_select_type");
     }
 
+    public String invalid_tableName() {
+        return MESSAGES.getMessage("label_select_type");
+    }
+
+    public String invalid_field(String field) {
+        return MESSAGES.getMessage("label_select_type", field);
+    }
+
+    public String no_key() {
+        return MESSAGES.getMessage("no_key");
+    }
 }

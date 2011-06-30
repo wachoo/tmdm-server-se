@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -59,6 +60,12 @@ public class NewTablePanel extends ContentPanel {
 
     private TextField<String> tableName;
 
+    private LayoutContainer left = new LayoutContainer();
+
+    private LayoutContainer right = new LayoutContainer();
+
+    private FormPanel addPanel;
+
     public NewTablePanel() {
         this.setCollapsible(true);
         this.setFrame(false);
@@ -74,46 +81,43 @@ public class NewTablePanel extends ContentPanel {
 
     private void addFormPanel() {
 
-        final FormData formData = new FormData("100%"); //$NON-NLS-1$
-        final FormPanel addPanel = new FormPanel();
+        addPanel = new FormPanel();
         addPanel.setCollapsible(false);
         addPanel.setFrame(false);
         addPanel.setHeaderVisible(false);
         addPanel.setWidth("100%"); //$NON-NLS-1$
-        addPanel.setLabelWidth(200);
         addPanel.setScrollMode(Scroll.AUTO);
-
-        final LayoutContainer main = new LayoutContainer();
-        main.setLayout(new ColumnLayout());
 
         tableName = new TextField<String>();
         tableName.setFieldLabel(MessagesFactory.getMessages().label_field_table_name());
+        tableName.setLabelStyle("width:102px");//$NON-NLS-1$
         addPanel.add(tableName);
 
-        final LayoutContainer left = new LayoutContainer();
-        left.setStyleAttribute("paddingRight", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
+        LayoutContainer main = new LayoutContainer();
+        main.setLayout(new ColumnLayout());
+        main.add(left, new ColumnData(.5));
+        main.add(right, new ColumnData(.5));
+
         FormLayout layout = new FormLayout();
         left.setLayout(layout);
+        layout.setDefaultWidth(210);
+
+        layout = new FormLayout();
+        layout.setLabelWidth(20);
+        right.setLayout(layout);
 
         TextField<String> field1 = new TextField<String>();
         field1.setFieldLabel("Field " + fieldCount); //$NON-NLS-1$
         field1.setId("field" + fieldCount); //$NON-NLS-1$
-        field1.setHeight(25);
-        left.add(field1, formData);
-
-        final LayoutContainer right = new LayoutContainer();
-        right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
-        layout = new FormLayout();
-        right.setLayout(layout);
+        field1.setAllowBlank(false);
+        left.add(field1);
 
         CheckBox keycb = new CheckBox();
         keycb.setFieldLabel("Key"); //$NON-NLS-1$
         keycb.setId("key" + fieldCount); //$NON-NLS-1$
-        right.add(keycb, formData);
+        right.add(keycb);
 
-        main.add(left, new com.extjs.gxt.ui.client.widget.layout.ColumnData(.347));
-        main.add(right, new com.extjs.gxt.ui.client.widget.layout.ColumnData(.347));
-        addPanel.add(main, new FormData("100%")); //$NON-NLS-1$
+        addPanel.add(main, new FormData("80%"));//$NON-NLS-1$   
 
         this.add(addPanel);
         ToolBar tb = new ToolBar();
@@ -122,19 +126,27 @@ public class NewTablePanel extends ContentPanel {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                if (tableName == null || !isValidValue(tableName.getValue().trim())) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), "", null);
+                if (tableName.getValue() == null)
+                    return;
+
+                if (!addPanel.isValid())
+                    return;
+
+                if (!isValidValue(tableName.getValue().trim())) {
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                            .invalid_tableName(), null);
                     return;
                 }
 
                 String validResult = ifValidField(left);
                 if (validResult != null) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), "", null);
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                            MessagesFactory.getMessages().invalid_field(validResult), null);
                     return;
                 }
 
                 if (ifEmptyKey(right)) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), "", null);
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().no_key(), null);
                     return;
                 }
 
@@ -163,26 +175,24 @@ public class NewTablePanel extends ContentPanel {
                         TextField<String> f = new TextField<String>();
                         f.setFieldLabel("Field " + fieldCount); //$NON-NLS-1$
                         f.setId("field" + fieldCount); //$NON-NLS-1$
-                        f.setHeight(25);
-                        left.add(f, formData);
+                        left.add(f);
 
                         CheckBox kcb = new CheckBox();
                         kcb.setFieldLabel("Key"); //$NON-NLS-1$
                         kcb.setId("key" + fieldCount); //$NON-NLS-1$
-                        right.add(kcb, formData);
+                        right.add(kcb);
 
-                        main.layout();
                         addPanel.layout();
                     }
                 }));
         this.setBottomComponent(tb);
     }
 
-    private boolean ifEmptyKey(LayoutContainer container) {
+    private boolean ifEmptyKey(LayoutContainer lc) {
         boolean ifempty = true;
-        keyArray = new String[container.getItemCount()];
+        keyArray = new String[lc.getItemCount()];
         int i = 0;
-        for (Component c : container.getItems()) {
+        for (Component c : lc.getItems()) {
             keyArray[i] = ((Field) c).getValue().toString();
             if (keyArray[i].equals("true")) //$NON-NLS-1$
                 ifempty = false;
@@ -191,10 +201,10 @@ public class NewTablePanel extends ContentPanel {
         return ifempty;
     }
 
-    private String ifValidField(LayoutContainer container) {
-        fieldArray = new String[container.getItemCount()];
+    private String ifValidField(LayoutContainer lc) {
+        fieldArray = new String[lc.getItemCount()];
         int i = 0;
-        for (Component c : container.getItems()) {
+        for (Component c : lc.getItems()) {
             fieldArray[i] = ((Field) c).getValue().toString();
             if (!isValidValue(fieldArray[i]))
                 return fieldArray[i];
