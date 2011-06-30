@@ -12,6 +12,8 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Restriction;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
+import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadBaseModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadTable;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
@@ -65,15 +67,26 @@ public interface ItemsServiceAsync {
 
     void logicalDeleteItems(List<ItemBean> items, String path, AsyncCallback<List<ItemResult>> callback);
 
-    void getUploadTableNames(String datacluster, String value, AsyncCallback<List<ItemBaseModel>> callback);
+    void getUploadTableNames(String value, AsyncCallback<List<ItemBaseModel>> callback);
 
-    void getUploadTableDescription(String datacluster, String tableName, AsyncCallback<Map<String, List<String>>> callback);
+    void getUploadTableDescription(String tableName, AsyncCallback<Map<String, List<String>>> callback);
 
-    void deleteItemsBrowserTable(String datacluster, String tableName, AsyncCallback<List<ItemBaseModel>> callback);
+    void deleteItemsBrowserTable(String tableName, AsyncCallback<List<ItemBaseModel>> callback);
 
     void getForeignKeyPolymTypeList(String xpathForeignKey, String language, AsyncCallback<List<Restriction>> callback);
 
     void switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter,
             AsyncCallback<ForeignKeyDrawer> callback);
+
+    void addNewTable(String concept, String[] fields, String[] keys, AsyncCallback<Void> callback);
+
+    void deleteDocument(String concept, DownloadBaseModel model, AsyncCallback<Void> callback);
+
+    void updateDocument(String concept, List<DownloadBaseModel> models, AsyncCallback<Void> callback);
+
+    void getDownloadTableContent(String tableName, PagingLoadConfig load,
+            AsyncCallback<PagingLoadResult<DownloadBaseModel>> callback);
+
+    void getDownloadTable(String tableName, AsyncCallback<DownloadTable> callback);
 
 }

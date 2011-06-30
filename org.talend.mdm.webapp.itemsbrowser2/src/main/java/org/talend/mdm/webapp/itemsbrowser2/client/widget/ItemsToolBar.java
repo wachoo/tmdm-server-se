@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
@@ -33,6 +32,7 @@ import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.ComboBoxField;
+import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadTable;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -64,7 +64,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -73,24 +72,18 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
@@ -149,7 +142,7 @@ public class ItemsToolBar extends ToolBar {
 
     private ComboBox<ItemBaseModel> combo = null;
 
-    private int fieldCount = 1;
+    private DownloadTable table;
 
     /*************************************/
 
@@ -459,7 +452,7 @@ public class ItemsToolBar extends ToolBar {
                     ToolBar toolBar = new ToolBar();
                     toolBar.setWidth("100%"); //$NON-NLS-1$
 
-                    service.getUploadTableNames(Itemsbrowser2.getSession().getAppHeader().getDatacluster(), "", //$NON-NLS-1$
+                    service.getUploadTableNames("", //$NON-NLS-1$
                             new AsyncCallback<List<ItemBaseModel>>() {
 
                                 public void onFailure(Throwable caught) {
@@ -488,7 +481,7 @@ public class ItemsToolBar extends ToolBar {
                             if (se.getSelectedItem() == null)
                                 return;
                             currentTableName = (String) se.getSelectedItem().get("key"); //$NON-NLS-1$
-                            ItemsToolBar.this.showContenPanel(panel, currentTableName);
+                            ItemsToolBar.this.addDownloadPanel(panel);
                         }
                     });
 
@@ -496,10 +489,10 @@ public class ItemsToolBar extends ToolBar {
                     toolBar.add(new Button("Edit", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
 
                                 @Override
-                                public void componentSelected(ButtonEvent ce) {
+                                public void componentSelected(ButtonEvent event) {
                                     if (currentTableName == null)
                                         return;
-                                    ItemsToolBar.this.showContenPanel(panel, currentTableName);
+                                    ItemsToolBar.this.addDownloadPanel(panel);
                                 }
                             }));
 
@@ -512,167 +505,9 @@ public class ItemsToolBar extends ToolBar {
                                     if (currentTableName == null)
                                         return;
                                     panel.removeAll();
-                                    final FormPanel formPanel = new FormPanel();
-                                    formPanel.setCollapsible(false);
-                                    formPanel.setHeading("Upload data"); //$NON-NLS-1$
-                                    formPanel.setFrame(false);
-                                    formPanel.setHeaderVisible(true);
-                                    formPanel.setEncoding(Encoding.MULTIPART);
-                                    formPanel.setButtonAlign(HorizontalAlignment.CENTER);
-                                    formPanel.setMethod(Method.POST);
-                                    formPanel.setWidth("100%"); //$NON-NLS-1$
-                                    formPanel.setAction("/itemsbrowser2/upload"); //$NON-NLS-1$
-
-                                    FileUploadField file = new FileUploadField();
-                                    file.setAllowBlank(false);
-                                    file.setName("uploadedfile"); //$NON-NLS-1$
-                                    file.setFieldLabel("File"); //$NON-NLS-1$
-                                    formPanel.add(file);
-
-                                    List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
-                                    ItemBaseModel excel = new ItemBaseModel();
-                                    excel.set("label", "Excel"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    excel.set("key", "Excel"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    list.add(excel);
-
-                                    ItemBaseModel csv = new ItemBaseModel();
-                                    csv.set("label", "CSV"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    csv.set("key", "CSV"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    list.add(csv);
-                                    ListStore<ItemBaseModel> typeList = new ListStore<ItemBaseModel>();
-                                    typeList.add(list);
-
-                                    ComboBox<ItemBaseModel> fileTypecombo = new ComboBox<ItemBaseModel>();
-                                    fileTypecombo.setEmptyText(MessagesFactory.getMessages().label_combo_filetype_select());
-                                    fileTypecombo.setFieldLabel(MessagesFactory.getMessages().label_field_filetype());
-                                    fileTypecombo.setDisplayField("label"); //$NON-NLS-1$
-                                    fileTypecombo.setValueField("key"); //$NON-NLS-1$
-                                    fileTypecombo.setForceSelection(true);
-                                    fileTypecombo.setName("fileType"); //$NON-NLS-1$
-                                    fileTypecombo.setStore(typeList);
-                                    fileTypecombo.setTriggerAction(TriggerAction.ALL);
-                                    formPanel.add(fileTypecombo);
-
-                                    CheckBox headerLine = new CheckBox();
-                                    headerLine.setFieldLabel(MessagesFactory.getMessages().label_field_header_first());
-                                    headerLine.setName("headersOnFirstLine"); //$NON-NLS-1$
-                                    formPanel.add(headerLine);
-
-                                    List<ItemBaseModel> separatorList = new ArrayList<ItemBaseModel>();
-                                    ItemBaseModel comma = new ItemBaseModel();
-                                    comma.set("label", "comma"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    comma.set("key", "comma"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    separatorList.add(comma);
-
-                                    ItemBaseModel semicolon = new ItemBaseModel();
-                                    semicolon.set("label", "semicolon"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    semicolon.set("key", "semicolon"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    separatorList.add(semicolon);
-
-                                    ListStore<ItemBaseModel> separatorStoreList = new ListStore<ItemBaseModel>();
-                                    separatorStoreList.add(separatorList);
-
-                                    final ComboBox<ItemBaseModel> separatorCombo = new ComboBox<ItemBaseModel>();
-                                    separatorCombo.setFieldLabel("Separator"); //$NON-NLS-1$
-                                    separatorCombo.setDisplayField("label"); //$NON-NLS-1$
-                                    separatorCombo.setValueField("key"); //$NON-NLS-1$
-                                    separatorCombo.setForceSelection(true);
-                                    separatorCombo.setStore(separatorStoreList);
-                                    separatorCombo.setName("sep"); //$NON-NLS-1$
-                                    separatorCombo.setTriggerAction(TriggerAction.ALL);
-                                    formPanel.add(separatorCombo);
-
-                                    List<ItemBaseModel> textDelimiterList = new ArrayList<ItemBaseModel>();
-                                    ItemBaseModel doubleDelimiter = new ItemBaseModel();
-                                    doubleDelimiter.set("label", "\""); //$NON-NLS-1$ //$NON-NLS-2$
-                                    doubleDelimiter.set("key", "d"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    textDelimiterList.add(doubleDelimiter);
-
-                                    ItemBaseModel singleDelimiter = new ItemBaseModel();
-                                    singleDelimiter.set("label", "\'"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    singleDelimiter.set("key", "s"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    textDelimiterList.add(singleDelimiter);
-
-                                    ListStore<ItemBaseModel> textDelimiterStoreList = new ListStore<ItemBaseModel>();
-                                    textDelimiterStoreList.add(textDelimiterList);
-
-                                    final ComboBox<ItemBaseModel> textDelimiterCombo = new ComboBox<ItemBaseModel>();
-                                    textDelimiterCombo.setFieldLabel("Text Delimiter"); //$NON-NLS-1$
-                                    textDelimiterCombo.setDisplayField("label"); //$NON-NLS-1$
-                                    textDelimiterCombo.setValueField("key"); //$NON-NLS-1$
-                                    textDelimiterCombo.setName("delimiter"); //$NON-NLS-1$
-                                    textDelimiterCombo.setForceSelection(true);
-                                    textDelimiterCombo.setStore(textDelimiterStoreList);
-                                    textDelimiterCombo.setTriggerAction(TriggerAction.ALL);
-                                    formPanel.add(textDelimiterCombo);
-
-                                    List<ItemBaseModel> encodingList = new ArrayList<ItemBaseModel>();
-                                    ItemBaseModel utf8 = new ItemBaseModel();
-                                    utf8.set("label", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    utf8.set("key", "utf8"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    encodingList.add(utf8);
-
-                                    ItemBaseModel iso88591 = new ItemBaseModel();
-                                    iso88591.set("label", "ISO-8859-1"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    iso88591.set("key", "iso88591"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    encodingList.add(iso88591);
-
-                                    ItemBaseModel iso885915 = new ItemBaseModel();
-                                    iso885915.set("label", "iso885915"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    iso885915.set("key", "iso885915"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    encodingList.add(iso885915);
-
-                                    ItemBaseModel cp1252 = new ItemBaseModel();
-                                    cp1252.set("label", "cp1252"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    cp1252.set("key", "cp1252"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    encodingList.add(cp1252);
-
-                                    ListStore<ItemBaseModel> encodingStoreList = new ListStore<ItemBaseModel>();
-                                    encodingStoreList.add(encodingList);
-
-                                    final ComboBox<ItemBaseModel> encodingCombo = new ComboBox<ItemBaseModel>();
-                                    encodingCombo.setFieldLabel(MessagesFactory.getMessages().label_field_encoding());
-                                    encodingCombo.setDisplayField("label"); //$NON-NLS-1$
-                                    encodingCombo.setValueField("key"); //$NON-NLS-1$
-                                    encodingCombo.setName("encodings"); //$NON-NLS-1$
-                                    encodingCombo.setForceSelection(true);
-                                    encodingCombo.setStore(encodingStoreList);
-                                    encodingCombo.setTriggerAction(TriggerAction.ALL);
-                                    formPanel.add(encodingCombo);
-
-                                    fileTypecombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
-
-                                        @Override
-                                        public void selectionChanged(SelectionChangedEvent<ItemBaseModel> event) {
-                                            String type = (String) event.getSelectedItem().get("key"); //$NON-NLS-1$
-                                            if (type.equalsIgnoreCase("CSV")) { //$NON-NLS-1$
-                                                separatorCombo.enable();
-                                                textDelimiterCombo.enable();
-                                                encodingCombo.enable();
-                                            } else {
-                                                separatorCombo.disable();
-                                                textDelimiterCombo.disable();
-                                                encodingCombo.disable();
-                                            }
-                                        }
-                                    });
-
-                                    Button submit = new Button(MessagesFactory.getMessages().label_button_submit(),
-                                            new SelectionListener<ButtonEvent>() {
-
-                                                @Override
-                                                public void componentSelected(ButtonEvent ce) {
-                                                    formPanel.submit();
-                                                }
-                                            });
-
-                                    formPanel.add(submit);
-
-                                    separatorCombo.disable();
-                                    textDelimiterCombo.disable();
-                                    encodingCombo.disable();
-
-                                    formPanel.setLabelWidth(200);
+                                    UploadFileFormPanel formPanel = UploadFileFormPanel.getInstance(currentTableName);
+                                    formPanel.setToolbar(ItemsToolBar.this);
+                                    formPanel.setContainer(panel);
                                     panel.add(formPanel);
                                     panel.layout();
                                 }
@@ -690,8 +525,8 @@ public class ItemsToolBar extends ToolBar {
                                 public void handleEvent(MessageBoxEvent event) {
 
                                     if (event.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                        String model = Itemsbrowser2.getSession().getAppHeader().getDatacluster();
-                                        service.deleteItemsBrowserTable(model, currentTableName,
+
+                                        service.deleteItemsBrowserTable(currentTableName,
                                                 new AsyncCallback<List<ItemBaseModel>>() {
 
                                                     public void onSuccess(List<ItemBaseModel> list) {
@@ -715,92 +550,10 @@ public class ItemsToolBar extends ToolBar {
                     toolBar.add(new SeparatorToolItem());
                     toolBar.add(new Button(MessagesFactory.getMessages().label_button_new_table(),
                             new SelectionListener<ButtonEvent>() {
-
                                 @Override
                                 public void componentSelected(ButtonEvent ce) {
-
                                     panel.removeAll();
-                                    fieldCount = 1;
-                                    ContentPanel cp = new ContentPanel();
-                                    cp.setCollapsible(true);
-                                    cp.setFrame(false);
-                                    cp.setHeaderVisible(false);
-                                    cp.setWidth("100%"); //$NON-NLS-1$
-                                    cp.setLayout(new FitLayout());
-                                    cp.setBodyBorder(false);
-                                    cp.setBorders(false);
-                                    cp.setScrollMode(Scroll.AUTO);
-
-                                    final FormData formData = new FormData("100%"); //$NON-NLS-1$
-                                    final FormPanel addPanel = new FormPanel();
-                                    addPanel.setCollapsible(false);
-                                    addPanel.setFrame(false);
-                                    addPanel.setHeaderVisible(false);
-                                    addPanel.setEncoding(Encoding.MULTIPART);
-                                    addPanel.setButtonAlign(HorizontalAlignment.CENTER);
-                                    addPanel.setMethod(Method.POST);
-                                    addPanel.setWidth("100%"); //$NON-NLS-1$
-                                    addPanel.setLabelWidth(200);
-
-                                    final LayoutContainer main = new LayoutContainer();
-                                    main.setLayout(new ColumnLayout());
-
-                                    TextField<String> tableName = new TextField<String>();
-                                    tableName.setFieldLabel(MessagesFactory.getMessages().label_field_table_name());
-                                    addPanel.add(tableName);
-
-                                    final LayoutContainer left = new LayoutContainer();
-                                    left.setStyleAttribute("paddingRight", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    FormLayout layout = new FormLayout();
-                                    left.setLayout(layout);
-
-                                    TextField<String> field1 = new TextField<String>();
-                                    field1.setFieldLabel("Field " + fieldCount); //$NON-NLS-1$
-                                    left.add(field1, formData);
-
-                                    final LayoutContainer right = new LayoutContainer();
-                                    right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
-                                    layout = new FormLayout();
-                                    right.setLayout(layout);
-
-                                    CheckBox keycb = new CheckBox();
-                                    keycb.setFieldLabel("Key"); //$NON-NLS-1$
-                                    right.add(keycb, formData);
-
-                                    main.add(left, new com.extjs.gxt.ui.client.widget.layout.ColumnData(.347));
-                                    main.add(right, new com.extjs.gxt.ui.client.widget.layout.ColumnData(.347));
-                                    addPanel.add(main, new FormData("100%")); //$NON-NLS-1$
-
-                                    cp.add(addPanel);
-                                    ToolBar tb = new ToolBar();
-                                    tb.setWidth("100%"); //$NON-NLS-1$
-                                    tb.add(new Button(MessagesFactory.getMessages().save_btn(),
-                                            new SelectionListener<ButtonEvent>() {
-
-                                                @Override
-                                                public void componentSelected(ButtonEvent ce) {
-
-                                                }
-                                            }));
-                                    tb.add(new SeparatorToolItem());
-                                    tb.add(new Button("Add a Field", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
-
-                                                @Override
-                                                public void componentSelected(ButtonEvent ce) {
-                                                    fieldCount = fieldCount + 1;
-                                                    TextField<String> f = new TextField<String>();
-                                                    f.setFieldLabel("Field " + fieldCount); //$NON-NLS-1$
-                                                    left.add(f, formData);
-
-                                                    CheckBox kcb = new CheckBox();
-                                                    kcb.setFieldLabel("Key"); //$NON-NLS-1$
-                                                    right.add(kcb, formData);
-
-                                                    main.layout();
-                                                    addPanel.layout();
-                                                }
-                                            }));
-                                    cp.setBottomComponent(tb);
+                                    NewTablePanel cp = NewTablePanel.getInstance();
                                     panel.add(cp);
                                     panel.layout();
                                 }
@@ -812,6 +565,7 @@ public class ItemsToolBar extends ToolBar {
                 }
 
                 tabFrame.setSelection(item);
+                // GetService.renderUploadWindow();
             }
         });
 
@@ -1360,63 +1114,20 @@ public class ItemsToolBar extends ToolBar {
         }
     }
 
-    public void showContenPanel(final ContentPanel panel, String currentTableName) {
+    public void addDownloadPanel(final ContentPanel panel) {
+        service.getDownloadTable(currentTableName, new AsyncCallback<DownloadTable>() {
 
-        String model = Itemsbrowser2.getSession().getAppHeader().getDatacluster();
-        service.getUploadTableDescription(model, currentTableName, new AsyncCallback<Map<String, List<String>>>() {
-
-            public void onSuccess(Map<String, List<String>> description) {
-
+            public void onSuccess(DownloadTable tb) {
+                table = tb;
                 panel.removeAll();
-
-                ContentPanel content = new ContentPanel();
-                content.setCollapsible(false);
-                content.setHeading(MessagesFactory.getMessages().label_update_table());
-                content.setFrame(false);
-                content.setHeaderVisible(true);
-                content.setWidth("100%"); //$NON-NLS-1$
-
-                List<String> fieldList = description.get("fields"); //$NON-NLS-1$
-                List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-                for (String str : fieldList) {
-                    ColumnConfig column = new ColumnConfig();
-                    column.setId(str);
-                    column.setHeader(str);
-                    column.setWidth(200);
-                    configs.add(column);
-                }
-                ColumnModel cm = new ColumnModel(configs);
-                final ListStore<ItemBean> store = new ListStore<ItemBean>();
-                final EditorGrid<ItemBean> grid = new EditorGrid<ItemBean>(store, cm);
-                grid.setAutoExpandColumn(fieldList.get(0));
-                grid.setBorders(true);
-
-                ToolBar buttomBar = new ToolBar();
-                buttomBar.setWidth("100%"); //$NON-NLS-1$
-                buttomBar.add(new Button(MessagesFactory.getMessages().label_add_row(), new SelectionListener<ButtonEvent>() {
-
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        ItemBean bean = new ItemBean();
-                        grid.stopEditing();
-                        store.insert(bean, 0);
-                        grid.startEditing(store.indexOf(bean), 0);
-                    }
-                }));
-
-                buttomBar.add(new SeparatorToolItem());
-                buttomBar.add(new Button(MessagesFactory.getMessages().save_btn()));
-                buttomBar.add(new SeparatorToolItem());
-                buttomBar.add(new Button(MessagesFactory.getMessages().label_button_export()));
-
-                content.add(grid);
-                content.setBottomComponent(buttomBar);
-                panel.add(content);
-                panel.layout();
+                DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(table.getName());
+                dtpanel.updateGrid(table, panel.getWidth());
+                panel.add(dtpanel);
+                panel.layout(true);
             }
 
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+            public void onFailure(Throwable arg0) {
+
             }
         });
     }

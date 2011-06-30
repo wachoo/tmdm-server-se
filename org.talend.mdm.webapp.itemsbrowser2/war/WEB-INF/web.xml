@@ -14,13 +14,13 @@
     <servlet>
         <servlet-name>exportExcelFile</servlet-name>
         <display-name>exportExcelFile</display-name>
-        <servlet-class>org.talend.mdm.webapp.itemsbrowser2.servlet.DownloadData</servlet-class>
+        <servlet-class>org.talend.mdm.webapp.itemsbrowser2.server.servlet.DownloadData</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>readExcelFile</servlet-name>
         <display-name>readExcelFile</display-name>
-        <servlet-class>org.talend.mdm.webapp.itemsbrowser2.servlet.UploadData</servlet-class>
+        <servlet-class>org.talend.mdm.webapp.itemsbrowser2.server.servlet.UploadData</servlet-class>
     </servlet>
 
     <!-- DWR config -->
@@ -48,7 +48,7 @@
 
     <servlet-mapping>
         <servlet-name>exportExcelFile</servlet-name>
-        <url-pattern>/secure/download</url-pattern>
+        <url-pattern>/download</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

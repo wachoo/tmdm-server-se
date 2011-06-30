@@ -12,6 +12,8 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Restriction;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
+import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadBaseModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadTable;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
@@ -75,14 +77,25 @@ public interface ItemsService extends RemoteService {
     ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(PagingLoadConfig config, TypeModel model, String dataClusterPK,
             boolean ifFKFilter, String value);
 
-    List<ItemBaseModel> getUploadTableNames(String datacluster, String value);
+    List<ItemBaseModel> getUploadTableNames(String value);
 
-    Map<String, List<String>> getUploadTableDescription(String datacluster, String tableName);
+    Map<String, List<String>> getUploadTableDescription(String tableName) throws Exception;
 
-    List<ItemBaseModel> deleteItemsBrowserTable(String datacluster, String tableName);
+    List<ItemBaseModel> deleteItemsBrowserTable(String tableName) throws Exception;
 
     List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws Exception;
 
     ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
             String fkFilter) throws Exception;
+
+    void addNewTable(String concept, String[] fields, String[] keys) throws Exception;
+
+    void deleteDocument(String concept, DownloadBaseModel model) throws Exception;
+
+    void updateDocument(String concept, List<DownloadBaseModel> models) throws Exception;
+
+    PagingLoadResult<DownloadBaseModel> getDownloadTableContent(String tableName, PagingLoadConfig load) throws Exception;
+
+    DownloadTable getDownloadTable(String tableName) throws Exception;
+
 }
