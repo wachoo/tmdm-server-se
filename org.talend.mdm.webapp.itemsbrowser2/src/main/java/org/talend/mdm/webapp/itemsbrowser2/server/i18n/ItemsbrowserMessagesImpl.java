@@ -559,4 +559,16 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
     public String no_key() {
         return MESSAGES.getMessage("no_key");
     }
+
+    public String label_field() {
+        return MESSAGES.getMessage("label_field");
+    }
+
+    public String label_key() {
+        return MESSAGES.getMessage("label_key");
+    }
+
+    public String label_add_field() {
+        return MESSAGES.getMessage("label_add_field");
+    }
 }

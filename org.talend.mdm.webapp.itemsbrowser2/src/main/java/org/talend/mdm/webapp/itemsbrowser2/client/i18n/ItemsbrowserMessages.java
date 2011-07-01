@@ -283,4 +283,11 @@ public interface ItemsbrowserMessages extends Messages {
     String invalid_field(String field);
 
     String no_key();
+
+    String label_field();
+
+    String label_key();
+
+    String label_add_field();
+
 }

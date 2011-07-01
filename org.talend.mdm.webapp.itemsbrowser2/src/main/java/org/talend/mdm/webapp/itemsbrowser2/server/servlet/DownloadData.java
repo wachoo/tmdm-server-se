@@ -12,13 +12,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.Region;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -54,32 +52,15 @@ public class DownloadData extends HttpServlet{
         try {
             fieldNames = getTableFieldNames(tableName);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
         }
         List<DownloadBaseModel> list = this.getTableContent(tableName, fieldNames);
-
-        HSSFRow title = sheet.createRow((short) 0);
-        HSSFCell titleCell = title.createCell((short) 0);
-        titleCell.setCellValue("Items-Browser table " + tableName);
-        HSSFCellStyle titleStyle = wb.createCellStyle();
-        HSSFFont titleFont = wb.createFont();
-        titleFont.setBoldweight(HSSFFont.BOLDWEIGHT_NORMAL);
-        titleStyle.setFont(titleFont);
-
-        int rowCount = fieldNames.length - 1;
-        sheet.addMergedRegion(new Region(0, // first row (0-based)
-                (short) 0, // last row (0-based)
-                0, // first column (0-based)
-                (short) rowCount // last column (0-based)
-        ));
-        title.getCell((short) 0).setCellStyle(titleStyle);
-
         
         HSSFCellStyle cs = wb.createCellStyle();
         HSSFFont f = wb.createFont();
         f.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
         cs.setFont(f);
-        HSSFRow row = sheet.createRow((short) 1);
+        HSSFRow row = sheet.createRow((short) 0);
         for (int i = 0; i < fieldNames.length; i++) {
             row.createCell((short) i).setCellValue(fieldNames[i]);
         }
@@ -89,15 +70,15 @@ public class DownloadData extends HttpServlet{
         }
 
         for (int i = 0; i < list.size(); i++) {
-            row = sheet.createRow((short) i + 2);
+            row = sheet.createRow((short) i + 1);
             for (int j = 0; j < fieldNames.length; j++) {
                 String tmp = list.get(i).get(fieldNames[j]);
                 if (tmp != null) {
                     tmp = tmp.trim();
-                    tmp = tmp.replaceAll("__h", "");
-                    tmp = tmp.replaceAll("h__", "");
+                    tmp = tmp.replaceAll("__h", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                    tmp = tmp.replaceAll("h__", ""); //$NON-NLS-1$//$NON-NLS-2$
                 } else {
-                    tmp = "";
+                    tmp = ""; //$NON-NLS-1$
                 }
                 row.createCell((short) j).setCellValue(tmp);
             }
@@ -152,9 +133,9 @@ public class DownloadData extends HttpServlet{
             return list;
 
         } catch (RemoteException e) {
-            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
         } catch (Exception e) {
-            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
         }
     }
 
@@ -181,8 +162,7 @@ public class DownloadData extends HttpServlet{
             }
             return fieldNames.toArray(new String[fieldNames.size()]);
         } catch (Exception e) {
-            throw new Exception("", e); //$NON-NLS-1$
-
+            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
         }
     }
 

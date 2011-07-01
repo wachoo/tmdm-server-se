@@ -40,9 +40,8 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class NewTablePanel extends ContentPanel {
 
@@ -107,14 +106,15 @@ public class NewTablePanel extends ContentPanel {
         right.setLayout(layout);
 
         TextField<String> field1 = new TextField<String>();
-        field1.setFieldLabel("Field " + fieldCount); //$NON-NLS-1$
+        field1.setFieldLabel(MessagesFactory.getMessages().label_field() + " " + fieldCount); //$NON-NLS-1$
         field1.setId("field" + fieldCount); //$NON-NLS-1$
+        field1.setHeight(25);
         field1.setAllowBlank(false);
         left.add(field1);
 
         CheckBox keycb = new CheckBox();
         keycb.setFieldLabel("Key"); //$NON-NLS-1$
-        keycb.setId("key" + fieldCount); //$NON-NLS-1$
+        keycb.setId(MessagesFactory.getMessages().label_key() + fieldCount);
         right.add(keycb);
 
         addPanel.add(main, new FormData("80%"));//$NON-NLS-1$   
@@ -167,24 +167,25 @@ public class NewTablePanel extends ContentPanel {
 
         }));
         tb.add(new SeparatorToolItem());
-        tb.add(new Button("Add a Field", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
+        tb.add(new Button(MessagesFactory.getMessages().label_add_field(), new SelectionListener<ButtonEvent>() {
 
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        fieldCount = fieldCount + 1;
-                        TextField<String> f = new TextField<String>();
-                        f.setFieldLabel("Field " + fieldCount); //$NON-NLS-1$
-                        f.setId("field" + fieldCount); //$NON-NLS-1$
-                        left.add(f);
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                fieldCount = fieldCount + 1;
+                TextField<String> f = new TextField<String>();
+                f.setFieldLabel(MessagesFactory.getMessages().label_field() + " " + fieldCount); //$NON-NLS-1$
+                f.setId("field" + fieldCount); //$NON-NLS-1$
+                f.setHeight(25);
+                left.add(f);
 
-                        CheckBox kcb = new CheckBox();
-                        kcb.setFieldLabel("Key"); //$NON-NLS-1$
-                        kcb.setId("key" + fieldCount); //$NON-NLS-1$
-                        right.add(kcb);
+                CheckBox kcb = new CheckBox();
+                kcb.setFieldLabel(MessagesFactory.getMessages().label_key());
+                kcb.setId("key" + fieldCount); //$NON-NLS-1$
+                right.add(kcb);
 
-                        addPanel.layout();
-                    }
-                }));
+                addPanel.layout();
+            }
+        }));
         this.setBottomComponent(tb);
     }
 
