@@ -157,9 +157,10 @@ public class UploadData extends HttpServlet {
                 HSSFSheet sh = wb.getSheetAt(0);
                 Iterator it = sh.rowIterator();
                 while (it.hasNext()) {
-                    if (++lineNum == 1 && headersOnFirstLine)
-                        continue;
                     HSSFRow row = (HSSFRow) it.next();
+                    ++lineNum;
+                    if (lineNum == 1 && headersOnFirstLine)
+                        continue;
                     StringBuffer xml = new StringBuffer();
                     boolean allCellsEmpty = true;
                     xml.append("<" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$

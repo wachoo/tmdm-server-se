@@ -128,6 +128,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         headerLine = new CheckBox();
         headerLine.setId("headersOnFirstLine");//$NON-NLS-1$
         headerLine.setName("headersOnFirstLine");//$NON-NLS-1$
+        headerLine.setValueAttribute("on"); //$NON-NLS-1$
         headerLine.setFieldLabel(MessagesFactory.getMessages().label_field_header_first());
         headerLine.setValue(true);
         headerLine.setInputStyleAttribute("left", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
