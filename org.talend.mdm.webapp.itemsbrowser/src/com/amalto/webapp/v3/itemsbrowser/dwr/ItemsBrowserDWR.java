@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -911,11 +911,9 @@ public class ItemsBrowserDWR {
         }
     }
 
-    private int getBiggestIdFromidToParticle() {
-        WebContext ctx = WebContextFactory.get();
-        HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
+    private int getBiggestIdFromidToParticle(HashMap<Integer, String> idToXpath) {
         int ret = 1;
-        for (Integer v : idToParticle.keySet()) {
+        for (Integer v : idToXpath.keySet()) {
             if (v > ret) {
                 ret = v;
             }
@@ -1051,9 +1049,10 @@ public class ItemsBrowserDWR {
             LOG.error(e1.getMessage(), e1);
         }
         // dynamic load may cause YAHOO.widget.TreeView.nodeCount < the real created nodes count, so we should
-        // nodeCount++
-        if (nodeCount <= getBiggestIdFromidToParticle()) {
-            nodeCount++;
+        // set nodeCount as the biggest number in idToXpath
+        int bigId = getBiggestIdFromidToParticle(idToXpath);
+        if (nodeCount <= bigId) {
+            nodeCount = (++bigId);
         }
         treeNode.setTypeName(typeNameTmp);
         treeNode.setXmlTag(xsp.getTerm().asElementDecl().getName());
