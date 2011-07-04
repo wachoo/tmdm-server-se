@@ -68,43 +68,14 @@
             <version>2.1.1</version>
         </dependency>
         <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.16</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>xsom</groupId>
-            <artifactId>xsom</artifactId>
-            <version>20060306</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/talend.mdm.libraries/lib/z.xsom.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>3.0.1-FINAL</version>
-        </dependency>
 
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.5</version>
-            <scope>compile</scope>
-        </dependency>
-        
         <!-- MDM dependencies -->
+        
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.core</artifactId>
@@ -113,26 +84,13 @@
             <systemPath>${tom.location}/org.talend.mdm.webapp.core/z.mdm.webapp.core.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.commmon</artifactId>
-            <version>${project.version}</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/org.talend.mdm.commmon/z.mdm.common.lib.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>org.talend.mdm.commons.core</groupId>
             <artifactId>org.talend.mdm.commons.core</artifactId>
             <version>${project.version}</version>
             <scope>system</scope>
             <systemPath>${tom.location}/org.talend.mdm.commons.core/z.mdm.common.commons.core.jar</systemPath>
         </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.core</artifactId>
-            <version>${project.version}</version>
-            <scope>system</scope>
-            <systemPath>${tom.location}/org.talend.mdm.core/z.mdm.core.jar</systemPath>
-        </dependency>
+
     </dependencies>
 
     <build>
@@ -172,7 +130,7 @@
                     <execution>
                         <id>gwt-compile</id>
                         <configuration>
-                            <module>org.talend.mdm.webapp.recyclebin.RecycleBin</module>
+                            <module>org.talend.mdm.webapp.recyclebin.recyclebin</module>
                         </configuration>
                         <goals>
                             <goal>compile</goal>
