@@ -1661,7 +1661,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             }
 
             WSItemPK wsi = putItem(wsPutItem, dataModel, schema, ids, conceptKey);
-
+            // reset the AutoIncrement
+            if (("AutoIncrement".equals(concept) && wsPutItem.getWsDataModelPK().getPk().equals(XSystemObjects.DC_CONF.getName()))) { //$NON-NLS-1$
+                AutoIncrementGenerator.init();
+            }
             // create resultUpdateReport
             String resultUpdateReport = Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem
                     .getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
