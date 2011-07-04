@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="datastewardship" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
+<project name="org.talend.mdm.webapp.itemsbrowser2" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
 
 	<property file="build.properties" />
 
@@ -47,7 +47,7 @@
 	<target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
 		<property environment="env" />
 
-		<artifact:mvn pom="pom.xml" mavenHome="${env.M2_HOME}" fork="true">
+		<artifact:mvn pom="pom.xml" mavenHome="${env.M2_HOME}" fork="true" failonerror="true">
 			<arg value="-V" />
 			<arg value="-Ditemsbrowser2.build.dir=${build.dir}" />
 			<arg value="-Ditemsbrowser2.build.version=${mdm.build.version}" />
