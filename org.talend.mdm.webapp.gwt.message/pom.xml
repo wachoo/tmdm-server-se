@@ -85,29 +85,14 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
-                <version>1.2</version>
-                <configuration>
-                    <warSourceDirectory>${basedir}/war</warSourceDirectory>
-                    <webappDirectory>${project.build.directory}/war</webappDirectory>
-                </configuration>
+                <version>2.3.0</version>
                 <executions>
                     <execution>
-                        <id>gwt-compile</id>
                         <configuration>
                             <module>org.talend.mdm.webapp.gwt.message.GlobalMessage</module>
                         </configuration>
                         <goals>
                             <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>gwt-test</id>
-                        <configuration>
-                            <module>org.talend.mdm.webapp.gxt.framework.TestModule</module>
-                            <includes>**/*GWTTest.java</includes>
-                        </configuration>
-                        <goals>
-                            <goal>test</goal>
                         </goals>
                     </execution>
                 </executions>
