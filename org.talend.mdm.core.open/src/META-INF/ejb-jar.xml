@@ -766,8 +766,7 @@
    </method-permission>
    <method-permission >
       <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name>administration</role-name>
-         <role-name> DataManagerAdministration</role-name>
+         <role-name>authenticated</role-name>
       <method >
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>

@@ -2,118 +2,33 @@ package com.amalto.core.ejb;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.StringReader;
-import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
 import javax.resource.ResourceException;
 import javax.resource.cci.Connection;
 import javax.resource.cci.ConnectionFactory;
 import javax.resource.cci.Interaction;
 import javax.resource.cci.MappedRecord;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
 
 import org.jboss.security.Base64Encoder;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.webapp.XObjectType;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import sun.misc.BASE64Decoder;
 
 import com.amalto.connector.jca.InteractionSpecImpl;
 import com.amalto.connector.jca.RecordFactoryImpl;
-import com.amalto.core.delegator.BeanDelegatorConfigReader;
 import com.amalto.core.delegator.BeanDelegatorContainer;
-import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.delegator.impl.DefaultXtentisWSDelegator;
-import com.amalto.core.ejb.local.TransformerCtrlLocal;
-import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
-import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
-import com.amalto.core.objects.menu.ejb.MenuPOJO;
-import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
-import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.RoutingEngineV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRuleExpressionPOJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
-import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJO;
-import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJOPK;
-import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocal;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
-import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
-import com.amalto.core.objects.transformers.v2.util.TransformerContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TransformerProcessStep;
-import com.amalto.core.objects.transformers.v2.util.TransformerVariablesMapping;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJOPK;
-import com.amalto.core.util.ArrayListHolder;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.TransformerPluginContext;
-import com.amalto.core.util.TransformerPluginSpec;
-import com.amalto.core.util.UpdateReportItem;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.Version;
-import com.amalto.core.util.XSDKey;
-import com.amalto.core.util.XtentisException;
 import com.amalto.core.webservice.*;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.WhereOr;
 
 
 /**
@@ -835,12 +750,10 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 	/***************************************************************************
 	 * DirectQuery
 	 * **************************************************************************/
-	/**
-	 * @ejb.interface-method view-type = "service-endpoint"
-	 * @ejb.permission 
-	 * 	role-name = "administration, DataManagerAdministration"
-	 * 	view-type = "service-endpoint"
-	 */
+    /**
+     * @ejb.interface-method view-type = "service-endpoint"
+     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     */
 	public WSStringArray runQuery(WSRunQuery wsRunQuery) throws RemoteException {
 		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().runQuery(wsRunQuery);
 	}    
