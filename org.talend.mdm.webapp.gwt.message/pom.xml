@@ -124,52 +124,17 @@
                 </configuration>
             </plugin>
 
-            <!-- Apply dev mode exclusions -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.3</version>
-                <executions>
-                    <execution>
-                        <id>devmode-exclusions</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <copy todir="${project.build.directory}" file="${basedir}/war/WEB-INF/web.xml"
-                                    overwrite="true" />
-                                <replace file="${project.build.directory}/web.xml" summary="yes">
-                                    <replacefilter token="@{dev.mode.excluded.start}"
-                                        value="${dev.mode.excluded.start}" />
-                                    <replacefilter token="@{dev.mode.excluded.end}"
-                                        value="${dev.mode.excluded.end}" />
-                                </replace>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.1-beta-1</version>
-                <configuration>
-                    <warSourceDirectory>${basedir}/war</warSourceDirectory>
-                    <webappDirectory>${project.build.directory}/war</webappDirectory>
-                    <warName>${project.artifactId}-${message.build.version}</warName>
-                    <webXml>${project.build.directory}/web.xml</webXml>
-                    <useCache>false</useCache>
-                    <archive>
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                        <manifestEntries>
-                            <Build-Version>${message.build.version}</Build-Version>
-                            <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-jar-plugin</artifactId>
+              <configuration>
+                <archive>
+                  <manifestEntries>
+                    <Build-Version>${message.build.version}</Build-Version>
+                    <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+                  </manifestEntries>
+                </archive>
+              </configuration>
             </plugin>
 
             <!-- Eclipse IDE -->
