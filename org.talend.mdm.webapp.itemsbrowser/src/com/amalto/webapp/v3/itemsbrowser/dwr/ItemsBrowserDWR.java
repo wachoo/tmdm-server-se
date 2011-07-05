@@ -30,9 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2500,9 +2500,10 @@ public class ItemsBrowserDWR {
                     .getAttribute("polymToDisplayRulesUtil" + docIndex);//$NON-NLS-1$
 
             DisplayRulesUtil displayRulesUtil = polymToDisplayRulesUtil.get(polymList);
-            realSchemaStyle = displayRulesUtil.genDefaultValueStyle();
-
-        } else {
+            if (displayRulesUtil != null)
+                realSchemaStyle = displayRulesUtil.genDefaultValueStyle();
+        }
+        if (realSchemaStyle == null) {
             DisplayRulesUtil displayRulesUtil = (DisplayRulesUtil) ctx.getSession().getAttribute(
                     "itemDocument_displayRulesUtil" + docIndex); //$NON-NLS-1$
             realSchemaStyle = displayRulesUtil.genDefaultValueStyle();
