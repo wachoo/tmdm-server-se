@@ -235,7 +235,14 @@ public class FKRelRecordWindow extends Window {
 			@Override
 			public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
 				String targetType=se.getSelectedItem().get("value").toString();//$NON-NLS-1$
-				String fkInfo=typeModel.getForeignKeyInfo().size()>0?typeModel.getForeignKeyInfo().get(0):null;
+                StringBuffer sb = new StringBuffer();
+                for (int i = 0; i < typeModel.getForeignKeyInfo().size(); i++) {
+                    sb.append(typeModel.getForeignKeyInfo().get(i));
+                    if (i < typeModel.getForeignKeyInfo().size() - 1 && i >= 0) {
+                        sb.append(",");//$NON-NLS-1$
+                    }
+                }
+                String fkInfo = sb.toString();
 				service.switchForeignKeyType(targetType, typeModel.getForeignkey(), fkInfo, getFilterValue(), new AsyncCallback<ForeignKeyDrawer>(){
 
                             public void onFailure(Throwable arg0) {
@@ -246,6 +253,7 @@ public class FKRelRecordWindow extends Window {
 						typeModel.setForeignkey(fkDrawer.getXpathForeignKey());
 						List<String> fkinfo=new ArrayList<String>();
 						fkinfo.add(fkDrawer.getXpathInfoForeignKey());
+
 						typeModel.setForeignKeyInfo(fkinfo);
 						loader.load(0, pageSize);
 					}					
