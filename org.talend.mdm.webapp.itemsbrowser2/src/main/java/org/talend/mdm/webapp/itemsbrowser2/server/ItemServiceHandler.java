@@ -24,6 +24,7 @@ import com.amalto.webapp.core.bean.Configuration;
  */
 public class ItemServiceHandler extends ItemServiceCommonHandler implements ItemsService{
     
+    @Override
     public String getCurrentDataModel() throws Exception {
         Configuration config = Configuration.getConfiguration();
         return config.getModel();
