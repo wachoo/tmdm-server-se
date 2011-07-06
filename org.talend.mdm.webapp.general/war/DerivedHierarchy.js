@@ -2,7 +2,7 @@ talend.ehierarchical = {};
 talend.ehierarchical.DerivedHierarchy = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "notImplemented.html";
+		var frameUrl = "/hierarchy/hierarchy.html";
 		callBack(frameUrl);
 	}
 	

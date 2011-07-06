@@ -5,7 +5,6 @@
     <title>Talend MDM</title>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta name="gwt:property" content="locale=<%= request.getParameter("language") %>" >
-    <link type="text/css" rel="stylesheet" href="resources/css/gxt-all.css">
     <link type="text/css" rel="stylesheet" href="General.css">
     <link type="text/css" rel="stylesheet" href="General-menus.css">
     <title>Web Application Starter Project</title>

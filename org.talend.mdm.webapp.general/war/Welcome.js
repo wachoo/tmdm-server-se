@@ -2,7 +2,7 @@ talend.welcome = {};
 talend.welcome.Welcome = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "notImplemented.html";
+		var frameUrl = "test2.html";
 		callBack(frameUrl);
 	}
 	

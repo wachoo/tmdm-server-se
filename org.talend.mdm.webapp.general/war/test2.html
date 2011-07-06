@@ -7,15 +7,14 @@
 			var btn = document.getElementById("btn");
 			var txt = document.getElementById("txt");
 			btn.onclick = function(){
-				
-				window.top.General.notifyGlobalMessage("refreshButton", txt.value);
+				window.top.General.notifyGlobalMessage("updateMessage", txt.value);
 			};
 		};
 	</script>
   </head>
 
   <body>
-	hello <button id="btn">send message</button>
-	<input id="txt" type="text"/>
+	<button id="btn">send message</button>
+	<textarea id="txt" rows="5" cols="60"></textarea>
   </body>
 </html>

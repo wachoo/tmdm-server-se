@@ -1,8 +1,8 @@
-talend.usersandroles = {};
-talend.usersandroles.Users = function(){
+talend.hierarchical = {};
+talend.hierarchical.GroupingHierarchy = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "test1.html";
+		var frameUrl = "notImplemented.html";
 		callBack(frameUrl);
 	}
 	
