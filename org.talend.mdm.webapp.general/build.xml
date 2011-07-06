@@ -43,14 +43,14 @@
 	</target>
 
 	<target name="all" depends="package,undeploy,deploy" />
-
+	
 	<target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
 		<property environment="env" />
 
 		<artifact:mvn pom="pom.xml" mavenHome="${env.M2_HOME}" fork="true" failonerror="true">
 			<arg value="-V" />
-			<arg value="-Dgeneral.build.dir=${build.dir}" />
-			<arg value="-Dgeneral.build.version=${mdm.build.version}" />
+			<arg value="-Dmdm.build.dir=${build.dir}" />
+			<arg value="-Dmdm.build.version=${mdm.build.version}" />
 			<arg value="-Ddev.mode.excluded.start=${dev.mode.excluded.start}" />
 			<arg value="-Ddev.mode.excluded.end=${dev.mode.excluded.end}" />
 			<arg value="${mvn.goal}" />
