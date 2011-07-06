@@ -30,6 +30,7 @@ public class ItemServiceHandler extends ItemServiceCommonHandler implements Item
         return config.getModel();
     }
     
+    @Override
     public String getCurrentDataCluster() throws Exception {
         Configuration config = Configuration.getConfiguration();
         return config.getCluster();
