@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +26,6 @@ import org.apache.commons.io.FileUtils;
 import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.mockup.FakeData;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 
 import com.sun.xml.xsom.XSElementDecl;
