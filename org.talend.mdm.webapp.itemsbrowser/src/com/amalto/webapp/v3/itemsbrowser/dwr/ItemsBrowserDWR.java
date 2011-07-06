@@ -28,11 +28,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -3911,8 +3910,8 @@ public class ItemsBrowserDWR {
 
         if (format == null || format.equals("null") || object == null)//$NON-NLS-1$
             return value;
-        String valueReturn = com.amalto.core.util.Util.printWithFormat(new Locale(lang), format, object).toString();
-        return valueReturn;
+
+        return Util.formatDate(format, object);
     }
 
     /**

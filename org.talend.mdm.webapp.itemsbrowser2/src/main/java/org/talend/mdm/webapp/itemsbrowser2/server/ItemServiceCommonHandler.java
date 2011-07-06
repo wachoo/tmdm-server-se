@@ -18,6 +18,7 @@ import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -196,7 +197,10 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                                 sdf = new SimpleDateFormat(dateTimeFormat, java.util.Locale.ENGLISH);
                             }
                             Date date = sdf.parse(dateText.trim());
-                            XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")).setText(String.format(java.util.Locale.ENGLISH, value[0], date)); //$NON-NLS-1$ //$NON-NLS-2$
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(date);
+                            String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
+                            XmlUtil.queryNode(doc, key.replaceFirst(concept + "/", "result/")).setText(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }

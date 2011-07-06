@@ -136,6 +136,8 @@ public class Util {
 
     public static int _FORCE_WEB_SERVICE_ = 2;
 
+    public static String DATE_FORMAT_PREFIX = "%t"; //$NON-NLS-1$
+
     /*********************************************************************
      * WEB SERVICES
      *********************************************************************/
@@ -1809,5 +1811,26 @@ public class Util {
             str = str.substring(0, str.length() - 1);
         }
         return str;
+    }
+    
+    public static String formatDate(String formats, Calendar date) {
+        String formatValue = formats;
+
+        if (formats.startsWith(DATE_FORMAT_PREFIX)) {
+            while (true) {
+                if (formatValue.indexOf(DATE_FORMAT_PREFIX) == -1) {
+                    break;
+                }
+
+                String format = formatValue.substring(formatValue.indexOf(DATE_FORMAT_PREFIX),
+                        formatValue.indexOf(DATE_FORMAT_PREFIX) + 3);
+                String valueStr = String.format(java.util.Locale.ENGLISH, format, date);
+                formatValue = formatValue.replace(format, valueStr);
+            }
+        } else {
+            formatValue = String.format(java.util.Locale.ENGLISH, formats, date);
+        }
+        
+        return formatValue;
     }
 }

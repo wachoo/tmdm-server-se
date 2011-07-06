@@ -2,6 +2,7 @@ package com.amalto.webapp.v3.itemsbrowser.bean;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -504,7 +505,9 @@ public class TreeNode implements Cloneable {
             if (format != null && value != null) {
                 Locale locale = new Locale(lang);
                 Object object = com.amalto.webapp.core.util.Util.getTypeValue("en", typeName, value, format);//$NON-NLS-1$
-                if (object != null)
+                if (object != null && object instanceof Calendar) {
+                    value = com.amalto.webapp.core.util.Util.formatDate(format, (Calendar) object);
+                } else if (object != null)
                     value = Util.printWithFormat(locale, format, object);
             }
         }
