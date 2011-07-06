@@ -2,16 +2,14 @@ package talend.webapp.v3.updatereport.dwr;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.util.Webapp;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 
@@ -47,8 +45,9 @@ public class UpdateReportDWR {
 
     public boolean isAdminUser() {
         try {
-            return LocalUser.getLocalUser().isAdmin(ItemPOJO.class);
-        } catch (XtentisException e) {
+            Set<String> roles = LocalUser.getLocalUser().getRoles();
+            return roles.contains(ICoreConstants.SYSTEM_ADMIN_ROLE);
+        } catch (Exception e) {
             logger.error(MESSAGES.getMessage(Locale.getDefault(), "updatereport.server.isAdminUser.error"), e);   //$NON-NLS-1$
             return false;
         }
