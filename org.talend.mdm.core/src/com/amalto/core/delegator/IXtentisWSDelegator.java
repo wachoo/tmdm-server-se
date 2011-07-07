@@ -1677,11 +1677,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 if (outputErrorMessage != null) {
                     Document doc = Util.parse(outputErrorMessage);
                     // TODO what if multiple error nodes ?
-                    String xpath = "/descendant::error"; //$NON-NLS-1$
+                    String xpath = "/report/message"; //$NON-NLS-1$
                     Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
                     if (errorNode instanceof Element) {
                         Element errorElement = (Element) errorNode;
-                        errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                        errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
                     }
                 }
             }
@@ -1691,7 +1691,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             if (wsi == null)
                 return null;
 
-            if (outputErrorMessage != null && !"0".equals(errorCode)) //$NON-NLS-1$
+            if (outputErrorMessage != null && !"info".equals(errorCode)) //$NON-NLS-1$
                 return null;
 
             concept = wsi.getConceptName();
@@ -1849,18 +1849,18 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 	        if (outputErrorMessage != null) {
 	            Document doc = Util.parse(outputErrorMessage);
 	            // TODO what if multiple error nodes ?
-	            String xpath = "/descendant::error"; //$NON-NLS-1$
+                    String xpath = "/report/message"; //$NON-NLS-1$
 	            Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
 	            if (errorNode instanceof Element) {
 	                Element errorElement = (Element) errorNode;
-	                errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                        errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
 	                Node child = errorElement.getFirstChild();
 	                if (child instanceof Text)
 	                    message = ((Text) child).getTextContent();
 	            }
 	        }
         }
-        if (outputErrorMessage == null || "0".equals(errorCode)) { //$NON-NLS-1$
+            if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$
             if (ids != null ) {
                 WSItemPK wsItem =deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));

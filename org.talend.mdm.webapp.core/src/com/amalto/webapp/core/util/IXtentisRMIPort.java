@@ -714,7 +714,6 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
-
     private String itemAsString(ItemPOJO iv) throws Exception {
 
         String item = "<businessconcept>" + "	<cluster>" + iv.getDataClusterPOJOPK().getUniqueId() + "</cluster>";
@@ -965,7 +964,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         try {
             Object service = com.amalto.core.util.Util.retrieveComponent(null, wsGetConfiguration.getJndiName());
 
-            String configuration = (String) com.amalto.core.util.Util.getMethod(service, "getConfiguration").invoke(service,
+            String configuration = (String) com.amalto.core.util.Util.getMethod(service, "getConfiguration").invoke(service,//$NON-NLS-1$
                     new Object[] { wsGetConfiguration.getOptionalParameter() });
             return new WSString(configuration);
         } catch (com.amalto.core.util.XtentisException e) {
@@ -979,7 +978,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         try {
             Object service = com.amalto.core.util.Util.retrieveComponent(null, wsPutConfiguration.getJndiName());
 
-            com.amalto.core.util.Util.getMethod(service, "putConfiguration").invoke(service,
+            com.amalto.core.util.Util.getMethod(service, "putConfiguration").invoke(service,//$NON-NLS-1$
                     new Object[] { wsPutConfiguration.getConfiguration() });
             return new WSString(wsPutConfiguration.getConfiguration());
         } catch (com.amalto.core.util.XtentisException e) {
@@ -993,7 +992,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         org.apache.log4j.Logger.getLogger(this.getClass()).debug("serviceAction() " + wsServiceAction.getJndiName());
         try {
             Object service = com.amalto.core.util.Util.retrieveComponent(null, wsServiceAction.getJndiName());
-            String result = "";
+            String result = "";//$NON-NLS-1$
 
             if (WSServiceActionCode.EXECUTE.equals(wsServiceAction.getWsAction())) {
 
@@ -1002,11 +1001,11 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 result = (String) method.invoke(service, wsServiceAction.getMethodParameters());
             } else {
                 if (WSServiceActionCode.START.equals(wsServiceAction.getWsAction())) {
-                    com.amalto.core.util.Util.getMethod(service, "start").invoke(service, new Object[] {});
+                    com.amalto.core.util.Util.getMethod(service, "start").invoke(service, new Object[] {});//$NON-NLS-1$
                 } else if (WSServiceActionCode.STOP.equals(wsServiceAction.getWsAction())) {
-                    com.amalto.core.util.Util.getMethod(service, "stop").invoke(service, new Object[] {});
+                    com.amalto.core.util.Util.getMethod(service, "stop").invoke(service, new Object[] {});//$NON-NLS-1$
                 }
-                result = (String) com.amalto.core.util.Util.getMethod(service, "getStatus").invoke(service, new Object[] {});
+                result = (String) com.amalto.core.util.Util.getMethod(service, "getStatus").invoke(service, new Object[] {});//$NON-NLS-1$
             }
             return new WSString(result);
         } catch (com.amalto.core.util.XtentisException e) {
@@ -1020,7 +1019,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         try {
             ArrayList<WSServicesListItem> wsList = new ArrayList<WSServicesListItem>();
             InitialContext ctx = new InitialContext();
-            NamingEnumeration<NameClassPair> list = ctx.list("amalto/local/service");
+            NamingEnumeration<NameClassPair> list = ctx.list("amalto/local/service");//$NON-NLS-1$
             while (list.hasMore()) {
                 NameClassPair nc = list.next();
                 WSServicesListItem item = new WSServicesListItem();
@@ -2095,20 +2094,20 @@ public abstract class IXtentisRMIPort implements XtentisPort {
     public com.amalto.webapp.util.webservices.WSServiceGetDocument getServiceDocument(WSString serviceName)
             throws RemoteException {
         try {
-            Object service = Util.retrieveComponent(null, "amalto/local/service/" + serviceName.getValue());
+            Object service = Util.retrieveComponent(null, "amalto/local/service/" + serviceName.getValue());//$NON-NLS-1$
 
-            String desc = (String) Util.getMethod(service, "getDescription").invoke(service, new Object[] { "" });
-            String configuration = (String) Util.getMethod(service, "getConfiguration").invoke(service, new Object[] { "" });
+            String desc = (String) Util.getMethod(service, "getDescription").invoke(service, new Object[] { "" });//$NON-NLS-1$ //$NON-NLS-2$
+            String configuration = (String) Util.getMethod(service, "getConfiguration").invoke(service, new Object[] { "" }); //$NON-NLS-1$
             String doc = "";
             try {
-                doc = (String) Util.getMethod(service, "getDocumentation").invoke(service, new Object[] { "" });
+                doc = (String) Util.getMethod(service, "getDocumentation").invoke(service, new Object[] { "" });//$NON-NLS-1$ //$NON-NLS-2$
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            String schema = "";
-            schema = (String) Util.getMethod(service, "getConfigurationSchema").invoke(service, new Object[] {});
-            String defaultConf = "";
-            defaultConf = (String) Util.getMethod(service, "getDefaultConfiguration").invoke(service, new Object[] {});
+            String schema = "";//$NON-NLS-1$
+            schema = (String) Util.getMethod(service, "getConfigurationSchema").invoke(service, new Object[] {});//$NON-NLS-1$
+            String defaultConf = "";//$NON-NLS-1$
+            defaultConf = (String) Util.getMethod(service, "getDefaultConfiguration").invoke(service, new Object[] {});//$NON-NLS-1$
             return new com.amalto.webapp.util.webservices.WSServiceGetDocument(desc, configuration, doc, schema, defaultConf);
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
@@ -2208,7 +2207,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
 
             com.amalto.webapp.util.webservices.WSPutItem wsPutItem = wsPutItemWithReport.getWsPutItem();
             String source = wsPutItemWithReport.getSource();
-            String operationType = "";
+            String operationType = "";//$NON-NLS-1$
             Map<String, UpdateReportItemPOJO> updateReportItemsMap = new HashMap<String, UpdateReportItemPOJO>();
 
             // before saving
@@ -2237,7 +2236,7 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 // get updated path
                 Element old = itemPoJo.getProjection();
                 Element newNode = root;
-                updatedPath = Util.compareElement("/" + old.getLocalName(), newNode, old);
+                updatedPath = Util.compareElement("/" + old.getLocalName(), newNode, old);//$NON-NLS-1$
                 WSUpdateReportItemArray wsUpdateReportItemArray = new WSUpdateReportItemArray();
                 for (Entry<String, UpdateReportItem> entry : updatedPath.entrySet()) {
                     UpdateReportItemPOJO pojo = new UpdateReportItemPOJO(entry.getValue().getPath(), entry.getValue()
@@ -2258,18 +2257,18 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                 if (outputErrorMessage != null) {
                     Document doc = Util.parse(outputErrorMessage);
                     // TODO what if multiple error nodes ?
-                    String xpath = "/descendant::error"; //$NON-NLS-1$
+                    String xpath = "/report/message"; //$NON-NLS-1$
                     Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
                     if (errorNode instanceof Element) {
                         Element errorElement = (Element) errorNode;
-                        errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                        errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
                     }
                 }
             }
             wsPutItemWithReport.setSource(outputErrorMessage);
 
             WSItemPK wsi = null;
-            if (outputErrorMessage == null || "0".equals(errorCode)) {
+            if (outputErrorMessage == null || "info".equals(errorCode)) {//$NON-NLS-1$
                 String dataClusterPK = wsPutItem.getWsDataClusterPK().getPk();
 
                 org.apache.log4j.Logger.getLogger(this.getClass()).debug(
@@ -2295,8 +2294,8 @@ public abstract class IXtentisRMIPort implements XtentisPort {
                         source, System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, revisionID,
                         updateReportItemsMap);
 
-                WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(),
-                        new WSDataModelPK("UpdateReport"), false));
+                WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(),//$NON-NLS-1$
+                        new WSDataModelPK("UpdateReport"), false));//$NON-NLS-1$
 
                 try {
                     routeItemV2(new WSRouteItemV2(itemPK));
@@ -2318,14 +2317,14 @@ public abstract class IXtentisRMIPort implements XtentisPort {
         WSMDMConfig mdmConfig = new WSMDMConfig();
         Properties property = MDMConfiguration.getConfiguration();
         try {
-            mdmConfig.setServerName(property.getProperty("xmldb.server.name"));
-            mdmConfig.setServerPort(property.getProperty("xmldb.server.port"));
-            mdmConfig.setUserName(property.getProperty("xmldb.administrator.username"));
-            mdmConfig.setPassword(property.getProperty("xmldb.administrator.password"));
-            mdmConfig.setXdbDriver(property.getProperty("xmldb.driver"));
-            mdmConfig.setXdbID(property.getProperty("xmldb.dbid"));
-            mdmConfig.setXdbUrl(property.getProperty("xmldb.dburl"));
-            mdmConfig.setIsupurl(property.getProperty("xmldb.isupurl"));
+            mdmConfig.setServerName(property.getProperty("xmldb.server.name"));//$NON-NLS-1$
+            mdmConfig.setServerPort(property.getProperty("xmldb.server.port"));//$NON-NLS-1$
+            mdmConfig.setUserName(property.getProperty("xmldb.administrator.username"));//$NON-NLS-1$
+            mdmConfig.setPassword(property.getProperty("xmldb.administrator.password"));//$NON-NLS-1$
+            mdmConfig.setXdbDriver(property.getProperty("xmldb.driver"));//$NON-NLS-1$
+            mdmConfig.setXdbID(property.getProperty("xmldb.dbid"));//$NON-NLS-1$
+            mdmConfig.setXdbUrl(property.getProperty("xmldb.dburl"));//$NON-NLS-1$
+            mdmConfig.setIsupurl(property.getProperty("xmldb.isupurl"));//$NON-NLS-1$
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }

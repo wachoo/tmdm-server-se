@@ -2431,22 +2431,23 @@ public class ItemsBrowserDWR {
             if (Util.isTransformerExist("beforeSaving_" + concept)) { //$NON-NLS-1$
 
                 String outputErrorMessage = wsPutItemWithReport.getSource();
+
                 String errorCode = null;
                 if (outputErrorMessage != null) {
                     Document doc = Util.parse(outputErrorMessage);
                     // TODO what if multiple error nodes ?
-                    String xpath = "/descendant::error"; //$NON-NLS-1$
+                    String xpath = "/report/message"; //$NON-NLS-1$
                     Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
                     if (errorNode instanceof Element) {
                         Element errorElement = (Element) errorNode;
-                        errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                        errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
                         Node child = errorElement.getFirstChild();
                         if (child instanceof Text)
                             message = ((Text) child).getTextContent();
                     }
                 }
 
-                if ("0".equals(errorCode)) { //$NON-NLS-1$
+                if ("info".equals(errorCode)) { //$NON-NLS-1$
                     if (message == null || message.length() == 0)
                         message = MESSAGES.getMessage("save.process.validation.success"); //$NON-NLS-1$
                     status = ItemResult.SUCCESS;
@@ -2526,18 +2527,18 @@ public class ItemsBrowserDWR {
             if (outputErrorMessage != null) {
                 Document doc = Util.parse(outputErrorMessage);
                 // TODO what if multiple error nodes ?
-                String xpath = "/descendant::error"; //$NON-NLS-1$
+                String xpath = "/report/message"; //$NON-NLS-1$
                 Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
-                    errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                    errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
                     Node child = errorElement.getFirstChild();
                     if (child instanceof Text)
                         message = ((Text) child).getTextContent();
                 }
             }
 
-            if (outputErrorMessage == null || "0".equals(errorCode)) { //$NON-NLS-1$
+            if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$
                 TreeNode rootNode = getRootNode(concept, "en"); //$NON-NLS-1$
                 if (ids != null && !rootNode.isReadOnly()) {
                     WSItemPK wsItem = Util.getPort().deleteItem(

@@ -9,5 +9,5 @@
 <com.amalto.core.migration.tasks.UpdateActionTypeWithNewTypeStrategy/>
 <com.amalto.core.migration.tasks.UpdateSearchTemplateModel/>
 <com.amalto.core.migration.tasks.UpdateItembrowserMenuEntryTask/>
-
+<com.amalto.core.migration.tasks.ConsistencyErrorMessageTask/>
 </Root>

@@ -2521,7 +2521,7 @@ public class Util {
                 if (outputErrorMessage != null && outputErrorMessage.length() > 0) {
                     return outputErrorMessage;
                 } else {
-                    return "<error code='1'/>"; //$NON-NLS-1$
+                    return "<report><message type=\"error\"/></report> "; //$NON-NLS-1$
                 }
             } catch (Exception e) {
                 Logger.getLogger(Util.class).error(e);
@@ -2593,7 +2593,7 @@ public class Util {
                 if (outputErrorMessage != null && outputErrorMessage.length() > 0) {
                     return outputErrorMessage;
                 } else {
-                    return "<error code='1'/>"; //$NON-NLS-1$
+                    return "<report><message type=\"error\"/></report> "; //$NON-NLS-1$
                 }
             } catch (Exception e) {
                 Logger.getLogger(Util.class).error(e);
