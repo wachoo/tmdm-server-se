@@ -51,12 +51,17 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
             for (String index : metaType.keySet()) {
                 TypeModel typeModel = metaType.get(index);
                 Object value = itemBean.get(typeModel.getXpath());
+
                 if (value instanceof List) {
                     String key = typeModel.getXpath();
                     String parentPath = key.substring(0, key.lastIndexOf('/'));//$NON-NLS-1$
                     String elName = key.substring(key.lastIndexOf('/') + 1);//$NON-NLS-1$
                     createElements(parentPath, elName, (List) value, elementSet, doc);
                 } else {
+                    if (typeModel.getForeignkey() != null) {
+                        String str = value.toString();
+                        value = str.substring(str.lastIndexOf("-") + 1, str.length()); //$NON-NLS-1$
+                    }
                     createElements(typeModel.getXpath(), value == null ? "" : value.toString(), elementSet, doc);//$NON-NLS-1$
                 }
             }

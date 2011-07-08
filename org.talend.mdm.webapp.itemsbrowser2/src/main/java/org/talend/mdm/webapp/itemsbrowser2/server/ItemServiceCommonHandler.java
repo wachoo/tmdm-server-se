@@ -274,10 +274,13 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     }
                 } else if (nodes.size() == 1) {
                     Node value = (Node) nodes.get(0);
-                    itemBean.set(path, value.getText());
                     TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
+
                     if (typeModel != null && typeModel.getForeignkey() != null) {
-                        itemBean.setForeignkeyDesc(value.getText(), getForeignKeyDesc(typeModel, value.getText()));
+                        itemBean.set(path, path + "-" + value.getText()); //$NON-NLS-1$
+                        itemBean.setForeignkeyDesc(path + "-" + value.getText(), getForeignKeyDesc(typeModel, value.getText())); //$NON-NLS-1$
+                    } else {
+                        itemBean.set(path, value.getText());
                     }
                 }
             }
@@ -302,9 +305,13 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                             }
                             itemBean.set(path, list);
                         } else {
-                            itemBean.set(path, value.getText());
+
                             if (typeModel.getForeignkey() != null) {
-                                itemBean.setForeignkeyDesc(value.getText(), getForeignKeyDesc(typeModel, value.getText()));
+                                itemBean.set(path, path + "-" + value.getText()); //$NON-NLS-1$
+                                itemBean.setForeignkeyDesc(
+                                        path + "-" + value.getText(), getForeignKeyDesc(typeModel, value.getText())); //$NON-NLS-1$
+                            } else {
+                                itemBean.set(path, value.getText());
                             }
                         }
                     }
@@ -717,6 +724,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
         ForeignKeyBean bean = new ForeignKeyBean();
         bean.setId(ids);
+        bean.setForeignKeyPath(model.getXpath());
+
         if (!model.isRetrieveFKinfos()) {
             return bean;
         } else {
@@ -743,7 +752,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                         }
                     }
 
-                    bean.setId(formattedId);
+                    bean.setDisplayInfo(formattedId);
                     return bean;
                 } else {
                     return null;

@@ -36,7 +36,8 @@ public class FKCellEditor extends CellEditor {
         
         ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
         ForeignKeyBean fkBean = (ForeignKeyBean) value;
-        itemBean.setForeignkeyDesc(fkBean.getId(), fkBean);
-        return fkBean.getId();
+        if (itemBean.getForeignkeyDesc(fkBean.getFullString()) == null)
+            itemBean.setForeignkeyDesc(fkBean.getFullString(), fkBean);
+        return fkBean.getFullString();
     }
 }

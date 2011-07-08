@@ -94,6 +94,8 @@ public class FKRelRecordWindow extends Window {
     TextField<String> filter = new TextField<String>();
 
 	private ComboBoxField<BaseModel> typeComboBox;
+
+    private String xPath;
     
     public FKRelRecordWindow() {
 
@@ -131,6 +133,7 @@ public class FKRelRecordWindow extends Window {
     protected void onRender(Element parent, int pos) {
         super.onRender(parent, pos);
         final TypeModel typeModel= Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes().get(fkKey);
+        xPath = typeModel.getXpath();
         RpcProxy<PagingLoadResult<ForeignKeyBean>> proxy = new RpcProxy<PagingLoadResult<ForeignKeyBean>>() {
 
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
@@ -209,7 +212,10 @@ public class FKRelRecordWindow extends Window {
                     return;
                 }
                 if (be.getKeyCode() == KeyCodes.KEY_ENTER){
-                    returnCriteriaFK.setCriteriaFK(relatedRecordGrid.getSelectionModel().getSelectedItem());
+                    ForeignKeyBean fkBean = relatedRecordGrid.getSelectionModel().getSelectedItem();
+                    fkBean.setForeignKeyPath(xPath);
+                    fkBean.setDisplayInfo(fkBean.toString());
+                    returnCriteriaFK.setCriteriaFK(fkBean);
                     close();
                 }
                 if (be.getKeyCode() == KeyCodes.KEY_LEFT || be.getKeyCode() == KeyCodes.KEY_RIGHT){
@@ -308,7 +314,10 @@ public class FKRelRecordWindow extends Window {
         relatedRecordGrid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ForeignKeyBean>>() {
 
             public void handleEvent(final GridEvent<ForeignKeyBean> be) {
-                returnCriteriaFK.setCriteriaFK(be.getModel());
+                ForeignKeyBean fkBean = be.getModel();
+                fkBean.setForeignKeyPath(xPath);
+                fkBean.setDisplayInfo(fkBean.toString());
+                returnCriteriaFK.setCriteriaFK(fkBean);
                 close();
             }
         });
