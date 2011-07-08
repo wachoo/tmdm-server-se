@@ -21,6 +21,8 @@ class AutoGenMetadata extends Metadata {
 
     private final AutoIdGenerator generator;
 
+    private String[] autoGenId;
+
     AutoGenMetadata(Metadata metadata, AutoIdGenerator generator) {
         this.metadata = metadata;
         this.generator = generator;
@@ -28,7 +30,10 @@ class AutoGenMetadata extends Metadata {
 
     @Override
     public String[] getId() {
-        return new String[]{generator.generateId(metadata.getDataClusterName(), metadata.getName())};
+        if (autoGenId == null) {
+            autoGenId = new String[]{generator.generateId(metadata.getDataClusterName(), metadata.getName())};
+        }
+        return autoGenId;
     }
 
     @Override
@@ -84,6 +89,7 @@ class AutoGenMetadata extends Metadata {
     @Override
     public void reset() {
         metadata.reset();
+        autoGenId = null;
     }
 
     @Override
