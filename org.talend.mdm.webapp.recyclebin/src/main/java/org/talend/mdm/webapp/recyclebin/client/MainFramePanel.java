@@ -277,7 +277,7 @@ public class MainFramePanel extends ContentPanel {
         grid.setSize(350, 600);
         int usePageSize = PAGE_SIZE;
         if (StateManager.get().get("trashgrid") != null) //$NON-NLS-1$
-            usePageSize = Integer.valueOf(((Map) StateManager.get().get("crossgrid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+            usePageSize = Integer.valueOf(((Map) StateManager.get().get("trashgrid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         pagetoolBar = new PagingToolBarEx(usePageSize);
         pagetoolBar.bind(loader);
         grid.setLoadMask(true);
