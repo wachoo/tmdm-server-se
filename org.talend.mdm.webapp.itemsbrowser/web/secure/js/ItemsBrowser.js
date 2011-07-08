@@ -4413,7 +4413,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     typeName, function(result) {
                         value = result;
 
-                        if(value!="")
+//                        if(value!="")
                         	updateNode2(id, node, value, treeIndex);
                     });// interface.updatevalue( ;
         else

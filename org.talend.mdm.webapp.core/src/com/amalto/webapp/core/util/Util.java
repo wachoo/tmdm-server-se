@@ -1610,7 +1610,7 @@ public class Util {
     public static Object getTypeValue(String lang, String type, String value, String format) throws ParseException {
 
         // time
-        if (type.equals("date")) {//$NON-NLS-1$
+        if (type.equals("date") && !value.equals("")) {//$NON-NLS-1$ //$NON-NLS-2$
             String dataStr = value;
             Calendar calendar = null;
             try{
@@ -1637,7 +1637,7 @@ public class Util {
          * }
          */
         }
-        else if (type.equals("dateTime")) { //$NON-NLS-1$
+        else if (type.equals("dateTime") && !value.equals("")) { //$NON-NLS-1$ //$NON-NLS-2$
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //$NON-NLS-1$
             Calendar dateTime = Calendar.getInstance();
             dateTime.setTime(sdf.parse(value.trim()));

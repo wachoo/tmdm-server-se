@@ -29,9 +29,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1906,7 +1906,7 @@ public class ItemsBrowserDWR {
                 }
             }
         }
-        return checkMap;
+        return checkMap.isEmpty() ? null : checkMap;
     }
 
     public synchronized static String updateNode2(String xpath, String content, int docIndex) {
@@ -1953,10 +1953,10 @@ public class ItemsBrowserDWR {
             TreeNode node = null;
             if (xpath != null)
                 node = xpathToTreeNode.get(xpath);
-            if (xpath.lastIndexOf("]") == xpath.length() - 1 && node == null) {
+            if (xpath.lastIndexOf("]") == xpath.length() - 1 && node == null) { //$NON-NLS-1$
                 node = xpathToTreeNode.get(xpath.replaceAll("\\[\\d+\\]$", "[1]")); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            if (node != null)
+            if (node != null) //$NON-NLS-1$
                 node.setValue(content);
             return "Node updated";
         } catch (Exception e2) {
