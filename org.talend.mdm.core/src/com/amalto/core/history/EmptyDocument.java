@@ -40,7 +40,7 @@ public class EmptyDocument implements MutableDocument {
         return this;
     }
 
-    public MutableDocument addField(String field, int index, String value) {
+    public MutableDocument addField(String field, String value) {
         return this;
     }
 

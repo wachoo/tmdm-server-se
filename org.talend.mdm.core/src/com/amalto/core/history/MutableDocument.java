@@ -20,7 +20,8 @@ public interface MutableDocument extends Document {
      * <p>
      * Change value of a field in the document.
      * </p>
-     * @param field XPath to the field in the document.
+     *
+     * @param field    XPath to the field in the document.
      * @param newValue New value to be set.
      * @return A mutable document ready to be used (might be the same instance).
      */
@@ -42,11 +43,10 @@ public interface MutableDocument extends Document {
      * </p>
      *
      * @param field XPath to the field in the document.
-     * @param index In case of collections, tells where the value should be inserted.
-     * @param value Field value  @return The document with a new field added with the value passed as parameter.
-     * @return The document with the field added.
+     * @param value Field value
+     * @return The document with a new field added with the value passed as parameter.
      */
-    MutableDocument addField(String field, int index, String value);
+    MutableDocument addField(String field, String value);
 
     /**
      * @return Returns a document with created status.
@@ -55,6 +55,7 @@ public interface MutableDocument extends Document {
 
     /**
      * Deletes the document. MDM supports two different kinds of deletes: LOGICAL and PHYSICAL.
+     *
      * @param deleteType The type of delete to perform.
      * @return A {@link MutableDocument} after delete has been performed.
      * @see DeleteType
@@ -63,6 +64,7 @@ public interface MutableDocument extends Document {
 
     /**
      * Recovers the document. MDM supports two different kinds of deletes: LOGICAL and PHYSICAL.
+     *
      * @param deleteType Type of delete to recover.
      * @return A recovered document.
      * @throws IllegalStateException If the document wasn't deleted by the <code>deleteType</code> type.
