@@ -380,14 +380,14 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 if (outputErrorMessage != null) {
                     org.w3c.dom.Document doc = com.amalto.webapp.core.util.Util.parse(outputErrorMessage);
                     // TODO what if multiple error nodes ?
-                    String xpath = "/descendant::error"; //$NON-NLS-1$
+                    String xpath = "/report/message"; //$NON-NLS-1$
                     org.w3c.dom.NodeList checkList = com.amalto.webapp.core.util.Util.getNodeList(doc, xpath);
                     org.w3c.dom.Node errorNode = null;
                     if (checkList != null && checkList.getLength() > 0)
                         errorNode = checkList.item(0);
                     if (errorNode != null && errorNode instanceof org.w3c.dom.Element) {
                         org.w3c.dom.Element errorElement = (org.w3c.dom.Element) errorNode;
-                        errorCode = errorElement.getAttribute("code"); //$NON-NLS-1$
+                        errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
                         org.w3c.dom.Node child = errorElement.getFirstChild();
                         if (child instanceof org.w3c.dom.Text) {
                             message = child.getTextContent();
@@ -395,7 +395,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                     }
                 }
 
-                if ("0".equals(errorCode)) { //$NON-NLS-1$
+                if ("info".equals(errorCode)) { //$NON-NLS-1$
                     if (message == null || message.length() == 0)
                         message = MessagesFactory.getMessages().save_process_validation_success();
                     status = ItemResult.SUCCESS;
@@ -444,17 +444,17 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             if (outputErrorMessage != null) {
                 Document doc = XmlUtil.parseText(outputErrorMessage);
                 // TODO what if multiple error nodes ?
-                String xpath = "/descendant::error"; //$NON-NLS-1$
+                String xpath = "/report/message"; //$NON-NLS-1$
                 Node errorNode = doc.selectSingleNode(xpath);
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
-                    errorCode = errorElement.attributeValue("code"); //$NON-NLS-1$
+                    errorCode = errorElement.attributeValue("type"); //$NON-NLS-1$
                     message = errorElement.getText();
                 }
             }
 
             int status;
-            if (outputErrorMessage == null || "0".equals(errorCode)) { //$NON-NLS-1$               
+            if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$               
                 WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                         new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids)));
                 if (wsItem != null) {
