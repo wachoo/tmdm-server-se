@@ -159,7 +159,7 @@ public class BulkloadClientUtil {
         putMethod.setPath(url);
         try {
             // Configuration
-            putMethod.setRequestHeader("Content-Type", "text/xml");
+            putMethod.setRequestHeader("Content-Type", "text/xml; charset=utf8"); //$NON-NLS-1$ //$NON-NLS-2$
             putMethod.setQueryString(parameters);
             putMethod.setContentChunked(true);
             // Set the content of the PUT request
