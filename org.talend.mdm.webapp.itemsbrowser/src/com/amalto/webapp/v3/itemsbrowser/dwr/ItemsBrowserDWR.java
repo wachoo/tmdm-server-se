@@ -29,9 +29,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2436,7 +2436,7 @@ public class ItemsBrowserDWR {
                 if (outputErrorMessage != null) {
                     Document doc = Util.parse(outputErrorMessage);
                     // TODO what if multiple error nodes ?
-                    String xpath = "/report/message"; //$NON-NLS-1$
+                    String xpath = "//report/message"; //$NON-NLS-1$
                     Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
                     if (errorNode instanceof Element) {
                         Element errorElement = (Element) errorNode;
@@ -2527,7 +2527,7 @@ public class ItemsBrowserDWR {
             if (outputErrorMessage != null) {
                 Document doc = Util.parse(outputErrorMessage);
                 // TODO what if multiple error nodes ?
-                String xpath = "/report/message"; //$NON-NLS-1$
+                String xpath = "//report/message"; //$NON-NLS-1$
                 Node errorNode = XPathAPI.selectSingleNode(doc, xpath);
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;

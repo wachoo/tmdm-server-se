@@ -380,7 +380,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 if (outputErrorMessage != null) {
                     org.w3c.dom.Document doc = com.amalto.webapp.core.util.Util.parse(outputErrorMessage);
                     // TODO what if multiple error nodes ?
-                    String xpath = "/report/message"; //$NON-NLS-1$
+                    String xpath = "//report/message"; //$NON-NLS-1$
                     org.w3c.dom.NodeList checkList = com.amalto.webapp.core.util.Util.getNodeList(doc, xpath);
                     org.w3c.dom.Node errorNode = null;
                     if (checkList != null && checkList.getLength() > 0)
@@ -444,7 +444,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             if (outputErrorMessage != null) {
                 Document doc = XmlUtil.parseText(outputErrorMessage);
                 // TODO what if multiple error nodes ?
-                String xpath = "/report/message"; //$NON-NLS-1$
+                String xpath = "//report/message"; //$NON-NLS-1$
                 Node errorNode = doc.selectSingleNode(xpath);
                 if (errorNode instanceof Element) {
                     Element errorElement = (Element) errorNode;
