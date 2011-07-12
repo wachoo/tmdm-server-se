@@ -1133,7 +1133,7 @@ public class XmlServerSLWrapperBean implements SessionBean {
                     for (Iterator<String> iterator = dataClusterPatterns.iterator(); iterator.hasNext(); ) {
                         String pattern = iterator.next();
                         if (conceptName.matches(pattern)) {
-                            dataclusterName = conceptPatternsToRevisionID.get(pattern);
+                            dataclusterName = conceptPatternsToClusterName.get(pattern);
                             break;
                         }
                     }

@@ -47,16 +47,16 @@ import com.amalto.xmlserver.interfaces.WhereOr;
 
 /**
  * @author Bruno Grieder
- * 
+ *
  * @ejb.bean name="ItemCtrl2" display-name="Name for ItemCtrl2" description="Description for ItemCtrl2"
  * jndi-name="amalto/remote/core/itemctrl2" local-jndi-name = "amalto/local/core/itemctrl2" type="Stateless"
  * view-type="both"
- * 
+ *
  * @ejb.remote-facade
- * 
+ *
  * @ejb.permission view-type = "remote" role-name = "administration"
  * @ejb.permission view-type = "local" unchecked = "true"
- * 
+ *
  */
 
 @SuppressWarnings("deprecation")
@@ -70,7 +70,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * ItemCtrlBean.java Constructor
-     * 
+     *
      */
     public ItemCtrl2Bean() {
         super();
@@ -111,7 +111,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Create method
-     * 
+     *
      * @ejb.create-method view-type = "local"
      */
     public void ejbCreate() throws javax.ejb.CreateException {
@@ -125,9 +125,9 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Creates or updates a item
-     * 
+     *
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -142,9 +142,9 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * updates a item taskId
-     * 
+     *
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -154,9 +154,9 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Get item
-     * 
+     *
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -176,15 +176,15 @@ public class ItemCtrl2Bean implements SessionBean {
             String err = "Unable to get the item " + pk.toString() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
     /**
      * Get item with revisionID
-     * 
+     *
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -204,15 +204,15 @@ public class ItemCtrl2Bean implements SessionBean {
             String err = "Unable to get the item " + pk.toString() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
     /**
      * Is Item modified by others - no exception is thrown: true|false
-     * 
+     *
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -226,9 +226,9 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Get an item - no exception is thrown: returns null if not found
-     * 
+     *
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -248,9 +248,9 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Remove an item - returns null if no item was deleted
-     * 
+     *
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -265,15 +265,15 @@ public class ItemCtrl2Bean implements SessionBean {
             String err = "Unable to remove the item " + pk.toString() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
     /**
      * Delete items in a stateless mode: open a connection --> perform delete --> close the connection
-     * 
+     *
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -303,7 +303,7 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to delete items of concept '" + conceptName + "': unable to access the XML Server wrapper";
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
 
         try {
@@ -313,15 +313,15 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to delete the items: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
     /**
      * Drop an item - returns null if no item was dropped
-     * 
+     *
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -336,13 +336,13 @@ public class ItemCtrl2Bean implements SessionBean {
             String err = "Unable to drop the item " + itemPOJOPK.toString() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
     /**
      * Get unordered items of a Concept using an optional where condition
-     * 
+     *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param conceptName The name of the concept
      * @param whereItem The condition
@@ -350,10 +350,10 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
      * @return The ordered list of results
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
-     * 
+     *
      * @throws XtentisException
      */
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
@@ -363,7 +363,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Get potentially ordered items of a Concept using an optional where condition
-     * 
+     *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param conceptName The name of the concept
      * @param whereItem The condition
@@ -374,10 +374,10 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
      * @return The ordered list of results
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
-     * 
+     *
      * @throws XtentisException
      */
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
@@ -421,13 +421,13 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to get the items: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
     /**
      * Search Items thru a view in a cluster and specifying a condition
-     * 
+     *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param viewPOJOPK The View
      * @param whereItem The condition
@@ -436,7 +436,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param limit The maximum number of items to return
      * @return The ordered list of results
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -447,7 +447,7 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Search ordered Items thru a view in a cluster and specifying a condition
-     * 
+     *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param viewPOJOPK The View
      * @param whereItem The condition
@@ -459,7 +459,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param limit The maximum number of items to return
      * @return The ordered list of results
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -473,7 +473,7 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Returns an ordered collection of results searched in a cluster and specifying an optional condition<br/>
      * The results are xml objects made of elements constituted by the specified viewablePaths
-     * 
+     *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param forceMainPivot An optional pivot that will appear first in the list of pivots in the query<br>
      * : This allows forcing cartesian products: for instance Order Header vs Order Line
@@ -484,7 +484,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param limit The maximum number of items to return
      * @return The ordered list of results
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -497,7 +497,7 @@ public class ItemCtrl2Bean implements SessionBean {
     /**
      * Returns an ordered collection of results searched in a cluster and specifying an optional condition<br/>
      * The results are xml objects made of elements constituted by the specified viewablePaths
-     * 
+     *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param forceMainPivot An optional pivot that will appear first in the list of pivots in the query<br>
      * : This allows forcing cartesian products: for instance Order Header vs Order Line
@@ -511,7 +511,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param limit The maximum number of items to return
      * @return The ordered list of results
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -556,13 +556,13 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to single search: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
     /**
      * Get items hierarchical tree according to pivots
-     * 
+     *
      * @param clusterName The Data Cluster where to run the query
      * @param mainPivotName The main Business Concept name
      * @param pivotWithKeys The pivots with their IDs which selected to be the catalog of the hierarchical tree
@@ -576,7 +576,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param limit The maximum number of items to return
      * @return The ordered list of results
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -600,10 +600,10 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param whereItem
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
-     * 
+     *
      * @return
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -615,15 +615,15 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Count the items denoted by concept name meeting the optional condition whereItem
-     * 
+     *
      * @param dataClusterPOJOPK
      * @param conceptName
      * @param whereItem
      * @param spellThreshold
      * @return The number of items found
      * @throws XtentisException
-     * 
-     * 
+     *
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -657,7 +657,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 String err = "Unable to search items in data cluster '" + dataClusterPOJOPK.getUniqueId()
                         + "': unable to access the XML Server wrapper";
                 org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
-                throw new XtentisException(err);
+                throw new XtentisException(err, e);
             }
 
             return server.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
@@ -667,13 +667,13 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to single search: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
     /**
      * Search ordered Items thru a view in a cluster and specifying a condition
-     * 
+     *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param viewPOJOPK The View
      * @param searchValue The value/sentenced searched
@@ -686,7 +686,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param limit The maximum number of items to return
      * @return The ordered list of results
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -699,36 +699,25 @@ public class ItemCtrl2Bean implements SessionBean {
 
         try {
             ViewPOJO view = Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
-            // ViewLocal view = ViewUtil.getLocalHome().findByPrimaryKey(viewPK);
             ArrayList<String> searchable = view.getSearchableBusinessElements().getList();
 
             // check if there actually is a search value
-            if ((searchValue == null) || "".equals(searchValue) || "*".equals(searchValue))
+            if ((searchValue == null) || "".equals(searchValue) || "*".equals(searchValue)) { // $NON-NLS-1$ // $NON-NLS-2$
                 return viewSearch(dataClusterPOJOPK, viewPOJOPK, null, spellThreshold, orderBy, direction, start, limit);
+            }
 
-            // if there is search Value, incoporate it in the Where Clause
-
-            boolean isNumber = searchValue.matches("[1-9][0-9]*[\\.[0-9]+]?");
+            // if there is search Value, incorporate it in the Where Clause
+            boolean isNumber = searchValue.matches("\\d+"); // $NON-NLS-1$
 
             // loop over searchable elements
             WhereOr mainOR = new WhereOr();
-            for (Iterator<String> iter = searchable.iterator(); iter.hasNext();) {
-                String be = iter.next();
-                if (isNumber) {
-                    // it is a number
-                    WhereOr numOR = new WhereOr();
-                    numOR.add(new WhereCondition(be, WhereCondition.CONTAINS, searchValue, WhereCondition.PRE_NONE, isSpellCheck));
-                    numOR.add(new WhereCondition(be, WhereCondition.EQUALS, searchValue, WhereCondition.PRE_NONE, false));
-                    mainOR.add(numOR);
-                } else {
-                    // Not A Number
-                    mainOR.add(new WhereCondition(be, WhereCondition.CONTAINS, searchValue,
-                            (matchAllWords ? WhereCondition.PRE_AND : WhereCondition.PRE_OR), isSpellCheck));
-                }// end if number
+            for (String be : searchable) {
+                mainOR.add(new WhereCondition(be, WhereCondition.CONTAINS, searchValue, (matchAllWords ? WhereCondition.PRE_AND : WhereCondition.PRE_OR), isSpellCheck));
             }// end for viewable elements
 
-            if (mainOR.getSize() == 0)
+            if (mainOR.getSize() == 0) {
                 return result; // HUHH!
+            }
 
             IWhereItem searchItem = mainOR;
             if (mainOR.getSize() == 1) {
@@ -740,16 +729,16 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to quick serach  " + searchValue + ": " + e.getClass().getName() + ": "
+            String err = "Unable to quick search  " + searchValue + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
     /**
      * Get the possible value for the business Element Path, optionally filtered by a condition
-     * 
+     *
      * @param dataClusterPOJOPK The data cluster where to run the query
      * @param businessElementPath The business element path. Must be of the form
      * <code>ConceptName/[optional sub elements]/element</code>
@@ -760,8 +749,8 @@ public class ItemCtrl2Bean implements SessionBean {
      * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
      * @return The list of values
      * @throws XtentisException
-     * 
-     * 
+     *
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -800,14 +789,14 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to get values for the Business Element \"" + businessElementPath + "\"";
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
     /**
      * Extract results thru a view and transform them using a transformer<br/>
      * This call is asynchronous and results will be pushed via the passed {@link TransformerCallBack}
-     * 
+     *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param context The {@link TransformerContext} containi the inital context and the transformer name
      * @param globalCallBack The callback function called by the transformer when it completes a step
@@ -819,7 +808,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -871,14 +860,14 @@ public class ItemCtrl2Bean implements SessionBean {
                     + " through view " + viewPOJOPK.getUniqueId() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
     /**
      * Extract results thru a view and transform them using a transformer<br/>
      * This call is asynchronous and results will be pushed via the passed {@link TransformerCallBack}
-     * 
+     *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param transformerPOJOPK The transformer to use
      * @param viewPOJOPK A filtering view
@@ -889,7 +878,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * {@link IXmlServerSLWrapper#ORDER_DESCENDING}
      * @param start The first item index (starts at zero)
      * @param limit The maximum number of items to return
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -931,7 +920,7 @@ public class ItemCtrl2Bean implements SessionBean {
             String err = "Unable to extract items using transformer " + transformerPOJOPK.getUniqueId() + " through view "
                     + viewPOJOPK.getUniqueId() + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
 
     }
@@ -945,7 +934,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param dataClusterPOJOPK The unique ID of the cluster, <code>null</code> to run from the head of the revision ID
      * @param query The query in the native language
      * @param parameters Optional parameter values to replace the %n in the query before execution
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -962,11 +951,11 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to perform a direct query: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
-    
+
     public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XtentisException {
         try {
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
@@ -977,15 +966,15 @@ public class ItemCtrl2Bean implements SessionBean {
             throw new XtentisException(e.getLocalizedMessage(), e);
         }
     }
-    
+
     /**
      * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
-     * 
+     *
      * @param dataClusterPOJOPK
      * @param universe
      * @return A {@link TreeMap} of concept names to revision IDs
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -995,12 +984,12 @@ public class ItemCtrl2Bean implements SessionBean {
 
     /**
      * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
-     * 
+     *
      * @param dataClusterPOJOPK
      * @param universe
      * @return A {@link TreeMap} of concept names to revision IDs
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -1082,7 +1071,7 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to search for concept names in the data cluster '" + dataClusterPOJOPK.getUniqueId() + "'";
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
@@ -1092,7 +1081,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param injectedXpath
      * @return
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -1164,7 +1153,7 @@ public class ItemCtrl2Bean implements SessionBean {
         } catch (Exception e) {
             String err = "Unable to count the elements! ";
             org.apache.log4j.Logger.getLogger("INFO SYSTRACE " + this.getClass()).info(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
 
     }
@@ -1180,7 +1169,7 @@ public class ItemCtrl2Bean implements SessionBean {
      * @param direction
      * @return
      * @throws XtentisException
-     * 
+     *
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
@@ -1279,7 +1268,7 @@ public class ItemCtrl2Bean implements SessionBean {
             String err = "Unable to get items by custom FK filters " + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
-            throw new XtentisException(err);
+            throw new XtentisException(err, e);
         }
     }
 
