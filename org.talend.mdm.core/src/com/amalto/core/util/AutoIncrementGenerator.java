@@ -74,7 +74,7 @@ public class AutoIncrementGenerator {
         return num;
     }
 
-    public static void saveToDB() {
+    public synchronized static void saveToDB() {
         try {
             String xmlString = Util.convertAutoIncrement(CONFIGURATION);
             ItemPOJO pojo = new ItemPOJO(

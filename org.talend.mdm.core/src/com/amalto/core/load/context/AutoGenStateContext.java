@@ -123,10 +123,6 @@ public class AutoGenStateContext implements StateContext {
     }
 
     public void reset() {
-        // This line is rather important since the generator might need to persist its state
-        // see DefaultAutoIdGenerator for instance.
-        generator.saveState();
-
         hasGeneratedAutomaticId = false;
         delegate.reset();
         metadata.reset();
@@ -150,6 +146,12 @@ public class AutoGenStateContext implements StateContext {
 
     public String getCurrentIdElement() {
         return delegate.getCurrentIdElement();
+    }
+
+    public void close() {
+        // This line is rather important since the generator might need to persist its state
+        // see DefaultAutoIdGenerator for instance.
+        generator.saveState();
     }
 
 }

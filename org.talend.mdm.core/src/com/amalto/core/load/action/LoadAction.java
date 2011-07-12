@@ -41,4 +41,9 @@ public interface LoadAction {
      * @throws Exception In case anything goes wrong during load.
      */
     void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception;
+
+    /**
+     * End load and perform all post-load actions (such as save counter state in case of autogen pk).
+     */
+    void endLoad();
 }

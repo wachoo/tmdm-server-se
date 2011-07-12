@@ -245,4 +245,8 @@ public class DefaultStateContext implements StateContext {
         return currentIdElementName;
     }
 
+    public void close() {
+        // Nothing to do
+    }
+
 }

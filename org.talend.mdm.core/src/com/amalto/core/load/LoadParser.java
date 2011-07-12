@@ -69,9 +69,10 @@ public class LoadParser {
      * @param config      Configuration of the LoadParser.
      * @param callback    The callback called when a document is ready to be persisted
      *                    in MDM.
+     * @return The context created during the parsing.
      */
-    public static void parse(InputStream inputStream, Configuration config, LoadParserCallback callback) {
-        parse(inputStream, config, Constants.DEFAULT_PARSER_LIMIT, callback);
+    public static StateContext parse(InputStream inputStream, Configuration config, LoadParserCallback callback) {
+        return parse(inputStream, config, Constants.DEFAULT_PARSER_LIMIT, callback);
     }
 
     /**
@@ -89,9 +90,9 @@ public class LoadParser {
      * @param limit       A limit for documents to persist. Once this limit is reached,
      *                    this method ends.
      * @param callback    The callback called when a document is ready to be persisted
-     *                    in MDM.
+     * @return The context created during the parsing.
      */
-    public static void parse(InputStream inputStream, Configuration config, int limit, LoadParserCallback callback) {
+    public static StateContext parse(InputStream inputStream, Configuration config, int limit, LoadParserCallback callback) {
         if (inputStream == null) {
             throw new IllegalArgumentException("Input stream cannot be null");
         }
@@ -127,6 +128,8 @@ public class LoadParser {
             while (!context.hasFinished()) {
                 context.parse(reader);
             }
+
+            return context;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -191,7 +194,7 @@ public class LoadParser {
         public String getDataClusterName() {
             return dataClusterName;
         }
-        
+
         public String getDataModelName() {
             return dataModelName;
         }

@@ -132,6 +132,9 @@ public class LoadServlet extends HttpServlet {
             } catch (Exception commitException) {
                 throw new ServletException("Commit failed with errors", commitException);
             }
+
+            // End the load (might persist counter state in case of autogen pk
+            loadAction.endLoad();
         } catch (Throwable throwable) {
             if (server.supportTransaction()) {
                 try {

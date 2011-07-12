@@ -13,6 +13,7 @@ package com.amalto.core.load.action;
 
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.LoadParser;
+import com.amalto.core.load.context.StateContext;
 import com.amalto.core.load.io.XMLRootInputStream;
 import com.amalto.core.util.XSDKey;
 import org.apache.log4j.Logger;
@@ -28,6 +29,7 @@ public class OptimizedLoadAction implements LoadAction {
     private final String typeName;
     private final String dataModelName;
     private final boolean needAutoGenPK;
+    private StateContext context;
 
     public OptimizedLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needAutoGenPK) {
         this.dataClusterName = dataClusterName;
@@ -54,10 +56,17 @@ public class OptimizedLoadAction implements LoadAction {
 
         java.io.InputStream inputStream = new XMLRootInputStream(request.getInputStream(), "root"); //$NON-NLS-1$
         LoadParser.Configuration configuration = new LoadParser.Configuration(typeName, keyMetadata.getFields(), needAutoGenPK, dataClusterName, dataModelName);
-        LoadParser.parse(inputStream, configuration, callback);
+        context = LoadParser.parse(inputStream, configuration, callback);
 
         if (log.isDebugEnabled()) {
             log.debug("Number of documents loaded: " + callback.getCount()); //$NON-NLS-1$
+        }
+    }
+
+    public void endLoad() {
+        if (context != null) {
+            // This call should clean up everything (incl. save counter state in case of autogen pk).
+            context.close();
         }
     }
 }

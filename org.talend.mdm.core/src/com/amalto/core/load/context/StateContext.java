@@ -57,4 +57,6 @@ public interface StateContext {
     boolean isIdElement();
 
     String getCurrentIdElement();
+
+    void close();
 }

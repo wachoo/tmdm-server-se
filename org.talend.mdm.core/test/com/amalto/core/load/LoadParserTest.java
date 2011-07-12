@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.amalto.core.load.context.AutoIdGenerator;import com.amalto.core.load.exception.ParserCallbackException;
+import com.amalto.core.load.context.AutoIdGenerator;
+import com.amalto.core.load.context.StateContext;
+import com.amalto.core.load.exception.ParserCallbackException;
 import com.amalto.core.load.io.XMLRootInputStream;
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -198,7 +200,7 @@ public class LoadParserTest extends TestCase {
              LoadParser.parse(testResource2, config, callback2);
          }
 
-        LoadParser.parse(testResource, config, callback);
+        StateContext context = LoadParser.parse(testResource, config, callback);
         assertTrue(callback.hasBeenFlushed());
         assertEquals(1, callback.getFlushCount());
         assertEquals(14, callback.getStartedElements().size());
@@ -207,6 +209,9 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedAttribute(callback, "attribute1"));
         assertTrue(hasParsedAttribute(callback, "attribute2"));
         assertEquals("0", callback.getId());
+
+        assertFalse(idGenerator.isStateSaved());
+        context.close();
         assertTrue(idGenerator.isStateSaved());
     }
 
@@ -320,7 +325,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.parse(testResource, config, callback);
+        StateContext context = LoadParser.parse(testResource, config, callback);
         assertTrue(callback.hasBeenFlushed());
         assertEquals(2, callback.getFlushCount());
         assertEquals(32, callback.getStartedElements().size());
@@ -328,8 +333,11 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedElement(callback, "Name"));
         assertTrue(hasParsedCharacters(callback, "Test1"));
         assertEquals("0", callback.getId());
-        assertTrue(idGenerator.isStateSaved());
         assertTrue(idGenerator.getKeyFields().contains("id"));
+
+        assertFalse(idGenerator.isStateSaved());
+        context.close();
+        assertTrue(idGenerator.isStateSaved());
     }
 
     public void testMultipleXmlRootWithAutoGenCompoundId() {
@@ -349,7 +357,7 @@ public class LoadParserTest extends TestCase {
 
         ParserTestCallback callback = new ParserTestCallback();
 
-        LoadParser.parse(testResource, config, callback);
+        StateContext context = LoadParser.parse(testResource, config, callback);
         assertTrue(callback.hasBeenFlushed());
         assertEquals(2, callback.getFlushCount());
         assertEquals(36, callback.getStartedElements().size());
@@ -357,10 +365,13 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedElement(callback, "Name"));
         assertTrue(hasParsedCharacters(callback, "Test1"));
         assertEquals("0:0", callback.getId());
-        assertTrue(idGenerator.isStateSaved());
 
         assertTrue(idGenerator.getKeyFields().contains("id1"));
         assertTrue(idGenerator.getKeyFields().contains("id2"));
+
+        assertFalse(idGenerator.isStateSaved());
+        context.close();
+        assertTrue(idGenerator.isStateSaved());
 
     }
 

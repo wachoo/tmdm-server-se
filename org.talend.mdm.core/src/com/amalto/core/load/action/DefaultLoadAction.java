@@ -102,4 +102,8 @@ public class DefaultLoadAction implements LoadAction {
             itemPOJO.store(false);
         }
     }
+
+    public void endLoad() {
+        // Nothing to do
+    }
 }
