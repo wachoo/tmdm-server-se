@@ -19,25 +19,35 @@ import com.amalto.core.load.Metadata;
 class AutoGenMetadata extends Metadata {
     private final Metadata metadata;
 
+    private final String[] idPaths;
+
     private final AutoIdGenerator generator;
 
     private String[] autoGenId;
 
-    AutoGenMetadata(Metadata metadata, AutoIdGenerator generator) {
+    AutoGenMetadata(Metadata metadata, String[] idPaths, AutoIdGenerator generator) {
         this.metadata = metadata;
+        this.idPaths = idPaths;
         this.generator = generator;
+    }
+
+    private String[] generateId(Metadata metadata, String[] idPaths, AutoIdGenerator generator) {
+        for (String idPath : idPaths) {
+            super.setId(idPath, generator.generateId(metadata.getDataClusterName(), metadata.getName(), idPath));
+        }
+        return super.getId();
     }
 
     @Override
     public String[] getId() {
         if (autoGenId == null) {
-            autoGenId = new String[]{generator.generateId(metadata.getDataClusterName(), metadata.getName())};
+            autoGenId = generateId(metadata, idPaths, generator);
         }
         return autoGenId;
     }
 
     @Override
-    public void setId(String id) {
+    public void setId(String idElementName, String id) {
         throw new UnsupportedOperationException("AutoGen id is read-only");
     }
 

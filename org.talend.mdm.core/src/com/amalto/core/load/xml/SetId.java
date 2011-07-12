@@ -33,7 +33,7 @@ public class SetId extends Characters {
         int next = reader.next();
         if (next == XMLEvent.END_ELEMENT) {
             // Means we started an ID but got no text in it, so set it to empty string
-            context.getMetadata().setId(StringUtils.EMPTY);
+            context.getMetadata().setId(context.getCurrentIdElement(), StringUtils.EMPTY);
             // ... and move to EndElement state
             context.setCurrent(EndElement.INSTANCE);
             return;
@@ -45,7 +45,7 @@ public class SetId extends Characters {
         // We're parsing characters so call super.parse(context, reader)...
         super.parse(context, reader);
         // ...and we're also setting id for metadata
-        context.getMetadata().setId(reader.getText());
+        context.getMetadata().setId(context.getCurrentIdElement(), reader.getText());
         // If we're ready, flush document
         if (doFlush(context)) {
             Utils.doParserCallback(context, reader, context.getMetadata());

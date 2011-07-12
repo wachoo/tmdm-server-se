@@ -50,7 +50,11 @@ public interface StateContext {
 
     void leaveElement();
 
-    boolean enterElement(String elementLocalName);
+    void enterElement(String elementLocalName);
 
     int getDepth();
+
+    boolean isIdElement();
+
+    String getCurrentIdElement();
 }

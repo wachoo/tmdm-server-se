@@ -47,7 +47,7 @@ public class AutoGenStateContext implements StateContext {
         this.delegate = delegate;
         this.idPaths = idPaths;
         this.generator = generator;
-        metadata = new AutoGenMetadata(this.delegate.getMetadata(), this.generator);
+        metadata = new AutoGenMetadata(this.delegate.getMetadata(), idPaths, this.generator);
     }
 
     /**
@@ -136,12 +136,20 @@ public class AutoGenStateContext implements StateContext {
         delegate.leaveElement();
     }
 
-    public boolean enterElement(String elementLocalName) {
-        return delegate.enterElement(elementLocalName);
+    public void enterElement(String elementLocalName) {
+        delegate.enterElement(elementLocalName);
     }
 
     public int getDepth() {
         return delegate.getDepth();
+    }
+
+    public boolean isIdElement() {
+        return delegate.isIdElement();
+    }
+
+    public String getCurrentIdElement() {
+        return delegate.getCurrentIdElement();
     }
 
 }

@@ -60,6 +60,10 @@ public class DefaultStateContext implements StateContext {
 
     private int idToMatchCount = 0;
 
+    private boolean isIdElement;
+
+    private String currentIdElementName;
+
     public DefaultStateContext(String payLoadElementName, String[] idPaths, String dataClusterName, String dataModelName, int payloadLimit, LoadParserCallback callback) {
         this(payLoadElementName, idPaths, dataClusterName, dataModelName, callback);
         this.payloadLimit = payloadLimit;
@@ -162,17 +166,19 @@ public class DefaultStateContext implements StateContext {
         if (!currentLocation.isEmpty()) {
             currentLocation.pop();
         }
+        isIdElement = false;
+        currentIdElementName = null;
     }
 
-    public boolean enterElement(String elementLocalName) {
+    public void enterElement(String elementLocalName) {
         currentLocation.push(elementLocalName);
-        boolean hasMatchId = false;
 
         // Check path
         if (!isFlushDone()) {
             PathMatcher match = match(elementLocalName);
             if (match != null) {
-                hasMatchId = true;
+                isIdElement = true;
+                currentIdElementName = elementLocalName;
                 idToMatchCount--;
             }
 
@@ -180,8 +186,6 @@ public class DefaultStateContext implements StateContext {
                 isMetadataReady = true;
             }
         }
-
-        return hasMatchId;
     }
 
     /**
@@ -231,6 +235,14 @@ public class DefaultStateContext implements StateContext {
 
     public int getDepth() {
         return currentLocation.size();
+    }
+
+    public boolean isIdElement() {
+        return isIdElement;
+    }
+
+    public String getCurrentIdElement() {
+        return currentIdElementName;
     }
 
 }

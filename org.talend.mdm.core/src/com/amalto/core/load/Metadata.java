@@ -13,23 +13,25 @@ package com.amalto.core.load;
 
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  *
  */
 public class Metadata {
     private final String taskId = null;
-    private final List<String> id = new ArrayList<String>();
+
+    private final Map<String, String> id = new LinkedHashMap<String, String>();
 
     private String container = StringUtils.EMPTY;
+
     private String name = StringUtils.EMPTY;
+
     private String dmn = StringUtils.EMPTY;
+
     private String dataClusterName;
 
-    public Metadata() {
-    }
+    private String[] cachedId;
 
     public void setContainer(String container) {
         this.container = container;
@@ -44,7 +46,17 @@ public class Metadata {
     }
 
     public String[] getId() {
-        return id.toArray(new String[id.size()]);
+        if (cachedId == null) {
+            Collection<String> values = id.values();
+            String[] result = new String[values.size()];
+            int i = 0;
+            for (String value : values) {
+                result[i++] = value;
+            }
+            cachedId = result;
+        }
+
+        return cachedId;
     }
 
     public String getContainer() {
@@ -75,12 +87,13 @@ public class Metadata {
         return dmn;
     }
 
-    public void setId(String id) {
-        this.id.add(id.trim());
+    public void setId(String idElementName, String id) {
+        this.id.put(idElementName, id.trim());
     }
 
     public void reset() {
         id.clear();
+        cachedId = null;
     }
 
     public String getDataClusterName() {

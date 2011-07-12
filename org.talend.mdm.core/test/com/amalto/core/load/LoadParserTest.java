@@ -329,6 +329,39 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedCharacters(callback, "Test1"));
         assertEquals("0", callback.getId());
         assertTrue(idGenerator.isStateSaved());
+        assertTrue(idGenerator.getKeyFields().contains("id"));
+    }
+
+    public void testMultipleXmlRootWithAutoGenCompoundId() {
+        TestAutoIdGenerator idGenerator = new TestAutoIdGenerator();
+        InputStream testResource = new ByteArrayInputStream("<Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product><Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product>".getBytes());
+        testResource = new XMLRootInputStream(testResource, "doc");
+        assertNotNull(testResource);
+        assertFalse(idGenerator.isStateSaved());
+        LoadParser.Configuration config = new LoadParser.Configuration("Product", new String[]{"id1", "id2"}, true, "clusterName", "modelName", idGenerator);
+
+        if (DEBUG) {
+            InputStream testResource2 = new ByteArrayInputStream("<Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product><Product><Name>Test1</Name><Description>Descr1</Description><Availability>false</Availability><Price>0.0</Price></Product>".getBytes());
+            testResource2 = new XMLRootInputStream(testResource2, "doc");
+            LoadParserCallback callback2 = new ConsolePrintParserCallback();
+            LoadParser.parse(testResource2, config, callback2);
+        }
+
+        ParserTestCallback callback = new ParserTestCallback();
+
+        LoadParser.parse(testResource, config, callback);
+        assertTrue(callback.hasBeenFlushed());
+        assertEquals(2, callback.getFlushCount());
+        assertEquals(36, callback.getStartedElements().size());
+        assertTrue(hasParsedElement(callback, "Product"));
+        assertTrue(hasParsedElement(callback, "Name"));
+        assertTrue(hasParsedCharacters(callback, "Test1"));
+        assertEquals("0:0", callback.getId());
+        assertTrue(idGenerator.isStateSaved());
+
+        assertTrue(idGenerator.getKeyFields().contains("id1"));
+        assertTrue(idGenerator.getKeyFields().contains("id2"));
+
     }
 
     public void testMultipleXmlRootFailure() {
@@ -690,18 +723,24 @@ public class LoadParserTest extends TestCase {
 
         private boolean savedState;
 
-        public String generateId(String dataClusterName, String conceptName) {
+        private final Set<String> keyElementNames = new HashSet<String>();
+
+        public String generateId(String dataClusterName, String conceptName, String keyElementName) {
+            keyElementNames.add(keyElementName);
             savedState = false;
             return "0";
         }
 
         public void saveState() {
-            // Nothing to do
             savedState = true;
         }
 
         public boolean isStateSaved() {
             return savedState;
+        }
+
+        public Set<String> getKeyFields() {
+            return keyElementNames;
         }
     }
 }
