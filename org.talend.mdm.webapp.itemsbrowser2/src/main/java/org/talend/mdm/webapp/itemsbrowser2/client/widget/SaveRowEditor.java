@@ -26,26 +26,27 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
 
-
 public class SaveRowEditor extends RowEditor<ItemBean> {
+
     ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
-    
+
     protected void onRowClick(GridEvent<ItemBean> e) {
-        // cancel click Editor  
+        // cancel click Editor
     }
+
     public void startEditing(int rowIndex, boolean doFocus) {
         super.startEditing(rowIndex, doFocus);
         grid.getSelectionModel().setLocked(true);
-        
+
     }
-    
+
     public void stopEditing(boolean saveChanges) {
         super.stopEditing(saveChanges);
         grid.getSelectionModel().setLocked(false);
-        if (saveChanges){
+        if (saveChanges) {
             Document doc = XMLParser.createDocument();
             Map<String, Element> elementSet = new HashMap<String, Element>();
-            
+
             final ItemBean itemBean = grid.getSelectionModel().getSelectedItem();
             Map<String, TypeModel> metaType = Itemsbrowser2.getSession().getCurrentEntityModel().getMetaDataTypes();
             for (String index : metaType.keySet()) {
@@ -54,8 +55,8 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
 
                 if (value instanceof List) {
                     String key = typeModel.getXpath();
-                    String parentPath = key.substring(0, key.lastIndexOf('/'));//$NON-NLS-1$
-                    String elName = key.substring(key.lastIndexOf('/') + 1);//$NON-NLS-1$
+                    String parentPath = key.substring(0, key.lastIndexOf('/'));
+                    String elName = key.substring(key.lastIndexOf('/') + 1);
                     createElements(parentPath, elName, (List) value, elementSet, doc);
                 } else {
                     if (typeModel.getForeignkey() != null) {
@@ -69,7 +70,7 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
             Element el = elementSet.get(itemBean.getConcept());
             doc.appendChild(el);
             itemBean.setItemXml(doc.toString());
-            //Window.alert(itemBean.getItemXml());
+            // Window.alert(itemBean.getItemXml());
             service.saveItemBean(itemBean, new AsyncCallback<ItemResult>() {
 
                 public void onFailure(Throwable arg0) {
@@ -87,28 +88,31 @@ public class SaveRowEditor extends RowEditor<ItemBean> {
                             record.commit(false);
                         }
                         refreshForm(itemBean);
-                        MessageBox.alert(MessagesFactory.getMessages().info_title(), Locale.getExceptionMessageByLanguage(GetService.getLanguage(),arg0.getDescription()), null);
+                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
+                                Locale.getExceptionMessageByLanguage(GetService.getLanguage(), arg0.getDescription()), null);
                     } else if (arg0.getStatus() == ItemResult.FAILURE) {
                         if (record != null) {
                             record.reject(false);
                         }
-                        MessageBox.alert(MessagesFactory.getMessages().error_title(), Locale.getExceptionMessageByLanguage(GetService.getLanguage(), arg0.getDescription()), null);
+                        String str = arg0.getDescription().replaceAll("\\[", "{").replaceAll("\\]", "}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                Locale.getExceptionString(GetService.getLanguage(), str), null);
                     }
                 }
             });
         }
     }
 
-    private void refreshForm(ItemBean itemBean){
-        if (!Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()){
+    private void refreshForm(ItemBean itemBean) {
+        if (!Itemsbrowser2.getSession().getAppHeader().isUsingDefaultForm()) {
             ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
             itemsSearchContainer.getItemsFormPanel().getElement().getStyle().setOverflow(Overflow.AUTO);
             itemsSearchContainer.getItemsFormPanel().reSize();
-            GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, itemsSearchContainer //$NON-NLS-1$
+            GetService.renderFormWindow(itemBean.getIds(), itemBean.getConcept(), false, itemsSearchContainer
                     .getItemsFormPanel().getElement(), true, false, false);
         }
     }
-    
+
     private void createElements(String xpath, String value, Map<String, Element> elementSet, Document doc) {
         Element parent = null;
         String[] xps = xpath.split("/"); //$NON-NLS-1$

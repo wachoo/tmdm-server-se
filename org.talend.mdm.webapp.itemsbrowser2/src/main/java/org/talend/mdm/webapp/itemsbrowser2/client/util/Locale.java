@@ -64,4 +64,12 @@ public class Locale {
     }-*/;
 
 
+    public static native String getExceptionString(String language, String result)/*-{
+        var pattern = "([{]" + language.toUpperCase() + ":" + "(([^{]|[{][^{}]*[}])*)})";
+        var resultArray = result.match(pattern);
+        if (resultArray != null) {
+            result = resultArray[2];
+        }
+        return result;
+    }-*/;
 }

@@ -415,12 +415,12 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             // TODO UGLY!!!! to be refactored
             if (e.getLocalizedMessage().indexOf("routing failed:") == 0) {//$NON-NLS-1$ 
                 String saveSUCCE = "Save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$ 
-                        + com.amalto.webapp.core.util.Util.joinStrings(extractIdWithBrackets(item.getIds()), ".")//$NON-NLS-1$
+                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".")//$NON-NLS-1$
                         + "' successfully, But " + e.getLocalizedMessage();//$NON-NLS-1$ 
                 result = new ItemResult(ItemResult.FAILURE, saveSUCCE);
             } else {
                 String err = "Unable to save item '" + item.getConcept() + "."//$NON-NLS-1$ //$NON-NLS-2$ 
-                        + com.amalto.webapp.core.util.Util.joinStrings(extractIdWithBrackets(item.getIds()), ".") + "'"//$NON-NLS-1$ //$NON-NLS-2$
+                        + com.amalto.webapp.core.util.Util.joinStrings(convertIds(item.getIds()), ".") + "'"//$NON-NLS-1$ //$NON-NLS-2$
                         + e.getLocalizedMessage();
                 if (e.getLocalizedMessage().indexOf("ERROR_3:") == 0) {//$NON-NLS-1$
                     err = e.getLocalizedMessage();
@@ -429,6 +429,18 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
             }
             return result;
         }
+    }
+
+    private static String[] convertIds(String ids) {
+        String patternStr = "\\[.*\\]"; //$NON-NLS-1$
+        Pattern idsPattern = Pattern.compile(patternStr);
+        idsPattern.matcher(ids);
+        Matcher matcher = idsPattern.matcher(ids);
+        if (!matcher.matches())
+            return new String[] { ids };
+        else
+            extractIdWithBrackets(ids);
+        return null;
     }
 
     @Override
