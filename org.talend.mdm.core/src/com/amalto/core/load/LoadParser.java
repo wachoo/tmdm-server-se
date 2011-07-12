@@ -18,6 +18,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
+import java.net.URL;
 
 /**
  * <p>
@@ -104,6 +105,17 @@ public class LoadParser {
         XMLStreamReader reader = null;
         try {
             reader = inputFactory.createXMLStreamReader(inputStream);
+
+            // Useful to know what implementation of StAX was actually chosen in app server context.
+            if (log.isDebugEnabled()) {
+                ClassLoader classLoader = reader.getClass().getClassLoader();
+                if (classLoader != null) {
+                    URL resource = classLoader.getResource(reader.getClass().getName().replace(".", "/") + ".class");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    if (resource != null) {
+                        log.debug("XML Stream reader implementation location: " + resource); //$NON-NLS-1$
+                    }
+                }
+            }
 
             StateContext context = new DefaultStateContext(config.getPayLoadElementName(), config.getIdPaths(), config.getDataClusterName(), config.getDataModelName(), limit, callback);
             if (config.isAutoGenPK()) {
