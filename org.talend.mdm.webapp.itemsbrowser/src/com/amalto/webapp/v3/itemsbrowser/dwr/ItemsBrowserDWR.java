@@ -4501,6 +4501,22 @@ public class ItemsBrowserDWR {
             }
         }
 
+        if (xpath == null) {
+            List<String> types = SchemaWebAgent.getInstance().getBindingType(businessConcept.getE());
+            for (String type : types) {
+                List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(type);
+                for (ReusableType reusableType : subTypes) {
+                    Map<String, String> fks = SchemaWebAgent.getInstance().getReferenceEntities(reusableType, dataObject);
+                    Collection<String> fkPaths = fks != null ? fks.keySet() : null;
+                    for (String fkpath : fkPaths) {
+                        if (fks.get(fkpath).indexOf(dataObject) != -1) {
+                            xpath = fkpath;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(keys);
         sb.append("$");//$NON-NLS-1$

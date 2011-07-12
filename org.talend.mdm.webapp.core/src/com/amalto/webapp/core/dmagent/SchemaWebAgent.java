@@ -15,6 +15,7 @@ package com.amalto.webapp.core.dmagent;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ import com.amalto.webapp.util.webservices.WSUniverse;
 import com.amalto.webapp.util.webservices.WSUniverseXtentisObjectsRevisionIDs;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSElementDecl;
-
+import com.sun.xml.xsom.XSParticle;
 /**
  * DOC HSHU class global comment. Detailled comment
  */
@@ -338,6 +339,40 @@ public class SchemaWebAgent extends SchemaManager {
         return revision;
     }
     
+    public Map<String, String> getReferenceEntities(ReusableType reusableType, String entityName) throws Exception {
+        Map<String, String> references = new HashMap<String, String>();
+        XSParticle xsparticle = reusableType.getXsParticle();
+        List<XSParticle> xsps = reusableType.getAllChildren(xsparticle);
+        String reusableName = reusableType.getName();
+        
+        if (xsps.size() > 0) {
+            for (XSParticle xsp : xsps) {
+                XSAnnotation xsa = xsp.getTerm().asElementDecl() == null ? null : xsp.getTerm().asElementDecl().getAnnotation();
+                String name = xsp.getTerm().asElementDecl().getName();
+                if (xsa != null && xsa.getAnnotation() != null) {
+                    Element el = (Element) xsa.getAnnotation();
+                    NodeList annotList = el.getChildNodes();
+                    for (int k = 0; k < annotList.getLength(); k++) {
+                        if ("appinfo".equals(annotList.item(k).getLocalName())) { //$NON-NLS-1$
+                            Node source = annotList.item(k).getAttributes().getNamedItem("source"); //$NON-NLS-1$
+                            if (source == null)
+                                continue;
+                            String appinfoSource = annotList.item(k).getAttributes().getNamedItem("source").getNodeValue(); //$NON-NLS-1$
+                            if ("X_ForeignKey".equals(appinfoSource)) { //$NON-NLS-1$
+                                String nodeValue = annotList.item(k).getFirstChild().getNodeValue();
+                                if (nodeValue.startsWith(entityName)) {
+                                    references.put(reusableName + "/" + name, nodeValue); //$NON-NLS-1$
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return references;
+    }
+
     
     /**
      * DOC HSHU Comment method "getReferenceEntities".
@@ -371,6 +406,17 @@ public class SchemaWebAgent extends SchemaManager {
 
             Map<String, String> foreignKeyMap=businessConcept.getForeignKeyMap();
             Collection<String> fkPaths = foreignKeyMap.values();
+            List<String> types = getBindingType(businessConcept.getE());
+
+            for (String type : types) {
+                List<ReusableType> subTypes = getMySubtypes(type);
+                for (ReusableType reusableType : subTypes) {
+                    Map<String, String> fk = getReferenceEntities(reusableType, entityName);
+                    if (fk != null && fk.size() > 0) {
+                        references.add(bcName);
+                    }
+                }
+            }
 
             for (String fkPath : fkPaths) {
                 if (isFkPoint2Entity(fkPath, extendType)) {
@@ -381,6 +427,30 @@ public class SchemaWebAgent extends SchemaManager {
         
         return references;
 
+    }
+
+    public List<String> getBindingType(XSElementDecl e) throws Exception {
+        List<String> types = new ArrayList<String>();
+
+        if (e.getType().isComplexType()) {
+            XSParticle[] subParticles = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup()
+                    .getChildren();
+            if (subParticles != null) {
+                for (int i = 0; i < subParticles.length; i++) {
+                    XSParticle xsParticle = subParticles[i];
+                    if (xsParticle.getTerm().asElementDecl() == null) {
+                        continue;
+                    }
+                    String type = xsParticle.getTerm().asElementDecl().getType().getName();
+                    List<ReusableType> subTypes = getMySubtypes(type, true);
+                    if (subTypes.size() > 0) {
+                        types.add(type);
+                    }
+                }
+            }
+        }
+
+        return types;
     }
 
     private boolean isFkPoint2Entity(String fkPath, List<String> extendType) {
