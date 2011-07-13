@@ -58,7 +58,7 @@ public class UploadData extends HttpServlet {
     private static final Logger LOG = Logger.getLogger(UploadData.class);
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
-            "org.talend.mdm.webapp.crossreference.client.i18n.CrossreferenceMessages", UploadData.class.getClassLoader()); //$NON-NLS-1$
+            "org.talend.mdm.webapp.itemsbrowser2.client.i18n.ItemsbrowserMessages", UploadData.class.getClassLoader()); //$NON-NLS-1$
 
     public UploadData() {
         super();
@@ -87,7 +87,7 @@ public class UploadData extends HttpServlet {
         String textDelimiter = "\"";//$NON-NLS-1$
         String language = "en"; // default//$NON-NLS-1$
         String encoding = "utf-8";//$NON-NLS-1$
-        boolean headersOnFirstLine = true;
+        boolean headersOnFirstLine = false;
         int lineNum = 0;
         PrintWriter writer = response.getWriter();
 

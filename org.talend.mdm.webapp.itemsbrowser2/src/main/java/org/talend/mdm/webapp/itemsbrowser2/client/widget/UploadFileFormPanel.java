@@ -122,6 +122,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         fileTypecombo.setDisplayField("label"); //$NON-NLS-1$
         fileTypecombo.setValueField("key"); //$NON-NLS-1$
         fileTypecombo.setStore(typeList);
+        fileTypecombo.setAllowBlank(false);
         this.add(fileTypecombo);
 
 
