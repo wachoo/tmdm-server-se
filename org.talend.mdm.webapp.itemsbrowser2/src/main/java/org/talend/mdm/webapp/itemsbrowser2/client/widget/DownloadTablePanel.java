@@ -66,9 +66,8 @@ import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
-
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class DownloadTablePanel extends ContentPanel {
 
@@ -97,7 +96,7 @@ public class DownloadTablePanel extends ContentPanel {
 
     private List<ColumnConfig> initColumns(DownloadTable table, int width) {
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
-        int subWidth = (width - 110) / table.getFields().length;
+        int subWidth = (width - 105) / table.getFields().length;
 
         for (String field : table.getFields()) {
             ColumnConfig cc = new ColumnConfig(field, field, subWidth);// TODO language
@@ -118,7 +117,7 @@ public class DownloadTablePanel extends ContentPanel {
             cc.setEditor(new CellEditor(text));
         }
         // add the delete column
-        ColumnConfig colDel = new ColumnConfig("deleteCol", "Delete", 100); //$NON-NLS-1$
+        ColumnConfig colDel = new ColumnConfig("deleteCol", "Delete", 100); //$NON-NLS-1$ //$NON-NLS-2$
         colDel.setRenderer(new GridCellRenderer<DownloadBaseModel>() {
 
             public Object render(final DownloadBaseModel model, String property, ColumnData config, int rowIndex, int colIndex,
@@ -172,8 +171,7 @@ public class DownloadTablePanel extends ContentPanel {
 
                             public void onSuccess(PagingLoadResult<DownloadBaseModel> result) {
                                 callback.onSuccess(new BasePagingLoadResult<DownloadBaseModel>(result.getData(), result
-                                        .getOffset(),
-                                        result.getTotalLength()));
+                                        .getOffset(), result.getTotalLength()));
                             }
 
                             public void onFailure(Throwable caught) {
@@ -199,7 +197,7 @@ public class DownloadTablePanel extends ContentPanel {
         ColumnModel cm = new ColumnModel(columnConfigList);
 
         grid = new EditorGrid<DownloadBaseModel>(store, cm);
-        grid.setId("UpdateTableGrid");
+        grid.setId("UpdateTableGrid"); //$NON-NLS-1$
         grid.addListener(Events.Attach, new Listener<GridEvent<DownloadBaseModel>>() {
 
             public void handleEvent(GridEvent<DownloadBaseModel> be) {
@@ -248,20 +246,21 @@ public class DownloadTablePanel extends ContentPanel {
 
                     public void onSuccess(Void arg0) {
                         store.commitChanges();
-                        MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                                MessagesFactory.getMessages().save_process_validation_success(), null);
+                        MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                .save_process_validation_success(), null);
                     }
                 });
             }
         });
         toolBar.add(save);
         toolBar.add(new SeparatorToolItem());
-        Button export = new Button("Export");
+        Button export = new Button("Export"); //$NON-NLS-1$
         toolBar.add(export);
         export.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
             @Override
             public void componentSelected(ButtonEvent ce) {
-                Window.open("/itemsbrowser2/download?tableName=" + tableName, "_parent", "location=no");
+                Window.open("/itemsbrowser2/download?tableName=" + tableName, "_parent", "location=no"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
         });
         gridContainer.setTopComponent(toolBar);
