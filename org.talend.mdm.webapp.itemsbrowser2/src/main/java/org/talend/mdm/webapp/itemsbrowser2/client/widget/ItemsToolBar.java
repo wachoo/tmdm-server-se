@@ -72,11 +72,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -169,6 +169,11 @@ public class ItemsToolBar extends ToolBar {
             advancedPanel.setView(viewBean);
             advancedPanel.cleanCriteria();
         }
+        // reset search results
+        ItemsListPanel list = (ItemsListPanel) instance.getParent();
+        if (list != null)
+            list.resetGrid();
+
         searchBut.setEnabled(true);
         advancedBut.setEnabled(true);
         managebookBtn.setEnabled(true);

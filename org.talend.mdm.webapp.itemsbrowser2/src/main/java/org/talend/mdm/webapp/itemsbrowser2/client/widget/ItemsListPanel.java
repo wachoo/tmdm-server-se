@@ -395,6 +395,12 @@ public class ItemsListPanel extends ContentPanel {
 
     }
 
+    public void resetGrid() {
+        store.removeAll();
+        if (pagingBar != null)
+            pagingBar.clear();
+    }
+
     public void refresh(String ids, final boolean refreshItemForm) {
         if (grid != null) {
             final ListStore<ItemBean> store = grid.getStore();
