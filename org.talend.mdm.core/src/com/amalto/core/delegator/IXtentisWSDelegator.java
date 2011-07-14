@@ -1661,11 +1661,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 LOG.debug("[putItem-of-putItemWithReport] in dataCluster:" + dataClusterPK);
             }
 
-            WSItemPK wsi = putItem(wsPutItem, dataModel, schema, ids, conceptKey);
-            // reset the AutoIncrement
-            if (("AutoIncrement".equals(concept) && wsPutItem.getWsDataModelPK().getPk().equals(XSystemObjects.DC_CONF.getName()))) { //$NON-NLS-1$
-                AutoIncrementGenerator.init();
-            }
             // create resultUpdateReport
             String resultUpdateReport = Util.createUpdateReport(ids, concept, operationType, updatedPath, wsPutItem
                     .getWsDataModelPK().getPk(), wsPutItem.getWsDataClusterPK().getPk());
@@ -1688,32 +1683,40 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             }
             wsPutItemWithReport.setSource(outputErrorMessage);
 
-            // if don't put the item ,return see 0012169
-            if (wsi == null)
-                return null;
+            WSItemPK wsi = null;
+            if (outputErrorMessage == null || "info".equals(errorCode)) {//$NON-NLS-1$
+                wsi = putItem(wsPutItem, dataModel, schema, ids, conceptKey);
 
-            if (outputErrorMessage != null && !"info".equals(errorCode)) //$NON-NLS-1$
-                return null;
+                // if don't put the item ,return see 0012169
+                if (wsi == null)
+                    return null;
 
-            concept = wsi.getConceptName();
-            ids = wsi.getIds();
-            // additional attributes for data changes log
-
-            String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
-            if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
-                // CREATE action
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("[pushUpdateReport-of-putItemWithReport] with concept:" + concept + " operation:" + operationType);
+                // reset the AutoIncrement
+                if (("AutoIncrement".equals(concept) && wsPutItem.getWsDataModelPK().getPk().equals(XSystemObjects.DC_CONF.getName()))) { //$NON-NLS-1$
+                    AutoIncrementGenerator.init();
                 }
-                UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType,
-                        source, System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, revisionID,
-                        updateReportItemsMap);
 
-                WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(), //$NON-NLS-1$
-                        new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
-                
-                routeItemV2(new WSRouteItemV2(itemPK));
-                
+                concept = wsi.getConceptName();
+                ids = wsi.getIds();
+                // additional attributes for data changes log
+
+                String dataModelPK = wsPutItem.getWsDataModelPK().getPk();
+                if (resultUpdateReport != null) { // see0012280: In jobs, Update Reports are no longer created for the
+                    // CREATE action
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("[pushUpdateReport-of-putItemWithReport] with concept:" + concept + " operation:"
+                                + operationType);
+                    }
+                    UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType,
+                            source, System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, revisionID,
+                            updateReportItemsMap);
+
+                    WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportPOJO.serialize(), //$NON-NLS-1$
+                            new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$
+
+                    routeItemV2(new WSRouteItemV2(itemPK));
+
+                }
             }
 
             return wsi;
