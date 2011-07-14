@@ -17,11 +17,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.DownloadTableEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadTable;
 
@@ -37,14 +35,10 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -52,19 +46,12 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.ClickListener;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -75,7 +62,7 @@ public class DownloadTablePanel extends ContentPanel {
 
     private ContentPanel gridContainer;
 
-    private EditorGrid<DownloadBaseModel> grid;
+    private Grid<DownloadBaseModel> grid;
 
     private String tableName = null;
 
@@ -96,10 +83,9 @@ public class DownloadTablePanel extends ContentPanel {
 
     private List<ColumnConfig> initColumns(DownloadTable table, int width) {
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
-        int subWidth = (width - 105) / table.getFields().length;
-
+        int subWidth = (width) / table.getFields().length;
         for (String field : table.getFields()) {
-            ColumnConfig cc = new ColumnConfig(field, field, subWidth);// TODO language
+            ColumnConfig cc = new ColumnConfig(field, field, subWidth);        
             ccList.add(cc);
             TextField<String> text = new TextField<String>();
             if (Arrays.asList(table.getKeys()).contains(field)) {
@@ -116,48 +102,7 @@ public class DownloadTablePanel extends ContentPanel {
             }
             cc.setEditor(new CellEditor(text));
         }
-        // add the delete column
-        ColumnConfig colDel = new ColumnConfig("deleteCol", "Delete", 100); //$NON-NLS-1$ //$NON-NLS-2$
-        colDel.setRenderer(new GridCellRenderer<DownloadBaseModel>() {
 
-            public Object render(final DownloadBaseModel model, String property, ColumnData config, int rowIndex, int colIndex,
-                    final ListStore<DownloadBaseModel> store, Grid<DownloadBaseModel> grid) {
-                Image image = new Image();
-                image.setResource(Icons.INSTANCE.Delete());
-                image.addClickListener(new ClickListener() {
-
-                    public void onClick(Widget arg0) {
-                        MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
-                                .delete_confirm(), new Listener<MessageBoxEvent>() {
-
-                            public void handleEvent(MessageBoxEvent be) {
-                                if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                    service.deleteDocument(tableName, model, new AsyncCallback<Void>() {
-
-                                        public void onFailure(Throwable caught) {
-                                            Dispatcher.forwardEvent(DownloadTableEvents.Error, caught);
-                                        }
-
-                                        public void onSuccess(Void arg0) {
-                                            pagetoolBar.refresh();
-                                            store.remove(model);
-                                        }
-
-                                    });
-                                }
-                            }
-
-                        });
-
-                    }
-
-                });
-                return image;
-            }
-
-        });
-
-        ccList.add(colDel);
         return ccList;
     }
 
@@ -196,7 +141,7 @@ public class DownloadTablePanel extends ContentPanel {
         pagetoolBar.bind(loader);
         ColumnModel cm = new ColumnModel(columnConfigList);
 
-        grid = new EditorGrid<DownloadBaseModel>(store, cm);
+        grid = new Grid<DownloadBaseModel>(store, cm);
         grid.setId("UpdateTableGrid"); //$NON-NLS-1$
         grid.addListener(Events.Attach, new Listener<GridEvent<DownloadBaseModel>>() {
 
@@ -218,42 +163,6 @@ public class DownloadTablePanel extends ContentPanel {
         add(gridContainer);
 
         ToolBar toolBar = new ToolBar();
-        Button add = new Button(MessagesFactory.getMessages().label_add_row());
-        add.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            public void componentSelected(ButtonEvent ce) {
-                DownloadBaseModel model = new DownloadBaseModel();
-                grid.stopEditing();
-                store.add(model);
-                grid.startEditing(store.indexOf(model), 0);
-            }
-        });
-        toolBar.add(add);
-        toolBar.add(new SeparatorToolItem());
-        Button save = new Button(MessagesFactory.getMessages().save_btn());
-        save.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            public void componentSelected(ButtonEvent ce) {
-                List<DownloadBaseModel> list = new ArrayList<DownloadBaseModel>();
-                for (Record record : store.getModifiedRecords()) {
-                    list.add((DownloadBaseModel) record.getModel());
-                }
-                service.updateDocument(tableName, list, new AsyncCallback<Void>() {
-
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(DownloadTableEvents.Error, caught);
-                    }
-
-                    public void onSuccess(Void arg0) {
-                        store.commitChanges();
-                        MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                .save_process_validation_success(), null);
-                    }
-                });
-            }
-        });
-        toolBar.add(save);
-        toolBar.add(new SeparatorToolItem());
         Button export = new Button("Export"); //$NON-NLS-1$
         toolBar.add(export);
         export.addSelectionListener(new SelectionListener<ButtonEvent>() {
