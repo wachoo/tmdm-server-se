@@ -323,14 +323,14 @@ public class Util {
         SAXErrorHandler seh = new SAXErrorHandler();
 
         // initialize the sax parser which uses Xerces
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"); //$NON-NLS-1$ //$NON-NLS-2$
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         // Schema validation based on schemaURL
         factory.setNamespaceAware(true);
         factory.setValidating((schema != null));
 
-        schema = schema.replaceFirst("<\\?xml.*\\?>", "");
-        schema = schema.replace("\r\n", "\n");
+        schema = schema.replaceFirst("<\\?xml.*\\?>", ""); //$NON-NLS-1$//$NON-NLS-2$
+        schema = schema.replace("\r\n", "\n"); //$NON-NLS-1$//$NON-NLS-2$
 
         factory.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
         if (schema != null) {
@@ -346,21 +346,22 @@ public class Util {
         setNullNode(cloneNode);
 
         // strip of attributes
-        removeAllAttribute(cloneNode, "tmdm:type");
+        removeAllAttribute(cloneNode, "tmdm:type"); //$NON-NLS-1$
 
         String xmlstr = Util.nodeToString(cloneNode);
         // if element is null, remove it aiming added
         // see 7828
 
-        xmlstr = xmlstr.replaceAll("<\\w+?/>", "");
+        xmlstr = xmlstr.replaceAll("<\\w+?/>", ""); //$NON-NLS-1$//$NON-NLS-2$
         // xmlstr=xmlstr.replaceAll("<\\w+?>\\s+?</\\w+?>", "");
 
         d = builder.parse(new InputSource(new StringReader(xmlstr)));
 
         // check if dcument parsed correctly against the schema
         if (schema != null) {
+            // ignore cvc-complex-type.2.3 error
             String errors = seh.getErrors();
-            if (!errors.equals("")) {
+            if (!errors.equals("") && errors.indexOf("cvc-complex-type.2.3") == -1) { //$NON-NLS-1$ //$NON-NLS-2$
                 String xmlString = Util.nodeToString(element);
                 String err = "The item " + element.getLocalName() + " did not validate against the model: \n" + errors + "\n"
                         + xmlString; // .substring(0, Math.min(100, xmlString.length()));

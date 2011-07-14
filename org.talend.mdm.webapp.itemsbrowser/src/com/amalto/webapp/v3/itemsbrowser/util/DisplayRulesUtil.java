@@ -63,7 +63,7 @@ public class DisplayRulesUtil {
 
         StringBuffer sb = new StringBuffer();
         sb
-                .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"1.0\">"); //$NON-NLS-1$
+.append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
         sb.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>"); //$NON-NLS-1$
         sb.append(style);
         sb.append("</xsl:stylesheet>"); //$NON-NLS-1$
@@ -77,7 +77,7 @@ public class DisplayRulesUtil {
 
         StringBuffer sb = new StringBuffer();
         sb
-                .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"1.0\">"); //$NON-NLS-1$
+.append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
         sb.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>"); //$NON-NLS-1$
         sb.append(style);
         sb.append("</xsl:stylesheet>"); //$NON-NLS-1$

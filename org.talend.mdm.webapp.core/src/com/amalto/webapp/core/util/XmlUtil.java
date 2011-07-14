@@ -13,6 +13,7 @@
 package com.amalto.webapp.core.util;
 
 import java.io.StringReader;
+import java.util.Properties;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -60,7 +61,16 @@ public class XmlUtil {
     public static Document styleDocument(Document document, String stylesheet) throws Exception {
 
         // load the transformer using JAXP
+        // Set the TransformerFactory system property.
+        // Note: For more flexibility, load properties from a properties file.
+        String key = "javax.xml.transform.TransformerFactory"; //$NON-NLS-1$
+        String value = "net.sf.saxon.TransformerFactoryImpl"; //$NON-NLS-1$
+        Properties props = System.getProperties();
+        props.put(key, value);
+        System.setProperties(props);
+        
         TransformerFactory factory = TransformerFactory.newInstance();
+
         Transformer transformer = factory.newTransformer(new StreamSource(new StringReader(stylesheet)));
 
         // now lets style the given document
