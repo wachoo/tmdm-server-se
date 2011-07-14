@@ -4321,11 +4321,11 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             DWREngine.setAsync(true); 
         }
         
-        if (node.itemData.valueInfo != null) {
+        if ((node!=null)&&(node.itemData.valueInfo != null)) {
             value = node.itemData.value;
         }
 
-        if (node.itemData.key == true) {
+        if ((node!=null)&&(node.itemData.key == true)) {
             keys[treeIndex][node.itemData.keyIndex] = value;
         }
 
@@ -4336,7 +4336,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         // edit by ymli: fix the bug:0013463
         ItemsBrowserInterface.updateNode(id, value, treeIndex,
                 function(_result) {
+        	if(node!=null){
                     node.updateNodeValue(value);
+        	}
                     amalto.core.ready(_result);                    
                     ItemsBrowserInterface.checkVisibilityRules(treeIndex,function(results){
                         if(results!=null){
