@@ -93,30 +93,37 @@ public class MainFramePanel extends ContentPanel {
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
         ColumnConfig colPK = new ColumnConfig();
         colPK.setId("itemPK");//$NON-NLS-1$
+        colPK.setWidth(120);
         colPK.setHeader(MessagesFactory.getMessages().dataClusterName());
         ccList.add(colPK);
         ColumnConfig colRevisionID = new ColumnConfig();
         colRevisionID.setId("revisionID");//$NON-NLS-1$
+        colRevisionID.setWidth(120);
         colRevisionID.setHeader(MessagesFactory.getMessages().revisionID());
         ccList.add(colRevisionID);
         ColumnConfig colConceptName = new ColumnConfig();
         colConceptName.setId("conceptName");//$NON-NLS-1$
+        colConceptName.setWidth(150);
         colConceptName.setHeader(MessagesFactory.getMessages().conceptName());
         ccList.add(colConceptName);
         ColumnConfig colIds = new ColumnConfig();
         colIds.setId("ids");//$NON-NLS-1$
+        colIds.setWidth(120);
         colIds.setHeader(MessagesFactory.getMessages().Ids());
         ccList.add(colIds);
         ColumnConfig colPartPath = new ColumnConfig();
         colPartPath.setId("partPath");//$NON-NLS-1$
+        colPartPath.setWidth(100);
         colPartPath.setHeader(MessagesFactory.getMessages().partPath());
         ccList.add(colPartPath);
         ColumnConfig colUserName = new ColumnConfig();
         colUserName.setId("insertionUserName");//$NON-NLS-1$
+        colUserName.setWidth(120);
         colUserName.setHeader(MessagesFactory.getMessages().UserName());
         ccList.add(colUserName);
         ColumnConfig colDate = new ColumnConfig();
         colDate.setId("insertionTime");//$NON-NLS-1$
+        colDate.setWidth(120);
         colDate.setHeader(MessagesFactory.getMessages().Date());
         ccList.add(colDate);
         ColumnConfig colProjection = new ColumnConfig("projection", "projection", 0);//$NON-NLS-1$ //$NON-NLS-2$
@@ -124,6 +131,7 @@ public class MainFramePanel extends ContentPanel {
         ccList.add(colProjection);
         ColumnConfig colDelete = new ColumnConfig();
         colDelete.setId("delete");//$NON-NLS-1$
+        colDelete.setWidth(50);
         colDelete.setHeader(MessagesFactory.getMessages().delete());
         colDelete.setRenderer(new GridCellRenderer<BaseModelData>() {
 
@@ -200,6 +208,7 @@ public class MainFramePanel extends ContentPanel {
         ccList.add(colDelete);
         ColumnConfig colRestore = new ColumnConfig();
         colRestore.setId("restore");//$NON-NLS-1$
+        colRestore.setWidth(50);
         colRestore.setHeader(MessagesFactory.getMessages().restore());
         colRestore.setRenderer(new GridCellRenderer<BaseModelData>() {
 
@@ -274,7 +283,7 @@ public class MainFramePanel extends ContentPanel {
         grid = new Grid(store, cm);
         grid.getView().setAutoFill(true);
         grid.getView().setForceFit(true);
-        grid.setSize(350, 600);
+        // grid.setSize(350, 600);
         int usePageSize = PAGE_SIZE;
         if (StateManager.get().get("trashgrid") != null) //$NON-NLS-1$
             usePageSize = Integer.valueOf(((Map) StateManager.get().get("trashgrid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$

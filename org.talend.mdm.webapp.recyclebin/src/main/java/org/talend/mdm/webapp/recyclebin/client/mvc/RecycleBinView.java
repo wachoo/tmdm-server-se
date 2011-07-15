@@ -16,15 +16,35 @@ import org.talend.mdm.webapp.recyclebin.client.MainFramePanel;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinEvents;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
  */
 public class RecycleBinView extends View {
+
+    ContentPanel container = new ContentPanel() {
+
+        public void onAttach() {
+            monitorWindowResize = true;
+            Window.enableScrolling(true);
+            setSize(Window.getClientWidth(), Window.getClientHeight());
+            super.onAttach();
+            GXT.hideLoadingPanel("loading");//$NON-NLS-1$
+        }
+
+        protected void onWindowResize(int width, int height) {
+            setSize(width, height);
+            this.doLayout(true);
+        }
+    };
 
     public RecycleBinView(Controller controller) {
         super(controller);
@@ -41,7 +61,11 @@ public class RecycleBinView extends View {
         if (Log.isInfoEnabled())
             Log.info("Init frame... ");//$NON-NLS-1$
 
-        RootPanel.get().add(MainFramePanel.getInstance());
+        container.setHeaderVisible(false);
+        container.setLayout(new FitLayout());
+        container.setStyleAttribute("height", "100%");//$NON-NLS-1$ //$NON-NLS-2$       
+        container.add(MainFramePanel.getInstance());
+        RootPanel.get().add(container);
     }
 
 }
