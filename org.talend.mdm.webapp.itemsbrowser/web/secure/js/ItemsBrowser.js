@@ -3341,7 +3341,12 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             }
             paintDetailTreeSize(treeIndex);
         }
-        
+         if (updateItemNodesBeforeSaving(treeIndex) == true) {
+            $('errorDesc' + treeIndex).style.display = "block";
+            $('errorDetail' + treeIndex).style.display = "none";
+            paintDetailTreeSize(treeIndex);
+            return;
+        }       
         ItemsBrowserInterface.saveItem(itemPK, dataObject, newItem[treeIndex],
                 treeIndex, {
                     callback : function(result) {
