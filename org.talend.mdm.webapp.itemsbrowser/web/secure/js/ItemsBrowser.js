@@ -4362,7 +4362,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             }
                         }   
                     });
-                    if(atuoValidationFlag){
+                    if(atuoValidationFlag && _result.indexOf("Error") > -1){
                         $('errorDesc' + treeIndex).style.display = "block";
                         paintDetailTreeSize(treeIndex);
                     }
