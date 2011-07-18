@@ -3976,6 +3976,9 @@ public class ItemsBrowserDWR {
                     errorMessage = errorMessage == null ? "this field is mandatory!" : errorMessage;
             }
             // isValidation = false;
+            if (node.isKey()) {
+                errorMessage = errorMessage == null ? "Entity key field should not be empty" : errorMessage;
+            }
             return errorMessage == null ? "null" : errorMessage;
         }
 
