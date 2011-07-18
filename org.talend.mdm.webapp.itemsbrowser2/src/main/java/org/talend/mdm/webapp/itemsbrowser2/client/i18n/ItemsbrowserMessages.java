@@ -289,5 +289,11 @@ public interface ItemsbrowserMessages extends Messages {
     String label_key();
 
     String label_add_field();
+    
+    String import_progress_bar_title();
+    
+    String import_progress_bar_message();
+    
+    String import_progress_bar_laod();
 
 }

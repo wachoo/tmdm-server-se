@@ -64,6 +64,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     private HiddenField<String> nameField;
 
+    private MessageBox waitBar;
+    
     private UploadFileFormPanel() {
 
         this.setHeading("Upload data"); //$NON-NLS-1$
@@ -246,7 +248,9 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
                 if (!panel.isValid())
                     return;
                 panel.submit();
-
+                waitBar = MessageBox.wait(MessagesFactory.getMessages().import_progress_bar_title(), MessagesFactory
+                        .getMessages().import_progress_bar_message(), MessagesFactory
+                        .getMessages().import_progress_bar_laod());
             }
         });
 
@@ -262,6 +266,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     public void handleEvent(FormEvent be) {
         String result = be.getResultHtml().replace("pre>", "f>"); //$NON-NLS-1$//$NON-NLS-2$
+        waitBar.close();
         if (result.equals("<f>true</f>")) { //$NON-NLS-1$
             toolbar.addDownloadPanel(container);
         } else {

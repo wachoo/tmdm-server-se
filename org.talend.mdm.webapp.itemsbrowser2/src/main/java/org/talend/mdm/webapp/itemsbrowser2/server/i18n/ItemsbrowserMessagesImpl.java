@@ -571,4 +571,16 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
     public String label_add_field() {
         return MESSAGES.getMessage("label_add_field");
     }
+
+    public String import_progress_bar_title() {
+        return MESSAGES.getMessage("import_progress_bar_title");
+    }
+
+    public String import_progress_bar_message() {
+        return MESSAGES.getMessage("import_progress_bar_message");
+    }
+
+    public String import_progress_bar_laod() {
+        return MESSAGES.getMessage("import_progress_bar_laod");
+    }
 }
