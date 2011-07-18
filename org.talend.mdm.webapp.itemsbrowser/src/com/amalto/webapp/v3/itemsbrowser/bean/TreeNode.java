@@ -502,7 +502,7 @@ public class TreeNode implements Cloneable {
         if (displayFomats != null && displayFomats.length > 0) {
             String format = displayFomats[1];
             String lang = displayFomats[0];
-            if (format != null && value != null) {
+            if (format != null && value != null && !"".equals(value) && !"".equals(format)) { //$NON-NLS-1$ //$NON-NLS-2$
                 Locale locale = new Locale(lang);
                 Object object = com.amalto.webapp.core.util.Util.getTypeValue("en", typeName, value, format);//$NON-NLS-1$
                 if (object != null && object instanceof Calendar) {
