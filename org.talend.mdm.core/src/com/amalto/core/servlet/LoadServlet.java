@@ -128,13 +128,14 @@ public class LoadServlet extends HttpServlet {
             try {
                 if (server.supportTransaction()) {
                     server.commit();
+                    server.end();
                 }
             } catch (Exception commitException) {
                 throw new ServletException("Commit failed with errors", commitException);
             }
 
             // End the load (might persist counter state in case of autogen pk
-            loadAction.endLoad();
+            loadAction.endLoad(server);
         } catch (Throwable throwable) {
             if (server.supportTransaction()) {
                 try {
@@ -144,6 +145,14 @@ public class LoadServlet extends HttpServlet {
                 }
             }
             throw new ServletException(throwable);
+        } finally {
+            if (server.supportTransaction()) {
+                try {
+                    server.end();
+                } catch (Exception endException) {
+                    log.error("Ignoring end call exception", endException);
+                }
+            }
         }
 
         writer.write("</body></html>"); //$NON-NLS-1$

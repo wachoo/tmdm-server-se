@@ -16,6 +16,7 @@ import com.amalto.core.load.LoadParser;
 import com.amalto.core.load.context.StateContext;
 import com.amalto.core.load.io.XMLRootInputStream;
 import com.amalto.core.util.XSDKey;
+import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,10 +64,20 @@ public class OptimizedLoadAction implements LoadAction {
         }
     }
 
-    public void endLoad() {
+    public void endLoad(XmlServerSLWrapperLocal server) {
         if (context != null) {
             // This call should clean up everything (incl. save counter state in case of autogen pk).
             context.close();
+
+            // Commit changes if any was performed.
+            try {
+                if (server.supportTransaction()) {
+                    server.commit();
+                    server.end();
+                }
+            } catch (XtentisException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

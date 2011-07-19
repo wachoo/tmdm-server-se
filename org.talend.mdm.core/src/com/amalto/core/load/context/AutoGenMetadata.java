@@ -31,11 +31,11 @@ class AutoGenMetadata extends Metadata {
         this.generator = generator;
     }
 
-    private String[] generateId(Metadata metadata, String[] idPaths, AutoIdGenerator generator) {
+    private static String[] generateId(Metadata metadata, String[] idPaths, AutoIdGenerator generator) {
         for (String idPath : idPaths) {
-            super.setId(idPath, generator.generateId(metadata.getDataClusterName(), metadata.getName(), idPath));
+            metadata.setId(idPath, generator.generateId(metadata.getDataClusterName(), metadata.getName(), idPath));
         }
-        return super.getId();
+        return metadata.getId();
     }
 
     @Override
@@ -105,5 +105,15 @@ class AutoGenMetadata extends Metadata {
     @Override
     public String getDMN() {
         return metadata.getDMN();
+    }
+
+    @Override
+    public String getDataClusterName() {
+        return metadata.getDataClusterName();
+    }
+
+    @Override
+    public void setDataClusterName(String dataClusterName) {
+        metadata.setDataClusterName(dataClusterName);
     }
 }

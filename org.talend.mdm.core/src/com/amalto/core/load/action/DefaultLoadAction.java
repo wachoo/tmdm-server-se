@@ -103,7 +103,7 @@ public class DefaultLoadAction implements LoadAction {
         }
     }
 
-    public void endLoad() {
+    public void endLoad(XmlServerSLWrapperLocal server) {
         // Nothing to do
     }
 }

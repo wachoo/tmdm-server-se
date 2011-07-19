@@ -44,6 +44,7 @@ public interface LoadAction {
 
     /**
      * End load and perform all post-load actions (such as save counter state in case of autogen pk).
+     * @param server MDM underlying storage that might need operations (commit for instance).
      */
-    void endLoad();
+    void endLoad(XmlServerSLWrapperLocal server);
 }
