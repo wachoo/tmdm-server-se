@@ -3,7 +3,7 @@
 	
 	<property name="version.props" value="version.properties"/>
 		
-	<property name="jboss.dir" value="/media/mdm/opt/trunk/jboss_tem"/>
+	<property name="jboss.dir" value="e:/opt/jboss_tem"/>
 	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
 	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
 	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
