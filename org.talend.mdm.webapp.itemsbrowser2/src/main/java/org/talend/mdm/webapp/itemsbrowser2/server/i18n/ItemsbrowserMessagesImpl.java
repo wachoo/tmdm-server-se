@@ -583,4 +583,8 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
     public String import_progress_bar_laod() {
         return MESSAGES.getMessage("import_progress_bar_laod");
     }
+
+    public String add_table_duplicated() {
+        return MESSAGES.getMessage("add_table_duplicated");
+    }
 }
