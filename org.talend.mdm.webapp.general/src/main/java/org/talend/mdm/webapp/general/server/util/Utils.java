@@ -11,7 +11,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
-import org.talend.mdm.webapp.general.server.GeneralServiceImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -68,7 +67,7 @@ public class Utils {
     }
     
     public static List<ItemBean> getLanguages() {
-        InputStream is = GeneralServiceImpl.class.getResourceAsStream("/languages.xml"); //$NON-NLS-1$
+        InputStream is = Utils.class.getResourceAsStream("/languages.xml"); //$NON-NLS-1$
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         List<ItemBean> languages = new ArrayList<ItemBean>();
         try {

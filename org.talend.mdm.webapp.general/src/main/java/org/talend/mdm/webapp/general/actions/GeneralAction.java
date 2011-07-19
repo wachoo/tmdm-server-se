@@ -1,16 +1,4 @@
-// ============================================================================
-//
-// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
-//
-// This source code is available under agreement available at
-// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
-//
-// You should have received a copy of the agreement
-// along with this program; if not, write to Talend SA
-// 9 rue Pages 92150 Suresnes, France
-//
-// ============================================================================
-package org.talend.mdm.webapp.general.server;
+package org.talend.mdm.webapp.general.actions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +17,8 @@ import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
 import org.w3c.dom.Document;
 
-import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.bean.ConfigurationForGWT;
+import com.amalto.webapp.core.gwt.GwtWebContextFactory;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataCluster;
@@ -40,15 +29,10 @@ import com.amalto.webapp.util.webservices.WSGetDataCluster;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSRegexDataClusterPKs;
 import com.amalto.webapp.util.webservices.WSRegexDataModelPKs;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
-/**
- * The server side implementation of the RPC service.
- */
-@SuppressWarnings("serial")
-public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralService {
+public class GeneralAction implements GeneralService {
 
-    private static final Logger LOG = Logger.getLogger(GeneralServiceImpl.class);
+    private static final Logger LOG = Logger.getLogger(GeneralAction.class);
 
     public List<MenuBean> getMenus(String language) throws Exception {
         List<MenuBean> menus = new ArrayList<MenuBean>();
@@ -57,6 +41,8 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
+        List<String> list = (List<String>) GwtWebContextFactory.get().getSession().getAttribute("testSession");
+        System.out.println(list);
         return menus;
     }
 
@@ -106,14 +92,14 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
 
     public String setClusterAndModel(String cluster, String model) {
         try {
-            Configuration.initialize(cluster,model);
-            //Used by javascript as a status code
+            ConfigurationForGWT.initialize(cluster, model);
+            // Used by javascript as a status code
             return "DONE"; //$NON-NLS-1$
         } catch (Exception e) {
             return e.getLocalizedMessage();
-        }           
+        }
     }
-    
+
     public UserBean getUsernameAndUniverse() throws Exception {
         UserBean userBean = new UserBean();
         userBean.setEnterprise(com.amalto.core.util.Util.isEnterprise());
@@ -133,9 +119,9 @@ public class GeneralServiceImpl extends RemoteServiceServlet implements GeneralS
             }
 
             String universe = Util.getLoginUniverse();
-            if (familyname != null && givenname != null){
+            if (familyname != null && givenname != null) {
                 userBean.setName(givenname + " " + familyname); //$NON-NLS-1$
-            } else{
+            } else {
                 userBean.setName(Util.getAjaxSubject().getUsername());
             }
             userBean.setUniverse(universe);

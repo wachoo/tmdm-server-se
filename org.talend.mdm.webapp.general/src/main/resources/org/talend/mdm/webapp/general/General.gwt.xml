@@ -28,4 +28,5 @@
   <source path='model'/>
   <source path='shared'/>
 
+  <stylesheet src="../resources/css/gxt-all.css"/>
 </module>
