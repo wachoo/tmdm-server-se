@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.security.jacc.PolicyContextException;
 
 import org.apache.log4j.Logger;
-import org.mortbay.log.Log;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.general.client.GeneralService;
@@ -47,8 +46,8 @@ public class GeneralAction implements GeneralService {
             LOG.error(e.getMessage(), e);
         }
         List<String> list = (List<String>) GwtWebContextFactory.get().getSession().getAttribute(ProxyGWTServiceImpl.SESSION_LIST_ATTRIBUTE);
-        if(Log.isDebugEnabled())
-            Log.debug(list.toString());
+        if(LOG.isDebugEnabled())
+            LOG.debug(list.toString());
         return menus;
     }
 
