@@ -1,4 +1,16 @@
-package com.amalto.webapp.core.gwt;
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+package org.talend.mdm.webapp.general.gwt;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,16 +37,11 @@ import com.google.gwt.user.server.rpc.SerializationPolicyLoader;
 
 public class ProxyGWTServiceImpl extends RemoteServiceServlet {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -3043769203139170342L;
+    
+    public static final String SESSION_LIST_ATTRIBUTE = "testSession"; //$NON-NLS-1$
 
-    Properties properties = new Properties();
-
-    Map<String, Object> actions = new HashMap<String, Object>();
-
-    // String actionsFile;
+    private Map<String, Object> actions = new HashMap<String, Object>();
 
     @Override
     protected SerializationPolicy doGetSerializationPolicy(HttpServletRequest request, String moduleBaseURL, String strongName) {
@@ -57,13 +64,13 @@ public class ProxyGWTServiceImpl extends RemoteServiceServlet {
                     try {
                         serializationPolicy = SerializationPolicyLoader.loadFromStream(is, null);
                     } catch (ParseException e) {
-                        this.log("ERROR: Failed to parse the policy file '" + serializationPolicyFilePath + "'", e); //$NON-NLS-1$ //$NON-NLS-2$
+                        this.log("ERROR: Failed to parse the policy file '" + serializationPolicyFilePath + "'", e); 
                     } catch (IOException e) {
-                        this.log("ERROR: Could not read the policy file '" + serializationPolicyFilePath + "'", e); //$NON-NLS-1$ //$NON-NLS-2$
+                        this.log("ERROR: Could not read the policy file '" + serializationPolicyFilePath + "'", e); 
                     }
                 } else {
-                    String message = "ERROR: The serialization policy file '" + serializationPolicyFilePath //$NON-NLS-1$
-                            + "' was not found; did you forget to include it in this deployment?"; //$NON-NLS-1$
+                    String message = "ERROR: The serialization policy file '" + serializationPolicyFilePath 
+                            + "' was not found; did you forget to include it in this deployment?"; 
                     this.log(message);
                 }
             } finally {
@@ -77,7 +84,7 @@ public class ProxyGWTServiceImpl extends RemoteServiceServlet {
             }
 
         } catch (MalformedURLException ex) {
-            this.log("Malformed moduleBaseURL: " + moduleBaseURL, ex); //$NON-NLS-1$
+            this.log("Malformed moduleBaseURL: " + moduleBaseURL, ex); 
         } catch (IOException ex) {
             // Ignore this error
         }
@@ -119,16 +126,17 @@ public class ProxyGWTServiceImpl extends RemoteServiceServlet {
         return actions.get(serviceIntfName);
     }
 
+    @Override
     public String processCall(String payload) throws SerializationException {
         try {
 
             HttpSession session = this.getThreadLocalRequest().getSession();
-            List<String> list = (List<String>) session.getAttribute("testSession");
+            List<String> list = (List<String>) session.getAttribute(SESSION_LIST_ATTRIBUTE);
             if (list == null) {
                 list = new ArrayList<String>();
             }
             list.add(new Date().toString());
-            session.setAttribute("testSession", list);
+            session.setAttribute(SESSION_LIST_ATTRIBUTE, list);
 
             GWTRPCRequest gwtRpc = GWTRPC.decodeRequest(payload, this);
             RPCRequest rpcRequest = gwtRpc.getRpcRequest();
@@ -137,15 +145,15 @@ public class ProxyGWTServiceImpl extends RemoteServiceServlet {
             Object action = getAction(gwtRpc.getServiceIntfName());
             if (action == null) {
                 throw new IncompatibleRemoteServiceException(gwtRpc.getServiceIntfName()
-                        + " undefined in actions.properties\nPlease check"); //$NON-NLS-1$
+                        + " undefined in actions.properties\nPlease check"); 
             }
             Class<?> type = action.getClass();
             if (!GWTRPC.implementsInterface(type, gwtRpc.getServiceIntfName())) {
                 // The service does not implement the requested interface
                 throw new IncompatibleRemoteServiceException(
-                        "Blocked attempt to access interface '" + gwtRpc.getServiceIntfName() //$NON-NLS-1$
-                                + "', which is not implemented by '" + GWTRPC.printTypeName(type) //$NON-NLS-1$
-                                + "'; this is either misconfiguration or a hack attempt"); //$NON-NLS-1$
+                        "Blocked attempt to access interface '" + gwtRpc.getServiceIntfName()
+                                + "', which is not implemented by '" + GWTRPC.printTypeName(type)
+                                + "'; this is either misconfiguration or a hack attempt");
             }
 
             GwtWebContextFactory.set(new GwtWebContext(this.getThreadLocalRequest(), this.getThreadLocalResponse(), this));
@@ -153,7 +161,7 @@ public class ProxyGWTServiceImpl extends RemoteServiceServlet {
                     .getSerializationPolicy(), rpcRequest.getFlags());
 
         } catch (IncompatibleRemoteServiceException ex) {
-            log("An IncompatibleRemoteServiceException was thrown while processing this call.", ex); //$NON-NLS-1$
+            log("An IncompatibleRemoteServiceException was thrown while processing this call.", ex);
             return GWTRPC.encodeResponseForFailure(null, ex);
         }
     }

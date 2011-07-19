@@ -39,9 +39,31 @@ public class Configuration {
 
     private static final String CONFIGURATION_ATTRIBUTE = "configuration"; //$NON-NLS-1$
 
+    private static ConfigurationContext defaultConfigurationContext = new DWRConfigurationContext();
+
     private String cluster;
 
     private String model;
+
+    public interface ConfigurationContext {
+
+        public HttpSession getSession();
+    }
+
+    private static class DWRConfigurationContext implements ConfigurationContext {
+
+        public HttpSession getSession() {
+            HttpSession session;
+            // Here, we do use a DWR call to store the information into the session, therefore we must use its
+            // session only
+            WebContext ctx = WebContextFactory.get();
+            if (ctx != null)
+                session = ctx.getSession();
+            else
+                session = null;
+            return session;
+        }
+    }
 
     private Configuration() {
     }
@@ -51,10 +73,10 @@ public class Configuration {
         this.model = model;
     }
 
-    public static Configuration getInstance(boolean forceReload) throws Exception {
+    public static Configuration getInstance(boolean forceReload, ConfigurationContext configurationContext) throws Exception {
         Configuration instance;
         if (forceReload) {
-            HttpSession session = getSessionFromContext();
+            HttpSession session = configurationContext.getSession();
             instance = load(session);
         } else {
             instance = getInstance();
@@ -62,9 +84,9 @@ public class Configuration {
         return instance;
     }
 
-    public static Configuration getInstance() throws Exception {
+    public static Configuration getInstance(ConfigurationContext configurationContext) throws Exception {
         Configuration instance;
-        HttpSession session = getSessionFromContext();
+        HttpSession session = configurationContext.getSession();
         if (session == null) {
             instance = null;
         } else {
@@ -78,12 +100,8 @@ public class Configuration {
         return instance;
     }
 
-    public static Configuration getConfiguration() throws Exception {
-        return getInstance();
-    }
-
-    public static void initialize(String cluster, String model) throws Exception {
-        HttpSession session = getSessionFromContext();
+    public static void initialize(String cluster, String model, ConfigurationContext configurationContext) throws Exception {
+        HttpSession session = configurationContext.getSession();
         if (session != null)
             session.setAttribute(CONFIGURATION_ATTRIBUTE, null);
 
@@ -96,6 +114,22 @@ public class Configuration {
 
         if (session != null)
             session.setAttribute(CONFIGURATION_ATTRIBUTE, new Configuration(cluster, model));
+    }
+
+    public static Configuration getInstance(boolean forceReload) throws Exception {
+        return getInstance(forceReload, defaultConfigurationContext);
+    }
+
+    public static Configuration getInstance() throws Exception {
+        return getInstance(defaultConfigurationContext);
+    }
+
+    public static Configuration getConfiguration() throws Exception {
+        return getInstance();
+    }
+
+    public static void initialize(String cluster, String model) throws Exception {
+        initialize(cluster, model, defaultConfigurationContext);
     }
 
     private static synchronized void store(String cluster, String model) throws Exception {
@@ -220,19 +254,6 @@ public class Configuration {
             store(configuration.getCluster(), configuration.getModel());
 
         return configuration;
-    }
-
-    private static HttpSession getSessionFromContext() {
-        HttpSession session;
-        // DWR and GWT reside in different frames, so their sessions are different.
-        // Currently, we do use a DWR call to store the information into the session, therefore we must use its session
-        // only
-        WebContext ctx = WebContextFactory.get();
-        if (ctx != null)
-            session = ctx.getSession();
-        else
-            session = null;
-        return session;
     }
 
     public String getCluster() {

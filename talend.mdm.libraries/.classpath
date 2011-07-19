@@ -46,8 +46,5 @@
 	<classpathentry exported="true" kind="lib" path="lib/asm-3.1.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.exist.1.4-xmldb.jar" sourcepath="talend.mdm.librariessrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/z.exist.1.4.TalendPatch.jar" sourcepath="talend.mdm.librariessrc.zip"/>
-	<classpathentry kind="lib" path="lib/gwt-log-3.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/gwt-servlet-2.0.3.jar"/>
-	<classpathentry kind="lib" path="lib/gxt-2.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

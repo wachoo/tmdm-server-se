@@ -1,4 +1,16 @@
-package com.amalto.webapp.core.gwt;
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+package org.talend.mdm.webapp.general.gwt;
 
 
 import java.lang.reflect.InvocationTargetException;
@@ -62,14 +74,13 @@ public final class GWTRPC {
     public static GWTRPCRequest decodeRequest(String encodedRequest,
             SerializationPolicyProvider serializationPolicyProvider) {
         if (encodedRequest == null) {
-            throw new NullPointerException("encodedRequest cannot be null"); //$NON-NLS-1$
+            throw new NullPointerException("encodedRequest cannot be null"); 
         }
 
         if (encodedRequest.length() == 0) {
-            throw new IllegalArgumentException("encodedRequest cannot be empty"); //$NON-NLS-1$
+            throw new IllegalArgumentException("encodedRequest cannot be empty"); 
         }
 
-//        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             ServerSerializationStreamReader streamReader = new ServerSerializationStreamReader(classLoader,
@@ -87,14 +98,14 @@ public final class GWTRPC {
                 serviceIntf = getClassFromSerializedName(serviceIntfName, classLoader);
 
                 if (!Class
-                        .forName("com.google.gwt.user.client.rpc.RemoteService", false, classLoader).isAssignableFrom(serviceIntf)) { //$NON-NLS-1$
+                        .forName("com.google.gwt.user.client.rpc.RemoteService", false, classLoader).isAssignableFrom(serviceIntf)) { 
                     // The requested interface is not a RemoteService interface
-                    throw new IncompatibleRemoteServiceException("Blocked attempt to access interface '" //$NON-NLS-1$
+                    throw new IncompatibleRemoteServiceException("Blocked attempt to access interface '" 
                             + printTypeName(serviceIntf)
-                            + "', which doesn't extend RemoteService; this is either misconfiguration or a hack attempt"); //$NON-NLS-1$
+                            + "', which doesn't extend RemoteService; this is either misconfiguration or a hack attempt"); 
                 }
             } catch (ClassNotFoundException e) {
-                throw new IncompatibleRemoteServiceException("Could not locate requested interface '" + serviceIntfName //$NON-NLS-1$
+                throw new IncompatibleRemoteServiceException("Could not locate requested interface '" + serviceIntfName 
                         + "' in default classloader", e); //$NON-NLS-1$
             }
 
@@ -102,7 +113,7 @@ public final class GWTRPC {
 
             int paramCount = streamReader.readInt();
             if (paramCount > streamReader.getNumberOfTokens()) {
-                throw new IncompatibleRemoteServiceException("Invalid number of parameters"); //$NON-NLS-1$
+                throw new IncompatibleRemoteServiceException("Invalid number of parameters");
             }
             Class<?>[] parameterTypes = new Class[paramCount];
 
@@ -112,8 +123,8 @@ public final class GWTRPC {
                 try {
                     parameterTypes[i] = getClassFromSerializedName(paramClassName, classLoader);
                 } catch (ClassNotFoundException e) {
-                    throw new IncompatibleRemoteServiceException("Parameter " + i + " of is of an unknown type '" //$NON-NLS-1$ //$NON-NLS-2$
-                            + paramClassName + "'", e); //$NON-NLS-1$
+                    throw new IncompatibleRemoteServiceException("Parameter " + i + " of is of an unknown type '" 
+                            + paramClassName + "'", e); 
                 }
             }
 
@@ -150,16 +161,16 @@ public final class GWTRPC {
     public static String encodeResponseForFailure(Method serviceMethod, Throwable cause, SerializationPolicy serializationPolicy,
             int flags) throws SerializationException {
         if (cause == null) {
-            throw new NullPointerException("cause cannot be null"); //$NON-NLS-1$
+            throw new NullPointerException("cause cannot be null"); 
         }
 
         if (serializationPolicy == null) {
-            throw new NullPointerException("serializationPolicy"); //$NON-NLS-1$
+            throw new NullPointerException("serializationPolicy"); 
         }
 
         if (serviceMethod != null && !RPCServletUtils.isExpectedException(serviceMethod, cause)) {
-            throw new UnexpectedException("Service method '" + getSourceRepresentation(serviceMethod) //$NON-NLS-1$
-                    + "' threw an unexpected exception: " + cause.toString(), cause); //$NON-NLS-1$
+            throw new UnexpectedException("Service method '" + getSourceRepresentation(serviceMethod) 
+                    + "' threw an unexpected exception: " + cause.toString(), cause); 
         }
 
         return encodeResponse(cause.getClass(), cause, true, flags, serializationPolicy);
@@ -177,11 +188,11 @@ public final class GWTRPC {
     public static String encodeResponseForSuccess(Method serviceMethod, Object object, SerializationPolicy serializationPolicy,
             int flags) throws SerializationException {
         if (serviceMethod == null) {
-            throw new NullPointerException("serviceMethod cannot be null"); //$NON-NLS-1$
+            throw new NullPointerException("serviceMethod cannot be null"); 
         }
 
         if (serializationPolicy == null) {
-            throw new NullPointerException("serializationPolicy"); //$NON-NLS-1$
+            throw new NullPointerException("serializationPolicy"); 
         }
 
         Class<?> methodReturnType = serviceMethod.getReturnType();
@@ -194,8 +205,8 @@ public final class GWTRPC {
             }
 
             if (actualReturnType == null || !methodReturnType.isAssignableFrom(actualReturnType)) {
-                throw new IllegalArgumentException("Type '" + printTypeName(object.getClass()) //$NON-NLS-1$
-                        + "' does not match the return type in the method's signature: '" //$NON-NLS-1$
+                throw new IllegalArgumentException("Type '" + printTypeName(object.getClass()) 
+                        + "' does not match the return type in the method's signature: '" 
                         + getSourceRepresentation(serviceMethod) + "'"); //$NON-NLS-1$
             }
         }
@@ -221,11 +232,11 @@ public final class GWTRPC {
     public static String invokeAndEncodeResponse(Object target, Method serviceMethod, Object[] args,
             SerializationPolicy serializationPolicy, int flags) throws SerializationException {
         if (serviceMethod == null) {
-            throw new NullPointerException("serviceMethod"); //$NON-NLS-1$
+            throw new NullPointerException("serviceMethod"); 
         }
 
         if (serializationPolicy == null) {
-            throw new NullPointerException("serializationPolicy"); //$NON-NLS-1$
+            throw new NullPointerException("serializationPolicy"); 
         }
 
         String responsePayload;
@@ -274,40 +285,40 @@ public final class GWTRPC {
             stream.serializeValue(object, responseClass);
         }
 
-        String bufferStr = (wasThrown ? "//EX" : "//OK") + stream.toString(); //$NON-NLS-1$ //$NON-NLS-2$
+        String bufferStr = (wasThrown ? "//EX" : "//OK") + stream.toString(); 
         return bufferStr;
     }
 
     private static String formatIllegalAccessErrorMessage(Object target, Method serviceMethod) {
         StringBuffer sb = new StringBuffer();
-        sb.append("Blocked attempt to access inaccessible method '"); //$NON-NLS-1$
+        sb.append("Blocked attempt to access inaccessible method '"); 
         sb.append(getSourceRepresentation(serviceMethod));
         sb.append("'"); //$NON-NLS-1$
 
         if (target != null) {
-            sb.append(" on target '"); //$NON-NLS-1$
+            sb.append(" on target '");
             sb.append(printTypeName(target.getClass()));
-            sb.append("'"); //$NON-NLS-1$
+            sb.append("'");
         }
 
-        sb.append("; this is either misconfiguration or a hack attempt"); //$NON-NLS-1$
+        sb.append("; this is either misconfiguration or a hack attempt"); 
 
         return sb.toString();
     }
 
     private static String formatIllegalArgumentErrorMessage(Object target, Method serviceMethod, Object[] args) {
         StringBuffer sb = new StringBuffer();
-        sb.append("Blocked attempt to invoke method '"); //$NON-NLS-1$
+        sb.append("Blocked attempt to invoke method '");
         sb.append(getSourceRepresentation(serviceMethod));
         sb.append("'"); //$NON-NLS-1$
 
         if (target != null) {
-            sb.append(" on target '"); //$NON-NLS-1$
+            sb.append(" on target '"); 
             sb.append(printTypeName(target.getClass()));
             sb.append("'"); //$NON-NLS-1$
         }
 
-        sb.append(" with invalid arguments"); //$NON-NLS-1$
+        sb.append(" with invalid arguments");
 
         if (args != null && args.length > 0) {
             sb.append(Arrays.asList(args));
@@ -320,7 +331,7 @@ public final class GWTRPC {
             Class<?>[] parameterTypes) {
         StringBuffer sb = new StringBuffer();
 
-        sb.append("Could not locate requested method '"); //$NON-NLS-1$
+        sb.append("Could not locate requested method '");
         sb.append(serviceMethodName);
         sb.append("("); //$NON-NLS-1$
         for (int i = 0; i < parameterTypes.length; ++i) {
@@ -331,7 +342,7 @@ public final class GWTRPC {
         }
         sb.append(")'"); //$NON-NLS-1$
 
-        sb.append(" in interface '"); //$NON-NLS-1$
+        sb.append(" in interface '");
         sb.append(printTypeName(serviceIntf));
         sb.append("'"); //$NON-NLS-1$
 
@@ -424,8 +435,8 @@ public final class GWTRPC {
         if (streamReader.hasFlags(AbstractSerializationStream.FLAG_ELIDE_TYPE_NAMES)) {
             SerializationPolicy serializationPolicy = streamReader.getSerializationPolicy();
             if (!(serializationPolicy instanceof TypeNameObfuscator)) {
-                throw new IncompatibleRemoteServiceException("RPC request was encoded with obfuscated type names, " //$NON-NLS-1$
-                        + "but the SerializationPolicy in use does not implement " + TypeNameObfuscator.class.getName()); //$NON-NLS-1$
+                throw new IncompatibleRemoteServiceException("RPC request was encoded with obfuscated type names, "
+                        + "but the SerializationPolicy in use does not implement " + TypeNameObfuscator.class.getName());
             }
 
             String maybe = ((TypeNameObfuscator) serializationPolicy).getClassNameForTypeId(name);

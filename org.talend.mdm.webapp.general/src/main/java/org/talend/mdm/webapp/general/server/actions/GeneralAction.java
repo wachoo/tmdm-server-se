@@ -1,4 +1,4 @@
-package org.talend.mdm.webapp.general.actions;
+package org.talend.mdm.webapp.general.server.actions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,9 +7,13 @@ import java.util.Map;
 import javax.security.jacc.PolicyContextException;
 
 import org.apache.log4j.Logger;
+import org.mortbay.log.Log;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.general.client.GeneralService;
+import org.talend.mdm.webapp.general.gwt.GWTConfigurationContext;
+import org.talend.mdm.webapp.general.gwt.GwtWebContextFactory;
+import org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
@@ -17,8 +21,7 @@ import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
 import org.w3c.dom.Document;
 
-import com.amalto.webapp.core.bean.ConfigurationForGWT;
-import com.amalto.webapp.core.gwt.GwtWebContextFactory;
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataCluster;
@@ -33,6 +36,8 @@ import com.amalto.webapp.util.webservices.WSRegexDataModelPKs;
 public class GeneralAction implements GeneralService {
 
     private static final Logger LOG = Logger.getLogger(GeneralAction.class);
+    
+    private static final GWTConfigurationContext configurationContext = new GWTConfigurationContext();
 
     public List<MenuBean> getMenus(String language) throws Exception {
         List<MenuBean> menus = new ArrayList<MenuBean>();
@@ -41,8 +46,9 @@ public class GeneralAction implements GeneralService {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-        List<String> list = (List<String>) GwtWebContextFactory.get().getSession().getAttribute("testSession");
-        System.out.println(list);
+        List<String> list = (List<String>) GwtWebContextFactory.get().getSession().getAttribute(ProxyGWTServiceImpl.SESSION_LIST_ATTRIBUTE);
+        if(Log.isDebugEnabled())
+            Log.debug(list.toString());
         return menus;
     }
 
@@ -56,7 +62,7 @@ public class GeneralAction implements GeneralService {
             for (int i = 0; i < wsDataClustersPKs.length; i++) {
                 if (!XSystemObjects.isXSystemObject(xDataClustersMap, XObjectType.DATA_CLUSTER, wsDataClustersPKs[i].getPk())) {
                     WSDataCluster wsGetDataCluster = Util.getPort().getDataCluster(new WSGetDataCluster(wsDataClustersPKs[i]));
-                    clusters.add(new ComboBoxModel(wsGetDataCluster.getDescription(), wsDataClustersPKs[i].getPk())); //$NON-NLS-1$
+                    clusters.add(new ComboBoxModel(wsGetDataCluster.getDescription(), wsDataClustersPKs[i].getPk()));
                 }
             }
 
@@ -73,13 +79,11 @@ public class GeneralAction implements GeneralService {
             WSDataModelPK[] wsDataModelsPKs = Util.getPort().getDataModelPKs(new WSRegexDataModelPKs("*") //$NON-NLS-1$
                     ).getWsDataModelPKs();
 
-            // CommonDWR.filterSystemDataModelsPK(wsDataModelsPK, map);
-
             Map<String, XSystemObjects> xDataModelsMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
             for (int i = 0; i < wsDataModelsPKs.length; i++) {
                 if (!XSystemObjects.isXSystemObject(xDataModelsMap, XObjectType.DATA_MODEL, wsDataModelsPKs[i].getPk())) {
                     WSDataModel wsDataModel = Util.getPort().getDataModel(new WSGetDataModel(wsDataModelsPKs[i]));
-                    models.add(new ComboBoxModel(wsDataModel.getDescription(), wsDataModelsPKs[i].getPk()));//$NON-NLS-1$
+                    models.add(new ComboBoxModel(wsDataModel.getDescription(), wsDataModelsPKs[i].getPk()));
                 }
             }
 
@@ -92,7 +96,7 @@ public class GeneralAction implements GeneralService {
 
     public String setClusterAndModel(String cluster, String model) {
         try {
-            ConfigurationForGWT.initialize(cluster, model);
+            Configuration.initialize(cluster, model, configurationContext);
             // Used by javascript as a status code
             return "DONE"; //$NON-NLS-1$
         } catch (Exception e) {
