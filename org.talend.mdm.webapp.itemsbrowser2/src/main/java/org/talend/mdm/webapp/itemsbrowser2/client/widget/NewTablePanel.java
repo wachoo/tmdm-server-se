@@ -150,16 +150,22 @@ public class NewTablePanel extends ContentPanel {
                     return;
                 }
 
-                service.addNewTable(tableName.getValue(), fieldArray, keyArray, new AsyncCallback<Void>() {
+                service.addNewTable(tableName.getValue(), fieldArray, keyArray, new AsyncCallback<Boolean>() {
 
                     public void onFailure(Throwable caught) {
                         Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                     }
 
-                    public void onSuccess(Void arg0) {
-                        toolbar.setCurrentTableName(tableName.getValue());
-                        toolbar.addDownloadPanel(container);
-                        toolbar.addOption(tableName.getValue());
+                    public void onSuccess(Boolean result) {
+                        if (result) {
+                            toolbar.setCurrentTableName(tableName.getValue());
+                            toolbar.addDownloadPanel(container);
+                            toolbar.addOption(tableName.getValue());
+                        } else {
+                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
+                                    .add_table_duplicated(), null);
+                        }
+
                     }
                 });
 

@@ -88,7 +88,7 @@ public interface ItemsService extends RemoteService {
     ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
             String fkFilter) throws Exception;
 
-    void addNewTable(String concept, String[] fields, String[] keys) throws Exception;
+    boolean addNewTable(String concept, String[] fields, String[] keys) throws Exception;
 
     void deleteDocument(String concept, DownloadBaseModel model) throws Exception;
 

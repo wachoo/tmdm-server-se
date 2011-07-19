@@ -222,8 +222,8 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return itemsServiceHandler.switchForeignKeyType(targetEntityType, xpathForeignKey, xpathInfoForeignKey, fkFilter);
     }
 
-    public void addNewTable(String concept, String[] fields, String[] keys) throws Exception {
-        itemsServiceHandler.addNewTable(concept, fields, keys);
+    public boolean addNewTable(String concept, String[] fields, String[] keys) throws Exception {
+        return itemsServiceHandler.addNewTable(concept, fields, keys);
     }
 
     public void deleteDocument(String concept, DownloadBaseModel model) throws Exception {

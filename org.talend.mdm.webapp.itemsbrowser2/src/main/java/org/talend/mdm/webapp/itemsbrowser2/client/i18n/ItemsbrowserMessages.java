@@ -296,4 +296,5 @@ public interface ItemsbrowserMessages extends Messages {
     
     String import_progress_bar_laod();
 
+    String add_table_duplicated();
 }

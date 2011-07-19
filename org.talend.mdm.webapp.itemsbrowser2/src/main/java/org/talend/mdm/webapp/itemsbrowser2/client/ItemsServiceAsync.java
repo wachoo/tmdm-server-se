@@ -78,7 +78,7 @@ public interface ItemsServiceAsync {
     void switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey, String fkFilter,
             AsyncCallback<ForeignKeyDrawer> callback);
 
-    void addNewTable(String concept, String[] fields, String[] keys, AsyncCallback<Void> callback);
+    void addNewTable(String concept, String[] fields, String[] keys, AsyncCallback<Boolean> callback);
 
     void deleteDocument(String concept, DownloadBaseModel model, AsyncCallback<Void> callback);
 

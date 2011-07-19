@@ -1317,15 +1317,26 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     }
 
     @Override
-    public void addNewTable(String concept, String[] fields, String[] keys) throws Exception {
+    public boolean addNewTable(String concept, String[] fields, String[] keys) throws Exception {
         concept = concept.replaceAll(" ", "_");//$NON-NLS-1$//$NON-NLS-2$
 
+        String[] tableList = CommonUtil.getPort()
+                .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(this.getCurrentDataModel()))).getStrings();
+
+        if (tableList != null) {
+            for (String str : tableList) {
+                if (concept.equalsIgnoreCase(str))
+                    return false;
+            }
+        }
         for (int i = 0; i < fields.length; i++) {
             fields[i] = fields[i].replaceAll(" ", "_");//$NON-NLS-1$//$NON-NLS-2$
         }
 
         CommonUtil.getPort().putBusinessConceptSchema(
                 new WSPutBusinessConceptSchema(new WSDataModelPK(this.getCurrentDataModel()), createXsd(concept, fields, keys)));
+
+        return true;
     }
 
     private String createXsd(String concept, String[] fields, String[] keys) {
