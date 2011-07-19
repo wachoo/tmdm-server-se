@@ -8,7 +8,7 @@
     <!-- Servlets -->
     <servlet>
         <servlet-name>GeneralService</servlet-name>
-        <servlet-class>org.talend.mdm.webapp.general.server.GeneralServiceImpl</servlet-class>
+        <servlet-class>com.amalto.webapp.core.gwt.ProxyGWTServiceImpl</servlet-class>
     </servlet>
 
     <servlet-mapping>
