@@ -15,7 +15,10 @@
 	<property name="mdm.build.version" value="${major}.${minor}.${rev}-r${svn.revision}" />
 	<property name="dev.mode.excluded.start" value="" />
 	<property name="dev.mode.excluded.end" value="" />
-		
+
+	<property name="jar" value="z.mdm.webapp.general.jar"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+	
 	<target name="clean">
 		<antcall target="mvn.invoke">
 			<param name="mvn.goal" value="clean" />
