@@ -11,96 +11,37 @@
 
 package com.amalto.core.load;
 
-import org.apache.commons.lang.StringUtils;
-
-import java.util.*;
-
 /**
  *
  */
-public class Metadata {
-    private final String taskId = null;
+public interface Metadata {
+    void setContainer(String container);
 
-    private final Map<String, String> id = new LinkedHashMap<String, String>();
+    void setName(String name);
 
-    private String container = StringUtils.EMPTY;
+    void setDmn(String dmn);
 
-    private String name = StringUtils.EMPTY;
+    String[] getId();
 
-    private String dmn = StringUtils.EMPTY;
+    String getContainer();
 
-    private String dataClusterName;
+    String getName();
 
-    private String[] cachedId;
+    String getDMR();
 
-    public void setContainer(String container) {
-        this.container = container;
-    }
+    String getSP();
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    String getTaskId();
 
-    public void setDmn(String dmn) {
-        this.dmn = dmn;
-    }
+    String getVersion();
 
-    public String[] getId() {
-        if (cachedId == null) {
-            Collection<String> values = id.values();
-            String[] result = new String[values.size()];
-            int i = 0;
-            for (String value : values) {
-                result[i++] = value;
-            }
-            cachedId = result;
-        }
+    String getDMN();
 
-        return cachedId;
-    }
+    void setId(String idElementName, String id);
 
-    public String getContainer() {
-        return container;
-    }
+    void reset();
 
-    public String getName() {
-        return name;
-    }
+    String getDataClusterName();
 
-    public String getDMR() {
-        return StringUtils.EMPTY;
-    }
-
-    public String getSP() {
-        return StringUtils.EMPTY;
-    }
-
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public String getVersion() {
-        return String.valueOf(System.currentTimeMillis());
-    }
-
-    public String getDMN() {
-        return dmn;
-    }
-
-    public void setId(String idElementName, String id) {
-        this.id.put(idElementName, id.trim());
-    }
-
-    public void reset() {
-        id.clear();
-        cachedId = null;
-    }
-
-    public String getDataClusterName() {
-        return dataClusterName;
-    }
-
-    public void setDataClusterName(String dataClusterName) {
-        this.dataClusterName = dataClusterName;
-    }
+    void setDataClusterName(String dataClusterName);
 }

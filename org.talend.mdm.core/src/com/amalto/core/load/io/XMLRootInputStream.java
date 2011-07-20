@@ -34,7 +34,7 @@ public class XMLRootInputStream extends InputStream {
     private final char[] endXmlElement;
     private int startXmlElementIndex = 0;
     private int endXmlElementIndex = 0;
-    int readAheadBuffer = -1;
+    private int readAheadBuffer = -1;
 
     /**
      * @param wrapped        The input stream to the XML documents to be wrapped in a unique XML root element.
@@ -74,7 +74,7 @@ public class XMLRootInputStream extends InputStream {
                 wrappedRead = wrapped.read();
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Skipped " + skippedBytes + " bytes of processing instructions");
+                    logger.debug("Skipped " + skippedBytes + " bytes of processing instructions"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             } else {
                 readAheadBuffer = nextWrappedRead;

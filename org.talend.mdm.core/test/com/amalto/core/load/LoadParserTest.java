@@ -332,7 +332,7 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedElement(callback, "Product"));
         assertTrue(hasParsedElement(callback, "Name"));
         assertTrue(hasParsedCharacters(callback, "Test1"));
-        assertEquals("0", callback.getId());
+        assertEquals("1", callback.getId());
         assertTrue(idGenerator.getKeyFields().contains("id"));
 
         assertFalse(idGenerator.isStateSaved());
@@ -364,7 +364,7 @@ public class LoadParserTest extends TestCase {
         assertTrue(hasParsedElement(callback, "Product"));
         assertTrue(hasParsedElement(callback, "Name"));
         assertTrue(hasParsedCharacters(callback, "Test1"));
-        assertEquals("0:0", callback.getId());
+        assertEquals("2:3", callback.getId());
 
         assertTrue(idGenerator.getKeyFields().contains("id1"));
         assertTrue(idGenerator.getKeyFields().contains("id2"));
@@ -736,10 +736,12 @@ public class LoadParserTest extends TestCase {
 
         private final Set<String> keyElementNames = new HashSet<String>();
 
+        private int currentId = 0;
+
         public String generateId(String dataClusterName, String conceptName, String keyElementName) {
             keyElementNames.add(keyElementName);
             savedState = false;
-            return "0";
+            return String.valueOf(currentId++);
         }
 
         public void saveState() {

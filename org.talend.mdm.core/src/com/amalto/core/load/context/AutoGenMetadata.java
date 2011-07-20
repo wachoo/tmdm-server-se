@@ -16,8 +16,8 @@ import com.amalto.core.load.Metadata;
 /**
  *
  */
-class AutoGenMetadata extends Metadata {
-    private final Metadata metadata;
+class AutoGenMetadata implements Metadata {
+    private final Metadata delegate;
 
     private final String[] idPaths;
 
@@ -25,8 +25,8 @@ class AutoGenMetadata extends Metadata {
 
     private String[] autoGenId;
 
-    AutoGenMetadata(Metadata metadata, String[] idPaths, AutoIdGenerator generator) {
-        this.metadata = metadata;
+    AutoGenMetadata(Metadata delegate, String[] idPaths, AutoIdGenerator generator) {
+        this.delegate = delegate;
         this.idPaths = idPaths;
         this.generator = generator;
     }
@@ -38,82 +38,67 @@ class AutoGenMetadata extends Metadata {
         return metadata.getId();
     }
 
-    @Override
     public String[] getId() {
         if (autoGenId == null) {
-            autoGenId = generateId(metadata, idPaths, generator);
+            autoGenId = generateId(delegate, idPaths, generator);
         }
         return autoGenId;
     }
 
-    @Override
     public void setId(String idElementName, String id) {
         throw new UnsupportedOperationException("AutoGen id is read-only");
     }
 
-    @Override
     public void setContainer(String container) {
-        metadata.setContainer(container);
+        delegate.setContainer(container);
     }
 
-    @Override
     public void setName(String name) {
-        metadata.setName(name);
+        delegate.setName(name);
     }
 
-    @Override
     public void setDmn(String dmn) {
-        metadata.setDmn(dmn);
+        delegate.setDmn(dmn);
     }
 
-    @Override
     public String getContainer() {
-        return metadata.getContainer();
+        return delegate.getContainer();
     }
 
-    @Override
     public String getName() {
-        return metadata.getName();
+        return delegate.getName();
     }
 
-    @Override
     public String getDMR() {
-        return metadata.getDMR();
+        return delegate.getDMR();
     }
 
-    @Override
     public String getTaskId() {
-        return metadata.getTaskId();
+        return delegate.getTaskId();
     }
 
-    @Override
     public String getSP() {
-        return metadata.getSP();
+        return delegate.getSP();
     }
 
-    @Override
     public String getVersion() {
-        return metadata.getVersion();
+        return delegate.getVersion();
     }
 
-    @Override
     public void reset() {
-        metadata.reset();
+        delegate.reset();
         autoGenId = null;
     }
 
-    @Override
     public String getDMN() {
-        return metadata.getDMN();
+        return delegate.getDMN();
     }
 
-    @Override
     public String getDataClusterName() {
-        return metadata.getDataClusterName();
+        return delegate.getDataClusterName();
     }
 
-    @Override
     public void setDataClusterName(String dataClusterName) {
-        metadata.setDataClusterName(dataClusterName);
+        delegate.setDataClusterName(dataClusterName);
     }
 }

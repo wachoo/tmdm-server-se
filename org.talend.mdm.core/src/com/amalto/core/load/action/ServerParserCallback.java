@@ -41,7 +41,7 @@ class ServerParserCallback implements LoadParserCallback {
 
             if (currentCount % 1000 == 0) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Loaded documents: " + (currentCount / 1000) + "K."); //$NON-NLS-1$
+                    log.debug("Loaded documents: " + (currentCount / 1000) + "K."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
         } catch (Exception e) {
