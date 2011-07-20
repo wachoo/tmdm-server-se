@@ -10,14 +10,16 @@ public class JobClassLoader extends URLClassLoader {
 	public JobClassLoader() {
 		//super(new URL[0], ClassLoader.getSystemClassLoader());
 		//We had better use the same class loader hierarchy as the war package
-		super(new URL[0], JobClassLoader.class.getClassLoader());
+        // super(new URL[0], JobClassLoader.class.getClassLoader());
+        // fix bug 0022967, use current thread classloader
+        super(new URL[0], Thread.currentThread().getContextClassLoader());
 	}
 
 	public void addPath(String paths) {
 		if (paths == null || paths.length() <= 0) {
 			return;
 		}
-		String separator = System.getProperty("path.separator");
+        String separator = System.getProperty("path.separator"); //$NON-NLS-1$
 		String[] pathToAdds = paths.split(separator);
 		for (int i = 0; i < pathToAdds.length; i++) {
 			if (pathToAdds[i] != null && pathToAdds[i].length() > 0) {
