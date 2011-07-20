@@ -141,6 +141,8 @@ public class XMLStreamTokenizer implements Enumeration<String> {
 
         currentNextElement = stringWriter.toString();
         stringWriter.reset();
+        // Allow mixed content (see com.amalto.core.load.XMLStreamTokenizerTest.testMixedRootElements())
+        rootElementName = null;
         return !currentNextElement.isEmpty();
     }
 

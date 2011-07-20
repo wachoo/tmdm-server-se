@@ -121,4 +121,20 @@ public class XMLStreamTokenizerTest extends TestCase {
         assertEquals(2, docCount);
     }
 
+    public void testMixedRootElements() {
+        XMLStreamTokenizer tokenizer = new XMLStreamTokenizer(new ByteArrayInputStream("<root></root><alternative></alternative><root></root><alternative></alternative>".getBytes()));
+        int docCount = 0;
+        String[] expected = new String[]{
+                "<root></root>",
+                "<alternative></alternative>",
+                "<root></root>",
+                "<alternative></alternative>"
+        };
+        while (tokenizer.hasMoreElements()) {
+            assertEquals(expected[docCount], tokenizer.nextElement());
+            docCount++;
+        }
+
+        assertEquals(4, docCount);
+    }
 }
