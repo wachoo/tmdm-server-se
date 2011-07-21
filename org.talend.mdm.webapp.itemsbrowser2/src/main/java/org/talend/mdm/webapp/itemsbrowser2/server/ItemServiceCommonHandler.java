@@ -757,7 +757,10 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                         NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
                                 StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
                         if (nodes.getLength() == 1) {
-                            formattedId += nodes.item(0).getTextContent();
+                            if (formattedId.equals("")) //$NON-NLS-1$
+                                formattedId += nodes.item(0).getTextContent();
+                            else
+                                formattedId += "-" + nodes.item(0).getTextContent(); //$NON-NLS-1$
                         } else {
                             throw new IllegalArgumentException(MessagesFactory.getMessages().label_exception_xpath_not_match(
                                     foreignKeyPath, nodes.getLength()));
@@ -1223,8 +1226,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
     public List<ItemBaseModel> getUploadTableNames(String value) {
         try {
             String[] result = CommonUtil.getPort()
-                    .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(this.getCurrentDataModel())))
-                    .getStrings();
+                    .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(this.getCurrentDataModel()))).getStrings();
 
             List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
             for (String str : result) {
@@ -1406,6 +1408,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
         }
     }
+
     @Override
     public void deleteDocument(String concept, DownloadBaseModel model) throws Exception {
         try {
@@ -1444,8 +1447,8 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
                 }
                 xml.append("</" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
                 CommonUtil.getPort().putItem(
-                        new WSPutItem(new WSDataClusterPK(this.getCurrentDataCluster()), xml.toString(), new WSDataModelPK(
-                                this.getCurrentDataModel()), false));
+                        new WSPutItem(new WSDataClusterPK(this.getCurrentDataCluster()), xml.toString(), new WSDataModelPK(this
+                                .getCurrentDataModel()), false));
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
