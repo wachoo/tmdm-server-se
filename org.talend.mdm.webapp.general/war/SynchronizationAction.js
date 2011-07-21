@@ -2,7 +2,7 @@ talend.SynchronizationAction = {};
 talend.SynchronizationAction.SynchronizationAction = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "notImplemented.html";
+		var frameUrl = "/SynchronizationAction/SynchronizationAction.html";
 		callBack(frameUrl);
 	}
 	

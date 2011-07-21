@@ -1,8 +1,8 @@
-talend.SynchronizationItem = {};
-talend.SynchronizationItem.SynchronizationItem = function(){
+talend.reporting = {};
+talend.loggingadapter.LoggingAdapter = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "/SynchronizationItem/SynchronizationItem.html";
+		var frameUrl = "/loggingadapter/LoggingAdapter.html";
 		callBack(frameUrl);
 	}
 	

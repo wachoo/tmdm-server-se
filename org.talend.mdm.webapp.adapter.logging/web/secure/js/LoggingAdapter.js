@@ -1,5 +1,4 @@
 amalto.namespace("amalto.loggingadapter");
-
 		
 amalto.loggingadapter.LoggingAdapter = function () {
 	

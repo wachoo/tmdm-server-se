@@ -1,8 +1,8 @@
-talend.SynchronizationItem = {};
-talend.SynchronizationItem.SynchronizationItem = function(){
+talend.reporting = {};
+talend.smtp.SmtpAdapter = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "/SynchronizationItem/SynchronizationItem.html";
+		var frameUrl = "/smtp/SmtpAdapter.html";
 		callBack(frameUrl);
 	}
 	
