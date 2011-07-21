@@ -42,7 +42,7 @@
 
 	<target name="deploy" description="deploy war">
 		<copy file="${build.dir}/org.talend.mdm.webapp.general-${mdm.build.version}.war" tofile="${jboss.deploy.dir}/org.talend.mdm.webapp.general.war" />
-		<copy file="${build.dir}/org.talend.mdm.webapp.generalConfiguration-${mdm.build.version}.jar" tofile="${jboss.instance.lib}/org.talend.mdm.webapp.generalConfiguration.jar" />
+		<copy file="${build.dir}/org.talend.mdm.webapp.general-${mdm.build.version}.jar" tofile="${jboss.instance.lib}/org.talend.mdm.webapp.general.jar" />
 	</target>
 
 	<target name="all" depends="package,undeploy,deploy" />
