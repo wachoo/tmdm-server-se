@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinService;
-import org.talend.mdm.webapp.recyclebin.server.RecycleBinServiceImpl;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 
 import com.amalto.webapp.core.bean.Configuration;
@@ -46,13 +45,13 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
  */
 public class RecycleBinAction implements RecycleBinService {
 
-    private static final Logger LOG = Logger.getLogger(RecycleBinServiceImpl.class);
+    private static final Logger LOG = Logger.getLogger(RecycleBinAction.class);
 
     public PagingLoadResult<ItemsTrashItem> getTrashItems(String regex, PagingLoadConfig load) throws Exception {
         try {
             //
             if (regex == null || regex.length() == 0) {
-                regex = "";
+                regex = ""; //$NON-NLS-1$
             }
             regex = regex.replaceAll("\\*", "");//$NON-NLS-1$//$NON-NLS-2$
             regex = ".*" + regex + ".*";//$NON-NLS-1$//$NON-NLS-2$
@@ -79,7 +78,7 @@ public class RecycleBinAction implements RecycleBinService {
             return new BasePagingLoadResult<ItemsTrashItem>(sublist, load.getOffset(), li.size());
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new Exception(e.getClass().getName() + ": " + e.getMessage());
+            throw new Exception(e.getClass().getName() + ": " + e.getMessage()); //$NON-NLS-1$
         }
 
     }
@@ -105,13 +104,13 @@ public class RecycleBinAction implements RecycleBinService {
             WSItemPK wdipk = new WSItemPK(wddcpk, conceptName, ids1);
             WSDroppedItemPK wddipk = new WSDroppedItemPK(wdipk, partPath, revisionId);
             WSRemoveDroppedItem wsrdi = new WSRemoveDroppedItem(wddipk);
-            WSDroppedItemPK wdipkd = Util.getPort().removeDroppedItem(wsrdi);
+            Util.getPort().removeDroppedItem(wsrdi);
 
             String xml = createUpdateReport(ids1, conceptName, "PHYSICAL_DELETE", null); //$NON-NLS-1$
             Util.persistentUpdateReport(xml, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new Exception(e.getClass().getName() + ": " + e.getMessage());
+            throw new Exception(e.getClass().getName() + ": " + e.getMessage()); //$NON-NLS-1$
         }
 
     }
@@ -125,14 +124,14 @@ public class RecycleBinAction implements RecycleBinService {
             WSItemPK wdipk = new WSItemPK(wddcpk, conceptName, ids1);
             WSDroppedItemPK wsdipk = new WSDroppedItemPK(wdipk, partPath, revisionId);
             WSRecoverDroppedItem wsrdi = new WSRecoverDroppedItem(wsdipk);
-            WSItemPK wsipk = Util.getPort().recoverDroppedItem(wsrdi);
+            Util.getPort().recoverDroppedItem(wsrdi);
 
             // put the restore into updatereport archive
             String xml = createUpdateReport(ids1, conceptName, "RESTORED", null); //$NON-NLS-1$
             Util.persistentUpdateReport(xml, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new Exception(e.getClass().getName() + ": " + e.getMessage());
+            throw new Exception(e.getClass().getName() + ": " + e.getMessage()); //$NON-NLS-1$
         }
 
     }
