@@ -72,11 +72,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -208,10 +208,6 @@ public class ItemsToolBar extends ToolBar {
             uploadBtn.setEnabled(false);
         else {
             uploadBtn.setEnabled(true);
-            if (denyUploadFile)
-                uploadBtn.getMenu().getItemByItemId("uploadMenuInGrid").setEnabled(false);//$NON-NLS-1$
-            else
-                uploadBtn.getMenu().getItemByItemId("uploadMenuInGrid").setEnabled(true);//$NON-NLS-1$
         }
 
         updateUserCriteriasList();
@@ -424,15 +420,12 @@ public class ItemsToolBar extends ToolBar {
         add(menu);
 
         uploadBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
-        Menu subFile = new Menu();
-        MenuItem uploadMenu = new MenuItem(MessagesFactory.getMessages().itemsBrowser_Import());
-        uploadMenu.setId("uploadMenuInGrid");//$NON-NLS-1$
-        uploadMenu.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+        uploadBtn.setId("uploadMenuInGrid"); //$NON-NLS-1$
 
-        uploadMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
+        uploadBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
-            public void componentSelected(MenuEvent ce) {
+            public void componentSelected(ButtonEvent ce) {
                 TabPanel tabFrame = (TabPanel) Registry.get(ItemsView.TAB_FRAME);
                 TabItem item = tabFrame.getItemByItemId("upload-main-panel"); //$NON-NLS-1$
                 currentTableName = null;
@@ -577,9 +570,6 @@ public class ItemsToolBar extends ToolBar {
             }
         });
 
-        subFile.add(uploadMenu);
-
-        uploadBtn.setMenu(subFile);
         uploadBtn.setEnabled(false);
         add(uploadBtn);
 
