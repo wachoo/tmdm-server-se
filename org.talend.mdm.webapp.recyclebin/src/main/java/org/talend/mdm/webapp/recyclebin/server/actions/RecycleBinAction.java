@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.recyclebin.actions;
+package org.talend.mdm.webapp.recyclebin.server.actions;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class RecycleBinAction implements RecycleBinService {
 
