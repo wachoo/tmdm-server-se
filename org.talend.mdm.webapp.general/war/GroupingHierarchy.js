@@ -2,7 +2,7 @@ talend.hierarchical = {};
 talend.hierarchical.GroupingHierarchy = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "notImplemented.html";
+		var frameUrl = "/hierarchical/GroupingHierarchy.html";
 		callBack(frameUrl);
 	}
 	

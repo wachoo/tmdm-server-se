@@ -2,7 +2,7 @@ talend.viewbrowser = {};
 talend.viewbrowser.ViewBrowser = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "notImplemented.html";
+		var frameUrl = "/viewbrowser/ViewBrowser.html";
 		callBack(frameUrl);
 	}
 	

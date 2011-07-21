@@ -2,7 +2,7 @@ talend.workflowtasks = {};
 talend.workflowtasks.WorkflowTasks  = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "notImplemented.html";
+		var frameUrl = "/workflowtasks/WorkflowTasks.html";
 		callBack(frameUrl);
 	}
 	

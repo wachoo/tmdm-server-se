@@ -2,7 +2,7 @@ talend.updatereport = {};
 talend.updatereport.UpdateReport = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "notImplemented.html";
+		var frameUrl = "/updatereport/UpdateReport.html";
 		callBack(frameUrl);
 	}
 	

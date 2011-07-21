@@ -1,8 +1,8 @@
-talend.usersandroles = {};
-talend.usersandroles.Users = function(){
+talend.SrvSchedule = {};
+talend.SrvSchedule.SrvSchedule = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "/usersandroles/Users.html";
+		var frameUrl = "/SrvSchedule/SrvSchedule.html";
 		callBack(frameUrl);
 	}
 	
