@@ -15,6 +15,10 @@
     <version>${mdm.build.version}</version>
     <packaging>war</packaging>
     <name>org.talend.mdm.webapp.general</name>
+    
+    <properties>
+        <general.cofiguration.jar.name>org.talend.mdm.webapp.generalConfiguration</general.cofiguration.jar.name>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -74,7 +78,7 @@
                     <execution>
                         <id>gwt-compile</id>
                         <configuration>
-                            <module>org.talend.mdm.webapp.general.General</module>
+                            <module>org.talend.mdm.webapp.general.General</module>                            
                         </configuration>
                         <goals>
                             <goal>compile</goal>
@@ -113,8 +117,56 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>        
+                   
+             
+            <!-- Jar client library -->
+            <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-jar-plugin</artifactId>
+		        <version>2.3.1</version>
+		        <executions>
+		          <execution>
+		            <id>jar-client-library</id>
+		            <phase>prepare-package</phase>
+		            <configuration>
+		              <finalName>${general.cofiguration.jar.name}-${mdm.build.version}</finalName>
+		              <includes>
+		                <include>**/gwt/*.class</include>		               
+		              </includes>
+		              <archive>
+		                <addMavenDescriptor>false</addMavenDescriptor>		                
+		                <manifestEntries>
+		                  <Build-Version>${mdm.build.version}</Build-Version>
+		                  <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+		                </manifestEntries>
+		              </archive>
+		            </configuration>
+		            <goals>
+		              <goal>jar</goal>
+		            </goals>
+		          </execution>
+		        </executions>
             </plugin>
-        
+            
+            <!-- War -->
+             <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-war-plugin</artifactId>
+		        <version>2.1-beta-1</version>
+		        <configuration>		
+		          <warSourceExcludes>**/gwt/*.class</warSourceExcludes>		        
+		          <warName>${project.artifactId}-${mdm.build.version}</warName>
+		          <useCache>false</useCache>
+		          <archive>
+		            <addMavenDescriptor>false</addMavenDescriptor>
+		            <manifestEntries>
+		              <Build-Version>${mdm.build.version}</Build-Version>
+		              <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+		            </manifestEntries>
+		          </archive>
+		        </configuration>
+		      </plugin>  
         </plugins>
     </build>
 
