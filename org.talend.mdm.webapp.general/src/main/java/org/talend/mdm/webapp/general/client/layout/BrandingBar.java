@@ -30,10 +30,10 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 
 public class BrandingBar extends ContentPanel {
@@ -73,7 +73,11 @@ public class BrandingBar extends ContentPanel {
                 String lang = Location.getParameter("language"); //$NON-NLS-1$
                 
                 if (lang == null || lang.trim().length() == 0){
-                    setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
+                    if (query == null || query.length() == 0) {
+                        setHref(path + "?language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
+                    } else {
+                        setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
+                    }
                 } else {
                     
                     if (query.indexOf("&language=" + lang + "&") != -1){ //$NON-NLS-1$ //$NON-NLS-2$
@@ -90,6 +94,7 @@ public class BrandingBar extends ContentPanel {
         });
         
         logout.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 setHref("/talendmdm//secure?action=logout"); //$NON-NLS-1$
             }
@@ -121,13 +126,13 @@ public class BrandingBar extends ContentPanel {
         Image logoMdm = new Image("/talendmdm/secure/img/logo-mdm.png"); //$NON-NLS-1$
         logoMdm.getElement().getStyle().setMarginTop(2D, Unit.PX);
         hp.add(logoMdm);
-        hp.setCellVerticalAlignment(logoMdm, VerticalPanel.ALIGN_BOTTOM);
+        hp.setCellVerticalAlignment(logoMdm, HasVerticalAlignment.ALIGN_BOTTOM);
         
         
         HTML versionLabel = new HTML(userBean.isEnterprise() ? MessageFactory.getMessages().enterprise() : MessageFactory.getMessages().community() + "<br>" + MessageFactory.getMessages().edition()); //$NON-NLS-1$
         versionLabel.setStyleName("version-label"); //$NON-NLS-1$
         hp.add(versionLabel);
-        hp.setCellVerticalAlignment(versionLabel, VerticalPanel.ALIGN_MIDDLE);
+        hp.setCellVerticalAlignment(versionLabel, HasVerticalAlignment.ALIGN_MIDDLE);
         
         hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
         
@@ -135,10 +140,10 @@ public class BrandingBar extends ContentPanel {
         languageBox.setStyleName("language-box"); //$NON-NLS-1$
         
         hp.add(languageBox);
-        hp.setCellVerticalAlignment(languageBox, VerticalPanel.ALIGN_MIDDLE);
+        hp.setCellVerticalAlignment(languageBox, HasVerticalAlignment.ALIGN_MIDDLE);
         hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
         hp.add(logout);
-        hp.setCellVerticalAlignment(logout, VerticalPanel.ALIGN_MIDDLE);
+        hp.setCellVerticalAlignment(logout, HasVerticalAlignment.ALIGN_MIDDLE);
         hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
         
         bar.setSize("100%", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
