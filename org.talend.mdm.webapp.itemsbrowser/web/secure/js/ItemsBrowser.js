@@ -4579,6 +4579,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var itemTree = itemTreeList[treeIndex];
         var siblingNode = itemTree.getNodeByIndex(siblingId);
 
+        var simpleFlag = getChildrenValues(siblingNode).length==0?true:false;
+        
         // add by ymli. remember the values of the siblingNodes.fix the
         // bug:0010576
         var values = [];
@@ -4661,7 +4663,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var length = map[treeIndex].length;
         map[treeIndex][length] = newNode;
 
-        newNode.setDynamicLoad(fnLoadData);
+        if(simpleFlag)
+        	newNode.setDynamicLoad();
+        else
+        	newNode.setDynamicLoad(fnLoadData);
         // itemTree.getRoot().refresh();
         // siblingNode.updateNodeId(siblingId);
         updateNodeId(siblingNode, siblingId);
