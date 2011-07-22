@@ -19,7 +19,9 @@ import org.talend.mdm.webapp.general.client.util.UrlUtil;
 import org.talend.mdm.webapp.general.model.MenuBean;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -37,6 +39,8 @@ public class AccordionMenus extends ContentPanel {
         this.addStyleName("menus-list"); //$NON-NLS-1$
         this.setLayout(new FlowLayout());
         this.setScrollMode(Scroll.AUTO);
+
+        registerOpenPages();
     }
 
     public static AccordionMenus getInstance() {
@@ -124,8 +128,32 @@ public class AccordionMenus extends ContentPanel {
         }
     };
 
+    public void openPages(String context, String application) {
+        List<Component> items = this.getItems();
+        for (Component comp : items) {
+            WidgetComponent wComp = (WidgetComponent) comp;
+            final HTMLMenuItem item = (HTMLMenuItem) wComp.getWidget();
+            MenuBean menuBean = item.getMenuBean();
+            if (context.equals(menuBean.getContext()) && application.equals(menuBean.getApplication())) {
+                selectedItem(item);
+                getUrl(menuBean.getContext(), menuBean.getApplication(), UrlUtil.getLanguage(), new GetUrl() {
+
+                    public void getUrl(String url) {
+                        WorkSpace.getInstance().addWorkTab(item, url);
+                    }
+                });
+            }
+        }
+    }
+
+    public native void registerOpenPages()/*-{
+        var instance = this;
+        $wnd.openPages = function(context, application){
+            instance.@org.talend.mdm.webapp.general.client.layout.AccordionMenus::openPages(Ljava/lang/String;Ljava/lang/String;)(context, application);
+        };
+    }-*/;
+
     private native void getUrl(String context, String application, String language, GetUrl getUrl)/*-{
-        
         $wnd.talend[context][application].getUrl(language, function(url){
             if (getUrl != null){
                 getUrl.@org.talend.mdm.webapp.general.client.layout.AccordionMenus.GetUrl::getUrl(Ljava/lang/String;)(url);

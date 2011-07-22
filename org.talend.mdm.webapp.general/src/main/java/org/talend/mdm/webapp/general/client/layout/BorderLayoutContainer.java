@@ -16,14 +16,18 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Element;
 
 public class BorderLayoutContainer extends Viewport {
 	
+    Html messageHtml = new Html();
+
 	protected void onRender(Element target, int index) {
 		super.onRender(target, index);  
 		final BorderLayout layout = new BorderLayout();  
@@ -39,6 +43,7 @@ public class BorderLayoutContainer extends Viewport {
 	    ActionsPanel east = ActionsPanel.getInstance();
 	    east.setBorders(false);
 	    ContentPanel south = new ContentPanel();
+        south.setLayout(new FitLayout());
 	    south.setHeaderVisible(false);
 	    south.setBorders(false);
 	    south.setFrame(true);
@@ -65,11 +70,24 @@ public class BorderLayoutContainer extends Viewport {
 	    southData.setSplit(false);  
 	    southData.setCollapsible(false);  
 	    southData.setFloatable(true);  
-	  
+
 	    add(north, northData);  
 	    add(west, westData);  
 	    add(center, centerData);  
 	    add(east, eastData);  
 	    add(south, southData);  
-	}  
+        south.add(messageHtml);
+        registerWorkingMessage();
+    }
+
+    public void setMessage(String message) {
+        messageHtml.setHtml(message);
+    }
+
+    private static native void registerWorkingMessage()/*-{
+        var instance = this;
+        $wnd.working = function(message){
+        instance.@org.talend.mdm.webapp.general.client.layout.BorderLayoutContainer::setMessage(Ljava/lang/String;)(message);
+        };
+    }-*/;
 }
