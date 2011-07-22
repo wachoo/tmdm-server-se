@@ -60,6 +60,7 @@
 
     <mbean code="org.jboss.resource.work.JBossWorkManager" name="jboss.jca:service=BulkLoadWorkManager">
         <depends optional-attribute-name="ThreadPoolName">jboss.jca:service=BulkLoadThreadPool</depends>
+        <depends optional-attribute-name="XATerminatorName">jboss:service=TransactionManager</depends>
     </mbean>
 
     <!-- ==================================================================== -->
