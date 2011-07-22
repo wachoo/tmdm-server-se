@@ -1,4 +1,4 @@
-talend.reporting = {};
+talend.smtp = {};
 talend.smtp.SmtpAdapter = function(){
 	
 	function _getUrl(language, callBack){

@@ -1,4 +1,4 @@
-talend.reporting = {};
+talend.loggingadapter = {};
 talend.loggingadapter.LoggingAdapter = function(){
 	
 	function _getUrl(language, callBack){
