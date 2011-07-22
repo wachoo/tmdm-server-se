@@ -2,7 +2,7 @@ talend.ItemsTrash = {};
 talend.ItemsTrash.ItemsTrash = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "/ItemsTrash/ItemsTrash.html";
+		var frameUrl = "/recyclebin/RecycleBin.html";
 		callBack(frameUrl);
 	}
 	

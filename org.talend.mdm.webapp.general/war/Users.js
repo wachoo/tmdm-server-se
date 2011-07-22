@@ -2,7 +2,7 @@ talend.usersandroles = {};
 talend.usersandroles.Users = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "/usersandroles/Users.html";
+		var frameUrl = "/usermanager/UserManager.html";
 		callBack(frameUrl);
 	}
 	

@@ -2,7 +2,7 @@ talend.license = {};
 talend.license.License = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "notImplemented.html";
+		var frameUrl = "licensemanager/LicenseManager.html";
 		callBack(frameUrl);
 	}
 	
