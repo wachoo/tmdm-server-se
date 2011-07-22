@@ -107,6 +107,7 @@ public class InputStreamMerger extends InputStream {
         }
 
         if (!inputStreamBuffer.isEmpty()) {
+            currentStream.close();
             currentStream = inputStreamBuffer.poll();
         } else {
             currentStream = null;
