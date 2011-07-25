@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -17,6 +16,9 @@ import java.util.regex.Pattern;
 
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.webapp.core.bean.Configuration;
@@ -136,9 +138,7 @@ public class ReportingDWR {
 		
 		Reporting reporting = getReporting(reportingName);
 		
-		ArrayList<ReportingContent> reportingContentList = new ArrayList<ReportingContent>();
-		Pattern p = Pattern.compile("<(.*?)>(.*?)<\\/\\1>",Pattern.DOTALL);
-		Pattern p2 = Pattern.compile("<[^\\/].*?\\/>",Pattern.DOTALL);
+        ArrayList<ReportingContent> reportingContentList = new ArrayList<ReportingContent>();
 		
 		String totalCount="-1";
 		Boolean usingSP=new Boolean(false);
@@ -170,29 +170,15 @@ public class ReportingDWR {
 				String document = results[i];
 				
 				org.apache.log4j.Logger.getLogger(this.getClass()).trace("getReportingContent - result["+i+"] = "+results[i]);
+
+                Document doc = DocumentHelper.parseText(document);
+                if (doc != null && doc.getRootElement() != null) {
+                    Element root = doc.getRootElement();
+                    for (int j = 0; j < root.nodeCount(); j++)
+                        if (root.node(j) instanceof Element)
+                            field.add(root.node(j).getText());
+                }
 				
-				
-				document = document.replaceAll("<result>","");
-				document = document.replaceAll("</result>","");
-				document = p.matcher(document).replaceAll("$2###");
-				document = p2.matcher(document).replaceAll("###");
-				document = document.replaceAll("\n","");
-				String[] documentArray = document.split("###");
-				
-				org.apache.log4j.Logger.getLogger(this.getClass()).debug("getReportingContent - result["+i+"] après replace = "+document);
-				
-				for (int j = 0; j < documentArray.length; j++) {	
-					field.add(documentArray[j]);
-					//String tmp = Util.getFirstTextNode(document,"//"+xpaths[j].split("/")[xpaths[j].split("/").length-1].replaceAll("@",""));
-					//if(tmp==null) tmp ="";
-					//field.add(tmp);
-					//tmp += Util.getFirstTextNode(document,"result/"+xpaths[j].split("/")[xpaths[j].split("/").length-1])+"###";
-					//tmp += Util.getFirstTextNode(document,xpaths[j])+"###";
-				}
-//				tmp = tmp.replaceAll("__h"," ");
-//				tmp = tmp.replaceAll("h__"," ");
-//				System.out.println(tmp);
-				//results2[i] = tmp;
 				reportingContent.setFields(field);
 				reportingContentList.add(reportingContent);
 			
@@ -286,24 +272,14 @@ public class ReportingDWR {
 				//String tmp = "";
 				ArrayList<String> field = new ArrayList<String>();
 				String document = results[i];
-				document = document.replaceAll("<result>","");
-				document = document.replaceAll("</result>","");
-				document = p.matcher(document).replaceAll("$2###");
-				document = p2.matcher(document).replaceAll("###");
-				document = document.replaceAll("\n","");
-				String[] documentArray = document.split("###");
-				for (int j = 0; j < documentArray.length; j++) {	
-					field.add(documentArray[j]);
-					//String tmp = Util.getFirstTextNode(document,"//"+xpaths[j].split("/")[xpaths[j].split("/").length-1].replaceAll("@",""));
-					//if(tmp==null) tmp ="";
-					//field.add(tmp);
-					//tmp += Util.getFirstTextNode(document,"result/"+xpaths[j].split("/")[xpaths[j].split("/").length-1])+"###";
-					//tmp += Util.getFirstTextNode(document,xpaths[j])+"###";
+                Document doc = DocumentHelper.parseText(document);
+                if (doc != null && doc.getRootElement() != null) {
+                    Element root = doc.getRootElement();
+                    for (int j = 0; j < root.nodeCount(); j++)
+                        if (root.node(j) instanceof Element)
+                            field.add(root.node(j).getText());
 				}
-//				tmp = tmp.replaceAll("__h"," ");
-//				tmp = tmp.replaceAll("h__"," ");
-//				System.out.println(tmp);
-				//results2[i] = tmp;
+
 				reportingContent.setFields(field);
 				reportingContentList.add(reportingContent);
 			
