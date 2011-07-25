@@ -261,6 +261,7 @@ public class ItemsListPanel extends ContentPanel {
                         }
                     });
                 } else {
+                    selectedItems = null;
                     ItemsSearchContainer itemsSearchContainer = Registry.get(ItemsView.ITEMS_SEARCH_CONTAINER);
                     Element curElem = itemsSearchContainer.getItemsFormPanel().getElement();
                     // remove the embeded iframe
