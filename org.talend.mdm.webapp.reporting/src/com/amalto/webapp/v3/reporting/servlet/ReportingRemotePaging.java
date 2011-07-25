@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.v3.reporting.bean.ForeignKeyDesc;
+import com.amalto.webapp.v3.reporting.bean.ForeignKeyDescHelper;
 import com.amalto.webapp.v3.reporting.bean.Reporting;
 import com.amalto.webapp.v3.reporting.bean.ReportingContent;
 import com.amalto.webapp.v3.reporting.bean.ReportingField;
@@ -46,13 +48,12 @@ public class ReportingRemotePaging  extends HttpServlet{
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
 		
 		org.apache.log4j.Logger.getLogger(this.getClass()).info(
 				"SERVLET Remote paging for reporting");
 		
-		request.setCharacterEncoding("UTF-8");
-		response.setContentType("text/html; charset=UTF-8");
+        response.setContentType("text/html; charset=UTF-8"); //$NON-NLS-1$
 		
 		Enumeration param = request.getParameterNames();
 		while(param.hasMoreElements()){
@@ -60,16 +61,16 @@ public class ReportingRemotePaging  extends HttpServlet{
 					param.nextElement().toString() );
 		}
 		
-		String start = request.getParameter("start");
-		String limit = request.getParameter("limit");
-		String sortCol= (request.getParameter("sort")!=null?request.getParameter("sort"):"0");
-		String sortDir= (request.getParameter("dir")!=null?request.getParameter("dir"):"ASC");
-		String reportingName= request.getParameter("reportingName");
-		String parametersValues= request.getParameter("params");
+        String start = request.getParameter("start"); //$NON-NLS-1$
+        String limit = request.getParameter("limit"); //$NON-NLS-1$
+        String sortCol = (request.getParameter("sort") != null ? request.getParameter("sort") : "0"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+        String sortDir = (request.getParameter("dir") != null ? request.getParameter("dir") : "ASC"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+        String reportingName = request.getParameter("reportingName"); //$NON-NLS-1$
+        String parametersValues = request.getParameter("params"); //$NON-NLS-1$
 		
 		
 		if (parametersValues == null)
-			parametersValues = "";
+            parametersValues = ""; //$NON-NLS-1$
 		
 
 		org.apache.log4j.Logger.getLogger(this.getClass()).debug("params ="+parametersValues);
@@ -78,7 +79,7 @@ public class ReportingRemotePaging  extends HttpServlet{
 		String tmpSplit = parametersValues;
 		Vector<String> paramVector = new Vector<String>();
 		while (!splitEnd) {
-			int indexMatch = tmpSplit.indexOf("###");
+            int indexMatch = tmpSplit.indexOf("###"); //$NON-NLS-1$
 			if (indexMatch == -1) {
 				paramVector.add(tmpSplit);
 				splitEnd = true;
@@ -87,10 +88,10 @@ public class ReportingRemotePaging  extends HttpServlet{
 					String tmpParam = tmpSplit.substring(0, indexMatch);
 					paramVector.add(tmpParam);
 				} else
-					paramVector.add("");
+                    paramVector.add(""); //$NON-NLS-1$
 				
 				if (indexMatch+3 >= tmpSplit.length())
-					tmpSplit = "";
+                    tmpSplit = ""; //$NON-NLS-1$
 				else
 					tmpSplit = tmpSplit.substring(indexMatch+3);
 			}
@@ -126,12 +127,12 @@ public class ReportingRemotePaging  extends HttpServlet{
 						"case : new reporting");
 				ArrayList rsList=reportingDWR.getReportingContent(reportingName, parameters,skip,max,sortCol,sortDir);
 				reportingContentList = (ArrayList<ReportingContent>) rsList.get(0);
-				request.getSession().setAttribute("reportingContentList",reportingContentList);
+            request.getSession().setAttribute("reportingContentList", reportingContentList); //$NON-NLS-1$
 				totalCount = Integer.parseInt((String) rsList.get(1));
-				request.getSession().setAttribute("totalCount",totalCount);
-				request.getSession().setAttribute("reportingName",reportingName);
-				request.getSession().setAttribute("sortCol",sortCol);
-				request.getSession().setAttribute("sortDir",sortDir);
+            request.getSession().setAttribute("totalCount", totalCount); //$NON-NLS-1$
+            request.getSession().setAttribute("reportingName", reportingName); //$NON-NLS-1$
+            request.getSession().setAttribute("sortCol", sortCol); //$NON-NLS-1$
+            request.getSession().setAttribute("sortDir", sortDir); //$NON-NLS-1$
 //			}
 //			else{
 //				reportingContentList = (ArrayList<ReportingContent>)request.getSession().getAttribute("reportingContentList");
@@ -140,15 +141,15 @@ public class ReportingRemotePaging  extends HttpServlet{
 
 			//System.out.println("sort col de session "+request.getSession().getAttribute("sortCol"));
 			if(((Boolean)rsList.get(2)).booleanValue()&&
-					(!sortCol.equals(request.getSession().getAttribute("sortCol")) 
-					|| !sortDir.equals(request.getSession().getAttribute("sortDir")))
+ (!sortCol.equals(request.getSession().getAttribute("sortCol")) //$NON-NLS-1$
+                    || !sortDir.equals(request.getSession().getAttribute("sortDir"))) //$NON-NLS-1$
 				){
 				
 				//sort arraylist
 				final int column =Integer.parseInt(sortCol);
 				final String direction = sortDir;
 				Comparator sort;
-				if(direction.equals("ASC")){
+                if (direction.equals("ASC")) { //$NON-NLS-1$
 					sort = new Comparator() {
 						  public int compare(Object o1, Object o2) {
 							  try{
@@ -187,8 +188,8 @@ public class ReportingRemotePaging  extends HttpServlet{
 						};			
 				}
 
-				request.getSession().setAttribute("sortCol",sortCol);
-				request.getSession().setAttribute("sortDir",sortDir);
+                request.getSession().setAttribute("sortCol", sortCol); //$NON-NLS-1$
+                request.getSession().setAttribute("sortDir", sortDir); //$NON-NLS-1$
 				Collections.sort(reportingContentList, sort);
 			}
 			
@@ -206,16 +207,23 @@ public class ReportingRemotePaging  extends HttpServlet{
 				max=reportingContentList.size()-skip;
 			}
 			
-			json.put("TotalCount",totalCount);
+            json.put("TotalCount", totalCount); //$NON-NLS-1$
 			ArrayList<JSONObject> rows = new ArrayList<JSONObject>();
+            // fetch fkinfo
+            Configuration config = Configuration.getInstance(true);
+            String dataModelPK = config.getModel();
+            ForeignKeyDesc fkdesc = new ForeignKeyDesc(rep.getConcept(), dataModelPK, config.getCluster());
+            fkdesc.fetchAnnotations();
 			for(int i=skip;i<(max+skip);i++){
 				JSONObject jsfields = new JSONObject();
 				for (int j = 0; j < Math.min(reportingContentList.get(i).getField().size(),fields.length); j++) {
-					jsfields.put(""+j,reportingContentList.get(i).getField().get(j));
+                    String xpath = fields[j].getXpath();
+                    String fkids = reportingContentList.get(i).getField().get(j).toString();
+                    jsfields.put("" + j, ForeignKeyDescHelper.getFkInfoValue(xpath, fkdesc, fkids)); //$NON-NLS-1$
 				}
 				rows.add(jsfields);
 			}			
-			json.put("reporting",rows);
+            json.put("reporting", rows); //$NON-NLS-1$
 			org.apache.log4j.Logger.getLogger(this.getClass()).debug(
 					json);
 			
