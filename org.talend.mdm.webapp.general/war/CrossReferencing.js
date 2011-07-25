@@ -1,5 +1,5 @@
-talend.crossreference = {};
-talend.crossreference.Crossreference = function(){
+talend.crossreferencing = {};
+talend.crossreferencing.CrossReferencing = function(){
 	
 	function _getUrl(language, callBack){
 		var frameUrl = "/crossreference/Crossreference.html";
