@@ -17,7 +17,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
-import org.exolab.castor.xml.ClassDescriptorResolver;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.XMLClassDescriptorResolver;
@@ -975,7 +974,8 @@ public abstract class ObjectPOJO implements Serializable{
             Unmarshaller unmarshaller = new Unmarshaller(objectClass);
             unmarshaller.setResolver(cdr);
             unmarshaller.setValidation(false);
-            unmarshaller.setReuseObjects(true);
+            // see 0023397 can't unmarshaller WSPipeline if unmarshaller.setReuseObjects(true)
+            unmarshaller.setReuseObjects(false);
             //Do not remove this line unless you know what you're doing
             unmarshaller.setWhitespacePreserve(true);
 
