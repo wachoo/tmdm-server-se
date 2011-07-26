@@ -182,29 +182,34 @@
    <!-- Limit categories -->
    <!-- ================ -->
 
-   <category name="com.amalto">
-      <priority value="TRACE"/>
-   </category>
+    <category name="com.amalto">
+        <priority value="INFO"/>
+    </category>
 
-   <!-- Change this to debug if you want to see what is loaded on the XML server -->
-   <category name="com.amalto.core.ejb.local.XmlServerSLWrapperSession">
-      <priority value="DEBUG"/>
-   </category>
-   <category name="com.amalto.core.ejb.XmlServerSLWrapper">
-      <priority value="DEBUG"/>
-   </category>
+    <!-- Change this to debug if you want to see what is loaded on the XML server -->
+    <category name="com.amalto.core.ejb.local.XmlServerSLWrapperSession">
+        <priority value="INFO"/>
+    </category>
+    <category name="com.amalto.core.ejb.XmlServerSLWrapper">
+        <priority value="INFO"/>
+    </category>
 
-   <!-- Limit com.amalto.connector.core which is very verbose -->
-   <category name="com.amalto.connector.jca">
-      <priority value="DEBUG"/>
-   </category>
+    <!-- Limit com.amalto.connector.core which is very verbose -->
+    <category name="com.amalto.connector.jca">
+        <priority value="INFO"/>
+    </category>
 
-   <!-- Limit DWR which is very verbose -->
-   <category name="org.directwebremoting">
-      <priority value="INFO"/>
-   </category>
+    <!-- Limit DWR which is very verbose -->
+    <category name="org.directwebremoting">
+        <priority value="INFO"/>
+    </category>
 
-   <!-- Limit Castor -->
+    <!-- Limit the (apache) httpclient category to INFO as its DEBUG is verbose -->
+    <category name="httpclient">
+        <priority value="INFO"/>
+    </category>
+
+    <!-- Limit Castor -->
    <category name="org.exolab.castor">
       <priority value="INFO"/>
    </category>
