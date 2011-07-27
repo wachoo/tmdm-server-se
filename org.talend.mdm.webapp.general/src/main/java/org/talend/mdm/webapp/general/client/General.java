@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.client;
 
+import org.talend.mdm.webapp.general.client.boundary.PubService;
 import org.talend.mdm.webapp.general.client.message.PublicMessageService;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.controller.GeneralController;
@@ -28,6 +29,7 @@ public class General implements EntryPoint {
 	public static final String USER_BEAN = "UserBean"; //$NON-NLS-1$
 	
 	public void onModuleLoad() {
+        registerPubServices();
 		Registry.register(OVERALL_SERVICE, GWT.create(GeneralService.class));
 		PublicMessageService.registerMessageService();
 		
@@ -36,4 +38,8 @@ public class General implements EntryPoint {
 		dispatcher.dispatch(GeneralEvent.LoadUser);
 
 	}
+
+    private void registerPubServices() {
+        PubService.registerLanguageService();
+    }
 }
