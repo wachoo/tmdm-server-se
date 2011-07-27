@@ -5,7 +5,7 @@ public class PubService {
 
     public native static void registerLanguageService()/*-{
         $wnd.getLanguage = function(){
-        return @org.talend.mdm.webapp.general.client.util.UrlUtil::getLanguage();
+        return @org.talend.mdm.webapp.general.client.util.UrlUtil::getLanguage()();
         };
     }-*/;
 }
