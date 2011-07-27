@@ -338,21 +338,34 @@ amalto.core = function () {
 	var contentPanel;
 	
 	var tabPanel = function(){
-		var tabs = {};
+		
+		var getKey = function(o){
+			return o.getItemId();
+		};
+		
 		return {
+			items: new Ext.util.MixedCollection(false, getKey),
 			getItem: function (id){
-				return tabs[id];
+				return this.items.get(id);
 			},
 			add: function(comp){
 				var id = comp.getItemId();
-				tabs[id] = comp;
-				contentPanel.add(comp);
+				if (this.items.getCount() == 0){
+					contentPanel.add(comp);
+				} else {
+					window.parent.addWorkTabPanel("/itemsbrowser2/ghost.html", "testPanel", id, comp);
+				}
+				this.items.add(id, comp);
 			}
 		}
 	}();
 	
 	function initUI() {
-		language = "en";
+		if (window.parent.getLanguage){
+			language = window.parent.getLanguage();
+		} else {
+			language = "en";	
+		}
 		// initialize state manager, we will use cookies
 		Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 		
@@ -406,7 +419,16 @@ amalto.core = function () {
 		layout: "",
 		debugWindow: null,
 
+		working: function(message){
+			//window.parent.working(message);
+//			Ext.get('status').removeClass('ready');
+//			Ext.get('status').addClass('working');
+//			Ext.get('status').update(message);
+			//Ext.get('status').insertAfter("beforeEnd",'<p>'+message+'</p>');
+		},
+		ready: function(message){
 			
+		},
 			
 		loadMainScript: function(context, application, callback) {
 			var app = application.replace(/\s/g,'');
