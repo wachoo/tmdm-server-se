@@ -1,9 +1,8 @@
 package org.talend.mdm.webapp.general.client.layout;
 
-import java.util.List;
-
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
+import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -73,16 +72,25 @@ public class ActionsPanel extends ContentPanel {
         });
     }
     
-    public void loadDataContainer(List<ComboBoxModel> containers){
+    
+    public void loadAction(ActionBean action) {
         containerStore.removeAll();
-        containerStore.add(containers);
-    }
-    
-    public void loadDataModel(List<ComboBoxModel> models){
         dataStore.removeAll();
-        dataStore.add(models);
+
+        containerStore.add(action.getClusters());
+        dataStore.add(action.getModels());
+
+        ComboBoxModel cluster = containerStore.findModel("value", action.getCurrentCluster()); //$NON-NLS-1$
+        if (cluster != null) {
+            dataContainerBox.setValue(cluster);
+        }
+        ComboBoxModel model = dataStore.findModel("value", action.getCurrentModel()); //$NON-NLS-1$
+        if (model != null) {
+            dataModelBox.setValue(model);
+        }
+
     }
-    
+
     public String getDataCluster(){
         return dataContainerBox.getValue().getValue();
     }

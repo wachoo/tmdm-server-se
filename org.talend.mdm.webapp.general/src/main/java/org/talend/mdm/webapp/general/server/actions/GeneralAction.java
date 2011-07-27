@@ -13,6 +13,7 @@ import org.talend.mdm.webapp.general.client.GeneralService;
 import org.talend.mdm.webapp.general.gwt.GWTConfigurationContext;
 import org.talend.mdm.webapp.general.gwt.GwtWebContextFactory;
 import org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl;
+import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
@@ -51,7 +52,7 @@ public class GeneralAction implements GeneralService {
         return menus;
     }
 
-    public List<ComboBoxModel> getClusters() {
+    private List<ComboBoxModel> getClusters() {
         try {
             List<ComboBoxModel> clusters = new ArrayList<ComboBoxModel>();
 
@@ -72,7 +73,7 @@ public class GeneralAction implements GeneralService {
         }
     }
 
-    public List<ComboBoxModel> getModels() {
+    private List<ComboBoxModel> getModels() {
         try {
             List<ComboBoxModel> models = new ArrayList<ComboBoxModel>();
             WSDataModelPK[] wsDataModelsPKs = Util.getPort().getDataModelPKs(new WSRegexDataModelPKs("*") //$NON-NLS-1$
@@ -91,6 +92,20 @@ public class GeneralAction implements GeneralService {
             LOG.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    public ActionBean getAction() {
+        ActionBean action = new ActionBean();
+        action.setClusters(getClusters());
+        action.setModels(getModels());
+        try {
+            Configuration configuration = Configuration.getInstance(configurationContext);
+            action.setCurrentCluster(configuration.getCluster());
+            action.setCurrentModel(configuration.getModel());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return action;
     }
 
     public String setClusterAndModel(String cluster, String model) {
@@ -138,5 +153,6 @@ public class GeneralAction implements GeneralService {
     public List<ItemBean> getLanguages() {
         return Utils.getLanguages();
     }
+
 
 }

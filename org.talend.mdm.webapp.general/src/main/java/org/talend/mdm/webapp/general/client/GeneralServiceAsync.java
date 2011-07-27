@@ -14,7 +14,7 @@ package org.talend.mdm.webapp.general.client;
 
 import java.util.List;
 
-import org.talend.mdm.webapp.general.model.ComboBoxModel;
+import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.talend.mdm.webapp.general.model.UserBean;
@@ -28,13 +28,11 @@ public interface GeneralServiceAsync {
 
     void getMenus(String language, AsyncCallback<List<MenuBean>> callback);
 
-    void getClusters(AsyncCallback<List<ComboBoxModel>> callback);
-
-    void getModels(AsyncCallback<List<ComboBoxModel>> callback);
-
     void setClusterAndModel(String cluster, String model, AsyncCallback<String> callback);
 
     void getUsernameAndUniverse(AsyncCallback<UserBean> callback);
 
     void getLanguages(AsyncCallback<List<ItemBean>> callback);
+
+    void getAction(AsyncCallback<ActionBean> callback);
 }
