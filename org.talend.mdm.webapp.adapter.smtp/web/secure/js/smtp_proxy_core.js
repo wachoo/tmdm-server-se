@@ -352,7 +352,11 @@ amalto.core = function () {
 	}();
 	
 	function initUI() {
-		language = "en";
+		if (window.parent.getLanguage){
+			language = window.parent.getLanguage();
+		} else {
+			language = "en";	
+		}
 		// initialize state manager, we will use cookies
 		Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 		
