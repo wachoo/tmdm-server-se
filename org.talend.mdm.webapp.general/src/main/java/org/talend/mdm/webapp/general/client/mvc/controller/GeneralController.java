@@ -26,7 +26,7 @@ import org.talend.mdm.webapp.general.client.layout.WorkSpace;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.view.GeneralView;
 import org.talend.mdm.webapp.general.client.util.UrlUtil;
-import org.talend.mdm.webapp.general.model.ComboBoxModel;
+import org.talend.mdm.webapp.general.model.ActionBean;
 import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
 import org.talend.mdm.webapp.general.model.UserBean;
@@ -112,14 +112,10 @@ public class GeneralController extends Controller {
 	}
 	
 	private void loadActions(AppEvent event){
-        service.getClusters(new MdmAsyncCallback<List<ComboBoxModel>>() {
-            public void onSuccess(List<ComboBoxModel> containers) {
-                ActionsPanel.getInstance().loadDataContainer(containers);
-            }
-        });
-        service.getModels(new MdmAsyncCallback<List<ComboBoxModel>>() {
-            public void onSuccess(List<ComboBoxModel> models) {
-                ActionsPanel.getInstance().loadDataModel(models);
+        service.getAction(new MdmAsyncCallback<ActionBean>() {
+            @Override
+            public void onSuccess(ActionBean result) {
+                ActionsPanel.getInstance().loadAction(result);
             }
         });
 	}
