@@ -59,15 +59,7 @@
      -->
       <security-role>
          <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name> DataManagerAdministration</role-name>
-      </security-role>
-      <security-role>
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
          <role-name>authenticated</role-name>
-      </security-role>
-      <security-role>
-         <description><![CDATA[description not supported yet by ejbdoclet]]></description>
-         <role-name>administration</role-name>
       </security-role>
 
    <!-- method permissions -->
@@ -735,6 +727,19 @@
          <method-name>deleteItem</method-name>
          <method-params>
             <method-param>com.amalto.core.webservice.WSDeleteItem</method-param>
+         </method-params>
+      </method>
+   </method-permission>
+   <method-permission >
+      <description><![CDATA[description not supported yet by ejbdoclet]]></description>
+         <role-name>authenticated</role-name>
+      <method >
+         <description><![CDATA[]]></description>
+         <ejb-name>XtentisWS</ejb-name>
+         <method-intf>ServiceEndpoint</method-intf>
+         <method-name>deleteItemWithReport</method-name>
+         <method-params>
+            <method-param>com.amalto.core.webservice.WSDeleteItemWithReport</method-param>
          </method-params>
       </method>
    </method-permission>
@@ -1719,9 +1724,9 @@
          <description><![CDATA[]]></description>
          <ejb-name>XtentisWS</ejb-name>
          <method-intf>ServiceEndpoint</method-intf>
-         <method-name>deleteItemWithReport</method-name>
+         <method-name>partialPutItem</method-name>
          <method-params>
-            <method-param>com.amalto.core.webservice.WSDeleteItemWithReport</method-param>
+            <method-param>com.amalto.core.webservice.WSPartialPutItem</method-param>
          </method-params>
       </method>
    </method-permission>

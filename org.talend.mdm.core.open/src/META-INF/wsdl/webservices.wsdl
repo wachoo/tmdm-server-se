@@ -392,6 +392,13 @@
 	<message name="putItemResponse">
 		<part name="wsItemPK" element="tns:WSItemPK"/>
 	</message>
+	<message name="partialPutItemRequest">
+		<part name="wsPartialPutItem" element="tns:WSPartialPutItem"/>
+	</message>
+	<message name="partialPutItemResponse">
+		<part name="wsItemPK" element="tns:WSItemPK"/>
+	</message>
+		
 	<message name="putItemArrayRequest">
 		<part name="wsPutItemArray" element="tns:WSPutItemArray"/>
 	</message>
@@ -1174,6 +1181,11 @@
 			<input message="tns:putItemRequest"/>
 			<output message="tns:putItemResponse"/>
 		</operation>
+		
+		<operation name="partialPutItem">
+			<input message="tns:partialPutItemRequest"/>
+			<output message="tns:partialPutItemResponse"/>
+		</operation>		
 		<operation name="putItemArray">
 			<input message="tns:putItemArrayRequest"/>
 			<output message="tns:putItemArrayResponse"/>
@@ -1825,6 +1837,12 @@
 			<soap:operation/>
 			<input><soap:body use="literal"/></input>
 			<output><soap:body use="literal"/></output>
+		</operation>
+		
+		<operation name="partialPutItem">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+		<output><soap:body use="literal"/></output>
 		</operation>
 		<operation name="putItemArray">
 			<soap:operation/>

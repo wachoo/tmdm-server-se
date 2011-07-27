@@ -1482,6 +1482,171 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     }
 
     /**
+     * partial put item
+     * 
+     * @param partialPutItem
+     * @return
+     * @throws RemoteException
+     */
+    public WSItemPK partialPutItem(WSPartialPutItem partialPutItem) throws RemoteException {
+        try {
+            DataModelPOJO dataModelPOJO = Util.getDataModelCtrlLocal().getDataModel(
+                    new DataModelPOJOPK(partialPutItem.getDatamodel()));
+            String[] sl = Util.getParentAndLeafPath(partialPutItem.getPivot());
+            String parentPivotPath = sl[0];
+            String pivotLeaf = sl[1];
+            // Get the item as an Element
+            Element partialUpdateItem = Util.parse(partialPutItem.getXml()).getDocumentElement();
+
+            // Determine the item Key
+            ItemPOJOPK pk = null;
+            pk = Util.getItemPOJOPK(new DataClusterPOJOPK(partialPutItem.getDatacluster()), partialUpdateItem,
+                    Util.parseXSD(dataModelPOJO.getSchema()));
+
+            // retrieve the original Item
+            ItemPOJO originalItemPOJO = Util.getItemCtrl2Local().existsItem(pk);
+            if (originalItemPOJO == null) {
+                String err = "The orginal item " + pk.getUniqueID() + " was not found in the cluster";
+                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+                throw new XtentisException(err);
+            }
+
+            // Parse original Item
+            Element originalItem = originalItemPOJO.getProjection();
+
+            // Get a list of partialUdateItems
+            NodeList partialUpdateElementsList = Util.getNodeList(partialUpdateItem.getOwnerDocument(), parentPivotPath + "/"
+                    + pivotLeaf);
+            if ((partialUpdateElementsList == null) || (partialUpdateElementsList.getLength() == 0)) {
+                // nothing to do --> return
+                org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                        "execute() No partial Updates found for item " + pk.getUniqueID() + "  -- path: " + parentPivotPath + "/"
+                                + pivotLeaf);
+
+                return null;
+            }
+
+            // Loop over original parents
+            NodeList originalParentsList = Util.getNodeList(originalItem.getOwnerDocument(), parentPivotPath);
+            if ((originalParentsList == null) || (originalParentsList.getLength() == 0)) {
+                String err = "'" + parentPivotPath + "' must exist in the original item.";
+                org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+                throw new XtentisException(err);
+            }
+            // check out position
+            if (partialPutItem.getStartingPosition() == null) {
+                partialPutItem.setStartingPosition(Integer.MAX_VALUE);
+            }
+            for (int i = 0; i < originalParentsList.getLength(); i++) {
+                org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                        "execute() Processing original parent " + originalParentsList.item(i).getLocalName() + "  " + i);
+                // get originalParentItem
+                Element originalParent = (Element) originalParentsList.item(i);
+                // reverse process the list so that adds happen in the correct order
+                org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                        "execute() Partial Elements List Count " + partialUpdateElementsList.getLength());
+                for (int j = partialUpdateElementsList.getLength() - 1; j >= 0; j--) {
+                    org.apache.log4j.Logger.getLogger(this.getClass()).debug("execute() ---- Processing partial update " + j);
+                    Element partialUpdateElement = (Element) partialUpdateElementsList.item(j);
+                    boolean addMe = (partialPutItem.getStartingPosition() != -1);
+
+                    // overwrite if a priority
+                    boolean didOverwrite = false;
+                    if (partialPutItem.getOverwrite()) {
+                        if (partialPutItem.getKeyXPath() == null) {
+                            // No Keys given - Overwrite all items with a matching local name
+                            NodeList originalElementsList = Util.getNodeList(originalParent, pivotLeaf);
+                            if (originalElementsList != null) {
+                                for (int k = 0; k < originalElementsList.getLength(); k++) {
+                                    org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                                            "execute() -------- overwrite: replacing all item with local name  " + pivotLeaf);
+                                    Element originalElement = (Element) originalElementsList.item(k);
+                                    Node importedNode = originalParent.getOwnerDocument().importNode(partialUpdateElement, true);
+                                    originalParent.replaceChild(importedNode, originalElement);
+                                    didOverwrite = true;
+                                }
+                            }
+                        } else {
+                            // A key XPath was given --> overwrite items with matching key
+                            String partialupdateElementKey = Util.joinStrings(
+                                    Util.getTextNodes(partialUpdateElement, partialPutItem.getKeyXPath()), ".");
+                            org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                                    "execute() ---- overwrite: looking for key [" + partialupdateElementKey
+                                            + "] in original elements");
+                            // see if we can fnd a smilar element on the original item
+                            NodeList originalElementsList = Util.getNodeList(originalParent, pivotLeaf);
+                            if (originalElementsList != null) {
+                                for (int k = 0; k < originalElementsList.getLength(); k++) {
+                                    org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                                            "execute() -------- checking original element " + k);
+                                    Element originalElement = (Element) originalElementsList.item(k);
+                                    String originalElementKey = Util.joinStrings(
+                                            Util.getTextNodes(originalElementsList.item(k), partialPutItem.getKeyXPath()), ".");
+                                    org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                                            "execute() -------- key is " + originalElementKey);
+                                    if (partialupdateElementKey.equals(originalElementKey)) {
+                                        // import the partial Update element
+                                        Node importedNode = originalParent.getOwnerDocument().importNode(partialUpdateElement,
+                                                true);
+                                        originalParent.replaceChild(importedNode, originalElement);
+                                        didOverwrite = true;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                org.apache.log4j.Logger.getLogger(this.getClass()).debug("execute() ---- no original elements");
+                            }
+                        }
+                    }// if overwrite
+
+                    // performs add
+                    if (addMe && (!didOverwrite)) {
+                        org.apache.log4j.Logger.getLogger(this.getClass()).debug("execute() performing add");
+                        NodeList originalElementsList = Util.getNodeList(originalParent, pivotLeaf);
+                        int pos = Math.min(partialPutItem.getStartingPosition(), originalElementsList == null ? 0
+                                : originalElementsList.getLength());
+                        int k = 0;
+                        if (originalElementsList != null) {
+                            // loop over originam items and "re-add them" to the end by 'cyling' the elements
+                            for (k = 0; k < pos; k++) {
+                                Element originalElement = (Element) originalElementsList.item(k);
+                                originalParent.appendChild(originalElement);
+                            }
+                        }
+                        // add new element
+                        org.apache.log4j.Logger.getLogger(this.getClass()).debug("execute() ---- Adding at " + pos);
+                        // import the partial Update element
+                        Node importedNode = originalParent.getOwnerDocument().importNode(partialUpdateElement, true);
+                        originalParent.appendChild(importedNode);
+                        // finish the cycling
+                        if (originalElementsList != null) {
+                            for (k = pos; k < originalElementsList.getLength(); k++) {
+                                Element originalElement = (Element) originalElementsList.item(k);
+                                originalParent.appendChild(originalElement);
+                            }
+                        }
+                    }// end add
+
+                }// for partial update Items
+
+            }
+
+            // now write back updates
+            originalItemPOJO.setProjection(originalItem);
+            pk = Util.getItemCtrl2Local().putItem(originalItemPOJO, dataModelPOJO);
+            return new WSItemPK(new WSDataClusterPK(pk.getDataClusterPOJOPK().getUniqueId()), pk.getConceptName(), pk.getIds());
+        } catch (XtentisException xe) {
+            xe.printStackTrace();
+            throw new RemoteException(xe.getLocalizedMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            String err = "Could not partialPutItem " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
+            throw new RemoteException(e.getLocalizedMessage());
+        }
+    }
+
+    /**
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */

@@ -1719,6 +1719,14 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 			throws RemoteException {
 		return BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator().refreshCache(refreshCache);
 	}
-	
+
+    /**
+     * @ejb.interface-method view-type = "service-endpoint"
+     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     */
+    public WSItemPK partialPutItem(WSPartialPutItem wsPartialPutItem) throws RemoteException {
+        return ((DefaultXtentisWSDelegator) BeanDelegatorContainer.getUniqueInstance().getXtentisWSDelegator())
+                .partialPutItem(wsPartialPutItem);
+    }
 
 }

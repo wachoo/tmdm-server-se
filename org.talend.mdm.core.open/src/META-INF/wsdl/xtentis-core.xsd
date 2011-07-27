@@ -1164,7 +1164,24 @@
     </xsd:complexType>
     <xsd:element name="WSIsItemModifiedByOther" type="tns:WSIsItemModifiedByOther"/>
 
-	
+	<xsd:complexType name="WSPartialPutItem">
+		<xsd:annotation>
+			<xsd:documentation>
+				Partial Puts an item in the xml storage.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+		<xsd:element maxOccurs="1" minOccurs="1" name="xml" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="datacluster" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="pivot" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="datamodel" nillable="false" type="xsd:string"/>		
+			<xsd:element maxOccurs="1" minOccurs="0" name="keyXPath" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="0" default="-1" name="startingPosition" nillable="false" type="xsd:int"/>
+			<xsd:element default="false" maxOccurs="1" minOccurs="0" name="overwrite" nillable="false" type="xsd:boolean"/>
+		</xsd:sequence>		
+	</xsd:complexType>
+	<xsd:element name="WSPartialPutItem" type="tns:WSPartialPutItem"/>	
+		
 	<!-- *****************************************************
 		             D E L E T E     I T E M S
 		*******************************************************-->	
