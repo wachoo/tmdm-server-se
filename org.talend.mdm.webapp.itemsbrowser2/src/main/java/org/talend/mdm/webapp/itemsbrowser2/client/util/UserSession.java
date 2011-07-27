@@ -14,8 +14,10 @@ package org.talend.mdm.webapp.itemsbrowser2.client.util;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
@@ -35,6 +37,7 @@ public class UserSession implements Serializable{
     public static final String CURRENT_VIEW = "currentView"; //$NON-NLS-1$
     public static final String CURRENT_ENTITY_MODEL = "currentEntityModel"; //$NON-NLS-1$
     public static final String APP_HEADER = "appHeader"; //$NON-NLS-1$
+    public static final String ENTITY_MODEL_LIST = "entitymodellist"; //$NON-NLS-1$
     
     private Map<String,Object> sessionMap = null;
     
@@ -83,5 +86,10 @@ public class UserSession implements Serializable{
      */
     public EntityModel getCurrentEntityModel() {
         return (EntityModel) get(CURRENT_ENTITY_MODEL);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<ItemBaseModel> getEntitiyModelList() {
+        return (List<ItemBaseModel>) get(ENTITY_MODEL_LIST);
     }
 }

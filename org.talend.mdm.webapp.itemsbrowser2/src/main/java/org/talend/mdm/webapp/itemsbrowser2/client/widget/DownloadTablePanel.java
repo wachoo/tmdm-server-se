@@ -13,15 +13,21 @@
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadBaseModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadTable;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBean;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.LabelUtil;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -41,10 +47,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -62,7 +64,7 @@ public class DownloadTablePanel extends ContentPanel {
 
     private ContentPanel gridContainer;
 
-    private Grid<DownloadBaseModel> grid;
+    private Grid<ItemBean> grid;
 
     private String tableName = null;
 
@@ -70,6 +72,7 @@ public class DownloadTablePanel extends ContentPanel {
 
     private PagingToolBarEx pagetoolBar = null;
 
+    
     private DownloadTablePanel(String name) {
         super();
         tableName = name;
@@ -81,59 +84,60 @@ public class DownloadTablePanel extends ContentPanel {
         return new DownloadTablePanel(name);
     }
 
-    private List<ColumnConfig> initColumns(DownloadTable table, int width) {
+    private List<ColumnConfig> initColumns(ViewBean viewBean, int width) {
+       
+        List<String> viewableXpaths = viewBean.getViewableXpaths();
+        EntityModel entityModel = viewBean.getBindingEntityModel();
+        Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
+        
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
-        int subWidth = (width) / table.getFields().length;
-        for (String field : table.getFields()) {
-            ColumnConfig cc = new ColumnConfig(field, field, subWidth);        
+        int subWidth = (width) / viewBean.getViewables().length;
+        for (String xpath : viewableXpaths) {
+            TypeModel typeModel = dataTypes.get(xpath);
+            ColumnConfig cc = new ColumnConfig(xpath, typeModel == null ? xpath : ViewUtil.getViewableLabel(
+                    Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel), subWidth);      
             ccList.add(cc);
-            TextField<String> text = new TextField<String>();
-            if (Arrays.asList(table.getKeys()).contains(field)) {
-                text.setAllowBlank(false);
-                text.setValidator(new Validator() {
-
-                    public String validate(Field<?> field, String value) {
-                        if (value == null || value.isEmpty())
-                            return "Invalid"; //$NON-NLS-1$
-                        return null;
-                    }
-
-                });
-            }
-            cc.setEditor(new CellEditor(text));
         }
 
         return ccList;
     }
 
-    public void updateGrid(DownloadTable table, int width) {
-        List<ColumnConfig> columnConfigList = initColumns(table, width);
-        RpcProxy<PagingLoadResult<DownloadBaseModel>> proxy = new RpcProxy<PagingLoadResult<DownloadBaseModel>>() {
+    public void updateGrid(final ViewBean viewBean, int width) {
+        List<ColumnConfig> columnConfigList = initColumns(viewBean, width);
+        RpcProxy<PagingLoadResult<ItemBean>> proxy = new RpcProxy<PagingLoadResult<ItemBean>>() {
 
-            protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<DownloadBaseModel>> callback) {
-                service.getDownloadTableContent(tableName, (PagingLoadConfig) loadConfig,
-                        new AsyncCallback<PagingLoadResult<DownloadBaseModel>>() {
-
-                            public void onSuccess(PagingLoadResult<DownloadBaseModel> result) {
-                                callback.onSuccess(new BasePagingLoadResult<DownloadBaseModel>(result.getData(), result
-                                        .getOffset(), result.getTotalLength()));
-                            }
-
-                            public void onFailure(Throwable caught) {
-                                MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
-                                callback.onSuccess(new BasePagingLoadResult<DownloadBaseModel>(
-                                        new ArrayList<DownloadBaseModel>(), 0, 0));
-                            }
-                        });
+            protected void load(Object loadConfig, final AsyncCallback<PagingLoadResult<ItemBean>> callback) {
+                final QueryModel qm = new QueryModel();
+                qm.setDataClusterPK(Itemsbrowser2.getSession().getAppHeader().getDatacluster());
+                qm.setView(viewBean);
+                qm.setModel(viewBean.getBindingEntityModel());
+     
+                qm.setPagingLoadConfig((PagingLoadConfig) loadConfig);
+                int pageSize = (Integer) pagetoolBar.getPageSize();
+                qm.getPagingLoadConfig().setLimit(pageSize);
+                qm.setLanguage(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()));
+                                
+                service.queryItemBeans(qm, new AsyncCallback<ItemBasePageLoadResult<ItemBean>>() {
+                    
+                    public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
+                        callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
+                                .getTotalLength()));
+                    }
+                    
+                    public void onFailure(Throwable caught) {
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), caught.getMessage(), null);
+                        callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
+                        
+                    }
+                });
             }
-
         };
 
         // loader
-        final PagingLoader<PagingLoadResult<DownloadBaseModel>> loader = new BasePagingLoader<PagingLoadResult<DownloadBaseModel>>(
+        final PagingLoader<PagingLoadResult<ItemBean>> loader = new BasePagingLoader<PagingLoadResult<ItemBean>>(
                 proxy);
 
-        final ListStore<DownloadBaseModel> store = new ListStore<DownloadBaseModel>(loader);
+        final ListStore<ItemBean> store = new ListStore<ItemBean>(loader);
         int usePageSize = PAGE_SIZE;
         if (StateManager.get().get("crossgrid") != null) //$NON-NLS-1$
             usePageSize = Integer.valueOf(((Map) StateManager.get().get("crossgrid")).get("limit").toString()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -141,11 +145,11 @@ public class DownloadTablePanel extends ContentPanel {
         pagetoolBar.bind(loader);
         ColumnModel cm = new ColumnModel(columnConfigList);
 
-        grid = new Grid<DownloadBaseModel>(store, cm);
+        grid = new Grid<ItemBean>(store, cm);
         grid.setId("UpdateTableGrid"); //$NON-NLS-1$
-        grid.addListener(Events.Attach, new Listener<GridEvent<DownloadBaseModel>>() {
+        grid.addListener(Events.Attach, new Listener<GridEvent<ItemBean>>() {
 
-            public void handleEvent(GridEvent<DownloadBaseModel> be) {
+            public void handleEvent(GridEvent<ItemBean> be) {
                 PagingLoadConfig config = new BasePagingLoadConfig();
                 config.setOffset(0);
                 int pageSize = (Integer) pagetoolBar.getPageSize();
@@ -169,10 +173,20 @@ public class DownloadTablePanel extends ContentPanel {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                Window.open("/itemsbrowser2/download?tableName=" + tableName, "_parent", "location=no"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                String language = Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader());
+                Window.open("/itemsbrowser2/download?tableName=" + tableName + "&language=" + language, "_parent", "location=no"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             }
         });
         gridContainer.setTopComponent(toolBar);
         this.syncSize();
+    }
+    
+    public String getViewableLabel(String language, TypeModel typeModel) {
+        
+        String label = typeModel.getLabel(language);
+        if(LabelUtil.isDynamicLabel(label)) {
+            label = typeModel.getName();
+        }
+        return label;
     }
 }

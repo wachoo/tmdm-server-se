@@ -28,11 +28,11 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemResult;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.resources.icon.Icons;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
 import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.AdvancedSearchPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.SearchPanel.SimpleCriterionPanel;
 import org.talend.mdm.webapp.itemsbrowser2.client.widget.inputfield.ComboBoxField;
-import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadTable;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
@@ -142,7 +142,7 @@ public class ItemsToolBar extends ToolBar {
 
     private ComboBox<ItemBaseModel> combo = null;
 
-    private DownloadTable table;
+    private ViewBean tableView;
 
     /*************************************/
 
@@ -450,23 +450,13 @@ public class ItemsToolBar extends ToolBar {
                     ToolBar toolBar = new ToolBar();
                     toolBar.setWidth("100%"); //$NON-NLS-1$
 
-                    service.getUploadTableNames("", //$NON-NLS-1$
-                            new AsyncCallback<List<ItemBaseModel>>() {
-
-                                public void onFailure(Throwable caught) {
-                                    Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                }
-
-                                public void onSuccess(List<ItemBaseModel> list) {
-                                    tableList.removeAll();
-                                    tableList.add(list);
-                                }
-                            });
+                    tableList.removeAll();
+                    tableList.add(Itemsbrowser2.getSession().getEntitiyModelList());
 
                     combo = new ComboBox<ItemBaseModel>();
                     combo.setEmptyText(MessagesFactory.getMessages().label_combo_select());
-
-                    combo.setDisplayField("label"); //$NON-NLS-1$
+                    combo.setDisplayField("name");//$NON-NLS-1$
+                    combo.setValueField("value");//$NON-NLS-1$
                     combo.setWidth(150);
                     combo.setStore(tableList);
                     combo.setTypeAhead(true);
@@ -478,7 +468,7 @@ public class ItemsToolBar extends ToolBar {
                         public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                             if (se.getSelectedItem() == null)
                                 return;
-                            currentTableName = (String) se.getSelectedItem().get("key"); //$NON-NLS-1$
+                            currentTableName = (String) se.getSelectedItem().get("value"); //$NON-NLS-1$
                             ItemsToolBar.this.addDownloadPanel(panel);
                         }
                     });
@@ -511,41 +501,6 @@ public class ItemsToolBar extends ToolBar {
                                     panel.layout();
                                 }
                             }));
-                    toolBar.add(new SeparatorToolItem());
-                    toolBar.add(new Button(MessagesFactory.getMessages().delete_btn(), new SelectionListener<ButtonEvent>() {
-
-                        @Override
-                        public void componentSelected(ButtonEvent ce) {
-                            if (currentTableName == null)
-                                return;
-                            MessageBox.confirm(MessagesFactory.getMessages().label_field_delete_table(), MessagesFactory
-                                    .getMessages().message_delete_table(), new Listener<MessageBoxEvent>() {
-
-                                public void handleEvent(MessageBoxEvent event) {
-
-                                    if (event.getButtonClicked().getItemId().equals(Dialog.YES)) {
-
-                                        service.deleteItemsBrowserTable(currentTableName,
-                                                new AsyncCallback<List<ItemBaseModel>>() {
-
-                                                    public void onSuccess(List<ItemBaseModel> list) {
-                                                        tableList.removeAll();
-                                                        tableList.add(list);
-                                                        combo.setStore(tableList);
-                                                        combo.reset();
-                                                        panel.removeAll();
-                                                        panel.layout();
-                                                    }
-
-                                                    public void onFailure(Throwable caught) {
-                                                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
-                                                    }
-                                                });
-                                    }
-                                }
-                            });
-                        }
-                    }));
                     toolBar.add(new SeparatorToolItem());
                     toolBar.add(new Button(MessagesFactory.getMessages().label_button_new_table(),
                             new SelectionListener<ButtonEvent>() {
@@ -583,6 +538,21 @@ public class ItemsToolBar extends ToolBar {
                 service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), callback);
             }
         };
+
+        if (Itemsbrowser2.getSession().getEntitiyModelList() == null) {
+            service.getViewsList(Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
+                    new AsyncCallback<List<ItemBaseModel>>() {
+
+                        public void onSuccess(List<ItemBaseModel> modelList) {
+                            Itemsbrowser2.getSession().put(UserSession.ENTITY_MODEL_LIST, modelList);
+                        }
+
+                        public void onFailure(Throwable caught) {
+                            Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                        }
+                    });
+        }
+
         ListLoader<ListLoadResult<ItemBaseModel>> Entityloader = new BaseListLoader<ListLoadResult<ItemBaseModel>>(Entityproxy);
 
         HorizontalPanel entityPanel = new HorizontalPanel();
@@ -1113,18 +1083,19 @@ public class ItemsToolBar extends ToolBar {
     }
 
     public void addDownloadPanel(final ContentPanel panel) {
-        service.getDownloadTable(currentTableName, new AsyncCallback<DownloadTable>() {
+        service.getView(currentTableName, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
+                new AsyncCallback<ViewBean>() {
 
-            public void onSuccess(DownloadTable tb) {
-                table = tb;
+            public void onSuccess(ViewBean bean) {
+                tableView = bean;
                 panel.removeAll();
-                DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(table.getName());
-                dtpanel.updateGrid(table, panel.getWidth());
+                DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(tableView.getViewPK());
+                dtpanel.updateGrid(tableView, panel.getWidth());
                 panel.add(dtpanel);
                 panel.layout(true);
             }
 
-            public void onFailure(Throwable arg0) {
+            public void onFailure(Throwable bean) {
 
             }
         });

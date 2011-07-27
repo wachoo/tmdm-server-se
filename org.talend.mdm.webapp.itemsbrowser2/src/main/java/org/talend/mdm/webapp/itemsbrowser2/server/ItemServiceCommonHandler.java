@@ -145,7 +145,9 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         Map<String, String[]> formatMap = this.checkDisplayFormat(entityModel, language);
 
         try {
-            WSWhereItem wi = CommonUtil.buildWhereItems(criteria);
+            WSWhereItem wi = null;
+            if(criteria != null)
+                wi = CommonUtil.buildWhereItems(criteria);
             String[] results = CommonUtil
                     .getPort()
                     .viewSearch(
