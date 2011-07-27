@@ -38,6 +38,8 @@ public class UserSession implements Serializable{
     public static final String CURRENT_ENTITY_MODEL = "currentEntityModel"; //$NON-NLS-1$
     public static final String APP_HEADER = "appHeader"; //$NON-NLS-1$
     public static final String ENTITY_MODEL_LIST = "entitymodellist"; //$NON-NLS-1$
+    public static final String CUSTOMIZE_MODEL_LIST="customizeModelList";; //$NON-NLS-1$
+    public static final String CUSTOMIZE_MODEL_VIEW_MAP="customizeModelViewMap"; //$NON-NLS-1$
     
     private Map<String,Object> sessionMap = null;
     
@@ -91,5 +93,15 @@ public class UserSession implements Serializable{
     @SuppressWarnings("unchecked")
     public List<ItemBaseModel> getEntitiyModelList() {
         return (List<ItemBaseModel>) get(ENTITY_MODEL_LIST);
+    }
+        
+    @SuppressWarnings("unchecked")
+    public List<ItemBaseModel> getCustomizeModelList(){
+        return (List<ItemBaseModel>) get(CUSTOMIZE_MODEL_LIST);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public Map<ItemBaseModel, ViewBean> getCustomizeModelViewMap(){
+        return (Map<ItemBaseModel, ViewBean>) get(CUSTOMIZE_MODEL_VIEW_MAP);
     }
 }

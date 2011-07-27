@@ -587,4 +587,8 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
     public String add_table_duplicated() {
         return MESSAGES.getMessage("add_table_duplicated");
     }
+
+    public String add_table_empty_field() {
+        return MESSAGES.getMessage("add_table_empty_field");
+    }
 }

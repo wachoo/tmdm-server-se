@@ -138,7 +138,7 @@ public class ItemsToolBar extends ToolBar {
 
     private String bookmarkName = null;
 
-    private String currentTableName = null;
+    private ItemBaseModel currentModel = null;
 
     private ComboBox<ItemBaseModel> combo = null;
 
@@ -428,7 +428,7 @@ public class ItemsToolBar extends ToolBar {
             public void componentSelected(ButtonEvent ce) {
                 TabPanel tabFrame = (TabPanel) Registry.get(ItemsView.TAB_FRAME);
                 TabItem item = tabFrame.getItemByItemId("upload-main-panel"); //$NON-NLS-1$
-                currentTableName = null;
+                currentModel = null;
 
                 if (item == null) {
 
@@ -452,7 +452,9 @@ public class ItemsToolBar extends ToolBar {
 
                     tableList.removeAll();
                     tableList.add(Itemsbrowser2.getSession().getEntitiyModelList());
-
+                    if(Itemsbrowser2.getSession().getCustomizeModelList() != null){
+                        tableList.add(Itemsbrowser2.getSession().getCustomizeModelList());
+                    }
                     combo = new ComboBox<ItemBaseModel>();
                     combo.setEmptyText(MessagesFactory.getMessages().label_combo_select());
                     combo.setDisplayField("name");//$NON-NLS-1$
@@ -468,18 +470,44 @@ public class ItemsToolBar extends ToolBar {
                         public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
                             if (se.getSelectedItem() == null)
                                 return;
-                            currentTableName = (String) se.getSelectedItem().get("value"); //$NON-NLS-1$
+                            currentModel = se.getSelectedItem();
+                
+                            if(Itemsbrowser2.getSession().getCustomizeModelList() != null){
+                                if(Itemsbrowser2.getSession().getCustomizeModelList().contains(currentModel)){
+                                    ViewBean viewBean = Itemsbrowser2.getSession().getCustomizeModelViewMap().get(currentModel);
+                                    panel.removeAll();
+                                    DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(viewBean.getViewPK());
+                                    dtpanel.updateGrid(viewBean, panel.getWidth());
+                                    panel.add(dtpanel);
+                                    panel.layout(true);
+                                    return;
+                                }                                    
+                            }
+                      
                             ItemsToolBar.this.addDownloadPanel(panel);
                         }
                     });
 
                     toolBar.add(combo);
-                    toolBar.add(new Button("Edit", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
+                    toolBar.add(new Button("View", new SelectionListener<ButtonEvent>() { //$NON-NLS-1$
 
                                 @Override
                                 public void componentSelected(ButtonEvent event) {
-                                    if (currentTableName == null)
+                                    if (currentModel == null)
                                         return;
+                                    
+                                    if(Itemsbrowser2.getSession().getCustomizeModelList() != null){
+                                        if(Itemsbrowser2.getSession().getCustomizeModelList().contains(currentModel)){
+                                            ViewBean viewBean = Itemsbrowser2.getSession().getCustomizeModelViewMap().get(currentModel);
+                                            panel.removeAll();
+                                            DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(viewBean.getViewPK());
+                                            dtpanel.updateGrid(viewBean, panel.getWidth());
+                                            panel.add(dtpanel);
+                                            panel.layout(true);
+                                            return;
+                                        }                                    
+                                    }
+                              
                                     ItemsToolBar.this.addDownloadPanel(panel);
                                 }
                             }));
@@ -490,9 +518,10 @@ public class ItemsToolBar extends ToolBar {
 
                                 @Override
                                 public void componentSelected(ButtonEvent ce) {
-                                    if (currentTableName == null)
+                                    if (currentModel == null)
                                         return;
                                     panel.removeAll();
+                                    String currentTableName = currentModel.get("value"); //$NON-NLS-1$
                                     UploadFileFormPanel formPanel = UploadFileFormPanel.getInstance(currentTableName);
                                     formPanel.setToolbar(ItemsToolBar.this);
                                     formPanel.setContainer(panel);
@@ -509,7 +538,6 @@ public class ItemsToolBar extends ToolBar {
                                     panel.removeAll();
                                     NewTablePanel cp = new NewTablePanel();
                                     cp.setToolbar(ItemsToolBar.this);
-                                    cp.setContainer(panel);
 
                                     panel.add(cp);
                                     panel.layout();
@@ -1083,6 +1111,7 @@ public class ItemsToolBar extends ToolBar {
     }
 
     public void addDownloadPanel(final ContentPanel panel) {
+        String currentTableName = currentModel.get("value"); //$NON-NLS-1$
         service.getView(currentTableName, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
                 new AsyncCallback<ViewBean>() {
 
@@ -1101,21 +1130,18 @@ public class ItemsToolBar extends ToolBar {
         });
     }
 
-    public String getCurrentTableName() {
-        return currentTableName;
-    }
-
-    public void setCurrentTableName(String currentTableName) {
-        this.currentTableName = currentTableName;
-    }
-
-    public void addOption(String newTableName) {
-        ItemBaseModel model = new ItemBaseModel();
-        model.set("label", newTableName); //$NON-NLS-1$
-        model.set("key", newTableName); //$NON-NLS-1$
+    public void addOption(ItemBaseModel model) {
         tableList.add(model);
         combo.setStore(tableList);
 
         combo.setValue(model);
+    }
+
+    public ItemBaseModel getCurrentModel() {
+        return currentModel;
+    }
+    
+    public void setCurrentModel(ItemBaseModel currentModel) {
+        this.currentModel = currentModel;
     }
 }

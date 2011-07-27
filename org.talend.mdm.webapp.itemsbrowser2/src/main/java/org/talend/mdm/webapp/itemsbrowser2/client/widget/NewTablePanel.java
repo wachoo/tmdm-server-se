@@ -12,67 +12,68 @@
 // ============================================================================
 package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
-import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.Locale;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.UserSession;
+import org.talend.mdm.webapp.itemsbrowser2.client.util.ViewUtil;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.form.DualListField;
+import com.extjs.gxt.ui.client.widget.form.DualListField.Mode;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.ListField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.ColumnData;
-import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * DOC Administrator class global comment. Detailled comment
  */
-public class NewTablePanel extends ContentPanel {
-
-    private int fieldCount = 1;
-
-    private String[] fieldArray = null;
-
-    private String[] keyArray = null;
+public class NewTablePanel extends FormPanel {
 
     private ItemsServiceAsync service = (ItemsServiceAsync) Registry.get(Itemsbrowser2.ITEMS_SERVICE);
-
-    private ContentPanel container;
 
     private ItemsToolBar toolbar;
 
     private TextField<String> tableName;
 
-    private LayoutContainer left = new LayoutContainer();
-
-    private LayoutContainer right = new LayoutContainer();
-
-    private FormPanel addPanel;
-
+    private ComboBox<ItemBaseModel> viewCombo;
+    
+    private DualListField<ItemBaseModel> detailedList;
+    
+    private ListField<ItemBaseModel> from;
+    
+    private ListField<ItemBaseModel> to;
+    
+    private ViewBean currentBean;
+    
     public NewTablePanel() {
         this.setCollapsible(true);
         this.setFrame(false);
         this.setHeaderVisible(false);
-        this.setWidth("100%"); //$NON-NLS-1$
-        this.setLayout(new FitLayout());
         this.setBodyBorder(false);
-        this.setBorders(false);
+        this.setWidth("100%"); //$NON-NLS-1$
         this.setScrollMode(Scroll.AUTO);
 
         this.addFormPanel();
@@ -80,161 +81,159 @@ public class NewTablePanel extends ContentPanel {
 
     private void addFormPanel() {
 
-        addPanel = new FormPanel();
-        addPanel.setCollapsible(false);
-        addPanel.setFrame(false);
-        addPanel.setHeaderVisible(false);
-        addPanel.setWidth("100%"); //$NON-NLS-1$
-        addPanel.setScrollMode(Scroll.AUTO);
-
         tableName = new TextField<String>();
-        tableName.setFieldLabel(MessagesFactory.getMessages().label_field_table_name());
-        tableName.setLabelStyle("width:102px");//$NON-NLS-1$
-        addPanel.add(tableName);
+        tableName.setFieldLabel(MessagesFactory.getMessages().label_field_table_name());     
+        tableName.setAllowBlank(false);
+        this.add(tableName, new FormData("20%")); //$NON-NLS-1$
 
-        LayoutContainer main = new LayoutContainer();
-        main.setLayout(new ColumnLayout());
-        main.add(left, new ColumnData(.5));
-        main.add(right, new ColumnData(.5));
-
-        FormLayout layout = new FormLayout();
-        left.setLayout(layout);
-        layout.setDefaultWidth(210);
-
-        layout = new FormLayout();
-        layout.setLabelWidth(20);
-        right.setLayout(layout);
-
-        TextField<String> field1 = new TextField<String>();
-        field1.setFieldLabel(MessagesFactory.getMessages().label_field() + " " + fieldCount); //$NON-NLS-1$
-        field1.setId("field" + fieldCount); //$NON-NLS-1$
-        field1.setHeight(25);
-        field1.setAllowBlank(false);
-        left.add(field1);
-
-        CheckBox keycb = new CheckBox();
-        keycb.setFieldLabel("Key"); //$NON-NLS-1$
-        keycb.setId(MessagesFactory.getMessages().label_key() + fieldCount);
-        right.add(keycb);
-
-        addPanel.add(main, new FormData("80%"));//$NON-NLS-1$   
-
-        this.add(addPanel);
-        ToolBar tb = new ToolBar();
-        tb.setWidth("100%"); //$NON-NLS-1$
-        tb.add(new Button(MessagesFactory.getMessages().save_btn(), new SelectionListener<ButtonEvent>() {
+        this.add(this.getViewCombo(), new FormData("20%")); //$NON-NLS-1$
+        
+        detailedList = new DualListField<ItemBaseModel>();
+        detailedList.setMode(Mode.INSERT);  
+        detailedList.setFieldLabel("Fields");   //$NON-NLS-1$
+        
+        from = detailedList.getFromList();
+        from.setDisplayField("name"); //$NON-NLS-1$
+        ListStore<ItemBaseModel> fromStore = new ListStore<ItemBaseModel>();  
+        from.setStore(fromStore);
+        
+        to = detailedList.getToList();
+        to.setDisplayField("name");   //$NON-NLS-1$
+        ListStore<ItemBaseModel> store = new ListStore<ItemBaseModel>();  
+        to.setStore(store);
+        
+        this.add(detailedList, new FormData("50%"));  //$NON-NLS-1$
+        
+        Button save = new Button(MessagesFactory.getMessages().save_btn());
+        save.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
-            public void componentSelected(ButtonEvent ce) {
-                if (tableName.getValue() == null)
+            public void componentSelected(ButtonEvent event) {
+                if(!NewTablePanel.this.isValid())
                     return;
-
-                if (!addPanel.isValid())
-                    return;
-
-                if (!isValidValue(tableName.getValue().trim())) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                            .invalid_tableName(), null);
-                    return;
-                }
-
-                String validResult = ifValidField(left);
-                if (validResult != null) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                            MessagesFactory.getMessages().invalid_field(validResult), null);
-                    return;
-                }
-
-                if (ifEmptyKey(right)) {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().no_key(), null);
-                    return;
-                }
-
-                service.addNewTable(tableName.getValue(), fieldArray, keyArray, new AsyncCallback<Boolean>() {
-
-                    public void onFailure(Throwable caught) {
-                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                
+                List<ItemBaseModel> entityModelList = Itemsbrowser2.getSession().getEntitiyModelList();
+                for(ItemBaseModel model : entityModelList){
+                    if(tableName.getValue().trim().equalsIgnoreCase((String)model.get("name"))){ //$NON-NLS-1$
+                        MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().add_table_duplicated(), null);
+                        return;
                     }
-
-                    public void onSuccess(Boolean result) {
-                        if (result) {
-                            toolbar.setCurrentTableName(tableName.getValue());
-                            toolbar.addDownloadPanel(container);
-                            toolbar.addOption(tableName.getValue());
-                        } else {
-                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
-                                    .add_table_duplicated(), null);
+                }
+                
+                if(Itemsbrowser2.getSession().getCustomizeModelList() != null){
+                    entityModelList = Itemsbrowser2.getSession().getCustomizeModelList();
+                    for(ItemBaseModel model : entityModelList){
+                        if(tableName.getValue().trim().equalsIgnoreCase((String)model.get("name"))){ //$NON-NLS-1$
+                            MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().add_table_duplicated(), null);
+                            return;
                         }
-
                     }
-                });
+                }
+                
+                ListStore<ItemBaseModel> list = to.getStore();
+                if(list.getModels().size() == 0){
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().add_table_empty_field(), null);
+                    return;
+                }
+                
+                ViewBean vb = new ViewBean();
+                vb.setBindingEntityModel(currentBean.getBindingEntityModel());
+                vb.setSearchables(currentBean.getSearchables());
+                vb.setViewPK(currentBean.getViewPK());
+                vb.setDescription(currentBean.getDescription());
+                vb.setDescriptionLocalized(currentBean.getDescriptionLocalized());
 
+                String[] viewables = new String[list.getModels().size()];
+                int i = 0;
+                for(ItemBaseModel model : list.getModels()){
+                    String path = (String) model.get("value"); //$NON-NLS-1$
+                    vb.addViewableXpath(path);
+                    viewables[i] = path;
+                    i++;
+                }
+                vb.setViewables(viewables);
+                
+                if(Itemsbrowser2.getSession().getCustomizeModelList() == null){
+                    Itemsbrowser2.getSession().put(UserSession.CUSTOMIZE_MODEL_LIST, new ArrayList<ItemBaseModel>());
+                }
+                
+                if(Itemsbrowser2.getSession().getCustomizeModelViewMap() == null){
+                    Itemsbrowser2.getSession().put(UserSession.CUSTOMIZE_MODEL_VIEW_MAP, new HashMap<ItemBaseModel, ViewBean>());
+                }
+                
+                ItemBaseModel model = new ItemBaseModel();
+                model.set("name", tableName.getValue()); //$NON-NLS-1$
+                model.set("value", vb.getViewPK()); //$NON-NLS-1$
+                Itemsbrowser2.getSession().getCustomizeModelList().add(model);
+                Itemsbrowser2.getSession().getCustomizeModelViewMap().put(model, vb);
+                toolbar.addOption(model);
+                
             }
-
-        }));
-        tb.add(new SeparatorToolItem());
-        tb.add(new Button(MessagesFactory.getMessages().label_add_field(), new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                fieldCount = fieldCount + 1;
-                TextField<String> f = new TextField<String>();
-                f.setFieldLabel(MessagesFactory.getMessages().label_field() + " " + fieldCount); //$NON-NLS-1$
-                f.setId("field" + fieldCount); //$NON-NLS-1$
-                f.setHeight(25);
-                left.add(f);
-
-                CheckBox kcb = new CheckBox();
-                kcb.setFieldLabel(MessagesFactory.getMessages().label_key());
-                kcb.setId("key" + fieldCount); //$NON-NLS-1$
-                right.add(kcb);
-
-                addPanel.layout();
-            }
-        }));
-        this.setBottomComponent(tb);
-    }
-
-    private boolean ifEmptyKey(LayoutContainer lc) {
-        boolean ifempty = true;
-        keyArray = new String[lc.getItemCount()];
-        int i = 0;
-        for (Component c : lc.getItems()) {
-            keyArray[i] = ((Field) c).getValue().toString();
-            if (keyArray[i].equals("true")) //$NON-NLS-1$
-                ifempty = false;
-            i++;
-        }
-        return ifempty;
-    }
-
-    private String ifValidField(LayoutContainer lc) {
-        fieldArray = new String[lc.getItemCount()];
-        int i = 0;
-        for (Component c : lc.getItems()) {
-            fieldArray[i] = ((Field) c).getValue().toString();
-            if (!isValidValue(fieldArray[i]))
-                return fieldArray[i];
-            i++;
-        }
-        return null;
-    }
-
-    public native boolean isValidValue(String inputValue) /*-{
-        var re = new RegExp('[a-zA-Z][a-zA-Z0-9]*');
-        var m = re.exec(inputValue);
-        if (m == null)
-        return false;
-        else
-        return true;
-    }-*/;
-
-    public void setContainer(ContentPanel container) {
-        this.container = container;
+        });
+        this.add(save);
     }
 
     public void setToolbar(ItemsToolBar toolbar) {
         this.toolbar = toolbar;
     }
 
+    private ComboBox<ItemBaseModel> getViewCombo(){
+        List<ItemBaseModel> viewList = Itemsbrowser2.getSession().getEntitiyModelList();
+        ListStore<ItemBaseModel> viewStoreList = new ListStore<ItemBaseModel>();
+        viewStoreList.add(viewList);
+        
+        viewCombo = new ComboBox<ItemBaseModel>();
+        viewCombo.setId("viewCombo"); //$NON-NLS-1$
+        viewCombo.setFieldLabel("View"); //$NON-NLS-1$
+        viewCombo.setDisplayField("name");//$NON-NLS-1$
+        viewCombo.setValueField("value");//$NON-NLS-1$
+        viewCombo.setStore(viewStoreList);
+        viewCombo.setTypeAhead(true);
+        viewCombo.setTriggerAction(TriggerAction.ALL);
+        viewCombo.setAllowBlank(false);
+        
+        viewCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
+            
+            @Override
+            public void selectionChanged(SelectionChangedEvent<ItemBaseModel> se) {
+                String viewName = (String) se.getSelectedItem().get("value"); //$NON-NLS-1$
+                final String language = Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader());
+                service.getView(viewName, language, new AsyncCallback<ViewBean>() {
+                    
+                    public void onSuccess(ViewBean viewBean) {
+                        currentBean = viewBean;
+                        List<ItemBaseModel> modelList = NewTablePanel.this.convertViewBean2ModelList(viewBean, language);
+                        from.getStore().removeAll();
+                        from.getStore().add(modelList);
+                                                
+                        to.getStore().removeAll();
+                        to.reset();
+                    }
+                    
+                    public void onFailure(Throwable caught) {
+                        
+                    }
+                });
+            }
+        });
+        
+        return viewCombo;
+    }
+    
+    private List<ItemBaseModel> convertViewBean2ModelList(ViewBean viewBean, String language){
+        List<String> viewableXpaths = viewBean.getViewableXpaths();
+        EntityModel entityModel = viewBean.getBindingEntityModel();
+        Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
+        List<ItemBaseModel> storeList = new ArrayList<ItemBaseModel>();
+        
+        for (String xpath : viewableXpaths) {
+            ItemBaseModel model = new ItemBaseModel();
+            TypeModel typeModel = dataTypes.get(xpath);
+            model.set("name", ViewUtil.getViewableLabel(language, typeModel)); //$NON-NLS-1$
+            model.set("value", xpath); //$NON-NLS-1$
+            storeList.add(model);
+        }
+        return storeList;
+    }
+ 
 }
