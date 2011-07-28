@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,6 +29,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ViewHelper;
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -37,13 +37,7 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSPutItem;
-import com.sun.xml.xsom.XSComplexType;
-import com.sun.xml.xsom.XSElementDecl;
-import com.sun.xml.xsom.XSParticle;
-import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.parser.XSOMParser;
 
 /**
  * 
@@ -82,11 +76,14 @@ public class UploadData extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String concept = "";//$NON-NLS-1$
+        String viewPK = ""; //$NON-NLS-1$
         String fileType = "";//$NON-NLS-1$
         String sep = ",";//$NON-NLS-1$
         String textDelimiter = "\"";//$NON-NLS-1$
         String language = "en"; // default//$NON-NLS-1$
         String encoding = "utf-8";//$NON-NLS-1$
+        String header = ""; //$NON-NLS-1$
+
         boolean headersOnFirstLine = false;
         int lineNum = 0;
         PrintWriter writer = response.getWriter();
@@ -125,9 +122,9 @@ public class UploadData extends HttpServlet {
                 if (item.isFormField()) {
                     // we are not expecting any field just (one) file(s)
                     String name = item.getFieldName();
-                    LOG.debug("doPost() Field: '" + name + "' - value:'" + item.getString() + "'");
+                    LOG.debug("doPost() Field: '" + name + "' - value:'" + item.getString() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     if (name.equals("concept"))//$NON-NLS-1$
-                        concept = item.getString();
+                        viewPK = item.getString();
                     if (name.equals("fileType"))//$NON-NLS-1$
                         fileType = item.getString();
                     if (name.equals("sep"))//$NON-NLS-1$
@@ -138,20 +135,23 @@ public class UploadData extends HttpServlet {
                         language = item.getString();
                     if (name.equals("encodings"))//$NON-NLS-1$
                         encoding = item.getString();
+                    if (name.equals("header"))//$NON-NLS-1$
+                        header = item.getString();
                     if (name.equals("headersOnFirstLine"))//$NON-NLS-1$
                         headersOnFirstLine = "on".equals(item.getString());//$NON-NLS-1$
                 } else {
 
                     file = File.createTempFile("upload", "tmp");//$NON-NLS-1$//$NON-NLS-2$
-                    LOG.debug("doPost() data uploaded in " + file.getAbsolutePath());
+                    LOG.debug("doPost() data uploaded in " + file.getAbsolutePath()); //$NON-NLS-1$
                     file.deleteOnExit();
                     item.write(file);
                 }// if field
             }// while item
 
+            concept = ViewHelper.getConceptFromDefaultViewName(viewPK);
+            String[] fields = header.split("@"); //$NON-NLS-1$
+                        
             if ("excel".equals(fileType.toLowerCase())) {//$NON-NLS-1$
-
-                String[] fields = getTableFieldNames(concept);
                 POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(file));
                 HSSFWorkbook wb = new HSSFWorkbook(fs);
                 HSSFSheet sh = wb.getSheetAt(0);
@@ -214,7 +214,6 @@ public class UploadData extends HttpServlet {
                 }
 
             } else if ("csv".equals(fileType.toLowerCase())) {
-                String[] fields = getTableFieldNames(concept);
                 String line;
                 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));//$NON-NLS-1$
                 while ((line = br.readLine()) != null) {
@@ -292,34 +291,7 @@ public class UploadData extends HttpServlet {
         }
 
     }
-
-    private String[] getTableFieldNames(String tableName) {
-        try {
-            // grab the table fileds (e.g. the concept sub-elements)
-            String schema = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(this.getCurrentDataModel())))
-                    .getXsdSchema();
-
-            XSOMParser parser = new XSOMParser();
-            parser.parse(new StringReader(schema));
-            XSSchemaSet xss = parser.getResult();
-
-            XSElementDecl decl;
-            decl = xss.getElementDecl("", tableName);//$NON-NLS-1$
-            if (decl == null) {
-                return null;
-            }
-            XSComplexType type = (XSComplexType) decl.getType();
-            XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-            ArrayList<String> fieldNames = new ArrayList<String>();
-            for (int i = 0; i < xsp.length; i++) {
-                fieldNames.add(xsp[i].getTerm().asElementDecl().getName());
-            }
-            return fieldNames.toArray(new String[fieldNames.size()]);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
+    
     private void putDocument(String xml) throws ServletException {
         try {
             Util.getPort().putItem(

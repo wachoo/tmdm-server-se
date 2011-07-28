@@ -471,20 +471,7 @@ public class ItemsToolBar extends ToolBar {
                             if (se.getSelectedItem() == null)
                                 return;
                             currentModel = se.getSelectedItem();
-                
-                            if(Itemsbrowser2.getSession().getCustomizeModelList() != null){
-                                if(Itemsbrowser2.getSession().getCustomizeModelList().contains(currentModel)){
-                                    ViewBean viewBean = Itemsbrowser2.getSession().getCustomizeModelViewMap().get(currentModel);
-                                    panel.removeAll();
-                                    DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(viewBean.getViewPK());
-                                    dtpanel.updateGrid(viewBean, panel.getWidth());
-                                    panel.add(dtpanel);
-                                    panel.layout(true);
-                                    return;
-                                }                                    
-                            }
-                      
-                            ItemsToolBar.this.addDownloadPanel(panel);
+                            ItemsToolBar.this.renderDownloadPanel(panel);
                         }
                     });
 
@@ -496,19 +483,7 @@ public class ItemsToolBar extends ToolBar {
                                     if (currentModel == null)
                                         return;
                                     
-                                    if(Itemsbrowser2.getSession().getCustomizeModelList() != null){
-                                        if(Itemsbrowser2.getSession().getCustomizeModelList().contains(currentModel)){
-                                            ViewBean viewBean = Itemsbrowser2.getSession().getCustomizeModelViewMap().get(currentModel);
-                                            panel.removeAll();
-                                            DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(viewBean.getViewPK());
-                                            dtpanel.updateGrid(viewBean, panel.getWidth());
-                                            panel.add(dtpanel);
-                                            panel.layout(true);
-                                            return;
-                                        }                                    
-                                    }
-                              
-                                    ItemsToolBar.this.addDownloadPanel(panel);
+                                    ItemsToolBar.this.renderDownloadPanel(panel);
                                 }
                             }));
 
@@ -522,10 +497,8 @@ public class ItemsToolBar extends ToolBar {
                                         return;
                                     panel.removeAll();
                                     String currentTableName = currentModel.get("value"); //$NON-NLS-1$
-                                    UploadFileFormPanel formPanel = UploadFileFormPanel.getInstance(currentTableName);
-                                    formPanel.setToolbar(ItemsToolBar.this);
+                                    UploadFileFormPanel formPanel = new UploadFileFormPanel(currentTableName, ItemsToolBar.this);
                                     formPanel.setContainer(panel);
-                                    formPanel.resetForm();
                                     panel.add(formPanel);
                                     panel.layout();
                                 }
@@ -1110,7 +1083,7 @@ public class ItemsToolBar extends ToolBar {
         }
     }
 
-    public void addDownloadPanel(final ContentPanel panel) {
+    private void addDownloadPanel(final ContentPanel panel) {
         String currentTableName = currentModel.get("value"); //$NON-NLS-1$
         service.getView(currentTableName, Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()),
                 new AsyncCallback<ViewBean>() {
@@ -1129,6 +1102,22 @@ public class ItemsToolBar extends ToolBar {
             }
         });
     }
+    
+    public void renderDownloadPanel(ContentPanel panel){
+        if(Itemsbrowser2.getSession().getCustomizeModelList() != null){
+            if(Itemsbrowser2.getSession().getCustomizeModelList().contains(currentModel)){
+                tableView = Itemsbrowser2.getSession().getCustomizeModelViewMap().get(currentModel);
+                panel.removeAll();
+                DownloadTablePanel dtpanel = DownloadTablePanel.getInstance(tableView.getViewPK());
+                dtpanel.updateGrid(tableView, panel.getWidth());
+                panel.add(dtpanel);
+                panel.layout(true);
+                return;
+            }                                    
+        }
+  
+        this.addDownloadPanel(panel);
+    }
 
     public void addOption(ItemBaseModel model) {
         tableList.add(model);
@@ -1143,5 +1132,15 @@ public class ItemsToolBar extends ToolBar {
     
     public void setCurrentModel(ItemBaseModel currentModel) {
         this.currentModel = currentModel;
+    }
+
+    
+    public ViewBean getTableView() {
+        return tableView;
+    }
+
+    
+    public void setTableView(ViewBean tableView) {
+        this.tableView = tableView;
     }
 }

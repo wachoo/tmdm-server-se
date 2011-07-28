@@ -14,9 +14,13 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
+import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -42,9 +46,7 @@ import com.extjs.gxt.ui.client.widget.form.HiddenField;
  */
 public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent> {
 
-    private static UploadFileFormPanel panel;
-
-    private static String tableName;
+    private String tableName;
 
     private ComboBox<ItemBaseModel> fileTypecombo;
     
@@ -63,11 +65,15 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     private ContentPanel container;
 
     private HiddenField<String> nameField;
+        
+    private HiddenField<String> headerField;
 
     private MessageBox waitBar;
     
-    private UploadFileFormPanel() {
-
+    public UploadFileFormPanel(String name, ItemsToolBar tb) {
+        
+        this.tableName = name;
+        this.toolbar = tb;
         this.setHeading("Upload data"); //$NON-NLS-1$
         this.setFrame(false);
         this.setHeaderVisible(true);
@@ -79,14 +85,24 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         this.renderForm();
     }
 
-    public static UploadFileFormPanel getInstance(String name) {
-        tableName = name;
-        if (panel == null)
-            panel = new UploadFileFormPanel();
-        panel.getNameField().setValue(tableName);
-        return panel;
+    private String getHeaderStr(ViewBean viewBean){
+        List<String> viewableXpaths = viewBean.getViewableXpaths();
+        EntityModel entityModel = viewBean.getBindingEntityModel();         
+        Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        int size = viewableXpaths.size();
+        
+        for (String xpath : viewableXpaths) {
+            i++;
+            TypeModel typeModel = dataTypes.get(xpath);
+            sb.append(typeModel.getName());
+            if(i < size)
+                sb.append("@");  //$NON-NLS-1$
+        }
+        return sb.toString();
     }
-
+    
     private void renderForm() {
 
         nameField = new HiddenField<String>();
@@ -94,6 +110,13 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         nameField.setValue(tableName);
         this.add(nameField);
 
+        ViewBean viewBean = toolbar.getTableView();
+                
+        headerField = new HiddenField<String>();
+        headerField.setName("header");//$NON-NLS-1$
+        headerField.setValue(this.getHeaderStr(viewBean));
+        this.add(headerField);
+        
         file = new FileUploadField();
         file.setAllowBlank(false);
         file.setName("file"); //$NON-NLS-1$
@@ -245,9 +268,9 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                if (!panel.isValid())
+                if (!UploadFileFormPanel.this.isValid())
                     return;
-                panel.submit();
+                UploadFileFormPanel.this.submit();
                 waitBar = MessageBox.wait(MessagesFactory.getMessages().import_progress_bar_title(), MessagesFactory
                         .getMessages().import_progress_bar_message(), MessagesFactory
                         .getMessages().import_progress_bar_laod());
@@ -268,27 +291,10 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         String result = be.getResultHtml().replace("pre>", "f>"); //$NON-NLS-1$//$NON-NLS-2$
         waitBar.close();
         if (result.equals("<f>true</f>")) { //$NON-NLS-1$
-            toolbar.addDownloadPanel(container);
+            toolbar.renderDownloadPanel(container);
         } else {
             MessageBox.alert(MessagesFactory.getMessages().error_title(), result, null);
         }
-    }
-
-    public void resetForm() {
-        file.clear();
-        fileTypecombo.reset();
-        headerLine.setValue(true);
-        separatorCombo.reset();
-        textDelimiterCombo.reset();
-        textDelimiterCombo.reset();
-        encodingCombo.reset();
-        separatorCombo.disable();
-        textDelimiterCombo.disable();
-        encodingCombo.disable();
-    }
-
-    public void setToolbar(ItemsToolBar toolbar) {
-        this.toolbar = toolbar;
     }
 
     public void setContainer(ContentPanel container) {

@@ -71,8 +71,11 @@ public class DownloadTablePanel extends ContentPanel {
     private final static int PAGE_SIZE = 20;
 
     private PagingToolBarEx pagetoolBar = null;
-
     
+    private List<String> headerList = new ArrayList<String>();
+
+    private List<String> xPathList = new ArrayList<String>();
+      
     private DownloadTablePanel(String name) {
         super();
         tableName = name;
@@ -91,11 +94,17 @@ public class DownloadTablePanel extends ContentPanel {
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         
         List<ColumnConfig> ccList = new ArrayList<ColumnConfig>();
+        headerList.clear();
+        xPathList.clear();
+        
         int subWidth = (width) / viewBean.getViewables().length;
         for (String xpath : viewableXpaths) {
             TypeModel typeModel = dataTypes.get(xpath);
-            ColumnConfig cc = new ColumnConfig(xpath, typeModel == null ? xpath : ViewUtil.getViewableLabel(
-                    Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel), subWidth);      
+            String header = typeModel == null ? xpath : ViewUtil.getViewableLabel(
+                    Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader()), typeModel);
+            headerList.add(header);
+            xPathList.add(xpath);
+            ColumnConfig cc = new ColumnConfig(xpath, header, subWidth);      
             ccList.add(cc);
         }
 
@@ -173,8 +182,29 @@ public class DownloadTablePanel extends ContentPanel {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                String language = Locale.getLanguage(Itemsbrowser2.getSession().getAppHeader());
-                Window.open("/itemsbrowser2/download?tableName=" + tableName + "&language=" + language, "_parent", "location=no"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                StringBuilder url = new StringBuilder("/itemsbrowser2/download?tableName="); //$NON-NLS-1$
+                url.append(tableName)
+                   .append("&header="); //$NON-NLS-1$
+                int i = 0;
+                int count = headerList.size();
+                for(String header : headerList){
+                    i++;
+                    url.append(header);
+                    if(i < count)
+                        url.append("@"); //$NON-NLS-1$
+                }
+                
+                i=0;
+                count = xPathList.size();
+                url.append("&xpath="); //$NON-NLS-1$
+                for(String path : xPathList){
+                    i++;
+                    url.append(path);
+                    if(i < count)
+                        url.append("@"); //$NON-NLS-1$
+                }
+                
+                Window.open(url.toString(), "_parent", "location=no"); //$NON-NLS-1$ //$NON-NLS-2$
             }
         });
         gridContainer.setTopComponent(toolBar);
