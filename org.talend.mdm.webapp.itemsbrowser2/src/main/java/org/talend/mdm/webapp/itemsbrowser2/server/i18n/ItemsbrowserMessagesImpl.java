@@ -591,4 +591,8 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
     public String add_table_empty_field() {
         return MESSAGES.getMessage("add_table_empty_field");
     }
+
+    public String error_incompatible_file_type() {
+        return MESSAGES.getMessage("error_incompatible_file_type");
+    }
 }

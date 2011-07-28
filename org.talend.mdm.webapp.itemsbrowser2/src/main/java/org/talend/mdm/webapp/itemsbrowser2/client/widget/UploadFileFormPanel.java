@@ -70,6 +70,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     private MessageBox waitBar;
     
+    private String type;
+    
     public UploadFileFormPanel(String name, ItemsToolBar tb) {
         
         this.tableName = name;
@@ -249,15 +251,23 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             public void selectionChanged(SelectionChangedEvent<ItemBaseModel> event) {
                 if (event.getSelectedItem() == null)
                     return;
-                String type = (String) event.getSelectedItem().get("key"); //$NON-NLS-1$
+                type = (String) event.getSelectedItem().get("key"); //$NON-NLS-1$
                 if (type.equalsIgnoreCase("CSV")) { //$NON-NLS-1$
                     separatorCombo.enable();
                     textDelimiterCombo.enable();
                     encodingCombo.enable();
+                    
+                    separatorCombo.setAllowBlank(false);
+                    textDelimiterCombo.setAllowBlank(false);
+                    encodingCombo.setAllowBlank(false);
                 } else {
                     separatorCombo.disable();
                     textDelimiterCombo.disable();
                     encodingCombo.disable();
+                    
+                    separatorCombo.setAllowBlank(true);
+                    textDelimiterCombo.setAllowBlank(true);
+                    encodingCombo.setAllowBlank(true);
                 }
             }
         });
@@ -270,6 +280,18 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             public void componentSelected(ButtonEvent ce) {
                 if (!UploadFileFormPanel.this.isValid())
                     return;
+                
+                String fileName = file.getValue();
+                String str = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length()); //$NON-NLS-1$
+                if(str.equalsIgnoreCase("xls")){ //$NON-NLS-1$
+                    str = "excel"; //$NON-NLS-1$
+                }
+                if(!str.equalsIgnoreCase(type)){
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), 
+                            MessagesFactory.getMessages().error_incompatible_file_type(), null);
+                    return;
+                }
+
                 UploadFileFormPanel.this.submit();
                 waitBar = MessageBox.wait(MessagesFactory.getMessages().import_progress_bar_title(), MessagesFactory
                         .getMessages().import_progress_bar_message(), MessagesFactory
