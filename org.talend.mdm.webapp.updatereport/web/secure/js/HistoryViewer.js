@@ -61,7 +61,27 @@ Ext.extend(amalto.updatereport.HistoryViewer, Ext.Panel, {
                     dataModel:this.dataModel,
                     action:'current'
                 }
-            ]
+            ],
+            tbar: ['->',{
+		        text : "Open Record",
+		        iconCls:'report_bt_openRecord',
+		        handler : function() {
+		        	DWREngine.setAsync(false);
+		        	var result = true;
+
+		        	UpdateReportInterface.checkDCAndDM(this.dataCluster, this.dataModel, function(data) {
+		        		result = data
+		        	});
+
+		        	if(result) {
+		        		amalto.itemsbrowser.ItemsBrowser.editItemDetails(this.key.split('\.'), this.concept, function(){});
+		        	}
+		        	else {
+		        		Ext.MessageBox.alert("Error", "Please select the corresponding Data Container and Data Model.");
+		        	}
+		        	DWREngine.setAsync(true);
+		        	}.createDelegate(this)
+		        }]
 		});
 	}
 });
