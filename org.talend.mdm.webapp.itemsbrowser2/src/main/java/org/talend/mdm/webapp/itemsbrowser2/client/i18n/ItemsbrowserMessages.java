@@ -301,4 +301,6 @@ public interface ItemsbrowserMessages extends Messages {
     String add_table_empty_field();
     
     String error_incompatible_file_type();
+    
+    String error_column_width();
 }

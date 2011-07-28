@@ -595,4 +595,8 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
     public String error_incompatible_file_type() {
         return MESSAGES.getMessage("error_incompatible_file_type");
     }
+
+    public String error_column_width() {
+        return MESSAGES.getMessage("error_column_width");
+    }
 }

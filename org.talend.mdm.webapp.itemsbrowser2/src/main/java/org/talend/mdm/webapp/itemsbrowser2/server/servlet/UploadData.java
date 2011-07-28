@@ -83,7 +83,8 @@ public class UploadData extends HttpServlet {
         String language = "en"; // default//$NON-NLS-1$
         String encoding = "utf-8";//$NON-NLS-1$
         String header = ""; //$NON-NLS-1$
-
+        boolean cusExceptionFlag = false;
+        
         boolean headersOnFirstLine = false;
         int lineNum = 0;
         PrintWriter writer = response.getWriter();
@@ -156,8 +157,15 @@ public class UploadData extends HttpServlet {
                 HSSFWorkbook wb = new HSSFWorkbook(fs);
                 HSSFSheet sh = wb.getSheetAt(0);
                 Iterator it = sh.rowIterator();
+
                 while (it.hasNext()) {
                     HSSFRow row = (HSSFRow) it.next();
+                    int count = row.getLastCellNum();
+                    if(fields.length != count){
+                        cusExceptionFlag = true;
+                        throw new ServletException(MESSAGES.getMessage("error_column_width"));  //$NON-NLS-1$
+                    }                 
+                
                     ++lineNum;
                     if (lineNum == 1 && headersOnFirstLine)
                         continue;
@@ -213,7 +221,7 @@ public class UploadData extends HttpServlet {
                         putDocument(xml.toString());
                 }
 
-            } else if ("csv".equals(fileType.toLowerCase())) {
+            } else if ("csv".equals(fileType.toLowerCase())) { //$NON-NLS-1$
                 String line;
                 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));//$NON-NLS-1$
                 while ((line = br.readLine()) != null) {
@@ -225,6 +233,10 @@ public class UploadData extends HttpServlet {
                     if ("semicolon".equals(sep))//$NON-NLS-1$
                         separator = ";";//$NON-NLS-1$
                     String[] splits = line.split(separator);
+                    if(fields.length != splits.length){
+                        cusExceptionFlag = true;
+                        throw new ServletException(MESSAGES.getMessage("error_column_width"));  //$NON-NLS-1$
+                    }       
                     // rebuild the values by checking delimiters
                     ArrayList<String> values = new ArrayList<String>();
                     if (textDelimiter == null || "".equals(textDelimiter.trim())) {//$NON-NLS-1$
@@ -282,10 +294,16 @@ public class UploadData extends HttpServlet {
             writer.print("true");//$NON-NLS-1$
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            writer.print(MESSAGES.getMessage("error_import", lineNum, e.getClass().getName(), e//$NON-NLS-1$
-                    .getLocalizedMessage()));
-            throw new ServletException(MESSAGES.getMessage("error_import", lineNum, e.getClass().getName(), e//$NON-NLS-1$
-                    .getLocalizedMessage()));
+            if(cusExceptionFlag){
+                writer.print(e.getMessage());
+                throw (ServletException)e;
+            }else{
+                writer.print(MESSAGES.getMessage("error_import", lineNum, e.getClass().getName(), e//$NON-NLS-1$
+                        .getLocalizedMessage()));
+                throw new ServletException(MESSAGES.getMessage("error_import", lineNum, e.getClass().getName(), e//$NON-NLS-1$
+                        .getLocalizedMessage()));
+            }
+            
         } finally {
             writer.close();
         }
@@ -298,9 +316,9 @@ public class UploadData extends HttpServlet {
                     new WSPutItem(new WSDataClusterPK(this.getCurrentDataModel()), xml.toString(), new WSDataModelPK(this
                             .getCurrentDataModel()), false));
         } catch (RemoteException e) {
-            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
         } catch (Exception e) {
-            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new ServletException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
         }
     }
 
@@ -310,7 +328,7 @@ public class UploadData extends HttpServlet {
      * modified by importation method.
      */
     private String getStringRepresentation(double value) {
-        String result = "";
+        String result = ""; //$NON-NLS-1$
 
         result = Double.toString(value);
 
