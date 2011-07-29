@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.itemsbrowser2.server;
 
 import java.io.Serializable;
 import java.io.StringReader;
-import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +37,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -65,13 +63,10 @@ import org.talend.mdm.webapp.itemsbrowser2.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.CommonUtil;
 import org.talend.mdm.webapp.itemsbrowser2.server.util.XmlUtil;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
-import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadBaseModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadTable;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
@@ -84,23 +79,18 @@ import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSDeleteBusinessConcept;
 import com.amalto.webapp.util.webservices.WSDeleteItem;
-import com.amalto.webapp.util.webservices.WSDeleteItems;
 import com.amalto.webapp.util.webservices.WSDropItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSExistsItem;
-import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSGetItems;
 import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSGetView;
 import com.amalto.webapp.util.webservices.WSGetViewPKs;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSPutBusinessConceptSchema;
 import com.amalto.webapp.util.webservices.WSPutItem;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
 import com.amalto.webapp.util.webservices.WSRouteItemV2;
@@ -146,7 +136,7 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
 
         try {
             WSWhereItem wi = null;
-            if(criteria != null)
+            if (criteria != null)
                 wi = CommonUtil.buildWhereItems(criteria);
             String[] results = CommonUtil
                     .getPort()
@@ -1224,284 +1214,29 @@ public class ItemServiceCommonHandler extends ItemsServiceImpl {
         return idList.toArray(new String[idList.size()]);
     }
 
-    @Override
-    public List<ItemBaseModel> getUploadTableNames(String value) {
-        try {
-            String[] result = CommonUtil.getPort()
-                    .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(this.getCurrentDataModel()))).getStrings();
+    public List<String> getMandatoryFieldList(String tableName) throws Exception {
+        // grab the table fileds (e.g. the concept sub-elements)
+        String schema = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(this.getCurrentDataModel())))
+                .getXsdSchema();
 
-            List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
-            for (String str : result) {
-                ItemBaseModel model = new ItemBaseModel();
-                model.set("label", str); //$NON-NLS-1$
-                model.set("key", str); //$NON-NLS-1$
-                list.add(model);
-            }
-            return list;
+        XSOMParser parser = new XSOMParser();
+        parser.parse(new StringReader(schema));
+        XSSchemaSet xss = parser.getResult();
 
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+        XSElementDecl decl;
+        decl = xss.getElementDecl("", tableName);//$NON-NLS-1$
+        ArrayList<String> fieldNames = new ArrayList<String>();
+        if (decl == null) {
+            return fieldNames;
         }
-        return null;
-    }
-
-    @Override
-    public Map<String, List<String>> getUploadTableDescription(String tableName) throws Exception {
-        try {
-            String[] tableKeys = CommonUtil.getPort()
-                    .getBusinessConceptKey(new WSGetBusinessConceptKey(new WSDataModelPK(this.getCurrentDataModel()), tableName))
-                    .getFields();
-            String schema = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(this.getCurrentDataModel())))
-                    .getXsdSchema();
-            XSOMParser parser = new XSOMParser();
-            parser.parse(new StringReader(schema));
-            XSSchemaSet xss = parser.getResult();
-            XSElementDecl decl;
-            decl = xss.getElementDecl("", tableName); //$NON-NLS-1$
-            if (decl == null) {
-                throw new XtentisWebappException(MessagesFactory.getMessages().label_exception_upload_table_not_found(tableName));
-            }
-            XSComplexType type = (XSComplexType) decl.getType();
-            XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-            ArrayList<String> fieldNames = new ArrayList<String>();
-            for (int i = 0; i < xsp.length; i++) {
-                fieldNames.add(xsp[i].getTerm().asElementDecl().getName());
-            }
-            String[] fields = fieldNames.toArray(new String[fieldNames.size()]);
-
-            Map<String, List<String>> map = new HashMap<String, List<String>>();
-            List<String> keyList = new ArrayList<String>();
-            for (String str : tableKeys) {
-                keyList.add(str);
-            }
-            map.put("keys", keyList); //$NON-NLS-1$
-
-            List<String> fieldList = new ArrayList<String>();
-            for (String str : fields) {
-                fieldList.add(str);
-            }
-            map.put("fields", fieldList); //$NON-NLS-1$
-
-            List<String> tableList = new ArrayList<String>();
-            tableList.add(tableName);
-            map.put("name", tableList); //$NON-NLS-1$
-
-            return map;
-
-        } catch (RemoteException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (SAXException e) {
-            LOG.error(e.getMessage(), e);
+        XSComplexType type = (XSComplexType) decl.getType();
+        XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+        for(XSParticle obj : xsp){
+            if(obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1)
+                fieldNames.add(obj.getTerm().asElementDecl().getName());
         }
-        return null;
-    }
-
-    @Override
-    public List<ItemBaseModel> deleteItemsBrowserTable(String tableName) throws Exception {
-        tableName = tableName.replaceAll("\\s+", ""); //$NON-NLS-1$ //$NON-NLS-2$
-
-        try {
-            /* deletes item */
-            CommonUtil.getPort().deleteItems(
-                    new WSDeleteItems(new WSDataClusterPK(this.getCurrentDataCluster()), tableName, null, -1));
-
-            /* deletes concept */
-            CommonUtil.getPort().deleteBusinessConcept(
-                    new WSDeleteBusinessConcept(new WSDataModelPK(this.getCurrentDataModel()), tableName));
-        } catch (RemoteException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (XtentisWebappException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return this.getUploadTableNames(""); //$NON-NLS-1$
-    }
-
-    @Override
-    public boolean addNewTable(String concept, String[] fields, String[] keys) throws Exception {
-        concept = concept.replaceAll(" ", "_");//$NON-NLS-1$//$NON-NLS-2$
-
-        String[] tableList = CommonUtil.getPort()
-                .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(this.getCurrentDataModel()))).getStrings();
-
-        if (tableList != null) {
-            for (String str : tableList) {
-                if (concept.equalsIgnoreCase(str))
-                    return false;
-            }
-        }
-        for (int i = 0; i < fields.length; i++) {
-            fields[i] = fields[i].replaceAll(" ", "_");//$NON-NLS-1$//$NON-NLS-2$
-        }
-
-        CommonUtil.getPort().putBusinessConceptSchema(
-                new WSPutBusinessConceptSchema(new WSDataModelPK(this.getCurrentDataModel()), createXsd(concept, fields, keys)));
-
-        return true;
-    }
-
-    private String createXsd(String concept, String[] fields, String[] keys) {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("<xsd:element name=\"").append(concept).append("\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">");//$NON-NLS-1$//$NON-NLS-2$
-        buffer.append("<xsd:complexType>");//$NON-NLS-1$
-        buffer.append("<xsd:sequence maxOccurs=\"1\" minOccurs=\"0\">");//$NON-NLS-1$
-        for (int i = 0; i < fields.length; i++)
-            if (!fields[i].equals("")) {//$NON-NLS-1$
-                buffer.append("<xsd:element maxOccurs=\"1\" ");//$NON-NLS-1$
-                if (keys[i].equals("true"))//$NON-NLS-1$
-                    buffer.append("minOccurs=\"1\" ");//$NON-NLS-1$
-                else
-                    buffer.append("minOccurs=\"0\" ");//$NON-NLS-1$
-                buffer.append("name=\"").append(fields[i]).append("\" ");//$NON-NLS-1$//$NON-NLS-2$
-                if (keys[i].equals("false"))//$NON-NLS-1$
-                    buffer.append(" nillable=\"true\" ");//$NON-NLS-1$
-                buffer.append("type=\"xsd:string\"/>");//$NON-NLS-1$
-            }
-        buffer.append("</xsd:sequence>");//$NON-NLS-1$
-        buffer.append("</xsd:complexType>");//$NON-NLS-1$
-        buffer.append("<xsd:unique name=\"").append(concept).append("\">");//$NON-NLS-1$//$NON-NLS-2$
-        buffer.append("<xsd:selector xpath=\".\"/>");//$NON-NLS-1$
-        for (int i = 0; i < keys.length; i++)
-            if (!fields[i].equals("") && keys[i].equals("true"))//$NON-NLS-1$ //$NON-NLS-2$
-                buffer.append("<xsd:field xpath=\"").append(fields[i]).append("\"/>");//$NON-NLS-1$//$NON-NLS-2$
-        buffer.append("</xsd:unique>");//$NON-NLS-1$
-        buffer.append("</xsd:element>");//$NON-NLS-1$
-
-        return buffer.toString();
-    }
-
-    public String[] getTableKeys(String tableName) throws Exception {
-        try {
-            return CommonUtil.getPort()
-                    .getBusinessConceptKey(new WSGetBusinessConceptKey(new WSDataModelPK(this.getCurrentDataModel()), tableName))
-                    .getFields();
-        } catch (Exception e) {
-            throw new Exception("", e); //$NON-NLS-1$
-        }
-    }
-
-    public String[] getTableFieldNames(String tableName) throws Exception {
-        try {
-            // grab the table fileds (e.g. the concept sub-elements)
-            String schema = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(this.getCurrentDataModel())))
-                    .getXsdSchema();
-
-            XSOMParser parser = new XSOMParser();
-            parser.parse(new StringReader(schema));
-            XSSchemaSet xss = parser.getResult();
-
-            XSElementDecl decl;
-            decl = xss.getElementDecl("", tableName);//$NON-NLS-1$
-            if (decl == null) {
-                throw new Exception(""); //$NON-NLS-1$
-            }
-            XSComplexType type = (XSComplexType) decl.getType();
-            XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-            ArrayList<String> fieldNames = new ArrayList<String>();
-            for (int i = 0; i < xsp.length; i++) {
-                fieldNames.add(xsp[i].getTerm().asElementDecl().getName());
-            }
-            return fieldNames.toArray(new String[fieldNames.size()]);
-        } catch (Exception e) {
-            throw new Exception("", e); //$NON-NLS-1$
-
-        }
-    }
-
-    @Override
-    public void deleteDocument(String concept, DownloadBaseModel model) throws Exception {
-        try {
-            String[] keys = getTableKeys(concept);
-            String[] fields = getTableFieldNames(concept);
-            ArrayList<String> list = new ArrayList<String>();
-            for (int i = 0; i < keys.length; i++) {
-                for (int j = 0; j < fields.length; j++) {
-                    if (keys[i].equals(fields[j])) {
-                        if (model.get(fields[j]) != null)
-                            list.add(model.get(fields[j]).toString());
-                    }
-                }
-            }
-            if (!list.isEmpty())
-                CommonUtil.getPort().deleteItem(
-                        new WSDeleteItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, list
-                                .toArray(new String[list.size()]))));
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new Exception(e.getMessage());
-        }
-    }
-
-    @Override
-    public void updateDocument(String concept, List<DownloadBaseModel> models) throws Exception {
-        try {
-            String[] fieldNames = getTableFieldNames(concept);
-            for (DownloadBaseModel model : models) {
-                StringBuffer xml = new StringBuffer();
-                xml.append("<" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
-                for (int i = 0; i < fieldNames.length; i++) {
-                    xml.append("<" + fieldNames[i] + ">");//$NON-NLS-1$//$NON-NLS-2$
-                    xml.append(model.get(fieldNames[i]) != null ? model.get(fieldNames[i]) : "");//$NON-NLS-1$
-                    xml.append("</" + fieldNames[i] + ">");//$NON-NLS-1$//$NON-NLS-2$
-                }
-                xml.append("</" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
-                CommonUtil.getPort().putItem(
-                        new WSPutItem(new WSDataClusterPK(this.getCurrentDataCluster()), xml.toString(), new WSDataModelPK(this
-                                .getCurrentDataModel()), false));
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new Exception(e.getMessage());
-        }
-    }
-
-    @Override
-    public PagingLoadResult<DownloadBaseModel> getDownloadTableContent(String tableName, PagingLoadConfig load) {
-        try {
-            String[] results = CommonUtil
-                    .getPort()
-                    .getItems(
-                            new WSGetItems(new WSDataClusterPK(this.getCurrentDataCluster()), tableName, null, -1, load
-                                    .getOffset(), load.getLimit())).getStrings();
-
-            int count = CommonUtil.getPort()
-                    .getItems(new WSGetItems(new WSDataClusterPK(this.getCurrentDataCluster()), tableName, null, -1, 0, -1))
-                    .getStrings().length;
-            // TODO why result is wrong when directly using count WS
-            // String count = Util.getPort().count(new WSCount(new WSDataClusterPK(Configuration.datacluster),
-            // tableName, null, -1))
-            // .getValue();
-
-            String[] fieldNames = getTableFieldNames(tableName);
-
-            List<DownloadBaseModel> list = new ArrayList<DownloadBaseModel>();
-
-            for (int i = 0; i < results.length; i++) {
-                DownloadBaseModel model = new DownloadBaseModel();
-                Element element = DocumentHelper.parseText(results[i]).getRootElement();
-
-                for (int k = 0; k < fieldNames.length; k++) {
-                    Node node = element.element(fieldNames[k]);
-                    String value = null;
-                    if (node != null)
-                        value = node.getText();
-                    model.set(fieldNames[k], value != null ? value : "");//$NON-NLS-1$
-                }
-                list.add(model);
-            }
-            return new BasePagingLoadResult<DownloadBaseModel>(list, load.getOffset(), count);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return null;
-    }
-
-    @Override
-    public DownloadTable getDownloadTable(String tableName) throws Exception {
-        return new DownloadTable(tableName, getTableKeys(tableName), getTableFieldNames(tableName));
+        
+        return fieldNames;
     }
 
     /**

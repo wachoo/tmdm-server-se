@@ -599,4 +599,8 @@ public final class ItemsbrowserMessagesImpl implements ItemsbrowserMessages {
     public String error_column_width() {
         return MESSAGES.getMessage("error_column_width");
     }
+
+    public String add_table_primary_key() {
+        return MESSAGES.getMessage("add_table_primary_key");
+    }
 }

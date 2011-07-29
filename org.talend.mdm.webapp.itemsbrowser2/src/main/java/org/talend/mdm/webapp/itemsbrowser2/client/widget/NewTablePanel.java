@@ -14,9 +14,12 @@ package org.talend.mdm.webapp.itemsbrowser2.client.widget;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.talend.mdm.webapp.itemsbrowser2.client.ItemsEvents;
 import org.talend.mdm.webapp.itemsbrowser2.client.ItemsServiceAsync;
 import org.talend.mdm.webapp.itemsbrowser2.client.Itemsbrowser2;
 import org.talend.mdm.webapp.itemsbrowser2.client.i18n.MessagesFactory;
@@ -34,6 +37,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -130,44 +134,67 @@ public class NewTablePanel extends FormPanel {
                     }
                 }
                 
-                ListStore<ItemBaseModel> list = to.getStore();
+                final ListStore<ItemBaseModel> list = to.getStore();
                 if(list.getModels().size() == 0){
                     MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().add_table_empty_field(), null);
                     return;
                 }
                 
-                ViewBean vb = new ViewBean();
-                vb.setBindingEntityModel(currentBean.getBindingEntityModel());
-                vb.setSearchables(currentBean.getSearchables());
-                vb.setViewPK(currentBean.getViewPK());
-                vb.setDescription(currentBean.getDescription());
-                vb.setDescriptionLocalized(currentBean.getDescriptionLocalized());
+                String conceptName = currentBean.getBindingEntityModel().getConceptName();               
+                
+                service.getMandatoryFieldList(conceptName, new AsyncCallback<List<String>>() {
+                    
+                    public void onSuccess(List<String> fieldList) {
+                        
+                        List<ItemBaseModel> fromModelList = from.getStore().getModels();
+                        Set<String> fromSet = new HashSet<String>();
+                        for(ItemBaseModel model : fromModelList)
+                            fromSet.add((String)model.get("name")); //$NON-NLS-1$
+                        
+                        for(String name : fieldList){
+                            if(fromSet.contains(name)){
+                                MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages().add_table_primary_key(), null);
+                                return;
+                            }                                
+                        }
+                        
+                        ViewBean vb = new ViewBean();
+                        vb.setBindingEntityModel(currentBean.getBindingEntityModel());
+                        vb.setSearchables(currentBean.getSearchables());
+                        vb.setViewPK(currentBean.getViewPK());
+                        vb.setDescription(currentBean.getDescription());
+                        vb.setDescriptionLocalized(currentBean.getDescriptionLocalized());
 
-                String[] viewables = new String[list.getModels().size()];
-                int i = 0;
-                for(ItemBaseModel model : list.getModels()){
-                    String path = (String) model.get("value"); //$NON-NLS-1$
-                    vb.addViewableXpath(path);
-                    viewables[i] = path;
-                    i++;
-                }
-                vb.setViewables(viewables);
-                
-                if(Itemsbrowser2.getSession().getCustomizeModelList() == null){
-                    Itemsbrowser2.getSession().put(UserSession.CUSTOMIZE_MODEL_LIST, new ArrayList<ItemBaseModel>());
-                }
-                
-                if(Itemsbrowser2.getSession().getCustomizeModelViewMap() == null){
-                    Itemsbrowser2.getSession().put(UserSession.CUSTOMIZE_MODEL_VIEW_MAP, new HashMap<ItemBaseModel, ViewBean>());
-                }
-                
-                ItemBaseModel model = new ItemBaseModel();
-                model.set("name", tableName.getValue()); //$NON-NLS-1$
-                model.set("value", vb.getViewPK()); //$NON-NLS-1$
-                Itemsbrowser2.getSession().getCustomizeModelList().add(model);
-                Itemsbrowser2.getSession().getCustomizeModelViewMap().put(model, vb);
-                toolbar.addOption(model);
-                
+                        String[] viewables = new String[list.getModels().size()];
+                        int i = 0;
+                        for(ItemBaseModel model : list.getModels()){
+                            String path = (String) model.get("value"); //$NON-NLS-1$
+                            vb.addViewableXpath(path);
+                            viewables[i] = path;
+                            i++;
+                        }
+                        vb.setViewables(viewables);
+                        
+                        if(Itemsbrowser2.getSession().getCustomizeModelList() == null){
+                            Itemsbrowser2.getSession().put(UserSession.CUSTOMIZE_MODEL_LIST, new ArrayList<ItemBaseModel>());
+                        }
+                        
+                        if(Itemsbrowser2.getSession().getCustomizeModelViewMap() == null){
+                            Itemsbrowser2.getSession().put(UserSession.CUSTOMIZE_MODEL_VIEW_MAP, new HashMap<ItemBaseModel, ViewBean>());
+                        }
+                        
+                        ItemBaseModel model = new ItemBaseModel();
+                        model.set("name", tableName.getValue()); //$NON-NLS-1$
+                        model.set("value", vb.getViewPK()); //$NON-NLS-1$
+                        Itemsbrowser2.getSession().getCustomizeModelList().add(model);
+                        Itemsbrowser2.getSession().getCustomizeModelViewMap().put(model, vb);
+                        toolbar.addOption(model);
+                    }
+                    
+                    public void onFailure(Throwable caught) {
+                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
+                    }
+                });                
             }
         });
         this.add(save);
@@ -211,7 +238,7 @@ public class NewTablePanel extends FormPanel {
                     }
                     
                     public void onFailure(Throwable caught) {
-                        
+                        Dispatcher.forwardEvent(ItemsEvents.Error, caught);
                     }
                 });
             }
@@ -235,5 +262,5 @@ public class NewTablePanel extends FormPanel {
         }
         return storeList;
     }
- 
+     
 }

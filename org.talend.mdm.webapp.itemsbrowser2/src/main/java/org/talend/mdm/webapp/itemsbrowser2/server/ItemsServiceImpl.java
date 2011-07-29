@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.itemsbrowser2.server;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 
@@ -29,8 +28,6 @@ import org.talend.mdm.webapp.itemsbrowser2.client.model.QueryModel;
 import org.talend.mdm.webapp.itemsbrowser2.client.model.Restriction;
 import org.talend.mdm.webapp.itemsbrowser2.server.i18n.ItemsbrowserMessagesImpl;
 import org.talend.mdm.webapp.itemsbrowser2.shared.AppHeader;
-import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadBaseModel;
-import org.talend.mdm.webapp.itemsbrowser2.shared.DownloadTable;
 import org.talend.mdm.webapp.itemsbrowser2.shared.EntityModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.TypeModel;
 import org.talend.mdm.webapp.itemsbrowser2.shared.ViewBean;
@@ -201,18 +198,6 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return itemsServiceHandler.getForeignKeyList(config, model, dataClusterPK, ifFKFilter, value);
     }
 
-    public List<ItemBaseModel> getUploadTableNames(String value) {
-        return itemsServiceHandler.getUploadTableNames(value);
-    }
-
-    public Map<String, List<String>> getUploadTableDescription(String tableName) throws Exception {
-        return itemsServiceHandler.getUploadTableDescription(tableName);
-    }
-
-    public List<ItemBaseModel> deleteItemsBrowserTable(String tableName) throws Exception {
-        return itemsServiceHandler.deleteItemsBrowserTable(tableName);
-    }
-
     public List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws Exception {
         return itemsServiceHandler.getForeignKeyPolymTypeList(xpathForeignKey, language);
     }
@@ -222,25 +207,7 @@ public class ItemsServiceImpl extends RemoteServiceServlet implements ItemsServi
         return itemsServiceHandler.switchForeignKeyType(targetEntityType, xpathForeignKey, xpathInfoForeignKey, fkFilter);
     }
 
-    public boolean addNewTable(String concept, String[] fields, String[] keys) throws Exception {
-        return itemsServiceHandler.addNewTable(concept, fields, keys);
-    }
-
-    public void deleteDocument(String concept, DownloadBaseModel model) throws Exception {
-        itemsServiceHandler.deleteDocument(concept, model);
-
-    }
-
-    public void updateDocument(String concept, List<DownloadBaseModel> models) throws Exception {
-        itemsServiceHandler.updateDocument(concept, models);
-
-    }
-
-    public PagingLoadResult<DownloadBaseModel> getDownloadTableContent(String tableName, PagingLoadConfig load) throws Exception {
-        return itemsServiceHandler.getDownloadTableContent(tableName, load);
-    }
-
-    public DownloadTable getDownloadTable(String tableName) throws Exception {
-        return itemsServiceHandler.getDownloadTable(tableName);
+    public List<String> getMandatoryFieldList(String tableName) throws Exception {
+        return itemsServiceHandler.getMandatoryFieldList(tableName);
     }
 }
