@@ -418,12 +418,13 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
     },
 	
 	resetErrorMessage : function(nodeId) {
-		if ($(nodeId + "Value") != null) {
-			if($(nodeId + "Value").originalStyleChanged == true) {
-				$(nodeId + "Value").style.border = $(nodeId + "Value").originalStyleBorder;
-				$(nodeId + "Value").style.background = $(nodeId + "Value").originalStyleBackground;
+		if ($(nodeId + "Value") != null) {		
+			if($(nodeId + "Value").originalStyleChanged == true) {	
 				
-				$(nodeId + "ValidateBadge").style.display = "none";
+				$(nodeId + "Value").className = $(nodeId + "Value").originalClassName;
+				
+				$(nodeId + "ValidateBadge").style.display = "none";		
+				
 			}
 		}
 	},
@@ -470,11 +471,10 @@ YAHOO.extend(amalto.itemsbrowser.ItemNode, YAHOO.widget.Node, {
 	displayErrorMessage: function(nodeId,msg){
 		
 		$(nodeId + "Value").originalStyleChanged = true;
-		$(nodeId + "Value").originalStyleBorder = $(nodeId + "Value").style.border;
-		$(nodeId + "Value").originalStyleBackground = $(nodeId + "Value").style.background;
 		
-		$(nodeId+"Value").style.border = "1pt solid red";
-		$(nodeId+"Value").style.background = "#FFF2EC";		
+		$(nodeId + "Value").originalClassName = $(nodeId + "Value").className;			
+		
+		$(nodeId+"Value").className = 'errorValue';	
 		
 		$(nodeId+"ValidateBadge").style.display = "inline-block";
 		$(nodeId+"ValidateBadge").qtip=htmlEscape(msg);

@@ -72,6 +72,13 @@
   font-size:12px;
 }
 
+.errorValue
+{
+  border: 1pt solid red;
+  background-color: #FFF2EC;
+  font: 12px tahoma,verdana,helvetica;
+}
+
 .inputTree,
 .inputTreeREADONLY,
 .inputTreeForeignKey,
@@ -83,7 +90,10 @@
   border: 1px solid #787878;
 }
 
+
+
 .inputTree,
+.errorValue,
 .inputTreeREADONLY,
 .inputTreeForeignKey,
 .selectTree, 
@@ -92,6 +102,7 @@
 }
 
 .inputTree,
+.errorValue,
 .inputTreeREADONLY,
 .inputTreeForeignKey,
 .textAreaTree,
@@ -101,6 +112,7 @@
 }
 
 .inputTree,
+.errorValue,
 .inputTreeREADONLY,
 .inputTreeForeignKey {
   overflow: hidden;
