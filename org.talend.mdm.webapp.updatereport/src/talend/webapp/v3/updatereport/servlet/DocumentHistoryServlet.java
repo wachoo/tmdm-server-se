@@ -11,9 +11,7 @@
 
 package talend.webapp.v3.updatereport.servlet;
 
-import com.amalto.core.history.Document;
-import com.amalto.core.history.DocumentHistoryNavigator;
-import com.amalto.core.history.EmptyDocument;
+import com.amalto.core.history.*;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 
@@ -80,7 +78,11 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
             }
 
             // Write directly the document content w/o using the xml writer (it's already XML).
-            outputStream.print(document.transform(null).exportToString());
+            outputStream.print(document.transform(new DocumentTransformer() {
+                public Document transform(MutableDocument document) {
+                    return document;
+                }
+            }).exportToString());
         }
         outputStream.println("</history>"); //$NON-NLS-1$
         outputStream.flush();
