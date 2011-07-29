@@ -43,7 +43,7 @@ import com.amalto.webapp.util.webservices.WSPutItem;
  * 
  * @author asaintguilhem
  * 
- *read excel and csv file
+ * read excel and csv file
  */
 
 @SuppressWarnings("serial")
@@ -84,7 +84,7 @@ public class UploadData extends HttpServlet {
         String encoding = "utf-8";//$NON-NLS-1$
         String header = ""; //$NON-NLS-1$
         boolean cusExceptionFlag = false;
-        
+
         boolean headersOnFirstLine = false;
         int lineNum = 0;
         PrintWriter writer = response.getWriter();
@@ -151,7 +151,7 @@ public class UploadData extends HttpServlet {
 
             concept = ViewHelper.getConceptFromDefaultViewName(viewPK);
             String[] fields = header.split("@"); //$NON-NLS-1$
-                        
+
             if ("excel".equals(fileType.toLowerCase())) {//$NON-NLS-1$
                 POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(file));
                 HSSFWorkbook wb = new HSSFWorkbook(fs);
@@ -161,11 +161,11 @@ public class UploadData extends HttpServlet {
                 while (it.hasNext()) {
                     HSSFRow row = (HSSFRow) it.next();
                     int count = row.getLastCellNum();
-                    if(fields.length != count){
+                    if (fields.length != count) {
                         cusExceptionFlag = true;
-                        throw new ServletException(MESSAGES.getMessage("error_column_width"));  //$NON-NLS-1$
-                    }                 
-                
+                        throw new ServletException(MESSAGES.getMessage("error_column_width")); //$NON-NLS-1$
+                    }
+
                     ++lineNum;
                     if (lineNum == 1 && headersOnFirstLine)
                         continue;
@@ -173,49 +173,53 @@ public class UploadData extends HttpServlet {
                     boolean allCellsEmpty = true;
                     xml.append("<" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
                     for (int i = 0; i < fields.length; i++) {
-                        xml.append("<" + fields[i] + ">");//$NON-NLS-1$//$NON-NLS-2$
-                        HSSFCell tmpCell = row.getCell((short) i);
-                        int cellType = tmpCell.getCellType();
-                        String cellValue = "";//$NON-NLS-1$
-                        switch (cellType) {
-                        case HSSFCell.CELL_TYPE_NUMERIC: {
-                            double tmp = tmpCell.getNumericCellValue();
-                            cellValue = getStringRepresentation(tmp);
-                            break;
-                        }
-                        case HSSFCell.CELL_TYPE_STRING: {
-                            cellValue = tmpCell.getRichStringCellValue().getString();
-                            break;
-                        }
-                        case HSSFCell.CELL_TYPE_BOOLEAN: {
-                            boolean tmp = tmpCell.getBooleanCellValue();
-                            if (tmp)
-                                cellValue = "true";//$NON-NLS-1$
-                            else
-                                cellValue = "false";//$NON-NLS-1$
-                            break;
-                        }
-                        case HSSFCell.CELL_TYPE_FORMULA: {
-                            cellValue = tmpCell.getCellFormula();
-                            break;
-                        }
-                        case HSSFCell.CELL_TYPE_ERROR: {
-                            break;
-                        }
-                        case HSSFCell.CELL_TYPE_BLANK: {
-                        }
-                        default: {
-                        }
-                        }
+                        HSSFCell tmpCell = row.getCell((short) i);                        
+                        if (tmpCell != null) {
+                            xml.append("<" + fields[i] + ">");//$NON-NLS-1$//$NON-NLS-2$
+                            int cellType = tmpCell.getCellType();
+                            String cellValue = "";//$NON-NLS-1$
+                            switch (cellType) {
+                                case HSSFCell.CELL_TYPE_NUMERIC: {
+                                    double tmp = tmpCell.getNumericCellValue();
+                                    cellValue = getStringRepresentation(tmp);
+                                    break;
+                                }
+                                case HSSFCell.CELL_TYPE_STRING: {
+                                    cellValue = tmpCell.getRichStringCellValue().getString();
+                                    break;
+                                }
+                                case HSSFCell.CELL_TYPE_BOOLEAN: {
+                                    boolean tmp = tmpCell.getBooleanCellValue();
+                                    if (tmp)
+                                        cellValue = "true";//$NON-NLS-1$
+                                    else
+                                        cellValue = "false";//$NON-NLS-1$
+                                    break;
+                                }
+                                case HSSFCell.CELL_TYPE_FORMULA: {
+                                    cellValue = tmpCell.getCellFormula();
+                                    break;
+                                }
+                                case HSSFCell.CELL_TYPE_ERROR: {
+                                    break;
+                                }
+                                case HSSFCell.CELL_TYPE_BLANK: {
+                                }
+                                default: {
+                                }
+                            }
+                            
+                            if (cellValue != null && !"".equals(cellValue))//$NON-NLS-1$
+                                allCellsEmpty = false;
 
-                        if (cellValue != null && !"".equals(cellValue))//$NON-NLS-1$
-                            allCellsEmpty = false;
-
-                        xml.append(StringEscapeUtils.escapeXml(cellValue));
-                        xml.append("</" + fields[i] + ">");//$NON-NLS-1$//$NON-NLS-2$
+                            xml.append(StringEscapeUtils.escapeXml(cellValue));
+                            xml.append("</" + fields[i] + ">");//$NON-NLS-1$//$NON-NLS-2$
+                        }else{
+                            xml.append("<" + fields[i] + "/>"); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
                     }
+                    
                     xml.append("</" + concept + ">");//$NON-NLS-1$//$NON-NLS-2$
-
                     // put document (except empty lines)
                     if (!allCellsEmpty)
                         putDocument(xml.toString());
@@ -233,10 +237,10 @@ public class UploadData extends HttpServlet {
                     if ("semicolon".equals(sep))//$NON-NLS-1$
                         separator = ";";//$NON-NLS-1$
                     String[] splits = line.split(separator);
-                    if(fields.length != splits.length){
+                    if (fields.length != splits.length) {
                         cusExceptionFlag = true;
-                        throw new ServletException(MESSAGES.getMessage("error_column_width"));  //$NON-NLS-1$
-                    }       
+                        throw new ServletException(MESSAGES.getMessage("error_column_width")); //$NON-NLS-1$
+                    }
                     // rebuild the values by checking delimiters
                     ArrayList<String> values = new ArrayList<String>();
                     if (textDelimiter == null || "".equals(textDelimiter.trim())) {//$NON-NLS-1$
@@ -248,8 +252,8 @@ public class UploadData extends HttpServlet {
                             if (splits[j].startsWith(textDelimiter)) {
                                 if (splits[j].endsWith(textDelimiter)) {
                                     // we have a full text
-                                    values.add(splits[j].substring(textDelimiter.length(), splits[j].length()
-                                            - textDelimiter.length()));
+                                    values.add(splits[j].substring(textDelimiter.length(),
+                                            splits[j].length() - textDelimiter.length()));
                                 } else {
                                     // we have the beginning of a text
                                     textOpened = true;
@@ -294,22 +298,22 @@ public class UploadData extends HttpServlet {
             writer.print("true");//$NON-NLS-1$
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            if(cusExceptionFlag){
+            if (cusExceptionFlag) {
                 writer.print(e.getMessage());
-                throw (ServletException)e;
-            }else{
+                throw (ServletException) e;
+            } else {
                 writer.print(MESSAGES.getMessage("error_import", lineNum, e.getClass().getName(), e//$NON-NLS-1$
                         .getLocalizedMessage()));
                 throw new ServletException(MESSAGES.getMessage("error_import", lineNum, e.getClass().getName(), e//$NON-NLS-1$
                         .getLocalizedMessage()));
             }
-            
+
         } finally {
             writer.close();
         }
 
     }
-    
+
     private void putDocument(String xml) throws ServletException {
         try {
             Util.getPort().putItem(
