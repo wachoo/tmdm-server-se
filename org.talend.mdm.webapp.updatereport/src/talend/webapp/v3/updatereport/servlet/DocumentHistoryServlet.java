@@ -11,17 +11,24 @@
 
 package talend.webapp.v3.updatereport.servlet;
 
-import com.amalto.core.history.*;
-import org.apache.commons.collections.map.LRUMap;
+import com.amalto.core.history.Document;
+import com.amalto.core.history.DocumentHistoryNavigator;
+import com.amalto.core.history.DocumentTransformer;
+import com.amalto.core.history.EmptyDocument;
+import com.amalto.core.metadata.MetadataRepository;
+import com.amalto.core.metadata.TypeMetadata;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Map;
 
 /**
  *
@@ -30,7 +37,7 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
 
     private static final Logger logger = Logger.getLogger(DocumentHistoryServlet.class);
 
-    private static final Map<Parameters, DocumentHistoryNavigator> cache = new LRUMap(50);
+    private static final MetadataRepository metadataRepository = new MetadataRepository();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -44,14 +51,38 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
         ServletOutputStream outputStream = resp.getOutputStream();
         Date historyDate = new Date(parameters.getDate());
 
-        DocumentHistoryNavigator navigator = factory.getHistory(parameters.getDataClusterName(),
+        String typeName = parameters.getConceptName();
+        String dataClusterName = parameters.getDataClusterName();
+        DocumentHistoryNavigator navigator = factory.getHistory(dataClusterName,
                 parameters.getDataModelName(),
-                parameters.getConceptName(),
+                typeName,
                 parameters.getId(),
                 parameters.getRevisionId());
 
+        TypeMetadata documentTypeMetadata = metadataRepository.getType(typeName);
+        if (documentTypeMetadata == null) {
+            try {
+                // Initialize type metadata information
+                DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(typeName));
+                if (dataModel == null) {
+                    throw new IllegalArgumentException("Data model '" + typeName + "' does not exist.");
+                }
+
+                String schemaString = dataModel.getSchema();
+                metadataRepository.load(new ByteArrayInputStream(schemaString.getBytes("UTF-8")));  //$NON-NLS-1$
+
+                // Tries to load the type information again
+                documentTypeMetadata = metadataRepository.getType(typeName);
+                if (documentTypeMetadata == null) {
+                    throw new IllegalArgumentException("Cannot find type information for type '" + typeName + "'");
+                }
+            } catch (Exception e) {
+                throw new ServletException("Could not initialize type information", e);
+            }
+        }
+
         // Now does the actual writing to client
-        resp.setContentType("text/xml");
+        resp.setContentType("text/xml");  //$NON-NLS-1$
         outputStream.println("<history>"); //$NON-NLS-1$
         {
             // Go to date history
@@ -77,15 +108,15 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
                 throw new ServletException(new IllegalArgumentException("Action '" + parameters.getAction() + " is not supported."));
             }
 
+            // Resolve foreign key info (if any)
+            DocumentTransformer transformer = new ForeignKeyInfoTransformer(documentTypeMetadata, dataClusterName);
+            Document transformedDocument = document.transform(transformer);
             // Write directly the document content w/o using the xml writer (it's already XML).
-            outputStream.print(document.transform(new DocumentTransformer() {
-                public Document transform(MutableDocument document) {
-                    return document;
-                }
-            }).exportToString());
+            outputStream.print(transformedDocument.exportToString());
         }
         outputStream.println("</history>"); //$NON-NLS-1$
         outputStream.flush();
     }
+
 }
 
