@@ -80,7 +80,7 @@ public class DocumentHistoryServlet extends AbstractDocumentHistoryServlet {
             }
 
             // Write directly the document content w/o using the xml writer (it's already XML).
-            outputStream.print(document.getAsString());
+            outputStream.print(document.transform(null).exportToString());
         }
         outputStream.println("</history>"); //$NON-NLS-1$
         outputStream.flush();

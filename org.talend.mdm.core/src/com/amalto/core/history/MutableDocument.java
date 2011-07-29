@@ -11,10 +11,24 @@
 
 package com.amalto.core.history;
 
+import com.amalto.core.history.accessor.Accessor;
+
 /**
  * A {@link Document} that is able to change.
  */
 public interface MutableDocument extends Document {
+
+    /**
+     * @param path The path for the accessor.
+     * @return Create a {@link Accessor} for a field in this document.
+     */
+    Accessor createAccessor(String path);
+
+    /**
+     * @return Returns this document as a DOM tree. This method must be used with extra caution: it gives direct access
+     * to the underlying representation of the {@link MutableDocument}.
+     */
+    org.w3c.dom.Document asDOM();
 
     /**
      * <p>
