@@ -19,6 +19,7 @@ import org.directwebremoting.WebContextFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.tree.DefaultText;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.webapp.core.bean.Configuration;
@@ -175,8 +176,9 @@ public class ReportingDWR {
                 if (doc != null && doc.getRootElement() != null) {
                     Element root = doc.getRootElement();
                     for (int j = 0; j < root.nodeCount(); j++)
-                        if (root.node(j) instanceof Element)
+                        if ((root.nodeCount() == 1 && root.node(j) instanceof DefaultText) || root.node(j) instanceof Element) {
                             field.add(root.node(j).getText());
+                        }
                 }
 				
 				reportingContent.setFields(field);
