@@ -2664,7 +2664,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                 Ext.get(oNode.index
                                                         + "TypeSelector") == null
                                                         ? null
-                                                        : getValueFromTypeSelector(oNode.index),
+                                                        : getValueFromTypeSelector(oNode.index), oNode.itemData!=null?oNode.itemData.bindingPath:null,
                                                 function(result) {
                                                     if (result == null) {
                                                         fnCallback();
@@ -2736,7 +2736,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                 Ext.get(oNode.index
                                                         + "TypeSelector") == null
                                                         ? null
-                                                        : getValueFromTypeSelector(oNode.index),
+                                                        : getValueFromTypeSelector(oNode.index), oNode.itemData!=null?oNode.itemData.bindingPath:null,
                                                 function(result) {
                                                     if (result == null) {
                                                         fnCallback();
@@ -3621,7 +3621,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                 Ext.get(oNode.index
                                                         + "TypeSelector") == null
                                                         ? null
-                                                        : getValueFromTypeSelector(oNode.index),
+                                                        : getValueFromTypeSelector(oNode.index), oNode.itemData!=null?oNode.itemData.bindingPath:null,
                                                 function(result) {
                                                     if (result == null) {
                                                         fnCallback();
@@ -3691,7 +3691,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                                 Ext.get(oNode.index
                                                         + "TypeSelector") == null
                                                         ? null
-                                                        : getValueFromTypeSelector(oNode.index),
+                                                        : getValueFromTypeSelector(oNode.index), oNode.itemData!=null?oNode.itemData.bindingPath:null,
                                                 function(result) {
                                                     if (result == null) {
                                                         fnCallback();
@@ -4400,6 +4400,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     function reloadNode(id, treeIndex) {
         var itemTree = itemTreeList[treeIndex];
         var node = itemTree.getNodeByIndex(id);
+        if(node==null) return;
         if (Ext.get(id + 'TypeSelector') != null&&node.itemData != null) {
             node.itemData.realType = getValueFromTypeSelector(id);
         }
@@ -4640,7 +4641,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     YAHOO.widget.TreeView.nodeCount, language, false,
                     treeIndex, Ext.get(oNode.index + "TypeSelector") == null
                             ? null
-                            : getValueFromTypeSelector(oNode.index),
+                            : getValueFromTypeSelector(oNode.index), oNode.itemData!=null?oNode.itemData.bindingPath:null,
                     function(result) {
                         if (result == null) {
                             fnCallback();

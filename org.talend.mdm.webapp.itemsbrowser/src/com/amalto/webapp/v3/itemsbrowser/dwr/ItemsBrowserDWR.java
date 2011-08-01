@@ -921,25 +921,29 @@ public class ItemsBrowserDWR {
     }
 
     private void setChildrenWithKeyMask(int id, String language, boolean foreignKey, int docIndex, boolean maskKey,
-            boolean choice, XSParticle xsp, ArrayList<TreeNode> list, HashMap<String, TreeNode> xpathToTreeNode)
+            boolean choice, XSParticle xsp, ArrayList<TreeNode> list, HashMap<String, TreeNode> xpathToTreeNode,
+            String parentXpath)
             throws ParseException {
 
+        WebContext ctx = WebContextFactory.get();
+        HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
+        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$        
+        if (parentXpath == null)
+            parentXpath = idToXpath.get(id);
         // aiming added see 0009563
         if (xsp.getTerm().asModelGroup() != null) { // is complex type
             XSParticle[] xsps = xsp.getTerm().asModelGroup().getChildren();
             if ("choice".equals(xsp.getTerm().asModelGroup().getCompositor().toString())) //$NON-NLS-1$
                 choice = true;
             for (int i = 0; i < xsps.length; i++) {
-                setChildrenWithKeyMask(id, language, foreignKey, docIndex, maskKey, choice, xsps[i], list, xpathToTreeNode);
+                setChildrenWithKeyMask(id, language, foreignKey, docIndex, maskKey, choice, xsps[i], list, xpathToTreeNode,
+                        parentXpath);
             }
         }
         if (xsp.getTerm().asElementDecl() == null)
             return;
         // end
 
-        WebContext ctx = WebContextFactory.get();
-        HashMap<Integer, XSParticle> idToParticle = (HashMap<Integer, XSParticle>) ctx.getSession().getAttribute("idToParticle"); //$NON-NLS-1$
-        HashMap<Integer, String> idToXpath = (HashMap<Integer, String>) ctx.getSession().getAttribute("idToXpath" + docIndex); //$NON-NLS-1$
         HashMap<String, XSParticle> xpathToParticle = (HashMap<String, XSParticle>) ctx.getSession().getAttribute(
                 "xpathToParticle"); //$NON-NLS-1$
         HashMap<String, String> xpathToPolymType = (HashMap<String, String>) ctx.getSession().getAttribute(
@@ -992,14 +996,14 @@ public class ItemsBrowserDWR {
                 treeNode.setSubTypes(subTypesName);
             }
             if (((String) ctx.getSession().getAttribute("itemDocument" + docIndex + "_status")).equals(DOC_STATUS_EDIT)) { //$NON-NLS-1$ //$NON-NLS-2$                
-                String xpath = idToXpath.get(id) + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
+                String xpath = parentXpath + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
                 if (bakDoc != null) {
                     getRealTypeFromDoc(xpathToPolymType, bakDoc, xpath, xpath, treeNode);
                 }
 
             } else if (cloneXpath != null) {
                 // new document and clone complex type node
-                String xpath = idToXpath.get(id) + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
+                String xpath = parentXpath + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
                 getRealTypeFromDoc(xpathToPolymType, d, xpath.startsWith(cloneXpath[1]) ? xpath.replace(cloneXpath[1],
                         cloneXpath[0]) : xpath, xpath, treeNode);
 
@@ -1010,16 +1014,16 @@ public class ItemsBrowserDWR {
         }
 
         treeNode.setChoice(choice);
-        String xpath = idToXpath.get(id) + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
+        String xpath = parentXpath + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
         treeNode.setBindingPath(xpath);
         // aiming modify see 9642 some node's parent is null
-        String parentxpath = XpathUtil.getMainXpath(idToXpath.get(id)); // parent xpath maybe A.fileds[1]
+        String parentxpath = XpathUtil.getMainXpath(parentXpath); // parent xpath maybe A.fileds[1]
         if (xpathToTreeNode.containsKey(parentxpath)) {
             treeNode.setParent(xpathToTreeNode.get(parentxpath));
         }
         // end
-        if (xpathToTreeNode.containsKey(idToXpath.get(id)))
-            treeNode.setParent(xpathToTreeNode.get(idToXpath.get(id)));
+        if (xpathToTreeNode.containsKey(parentXpath))
+            treeNode.setParent(xpathToTreeNode.get(parentXpath));
 
         int maxOccurs = xsp.getMaxOccurs();
         // idToXpath.put(nodeCount,xpath);//keep map <node id -> xpath> in the session
@@ -1354,7 +1358,14 @@ public class ItemsBrowserDWR {
     // TreeNode parentNode,
     public TreeNode[] getChildren(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
             String selectedExtendType) throws Exception {
-        TreeNode[] nodes = getChildrenWithKeyMask(id, nodeCount, language, foreignKey, docIndex, false, selectedExtendType);
+        TreeNode[] nodes = getChildrenWithKeyMask(id, nodeCount, language, foreignKey, docIndex, false, selectedExtendType, null);
+        return nodes;
+    }
+
+    public TreeNode[] getChildren(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
+            String selectedExtendType, String bindpath) throws Exception {
+        TreeNode[] nodes = getChildrenWithKeyMask(id, nodeCount, language, foreignKey, docIndex, false, selectedExtendType,
+                bindpath);
         return nodes;
     }
 
@@ -1551,8 +1562,7 @@ public class ItemsBrowserDWR {
     }
 
     public TreeNode[] getChildrenWithKeyMask(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
-            boolean maskKey, String selectedExtendType) throws Exception {
-
+            boolean maskKey, String selectedExtendType, String bindpath) throws Exception {
         synchronized (locker) {
 
             WebContext ctx = WebContextFactory.get();
@@ -1568,8 +1578,10 @@ public class ItemsBrowserDWR {
                     "xpathToTreeNode"); //$NON-NLS-1$
             selectedExtendType = (selectedExtendType != null && selectedExtendType.equals("") ? null : selectedExtendType);//$NON-NLS-1$
 
+            String xpath = idToXpath.get(id);
             try {
-                String xpath = idToXpath.get(id);
+                if (bindpath != null)
+                    xpath = bindpath;
                 // update doc
                 if (selectedExtendType != null && selectedExtendType.length() > 0) {
                     Node tagertNode = Util.getNodeList(d, xpath).item(0);
@@ -1632,14 +1644,32 @@ public class ItemsBrowserDWR {
             boolean choice = false;
 
             XSParticle[] xsp = null;
+            XSParticle selXsp = idToParticle.get(id);
             if (idToParticle == null)
                 return null;
-            if (idToParticle.get(id) == null) {// simple type case, no children
-                return null;
+            if (selXsp == null && bindpath != null) {// simple type case, no children
+                // fix bug 0023102, sometimes the complex arrow disappear after you operation Browse record a while
+                String pxpath = bindpath;
+                if (pxpath.startsWith("/")) { //$NON-NLS-1$
+                    pxpath = pxpath.substring(1, pxpath.length());
+                }
+                if (pxpath != null) {
+                    String concept = pxpath.split("/")[0]; //$NON-NLS-1$
+                    Map<String, XSParticle> xpath2particle = SchemaWebAgent.getInstance().getXPath2ParticleMap(concept);
+                    XSParticle particle = xpath2particle.get(pxpath);
+                    if (particle != null && particle.getTerm().asElementDecl().getType().isComplexType()) {
+                        selXsp = particle;
+                    }
+                }
             }
+            if (selXsp == null)
+                return null;
             this.nodeCount = nodeCount;// aiming added
-            xsp = idToParticle.get(id).getTerm().asModelGroup().getChildren();
-            if ("choice".equals(idToParticle.get(id).getTerm().asModelGroup().getCompositor().toString())) //$NON-NLS-1$
+            if (selXsp.getTerm().asModelGroup() == null) {
+                selXsp = selXsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
+            }
+            xsp = selXsp.getTerm().asModelGroup().getChildren();
+            if ("choice".equals(selXsp.getTerm().asModelGroup().getCompositor().toString())) //$NON-NLS-1$
                 choice = true;
 
             try {
@@ -1654,12 +1684,12 @@ public class ItemsBrowserDWR {
             ArrayList<TreeNode> list = new ArrayList<TreeNode>();
             // iterate over children
             for (int j = 0; j < xsp.length; j++) {
-                setChildrenWithKeyMask(id, language, foreignKey, docIndex, maskKey, choice, xsp[j], list, xpathToTreeNode);
+                setChildrenWithKeyMask(id, language, foreignKey, docIndex, maskKey, choice, xsp[j], list, xpathToTreeNode,
+                        bindpath);
             }
 
             // update dsp rules
-            updateDspRules(docIndex, d, idToXpath.get(id).substring(1,
-                    idToXpath.get(id).indexOf("/", 1) > -1 ? idToXpath.get(id).indexOf("/", 1) : idToXpath.get(id).length())//$NON-NLS-1$//$NON-NLS-2$
+            updateDspRules(docIndex, d, xpath.substring(1, xpath.indexOf("/", 1) > -1 ? xpath.indexOf("/", 1) : xpath.length())//$NON-NLS-1$//$NON-NLS-2$
                     .trim());
 
             if (xpathToTreeNode != null) {

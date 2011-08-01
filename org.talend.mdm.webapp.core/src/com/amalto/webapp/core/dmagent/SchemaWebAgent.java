@@ -39,6 +39,7 @@ import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSUniverse;
 import com.amalto.webapp.util.webservices.WSUniverseXtentisObjectsRevisionIDs;
 import com.sun.xml.xsom.XSAnnotation;
+import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
 /**
@@ -543,4 +544,49 @@ public class SchemaWebAgent extends SchemaManager {
         }
     	return false;
     }    
+    
+    /**
+     * 
+     * DOC achen Comment method "getXPath2ParticleMap".
+     * 
+     * @param concept
+     * @return
+     * @throws Exception
+     */
+    public Map<String, XSParticle> getXPath2ParticleMap(String concept)throws Exception{
+        Configuration config = Configuration.getInstance();
+        Map<String,XSElementDecl> conceptMap=CommonDWR.getConceptMap(config.getModel());
+        XSComplexType xsct = (XSComplexType)(conceptMap.get(concept).getType());
+        XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
+        HashMap<String,XSParticle> xpathToParticle = new HashMap<String,XSParticle>();
+        for (int j = 0; j < xsp.length; j++) {  
+            getChildrenXpath2Particle(xsp[j], concept, xpathToParticle);
+        }
+        return xpathToParticle;
+    }
+
+    private void getChildrenXpath2Particle(XSParticle xsp, String xpathParent,HashMap<String,XSParticle> xpathToParticle){
+        if(xsp.getTerm().asModelGroup()!=null){ //is complex type
+            XSParticle[] xsps=xsp.getTerm().asModelGroup().getChildren();
+            for (int i = 0; i < xsps.length; i++) {
+                getChildrenXpath2Particle(xsps[i], xpathParent, xpathToParticle);
+            }
+        }
+        if(xsp.getTerm().asElementDecl()==null) return;
+        String xpath = xpathParent + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
+        if(xsp.getTerm().asElementDecl().getType().isComplexType()){
+            XSParticle particle = xsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
+            if(particle!=null){
+                XSParticle[] xsps = particle.getTerm().asModelGroup().getChildren();
+                String pxpath = xpathParent + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
+                xpathToParticle.put(pxpath, xsp);
+                for (int i = 0; i < xsps.length; i++) {
+                    getChildrenXpath2Particle(xsps[i], pxpath, xpathToParticle);
+                }
+            }
+        } else {
+            xpathToParticle.put(xpath, xsp);
+        }
+        
+    }
 }
