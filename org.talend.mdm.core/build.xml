@@ -107,7 +107,7 @@
        	</propertyfile>   	
      </target>
 
-   	<target name="package" depends="version, junit">
+   	<target name="package" depends="version">
    		
 		<jar destfile="${ejbs}" manifest="src/META-INF/MANIFEST.MF">
 
