@@ -9,5 +9,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.xmldb"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commons.core"/>
+	<classpathentry kind="lib" path="src/WEB-INF/lib/org.apache.ws.commons.schema_1.4.2.v200905291151.jar"/>
+	<classpathentry kind="lib" path="src/WEB-INF/lib/zz.20.enterprise.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
