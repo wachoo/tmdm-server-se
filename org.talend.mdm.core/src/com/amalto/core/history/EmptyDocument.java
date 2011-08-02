@@ -11,45 +11,14 @@
 
 package com.amalto.core.history;
 
-import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.history.accessor.DOMAccessorFactory;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
 *
 */
 public class EmptyDocument implements MutableDocument {
-    public static final org.w3c.dom.Document EMPTY_DOCUMENT;
-
-    static {
-        try {
-            EMPTY_DOCUMENT = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String exportToString() {
+    public String getAsString() {
         return StringUtils.EMPTY;
-    }
-
-    public Accessor createAccessor(String path) {
-        return DOMAccessorFactory.createAccessor(path, this);
-    }
-
-    public org.w3c.dom.Document asDOM() {
-        return EMPTY_DOCUMENT;
-    }
-
-    public Document transform(DocumentTransformer transformer) {
-        if (transformer == null) {
-            throw new IllegalArgumentException("Transformer argument cannot be null");
-        }
-        return transformer.transform(this);
     }
 
     public boolean isCreated() {
