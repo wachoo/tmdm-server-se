@@ -23,6 +23,11 @@ public class Utils {
 
     private static final Logger LOG = Logger.getLogger(Utils.class);
     
+    private static final String GXT_PROPERTIES = "gxt.properties"; //$NON-NLS-1$
+
+    /** a reference to the factory used to create Gxt instances */
+    private static GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES);
+
     public static void getJavascriptImportDetail(List<String> imports){
         try {
             getJavascriptImportDetail(Menu.getRootMenu(),  imports, 1, 1);
@@ -50,14 +55,35 @@ public class Utils {
         return i;
     }
     
-    public static int getJavascriptImportDetail(Menu menu, List<String> imports, int level, int i) throws Exception{
+    public static ArrayList<String> getJavascriptImport() throws Exception {
+        ArrayList<String> imports = new ArrayList<String>();
+        getJavascriptImportDetail(Menu.getRootMenu(), imports, 1, 1);
+        // FIXME: This is a workaround for 4.2 only
+        complementItemsbrowser(imports);
+        return imports;
+    }
+
+    private static int getJavascriptImportDetail(Menu menu, List<String> imports, int level, int i) throws Exception {
         for (Iterator<String> iter = menu.getSubMenus().keySet().iterator(); iter.hasNext(); ) {
             String key = iter.next();
             Menu subMenu= menu.getSubMenus().get(key);
             
             if(subMenu.getContext()!=null) {
-                String tmp ="<script type=\"text/javascript\" src=\"" + subMenu.getApplication()+".js\"></script>\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                imports.add(tmp);
+                String gxtEntryModule = gxtFactory.getGxtEntryModule(subMenu.getContext(), subMenu.getApplication());
+
+                if (gxtEntryModule == null) {
+                    String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/dwr/interface/"
+                            + subMenu.getApplication() + "Interface.js\"></script>\n";
+                    imports.add(tmp);
+                    tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/js/"
+                            + subMenu.getApplication() + ".js\"></script>\n";
+                    imports.add(tmp);
+
+                } else {
+                    String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/"
+                            + gxtEntryModule + ".nocache.js\"></script>\n";
+                    imports.add(tmp);
+                }
                 i++;
             }
             if (subMenu.getSubMenus().size()>0) 
@@ -66,6 +92,67 @@ public class Utils {
         return i;   
     }
     
+    private static void complementItemsbrowser(ArrayList<String> imports) {
+        boolean isItemsbrowserExist = false;
+        boolean isItemsbrowser2Exist = false;
+        for (String importMenu : imports) {
+            if (importMenu.indexOf("src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"") != -1)isItemsbrowserExist = true;//$NON-NLS-1$
+            if (importMenu.indexOf("src=\"/itemsbrowser2/secure/js/ItemsBrowser2.js\"") != -1)isItemsbrowser2Exist = true;//$NON-NLS-1$
+        }
+        if (isItemsbrowser2Exist && !isItemsbrowserExist) {
+            imports
+                    .add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n");//$NON-NLS-1$
+            imports.add("<script type=\"text/javascript\" src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"></script>\n");//$NON-NLS-1$
+        }
+    }
+
+    public static String getCommonImport() {
+        return
+        // EXT & YUI
+        "<script type=\"text/javascript\" src=\"/core/secure/yui-2.4.0/build/utilities/utilities.js\"></script>\n"
+                + "<script type=\"text/javascript\" src=\"/core/secure/yui-2.4.0/build/yuiloader/yuiloader-beta.js\"></script>\n"
+                +
+                // "<script src=\"/core/secure/ext-2.2/adapter/yui/yui-utilities.js\" type=\"text/javascript\"></script>\n"+
+                "<script type=\"text/javascript\" src=\"/core/secure/ext-2.2/adapter/yui/ext-yui-adapter.js\"></script>\n"
+                + "<script type=\"text/javascript\" src=\"/core/secure/ext-2.2/ext-all-debug.js\"></script>\n"
+                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/ext-2.2/resources/css/ext-all.css\" />\n"
+                +
+                // EXT-UX
+                "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/editablecolumntree/ColumnNodeUI.js\"></script>\n"
+                + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/editablecolumntree/treeSerializer.js\"></script>\n"
+                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/ext.ux/editablecolumntree/editable-column-tree.css\" />\n"
+                + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/MultiSelectTreePanel.js\"></script>\n"
+                +
+                // Firefox3 Fixes
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/css/firefox3-fix.css\" />\n"
+                +
+                // CORE
+                "<script type=\"text/javascript\" src=\"/general/proxy_core.js\"></script>\n"
+                + "<script type=\"text/javascript\" src=\"/core/secure/dwr/interface/LayoutInterface.js\"></script>\n"
+                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/css/webapp-core.css\" />\n"
+                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/css/amalto-menus.css\" />\n"
+                +
+                // Proxy DWR <-> Ext
+                "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/DWRAction.js\"></script>\n"
+                + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/DWRProxy.js\"></script>\n"
+                +
+                // "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/DWRProxy.js\"></script>\n"+
+                // utility class
+                "<script type=\"text/javascript\" src=\"/core/secure/js/bgutil.js\"></script>\n"
+                +
+                // graph class
+                "<script type=\"text/javascript\" src=\"/core/secure/js/raphael-min.js\"></script>\n"
+                +
+                // DWR
+                "<script language=\"javascript1.2\" type='text/javascript' src='/core/secure/dwr/engine.js'></script>\n"
+                + "<script language=\"javascript1.2\" type='text/javascript' src='/core/secure/dwr/util.js'></script>\n"
+                +
+                // Simile Wiget
+                "<script src=\"/core/secure/timeline/timeline_js/timeline-api.js\" type=\"text/javascript\"></script>\n"
+                + "<script src=\"/core/secure/timeline/timeline_ajax/simile-ajax-api.js\" type=\"text/javascript\"></script>\n"
+                + "<link rel=\"stylesheet\" href=\"/core/secure/timeline/css/default.css\" type=\"text/css\">";
+    }
+
     public static List<ItemBean> getLanguages() {
         InputStream is = Utils.class.getResourceAsStream("/languages.xml"); //$NON-NLS-1$
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

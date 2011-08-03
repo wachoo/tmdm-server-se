@@ -12,8 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.general.client.layout;
 
-import org.talend.mdm.webapp.general.client.layout.AccordionMenus.HTMLMenuItem;
-import org.talend.mdm.webapp.general.model.MenuBean;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -22,14 +22,17 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 public class WorkSpace extends LayoutContainer {
 
     private static WorkSpace instance;
 
     private TabPanel workTabPanel = new TabPanel();
+
+    private Map<String, JavaScriptObject> uiMap = new HashMap<String, JavaScriptObject>();
 
     private WorkSpace() {
         super();
@@ -39,7 +42,9 @@ public class WorkSpace extends LayoutContainer {
         workTabPanel.setAnimScroll(true);
         workTabPanel.setTabScroll(true);
         this.add(workTabPanel);
+        initEvent();
     }
+
 
     public static WorkSpace getInstance() {
         if (instance == null) {
@@ -48,29 +53,73 @@ public class WorkSpace extends LayoutContainer {
         return instance;
     }
 
-    public void addWorkTab(final HTMLMenuItem menuItem, String url) {
-        MenuBean menuBean = menuItem.getMenuBean();
-        TabItem item = workTabPanel.getItemByItemId(menuBean.getName());
-        if (item == null) {
-            item = new TabItem(menuBean.getName());
-            item.addListener(Events.Select, new Listener<BaseEvent>() {
+    private void initEvent() {
+        workTabPanel.addListener(Events.Resize, new Listener<BaseEvent>() {
+            public void handleEvent(BaseEvent be) {
+                resizeUIObjects();
+            }
+        });
+    }
 
+    public JavaScriptObject getItem(String itemId) {
+        return uiMap.get(itemId);
+    }
+
+
+    public void addWorkTab(final String itemId, final JavaScriptObject uiObject) {
+
+        TabItem item = workTabPanel.getItemByItemId(itemId);
+        if (item == null) {
+            item = new TabItem(itemId);
+
+            item.addListener(Events.Select, new Listener<BaseEvent>() {
                 public void handleEvent(BaseEvent be) {
-                    AccordionMenus.getInstance().selectedItem(menuItem);
+                    resizeUIObjects();
                 }
             });
-            item.setItemId(menuBean.getName());
+            item.addListener(Events.Close, new Listener<BaseEvent>() {
+
+                public void handleEvent(BaseEvent be) {
+                    uiMap.remove(itemId);
+                }
+            });
+            item.setItemId(itemId);
             item.setClosable(true);
             item.setLayout(new FitLayout());
-            Frame frame = new Frame(url);
-//            Frame frame = new Frame("/" + menuBean.getContext()); //$NON-NLS-1$
-            frame.getElement().getStyle().setBorderWidth(0.0D, Unit.PX);
-            item.add(frame);
+            SimplePanel content = new SimplePanel() {
+
+                protected void onLoad() {
+                    renderUIObject(this.getElement(), uiObject);
+                }
+            };
+            item.add(content);
             workTabPanel.add(item);
+            uiMap.put(itemId, uiObject);
         }
         workTabPanel.setSelection(item);
     }
-    
+
+    private void resizeUIObjects() {
+        TabItem item = workTabPanel.getSelectedItem();
+        if (item != null) {
+            JavaScriptObject uiObject = uiMap.get(item.getItemId());
+            if (uiObject != null) {
+                resizeUIObject(uiObject);
+            }
+        }
+    }
+
+    native void resizeUIObject(JavaScriptObject uiObject)/*-{
+        var parentNode = uiObject.getEl().dom.parentNode;
+        uiObject.setSize(parentNode.offsetWidth, parentNode.offsetHeight);
+    }-*/;
+
+
+    private native void renderUIObject(Element el, JavaScriptObject uiObject)/*-{
+        uiObject.render(el);
+        uiObject.setSize(el.offsetWidth, el.offsetHeight);
+    }-*/;
+
     public void clearTabs(){
         workTabPanel.removeAll();
     }

@@ -30,6 +30,9 @@ public class General implements EntryPoint {
 	
 	public void onModuleLoad() {
         registerPubServices();
+
+        registerPubService();
+
 		Registry.register(OVERALL_SERVICE, GWT.create(GeneralService.class));
 		PublicMessageService.registerMessageService();
 		
@@ -38,6 +41,29 @@ public class General implements EntryPoint {
 		dispatcher.dispatch(GeneralEvent.LoadUser);
 
 	}
+
+    private native void registerPubService()/*-{
+        var workspace = @org.talend.mdm.webapp.general.client.layout.WorkSpace::getInstance()();
+        var tabPanel = {
+        getItem : function(itemId){
+        return workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::getItem(Ljava/lang/String;)(itemId);
+        },
+        add : function(item){
+        workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::addWorkTab(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(item.getItemId(), item);
+        },
+        doLayout : function(){
+        workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::doLayout();
+        }
+        };
+
+        $wnd.amalto.core.getTabPanel = function(){
+        return tabPanel;
+        };
+
+        $wnd.amalto.core.doLayout = function(){
+        tabPanel.doLayout();
+        };
+    }-*/;
 
     private void registerPubServices() {
         PubService.registerLanguageService();
