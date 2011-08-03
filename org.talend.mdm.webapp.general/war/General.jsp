@@ -9,12 +9,9 @@
     <link type="text/css" rel="stylesheet" href="General-menus.css">
     <title>Web Application Starter Project</title>
 
-    <script>
-	talend = {};
-    </script>    
     <%
-	List<String> imports = new ArrayList<String>();
-	Utils.getJavascriptImportDetail(imports);
+	out.println(Utils.getCommonImport());
+	List<String> imports = Utils.getJavascriptImport();
 	for (String js : imports){
 		out.print(js);
 	}
