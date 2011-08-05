@@ -1,0 +1,194 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+package org.talend.mdm.webapp.welcomeportal.server.actions;
+
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TreeMap;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalService;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
+import com.amalto.webapp.core.util.Menu;
+import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.Webapp;
+import com.amalto.webapp.core.util.XtentisWebappException;
+import com.amalto.webapp.core.util.dwr.WebappInfo;
+import com.amalto.webapp.util.webservices.WSByteArray;
+import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
+import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
+import com.amalto.webapp.util.webservices.WSTransformerContext;
+import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
+import com.amalto.webapp.util.webservices.WSTransformerPK;
+import com.amalto.webapp.util.webservices.WSTransformerV2PK;
+import com.amalto.webapp.util.webservices.WSTypedContent;
+import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+
+/**
+ * The server side implementation of the RPC service.
+ */
+@SuppressWarnings("serial")
+public class WelcomePortalAction extends RemoteServiceServlet implements WelcomePortalService {
+
+    private static final Logger LOG = Logger.getLogger(WelcomePortalAction.class);
+
+    private static final Messages MESSAGES = MessagesFactory.getMessages(
+            "org.talend.mdm.webapp.welcomeportal.client.i18n.WelcomePortalMessages", WelcomePortalAction.class.getClassLoader()); //$NON-NLS-1$
+
+    private static final String STANDALONE_PROCESS_PREFIX = "Runnable#"; //$NON-NLS-1$
+
+    /**
+     * check if is show license link.
+     * 
+     * @return
+     */
+    public boolean isHiddenLicense() {
+        return isHiddenMenu("License"); //$NON-NLS-1$
+    }
+
+    /**
+     * check if is show task link.
+     * 
+     * @return
+     */
+    public boolean isHiddenTask() {
+        return isHiddenMenu("WorkflowTasks"); //$NON-NLS-1$
+    }
+
+    /**
+     * check if is it standalong process.
+     */
+    public boolean isStandaloneProcess(String wstransformerpk) {
+        return wstransformerpk.startsWith(STANDALONE_PROCESS_PREFIX);
+    }
+
+    /**
+     * check if is show specify menu.
+     * 
+     * @param menu
+     * @return
+     */
+    private boolean isHiddenMenu(String menu) {
+        try {
+            TreeMap<String, Menu> subMenus = Menu.getRootMenu().getSubMenus();
+            for (Iterator<String> iter = subMenus.keySet().iterator(); iter.hasNext();) {
+                String key = iter.next();
+                Menu subMenu = subMenus.get(key);
+
+                if (menu.equals(subMenu.getApplication())) {
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+        return true;
+    }
+
+    public String getAlertMsg(String language) {
+        try {
+            WebappInfo webappInfo = new WebappInfo();
+            Webapp.INSTANCE.getInfo(webappInfo, language);
+            if (webappInfo.getLicense() == null)
+                return MESSAGES.getMessage("no_license_msg"); //$NON-NLS-1$
+            else if (!webappInfo.isLicenseValid())
+                return MESSAGES.getMessage("license_expired_msg"); //$NON-NLS-1$
+            return null;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return e.getMessage();
+        }
+    }
+
+    /**
+     * get workflow task informations.
+     * 
+     * @return
+     */
+    public int getTaskMsg() {
+        return Webapp.INSTANCE.getTaskMsg();
+    }
+
+    public List<String> getStandaloneProcess() {
+        List<String> process = new ArrayList<String>();
+
+        try {
+            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK(); //$NON-NLS-1$
+
+            for (WSTransformerPK wstransformerpk : wst) {
+                if (isStandaloneProcess(wstransformerpk.getPk())) {
+                    process.add(wstransformerpk.getPk());
+                }
+            }
+
+        } catch (RemoteException e) {
+            LOG.error(e.getMessage(), e);
+        } catch (XtentisWebappException e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+        return process;
+    }
+
+    /**
+     * run the standalone process.
+     * 
+     * @param transformerPK
+     * @return
+     */
+    public String runProcess(String transformerPK) {
+        String sucess = "ok";//$NON-NLS-1$
+        WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
+
+        try {
+            // yguo, plugin input parameters
+            String content = "<root/>"; //$NON-NLS-1$
+            WSTypedContent typedContent = new WSTypedContent(null, new WSByteArray(content.getBytes("UTF-8")),//$NON-NLS-1$
+                    "text/xml; charset=UTF-8");//$NON-NLS-1$
+            WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, typedContent);
+            WSTransformerContextPipelinePipelineItem[] entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2)
+                    .getPipeline().getPipelineItem();
+            if (entries.length > 0) {
+                WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
+                if (item.getVariable().equals("output_url")) {//$NON-NLS-1$
+                    byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
+                    String urlcontent = new String(bytes);
+                    Document resultDoc = Util.parse(urlcontent);
+                    NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
+                    if (attrList != null && attrList.getLength() > 0) {
+                        String downloadUrl = attrList.item(0).getTextContent();
+                        sucess += downloadUrl;
+                    }
+                }
+            }
+        } catch (RemoteException e) {
+            LOG.error(e.getMessage(), e);
+            sucess = "failed";//$NON-NLS-1$
+        } catch (XtentisWebappException e) {
+            LOG.error(e.getMessage(), e);
+            sucess = "failed";//$NON-NLS-1$
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            sucess = "failed";//$NON-NLS-1$
+        }
+
+        return sucess;
+    }
+}
