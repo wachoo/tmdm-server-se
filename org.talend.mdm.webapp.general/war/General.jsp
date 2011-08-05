@@ -9,6 +9,7 @@
     <link type="text/css" rel="stylesheet" href="General-menus.css">
     <title>Web Application Starter Project</title>
 
+    <script type="text/javascript" language="javascript" src="general/general.nocache.js"></script>
     <%
 	out.println(Utils.getCommonImport());
 	List<String> imports = Utils.getJavascriptImport();
@@ -17,7 +18,7 @@
 	}
     %>
 
-    <script type="text/javascript" language="javascript" src="general/general.nocache.js"></script>
+
     
   </head>
   <body>
