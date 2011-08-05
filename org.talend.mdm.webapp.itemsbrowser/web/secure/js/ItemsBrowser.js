@@ -5184,7 +5184,6 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                         tbDetail.items.get('saveBTN').enable();
                         tbDetail.items.get('saveAndQBTN').enable();
-
                         if (callbackOnSuccess && result.status != 1)                        	
                         	callbackOnSuccess(result);
 
@@ -5218,7 +5217,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                             },
                                             icon : Ext.MessageBox.INFO
                                         });
-                               setTimeout("Ext.MessageBox.hide()",800);
+                                newItem[treeIndex] = false;
+                                setTimeout("Ext.MessageBox.hide()",800);
                                 return;
                             }
                         }
