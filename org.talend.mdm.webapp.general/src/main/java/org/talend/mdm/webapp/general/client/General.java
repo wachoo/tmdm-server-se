@@ -18,9 +18,11 @@ import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
 import org.talend.mdm.webapp.general.client.mvc.controller.GeneralController;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 
 public class General implements EntryPoint {
 
@@ -29,6 +31,8 @@ public class General implements EntryPoint {
 	public static final String USER_BEAN = "UserBean"; //$NON-NLS-1$
 	
 	public void onModuleLoad() {
+        Window.setTitle(Window.getTitle() + " general"); //$NON-NLS-1$
+        XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
         registerPubServices();
 
         registerPubService();
@@ -53,6 +57,9 @@ public class General implements EntryPoint {
         },
         doLayout : function(){
         workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::doLayout();
+        },
+        setSelection : function(itemId){
+        workspace.@org.talend.mdm.webapp.general.client.layout.WorkSpace::setSelection(Ljava/lang/String;)(itemId);
         }
         };
 

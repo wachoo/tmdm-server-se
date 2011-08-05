@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -69,10 +70,12 @@ public class WorkSpace extends LayoutContainer {
     public void addWorkTab(final String itemId, final JavaScriptObject uiObject) {
 
         TabItem item = workTabPanel.getItemByItemId(itemId);
+
         if (item == null) {
             item = new TabItem(itemId);
 
             item.addListener(Events.Select, new Listener<BaseEvent>() {
+
                 public void handleEvent(BaseEvent be) {
                     resizeUIObjects();
                 }
@@ -92,11 +95,19 @@ public class WorkSpace extends LayoutContainer {
                     renderUIObject(this.getElement(), uiObject);
                 }
             };
+            content.getElement().setId("General_" + DOM.createUniqueId()); //$NON-NLS-1$
             item.add(content);
             workTabPanel.add(item);
             uiMap.put(itemId, uiObject);
         }
         workTabPanel.setSelection(item);
+    }
+
+    public void setSelection(String itemId) {
+        TabItem item = workTabPanel.getItemByItemId(itemId);
+        if (item != null) {
+            workTabPanel.setSelection(item);
+        }
     }
 
     private void resizeUIObjects() {
@@ -118,6 +129,7 @@ public class WorkSpace extends LayoutContainer {
     private native void renderUIObject(Element el, JavaScriptObject uiObject)/*-{
         uiObject.render(el);
         uiObject.setSize(el.offsetWidth, el.offsetHeight);
+        uiObject.doLayout();
     }-*/;
 
     public void clearTabs(){
