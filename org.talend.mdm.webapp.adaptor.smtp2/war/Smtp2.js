@@ -2,7 +2,7 @@ talend.smtp = {};
 talend.smtp.SmtpAdapter = function(){
 	
 	function _getUrl(language, callBack){
-		var frameUrl = "/smtp/smtp2.html";
+		var frameUrl = "/Smtp2/Smtp2.html";
 		callBack(frameUrl);
 	}
 	

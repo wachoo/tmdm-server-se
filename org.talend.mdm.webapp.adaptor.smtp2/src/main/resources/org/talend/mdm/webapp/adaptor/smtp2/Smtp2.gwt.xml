@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module rename-to='smtp2'>    
+<module rename-to='Smtp2'>    
     <!-- Inherit the core Web Toolkit stuff.                        -->
     <inherits name='com.google.gwt.user.User'/>
 
@@ -39,6 +39,6 @@
     <source path='model' />  
    
     <stylesheet src='/core/secure/gxt/resources/css/gxt-all.css'/>  
-    <stylesheet src='../smtp2.css'/>
+    <stylesheet src='../Smtp2.css'/>
     
 </module>

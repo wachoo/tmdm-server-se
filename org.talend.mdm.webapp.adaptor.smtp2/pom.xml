@@ -73,7 +73,7 @@
                     <execution>
                         <id>gwt-compile</id>
                         <configuration>
-                            <module>org.talend.mdm.webapp.adaptor.smtp2.smtp2</module>
+                            <module>org.talend.mdm.webapp.adaptor.smtp2.Smtp2</module>
                         </configuration>
                         <goals>
                             <goal>compile</goal>

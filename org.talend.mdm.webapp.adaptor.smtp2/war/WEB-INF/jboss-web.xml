@@ -3,7 +3,7 @@
 
 <jboss-web>
   <security-domain  flushOnSessionInvalidation="true">java:/jaas/xtentisSecurity</security-domain>
-   <context-root>/smtp</context-root>
+   <context-root>/Smtp2</context-root>
 
    <!-- Resource Environment References -->
    <!--

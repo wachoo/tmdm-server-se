@@ -13,13 +13,13 @@
   
   <servlet-mapping>
     <servlet-name>smtp2Servlet</servlet-name>
-    <url-pattern>/smtp/Smtp2Service</url-pattern>
+    <url-pattern>/Smtp2/Smtp2Service</url-pattern>
   </servlet-mapping>
   
   
   <!-- Default page to serve -->
   <welcome-file-list>
-    <welcome-file>smtp2.html</welcome-file>
+    <welcome-file>Smtp2.html</welcome-file>
   </welcome-file-list>
 
 </web-app>
