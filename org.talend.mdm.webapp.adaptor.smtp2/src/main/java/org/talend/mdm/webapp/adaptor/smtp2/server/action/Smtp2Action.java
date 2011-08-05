@@ -31,7 +31,7 @@ import com.amalto.webapp.util.webservices.WSServicePutConfiguration;
  */
 public class Smtp2Action implements Smtp2Service {
 
-    final static String JNDI_NAME = "amalto/local/service/smtp";
+    final static String JNDI_NAME = "amalto/local/service/smtp"; //$NON-NLS-1$
 
     /*
      * (non-Javadoc)
@@ -53,13 +53,13 @@ public class Smtp2Action implements Smtp2Service {
         String config = Util.getPort().getServiceConfiguration(new WSServiceGetConfiguration(JNDI_NAME, null)).getValue();
         Document d = Util.parse(config);
         SmtpConfigurationBean configuration = new SmtpConfigurationBean();
-        configuration.setSmtpServer(Util.getFirstTextNode(d.getDocumentElement(), "host"));
-        String port = Util.getFirstTextNode(d.getDocumentElement(), "port");
+        configuration.setSmtpServer(Util.getFirstTextNode(d.getDocumentElement(), "host")); //$NON-NLS-1$
+        String port = Util.getFirstTextNode(d.getDocumentElement(), "port"); //$NON-NLS-1$
         if (port != null)
-            configuration.setSmtpPort(new Integer(port).intValue());
-        configuration.setSmtpUsername(Util.getFirstTextNode(d.getDocumentElement(), "username"));
-        configuration.setSmtpPassword(Util.getFirstTextNode(d.getDocumentElement(), "password"));
-        configuration.setSmtpBCC(Util.getFirstTextNode(d.getDocumentElement(), "permanentbcc"));
+           configuration.setSmtpPort(new Integer(port).intValue());
+        configuration.setSmtpUsername(Util.getFirstTextNode(d.getDocumentElement(), "username")); //$NON-NLS-1$
+        configuration.setSmtpPassword(Util.getFirstTextNode(d.getDocumentElement(), "password")); //$NON-NLS-1$
+        configuration.setSmtpBCC(Util.getFirstTextNode(d.getDocumentElement(), "permanentbcc")); //$NON-NLS-1$
         return configuration;
     }
 
@@ -71,8 +71,8 @@ public class Smtp2Action implements Smtp2Service {
     public String getStatus() throws Exception {
         String status = Util.getPort().serviceAction(new WSServiceAction(JNDI_NAME, WSServiceActionCode.STATUS, null, null))
                 .getValue();
-        if ("RUNNING".equals(status) || "OK".equals(status)) {
-            return "OK";
+        if ("RUNNING".equals(status) || "OK".equals(status)) { //$NON-NLS-1$ //$NON-NLS-2$
+            return "OK"; //$NON-NLS-1$
         }
         return status;
     }
@@ -96,34 +96,34 @@ public class Smtp2Action implements Smtp2Service {
     }
 
     private static String serializeConfiguration(SmtpConfigurationBean configuration) throws Exception {
-        try {
-            String xml = "<configuration>";
-            xml += "  <host>"
-                    + ("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpServer())) ? "" : StringEscapeUtils
-                            .escapeXml(configuration.getSmtpServer())) + "</host>";
-            xml += "  <port>" + ((configuration.getSmtpPort() <= 0) ? "" : String.valueOf(configuration.getSmtpPort()))
-                    + "</port>";
+              try {
+            String xml = "<configuration>"; //$NON-NLS-1$
+            xml += "  <host>" //$NON-NLS-1$
+                    + ("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpServer())) ? "" : StringEscapeUtils //$NON-NLS-1$ //$NON-NLS-2$
+                            .escapeXml(configuration.getSmtpServer())) + "</host>"; //$NON-NLS-1$
+            xml += "  <port>" + ((configuration.getSmtpPort() <= 0) ? "" : String.valueOf(configuration.getSmtpPort())) //$NON-NLS-1$ //$NON-NLS-2$
+                    + "</port>"; //$NON-NLS-1$
 
-            xml += "   <username>"
-                    + (("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpUsername()))) ? "" : StringEscapeUtils
+            xml += "   <username>" //$NON-NLS-1$
+                    + (("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpUsername()))) ? "" : StringEscapeUtils //$NON-NLS-1$ //$NON-NLS-2$
                             .escapeXml(configuration.getSmtpUsername()))
-                    + "</username>"
-                    + "   <password>"
-                    + (("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpPassword()))) ? "" : StringEscapeUtils
+ + "</username>" //$NON-NLS-1$
+                    + "   <password>" //$NON-NLS-1$
+                    + (("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpPassword()))) ? "" : StringEscapeUtils //$NON-NLS-1$//$NON-NLS-2$
                             .escapeXml(configuration.getSmtpPassword()))
-                    + "</password>"
-                    + "   <permanentbcc>"
-                    + (("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpBCC()))) ? "" : StringEscapeUtils.escapeXml(
-                            configuration.getSmtpBCC()).replaceAll("\n", ","));
+ + "</password>" //$NON-NLS-1$
+                    + "   <permanentbcc>" //$NON-NLS-1$
+                    + (("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpBCC()))) ? "" : StringEscapeUtils.escapeXml( //$NON-NLS-1$//$NON-NLS-2$
+                            configuration.getSmtpBCC()).replaceAll("\n", ",")); //$NON-NLS-1$ //$NON-NLS-2$
 
-            xml += "</permanentbcc></configuration>";
+            xml += "</permanentbcc></configuration>"; //$NON-NLS-1$
             return xml;
 
         } catch (Exception e) {
-            Matcher m = Pattern.compile("(.*Exception:)(.+)", Pattern.DOTALL).matcher(e.getLocalizedMessage());
+            Matcher m = Pattern.compile("(.*Exception:)(.+)", Pattern.DOTALL).matcher(e.getLocalizedMessage()); //$NON-NLS-1$
             if (m.matches())
                 throw new Exception(m.group(2));
-            throw new Exception(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new Exception(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
         }
     }
 
@@ -140,11 +140,11 @@ public class Smtp2Action implements Smtp2Service {
         try {
 
             returnStatus = Util.getPort()
-                    .serviceAction(new WSServiceAction(JNDI_NAME, WSServiceActionCode.EXECUTE, "sendSimpleMail", params))
+                    .serviceAction(new WSServiceAction(JNDI_NAME, WSServiceActionCode.EXECUTE, "sendSimpleMail", params)) //$NON-NLS-1$
                     .getValue();
         } catch (Exception e) {
             throw e;
         }
-        return returnStatus;
+      return returnStatus;
     }
 }
