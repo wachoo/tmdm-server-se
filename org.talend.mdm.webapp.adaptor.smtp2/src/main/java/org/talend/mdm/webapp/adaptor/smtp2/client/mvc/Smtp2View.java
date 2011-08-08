@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.adaptor.smtp2.client.mvc;
 
 import org.talend.mdm.webapp.adaptor.smtp2.client.Smtp2Events;
+import org.talend.mdm.webapp.adaptor.smtp2.client.widget.GenerateContainer;
 import org.talend.mdm.webapp.adaptor.smtp2.client.widget.Smtp2Form;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -25,7 +26,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
@@ -59,12 +59,11 @@ public class Smtp2View extends View {
     }
 
     private void onInitFrame(AppEvent event) {
-
+        ContentPanel container = GenerateContainer.getContentPanel();
         container.setHeaderVisible(false);
         container.setLayout(new RowLayout(Orientation.VERTICAL));
         container.setStyleAttribute("height", "100%");//$NON-NLS-1$ //$NON-NLS-2$  
         container.add(new Smtp2Form(), new RowData(1, 1, new Margins(1)));
-        RootPanel.get().add(container);
     }
 
 }

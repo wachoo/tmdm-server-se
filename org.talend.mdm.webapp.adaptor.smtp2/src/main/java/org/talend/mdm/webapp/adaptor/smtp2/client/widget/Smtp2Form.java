@@ -68,7 +68,6 @@ public class Smtp2Form extends FormPanel {
         main.setLayout(table);
         TableData data1 = new TableData();
         data1.setColspan(2);
-
         CellFormPanel modelPanel = new CellFormPanel();
         serverField = new TextField<String>();
         serverField.setFieldLabel(MessagesFactory.getMessages().smtpserver());
