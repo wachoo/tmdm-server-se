@@ -148,7 +148,7 @@ public class RecycleBinAction implements RecycleBinService {
     }
 
     // TODO this is used in many places, refactor it in core project
-    private String createUpdateReport(String[] ids, String concept, String operationType,
+    public String createUpdateReport(String[] ids, String concept, String operationType,
             HashMap<String, UpdateReportItem> updatedPath) throws Exception {
 
         String revisionId = null;

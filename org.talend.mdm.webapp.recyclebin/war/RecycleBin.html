@@ -11,7 +11,13 @@
     <!--                                           -->
     <!-- Default locale                            -->
     <!--                                           -->
-    <meta name="gwt:property" content="locale=en" >
+   <script type="text/javascript">
+        if (window.parent.getLanguage){
+            document.write("<meta name=\"gwt:property\" content=\"locale=" + window.parent.getLanguage() + "\">");
+        } else {
+            document.write("<meta name=\"gwt:property\" content=\"locale=en\">");
+        }
+    </script>
     <!--                                           -->
     <!-- This script loads your compiled module.   -->
     <!-- If you add any GWT meta tags, they must   -->
