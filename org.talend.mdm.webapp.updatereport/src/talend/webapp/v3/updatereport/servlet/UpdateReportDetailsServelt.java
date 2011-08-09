@@ -266,9 +266,9 @@ public class UpdateReportDetailsServelt extends HttpServlet {
                 e.printStackTrace();
             }
             // Write the output
+            resp.setCharacterEncoding("utf-8"); //$NON-NLS-1$
             OutputStream out = resp.getOutputStream();
 
-            resp.setCharacterEncoding("utf-8"); //$NON-NLS-1$
             wb.write(out);
             out.close();
         }
