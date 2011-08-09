@@ -2215,13 +2215,15 @@ public abstract class IXtentisRMIPort implements XtentisPort {
             String projection = wsPutItem.getXmlString();
             Element root = Util.parse(projection).getDocumentElement();
 
+
             String concept = root.getLocalName();
 
             DataModelPOJO dataModel = Util.getDataModelCtrlLocal().getDataModel(
                     new DataModelPOJOPK(wsPutItem.getWsDataModelPK().getPk()));
             Document schema = Util.parseXSD(dataModel.getSchema());
             XSDKey conceptKey = com.amalto.core.util.Util.getBusinessConceptKey(schema, concept);
-
+            // validate the xmlString according to schema
+            Util.validate(root, dataModel.getSchema());
             // get key values
             String[] ids = com.amalto.core.util.Util.getKeyValuesFromItem(root, conceptKey);
             DataClusterPOJOPK dcpk = new DataClusterPOJOPK(wsPutItem.getWsDataClusterPK().getPk());
