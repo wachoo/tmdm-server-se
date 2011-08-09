@@ -46,7 +46,7 @@ public class WelcomePortalView extends View {
         container.setHeaderVisible(false);
         container.setLayout(new FitLayout());
         container.setStyleAttribute("height", "100%");//$NON-NLS-1$ //$NON-NLS-2$       
-        container.add(MainFramePanel.getInstance());
+        container.add(new MainFramePanel(2));
     }
 
 }

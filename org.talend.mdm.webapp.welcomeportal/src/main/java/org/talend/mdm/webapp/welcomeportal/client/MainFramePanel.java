@@ -47,17 +47,9 @@ import com.google.gwt.user.client.ui.HTML;
  */
 public class MainFramePanel extends Portal {
 
-    private static MainFramePanel instance;
-
     private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
 
-    public static MainFramePanel getInstance() {
-        if (instance == null)
-            instance = new MainFramePanel(2);
-        return instance;
-    }
-
-    private MainFramePanel(int numColumns) {
+    public MainFramePanel(int numColumns) {
         super(numColumns);
         setBorders(true);
         setStyleAttribute("backgroundColor", "white"); //$NON-NLS-1$ //$NON-NLS-2$
