@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.welcomeportal.client;
 
 import java.util.List;
 
+import org.talend.mdm.webapp.welcomeportal.client.Util.UrlUtil;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
@@ -79,7 +80,8 @@ public class MainFramePanel extends Portal {
 
         FieldSet set = (FieldSet) start.getItemByItemId(name + "Set"); //$NON-NLS-1$
         set.setHeading(MessagesFactory.getMessages().useful_links());
-        StringBuilder sb1 = new StringBuilder("<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\""); //$NON-NLS-1$
+        StringBuilder sb1 = new StringBuilder(
+                "<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().browse_items() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
         sb1.append("<IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/>&nbsp;"); //$NON-NLS-1$
         sb1.append(MessagesFactory.getMessages().browse_items());
         sb1.append("</span>"); //$NON-NLS-1$
@@ -87,20 +89,21 @@ public class MainFramePanel extends Portal {
         browseHtml.addClickHandler(new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-
+                initUI(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
             }
 
         });
         set.add(browseHtml);
-        StringBuilder sb2 = new StringBuilder("<span id=\"Journal\" style=\"padding-right:8px;cursor: pointer; width:150;\""); //$NON-NLS-1$
+        StringBuilder sb2 = new StringBuilder(
+                "<span id=\"Journal\" style=\"padding-right:8px;cursor: pointer; width:150;\" title=\"" + MessagesFactory.getMessages().journal() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
         sb2.append("<IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/>&nbsp;"); //$NON-NLS-1$
         sb2.append(MessagesFactory.getMessages().journal());
         sb2.append("</span>"); //$NON-NLS-1$
         HTML journalHtml = new HTML(sb2.toString());
-        browseHtml.addClickHandler(new ClickHandler() {
+        journalHtml.addClickHandler(new ClickHandler() {
 
             public void onClick(ClickEvent event) {
-
+                initUI(WelcomePortal.JOURNALCONTEXT, WelcomePortal.JOURNALAPP);
             }
 
         });
@@ -131,9 +134,9 @@ public class MainFramePanel extends Portal {
                     set.setHeading(MessagesFactory.getMessages().alerts_title());
                     final HTML alertHtml = new HTML();
                     final StringBuilder sb = new StringBuilder(
-                            "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\""); //$NON-NLS-1$
-                    // TODO language
-                    service.getAlertMsg("en", new AsyncCallback<String>() {
+                            "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" title=\"" + MessagesFactory.getMessages().alerts_title() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+
+                    service.getAlertMsg(UrlUtil.getLanguage(), new AsyncCallback<String>() {
 
                         public void onFailure(Throwable caught) {
                             Dispatcher.forwardEvent(WelcomePortalEvents.Error, caught);
@@ -163,7 +166,13 @@ public class MainFramePanel extends Portal {
                         }
 
                     });
+                    alertHtml.addClickHandler(new ClickHandler() {
 
+                        public void onClick(ClickEvent event) {
+                            initUI(WelcomePortal.LICENSECONTEXT, WelcomePortal.LICENSEAPP);
+                        }
+
+                    });
                     set.add(alertHtml);
                     MainFramePanel.this.add(alert, 0);
                 }
@@ -193,7 +202,7 @@ public class MainFramePanel extends Portal {
                     set.setHeading(MessagesFactory.getMessages().tasks_title());
                     final HTML taskHtml = new HTML();
                     final StringBuilder sb = new StringBuilder(
-                            "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\""); //$NON-NLS-1$
+                            "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\""); //$NON-NLS-1$ //$NON-NLS-2$
                     service.getTaskMsg(new AsyncCallback<Integer>() {
 
                         public void onFailure(Throwable caught) {
@@ -215,6 +224,13 @@ public class MainFramePanel extends Portal {
                             }
                             sb.append("</span>"); //$NON-NLS-1$
                             taskHtml.setHTML(sb.toString());
+                        }
+
+                    });
+                    taskHtml.addClickHandler(new ClickHandler() {
+
+                        public void onClick(ClickEvent event) {
+                            initUI(WelcomePortal.TASKCONTEXT, WelcomePortal.TASKAPP);
                         }
 
                     });
@@ -279,7 +295,7 @@ public class MainFramePanel extends Portal {
                                             
                                             if (result.length() > 2) {
                                                 String url = result.substring(2);
-                                                // TODO window.open(url);
+                                                openWindow(url);
                                             }
 
                                          }else{
@@ -337,4 +353,13 @@ public class MainFramePanel extends Portal {
         port.add(set);
         return port;
     }
+
+    private native void openWindow(String url)/*-{
+        window.open(url);
+    }-*/;
+
+    private native void initUI(String context, String application)/*-{
+        var initFunction = $wnd.amalto[context][application].init();
+        setTimeout(initFunction,'50');
+    }-*/;
 }

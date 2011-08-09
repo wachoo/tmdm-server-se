@@ -59,7 +59,7 @@ public class WelcomePortalAction extends RemoteServiceServlet implements Welcome
      * @return
      */
     public boolean isHiddenLicense() {
-        return isHiddenMenu("License"); //$NON-NLS-1$
+        return isHiddenMenu("LicenseManager"); //$NON-NLS-1$
     }
 
     /**

@@ -29,7 +29,8 @@ public class GenerateContainer {
             // this.doLayout(true);
             // }
         };
-        instance.setId("welcomeportal"); //$NON-NLS-1$       
+        instance.setId("Welcome"); //$NON-NLS-1$  
+
     }
 
     public static ContentPanel getContentPanel() {

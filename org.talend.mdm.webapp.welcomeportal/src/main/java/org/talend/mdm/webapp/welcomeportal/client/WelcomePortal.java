@@ -21,7 +21,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -35,11 +34,18 @@ public class WelcomePortal implements EntryPoint {
      */
     public final static String WELCOMEPORTAL_SERVICE = "WelcomePortalService"; //$NON-NLS-1$
 
+    public final static String BROWSECONTEXT = "itemsbrowser2", BROWSEAPP = "ItemsBrowser2"; //$NON-NLS-1$//$NON-NLS-2$
+
+    public final static String LICENSECONTEXT = "licensemanager", LICENSEAPP = "LicenseManager"; //$NON-NLS-1$ //$NON-NLS-2$
+
+    public final static String JOURNALCONTEXT = "updatereport", JOURNALAPP = "UpdateReport"; //$NON-NLS-1$ //$NON-NLS-2$
+
+    public final static String TASKCONTEXT = "workflowtasks", TASKAPP = "WorkflowTasks";//$NON-NLS-1$ //$NON-NLS-2$
+
     /**
      * This is the entry point method.
      */
     public void onModuleLoad() {
-        Window.setTitle(Window.getTitle() + " welcomeportal"); //$NON-NLS-1$
         XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
         registerPubService();
         // log setting
@@ -50,6 +56,7 @@ public class WelcomePortal implements EntryPoint {
         // add controller to dispatcher
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new WelcomePortalController());
+
         // GenerateContainer.generateContentPanel();
         // onModuleRender();
         // RootPanel.get().add(GenerateContainer.getContentPanel());
@@ -72,7 +79,7 @@ public class WelcomePortal implements EntryPoint {
 
     private native void _initUI()/*-{
         var tabPanel = $wnd.amalto.core.getTabPanel();
-        var panel = tabPanel.getItem("welcomeportal"); 
+        var panel = tabPanel.getItem("Welcome"); 
         if (panel == undefined){
         @org.talend.mdm.webapp.welcomeportal.client.GenerateContainer::generateContentPanel()();
         panel = this.@org.talend.mdm.webapp.welcomeportal.client.WelcomePortal::createPanel()();
