@@ -127,6 +127,13 @@ public class WorkSpace extends LayoutContainer {
 
 
     private native void renderUIObject(Element el, JavaScriptObject uiObject)/*-{
+        if (!!uiObject.getXType){
+        el.className = "extpj";
+        el.title = "Ext Panel";
+        } else {
+        el.title = "Gxt Panel";
+        }
+
         uiObject.render(el);
         uiObject.setSize(el.offsetWidth, el.offsetHeight);
         uiObject.doLayout();

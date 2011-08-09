@@ -28,7 +28,6 @@
   <source path='model'/>
   <source path='shared'/>
 
-  <stylesheet src="../resources/css/gxt-all.css"/>
   <stylesheet src="../General.css"/>
   <stylesheet src="../General-menus.css"/>
 
