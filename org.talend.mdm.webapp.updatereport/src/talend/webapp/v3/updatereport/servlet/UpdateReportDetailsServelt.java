@@ -193,6 +193,7 @@ public class UpdateReportDetailsServelt extends HttpServlet {
 
                     json.put("head", rootGroup);
                     jsonTree = ((JSONArray) json.get("head")).toString();
+                    resp.setCharacterEncoding("utf-8");
                     PrintWriter out = resp.getWriter();
                     out.println(jsonTree);
                     out.close();
@@ -265,6 +266,7 @@ public class UpdateReportDetailsServelt extends HttpServlet {
             }
             // Write the output
             OutputStream out = resp.getOutputStream();
+            resp.setCharacterEncoding("utf-8");
             wb.write(out);
             out.close();
         }
