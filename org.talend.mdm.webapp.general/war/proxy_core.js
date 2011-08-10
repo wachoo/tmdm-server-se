@@ -370,7 +370,20 @@ amalto.core = function () {
 		layout: "",
 		debugWindow: null,
 
-			
+		working: function(message){
+			Ext.get('status').removeClass('ready');
+			Ext.get('status').addClass('working');
+			Ext.get('status').update(message);
+			//Ext.get('status').insertAfter("beforeEnd",'<p>'+message+'</p>');
+		},
+		ready: function(message){
+			if ((message==null) || (message=='')) message='';
+			Ext.get('status').removeClass('working');
+			Ext.get('status').addClass('ready');
+			Ext.get('status').update(message);
+			setTimeout(function() {Ext.get('status').update('');},4000);
+			//Ext.get('status').insertAfter("beforeEnd",'<p>'+message+'</p>');
+		},	
 			
 		loadMainScript: function(context, application, callback) {
 			var app = application.replace(/\s/g,'');

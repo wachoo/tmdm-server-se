@@ -43,6 +43,7 @@ public class BorderLayoutContainer extends Viewport {
 	    ActionsPanel east = ActionsPanel.getInstance();
 	    east.setBorders(false);
 	    ContentPanel south = new ContentPanel();
+        south.setId("status"); //$NON-NLS-1$
         south.setLayout(new FitLayout());
 	    south.setHeaderVisible(false);
 	    south.setBorders(false);
