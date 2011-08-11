@@ -29,9 +29,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1362,7 +1362,7 @@ public class ItemsBrowserDWR {
         return nodes;
     }
 
-    public TreeNode[] getChildren(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
+    public TreeNode[] getChildrenWithBindPath(int id, int nodeCount, String language, boolean foreignKey, int docIndex,
             String selectedExtendType, String bindpath) throws Exception {
         TreeNode[] nodes = getChildrenWithKeyMask(id, nodeCount, language, foreignKey, docIndex, false, selectedExtendType,
                 bindpath);

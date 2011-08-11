@@ -2727,7 +2727,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
                             var fnLoadData = function(oNode, fnCallback) {
                                 ItemsBrowserInterface
-                                        .getChildren(
+                                        .getChildrenWithBindPath(
                                                 oNode.index,
                                                 YAHOO.widget.TreeView.nodeCount,
                                                 language,
@@ -3682,7 +3682,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 // getChildren(oNode.index,fnCallback, false,
                                 // newItem, itemTree, treeIndex);
                                 ItemsBrowserInterface
-                                        .getChildren(
+                                        .getChildrenWithBindPath(
                                                 oNode.index,
                                                 YAHOO.widget.TreeView.nodeCount,
                                                 language,
@@ -4637,7 +4637,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         var fnLoadData = function(oNode, fnCallback) {
             // getChildren(oNode.index,fnCallback, false, newItem, itemTree,
             // treeIndex);
-            ItemsBrowserInterface.getChildren(oNode.index,
+            ItemsBrowserInterface.getChildrenWithBindPath(oNode.index,
                     YAHOO.widget.TreeView.nodeCount, language, false,
                     treeIndex, Ext.get(oNode.index + "TypeSelector") == null
                             ? null
