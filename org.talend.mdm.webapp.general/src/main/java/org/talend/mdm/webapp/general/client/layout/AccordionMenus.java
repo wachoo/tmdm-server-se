@@ -15,13 +15,15 @@ package org.talend.mdm.webapp.general.client.layout;
 import java.util.List;
 
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
+import org.talend.mdm.webapp.general.client.resources.icon.Icons;
 import org.talend.mdm.webapp.general.model.MenuBean;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
 public class AccordionMenus extends ContentPanel {
@@ -34,7 +36,7 @@ public class AccordionMenus extends ContentPanel {
         super();
         this.setHeading(MessageFactory.getMessages().menus());
         this.addStyleName("menus-list"); //$NON-NLS-1$
-        this.setLayout(new FlowLayout());
+        this.setLayout(new AccordionLayout());
         this.setScrollMode(Scroll.AUTO);
 
         // registerOpenPages();
@@ -48,6 +50,7 @@ public class AccordionMenus extends ContentPanel {
     }
 
     public void initMenus(List<MenuBean> menus) {
+        ContentPanel menuPanel = new ContentPanel();
 
         for (int i = 0; i < menus.size(); i++) {
             MenuBean item = menus.get(i);
@@ -59,8 +62,12 @@ public class AccordionMenus extends ContentPanel {
             str.append("<span class='desc'>" + item.getName() + "</span></span>"); //$NON-NLS-1$ //$NON-NLS-2$
             HTML html = new HTMLMenuItem(item, str.toString());
             html.addClickHandler(clickHander);
-            this.add(html);
+            menuPanel.add(html);
         }
+        menuPanel.setAnimCollapse(false);
+        menuPanel.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.accordion()));
+        menuPanel.setScrollMode(Scroll.AUTO);
+        this.add(menuPanel);
         this.layout();
     }
 
@@ -133,6 +140,7 @@ public class AccordionMenus extends ContentPanel {
             super(html);
             this.setStyleName("menu-item"); //$NON-NLS-1$
             this.menuBean = menuBean;
+            this.getElement().setAttribute("id", "menu-" + menuBean.getContext());
         }
 
         public MenuBean getMenuBean() {
