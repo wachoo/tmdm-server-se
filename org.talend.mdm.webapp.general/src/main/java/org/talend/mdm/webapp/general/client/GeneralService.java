@@ -37,4 +37,6 @@ public interface GeneralService extends RemoteService {
     public UserBean getUsernameAndUniverse() throws Exception;
     
     public List<ItemBean> getLanguages();
+
+    public String logout();
 }

@@ -35,4 +35,6 @@ public interface GeneralServiceAsync {
     void getLanguages(AsyncCallback<List<ItemBean>> callback);
 
     void getAction(AsyncCallback<ActionBean> callback);
+
+    void logout(AsyncCallback<String> callback);
 }

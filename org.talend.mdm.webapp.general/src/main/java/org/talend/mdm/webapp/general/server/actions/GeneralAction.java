@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
 import org.w3c.dom.Document;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
@@ -30,6 +31,7 @@ import com.amalto.webapp.util.webservices.WSDataModel;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSGetDataCluster;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
+import com.amalto.webapp.util.webservices.WSLogout;
 import com.amalto.webapp.util.webservices.WSRegexDataClusterPKs;
 import com.amalto.webapp.util.webservices.WSRegexDataModelPKs;
 
@@ -154,5 +156,18 @@ public class GeneralAction implements GeneralService {
         return Utils.getLanguages();
     }
 
+    public String logout() {
+        try {
+            String username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
+            Util.getPort().logout(new WSLogout("")).getValue(); //$NON-NLS-1$
+            ILocalUser.getOnlineUsers().remove(username);
+            GwtWebContextFactory.get().getSession().invalidate();
+            return "ok"; //$NON-NLS-1$
+        } catch (Exception e) {
+            String err = "Unable to logout"; //$NON-NLS-1$
+            org.apache.log4j.Logger.getLogger(this.getClass()).warn(err, e);
+        }
+        return "Unable to logout"; //$NON-NLS-1$
+    }
 
 }

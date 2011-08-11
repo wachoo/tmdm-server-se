@@ -15,6 +15,8 @@ package org.talend.mdm.webapp.general.client.layout;
 import java.util.List;
 
 import org.talend.mdm.webapp.general.client.General;
+import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
+import org.talend.mdm.webapp.general.client.MdmAsyncCallback;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.model.ItemBean;
 import org.talend.mdm.webapp.general.model.UserBean;
@@ -27,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -96,7 +99,18 @@ public class BrandingBar extends ContentPanel {
         logout.addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent ce) {
-                setHref("/talendmdm//secure?action=logout"); //$NON-NLS-1$
+                GeneralServiceAsync service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
+                service.logout(new MdmAsyncCallback<String>() {
+
+                    @Override
+                    public void onSuccess(String result) {
+                        Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
+                        Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
+                        setHref("/general/index.html"); //$NON-NLS-1$
+                    }
+                });
+
+
             }
         });
     }

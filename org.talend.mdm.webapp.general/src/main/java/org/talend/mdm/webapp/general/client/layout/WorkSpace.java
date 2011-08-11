@@ -129,6 +129,14 @@ public class WorkSpace extends LayoutContainer {
     private native void renderUIObject(Element el, JavaScriptObject uiObject)/*-{
         if (!!uiObject.getXType){
         el.className = "extpj";
+        if (!!uiObject.show){
+        var instance = this;
+        var _show = uiObject.show;
+        uiObject.show = function(){
+        instance.@org.talend.mdm.webapp.general.client.layout.WorkSpace::setSelection(Ljava/lang/String;)(uiObject.getItemId());
+        _show.call(this);
+        };
+        }
         }
 
         uiObject.render(el);
