@@ -71,13 +71,18 @@ public class Utils {
             if(subMenu.getContext()!=null) {
                 String gxtEntryModule = gxtFactory.getGxtEntryModule(subMenu.getContext(), subMenu.getApplication());
 
-                if (gxtEntryModule == null) {
+                if (gxtEntryModule == null || subMenu.getContext().equals("itemsbrowser2")) {
                     String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/dwr/interface/"
                             + subMenu.getApplication() + "Interface.js\"></script>\n";
                     imports.add(tmp);
                     tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/secure/js/"
                             + subMenu.getApplication() + ".js\"></script>\n";
                     imports.add(tmp);
+                    if (subMenu.getContext().equals("itemsbrowser2")) {
+                        tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/"
+                                + gxtEntryModule + ".nocache.js\"></script>\n";
+                        imports.add(tmp);
+                    }
 
                 } else {
                     String tmp = "<script type=\"text/javascript\" src=\"/" + subMenu.getContext() + "/" + gxtEntryModule + "/"
