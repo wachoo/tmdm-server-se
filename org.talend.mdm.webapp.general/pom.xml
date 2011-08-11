@@ -63,6 +63,14 @@
             <groupId>jboss</groupId>
             <artifactId>jbossall-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dwr</groupId>
+            <artifactId>dwr</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
