@@ -343,7 +343,8 @@ public class Util {
         builder.setEntityResolver(new SecurityEntityResolver());
 
         // add by ymli; fix the bug:0009642:remove the null element to match the shema
-        setNullNode(cloneNode);
+//        setNullNode(cloneNode);
+        //comment this line by hcai TMDM-2324
 
         // strip of attributes
         removeAllAttribute(cloneNode, "tmdm:type"); //$NON-NLS-1$
@@ -360,10 +361,11 @@ public class Util {
         // check if dcument parsed correctly against the schema
         if (schema != null) {
             // ignore cvc-complex-type.2.3 error
+            // ignore cvc-complex-type.2.4.b error
             String errors = seh.getErrors();
-            if (!errors.equals("") && errors.indexOf("cvc-complex-type.2.3") == -1) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (!errors.equals("") && errors.indexOf("cvc-complex-type.2.3") == -1 && errors.indexOf("cvc-complex-type.2.4.b") == -1) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 String xmlString = Util.nodeToString(element);
-                String err = "The item " + element.getLocalName() + " did not validate against the model: \n" + errors + "\n"
+                String err = "The item " + element.getLocalName() + " did not validate against the model: \n" + errors + "\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + xmlString; // .substring(0, Math.min(100, xmlString.length()));
                 throw new SAXException(err);
             }
