@@ -1,4 +1,4 @@
-﻿﻿amalto.namespace("amalto.itemsbrowser");
+﻿amalto.namespace("amalto.itemsbrowser");
 
 var atuoValidationFlag = 0;
 var validatinHistory = new Ext.util.MixedCollection();
@@ -1624,7 +1624,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
             return;
         }
 
-        var posValue = document.cookie.indexOf(lineMaxPrefix + '=');
+           var posValue = document.cookie.indexOf(lineMaxPrefix + '=');
         var middleValue = lineMaxPrefix + "=" + lineNum;
         var futdate = new Date()
         var expdate = futdate.getTime()
@@ -2575,10 +2575,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     if (contentPanel == undefined) {
 
                         var smartView = '';
-                        if (newItem[treeIndex] == false) {
+                        if (newItem[treeIndex] == false) {                        	
                             smartView = '<iframe id="smartViewFrame'
                                     + treeIndex
-                                    + '" width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='
+                                    + '" width="100%" height="100%" onload="amalto.itemsbrowser.ItemsBrowser.resizeIframe(\'smartViewFrame'+ treeIndex +'\');" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='
                                     + ids + '&concept=' + dataObject
                                     + '&language=' + language + '"/>';
                         }
@@ -3525,10 +3525,10 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     if (contentPanel == undefined) {
 
                         var smartView = '';
-                        if (newItem[treeIndex] == false) {
+                        if (newItem[treeIndex] == false) {                        	
                             smartView = '<iframe id="smartViewFrame'
                                     + treeIndex
-                                    + '" width="100%" height="100%" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='
+                                    + '" width="100%" height="100%" onload="amalto.itemsbrowser.ItemsBrowser.resizeIframe(\'smartViewFrame'+ treeIndex +'\');" frameborder=0 scrolling=auto src="/itemsbrowser/secure/SmartViewServlet?ids='
                                     + ids + '&concept=' + dataObject
                                     + '&language=' + language + '">';
                         }
@@ -6211,6 +6211,18 @@ amalto.itemsbrowser.ItemsBrowser = function() {
 
         return raw;
     }
+    
+    function resizeIframe(obj) {
+        var Iframe = document.getElementById(obj);
+            if (Iframe){
+                if (Iframe.contentDocument){//ff                	
+                    Iframe.style.height = Iframe.contentDocument.body.scrollHeight +40+'px';
+                }
+                else if(Iframe.document && Iframe.document.body.scrollHeight){//ie
+                Iframe.style.height = Iframe.document.body.scrollHeight + 40 + 'px';
+            }
+        }
+    }
 
     return {
         init : function() {
@@ -6316,6 +6328,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         },
         refreshAllFn : function(){
         	refreshAllFn();
+        },
+        resizeIframe : function(obj){
+        	resizeIframe(obj);
         }
 
         /*
