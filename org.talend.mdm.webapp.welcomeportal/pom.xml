@@ -125,7 +125,7 @@
                     <execution>
                         <id>gwt-compile</id>
                         <configuration>
-                            <module>org.talend.mdm.webapp.welcomeportal.WelcomePortal</module>
+                            <module>org.talend.mdm.webapp.welcomeportal.welcomeportal</module>
                         </configuration>
                         <goals>
                             <goal>compile</goal>
