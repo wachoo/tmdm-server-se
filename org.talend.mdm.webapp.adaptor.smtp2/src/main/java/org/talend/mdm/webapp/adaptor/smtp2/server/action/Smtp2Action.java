@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.adaptor.smtp2.server.action;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.webapp.adaptor.smtp2.client.Smtp2Service;
 import org.talend.mdm.webapp.adaptor.smtp2.shared.SmtpConfigurationBean;
 import org.w3c.dom.Document;
@@ -99,22 +98,22 @@ public class Smtp2Action implements Smtp2Service {
               try {
             String xml = "<configuration>"; //$NON-NLS-1$
             xml += "  <host>" //$NON-NLS-1$
-                    + ("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpServer())) ? "" : StringEscapeUtils //$NON-NLS-1$ //$NON-NLS-2$
-                            .escapeXml(configuration.getSmtpServer())) + "</host>"; //$NON-NLS-1$
+                    + ("".equals(configuration.getSmtpServer()) ? "" : //$NON-NLS-1$ //$NON-NLS-2$
+                            configuration.getSmtpServer()) + "</host>"; //$NON-NLS-1$
             xml += "  <port>" + ((configuration.getSmtpPort() <= 0) ? "" : String.valueOf(configuration.getSmtpPort())) //$NON-NLS-1$ //$NON-NLS-2$
                     + "</port>"; //$NON-NLS-1$
 
             xml += "   <username>" //$NON-NLS-1$
-                    + (("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpUsername()))) ? "" : StringEscapeUtils //$NON-NLS-1$ //$NON-NLS-2$
-                            .escapeXml(configuration.getSmtpUsername()))
+                    + (("".equals(configuration.getSmtpUsername())) ? "" : //$NON-NLS-1$ //$NON-NLS-2$
+                            configuration.getSmtpUsername())
  + "</username>" //$NON-NLS-1$
                     + "   <password>" //$NON-NLS-1$
-                    + (("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpPassword()))) ? "" : StringEscapeUtils //$NON-NLS-1$//$NON-NLS-2$
-                            .escapeXml(configuration.getSmtpPassword()))
+                    + (("".equals(configuration.getSmtpPassword())) ? "" : //$NON-NLS-1$//$NON-NLS-2$
+                            configuration.getSmtpPassword())
  + "</password>" //$NON-NLS-1$
                     + "   <permanentbcc>" //$NON-NLS-1$
-                    + (("".equals(StringEscapeUtils.escapeXml(configuration.getSmtpBCC()))) ? "" : StringEscapeUtils.escapeXml( //$NON-NLS-1$//$NON-NLS-2$
-                            configuration.getSmtpBCC()).replaceAll("\n", ",")); //$NON-NLS-1$ //$NON-NLS-2$
+                    + (("".equals(configuration.getSmtpBCC())) ? "" : //$NON-NLS-1$//$NON-NLS-2$
+                            configuration.getSmtpBCC()).replaceAll("\n", ","); //$NON-NLS-1$ //$NON-NLS-2$
 
             xml += "</permanentbcc></configuration>"; //$NON-NLS-1$
             return xml;
