@@ -545,6 +545,16 @@ amalto.itemsbrowser.ItemsBrowser = function() {
     	'en' : 'Confirm'
     };
     
+    var BUTTON_TODAY = {
+    	'fr' : 'Aujourd\'huit',
+    	'en' : 'Today'
+    };
+    
+    var LABEL_DATE_PICKER = {
+    	'fr' : 'Calendrier',
+    	'en' : 'Date Picker'
+    };
+    
     /***************************************************************************
      * EXT 2.0
      **************************************************************************/
@@ -5432,6 +5442,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         layout : 'fit',
                         inputType : 'textfield',
                         monthNames : MONTH_NAME[language],
+                        todayText: BUTTON_TODAY[language],
                         listeners : {
                             select : function(src, date) {
                                 var setValue = date.format("Y-m-d");
@@ -5490,7 +5501,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                     }]
                 });
         nodeDatePickerWindow = new Ext.Window({
-                    title : 'Date Picker',
+                    title : LABEL_DATE_PICKER[language],
                     width : 205,
                     height : 240,
                     layout : 'fit',
