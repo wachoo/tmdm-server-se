@@ -1830,7 +1830,7 @@ public class ItemsBrowserDWR {
             if (siblingNode.isPolymiorphism()) {
                 // update polym
             	String nodeStr = xpathToPolymType.get(XpathUtil.unifyXPath(siblingXpath + "[" + siblingIndex + "]"));
-                xpathToPolymType.put(XpathUtil.unifyXPath(siblingXpath + "[" + (siblingIndex + 1) + "]"), nodeStr);
+                xpathToPolymType.put(XpathUtil.unifyXPath(siblingXpath + "[" + (siblingIndex + 1) + "]"), nodeStr != null ? nodeStr : siblingNode.getTypeName());
             }
             return "Cloned";//$NON-NLS-1$
 
