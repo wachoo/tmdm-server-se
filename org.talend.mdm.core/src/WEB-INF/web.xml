@@ -48,7 +48,11 @@
          <param-value>load</param-value>
       </init-param>
    </servlet>
-   
+
+   <filter>
+       <filter-name>errorFilter</filter-name>
+       <filter-class>com.amalto.core.servlet.ErrorFilter</filter-class>
+   </filter>
   
   
    <servlet-mapping>
@@ -63,6 +67,12 @@
       <servlet-name>loadServlet</servlet-name>
       <url-pattern>/loadServlet</url-pattern>
    </servlet-mapping>
+
+   <!-- Enable bulk load servlet to print out full exception stack trace in case of error/exception -->
+   <filter-mapping>
+      <filter-name>errorFilter</filter-name>
+      <url-pattern>/loadServlet</url-pattern>
+   </filter-mapping>
 
 
    <taglib>

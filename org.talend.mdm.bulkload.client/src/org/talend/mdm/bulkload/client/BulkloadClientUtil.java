@@ -157,6 +157,7 @@ public class BulkloadClientUtil {
         PutMethod putMethod = new PutMethod();
         // This setPath call is *really* important (if not set, request will be sent to the JBoss root '/')
         putMethod.setPath(url);
+        String responseBody;
         try {
             // Configuration
             putMethod.setRequestHeader("Content-Type", "text/xml; charset=utf8"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -166,8 +167,16 @@ public class BulkloadClientUtil {
             putMethod.setRequestEntity(new InputStreamRequestEntity(itemdata));
 
             client.executeMethod(config, putMethod);
+            responseBody = putMethod.getResponseBodyAsString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             putMethod.releaseConnection();
+        }
+
+        int statusCode = putMethod.getStatusCode();
+        if (statusCode >= 400) {
+            throw new BulkloadException(responseBody);
         }
     }
 
