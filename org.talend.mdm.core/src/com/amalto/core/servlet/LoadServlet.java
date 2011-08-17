@@ -391,6 +391,8 @@ public class LoadServlet extends HttpServlet {
             writer.write("<h1>An error occured: " + e.getLocalizedMessage() + "</h1>"); //$NON-NLS-1$ //$NON-NLS-2$
             TimeMeasure.end(timeMeasureTag);
             log.error(e.getMessage(), e);
+
+            throw new ServletException(e);
         }
         writer.write("</body></html>"); //$NON-NLS-1$
     }

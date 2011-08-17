@@ -234,33 +234,25 @@ public class BulkloadClientUtil {
 		for(int i=0; i<itemdata.size(); i++) {
 			list.add(new NameValuePair("itemdata"+i, itemdata.get(i)));
 		}
-		postMethod.setRequestBody((NameValuePair[])list.toArray(new NameValuePair[list.size()]));
-	 
-		
+		postMethod.setRequestBody(list.toArray(new NameValuePair[list.size()]));
+
 		// post method
 		int statusCode = 0;
-		try {
-			statusCode = client.executeMethod(config,postMethod);
-		} catch (HttpException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        String responseBody;
+        try {
+            statusCode = client.executeMethod(config, postMethod);
+            responseBody = postMethod.getResponseBodyAsString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            postMethod.releaseConnection();
+        }
 
-		if (statusCode >= 400)
-			return null;
-		String str = "";
-		try {
-			str = postMethod.getResponseBodyAsString();
-		} catch (IOException e) {
+        if (statusCode >= 400) {
+            throw new BulkloadException(responseBody);
+        }
 
-		}
-		System.out.println(str);
-
-		postMethod.releaseConnection();
-		return str;
+		return responseBody;
 	}
 
     private static class AsyncLoadRunnable implements Runnable {

@@ -21,7 +21,7 @@ public class BulkloadException extends RuntimeException {
 
     private static final String SERVER_EXCEPTION_SEPARATOR = "== SERVER EXCEPTION ==";
 
-    private static final String LINE_SEPARATOR  = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR  = System.getProperty("line.separator"); //$NON-NLS-1$
 
     private final String serverException;
 
