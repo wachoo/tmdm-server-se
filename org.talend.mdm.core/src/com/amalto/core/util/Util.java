@@ -144,8 +144,6 @@ import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocal;
-import com.amalto.core.objects.universe.ejb.local.UniverseCtrlLocalHome;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
 import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
 import com.amalto.core.webservice.WSMDMJob;
@@ -1028,13 +1026,12 @@ public class Util {
             XSDKey key = null;
             if (key != null)
                 return key;
-            String[] selectors = null;
-            String[] fields = null;
+            String[] selectors = new String[0];
+            String[] fields = new String[0];
             selectors = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName
                     + "']/xsd:selector/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
 
-            fields = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName
-                    + "']/xsd:field/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
+            fields = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element/xsd:unique[@name='" + businessConceptName + "']/xsd:field/@xpath", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
 
             if (selectors.length == 0) {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -1077,7 +1074,21 @@ public class Util {
                 }
                 return key;
             } else {
-                key = new XSDKey(selectors[0], fields);
+                String[] fieldTypes = new String[fields.length];
+                int fieldIndex = 0;
+                for (String field : fields) {
+                    String[] textNodes = Util.getTextNodes(xsd.getDocumentElement(), "xsd:element[@name='" + businessConceptName + "']//xsd:element[@name='" + field + "']/@type", getRootElement("nsholder", xsd.getDocumentElement().getNamespaceURI(), "xsd"));
+                    if (textNodes.length > 1) {
+                        throw new IllegalStateException("Field '" + field + "' is not unique within type '" + businessConceptName + "'.");
+                    }
+                    if (textNodes.length == 0) {
+                        throw new IllegalStateException("Field '" + field + "' does not exist in type '" + businessConceptName + "'.");
+                    }
+
+                    fieldTypes[fieldIndex++] = textNodes[0];
+                }
+
+                key = new XSDKey(selectors[0], fields, fieldTypes);
                 xsdkeyCache.put(schema + "#" + businessConceptName, key);
                 return key;
             }
@@ -2154,14 +2165,6 @@ public class Util {
 
     public static RoleCtrlLocal getRoleCtrlLocal() throws NamingException, CreateException {
         return getRoleCtrlLocalHome().create();
-    }
-
-    public static UniverseCtrlLocalHome getUniverseCtrlLocalHome() throws NamingException {
-        return (UniverseCtrlLocalHome) getLocalHome(UniverseCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static UniverseCtrlLocal getUniverseCtrlLocal() throws NamingException, CreateException {
-        return getUniverseCtrlLocalHome().create();
     }
 
     public static RoutingOrderV2CtrlLocal getRoutingOrderV2CtrlLocal() throws NamingException, CreateException {

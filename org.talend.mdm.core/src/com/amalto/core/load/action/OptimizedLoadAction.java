@@ -18,6 +18,7 @@ import com.amalto.core.load.io.XMLRootInputStream;
 import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -50,6 +51,15 @@ public class OptimizedLoadAction implements LoadAction {
     public void load(HttpServletRequest request, XSDKey keyMetadata, XmlServerSLWrapperLocal server) throws Exception {
         if (!".".equals(keyMetadata.getSelector())) { //$NON-NLS-1$
             throw new UnsupportedOperationException("Selector '" + keyMetadata.getSelector() + "' isn't supported.");
+        }
+
+        if (needAutoGenPK) {
+            String[] idFieldTypes = keyMetadata.getFieldTypes();
+            for (String idFieldType : idFieldTypes) {
+                if (!EUUIDCustomType.AUTO_INCREMENT.getName().equals(idFieldType) && !EUUIDCustomType.UUID.getName().equals(idFieldType)) {
+                    throw new UnsupportedOperationException("No support for key field type '" + idFieldType + "' with autogen pk on.");
+                }
+            }
         }
 
         // Creates a load parser callback that loads data in server using a SAX handler
