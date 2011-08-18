@@ -671,11 +671,11 @@ public abstract class ObjectPOJO implements Serializable{
             String clusterName=getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));
             String collectionpath= CommonUtil.getPath(revisionID, clusterName);
 			String patternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[matches(./text(),'"+instancePattern+"')]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$  //$NON-NLS-4$ 
-			String synchronizationCondition = synchronizationPlanName == null ? "" : "[not (./last-synch/text() eq '"+synchronizationPlanName+"')]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
+            String synchronizationCondition = synchronizationPlanName == null ? "" : "[not (string(./last-synch/text()) eq '" + synchronizationPlanName + "')]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
 			String query = "collection(\""+collectionpath+ "\")/*"+synchronizationCondition+"/PK/unique-id"+patternCondition+"/text()"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$  //$NON-NLS-4$ 
 			if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {
 				patternCondition = (instancePattern == null || ".*".equals(instancePattern)) ? "" : "[ora:matches(./text(),\""+instancePattern+"\")]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ //$NON-NLS-4$  
-				synchronizationCondition = synchronizationPlanName == null ? "" : "[not (./last-synch/text() eq \""+synchronizationPlanName+"\")]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
+                synchronizationCondition = synchronizationPlanName == null ? "" : "[not (string(./last-synch/text()) eq \"" + synchronizationPlanName + "\")]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
 				query=" for $pivot0 in collection(\""+collectionpath+ "\")/*"+synchronizationCondition+"/PK/unique-id"+patternCondition+"/text() return <result>{$pivot0}</result> "; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$  //$NON-NLS-4$ 						
 			}
             //retrieve the objects
@@ -718,14 +718,13 @@ public abstract class ObjectPOJO implements Serializable{
 				LOG.error(err);
 				throw new XtentisException(err);
 	    	}
-	    		    	
             //get the xml server wrapper
             XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
 			String clusterName=getCluster((Class<? extends ObjectPOJO>) getObjectClass(objectName));
 			String collectionpath= CommonUtil.getPath(revisionID, clusterName);
-			String query = "collection(\""+collectionpath+ "\")/*[PK/unique-id/text() eq '"+uniqueID+"']"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
+            String query = "collection(\"" + collectionpath + "\")/*[string(PK/unique-id/text()) eq '" + uniqueID + "']"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 
 			if(EDBType.ORACLE.getName().equals(MDMConfiguration.getDBType().getName())) {				
-				query=" for $pivot0 in collection(\""+collectionpath+ "\")/*[PK/unique-id/text() eq \""+uniqueID+"\"] return $pivot0 "; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 								
+                query = " for $pivot0 in collection(\"" + collectionpath + "\")/*[string(PK/unique-id/text()) eq \"" + uniqueID + "\"] return $pivot0 "; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ 								
 			}
 			ArrayList<String> res= server.runQuery(
 				revisionID, 
@@ -734,7 +733,8 @@ public abstract class ObjectPOJO implements Serializable{
 				null
 			);
 			
-			if (res==null || res.size()!=1) return null;
+            if (res == null || res.size() < 1)
+                return null;
 			return res.get(0);
 	    	
     	} catch (XtentisException e) {
@@ -971,6 +971,8 @@ public abstract class ObjectPOJO implements Serializable{
      */
     public static <T extends ObjectPOJO> T unmarshal(Class<T> objectClass, String marshaledItem) throws XtentisException{
     	try {
+            if (marshaledItem == null)
+                return null;
             Unmarshaller unmarshaller = new Unmarshaller(objectClass);
             unmarshaller.setResolver(cdr);
             unmarshaller.setValidation(false);
