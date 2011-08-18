@@ -3132,8 +3132,9 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                                 });
 
                         tbDetail.saveItemHandler = function() {
+                        	tbDetail.items.get('saveBTN').disable();
                             // @temp yguo,
-                            saveForGXT(ids, dataObject, treeIndex, function() {
+                            saveForGXT(ids, dataObject, treeIndex, tbDetail, function() {                            			
                                         tbDetail.refreshItemHandler(ids, true);
                                     });
                         };
@@ -3186,7 +3187,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                         };
 
                         tbDetail.saveItemAndQuitHandler = function() {
-                            saveForGXT(ids, dataObject, treeIndex, function() {
+                        	tbDetail.items.get('saveBTN').disable();
+                            saveForGXT(ids, dataObject, treeIndex, tbDetail, function() {
                                         // @TEMP YGUO, CLOSE THE WINDOW
                                         handleCallback.refreshRecord();
                                         window.callGxt();
@@ -3340,12 +3342,13 @@ amalto.itemsbrowser.ItemsBrowser = function() {
         return false;
     }
 
-    function saveForGXT(itemPK, dataObject, treeIndex, callbackOnSuccess) {
+    function saveForGXT(itemPK, dataObject, treeIndex, tbDetail, callbackOnSuccess) {
         
         if(!atuoValidationFlag){
             $('errorDesc' + treeIndex).style.display = "none";
             if(!reValidationfromMap(treeIndex)){
                 $('errorDesc' + treeIndex).style.display = "block";
+                tbDetail.items.get('saveBTN').enable();
                 paintDetailTreeSize(treeIndex);
                 return;
             }
@@ -3354,6 +3357,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
          if (updateItemNodesBeforeSaving(treeIndex) == true) {
             $('errorDesc' + treeIndex).style.display = "block";
             $('errorDetail' + treeIndex).style.display = "none";
+            tbDetail.items.get('saveBTN').enable();
             paintDetailTreeSize(treeIndex);
             return;
         }       
@@ -3361,7 +3365,7 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                 treeIndex, {
                     callback : function(result) {
                         amalto.core.ready(result);
-                        if (result.status == 2) { // unchanged
+                        if (result.status == 2) { // unchanged                        	
                             amalto.core.ready(ALERT_NO_CHANGE[language]);
                         } else if (result.status == 1) { // failure
                             if (result.description != null) {
@@ -3388,7 +3392,8 @@ amalto.itemsbrowser.ItemsBrowser = function() {
                             $('errorDesc' + treeIndex).style.display = "none";
                             paintDetailTreeSize(treeIndex);
                         }
-
+                        
+                        tbDetail.items.get('saveBTN').enable();
                         if (result.description == null
                                 || result.description == "") {
                             return;
