@@ -44,4 +44,6 @@ public interface GeneralMessages extends Messages {
     String edition();
     
     String connected_to();
+
+    String application_undefined(String applicationName);
 }

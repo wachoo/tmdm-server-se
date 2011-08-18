@@ -119,17 +119,30 @@ public class AccordionMenus extends ContentPanel {
     }
 
     ClickHandler clickHander = new ClickHandler() {
-
         public void onClick(ClickEvent event) {
             final HTMLMenuItem item = (HTMLMenuItem) event.getSource();
-            selectedItem(item);
             MenuBean menuBean = item.getMenuBean();
-            initUI(menuBean.getContext(), menuBean.getApplication());
+            boolean succeeful = initUI(menuBean.getContext(), menuBean.getApplication(), MessageFactory.getMessages()
+                    .application_undefined(
+                    menuBean.getContext() + "." + menuBean.getApplication())); //$NON-NLS-1$
+            if (succeeful) {
+                selectedItem(item);
+            }
         }
     };
 
-    private native void initUI(String context, String application)/*-{
-        $wnd.amalto[context][application].init();
+    private native boolean initUI(String context, String application, String errorMsg)/*-{
+        if ($wnd.amalto[context]){
+            if ($wnd.amalto[context][application]){
+                $wnd.amalto[context][application].init();
+                return true;
+            } else {
+                $wnd.alert(errorMsg);
+            }
+        } else {
+            $wnd.alert(errorMsg);
+        }
+        return false;
     }-*/;
 
     class HTMLMenuItem extends HTML {
