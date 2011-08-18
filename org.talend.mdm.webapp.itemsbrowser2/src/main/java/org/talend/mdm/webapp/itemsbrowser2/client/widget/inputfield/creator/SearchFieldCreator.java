@@ -72,6 +72,7 @@ public class SearchFieldCreator {
                 cons = OperatorConstants.numOperators;
             } else if (typeModel.getType().getBaseTypeName().equals(DataTypeConstants.DATE.getBaseTypeName())) {
                 DateField dateField = new DateField();
+                dateField.setMessageTarget("tooltip");//$NON-NLS-1$
                 dateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd"));//$NON-NLS-1$            
                 field = dateField;
                 cons = OperatorConstants.dateOperators;
